@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{BB8E
 		.github\scripts\push-modules.sh = .github\scripts\push-modules.sh
 		.github\scripts\pull-modules.sh = .github\scripts\pull-modules.sh
 		.github\scripts\clean-modules.sh = .github\scripts\clean-modules.sh
+		.github\scripts\rename-module.sh = .github\scripts\rename-module.sh
+		.github\scripts\set-module-description.sh = .github\scripts\set-module-description.sh
 	EndProjectSection
 EndProject
 Global
