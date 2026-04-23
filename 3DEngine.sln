@@ -17,6 +17,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{30
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DEngine", "3DEngine\3DEngine.csproj", "{E5BB649F-E26B-4775-B1FA-AFB6A9171BCE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{BB8E332F-4A64-49EC-B233-F362D80C9376}"
+	ProjectSection(SolutionItems) = preProject
+		.github\scripts\add-module.sh = .github\scripts\add-module.sh
+		.github\scripts\update-modules.sh = .github\scripts\update-modules.sh
+		.github\scripts\init-modules.sh = .github\scripts\init-modules.sh
+		.github\scripts\remove-module.sh = .github\scripts\remove-module.sh
+		.github\scripts\foreach-module.sh = .github\scripts\foreach-module.sh
+		.github\scripts\status-modules.sh = .github\scripts\status-modules.sh
+		.github\scripts\push-modules.sh = .github\scripts\push-modules.sh
+		.github\scripts\pull-modules.sh = .github\scripts\pull-modules.sh
+		.github\scripts\clean-modules.sh = .github\scripts\clean-modules.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
