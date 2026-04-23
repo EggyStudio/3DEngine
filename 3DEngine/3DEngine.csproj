@@ -37,7 +37,13 @@
          (gitlink) pointing into the superproject's .git/modules store.
          We never want these surfaced as project items. -->
     <PropertyGroup>
-        <ModulesGitExclude>..\Modules\**\.git;..\Modules\**\.git\**;..\Modules\**\.gitignore;..\Modules\**\.gitattributes;..\Modules\**\.gitmodules</ModulesGitExclude>
+        <ModulesGitExclude>
+            ..\Modules\**\.git;
+            ..\Modules\**\.git\**;
+            ..\Modules\**\.gitignore;
+            ..\Modules\**\.gitattributes;
+            ..\Modules\**\.gitmodules
+        </ModulesGitExclude>
     </PropertyGroup>
 
     <ItemGroup>
