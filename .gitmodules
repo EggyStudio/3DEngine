@@ -1,22 +1,3 @@
-; ---------------------------------------------------------------------------
-; 3DEngine submodules
-;
-; Every module is cloned into Modules/<ModuleName>/ where <ModuleName> is the
-; repo name on GitHub (e.g. "3DEngine.Common.Schedule" -> "Modules/3DEngine.Common.Schedule").
-; The 3DEngine.csproj globs Modules/**/*.cs into one assembly at build time,
-; so submodules stay pure source-only (no csproj / bin / obj).
-;
-; Track the default branch so `git submodule update --remote` pulls latest.
-;
-; First-time clone:
-;   git clone --recurse-submodules https://github.com/EggyStudio/3DEngine
-; Existing checkout:
-;   git submodule update --init --recursive
-; Pull latest tips of all modules:
-;   git submodule update --remote --merge
-; ---------------------------------------------------------------------------
-
-; --- Core foundational modules --------------------------------------------
 [submodule "3DEngine.Common"]
 	path = Modules/3DEngine.Common
 	url = https://github.com/EggyStudio/3DEngine.Common
@@ -49,8 +30,6 @@
 	path = Modules/3DEngine.Common.World
 	url = https://github.com/EggyStudio/3DEngine.Common.World
 	branch = main
-
-; --- Application / platform modules ---------------------------------------
 [submodule "3DEngine.Application"]
 	path = Modules/3DEngine.Application
 	url = https://github.com/EggyStudio/3DEngine.Application
@@ -63,8 +42,6 @@
 	path = Modules/3DEngine.Application.Sdl.ImGui
 	url = https://github.com/EggyStudio/3DEngine.Application.Sdl.ImGui
 	branch = main
-
-; --- Entities / ECS modules -----------------------------------------------
 [submodule "3DEngine.Entities"]
 	path = Modules/3DEngine.Entities
 	url = https://github.com/EggyStudio/3DEngine.Entities
@@ -85,8 +62,6 @@
 	path = Modules/3DEngine.Entities.Math
 	url = https://github.com/EggyStudio/3DEngine.Entities.Math
 	branch = main
-
-; --- Files / asset pipeline modules ---------------------------------------
 [submodule "3DEngine.Files"]
 	path = Modules/3DEngine.Files
 	url = https://github.com/EggyStudio/3DEngine.Files
@@ -115,8 +90,6 @@
 	path = Modules/3DEngine.Files.Readers.Embedded
 	url = https://github.com/EggyStudio/3DEngine.Files.Readers.Embedded
 	branch = main
-
-; --- Graphics modules -----------------------------------------------------
 [submodule "3DEngine.Graphics"]
 	path = Modules/3DEngine.Graphics
 	url = https://github.com/EggyStudio/3DEngine.Graphics
@@ -133,8 +106,6 @@
 	path = Modules/3DEngine.Graphics.Compilers.Glsl
 	url = https://github.com/EggyStudio/3DEngine.Graphics.Compilers.Glsl
 	branch = main
-
-; --- Renderer modules -----------------------------------------------------
 [submodule "3DEngine.Renderer"]
 	path = Modules/3DEngine.Renderer
 	url = https://github.com/EggyStudio/3DEngine.Renderer
@@ -227,8 +198,6 @@
 	path = Modules/3DEngine.Renderer.Nodes.View
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes.View
 	branch = main
-
-; --- UI / WebView modules -------------------------------------------------
 [submodule "3DEngine.UI.UltralightNet"]
 	path = Modules/3DEngine.UI.UltralightNet
 	url = https://github.com/EggyStudio/3DEngine.UI.UltralightNet
@@ -245,8 +214,6 @@
 	path = Modules/3DEngine.UI.WebView.Vulkan
 	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Vulkan
 	branch = main
-
-; --- Editor modules -------------------------------------------------------
 [submodule "3DEngine.Editor.Shell"]
 	path = Modules/3DEngine.Editor.Shell
 	url = https://github.com/EggyStudio/3DEngine.Editor.Shell
