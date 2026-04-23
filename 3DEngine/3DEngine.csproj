@@ -32,8 +32,17 @@
          instead of a flat list of "linked files".
          Modules are pure source-only submodules (no csproj / bin / obj),
          so no exclude filters are needed. -->
+    <!-- Submodule git plumbing to hide from the IDE / exclude from globs.
+         Each Modules/<Name>/ is a git submodule, so it has a `.git` file
+         (gitlink) pointing into the superproject's .git/modules store.
+         We never want these surfaced as project items. -->
+    <PropertyGroup>
+        <ModulesGitExclude>..\Modules\**\.git;..\Modules\**\.git\**;..\Modules\**\.gitignore;..\Modules\**\.gitattributes;..\Modules\**\.gitmodules</ModulesGitExclude>
+    </PropertyGroup>
+
     <ItemGroup>
-        <Compile Include="..\Modules\**\*.cs">
+        <Compile Include="..\Modules\**\*.cs"
+                 Exclude="$(ModulesGitExclude)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
         </Compile>
@@ -47,6 +56,7 @@
                        ..\Modules\**\*.spv;
                        ..\Modules\**\*.html;
                        ..\Modules\**\*.css"
+              Exclude="$(ModulesGitExclude)"
               CopyToOutputDirectory="PreserveNewest">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
@@ -64,7 +74,8 @@
                        ..\Modules\**\*.frag;
                        ..\Modules\**\*.spv;
                        ..\Modules\**\*.html;
-                       ..\Modules\**\*.css">
+                       ..\Modules\**\*.css;
+                       $(ModulesGitExclude)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
