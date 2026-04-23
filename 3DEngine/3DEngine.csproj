@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+<!--        <OutputType>Exe</OutputType>-->
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>3DEngine</AssemblyName>
+        <RootNamespace>Engine</RootNamespace>
+
+        <!-- Drive file inclusion explicitly via the globs below
+             (so we can pull in sources from outside the project folder). -->
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    </PropertyGroup>
+
+    <!-- This project's own sources (Program.cs + composition root). -->
+    <ItemGroup>
+        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
+    </ItemGroup>
+
+    <!-- Make the Modules/ root visible in the IDE even before any submodule
+         is cloned. Once modules exist, their files populate this same node. -->
+    <ItemGroup>
+        <Folder Include="..\Modules\" />
+    </ItemGroup>
+
+    <!-- Compile every module's C# directly into this assembly.
+         The Link metadata mirrors the on-disk folder structure into the IDE
+         (Rider / VS Solution Explorer) so modules appear as a proper tree
+         under a virtual "Modules" node, with full IntelliSense and navigation,
+         instead of a flat list of "linked files".
+         Modules are pure source-only submodules (no csproj / bin / obj),
+         so no exclude filters are needed. -->
+    <ItemGroup>
+        <Compile Include="..\Modules\**\*.cs">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+        </Compile>
+    </ItemGroup>
+
+    <!-- Shaders + assets shipped next to module sources (copied to output). -->
+    <ItemGroup>
+        <None Include="..\Modules\**\*.glsl;
+                       ..\Modules\**\*.vert;
+                       ..\Modules\**\*.frag;
+                       ..\Modules\**\*.spv;
+                       ..\Modules\**\*.html;
+                       ..\Modules\**\*.css"
+              CopyToOutputDirectory="PreserveNewest">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+        </None>
+    </ItemGroup>
+
+    <!-- Show every other file (json, txt, md, yml, toml, etc.) in the IDE.
+         Compile/None above already claim .cs and the asset extensions,
+         so this catch-all only adds what's left and never copies to output. -->
+    <ItemGroup>
+        <None Include="..\Modules\**\*"
+              Exclude="..\Modules\**\*.cs;
+                       ..\Modules\**\*.glsl;
+                       ..\Modules\**\*.vert;
+                       ..\Modules\**\*.frag;
+                       ..\Modules\**\*.spv;
+                       ..\Modules\**\*.html;
+                       ..\Modules\**\*.css">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+         <PackageReference Include="SDL3-CS" Version="..." />
+         <PackageReference Include="Vortice.VulkanMemoryAllocator" Version="1.7.0" />
+         <PackageReference Include="Vortice.ShaderCompiler" Version="1.9.0" />
+         <PackageReference Include="Vortice.SpirvCross" Version="1.5.4" />
+         <PackageReference Include="Twizzle.ImGui-Bundle.NET" Version="1.91.5.2" />
+         <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
+    </ItemGroup>
+
+</Project>

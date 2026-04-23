@@ -1,0 +1,265 @@
+; ---------------------------------------------------------------------------
+; 3DEngine submodules
+;
+; Every module is cloned into Modules/<ModuleName>/ where <ModuleName> is the
+; repo name on GitHub (e.g. "3DEngine.Common.Schedule" -> "Modules/3DEngine.Common.Schedule").
+; The 3DEngine.csproj globs Modules/**/*.cs into one assembly at build time,
+; so submodules stay pure source-only (no csproj / bin / obj).
+;
+; Track the default branch so `git submodule update --remote` pulls latest.
+;
+; First-time clone:
+;   git clone --recurse-submodules https://github.com/EggyStudio/3DEngine
+; Existing checkout:
+;   git submodule update --init --recursive
+; Pull latest tips of all modules:
+;   git submodule update --remote --merge
+; ---------------------------------------------------------------------------
+
+; --- Core foundational modules --------------------------------------------
+[submodule "3DEngine.Common"]
+	path = Modules/3DEngine.Common
+	url = https://github.com/EggyStudio/3DEngine.Common
+	branch = main
+[submodule "3DEngine.Common.Events"]
+	path = Modules/3DEngine.Common.Events
+	url = https://github.com/EggyStudio/3DEngine.Common.Events
+	branch = main
+[submodule "3DEngine.Common.Input"]
+	path = Modules/3DEngine.Common.Input
+	url = https://github.com/EggyStudio/3DEngine.Common.Input
+	branch = main
+[submodule "3DEngine.Common.Logger"]
+	path = Modules/3DEngine.Common.Logger
+	url = https://github.com/EggyStudio/3DEngine.Common.Logger
+	branch = main
+[submodule "3DEngine.Common.Native"]
+	path = Modules/3DEngine.Common.Native
+	url = https://github.com/EggyStudio/3DEngine.Common.Native
+	branch = main
+[submodule "3DEngine.Common.Schedule"]
+	path = Modules/3DEngine.Common.Schedule
+	url = https://github.com/EggyStudio/3DEngine.Common.Schedule
+	branch = main
+[submodule "3DEngine.Common.Time"]
+	path = Modules/3DEngine.Common.Time
+	url = https://github.com/EggyStudio/3DEngine.Common.Time
+	branch = main
+[submodule "3DEngine.Common.World"]
+	path = Modules/3DEngine.Common.World
+	url = https://github.com/EggyStudio/3DEngine.Common.World
+	branch = main
+
+; --- Application / platform modules ---------------------------------------
+[submodule "3DEngine.Application"]
+	path = Modules/3DEngine.Application
+	url = https://github.com/EggyStudio/3DEngine.Application
+	branch = main
+[submodule "3DEngine.Application.Sdl"]
+	path = Modules/3DEngine.Application.Sdl
+	url = https://github.com/EggyStudio/3DEngine.Application.Sdl
+	branch = main
+[submodule "3DEngine.Application.Sdl.ImGui"]
+	path = Modules/3DEngine.Application.Sdl.ImGui
+	url = https://github.com/EggyStudio/3DEngine.Application.Sdl.ImGui
+	branch = main
+
+; --- Entities / ECS modules -----------------------------------------------
+[submodule "3DEngine.Entities"]
+	path = Modules/3DEngine.Entities
+	url = https://github.com/EggyStudio/3DEngine.Entities
+	branch = main
+[submodule "3DEngine.Entities.Behaviors"]
+	path = Modules/3DEngine.Entities.Behaviors
+	url = https://github.com/EggyStudio/3DEngine.Entities.Behaviors
+	branch = main
+[submodule "3DEngine.Entities.Behaviors.Generator"]
+	path = Modules/3DEngine.Entities.Behaviors.Generator
+	url = https://github.com/EggyStudio/3DEngine.Entities.Behaviors.Generator
+	branch = main
+[submodule "3DEngine.Entities.Commands"]
+	path = Modules/3DEngine.Entities.Commands
+	url = https://github.com/EggyStudio/3DEngine.Entities.Commands
+	branch = main
+[submodule "3DEngine.Entities.Math"]
+	path = Modules/3DEngine.Entities.Math
+	url = https://github.com/EggyStudio/3DEngine.Entities.Math
+	branch = main
+
+; --- Files / asset pipeline modules ---------------------------------------
+[submodule "3DEngine.Files"]
+	path = Modules/3DEngine.Files
+	url = https://github.com/EggyStudio/3DEngine.Files
+	branch = main
+[submodule "3DEngine.Files.Abstractions"]
+	path = Modules/3DEngine.Files.Abstractions
+	url = https://github.com/EggyStudio/3DEngine.Files.Abstractions
+	branch = main
+[submodule "3DEngine.Files.Pipeline"]
+	path = Modules/3DEngine.Files.Pipeline
+	url = https://github.com/EggyStudio/3DEngine.Files.Pipeline
+	branch = main
+[submodule "3DEngine.Files.Watcher"]
+	path = Modules/3DEngine.Files.Watcher
+	url = https://github.com/EggyStudio/3DEngine.Files.Watcher
+	branch = main
+[submodule "3DEngine.Files.Loaders.Builtin"]
+	path = Modules/3DEngine.Files.Loaders.Builtin
+	url = https://github.com/EggyStudio/3DEngine.Files.Loaders.Builtin
+	branch = main
+[submodule "3DEngine.Files.Readers.File"]
+	path = Modules/3DEngine.Files.Readers.File
+	url = https://github.com/EggyStudio/3DEngine.Files.Readers.File
+	branch = main
+[submodule "3DEngine.Files.Readers.Embedded"]
+	path = Modules/3DEngine.Files.Readers.Embedded
+	url = https://github.com/EggyStudio/3DEngine.Files.Readers.Embedded
+	branch = main
+
+; --- Graphics modules -----------------------------------------------------
+[submodule "3DEngine.Graphics"]
+	path = Modules/3DEngine.Graphics
+	url = https://github.com/EggyStudio/3DEngine.Graphics
+	branch = main
+[submodule "3DEngine.Graphics.Abstractions"]
+	path = Modules/3DEngine.Graphics.Abstractions
+	url = https://github.com/EggyStudio/3DEngine.Graphics.Abstractions
+	branch = main
+[submodule "3DEngine.Graphics.Null"]
+	path = Modules/3DEngine.Graphics.Null
+	url = https://github.com/EggyStudio/3DEngine.Graphics.Null
+	branch = main
+[submodule "3DEngine.Graphics.Compilers.Glsl"]
+	path = Modules/3DEngine.Graphics.Compilers.Glsl
+	url = https://github.com/EggyStudio/3DEngine.Graphics.Compilers.Glsl
+	branch = main
+
+; --- Renderer modules -----------------------------------------------------
+[submodule "3DEngine.Renderer"]
+	path = Modules/3DEngine.Renderer
+	url = https://github.com/EggyStudio/3DEngine.Renderer
+	branch = main
+[submodule "3DEngine.Renderer.Abstractions"]
+	path = Modules/3DEngine.Renderer.Abstractions
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Abstractions
+	branch = main
+[submodule "3DEngine.Renderer.Components"]
+	path = Modules/3DEngine.Renderer.Components
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Components
+	branch = main
+[submodule "3DEngine.Renderer.Extracts.Camera"]
+	path = Modules/3DEngine.Renderer.Extracts.Camera
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts.Camera
+	branch = main
+[submodule "3DEngine.Renderer.Extracts.MeshMaterial"]
+	path = Modules/3DEngine.Renderer.Extracts.MeshMaterial
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts.MeshMaterial
+	branch = main
+[submodule "3DEngine.Renderer.Graph"]
+	path = Modules/3DEngine.Renderer.Graph
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph
+	branch = main
+[submodule "3DEngine.Renderer.Graph.Slots"]
+	path = Modules/3DEngine.Renderer.Graph.Slots
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph.Slots
+	branch = main
+[submodule "3DEngine.Renderer.Loaders.Glsl"]
+	path = Modules/3DEngine.Renderer.Loaders.Glsl
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Loaders.Glsl
+	branch = main
+[submodule "3DEngine.Renderer.Memory.Dynamic"]
+	path = Modules/3DEngine.Renderer.Memory.Dynamic
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Memory.Dynamic
+	branch = main
+[submodule "3DEngine.Renderer.Memory.Mesh"]
+	path = Modules/3DEngine.Renderer.Memory.Mesh
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Memory.Mesh
+	branch = main
+[submodule "3DEngine.Renderer.Phases"]
+	path = Modules/3DEngine.Renderer.Phases
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases
+	branch = main
+[submodule "3DEngine.Renderer.Phases.Opaque3d"]
+	path = Modules/3DEngine.Renderer.Phases.Opaque3d
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases.Opaque3d
+	branch = main
+[submodule "3DEngine.Renderer.Phases.Transparent3d"]
+	path = Modules/3DEngine.Renderer.Phases.Transparent3d
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases.Transparent3d
+	branch = main
+[submodule "3DEngine.Renderer.Phases.Mesh"]
+	path = Modules/3DEngine.Renderer.Phases.Mesh
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases.Mesh
+	branch = main
+[submodule "3DEngine.Renderer.Pipelines"]
+	path = Modules/3DEngine.Renderer.Pipelines
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines
+	branch = main
+[submodule "3DEngine.Renderer.Pipelines.Mesh"]
+	path = Modules/3DEngine.Renderer.Pipelines.Mesh
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines.Mesh
+	branch = main
+[submodule "3DEngine.Renderer.Pipelines.ImGui"]
+	path = Modules/3DEngine.Renderer.Pipelines.ImGui
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines.ImGui
+	branch = main
+[submodule "3DEngine.Renderer.Passes.Active"]
+	path = Modules/3DEngine.Renderer.Passes.Active
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Active
+	branch = main
+[submodule "3DEngine.Renderer.Passes.Tracked"]
+	path = Modules/3DEngine.Renderer.Passes.Tracked
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Tracked
+	branch = main
+[submodule "3DEngine.Renderer.Passes.Swapchain"]
+	path = Modules/3DEngine.Renderer.Passes.Swapchain
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Swapchain
+	branch = main
+[submodule "3DEngine.Renderer.Passes.Descriptor"]
+	path = Modules/3DEngine.Renderer.Passes.Descriptor
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Descriptor
+	branch = main
+[submodule "3DEngine.Renderer.Nodes.MainPass"]
+	path = Modules/3DEngine.Renderer.Nodes.MainPass
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes.MainPass
+	branch = main
+[submodule "3DEngine.Renderer.Nodes.View"]
+	path = Modules/3DEngine.Renderer.Nodes.View
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes.View
+	branch = main
+
+; --- UI / WebView modules -------------------------------------------------
+[submodule "3DEngine.UI.UltralightNet"]
+	path = Modules/3DEngine.UI.UltralightNet
+	url = https://github.com/EggyStudio/3DEngine.UI.UltralightNet
+	branch = main
+[submodule "3DEngine.UI.WebView.Abstractions"]
+	path = Modules/3DEngine.UI.WebView.Abstractions
+	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Abstractions
+	branch = main
+[submodule "3DEngine.UI.WebView.Ultralight"]
+	path = Modules/3DEngine.UI.WebView.Ultralight
+	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Ultralight
+	branch = main
+[submodule "3DEngine.UI.WebView.Vulkan"]
+	path = Modules/3DEngine.UI.WebView.Vulkan
+	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Vulkan
+	branch = main
+
+; --- Editor modules -------------------------------------------------------
+[submodule "3DEngine.Editor.Shell"]
+	path = Modules/3DEngine.Editor.Shell
+	url = https://github.com/EggyStudio/3DEngine.Editor.Shell
+	branch = main
+[submodule "3DEngine.Editor.Compiler"]
+	path = Modules/3DEngine.Editor.Compiler
+	url = https://github.com/EggyStudio/3DEngine.Editor.Compiler
+	branch = main
+[submodule "3DEngine.Editor.Server"]
+	path = Modules/3DEngine.Editor.Server
+	url = https://github.com/EggyStudio/3DEngine.Editor.Server
+	branch = main
+[submodule "3DEngine.Editor"]
+	path = Modules/3DEngine.Editor
+	url = https://github.com/EggyStudio/3DEngine.Editor
+	branch = main
