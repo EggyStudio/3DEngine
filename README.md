@@ -108,45 +108,43 @@ See `Engine/Program.cs` for the runtime entry point and `Editor/Program.cs` for 
 ## Architecture
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│  3DEngine.sln                                                   │
-│                                                                 │
-│  Engine.Application SDL3 window, input backend, ImGui host      │
-│  │                                                              │
-│  Engine.Common ─── App, World, Schedule, Config, Logger,        │
-│  │                 Events, Time, Input, Stage                   │
-│  │                                                              │
-│  Engine.Entities ─ EcsWorld, EcsCommands, BehaviorContext,      │
-│  │                 Attributes, BehaviorsPlugin                  │
-│  │                                                              │
-│  Engine.Generator  Roslyn source generator for [Behavior]       │
-│  │                                                              │
-│  Engine.Files ──── AssetServer, Assets<T>, Handle<T>,           │
-│  │                 AssetEvent<T>, IAssetLoader<T>, IAssetReader,│
-│  │                 FileAssetReader, FileWatcher, hot-reload     │
-│  │                                                              │
-│  Engine.Graphics ─ Vulkan device, swapchain, pipelines,         │
-│  │                 buffers, images, SPIR-V compilation,         │
-│  │                 NullGraphicsDevice (headless/test)           │
-│  │                                                              │
-│  Engine.Renderer ─ Renderer, RenderGraph, RenderWorld,          │
-│  │                 extract/prepare/queue systems, render phases,│
-│  │                 Camera/Mesh/Material/Transform components,   │
-│  │                 PipelineCache, DynamicBufferAllocator, ImGui │
-│  │                                                              │
-│  Engine.WebView ── Ultralight integration, WebView overlay      │
-│  │                                                              │
-│  Engine ────────── Composition root, DefaultPlugins,            │
-│  │                 sample behaviors (HUD, stress test)          │
-│  │                                                              │
-│  Editor ────────── Editor entry point, ShellCompiler host       │
-│  Editor.Server ─── Blazor Server (in-process), Razor pages      │
-│  Editor.Shell ──── Shell registry, descriptors, builders        │
-│  Editor.Compiler ─ Roslyn hot-reload compiler for shells        │
-│  │                                                              │
-│  Tests ─────────── xUnit tests (Common, Entities, Graphics,     │
-│                     Renderer, Editor)                           │
-└─────────────────────────────────────────────────────────────────┘
+  3DEngine.sln
+
+  Engine.Application SDL3 window, input backend, ImGui host
+  │
+  Engine.Common ─── App, World, Schedule, Config, Logger,
+  │                 Events, Time, Input, Stage
+  │
+  Engine.Entities ─ EcsWorld, EcsCommands, BehaviorContext,
+  │                 Attributes, BehaviorsPlugin
+  │
+  Engine.Generator  Roslyn source generator for [Behavior]
+  │
+  Engine.Files ──── AssetServer, Assets<T>, Handle<T>,
+  │                 AssetEvent<T>, IAssetLoader<T>, IAssetReader,
+  │                 FileAssetReader, FileWatcher, hot-reload
+  │
+  Engine.Graphics ─ Vulkan device, swapchain, pipelines,
+  │                 buffers, images, SPIR-V compilation,
+  │                 NullGraphicsDevice (headless/test)
+  │
+  Engine.Renderer ─ Renderer, RenderGraph, RenderWorld,
+  │                 extract/prepare/queue systems, render phases,
+  │                 Camera/Mesh/Material/Transform components,
+  │                 PipelineCache, DynamicBufferAllocator, ImGui
+  │
+  Engine.WebView ── Ultralight integration, WebView overlay
+  │
+  Engine ────────── Composition root, DefaultPlugins,
+  │                 sample behaviors (HUD, stress test)
+  │
+  Editor ────────── Editor entry point, ShellCompiler host
+  Editor.Server ─── Blazor Server (in-process), Razor pages
+  Editor.Shell ──── Shell registry, descriptors, builders
+  Editor.Compiler ─ Roslyn hot-reload compiler for shells
+  │
+  Tests ─────────── xUnit tests (Common, Entities, Graphics,
+                    Renderer, Editor)
 ```
 
 ## Features
