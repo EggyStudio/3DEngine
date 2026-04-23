@@ -54,7 +54,7 @@ public sealed class RenderWorld
     public void ClearEntities()
     {
         // Despawn all entities that have any component.
-        // EcsWorld doesn't expose a "despawn all" — iterate known entities.
+        // EcsWorld doesn't expose a "despawn all" - iterate known entities.
         var meshEntities = Entities.EntitiesWith<RenderMeshInstance>();
         for (int i = meshEntities.Length - 1; i >= 0; i--)
             Entities.Despawn(meshEntities[i]);
