@@ -50,10 +50,6 @@
 	path = Modules/3DEngine.Entities.Commands
 	url = https://github.com/EggyStudio/3DEngine.Entities.Commands
 	branch = main
-[submodule "3DEngine.Entities.Math"]
-	path = Modules/3DEngine.Entities.Math
-	url = https://github.com/EggyStudio/3DEngine.Entities.Math
-	branch = main
 [submodule "3DEngine.Files"]
 	path = Modules/3DEngine.Files
 	url = https://github.com/EggyStudio/3DEngine.Files
