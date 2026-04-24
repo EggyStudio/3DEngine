@@ -114,10 +114,6 @@
 	path = Modules/3DEngine.Renderer.Graph
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph
 	branch = main
-[submodule "3DEngine.Renderer.Graph.Slots"]
-	path = Modules/3DEngine.Renderer.Graph.Slots
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph.Slots
-	branch = main
 [submodule "3DEngine.Renderer.Loaders.Glsl"]
 	path = Modules/3DEngine.Renderer.Loaders.Glsl
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Loaders.Glsl
