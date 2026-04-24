@@ -46,10 +46,6 @@
 	path = Modules/3DEngine.Entities.Behaviors.Generator
 	url = https://github.com/EggyStudio/3DEngine.Entities.Behaviors.Generator
 	branch = main
-[submodule "3DEngine.Entities.Commands"]
-	path = Modules/3DEngine.Entities.Commands
-	url = https://github.com/EggyStudio/3DEngine.Entities.Commands
-	branch = main
 [submodule "3DEngine.Files"]
 	path = Modules/3DEngine.Files
 	url = https://github.com/EggyStudio/3DEngine.Files
