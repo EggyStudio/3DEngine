@@ -23,8 +23,14 @@
          is cloned. Once modules exist, their files populate this same node. -->
     <ItemGroup>
         <Folder Include="..\Modules\" />
+        <Folder Include="..\Modules\3DEngine.Application.Sdl\Runtime\">
+          <Link>Modules\3DEngine.Application.Sdl\Runtime</Link>
+        </Folder>
         <Folder Include="..\Modules\3DEngine.Graphics.Null\Runtime\">
           <Link>Modules\3DEngine.Graphics.Null\Runtime</Link>
+        </Folder>
+        <Folder Include="..\Modules\3DEngine.Renderer.Extracts.MeshMaterial\Runtime\">
+          <Link>Modules\3DEngine.Renderer.Extracts.MeshMaterial\Runtime</Link>
         </Folder>
     </ItemGroup>
 
