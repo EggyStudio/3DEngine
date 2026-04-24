@@ -162,10 +162,6 @@
 	path = Modules/3DEngine.Renderer.Passes.Swapchain
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Swapchain
 	branch = main
-[submodule "3DEngine.Renderer.Passes.Descriptor"]
-	path = Modules/3DEngine.Renderer.Passes.Descriptor
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Descriptor
-	branch = main
 [submodule "3DEngine.Renderer.Nodes"]
 	path = Modules/3DEngine.Renderer.Nodes
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes
