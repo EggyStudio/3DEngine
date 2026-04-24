@@ -90,9 +90,9 @@
 	path = Modules/3DEngine.Graphics.Abstractions
 	url = https://github.com/EggyStudio/3DEngine.Graphics.Abstractions
 	branch = main
-[submodule "3DEngine.Graphics.Compilers.Glsl"]
-	path = Modules/3DEngine.Graphics.Compilers.Glsl
-	url = https://github.com/EggyStudio/3DEngine.Graphics.Compilers.Glsl
+[submodule "3DEngine.Graphics.Compilers"]
+	path = Modules/3DEngine.Graphics.Compilers
+	url = https://github.com/EggyStudio/3DEngine.Graphics.Compilers
 	branch = main
 [submodule "3DEngine.Renderer"]
 	path = Modules/3DEngine.Renderer
