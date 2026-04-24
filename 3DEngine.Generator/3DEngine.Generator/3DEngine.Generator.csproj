@@ -8,7 +8,37 @@
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
+
+        <!-- Drive file inclusion explicitly so we can grab Modules/**/Generator/** -->
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     </PropertyGroup>
+
+    <!-- This project's own sources (if any). -->
+    <ItemGroup>
+        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
+    </ItemGroup>
+
+    <!-- Pull every Generator/** folder from every module into this analyzer assembly.
+         Linked with Visible=false so the IDE shows them only in the engine project's
+         Modules tree (single source of truth). -->
+    <PropertyGroup>
+        <ModulesGitExclude>
+            ..\..\Modules\**\.git;
+            ..\..\Modules\**\.git\**;
+            ..\..\Modules\**\.gitignore;
+            ..\..\Modules\**\.gitattributes;
+            ..\..\Modules\**\.gitmodules
+        </ModulesGitExclude>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\Modules\**\Generator\**\*.cs"
+                 Exclude="$(ModulesGitExclude)">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
+        </Compile>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">

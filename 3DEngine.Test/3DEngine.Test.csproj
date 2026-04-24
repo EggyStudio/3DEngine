@@ -7,7 +7,44 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+
+        <!-- Drive file inclusion explicitly so we can grab Modules/**/Tests/** -->
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     </PropertyGroup>
+
+    <!-- This project's own sources (if any). -->
+    <ItemGroup>
+        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
+    </ItemGroup>
+
+    <!-- Pull every Tests/** folder from every module into this assembly.
+         Same .git exclusions as the engine project. Linked with
+         Visible=false so the IDE shows them only in the engine project's
+         Modules tree (single source of truth) instead of duplicating them
+         under the test project. -->
+    <PropertyGroup>
+        <ModulesGitExclude>
+            ..\Modules\**\.git;
+            ..\Modules\**\.git\**;
+            ..\Modules\**\.gitignore;
+            ..\Modules\**\.gitattributes;
+            ..\Modules\**\.gitmodules
+        </ModulesGitExclude>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Modules\**\Tests\**\*.cs"
+                 Exclude="$(ModulesGitExclude)">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
+        </Compile>
+    </ItemGroup>
+
+    <!-- Reference the engine so tests can see its types. -->
+    <ItemGroup>
+        <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>

@@ -23,54 +23,6 @@
          is cloned. Once modules exist, their files populate this same node. -->
     <ItemGroup>
         <Folder Include="..\Modules\" />
-        <Folder Include="..\Modules\3DEngine.Entities.Commands\Runtime\">
-          <Link>Modules\3DEngine.Entities.Commands\Runtime</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.Entities.Commands\Tests\">
-          <Link>Modules\3DEngine.Entities.Commands\Tests</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.Files.Readers.File\Runtime\">
-          <Link>Modules\3DEngine.Files.Readers.File\Runtime</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.Renderer.Nodes.View\Runtime\">
-          <Link>Modules\3DEngine.Renderer.Nodes.View\Runtime</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\bin\Debug\net10.0\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\bin\Debug\net10.0</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\obj\Debug\net10.0\refint\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\obj\Debug\net10.0\refint</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\obj\Debug\net10.0\ref\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore.Binaries\obj\Debug\net10.0\ref</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\bin\Debug\net10.0\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\bin\Debug\net10.0</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\obj\Debug\net10.0\refint\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\obj\Debug\net10.0\refint</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\obj\Debug\net10.0\ref\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\obj\Debug\net10.0\ref</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\bin\Debug\net10.0\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\bin\Debug\net10.0</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\obj\Debug\net10.0\refint\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\obj\Debug\net10.0\refint</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\obj\Debug\net10.0\ref\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.Binaries\obj\Debug\net10.0\ref</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\bin\Debug\net10.0\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\bin\Debug\net10.0</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\obj\Debug\net10.0\refint\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\obj\Debug\net10.0\refint</Link>
-        </Folder>
-        <Folder Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\obj\Debug\net10.0\ref\">
-          <Link>Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\obj\Debug\net10.0\ref</Link>
-        </Folder>
     </ItemGroup>
 
     <!-- Compile every module's C# directly into this assembly.
@@ -92,14 +44,34 @@
             ..\Modules\**\.gitattributes;
             ..\Modules\**\.gitmodules
         </ModulesGitExclude>
+
+        <!-- Code that lives next to a module but is built by *another* csproj.
+             Tests/**     -> built by 3DEngine.Test\3DEngine.Test.csproj
+             Generator/** -> built by 3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj
+             We still want those files to show up in the IDE Modules tree (see <None> below),
+             but they MUST NOT be compiled into the engine assembly. -->
+        <ModulesForeignSources>
+            ..\Modules\**\Tests\**\*.cs;
+            ..\Modules\**\Generator\**\*.cs
+        </ModulesForeignSources>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="..\Modules\**\*.cs"
-                 Exclude="$(ModulesGitExclude)">
+                 Exclude="$(ModulesGitExclude);$(ModulesForeignSources)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
         </Compile>
+
+        <!-- Show Tests/** and Generator/** in the engine project's Modules tree
+             without compiling them here. The owning csproj (Test / Generator)
+             links them with <Visible>false</Visible> so they only appear once. -->
+        <None Include="$(ModulesForeignSources)"
+              Exclude="$(ModulesGitExclude)">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <!-- Shaders + assets shipped next to module sources (copied to output). -->
@@ -144,17 +116,13 @@
         <PackageReference Include="Twizzle.ImGui-Bundle.NET" Version="1.91.5.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
-        <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0"/>
-        <PackageReference Include="NUnit" Version="4.3.2"/>
-        <PackageReference Include="NUnit.Analyzers" Version="4.7.0"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="5.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj" />
+      <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj"
+                        OutputItemType="Analyzer"
+                        ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
-      <ProjectReference Include="..\3DEngine.Test\3DEngine.Test.csproj" />
     </ItemGroup>
 
 </Project>
