@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <SelfContained>true</SelfContained>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>3DEngine Editor Server</Title>
+        <PackageId>3DEngine.Editor.Server</PackageId>
+        <Version>1.0.0</Version>
+        <Description>In-process Blazor Server host serving the editor UI over SignalR WebSocket.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BlazorBlueprint.Components" Version="3.9.4" />
+        <PackageReference Include="BlazorBlueprint.Icons.Feather" Version="2.0.0" />
+        <PackageReference Include="BlazorBlueprint.Icons.Heroicons" Version="2.0.0" />
+        <PackageReference Include="BlazorBlueprint.Icons.Lucide" Version="2.*"/>
+        <PackageReference Include="BlazorBlueprint.Primitives" Version="3.9.3" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Editor.Compiler\Editor.Compiler.csproj" />
+        <ProjectReference Include="..\Editor.Shell\Editor.Shell.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Compiler\Editor.Compiler.csproj" />
+    </ItemGroup>
+
+</Project>

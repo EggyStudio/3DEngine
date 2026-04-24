@@ -1,0 +1,56 @@
+@using Editor.Shell
+
+@{
+    var tabGroups = Panels
+        .Where(p => p.TabGroupId != null)
+        .GroupBy(p => p.TabGroupId!)
+        .ToList();
+    var standalonePanels = Panels.Where(p => p.TabGroupId == null).ToList();
+}
+
+<div class="flex flex-col flex-1 overflow-hidden min-h-0">
+    @foreach (var panel in standalonePanels)
+    {
+        <DockPanel Panel="panel" />
+    }
+
+    @foreach (var group in tabGroups)
+    {
+        var orderedPanels = group.OrderBy(p => p.TabOrder).ToList();
+        <div class="flex flex-col flex-1 overflow-hidden min-h-0">
+            <BbTabs DefaultValue="@orderedPanels.First().Id" class="flex flex-col flex-1 overflow-hidden">
+                <BbTabsList class="hidden">
+                    @foreach (var panel in orderedPanels)
+                    {
+                        <BbTabsTrigger Value="@panel.Id">@panel.Title</BbTabsTrigger>
+                    }
+                </BbTabsList>
+                @foreach (var panel in orderedPanels)
+                {
+                    <BbTabsContent Value="@panel.Id" class="flex-1 m-0 p-0 min-h-0">
+                        <div class="overflow-y-auto" style="height: calc(100vh - 3.5rem);">
+                            @if (panel.ComponentType is not null)
+                            {
+                                <DynamicComponent Type="panel.ComponentType" />
+                            }
+                            else if (panel.Content is { Count: > 0 })
+                            {
+                                <ElementRenderer Elements="panel.Content" />
+                            }
+                            else
+                            {
+                                <div class="flex items-center justify-center h-full text-muted-foreground/30 text-[11px]">
+                                    @panel.Id
+                                </div>
+                            }
+                        </div>
+                    </BbTabsContent>
+                }
+            </BbTabs>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<PanelDescriptor> Panels { get; set; } = [];
+}

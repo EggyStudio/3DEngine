@@ -1,0 +1,28 @@
+/* BlazorBlueprint Template - Tailwind CSS
+ * Generates utility classes for template pages/layouts
+ * blazorblueprint.css (from NuGet package) provides all component styles
+ */
+
+/* Reference the Tailwind config file */
+@config "../../tailwind.config.js";
+
+/* Import Tailwind with full theme (preflight is minimal, blazorblueprint.css provides resets) */
+@import 'tailwindcss';
+
+/* Scan template files for utility classes */
+@source "../../Pages";
+@source "../../Shared";
+
+/* Container with responsive max-width */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) { .container { max-width: 640px; } }
+@media (min-width: 768px) { .container { max-width: 768px; } }
+@media (min-width: 1024px) { .container { max-width: 1024px; } }
+@media (min-width: 1280px) { .container { max-width: 1280px; } }
+@media (min-width: 1536px) { .container { max-width: 1536px; } }

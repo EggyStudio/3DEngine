@@ -1,0 +1,38 @@
+@page "/"
+@page "/{*Slug}"
+
+@{
+    var route = string.IsNullOrEmpty(Slug) ? "/" : $"/{Slug}";
+    var panel = Registry.Current.Panels.FirstOrDefault(p => p.Route == route);
+    var isRoot = string.IsNullOrEmpty(Slug);
+    var allPanels = Registry.Current.Panels.Where(p => p.Visible).ToList();
+}
+
+<PageTitle>@(panel?.Title ?? "3D Engine Editor")</PageTitle>
+
+@if (panel?.ComponentType is not null)
+{
+    <DynamicComponent Type="panel.ComponentType" />
+}
+else if (panel?.Content is { Count: > 0 })
+{
+    <ElementRenderer Elements="panel.Content" />
+}
+else if (isRoot && allPanels.Count > 0)
+{
+    @* At root "/" with no explicit route panel – show the full dock layout *@
+    <ShellDockLayout Panels="allPanels" />
+}
+else if (!isRoot)
+{
+    <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <h1 class="text-4xl font-bold">404</h1>
+        <p class="text-muted-foreground">Sorry, there's nothing at this address.</p>
+        <a href="/" class="text-primary underline">Go home</a>
+    </div>
+}
+
+@code {
+    [Parameter] public string? Slug { get; set; }
+    [Inject] private ShellRegistry Registry { get; set; } = null!;
+}

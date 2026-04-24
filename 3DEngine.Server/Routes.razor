@@ -1,0 +1,14 @@
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.ShellLayout)"/>
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(Shared.ShellLayout)">
+            <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+                <h1 class="text-4xl font-bold">404</h1>
+                <p class="text-muted-foreground">Sorry, there's nothing at this address.</p>
+                <a href="/" class="text-primary underline">Go home</a>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
