@@ -58,9 +58,9 @@
 	path = Modules/3DEngine.Files.Watcher
 	url = https://github.com/EggyStudio/3DEngine.Files.Watcher
 	branch = main
-[submodule "3DEngine.Files.Loaders.Builtin"]
-	path = Modules/3DEngine.Files.Loaders.Builtin
-	url = https://github.com/EggyStudio/3DEngine.Files.Loaders.Builtin
+[submodule "3DEngine.Files.Loaders"]
+	path = Modules/3DEngine.Files.Loaders
+	url = https://github.com/EggyStudio/3DEngine.Files.Loaders
 	branch = main
 [submodule "3DEngine.Files.Readers.File"]
 	path = Modules/3DEngine.Files.Readers.File
