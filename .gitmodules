@@ -166,9 +166,9 @@
 	path = Modules/3DEngine.Renderer.Passes.Descriptor
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes.Descriptor
 	branch = main
-[submodule "3DEngine.Renderer.Nodes.MainPass"]
-	path = Modules/3DEngine.Renderer.Nodes.MainPass
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes.MainPass
+[submodule "3DEngine.Renderer.Nodes"]
+	path = Modules/3DEngine.Renderer.Nodes
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Nodes
 	branch = main
 [submodule "3DEngine.UI.UltralightNet"]
 	path = Modules/3DEngine.UI.UltralightNet
