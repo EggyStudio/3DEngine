@@ -30,10 +30,6 @@
 	path = Modules/3DEngine.Application
 	url = https://github.com/EggyStudio/3DEngine.Application
 	branch = main
-[submodule "3DEngine.Application.Sdl"]
-	path = Modules/3DEngine.Application.Sdl
-	url = https://github.com/EggyStudio/3DEngine.Application.Sdl
-	branch = main
 [submodule "3DEngine.Application.Sdl.ImGui"]
 	path = Modules/3DEngine.Application.Sdl.ImGui
 	url = https://github.com/EggyStudio/3DEngine.Application.Sdl.ImGui
