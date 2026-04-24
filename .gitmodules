@@ -130,10 +130,6 @@
 	path = Modules/3DEngine.Renderer.Pipelines
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines
 	branch = main
-[submodule "3DEngine.Renderer.Pipelines.Mesh"]
-	path = Modules/3DEngine.Renderer.Pipelines.Mesh
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines.Mesh
-	branch = main
 [submodule "3DEngine.Renderer.Pipelines.ImGui"]
 	path = Modules/3DEngine.Renderer.Pipelines.ImGui
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines.ImGui
