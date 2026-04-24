@@ -118,9 +118,9 @@
 	path = Modules/3DEngine.Renderer.Loaders
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Loaders
 	branch = main
-[submodule "3DEngine.Renderer.Memory.Dynamic"]
-	path = Modules/3DEngine.Renderer.Memory.Dynamic
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Memory.Dynamic
+[submodule "3DEngine.Renderer.Memory"]
+	path = Modules/3DEngine.Renderer.Memory
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Memory
 	branch = main
 [submodule "3DEngine.Renderer.Memory.Mesh"]
 	path = Modules/3DEngine.Renderer.Memory.Mesh
