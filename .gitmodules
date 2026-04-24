@@ -118,10 +118,6 @@
 	path = Modules/3DEngine.Renderer.Extracts
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts
 	branch = main
-[submodule "3DEngine.Renderer.Extracts.MeshMaterial"]
-	path = Modules/3DEngine.Renderer.Extracts.MeshMaterial
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts.MeshMaterial
-	branch = main
 [submodule "3DEngine.Renderer.Graph"]
 	path = Modules/3DEngine.Renderer.Graph
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph
