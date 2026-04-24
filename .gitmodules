@@ -62,10 +62,6 @@
 	path = Modules/3DEngine.Files.Loaders
 	url = https://github.com/EggyStudio/3DEngine.Files.Loaders
 	branch = main
-[submodule "3DEngine.Files.Readers.File"]
-	path = Modules/3DEngine.Files.Readers.File
-	url = https://github.com/EggyStudio/3DEngine.Files.Readers.File
-	branch = main
 [submodule "3DEngine.Files.Readers"]
 	path = Modules/3DEngine.Files.Readers
 	url = https://github.com/EggyStudio/3DEngine.Files.Readers
