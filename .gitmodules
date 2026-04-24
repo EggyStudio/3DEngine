@@ -202,10 +202,6 @@
 	path = Modules/3DEngine.UI.WebView.Vulkan
 	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Vulkan
 	branch = main
-[submodule "3DEngine.Editor.Shell"]
-	path = Modules/3DEngine.Editor.Shell
-	url = https://github.com/EggyStudio/3DEngine.Editor.Shell
-	branch = main
 [submodule "3DEngine.Editor"]
 	path = Modules/3DEngine.Editor
 	url = https://github.com/EggyStudio/3DEngine.Editor
