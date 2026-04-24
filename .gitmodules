@@ -82,10 +82,6 @@
 	path = Modules/3DEngine.Renderer
 	url = https://github.com/EggyStudio/3DEngine.Renderer
 	branch = main
-[submodule "3DEngine.Renderer.Abstractions"]
-	path = Modules/3DEngine.Renderer.Abstractions
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Abstractions
-	branch = main
 [submodule "3DEngine.Renderer.Components"]
 	path = Modules/3DEngine.Renderer.Components
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Components
