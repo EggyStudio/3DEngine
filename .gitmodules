@@ -206,10 +206,6 @@
 	path = Modules/3DEngine.Editor.Shell
 	url = https://github.com/EggyStudio/3DEngine.Editor.Shell
 	branch = main
-[submodule "3DEngine.Editor.Server"]
-	path = Modules/3DEngine.Editor.Server
-	url = https://github.com/EggyStudio/3DEngine.Editor.Server
-	branch = main
 [submodule "3DEngine.Editor"]
 	path = Modules/3DEngine.Editor
 	url = https://github.com/EggyStudio/3DEngine.Editor
