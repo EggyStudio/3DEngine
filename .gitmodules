@@ -126,10 +126,6 @@
 	path = Modules/3DEngine.Renderer.Phases
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases
 	branch = main
-[submodule "3DEngine.Renderer.Phases.Opaque3d"]
-	path = Modules/3DEngine.Renderer.Phases.Opaque3d
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases.Opaque3d
-	branch = main
 [submodule "3DEngine.Renderer.Phases.Transparent3d"]
 	path = Modules/3DEngine.Renderer.Phases.Transparent3d
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases.Transparent3d
