@@ -146,10 +146,6 @@
 	path = Modules/3DEngine.UI.UltralightNet
 	url = https://github.com/EggyStudio/3DEngine.UI.UltralightNet
 	branch = main
-[submodule "3DEngine.UI.WebView.Abstractions"]
-	path = Modules/3DEngine.UI.WebView.Abstractions
-	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Abstractions
-	branch = main
 [submodule "3DEngine.UI.WebView.Ultralight"]
 	path = Modules/3DEngine.UI.WebView.Ultralight
 	url = https://github.com/EggyStudio/3DEngine.UI.WebView.Ultralight
