@@ -11,6 +11,8 @@ for arg in "$@"; do
     esac
 done
 
+cd "$(git rev-parse --show-toplevel)"
+
 git submodule sync --recursive
 git submodule update --init --recursive --remote --merge
 

@@ -4,8 +4,11 @@
 # Usage: ./rename-module.sh <old-name> <new-name>
 # Example: ./rename-module.sh 3DEngine.Foo 3DEngine.Bar
 #
+# Owner defaults to the authenticated gh user; override with:
+#   OWNER=EggyStudio ./rename-module.sh <old> <new>
+#
 # Steps performed:
-#   1. Rename the GitHub repo via `gh repo rename` (org: EggyStudio).
+#   1. Rename the GitHub repo via `gh repo rename`.
 #   2. Rename the submodule directory Modules/<old> -> Modules/<new>.
 #   3. Update .gitmodules (path, url, section name).
 #   4. Sync submodule config (git submodule sync).
@@ -16,17 +19,27 @@
 #   7. Stage & commit the change in the parent repo.
 set -euo pipefail
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 2 ] || [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
     echo "Usage: $0 <old-name> <new-name>" >&2
     exit 1
 fi
 
 old="$1"
 new="$2"
-org="EggyStudio"
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo "✗ GitHub CLI (gh) is not installed." >&2
+    exit 1
+fi
+if ! gh auth status >/dev/null 2>&1; then
+    echo "✗ gh is not authenticated. Run: gh auth login" >&2
+    exit 1
+fi
 
 repo_root=$(git rev-parse --show-toplevel)
 cd "$repo_root"
+
+owner="${OWNER:-$(gh api user --jq .login)}"
 
 if [ ! -d "Modules/$old" ]; then
     echo "error: Modules/$old does not exist" >&2
@@ -37,8 +50,8 @@ if [ -e "Modules/$new" ]; then
     exit 1
 fi
 
-echo ">> Renaming GitHub repo $org/$old -> $new"
-gh repo rename "$new" --repo "$org/$old" --yes
+echo ">> Renaming GitHub repo $owner/$old -> $new"
+gh repo rename "$new" --repo "$owner/$old" --yes
 
 echo ">> Moving submodule directory"
 git mv "Modules/$old" "Modules/$new"
@@ -54,7 +67,7 @@ echo ">> Syncing submodule config"
 git submodule sync -- "Modules/$new"
 
 # Update remote URL inside the submodule's own config too
-( cd "Modules/$new" && git remote set-url origin "https://github.com/$org/$new" )
+( cd "Modules/$new" && git remote set-url origin "https://github.com/$owner/$new" )
 
 echo ">> Renaming files inside the module that contain the old name"
 while IFS= read -r -d '' f; do

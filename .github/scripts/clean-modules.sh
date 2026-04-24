@@ -9,6 +9,8 @@ if [ "${1:-}" != "--force" ]; then
     exit 1
 fi
 
+cd "$(git rev-parse --show-toplevel)"
+
 git submodule foreach --recursive '
     git reset --hard
     git clean -fdx

@@ -5,6 +5,8 @@ set -euo pipefail
 
 msg="${1:-Update submodule}"
 
+cd "$(git rev-parse --show-toplevel)"
+
 git submodule foreach --recursive "
     if [ -n \"\$(git status --porcelain)\" ]; then
         branch=\$(git rev-parse --abbrev-ref HEAD)

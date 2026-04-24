@@ -114,9 +114,9 @@
 	path = Modules/3DEngine.Renderer.Components
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Components
 	branch = main
-[submodule "3DEngine.Renderer.Extracts.Camera"]
-	path = Modules/3DEngine.Renderer.Extracts.Camera
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts.Camera
+[submodule "3DEngine.Renderer.Extracts"]
+	path = Modules/3DEngine.Renderer.Extracts
+	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts
 	branch = main
 [submodule "3DEngine.Renderer.Extracts.MeshMaterial"]
 	path = Modules/3DEngine.Renderer.Extracts.MeshMaterial

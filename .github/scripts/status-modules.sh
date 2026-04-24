@@ -3,6 +3,8 @@
 # Usage: ./status-modules.sh
 set -euo pipefail
 
+cd "$(git rev-parse --show-toplevel)"
+
 git submodule foreach --quiet --recursive '
     branch=$(git rev-parse --abbrev-ref HEAD)
     commit=$(git log -1 --pretty=format:"%h %s")

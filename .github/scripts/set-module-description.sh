@@ -6,23 +6,37 @@
 #   ./set-module-description.sh 3DEngine.Common "Shared core utilities"
 #
 # Pass "." as <name> to target the current repo (auto-detected via gh).
+#
+# Owner defaults to the authenticated gh user; override with:
+#   OWNER=EggyStudio ./set-module-description.sh ...
 set -euo pipefail
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 2 ] || [ -z "${1:-}" ]; then
     echo "Usage: $0 <module-name|.> \"description\"" >&2
     exit 1
 fi
 
 name="$1"
 desc="$2"
-org="EggyStudio"
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo "✗ GitHub CLI (gh) is not installed." >&2
+    exit 1
+fi
+if ! gh auth status >/dev/null 2>&1; then
+    echo "✗ gh is not authenticated. Run: gh auth login" >&2
+    exit 1
+fi
+
+cd "$(git rev-parse --show-toplevel)"
 
 if [ "$name" = "." ]; then
     echo ">> Updating description of current repo"
     gh repo edit --description "$desc"
 else
-    echo ">> Updating description of $org/$name"
-    gh repo edit "$org/$name" --description "$desc"
+    owner="${OWNER:-$(gh api user --jq .login)}"
+    echo ">> Updating description of $owner/$name"
+    gh repo edit "$owner/$name" --description "$desc"
 fi
 
 echo ">> Done"
