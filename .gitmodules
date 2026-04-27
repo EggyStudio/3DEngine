@@ -26,10 +26,6 @@
 	path = Modules/3DEngine.Files.Loaders
 	url = https://github.com/EggyStudio/3DEngine.Files.Loaders
 	branch = main
-[submodule "3DEngine.Files.Readers"]
-	path = Modules/3DEngine.Files.Readers
-	url = https://github.com/EggyStudio/3DEngine.Files.Readers
-	branch = main
 [submodule "3DEngine.Graphics"]
 	path = Modules/3DEngine.Graphics
 	url = https://github.com/EggyStudio/3DEngine.Graphics
