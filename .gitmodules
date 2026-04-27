@@ -58,10 +58,6 @@
 	path = Modules/3DEngine.Renderer.Pipelines.ImGui
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Pipelines.ImGui
 	branch = main
-[submodule "3DEngine.Renderer.Passes"]
-	path = Modules/3DEngine.Renderer.Passes
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Passes
-	branch = main
 [submodule "3DEngine.UI.UltralightNet"]
 	path = Modules/3DEngine.UI.UltralightNet
 	url = https://github.com/EggyStudio/3DEngine.UI.UltralightNet
