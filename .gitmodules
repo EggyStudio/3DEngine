@@ -1,7 +1,3 @@
-[submodule "3DEngine.Common.Native"]
-	path = Modules/3DEngine.Common.Native
-	url = https://github.com/EggyStudio/3DEngine.Common.Native
-	branch = main
 [submodule "3DEngine.Common.Schedule"]
 	path = Modules/3DEngine.Common.Schedule
 	url = https://github.com/EggyStudio/3DEngine.Common.Schedule
