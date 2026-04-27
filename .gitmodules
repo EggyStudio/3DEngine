@@ -1,7 +1,3 @@
-[submodule "3DEngine.Common.Input"]
-	path = Modules/3DEngine.Common.Input
-	url = https://github.com/EggyStudio/3DEngine.Common.Input
-	branch = main
 [submodule "3DEngine.Common.Logger"]
 	path = Modules/3DEngine.Common.Logger
 	url = https://github.com/EggyStudio/3DEngine.Common.Logger
