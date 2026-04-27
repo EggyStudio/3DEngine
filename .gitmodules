@@ -38,10 +38,6 @@
 	path = Modules/3DEngine.Renderer.Graph
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph
 	branch = main
-[submodule "3DEngine.Renderer.Loaders"]
-	path = Modules/3DEngine.Renderer.Loaders
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Loaders
-	branch = main
 [submodule "3DEngine.Renderer.Phases"]
 	path = Modules/3DEngine.Renderer.Phases
 	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases
