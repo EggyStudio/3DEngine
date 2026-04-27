@@ -126,10 +126,6 @@
 	path = Modules/3DEngine.Editor
 	url = https://github.com/EggyStudio/3DEngine.Editor
 	branch = main
-[submodule "Modules/3DEngine.Common.App"]
-	path = Modules/3DEngine.Common.App
-	url = https://github.com/EggyStudio/3DEngine.Common.App.git
-	branch = main
 [submodule "Modules/3DEngine.Entities.World"]
 	path = Modules/3DEngine.Entities.World
 	url = https://github.com/EggyStudio/3DEngine.Entities.World.git
