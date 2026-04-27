@@ -22,10 +22,6 @@
 	path = Modules/3DEngine.Files.Pipeline
 	url = https://github.com/EggyStudio/3DEngine.Files.Pipeline
 	branch = main
-[submodule "3DEngine.Files.Watcher"]
-	path = Modules/3DEngine.Files.Watcher
-	url = https://github.com/EggyStudio/3DEngine.Files.Watcher
-	branch = main
 [submodule "3DEngine.Files.Loaders"]
 	path = Modules/3DEngine.Files.Loaders
 	url = https://github.com/EggyStudio/3DEngine.Files.Loaders
