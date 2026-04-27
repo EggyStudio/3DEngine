@@ -18,10 +18,6 @@
 	path = Modules/3DEngine.Files
 	url = https://github.com/EggyStudio/3DEngine.Files
 	branch = main
-[submodule "3DEngine.Files.Pipeline"]
-	path = Modules/3DEngine.Files.Pipeline
-	url = https://github.com/EggyStudio/3DEngine.Files.Pipeline
-	branch = main
 [submodule "3DEngine.Files.Loaders"]
 	path = Modules/3DEngine.Files.Loaders
 	url = https://github.com/EggyStudio/3DEngine.Files.Loaders
