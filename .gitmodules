@@ -1,7 +1,3 @@
-[submodule "3DEngine.Common.World"]
-	path = Modules/3DEngine.Common.World
-	url = https://github.com/EggyStudio/3DEngine.Common.World
-	branch = main
 [submodule "3DEngine.Application"]
 	path = Modules/3DEngine.Application
 	url = https://github.com/EggyStudio/3DEngine.Application
