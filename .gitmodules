@@ -22,10 +22,6 @@
 	path = Modules/3DEngine.Graphics
 	url = https://github.com/EggyStudio/3DEngine.Graphics
 	branch = main
-[submodule "3DEngine.Graphics.Compilers"]
-	path = Modules/3DEngine.Graphics.Compilers
-	url = https://github.com/EggyStudio/3DEngine.Graphics.Compilers
-	branch = main
 [submodule "3DEngine.Renderer"]
 	path = Modules/3DEngine.Renderer
 	url = https://github.com/EggyStudio/3DEngine.Renderer
