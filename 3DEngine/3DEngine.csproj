@@ -6,6 +6,12 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>3DEngine</AssemblyName>
         <RootNamespace>Engine</RootNamespace>
+        <!-- RS1041/RS1036/RS2008 are about source generators being co-hosted in the engine assembly:
+             we intentionally compile Modules/**/Generator/** into 3DEngine.dll so the BehaviorGenerator
+             type is callable at runtime via Roslyn's CSharpGeneratorDriver from RuntimeBehaviorCompiler.
+             The same .cs files are simultaneously built into the netstandard2.0 analyzer DLL for
+             compile-time generation, which is the supported analyzer hosting target. -->
+        <NoWarn>$(NoWarn);RS1041;RS1036;RS2008</NoWarn>
         <!-- Drive file inclusion explicitly so we can pull sources from outside the project folder. -->
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
