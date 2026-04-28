@@ -17,11 +17,11 @@
 
     <!-- NuGet package metadata -->
     <PropertyGroup>
-        <Authors>CanTalat-Yakan</Authors>
+        <Authors>EggyStudio</Authors>
         <Company>3DEngine</Company>
         <PackageIcon>3DEngineSymbol.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/CanTalat-Yakan/3DEngine</RepositoryUrl>
+        <RepositoryUrl>https://github.com/EggyStudio/3DEngine</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <IncludeSymbols>true</IncludeSymbols>
