@@ -32,7 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{BB8E
 		.github\scripts\set-module-description.sh = .github\scripts\set-module-description.sh
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DEngine.Generator", "3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj", "{E0F11FE4-5224-4FAC-952A-8321DCC9BA51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DEngine.Generator", "3DEngine.Generator\3DEngine.Generator.csproj", "{E0F11FE4-5224-4FAC-952A-8321DCC9BA51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DEngine.Test", "3DEngine.Test\3DEngine.Test.csproj", "{F6583EED-8D42-4871-9F9E-CF62257EA0DF}"
 EndProject

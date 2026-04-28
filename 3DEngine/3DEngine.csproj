@@ -47,7 +47,7 @@
         </ModulesCompileExclude>
         <!-- Code that lives next to a module but is built by *another* csproj:
              Tests/**     -> 3DEngine.Test\3DEngine.Test.csproj
-             Generator/** -> 3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj
+             Generator/** -> 3DEngine.Generator\3DEngine.Generator.csproj
              Shown in the IDE Modules tree (see <None> below) but NOT compiled here. -->
         <ModulesForeignSources>
             ..\Modules\**\Tests\**\*.cs;
@@ -59,6 +59,17 @@
                  Exclude="$(ModulesCompileExclude);$(ModulesForeignSources)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
+        </Compile>
+        <!-- Also compile module Generator/** sources INTO the engine assembly so source generators
+             (e.g. Engine.BehaviorGenerator) are available as runtime types for hot-reload pipelines
+             that drive Roslyn's CSharpGeneratorDriver at runtime (RuntimeBehaviorCompiler). The
+             SAME .cs files are still compiled into 3DEngine.Generator.dll as a netstandard2.0
+             analyzer for compile-time generation. The engine references Microsoft.CodeAnalysis.CSharp
+             5.3, which is API-compatible with the Roslyn 4.x APIs used by the generators. -->
+        <Compile Include="..\Modules\**\Generator\**\*.cs"
+                 Exclude="$(ModulesIdeIgnore)">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
         </Compile>
         <!-- Show Tests/**, Generator/** and vendored Source/** in this project's Modules
              tree without compiling them. The owning csproj links them with Visible=false
@@ -124,7 +135,7 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj"
+        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
