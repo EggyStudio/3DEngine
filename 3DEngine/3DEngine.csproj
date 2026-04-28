@@ -1,5 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <SelfContained>true</SelfContained>
@@ -7,44 +6,27 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>3DEngine</AssemblyName>
         <RootNamespace>Engine</RootNamespace>
-
-        <!-- Drive file inclusion explicitly via the globs below
-             (so we can pull in sources from outside the project folder). -->
+        <!-- Drive file inclusion explicitly so we can pull sources from outside the project folder. -->
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     </PropertyGroup>
-
-    <!-- This project's own sources (Program.cs + composition root). -->
     <ItemGroup>
         <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
     </ItemGroup>
-
-    <!-- Make the Modules/ root visible in the IDE even before any submodule
-         is cloned. Once modules exist, files (and the Folder placeholders
-         below) populate this same node.
-
-         Surface every directory under Modules\ as an IDE folder node, even
-         when the directory is empty or all of its contents are filtered out
-         by ModulesIdeIgnore. Rider/VS only render a folder node when at
-         least one project ITEM resolves into it; without these placeholders
-         a folder like "Shaders\" can disappear from the Solution Explorer
-         simply because none of its files matched a glob in the right order.
-         The "..\Modules\**\" form expands to every subdirectory at every
-         depth, so users see the full on-disk layout including vendored
-         "Source\" subtrees, "Shaders\", "Runtime\", "Tests\", etc. -->
+    <!-- Surface every directory under Modules\ as an IDE folder node, even when empty
+         or fully filtered. Rider/VS only render a folder when at least one project ITEM
+         resolves into it; without these placeholders folders like "Shaders\" can vanish
+         from Solution Explorer. "..\Modules\**\" expands to every subdirectory at every
+         depth, including vendored "Source\" subtrees. -->
     <ItemGroup>
         <Folder Include="..\Modules\" />
         <Folder Include="..\Modules\**\" />
     </ItemGroup>
-
-    <!-- Compile every module's C# directly into this assembly.
-         The Link metadata mirrors the on-disk folder structure into the IDE
-         (Rider / VS Solution Explorer) so modules appear as a proper tree
-         under a virtual "Modules" node, with full IntelliSense and navigation,
-         instead of a flat list of "linked files". -->
+    <!-- Compile every module's C# directly into this assembly. Link metadata mirrors
+         the on-disk folder structure into the IDE so modules appear as a tree under a
+         virtual "Modules" node, instead of a flat list of "linked files". -->
     <PropertyGroup>
-        <!-- Always-hidden noise: git plumbing and build artifacts.
-             Used by every Modules/** include below (Compile, None, assets). -->
+        <!-- Always-hidden noise: git plumbing and build artifacts. -->
         <ModulesIdeIgnore>
             ..\Modules\**\.git;
             ..\Modules\**\.git\**;
@@ -54,41 +36,33 @@
             ..\Modules\**\bin\**;
             ..\Modules\**\obj\**
         </ModulesIdeIgnore>
-
-        <!-- Vendored multi-csproj subtrees: any Modules/*/Source/** is treated
-             as a self-contained set of projects (each with its own .csproj,
-             building into its own assembly). Globbing their .cs into the
-             engine breaks [assembly: ...] attributes, InternalsVisibleTo,
-             and entry points. Consume them via <ProjectReference> when needed.
-             They REMAIN VISIBLE in the IDE Modules tree (see <None> below);
-             only the Compile glob and the output-staging Content glob exclude them. -->
+        <!-- Vendored multi-csproj subtrees: any Modules/*/Source/** is self-contained
+             (its own .csproj, its own assembly). Globbing their .cs into the engine
+             breaks [assembly: ...] attributes, InternalsVisibleTo, and entry points.
+             Consume them via <ProjectReference>. They REMAIN VISIBLE in the IDE Modules
+             tree (see <None> below); only Compile and Content output-staging exclude them. -->
         <ModulesCompileExclude>
             $(ModulesIdeIgnore);
             ..\Modules\**\Source\**
         </ModulesCompileExclude>
-
-        <!-- Code that lives next to a module but is built by *another* csproj.
-             Tests/**     -> built by 3DEngine.Test\3DEngine.Test.csproj
-             Generator/** -> built by 3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj
-             We still want those files to show up in the IDE Modules tree (see <None> below),
-             but they MUST NOT be compiled into the engine assembly. -->
+        <!-- Code that lives next to a module but is built by *another* csproj:
+             Tests/**     -> 3DEngine.Test\3DEngine.Test.csproj
+             Generator/** -> 3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj
+             Shown in the IDE Modules tree (see <None> below) but NOT compiled here. -->
         <ModulesForeignSources>
             ..\Modules\**\Tests\**\*.cs;
             ..\Modules\**\Generator\**\*.cs
         </ModulesForeignSources>
     </PropertyGroup>
-
     <ItemGroup>
         <Compile Include="..\Modules\**\*.cs"
                  Exclude="$(ModulesCompileExclude);$(ModulesForeignSources)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
         </Compile>
-
-        <!-- Show Tests/**, Generator/** and vendored Source/** subtrees in
-             the engine project's Modules tree without compiling them here.
-             The owning csproj (Test / Generator / vendored ProjectReference)
-             links them with <Visible>false</Visible> so they only appear once. -->
+        <!-- Show Tests/**, Generator/** and vendored Source/** in this project's Modules
+             tree without compiling them. The owning csproj links them with Visible=false
+             so they only appear once. -->
         <None Include="$(ModulesForeignSources);..\Modules\**\Source\**\*.cs"
               Exclude="$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -96,40 +70,22 @@
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <!-- ── IDE display + output staging ───────────────────────────────────
-         Surface every non-.cs module file in the engine project's Modules\
-         tree AND stage it into "$(OutDir)source\<rel>\..." for the runtime
-         FileAssetReader (rooted at "{AppContext.BaseDirectory}/source").
-
-         The "..\Modules\**\*" glob matches ANY filename, with no extension
-         whitelist, so extension-less files like LICENSE / NOTICE / README
-         and any future asset type are picked up automatically.
-
-         Why <Content> (not <None>): Rider/VS reliably render <Compile> and
-         <Content> items linked from outside the project root in the
-         Solution Explorer, but tend to silently drop <None> linked items.
-         Using Content with Visible=true is the only form that consistently
-         shows files like Shaders/*.glsl in the IDE tree.
-
-         IDE display is controlled by <Link>:
-             Modules\<Module>\<Sub>\...\file.ext
-         Output staging is controlled by <TargetPath> (independent of Link):
-             source\<sub>\...\file.ext   (lowercase, module name stripped)
-
-         The leading "<Module>\" segment of %(RecursiveDir) is stripped so
-         each module contributes into a shared "source/" namespace
-         (e.g. "shaders/mesh.vert.glsl" resolves a file that lives at
-         "Modules/3DEngine.Renderer.Pipelines/Shaders/mesh.vert.glsl").
-         The result is lowercased so case-sensitive filesystems (Linux) match
-         the lowercase paths the loaders use. PreserveNewest ⇒ only changed
-         files are recopied.
-
-         Two blocks: stageable assets (everything outside Source/) and
-         IDE-only entries for vendored Source/** subtrees, which are built
-         by their own .csproj (consumed via <ProjectReference> below) and
-         ship their own outputs  staging them here would produce nonsense
-         paths like "source/source/ultralightnet.binaries/...". -->
+    <!-- IDE display + output staging for non-.cs module files.
+         Stages each into "$(OutDir)source\<rel>\..." for the runtime FileAssetReader
+         (rooted at "{AppContext.BaseDirectory}/source"). Matches ANY filename so
+         extension-less files (LICENSE / NOTICE / README) and any future asset type are
+         picked up automatically.
+         <Content> (not <None>) because Rider/VS reliably render <Compile> and <Content>
+         items linked from outside the project root, but tend to silently drop linked <None>.
+         <Link> controls IDE display:    Modules\<Module>\<Sub>\...\file.ext
+         <TargetPath> controls staging:  source\<sub>\...\file.ext   (lowercase, module name stripped)
+         The leading "<Module>\" segment of %(RecursiveDir) is stripped so each module
+         contributes into a shared "source/" namespace (e.g. "shaders/mesh.vert.glsl"
+         resolves to "Modules/3DEngine.Renderer.Pipelines/Shaders/mesh.vert.glsl").
+         Lowercased for case-sensitive filesystems. PreserveNewest => only changed files recopy.
+         Vendored Source/** is split into a second block: visible in the IDE but never
+         staged (those projects ship their own outputs; staging would produce paths like
+         "source/source/ultralightnet.binaries/..."). -->
     <ItemGroup>
         <Content Include="..\Modules\**\*"
                  Exclude="..\Modules\**\*.cs;..\Modules\**\Source\**;$(ModulesIdeIgnore)">
@@ -138,8 +94,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Visible>true</Visible>
         </Content>
-
-        <!-- Vendored Source/** non-.cs files: visible only, never copied. -->
         <Content Include="..\Modules\**\Source\**\*"
                  Exclude="..\Modules\**\*.cs;$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -147,16 +101,11 @@
             <Visible>true</Visible>
         </Content>
     </ItemGroup>
-
-    <!-- Module Tests/** are linked into the 3DEngine.Test project (assembly name
-         "Engine.Tests") and exercise internal APIs of types compiled directly
-         into this engine assembly (e.g. Input.SetKey, Input.BeginFrame,
-         RendererDiagnostics.RecordFrame, BehaviorConditions.ModifiersHeld, ...).
-         Grant that test assembly access to internals. -->
+    <!-- Module Tests/** are linked into 3DEngine.Test (assembly "Engine.Tests") and
+         exercise internal APIs of types compiled into this engine assembly. -->
     <ItemGroup>
         <InternalsVisibleTo Include="Engine.Tests" />
     </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="SDL3-CS" Version="3.4.2" />
         <PackageReference Include="UltralightNet.Barebones" Version="1.0.0" />
@@ -167,28 +116,22 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
     </ItemGroup>
-
-    <!-- ASP.NET Core reference assemblies are needed at compile time so the
-         editor module's EditorPlugin (Modules\3DEngine.Editor\Runtime\EditorPlugin.cs)
-         can directly use Microsoft.AspNetCore.Builder.WebApplication returned by
-         EditorServerHost.StartAsync. The runtime DLLs are already shipped via the
+    <!-- ASP.NET Core reference assemblies needed at compile time so EditorPlugin
+         (Modules\3DEngine.Editor\Runtime\EditorPlugin.cs) can use the WebApplication
+         returned by EditorServerHost.StartAsync. Runtime DLLs ship via the
          3DEngine.Server project reference; this only adds reference assemblies. -->
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-
     <ItemGroup>
-      <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj"
-                        OutputItemType="Analyzer"
-                        ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
-
-      <!-- Vendored UltralightNet subtree (excluded from Modules glob above).
-           Built as separate assemblies and consumed via project references.
-           Both top-level projects listed because Directory.Build.props sets
-           <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>. -->
-      <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\UltralightNet.csproj" />
-      <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
+        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator\3DEngine.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
+        <!-- Vendored UltralightNet subtree (excluded from the Modules glob above).
+             Both top-level projects must be listed because Directory.Build.props sets
+             <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>. -->
+        <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\UltralightNet.csproj" />
+        <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
     </ItemGroup>
-
 </Project>

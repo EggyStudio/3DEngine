@@ -2,9 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <!-- Tests reference internal members of types compiled into the engine
-             assembly (e.g. Input.SetKey, RendererDiagnostics.RecordFrame).
-             Engine declares [InternalsVisibleTo("Engine.Tests")], so the test
+        <!-- Engine declares [InternalsVisibleTo("Engine.Tests")], so the test
              assembly must be produced under that exact name. -->
         <AssemblyName>Engine.Tests</AssemblyName>
         <RootNamespace>Engine.Tests</RootNamespace>
@@ -51,21 +49,15 @@
         </Compile>
     </ItemGroup>
 
-    <!-- Stage every non-.cs module file under "source/<rel-path>/..." next
-         to the test binary so the runtime FileAssetReader (rooted at
-         "{AppContext.BaseDirectory}/source") can find any asset shipped by
-         any module, regardless of file extension. PreserveNewest ⇒ only
-         changed files are recopied. Mirrors the staging block in
-         3DEngine.csproj so tests see the exact same on-disk layout as the
-         engine app.
+    <!-- Stage every non-.cs module file under "source/<rel-path>/..." next to the
+         test binary so the runtime FileAssetReader (rooted at
+         "{AppContext.BaseDirectory}/source") sees the same on-disk layout as the
+         engine app. Mirrors the staging block in 3DEngine.csproj.
 
-         Mapping: ..\Modules\<Module>\<Sub>\...\file.ext  ->  source\<sub>\...\file.ext
-         The leading "<Module>\" segment of %(RecursiveDir) is stripped so
-         each module contributes into a shared "source/" namespace (e.g.
-         Renderer loads "shaders/mesh.vert.glsl" from
-         "Modules/3DEngine.Renderer.Pipelines/Shaders/mesh.vert.glsl").
-         Lowercased so case-sensitive filesystems (Linux) match the
-         lowercase paths the loaders use. -->
+         Mapping: ..\Modules\<Module>\<Sub>\...\file.ext -> source\<sub>\...\file.ext
+         (leading "<Module>\" stripped so all modules share one "source/" namespace,
+         lowercased for case-sensitive filesystems). PreserveNewest => only changed
+         files recopy. -->
     <ItemGroup>
         <None Include="..\Modules\**\*"
               Exclude="..\Modules\**\*.cs;$(ModulesGitExclude)"
