@@ -70,7 +70,7 @@
 	path = Modules/3DEngine.Scenes
 	url = https://github.com/EggyStudio/3DEngine.Scenes.git
 	branch = main
-[submodule "Modules/3DEngine.ScenesUsd"]
-	path = Modules/3DEngine.ScenesUsd
-	url = https://github.com/EggyStudio/3DEngine.ScenesUsd.git
+[submodule "Modules/3DEngine.Scenes.Usd"]
+	path = Modules/3DEngine.Scenes.Usd
+	url = https://github.com/EggyStudio/3DEngine.Scenes.Usd.git
 	branch = main
