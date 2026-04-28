@@ -1,10 +1,10 @@
-[submodule "3DEngine.Application"]
-	path = Modules/3DEngine.Application
-	url = https://github.com/EggyStudio/3DEngine.Application
+[submodule "3DEngine.App"]
+	path = Modules/3DEngine.App
+	url = https://github.com/EggyStudio/3DEngine.App
 	branch = main
-[submodule "3DEngine.Application.ImGui"]
-	path = Modules/3DEngine.Application.ImGui
-	url = https://github.com/EggyStudio/3DEngine.Application.ImGui
+[submodule "3DEngine.App.ImGui"]
+	path = Modules/3DEngine.App.ImGui
+	url = https://github.com/EggyStudio/3DEngine.App.ImGui
 	branch = main
 [submodule "Modules/3DEngine.Common"]
 	path = Modules/3DEngine.Common
