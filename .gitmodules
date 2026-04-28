@@ -66,3 +66,7 @@
 	path = Modules/3DEngine.Editor
 	url = https://github.com/EggyStudio/3DEngine.Editor
 	branch = main
+[submodule "Modules/3DEngine.Scenes"]
+	path = Modules/3DEngine.Scenes
+	url = https://github.com/EggyStudio/3DEngine.Scenes.git
+	branch = main
