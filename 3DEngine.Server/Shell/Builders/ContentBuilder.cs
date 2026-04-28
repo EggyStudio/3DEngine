@@ -873,4 +873,3 @@ internal sealed class NavigationMenuBuilder : INavigationMenuBuilder
         return this;
     }
 }
-

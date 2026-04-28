@@ -2,6 +2,14 @@
 
     <PropertyGroup>
         <SelfContained>true</SelfContained>
+
+        <!-- Force the default namespace used by the Razor source generator
+             (App.razor, Routes.razor, Pages/*.razor) to match the namespace
+             declared in the hand-written .cs / @namespace files
+             (Editor.Server / Editor.Server.Shared). Without this, MSBuild
+             derives "_3DEngine.Server" from the project name, causing
+             type lookups like Shared.ShellLayout to fail. -->
+        <RootNamespace>Editor.Server</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

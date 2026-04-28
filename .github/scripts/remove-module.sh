@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# Remove a submodule cleanly. Optionally also delete the GitHub repo.
+# Remove a submodule cleanly. By default ALSO deletes the GitHub repo.
 #
 # Usage:
-#   ./remove-module.sh <ModuleName>                 # local removal only
-#   ./remove-module.sh <ModuleName> --delete-remote # also delete the GitHub repo
+#   ./remove-module.sh <ModuleName>              # local + remote (default)
+#   ./remove-module.sh <ModuleName> --keep-remote # local only, leave repo
 #
-# Owner for --delete-remote defaults to the authenticated gh user; override
-# with: OWNER=EggyStudio ./remove-module.sh ... --delete-remote
+# Owner for remote deletion defaults to the authenticated gh user; override
+# with: OWNER=EggyStudio ./remove-module.sh ...
 set -euo pipefail
 
 if [ "$#" -lt 1 ] || [ -z "${1:-}" ]; then
-    echo "Usage: $0 <ModuleName> [--delete-remote]" >&2
+    echo "Usage: $0 <ModuleName> [--keep-remote]" >&2
     exit 1
 fi
 
 name="$1"
-delete_remote=0
-if [ "${2:-}" = "--delete-remote" ]; then
-    delete_remote=1
+delete_remote=1
+if [ "${2:-}" = "--keep-remote" ]; then
+    delete_remote=0
 fi
 
 cd "$(git rev-parse --show-toplevel)"
@@ -47,5 +47,6 @@ if [ "$delete_remote" -eq 1 ]; then
     echo "• Deleting GitHub repo $owner/$name (requires delete_repo scope)..."
     gh repo delete "$owner/$name" --yes
     echo "  ✓ remote repo deleted."
+else
+    echo "• --keep-remote specified; leaving GitHub repo intact."
 fi
-

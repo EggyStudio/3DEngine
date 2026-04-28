@@ -12,4 +12,3 @@ fi
 cd "$(git rev-parse --show-toplevel)"
 
 git submodule foreach --recursive "git $* || true"
-

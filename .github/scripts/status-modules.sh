@@ -15,4 +15,3 @@ git submodule foreach --quiet --recursive '
     fi
     printf "%-50s %-15s %s%s\n" "$name" "$branch" "$commit" "$dirty"
 '
-

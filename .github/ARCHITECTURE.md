@@ -817,4 +817,3 @@ Yes. The behavior generator emits `SystemDescriptor` registrations under the hoo
 **What happens if I don't declare `Read`/`Write` on a system?**
 The parallel scheduler treats it conservatively as a broad writer, serializing it against all other systems in the same
 stage. Adding explicit metadata enables parallel execution.
-

@@ -279,4 +279,3 @@ public sealed partial class ShellCompiler
         return Path.GetFileName(filePath);
     }
 }
-

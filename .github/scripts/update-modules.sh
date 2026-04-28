@@ -25,4 +25,3 @@ if ! git diff --quiet --ignore-submodules=none -- ; then
 else
     echo "All submodules already up to date."
 fi
-

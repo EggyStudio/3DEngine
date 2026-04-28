@@ -100,4 +100,3 @@ git commit -m "Rename $old -> $new"
 
 echo ">> Done. Review with: git show --stat HEAD"
 echo "   Push with:        git push"
-

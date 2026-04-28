@@ -25,4 +25,3 @@ if ! git diff --quiet -- Modules; then
     git commit -m "$msg"
     git push
 fi
-

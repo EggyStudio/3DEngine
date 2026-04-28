@@ -28,7 +28,10 @@
             ..\..\Modules\**\.git\**;
             ..\..\Modules\**\.gitignore;
             ..\..\Modules\**\.gitattributes;
-            ..\..\Modules\**\.gitmodules
+            ..\..\Modules\**\.gitmodules;
+            ..\..\Modules\**\bin\**;
+            ..\..\Modules\**\obj\**;
+            ..\..\Modules\**\Source\**
         </ModulesGitExclude>
     </PropertyGroup>
 

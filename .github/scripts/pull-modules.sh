@@ -11,4 +11,3 @@ git submodule foreach --recursive '
     git checkout "$branch"
     git pull --ff-only origin "$branch"
 '
-

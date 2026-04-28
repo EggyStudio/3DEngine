@@ -289,4 +289,3 @@ public sealed partial class ShellCompiler
         return descriptor;
     }
 }
-

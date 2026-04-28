@@ -15,4 +15,3 @@ git submodule foreach --recursive '
     git reset --hard
     git clean -fdx
 '
-

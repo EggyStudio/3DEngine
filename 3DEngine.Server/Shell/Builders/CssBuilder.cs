@@ -430,4 +430,3 @@ public sealed class CssBuilder
         _ => "start"
     };
 }
-

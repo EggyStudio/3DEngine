@@ -56,4 +56,3 @@ public sealed partial class ShellCompiler : IDisposable
         AddDefaultReferences();
     }
 }
-

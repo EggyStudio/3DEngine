@@ -815,4 +815,3 @@ public interface INavigationMenuBuilder
     /// <returns>This builder for fluent chaining.</returns>
     INavigationMenuBuilder Group(string title, Action<INavigationMenuBuilder> configure);
 }
-

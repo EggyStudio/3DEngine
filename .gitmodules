@@ -6,6 +6,10 @@
 	path = Modules/3DEngine.Application.ImGui
 	url = https://github.com/EggyStudio/3DEngine.Application.ImGui
 	branch = main
+[submodule "Modules/3DEngine.Common"]
+	path = Modules/3DEngine.Common
+	url = https://github.com/EggyStudio/3DEngine.Common.git
+	branch = main
 [submodule "3DEngine.Entities"]
 	path = Modules/3DEngine.Entities
 	url = https://github.com/EggyStudio/3DEngine.Entities
@@ -65,8 +69,4 @@
 [submodule "3DEngine.Editor"]
 	path = Modules/3DEngine.Editor
 	url = https://github.com/EggyStudio/3DEngine.Editor
-	branch = main
-[submodule "Modules/3DEngine.Common"]
-	path = Modules/3DEngine.Common
-	url = https://github.com/EggyStudio/3DEngine.Common.git
 	branch = main
