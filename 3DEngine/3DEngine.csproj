@@ -145,10 +145,5 @@
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
-        <!-- Vendored UltralightNet subtree (excluded from the Modules glob above).
-             Both top-level projects must be listed because Directory.Build.props sets
-             <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>. -->
-        <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet\UltralightNet.csproj" />
-        <ProjectReference Include="..\Modules\3DEngine.UI.UltralightNet\Source\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
     </ItemGroup>
 </Project>
