@@ -11,4 +11,16 @@
         <PackageTags Condition="'$(PackageTags)' == ''">3D;Game;Engine;.Net10;C#14</PackageTags>
     </PropertyGroup>
 
+    <!-- UniversalSceneDescription ships its native plugin tree
+         (runtimes/<rid>/native/usd/**) via a transitive .targets file that every
+         project consuming USD (directly or via ProjectReference) re-imports.
+         When the engine publishes (PublishSingleFile=true, SelfContained=true)
+         each transitive contributor stages identical files at identical relative
+         paths, tripping NETSDK1152. Demote the duplicate-publish-output check to
+         a warning so the SDK picks one copy of each file. The duplicates are
+         byte-identical (same nuget package, same RID), so deduplication is safe. -->
+    <PropertyGroup>
+        <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    </PropertyGroup>
+
 </Project>

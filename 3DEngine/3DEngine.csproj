@@ -89,8 +89,11 @@
     <!-- IDE display + output staging for non-.cs module files.
          Stages each into "$(OutDir)source\<rel>\..." for the runtime FileAssetReader
          (rooted at "{AppContext.BaseDirectory}/source"). Matches ANY filename so
-         extension-less files (LICENSE / NOTICE / README) and any future asset type are
-         picked up automatically.
+         extension-less files (NOTICE-style data) and any future asset type are
+         picked up automatically. Top-level repo-metadata files (LICENSE, README,
+         NOTICE, CHANGELOG) are explicitly excluded because every module owns its
+         own copy and they would all flatten to the same `source/LICENSE` etc.,
+         tripping NETSDK1152 on publish.
          <Content> (not <None>) because Rider/VS reliably render <Compile> and <Content>
          items linked from outside the project root, but tend to silently drop linked <None>.
          <Link> controls IDE display:    Modules\<Module>\<Sub>\...\file.ext
@@ -104,7 +107,7 @@
          "source/source/ultralightnet.binaries/..."). -->
     <ItemGroup>
         <Content Include="..\Modules\**\*"
-                 Exclude="..\Modules\**\*.cs;..\Modules\**\Source\**;$(ModulesIdeIgnore)">
+                 Exclude="..\Modules\**\*.cs;..\Modules\**\Source\**;..\Modules\*\LICENSE;..\Modules\*\LICENSE.*;..\Modules\*\NOTICE;..\Modules\*\NOTICE.*;..\Modules\*\README;..\Modules\*\README.*;..\Modules\*\CHANGELOG;..\Modules\*\CHANGELOG.*;$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <TargetPath>source\$([System.Text.RegularExpressions.Regex]::Replace('%(RecursiveDir)', '^[^\\/]+[\\/]', '').ToLowerInvariant())%(Filename)%(Extension)</TargetPath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
