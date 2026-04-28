@@ -15,4 +15,3 @@ namespace Editor.Shell;
 /// <seealso cref="StaticShellLoader"/>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class GeneratedShellRegistrationAttribute : Attribute;
-

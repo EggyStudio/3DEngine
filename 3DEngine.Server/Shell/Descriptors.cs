@@ -1,6 +1,5 @@
 namespace Editor.Shell;
 
-
 // -- Dock & Layout Enums --
 
 /// <summary>Hint for the default dock zone of a panel.</summary>
@@ -14,14 +13,19 @@ public enum DockZone
 {
     /// <summary>Docked to the top edge (e.g. toolbars, menubars).</summary>
     Top,
+
     /// <summary>Docked to the left edge (e.g. scene tree, asset browser).</summary>
     Left,
+
     /// <summary>Docked to the right edge (e.g. inspector, properties panel).</summary>
     Right,
+
     /// <summary>Docked to the bottom edge (e.g. console, log output).</summary>
     Bottom,
+
     /// <summary>Center workspace area (e.g. viewport, main editor canvas).</summary>
     Center,
+
     /// <summary>Floating window, not docked to any edge.</summary>
     Float,
 }

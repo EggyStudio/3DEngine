@@ -19,8 +19,8 @@ public struct TriangleMeshTest
         ctx.Ecs.Add(camera, new Transform(new Vector3(0, 0, 5)));
 
         var mesh = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(mesh, new Mesh(new[] { new Vector3(0,1,0), new Vector3(-1,-1,0), new Vector3(1,-1,0) }));
-        ctx.Ecs.Add(mesh, new Material(new Vector4(1, 1, 1, 1))); 
+        ctx.Ecs.Add(mesh, new Mesh(new[] { new Vector3(0, 1, 0), new Vector3(-1, -1, 0), new Vector3(1, -1, 0) }));
+        ctx.Ecs.Add(mesh, new Material(new Vector4(1, 1, 1, 1)));
         ctx.Ecs.Add(mesh, new Transform(Vector3.Zero));
     }
 }

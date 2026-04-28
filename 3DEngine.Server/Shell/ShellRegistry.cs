@@ -1,4 +1,5 @@
 namespace Editor.Shell;
+
 /// <summary>
 /// Central registry holding the merged <see cref="ShellDescriptor"/> assembled from
 /// any number of named <see cref="ShellSource"/> contributions (e.g. the static
@@ -32,15 +33,28 @@ public sealed class ShellRegistry
     private readonly Dictionary<string, ShellSource> _sources = new(StringComparer.Ordinal);
     private ShellDescriptor _current = new();
     private int _version;
+
     /// <summary>Fired when the merged shell descriptor is replaced (source upserted/removed).</summary>
     public event Action? Changed;
+
     /// <summary>Monotonically increasing version; bumped on every merge.</summary>
-    public int Version { get { lock (_lock) return _version; } }
+    public int Version
+    {
+        get
+        {
+            lock (_lock) return _version;
+        }
+    }
+
     /// <summary>Current merged shell descriptor snapshot.</summary>
     public ShellDescriptor Current
     {
-        get { lock (_lock) return _current; }
+        get
+        {
+            lock (_lock) return _current;
+        }
     }
+
     /// <summary>
     /// Atomically replaces the contribution for <paramref name="sourceId"/>, recomputes the
     /// merged descriptor, and fires <see cref="Changed"/>.
@@ -59,8 +73,10 @@ public sealed class ShellRegistry
             _current = Merge(_sources);
             _version++;
         }
+
         Changed?.Invoke();
     }
+
     /// <summary>
     /// Removes the contribution for <paramref name="sourceId"/> if present, recomputes the
     /// merged descriptor, and fires <see cref="Changed"/>. No-op when the source isn't registered.
@@ -78,8 +94,10 @@ public sealed class ShellRegistry
                 _version++;
             }
         }
+
         if (changed) Changed?.Invoke();
     }
+
     /// <summary>
     /// Legacy single-source update kept for back-compat. Wraps <paramref name="descriptor"/> as a
     /// <see cref="ShellSourceIds.Dynamic"/> source and calls <see cref="RegisterSource"/>.
@@ -98,6 +116,7 @@ public sealed class ShellRegistry
         };
         RegisterSource(ShellSourceIds.Dynamic, source);
     }
+
     private static ShellDescriptor Merge(Dictionary<string, ShellSource> sources)
     {
         var orderedSources = sources
@@ -112,9 +131,16 @@ public sealed class ShellRegistry
         var shellBuilder = new ShellBuilder();
         foreach (var (b, _) in allBuilders)
         {
-            try { b.Build(shellBuilder); }
-            catch { /* one bad builder must not break the registry */ }
+            try
+            {
+                b.Build(shellBuilder);
+            }
+            catch
+            {
+                /* one bad builder must not break the registry */
+            }
         }
+
         var merged = shellBuilder.Build();
         // Append [EditorPanel] component panels in precedence order.
         foreach (var (_, src) in orderedSources)
@@ -137,6 +163,7 @@ public sealed class ShellRegistry
                 });
             }
         }
+
         // Collision policy: panels with the same Id - keep the LAST occurrence (higher-precedence
         // sources were appended later). Empty-id panels are kept verbatim.
         var lastIndexOfId = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -145,6 +172,7 @@ public sealed class ShellRegistry
             var id = merged.Panels[i].Id;
             if (!string.IsNullOrEmpty(id)) lastIndexOfId[id] = i;
         }
+
         var deduped = new List<PanelDescriptor>(merged.Panels.Count);
         for (int i = 0; i < merged.Panels.Count; i++)
         {
@@ -152,14 +180,17 @@ public sealed class ShellRegistry
             if (string.IsNullOrEmpty(p.Id) || lastIndexOfId[p.Id] == i)
                 deduped.Add(p);
         }
+
         merged.Panels = deduped;
         merged.CustomCss = orderedSources.SelectMany(kv => kv.Value.CustomCss).ToList();
         return merged;
     }
+
     /// <summary>Adapter that re-exposes a pre-built <see cref="ShellDescriptor"/> as an <see cref="IEditorShellBuilder"/>.</summary>
     private sealed class PrebuiltDescriptorBuilder(ShellDescriptor descriptor) : IEditorShellBuilder
     {
         public int Order => 0;
+
         public void Build(IShellBuilder shell)
         {
             foreach (var p in descriptor.Panels)
@@ -175,6 +206,7 @@ public sealed class ShellRegistry
                     if (!string.IsNullOrEmpty(p.WidgetKey)) b.Widget(p.WidgetKey);
                 });
             }
+
             foreach (var (k, v) in descriptor.Metadata) shell.Meta(k, v);
         }
     }

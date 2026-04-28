@@ -1,6 +1,5 @@
 namespace Editor.Shell;
 
-
 /// <summary>
 /// A single UI element in the content tree. Tag determines the component type,
 /// Props carry configuration, Children form the tree, and event handlers are first-class.
@@ -55,7 +54,9 @@ public sealed class Element
     public Action<int>? OnIndexChanged { get; set; }
 
     /// <summary>Creates a default element with tag <c>"div"</c>.</summary>
-    public Element() { }
+    public Element()
+    {
+    }
 
     /// <summary>Creates an element with the specified tag.</summary>
     /// <param name="tag">The component type tag (e.g. <c>"button"</c>, <c>"card"</c>).</param>
@@ -64,9 +65,12 @@ public sealed class Element
     /// <summary>Creates an element with the specified tag and text content.</summary>
     /// <param name="tag">The component type tag.</param>
     /// <param name="text">Primary text content for the element.</param>
-    public Element(string tag, string? text) { Tag = tag; Text = text; }
+    public Element(string tag, string? text)
+    {
+        Tag = tag;
+        Text = text;
+    }
 }
-
 
 /// <summary>Fluent builder for composing UI element trees. No Blazor dependency.</summary>
 /// <remarks>
@@ -187,7 +191,8 @@ public interface IContentBuilder
     /// <param name="loading">Whether the button shows a loading spinner.</param>
     /// <param name="href">Optional URL; turns the button into a link.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Button(string? css, string label, Action? onClick = null, string? variant = null, string? icon = null,
+    IContentBuilder Button(string? css, string label, Action? onClick = null, string? variant = null,
+        string? icon = null,
         bool disabled = false, bool loading = false, string? href = null);
 
     /// <summary>Adds a single-line text input.</summary>
@@ -197,7 +202,8 @@ public interface IContentBuilder
     /// <param name="onChanged">Callback invoked when the text changes.</param>
     /// <param name="id">Optional element id for label association.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Input(string? css, string? placeholder = null, string? value = null, Action<string>? onChanged = null, string? id = null);
+    IContentBuilder Input(string? css, string? placeholder = null, string? value = null,
+        Action<string>? onChanged = null, string? id = null);
 
     /// <summary>Adds a multi-line text area.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -206,7 +212,8 @@ public interface IContentBuilder
     /// <param name="onChanged">Callback invoked when the text changes.</param>
     /// <param name="id">Optional element id for label association.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Textarea(string? css, string? placeholder = null, string? value = null, Action<string>? onChanged = null, string? id = null);
+    IContentBuilder Textarea(string? css, string? placeholder = null, string? value = null,
+        Action<string>? onChanged = null, string? id = null);
 
     /// <summary>Adds a checkbox with optional label.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -215,7 +222,8 @@ public interface IContentBuilder
     /// <param name="onChanged">Callback invoked when the checked state changes.</param>
     /// <param name="id">Optional element id for label association.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Checkbox(string? css, string? label = null, bool initial = false, Action<bool>? onChanged = null, string? id = null);
+    IContentBuilder Checkbox(string? css, string? label = null, bool initial = false, Action<bool>? onChanged = null,
+        string? id = null);
 
     /// <summary>Adds a toggle switch with optional label.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -224,7 +232,8 @@ public interface IContentBuilder
     /// <param name="onChanged">Callback invoked when the switch state changes.</param>
     /// <param name="id">Optional element id for label association.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Switch(string? css, string? label = null, bool initial = false, Action<bool>? onChanged = null, string? id = null);
+    IContentBuilder Switch(string? css, string? label = null, bool initial = false, Action<bool>? onChanged = null,
+        string? id = null);
 
     /// <summary>Adds a dropdown select control.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -234,7 +243,8 @@ public interface IContentBuilder
     /// <param name="onChanged">Callback invoked with the selected value when changed.</param>
     /// <param name="id">Optional element id for label association.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder Select(string? css, (string Value, string Label)[] options, string? placeholder = null, string? selected = null,
+    IContentBuilder Select(string? css, (string Value, string Label)[] options, string? placeholder = null,
+        string? selected = null,
         Action<string>? onChanged = null, string? id = null);
 
     /// <summary>Adds a radio button group.</summary>
@@ -501,7 +511,8 @@ public interface IContentBuilder
     /// <param name="configure">Callback to configure the alert dialog via <see cref="IAlertDialogBuilder"/>.</param>
     /// <param name="triggerVariant">Visual variant for the trigger button.</param>
     /// <returns>This builder for fluent chaining.</returns>
-    IContentBuilder AlertDialog(string triggerLabel, Action<IAlertDialogBuilder> configure, string? triggerVariant = null);
+    IContentBuilder AlertDialog(string triggerLabel, Action<IAlertDialogBuilder> configure,
+        string? triggerVariant = null);
 
     // -- Menubar & Navigation Menu --
 
@@ -557,7 +568,6 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder DarkModeToggle(string? css = null);
 }
-
 
 /// <summary>Sub-builder for card structure (header, title, description, content, footer).</summary>
 /// <seealso cref="IContentBuilder.Card"/>

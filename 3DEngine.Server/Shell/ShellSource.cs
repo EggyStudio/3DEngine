@@ -44,4 +44,3 @@ public static class ShellSourceIds
     /// <summary>Source id used by the runtime Roslyn-based hot-reload compiler.</summary>
     public const string Dynamic = "dynamic";
 }
-

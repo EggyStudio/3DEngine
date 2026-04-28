@@ -35,16 +35,31 @@ public static class StaticShellLoader
             if (asm.IsDynamic) continue;
 
             Type[] types;
-            try { types = asm.GetTypes(); }
-            catch (ReflectionTypeLoadException ex) { types = ex.Types.Where(t => t is not null).ToArray()!; }
-            catch { continue; }
+            try
+            {
+                types = asm.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(t => t is not null).ToArray()!;
+            }
+            catch
+            {
+                continue;
+            }
 
             foreach (var t in types)
             {
                 if (t is null) continue;
                 MethodInfo[] methods;
-                try { methods = t.GetMethods(flags); }
-                catch { continue; }
+                try
+                {
+                    methods = t.GetMethods(flags);
+                }
+                catch
+                {
+                    continue;
+                }
 
                 foreach (var m in methods)
                 {
@@ -63,7 +78,7 @@ public static class StaticShellLoader
                 }
             }
         }
+
         return invoked;
     }
 }
-
