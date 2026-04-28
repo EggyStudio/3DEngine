@@ -30,9 +30,9 @@
 	path = Modules/3DEngine.Renderer
 	url = https://github.com/EggyStudio/3DEngine.Renderer
 	branch = main
-[submodule "3DEngine.Renderer.Components"]
-	path = Modules/3DEngine.Renderer.Components
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Components
+[submodule "3DEngine.Components"]
+	path = Modules/3DEngine.Components
+	url = https://github.com/EggyStudio/3DEngine.Components
 	branch = main
 [submodule "3DEngine.Extracts"]
 	path = Modules/3DEngine.Extracts
