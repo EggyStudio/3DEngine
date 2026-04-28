@@ -125,7 +125,7 @@
     <ItemGroup>
         <PackageReference Include="SDL3-CS" Version="3.4.2" />
         <PackageReference Include="UltralightNet.Barebones" Version="1.0.0" />
-        <PackageReference Include="UniversalSceneDescription" Version="7.0.0" />
+        <PackageReference Include="UniversalSceneDescription" Version="7.0.2" />
         <PackageReference Include="Vortice.VulkanMemoryAllocator" Version="1.7.0" />
         <PackageReference Include="Vortice.ShaderCompiler" Version="1.9.0" />
         <PackageReference Include="Vortice.SpirvCross" Version="1.5.4" />
