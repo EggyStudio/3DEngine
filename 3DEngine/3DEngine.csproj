@@ -52,7 +52,7 @@
             ..\Modules\**\Source\**
         </ModulesCompileExclude>
         <!-- Code that lives next to a module but is built by *another* csproj:
-             Tests/**     -> 3DEngine.Test\3DEngine.Test.csproj
+             Tests/**     -> 3DEngine.Tests\3DEngine.Tests.csproj
              Generator/** -> 3DEngine.Generator\3DEngine.Generator.csproj
              Shown in the IDE Modules tree (see <None> below) but NOT compiled here. -->
         <ModulesForeignSources>
@@ -118,7 +118,7 @@
             <Visible>true</Visible>
         </Content>
     </ItemGroup>
-    <!-- Module Tests/** are linked into 3DEngine.Test (assembly "Engine.Tests") and
+    <!-- Module Tests/** are linked into 3DEngine.Tests (assembly "Engine.Tests") and
          exercise internal APIs of types compiled into this engine assembly. -->
     <ItemGroup>
         <InternalsVisibleTo Include="Engine.Tests" />
