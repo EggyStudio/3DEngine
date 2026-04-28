@@ -23,4 +23,66 @@
         <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     </PropertyGroup>
 
+    <!-- ================================================================
+         Stage the OpenUSD plugin tree under OutDir/usd/ (and PublishDir/usd/)
+         ================================================================
+         The UniversalSceneDescription package stages plugin resources via
+         <None Link="runtimes\<rid>\native\usd\..."> items, but the .NET SDK's
+         runtime-asset resolver (ResolveRuntimePackAssets / RID asset filtering)
+         then flattens everything under runtimes/<rid>/native/ to the bin root.
+         That collapses every per-plugin plugInfo.json (usd/ar/resources/,
+         usd/sdf/resources/, ...) onto the same target name, so only one
+         survives and Pixar's plugin discovery fails with:
+
+             Coding Error: ... Failed to find plugin for ArDefaultResolver
+
+         To work around this, copy the package's runtimes/<rid>/native/usd/
+         tree directly into $(OutDir)usd/ where the SDK won't touch it.
+         UsdRuntime.Initialize() (with no args) probes BaseDirectory/usd by
+         default, which then matches the proper nested layout.
+
+         Resolved by referencing the package's GeneratePathProperty-injected
+         $(PkgUniversalSceneDescription) variable. Projects that don't
+         reference UniversalSceneDescription skip this target entirely
+         (the property is empty). -->
+    <Target Name="StageUsdPluginTree"
+            AfterTargets="Build"
+            Condition="'$(PkgUniversalSceneDescription)' != ''">
+        <PropertyGroup>
+            <_UsdRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('Linux'))">linux-x64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64'">osx-arm64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx-x64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win-x64</_UsdRid>
+            <_UsdSourceDir>$(PkgUniversalSceneDescription)/runtimes/$(_UsdRid)/native/usd</_UsdSourceDir>
+        </PropertyGroup>
+        <ItemGroup>
+            <_UsdPluginTreeFiles Include="$(_UsdSourceDir)/**/*" Condition="Exists('$(_UsdSourceDir)')" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_UsdPluginTreeFiles)"
+              DestinationFiles="@(_UsdPluginTreeFiles->'$(OutDir)usd/%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"
+              Condition="'@(_UsdPluginTreeFiles)' != ''" />
+    </Target>
+
+    <Target Name="StageUsdPluginTreeOnPublish"
+            AfterTargets="Publish"
+            Condition="'$(PkgUniversalSceneDescription)' != ''">
+        <PropertyGroup>
+            <_UsdRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('Linux'))">linux-x64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64'">osx-arm64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx-x64</_UsdRid>
+            <_UsdRid Condition="'$(_UsdRid)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win-x64</_UsdRid>
+            <_UsdSourceDir>$(PkgUniversalSceneDescription)/runtimes/$(_UsdRid)/native/usd</_UsdSourceDir>
+        </PropertyGroup>
+        <ItemGroup>
+            <_UsdPluginTreeFilesPub Include="$(_UsdSourceDir)/**/*" Condition="Exists('$(_UsdSourceDir)')" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_UsdPluginTreeFilesPub)"
+              DestinationFiles="@(_UsdPluginTreeFilesPub->'$(PublishDir)usd/%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"
+              Condition="'@(_UsdPluginTreeFilesPub)' != ''" />
+    </Target>
+
 </Project>
