@@ -21,22 +21,23 @@
 
     <!-- Pull every Generator/** folder from every module into this analyzer assembly.
          Linked with Visible=false so the IDE shows them only in the engine project's
-         Modules tree (single source of truth). -->
+         Modules tree (single source of truth). The csproj sits one level above the
+         Modules\ directory so the glob is "..\Modules\**", not "..\..\Modules\**". -->
     <PropertyGroup>
         <ModulesGitExclude>
-            ..\..\Modules\**\.git;
-            ..\..\Modules\**\.git\**;
-            ..\..\Modules\**\.gitignore;
-            ..\..\Modules\**\.gitattributes;
-            ..\..\Modules\**\.gitmodules;
-            ..\..\Modules\**\bin\**;
-            ..\..\Modules\**\obj\**;
-            ..\..\Modules\**\Source\**
+            ..\Modules\**\.git;
+            ..\Modules\**\.git\**;
+            ..\Modules\**\.gitignore;
+            ..\Modules\**\.gitattributes;
+            ..\Modules\**\.gitmodules;
+            ..\Modules\**\bin\**;
+            ..\Modules\**\obj\**;
+            ..\Modules\**\Source\**
         </ModulesGitExclude>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\..\Modules\**\Generator\**\*.cs"
+        <Compile Include="..\Modules\**\Generator\**\*.cs"
                  Exclude="$(ModulesGitExclude)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>false</Visible>
