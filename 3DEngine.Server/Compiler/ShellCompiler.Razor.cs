@@ -29,14 +29,12 @@ public sealed partial class ShellCompiler
 
         try
         {
-            // Clean previous build artifacts
             var srcDir = Path.Combine(projectDir, "src");
             if (Directory.Exists(srcDir))
                 Directory.Delete(srcDir, recursive: true);
             Directory.CreateDirectory(srcDir);
 
-            // Copy source files into the temp project's src/ directory,
-            // preserving relative paths to avoid filename collisions
+            // Preserve relative paths so files in different subdirectories don't collide.
             foreach (var file in csFiles.Concat(razorFiles))
             {
                 var relativePath = GetRelativeScriptPath(file);
@@ -45,7 +43,6 @@ public sealed partial class ShellCompiler
                 File.Copy(file, dest, overwrite: true);
             }
 
-            // Copy _Imports.razor if present in any script directory
             foreach (var dir in _scriptDirectories)
             {
                 var imports = Path.Combine(dir, "_Imports.razor");
@@ -56,11 +53,9 @@ public sealed partial class ShellCompiler
                 }
             }
 
-            // Generate the .csproj
             var csprojPath = Path.Combine(projectDir, "EditorShells.csproj");
             File.WriteAllText(csprojPath, GenerateProjectFile(gen));
 
-            // Run dotnet build
             var (exitCode, stdout, stderr) = RunDotnetBuild(projectDir);
 
             if (exitCode != 0)
@@ -68,7 +63,7 @@ public sealed partial class ShellCompiler
                 ParseBuildErrors(stderr + "\n" + stdout, result);
                 if (result.Errors.Count == 0)
                 {
-                    // Fallback: add raw output as error
+                    // Fallback when output didn't match the standard error format.
                     result.Errors.Add(new ShellCompilationError
                     {
                         FileName = "dotnet build",
@@ -81,13 +76,9 @@ public sealed partial class ShellCompiler
                 return null;
             }
 
-            // Locate output DLL
             var outputDll = Path.Combine(projectDir, "bin", "Debug", "net10.0", "EditorShells.dll");
             if (!File.Exists(outputDll))
-            {
-                // Try Release
                 outputDll = Path.Combine(projectDir, "bin", "Release", "net10.0", "EditorShells.dll");
-            }
 
             if (!File.Exists(outputDll))
             {

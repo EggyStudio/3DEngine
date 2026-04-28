@@ -21,14 +21,12 @@ public sealed partial class ShellCompiler
     /// </summary>
     private void AddDefaultReferences()
     {
-        // Core runtime assemblies
         var trustedPlatformAssemblies = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
         if (trustedPlatformAssemblies != null)
         {
             foreach (var path in trustedPlatformAssemblies.Split(Path.PathSeparator))
             {
                 var fileName = Path.GetFileName(path);
-                // Include essential runtime assemblies
                 if (fileName.StartsWith("System.") || fileName.StartsWith("Microsoft.") ||
                     fileName == "mscorlib.dll" || fileName == "netstandard.dll")
                 {
@@ -38,7 +36,7 @@ public sealed partial class ShellCompiler
             }
         }
 
-        // Add Editor.Shell itself (so scripts can reference the builder API)
+        // Editor.Shell so user scripts can reference the builder API.
         AddReference(typeof(ShellRegistry).Assembly);
     }
 

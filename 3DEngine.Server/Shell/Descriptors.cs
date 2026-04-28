@@ -129,7 +129,7 @@ public sealed class PanelDescriptor
     public string? Route { get; set; }
 }
 
-// -- Content-level Descriptors (used by IContentBuilder elements) --
+// -- Content-level Descriptors --
 
 /// <summary>Describes a horizontal menubar with top-level menus (rendered inside content).</summary>
 /// <seealso cref="IMenubarBuilder"/>

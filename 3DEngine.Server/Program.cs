@@ -7,11 +7,10 @@ using Editor.Shell;
 var shellRegistry = new ShellRegistry();
 ShellCompiler? compiler = null;
 
-// Look for a source/shells/ directory next to the executable
 var scriptsDir = Path.Combine(AppContext.BaseDirectory, "source", "shells");
 if (!Directory.Exists(scriptsDir))
 {
-    // Also try relative to project directory (for `dotnet run`)
+    // Fallback for `dotnet run` from the project directory.
     scriptsDir = Path.Combine(Directory.GetCurrentDirectory(), "..", "Editor", "Shells");
 }
 
@@ -82,11 +81,9 @@ namespace Editor.Server
             builder.Services.AddSingleton(shellRegistry);
             builder.Services.AddSingleton<EditorState>();
 
-            // Add services to the container
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            // Add BlazorBlueprint services
             builder.Services.AddBlazorBlueprintComponents();
 
             // SignalR for engine ↔ shell communication
@@ -94,7 +91,6 @@ namespace Editor.Server
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
@@ -107,7 +103,6 @@ namespace Editor.Server
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
-            // Map the editor SignalR hub
             app.MapHub<EditorHub>("/editor-hub");
 
             await app.StartAsync();

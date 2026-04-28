@@ -26,7 +26,6 @@ public sealed partial class ShellCompiler
         {
             var result = new ShellCompilationResult();
 
-            // Collect all script files
             var csFiles = new List<string>();
             var razorFiles = new List<string>();
             var cssFiles = new List<string>();
@@ -60,7 +59,6 @@ public sealed partial class ShellCompiler
                 var dllPath = CompileWithDotnetBuild(csFiles, razorFiles, cssFiles, result);
                 if (dllPath != null)
                 {
-                    // Load into isolated context
                     UnloadCurrent();
                     var gen = _generation;
                     var loadContext = new ScriptLoadContext($"Scripts_Gen{gen}");
@@ -100,7 +98,6 @@ public sealed partial class ShellCompiler
             // Discover and execute shell builders + Blazor panel components
             var shellDescriptor = DiscoverAndBuildShell(assembly, result);
 
-            // Collect custom CSS files
             foreach (var css in cssFiles)
             {
                 try
@@ -115,7 +112,6 @@ public sealed partial class ShellCompiler
                 }
             }
 
-            // Push to registry
             _registry.Update(shellDescriptor);
 
             var totalFiles = csFiles.Count + razorFiles.Count;
@@ -128,12 +124,11 @@ public sealed partial class ShellCompiler
     }
 
     /// <summary>
-    /// Compiles <c>.cs</c> files using the in-memory Roslyn pipeline (original fast path).
+    /// Compiles <c>.cs</c> files using the in-memory Roslyn pipeline.
     /// </summary>
     /// <returns>The loaded assembly, or <see langword="null"/> on failure.</returns>
     private Assembly? CompileWithRoslyn(List<string> csFiles, ShellCompilationResult result)
     {
-        // Parse
         var syntaxTrees = new List<SyntaxTree>();
         foreach (var file in csFiles)
         {
@@ -161,7 +156,6 @@ public sealed partial class ShellCompiler
             return null;
         }
 
-        // Compile
         var gen = Interlocked.Increment(ref _generation);
         var compilation = CSharpCompilation.Create(
             $"EditorScripts_Gen{gen}",
@@ -196,7 +190,7 @@ public sealed partial class ShellCompiler
             return null;
         }
 
-        // Load into isolated context
+        // Load into an isolated AssemblyLoadContext so the previous generation can be unloaded.
         ms.Position = 0;
         UnloadCurrent();
 
@@ -250,7 +244,7 @@ public sealed partial class ShellCompiler
         // Sort C# builders by Order
         builders.Sort((a, b) => a.Order.CompareTo(b.Order));
 
-        // Build the descriptor by running all C# builders against a shared ShellBuilder
+        // Run all builders against a shared ShellBuilder.
         var shellBuilder = new ShellBuilder();
         foreach (var builder in builders)
         {
@@ -266,7 +260,6 @@ public sealed partial class ShellCompiler
 
         var descriptor = shellBuilder.Build();
 
-        // Add native Blazor panel components
         foreach (var (attr, type) in panelComponents.OrderBy(p => p.Attr.Order))
         {
             var panel = new PanelDescriptor

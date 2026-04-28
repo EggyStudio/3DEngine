@@ -1,7 +1,6 @@
 @using Editor.Shell
 
 <div class="flex flex-col flex-1 overflow-hidden min-h-0">
-    @* Panel header - only shown when not a headerless center panel *@
     @if (Panel.DefaultZone != DockZone.Center || Panel.Closeable)
     {
         <div class="flex items-center h-7 border-b border-border/40 bg-background px-2 shrink-0 gap-1.5">
@@ -21,7 +20,6 @@
         </div>
     }
 
-    @* Panel content *@
     <div class="flex-1 overflow-auto min-h-0">
         @if (Panel.ComponentType is not null)
         {
