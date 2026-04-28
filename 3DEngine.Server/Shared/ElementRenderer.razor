@@ -6,7 +6,7 @@
 {
     switch (el.Tag)
     {
-        // ── Text & Display ──────────────────────────────────────────
+        // -- Text & Display --
         case "text":
             <span class="@el.Css">@el.Text</span>
             break;
@@ -97,7 +97,7 @@
             <BbKbd class="@el.Css">@el.Text</BbKbd>
             break;
 
-        // ── Interactive ─────────────────────────────────────────────
+        // -- Interactive --
         case "button":
             {
                 var v = PropStr(el, "variant");
@@ -274,7 +274,7 @@
             }
             break;
 
-        // ── Layout ──────────────────────────────────────────────────
+        // -- Layout --
         case "separator":
             <BbSeparator class="@el.Css" />
             break;
@@ -344,7 +344,7 @@
             }
             break;
 
-        // ── Cards ───────────────────────────────────────────────────
+        // -- Cards --
         case "card":
             <BbCard class="@el.Css">
                 <ElementRenderer Elements="el.Children" />
@@ -377,7 +377,7 @@
             </BbCardFooter>
             break;
 
-        // ── Alerts ──────────────────────────────────────────────────
+        // -- Alerts --
         case "alert":
             {
                 var alertVariant = PropStr(el, "variant");
@@ -435,7 +435,7 @@
             }
             break;
 
-        // ── Links ───────────────────────────────────────────────────
+        // -- Links --
         case "link":
             {
                 var href = PropStr(el, "href") ?? "#";
@@ -454,7 +454,7 @@
             }
             break;
 
-        // ── Tabs ────────────────────────────────────────────────────
+        // -- Tabs --
         case "tabs":
             {
                 var tabChildren = el.Children.Where(c => c.Tag == "tab").ToList();
@@ -482,7 +482,7 @@
             }
             break;
 
-        // ── Collapsible ─────────────────────────────────────────────
+        // -- Collapsible --
         case "collapsible":
             {
                 var collEl = el;
@@ -504,7 +504,7 @@
             }
             break;
 
-        // ── Dialog ──────────────────────────────────────────────────
+        // -- Dialog --
         case "dialog":
             {
                 var dlgEl = el;
@@ -549,7 +549,7 @@
             }
             break;
 
-        // ── Alert Dialog ────────────────────────────────────────────
+        // -- Alert Dialog --
         case "alert-dialog":
             {
                 var adEl = el;
@@ -586,7 +586,7 @@
             }
             break;
 
-        // ── Tooltip ─────────────────────────────────────────────────
+        // -- Tooltip --
         case "tooltip":
             {
                 var tipText = el.Text ?? "";
@@ -605,7 +605,7 @@
             }
             break;
 
-        // ── Dropdown Menu ──────────────────────────────────────────
+        // -- Dropdown Menu --
         case "dropdown-menu":
             {
                 var dmEl = el;
@@ -626,7 +626,7 @@
             }
             break;
 
-        // ── Context Menu ───────────────────────────────────────────
+        // -- Context Menu --
         case "context-menu":
             {
                 var cmTrigger = el.Props.TryGetValue("trigger", out var cmt) && cmt is List<Element> cmtList ? cmtList : [];
@@ -641,7 +641,7 @@
             }
             break;
 
-        // ── Popover ────────────────────────────────────────────────
+        // -- Popover --
         case "popover":
             {
                 var popTrigger = el.Props.TryGetValue("trigger", out var pt) && pt is List<Element> ptList ? ptList : [];
@@ -657,7 +657,7 @@
             }
             break;
 
-        // ── Hover Card ─────────────────────────────────────────────
+        // -- Hover Card --
         case "hover-card":
             {
                 var hcTrigger = el.Props.TryGetValue("trigger", out var hct) && hct is List<Element> hctList ? hctList : [];
@@ -673,7 +673,7 @@
             }
             break;
 
-        // ── Drawer ─────────────────────────────────────────────────
+        // -- Drawer --
         case "drawer":
             {
                 var drEl = el;
@@ -719,7 +719,7 @@
             }
             break;
 
-        // ── Sheet ──────────────────────────────────────────────────
+        // -- Sheet --
         case "sheet":
             {
                 var shEl = el;
@@ -765,7 +765,7 @@
             }
             break;
 
-        // ── Breadcrumb ─────────────────────────────────────────────
+        // -- Breadcrumb --
         case "breadcrumb":
             {
                 <BbBreadcrumb class="@el.Css">
@@ -803,7 +803,7 @@
             }
             break;
 
-        // ── Pagination ─────────────────────────────────────────────
+        // -- Pagination --
         case "pagination":
             {
                 var pgEl = el;
@@ -832,7 +832,7 @@
             }
             break;
 
-        // ── Editor: Tree Item ───────────────────────────────────────
+        // -- Editor: Tree Item --
         case "tree-item":
             {
                 var ic = PropIcon(el, "icon");
@@ -867,7 +867,7 @@
             }
             break;
 
-        // ── Editor: Field Row ───────────────────────────────────────
+        // -- Editor: Field Row --
         case "field-row":
             <div class="flex items-center gap-2 h-6 text-[11px]">
                 <span class="w-28 shrink-0 text-muted-foreground truncate text-right pr-2">@el.Text</span>
@@ -877,7 +877,7 @@
             </div>
             break;
 
-        // ── Editor: Empty State ─────────────────────────────────────
+        // -- Editor: Empty State --
         case "empty-state":
             {
                 var ic = PropIcon(el, "icon");
@@ -891,7 +891,7 @@
             }
             break;
 
-        // ── Editor: Log Entry ───────────────────────────────────────
+        // -- Editor: Log Entry --
         case "log-entry":
             {
                 var level = PropStr(el, "level") ?? "INFO";
@@ -907,7 +907,7 @@
             }
             break;
 
-        // ── Dark Mode Toggle ──────────────────────────────────────────
+        // -- Dark Mode Toggle --
         case "dark-mode-toggle":
             {
                 <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" class="@el.Css"
@@ -917,7 +917,7 @@
             }
             break;
 
-        // ── Fallback ────────────────────────────────────────────────
+        // -- Fallback --
         case "menubar":
             {
                 var mbDesc = el.Props.TryGetValue("descriptor", out var mbD) && mbD is MenubarDescriptor mbd ? mbd : null;

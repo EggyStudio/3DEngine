@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Editor.Server.Hubs;
 
-// ── SignalR Contracts ────────────────────────────────────────────────────
+// -- SignalR Contracts --
 
 /// <summary>Client-to-server calls available on the editor hub.</summary>
 /// <seealso cref="EditorHub"/>
@@ -51,7 +51,7 @@ public interface IEditorClient
     Task OnShellChanged(int version);
 }
 
-// ── Hub ─────────────────────────────────────────────────────────────────
+// -- Hub --
 
 /// <summary>
 /// SignalR hub bridging the Blazor editor UI with the engine runtime.

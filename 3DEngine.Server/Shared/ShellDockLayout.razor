@@ -10,7 +10,7 @@
 }
 
 <div class="flex flex-col flex-1 overflow-hidden min-h-0">
-    @* ── Top panels (headers, nav bars, etc.) ─────────────────── *@
+    @* -- Top panels (headers, nav bars, etc.) -- *@
     @foreach (var panel in topPanels)
     {
         @if (panel.ComponentType is not null)
@@ -27,7 +27,7 @@
         }
     }
 
-    @* ── Top row: sidebars fill the available horizontal space ── *@
+    @* -- Top row: sidebars fill the available horizontal space -- *@
     @if (hasTop)
     {
         <div class="flex flex-1 overflow-hidden min-h-0">
@@ -61,7 +61,7 @@
         </div>
     }
 
-    @* ── Bottom panel strip ─────────────────────────────────── *@
+    @* -- Bottom panel strip -- *@
     @if (bottomPanels.Count > 0)
     {
         <div class="overflow-hidden border-t border-border/40"

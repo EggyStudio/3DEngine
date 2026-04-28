@@ -4,7 +4,7 @@ using Engine;
 var config = Config.Default;
 new App(config)
     .AddPlugin(new DefaultPlugins())
-    // .AddPlugin(new WebViewPlugin())
+    .AddPlugin(new WebViewPlugin())
     // .AddPlugin(new EditorPlugin())
     .Run();
 
@@ -20,7 +20,7 @@ public struct TriangleMeshTest
 
         var mesh = ctx.Ecs.Spawn();
         ctx.Ecs.Add(mesh, new Mesh(new[] { new Vector3(0,1,0), new Vector3(-1,-1,0), new Vector3(1,-1,0) }));
-        ctx.Ecs.Add(mesh, new Material(new Vector4(1, 1, 1, 1))); // white triangle
+        ctx.Ecs.Add(mesh, new Material(new Vector4(1, 1, 1, 1))); 
         ctx.Ecs.Add(mesh, new Transform(Vector3.Zero));
     }
 }

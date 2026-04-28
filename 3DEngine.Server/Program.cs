@@ -3,7 +3,7 @@ using Editor.Server;
 using Editor.Server.Hubs;
 using Editor.Shell;
 
-// ── Standalone mode: compile scripts if a shells directory exists ──
+// -- Standalone mode: compile scripts if a shells directory exists --
 var shellRegistry = new ShellRegistry();
 ShellCompiler? compiler = null;
 
@@ -77,7 +77,7 @@ namespace Editor.Server
             // even when the environment isn't Development (e.g., hosted from Editor).
             builder.WebHost.UseStaticWebAssets();
 
-            // ── Editor Shell services ────────────────────────────────────
+            // -- Editor Shell services --
             var shellRegistry = registry ?? new ShellRegistry();
             builder.Services.AddSingleton(shellRegistry);
             builder.Services.AddSingleton<EditorState>();

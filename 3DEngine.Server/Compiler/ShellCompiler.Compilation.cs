@@ -56,7 +56,7 @@ public sealed partial class ShellCompiler
 
             if (razorFiles.Count > 0)
             {
-                // ── Razor path: use dotnet build for full Blazor support ──
+                // -- Razor path: use dotnet build for full Blazor support --
                 var dllPath = CompileWithDotnetBuild(csFiles, razorFiles, cssFiles, result);
                 if (dllPath != null)
                 {
@@ -90,7 +90,7 @@ public sealed partial class ShellCompiler
             }
             else
             {
-                // ── Pure C# path: fast in-memory Roslyn compilation ──
+                // -- Pure C# path: fast in-memory Roslyn compilation --
                 var roslynAssembly = CompileWithRoslyn(csFiles, result);
                 if (roslynAssembly is null)
                     return result; // Errors already populated
@@ -224,7 +224,7 @@ public sealed partial class ShellCompiler
 
         foreach (var type in assembly.GetExportedTypes())
         {
-            // ── C#-only shell builders ([EditorShell] + IEditorShellBuilder) ──
+            // -- C#-only shell builders ([EditorShell] + IEditorShellBuilder) --
             if (type.GetCustomAttribute<EditorShellAttribute>() != null &&
                 typeof(IEditorShellBuilder).IsAssignableFrom(type))
             {
@@ -239,7 +239,7 @@ public sealed partial class ShellCompiler
                 }
             }
 
-            // ── Native Blazor panel components ([EditorPanel]) ──
+            // -- Native Blazor panel components ([EditorPanel]) --
             var panelAttr = type.GetCustomAttribute<EditorPanelAttribute>();
             if (panelAttr != null)
             {

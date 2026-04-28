@@ -1,7 +1,7 @@
 namespace Editor.Shell;
 
 
-// ── Dock & Layout Enums ─────────────────────────────────────────────────
+// -- Dock & Layout Enums --
 
 /// <summary>Hint for the default dock zone of a panel.</summary>
 /// <remarks>
@@ -26,7 +26,7 @@ public enum DockZone
     Float,
 }
 
-// ── Root Descriptor ─────────────────────────────────────────────────────
+// -- Root Descriptor --
 
 /// <summary>
 /// Complete description of the editor shell UI.
@@ -61,7 +61,7 @@ public sealed class ShellDescriptor
     public List<string> CustomCss { get; set; } = [];
 }
 
-// ── Panels (Dockable) ──────────────────────────────────────────────────
+// -- Panels (Dockable) --
 
 /// <summary>
 /// Describes a dockable panel in the editor layout.
@@ -129,7 +129,7 @@ public sealed class PanelDescriptor
     public string? Route { get; set; }
 }
 
-// ── Content-level Descriptors (used by IContentBuilder elements) ────────
+// -- Content-level Descriptors (used by IContentBuilder elements) --
 
 /// <summary>Describes a horizontal menubar with top-level menus (rendered inside content).</summary>
 /// <seealso cref="IMenubarBuilder"/>

@@ -1,7 +1,7 @@
 namespace Editor.Shell;
 
 
-// ── Enums ───────────────────────────────────────────────────────────────
+// -- Enums --
 
 /// <summary>Flex/grid alignment values mapped to Tailwind <c>items-*</c> and <c>self-*</c> utilities.</summary>
 public enum Align {
@@ -33,7 +33,7 @@ public enum Justify {
     Evenly
 }
 
-// ── Static entry point ──────────────────────────────────────────────────
+// -- Static entry point --
 
 /// <summary>
 /// Static entry point for the fluent CSS builder. Each method creates a new
@@ -52,7 +52,7 @@ public static class Css
     /// <summary>No CSS classes - use as the first argument when no styling is needed.</summary>
     public static readonly string? Default = null;
 
-    // ── Display ─────────────────────────────────────────────────────
+    // -- Display --
     /// <summary>Starts a builder with <c>flex</c>.</summary>
     public static CssBuilder Flex() => new CssBuilder().Flex();
     /// <summary>Starts a builder with <c>inline-flex</c>.</summary>
@@ -68,7 +68,7 @@ public static class Css
     /// <summary>Starts a builder with <c>container</c>.</summary>
     public static CssBuilder Container() => new CssBuilder().Container();
 
-    // ── Spacing starters ────────────────────────────────────────────
+    // -- Spacing starters --
     /// <summary>Starts a builder with <c>space-x-{size}</c>.</summary>
     public static CssBuilder SpaceX(int size) => new CssBuilder().SpaceX(size);
     /// <summary>Starts a builder with <c>space-y-{size}</c>.</summary>
@@ -76,11 +76,11 @@ public static class Css
     /// <summary>Starts a builder with <c>gap-{size}</c>.</summary>
     public static CssBuilder Gap(int size) => new CssBuilder().Gap(size);
 
-    // ── Margin starters ─────────────────────────────────────────────
+    // -- Margin starters --
     /// <summary>Starts a builder with <c>mx-auto</c>.</summary>
     public static CssBuilder MarginXAuto() => new CssBuilder().MarginXAuto();
 
-    // ── Text starters ───────────────────────────────────────────────
+    // -- Text starters --
     /// <summary>Starts a builder with <c>text-center</c>.</summary>
     public static CssBuilder TextCenter() => new CssBuilder().TextCenter();
     /// <summary>Starts a builder with <c>text-left</c>.</summary>
@@ -88,7 +88,7 @@ public static class Css
     /// <summary>Starts a builder with <c>text-right</c>.</summary>
     public static CssBuilder TextRight() => new CssBuilder().TextRight();
 
-    // ── Text size starters ──────────────────────────────────────────
+    // -- Text size starters --
     /// <summary>Starts a builder with <c>text-xs</c>.</summary>
     public static CssBuilder TextXs() => new CssBuilder().TextXs();
     /// <summary>Starts a builder with <c>text-sm</c>.</summary>
@@ -100,7 +100,7 @@ public static class Css
     /// <summary>Starts a builder with <c>text-xl</c>.</summary>
     public static CssBuilder TextXl() => new CssBuilder().TextXl();
 
-    // ── Position starters ───────────────────────────────────────────
+    // -- Position starters --
     /// <summary>Starts a builder with <c>relative</c>.</summary>
     public static CssBuilder Relative() => new CssBuilder().Relative();
     /// <summary>Starts a builder with <c>absolute</c>.</summary>
@@ -110,13 +110,13 @@ public static class Css
     /// <summary>Starts a builder with <c>sticky</c>.</summary>
     public static CssBuilder Sticky() => new CssBuilder().Sticky();
 
-    // ── Sizing starters ─────────────────────────────────────────────
+    // -- Sizing starters --
     /// <summary>Starts a builder with <c>w-full</c>.</summary>
     public static CssBuilder WidthFull() => new CssBuilder().WidthFull();
     /// <summary>Starts a builder with <c>h-full</c>.</summary>
     public static CssBuilder HeightFull() => new CssBuilder().HeightFull();
 
-    // ── Padding starters ────────────────────────────────────────────
+    // -- Padding starters --
     /// <summary>Starts a builder with <c>p-{size}</c>.</summary>
     public static CssBuilder Padding(int size) => new CssBuilder().Padding(size);
     /// <summary>Starts a builder with <c>px-{size}</c>.</summary>
@@ -124,7 +124,7 @@ public static class Css
     /// <summary>Starts a builder with <c>py-{size}</c>.</summary>
     public static CssBuilder PaddingY(int size) => new CssBuilder().PaddingY(size);
 
-    // ── Margin starters ─────────────────────────────────────────────
+    // -- Margin starters --
     /// <summary>Starts a builder with <c>my-{size}</c>.</summary>
     public static CssBuilder MarginY(int size) => new CssBuilder().MarginY(size);
     /// <summary>Starts a builder with <c>mx-{size}</c>.</summary>
@@ -132,7 +132,7 @@ public static class Css
     /// <summary>Starts a builder with <c>mt-{size}</c>.</summary>
     public static CssBuilder MarginTop(int size) => new CssBuilder().MarginTop(size);
 
-    // ── Text color / font weight starters ───────────────────────────
+    // -- Text color / font weight starters --
     /// <summary>Starts a builder with <c>text-{color}</c>.</summary>
     public static CssBuilder TextColor(string color) => new CssBuilder().TextColor(color);
     /// <summary>Starts a builder with <c>font-bold</c>.</summary>
@@ -143,7 +143,7 @@ public static class Css
     public static CssBuilder FontMedium() => new CssBuilder().FontMedium();
 }
 
-// ── Fluent builder ──────────────────────────────────────────────────────
+// -- Fluent builder --
 
 /// <summary>
 /// Fluent CSS class builder. Chain methods to compose Tailwind utility classes.
@@ -155,7 +155,7 @@ public sealed class CssBuilder
 
     private CssBuilder Add(string cls) { _classes.Add(cls); return this; }
 
-    // ── Display ─────────────────────────────────────────────────────
+    // -- Display --
 
     /// <summary>Adds <c>flex</c>.</summary>
     public CssBuilder Flex() => Add("flex");
@@ -172,7 +172,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>container</c>.</summary>
     public CssBuilder Container() => Add("container");
 
-    // ── Flex direction & wrap ───────────────────────────────────────
+    // -- Flex direction & wrap --
 
     /// <summary>Adds <c>flex-col</c> (vertical flex direction).</summary>
     public CssBuilder Column() => Add("flex-col");
@@ -195,7 +195,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>shrink-0</c> (flex-shrink: 0).</summary>
     public CssBuilder Shrink0() => Add("shrink-0");
 
-    // ── Alignment ───────────────────────────────────────────────────
+    // -- Alignment --
 
     /// <summary>Adds <c>items-{align}</c> for cross-axis alignment.</summary>
     public CssBuilder Items(Align align) => Add($"items-{ToValue(align)}");
@@ -204,7 +204,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>self-{align}</c> for individual item cross-axis alignment.</summary>
     public CssBuilder Self(Align align) => Add($"self-{ToValue(align)}");
 
-    // ── Gap ─────────────────────────────────────────────────────────
+    // -- Gap --
 
     /// <summary>Adds <c>gap-{size}</c>.</summary>
     public CssBuilder Gap(int size) => Add($"gap-{size}");
@@ -213,14 +213,14 @@ public sealed class CssBuilder
     /// <summary>Adds <c>gap-y-{size}</c>.</summary>
     public CssBuilder GapY(int size) => Add($"gap-y-{size}");
 
-    // ── Space between ───────────────────────────────────────────────
+    // -- Space between --
 
     /// <summary>Adds <c>space-x-{size}</c>.</summary>
     public CssBuilder SpaceX(int size) => Add($"space-x-{size}");
     /// <summary>Adds <c>space-y-{size}</c>.</summary>
     public CssBuilder SpaceY(int size) => Add($"space-y-{size}");
 
-    // ── Padding ─────────────────────────────────────────────────────
+    // -- Padding --
 
     /// <summary>Adds <c>p-{size}</c> (all sides).</summary>
     public CssBuilder Padding(int size) => Add($"p-{size}");
@@ -237,7 +237,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>pr-{size}</c>.</summary>
     public CssBuilder PaddingRight(int size) => Add($"pr-{size}");
 
-    // ── Margin ──────────────────────────────────────────────────────
+    // -- Margin --
 
     /// <summary>Adds <c>m-{size}</c> (all sides).</summary>
     public CssBuilder Margin(int size) => Add($"m-{size}");
@@ -260,7 +260,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>m-auto</c> (center all directions).</summary>
     public CssBuilder MarginAuto() => Add("m-auto");
 
-    // ── Sizing ──────────────────────────────────────────────────────
+    // -- Sizing --
 
     /// <summary>Adds <c>w-{value}</c>.</summary>
     public CssBuilder Width(string value) => Add($"w-{value}");
@@ -279,7 +279,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>max-h-{value}</c>.</summary>
     public CssBuilder MaxHeight(string value) => Add($"max-h-{value}");
 
-    // ── Text alignment ──────────────────────────────────────────────
+    // -- Text alignment --
 
     /// <summary>Adds <c>text-center</c>.</summary>
     public CssBuilder TextCenter() => Add("text-center");
@@ -290,7 +290,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>text-justify</c>.</summary>
     public CssBuilder TextJustify() => Add("text-justify");
 
-    // ── Text size ───────────────────────────────────────────────────
+    // -- Text size --
 
     /// <summary>Adds <c>text-xs</c> (0.75rem).</summary>
     public CssBuilder TextXs() => Add("text-xs");
@@ -309,12 +309,12 @@ public sealed class CssBuilder
     /// <summary>Adds <c>text-4xl</c> (2.25rem).</summary>
     public CssBuilder Text4xl() => Add("text-4xl");
 
-    // ── Text color ──────────────────────────────────────────────────
+    // -- Text color --
 
     /// <summary>Adds <c>text-{color}</c>, e.g. <c>TextColor("muted-foreground")</c>.</summary>
     public CssBuilder TextColor(string color) => Add($"text-{color}");
 
-    // ── Font weight ─────────────────────────────────────────────────
+    // -- Font weight --
 
     /// <summary>Adds <c>font-thin</c>.</summary>
     public CssBuilder FontThin() => Add("font-thin");
@@ -331,7 +331,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>font-extrabold</c>.</summary>
     public CssBuilder FontExtrabold() => Add("font-extrabold");
 
-    // ── Border & rounding ───────────────────────────────────────────
+    // -- Border & rounding --
 
     /// <summary>Adds <c>border</c> (1px solid).</summary>
     public CssBuilder Border() => Add("border");
@@ -356,7 +356,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>rounded-full</c>.</summary>
     public CssBuilder RoundedFull() => Add("rounded-full");
 
-    // ── Position ────────────────────────────────────────────────────
+    // -- Position --
 
     /// <summary>Adds <c>relative</c>.</summary>
     public CssBuilder Relative() => Add("relative");
@@ -367,7 +367,7 @@ public sealed class CssBuilder
     /// <summary>Adds <c>sticky</c>.</summary>
     public CssBuilder Sticky() => Add("sticky");
 
-    // ── Overflow ────────────────────────────────────────────────────
+    // -- Overflow --
 
     /// <summary>Adds <c>overflow-hidden</c>.</summary>
     public CssBuilder OverflowHidden() => Add("overflow-hidden");
@@ -376,38 +376,38 @@ public sealed class CssBuilder
     /// <summary>Adds <c>overflow-scroll</c>.</summary>
     public CssBuilder OverflowScroll() => Add("overflow-scroll");
 
-    // ── Truncate / whitespace ───────────────────────────────────────
+    // -- Truncate / whitespace --
 
     /// <summary>Adds <c>truncate</c>.</summary>
     public CssBuilder Truncate() => Add("truncate");
     /// <summary>Adds <c>whitespace-nowrap</c>.</summary>
     public CssBuilder WhitespaceNowrap() => Add("whitespace-nowrap");
 
-    // ── Cursor ──────────────────────────────────────────────────────
+    // -- Cursor --
 
     /// <summary>Adds <c>cursor-pointer</c>.</summary>
     public CssBuilder CursorPointer() => Add("cursor-pointer");
     /// <summary>Adds <c>cursor-default</c>.</summary>
     public CssBuilder CursorDefault() => Add("cursor-default");
 
-    // ── Opacity ─────────────────────────────────────────────────────
+    // -- Opacity --
 
     /// <summary>Adds <c>opacity-{percent}</c>.</summary>
     public CssBuilder Opacity(int percent) => Add($"opacity-{percent}");
 
-    // ── Raw escape hatch ────────────────────────────────────────────
+    // -- Raw escape hatch --
 
     /// <summary>Append arbitrary CSS classes for edge cases not covered by the builder.</summary>
     public CssBuilder Raw(string classes) => Add(classes);
 
-    // ── Conversion ──────────────────────────────────────────────────
+    // -- Conversion --
 
     /// <summary>Joins all accumulated classes into a space-separated string.</summary>
     public override string ToString() => string.Join(" ", _classes);
     /// <summary>Implicit conversion to <see cref="string"/> for use with <c>string? css</c> parameters.</summary>
     public static implicit operator string(CssBuilder builder) => builder.ToString();
 
-    // ── Helpers ─────────────────────────────────────────────────────
+    // -- Helpers --
 
     private static string ToValue(Align a) => a switch
     {

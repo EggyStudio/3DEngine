@@ -94,7 +94,7 @@ public sealed class Element
 /// <seealso cref="IPanelBuilder"/>
 public interface IContentBuilder
 {
-    // ── Text & Display ──────────────────────────────────────────────────
+    // -- Text & Display --
 
     /// <summary>Adds a plain text span.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -175,7 +175,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder Kbd(string? css, string keys);
 
-    // ── Interactive ─────────────────────────────────────────────────────
+    // -- Interactive --
 
     /// <summary>Adds a button with optional click handler, variant, icon, and state.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -301,7 +301,7 @@ public interface IContentBuilder
     IContentBuilder ToggleGroup(string? css, (string Value, string Label)[] options, string? selected = null,
         Action<string>? onChanged = null, string? variant = null);
 
-    // ── Layout ──────────────────────────────────────────────────────────
+    // -- Layout --
 
     /// <summary>Adds a horizontal separator line.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -357,7 +357,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder AspectRatio(string? css, double ratio, Action<IContentBuilder> content);
 
-    // ── Cards ───────────────────────────────────────────────────────────
+    // -- Cards --
 
     /// <summary>Adds a card component with structured header, content, and footer sections.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -365,7 +365,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder Card(string? css, Action<ICardBuilder> configure);
 
-    // ── Feedback ────────────────────────────────────────────────────────
+    // -- Feedback --
 
     /// <summary>Adds an alert banner with optional title, description, and visual variant.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -387,7 +387,7 @@ public interface IContentBuilder
     IContentBuilder Toast(string? css, string title, string? description = null, string? variant = null,
         string? icon = null);
 
-    // ── Links ───────────────────────────────────────────────────────────
+    // -- Links --
 
     /// <summary>Adds a hyperlink element.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -398,7 +398,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder Link(string? css, string text, string href, string? icon = null, string? description = null);
 
-    // ── Navigation ──────────────────────────────────────────────────────
+    // -- Navigation --
 
     /// <summary>Adds a breadcrumb navigation bar.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -414,7 +414,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder Pagination(string? css, int currentPage, int totalPages, Action<int>? onPageChanged = null);
 
-    // ── Overlays & Popups ───────────────────────────────────────────────
+    // -- Overlays & Popups --
 
     /// <summary>Wraps a trigger element with a tooltip.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -473,7 +473,7 @@ public interface IContentBuilder
     IContentBuilder Sheet(string triggerLabel, Action<ISheetBuilder> configure, string? side = null,
         string? triggerVariant = null);
 
-    // ── Complex Components ──────────────────────────────────────────────
+    // -- Complex Components --
 
     /// <summary>Adds a tabbed component.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -503,7 +503,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder AlertDialog(string triggerLabel, Action<IAlertDialogBuilder> configure, string? triggerVariant = null);
 
-    // ── Menubar & Navigation Menu ────────────────────────────────────────
+    // -- Menubar & Navigation Menu --
 
     /// <summary>Adds a horizontal menubar with dropdown menus.</summary>
     /// <param name="css">Optional Tailwind CSS classes.</param>
@@ -517,7 +517,7 @@ public interface IContentBuilder
     /// <returns>This builder for fluent chaining.</returns>
     IContentBuilder NavigationMenu(string? css, Action<INavigationMenuBuilder> configure);
 
-    // ── Editor-specific ─────────────────────────────────────────────────
+    // -- Editor-specific --
 
     /// <summary>Adds a hierarchical tree item (used in scene tree / asset browser).</summary>
     /// <param name="label">Display text for the tree item.</param>

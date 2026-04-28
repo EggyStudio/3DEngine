@@ -15,7 +15,7 @@ public sealed class ContentBuilder : IContentBuilder
     /// <returns>The list of <see cref="Element"/> nodes built by the fluent API calls.</returns>
     public List<Element> Build() => _elements;
 
-    // ── Text & Display ──────────────────────────────────────────────────
+    // -- Text & Display --
 
     /// <inheritdoc />
     public IContentBuilder Text(string? css, string text)
@@ -65,7 +65,7 @@ public sealed class ContentBuilder : IContentBuilder
     public IContentBuilder Kbd(string? css, string keys)
     { _elements.Add(new Element("kbd") { Text = keys, Css = css }); return this; }
 
-    // ── Interactive ─────────────────────────────────────────────────────
+    // -- Interactive --
 
     /// <inheritdoc />
     public IContentBuilder Button(string? css, string label, Action? onClick = null, string? variant = null, string? icon = null,
@@ -171,7 +171,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Layout ──────────────────────────────────────────────────────────
+    // -- Layout --
 
     /// <inheritdoc />
     public IContentBuilder Separator(string? css = null)
@@ -225,7 +225,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Cards ───────────────────────────────────────────────────────────
+    // -- Cards --
 
     /// <inheritdoc />
     public IContentBuilder Card(string? css, Action<ICardBuilder> configure)
@@ -237,7 +237,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Feedback ────────────────────────────────────────────────────────
+    // -- Feedback --
 
     /// <inheritdoc />
     public IContentBuilder Alert(string? css, string? title = null, string? description = null, string? variant = null,
@@ -259,7 +259,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Links ───────────────────────────────────────────────────────────
+    // -- Links --
 
     /// <inheritdoc />
     public IContentBuilder Link(string? css, string text, string href, string? icon = null, string? description = null)
@@ -269,7 +269,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Navigation ──────────────────────────────────────────────────────
+    // -- Navigation --
 
     /// <inheritdoc />
     public IContentBuilder Breadcrumb(string? css, Action<IBreadcrumbBuilder> configure)
@@ -289,7 +289,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Overlays & Popups ───────────────────────────────────────────────
+    // -- Overlays & Popups --
 
     /// <inheritdoc />
     public IContentBuilder Tooltip(string? css, Action<IContentBuilder> trigger, string tip, string? side = null)
@@ -369,7 +369,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Complex Components ──────────────────────────────────────────────
+    // -- Complex Components --
 
     /// <inheritdoc />
     public IContentBuilder Tabs(string? css, Action<ITabsBuilder> configure)
@@ -411,7 +411,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Editor-specific ─────────────────────────────────────────────────
+    // -- Editor-specific --
 
     /// <inheritdoc />
     public IContentBuilder Menubar(string? css, Action<IMenubarBuilder> configure)
@@ -481,7 +481,7 @@ public sealed class ContentBuilder : IContentBuilder
         return this;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────
+    // -- Helpers --
 
     /// <summary>Builds a container element with child elements produced by a callback.</summary>
     /// <param name="tag">Container element tag.</param>
@@ -507,7 +507,7 @@ public sealed class ContentBuilder : IContentBuilder
 }
 
 
-// ── Card Builder ────────────────────────────────────────────────────────
+// -- Card Builder --
 
 /// <summary>Builds card structure by mutating a <c>"card"</c> element's children.</summary>
 /// <remarks>
@@ -568,7 +568,7 @@ internal sealed class CardBuilder(Element card) : ICardBuilder
     public ICardBuilder Css(string css) { card.Css = css; return this; }
 }
 
-// ── Tabs Builder ────────────────────────────────────────────────────────
+// -- Tabs Builder --
 
 /// <summary>Builds tab structure by appending <c>"tab"</c> children to a <c>"tabs"</c> element.</summary>
 internal sealed class TabsBuilder(Element tabs) : ITabsBuilder
@@ -584,7 +584,7 @@ internal sealed class TabsBuilder(Element tabs) : ITabsBuilder
     }
 }
 
-// ── Dialog Builder ──────────────────────────────────────────────────────
+// -- Dialog Builder --
 
 /// <summary>Builds dialog structure (title, description, content, footer) for a <c>"dialog"</c> element.</summary>
 internal sealed class DialogBuilder(Element dialog) : IDialogBuilder
@@ -616,7 +616,7 @@ internal sealed class DialogBuilder(Element dialog) : IDialogBuilder
     }
 }
 
-// ── Alert Dialog Builder ────────────────────────────────────────────────
+// -- Alert Dialog Builder --
 
 /// <summary>Builds alert dialog structure with cancel/confirm actions for a <c>"alert-dialog"</c> element.</summary>
 internal sealed class AlertDialogBuilder(Element dialog) : IAlertDialogBuilder
@@ -642,7 +642,7 @@ internal sealed class AlertDialogBuilder(Element dialog) : IAlertDialogBuilder
     { dialog.OnClick = action; return this; }
 }
 
-// ── Accordion Builder ───────────────────────────────────────────────────
+// -- Accordion Builder --
 
 /// <summary>Builds accordion items by appending <c>"accordion-item"</c> children to an <c>"accordion"</c> element.</summary>
 internal sealed class AccordionBuilder(Element accordion) : IAccordionBuilder
@@ -658,7 +658,7 @@ internal sealed class AccordionBuilder(Element accordion) : IAccordionBuilder
     }
 }
 
-// ── Dropdown Menu Builder ───────────────────────────────────────────────
+// -- Dropdown Menu Builder --
 
 /// <summary>Builds dropdown menu items (items, checkboxes, separators, labels, submenus) for a menu element.</summary>
 /// <remarks>
@@ -709,7 +709,7 @@ internal sealed class DropdownMenuBuilder(Element menu) : IDropdownMenuBuilder
     }
 }
 
-// ── Drawer Builder ──────────────────────────────────────────────────────
+// -- Drawer Builder --
 
 /// <summary>Builds drawer structure (title, description, content, footer) for a <c>"drawer"</c> element.</summary>
 internal sealed class DrawerBuilder(Element drawer) : IDrawerBuilder
@@ -741,7 +741,7 @@ internal sealed class DrawerBuilder(Element drawer) : IDrawerBuilder
     }
 }
 
-// ── Sheet Builder ───────────────────────────────────────────────────────
+// -- Sheet Builder --
 
 /// <summary>Builds sheet structure (title, description, content, footer) for a <c>"sheet"</c> element.</summary>
 internal sealed class SheetBuilder(Element sheet) : ISheetBuilder
@@ -773,7 +773,7 @@ internal sealed class SheetBuilder(Element sheet) : ISheetBuilder
     }
 }
 
-// ── Breadcrumb Builder ──────────────────────────────────────────────────
+// -- Breadcrumb Builder --
 
 /// <summary>Builds breadcrumb items by appending <c>"breadcrumb-item"</c> and <c>"breadcrumb-separator"</c> children.</summary>
 internal sealed class BreadcrumbBuilder(Element breadcrumb) : IBreadcrumbBuilder
@@ -794,7 +794,7 @@ internal sealed class BreadcrumbBuilder(Element breadcrumb) : IBreadcrumbBuilder
     }
 }
 
-// ── Menubar Builder ─────────────────────────────────────────────────────
+// -- Menubar Builder --
 
 /// <summary>Builds a <see cref="MenubarDescriptor"/> from fluent menu definitions.</summary>
 /// <remarks>
@@ -817,7 +817,7 @@ internal sealed class MenubarBuilder : IMenubarBuilder
     }
 }
 
-// ── Navigation Menu Builder ─────────────────────────────────────────────
+// -- Navigation Menu Builder --
 
 /// <summary>Builds a <see cref="NavigationMenuDescriptor"/> from fluent group and item definitions.</summary>
 /// <remarks>

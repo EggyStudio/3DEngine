@@ -1,6 +1,6 @@
 namespace Editor.Shell;
 
-// ── Shell Discovery ─────────────────────────────────────────────────────
+// -- Shell Discovery --
 
 /// <summary>
 /// Marks a class implementing <see cref="IEditorShellBuilder"/> for discovery
@@ -12,7 +12,7 @@ namespace Editor.Shell;
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class EditorShellAttribute : Attribute;
 
-// ── Blazor Panel Discovery ──────────────────────────────────────────────
+// -- Blazor Panel Discovery --
 
 /// <summary>
 /// Marks a native Blazor component (<c>.razor</c> file) as an editor panel.
