@@ -3,37 +3,19 @@ using Editor.Server;
 using Editor.Server.Hubs;
 using Editor.Shell;
 
-// -- Standalone mode: compile scripts if a shells directory exists --
+// -- Standalone mode --
+// Hot-reload via Roslyn now lives in 3DEngine.Files (RuntimeShellCompiler) and is wired up by
+// EditorPlugin in the engine. The standalone Server only consumes whatever shells are
+// statically registered in assemblies it has loaded (typically: none, since the engine
+// assembly is not referenced here). For full editor functionality, run via the engine
+// (`dotnet run --project 3DEngine`) which loads EditorPlugin.
 var shellRegistry = new ShellRegistry();
-ShellCompiler? compiler = null;
-
-var scriptsDir = Path.Combine(AppContext.BaseDirectory, "source", "shells");
-if (!Directory.Exists(scriptsDir))
-{
-    // Fallback for `dotnet run` from the project directory.
-    scriptsDir = Path.Combine(Directory.GetCurrentDirectory(), "..", "Editor", "Shells");
-}
-
-if (Directory.Exists(scriptsDir))
-{
-    compiler = new ShellCompiler(shellRegistry).WatchDirectory(scriptsDir);
-    var compileResult = compiler.Start();
-    Console.WriteLine($"[Editor.Server] Script compilation: {compileResult.Message}");
-    foreach (var err in compileResult.Errors)
-        Console.WriteLine($"[Editor.Server]   ERROR {err.FileName}({err.Line},{err.Column}): {err.Message}");
-
-    compiler.CompilationCompleted += result =>
-    {
-        Console.WriteLine($"[Editor.Server] Hot-reload: {result.Message}");
-        foreach (var err in result.Errors)
-            Console.WriteLine($"[Editor.Server]   ERROR {err.FileName}({err.Line},{err.Column}): {err.Message}");
-    };
-}
+var staticCount = StaticShellLoader.LoadInto(shellRegistry);
+Console.WriteLine($"[Editor.Server] Static shell registrations: {staticCount}");
 
 // When run standalone, start the server and block until shutdown.
 var server = await EditorServerHost.StartAsync(args: args, registry: shellRegistry);
 await server.WaitForShutdownAsync();
-compiler?.Dispose();
 
 namespace Editor.Server
 {
