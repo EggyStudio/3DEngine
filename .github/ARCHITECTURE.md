@@ -40,7 +40,6 @@ the `Schedule`.
     │
     ▼
  ┌─ First ──► PreUpdate ──► Update ──► PostUpdate ──► Render ──► Last ─┐
- │                                                                     │
  └──────────────────────── next frame ─────────────────────────────────┘
     │
     ▼
@@ -207,15 +206,13 @@ watching.
  AssetPlugin (Stage.Last) ──────── clear asset events
  AssetPlugin (Stage.Cleanup) ───── dispose AssetServer
 
- ┌──────────────────────────────────────────────────────────┐
- │  AssetServer                                             │
- │                                                          │
- │  Sources: FileAssetReader, EmbeddedAssetReader, ...      │
- │  Loaders: GlslLoader, ByteArrayLoader, StringLoader, ... │
- │  Workers: N background threads (Channel<LoadRequest>)    │
- │  Tracking: path→Handle deduplication, LoadState per ID   │
- │  Hot-reload: FileAssetWatcher → re-enqueue on change     │
- └──────────────────────────────────────────────────────────┘
+ AssetServer                                            
+                                                        
+ Sources: FileAssetReader, EmbeddedAssetReader, ...     
+ Loaders: GlslLoader, ByteArrayLoader, StringLoader, ...
+ Workers: N background threads (Channel<LoadRequest>)   
+ Tracking: path→Handle deduplication, LoadState per ID  
+ Hot-reload: FileAssetWatcher → re-enqueue on change    
 ```
 
 **Loading assets:**
@@ -750,18 +747,14 @@ Top-level files: `Renderer.cs`, `RendererContext.cs`, `RendererDiagnostics.cs`, 
 ## Editor Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  SDL3 ENGINE WINDOW                                          │
-│                                                              │
-│  Vulkan scene render                                         │
-│  ImGui debug overlays                                        │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │  EMBEDDED WEBVIEW (Ultralight)                         │  │
-│  │  Blazor Server UI (in-process) ◄► SignalR WebSocket    │  │
-│  │  Hot-reloadable editor panels & inspectors             │  │
-│  └────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────┘
+SDL3 ENGINE WINDOW                                        
+                                                          
+    Vulkan scene render                                   
+    ImGui debug overlays                                  
+                                                          
+        EMBEDDED WEBVIEW (Ultralight)                     
+        Blazor Server UI (in-process) ◄► SignalR WebSocket
+        Hot-reloadable editor panels & inspectors         
 ```
 
 **Single process:** The Blazor Server runs in-process on a background thread while SDL3/Vulkan drives the main thread.
