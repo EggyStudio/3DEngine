@@ -83,6 +83,7 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="FluentAssertions" Version="6.12.2"/>
+        <PackageReference Include="UniversalSceneDescription" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
