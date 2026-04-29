@@ -78,3 +78,7 @@
 	path = Modules/3DEngine.Physics
 	url = https://github.com/EggyStudio/3DEngine.Physics.git
 	branch = main
+[submodule "Modules/3DEngine.Physics.Bepu"]
+	path = Modules/3DEngine.Physics.Bepu
+	url = https://github.com/EggyStudio/3DEngine.Physics.Bepu.git
+	branch = main
