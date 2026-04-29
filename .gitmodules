@@ -50,9 +50,9 @@
 	path = Modules/3DEngine.Pipelines
 	url = https://github.com/EggyStudio/3DEngine.Pipelines
 	branch = main
-[submodule "3DEngine.Renderer.ImGui"]
-	path = Modules/3DEngine.Renderer.ImGui
-	url = https://github.com/EggyStudio/3DEngine.Renderer.ImGui
+[submodule "3DEngine.Pipelines.ImGui"]
+	path = Modules/3DEngine.Pipelines.ImGui
+	url = https://github.com/EggyStudio/3DEngine.Pipelines.ImGui
 	branch = main
 [submodule "3DEngine.WebView"]
 	path = Modules/3DEngine.WebView
