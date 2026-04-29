@@ -86,3 +86,7 @@
 	path = Modules/3DEngine.Materials
 	url = https://github.com/EggyStudio/3DEngine.Materials.git
 	branch = main
+[submodule "Modules/3DEngine.Materials.X"]
+	path = Modules/3DEngine.Materials.X
+	url = https://github.com/EggyStudio/3DEngine.Materials.X.git
+	branch = main
