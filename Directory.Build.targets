@@ -11,101 +11,11 @@
         <PackageTags Condition="'$(PackageTags)' == ''">3D;Game;Engine;.Net10;C#14</PackageTags>
     </PropertyGroup>
 
-    <!-- UniversalSceneDescription ships its native plugin tree
-         (runtimes/<rid>/native/usd/**) via a transitive .targets file that every
-         project consuming USD (directly or via ProjectReference) re-imports.
-         When the engine publishes (PublishSingleFile=true, SelfContained=true)
-         each transitive contributor stages identical files at identical relative
-         paths, tripping NETSDK1152. Demote the duplicate-publish-output check to
-         a warning so the SDK picks one copy of each file. The duplicates are
-         byte-identical (same nuget package, same RID), so deduplication is safe. -->
+    <!-- UniversalSceneDescription's transitive .targets stages its plugin tree
+         from every consuming project, producing byte-identical duplicates that
+         trip NETSDK1152 on publish. Demote to a warning so the SDK dedupes. -->
     <PropertyGroup>
         <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     </PropertyGroup>
 
-    <!-- ================================================================
-         Relocate Ultralight native libraries into runtimes/<rid>/native/
-         ================================================================
-         UltralightNet.Barebones ships its .so/.dll/.dylib files under
-         runtimes/<rid>/native/ in the package, but the .NET SDK's runtime-
-         asset resolver flattens them onto the build/publish root next to
-         a self-contained runtime + dozens of system libs. The chained
-         dlopen of libWebCore.so → libUltralightCore.so + bundled libstdc++/
-         libicu deps then collides with whatever the .NET host already
-         loaded (SDL3, ICU, etc.), and either fails outright or produces
-         ABI mismatches.
-
-         Moving Ultralight back to its own runtimes/<rid>/native/ subtree
-         gives it an isolated $ORIGIN so its bundled deps load cleanly.
-         NativeLibraryLoader probes that path first.
-
-         IMPORTANT: do NOT extend this target to UniversalSceneDescription.
-         Pixar's PlugRegistry resolves each plug-in's relative LibraryPath
-         against the directory of plugInfo.json (which the SDK leaves at
-         the bin root). Moving libusd_*.so out of the root makes
-         UsdSceneReader's static cctor throw because plug-in .so files
-         can't be found. USD is happy with the SDK's flat layout. -->
-
-    <PropertyGroup>
-        <_NativeRelocRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</_NativeRelocRid>
-        <_NativeRelocRid Condition="'$(_NativeRelocRid)' == '' AND $([MSBuild]::IsOSPlatform('Linux'))">linux-x64</_NativeRelocRid>
-        <_NativeRelocRid Condition="'$(_NativeRelocRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64'">osx-arm64</_NativeRelocRid>
-        <_NativeRelocRid Condition="'$(_NativeRelocRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx-x64</_NativeRelocRid>
-        <_NativeRelocRid Condition="'$(_NativeRelocRid)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win-x64</_NativeRelocRid>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <!-- Cross-platform Ultralight native filename patterns. Files that
-             don't exist on the current platform are skipped via the
-             Exists() filter inside the targets below. -->
-        <_UltralightNativePattern Include="libUltralight.so;libUltralightCore.so;libWebCore.so;libAppCore.so" />
-        <_UltralightNativePattern Include="Ultralight.dll;UltralightCore.dll;WebCore.dll;AppCore.dll" />
-        <_UltralightNativePattern Include="libUltralight.dylib;libUltralightCore.dylib;libWebCore.dylib;libAppCore.dylib" />
-    </ItemGroup>
-
-    <Target Name="RelocateUltralightNativesAfterBuild"
-            AfterTargets="Build"
-            Condition="'$(_NativeRelocRid)' != ''">
-        <PropertyGroup>
-            <_UltralightDestDir>$(OutDir)runtimes\$(_NativeRelocRid)\native\</_UltralightDestDir>
-        </PropertyGroup>
-        <ItemGroup>
-            <_UltralightNativeBuild Include="@(_UltralightNativePattern->'$(OutDir)%(Identity)')" />
-            <_UltralightNativeBuildExisting Include="@(_UltralightNativeBuild)" Condition="Exists('%(Identity)')" />
-        </ItemGroup>
-        <MakeDir Directories="$(_UltralightDestDir)" Condition="'@(_UltralightNativeBuildExisting)' != ''" />
-        <Copy SourceFiles="@(_UltralightNativeBuildExisting)"
-              DestinationFolder="$(_UltralightDestDir)"
-              SkipUnchangedFiles="true"
-              Condition="'@(_UltralightNativeBuildExisting)' != ''" />
-        <Delete Files="@(_UltralightNativeBuildExisting)"
-                Condition="'@(_UltralightNativeBuildExisting)' != ''" />
-        <Message Importance="high"
-                 Text="Relocated @(_UltralightNativeBuildExisting->Count()) Ultralight lib(s) → $(_UltralightDestDir)"
-                 Condition="'@(_UltralightNativeBuildExisting)' != ''" />
-    </Target>
-
-    <Target Name="RelocateUltralightNativesAfterPublish"
-            AfterTargets="Publish"
-            Condition="'$(_NativeRelocRid)' != ''">
-        <PropertyGroup>
-            <_UltralightDestDirPub>$(PublishDir)runtimes\$(_NativeRelocRid)\native\</_UltralightDestDirPub>
-        </PropertyGroup>
-        <ItemGroup>
-            <_UltralightNativePub Include="@(_UltralightNativePattern->'$(PublishDir)%(Identity)')" />
-            <_UltralightNativePubExisting Include="@(_UltralightNativePub)" Condition="Exists('%(Identity)')" />
-        </ItemGroup>
-        <MakeDir Directories="$(_UltralightDestDirPub)" Condition="'@(_UltralightNativePubExisting)' != ''" />
-        <Copy SourceFiles="@(_UltralightNativePubExisting)"
-              DestinationFolder="$(_UltralightDestDirPub)"
-              SkipUnchangedFiles="true"
-              Condition="'@(_UltralightNativePubExisting)' != ''" />
-        <Delete Files="@(_UltralightNativePubExisting)"
-                Condition="'@(_UltralightNativePubExisting)' != ''" />
-        <Message Importance="high"
-                 Text="Relocated @(_UltralightNativePubExisting->Count()) Ultralight lib(s) → $(_UltralightDestDirPub)"
-                 Condition="'@(_UltralightNativePubExisting)' != ''" />
-    </Target>
-
 </Project>
-
