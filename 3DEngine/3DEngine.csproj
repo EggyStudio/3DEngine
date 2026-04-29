@@ -156,6 +156,8 @@
         <InternalsVisibleTo Include="Engine.Tests" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="BepuPhysics" Version="2.5.0-beta.29" />
+        <PackageReference Include="BepuUtilities" Version="2.5.0-beta.29" />
         <PackageReference Include="SDL3-CS" Version="3.4.2" />
         <PackageReference Include="SDL3-CS.Native" Version="3.4.2" />
         <PackageReference Include="UltralightNet.Barebones" Version="2.0.0" />
