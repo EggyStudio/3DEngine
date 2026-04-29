@@ -132,6 +132,24 @@
             <Visible>true</Visible>
         </Content>
     </ItemGroup>
+    <!-- IDE-only visibility for files that are intentionally excluded from <Compile>,
+         <Content> and the primary <None> groups above:
+           * Top-level module repo metadata (LICENSE/NOTICE/README/CHANGELOG and their
+             dotted variants) is excluded from the first <Content> block because every
+             module ships its own copy and they would collide on the same `source/LICENSE`
+             target path, tripping NETSDK1152 on publish.
+           * .gitignore / .gitattributes / .gitmodules are filtered by $(ModulesIdeIgnore).
+         Re-listing them here as <None> with no <TargetPath> and CopyToOutputDirectory=Never
+         makes them appear in the Rider/VS Modules tree without affecting build, publish or
+         output staging. .git/**, bin/** and obj/** remain hidden as intended noise. -->
+    <ItemGroup>
+        <None Include="..\Modules\**\LICENSE;..\Modules\**\LICENSE.*;..\Modules\**\NOTICE;..\Modules\**\NOTICE.*;..\Modules\**\README;..\Modules\**\README.*;..\Modules\**\CHANGELOG;..\Modules\**\CHANGELOG.*;..\Modules\**\.gitignore;..\Modules\**\.gitattributes;..\Modules\**\.gitmodules"
+              Exclude="..\Modules\**\.git\**;..\Modules\**\bin\**;..\Modules\**\obj\**;..\Modules\**\Source\**">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
     <!-- Module Tests/** are linked into 3DEngine.Tests (assembly "Engine.Tests") and
          exercise internal APIs of types compiled into this engine assembly. -->
     <ItemGroup>
