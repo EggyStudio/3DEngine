@@ -74,3 +74,7 @@
 	path = Modules/3DEngine.Scenes.Usd
 	url = https://github.com/EggyStudio/3DEngine.Scenes.Usd.git
 	branch = main
+[submodule "Modules/3DEngine.Physics"]
+	path = Modules/3DEngine.Physics
+	url = https://github.com/EggyStudio/3DEngine.Physics.git
+	branch = main
