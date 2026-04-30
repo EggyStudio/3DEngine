@@ -94,10 +94,6 @@
 	path = Modules/3DEngine.Graphics.Shaders
 	url = https://github.com/EggyStudio/3DEngine.Graphics.Shaders.git
 	branch = main
-[submodule "Modules/3DEngine.Netwoeking"]
-	path = Modules/3DEngine.Netwoeking
-	url = https://github.com/EggyStudio/3DEngine.Netwoeking.git
-	branch = main
 [submodule "Modules/3DEngine.Networking"]
 	path = Modules/3DEngine.Networking
 	url = https://github.com/EggyStudio/3DEngine.Networking.git
