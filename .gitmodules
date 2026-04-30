@@ -102,3 +102,7 @@
 	path = Modules/3DEngine.Networking
 	url = https://github.com/EggyStudio/3DEngine.Networking.git
 	branch = main
+[submodule "Modules/3DEngine.Multiplayer"]
+	path = Modules/3DEngine.Multiplayer
+	url = https://github.com/EggyStudio/3DEngine.Multiplayer.git
+	branch = main
