@@ -179,13 +179,14 @@
         <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />
         <PackageReference Include="SlangShaderSharp" Version="2026.7.1-beta" />
         <PackageReference Include="SoLoud" Version="2020.2.7" />
-        <PackageReference Include="SpacetimeDB.ClientSDK" Version="2.1.0" />
+        <PackageReference Include="SpacetimeDB.ClientSDK" Version="2.2.0" />
         <PackageReference Include="StbImageSharp" Version="2.30.15" />
         <PackageReference Include="SteamAudio.NET" Version="4.6.1" />
         <PackageReference Include="SteamAudio.NET.Natives" Version="4.6.1" />
         <PackageReference Include="Testura.Code" Version="1.5.2" />
-        <PackageReference Include="UltralightNet.Bundle" Version="2.1.0" />
-        <PackageReference Include="UniversalSceneDescription" Version="7.2.0" />
+        <PackageReference Include="Tracy-NET" Version="0.13.2" />
+        <PackageReference Include="UltralightNet.Bundle" Version="2.2.0" />
+        <PackageReference Include="UniversalSceneDescription" Version="7.3.0" />
         <PackageReference Include="Vortice.VulkanMemoryAllocator" Version="1.7.0" />
         <PackageReference Include="Vortice.ShaderCompiler" Version="1.9.0" />
         <PackageReference Include="Vortice.SpirvCross" Version="1.5.4" />
