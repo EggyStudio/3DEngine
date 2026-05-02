@@ -185,6 +185,7 @@
         <PackageReference Include="StbImageSharp" Version="2.30.15" />
         <PackageReference Include="SteamAudio.NET" Version="4.6.1" />
         <PackageReference Include="SteamAudio.NET.Natives" Version="4.6.1" />
+        <PackageReference Include="Testura.Code" Version="1.5.2" />
         <PackageReference Include="UltralightNet.Bundle" Version="2.1.0" />
         <PackageReference Include="UniversalSceneDescription" Version="7.2.0" />
         <PackageReference Include="Vortice.VulkanMemoryAllocator" Version="1.7.0" />
