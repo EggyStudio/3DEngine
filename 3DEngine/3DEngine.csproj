@@ -51,11 +51,12 @@
         </ModulesCompileExclude>
         <!-- Sources that live next to a module but are owned by another csproj:
              Tests/**     -> 3DEngine.Tests\3DEngine.Tests.csproj
-             Generator/** -> 3DEngine.Generator\3DEngine.Generator.csproj
-             Listed in the IDE Modules tree (via <None> below) but not compiled here. -->
+             Listed in the IDE Modules tree (via <None> below) but not compiled here.
+             Generator/** is intentionally NOT listed here: those files are compiled into
+             this engine assembly (see the second <Compile> block below) so they show up
+             directly in the Modules tree as compiled items, with no IDE duplication. -->
         <ModulesForeignSources>
-            ..\Modules\**\Tests\**\*.cs;
-            ..\Modules\**\Generator\**\*.cs
+            ..\Modules\**\Tests\**\*.cs
         </ModulesForeignSources>
     </PropertyGroup>
     <ItemGroup>
@@ -69,12 +70,13 @@
              pipelines that drive CSharpGeneratorDriver from RuntimeBehaviorCompiler. The same
              files still build into 3DEngine.Generator.dll (netstandard2.0) for compile-time
              generation. Microsoft.CodeAnalysis.CSharp 5.3 referenced below is API-compatible
-             with the Roslyn 4.x APIs the generators target. Hidden in the IDE to avoid the
-             duplicate listing already provided by the <None> item. -->
+             with the Roslyn 4.x APIs the generators target. Visible in the IDE Modules tree;
+             $(ModulesForeignSources) deliberately omits Generator/** so there is no duplicate
+             <None> listing to collide with these compiled items. -->
         <Compile Include="..\Modules\**\Generator\**\*.cs"
                  Exclude="$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <Visible>false</Visible>
+            <Visible>true</Visible>
         </Compile>
         <!-- IDE-only listing for Tests/**, Generator/** and vendored Source/**. The owning
              csproj links these with Visible=false so each file appears exactly once. -->
@@ -114,7 +116,7 @@
          explicitly to avoid double-staging. -->
     <ItemGroup>
         <Content Include="..\Modules\**\*"
-                 Exclude="..\Modules\**\*.cs;..\Modules\**\Source\**;..\Modules\*\LICENSE;..\Modules\*\LICENSE.*;..\Modules\*\NOTICE;..\Modules\*\NOTICE.*;..\Modules\*\README;..\Modules\*\README.*;..\Modules\*\CHANGELOG;..\Modules\*\CHANGELOG.*;$(ModulesIdeIgnore)">
+                 Exclude="..\Modules\**\*.cs;..\Modules\**\Source\**;..\Modules\**\Tests\**;..\Modules\*\LICENSE;..\Modules\*\LICENSE.*;..\Modules\*\NOTICE;..\Modules\*\NOTICE.*;..\Modules\*\README;..\Modules\*\README.*;..\Modules\*\CHANGELOG;..\Modules\*\CHANGELOG.*;$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <TargetPath>source\$([System.Text.RegularExpressions.Regex]::Replace('%(RecursiveDir)', '^[^\\/]+[\\/]', '').ToLowerInvariant())%(Filename)%(Extension)</TargetPath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -131,6 +133,22 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Visible>true</Visible>
         </Content>
+    </ItemGroup>
+    <!-- IDE-only listing for Tests/** non-.cs files (e.g. Modules/**/Tests/Fixtures/*.usda).
+         These are owned by 3DEngine.Tests and staged into THAT assembly's output directory,
+         not the engine's: shipping them with the engine binary would needlessly bloat
+         publish output and could collide on the shared `source/` namespace. The <None>
+         items below carry no <TargetPath> and CopyToOutputDirectory=Never, so they show up
+         in the Rider/VS Modules tree (single source of truth) without being copied to
+         $(OutDir). The .cs counterparts are linked into 3DEngine.Tests via that project's
+         own <Compile Include="..\Modules\**\Tests\**\*.cs"> item. -->
+    <ItemGroup>
+        <None Include="..\Modules\**\Tests\**\*"
+              Exclude="..\Modules\**\Tests\**\*.cs;$(ModulesIdeIgnore)">
+            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>true</Visible>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
     <!-- IDE-only visibility for files that are intentionally excluded from <Compile>,
          <Content> and the primary <None> groups above:
