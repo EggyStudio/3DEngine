@@ -60,26 +60,24 @@
         </ModulesForeignSources>
     </PropertyGroup>
     <ItemGroup>
+        <!-- Single compile glob for Modules\**. Generator\** is intentionally NOT excluded:
+             those source-generator files need to be built into the engine assembly so
+             RuntimeBehaviorCompiler can drive CSharpGeneratorDriver against the same types
+             that Roslyn uses at compile-time (3DEngine.Generator.dll still produces the
+             netstandard2.0 analyzer for the IDE/build pipeline).
+             $(ModulesForeignSources) currently lists Tests\** only; if Generator\** were
+             added there, a second <Compile> item would be required for it. Listing the
+             Generator files here as part of the same glob avoids the duplicate item that
+             would otherwise make Rider render every Generator file twice (once per item),
+             with only the first instance getting full semantic colorization. -->
         <Compile Include="..\Modules\**\*.cs"
                  Exclude="$(ModulesCompileExclude);$(ModulesForeignSources)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>true</Visible>
         </Compile>
-        <!-- Generator sources are also compiled into the engine assembly so source generators
-             (e.g. Engine.BehaviorGenerator) are reachable as runtime types for hot-reload
-             pipelines that drive CSharpGeneratorDriver from RuntimeBehaviorCompiler. The same
-             files still build into 3DEngine.Generator.dll (netstandard2.0) for compile-time
-             generation. Microsoft.CodeAnalysis.CSharp 5.3 referenced below is API-compatible
-             with the Roslyn 4.x APIs the generators target. Visible in the IDE Modules tree;
-             $(ModulesForeignSources) deliberately omits Generator/** so there is no duplicate
-             <None> listing to collide with these compiled items. -->
-        <Compile Include="..\Modules\**\Generator\**\*.cs"
-                 Exclude="$(ModulesIdeIgnore)">
-            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <Visible>true</Visible>
-        </Compile>
-        <!-- IDE-only listing for Tests/**, Generator/** and vendored Source/**. The owning
-             csproj links these with Visible=false so each file appears exactly once. -->
+        <!-- IDE-only listing for Tests/** and vendored Source/**. The owning csproj links
+             these with Visible=false so each file appears exactly once. Generator/** is
+             served by the <Compile> item above and so is intentionally absent here. -->
         <None Include="$(ModulesForeignSources);..\Modules\**\Source\**\*.cs"
               Exclude="$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
