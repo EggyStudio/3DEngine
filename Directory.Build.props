@@ -12,7 +12,11 @@
     <!-- XML documentation & enforcement -->
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <NoWarn>$(NoWarn);CS1591;NETSDK1206</NoWarn>
+        <!-- ZeroTier.Sockets ships native libzt.dll alongside its managed assembly in lib/, which
+             MSBuild's RAR tries to read as metadata. Demote the resulting MSB3246 to a message
+             so it doesn't pollute the build log of every project that pulls it transitively. -->
+        <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3246</MSBuildWarningsAsMessages>
     </PropertyGroup>
 
     <!-- NuGet package metadata -->
