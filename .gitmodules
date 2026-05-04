@@ -118,3 +118,7 @@
 	path = Modules/Engine.Models.Assimp
 	url = https://github.com/EggyStudio/Engine.Models.Assimp.git
 	branch = main
+[submodule "Modules/Engine.Models.Gltf"]
+	path = Modules/Engine.Models.Gltf
+	url = https://github.com/EggyStudio/Engine.Models.Gltf.git
+	branch = main
