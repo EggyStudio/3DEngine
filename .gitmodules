@@ -130,3 +130,7 @@
 	path = Modules/Engine.Textures
 	url = https://github.com/EggyStudio/Engine.Textures.git
 	branch = main
+[submodule "Modules/Engine.Textures.Stb"]
+	path = Modules/Engine.Textures.Stb
+	url = https://github.com/EggyStudio/Engine.Textures.Stb.git
+	branch = main
