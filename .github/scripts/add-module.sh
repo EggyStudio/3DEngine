@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: ./add-module.sh <ModuleName> ["optional description"]
 # Example:
-#   ./add-module.sh 3DEngine.Common.App "App + Config + plugin contract"
+#   ./add-module.sh Engine.Common.App "App + Config + plugin contract"
 #
 # What it does:
 #   1. Verifies `gh` is installed and authenticated.
@@ -18,7 +18,7 @@ set -euo pipefail
 # --- args -----------------------------------------------------------------
 if [ "$#" -lt 1 ] || [ -z "${1:-}" ]; then
     echo "Usage: $0 <ModuleName> [\"description\"]" >&2
-    echo "Example: $0 3DEngine.Common.App \"App + Config + plugin contract\"" >&2
+    echo "Example: $0 Engine.Common.App \"App + Config + plugin contract\"" >&2
     exit 1
 fi
 

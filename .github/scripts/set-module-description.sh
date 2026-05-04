@@ -3,7 +3,7 @@
 #
 # Usage:
 #   ./set-module-description.sh <name> "New description"
-#   ./set-module-description.sh 3DEngine.Common "Shared core utilities"
+#   ./set-module-description.sh Engine.Common "Shared core utilities"
 #
 # Pass "." as <name> to target the current repo (auto-detected via gh).
 #
