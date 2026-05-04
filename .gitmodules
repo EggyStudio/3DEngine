@@ -94,9 +94,9 @@
 	path = Modules/Engine.Graphics.Shaders
 	url = https://github.com/EggyStudio/Engine.Graphics.Shaders.git
 	branch = main
-[submodule "Modules/3DEngine.Networking"]
-	path = Modules/3DEngine.Networking
-	url = https://github.com/EggyStudio/3DEngine.Networking.git
+[submodule "Modules/Engine.Networking"]
+	path = Modules/Engine.Networking
+	url = https://github.com/EggyStudio/Engine.Networking.git
 	branch = main
 [submodule "Modules/Engine.Multiplayer"]
 	path = Modules/Engine.Multiplayer
