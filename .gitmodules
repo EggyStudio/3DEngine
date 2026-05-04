@@ -54,13 +54,13 @@
 	path = Modules/Engine.Pipelines.ImGui
 	url = https://github.com/EggyStudio/Engine.Pipelines.ImGui
 	branch = main
-[submodule "3DEngine.WebView"]
-	path = Modules/3DEngine.WebView
-	url = https://github.com/EggyStudio/3DEngine.WebView
+[submodule "Engine.WebView"]
+	path = Modules/Engine.WebView
+	url = https://github.com/EggyStudio/Engine.WebView
 	branch = main
-[submodule "3DEngine.WebView.Vulkan"]
-	path = Modules/3DEngine.WebView.Vulkan
-	url = https://github.com/EggyStudio/3DEngine.WebView.Vulkan
+[submodule "Engine.WebView.Vulkan"]
+	path = Modules/Engine.WebView.Vulkan
+	url = https://github.com/EggyStudio/Engine.WebView.Vulkan
 	branch = main
 [submodule "Engine.Editor"]
 	path = Modules/Engine.Editor
