@@ -172,12 +172,16 @@
         <InternalsVisibleTo Include="Engine.Tests" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="AssimpNetter" Version="6.0.4" />
         <PackageReference Include="BepuPhysics" Version="2.5.0-beta.29" />
         <PackageReference Include="BepuUtilities" Version="2.5.0-beta.29" />
         <PackageReference Include="MaterialX.Net" Version="0.1.6" />
         <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="11.0.0-preview.3.26207.106" />
         <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260213-150035" />
         <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />
+        <PackageReference Include="SharpGLTF.Core" Version="1.0.6" />
+        <PackageReference Include="SharpGLTF.Runtime" Version="1.0.6" />
+        <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
         <PackageReference Include="SlangShaderSharp" Version="2026.8.0" />
         <PackageReference Include="SoLoud" Version="2020.2.7" />
         <PackageReference Include="SpacetimeDB.ClientSDK" Version="2.2.0" />
