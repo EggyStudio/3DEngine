@@ -186,7 +186,7 @@
         <PackageReference Include="SteamAudio.NET.Natives" Version="4.6.1" />
         <PackageReference Include="Tracy-NET" Version="0.13.2" />
         <PackageReference Include="UltralightNet.Bundle" Version="2.2.4" />
-        <PackageReference Include="UniversalSceneDescription" Version="7.3.3" />
+        <PackageReference Include="UniversalSceneDescription" Version="7.3.4" />
         <PackageReference Include="Vortice.VulkanMemoryAllocator" Version="1.7.0" />
         <PackageReference Include="Vortice.ShaderCompiler" Version="1.9.0" />
         <PackageReference Include="Vortice.SpirvCross" Version="1.5.4" />
