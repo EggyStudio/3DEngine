@@ -74,13 +74,13 @@
 	path = Modules/3DEngine.Scenes.Usd
 	url = https://github.com/EggyStudio/3DEngine.Scenes.Usd.git
 	branch = main
-[submodule "Modules/3DEngine.Physics"]
-	path = Modules/3DEngine.Physics
-	url = https://github.com/EggyStudio/3DEngine.Physics.git
+[submodule "Modules/Engine.Physics"]
+	path = Modules/Engine.Physics
+	url = https://github.com/EggyStudio/Engine.Physics.git
 	branch = main
-[submodule "Modules/3DEngine.Physics.Bepu"]
-	path = Modules/3DEngine.Physics.Bepu
-	url = https://github.com/EggyStudio/3DEngine.Physics.Bepu.git
+[submodule "Modules/Engine.Physics.Bepu"]
+	path = Modules/Engine.Physics.Bepu
+	url = https://github.com/EggyStudio/Engine.Physics.Bepu.git
 	branch = main
 [submodule "Modules/Engine.Materials"]
 	path = Modules/Engine.Materials
