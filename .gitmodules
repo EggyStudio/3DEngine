@@ -110,3 +110,7 @@
 	path = Modules/Engine.Sound.SoLoud
 	url = https://github.com/EggyStudio/Engine.Sound.SoLoud.git
 	branch = main
+[submodule "Modules/Engine.Sound.SteamAudio"]
+	path = Modules/Engine.Sound.SteamAudio
+	url = https://github.com/EggyStudio/Engine.Sound.SteamAudio.git
+	branch = main
