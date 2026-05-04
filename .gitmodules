@@ -10,13 +10,13 @@
 	path = Modules/Engine.Common
 	url = https://github.com/EggyStudio/Engine.Common.git
 	branch = main
-[submodule "3DEngine.Entities"]
-	path = Modules/3DEngine.Entities
-	url = https://github.com/EggyStudio/3DEngine.Entities
+[submodule "Engine.Entities"]
+	path = Modules/Engine.Entities
+	url = https://github.com/EggyStudio/Engine.Entities
 	branch = main
-[submodule "3DEngine.Entities.Behaviors"]
-	path = Modules/3DEngine.Entities.Behaviors
-	url = https://github.com/EggyStudio/3DEngine.Entities.Behaviors
+[submodule "Engine.Entities.Behaviors"]
+	path = Modules/Engine.Entities.Behaviors
+	url = https://github.com/EggyStudio/Engine.Entities.Behaviors
 	branch = main
 [submodule "Engine.Assets"]
 	path = Modules/Engine.Assets
