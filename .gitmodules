@@ -22,9 +22,9 @@
 	path = Modules/Engine.Assets
 	url = https://github.com/EggyStudio/Engine.Assets
 	branch = main
-[submodule "3DEngine.Graphics"]
-	path = Modules/3DEngine.Graphics
-	url = https://github.com/EggyStudio/3DEngine.Graphics
+[submodule "Engine.Graphics"]
+	path = Modules/Engine.Graphics
+	url = https://github.com/EggyStudio/Engine.Graphics
 	branch = main
 [submodule "3DEngine.Renderer"]
 	path = Modules/3DEngine.Renderer
@@ -90,9 +90,9 @@
 	path = Modules/3DEngine.Materials.X
 	url = https://github.com/EggyStudio/3DEngine.Materials.X.git
 	branch = main
-[submodule "Modules/3DEngine.Graphics.Shaders"]
-	path = Modules/3DEngine.Graphics.Shaders
-	url = https://github.com/EggyStudio/3DEngine.Graphics.Shaders.git
+[submodule "Modules/Engine.Graphics.Shaders"]
+	path = Modules/Engine.Graphics.Shaders
+	url = https://github.com/EggyStudio/Engine.Graphics.Shaders.git
 	branch = main
 [submodule "Modules/3DEngine.Networking"]
 	path = Modules/3DEngine.Networking
