@@ -102,3 +102,7 @@
 	path = Modules/Engine.Multiplayer
 	url = https://github.com/EggyStudio/Engine.Multiplayer.git
 	branch = main
+[submodule "Modules/Engine.Sound"]
+	path = Modules/Engine.Sound
+	url = https://github.com/EggyStudio/Engine.Sound.git
+	branch = main
