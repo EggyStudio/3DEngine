@@ -122,3 +122,7 @@
 	path = Modules/Engine.Models.Gltf
 	url = https://github.com/EggyStudio/Engine.Models.Gltf.git
 	branch = main
+[submodule "Modules/Engine.Models"]
+	path = Modules/Engine.Models
+	url = https://github.com/EggyStudio/Engine.Models.git
+	branch = main
