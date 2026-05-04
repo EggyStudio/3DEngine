@@ -66,13 +66,13 @@
 	path = Modules/Engine.Editor
 	url = https://github.com/EggyStudio/Engine.Editor
 	branch = main
-[submodule "Modules/3DEngine.Scenes"]
-	path = Modules/3DEngine.Scenes
-	url = https://github.com/EggyStudio/3DEngine.Scenes.git
+[submodule "Modules/Engine.Scenes"]
+	path = Modules/Engine.Scenes
+	url = https://github.com/EggyStudio/Engine.Scenes.git
 	branch = main
-[submodule "Modules/3DEngine.Scenes.Usd"]
-	path = Modules/3DEngine.Scenes.Usd
-	url = https://github.com/EggyStudio/3DEngine.Scenes.Usd.git
+[submodule "Modules/Engine.Scenes.Usd"]
+	path = Modules/Engine.Scenes.Usd
+	url = https://github.com/EggyStudio/Engine.Scenes.Usd.git
 	branch = main
 [submodule "Modules/Engine.Physics"]
 	path = Modules/Engine.Physics

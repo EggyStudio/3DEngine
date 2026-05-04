@@ -109,7 +109,7 @@
 
          A second block handles vendored Source/**: each module's <Module>\Source\<rel>
          flattens to source\<rel> (lowercased) so AssetServer.Load("teapot.usdz") resolves
-         Modules/3DEngine.Scenes/Source/teapot.usdz. Self-contained subprojects under
+         Modules/Engine.Scenes/Source/teapot.usdz. Self-contained subprojects under
          Source/ (with their own .csproj producing build artifacts) must be excluded
          explicitly to avoid double-staging. -->
     <ItemGroup>
@@ -124,7 +124,7 @@
                  Exclude="..\Modules\**\*.cs;$(ModulesIdeIgnore)">
             <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <!-- Strips the leading "<Module>\Source\" segments so a file at
-                 Modules\3DEngine.Scenes\Source\teapot.usdz lands at source\teapot.usdz
+                 Modules\Engine.Scenes\Source\teapot.usdz lands at source\teapot.usdz
                  (matching the AssetServer.Load("teapot.usdz") shape). Subdirectories under
                  Source\ are preserved (e.g. Source\scenes\foo.usdz -> source\scenes\foo.usdz). -->
             <TargetPath>source\$([System.Text.RegularExpressions.Regex]::Replace('%(RecursiveDir)', '^[^\\/]+[\\/]Source[\\/]', '').ToLowerInvariant())%(Filename)%(Extension)</TargetPath>
