@@ -18,9 +18,9 @@
 	path = Modules/3DEngine.Entities.Behaviors
 	url = https://github.com/EggyStudio/3DEngine.Entities.Behaviors
 	branch = main
-[submodule "3DEngine.Assets"]
-	path = Modules/3DEngine.Assets
-	url = https://github.com/EggyStudio/3DEngine.Assets
+[submodule "Engine.Assets"]
+	path = Modules/Engine.Assets
+	url = https://github.com/EggyStudio/Engine.Assets
 	branch = main
 [submodule "3DEngine.Graphics"]
 	path = Modules/3DEngine.Graphics

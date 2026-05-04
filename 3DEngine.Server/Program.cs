@@ -4,7 +4,7 @@ using Editor.Server.Hubs;
 using Editor.Shell;
 
 // -- Standalone mode --
-// Hot-reload via Roslyn now lives in 3DEngine.Assets (RuntimeShellCompiler) and is wired up by
+// Hot-reload via Roslyn now lives in Engine.Assets (RuntimeShellCompiler) and is wired up by
 // EditorPlugin in the engine. The standalone Server only consumes whatever shells are
 // statically registered in assemblies it has loaded (typically: none, since the engine
 // assembly is not referenced here). For full editor functionality, run via the engine
