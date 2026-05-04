@@ -82,13 +82,13 @@
 	path = Modules/3DEngine.Physics.Bepu
 	url = https://github.com/EggyStudio/3DEngine.Physics.Bepu.git
 	branch = main
-[submodule "Modules/3DEngine.Materials"]
-	path = Modules/3DEngine.Materials
-	url = https://github.com/EggyStudio/3DEngine.Materials.git
+[submodule "Modules/Engine.Materials"]
+	path = Modules/Engine.Materials
+	url = https://github.com/EggyStudio/Engine.Materials.git
 	branch = main
-[submodule "Modules/3DEngine.Materials.X"]
-	path = Modules/3DEngine.Materials.X
-	url = https://github.com/EggyStudio/3DEngine.Materials.X.git
+[submodule "Modules/Engine.Materials.X"]
+	path = Modules/Engine.Materials.X
+	url = https://github.com/EggyStudio/Engine.Materials.X.git
 	branch = main
 [submodule "Modules/Engine.Graphics.Shaders"]
 	path = Modules/Engine.Graphics.Shaders
