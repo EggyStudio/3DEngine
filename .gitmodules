@@ -26,25 +26,25 @@
 	path = Modules/Engine.Graphics
 	url = https://github.com/EggyStudio/Engine.Graphics
 	branch = main
-[submodule "3DEngine.Renderer"]
-	path = Modules/3DEngine.Renderer
-	url = https://github.com/EggyStudio/3DEngine.Renderer
+[submodule "Engine.Renderer"]
+	path = Modules/Engine.Renderer
+	url = https://github.com/EggyStudio/Engine.Renderer
 	branch = main
 [submodule "Engine.Components"]
 	path = Modules/Engine.Components
 	url = https://github.com/EggyStudio/Engine.Components
 	branch = main
-[submodule "3DEngine.Renderer.Extracts"]
-	path = Modules/3DEngine.Renderer.Extracts
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Extracts
+[submodule "Engine.Renderer.Extracts"]
+	path = Modules/Engine.Renderer.Extracts
+	url = https://github.com/EggyStudio/Engine.Renderer.Extracts
 	branch = main
-[submodule "3DEngine.Renderer.Graph"]
-	path = Modules/3DEngine.Renderer.Graph
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Graph
+[submodule "Engine.Renderer.Graph"]
+	path = Modules/Engine.Renderer.Graph
+	url = https://github.com/EggyStudio/Engine.Renderer.Graph
 	branch = main
-[submodule "3DEngine.Renderer.Phases"]
-	path = Modules/3DEngine.Renderer.Phases
-	url = https://github.com/EggyStudio/3DEngine.Renderer.Phases
+[submodule "Engine.Renderer.Phases"]
+	path = Modules/Engine.Renderer.Phases
+	url = https://github.com/EggyStudio/Engine.Renderer.Phases
 	branch = main
 [submodule "Engine.Pipelines"]
 	path = Modules/Engine.Pipelines

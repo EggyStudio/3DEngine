@@ -103,7 +103,7 @@
 
          The leading "<Module>\" segment of %(RecursiveDir) is stripped so each module
          contributes into a shared "source/" namespace (e.g. "shaders/mesh.vert.glsl"
-         resolves to "Modules/3DEngine.Renderer.Pipelines/Shaders/mesh.vert.glsl"). The path
+         resolves to "Modules/Engine.Renderer.Pipelines/Shaders/mesh.vert.glsl"). The path
          is lowercased for case-sensitive filesystems. PreserveNewest avoids unnecessary
          recopies.
 
