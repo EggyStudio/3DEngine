@@ -4,7 +4,6 @@ using Engine;
 var config = Config.Default;
 new App(config)
     .AddPlugin(new DefaultPlugins())
-    .AddPlugin(new WebViewPlugin())
     // .AddPlugin(new EditorPlugin())
     .Run();
 

@@ -167,7 +167,7 @@ See `Engine/Program.cs` for the runtime entry point and `Editor/Program.cs` for 
   inter-system communication.
 - **Plugin model** - `DefaultPlugins` aggregates: `AssetPlugin`, `AppWindowPlugin`, `AppExitPlugin`,
   `ExceptionsPlugin`, `TimePlugin`, `InputPlugin`, `EcsPlugin`, `BehaviorsPlugin`, `SdlImGuiPlugin`,
-  `SdlRendererPlugin`, `VulkanWebViewPlugin`, `VulkanImGuiPlugin`. Also registers `GlslLoader` with the `AssetServer`.
+  `SdlPlugin`, `VulkanWebViewPlugin`, `VulkanImGuiPlugin`. Also registers `GlslLoader` with the `AssetServer`.
 - **Vulkan graphics device** - Instance creation, physical device selection, logical device, swapchain management,
   pipeline creation, buffer/image allocation (VMA), descriptor sets, and synchronization primitives.
   `NullGraphicsDevice` provides a no-op implementation for headless runs and unit tests.

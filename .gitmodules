@@ -2,9 +2,9 @@
 	path = Modules/Engine.App
 	url = https://github.com/EggyStudio/Engine.App
 	branch = main
-[submodule "Engine.App.ImGui"]
-	path = Modules/Engine.App.ImGui
-	url = https://github.com/EggyStudio/Engine.App.ImGui
+[submodule "Engine.App.Sdl.ImGui"]
+	path = Modules/Engine.App.Sdl.ImGui
+	url = https://github.com/EggyStudio/Engine.App.Sdl.ImGui
 	branch = main
 [submodule "Modules/Engine.Common"]
 	path = Modules/Engine.Common
