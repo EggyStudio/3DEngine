@@ -39,7 +39,6 @@ public struct TeapotSceneTest
     [OnStartup]
     public static void Start(BehaviorContext ctx)
     {
-        var handle = ctx.Res<AssetServer>().Load<SceneAsset>("teapot.usdz");
-        ctx.Cmd.Spawn((id, ecs) => ecs.Add(id, new SpawnSceneRequest { Handle = handle }));
+        ctx.SpawnScene("teapot.usdz");
     }
 }
