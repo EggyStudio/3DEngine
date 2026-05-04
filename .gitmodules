@@ -114,3 +114,7 @@
 	path = Modules/Engine.Sound.SteamAudio
 	url = https://github.com/EggyStudio/Engine.Sound.SteamAudio.git
 	branch = main
+[submodule "Modules/Engine.Models.Assimp"]
+	path = Modules/Engine.Models.Assimp
+	url = https://github.com/EggyStudio/Engine.Models.Assimp.git
+	branch = main
