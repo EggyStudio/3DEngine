@@ -196,7 +196,7 @@
         <PackageReference Include="ZeroTier.Sockets" Version="1.8.4" ExcludeAssets="contentFiles" />
     </ItemGroup>
     <!-- ASP.NET Core reference assemblies are required at compile time so EditorPlugin
-         (Modules\3DEngine.Editor\Runtime\EditorPlugin.cs) can consume the WebApplication
+         (Modules\Engine.Editor\Runtime\EditorPlugin.cs) can consume the WebApplication
          returned by EditorServerHost.StartAsync. Runtime DLLs are supplied by the
          3DEngine.Server project reference; this entry only adds reference assemblies. -->
     <ItemGroup>
