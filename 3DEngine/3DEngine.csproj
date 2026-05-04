@@ -183,7 +183,6 @@
         <PackageReference Include="SharpGLTF.Runtime" Version="1.0.6" />
         <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
         <PackageReference Include="SlangShaderSharp" Version="2026.8.0" />
-        <PackageReference Include="SoLoud" Version="2020.2.7" />
         <PackageReference Include="SpacetimeDB.ClientSDK" Version="2.2.0" />
         <PackageReference Include="StbImageSharp" Version="2.30.15" />
         <PackageReference Include="SteamAudio.NET" Version="4.6.1" />
