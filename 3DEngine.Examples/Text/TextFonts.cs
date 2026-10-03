@@ -11,6 +11,10 @@ public static class TextFonts
 
         // Lato, under the SIL Open Font License (resources/fonts/Lato-OFL.txt).
         var lato = LoadFontEx("resources/fonts/Lato-Regular.ttf", 48);
+
+        // Beyond Latin-1, a font is baked with the characters a text needs.
+        const string World = "Grüße · Γειά σου · Привет · 5 €";
+        var wide = LoadFontEx("resources/fonts/Lato-Regular.ttf", 28, LoadCodepoints(World));
         var target = LoadRenderTexture(300, 120);
         var t = 0f;
 
@@ -38,6 +42,7 @@ public static class TextFonts
             var size2 = MeasureTextEx(lato, line, 32, 0);
             DrawRectangle((int)(560 - size2.X / 2), 200, (int)size2.X, (int)size2.Y, Color.SkyBlue.Fade(0.4f));
             DrawTextEx(lato, line, new Vector2(560 - size2.X / 2, 200), 32, 0, Color.DarkBlue);
+            DrawTextEx(wide, World, new Vector2(20, 270), 28, 0, Color.DarkPurple);
 
             // Text reaches render targets like any shape.
             BeginTextureMode(target);
@@ -51,6 +56,7 @@ public static class TextFonts
         }
 
         UnloadFont(lato);
+        UnloadFont(wide);
         UnloadRenderTexture(target);
         CloseWindow();
     }

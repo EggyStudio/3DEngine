@@ -93,6 +93,64 @@ public static partial class Engine3D
                ?? GetFontDefault();
     }
 
+    /// <summary>
+    /// Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with exactly
+    /// the characters in <paramref name="codepoints"/>, as raylib's does. Greek, Cyrillic, symbols
+    /// and the rest of the Basic Multilingual Plane are reached this way.
+    /// </summary>
+    /// <remarks>
+    /// Characters above U+FFFF, such as most emoji, are left out, because the atlas builder names
+    /// characters in 16 bits. Characters the font file does not have are skipped when drawn.
+    /// </remarks>
+    /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
+    public static unsafe Font LoadFontEx(string fileName, int fontSize, int[] codepoints)
+    {
+        var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
+            return GetFontDefault();
+        }
+
+        var ranges = GlyphRanges(codepoints);
+        if (ranges.Length == 1)
+        {
+            ApiLogger.Warn("LoadFontEx: no code points below U+10000 were given. Using the default font.");
+            return GetFontDefault();
+        }
+
+        // The atlas reads the ranges when it builds, after AddFontFromFileTTF returns, so they stay
+        // pinned until the bake is done.
+        fixed (ushort* pinned = ranges)
+        {
+            var address = (IntPtr)pinned;
+            return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, fontSize), null, address), TextureFilter.Bilinear)
+                   ?? GetFontDefault();
+        }
+    }
+
+    /// <summary>The distinct code points of <paramref name="text"/>, in order, for <see cref="LoadFontEx(string, int, int[])"/>.</summary>
+    public static int[] LoadCodepoints(string text) => text.EnumerateRunes().Select(r => r.Value).Distinct().ToArray();
+
+    /// <summary>
+    /// Code points as the pairs of first and last that ImGui's atlas takes, ending in a zero, with
+    /// neighbors merged into one pair and anything above U+FFFF or below one dropped.
+    /// </summary>
+    internal static ushort[] GlyphRanges(IEnumerable<int> codepoints)
+    {
+        var sorted = codepoints.Where(c => c is > 0 and <= 0xFFFF).Distinct().Order().ToArray();
+        var ranges = new List<ushort>();
+        for (int i = 0; i < sorted.Length; i++)
+        {
+            var first = sorted[i];
+            while (i + 1 < sorted.Length && sorted[i + 1] == sorted[i] + 1) i++;
+            ranges.Add((ushort)first);
+            ranges.Add((ushort)sorted[i]);
+        }
+        ranges.Add(0);
+        return [.. ranges];
+    }
+
     /// <summary>Frees a font's atlas. The default fonts are kept.</summary>
     public static void UnloadFont(Font font)
     {

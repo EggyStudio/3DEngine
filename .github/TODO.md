@@ -64,8 +64,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   cellular noise are not generated. Mip levels are made by GPU blits, which have not been run
   under the validation layers, since the machine they were written on has none installed.
   Anisotropic filtering is not offered.
-- **Fonts bake Latin-1 only**, at one size each, with no signed distance fields, so text far
-  larger than its bake blurs. Characters outside Latin-1 are skipped.
+- **Fonts bake at one size each**, with no signed distance fields, so text far larger than its
+  bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
+  (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.
 - **Render targets** have no multisampling and no depth to sample, and the window has no
   multisampling either. Window state and monitors are queried and changed, but a monitor's
   modes cannot be listed or switched, and there is no `SetConfigFlags` for choosing these before
