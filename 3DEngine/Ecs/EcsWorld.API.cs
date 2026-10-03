@@ -475,6 +475,14 @@ public sealed partial class EcsWorld
         lock (_stores) return _stores.TryGetValue(type, out var store) ? store.GetBoxed(entity) : null;
     }
 
+    /// <summary>Replaces <paramref name="entity"/>'s component of the value's type, and marks it changed.</summary>
+    /// <returns>Whether the entity had a component of that type.</returns>
+    /// <remarks>Boxes, so it is for tools such as the console rather than a system's loop.</remarks>
+    public bool SetBoxed(int entity, object value)
+    {
+        lock (_stores) return _stores.TryGetValue(value.GetType(), out var store) && store.SetBoxed(entity, value);
+    }
+
     /// <summary>How many entities have a component of <paramref name="type"/>.</summary>
     public int CountOf(Type type)
     {

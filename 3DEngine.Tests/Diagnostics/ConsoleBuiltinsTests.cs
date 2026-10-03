@@ -6,7 +6,7 @@ namespace Engine.Tests.Diagnostics;
 [Trait("Category", "Unit")]
 public class ConsoleBuiltinsTests
 {
-    private struct Health { public int Value; }
+    private struct Health { public int Value; public System.Numerics.Vector3 Spot; }
     private struct Tag;
 
     private static (World World, App App) Setup()
@@ -43,7 +43,7 @@ public class ConsoleBuiltinsTests
         Run(world, app, "entity.count").Should().Be("2");
         Run(world, app, "component.list").Should().Contain("Health 2").And.Contain("Tag 1");
         Run(world, app, "entity.list 10").Should().Contain("1: Health, Tag").And.Contain("2: Health");
-        Run(world, app, "entity.get 1").Should().Contain("Health { Value=7 }");
+        Run(world, app, "entity.get 1").Should().Contain("Health { Value=7");
     }
 
     [Fact]
@@ -62,5 +62,31 @@ public class ConsoleBuiltinsTests
         app.AddSystem(Stage.Update, new SystemDescriptor(_ => { }, "My.System"));
 
         Run(world, app, "schedule.list").Should().Contain("Update\n  My.System");
+    }
+
+    [Fact]
+    public void A_Field_Is_Set_From_Its_Words_And_Marked_Changed()
+    {
+        var (world, app) = Setup();
+        var ecs = world.Resource<EcsWorld>();
+        ecs.BeginFrame();
+
+        Run(world, app, "entity.set 1 Health.Value 42").Should().Contain("Value=42");
+        Run(world, app, "entity.set 1 health.spot 1,2.5,-3").Should().Contain("Spot=<1, 2.5, -3>");
+
+        ecs.TryGet<Health>(1, out var health).Should().BeTrue();
+        health.Value.Should().Be(42);
+        health.Spot.Should().Be(new System.Numerics.Vector3(1, 2.5f, -3));
+        ecs.Changed<Health>(1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_Field_That_Does_Not_Exist_Or_Parse_Is_Refused()
+    {
+        var (world, app) = Setup();
+
+        Run(world, app, "entity.set 1 Health.Missing 1").Should().Contain("no field");
+        Run(world, app, "entity.set 1 Health.Value lots").Should().Contain("not a Int32");
+        Run(world, app, "entity.set 1 Armor.Value 1").Should().Contain("no Armor");
     }
 }

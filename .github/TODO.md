@@ -4,10 +4,10 @@ Work outstanding on 3DEngine, in the order it blocks making a game: a window
 and a frame a program drives with plain calls, something on screen, content loaded from files, an
 interface, behavior, and shipping the result.
 
-The ECS, the schedule and the behavior generator exist and are tested, and the flat API described
-in [DESIGN.md](DESIGN.md) covers the window, input, the frame, cameras, shapes and text. What is
-thin is loading: nothing a program owns can be loaded through the flat API, and the renderer draws
-meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md).
+The ECS, the schedule and the behavior generator exist and are tested, and every area of the flat
+API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth: lighting is one
+fixed light, the ECS's own mesh path is unlit, and each area of the flat API lacks pieces raylib
+has. The renderer's own plan is [RENDERING.md](RENDERING.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.
@@ -36,8 +36,9 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### The flat API
 
-`Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes,
-images and textures, models and meshes, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
+`Engine3D` covers the window, timing, input, the frame, cameras, render targets, 2D and 3D shapes,
+images and textures, models and meshes, shaders, text and fonts, and audio
+([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
 - **Custom shaders are for the immediate pass only.** A shader loaded with `LoadShader` replaces
   the stages of shapes, textures and text, and reads four `float4` slots (`SetShaderValue`) rather
@@ -132,10 +133,10 @@ what is left.
   macOS runners, and a job that runs the examples offscreen, are not set up.
 - **No package.** The engine is consumed as a project reference. A NuGet package carrying the
   shaders and the native SDL3 libraries is needed for a game outside this repository.
-- **The command line has no evaluator.** `./e3d` lists, runs commands, drives input and captures,
-  and a game adds commands with `[Command]`, but C# cannot be typed at a running app, and changing a
-  component's field needs a command written for it. ImGui receives the mouse from `input.*` and not
-  the keyboard, so typing into an ImGui field is not possible from the CLI.
+- **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
+  text, mouse and gamepads, reaching ImGui as well) and captures, `entity.set` writes one field, and
+  a game adds commands with `[Command]`, but C# cannot be typed at a running app, and an entity
+  cannot be spawned or given a new component from the CLI.
 - **A headless run cannot capture.** `--hidden` renders into a window that is never shown, which
   needs a display server. Rendering into an image with no surface at all (for CI) needs an
   offscreen target in place of the swapchain.

@@ -51,7 +51,7 @@ public static class SdlImGuiInput
     }
 
     /// <summary>Maps SDL scancodes to ImGui keys.</summary>
-    private static ImGuiKey SdlKeyToImGuiKey(SDL.Scancode sc)
+    internal static ImGuiKey SdlKeyToImGuiKey(SDL.Scancode sc)
     {
         return sc switch
         {

@@ -70,5 +70,7 @@ public sealed partial class EcsWorld
         bool Has(int entity);
         /// <summary>The component of <paramref name="entity"/>, boxed, or <c>null</c>.</summary>
         object? GetBoxed(int entity);
+        /// <summary>Replaces the component of <paramref name="entity"/> with a boxed value, marking it changed.</summary>
+        bool SetBoxed(int entity, object value);
     }
 }

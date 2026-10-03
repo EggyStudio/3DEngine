@@ -47,6 +47,13 @@ public sealed partial class EcsWorld
 
         public object? GetBoxed(int entity) => _set.TryGet(entity, out var value) ? value : null;
 
+        public bool SetBoxed(int entity, object value)
+        {
+            if (value is not T typed || !_set.Has(entity)) return false;
+            _set.Update(entity, typed);
+            return true;
+        }
+
         /// <summary>Returns <c>true</c> if the component on <paramref name="entity"/> was modified this frame.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <param name="currentTick">The current frame tick (reserved for future use).</param>

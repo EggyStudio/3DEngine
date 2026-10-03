@@ -90,6 +90,71 @@ internal static class ConsoleBuiltins
         return text.ToString().TrimEnd();
     }
 
+    [Command("entity.set", "Sets one field of an entity's component: entity.set <id> <Component.Field> <value>, with vectors and colors as 1,2,3")]
+    internal static string EntitySet(int id, string path, string value)
+    {
+        var ecs = ConsoleHost.Ecs;
+        var dot = path.IndexOf('.');
+        if (dot <= 0)
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", "Name the field as Component.Field, as in Transform.Position.");
+            return "name the field as Component.Field";
+        }
+
+        var (componentName, fieldName) = (path[..dot], path[(dot + 1)..]);
+        var type = ecs.ComponentTypesOf(id).FirstOrDefault(t => t.Name.Equals(componentName, StringComparison.OrdinalIgnoreCase));
+        if (type is null || ecs.GetBoxed(id, type) is not { } boxed)
+        {
+            ConsoleHost.Fail("NOT_FOUND", $"Entity {id} has no {componentName}.");
+            return $"entity {id} has no {componentName}";
+        }
+
+        var field = type.GetField(fieldName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        var property = field is null ? type.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase) : null;
+        var fieldType = field?.FieldType ?? (property is { CanWrite: true } ? property.PropertyType : null);
+        if (fieldType is null)
+        {
+            ConsoleHost.Fail("NOT_FOUND", $"{type.Name} has no field or settable property {fieldName}.");
+            return $"{type.Name} has no field {fieldName}";
+        }
+
+        if (!TryParse(value, fieldType, out var parsed))
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", $"'{value}' is not a {fieldType.Name}.");
+            return $"not a {fieldType.Name}: {value}";
+        }
+
+        if (field is not null) field.SetValue(boxed, parsed);
+        else property!.SetValue(boxed, parsed);
+        ecs.SetBoxed(id, boxed);
+        return $"{type.Name} {Describe(boxed)}";
+    }
+
+    // Reads a word as the field's type: numbers, flags, text, enums by name, and vectors, quaternions
+    // and colors as comma-separated numbers.
+    private static bool TryParse(string word, Type type, out object? value)
+    {
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        var numbers = word.Split(',', StringSplitOptions.TrimEntries)
+            .Select(n => float.TryParse(n, System.Globalization.NumberStyles.Float, invariant, out var f) ? f : float.NaN).ToArray();
+        value = type switch
+        {
+            _ when type == typeof(string) => word,
+            _ when type == typeof(float) && numbers.Length == 1 && !float.IsNaN(numbers[0]) => numbers[0],
+            _ when type == typeof(double) && double.TryParse(word, System.Globalization.NumberStyles.Float, invariant, out var d) => d,
+            _ when type == typeof(int) && int.TryParse(word, invariant, out var i) => i,
+            _ when type == typeof(bool) && bool.TryParse(word, out var b) => b,
+            _ when type.IsEnum && Enum.TryParse(type, word, ignoreCase: true, out var e) => e,
+            _ when type == typeof(System.Numerics.Vector2) && numbers.Length == 2 => new System.Numerics.Vector2(numbers[0], numbers[1]),
+            _ when type == typeof(System.Numerics.Vector3) && numbers.Length == 3 => new System.Numerics.Vector3(numbers[0], numbers[1], numbers[2]),
+            _ when type == typeof(System.Numerics.Vector4) && numbers.Length == 4 => new System.Numerics.Vector4(numbers[0], numbers[1], numbers[2], numbers[3]),
+            _ when type == typeof(System.Numerics.Quaternion) && numbers.Length == 4 => new System.Numerics.Quaternion(numbers[0], numbers[1], numbers[2], numbers[3]),
+            _ when type == typeof(Color) && numbers.Length is 3 or 4 => new Color((byte)numbers[0], (byte)numbers[1], (byte)numbers[2], numbers.Length == 4 ? (byte)numbers[3] : (byte)255),
+            _ => null,
+        };
+        return value is not null && !(value is float f2 && float.IsNaN(f2));
+    }
+
     [Command("component.list", "Every component type, with how many entities have it")]
     internal static string ComponentList()
     {

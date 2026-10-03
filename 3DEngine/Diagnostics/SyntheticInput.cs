@@ -40,8 +40,17 @@ public sealed class SyntheticInput
     /// <summary>Holds a key for <paramref name="frames"/> frames, starting with the next.</summary>
     public void Key(Input input, Key key, ulong frame, int frames)
     {
-        input.Enqueue(i => i.SetKey(key, true));
-        _releases.Add((frame + (ulong)Math.Max(1, frames), i => i.SetKey(key, false)));
+        var imGuiKey = SdlImGuiInput.SdlKeyToImGuiKey((SDL3.SDL.Scancode)(int)key);
+        input.Enqueue(i =>
+        {
+            i.SetKey(key, true);
+            if (imGuiKey != ImGuiKey.None && ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddKeyEvent(imGuiKey, true);
+        });
+        _releases.Add((frame + (ulong)Math.Max(1, frames), i =>
+        {
+            i.SetKey(key, false);
+            if (imGuiKey != ImGuiKey.None && ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddKeyEvent(imGuiKey, false);
+        }));
     }
 
     /// <summary>The id of the pad the console makes when no real one is connected.</summary>
@@ -80,6 +89,13 @@ public sealed class SyntheticInput
             if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent((int)button, false);
         }));
     }
+
+    /// <summary>Types <paramref name="text"/>, as text input reaches the game and ImGui's focused field.</summary>
+    public static void Type(Input input, string text) => input.Enqueue(i =>
+    {
+        i.AddText(text);
+        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddInputCharactersUTF8(text);
+    });
 
     /// <summary>Turns the wheel by <paramref name="amount"/>, positive away from the user.</summary>
     public static void Wheel(Input input, float amount)
@@ -184,6 +200,15 @@ internal static class InputCommands
 
         state.SetAxis(which, Math.Clamp(value, -1f, 1f));
         return $"{which} on {state.Name} at {value}";
+    }
+
+    [Command("input.text", "Types text into the game's text input and ImGui's focused field: input.text <text>")]
+    internal static string Text(string text)
+    {
+        var (input, _, frame) = Parts();
+        SyntheticInput.Type(input, text);
+        ConsoleHost.Hold(frame + 2);
+        return $"typed {text.Length} character(s)";
     }
 
     [Command("input.state", "What the engine's input holds: keys and buttons down, the pointer, the gamepads")]

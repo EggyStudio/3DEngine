@@ -47,11 +47,13 @@ outside the examples is driven by running it with `--serve`.
 | `shot <path>` | writes the next frame to a PNG and answers once it is written (`./e3d shot <path>`) |
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities, their component types, and one entity's fields |
+| `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`), marking it changed |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
 | `input.drag <button> <dx> <dy> <frames>` | holds a button while moving the pointer, as a camera drag |
 | `input.wheel <amount>` | turns the wheel |
+| `input.text <text>` | types text into the game's text input and the focused ImGui field |
 | `input.state` | the keys and buttons down, the pointer and the gamepads, as the engine sees them |
 | `input.button <pad> <button> <frames>` | holds a gamepad button (`South`, `East`, `DpadUp`, `Start`), on a console pad when none is connected |
 | `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
@@ -67,8 +69,8 @@ Commands run between frames on the main thread, so they may read and change the 
 
 ## Input goes through the engine, not the desktop
 
-`input.*` writes into the engine's `Input` and hands mouse events to ImGui, so it works in a
-hidden or headless run and on a locked session, where xdotool's events do not arrive. Use it
+`input.*` writes into the engine's `Input` and hands keys, text and mouse events to ImGui, so it
+works in a hidden or headless run and on a locked session, where xdotool's events do not arrive. Use it
 rather than xdotool.
 
 Injected input is made when the loop next processes events, as a real key would be, so a program
