@@ -43,18 +43,24 @@ public sealed partial class EcsWorld
     [MethodImpl(MethodImplOptions.NoInlining)]
     private ComponentStore<T> GetOrCreateStoreSlow<T>()
     {
-        // Check dictionary first (for stores created before the cache existed)
-        if (_stores.TryGetValue(typeof(T), out var existing))
+        // Locked, because systems in a parallel batch reach here together the first time they
+        // touch a type. Unlocked, two of them each made a store, one landed in the cache the
+        // systems read and the other in the dictionary the console reads, and the dictionary
+        // itself could be corrupted by the concurrent writes.
+        lock (_stores)
         {
-            var typed = (ComponentStore<T>)existing;
-            SetStoreCache(typed);
-            return typed;
+            if (_stores.TryGetValue(typeof(T), out var existing))
+            {
+                var typed = (ComponentStore<T>)existing;
+                SetStoreCache(typed);
+                return typed;
+            }
+            var created = new ComponentStore<T>();
+            _stores[typeof(T)] = created;
+            _storeList.Add(created);
+            SetStoreCache(created);
+            return created;
         }
-        var created = new ComponentStore<T>();
-        _stores[typeof(T)] = created;
-        _storeList.Add(created);
-        SetStoreCache(created);
-        return created;
     }
 
     /// <summary>Writes a store reference into the static-generic cache array.</summary>
