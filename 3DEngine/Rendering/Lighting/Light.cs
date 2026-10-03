@@ -30,6 +30,7 @@ namespace Engine;
 /// <seealso cref="LightShadow"/>
 /// <seealso cref="LightShaping"/>
 /// <seealso cref="RenderLight"/>
+[SceneComponent]
 public struct Light
 {
     /// <summary>UsdLux shape this light represents (sphere / rect / distant / dome / ...).</summary>

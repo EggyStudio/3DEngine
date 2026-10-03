@@ -65,6 +65,12 @@ public static class SceneSpawnSystem
                     ecs, asset.Scene, settings, request.Handle.Id.Value,
                     assetServer, asset.SourcePath, materialLibrary);
                 tracking.Track(request.Handle.Id, entities, settings);
+
+                // The scene hangs under the entity that asked for it, so that entity's Transform
+                // places it. One with no Transform composes as identity, as before.
+                foreach (var spawned in entities)
+                    if (ecs.ParentOf(spawned) == 0 && spawned != entity)
+                        ecs.SetParent(spawned, entity);
                 Logger.Debug($"SceneSpawnSystem: spawned {entities.Count} entit{(entities.Count == 1 ? "y" : "ies")} for '{asset.SourcePath}'.");
             }
             catch (Exception ex)

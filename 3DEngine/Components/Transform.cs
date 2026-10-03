@@ -5,6 +5,7 @@ namespace Engine;
 /// <summary>World-space transform component (position, rotation, scale).</summary>
 /// <seealso cref="Camera"/>
 /// <seealso cref="Mesh"/>
+[SceneComponent]
 public struct Transform
 {
     /// <summary>Position in world space.</summary>

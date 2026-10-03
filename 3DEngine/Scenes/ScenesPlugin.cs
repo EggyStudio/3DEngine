@@ -45,6 +45,8 @@ public sealed class ScenesPlugin : IPlugin
         // Auto-spawn driver: turns SpawnSceneRequest components into ECS entities once
         // the underlying SceneAsset finishes loading. Runs in PreUpdate so spawned
         // entities are visible to gameplay systems in the same frame.
+        // Model references first, so a scene file's models are asked for in the frame it loads.
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(ModelRefSystem.Run, "ModelRefSystem").MainThreadOnly());
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem"));
 
         // Hot-reload driver: watches AssetEvent<SceneAsset>.Modified and re-spawns the

@@ -485,6 +485,13 @@ public sealed partial class EcsWorld
     /// <summary>How many entities are alive.</summary>
     public int EntityCount => _entities.AliveCount;
 
+    /// <summary>Every alive entity, in id order, including those with no component.</summary>
+    public IEnumerable<int> AllEntities()
+    {
+        for (int id = 1; id < _entities.NextEntityId; id++)
+            if (_entities.IsAlive(id)) yield return id;
+    }
+
     /// <summary>Every component type that has had a store made for it, sorted by name.</summary>
     /// <remarks>For tools such as the console. A type appears once something has added it, and stays after its last component is removed.</remarks>
     public IReadOnlyList<Type> ComponentTypes

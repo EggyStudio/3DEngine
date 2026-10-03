@@ -115,14 +115,17 @@ body's `Transform` is written as if it had no parent, and contacts are not repor
 
 ### Scenes
 
-`SceneSpawner` spawns a `Scene` of nodes read by an `ISceneReader`, and the only reader is Assimp,
-which reads a model rather than a level. A JSON scene format written and read through the generated schemas, with ids that survive
-a rename, is needed for levels a game loads.
+`SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to
+JSON and loads it back (ARCHITECTURE.md, Scene files). Arrays are not saved, so a mesh entity made
+in code comes back without its mesh, and a level shows meshes through `ModelRef`. A physics body is
+a runtime handle and is not saved either, and nothing describes one for a file yet. There are no
+prefabs (a scene file spawned as part of another), and an older file is read by keeping the
+fields it has, with no migration.
 
 The payload types (`SceneLightPayload`, `SceneMaterialPayload`, `Light`) are modeled on UsdLux and
 `UsdPreviewSurface`, with dome, portal, cylinder and plugin lights and prim paths the renderer never
 reads. They are to shrink to the directional, point and spot lights and the metallic-roughness
-material that RENDERING.md §3 and §4 describe.
+material that RENDERING.md §3 and §4 describe, which also makes a light in a scene file short.
 
 ## Platform
 

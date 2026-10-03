@@ -55,6 +55,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `entity.find <name>` | the id of the first entity with that name |
 | `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`, enums by name), marking it changed |
 | `entity.spawn <name>`, `entity.despawn <id>` | makes a named entity and answers its id, or removes one with its children |
+| `scene.save <path>`, `scene.load <path>` | writes the level (every entity not spawned from a model) to a JSON scene file, or spawns one's entities |
 | `entity.add <id> <Component>` | adds a component at sensible defaults (a unit `Transform`, a white `Material`), which `entity.set` then changes |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
 | `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |

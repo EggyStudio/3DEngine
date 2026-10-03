@@ -30,6 +30,7 @@ namespace Engine;
 /// <seealso cref="Transform"/>
 /// <seealso cref="SceneMaterialPayload"/>
 /// <seealso cref="Texture"/>
+[SceneComponent]
 public struct Material
 {
     /// <summary>

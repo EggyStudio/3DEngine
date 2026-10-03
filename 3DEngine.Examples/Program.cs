@@ -28,6 +28,7 @@ var examples = new Dictionary<string, Action>
     ["ecs_mesh_entities"] = EcsMeshEntities.Run,
     ["ecs_states"] = EcsStates.Run,
     ["ecs_physics"] = EcsPhysics.Run,
+    ["scenes_level"] = ScenesLevel.Run,
 };
 
 var name = args.Length > 0 ? args[0] : "core_3d_camera_free";

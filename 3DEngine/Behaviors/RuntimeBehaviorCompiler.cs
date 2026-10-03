@@ -94,10 +94,14 @@ public sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCo
         // Re-run BehaviorGenerator (the same incremental generator that runs at engine compile time)
         // against the user's hot-loaded sources so [Behavior] structs get their per-stage system code
         // and the [GeneratedBehaviorRegistration] entry-point for free.
+        // The scene generator runs too, so a behavior compiled here is saved in a scene file as
+        // one compiled with the program is.
         ISourceGenerator generator;
+        ISourceGenerator scenes;
         try
         {
             generator = new BehaviorGenerator().AsSourceGenerator();
+            scenes = new SceneComponentGenerator().AsSourceGenerator();
         }
         catch (Exception ex)
         {
@@ -109,7 +113,7 @@ public sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCo
             return compilation;
         }
 
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var driver = CSharpGeneratorDriver.Create(generator, scenes);
         driver = (CSharpGeneratorDriver)driver.RunGeneratorsAndUpdateCompilation(
             compilation, out var updated, out var diags);
 

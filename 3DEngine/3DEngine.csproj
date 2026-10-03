@@ -4,9 +4,9 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>3DEngine</AssemblyName>
         <RootNamespace>Engine</RootNamespace>
-        <!-- The behavior generator is compiled into the engine as well as into the analyzer, so
-             RuntimeBehaviorCompiler can run it through CSharpGeneratorDriver on scripts compiled
-             while an app runs. RS1041, RS1036 and RS2008 apply only to the analyzer hosting model. -->
+        <!-- The behavior and scene generators are compiled into the engine as well as into the
+             analyzer, so RuntimeBehaviorCompiler can run them through CSharpGeneratorDriver on
+             scripts compiled while an app runs. RS1041, RS1036 and RS2008 apply only to the analyzer hosting model. -->
         <NoWarn>$(NoWarn);RS1041;RS1036;RS2008</NoWarn>
 
         <PackageId>3DEngine</PackageId>
@@ -29,6 +29,7 @@
 
     <ItemGroup>
         <Compile Include="..\3DEngine.Generator\Behaviors\**\*.cs" Link="Behaviors\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
+        <Compile Include="..\3DEngine.Generator\Scenes\**\*.cs" Link="Scenes\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
     <!-- Built-in shaders are staged under source/ beside every program that references the

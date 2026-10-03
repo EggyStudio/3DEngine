@@ -3,6 +3,7 @@ namespace Engine;
 /// <summary>Simple perspective camera component with projection parameters.</summary>
 /// <seealso cref="ExtractedView"/>
 /// <seealso cref="Transform"/>
+[SceneComponent]
 public struct Camera
 {
     /// <summary>Vertical field of view in radians.</summary>
@@ -22,6 +23,9 @@ public struct Camera
     /// <param name="near">Near clip plane distance.</param>
     /// <param name="far">Far clip plane distance.</param>
     /// <param name="targetName">Optional render texture target name.</param>
+    /// <summary>A 60 degree field of view from 0.1 to 1000 units. A default <see cref="Camera"/> sees nothing.</summary>
+    public static Camera Default => new(60f);
+
     public Camera(float fovY = 60f, float near = 0.1f, float far = 1000f,
         string? targetName = null)
     {
