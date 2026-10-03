@@ -7,7 +7,7 @@
 
     <!-- Default package description and tags (override per-project when needed) -->
     <PropertyGroup Condition="'$(IsPackable)' != 'false'">
-        <Description Condition="'$(Description)' == ''">A C# engine on SDL3, Vulkan, ImGui and Slang, with raylib's design over a Bevy-style ECS, scheduler and behaviors</Description>
+        <Description Condition="'$(Description)' == ''">A C# engine on SDL3, Vulkan, ImGui and Slang: raylib's design over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors</Description>
         <PackageTags Condition="'$(PackageTags)' == ''">3D;Game;Engine;.Net10;C#14</PackageTags>
     </PropertyGroup>
 
