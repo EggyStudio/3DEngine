@@ -86,6 +86,34 @@ void DrawPlane(Vector3 center, Vector2 size, Color color);                      
 void DrawGrid(int slices, float spacing);                                                       // Grid on the XZ plane
 ```
 
+## Images and textures
+
+```csharp
+Image LoadImage(string fileName);                                                      // Read PNG, JPEG, BMP, TGA, PSD, GIF or HDR into memory
+Image GenImageColor(int width, int height, Color color);                               // An image of one color
+Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard
+Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
+void UnloadImage(Image image);                                                         // Nothing (images are managed memory)
+
+Texture2D LoadTexture(string fileName);                                                // Read an image file into a texture
+Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture
+void UnloadTexture(Texture2D texture);                                                 // Free a texture
+bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
+bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
+void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point or Bilinear (the default)
+
+void DrawTexture(Texture2D texture, int x, int y, Color tint);                                         // Texture at a position
+void DrawTextureV(Texture2D texture, Vector2 position, Color tint);                                    // Texture at a position
+void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);       // Rotated (degrees) and scaled
+void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint);                // Part of a texture
+void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint); // Part of a texture into a rectangle, rotated around origin
+void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint);       // Texture in 3D, facing the camera
+```
+
+A file name is looked for as given, then beside the program, then under `source/` beside it. A file
+that cannot be read gives an invalid image or texture and a warning in the log, and drawing an
+invalid texture draws nothing. `CloseWindow` logs how many textures were still loaded.
+
 ## Text
 
 ```csharp

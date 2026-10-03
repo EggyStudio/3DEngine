@@ -69,9 +69,22 @@ public class DrawListTests
     }
 
     [Fact]
-    public void A_Vertex_Is_Sixteen_Bytes_With_Color_Last()
+    public void A_Vertex_Is_24_Bytes_In_The_Order_The_Pipeline_Reads()
     {
-        System.Runtime.InteropServices.Marshal.SizeOf<ImmediateVertex>().Should().Be(16);
-        System.Runtime.InteropServices.Marshal.OffsetOf<ImmediateVertex>("<Color>k__BackingField").ToInt32().Should().Be(12);
+        System.Runtime.InteropServices.Marshal.SizeOf<ImmediateVertex>().Should().Be(24);
+        System.Runtime.InteropServices.Marshal.OffsetOf<ImmediateVertex>("<Uv>k__BackingField").ToInt32().Should().Be(12);
+        System.Runtime.InteropServices.Marshal.OffsetOf<ImmediateVertex>("<Color>k__BackingField").ToInt32().Should().Be(20);
+    }
+
+    [Fact]
+    public void A_Change_Of_Texture_Opens_A_Batch()
+    {
+        var list = new DrawList();
+        var uv = Vector2.Zero;
+        list.TexturedQuad(Vector3.Zero, Vector3.UnitX, Vector3.One, Vector3.UnitY, uv, uv, uv, uv, Color.White, 3);
+        list.TexturedQuad(Vector3.Zero, Vector3.UnitX, Vector3.One, Vector3.UnitY, uv, uv, uv, uv, Color.White, 3);
+        list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
+
+        list.Batches.Select(b => (b.Texture, b.VertexCount)).Should().Equal((3, 12), (0, 3));
     }
 }

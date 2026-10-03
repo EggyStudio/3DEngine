@@ -38,12 +38,14 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### The flat API
 
-`Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes
-and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
+`Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes,
+images and textures, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Loading.** `LoadTexture`, `LoadModel`, `LoadShader` and `LoadSound`, each with its `Unload`,
-  its `Draw` call and an example. Models need the mesh pass to draw a mesh at a transform given
-  per call rather than per entity.
+- **Loading models, shaders and sounds.** `LoadModel`, `LoadShader` and `LoadSound`, each with its
+  `Unload`, its `Draw` or `Play` call and an example. Models need the mesh pass to draw a mesh at a
+  transform given per call rather than per entity.
+- **Textures have no mipmaps**, so a texture drawn much smaller than its size shimmers, and an
+  image cannot be edited in place (raylib's `ImageDraw*`, `ImageResize` and the rest).
 - **Text has no font of its own.** `DrawText` draws with ImGui's built-in font into ImGui's
   foreground layer, so text is always on top of shapes and windows and scales the 13-pixel bitmap.
   A glyph atlas baked from a TTF and drawn in the draw list is needed.

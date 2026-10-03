@@ -61,16 +61,22 @@ second set of files. What is not built:
 ## 2. The immediate pass
 
 `Draw` calls from the flat API (see [DESIGN.md](DESIGN.md)) record into the `DrawList` resource, a
-growing array of 16-byte vertices (position and color) split into batches. A batch is a run of
-consecutive shapes with the same topology (lines or triangles), transform and depth mode, so a
-scene drawn through one camera is two batches. `ImmediateNode` runs after `main_pass` and before
+growing array of 24-byte vertices (position, texture coordinate and color) split into batches. A
+batch is a run of consecutive shapes with the same topology (lines or triangles), transform, depth
+mode and texture, so a scene of shapes drawn through one camera is two batches. Untextured shapes
+sample a white pixel, so one shader draws both. `ImmediateNode` runs after `main_pass` and before
 ImGui. It writes the frame's vertices into the dynamic buffer arena in one copy and issues one draw
 per batch with `immediate.slang`, the batch's transform a push constant. The list is cleared in
 `First`.
 
 This is raylib's rlgl layer in Vulkan terms. It keeps shapes, grids, gizmos and debug lines out of
 the ECS and out of the mesh path. Its four pipelines (lines or triangles, depth tested or not)
-blend by alpha and do not cull, so a shape's triangles may wind either way.
+blend by alpha and do not cull, so a shape's triangles may wind either way. A texel with no
+coverage is discarded, so a sprite's empty corners write no depth.
+
+Textures loaded through the flat API go into `TextureStore`, and the node uploads them at the start
+of its run, keeps one image, view, sampler and descriptor set per texture, and destroys an
+unloaded or replaced texture's objects four frames later, once no frame in flight can read them.
 
 ## 3. Meshes and materials
 

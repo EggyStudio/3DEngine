@@ -127,11 +127,14 @@ The graph has three nodes, drawing into one swapchain pass:
 | node | draws |
 |---|---|
 | `main_pass` | clears, then the meshes ECS cameras see, through `mesh.slang` |
-| `immediate` | the frame's `DrawList`: every shape the flat API recorded, through `immediate.slang` |
+| `immediate` | the frame's `DrawList`: every shape and texture the flat API recorded, through `immediate.slang` |
 | `imgui` | Dear ImGui's draw data, through `imgui.slang` |
 
-The draw list batches consecutive shapes with the same topology, transform and depth mode, so a
-scene of shapes is a handful of draw calls. Each batch's transform is a push constant.
+The draw list batches consecutive shapes with the same topology, transform, depth mode and
+texture, so a scene of shapes is a handful of draw calls. Each batch's transform is a push
+constant and its texture the descriptor set. `TextureStore` queues the textures the flat API loads,
+and the `immediate` node uploads them, keeps their GPU objects, and destroys an unloaded one only
+after the frames in flight that might read it have finished.
 
 `GraphicsDevice` is Vulkan 1.2 over Vortice.Vulkan with classic render passes, three frames in
 flight and a depth buffer. `NullGraphicsDevice` stands in for it in tests. Shaders are Slang,

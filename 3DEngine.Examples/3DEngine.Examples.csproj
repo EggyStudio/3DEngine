@@ -6,6 +6,11 @@
         <RootNamespace>Engine.Examples</RootNamespace>
     </PropertyGroup>
 
+    <!-- Files the examples load, found beside the program as resources/<name>. -->
+    <ItemGroup>
+        <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
         <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"

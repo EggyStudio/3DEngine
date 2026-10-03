@@ -31,8 +31,11 @@ public static partial class Engine3D
     }
 
     /// <summary>Runs <see cref="Stage.Cleanup"/>, closes the window and frees what the app holds.</summary>
+    /// <remarks>Textures still loaded are freed with the window, and the log says how many there were.</remarks>
     public static void CloseWindow()
     {
+        if (_app?.World.TryGetResource<TextureStore>(out var textures) == true && textures.Count > 0)
+            Log.Category("Engine.Api").Warn($"CloseWindow: {textures.Count} texture(s) were still loaded.");
         _app?.Shutdown();
         _app = null;
     }

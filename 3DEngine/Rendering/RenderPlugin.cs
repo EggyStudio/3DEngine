@@ -29,10 +29,10 @@ public sealed class RenderPlugin : IPlugin
     }
 
     /// <summary>
-    /// Extract system that hands the <see cref="DrawList"/> to the render world. It is handed over
-    /// rather than copied, because the frame is rendered on the main thread in
-    /// <see cref="Stage.Last"/> and nothing records into the list again until
-    /// <see cref="Stage.First"/> clears it.
+    /// Extract system that hands the <see cref="DrawList"/> and the <see cref="TextureStore"/> to
+    /// the render world. They are handed over rather than copied, because the frame is rendered on
+    /// the main thread in <see cref="Stage.Last"/>, nothing records into the list again until
+    /// <see cref="Stage.First"/> clears it, and the store guards itself with a lock.
     /// </summary>
     private sealed class DrawListExtract : IExtractSystem
     {
@@ -41,6 +41,8 @@ public sealed class RenderPlugin : IPlugin
         {
             if (world.TryGetResource<DrawList>(out var drawList))
                 renderWorld.Set(drawList);
+            if (world.TryGetResource<TextureStore>(out var textures))
+                renderWorld.Set(textures);
         }
     }
 
@@ -66,6 +68,7 @@ public sealed class RenderPlugin : IPlugin
         Logger.Debug("Renderer resource registered with extract and prepare systems.");
 
         app.World.InitResource<DrawList>();
+        app.World.InitResource<TextureStore>();
         app.AddSystem(Stage.First, new SystemDescriptor(static world => world.Resource<DrawList>().Clear(), "RenderPlugin.ClearDrawList")
             .Write<DrawList>());
 
