@@ -14,6 +14,8 @@ public sealed partial class PhysicsWorld
     private readonly List<ulong> _gone = [];
     private readonly List<PhysicsContact> _started = [];
     private readonly List<PhysicsContact> _ended = [];
+    private readonly List<PhysicsContact> _handedStarted = [];
+    private readonly List<PhysicsContact> _handedEnded = [];
 
     /// <summary>
     /// Hands over the contacts that started and ended in the steps since the last call, in the
@@ -31,6 +33,18 @@ public sealed partial class PhysicsWorld
         ended.AddRange(_ended);
         _started.Clear();
         _ended.Clear();
+    }
+
+    /// <summary>
+    /// The contacts that started and ended since the last call, in lists this world keeps and
+    /// reuses, so they are read before the next call.
+    /// </summary>
+    internal (List<PhysicsContact> Started, List<PhysicsContact> Ended) TakePendingContacts()
+    {
+        _handedStarted.Clear();
+        _handedEnded.Clear();
+        TakeContacts(_handedStarted, _handedEnded);
+        return (_handedStarted, _handedEnded);
     }
 
     // Compares what the step that has run found touching with what touched before it.

@@ -61,4 +61,46 @@ public class MeshStoreTests
 
         box.Should().Be(new BoundingBox(new Vector3(-1, -2, 0), new Vector3(1, 4, 3)));
     }
+
+    [Fact]
+    public void New_Vertices_For_An_Uploaded_Mesh_Are_Queued_Alone_And_The_Last_Of_A_Frame_Wins()
+    {
+        var store = new MeshStore();
+        var id = store.Add(Triangle, [0, 1, 2]);
+        store.Take();
+
+        var moved = Triangle.Select(v => v with { Position = v.Position + Vector3.UnitZ }).ToArray();
+        store.UpdateVertices(id, Triangle).Should().BeTrue();
+        store.UpdateVertices(id, moved).Should().BeTrue();
+
+        var upload = store.Take().Uploads.Should().ContainSingle().Subject;
+        upload.VerticesOnly.Should().BeTrue("the triangles did not change");
+        upload.Vertices.Should().BeSameAs(moved);
+        store.TryGetData(id, out var vertices, out _);
+        vertices.Should().BeSameAs(moved, "reading the mesh back gives what it was last given");
+    }
+
+    [Fact]
+    public void New_Vertices_Before_The_First_Upload_Are_Uploaded_With_The_Triangles()
+    {
+        var store = new MeshStore();
+        var id = store.Add(Triangle, [0, 1, 2]);
+        var moved = Triangle.Select(v => v with { Position = -v.Position }).ToArray();
+        store.UpdateVertices(id, moved);
+
+        var upload = store.Take().Uploads.Should().ContainSingle().Subject;
+        upload.VerticesOnly.Should().BeFalse("the GPU has no buffers for it yet");
+        upload.Vertices.Should().BeSameAs(moved);
+    }
+
+    [Fact]
+    public void New_Vertices_Must_Match_The_Count_And_A_Gone_Mesh_Takes_None()
+    {
+        var store = new MeshStore();
+        var id = store.Add(Triangle, [0, 1, 2]);
+
+        store.Invoking(s => s.UpdateVertices(id, Triangle[..2])).Should().Throw<ArgumentException>();
+        store.Remove(id);
+        store.UpdateVertices(id, Triangle).Should().BeFalse();
+    }
 }

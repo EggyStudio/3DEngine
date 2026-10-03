@@ -286,7 +286,13 @@ ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A 
 ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
 ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
+void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
+
+ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
+void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
+bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has
+void UnloadModelAnimations(ModelAnimation[] animations);                   // Let clips go
 
 void DrawModel(Model model, Vector3 position, float scale, Color tint);                                               // A model
 void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated (degrees) and scaled
@@ -296,7 +302,9 @@ void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);     
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
 ```
 
-A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`. A
+A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`, and
+a model with a skeleton has `Bones` and `BindPose`, which a `ModelAnimation` of the same file
+poses frame by frame. A
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
 mesh. Models are lit by one fixed light from above, unless the ECS holds `Light` entities, and
 draw through the camera `BeginMode3D` set.

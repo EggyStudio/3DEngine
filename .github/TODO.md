@@ -54,11 +54,14 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   textures, kept for four frames, so a frame has room for about a thousand such draws.
 - **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
   file played as music is read whole rather than streamed.
-- **Models are partial.** Only the base color and its texture are used of a material, animation
-  is not played, and the flat API has no lights of its own, so models are lit by one fixed light
-  unless the ECS holds light entities. A mesh cannot be changed after upload, and the model
-  pass draws both sides of every face, so `GenMeshCubicmap` makes no roof over a maze's open cells
-  as raylib's does.
+- **Models are partial.** Only the base color and its texture are used of a material, and the
+  flat API has no lights of its own, so models are lit by one fixed light unless the ECS holds
+  light entities. `UpdateModelAnimation` poses skinned meshes on the CPU and uploads new vertex
+  buffers each call, as raylib does by default, so a crowd of animated models costs their vertex
+  counts every frame where GPU skinning would cost a buffer of bone matrices. Clips are sampled at
+  60 frames a second with no blending between frames or between two clips, and mesh entities have
+  no animation component. The model pass draws both sides of every face, so `GenMeshCubicmap`
+  makes no roof over a maze's open cells as raylib's does.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
   shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
   cellular noise are not generated. Mip levels are made by GPU blits. Anisotropic filtering is

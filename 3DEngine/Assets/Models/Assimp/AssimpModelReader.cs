@@ -457,7 +457,7 @@ public sealed class AssimpModelReader : ISceneReader
             {
                 var bone = am.Bones[b];
                 names[b] = bone.Name ?? $"Bone_{b}";
-                ibms[b] = bone.OffsetMatrix; // already System.Numerics.Matrix4x4
+                ibms[b] = FromAssimp(bone.OffsetMatrix);
                 parents[b] = -1; // populated below
             }
 
@@ -561,7 +561,7 @@ public sealed class AssimpModelReader : ISceneReader
         {
             Name = name,
             SourcePath = path,
-            LocalTransform = DecomposeMatrix(aNode.Transform),
+            LocalTransform = DecomposeMatrix(FromAssimp(aNode.Transform)),
             Purpose = ScenePurpose.Default,
             Enabled = true,
         };
@@ -760,6 +760,11 @@ public sealed class AssimpModelReader : ISceneReader
     }
 
     // -- Math helpers --
+
+    // AssimpNetter hands over Assimp's matrices as they are, which act on column vectors with the
+    // translation in the last column. System.Numerics acts on row vectors with it in the last row,
+    // so each is transposed once here. Read as they came, every node's translation was zero.
+    private static Matrix4x4 FromAssimp(Matrix4x4 m) => Matrix4x4.Transpose(m);
 
     private static Transform DecomposeMatrix(Matrix4x4 m)
     {

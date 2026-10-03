@@ -377,4 +377,33 @@ public sealed class OffscreenRenderTests : IDisposable
         if (Environment.GetEnvironmentVariable("E3D_REQUIRE_VALIDATION") == "1")
             GraphicsDevice.ValidationActive.Should().BeTrue("E3D_REQUIRE_VALIDATION is set, and a Debug build enables the layer when it is installed");
     }
+
+    [NeedsVulkanFact]
+    public void A_Posed_Model_Draws_Where_Its_Bones_Moved_It()
+    {
+        Open(64, 64);
+        var arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
+        var model = LoadModel(arm);
+        var bend = LoadModelAnimations(arm)[0];
+        var camera = new Camera3D(new Vector3(0, 1, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(model, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        UpdateModelAnimation(model, bend, 0);
+        var rest = Capture(Draw, "rest");
+        UpdateModelAnimation(model, bend, bend.FrameCount - 1);
+        var bent = Capture(Draw, "bent");
+
+        // Pixel (32, 24) is half a unit above the elbow, and (23, 32) six tenths of a unit left of it.
+        GetImageColor(rest, 32, 24).R.Should().BeGreaterThan(40, "at rest the upper arm stands above the elbow");
+        GetImageColor(rest, 23, 32).R.Should().BeLessThan(10, "and nothing is beside it");
+        GetImageColor(bent, 32, 24).R.Should().BeLessThan(10, "bent, the upper arm has left the space above the elbow");
+        GetImageColor(bent, 23, 32).R.Should().BeGreaterThan(40, "for the space to its left");
+        UnloadModel(model);
+    }
 }

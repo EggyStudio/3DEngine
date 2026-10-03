@@ -15,6 +15,7 @@ var examples = new Dictionary<string, Action>
     ["textures_render_target"] = TexturesRenderTarget.Run,
     ["textures_image_drawing"] = TexturesImageDrawing.Run,
     ["textures_mipmaps"] = TexturesMipmaps.Run,
+    ["models_animation"] = ModelsAnimation.Run,
     ["models_loading"] = ModelsLoading.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
     ["models_terrain"] = ModelsTerrain.Run,

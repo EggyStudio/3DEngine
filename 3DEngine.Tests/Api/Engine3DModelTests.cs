@@ -194,4 +194,27 @@ public sealed class Engine3DModelTests : IDisposable
         // Eight open cells with a floor, and the wall's top and four sides.
         mesh.TriangleCount.Should().Be((8 + 1 + 4) * 2);
     }
+
+    [Fact]
+    public void A_Node_Moved_In_The_File_Moves_Its_Mesh()
+    {
+        // One triangle at the origin, under a node translated 5 units along X and turned a
+        // quarter about Y. Assimp's matrices read untransposed lost every node's translation.
+        var bytes = new List<byte>();
+        foreach (var f in new float[] { 0, 0, 0, 1, 0, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0]}],
+             "nodes":[{"mesh":0,"translation":[5,0,0],"rotation":[0,0.70710677,0,0.70710677]}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0}}]}],
+             "buffers":[{"byteLength":36,"uri":"data:application/octet-stream;base64,{{{Convert.ToBase64String(bytes.ToArray())}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
+            """;
+        var path = Path.Combine(_directory, "moved.gltf");
+        File.WriteAllText(path, json);
+
+        var bounds = GetModelBoundingBox(LoadModel(path));
+        bounds.Min.X.Should().BeApproximately(5, 1e-4f, "the node is 5 units along X");
+        bounds.Min.Z.Should().BeApproximately(-1, 1e-4f, "a quarter turn about Y takes the corner at +X to -Z");
+    }
 }

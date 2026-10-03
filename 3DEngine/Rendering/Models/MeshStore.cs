@@ -19,8 +19,8 @@ public readonly record struct ModelVertex(Vector3 Position, Vector3 Normal, Vect
 /// </remarks>
 public sealed class MeshStore
 {
-    /// <summary>A mesh waiting to be uploaded.</summary>
-    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices);
+    /// <summary>A mesh waiting to be uploaded, or only its vertices when <paramref name="VerticesOnly"/> is set.</summary>
+    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
@@ -50,6 +50,34 @@ public sealed class MeshStore
             _live.Add(id, (vertices, indices));
             _uploads.Add(new Upload(id, vertices, indices));
             return id;
+        }
+    }
+
+    /// <summary>
+    /// Replaces a loaded mesh's vertices, keeping its triangles, as an animated mesh does each frame.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    /// <exception cref="ArgumentException">The count differs from the mesh's.</exception>
+    /// <remarks>
+    /// The renderer writes them into a new vertex buffer and destroys the old one once no frame in
+    /// flight reads it, so a frame the GPU is still drawing keeps the vertices it was given.
+    /// </remarks>
+    public bool UpdateVertices(int id, ModelVertex[] vertices)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var data)) return false;
+            if (vertices.Length != data.Vertices.Length)
+                throw new ArgumentException($"The mesh has {data.Vertices.Length} vertices, not {vertices.Length}.", nameof(vertices));
+
+            _live[id] = (vertices, data.Indices);
+            // A mesh not yet uploaded is uploaded whole with the new vertices, and an update
+            // queued earlier this frame is replaced, since only the last one is seen.
+            int queued = _uploads.FindIndex(u => u.Id == id);
+            var upload = new Upload(id, vertices, data.Indices, VerticesOnly: queued < 0 || _uploads[queued].VerticesOnly);
+            if (queued >= 0) _uploads[queued] = upload;
+            else _uploads.Add(upload);
+            return true;
         }
     }
 
@@ -103,7 +131,7 @@ public sealed class GpuMeshes : IDisposable
     public sealed record Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount);
 
     private readonly Dictionary<int, Entry> _entries = [];
-    private readonly List<(long Frame, Entry Entry)> _retired = [];
+    private readonly List<(long Frame, IBuffer Buffer)> _retired = [];
     private long _frame;
 
     /// <summary>The buffers of mesh <paramref name="id"/>, or <c>null</c> when it is not loaded.</summary>
@@ -118,19 +146,36 @@ public sealed class GpuMeshes : IDisposable
             var (uploads, removals) = store.Take();
             foreach (var id in removals)
                 if (_entries.Remove(id, out var gone))
-                    _retired.Add((_frame, gone));
+                {
+                    _retired.Add((_frame, gone.Vertices));
+                    _retired.Add((_frame, gone.Indices));
+                }
 
             foreach (var upload in uploads)
-                _entries[upload.Id] = new Entry(
-                    Buffer(gfx, MemoryMarshal.AsBytes(upload.Vertices.AsSpan()), BufferUsage.Vertex),
+            {
+                var vertices = Buffer(gfx, MemoryMarshal.AsBytes(upload.Vertices.AsSpan()), BufferUsage.Vertex);
+                if (upload.VerticesOnly && _entries.TryGetValue(upload.Id, out var old))
+                {
+                    _retired.Add((_frame, old.Vertices));
+                    _entries[upload.Id] = old with { Vertices = vertices };
+                    continue;
+                }
+
+                if (_entries.Remove(upload.Id, out var replaced))
+                {
+                    _retired.Add((_frame, replaced.Vertices));
+                    _retired.Add((_frame, replaced.Indices));
+                }
+                _entries[upload.Id] = new Entry(vertices,
                     Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index),
                     (uint)upload.Indices.Length);
+            }
         }
 
         for (int i = _retired.Count - 1; i >= 0; i--)
         {
             if (_frame - _retired[i].Frame < GpuTextures.RetireFrames) continue;
-            Destroy(_retired[i].Entry);
+            _retired[i].Buffer.Dispose();
             _retired.RemoveAt(i);
         }
     }
@@ -154,7 +199,7 @@ public sealed class GpuMeshes : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (var (_, entry) in _retired) Destroy(entry);
+        foreach (var (_, buffer) in _retired) buffer.Dispose();
         foreach (var entry in _entries.Values) Destroy(entry);
         _retired.Clear();
         _entries.Clear();

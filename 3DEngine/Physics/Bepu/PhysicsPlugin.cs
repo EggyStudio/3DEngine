@@ -98,10 +98,6 @@ public sealed class PhysicsPlugin : IPlugin
         Logger.Info("PhysicsPlugin: physics systems registered (FixedUpdate=Step, PostUpdate=SyncTransforms).");
     }
 
-    // Reused by the step systems, which run on the main thread only.
-    private static readonly List<PhysicsContact> Started = [];
-    private static readonly List<PhysicsContact> Ended = [];
-
     // The physics world, able to name the entities of the contacts its next step finds.
     private static PhysicsWorld Prepared(World w)
     {
@@ -111,20 +107,20 @@ public sealed class PhysicsPlugin : IPlugin
         return phys;
     }
 
+    // The lists are the physics world's own, so two apps stepping at once, as test classes run,
+    // never share them.
     private static void SendContacts(World w, PhysicsWorld phys)
     {
-        Started.Clear();
-        Ended.Clear();
-        phys.TakeContacts(Started, Ended);
-        if (Started.Count > 0)
+        var (started, ended) = phys.TakePendingContacts();
+        if (started.Count > 0)
         {
             var events = Events.Get<ContactStarted>(w);
-            foreach (var c in Started) events.Send(new ContactStarted(c.A, c.B, c.BodyA, c.BodyB));
+            foreach (var c in started) events.Send(new ContactStarted(c.A, c.B, c.BodyA, c.BodyB));
         }
-        if (Ended.Count > 0)
+        if (ended.Count > 0)
         {
             var events = Events.Get<ContactEnded>(w);
-            foreach (var c in Ended) events.Send(new ContactEnded(c.A, c.B, c.BodyA, c.BodyB));
+            foreach (var c in ended) events.Send(new ContactEnded(c.A, c.B, c.BodyA, c.BodyB));
         }
     }
 }

@@ -66,6 +66,15 @@ public sealed class Model
     /// <summary>Applied before the position, rotation and scale a draw call gives.</summary>
     public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
 
+    /// <summary>The bones of a file's skeletons, which an animation of the same file moves, or none.</summary>
+    public BoneInfo[] Bones { get; init; } = [];
+
+    /// <summary>Each bone's pose in the model's space as the file rests, in the order of <see cref="Bones"/>.</summary>
+    public Transform[] BindPose { get; init; } = [];
+
+    /// <summary>The meshes bones move, with their vertices at rest.</summary>
+    internal SkinnedMesh[] Skins { get; init; } = [];
+
     /// <summary>Textures the model loaded itself, which <see cref="Engine3D.UnloadModel"/> frees.</summary>
     internal Texture2D[] OwnedTextures { get; init; } = [];
 
@@ -87,6 +96,17 @@ public static partial class Engine3D
         for (int i = 0; i < vertices.Length; i++) positions[i] = vertices[i].Position;
         var id = Meshes.Add(vertices, indices);
         return new ModelMesh(id, vertices.Length, indices.Length / 3, BoundingBox.Around(positions));
+    }
+
+    /// <summary>
+    /// Replaces a mesh's vertices with as many new ones, keeping its triangles, as raylib's
+    /// <c>UpdateMeshBuffer</c> does for the vertex arrays.
+    /// </summary>
+    /// <remarks>The mesh's bounds are those it was made with.</remarks>
+    /// <exception cref="ArgumentException">The count differs from the mesh's.</exception>
+    public static void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices)
+    {
+        if (mesh.IsValid) Meshes.UpdateVertices(mesh.Id, vertices);
     }
 
     /// <summary>Frees a mesh. Drawing it afterward draws nothing.</summary>
@@ -188,30 +208,17 @@ public static partial class Engine3D
     /// </remarks>
     public static Model LoadModel(string fileName)
     {
-        var path = ResolveFile(fileName);
-        if (path is null)
-        {
-            ApiLogger.Warn($"LoadModel: '{fileName}' was not found beside the program or in the working directory.");
-            return new Model();
-        }
+        if (ReadModelScene(fileName, "LoadModel") is not { } scene) return new Model();
 
-        Scene scene;
-        try
-        {
-            scene = new AssimpModelReader().ReadFile(path, new SceneImportSettings());
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or IOException or Assimp.AssimpException)
-        {
-            ApiLogger.Warn($"LoadModel: '{fileName}' could not be read: {ex.Message}");
-            return new Model();
-        }
-
-        var directory = Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".";
+        var directory = Path.GetDirectoryName(Path.GetFullPath(ResolveFile(fileName)!)) ?? ".";
         var materials = new List<ModelMaterial>();
         var materialIndex = new Dictionary<SceneMaterialPayload, int>();
         var textures = new Dictionary<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
         var meshes = new List<ModelMesh>();
         var meshMaterial = new List<int>();
+        var bones = ModelSkeleton.Bones(scene);
+        var boneIndex = bones.Select((b, i) => (b.Name, i)).ToDictionary(x => x.Name, x => x.i, StringComparer.Ordinal);
+        var skins = new List<SkinnedMesh>();
 
         void Visit(SceneNode node, Matrix4x4 parent)
         {
@@ -224,11 +231,23 @@ public static partial class Engine3D
             var nodeMaterials = node.Components.OfType<SceneMaterialPayload>()
                 .GroupBy(m => m.SourcePath).ToDictionary(g => g.Key, g => g.First());
 
-            foreach (var mesh in node.Components.OfType<SceneMeshPayload>())
+            // A node lists each mesh, then its material, then its skin and skeleton when bones move it.
+            SceneSkinPayload? skin = null;
+            foreach (var component in node.Components)
             {
-                var path = mesh.Subsets.FirstOrDefault()?.MaterialPath;
-                meshes.Add(Bake(mesh, world));
-                meshMaterial.Add(MaterialFor(path is not null ? nodeMaterials.GetValueOrDefault(path) : null));
+                if (component is SceneMeshPayload mesh)
+                {
+                    var path = mesh.Subsets.FirstOrDefault()?.MaterialPath;
+                    meshes.Add(Bake(mesh, world));
+                    meshMaterial.Add(MaterialFor(path is not null ? nodeMaterials.GetValueOrDefault(path) : null));
+                    skin = null;
+                }
+                else if (component is SceneSkinPayload s) skin = s;
+                else if (component is SceneSkeletonPayload skeleton && skin is not null && meshes.Count > 0)
+                {
+                    skins.Add(Skin(meshes.Count - 1, meshes[^1], skin, skeleton, world, boneIndex));
+                    skin = null;
+                }
             }
 
             foreach (var child in node.Children) Visit(child, world);
@@ -278,13 +297,44 @@ public static partial class Engine3D
         if (meshes.Count == 0)
             ApiLogger.Warn($"LoadModel: '{fileName}' has no meshes.");
 
+        var rest = ModelSkeleton.Pose(bones, ModelSkeleton.NodesByName(scene), n => n.LocalTransform);
+        var bindPose = new Transform[bones.Length];
+        for (int b = 0; b < bones.Length; b++)
+        {
+            if (!Matrix4x4.Decompose(rest[b], out var scale, out var rotation, out var position))
+                (scale, rotation, position) = (Vector3.One, Quaternion.Identity, rest[b].Translation);
+            bindPose[b] = new Transform { Position = position, Rotation = rotation, Scale = scale };
+        }
+
         return new Model
         {
             Meshes = [.. meshes],
             Materials = [.. materials],
             MeshMaterial = [.. meshMaterial],
+            Bones = bones,
+            BindPose = bindPose,
+            Skins = [.. skins],
             OwnedTextures = [.. textures.Values.Where(t => t.IsValid)],
         };
+    }
+
+    // A mesh's skin, with each joint's matrix from the model's space at rest to the joint's own.
+    // The file's inverse bind matrices take the mesh's own space, which baking moved the vertices
+    // out of by the node's transform, so that is undone first.
+    private static SkinnedMesh Skin(int index, ModelMesh mesh, SceneSkinPayload skin, SceneSkeletonPayload skeleton, Matrix4x4 meshWorld,
+        Dictionary<string, int> boneIndex)
+    {
+        Meshes.TryGetData(mesh.Id, out var rest, out _);
+        if (!Matrix4x4.Invert(meshWorld, out var toMesh)) toMesh = Matrix4x4.Identity;
+
+        var boneOfJoint = new int[skeleton.JointNames.Length];
+        var fromRest = new Matrix4x4[boneOfJoint.Length];
+        for (int j = 0; j < boneOfJoint.Length; j++)
+        {
+            boneOfJoint[j] = boneIndex[skeleton.JointNames[j]];
+            fromRest[j] = toMesh * skeleton.InverseBindMatrices[j];
+        }
+        return new SkinnedMesh(index, rest, skin.JointIndices, skin.JointWeights, boneOfJoint, fromRest);
     }
 
     private static Texture2D LoadEmbeddedTexture(SceneEmbeddedTexture embedded, string fileName, string texturePath)
