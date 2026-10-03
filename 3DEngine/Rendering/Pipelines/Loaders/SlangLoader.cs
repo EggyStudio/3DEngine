@@ -78,6 +78,32 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         return new ShaderProgram(fileName, stages);
     }
 
+    /// <summary>
+    /// Compiles every entry point of every shader in <paramref name="shaderDirectory"/> into
+    /// <paramref name="cacheDirectory"/>, so a program that ships the cache beside those shaders
+    /// loads them with no compiler. Files with no entry point, such as a module others import,
+    /// are passed over.
+    /// </summary>
+    /// <remarks>
+    /// A cache entry is keyed by the shader's source and every shader in the folder it imports
+    /// from, so the cache serves a program whose shader folder holds the same files.
+    /// </remarks>
+    /// <returns>The names of the shaders compiled.</returns>
+    /// <exception cref="InvalidOperationException">A shader failed to compile, or there is no compiler.</exception>
+    public static IReadOnlyList<string> Precompile(string shaderDirectory, string cacheDirectory)
+    {
+        var loader = new SlangLoader(cacheDirectory, shaderDirectory);
+        var compiled = new List<string>();
+        foreach (var file in Directory.GetFiles(shaderDirectory, "*.slang").Order(StringComparer.Ordinal))
+        {
+            var source = File.ReadAllText(file);
+            if (!EntryPoints(source).Any()) continue;
+            loader.Compile(source, Path.GetFileName(file));
+            compiled.Add(Path.GetFileName(file));
+        }
+        return compiled;
+    }
+
     /// <summary>Finds the functions marked with a stage attribute, in the order they appear.</summary>
     /// <remarks>
     /// A pattern rather than a parse, because the attribute and the function name are all the

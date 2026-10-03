@@ -51,16 +51,21 @@ no device.
 ## The package
 
 ```bash
-dotnet build 3DEngine.slnx -c Release
-dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package
+build/pack.sh        # Release build, `e3d shaders` into build/shader-cache, then dotnet pack
 ```
 
-The package carries the library, the built-in shaders as content files that land in
-`source/shaders` beside a game's program, and the generator as an analyzer, so `[Behavior]` and
-`[Command]` code in a game is generated as it is here. SDL3's native libraries come with the
-`SDL3-CS.Native` dependency. A game using it needs `slangc` at run time, found through
-`ENGINE_SLANGC` or `PATH`, because no compiled shader cache is shipped. The package is not
-published anywhere, and a game outside this repository points a `nuget.config` at the folder.
+The package lands in `build/package` and carries:
+
+- the library, with SDL3's native libraries through the `SDL3-CS.Native` dependency;
+- the built-in shaders, as content files that land in `source/shaders` beside a game's program;
+- those shaders compiled to SPIR-V by `e3d shaders`, landing in `source/.slang-cache`, so a game
+  loads them with no `slangc` of its own;
+- the generator as an analyzer, so `[Behavior]` and `[Command]` code in a game is generated as it
+  is here.
+
+A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
+compiles the same way with `e3d shaders <folder> <cache>`. The package is not published anywhere,
+and a game outside this repository points a `nuget.config` at the folder.
 
 ## The generator
 

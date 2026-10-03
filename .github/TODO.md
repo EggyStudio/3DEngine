@@ -80,7 +80,7 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   specular, no tonemapping (the sum is clamped), and of a material only the base color is used
   (RENDERING.md §3 and §4). A mesh entity is drawn through the first camera entity only, into the
   window only.
-- **Shader reflection, compute and a shipped shader cache** are not built (RENDERING.md §1).
+- **Shader reflection and compute** are not built (RENDERING.md §1).
 - **There are no shadows.**
 
 ### The device
@@ -156,10 +156,9 @@ what is left.
 - **CI covers Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and captures
   every example offscreen on Ubuntu, which has not been run since it was written. Windows and
   macOS runners are not set up.
-- **The package needs slangc.** `dotnet pack` makes a package a game outside this repository
-  builds and runs from (BUILDING.md), but the built-in shaders are compiled when first used, so
-  the game needs `slangc` until a compiled cache is shipped beside them. It is not published to
-  nuget.org.
+- **The package is local.** `build/pack.sh` makes a package a game outside this repository
+  builds and runs from with no `slangc` (BUILDING.md), but it is not published to nuget.org, its
+  version is set by hand, and CI does not make one.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
   adds components and writes their fields, and a game adds commands with `[Command]`, but C#

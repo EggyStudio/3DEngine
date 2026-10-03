@@ -26,6 +26,33 @@ internal static class Verbs
         });
     }
 
+    /// <summary>Compiles a folder of shaders into a cache folder, with no app running.</summary>
+    public static int Shaders(Options options, string[] arguments)
+    {
+        if (arguments.Length != 2)
+            return Output.Refuse(options, "shaders", "BAD_ARGUMENT", "Name the shader folder and the cache folder: e3d shaders <shaders> <cache>.");
+        if (!Directory.Exists(arguments[0]))
+            return Output.Refuse(options, "shaders", "NOT_FOUND", $"There is no folder '{arguments[0]}'.");
+
+        IReadOnlyList<string> compiled;
+        try
+        {
+            compiled = SlangLoader.Precompile(arguments[0], arguments[1]);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Output.Refuse(options, "shaders", "FAILED", ex.Message);
+        }
+
+        return Output.Print(options, CliJson.Ok("shaders", writer =>
+        {
+            writer.WritePropertyName("compiled");
+            writer.WriteStartArray();
+            foreach (var name in compiled) writer.WriteStringValue(name);
+            writer.WriteEndArray();
+        }), data => Console.WriteLine($"compiled {data.GetProperty("compiled").GetArrayLength()} shader(s) into {arguments[1]}"));
+    }
+
     public static int List(Options options)
     {
         if (Sessions.Pick(options, "list", out var refusal) is not { } session) return Output.Print(options, refusal);

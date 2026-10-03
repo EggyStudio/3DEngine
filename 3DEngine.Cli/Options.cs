@@ -82,6 +82,7 @@ internal static class Help
               e3d logs [-n <lines>]          the app's log
               e3d stop                       close the app
               e3d doctor                     remove session files of apps that are gone
+              e3d shaders <shaders> <cache>  compile a folder of shaders into a cache a program ships
 
             Flags for every verb: --json, --quiet, --name <entry>, --session <pid>, --timeout <seconds>.
             Exit codes: 0 ok, 2 bad arguments, 4 nothing to talk to, 6 the command failed.
