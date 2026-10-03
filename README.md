@@ -60,7 +60,8 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_basic_window.png" width="400"/><br>`core_basic_window` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_free.png" width="400"/><br>`core_3d_camera_free` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_2d.png" width="400"/><br>`shapes_basic_2d` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_3d.png" width="400"/><br>`shapes_basic_3d` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/gui_imgui_window.png" width="400"/><br>`gui_imgui_window` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_behaviors.png" width="400"/><br>`ecs_behaviors` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.png" width="400"/><br>`textures_basic` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.png" width="400"/><br>`textures_basic` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.png" width="400"/><br>`models_loading` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | |
 
 A 3D scene with a camera the keyboard and mouse move:
 
@@ -137,14 +138,14 @@ dotnet test 3DEngine.Tests
 
 ## Status
 
-Early. The window, input, the frame, cameras, 2D and 3D shapes, images and textures, text and
-ImGui work through the flat API, and the ECS, the scheduler and behaviors are tested. What is
-missing:
+Early. The window, input, the frame, cameras, 2D and 3D shapes, images and textures, models
+through Assimp, text and ImGui work through the flat API, and the ECS, the scheduler and behaviors
+are tested. What is missing:
 
-- **Models, shaders and sounds do not load through the flat API.** There are no `LoadModel`,
-  `LoadShader` or `LoadSound`. Models load through the asset server and Assimp for programs that use
-  the ECS.
-- **Shapes are unlit**, as raylib's are, and meshes are drawn in their base color with no lighting.
+- **Shaders and sounds do not load through the flat API.** There are no `LoadShader` or
+  `LoadSound`.
+- **Lighting is one fixed light.** Models are shaded by it, shapes are unlit as raylib's are, and
+  the ECS's meshes are drawn in their base color.
 - **Text is ImGui's font**, drawn above everything else.
 - **No gamepads, render targets or audio** in the flat API.
 - **Linux is the tested platform.** Windows and macOS build from the same packages and are not

@@ -50,6 +50,44 @@ public sealed class AssimpModelReader : ISceneReader
     public string FormatId => "assimp";
 
     /// <inheritdoc />
+    /// <summary>
+    /// Imports a model straight from its file, so the files it refers to beside it (an OBJ's
+    /// <c>.mtl</c>, a glTF's <c>.bin</c>, external textures) are found where they are.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="ReadAsync"/> reads through a stream, which may not come from a file, and spools it
+    /// to a temporary file first, where those siblings are not. The flat API's <c>LoadModel</c>
+    /// has the real path and uses this instead.
+    /// </remarks>
+    internal Scene ReadFile(string path, SceneImportSettings settings, CancellationToken ct = default)
+    {
+        using var context = new AssetLoadContext(Stream.Null, new AssetPath(System.IO.Path.GetFileName(path)), _ => default);
+        return Import(path, context, settings, ct);
+    }
+
+    private static Scene Import(string path, AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
+    {
+        using var importer = new A.AssimpContext();
+
+        const A.PostProcessSteps Steps =
+            A.PostProcessSteps.Triangulate
+            | A.PostProcessSteps.GenerateSmoothNormals
+            | A.PostProcessSteps.CalculateTangentSpace
+            | A.PostProcessSteps.JoinIdenticalVertices
+            | A.PostProcessSteps.ImproveCacheLocality
+            | A.PostProcessSteps.LimitBoneWeights      // clamp to 4 influences/vertex
+            | A.PostProcessSteps.GenerateUVCoords
+            | A.PostProcessSteps.SortByPrimitiveType
+            | A.PostProcessSteps.RemoveRedundantMaterials
+            | A.PostProcessSteps.FindInvalidData;
+
+        var aScene = importer.ImportFile(path, Steps);
+        if (aScene is null || aScene.RootNode is null)
+            throw new InvalidOperationException($"AssimpModelReader: ImportFile returned null for '{context.Path}'.");
+
+        return BuildScene(aScene, context, settings, ct);
+    }
+
     public Task<Scene> ReadAsync(AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -60,25 +98,7 @@ public sealed class AssimpModelReader : ISceneReader
         try
         {
             ct.ThrowIfCancellationRequested();
-            using var importer = new A.AssimpContext();
-
-            const A.PostProcessSteps Steps =
-                A.PostProcessSteps.Triangulate
-                | A.PostProcessSteps.GenerateSmoothNormals
-                | A.PostProcessSteps.CalculateTangentSpace
-                | A.PostProcessSteps.JoinIdenticalVertices
-                | A.PostProcessSteps.ImproveCacheLocality
-                | A.PostProcessSteps.LimitBoneWeights      // clamp to 4 influences/vertex
-                | A.PostProcessSteps.GenerateUVCoords
-                | A.PostProcessSteps.SortByPrimitiveType
-                | A.PostProcessSteps.RemoveRedundantMaterials
-                | A.PostProcessSteps.FindInvalidData;
-
-            var aScene = importer.ImportFile(tempPath, Steps);
-            if (aScene is null || aScene.RootNode is null)
-                throw new InvalidOperationException($"AssimpModelReader: ImportFile returned null for '{context.Path}'.");
-
-            return Task.FromResult(BuildScene(aScene, context, settings, ct));
+            return Task.FromResult(Import(tempPath, context, settings, ct));
         }
         finally
         {

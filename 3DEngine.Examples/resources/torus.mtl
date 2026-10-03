@@ -1,0 +1,4 @@
+# The torus's material: a checker texture under an orange base color.
+newmtl Checker
+Kd 1.0 0.62 0.2
+map_Kd checker.png

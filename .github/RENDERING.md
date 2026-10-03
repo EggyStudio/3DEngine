@@ -26,7 +26,8 @@ needs an offline toolchain beyond `slangc`.
      pass.
 - **Meshes** carry positions only and are drawn in their material's base color, so lighting is
   extracted and uploaded but not yet visible.
-- **The immediate pass** (§2) draws the shapes the flat API records.
+- **The immediate pass** (§2) draws the shapes and textures the flat API records.
+- **The model pass** (§3) draws the meshes `DrawModel` records, lit by one fixed light.
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 
 ## 1. Slang through slangc
@@ -74,11 +75,22 @@ the ECS and out of the mesh path. Its four pipelines (lines or triangles, depth 
 blend by alpha and do not cull, so a shape's triangles may wind either way. A texel with no
 coverage is discarded, so a sprite's empty corners write no depth.
 
-Textures loaded through the flat API go into `TextureStore`, and the node uploads them at the start
-of its run, keeps one image, view, sampler and descriptor set per texture, and destroys an
-unloaded or replaced texture's objects four frames later, once no frame in flight can read them.
+Textures loaded through the flat API go into `TextureStore`, and `GpuTexturesPrepare` uploads them
+before the graph runs, keeps one image, view, sampler and descriptor set per texture for every pass
+that samples them, and destroys an unloaded or replaced texture's objects four frames later, once
+no frame in flight can read them.
 
 ## 3. Meshes and materials
+
+The flat API's models draw through their own pass, `ModelNode`, between the ECS meshes and the
+immediate shapes. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
+vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
+`GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
+each frame. The push constants are the full transform, the world matrix's rotation as three rows
+for the normals, and the color, 128 bytes, which every device supports. `model.slang` shades by
+one fixed light from above over an ambient floor.
+
+What follows is where meshes go from there.
 
 A mesh carries position, normal, tangent, two texture coordinates and a color, interleaved, with
 32-bit indices. Models come from Assimp, which supplies the mesh data, the material factors and the

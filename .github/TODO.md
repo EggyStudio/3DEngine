@@ -39,11 +39,14 @@ removed from this file, and an item that is partly done is rewritten around what
 ### The flat API
 
 `Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes,
-images and textures, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
+images and textures, models and meshes, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Loading models, shaders and sounds.** `LoadModel`, `LoadShader` and `LoadSound`, each with its
-  `Unload`, its `Draw` or `Play` call and an example. Models need the mesh pass to draw a mesh at a
-  transform given per call rather than per entity.
+- **Loading shaders and sounds.** `LoadShader` and `LoadSound`, each with its `Unload`, its `Set`
+  or `Play` calls and an example.
+- **Models are partial.** Textures embedded in a file (as `.glb` carries them) are not read, only
+  the base color and its texture are used of a material, animation is not played, and models are
+  lit by one fixed light. `DrawModelWires`, `GenMeshCylinder` and the other generators raylib has
+  are not written, and a mesh cannot be read back or changed after upload.
 - **Textures have no mipmaps**, so a texture drawn much smaller than its size shimmers, and an
   image cannot be edited in place (raylib's `ImageDraw*`, `ImageResize` and the rest).
 - **Text has no font of its own.** `DrawText` draws with ImGui's built-in font into ImGui's

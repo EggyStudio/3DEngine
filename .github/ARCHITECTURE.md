@@ -122,19 +122,21 @@ and `SceneSpawner` turns it into entities.
 3. **Queue** sorts draw items into `Opaque3dPhase` and `Transparent3dPhase`.
 4. **Graph** runs the render graph's nodes in dependency order.
 
-The graph has three nodes, drawing into one swapchain pass:
+The graph has four nodes, drawing into one swapchain pass:
 
 | node | draws |
 |---|---|
 | `main_pass` | clears, then the meshes ECS cameras see, through `mesh.slang` |
+| `models` | the frame's `ModelDrawList`: every mesh `DrawModel` and `DrawMesh` recorded, through `model.slang` |
 | `immediate` | the frame's `DrawList`: every shape and texture the flat API recorded, through `immediate.slang` |
 | `imgui` | Dear ImGui's draw data, through `imgui.slang` |
 
 The draw list batches consecutive shapes with the same topology, transform, depth mode and
 texture, so a scene of shapes is a handful of draw calls. Each batch's transform is a push
-constant and its texture the descriptor set. `TextureStore` queues the textures the flat API loads,
-and the `immediate` node uploads them, keeps their GPU objects, and destroys an unloaded one only
-after the frames in flight that might read it have finished.
+constant and its texture the descriptor set. `TextureStore` and `MeshStore` queue the textures and
+meshes the flat API loads, and two prepare systems (`GpuTexturesPrepare`, `GpuMeshesPrepare`)
+upload them before the graph runs, keep their GPU objects for both passes, and destroy an unloaded
+one only after the frames in flight that might read it have finished.
 
 `GraphicsDevice` is Vulkan 1.2 over Vortice.Vulkan with classic render passes, three frames in
 flight and a depth buffer. `NullGraphicsDevice` stands in for it in tests. Shaders are Slang,

@@ -9,6 +9,7 @@ var examples = new Dictionary<string, Action>
     ["shapes_basic_2d"] = ShapesBasic2D.Run,
     ["shapes_basic_3d"] = ShapesBasic3D.Run,
     ["textures_basic"] = TexturesBasic.Run,
+    ["models_loading"] = ModelsLoading.Run,
     ["gui_imgui_window"] = GuiImGuiWindow.Run,
     ["ecs_behaviors"] = EcsBehaviors.Run,
     ["ecs_mesh_entities"] = EcsMeshEntities.Run,

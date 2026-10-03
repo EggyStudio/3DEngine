@@ -29,10 +29,11 @@ public sealed class RenderPlugin : IPlugin
     }
 
     /// <summary>
-    /// Extract system that hands the <see cref="DrawList"/> and the <see cref="TextureStore"/> to
-    /// the render world. They are handed over rather than copied, because the frame is rendered on
-    /// the main thread in <see cref="Stage.Last"/>, nothing records into the list again until
-    /// <see cref="Stage.First"/> clears it, and the store guards itself with a lock.
+    /// Extract system that hands the flat API's draw lists and stores (<see cref="DrawList"/>,
+    /// <see cref="ModelDrawList"/>, <see cref="TextureStore"/>, <see cref="MeshStore"/>) to the
+    /// render world. They are handed over rather than copied, because the frame is rendered on the
+    /// main thread in <see cref="Stage.Last"/>, nothing records into the lists again until
+    /// <see cref="Stage.First"/> clears them, and the stores guard themselves with a lock.
     /// </summary>
     private sealed class DrawListExtract : IExtractSystem
     {
@@ -43,6 +44,10 @@ public sealed class RenderPlugin : IPlugin
                 renderWorld.Set(drawList);
             if (world.TryGetResource<TextureStore>(out var textures))
                 renderWorld.Set(textures);
+            if (world.TryGetResource<ModelDrawList>(out var models))
+                renderWorld.Set(models);
+            if (world.TryGetResource<MeshStore>(out var meshes))
+                renderWorld.Set(meshes);
         }
     }
 
@@ -64,13 +69,22 @@ public sealed class RenderPlugin : IPlugin
         renderer.AddExtractSystem(new MeshMaterialExtract());
         renderer.AddPrepareSystem(new MeshPrepare());
         renderer.AddPrepareSystem(new TexturePrepare());
+        renderer.AddPrepareSystem(new GpuTexturesPrepare());
+        renderer.AddPrepareSystem(new GpuMeshesPrepare());
         app.World.InsertResource(renderer);
         Logger.Debug("Renderer resource registered with extract and prepare systems.");
 
         app.World.InitResource<DrawList>();
+        app.World.InitResource<ModelDrawList>();
         app.World.InitResource<TextureStore>();
-        app.AddSystem(Stage.First, new SystemDescriptor(static world => world.Resource<DrawList>().Clear(), "RenderPlugin.ClearDrawList")
-            .Write<DrawList>());
+        app.World.InitResource<MeshStore>();
+        app.AddSystem(Stage.First, new SystemDescriptor(static world =>
+            {
+                world.Resource<DrawList>().Clear();
+                world.Resource<ModelDrawList>().Clear();
+            }, "RenderPlugin.ClearDrawLists")
+            .Write<DrawList>()
+            .Write<ModelDrawList>());
 
         // Initialize Vulkan against SDL window if configured
         var window = app.World.Resource<AppWindow>();

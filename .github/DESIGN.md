@@ -25,8 +25,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
   listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
-What is missing is the rest of the flat API that loads things: models, shaders, sounds and render
-targets.
+What is missing is the rest of the flat API that loads things: shaders, sounds and render targets.
 
 ## 1. One flat API
 
@@ -72,7 +71,7 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 | `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
 | `Engine3D.Text.cs` | text, drawn with ImGui's font |
 | `Engine3D.Textures.cs` | images and textures |
-| `Engine3D.Models.cs` | meshes, models and materials, not written |
+| `Engine3D.Models.cs` | meshes, models and materials |
 | `Engine3D.Shaders.cs` | Slang shaders and their parameters, not written |
 | `Engine3D.Audio.cs` | sounds and music, not written |
 
@@ -207,9 +206,8 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. `Models` through Assimp, drawn through the mesh pass with a transform per call.
-2. `Shaders`, with parameters set by name.
-3. `Audio`, gamepads and render targets.
-4. Text from a font file of the program's choosing, drawn in the draw list rather than ImGui.
+1. `Shaders`, with parameters set by name.
+2. `Audio`, gamepads and render targets.
+3. Text from a font file of the program's choosing, drawn in the draw list rather than ImGui.
 
 Each area lands with its lines in the cheatsheet and an example beside it.

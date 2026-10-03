@@ -90,4 +90,27 @@ public class AssimpModelReaderTests
         var act = () => reader.ReadAsync(ctx, SceneImportSettings.Default, ct);
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
+
+    [Fact]
+    public void ReadFile_Finds_The_Material_Library_Beside_The_Model()
+    {
+        var directory = Directory.CreateTempSubdirectory("engine-assimp-test-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(directory, "tri.mtl"), "newmtl Red\nKd 1 0 0\nmap_Kd red.png\n");
+            File.WriteAllText(Path.Combine(directory, "tri.obj"),
+                "mtllib tri.mtl\no Tri\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl Red\nf 1 2 3\n");
+
+            var scene = new AssimpModelReader().ReadFile(Path.Combine(directory, "tri.obj"), new SceneImportSettings());
+
+            var material = scene.Traverse().SelectMany(n => n.Components).OfType<SceneMaterialPayload>().Should().ContainSingle().Subject;
+            material.BaseColorFactor.X.Should().BeApproximately(1f, 1e-5f);
+            material.BaseColorFactor.Y.Should().BeApproximately(0f, 1e-5f);
+            material.BaseColorTexture!.AssetPath.Should().Be("red.png");
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
 }

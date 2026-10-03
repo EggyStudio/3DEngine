@@ -114,6 +114,31 @@ A file name is looked for as given, then beside the program, then under `source/
 that cannot be read gives an invalid image or texture and a warning in the log, and drawing an
 invalid texture draws nothing. `CloseWindow` logs how many textures were still loaded.
 
+## Models and meshes
+
+```csharp
+Model LoadModel(string fileName);                                          // Read a model through Assimp (glTF, FBX, OBJ, ...) with its base colors and textures
+Model LoadModelFromMesh(ModelMesh mesh);                                   // A model of one mesh with a white material
+void UnloadModel(Model model);                                             // Free a model's meshes and the textures it loaded
+bool IsModelValid(Model model);                                            // Whether a model's meshes are loaded
+BoundingBox GetModelBoundingBox(Model model);                              // The box around a model
+
+ModelMesh GenMeshCube(float width, float height, float length);            // A box
+ModelMesh GenMeshSphere(float radius, int rings, int slices);              // A sphere
+ModelMesh GenMeshPlane(float width, float length, int resX, int resZ);     // A flat rectangle facing up
+ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
+void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
+
+void DrawModel(Model model, Vector3 position, float scale, Color tint);                                               // A model
+void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated (degrees) and scaled
+void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);                                           // One mesh at a transform
+void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
+```
+
+A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`. A
+`ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
+mesh. Models are lit by one fixed light from above, and draw through the camera `BeginMode3D` set.
+
 ## Text
 
 ```csharp
