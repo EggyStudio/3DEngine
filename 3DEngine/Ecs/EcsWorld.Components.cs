@@ -93,6 +93,9 @@ public sealed partial class EcsWorld : IDisposable
         // touch a type. Unlocked, two of them each made a store, one landed in the cache the
         // systems read and the other in the dictionary the console reads, and the dictionary
         // itself could be corrupted by the concurrent writes.
+        // A disposed world has released its stores and registers no release for new ones, so a
+        // store made now would stay in the static cache for good.
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _released) == 1, this);
         lock (_stores)
         {
             if (_stores.TryGetValue(typeof(T), out var existing))

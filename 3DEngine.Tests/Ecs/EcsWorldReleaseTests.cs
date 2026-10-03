@@ -59,4 +59,16 @@ public class EcsWorldReleaseTests
         kept.TryGet<Payload>(entity, out var payload).Should().BeTrue();
         payload.Value.Should().Be(7);
     }
+
+    [Fact]
+    public void A_Disposed_World_Refuses_To_Make_Stores_Again()
+    {
+        var ecs = new EcsWorld();
+        var entity = ecs.Spawn();
+        ecs.Dispose();
+
+        var add = () => ecs.Add(entity, new Payload { Value = 1 });
+
+        add.Should().Throw<ObjectDisposedException>();
+    }
 }
