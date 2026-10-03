@@ -31,8 +31,6 @@ removed from this file, and an item that is partly done is rewritten around what
 - **Diagnostics stop at the method.** The generator reports a wrong signature, two stage
   attributes and a bad `[RunIf]` (E3D001 to E3D003). A filter naming a type that is not a
   component, and a behavior whose fields hold references, are not reported.
-- **`BehaviorContext` has no fixed delta.** A `[OnFixedUpdate]` method reads the step from
-  `ctx.Res<FixedTime>().StepSeconds`, where `ctx.Time.DeltaSeconds` is the frame's.
 
 ## Rendering
 
@@ -86,11 +84,11 @@ the engine's own shortcuts ask `WantTextInput` instead.
 
 ### Physics
 
-`PhysicsWorld` runs BepuPhysics with bodies and colliders from components, steps at a fixed rate
-through its own accumulator in `PreUpdate`, and answers `Raycast`. It is to step in
-`Stage.FixedUpdate` on `FixedTime` instead, so behaviors that push bodies run on the same steps. There is no `Engine3D` surface for it, and the
-interpolation between steps is not applied to `Transform`, so a body moves in visible steps when the
-frame rate is above the physics rate.
+`PhysicsWorld` runs BepuPhysics with bodies and colliders from components, steps once per
+`Stage.FixedUpdate` run on `FixedTime`'s step (the same steps `[OnFixedUpdate]` behaviors run on),
+and answers `Raycast`. There is no `Engine3D` surface for it, and the interpolation between steps
+(`FixedTime.Alpha`) is not applied to `Transform`, so a body moves in visible steps when the frame
+rate is above the fixed rate.
 
 ### Scenes
 

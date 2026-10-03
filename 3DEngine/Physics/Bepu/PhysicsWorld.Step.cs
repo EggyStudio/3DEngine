@@ -30,6 +30,13 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
+    /// <summary>Advances the simulation by exactly one step of <paramref name="seconds"/>, with no accumulator.</summary>
+    /// <remarks>What <see cref="Stage.FixedUpdate"/> calls, since the fixed stage has already done the accumulating.</remarks>
+    public void StepOnce(float seconds)
+    {
+        if (seconds > 0f) Simulation.Timestep(seconds, Dispatcher);
+    }
+
     public void SyncTransforms(EcsWorld ecs)
     {
         // Walk every dynamic / kinematic body and write its pose into the matching Transform component.

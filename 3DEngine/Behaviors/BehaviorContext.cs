@@ -99,6 +99,14 @@ public sealed class BehaviorContext
         Input = input;
     }
 
+    /// <summary>
+    /// Seconds one fixed step simulates (<see cref="FixedTime.StepSeconds"/>), which an
+    /// <c>[OnFixedUpdate]</c> method advances by. Without <see cref="FixedTime"/>, the frame's delta.
+    /// </summary>
+    public float FixedDelta => World.TryGetResource<FixedTime>(out var fixedTime)
+        ? (float)fixedTime.StepSeconds
+        : (float)Time.DeltaSeconds;
+
     /// <summary>Gets a typed resource from the world.</summary>
     /// <typeparam name="T">The resource type to retrieve.</typeparam>
     /// <returns>The resource instance.</returns>

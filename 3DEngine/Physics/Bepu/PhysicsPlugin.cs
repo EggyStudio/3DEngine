@@ -43,8 +43,21 @@ public sealed class PhysicsPlugin : IPlugin
         var world = new PhysicsWorld(settings);
         app.World.InsertResource(world);
 
+        // With FixedTime (TimePlugin adds it), the simulation advances one step per FixedUpdate run,
+        // on the same steps as [OnFixedUpdate] behaviors, so a behavior that pushes a body pushes it
+        // once per step. Without it, PhysicsWorld keeps its own accumulator and steps in PreUpdate.
+        app.AddSystem(Stage.FixedUpdate, new SystemDescriptor(static w =>
+            {
+                if (w.TryGetResource<FixedTime>(out var fixedTime))
+                    w.Resource<PhysicsWorld>().StepOnce((float)fixedTime.StepSeconds);
+            }, "Physics.FixedStep")
+            .Read<FixedTime>()
+            .Write<PhysicsWorld>()
+            .MainThreadOnly());
+
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(static w =>
             {
+                if (w.ContainsResource<FixedTime>()) return;
                 var phys = w.Resource<PhysicsWorld>();
                 var time = w.Resource<Time>();
                 phys.Step((float)time.DeltaSeconds);
@@ -62,6 +75,6 @@ public sealed class PhysicsPlugin : IPlugin
             .Read<PhysicsWorld>()
             .Write<EcsWorld>());
 
-        Logger.Info("PhysicsPlugin: physics systems registered (PreUpdate=Step, PostUpdate=SyncTransforms).");
+        Logger.Info("PhysicsPlugin: physics systems registered (FixedUpdate=Step, PostUpdate=SyncTransforms).");
     }
 }
