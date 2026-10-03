@@ -8,11 +8,17 @@ public sealed partial class DynamicBufferAllocator
         // One backing buffer per usage type encountered
         private readonly Dictionary<BufferUsage, ArenaBuffer> _buffers = new();
 
-        /// <summary>Resets all write cursors to zero without disposing buffers.</summary>
+        // Buffers outgrown during this slot's frame. Draws recorded earlier in that frame still
+        // read them, so they live until the slot comes round again, when its fence has signaled.
+        private readonly List<IBuffer> _outgrown = [];
+
+        /// <summary>Resets all write cursors to zero, and frees what this slot outgrew last time.</summary>
         public void Reset()
         {
             foreach (var ab in _buffers.Values)
                 ab.Cursor = 0;
+            foreach (var buffer in _outgrown) buffer.Dispose();
+            _outgrown.Clear();
         }
 
         /// <summary>Allocates a sub-region of the given size and usage, growing the backing buffer if needed.</summary>
@@ -20,7 +26,8 @@ public sealed partial class DynamicBufferAllocator
         /// <param name="size">Size in bytes of the allocation.</param>
         /// <param name="usage">Buffer usage flags determining which backing arena to allocate from.</param>
         /// <returns>A <see cref="DynamicAllocation"/> describing the buffer, offset, and size of the allocation.</returns>
-        public DynamicAllocation Allocate(IGraphicsDevice gfx, ulong size, BufferUsage usage)
+        /// <param name="alignment">What the allocation's offset is a multiple of, a power of two.</param>
+        public DynamicAllocation Allocate(IGraphicsDevice gfx, ulong size, BufferUsage usage, ulong alignment = 1)
         {
             if (!_buffers.TryGetValue(usage, out var ab))
             {
@@ -28,34 +35,32 @@ public sealed partial class DynamicBufferAllocator
                 _buffers[usage] = ab;
             }
 
-            // Grow if necessary
-            ulong required = ab.Cursor + size;
-            if (ab.Buffer is null || ab.Capacity < required)
+            var start = (ab.Cursor + alignment - 1) & ~(alignment - 1);
+            if (ab.Buffer is null || ab.Capacity < start + size)
             {
-                ab.Buffer?.Dispose();
+                // A larger buffer starts empty. The outgrown one keeps what this frame wrote into
+                // it, for the draws already recorded against it, until the slot's next frame.
+                if (ab.Buffer is not null) _outgrown.Add(ab.Buffer);
 
                 ulong newCap = Math.Max(MinBufferSize, ab.Capacity);
-                while (newCap < required)
+                while (newCap < size)
                     newCap = NextPowerOfTwo(newCap * 2);
 
-                var desc = new BufferDesc(newCap, usage, CpuAccessMode.Write);
-                ab.Buffer = gfx.CreateBuffer(desc);
+                ab.Buffer = gfx.CreateBuffer(new BufferDesc(newCap, usage, CpuAccessMode.Write));
                 ab.Capacity = newCap;
-
-                // Must re-upload any data already written this frame into the old buffer.
-                // Since we grew mid-frame, just reset cursor - caller hasn't bound anything yet
-                // because we're bump-allocating forward and the old buffer was disposed.
                 ab.Cursor = 0;
+                start = 0;
             }
 
-            var offset = ab.Cursor;
-            ab.Cursor += size;
-            return new DynamicAllocation(ab.Buffer!, offset, size);
+            ab.Cursor = start + size;
+            return new DynamicAllocation(ab.Buffer!, start, size);
         }
 
         /// <summary>Disposes all backing GPU buffers and resets all arena state.</summary>
         public void DisposeAll()
         {
+            foreach (var buffer in _outgrown) buffer.Dispose();
+            _outgrown.Clear();
             foreach (var ab in _buffers.Values)
             {
                 ab.Buffer?.Dispose();
