@@ -21,6 +21,19 @@ public static partial class Engine3D
     /// <summary>Whether <paramref name="key"/> is not held.</summary>
     public static bool IsKeyUp(Key key) => !Input.KeyDown(key);
 
+    /// <summary>
+    /// The next key pressed this frame, in the order pressed, or <see cref="Key.Unknown"/> when
+    /// none is left. Each call takes one, so a loop calls it until it answers Unknown.
+    /// </summary>
+    public static Key GetKeyPressed() => Input.TakeKey();
+
+    /// <summary>
+    /// The next character typed this frame as a Unicode code point, or 0 when none is left. Each
+    /// call takes one, so a text box reads them in a loop. Layout, shift and dead keys are already
+    /// applied, as the platform's text input gives them.
+    /// </summary>
+    public static int GetCharPressed() => Input.TakeChar();
+
     // -- Mouse
 
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>

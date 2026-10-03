@@ -67,7 +67,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_fonts.png" width="400"/><br>`text_fonts` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_postprocessing.png" width="400"/><br>`shaders_postprocessing` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_states.png" width="400"/><br>`ecs_states` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_mesh_generation.png" width="400"/><br>`models_mesh_generation` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_first_person.png" width="400"/><br>`core_3d_camera_first_person` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_image_drawing.png" width="400"/><br>`textures_image_drawing` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_mipmaps.png" width="400"/><br>`textures_mipmaps` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_mipmaps.png" width="400"/><br>`textures_mipmaps` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_input_box.png" width="400"/><br>`text_input_box` |
 
 A 3D scene with a camera the keyboard and mouse move:
 

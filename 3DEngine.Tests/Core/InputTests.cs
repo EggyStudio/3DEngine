@@ -197,4 +197,31 @@ public class InputTests
         str.Should().Contain("Keys=");
         str.Should().Contain("Mouse=");
     }
+
+    [Fact]
+    public void Typed_Characters_And_Pressed_Keys_Are_Taken_Once_Each_In_Order()
+    {
+        var input = new Input();
+        input.AddText("aé😀");
+        input.SetKey(Key.A, true);
+        input.SetKey(Key.A, true); // held, not pressed again
+        input.SetKey(Key.Return, true);
+
+        new[] { input.TakeChar(), input.TakeChar(), input.TakeChar(), input.TakeChar() }
+            .Should().Equal('a', 'é', 0x1F600, 0);
+        new[] { input.TakeKey(), input.TakeKey(), input.TakeKey() }.Should().Equal(Key.A, Key.Return, Key.Unknown);
+    }
+
+    [Fact]
+    public void What_Was_Not_Taken_Is_Gone_The_Next_Frame()
+    {
+        var input = new Input();
+        input.AddText("x");
+        input.SetKey(Key.B, true);
+
+        input.BeginFrame();
+
+        input.TakeChar().Should().Be(0);
+        input.TakeKey().Should().Be(Key.Unknown);
+    }
 }

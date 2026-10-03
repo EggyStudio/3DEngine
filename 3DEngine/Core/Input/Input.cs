@@ -91,6 +91,17 @@ public sealed class Input
     /// <summary>Characters typed this frame via text input events.</summary>
     public ReadOnlySpan<char> TextInput => CollectionsMarshal.AsSpan(_textInput);
 
+    // What raylib's GetCharPressed and GetKeyPressed hand out one at a time: the characters
+    // typed and the keys pressed this frame, in order, each taken once.
+    private readonly Queue<int> _charQueue = [];
+    private readonly Queue<Key> _keyQueue = [];
+
+    /// <summary>Takes the next character typed this frame, as a Unicode code point, or 0 when none is left.</summary>
+    public int TakeChar() => _charQueue.TryDequeue(out var c) ? c : 0;
+
+    /// <summary>Takes the next key pressed this frame, or <see cref="Key.Unknown"/> when none is left.</summary>
+    public Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Unknown;
+
     /// <summary>Returns <c>true</c> while the specified key is held down.</summary>
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key is currently held; otherwise <c>false</c>.</returns>
@@ -203,6 +214,8 @@ public sealed class Input
         WheelX = 0;
         WheelY = 0;
         _textInput.Clear();
+        _charQueue.Clear();
+        _keyQueue.Clear();
         foreach (var pad in _gamepads) pad.BeginFrame();
     }
 
@@ -213,7 +226,11 @@ public sealed class Input
     {
         if (isDown)
         {
-            if (_keysDown.Add(key)) _keysPressed.Add(key);
+            if (_keysDown.Add(key))
+            {
+                _keysPressed.Add(key);
+                _keyQueue.Enqueue(key);
+            }
         }
         else
         {
@@ -275,6 +292,8 @@ public sealed class Input
     {
         foreach (var c in text)
             _textInput.Add(c);
+        foreach (var rune in text.EnumerateRunes())
+            _charQueue.Enqueue(rune.Value);
     }
 
     // -- Diagnostics --

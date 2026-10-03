@@ -57,6 +57,8 @@ bool IsKeyPressed(Key key);                              // Key went down this f
 bool IsKeyDown(Key key);                                 // Key is held
 bool IsKeyReleased(Key key);                             // Key came up this frame
 bool IsKeyUp(Key key);                                   // Key is not held
+Key GetKeyPressed();                                     // Next key pressed this frame, Unknown when none is left
+int GetCharPressed();                                    // Next character typed this frame (a code point), 0 when none is left
 
 bool IsMouseButtonPressed(MouseButton button);           // Button went down this frame
 bool IsMouseButtonDown(MouseButton button);              // Button is held
