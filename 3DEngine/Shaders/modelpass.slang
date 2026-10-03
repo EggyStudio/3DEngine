@@ -30,13 +30,41 @@ public struct ModelPushConstants
     public float4 worldX;
     public float4 worldY;
     public float4 worldZ;
-    // The material in the last 16 bytes, which is its color as four bytes (red lowest), how
-    // metallic and how rough it is, and how strongly its normal map bends the surface, 0 for none.
+    // The material in the last 16 bytes, packed. Its color is four sRGB bytes (red lowest), how
+    // metallic and how rough it is two 16-bit fractions, how strongly its normal map bends the
+    // surface (0 for no map) and how strongly its occlusion map darkens it two half floats, and
+    // the light it gives off, linear, RGB9E5, which reaches past 1.
     public uint packedColor;
-    public float metallic;
-    public float roughness;
-    public float normalScale;
+    public uint metallicRoughness;
+    public uint normalOcclusion;
+    public uint emission;
 };
+
+// The packed material fields, read out.
+public float materialMetallic() { return float(push.metallicRoughness & 0xFFFF) / 65535.0; }
+public float materialRoughness() { return float(push.metallicRoughness >> 16) / 65535.0; }
+public float materialNormalScale() { return halfToFloat(push.normalOcclusion & 0xFFFF); }
+public float materialOcclusionStrength() { return halfToFloat(push.normalOcclusion >> 16); }
+
+// A half float's bits as a float, by hand, since f16tof32 compiles to SPIR-V that asks for the
+// Float16 and Int16 features, which the device does not enable.
+float halfToFloat(uint bits)
+{
+    uint exponent = (bits >> 10) & 0x1F;
+    float mantissa = float(bits & 0x3FF);
+    float value = exponent == 0 ? mantissa * exp2(-24.0)
+        : exponent == 31 ? 65504.0
+        : (1.0 + mantissa / 1024.0) * exp2(float(int(exponent) - 15));
+    return (bits & 0x8000) != 0 ? -value : value;
+}
+
+// Three 9-bit mantissas sharing a 5-bit exponent, biased by 15, as Vulkan's E5B9G9R9 has them.
+public float3 materialEmission()
+{
+    uint e = push.emission;
+    float scale = exp2(float(int(e >> 27)) - 24.0);
+    return float3(e & 0x1FF, (e >> 9) & 0x1FF, (e >> 18) & 0x1FF) * scale;
+}
 
 [[vk::push_constant]]
 public ConstantBuffer<ModelPushConstants> push;
@@ -52,6 +80,22 @@ public Sampler2D normalMap;
 // blue, multiplying its factors. White when it has none.
 [[vk::binding(3, 0)]]
 public Sampler2D metallicRoughnessMap;
+
+// The light the material gives off, as a color multiplying its emission, decoded from sRGB as it
+// is sampled. White when it has none.
+[[vk::binding(4, 0)]]
+public Sampler2D emissiveMap;
+
+// How much light from all around reaches into the material's creases, in red, as glTF has it.
+// White when it has none.
+[[vk::binding(5, 0)]]
+public Sampler2D occlusionMap;
+
+// The light the material gives off at this point, linear, which no light entity is needed for.
+public float3 emitted(ModelVertexOutput input)
+{
+    return materialEmission() * emissiveMap.Sample(input.uv).rgb;
+}
 
 // sRGB's transfer function, exactly rather than as a power of 2.2, so a byte decoded and encoded
 // again comes back as itself.
@@ -174,7 +218,8 @@ public float4 baseColor(ModelVertexOutput input)
 public float3 surfaceNormal(ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
-    if (push.normalScale <= 0.0)
+    float strength = materialNormalScale();
+    if (strength <= 0.0)
         return n;
 
     float3 dp1 = ddx(input.world);
@@ -193,7 +238,7 @@ public float3 surfaceNormal(ModelVertexOutput input)
         return n;
 
     float3 mapped = normalMap.Sample(input.uv).xyz * 2.0 - 1.0;
-    mapped.xy *= push.normalScale;
+    mapped.xy *= strength;
     float s = rsqrt(scale);
     return normalize(t * s * mapped.x + b * s * mapped.y + n * mapped.z);
 }
@@ -307,8 +352,10 @@ float3 ambientReflected(float3 f0, float roughness, float nv)
 
 // A linear color lit at this point, given sRGB-encoded for the frame. With light entities it is
 // each light reflected by the material's metallic-roughness model, the shadowed light cut by its
-// shadow map. With none it is one fixed light from above over an ambient floor and no highlight,
-// which is how the flat API's models look. Either goes through the same tonemap and encoding.
+// shadow map and the light from all around darkened by its occlusion map. With none it is one
+// fixed light from above over an ambient floor and no highlight, which is how the flat API's
+// models look. Either adds the light the material gives off, and goes through the same tonemap
+// and encoding.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = surfaceNormal(input);
@@ -317,12 +364,15 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
         // The ramp from 0.35 to 1 the light had when the pass worked in sRGB, raised to 2.2 so it
         // encodes back to the same shades and the flat API's models look as they did.
-        return toDisplay(albedo * pow(0.35 + 0.65 * max(dot(n, toLight), 0.0), 2.2));
+        return toDisplay(albedo * pow(0.35 + 0.65 * max(dot(n, toLight), 0.0), 2.2) + emitted(input));
     }
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
-    float metallic = saturate(push.metallic * packed.b);
-    float roughness = clamp(push.roughness * packed.g, 0.045, 1.0);
+    float metallic = saturate(materialMetallic() * packed.b);
+    float roughness = clamp(materialRoughness() * packed.g, 0.045, 1.0);
+    // Occlusion darkens the light from all around, which reaches into a crease less, and leaves
+    // the direct light, which the shadow map takes care of.
+    float occlusion = lerp(1.0, occlusionMap.Sample(input.uv).r, saturate(materialOcclusionStrength()));
     float alpha = roughness * roughness;
     float3 f0 = lerp(float3(0.04), albedo, metallic);
     float3 diffuseColor = albedo * (1.0 - metallic);
@@ -336,7 +386,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float3 arrived = arriving(light, input.world, n);
         if (int(light.positionAndKind.w) == Ambient)
         {
-            color += arrived * (diffuseColor + ambientReflected(f0, roughness, nv));
+            color += arrived * occlusion * (diffuseColor + ambientReflected(f0, roughness, nv));
             continue;
         }
 
@@ -348,5 +398,5 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         // What the surface reflects at its face is not there to scatter diffusely.
         color += arrived * (diffuseColor * (1.0 - fresnel) + specular);
     }
-    return toDisplay(color);
+    return toDisplay(color + emitted(input));
 }

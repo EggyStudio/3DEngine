@@ -515,4 +515,73 @@ public sealed class OffscreenRenderTests : IDisposable
             EndMode3D();
         }
     }
+
+    [NeedsVulkanFact]
+    public void Emission_Shows_With_No_Light_On_The_Surface()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 0, 0), EmissiveIntensity = 0.5f };
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        // Under the fixed light, and then with one light entity pointing away from the camera's
+        // side of the cube, so only the emission reaches it.
+        var fixedLight = Capture(Draw, "fixed");
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var away = ecs.Spawn();
+        ecs.Add(away, Light.Directional(Vector3.One, 1));
+        ecs.Add(away, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI), Vector3.One));
+        var dark = Capture(Draw, "dark");
+
+        foreach (var image in new[] { fixedLight, dark })
+        {
+            Linear(GetImageColor(image, 32, 32).R).Should().BeApproximately(0.5f, 0.03f, "a black cube gives off half of red's light");
+            GetImageColor(image, 32, 32).G.Should().BeLessThan(5);
+        }
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void Occlusion_Darkens_The_Light_From_All_Around_And_Not_A_Lamp()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var crease = LoadTextureFromImage(GenImageColor(4, 4, new Color(64, 64, 64)));
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var light = ecs.Spawn();
+        ecs.Add(light, Light.Ambient(Vector3.One, 0.5f));
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        cube.Materials[0] = new ModelMaterial(Color.White) { Roughness = 1 };
+        var open = Capture(Draw, "open");
+        cube.Materials[0] = cube.Materials[0] with { OcclusionMap = crease };
+        var occluded = Capture(Draw, "occluded");
+
+        // The same under a lamp facing the cube, where occlusion leaves the light alone.
+        ecs.GetRef<Light>(light) = Light.Directional(Vector3.One, 0.5f);
+        var lamp = Capture(Draw, "lamp");
+        cube.Materials[0] = cube.Materials[0] with { OcclusionMap = default };
+        var lampOpen = Capture(Draw, "lamp-open");
+
+        // The map's red, 64, is a quarter. An occlusion map is data rather than a color, so it is
+        // read as it is and not decoded from sRGB.
+        Linear(GetImageColor(occluded, 32, 32).R).Should().BeApproximately(Linear(GetImageColor(open, 32, 32).R) * 0.25f, 0.02f);
+        ((int)GetImageColor(lamp, 32, 32).R).Should().BeInRange(GetImageColor(lampOpen, 32, 32).R - 2, GetImageColor(lampOpen, 32, 32).R + 2);
+        UnloadModel(cube);
+        UnloadTexture(crease);
+    }
 }

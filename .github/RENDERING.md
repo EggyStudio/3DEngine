@@ -111,10 +111,12 @@ array, frees them the first frame no entity draws them, and copies the material'
 normal and metallic-roughness texture assets into `TextureStore`. A triangle without normals is
 lit by its face's normal.
 
-A draw's material is its color, packed into four bytes, its metallic and roughness factors and its
-normal map's strength, in the last 16 bytes of the push constants, and its base color texture,
-normal map and metallic-roughness map at bindings 1 to 3 of the first set. The model pass's own
-draws share one set per combination of the three textures, freed once no frame in flight binds it.
+A draw's material is packed into the last 16 bytes of the push constants. Its color goes in as four
+sRGB bytes, metallic and roughness as two 16-bit fractions, the normal map's strength and the
+occlusion map's as two half floats, and its emission, linear, as RGB9E5, which reaches past 1. Its base
+color texture, normal map, metallic-roughness map, emissive map and occlusion map are at bindings
+1 to 5 of the first set. The model pass's own draws share one set per combination of the five
+textures, freed once no frame in flight binds it.
 A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
 texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
 the map is toward the top of the image, as glTF has it.
@@ -127,9 +129,9 @@ texture paths in one pass, and textures are decoded by StbImageSharp with mipmap
 GPU.
 
 The material holds glTF's metallic-roughness model, which Assimp maps every format it reads
-onto. The base color, metallic, roughness and normal map are drawn. Emissive color and occlusion
-are read from files and not yet drawn. A program that needs something else writes a Slang shader
-that imports `modelpass`.
+onto, and all of it is drawn. Emission is added after the lights, so it shows with none.
+Occlusion darkens the light from all around (ambient lights), and leaves a lamp's light to the
+shadow map. A program that needs something else writes a Slang shader that imports `modelpass`.
 
 ## 4. Lights and shadows
 

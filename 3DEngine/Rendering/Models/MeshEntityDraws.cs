@@ -70,7 +70,11 @@ public sealed class MeshEntityDraws
                     Roughness: material.RoughnessFactor,
                     NormalMap: TextureFor(material.NormalTexture, assets, textures),
                     NormalScale: material.NormalScale,
-                    MetallicRoughnessMap: TextureFor(material.MetallicRoughnessTexture, assets, textures)));
+                    MetallicRoughnessMap: TextureFor(material.MetallicRoughnessTexture, assets, textures),
+                    Emission: material.EmissiveFactor,
+                    EmissiveMap: TextureFor(material.EmissiveTexture, assets, textures),
+                    OcclusionMap: TextureFor(material.OcclusionTexture, assets, textures),
+                    OcclusionStrength: material.OcclusionStrength));
             }
         }
 

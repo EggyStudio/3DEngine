@@ -41,9 +41,41 @@ public sealed class ModelRenderer : IDisposable
         public Vector4 WorldY;
         public Vector4 WorldZ;
         public uint PackedColor;
-        public float Metallic;
-        public float Roughness;
-        public float NormalScale;
+        public uint MetallicRoughness;
+        public uint NormalOcclusion;
+        public uint Emission;
+    }
+
+    // The material as modelpass.slang unpacks it from the last 16 bytes of the push constants.
+    private static (uint MetallicRoughness, uint NormalOcclusion, uint Emission) PackMaterial(in ModelDraw draw)
+    {
+        static uint Unorm16(float v) => (uint)MathF.Round(Math.Clamp(v, 0, 1) * 65535);
+        static uint Half16(float v) => BitConverter.HalfToUInt16Bits((Half)v);
+        // No map, no bending, which also keeps the shader from reading the white texture in its
+        // place as a normal.
+        var normalScale = draw.NormalMap == 0 ? 0 : draw.NormalScale;
+        return (Unorm16(draw.Metallic) | Unorm16(draw.Roughness) << 16,
+            Half16(normalScale) | Half16(draw.OcclusionStrength) << 16,
+            Rgb9E5(draw.Emission));
+    }
+
+    /// <summary>A linear color as Vulkan's E5B9G9R9, three 9-bit mantissas sharing a 5-bit exponent biased by 15.</summary>
+    internal static uint Rgb9E5(Vector3 color)
+    {
+        const float Largest = 511f / 512f * 65536f;
+        var c = Vector3.Clamp(color, Vector3.Zero, new Vector3(Largest));
+        var peak = MathF.Max(c.X, MathF.Max(c.Y, c.Z));
+        if (peak <= 0) return 0;
+
+        int exponent = Math.Max(-16, (int)MathF.Floor(MathF.Log2(peak))) + 16;
+        var step = MathF.Pow(2, exponent - 24);
+        if ((int)MathF.Floor(peak / step + 0.5f) == 512)
+        {
+            step *= 2;
+            exponent++;
+        }
+        uint Mantissa(float v) => (uint)Math.Min(511, (int)MathF.Floor(v / step + 0.5f));
+        return Mantissa(c.X) | Mantissa(c.Y) << 9 | Mantissa(c.Z) << 18 | (uint)exponent << 27;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
@@ -56,10 +88,10 @@ public sealed class ModelRenderer : IDisposable
     private IBuffer? _noUniforms;
 
     // Sets of the model pass's own draws, one per combination of a base color texture, a normal
-    // map and a metallic-roughness map, by their views, with the frame each was last bound in. A
+    // map, a metallic-roughness map, an emissive map and an occlusion map, by their views, with the frame each was last bound in. A
     // set unbound for RetireFrames frames is freed, since no frame in flight can read it, so the
     // views of unloaded textures do not hold sets forever.
-    private readonly Dictionary<(IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
+    private readonly Dictionary<(IImageView, IImageView, IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
     private long _frames;
     private readonly List<IDescriptorSet> _lightSets = [];
     private int _lightSet;
@@ -126,6 +158,7 @@ public sealed class ModelRenderer : IDisposable
 
             var w = draw.World;
             var c = draw.Color;
+            var (metallicRoughness, normalOcclusion, emission) = PackMaterial(draw);
             var push = new Push
             {
                 Transform = w * draw.ViewProjection,
@@ -133,11 +166,9 @@ public sealed class ModelRenderer : IDisposable
                 WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
                 WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
                 PackedColor = c.R | (uint)c.G << 8 | (uint)c.B << 16 | (uint)c.A << 24,
-                Metallic = draw.Metallic,
-                Roughness = draw.Roughness,
-                // No map, no bending, which also keeps the shader from reading the white texture
-                // in its place as a normal.
-                NormalScale = draw.NormalMap == 0 ? 0 : draw.NormalScale,
+                MetallicRoughness = metallicRoughness,
+                NormalOcclusion = normalOcclusion,
+                Emission = emission,
             };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed(mesh.IndexCount);
@@ -232,10 +263,8 @@ public sealed class ModelRenderer : IDisposable
     // The set of a draw with the model pass's own shader, made once per combination of textures.
     private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
-        var color = textures.ViewFor(gfx, draw.Texture, srgb: true);
-        var normal = textures.ViewFor(gfx, draw.NormalMap);
-        var packed = textures.ViewFor(gfx, draw.MetallicRoughnessMap);
-        var key = (color.View, normal.View, packed.View);
+        var maps = Maps(gfx, textures, draw);
+        var key = (maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View);
         if (_materialSets.TryGetValue(key, out var known))
         {
             _materialSets[key] = known with { Used = _frames };
@@ -243,19 +272,27 @@ public sealed class ModelRenderer : IDisposable
         }
 
         var set = gfx.CreateDescriptorSet(MaterialLayout(gfx));
-        WriteMaterial(gfx, set, NoUniforms(gfx), color, normal, packed);
+        WriteMaterial(gfx, set, NoUniforms(gfx), maps);
         _materialSets[key] = (set, _frames);
         return set;
     }
 
-    // Binding 0's uniforms, and the three maps at bindings 1 to 3. One sampler per call is what
-    // the device's update takes, so the maps go in one call each.
-    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms,
-        (IImageView View, ISampler Sampler) color, (IImageView View, ISampler Sampler) normal, (IImageView View, ISampler Sampler) packed)
+    // A draw's five maps in binding order, the colors through views that decode sRGB.
+    private static (IImageView View, ISampler Sampler)[] Maps(IGraphicsDevice gfx, GpuTextures textures, in ModelDraw draw) =>
+    [
+        textures.ViewFor(gfx, draw.Texture, srgb: true),
+        textures.ViewFor(gfx, draw.NormalMap),
+        textures.ViewFor(gfx, draw.MetallicRoughnessMap),
+        textures.ViewFor(gfx, draw.EmissiveMap, srgb: true),
+        textures.ViewFor(gfx, draw.OcclusionMap),
+    ];
+
+    // Binding 0's uniforms, and the maps at bindings 1 to 5. One sampler per call is what the
+    // device's update takes, so the maps go in one call each.
+    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms, (IImageView View, ISampler Sampler)[] maps)
     {
-        gfx.UpdateDescriptorSet(set, uniforms, new CombinedImageSamplerBinding(color.View, color.Sampler, 1));
-        gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(normal.View, normal.Sampler, 2));
-        gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(packed.View, packed.Sampler, 3));
+        for (int i = 0; i < maps.Length; i++)
+            gfx.UpdateDescriptorSet(set, i == 0 ? uniforms : null, new CombinedImageSamplerBinding(maps[i].View, maps[i].Sampler, (uint)(i + 1)));
     }
 
     // Sixteen zero bytes for the uniforms binding of the model pass's own draws, which its shader
@@ -293,8 +330,7 @@ public sealed class ModelRenderer : IDisposable
         }
 
         if (uniforms is { } bound)
-            WriteMaterial(gfx, set, bound, textures.ViewFor(gfx, draw.Texture, srgb: true), textures.ViewFor(gfx, draw.NormalMap),
-                textures.ViewFor(gfx, draw.MetallicRoughnessMap));
+            WriteMaterial(gfx, set, bound, Maps(gfx, textures, draw));
         return set;
     }
 
@@ -314,7 +350,7 @@ public sealed class ModelRenderer : IDisposable
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
-            // The material's set, with uniforms at binding 0 and its three maps after, then the
+            // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [MaterialLayout(gfx), DefaultLayout(gfx)],
             DepthTestEnabled: true,
@@ -368,6 +404,8 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(5, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
     ]);
 
     private IDescriptorSetLayout DefaultLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(

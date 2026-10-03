@@ -55,6 +55,21 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// <summary>A map with roughness in green and metallic in blue, as glTF packs them. A default texture means none.</summary>
     public Texture2D MetallicRoughnessMap { get; set; }
 
+    /// <summary>The color of the light the surface gives off whatever lights it, black for none.</summary>
+    public Color Emissive { get; set; } = Color.Black;
+
+    /// <summary>How bright <see cref="Emissive"/> is, 1 for the color as it is and more for a light that blooms past white.</summary>
+    public float EmissiveIntensity { get; set; } = 1;
+
+    /// <summary>An sRGB map multiplying <see cref="Emissive"/>, as a screen's picture or a sign's letters. A default texture means none.</summary>
+    public Texture2D EmissiveMap { get; set; }
+
+    /// <summary>A map whose red darkens the light from all around in the surface's creases, as glTF has it. A default texture means none.</summary>
+    public Texture2D OcclusionMap { get; set; }
+
+    /// <summary>How strongly <see cref="OcclusionMap"/> darkens, from 0 to 1.</summary>
+    public float OcclusionStrength { get; set; } = 1;
+
     /// <summary>
     /// A shader that draws the mesh in place of the model pass's own, which imports
     /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
@@ -294,6 +309,11 @@ public static partial class Engine3D
                 NormalMap = TextureAt(material.NormalTexture),
                 NormalScale = material.NormalScale,
                 MetallicRoughnessMap = TextureAt(material.MetallicRoughnessTexture),
+                Emissive = Emissive(material.EmissiveFactor).Color,
+                EmissiveIntensity = Emissive(material.EmissiveFactor).Intensity,
+                EmissiveMap = TextureAt(material.EmissiveTexture),
+                OcclusionMap = TextureAt(material.OcclusionTexture),
+                OcclusionStrength = material.OcclusionStrength,
             });
             return materialIndex[material] = materials.Count - 1;
         }
@@ -477,12 +497,38 @@ public static partial class Engine3D
             shader, shader == 0 ? null : UniformSnapshot(material.Shader),
             material.Metallic, material.Roughness,
             material.NormalMap.IsValid ? material.NormalMap.Id : 0, material.NormalScale,
-            material.MetallicRoughnessMap.IsValid ? material.MetallicRoughnessMap.Id : 0));
+            material.MetallicRoughnessMap.IsValid ? material.MetallicRoughnessMap.Id : 0,
+            Linear(material.Emissive) * material.EmissiveIntensity,
+            material.EmissiveMap.IsValid ? material.EmissiveMap.Id : 0,
+            material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
+            material.OcclusionStrength));
     }
 
     /// <summary>Draws a box's edges.</summary>
     public static void DrawBoundingBox(BoundingBox box, Color color) =>
         DrawCubeWiresV((box.Min + box.Max) / 2, box.Max - box.Min, color);
+
+    // An sRGB color's light, which a draw's emission is given in.
+    private static Vector3 Linear(Color color)
+    {
+        static float Decode(byte value)
+        {
+            var c = value / 255f;
+            return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+        }
+        return new Vector3(Decode(color.R), Decode(color.G), Decode(color.B));
+    }
+
+    // A linear color as sRGB bytes and the intensity that takes it past 1, which a file's
+    // emission can need.
+    private static (Color Color, float Intensity) Emissive(Vector3 linear)
+    {
+        static byte Encode(float c) =>
+            (byte)MathF.Round(255 * (c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f));
+        var peak = MathF.Max(1, MathF.Max(linear.X, MathF.Max(linear.Y, linear.Z)));
+        var c = Vector3.Clamp(linear / peak, Vector3.Zero, Vector3.One);
+        return (new Color(Encode(c.X), Encode(c.Y), Encode(c.Z)), peak);
+    }
 
     private static Color Multiply(Color a, Color b) =>
         new((byte)(a.R * b.R / 255), (byte)(a.G * b.G / 255), (byte)(a.B * b.B / 255), (byte)(a.A * b.A / 255));

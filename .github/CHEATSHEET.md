@@ -306,8 +306,9 @@ A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a 
 a model with a skeleton has `Bones` and `BindPose`, which a `ModelAnimation` of the same file
 poses frame by frame. A
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
-mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, and a
-`MetallicRoughnessMap` as glTF packs one. Models are lit by one fixed light from above, unless
+mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap`
+as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
+`OcclusionMap` with its `OcclusionStrength`. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
 ## Audio

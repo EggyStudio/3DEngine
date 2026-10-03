@@ -76,11 +76,11 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Materials have no emission, occlusion or environment.** The model pass reflects up to 16
-  light entities by the material's metallic-roughness model, with its normal map, and tonemaps the
-  sum (RENDERING.md §3 and §4). Emissive color and occlusion maps are read from files and not
-  drawn, and there is no environment map, so a smooth metal reflects black where no light is
-  mirrored. A mesh entity is drawn through the first camera entity only, into the window only.
+- **Materials have no environment.** The model pass reflects up to 16 light entities by the
+  material's metallic-roughness model, with its normal, emissive and occlusion maps, and tonemaps
+  the sum (RENDERING.md §3 and §4). There is no environment map, so a smooth metal reflects black
+  where no light is mirrored. A mesh entity is drawn through the first camera entity only, into
+  the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
 - **One directional light casts a shadow, from one map.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The
@@ -134,7 +134,7 @@ prefabs (a scene file spawned as part of another), and an older file is read by 
 fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads. Of `SceneMaterialPayload`'s fields
-the model pass reads all but the emissive and occlusion ones.
+the model pass reads all but the alpha mode and the double-sided flag.
 
 ## Platform
 

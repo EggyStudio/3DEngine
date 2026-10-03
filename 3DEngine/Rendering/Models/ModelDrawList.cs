@@ -16,9 +16,13 @@ namespace Engine;
 /// <param name="NormalMap">The <see cref="TextureStore"/> id of a tangent-space normal map, or 0 for none.</param>
 /// <param name="NormalScale">How strongly the normal map bends the surface.</param>
 /// <param name="MetallicRoughnessMap">The <see cref="TextureStore"/> id of a map with roughness in green and metallic in blue, or 0 for none.</param>
+/// <param name="Emission">The light the surface gives off, linear, which may pass 1.</param>
+/// <param name="EmissiveMap">The <see cref="TextureStore"/> id of an sRGB map multiplying <paramref name="Emission"/>, or 0 for none.</param>
+/// <param name="OcclusionMap">The <see cref="TextureStore"/> id of a map whose red darkens the light from all around, or 0 for none.</param>
+/// <param name="OcclusionStrength">How strongly the occlusion map darkens, from 0 to 1.</param>
 public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
-    int MetallicRoughnessMap = 0);
+    int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1);
 
 /// <summary>
 /// The meshes recorded for the current frame by <c>DrawModel</c> and <c>DrawMesh</c>, drawn by
