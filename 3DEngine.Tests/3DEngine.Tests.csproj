@@ -27,7 +27,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="**\*.ogg" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Named by folder rather than as **\*.ogg, because an explicit glob skips the default
+             excludes and would pick up the copy in bin and nest it one level deeper each build. -->
+        <None Include="Platform\Audio\*.ogg" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
