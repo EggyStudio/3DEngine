@@ -72,7 +72,7 @@ public static partial class Engine3D
         return new Image(data, width, height);
     }
 
-    /// <summary>Makes a checkerboard of <paramref name="checksX"/> by <paramref name="checksY"/> squares.</summary>
+    /// <summary>Makes a checkerboard of squares <paramref name="checksX"/> by <paramref name="checksY"/> pixels.</summary>
     public static Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second)
     {
         var data = new byte[width * height * 4];

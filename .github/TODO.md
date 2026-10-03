@@ -57,8 +57,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   is not played, and models are lit by one fixed light. A mesh cannot be changed after upload,
   and raylib's `GenMeshHeightmap` and `GenMeshCubicmap`, which build terrain from an image, are
   not written.
-- **Textures have no mipmaps**, so a texture drawn much smaller than its size shimmers, and an
-  image cannot be edited in place (raylib's `ImageDraw*`, `ImageResize` and the rest).
+- **Textures have no mipmaps**, so a texture drawn much smaller than its size shimmers. Images
+  are edited on the CPU (resize, flip, colors, shapes, `ImageDraw`), but text cannot be drawn
+  into an image (`ImageDrawText`), and Perlin and cellular noise are not generated.
 - **Fonts bake Latin-1 only**, at one size each, with no signed distance fields, so text far
   larger than its bake blurs. Characters outside Latin-1 are skipped.
 - **Monitors** have no functions, and render targets have no multisampling and no depth to sample.

@@ -122,9 +122,42 @@ void DrawGrid(int slices, float spacing);                                       
 ```csharp
 Image LoadImage(string fileName);                                                      // Read PNG, JPEG, BMP, TGA, PSD, GIF or HDR into memory
 Image GenImageColor(int width, int height, Color color);                               // An image of one color
-Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard
+Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard of checksX by checksY pixel squares
+Image GenImageGradientLinear(int width, int height, int direction, Color start, Color end); // A blend along a direction (0 top to bottom, 90 left to right)
+Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer); // A blend from the center outward
+Image GenImageWhiteNoise(int width, int height, float factor);                         // White pixels with the chance factor, the rest black
+Image ImageCopy(Image image);                                                          // A copy with pixels of its own
+Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
+bool ExportImage(Image image, string fileName);                                        // Write a PNG file
 void UnloadImage(Image image);                                                         // Nothing (images are managed memory)
+
+void ImageCrop(ref Image image, Rectangle rec);                                        // Keep part of an image
+void ImageResize(ref Image image, int newWidth, int newHeight);                        // Scale, blending pixels
+void ImageResizeNN(ref Image image, int newWidth, int newHeight);                      // Scale by the nearest pixel
+void ImageResizeCanvas(ref Image image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill); // Change the size without scaling
+void ImageFlipVertical(ref Image image);                                               // Upside down
+void ImageFlipHorizontal(ref Image image);                                             // Mirrored
+void ImageRotateCW(ref Image image);                                                   // A quarter turn clockwise
+void ImageRotateCCW(ref Image image);                                                  // A quarter turn counterclockwise
+void ImageColorTint(ref Image image, Color color);                                     // Multiply every pixel
+void ImageColorInvert(ref Image image);                                                // Invert red, green and blue
+void ImageColorGrayscale(ref Image image);                                             // Gray by brightness
+void ImageColorContrast(ref Image image, float contrast);                              // -100 to 100
+void ImageColorBrightness(ref Image image, int brightness);                            // -255 to 255
+void ImageColorReplace(ref Image image, Color color, Color replace);                   // Swap one exact color
+
+void ImageClearBackground(ref Image image, Color color);                               // Fill the whole image
+void ImageDrawPixel(ref Image image, int x, int y, Color color);                       // One pixel
+void ImageDrawPixelV(ref Image image, Vector2 position, Color color);                  // One pixel
+void ImageDrawLine(ref Image image, int startX, int startY, int endX, int endY, Color color); // A line
+void ImageDrawLineV(ref Image image, Vector2 start, Vector2 end, Color color);          // A line
+void ImageDrawCircle(ref Image image, int centerX, int centerY, int radius, Color color);      // A filled circle
+void ImageDrawCircleLines(ref Image image, int centerX, int centerY, int radius, Color color); // A circle's outline
+void ImageDrawRectangle(ref Image image, int x, int y, int width, int height, Color color);    // A filled rectangle
+void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
+void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline
+void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint); // Part of an image into another, blended
 
 Texture2D LoadTexture(string fileName);                                                // Read an image file into a texture
 Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture
@@ -140,6 +173,11 @@ void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color
 void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint); // Part of a texture into a rectangle, rotated around origin
 void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint);       // Texture in 3D, facing the camera
 ```
+
+An `Image` is RGBA bytes in memory. The `Image*` functions change the image passed by `ref`, as
+raylib's take a pointer: shapes replace the pixels they cover, alpha included, and `ImageDraw`
+blends by the source's alpha. A changed image reaches the screen through `LoadTextureFromImage`
+or `UpdateTexture`.
 
 A file name is looked for as given, then beside the program, then under `source/` beside it. A file
 that cannot be read gives an invalid image or texture and a warning in the log, and drawing an

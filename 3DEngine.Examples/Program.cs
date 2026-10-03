@@ -12,6 +12,7 @@ var examples = new Dictionary<string, Action>
     ["shapes_basic_3d"] = ShapesBasic3D.Run,
     ["textures_basic"] = TexturesBasic.Run,
     ["textures_render_target"] = TexturesRenderTarget.Run,
+    ["textures_image_drawing"] = TexturesImageDrawing.Run,
     ["models_loading"] = ModelsLoading.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
