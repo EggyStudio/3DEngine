@@ -90,4 +90,44 @@ public class SlangCompilerTests : IDisposable
             program.Stages.Keys.Should().BeEquivalentTo([ShaderStage.Vertex, ShaderStage.Fragment], file);
         }
     }
+
+    [Fact]
+    public void A_Cache_Key_Follows_Imports_With_Forward_Slashes_And_Counts_Missing_Ones()
+    {
+        var folder = Directory.CreateDirectory(Path.Combine(_cache, "imports")).FullName;
+        Directory.CreateDirectory(Path.Combine(folder, "lights"));
+        File.WriteAllText(Path.Combine(folder, "engine.slang"), "module engine;");
+        File.WriteAllText(Path.Combine(folder, "lights", "point-light.slang"), "import engine;\n#include \"common.slang\"");
+        File.WriteAllText(Path.Combine(folder, "unrelated.slang"), "module unrelated;");
+
+        var files = SlangCompiler.ImportedFiles("import lights.point_light;\nimport engine;", folder).Select(f => (f.Path, f.Bytes is not null));
+
+        files.Should().Equal(("lights/point-light.slang", true), ("engine.slang", true), ("?common.slang", false));
+    }
+
+    [NeedsSlangFact]
+    public void A_Shipped_Cache_Still_Serves_After_A_Shader_Of_Its_Own_Is_Added_Beside_It()
+    {
+        // A copy of the built-in shaders, compiled into a cache as build/pack.sh does.
+        var shaders = Directory.CreateDirectory(Path.Combine(_cache, "shaders")).FullName;
+        foreach (var file in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "source", "shaders"), "*.slang"))
+            File.Copy(file, Path.Combine(shaders, Path.GetFileName(file)));
+        var cache = Path.Combine(_cache, "cache");
+        SlangLoader.Precompile(shaders, cache);
+
+        // A game adds a shader of its own to the same folder.
+        File.WriteAllText(Path.Combine(shaders, "mine.slang"), "import engine;\n[shader(\"fragment\")] float4 fragmentMain() : SV_Target { return 1; }");
+
+        var model = File.ReadAllText(Path.Combine(shaders, "model.slang"));
+        var immediate = File.ReadAllText(Path.Combine(shaders, "immediate.slang"));
+        var load = () => SlangCompiler.Compile(model, "model.slang", "vertexMain", ShaderStage.Vertex, cache, shaders, compiler: null);
+        load.Should().NotThrow("model.slang imports nothing the game's shader changed");
+        SlangCompiler.Compile(immediate, "immediate.slang", "fragmentMain", ShaderStage.Fragment, cache, shaders, compiler: null)
+            .Take(4).Should().Equal(SpirvMagic);
+
+        // What a shader imports does change its key.
+        File.AppendAllText(Path.Combine(shaders, "engine.slang"), "\n// changed\n");
+        var stale = () => SlangCompiler.Compile(immediate, "immediate.slang", "fragmentMain", ShaderStage.Fragment, cache, shaders, compiler: null);
+        stale.Should().Throw<InvalidOperationException>().WithMessage("*not in the shader cache*");
+    }
 }

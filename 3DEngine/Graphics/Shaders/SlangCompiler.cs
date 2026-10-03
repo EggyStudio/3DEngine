@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Engine;
 
@@ -21,13 +22,15 @@ namespace Engine;
 /// working directory, so an example run from the repository finds the checkout's copy.
 /// </para>
 /// <para>
-/// A cache entry is keyed by a hash of the source, the entry point, the stage, every
-/// <c>.slang</c> file in the import directory and the compiler arguments. Hashing the whole
-/// import directory invalidates more than an exact import graph would, and it needs no parse of
-/// the source to find what it imports.
+/// A cache entry is keyed by a hash of the source, the entry point, the stage, the compiler
+/// arguments, and every file the source imports or includes from the import directory, followed
+/// through their own imports, each with its path written with forward slashes. Keying by what is
+/// imported rather than by the whole folder lets a shipped cache serve a program that adds shaders
+/// of its own beside the built-in ones, and the slashes let a cache made on one system serve
+/// another.
 /// </para>
 /// </remarks>
-public static class SlangCompiler
+public static partial class SlangCompiler
 {
     private static readonly ILogger Logger = Log.Category("Engine.Slang");
 
@@ -150,18 +153,66 @@ public static class SlangCompiler
         hash.AppendData(Encoding.UTF8.GetBytes($"{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
-        if (importDirectory is not null && Directory.Exists(importDirectory))
+        foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
         {
-            foreach (var file in Directory.GetFiles(importDirectory, "*.slang", SearchOption.AllDirectories)
-                         .Order(StringComparer.Ordinal))
-            {
-                hash.AppendData(Encoding.UTF8.GetBytes(Path.GetRelativePath(importDirectory, file)));
-                hash.AppendData(File.ReadAllBytes(file));
-            }
+            hash.AppendData(Encoding.UTF8.GetBytes(path));
+            hash.AppendData(bytes ?? []);
         }
 
         return Convert.ToHexString(hash.GetHashAndReset(), 0, 8).ToLowerInvariant();
     }
+
+    /// <summary>
+    /// Every file <paramref name="source"/> imports or includes from <paramref name="importDirectory"/>,
+    /// followed through their own imports, each once, in the order they are first reached: its path
+    /// from the directory with forward slashes, and its bytes, or <c>null</c> for one not found there,
+    /// whose name still counts.
+    /// </summary>
+    internal static IEnumerable<(string Path, byte[]? Bytes)> ImportedFiles(string source, string? importDirectory)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var pending = new Queue<string>(ImportedNames(source));
+        while (pending.TryDequeue(out var name))
+        {
+            var found = importDirectory is null ? null : Resolve(importDirectory, name);
+            var path = found is null ? "?" + name : Path.GetRelativePath(importDirectory!, found).Replace('\\', '/');
+            if (!seen.Add(path)) continue;
+            if (found is null)
+            {
+                yield return (path, null);
+                continue;
+            }
+
+            var bytes = File.ReadAllBytes(found);
+            yield return (path, bytes);
+            foreach (var next in ImportedNames(Encoding.UTF8.GetString(bytes)))
+                pending.Enqueue(next);
+        }
+    }
+
+    // The names in `import module.name;`, `import "file.slang";` and `#include "file.slang"`, the
+    // module names as the relative paths Slang looks for them at.
+    private static IEnumerable<string> ImportedNames(string source)
+    {
+        foreach (Match match in ImportPattern().Matches(source))
+            yield return match.Groups["module"].Success
+                ? match.Groups["module"].Value.Replace('.', '/') + ".slang"
+                : match.Groups["file"].Value;
+    }
+
+    // Slang writes an underscore in a module's name as a dash in its file's, and accepts either.
+    private static string? Resolve(string importDirectory, string name)
+    {
+        foreach (var candidate in new[] { name, name.Replace('_', '-') })
+        {
+            var full = Path.GetFullPath(Path.Combine(importDirectory, candidate));
+            if (File.Exists(full)) return full;
+        }
+        return null;
+    }
+
+    [GeneratedRegex("""^\s*(?:import\s+(?:(?<module>[\w.]+)|"(?<file>[^"]+)")\s*;|#include\s+"(?<file>[^"]+)")""", RegexOptions.Multiline)]
+    private static partial Regex ImportPattern();
 
     private static string StageName(ShaderStage stage) => stage switch
     {

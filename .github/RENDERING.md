@@ -38,8 +38,11 @@ vector)` the meaning `matrix * vector` has in GLSL over the same bytes, so the e
 `System.Numerics` matrices unchanged.
 
 Each result is cached in `source/.slang-cache` beside the running program, keyed by a hash of the
-source, the entry point, the arguments and every `.slang` file in the import directory. A machine
-without `slangc` reads the cache, and an entry whose sources have changed is never used.
+source, the entry point, the arguments, and every file it imports or includes from the import
+directory, followed through their imports, with paths written with forward slashes. A machine
+without `slangc` reads the cache, an entry whose sources have changed is never used, and a shader
+added beside the others leaves their entries valid. `e3d shaders <folder> <cache>` fills a cache
+ahead of time, which is how `build/pack.sh` ships the built-in shaders compiled.
 
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then
@@ -54,8 +57,6 @@ second set of files. What is not built:
 - **Reflection.** Descriptor layouts and vertex inputs are written by hand beside each pipeline.
   `slangc -reflection-json` reports them, and reading it would let a shader declare its own.
 - **Compute.** Only the vertex and fragment stages are compiled.
-- **Shipping the cache.** The cache is written beside the program that compiled it, and nothing
-  copies it into a published build yet.
 
 ## 2. The immediate pass
 
