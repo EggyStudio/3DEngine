@@ -1,0 +1,506 @@
+using System.Numerics;
+
+namespace Engine;
+
+/// <summary>
+/// Translates a backend-agnostic <see cref="Scene"/> snapshot into ECS entities and
+/// components. Encapsulates the spawn-time policy described on
+/// <see cref="Scene"/>: apply the scene's basis change + unit scale once at the root,
+/// recurse with parent-multiplied world matrices, and turn payload bags into runtime
+/// components (mesh / material / camera).
+/// </summary>
+/// <remarks>
+/// <para>
+/// <b>Why a class, not a system:</b> spawning is request-driven (load asset, then spawn
+/// once). Wrapping the algorithm in a synchronous helper keeps it usable from anywhere -
+/// startup behaviors, editor UI, tests - while <see cref="SceneSpawnSystem"/> is a thin
+/// driver that just polls for <see cref="SpawnSceneRequest"/> intent components and calls
+/// the spawner when their <see cref="Handle{T}"/> resolves.
+/// </para>
+/// <para>
+/// <b>Coordinate / unit policy:</b> per <see cref="Scene"/>, the reader preserves the
+/// source basis &amp; units verbatim and the spawner applies a single root-level
+/// basis-change matrix. <see cref="ComputeRootMatrix"/> derives that matrix from the
+/// scene's <see cref="Scene.SourceCoordinateSystem"/> and
+/// <see cref="Scene.SourceMetersPerUnit"/>. Z-up &#x2192; Y-up is a -90&#xB0; rotation
+/// around the X axis (mapping <c>(x,y,z)</c> to <c>(x, z, -y)</c>); units convert by
+/// uniform scale of <c>sourceMetersPerUnit / targetMetersPerUnit</c>.
+/// </para>
+/// <para>
+/// <b>v1 mesh contract:</b> the runtime <see cref="Mesh"/> still consumes a flat
+/// <see cref="Vector3"/> array; the spawner de-indexes
+/// <see cref="SceneMeshPayload.Indices"/> into a flat positions array of size
+/// <c>Indices.Length</c> at spawn time, matching the documented v1 contract on
+/// <see cref="SceneMeshPayload"/>. Richer fields (normals / UVs / tangents) ride along on
+/// the payload for the future renderer-side upgrade.
+/// </para>
+/// </remarks>
+public static class SceneSpawner
+{
+    private static readonly ILogger Logger = Log.Category("Engine.Scenes");
+
+    /// <summary>
+    /// Spawns <paramref name="scene"/> into <paramref name="ecs"/>, returning the IDs of
+    /// every entity created. The order matches a depth-first traversal of
+    /// <see cref="Scene.Roots"/>.
+    /// </summary>
+    /// <param name="ecs">Target ECS world.</param>
+    /// <param name="scene">Source snapshot. Not mutated.</param>
+    /// <param name="settings">Spawn-time policy (purpose mask, defaults). May be <c>null</c>; <see cref="SceneSpawnSettings.Default"/> is used.</param>
+    /// <param name="sceneAssetId">Optional source asset id, copied into <see cref="SceneInstance.SceneAssetId"/> on every spawned entity.</param>
+    /// <param name="assetServer">
+    /// When non-null, texture references on <see cref="SceneMaterialPayload"/> are
+    /// resolved against the asset server (using <see cref="TextureLoadExtensions"/>'
+    /// sRGB / linear / mips conventions) and the resulting handles populate the
+    /// <see cref="Material"/> texture slots. <c>null</c> (legacy / test path) skips
+    /// texture loads and fires the once-per-process "textures ignored" warning.
+    /// </param>
+    /// <param name="sceneSourcePath">
+    /// Resolved <see cref="SceneAsset.SourcePath"/> of the source file
+    /// (e.g. <c>"models/hero.glb"</c>). Used as the directory root for any relative
+    /// texture paths in the scene's material payloads. <c>null</c> = no prefix.
+    /// </param>
+    /// <param name="materialLibrary">
+    /// Optional <see cref="MaterialLibrary"/> used to register every spawned
+    /// <see cref="SceneMaterialPayload"/> as a <see cref="MaterialDescription"/>. The
+    /// returned <see cref="MaterialHandle"/> is stored on <see cref="Material.Handle"/>
+    /// so the renderer can key per-material pipelines, descriptor sets and uniform buffers by it. <c>null</c> leaves the handle as
+    /// <see cref="MaterialHandle"/> default; the renderer then falls back to the
+    /// shared static-white pipeline.
+    /// </param>
+    /// <returns>The list of spawned entity IDs (depth-first order). Empty when nothing matched the filters.</returns>
+    public static List<int> Spawn(
+        EcsWorld ecs,
+        Scene scene,
+        SceneSpawnSettings? settings = null,
+        ulong sceneAssetId = 0,
+        AssetServer? assetServer = null,
+        string? sceneSourcePath = null,
+        MaterialLibrary? materialLibrary = null)
+    {
+        ArgumentNullException.ThrowIfNull(ecs);
+        ArgumentNullException.ThrowIfNull(scene);
+        settings ??= SceneSpawnSettings.Default;
+
+        var entities = new List<int>();
+        var rootMatrix = ComputeRootMatrix(scene, settings);
+        var ctx = new SpawnContext(assetServer, sceneSourcePath, materialLibrary);
+
+        foreach (var node in scene.Roots)
+            SpawnRecursive(ecs, node, rootMatrix, settings, sceneAssetId, entities, ctx);
+
+        Logger.Debug($"SceneSpawner: spawned {entities.Count} entit{(entities.Count == 1 ? "y" : "ies")} from scene '{scene.Name}'.");
+        return entities;
+    }
+
+    private readonly struct SpawnContext
+    {
+        public AssetServer? Server { get; }
+        public string? SceneDirectory { get; }
+        public MaterialLibrary? Materials { get; }
+        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials)
+        {
+            Server = server;
+            SceneDirectory = ResolveSceneDirectory(sceneSourcePath);
+            Materials = materials;
+        }
+
+        private static string? ResolveSceneDirectory(string? sceneSourcePath)
+        {
+            if (string.IsNullOrEmpty(sceneSourcePath)) return null;
+            // SceneAsset.SourcePath is normalised to "/"; pull the directory portion
+            // (forward-slash). System.IO.Path's behaviour matches both separators.
+            var normalised = sceneSourcePath.Replace('\\', '/');
+            int slash = normalised.LastIndexOf('/');
+            return slash <= 0 ? string.Empty : normalised[..slash];
+        }
+    }
+
+    /// <summary>
+    /// Computes the root-level world matrix that bakes the scene's source basis
+    /// (<see cref="SceneCoordinateSystem"/>) and unit scale into a single transform.
+    /// Exposed for testing and for callers that want to position a spawned scene
+    /// (compose with their own placement matrix before passing in).
+    /// </summary>
+    public static Matrix4x4 ComputeRootMatrix(Scene scene, SceneSpawnSettings settings)
+    {
+        // Unit conversion: source mpu = N means "1 source unit is N meters". Scaling by
+        // (sourceMpu / targetMpu) converts the vertex data to target units.
+        var unitScale = (float)(scene.SourceMetersPerUnit / Math.Max(settings.TargetMetersPerUnit, 1e-9));
+        var scale = Matrix4x4.CreateScale(unitScale);
+
+        // Basis change: if the source is Z-up and the target is Y-up, rotate -90deg around
+        // the X axis so the source +Z aligns with target +Y. Same-basis is identity.
+        var basis = Matrix4x4.Identity;
+        if (scene.SourceCoordinateSystem == SceneCoordinateSystem.ZUp &&
+            settings.TargetCoordinateSystem == SceneCoordinateSystem.YUp)
+        {
+            basis = Matrix4x4.CreateRotationX(-MathF.PI / 2f);
+        }
+
+        // Composition: child = local * scale * basis * placement
+        // (rightmost gets applied last in System.Numerics' row-vector convention).
+        return scale * basis * settings.Placement;
+    }
+
+    private static void SpawnRecursive(
+        EcsWorld ecs,
+        SceneNode node,
+        Matrix4x4 parentWorld,
+        SceneSpawnSettings settings,
+        ulong sceneAssetId,
+        List<int> entities,
+        SpawnContext ctx)
+    {
+        var localMatrix = ComposeLocalMatrix(node.LocalTransform);
+        var worldMatrix = localMatrix * parentWorld;
+
+        bool include = node.Enabled
+                       && settings.IncludePurposes.HasFlag(PurposeFlag(node.Purpose));
+
+        if (include && HasSpawnablePayload(node))
+        {
+            var entity = ecs.Spawn();
+            entities.Add(entity);
+
+            ecs.Add(entity, DecomposeToTransform(worldMatrix));
+
+            if (settings.AttachSceneInstanceMarker)
+            {
+                ecs.Add(entity, new SceneInstance
+                {
+                    SceneAssetId = sceneAssetId,
+                    SourcePath = node.SourcePath,
+                });
+            }
+
+            AttachComponents(ecs, entity, node, settings, ctx);
+        }
+
+        foreach (var child in node.Children)
+            SpawnRecursive(ecs, child, worldMatrix, settings, sceneAssetId, entities, ctx);
+    }
+
+    private static bool HasSpawnablePayload(SceneNode node)
+    {
+        // A node without any payload is a hierarchy-only group; the v1 spawner doesn't
+        // create empty entities for it. (The accumulated transform is still composed for
+        // descendants via parentWorld - we just don't allocate a slot.)
+        foreach (var c in node.Components)
+            if (c is SceneMeshPayload or SceneCameraPayload or SceneLightPayload or SceneMaterialPayload)
+                return true;
+        return false;
+    }
+
+    private static void AttachComponents(EcsWorld ecs, int entity, SceneNode node, SceneSpawnSettings settings, SpawnContext ctx)
+    {
+        SceneMeshPayload? mesh = null;
+        SceneMaterialPayload? material = null;
+        SceneCameraPayload? camera = null;
+        SceneLightPayload? light = null;
+
+        foreach (var c in node.Components)
+        {
+            switch (c)
+            {
+                case SceneMeshPayload m: mesh ??= m; break;
+                case SceneMaterialPayload mat: material ??= mat; break;
+                case SceneCameraPayload cam: camera ??= cam; break;
+                case SceneLightPayload l: light ??= l; break;
+            }
+        }
+
+        if (light is not null)
+        {
+            // Hand the payload off to ECS verbatim. The Engine.Lighting LightSpawnSystem
+            // (Stage.PreUpdate, after this system) translates it into a runtime Light
+            // (+ optional LightShadow / LightShaping) and removes the payload component.
+            // Keeping the translation out of Engine.Scenes preserves the layering: Scenes
+            // doesn't depend on Lighting; Lighting depends on Scenes for the payload type.
+            ecs.Add(entity, light);
+        }
+
+        if (mesh is not null)
+        {
+            // v1 contract: de-index into a flat positions array (one entry per index).
+            // Future renderer upgrades can read the indexed data via SceneMeshPayload
+            // directly (carried losslessly through SceneInstance lookup).
+            var positions = new Vector3[mesh.Indices.Length];
+            for (int i = 0; i < mesh.Indices.Length; i++)
+                positions[i] = mesh.Positions[mesh.Indices[i]];
+            ecs.Add(entity, new Mesh(positions));
+
+            // Material: explicit payload wins; otherwise apply the configured default
+            // so the renderer sees a fully-formed (Mesh, Material) pair.
+            var runtimeMaterial = BuildRuntimeMaterial(material, settings, ctx);
+            ecs.Add(entity, runtimeMaterial);
+
+            // Per-mesh diagnostic: vertex/tri count, source-space AABB and the final
+            // world-space transform position the spawner produced. One pass over
+            // the freshly-built positions array - reveals scale / off-screen /
+            // degenerate-bounds issues immediately without a debugger.
+            LogMeshDiagnostics(node, entity, positions, runtimeMaterial.Albedo);
+
+            // When no AssetServer was supplied, texture refs lose information silently;
+            // surface that exactly once so the gap is visible without log spam.
+            if (material is not null && ctx.Server is null)
+                WarnIfTexturesIgnoredOnce(material);
+        }
+
+        if (camera is not null)
+        {
+            // SceneCameraPayload holds physical aperture/focal length; the runtime
+            // Camera takes radians directly. VerticalFovRadians does the math (or
+            // returns 0 for orthographic, which the runtime camera doesn't model yet).
+            float fovRad = camera.VerticalFovRadians;
+            if (fovRad <= 0f) fovRad = Single.DegreesToRadians(60f); // ortho fallback
+            ecs.Add(entity, new Camera
+            {
+                FovY = fovRad,
+                Near = camera.NearClip,
+                Far = camera.FarClip,
+                TargetName = null,
+            });
+        }
+    }
+
+    /// <summary>
+    /// Builds a runtime <see cref="Material"/> from <paramref name="material"/>'s PBR
+    /// factors and resolves any <see cref="SceneTextureRef"/>s into
+    /// <see cref="Handle{T}"/>s via <paramref name="ctx"/>'s <see cref="AssetServer"/>.
+    /// </summary>
+    private static Material BuildRuntimeMaterial(SceneMaterialPayload? material, SceneSpawnSettings settings, SpawnContext ctx)
+    {
+        if (material is null)
+            return new Material(settings.DefaultAlbedo);
+
+        var runtime = new Material(material.BaseColorFactor)
+        {
+            MetallicFactor = material.MetallicFactor,
+            RoughnessFactor = material.RoughnessFactor,
+            EmissiveFactor = material.EmissiveFactor,
+            NormalScale = material.NormalScale,
+            OcclusionStrength = material.OcclusionStrength,
+        };
+
+        // Register the payload with the central MaterialLibrary so the renderer
+        // can key per-material GPU resources (pipelines,
+        // descriptor sets, uniform buffers) by a stable handle. Falls back to a
+        // default handle when no library was supplied (test / legacy paths).
+        if (ctx.Materials is not null)
+            runtime.Handle = ctx.Materials.CreateOrGet(ToDescription(material));
+
+        if (ctx.Server is null) return runtime;
+
+        // sRGB textures: BaseColor + Emissive (per glTF / USD convention).
+        // Linear textures: MetallicRoughness, Normal, Occlusion.
+        runtime.BaseColorTexture           = LoadTexture(ctx, material.BaseColorTexture, srgb: true);
+        runtime.EmissiveTexture            = LoadTexture(ctx, material.EmissiveTexture, srgb: true);
+        runtime.MetallicRoughnessTexture   = LoadTexture(ctx, material.MetallicRoughnessTexture, srgb: false);
+        runtime.NormalTexture              = LoadTexture(ctx, material.NormalTexture, srgb: false);
+        runtime.OcclusionTexture           = LoadTexture(ctx, material.OcclusionTexture, srgb: false);
+        return runtime;
+    }
+
+    /// <summary>
+    /// Projects a <see cref="SceneMaterialPayload"/> onto the engine-neutral
+    /// <see cref="MaterialDescription"/> shape consumed by <see cref="MaterialLibrary"/>.
+    /// Texture references and the alpha-mode enum are translated 1:1; texture wrap
+    /// modes share an enum order with <see cref="TextureWrapMode"/>.
+    /// </summary>
+    internal static MaterialDescription ToDescription(SceneMaterialPayload p) => new()
+    {
+        Name = p.Name,
+        SourcePath = p.SourcePath,
+        BaseColorFactor = p.BaseColorFactor,
+        BaseColorTexture = ToMaterialTextureRef(p.BaseColorTexture),
+        MetallicFactor = p.MetallicFactor,
+        RoughnessFactor = p.RoughnessFactor,
+        MetallicRoughnessTexture = ToMaterialTextureRef(p.MetallicRoughnessTexture),
+        NormalTexture = ToMaterialTextureRef(p.NormalTexture),
+        NormalScale = p.NormalScale,
+        EmissiveFactor = p.EmissiveFactor,
+        EmissiveTexture = ToMaterialTextureRef(p.EmissiveTexture),
+        OcclusionTexture = ToMaterialTextureRef(p.OcclusionTexture),
+        OcclusionStrength = p.OcclusionStrength,
+        AlphaMode = (MaterialAlphaMode)(byte)p.AlphaMode,
+        AlphaCutoff = p.AlphaCutoff,
+        DoubleSided = p.DoubleSided,
+    };
+
+    private static MaterialTextureRef? ToMaterialTextureRef(SceneTextureRef? r) => r is null
+        ? null
+        : new MaterialTextureRef(r.AssetPath, r.UvSet, (TextureWrapMode)(byte)r.WrapS, (TextureWrapMode)(byte)r.WrapT);
+
+    private static Handle<Texture> LoadTexture(SpawnContext ctx, SceneTextureRef? texRef, bool srgb)
+    {
+        if (texRef is null || ctx.Server is null) return Handle<Texture>.Invalid;
+        var resolved = ResolveTexturePath(ctx.SceneDirectory, texRef.AssetPath);
+        if (string.IsNullOrEmpty(resolved)) return Handle<Texture>.Invalid;
+
+        return srgb
+            ? ctx.Server.LoadTextureSrgb(resolved, generateMips: true)
+            : ctx.Server.LoadTextureLinear(resolved, generateMips: true);
+    }
+
+    /// <summary>
+    /// Resolves a texture's <see cref="SceneTextureRef.AssetPath"/> against the directory
+    /// of the source scene file. Already-rooted paths (no dot-segments, contains a slash
+    /// at index 0, or starts with the scene directory) and synthetic in-memory paths
+    /// (matching <c>__embedded__</c>) are returned verbatim.
+    /// </summary>
+    public static string ResolveTexturePath(string? sceneDirectory, string texturePath)
+    {
+        if (string.IsNullOrEmpty(texturePath)) return string.Empty;
+
+        var t = texturePath.Replace('\\', '/');
+        // Already absolute-ish or in-memory synthetic path: leave untouched.
+        if (t.StartsWith('/') || t.Contains("__embedded__/", StringComparison.Ordinal))
+            return t.TrimStart('/');
+
+        if (string.IsNullOrEmpty(sceneDirectory)) return t;
+
+        var dir = sceneDirectory.Replace('\\', '/').TrimEnd('/');
+        return string.IsNullOrEmpty(dir) ? t : $"{dir}/{t}";
+    }
+
+    private static Matrix4x4 ComposeLocalMatrix(in Transform t)
+    {
+        return Matrix4x4.CreateScale(t.Scale)
+               * Matrix4x4.CreateFromQuaternion(t.Rotation)
+               * Matrix4x4.CreateTranslation(t.Position);
+    }
+
+    private static Transform DecomposeToTransform(in Matrix4x4 m)
+    {
+        if (Matrix4x4.Decompose(m, out var scale, out var rotation, out var translation))
+            return new Transform { Position = translation, Rotation = rotation, Scale = scale };
+
+        // Degenerate (zero-scale axis or shear): fall back to translation-only so the
+        // entity still ends up roughly in place rather than dropping silently.
+        return new Transform
+        {
+            Position = new Vector3(m.M41, m.M42, m.M43),
+            Rotation = Quaternion.Identity,
+            Scale = Vector3.One,
+        };
+    }
+
+    private static ScenePurposeMask PurposeFlag(ScenePurpose p) => p switch
+    {
+        ScenePurpose.Render => ScenePurposeMask.Render,
+        ScenePurpose.Proxy  => ScenePurposeMask.Proxy,
+        ScenePurpose.Guide  => ScenePurposeMask.Guide,
+        _                   => ScenePurposeMask.Default,
+    };
+
+    // Per-mesh diagnostic emitted by AttachComponents. Computes a quick local-space
+    // AABB so anyone reading the log can spot the two top failure modes for "scene
+    // loaded but nothing on screen": empty geometry, or geometry whose center/scale
+    // puts it outside the camera frustum.
+    private static void LogMeshDiagnostics(SceneNode node, int entity, Vector3[] positions, Vector4 albedo)
+    {
+        if (positions.Length == 0)
+        {
+            Logger.Warn($"SceneSpawner:   entity {entity} '{node.SourcePath}' - 0 vertices (mesh skipped at render time).");
+            return;
+        }
+
+        var min = positions[0];
+        var max = positions[0];
+        for (int i = 1; i < positions.Length; i++)
+        {
+            min = Vector3.Min(min, positions[i]);
+            max = Vector3.Max(max, positions[i]);
+        }
+        var size = max - min;
+        var center = (max + min) * 0.5f;
+
+        Logger.Debug(
+            $"SceneSpawner:   entity {entity} '{node.SourcePath}' - " +
+            $"verts={positions.Length}, tris={positions.Length / 3}, " +
+            $"localAabb=[({min.X:0.##},{min.Y:0.##},{min.Z:0.##})..({max.X:0.##},{max.Y:0.##},{max.Z:0.##})] " +
+            $"size=({size.X:0.##},{size.Y:0.##},{size.Z:0.##}) center=({center.X:0.##},{center.Y:0.##},{center.Z:0.##}), " +
+            $"albedo=({albedo.X:0.##},{albedo.Y:0.##},{albedo.Z:0.##},{albedo.W:0.##}).");
+    }
+
+    // Process-wide dedup flag for the "textures ignored" warning. The runtime Material
+    // is Albedo-only today, so any SceneMaterialPayload with non-null texture refs loses
+    // information at spawn time. Surface the gap exactly once so it's visible in logs
+    // without flooding (a complex scene can bind hundreds of textured materials).
+    private static int s_textureWarningEmitted;
+
+    private static void WarnIfTexturesIgnoredOnce(SceneMaterialPayload mat)
+    {
+        if (mat.BaseColorTexture is null
+            && mat.MetallicRoughnessTexture is null
+            && mat.NormalTexture is null
+            && mat.EmissiveTexture is null
+            && mat.OcclusionTexture is null) return;
+
+        if (System.Threading.Interlocked.CompareExchange(ref s_textureWarningEmitted, 1, 0) != 0)
+            return;
+
+        Logger.Warn(
+            $"SceneSpawner: material '{mat.SourcePath}' carries texture references " +
+            "(BaseColor / MR / Normal / Emissive / Occlusion) but the runtime Material " +
+            "component is currently Albedo-only; PBR upgrade is a follow-up ticket. " +
+            "(This warning is emitted once per process.)");
+    }
+
+    /// <summary>
+    /// Test hook: resets the once-per-process "textures ignored" warning latch so unit
+    /// tests can assert the dedupe behavior deterministically. Production code never
+    /// calls this.
+    /// </summary>
+    internal static void ResetTextureWarningForTest()
+        => System.Threading.Interlocked.Exchange(ref s_textureWarningEmitted, 0);
+
+    /// <summary>Test hook: <c>true</c> once the dedupe latch has fired.</summary>
+    internal static bool TextureWarningEmittedForTest
+        => System.Threading.Volatile.Read(ref s_textureWarningEmitted) != 0;
+}
+
+/// <summary>
+/// Spawn-time policy passed to <see cref="SceneSpawner.Spawn"/>. Defaults match the
+/// runtime profile (Y-up target, meters, render purposes, white default material).
+/// </summary>
+public sealed class SceneSpawnSettings
+{
+    /// <summary>Engine canonical coordinate system (target basis after the root-level swap).</summary>
+    public SceneCoordinateSystem TargetCoordinateSystem { get; init; } = SceneCoordinateSystem.YUp;
+
+    /// <summary>Engine canonical scale; the spawner divides the source mpu by this value.</summary>
+    public double TargetMetersPerUnit { get; init; } = 1.0;
+
+    /// <summary>
+    /// Authoring purposes to materialize. Nodes whose <see cref="SceneNode.Purpose"/>
+    /// is not in the mask are skipped (their children still recurse - children may have
+    /// different purposes and the accumulated parent transform is preserved).
+    /// </summary>
+    public ScenePurposeMask IncludePurposes { get; init; } = ScenePurposeMask.Runtime;
+
+    /// <summary>
+    /// Optional placement matrix applied <i>after</i> the basis-change + unit scale, so
+    /// callers can position / orient a spawned scene in world space without re-authoring.
+    /// Identity by default.
+    /// </summary>
+    public Matrix4x4 Placement { get; init; } = Matrix4x4.Identity;
+
+    /// <summary>
+    /// Default <see cref="Material.Albedo"/> applied to mesh entities whose source had no
+    /// <see cref="SceneMaterialPayload"/> bound. Defaults to opaque white so the renderer
+    /// always receives a (Mesh, Material) pair.
+    /// </summary>
+    public Vector4 DefaultAlbedo { get; init; } = Vector4.One;
+
+    /// <summary>
+    /// When <c>true</c> (the default), every spawned entity gets a <see cref="SceneInstance"/>
+    /// marker recording its source path. Disable for transient / scratch spawns where
+    /// provenance isn't needed.
+    /// </summary>
+    public bool AttachSceneInstanceMarker { get; init; } = true;
+
+    /// <summary>Reusable default settings.</summary>
+    public static SceneSpawnSettings Default { get; } = new();
+}

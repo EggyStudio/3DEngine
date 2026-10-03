@@ -12,6 +12,7 @@ An ECS with source-generated behaviors runs underneath for programs that grow in
 | [.github/DESIGN.md](.github/DESIGN.md) | The flat API, the frame, immediate drawing, the dependency policy |
 | [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
 | [.github/EDITOR.md](.github/EDITOR.md) | The ImGui editor plan |
+| [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
 | [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
@@ -19,12 +20,33 @@ An ECS with source-generated behaviors runs underneath for programs that grow in
 ## Building and testing
 
 ```bash
-dotnet build
-dotnet test
+dotnet build 3DEngine.slnx
+dotnet test 3DEngine.Tests
+dotnet run --project 3DEngine.Examples
 ```
 
 The suite uses `NullGraphicsDevice` wherever a test would otherwise need a GPU, so it runs on a
 machine with no display.
+
+## Where things are
+
+| Path | Holds |
+|---|---|
+| `3DEngine/Core` | `App`, `Config`, `World` (resources), the schedule and stages, plugins, events, input, time, logging |
+| `3DEngine/Ecs` | `EcsWorld` (sparse sets), `EcsCommands`, the frame's change bits |
+| `3DEngine/Behaviors` | `[Behavior]` attributes, `BehaviorContext`, `BehaviorsPlugin`, the runtime behavior compiler |
+| `3DEngine/Components` | `Transform`, `Camera`, `Mesh`, `Material` and the render-side mirrors |
+| `3DEngine/Platform` | The SDL3 window, main loop and input, and audio under `Audio/` |
+| `3DEngine/Graphics` | The Vulkan device over Vortice.Vulkan, and shader compilation |
+| `3DEngine/Rendering` | `Renderer`, the render graph, phases, extracts, pipelines and lighting |
+| `3DEngine/Gui` | Dear ImGui's context and input, and its Vulkan pass under `Vulkan/` |
+| `3DEngine/Assets` | `AssetServer`, handles, textures (StbImageSharp), models (Assimp), materials |
+| `3DEngine/Scenes` | The scene model a reader produces, and the spawner that turns it into entities |
+| `3DEngine/Physics` | Rigid bodies over BepuPhysics |
+| `3DEngine/Shaders` | Built-in shaders, staged under `source/shaders` beside every program |
+| `3DEngine.Generator` | The behavior source generator, which the engine also compiles in for scripts |
+| `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
+| `3DEngine.Examples` | Programs that use the engine |
 
 ## Conventions
 

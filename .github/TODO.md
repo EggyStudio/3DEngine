@@ -1,6 +1,6 @@
 # TODO
 
-Work outstanding on 3DEngine, in the order it blocks making a game: a project that builds, a window
+Work outstanding on 3DEngine, in the order it blocks making a game: a window
 and a frame a program drives with plain calls, something on screen, content loaded from files, an
 interface, behavior, and shipping the result.
 
@@ -13,15 +13,6 @@ An item says what exists, what is missing, and what the missing part needs. Fini
 removed from this file, and an item that is partly done is rewritten around what is left.
 
 ## Core
-
-### One project
-
-Every module is a git submodule under `Modules/`, and `3DEngine/3DEngine.csproj` compiles them all
-into one assembly. The submodules are to be folded into folders of `3DEngine/`, and the modules for
-USD, MaterialX, the embedded browser, the Blazor editor, SteamAudio, networking and the database
-removed with the wiring that reaches them (`ScenesPlugin`, `MaterialPlugin`, `DefaultPlugins`,
-`Renderer.Initialize`, `VulkanImGuiPlugin`). The engine becomes a library, the generator keeps a
-project of its own because Roslyn loads it as an analyzer, and the tests follow the engine's folders.
 
 ### Driving the frame from outside
 
@@ -106,9 +97,14 @@ frame rate is above the physics rate.
 
 ### Scenes
 
-`SceneSpawner` spawns a `Scene` of nodes read by an `ISceneReader`, and the readers are USD, which
-is to be removed, and the model readers (Assimp and glTF), which read a model rather than a level. A JSON scene format written and read through the generated schemas, with ids that survive
+`SceneSpawner` spawns a `Scene` of nodes read by an `ISceneReader`, and the only reader is Assimp,
+which reads a model rather than a level. A JSON scene format written and read through the generated schemas, with ids that survive
 a rename, is needed for the editor and for games.
+
+The payload types (`SceneLightPayload`, `SceneMaterialPayload`, `Light`) are modeled on UsdLux and
+`UsdPreviewSurface`, with dome, portal, cylinder and plugin lights and prim paths the renderer never
+reads. They are to shrink to the directional, point and spot lights and the metallic-roughness
+material that RENDERING.md §3 and §4 describe.
 
 ## Platform
 
@@ -130,6 +126,14 @@ outside ImGui and touch are not read.
   xUnit assertions.
 - **Nothing renders in a test.** Tests use `NullGraphicsDevice`. A headless or offscreen Vulkan run
   with a screenshot to compare would cover the renderer.
+
+### Prose
+
+The code carried over from the module repositories predates [STYLE.md](STYLE.md). Its comments use
+spaced hyphens, em dashes and colons as joints, name module repositories that no longer exist
+(`Engine.Textures`, `Engine.Scenes`), and some restate the line below them. Each file is to be
+brought under the style guide when it is next changed, and the checks at the end of STYLE.md report
+what is left.
 
 ### Build and release
 

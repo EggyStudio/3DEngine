@@ -3,61 +3,19 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsPackable>false</IsPackable>
-        <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-        <!-- RS2008 wants an AnalyzerReleases.{Shipped,Unshipped}.md tracking file for each
-             diagnostic ID we ship; we don't publish this analyzer as a versioned package, so
-             the tracking is unnecessary noise. -->
+        <!-- RS2008 asks for release-tracking files per diagnostic, which only a published
+             analyzer package needs. -->
         <NoWarn>$(NoWarn);RS2008</NoWarn>
-
-        <!-- Drive file inclusion explicitly so we can grab Modules/**/Generator/** -->
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     </PropertyGroup>
 
-    <!-- This project's own sources (if any). -->
+    <!-- Roslyn refuses an analyzer built against a compiler newer than the one running the
+         build, so this stays at a version every supported .NET 10 SDK carries. -->
     <ItemGroup>
-        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
-    </ItemGroup>
-
-    <!-- Pull every Generator/** folder from every module into this analyzer assembly.
-         Linked with Visible=false so the IDE shows them only in the engine project's
-         Modules tree (single source of truth). The csproj sits one level above the
-         Modules\ directory so the glob is "..\Modules\**", not "..\..\Modules\**". -->
-    <PropertyGroup>
-        <ModulesGitExclude>
-            ..\Modules\**\.git;
-            ..\Modules\**\.git\**;
-            ..\Modules\**\.gitignore;
-            ..\Modules\**\.gitattributes;
-            ..\Modules\**\.gitmodules;
-            ..\Modules\**\bin\**;
-            ..\Modules\**\obj\**;
-            ..\Modules\**\Source\**
-        </ModulesGitExclude>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="..\Modules\**\Generator\**\*.cs"
-                 Exclude="$(ModulesGitExclude)">
-            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <Visible>false</Visible>
-        </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
     </ItemGroup>
 
 </Project>

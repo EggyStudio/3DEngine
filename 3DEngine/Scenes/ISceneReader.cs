@@ -1,0 +1,180 @@
+namespace Engine;
+
+/// <summary>
+/// Backend-agnostic reader interface that converts a stream / file of a particular format
+/// into an engine <see cref="Scene"/> snapshot. Implementations live in backend modules
+/// (e.g. <c>UsdSceneReader</c> in <c>Engine.Scenes.Usd</c>).
+/// </summary>
+/// <remarks>
+/// <para>
+/// Per the project's threading model, <see cref="ReadAsync"/> is called from an
+/// <see cref="AssetServer"/> background worker. Implementations must publish only immutable
+/// data via the returned <see cref="Scene"/> - no live native handles in the snapshot.
+/// </para>
+/// <para>
+/// <b>Coordinate / unit policy:</b> readers <i>preserve</i> the source basis and units
+/// (see <see cref="Scene.SourceCoordinateSystem"/> / <see cref="Scene.SourceMetersPerUnit"/>)
+/// rather than rotating / rescaling vertex data on load. Spawn systems apply a single
+/// root-level basis-change matrix derived from those fields. This keeps a
+/// <c>read → write</c> round-trip byte-stable and avoids per-vertex precision loss on
+/// large stages.
+/// </para>
+/// </remarks>
+public interface ISceneReader
+{
+    /// <summary>
+    /// File extensions this reader handles, including the leading dot
+    /// (e.g. <c>[".usd", ".usda", ".usdc"]</c>).
+    /// </summary>
+    string[] Extensions { get; }
+
+    /// <summary>Identifier used by <see cref="SceneAsset.SourceFormat"/> (e.g. <c>"usd"</c>).</summary>
+    string FormatId { get; }
+
+    /// <summary>
+    /// Reads a scene from <paramref name="context"/>. Called on a background thread.
+    /// </summary>
+    Task<Scene> ReadAsync(AssetLoadContext context, SceneImportSettings settings, CancellationToken ct);
+}
+
+/// <summary>
+/// Backend-agnostic writer interface for serializing a <see cref="Scene"/> back to a source format.
+/// Implementations live in backend modules (e.g. <c>UsdSceneWriter</c>).
+/// </summary>
+public interface ISceneWriter
+{
+    /// <summary>Identifier matching <see cref="SceneAsset.SourceFormat"/> (e.g. <c>"usd"</c>).</summary>
+    string FormatId { get; }
+
+    /// <summary>Writes <paramref name="scene"/> to <paramref name="targetPath"/> in this writer's format.</summary>
+    Task WriteAsync(Scene scene, string targetPath, SceneExportSettings settings, CancellationToken ct);
+}
+
+/// <summary>
+/// Settings forwarded to an <see cref="ISceneReader"/>. Defaults match the runtime spawn
+/// path (render purposes, all payloads, UsdPreviewSurface materials); editors and
+/// thumbnail importers override per-load.
+/// </summary>
+public sealed class SceneImportSettings
+{
+    /// <summary>Engine canonical coordinate system. Recorded for downstream basis-change.</summary>
+    public SceneCoordinateSystem TargetCoordinateSystem { get; init; } = SceneCoordinateSystem.YUp;
+
+    /// <summary>Engine canonical scale (meters per unit). Recorded for downstream scaling.</summary>
+    public double TargetMetersPerUnit { get; init; } = 1.0;
+
+    /// <summary>
+    /// When <c>true</c>, the reader resolves references / payloads / variant selections
+    /// and produces a flattened snapshot. Always <c>true</c> for runtime; the editor may
+    /// also keep a live native handle alongside (owned outside <see cref="SceneAsset"/>).
+    /// </summary>
+    public bool FlattenComposition { get; init; } = true;
+
+    /// <summary>
+    /// Authoring purposes the reader should include. Nodes whose
+    /// <see cref="SceneNode.Purpose"/> is not in this mask are skipped (or attached
+    /// disabled, at the reader's discretion). Defaults to
+    /// <see cref="ScenePurposeMask.Runtime"/> (default + render).
+    /// </summary>
+    public ScenePurposeMask IncludePurposes { get; init; } = ScenePurposeMask.Runtime;
+
+    /// <summary>
+    /// Sample time at which to evaluate animated attributes (USD time codes; readers for
+    /// non-time-aware formats ignore this). <c>null</c> means "use the stage default
+    /// time", which for USD is <c>UsdTimeCode.Default()</c>.
+    /// </summary>
+    public double? TimeCode { get; init; }
+
+    /// <summary>
+    /// How aggressively the reader should resolve material networks. Defaults to
+    /// <see cref="MaterialNetworkResolution.Pbr"/>; pass
+    /// <see cref="MaterialNetworkResolution.None"/> for geometry-only loads.
+    /// </summary>
+    public MaterialNetworkResolution MaterialResolution { get; init; } = MaterialNetworkResolution.Pbr;
+
+    /// <summary>
+    /// Which payload kinds to populate on <see cref="SceneNode.Components"/>. Defaults
+    /// to <see cref="LoadPayloads.All"/>; set to a narrower mask to skip work the caller
+    /// will not consume (e.g. thumbnails want meshes only).
+    /// </summary>
+    public LoadPayloads LoadPayloads { get; init; } = LoadPayloads.All;
+
+    /// <summary>
+    /// Optional extra search paths the reader passes to its asset resolver for resolving
+    /// relative references / payloads (USD: appended to <c>PXR_AR_DEFAULT_SEARCH_PATH</c>;
+    /// glTF: relative-path roots). Empty by default - the reader uses only the source
+    /// file's own directory.
+    /// </summary>
+    public IReadOnlyList<string> AssetSearchPath { get; init; } = Array.Empty<string>();
+
+    /// <summary>Reusable default settings.</summary>
+    public static SceneImportSettings Default { get; } = new();
+}
+
+/// <summary>Settings forwarded to an <see cref="ISceneWriter"/>.</summary>
+public sealed class SceneExportSettings
+{
+    /// <summary>Format-native coordinate system the writer should emit (defaults to engine canonical).</summary>
+    public SceneCoordinateSystem CoordinateSystem { get; init; } = SceneCoordinateSystem.YUp;
+
+    /// <summary>Format-native unit scale the writer should emit.</summary>
+    public double MetersPerUnit { get; init; } = 1.0;
+
+    /// <summary>
+    /// Hint to the writer that the produced asset should embed referenced textures into a
+    /// single self-contained package (USD: <c>.usdz</c>). The writer infers the actual
+    /// container format from the target file extension; this flag only governs whether
+    /// referenced texture files (when present) should be packaged alongside the stage.
+    /// Defaults to <c>false</c> - texture files are referenced by path.
+    /// </summary>
+    public bool EmbedTextures { get; init; } = false;
+
+    /// <summary>Reusable default settings.</summary>
+    public static SceneExportSettings Default { get; } = new();
+}
+
+/// <summary>
+/// Resource that holds the set of <see cref="ISceneReader"/> / <see cref="ISceneWriter"/>
+/// implementations registered by backend plugins (USD, future glTF, etc.). Used by spawn
+/// systems and the editor to dispatch by format / extension without hard-referencing a
+/// specific backend.
+/// </summary>
+/// <remarks>
+/// Inserted into the <see cref="World"/> by <see cref="ScenesPlugin"/>. Backend plugins
+/// (<c>UsdScenesPlugin</c>, ...) call <see cref="RegisterReader"/> / <see cref="RegisterWriter"/>
+/// during <see cref="IPlugin.Build"/>.
+/// </remarks>
+public sealed class SceneReaderRegistry
+{
+    private readonly Dictionary<string, ISceneReader> _readersByExtension = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, ISceneReader> _readersByFormat = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, ISceneWriter> _writersByFormat = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Registers a reader for all of its declared extensions and its format id.</summary>
+    public void RegisterReader(ISceneReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        _readersByFormat[reader.FormatId] = reader;
+        foreach (var ext in reader.Extensions)
+            _readersByExtension[ext] = reader;
+    }
+
+    /// <summary>Registers a writer for its format id.</summary>
+    public void RegisterWriter(ISceneWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+        _writersByFormat[writer.FormatId] = writer;
+    }
+
+    /// <summary>Looks up a reader by file extension (e.g. <c>".usda"</c>).</summary>
+    public ISceneReader? FindReaderByExtension(string extension)
+        => _readersByExtension.TryGetValue(extension, out var r) ? r : null;
+
+    /// <summary>Looks up a reader by format id (e.g. <c>"usd"</c>).</summary>
+    public ISceneReader? FindReaderByFormat(string formatId)
+        => _readersByFormat.TryGetValue(formatId, out var r) ? r : null;
+
+    /// <summary>Looks up a writer by format id (e.g. <c>"usd"</c>).</summary>
+    public ISceneWriter? FindWriterByFormat(string formatId)
+        => _writersByFormat.TryGetValue(formatId, out var w) ? w : null;
+}

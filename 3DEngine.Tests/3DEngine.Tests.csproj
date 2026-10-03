@@ -1,95 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <!-- Engine declares [InternalsVisibleTo("Engine.Tests")], so the test
-             assembly must be produced under that exact name. -->
+        <!-- The engine grants InternalsVisibleTo("Engine.Tests"), so the test assembly carries
+             that name. -->
         <AssemblyName>Engine.Tests</AssemblyName>
         <RootNamespace>Engine.Tests</RootNamespace>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-
-        <!-- Drive file inclusion explicitly so we can grab Modules/**/Tests/** -->
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     </PropertyGroup>
 
-    <!-- This project's own sources (if any). -->
-    <ItemGroup>
-        <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
-    </ItemGroup>
-
-    <!-- Pull every Tests/** folder from every module into this assembly.
-         Mirrors the exclusion list used by 3DEngine.csproj so we don't
-         accidentally compile vendored Source/** subtrees, generator code,
-         build outputs, or git plumbing. Linked with Visible=false so the
-         IDE shows these files only in the engine project's Modules tree
-         (single source of truth) instead of duplicating them here. -->
-    <PropertyGroup>
-        <ModulesGitExclude>
-            ..\Modules\**\.git;
-            ..\Modules\**\.git\**;
-            ..\Modules\**\.gitignore;
-            ..\Modules\**\.gitattributes;
-            ..\Modules\**\.gitmodules;
-            ..\Modules\**\bin\**;
-            ..\Modules\**\obj\**;
-            ..\Modules\**\Source\**;
-            ..\Modules\**\Generator\**
-        </ModulesGitExclude>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="..\Modules\**\Tests\**\*.cs"
-                 Exclude="$(ModulesGitExclude)">
-            <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <Visible>false</Visible>
-        </Compile>
-    </ItemGroup>
-
-    <!-- Stage every non-.cs module file under "source/<rel-path>/..." next to the
-         test binary so the runtime FileAssetReader (rooted at
-         "{AppContext.BaseDirectory}/source") sees the same on-disk layout as the
-         engine app. Mirrors the staging block in 3DEngine.csproj.
-
-         Mapping: ..\Modules\<Module>\<Sub>\...\file.ext -> source\<sub>\...\file.ext
-         (leading "<Module>\" stripped so all modules share one "source/" namespace,
-         lowercased for case-sensitive filesystems). PreserveNewest => only changed
-         files recopy. -->
-    <ItemGroup>
-        <None Include="..\Modules\**\*"
-              Exclude="..\Modules\**\*.cs;$(ModulesGitExclude)"
-              CopyToOutputDirectory="PreserveNewest"
-              Visible="false">
-            <Link>source\$([System.Text.RegularExpressions.Regex]::Replace('%(RecursiveDir)', '^[^\\/]+[\\/]', '').ToLowerInvariant())%(Filename)%(Extension)</Link>
-        </None>
-    </ItemGroup>
-
-    <!-- Reference the engine so tests can see its types. -->
     <ItemGroup>
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
-        <!-- Editor shell types (Editor.Shell.*) live in 3DEngine.Server. -->
-        <ProjectReference Include="..\3DEngine.Server\3DEngine.Server.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="10.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="FluentAssertions" Version="8.9.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
         <PackageReference Include="xunit" Version="2.9.3" />
         <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0-pre.4">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="FluentAssertions" Version="8.9.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Xunit"/>
+        <Using Include="Xunit" />
     </ItemGroup>
 
 </Project>

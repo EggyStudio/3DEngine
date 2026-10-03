@@ -11,8 +11,8 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 
 ## What exists
 
-- **One assembly.** Every module compiles into `3DEngine.dll` under the `Engine` namespace, with the
-  source generator as a separate analyzer assembly.
+- **One project.** The engine is `3DEngine/`, compiled into `3DEngine.dll` under the `Engine`
+  namespace, with the source generator as a separate analyzer assembly.
 - **A sparse-set ECS** (`EcsWorld`) with deferred commands, change bits and queries over up to three
   components, and a resource map (`World`) beside it.
 - **A staged schedule** (`Startup`, `First`, `PreUpdate`, `Update`, `PostUpdate`, `Render`, `Last`,
@@ -180,8 +180,8 @@ tried in an earlier revision of this repository and kept on the `legacy-modules`
 ## 8. One project
 
 The engine is one project, `3DEngine/`, with a folder per area (`Core`, `Ecs`, `Behaviors`,
-`Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, `Api`). Beside it are the
-generator, the tests and the examples. A folder is a namespace's worth of code, and there are no
+`Components`, `Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, and `Api`
+for the flat functions). Beside it are the generator, the tests and the examples. A folder is a namespace's worth of code, and there are no
 module repositories, so a change that touches the ECS and the renderer is one commit.
 
 ## 9. The cheatsheet
@@ -192,11 +192,10 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. The flat project, with the dropped modules removed and everything else building and tested.
-2. Slang through `slangc` in place of GLSL, with a cache so a shipped game needs no compiler.
-3. `App.Startup`, `App.Frame` and `App.Shutdown`, then `Engine3D.Window`, `Input` and `Drawing`, with
+1. Slang through `slangc` in place of GLSL, with a cache so a shipped game needs no compiler.
+2. `App.Startup`, `App.Frame` and `App.Shutdown`, then `Engine3D.Window`, `Input` and `Drawing`, with
    ImGui inside the frame.
-4. The draw list and its pass, then `Shapes3D`, cameras and the first examples.
-5. `Textures`, `Models` through Assimp, `Shaders`, then `Text` and `Shapes`.
-6. `Audio`, gamepads and render targets.
-7. The cheatsheet as each area lands, and the examples beside it.
+3. The draw list and its pass, then `Shapes3D`, cameras and the first examples.
+4. `Textures`, `Models` through Assimp, `Shaders`, then `Text` and `Shapes`.
+5. `Audio`, gamepads and render targets.
+6. The cheatsheet as each area lands, and the examples beside it.
