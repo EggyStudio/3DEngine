@@ -32,6 +32,7 @@ before driving a session.
 | [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
 | [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
+| [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
 | [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
 
@@ -102,10 +103,15 @@ pushed.
   section being changed to say why.
 - Prose in this repository follows `.github/STYLE.md`, which governs comments, XML documentation,
   messages and Markdown. Read it before writing any of them.
-- Each finished batch of work is committed on `main` and never pushed, with a message whose subject
-  is three invisible marks and whose description is one plain sentence. Before each commit,
+- Each finished batch of work is committed on `main` and pushed to `origin/main`, never with force,
+  with a message whose subject is three invisible marks and whose description is one plain
+  sentence. Before each commit,
   `.github/STYLE.md` is read and applied to what is staged, the message included.
   `.github/COMMITS.md` has the exact form, that pass, and how to split a batch that shares a file
   with another.
+- `.github/REVIEW.md` is read before a batch is started and before each commit. A second session
+  writes it after reading the code and the history, and its Now list comes before TODO.md's order.
+  Only its Replies section is edited here, for an item that is disputed or blocked, and the file is
+  committed with whichever batch comes next.
 - The code before the redesign is on the local `legacy-modules` branch, as git submodules under
   `Modules/`. It is read for reference and not merged back.
