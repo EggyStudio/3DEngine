@@ -30,12 +30,12 @@ public class SdlAudioBackendTests
         backend.Dispose();
     }
 
-    [Fact]
+    [NeedsNoAudioDeviceFact]
     public void Method_Calls_Are_Safe_When_Backend_Failed_To_Initialise()
     {
         var backend = new SdlAudioBackend();
         backend.Initialize();
-        if (backend.IsInitialized) return; // host has audio - the no-op contract isn't exercised
+        backend.IsInitialized.Should().BeFalse();
 
         var sound = new Sound { Samples = new float[1024], SampleRate = 44100, Channels = 1 };
         backend.CreateVoice(sound, default).Should().Be(0);
@@ -50,12 +50,12 @@ public class SdlAudioBackendTests
         backend.Dispose();
     }
 
-    [Fact]
+    [NeedsAudioDeviceFact]
     public void CreateVoice_Issues_Distinct_Ids_When_Backend_Is_Live()
     {
         var backend = new SdlAudioBackend();
         backend.Initialize();
-        if (!backend.IsInitialized) return; // skip when host has no audio device
+        backend.IsInitialized.Should().BeTrue();
 
         var sound = new Sound
         {

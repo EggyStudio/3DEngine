@@ -45,8 +45,9 @@ dotnet run --project 3DEngine.Examples
 ```
 
 The suite uses `NullGraphicsDevice` wherever a test would otherwise need a GPU, so it runs on a
-machine with no display. Shader tests return early without `slangc`, so a green suite says nothing
-about shaders until `build/fetch-slang.sh` has run.
+machine with no display. Tests that need `slangc`, a Vulkan device or an audio device report as
+skipped, with the reason, where it is missing (`3DEngine.Tests/Needs.cs`), so a run's summary says
+how much of the suite ran.
 
 Captures and input go through `./e3d` (above), which works in a hidden window and on a locked
 desktop session. xdotool does not, because its events reach a window only while it has focus and

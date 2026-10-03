@@ -13,11 +13,10 @@ public class RendererSmokeTests
         public (uint Width, uint Height) GetDrawableSize() => (800, 600);
     }
 
-    [Fact]
+    // The renderer compiles its built-in shaders while it initializes.
+    [NeedsSlangFact]
     public void Renderer_Can_Render_Frame_With_NullGraphics()
     {
-        // The renderer compiles its built-in shaders while it initializes.
-        if (!SlangCompiler.Available) return;
 
         var nullGfx = new NullGraphicsDevice();
         var context = new RendererContext(nullGfx);

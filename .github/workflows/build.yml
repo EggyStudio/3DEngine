@@ -2,7 +2,7 @@
 #
 # Nothing here needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on the CPU,
 # so the render tests draw for real and the examples run with --offscreen, and slangc is fetched
-# so the shaders compile instead of the tests that need them returning early.
+# so the shaders compile instead of the tests that need them being skipped.
 name: build
 
 on:

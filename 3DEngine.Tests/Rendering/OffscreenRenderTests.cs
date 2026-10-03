@@ -9,8 +9,8 @@ namespace Engine.Tests.Rendering;
 /// back, so the renderer is covered by a test.
 /// </summary>
 /// <remarks>
-/// Returns early on a machine with no Vulkan device or no Slang compiler, as the Slang tests do,
-/// so the suite still passes there. A software device such as lavapipe is enough to run it.
+/// Skipped, with the reason, on a machine with no Vulkan device or no Slang compiler. A software
+/// device such as lavapipe is enough to run them.
 /// </remarks>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
@@ -25,12 +25,11 @@ public sealed class OffscreenRenderTests : IDisposable
         Directory.Delete(_directory, recursive: true);
     }
 
-    private static bool Open(int width, int height)
+    private static void Open(int width, int height)
     {
-        if (!SlangCompiler.Available) return false;
         var config = Config.Default.WithWindow("offscreen test", width, height) with { Headless = true, Offscreen = true };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
-        return RunMode.HasRenderer(GetApp().World);
+        RunMode.HasRenderer(GetApp().World).Should().BeTrue("the probe started a Vulkan device, so the app's renderer starts too");
     }
 
     // Draws frames until the capture asked for in the first has been written.
@@ -48,10 +47,10 @@ public sealed class OffscreenRenderTests : IDisposable
         return LoadImage(path);
     }
 
-    [Fact]
+    [NeedsVulkanFact]
     public void Shapes_Drawn_In_2D_Land_On_The_Pixels_They_Cover()
     {
-        if (!Open(64, 32)) return;
+        Open(64, 32);
 
         var image = Capture(() =>
         {
@@ -65,10 +64,10 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(image, 56, 16).Should().Be(new Color(0, 0, 255));
     }
 
-    [Fact]
+    [NeedsVulkanFact]
     public void A_Cube_Is_Lit_Through_The_Camera_And_The_Background_Is_Cleared()
     {
-        if (!Open(64, 64)) return;
+        Open(64, 64);
         var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
 
@@ -87,10 +86,10 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(cube);
     }
 
-    [Fact]
+    [NeedsVulkanFact]
     public void A_Point_Light_Entity_Lights_The_Faces_Turned_Toward_It()
     {
-        if (!Open(64, 64)) return;
+        Open(64, 64);
         var ecs = GetApp().World.Resource<EcsWorld>();
         var camera = ecs.Spawn();
         ecs.Add(camera, new Camera(45f));

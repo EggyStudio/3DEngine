@@ -15,8 +15,8 @@ dotnet run --project 3DEngine.Examples     # a window
 ```
 
 The suite needs no GPU or display, because the tests that touch rendering use
-`NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests return early, so a
-green suite on a machine without it says nothing about shaders.
+`NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests report as skipped,
+and so do the render tests without a Vulkan device, each with its reason in the run's output.
 
 ```
 build/               fetch-slang.sh, and the compiler it downloads under tools/
@@ -45,7 +45,7 @@ Every program built on the engine reads these flags, or the variables beside the
 
 `--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
 one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. The render tests in
-`3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and return early where there is
+`3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and are skipped where there is
 no device.
 
 ## The package
