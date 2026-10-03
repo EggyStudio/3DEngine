@@ -5,9 +5,10 @@ and a frame a program drives with plain calls, something on screen, content load
 interface, behavior, and shipping the result.
 
 The ECS, the schedule and the behavior generator exist and are tested, and every area of the flat
-API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth: lighting is one
-fixed light, the ECS's own mesh path is unlit, and each area of the flat API lacks pieces raylib
-has. The renderer's own plan is [RENDERING.md](RENDERING.md).
+API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth: lighting is
+diffuse only, with no shadows, custom shaders reach the immediate pass and not models, and each
+area of the flat API lacks pieces raylib has. The renderer's own plan is
+[RENDERING.md](RENDERING.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.

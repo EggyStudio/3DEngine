@@ -20,10 +20,12 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
   writes.
 - **Behaviors**, which are `[Behavior]` structs whose stage methods a Roslyn generator turns into
   systems, with filters, run conditions and toggle keys.
-- **An SDL3 window** with keyboard and mouse input, and **a Vulkan device** over Vortice.Vulkan with
-  a render graph that draws meshes, the immediate draw list and ImGui, with shaders in Slang.
-- **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
-  listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
+- **An SDL3 window** with keyboard, mouse, text and gamepad input, and **a Vulkan device** over
+  Vortice.Vulkan with a render graph that draws lit meshes and models, the immediate draw list
+  and ImGui, with shaders in Slang, into a window or, with `--offscreen`, into images of its own.
+- **The flat API** for the window and monitors, timing, input, the frame, cameras, render targets,
+  2D and 3D shapes, images and textures, models and generated meshes, shaders, text and fonts, and
+  audio, listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
 Every area of the flat API has a first version. What each lacks is in [TODO.md](TODO.md).
 
@@ -64,14 +66,14 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 
 | file | covers |
 |---|---|
-| `Engine3D.Window.cs` | the window and frame timing (the monitor is not covered) |
+| `Engine3D.Window.cs`, `Engine3D.Display.cs` | the window, its state, the monitors, the clipboard and frame timing |
 | `Engine3D.Input.cs` | keyboard, mouse and gamepads |
 | `Engine3D.Drawing.cs` | the frame, cameras and render targets |
 | `Engine3D.Shapes.cs` | 2D shapes |
 | `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
 | `Engine3D.Text.cs`, `Engine3D.Fonts.cs` | text and fonts |
-| `Engine3D.Textures.cs` | images and textures |
-| `Engine3D.Models.cs` | meshes, models and materials |
+| `Engine3D.Textures.cs`, `Engine3D.Images.cs` | images, editing them on the CPU, and textures |
+| `Engine3D.Models.cs`, `Engine3D.MeshGen.cs` | meshes, models, materials and the mesh generators |
 | `Engine3D.Shaders.cs` | Slang shaders and their parameters |
 | `Engine3D.Audio.cs` | sounds and music |
 
@@ -155,8 +157,8 @@ example moves balls in a behavior and draws them from the loop.
 
 ## 6. Resources the program owns
 
-`Load` returns a resource and `Unload` frees it, and the program decides when. No `Load` function
-exists yet, and this section is the rule they follow. There is no
+`Load` returns a resource and `Unload` frees it, and the program decides when, for textures,
+render targets, fonts, models and meshes, shaders, sounds and music alike. There is no
 reference counting and no garbage collection of GPU memory in the flat API, since raylib's
 experience is that a pair of calls is understood by everyone and leaks are found by the log, which
 reports what was still loaded at `CloseWindow`. The asset server under the ECS keeps its own
@@ -207,8 +209,7 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. Shaders for models, with parameters by name from Slang's reflection.
-2. Mipmaps and image editing (`ImageResize`, `ImageDraw*`).
-3. More mesh generators and `DrawModelWires`.
+1. Shaders for models, with parameters by name from Slang's reflection, which the material work
+   after it needs as well.
 
 Each lands with its lines in the cheatsheet and an example beside it.
