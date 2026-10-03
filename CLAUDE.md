@@ -11,7 +11,6 @@ An ECS with source-generated behaviors runs underneath for programs that grow in
 |---|---|
 | [.github/DESIGN.md](.github/DESIGN.md) | The flat API, the frame, immediate drawing, the dependency policy |
 | [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
-| [.github/EDITOR.md](.github/EDITOR.md) | The ImGui editor plan |
 | [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
@@ -62,9 +61,11 @@ read the window: `SDL_VIDEODRIVER=x11` before the run, then
   record.
 - The library does not reflect at runtime where the generator can emit the registration instead,
   so that it survives trimming and AOT.
+- There is no editor application, and none is planned (DESIGN.md §7). Tools are ImGui windows a
+  program draws in its own frame.
 - Every public function of the flat API has its line in `.github/CHEATSHEET.md`, changed in the same
   commit as the function.
-- No dependency is added beyond what [.github/DESIGN.md](.github/DESIGN.md) §7 allows without that
+- No dependency is added beyond what [.github/DESIGN.md](.github/DESIGN.md) §8 allows without that
   section being changed to say why.
 - Prose in this repository follows `.github/STYLE.md`, which governs comments, XML documentation,
   messages and Markdown. Read it before writing any of them.

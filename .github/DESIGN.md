@@ -157,7 +157,14 @@ experience is that a pair of calls is understood by everyone and leaks are found
 reports what was still loaded at `CloseWindow`. The asset server under the ECS keeps its own
 handles with hot reload for the systems that use it.
 
-## 7. Dependencies
+## 7. No editor
+
+There is no editor application. A program is code, as it is with raylib, and a scene is built by
+the calls that make it or loaded from a file another tool wrote. Tools a game needs inside itself,
+such as a debug panel, a level tweaker or an entity list, are ImGui windows the game draws in its
+own frame, so they cost one function each and ship only if the game keeps them.
+
+## 8. Dependencies
 
 A dependency is taken when it does a basic job completely and is maintained, and nothing beyond
 that is added. The set is:
@@ -173,18 +180,18 @@ that is added. The set is:
 | Microsoft.CodeAnalysis | the source generator, and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
-Scene description formats, material graph languages, embedded browsers, web servers and spatial
-audio middleware are left out. Each brings more surface than the engine has users for, and each was
+Scene description formats, material graph languages, embedded browsers, web servers, spatial
+audio middleware and an editor are left out. Each brings more surface than the engine has users for, and each was
 tried in an earlier revision of this repository and kept on the `legacy-modules` branch.
 
-## 8. One project
+## 9. One project
 
 The engine is one project, `3DEngine/`, with a folder per area (`Core`, `Ecs`, `Behaviors`,
 `Components`, `Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, and `Api`
 for the flat functions). Beside it are the generator, the tests and the examples. A folder is a namespace's worth of code, and there are no
 module repositories, so a change that touches the ECS and the renderer is one commit.
 
-## 9. The cheatsheet
+## 10. The cheatsheet
 
 `.github/CHEATSHEET.md` lists every public `Engine3D` function on one line, grouped by area, with a
 comment saying what it does, in the form of the raylib cheatsheet. A function that is added, renamed

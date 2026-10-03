@@ -6,8 +6,7 @@ interface, behavior, and shipping the result.
 
 The ECS, the schedule and the behavior generator exist and are tested. What is thin is the surface
 a program touches. The flat API described in [DESIGN.md](DESIGN.md) does not exist, and the renderer
-draws meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md), and the editor's is
-[EDITOR.md](EDITOR.md).
+draws meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.
@@ -28,7 +27,8 @@ return. `App` needs `Startup`, `Frame` and `Shutdown`, with `Run` built on them,
 - **Queries have no filters.** `Query` and `QueryRef` take up to three and two components, with no
   `With` or `Without`, and `Query` allocates an iterator. Behaviors filter by attribute, so the gap
   is in hand-written systems.
-- **Entities have no names or parents**, which the editor's world panel and scene files need.
+- **Entities have no names or parents**, which scene files and an ImGui window listing the world
+  need.
 
 ### Behaviors
 
@@ -78,10 +78,6 @@ truetype or SDL3_ttf) and quads in the immediate pass.
 ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `PreUpdate`, so ImGui
 calls made before that stage in a frame are lost, and there is no docking or viewport support.
 
-### The editor
-
-There is no editor. [EDITOR.md](EDITOR.md) is the plan.
-
 ## Simulation
 
 ### Physics
@@ -95,7 +91,7 @@ frame rate is above the physics rate.
 
 `SceneSpawner` spawns a `Scene` of nodes read by an `ISceneReader`, and the only reader is Assimp,
 which reads a model rather than a level. A JSON scene format written and read through the generated schemas, with ids that survive
-a rename, is needed for the editor and for games.
+a rename, is needed for levels a game loads.
 
 The payload types (`SceneLightPayload`, `SceneMaterialPayload`, `Light`) are modeled on UsdLux and
 `UsdPreviewSurface`, with dome, portal, cylinder and plugin lights and prim paths the renderer never
