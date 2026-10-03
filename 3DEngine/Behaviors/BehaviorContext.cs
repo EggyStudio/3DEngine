@@ -115,4 +115,13 @@ public sealed class BehaviorContext
     /// <returns>The resource instance.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the resource is not found.</exception>
     public T Res<T>() where T : notnull => World.Resource<T>();
+
+    /// <summary>The value the state machine over <typeparamref name="TState"/> is in.</summary>
+    /// <exception cref="InvalidOperationException">The state was never added with <see cref="App.AddState{TState}"/>.</exception>
+    public TState State<TState>() where TState : struct, Enum => World.Resource<State<TState>>().Current;
+
+    /// <summary>Queues a move of the state machine over <typeparamref name="TState"/> to <paramref name="value"/>.</summary>
+    /// <remarks>Applied at the next frame's transition point, through <see cref="NextState{TState}"/>.</remarks>
+    /// <exception cref="InvalidOperationException">The state was never added with <see cref="App.AddState{TState}"/>.</exception>
+    public void SetState<TState>(TState value) where TState : struct, Enum => World.Resource<NextState<TState>>().Set(value);
 }

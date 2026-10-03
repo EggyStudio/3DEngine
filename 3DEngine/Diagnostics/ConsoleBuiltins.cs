@@ -58,6 +58,35 @@ internal static class ConsoleBuiltins
         return $"capturing {full}";
     }
 
+    [Command("state.list", "Every state machine, the value it is in and the values it has")]
+    internal static string StateList()
+    {
+        if (!ConsoleHost.World!.TryGetResource<StateTransitions>(out var transitions)) return "no states";
+        var text = new StringBuilder();
+        foreach (var (state, current, values) in transitions.Describe(ConsoleHost.World))
+            text.AppendLine($"{state} = {current ?? "(not added)"}  [{string.Join(", ", values)}]");
+        return text.Length == 0 ? "no states" : text.ToString().TrimEnd();
+    }
+
+    [Command("state.set", "Moves a state machine to a value at the next frame and answers once it has: state.set <State> <Value>")]
+    internal static string StateSet(string state, string value)
+    {
+        var world = ConsoleHost.World!;
+        var refusal = world.TryGetResource<StateTransitions>(out var transitions)
+            ? transitions.TryQueue(world, state, value)
+            : "The app has no states.";
+        if (refusal is not null)
+        {
+            ConsoleHost.Fail("BAD_STATE", refusal);
+            return "not moved";
+        }
+
+        // Answered a frame later, so the transition and its enter systems have run by the time the
+        // caller looks.
+        ConsoleHost.Hold(ConsoleHost.Time.FrameCount + 1);
+        return $"{state} -> {value}";
+    }
+
     [Command("entity.count", "How many entities are alive")]
     internal static string EntityCount() => ConsoleHost.Ecs.EntityCount.ToString();
 

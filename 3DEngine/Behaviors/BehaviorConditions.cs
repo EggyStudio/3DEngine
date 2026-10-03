@@ -80,6 +80,15 @@ public static class BehaviorConditions
     public static Func<World, bool> ResourceIs<T>(Func<T, bool> predicate) where T : notnull
         => world => world.TryGetResource<T>(out var r) && predicate(r);
 
+    /// <summary>
+    /// Passes while the state machine over <typeparamref name="TState"/> is in <paramref name="state"/>.
+    /// </summary>
+    /// <remarks>Fails when the state was never added with <see cref="App.AddState{TState}"/>.</remarks>
+    /// <returns>A condition delegate suitable for <see cref="SystemDescriptor.RunIf"/>.</returns>
+    public static Func<World, bool> InState<TState>(TState state) where TState : struct, Enum
+        => world => world.TryGetResource<State<TState>>(out var current) &&
+                    EqualityComparer<TState>.Default.Equals(current.Current, state);
+
     // -- Component / entity conditions --
 
     /// <summary>

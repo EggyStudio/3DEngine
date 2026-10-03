@@ -97,11 +97,18 @@ public sealed class SystemDescriptor
     /// Attaches a <c>run_if</c> condition. The system is skipped for the current frame
     /// when <paramref name="condition"/> returns <c>false</c>.
     /// </summary>
+    /// <remarks>
+    /// A second call adds to the first rather than replacing it, so the system runs only when
+    /// every condition passes, as Bevy's <c>run_if</c> does. Conditions are asked in the order
+    /// they were added and the first that fails stops the rest, so a key toggle added first still
+    /// sees its key when a later condition fails.
+    /// </remarks>
     /// <param name="condition">A predicate evaluated against the <see cref="World"/> each frame.</param>
     /// <returns>This descriptor for fluent chaining.</returns>
     public SystemDescriptor RunIf(Func<World, bool> condition)
     {
-        _runCondition = condition;
+        var earlier = _runCondition;
+        _runCondition = earlier is null ? condition : world => earlier(world) && condition(world);
         return this;
     }
 

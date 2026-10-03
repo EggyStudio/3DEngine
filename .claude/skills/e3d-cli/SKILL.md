@@ -50,6 +50,7 @@ outside the examples is driven by running it with `--serve`.
 | `entity.find <name>` | the id of the first entity with that name |
 | `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`), marking it changed |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
+| `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
 | `input.drag <button> <dx> <dy> <frames>` | holds a button while moving the pointer, as a camera drag |

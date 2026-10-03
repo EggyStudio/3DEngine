@@ -205,3 +205,60 @@ public sealed class ToggleKeyAttribute : Attribute
         Modifier = modifier;
     }
 }
+
+/// <summary>
+/// Runs a behavior method once each time a state machine enters a value, instead of in a stage.
+/// </summary>
+/// <remarks>
+/// The argument is a value of the state's enum, and the state is added with
+/// <see cref="App.AddState{TState}"/>. An instance method runs on every entity carrying the
+/// behavior, as a stage method does. A value that is not an enum member is reported as E3D004.
+/// </remarks>
+/// <example>
+/// <code>
+/// [OnEnter(Screen.Playing)]
+/// public static void SpawnLevel(BehaviorContext ctx) { ... }
+/// </code>
+/// </example>
+/// <param name="state">The enum value whose entry runs the method.</param>
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class OnEnterAttribute(object state) : Attribute
+{
+    /// <summary>The enum value whose entry runs the method.</summary>
+    public object State { get; } = state;
+}
+
+/// <summary>
+/// Runs a behavior method once each time a state machine leaves a value, instead of in a stage.
+/// </summary>
+/// <remarks>The counterpart of <see cref="OnEnterAttribute"/>, with the same rules.</remarks>
+/// <param name="state">The enum value whose exit runs the method.</param>
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class OnExitAttribute(object state) : Attribute
+{
+    /// <summary>The enum value whose exit runs the method.</summary>
+    public object State { get; } = state;
+}
+
+/// <summary>
+/// Runs a stage method only while a state machine is in a value.
+/// </summary>
+/// <remarks>
+/// A run condition, so it combines with <see cref="RunIfAttribute"/> and
+/// <see cref="ToggleKeyAttribute"/> and the method runs only when all of them pass. The method
+/// does not run while the state was never added.
+/// </remarks>
+/// <example>
+/// <code>
+/// [OnUpdate]
+/// [InState(Screen.Playing)]
+/// public void Move(BehaviorContext ctx) { ... }
+/// </code>
+/// </example>
+/// <param name="state">The enum value the method runs in.</param>
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class InStateAttribute(object state) : Attribute
+{
+    /// <summary>The enum value the method runs in.</summary>
+    public object State { get; } = state;
+}

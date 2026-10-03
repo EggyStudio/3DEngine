@@ -18,6 +18,7 @@ var examples = new Dictionary<string, Action>
     ["gui_imgui_window"] = GuiImGuiWindow.Run,
     ["ecs_behaviors"] = EcsBehaviors.Run,
     ["ecs_mesh_entities"] = EcsMeshEntities.Run,
+    ["ecs_states"] = EcsStates.Run,
 };
 
 var name = args.Length > 0 ? args[0] : "core_3d_camera_free";

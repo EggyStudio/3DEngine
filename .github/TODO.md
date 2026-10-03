@@ -29,10 +29,14 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Behaviors
 
-- **States** (`[OnEnter]`, `[OnExit]`, `[InState]`) are not implemented.
+- **States are plain.** `App.AddState`, `[OnEnter]`, `[OnExit]` and `[InState]` work, with any
+  number of independent enums. Bevy's sub-states (a pause that exists only while playing) and
+  computed states (a value worked out from another state) are not written, and a transition
+  cannot be observed as an event.
 - **Diagnostics stop at the method.** The generator reports a wrong signature, two stage
-  attributes and a bad `[RunIf]` (E3D001 to E3D003). A filter naming a type that is not a
-  component, and a behavior whose fields hold references, are not reported.
+  attributes, a bad `[RunIf]` and a state attribute without an enum value (E3D001 to E3D004). A
+  filter naming a type that is not a component, and a behavior whose fields hold references, are
+  not reported.
 
 ## Rendering
 

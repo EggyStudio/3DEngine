@@ -56,7 +56,8 @@ public sealed partial class App
     /// <remarks>
     /// <see cref="Stage.FixedUpdate"/> runs between <see cref="Stage.PreUpdate"/> and
     /// <see cref="Stage.Update"/> once per step <see cref="FixedTime.TryStep"/> grants, and not at
-    /// all when the world has no <see cref="FixedTime"/>.
+    /// all when the world has no <see cref="FixedTime"/>. State transitions are applied before it,
+    /// right after <see cref="Stage.PreUpdate"/>, as Bevy applies them.
     /// </remarks>
     /// <remarks>
     /// Whatever the caller does between this and <see cref="EndFrame"/> belongs to the frame, so
@@ -72,6 +73,9 @@ public sealed partial class App
 
         Schedule.RunStage(Stage.First, World);
         Schedule.RunStage(Stage.PreUpdate, World);
+
+        if (World.TryGetResource<StateTransitions>(out var transitions))
+            transitions.Apply(World);
 
         if (World.TryGetResource<FixedTime>(out var fixedTime))
             while (fixedTime.TryStep())

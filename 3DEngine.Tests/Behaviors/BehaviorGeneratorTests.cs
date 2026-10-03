@@ -64,12 +64,38 @@ public class BehaviorGeneratorTests
         string.Concat(output.SyntaxTrees.Select(t => t.ToString())).Should().Contain("Engine.Stage.FixedUpdate");
     }
 
+    [Fact]
+    public void State_Attributes_Register_Transitions_And_A_Condition()
+    {
+        var (result, output) = Generate("""
+            using Engine;
+            namespace Game;
+            public enum Screen { Menu, Playing }
+            [Behavior]
+            public struct Flow
+            {
+                [OnEnter(Screen.Playing)] public static void Load(BehaviorContext ctx) { }
+                [OnExit(Screen.Menu)] public void Hide(BehaviorContext ctx) { }
+                [OnUpdate, InState(Screen.Playing)] public static void Tick(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Should().BeEmpty();
+        result.Compile.Should().BeEmpty();
+        var generated = string.Concat(output.SyntaxTrees.Select(t => t.ToString()));
+        generated.Should().Contain("app.OnEnter(global::Game.Screen.Playing,")
+            .And.Contain("app.OnExit(global::Game.Screen.Menu,")
+            .And.Contain("BehaviorConditions.InState(global::Game.Screen.Playing)");
+    }
+
     [Theory]
     [InlineData("[OnUpdate] public static int Wrong(BehaviorContext ctx) => 0;", "E3D001")]
     [InlineData("[OnUpdate] public static void Wrong() { }", "E3D001")]
     [InlineData("[OnUpdate, OnRender] public static void Wrong(BehaviorContext ctx) { }", "E3D002")]
     [InlineData("[OnUpdate, RunIf(\"Missing\")] public static void Wrong(BehaviorContext ctx) { }", "E3D003")]
     [InlineData("public bool NotStatic; [OnUpdate, RunIf(nameof(NotStatic))] public static void Wrong(BehaviorContext ctx) { }", "E3D003")]
+    [InlineData("[OnEnter(3)] public static void Wrong(BehaviorContext ctx) { }", "E3D004")]
+    [InlineData("[OnUpdate, InState(\"Playing\")] public static void Wrong(BehaviorContext ctx) { }", "E3D004")]
     public void A_Method_That_Cannot_Run_Is_Reported_On_The_Method(string member, string id)
     {
         var (result, _) = Generate($$"""

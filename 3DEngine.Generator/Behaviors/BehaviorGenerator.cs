@@ -16,7 +16,9 @@ namespace Engine;
 /// <para>
 /// Each stage method is a system of its own, named after the behavior, the stage and the method,
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
-/// and <c>[ToggleKey]</c>. A method the generator cannot call is reported (E3D001 to E3D003) and
+/// and <c>[ToggleKey]</c>. <c>[OnEnter]</c> and <c>[OnExit]</c> stand in for a stage and register
+/// the method on a state transition, and <c>[InState]</c> adds a run condition. A method the
+/// generator cannot call is reported (E3D001 to E3D004) and
 /// left out, so the error is on the method rather than in generated code.
 /// </para>
 /// </remarks>
@@ -39,6 +41,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         "E3D003",
         "A [RunIf] member is missing or has the wrong shape",
         "[RunIf(\"{0}\")] on '{1}' must name a static bool field or property, or a static bool method taking a World, on the same behavior",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor BadState = new(
+        "E3D004",
+        "A state attribute does not name an enum value",
+        "[{0}] on '{1}' must name a value of an enum, such as Screen.Playing",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     /// <summary>Configures syntax providers, collects candidate structs, and registers source outputs.</summary>
@@ -101,6 +109,29 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 continue;
             }
 
+            string? transition = null;
+            if (stages[0] is Stage.OnEnter or Stage.OnExit)
+            {
+                var attributeName = stages[0] == Stage.OnEnter ? "OnEnter" : "OnExit";
+                transition = GetStateValue(method, $"Engine.{attributeName}Attribute");
+                if (transition is null)
+                {
+                    spc.ReportDiagnostic(Diagnostic.Create(BadState, location, attributeName, method.Name));
+                    continue;
+                }
+            }
+
+            string? inState = null;
+            if (HasAttribute(method, "Engine.InStateAttribute"))
+            {
+                inState = GetStateValue(method, "Engine.InStateAttribute");
+                if (inState is null)
+                {
+                    spc.ReportDiagnostic(Diagnostic.Create(BadState, location, "InState", method.Name));
+                    continue;
+                }
+            }
+
             var runIfName = GetRunIfName(method);
             (string Name, MemberKind Kind)? runIf = null;
             if (runIfName is not null)
@@ -123,6 +154,8 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 Filters = GetFilters(method),
                 RunIf = runIf,
                 ToggleKey = GetToggleKey(method),
+                Transition = transition,
+                InState = inState,
             });
         }
 
@@ -153,12 +186,42 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 "Engine.OnRenderAttribute" => Stage.Render,
                 "Engine.OnLastAttribute" => Stage.Last,
                 "Engine.OnCleanupAttribute" => Stage.Cleanup,
+                "Engine.OnEnterAttribute" => Stage.OnEnter,
+                "Engine.OnExitAttribute" => Stage.OnExit,
                 _ => null,
             };
             if (stage is not null) stages.Add(stage.Value);
         }
 
         return stages;
+    }
+
+    private static bool HasAttribute(IMethodSymbol m, string name) =>
+        m.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == name);
+
+    /// <summary>
+    /// The enum value a state attribute names, as source naming the member, or null when its
+    /// argument is not an enum value.
+    /// </summary>
+    /// <remarks>
+    /// The attribute takes an <c>object</c>, so the compiler accepts any constant and this is
+    /// where a number or a string is caught. A value with no member of its own, such as a cast
+    /// number, is written as a cast.
+    /// </remarks>
+    private static string? GetStateValue(IMethodSymbol m, string attributeName)
+    {
+        var a = m.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == attributeName);
+        if (a is null || a.ConstructorArguments.Length != 1) return null;
+
+        var arg = a.ConstructorArguments[0];
+        if (arg.Kind != TypedConstantKind.Enum || arg.Type is not INamedTypeSymbol enumType || arg.Value is null) return null;
+
+        var fqn = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
+            if (member.HasConstantValue && Equals(member.ConstantValue, arg.Value))
+                return $"{fqn}.{member.Name}";
+
+        return $"(({fqn})({System.Convert.ToString(arg.Value, System.Globalization.CultureInfo.InvariantCulture)}))";
     }
 
     /// <summary>Extracts With/Without/Changed filters from method attributes.</summary>
@@ -254,8 +317,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     /// <summary>Generates one system function per stage method and a static Register helper for one behavior.</summary>
     private static string GenBehaviorSystems(BehaviorModel b)
     {
-        var registerCalls = string.Concat(b.StageMethods.Select(m =>
-            $"        app.AddSystem(Engine.Stage.{m.Stage}, {BuildDescriptor(b, m)});\n"));
+        var registerCalls = string.Concat(b.StageMethods.Select(m => m.Stage switch
+        {
+            Stage.OnEnter => $"        app.OnEnter({m.Transition}, {BuildDescriptor(b, m)});\n",
+            Stage.OnExit => $"        app.OnExit({m.Transition}, {BuildDescriptor(b, m)});\n",
+            _ => $"        app.AddSystem(Engine.Stage.{m.Stage}, {BuildDescriptor(b, m)});\n",
+        }));
 
         var stageMethods = string.Concat(b.StageMethods.Select(m => "\n" + GenStageMethod(b, m)));
 
@@ -292,6 +359,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             var def = tk.DefaultEnabled ? "true" : "false";
             descriptor += $".RunIf(global::Engine.BehaviorConditions.KeyToggle(\"{systemId}\", (global::Engine.Key){tk.Key}, (global::Engine.KeyModifier){tk.Modifier}, {def}))";
         }
+
+        if (m.InState is { } state)
+            descriptor += $".RunIf(global::Engine.BehaviorConditions.InState({state}))";
 
         if (m.RunIf is { } ri)
         {
@@ -445,7 +515,11 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         PostUpdate,
         Render,
         Last,
-        Cleanup
+        Cleanup,
+
+        // Not stages of the engine. A method carrying one runs on a state transition instead.
+        OnEnter,
+        OnExit,
     }
 
     /// <summary>Component filter configuration extracted from [With], [Without], [Changed] attributes.</summary>
@@ -467,6 +541,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
         public (string Name, MemberKind Kind)? RunIf { get; init; }
         public (int Key, int Modifier, bool DefaultEnabled)? ToggleKey { get; init; }
+
+        /// <summary>For an OnEnter or OnExit method, the enum value as source.</summary>
+        public string? Transition { get; init; }
+
+        /// <summary>The enum value an [InState] names, as source.</summary>
+        public string? InState { get; init; }
     }
 
     /// <summary>Aggregated model for a single [Behavior]-annotated struct and its stage methods.</summary>
