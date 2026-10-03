@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>
-/// Render graph node that draws the frame's <see cref="ModelDrawList"/> into the swapchain pass,
-/// after the ECS meshes and before the immediate shapes, with <c>model.slang</c>.
+/// Draws the frame's <see cref="ModelDrawList"/> with <c>model.slang</c>: holds the pipeline, and
+/// draws the meshes meant for one target into whichever pass is open.
 /// </summary>
 /// <remarks>
 /// Each draw binds its mesh's buffers from <see cref="GpuMeshes"/> and its texture from
@@ -13,7 +13,7 @@ namespace Engine;
 /// its color. The pipeline does not cull, because a model loaded from a file may wind its
 /// triangles either way, and the cost is small next to drawing a back face wrong.
 /// </remarks>
-public sealed class ModelNode : INode, IDisposable
+public sealed class ModelRenderer : IDisposable
 {
     [StructLayout(LayoutKind.Sequential)]
     private struct Push
@@ -31,34 +31,34 @@ public sealed class ModelNode : INode, IDisposable
     private IShader? _fragmentShader;
     private IPipeline? _pipeline;
 
-    /// <summary>Creates the node from the compiled stages of <c>model.slang</c>.</summary>
-    public ModelNode(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
+    /// <summary>Creates the renderer from the compiled stages of <c>model.slang</c>.</summary>
+    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
     {
         _vertexSpv = vertexSpv;
         _fragmentSpv = fragmentSpv;
     }
 
-    /// <inheritdoc />
-    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    /// <summary>Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
-        if (draws is null || draws.Draws.Count == 0) return;
-
-        var activePass = renderWorld.TryGet<ActiveSwapchainPass>();
-        var swapchainTarget = renderWorld.TryGet<SwapchainTarget>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
         var textures = renderWorld.TryGet<GpuTextures>();
-        if (activePass is null || swapchainTarget is null || meshes is null || textures is null) return;
+        if (draws is null || draws.Draws.Count == 0 || meshes is null || textures is null) return;
 
         var gfx = renderContext.Device;
-        var pipeline = Pipeline(gfx, swapchainTarget.RenderPass, renderWorld);
-        var pass = activePass.Pass;
-        pass.SetPipeline(pipeline);
+        IPipeline? pipeline = null;
 
         foreach (var draw in draws.Draws)
         {
             // A mesh unloaded after its draw was recorded is skipped.
-            if (meshes.Get(draw.Mesh) is not { } mesh) continue;
+            if (draw.Target != target || meshes.Get(draw.Mesh) is not { } mesh) continue;
+
+            if (pipeline is null)
+            {
+                pipeline = Pipeline(gfx, renderPass, renderWorld);
+                pass.SetPipeline(pipeline);
+            }
 
             pass.SetBindGroup(pipeline, textures.SetFor(gfx, draw.Texture));
             pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
@@ -114,5 +114,19 @@ public sealed class ModelNode : INode, IDisposable
     {
         _fragmentShader?.Dispose();
         _vertexShader?.Dispose();
+    }
+}
+
+/// <summary>
+/// Render graph node that draws the window's share of the <see cref="ModelDrawList"/> into the
+/// swapchain pass, after the ECS meshes and before the immediate shapes.
+/// </summary>
+public sealed class ModelNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
+        renderWorld.TryGet<ModelRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
     }
 }

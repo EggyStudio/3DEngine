@@ -14,8 +14,9 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="FirstVertex">Index of the run's first vertex.</param>
 /// <param name="VertexCount">Number of vertices in the run.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
+/// <param name="Target">The render target the run draws into, or 0 for the window.</param>
 public readonly record struct DrawBatch(
-    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount, int Texture = 0);
+    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount, int Texture = 0, int Target = 0);
 
 /// <summary>
 /// The lines and triangles recorded for the current frame by the flat API's <c>Draw</c> calls,
@@ -45,6 +46,31 @@ public sealed class DrawList
 
     /// <summary>Whether the next recorded shapes are depth tested.</summary>
     public bool DepthTest { get; private set; }
+
+    /// <summary>The render target the next recorded shapes draw into, or 0 for the window.</summary>
+    public int Target { get; private set; }
+
+    private readonly Dictionary<int, Color> _targetClears = [];
+
+    /// <summary>The color each render target drawn this frame is cleared to.</summary>
+    public IReadOnlyDictionary<int, Color> TargetClears => _targetClears;
+
+    /// <summary>Sends the following shapes to render target <paramref name="target"/>, or 0 for the window.</summary>
+    public void SetTarget(int target)
+    {
+        lock (_gate)
+        {
+            Target = target;
+            if (target != 0) _targetClears.TryAdd(target, Color.Blank);
+        }
+    }
+
+    /// <summary>Sets the color the current render target is cleared to before it is drawn this frame.</summary>
+    public void SetTargetClear(Color color)
+    {
+        lock (_gate)
+            if (Target != 0) _targetClears[Target] = color;
+    }
 
     /// <summary>Every vertex recorded this frame.</summary>
     public ReadOnlySpan<ImmediateVertex> Vertices => _vertices.AsSpan(0, _count);
@@ -120,6 +146,8 @@ public sealed class DrawList
             _batches.Clear();
             Transform = Matrix4x4.Identity;
             DepthTest = false;
+            Target = 0;
+            _targetClears.Clear();
         }
     }
 
@@ -137,14 +165,14 @@ public sealed class DrawList
         {
             var last = _batches[^1];
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
-                && last.Texture == texture && last.FirstVertex + last.VertexCount == at)
+                && last.Texture == texture && last.Target == Target && last.FirstVertex + last.VertexCount == at)
             {
                 _batches[^1] = last with { VertexCount = last.VertexCount + vertices };
                 return at;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target));
         return at;
     }
 }

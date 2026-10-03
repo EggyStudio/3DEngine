@@ -32,7 +32,18 @@ void ClearBackground(Color color);                       // Color the frame is c
 void BeginMode3D(Camera3D camera);                       // Draw the following shapes through a camera, depth tested
 void EndMode3D();                                        // Return to screen space, in pixels from the top left
 void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from input (Free or Orbital)
+
+RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to
+void UnloadRenderTexture(RenderTexture2D target);        // Free it
+bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
+void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
+void EndTextureMode();                                   // Return to the window
 ```
+
+Inside texture mode, `ClearBackground` clears the target, 2D drawing is in its pixels and cameras
+use its shape. `target.Texture` draws like any texture. A target is drawn before the window in a
+frame that sends anything to it, and keeps its picture in frames that do not. Text, which is drawn
+by ImGui, does not reach a target.
 
 `Camera3D` holds `Position`, `Target`, `Up`, `FovY` (degrees) and `Projection` (`Perspective` or
 `Orthographic`). `CameraMode.Free` moves with W, A, S, D, Q and E, turns while the right mouse

@@ -22,6 +22,7 @@ public static partial class Engine3D
         PumpEvents();
         GetApp().BeginFrame();
         _inFrame = true;
+        _target = default;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
     }
 
@@ -41,12 +42,60 @@ public static partial class Engine3D
         WaitForTargetFrame();
     }
 
-    /// <summary>Sets the color the frame is cleared to.</summary>
-    /// <remarks>The whole frame is cleared before anything is drawn, wherever in the frame this is called.</remarks>
+    /// <summary>Sets the color the frame, or the render target inside <see cref="BeginTextureMode"/>, is cleared to.</summary>
+    /// <remarks>The whole frame or target is cleared before anything is drawn into it, wherever in the frame this is called.</remarks>
     public static void ClearBackground(Color color)
     {
+        if (_target.IsValid)
+        {
+            DrawList.SetTargetClear(color);
+            return;
+        }
+
         var c = color.ToVector4();
         World.InsertResource(new ClearColor(c.X, c.Y, c.Z, c.W));
+    }
+
+    // -- Render targets
+
+    private static RenderTexture2D _target;
+
+    /// <summary>Makes an image of <paramref name="width"/> by <paramref name="height"/> pixels that drawing can be sent to.</summary>
+    public static RenderTexture2D LoadRenderTexture(int width, int height)
+    {
+        var id = Textures.AddTarget(Math.Max(1, width), Math.Max(1, height));
+        return new RenderTexture2D(new Texture2D(id, Math.Max(1, width), Math.Max(1, height)));
+    }
+
+    /// <summary>Frees a render texture.</summary>
+    public static void UnloadRenderTexture(RenderTexture2D target) => UnloadTexture(target.Texture);
+
+    /// <summary>Whether <paramref name="target"/> is loaded.</summary>
+    public static bool IsRenderTextureValid(RenderTexture2D target) => IsTextureValid(target.Texture);
+
+    /// <summary>
+    /// Sends the following drawing into <paramref name="target"/> until <see cref="EndTextureMode"/>,
+    /// in pixels from its top left corner. Its <see cref="RenderTexture2D.Texture"/> then draws like
+    /// any texture.
+    /// </summary>
+    /// <remarks>
+    /// A target is drawn before the window, whatever order the calls come in, and is cleared first
+    /// in a frame that draws into it, to the color <see cref="ClearBackground"/> set inside this mode
+    /// or to transparent black.
+    /// </remarks>
+    public static void BeginTextureMode(RenderTexture2D target)
+    {
+        _target = target;
+        DrawList.SetTarget(target.Texture.Id);
+        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+    }
+
+    /// <summary>Returns drawing to the window.</summary>
+    public static void EndTextureMode()
+    {
+        _target = default;
+        DrawList.SetTarget(0);
+        DrawList.SetTransform(ScreenTransform(), depthTest: false);
     }
 
     // -- Cameras
@@ -54,7 +103,8 @@ public static partial class Engine3D
     /// <summary>Draws the following shapes through <paramref name="camera"/>, depth tested, until <see cref="EndMode3D"/>.</summary>
     public static void BeginMode3D(Camera3D camera)
     {
-        var aspect = (float)GetScreenWidth() / Math.Max(1, GetScreenHeight());
+        var (width, height) = DrawingSize();
+        var aspect = (float)width / Math.Max(1, height);
         DrawList.SetTransform(camera.View * camera.ProjectionMatrix(aspect), depthTest: true);
     }
 
@@ -122,6 +172,13 @@ public static partial class Engine3D
 
     // Pixels from the top left corner to clip space. Vulkan's clip space points down, so the top
     // of the window maps to -1.
-    private static Matrix4x4 ScreenTransform() =>
-        Matrix4x4.CreateOrthographicOffCenter(0, GetScreenWidth(), 0, GetScreenHeight(), -1, 1);
+    private static Matrix4x4 ScreenTransform()
+    {
+        var (width, height) = DrawingSize();
+        return Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1);
+    }
+
+    // The size of what is being drawn into: the render target inside BeginTextureMode, the window otherwise.
+    private static (int Width, int Height) DrawingSize() =>
+        _target.IsValid ? (_target.Texture.Width, _target.Texture.Height) : (GetScreenWidth(), GetScreenHeight());
 }

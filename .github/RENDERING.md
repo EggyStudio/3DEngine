@@ -113,7 +113,15 @@ main pass. Point and spot shadows follow as an atlas.
 ## 4. Render targets and post processing
 
 `BeginTextureMode(target)` redirects the calls that follow into an offscreen image, which a later
-draw can sample. Post processing is a chain of full-screen Slang passes over the main color target
+draw can sample. A target is a color image in the swapchain's format and a depth image in its
+depth format (`GraphicsDevice.CreateRenderTarget`), so its render pass is compatible with the
+window's and the same pipelines draw into both. Draw list batches and model draws carry the
+target they were recorded for, and `TargetsNode` draws each target used in the frame, before the
+window's pass, clearing it first and leaving its color image ready to sample. The color image is
+registered in `GpuTextures` under the target's texture id, so `DrawTexture` samples it like a
+loaded texture.
+
+Post processing is a chain of full-screen Slang passes over the main color target
 before it is copied to the swapchain: tonemapping first, then bloom and anti-aliasing (FXAA).
 
 ## What the engine needs
@@ -146,6 +154,6 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 1. Normals and one directional light.
 2. Assimp models with textures, and the material struct.
 3. Dynamic rendering and synchronization2, then VMA.
-4. Render targets, then tonemapping.
+4. Tonemapping, as a full-screen pass over a render target.
 5. The directional shadow map, then point and spot shadows.
 6. Bloom and FXAA.

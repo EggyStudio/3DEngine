@@ -19,7 +19,13 @@ public sealed class GpuTextures : IDisposable
     /// </summary>
     public const int RetireFrames = 4;
 
-    private sealed record Entry(IImage Image, IImageView View, ISampler Sampler, IDescriptorSet Set);
+    // A render target's image and view belong to its RenderTarget, so Image is null for one.
+    private sealed record Entry(IImage? Image, IImageView View, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null)
+    {
+        public IDisposable[] Owned => Target is not null
+            ? [Set, Sampler, Target]
+            : [Set, Sampler, View, Image!];
+    }
 
     private readonly Dictionary<int, Entry> _entries = [];
     private readonly List<(long Frame, IDisposable[] Objects)> _retired = [];
@@ -33,6 +39,9 @@ public sealed class GpuTextures : IDisposable
     public IDescriptorSet SetFor(IGraphicsDevice gfx, int id) =>
         id != 0 && _entries.TryGetValue(id, out var entry) ? entry.Set : White(gfx).Set;
 
+    /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
+    public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
+
     /// <summary>Applies the store's queued uploads and removals, and destroys what has been retired long enough.</summary>
     public void Update(IGraphicsDevice gfx, TextureStore? store)
     {
@@ -43,11 +52,21 @@ public sealed class GpuTextures : IDisposable
 
             foreach (var id in removals)
                 if (_entries.Remove(id, out var gone))
-                    Retire(gone.Set, gone.Sampler, gone.View, gone.Image);
+                    Retire(gone.Owned);
 
             foreach (var upload in uploads)
             {
                 _entries.TryGetValue(upload.Id, out var existing);
+
+                if (upload.Target)
+                {
+                    if (gfx is not GraphicsDevice device) continue;
+                    var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
+                    var targetSampler = CreateSampler(gfx, upload.Filter);
+                    _entries[upload.Id] = new Entry(null, target.ColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
+                    if (existing is not null) Retire(existing.Owned);
+                    continue;
+                }
 
                 if (upload.Rgba is null)
                 {
@@ -61,7 +80,7 @@ public sealed class GpuTextures : IDisposable
 
                 _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter);
                 if (existing is not null)
-                    Retire(existing.Set, existing.Sampler, existing.View, existing.Image);
+                    Retire(existing.Owned);
             }
         }
 
@@ -114,12 +133,7 @@ public sealed class GpuTextures : IDisposable
             foreach (var o in objects) o.Dispose();
         _retired.Clear();
         foreach (var e in _entries.Values)
-        {
-            e.Set.Dispose();
-            e.Sampler.Dispose();
-            e.View.Dispose();
-            e.Image.Dispose();
-        }
+            foreach (var o in e.Owned) o.Dispose();
         _entries.Clear();
     }
 }

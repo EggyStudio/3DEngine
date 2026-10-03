@@ -10,6 +10,7 @@ var examples = new Dictionary<string, Action>
     ["shapes_basic_2d"] = ShapesBasic2D.Run,
     ["shapes_basic_3d"] = ShapesBasic3D.Run,
     ["textures_basic"] = TexturesBasic.Run,
+    ["textures_render_target"] = TexturesRenderTarget.Run,
     ["models_loading"] = ModelsLoading.Run,
     ["audio_sound"] = AudioSound.Run,
     ["gui_imgui_window"] = GuiImGuiWindow.Run,

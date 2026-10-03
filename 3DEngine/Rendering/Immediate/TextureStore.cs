@@ -34,7 +34,8 @@ public sealed class TextureStore
     /// <param name="Width">Width in pixels.</param>
     /// <param name="Height">Height in pixels.</param>
     /// <param name="Filter">How the texture is sampled.</param>
-    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter);
+    /// <param name="Target">Whether the texture is a render target, drawn into rather than uploaded.</param>
+    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter)> _live = [];
@@ -58,6 +59,19 @@ public sealed class TextureStore
             var id = _next++;
             _live[id] = (width, height, filter);
             _uploads.Add(new Upload(id, rgba, width, height, filter));
+            return id;
+        }
+    }
+
+    /// <summary>Queues a render target of the given size and returns its id, which is also its texture's id.</summary>
+    public int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear)
+    {
+        if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width), "A render target needs a size.");
+        lock (_gate)
+        {
+            var id = _next++;
+            _live[id] = (width, height, filter);
+            _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
             return id;
         }
     }

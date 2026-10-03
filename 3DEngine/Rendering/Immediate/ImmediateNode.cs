@@ -4,60 +4,74 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>
-/// Render graph node that draws the frame's <see cref="DrawList"/> into the swapchain pass
-/// <see cref="MainPassNode"/> opened, after the meshes and before ImGui.
+/// Draws the frame's <see cref="DrawList"/>: holds the four pipelines (lines or triangles, depth
+/// tested or not) and the frame's vertex upload, and draws the batches meant for one target into
+/// whichever pass is open.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Every vertex of the frame is written into the per-frame buffer arena in one copy, and each
-/// <see cref="DrawBatch"/> is one draw call with its transform as a push constant and its texture
-/// as the descriptor set, from <see cref="GpuTextures"/>. Untextured shapes sample a white texture of one pixel, so one shader and
-/// four pipelines (lines or triangles, depth tested or not) draw everything. Culling is off, so a
-/// shape's triangles may wind either way.
+/// Every vertex of the frame is written into the per-frame buffer arena in one copy by
+/// <see cref="Upload"/>, before the graph runs, because the batches for render targets are drawn
+/// by <see cref="TargetsNode"/> before the window's are drawn by <see cref="ImmediateNode"/>, and
+/// both read the same buffer.
+/// </para>
+/// <para>
+/// Each batch is one draw call with its transform as a push constant and its texture, from
+/// <see cref="GpuTextures"/>, as the descriptor set. Culling is off, so a shape's triangles may wind
+/// either way. Render targets have render passes compatible with the window's, so the same
+/// pipelines draw into both.
 /// </para>
 /// </remarks>
-public sealed class ImmediateNode : INode, IDisposable
+public sealed class ImmediateRenderer : IDisposable
 {
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
-
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
     private readonly IPipeline?[] _pipelines = new IPipeline?[4];
+    private DynamicAllocation? _vertices;
 
-    /// <summary>Creates the node from the compiled stages of <c>immediate.slang</c>.</summary>
-    public ImmediateNode(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
+    /// <summary>Creates the renderer from the compiled stages of <c>immediate.slang</c>.</summary>
+    public ImmediateRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
     {
         _vertexSpv = vertexSpv;
         _fragmentSpv = fragmentSpv;
     }
 
-    /// <inheritdoc />
-    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    /// <summary>Writes the frame's vertices into the buffer arena, or forgets last frame's when there are none.</summary>
+    public void Upload(RenderContext renderContext, RenderWorld renderWorld)
     {
-        var gfx = renderContext.Device;
+        _vertices = null;
         var drawList = renderWorld.TryGet<DrawList>();
-        if (drawList is null || drawList.Batches.Count == 0) return;
+        if (drawList is null || drawList.Vertices.IsEmpty || renderContext.DynamicAllocator is not { } allocator) return;
 
-        var activePass = renderWorld.TryGet<ActiveSwapchainPass>();
-        var swapchainTarget = renderWorld.TryGet<SwapchainTarget>();
-        var allocator = renderContext.DynamicAllocator;
-        var textures = renderWorld.TryGet<GpuTextures>();
-        if (activePass is null || swapchainTarget is null || allocator is null || textures is null) return;
-
-        var vertices = MemoryMarshal.AsBytes(drawList.Vertices);
-        var allocation = allocator.Allocate((ulong)vertices.Length, BufferUsage.Vertex);
-        vertices.CopyTo(allocator.Map(allocation));
+        var bytes = MemoryMarshal.AsBytes(drawList.Vertices);
+        var allocation = allocator.Allocate((ulong)bytes.Length, BufferUsage.Vertex);
+        bytes.CopyTo(allocator.Map(allocation));
         allocator.Unmap(allocation);
+        _vertices = allocation;
+    }
 
-        var pass = activePass.Pass;
-        pass.SetVertexBuffer(0, [allocation.Buffer], [allocation.Offset]);
+    /// <summary>Draws the batches meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target)
+    {
+        var drawList = renderWorld.TryGet<DrawList>();
+        var textures = renderWorld.TryGet<GpuTextures>();
+        if (drawList is null || textures is null || _vertices is not { } vertices) return;
 
+        var gfx = renderContext.Device;
+        var bound = false;
         foreach (var batch in drawList.Batches)
         {
-            var pipeline = Pipeline(gfx, swapchainTarget.RenderPass, renderWorld, batch);
-            pass.SetPipeline(pipeline);
+            if (batch.Target != target) continue;
+            if (!bound)
+            {
+                pass.SetVertexBuffer(0, [vertices.Buffer], [vertices.Offset]);
+                bound = true;
+            }
 
+            var pipeline = Pipeline(gfx, renderPass, renderWorld, batch);
+            pass.SetPipeline(pipeline);
             pass.SetBindGroup(pipeline, textures.SetFor(gfx, batch.Texture));
 
             var transform = batch.Transform;
@@ -105,5 +119,27 @@ public sealed class ImmediateNode : INode, IDisposable
     {
         _fragmentShader?.Dispose();
         _vertexShader?.Dispose();
+    }
+}
+
+/// <summary>Prepare system that uploads the frame's immediate vertices before the graph runs.</summary>
+public sealed class ImmediateUploadPrepare : IPrepareSystem
+{
+    /// <inheritdoc />
+    public void Run(RenderWorld renderWorld, RenderContext renderContext) =>
+        renderWorld.TryGet<ImmediateRenderer>()?.Upload(renderContext, renderWorld);
+}
+
+/// <summary>
+/// Render graph node that draws the window's share of the <see cref="DrawList"/> into the swapchain
+/// pass <see cref="MainPassNode"/> opened, after the meshes and before ImGui.
+/// </summary>
+public sealed class ImmediateNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
+        renderWorld.TryGet<ImmediateRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
     }
 }

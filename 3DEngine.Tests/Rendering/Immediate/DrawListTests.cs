@@ -87,4 +87,23 @@ public class DrawListTests
 
         list.Batches.Select(b => (b.Texture, b.VertexCount)).Should().Equal((3, 12), (0, 3));
     }
+
+    [Fact]
+    public void Shapes_For_A_Render_Target_Are_Batched_Apart_And_Its_Clear_Is_Kept()
+    {
+        var list = new DrawList();
+        list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
+        list.SetTarget(5);
+        list.SetTargetClear(Color.Blue);
+        list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
+        list.SetTarget(0);
+        list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
+
+        list.Batches.Select(b => b.Target).Should().Equal(0, 5, 0);
+        list.TargetClears.Should().ContainSingle().Which.Should().Be(new KeyValuePair<int, Color>(5, Color.Blue));
+
+        list.Clear();
+        list.TargetClears.Should().BeEmpty();
+        list.Target.Should().Be(0);
+    }
 }

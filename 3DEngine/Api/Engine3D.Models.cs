@@ -313,7 +313,7 @@ public static partial class Engine3D
     {
         if (!mesh.IsValid) return;
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
-        World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture));
+        World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target));
     }
 
     /// <summary>Draws a box's edges.</summary>

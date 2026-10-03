@@ -123,10 +123,11 @@ and `SceneSpawner` turns it into entities.
 3. **Queue** sorts draw items into `Opaque3dPhase` and `Transparent3dPhase`.
 4. **Graph** runs the render graph's nodes in dependency order.
 
-The graph has four nodes, drawing into one swapchain pass:
+The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass:
 
 | node | draws |
 |---|---|
+| `targets` | every render target sent drawing this frame: its models, then its shapes, each into its own pass |
 | `main_pass` | clears, then the meshes ECS cameras see, through `mesh.slang` |
 | `models` | the frame's `ModelDrawList`: every mesh `DrawModel` and `DrawMesh` recorded, through `model.slang` |
 | `immediate` | the frame's `DrawList`: every shape and texture the flat API recorded, through `immediate.slang` |

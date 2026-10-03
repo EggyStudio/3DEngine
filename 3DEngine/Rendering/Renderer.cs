@@ -62,11 +62,17 @@ public sealed class Renderer : IDisposable
         Graph.AddNode("main_pass", new MainPassNode(mesh.Vertex, mesh.Fragment));
 
         var model = server.LoadSync<ShaderProgram>("shaders/model.slang");
-        Graph.AddNode("models", new ModelNode(model.Vertex, model.Fragment));
-        Graph.AddNodeEdge("main_pass", "models");
-
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
-        Graph.AddNode("immediate", new ImmediateNode(immediate.Vertex, immediate.Fragment));
+        RenderWorld.Set(new ModelRenderer(model.Vertex, model.Fragment));
+        RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
+        AddPrepareSystem(new ImmediateUploadPrepare());
+
+        // Render targets first, so the window's passes can sample them.
+        Graph.AddNode("targets", new TargetsNode());
+        Graph.AddNodeEdge("targets", "main_pass");
+        Graph.AddNode("models", new ModelNode());
+        Graph.AddNodeEdge("main_pass", "models");
+        Graph.AddNode("immediate", new ImmediateNode());
         Graph.AddNodeEdge("models", "immediate");
         Logger.Debug("Default MainPassNode added to render graph.");
 
@@ -222,6 +228,8 @@ public sealed class Renderer : IDisposable
         Logger.Debug("Render systems disposed.");
 
         Graph.Dispose();
+        RenderWorld.TryGet<ImmediateRenderer>()?.Dispose();
+        RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

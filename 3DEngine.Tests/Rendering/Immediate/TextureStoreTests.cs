@@ -75,4 +75,17 @@ public class TextureStoreTests
         store.Remove(id).Should().BeFalse();
         store.Count.Should().Be(0);
     }
+
+    [Fact]
+    public void A_Render_Target_Is_A_Texture_Id_Queued_Without_Pixels()
+    {
+        var store = new TextureStore();
+        var id = store.AddTarget(320, 240);
+
+        var upload = store.Take().Uploads.Should().ContainSingle().Subject;
+        upload.Id.Should().Be(id);
+        upload.Target.Should().BeTrue();
+        upload.Rgba.Should().BeNull();
+        store.Contains(id).Should().BeTrue();
+    }
 }

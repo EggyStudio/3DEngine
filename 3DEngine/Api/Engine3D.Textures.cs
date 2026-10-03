@@ -19,6 +19,13 @@ public readonly record struct Texture2D(int Id, int Width, int Height)
     public bool IsValid => Id > 0;
 }
 
+/// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="Texture"/>.</summary>
+public readonly record struct RenderTexture2D(Texture2D Texture)
+{
+    /// <summary>Whether this names a render texture that was loaded.</summary>
+    public bool IsValid => Texture.IsValid;
+}
+
 public static partial class Engine3D
 {
     private static readonly ILogger ApiLogger = Log.Category("Engine.Api");
