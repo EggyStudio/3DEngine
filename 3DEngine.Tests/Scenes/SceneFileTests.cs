@@ -160,4 +160,34 @@ public class SceneFileTests
         loaded.Resource<EcsWorld>().GetRef<Right.Twin>(back).Value.Should().Be(0.5f);
         SceneComponents.Find("Twin").Should().BeNull("a name two types share names neither");
     }
+
+    public static class Game { public struct Light { public int Lumens; } }
+
+    [Fact]
+    public void An_Engine_Component_Keeps_Its_Name_When_A_Game_Type_Shares_It()
+    {
+        // A level saved before the game had a Light of its own.
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, Light.Point(Vector3.One, 2f));
+        var before = SceneFile.Write(ecs, [lamp]);
+
+        SceneComponents.Add(new SceneCodec<Game.Light>("Light",
+            static (System.Text.Json.Utf8JsonWriter w, in Game.Light v, SceneWriteContext _) => w.WriteNumber("Lumens", v.Lumens),
+            static (e, _) => new Game.Light { Lumens = e.GetProperty("Lumens").GetInt32() }));
+        ecs.Add(lamp, new Game.Light { Lumens = 800 });
+        var after = SceneFile.Write(ecs, [lamp]);
+
+        var loaded = NewWorld();
+        var back = SceneFile.Read(loaded, before).Single();
+        loaded.Resource<EcsWorld>().Has<Light>(back).Should().BeTrue("the older file's Light still means the engine's");
+
+        after.Should().Contain("\"Light\":").And.Contain(typeof(Game.Light).FullName!);
+        var again = NewWorld();
+        var backAgain = SceneFile.Read(again, after).Single();
+        again.Resource<EcsWorld>().GetRef<Light>(backAgain).Intensity.Should().Be(2f);
+        again.Resource<EcsWorld>().GetRef<Game.Light>(backAgain).Lumens.Should().Be(800);
+        SceneComponents.Find("Light")!.Type.Should().Be(typeof(Light));
+    }
 }
