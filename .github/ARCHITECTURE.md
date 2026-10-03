@@ -140,7 +140,9 @@ A level is a JSON scene file that `SceneFile` writes from the ECS and reads back
 component type is saved when it is marked `[SceneComponent]` or is a `[Behavior]`, and
 `SceneComponentGenerator` writes the code that saves its public fields (numbers, strings, enums,
 vectors, colors, entity references by id, asset handles by path) and registers it from a module
-initializer, so loading runs no reflection. A model is named with a `ModelRef`, which
+initializer, so loading runs no reflection. A component is keyed by its type's name, or by its
+full name when two registered types share the name, and a shared name alone loads neither. A
+model is named with a `ModelRef`, which
 `ModelRefSystem` spawns under its entity, and the entities a model spawns are not saved, since the
 file brings them back. The console's `scene.save` and `scene.load` do the same from `./e3d`.
 

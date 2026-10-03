@@ -131,4 +131,33 @@ public class SceneFileTests
             .And.Contain("ctx.Load<global::Engine.Texture>").And.Contain("Enum.Parse<global::Game.Mood>")
             .And.NotContain("Skipped").And.NotContain("Fixed");
     }
+
+    public static class Left { public struct Twin { public int Value; } }
+
+    public static class Right { public struct Twin { public float Value; } }
+
+    [Fact]
+    public void Two_Components_With_One_Name_Are_Written_By_Full_Name_And_Read_Back_As_Themselves()
+    {
+        SceneComponents.Add(new SceneCodec<Left.Twin>("Twin",
+            static (System.Text.Json.Utf8JsonWriter w, in Left.Twin v, SceneWriteContext _) => w.WriteNumber("Value", v.Value),
+            static (e, _) => new Left.Twin { Value = e.GetProperty("Value").GetInt32() }));
+        SceneComponents.Add(new SceneCodec<Right.Twin>("Twin",
+            static (System.Text.Json.Utf8JsonWriter w, in Right.Twin v, SceneWriteContext _) => w.WriteNumber("Value", v.Value),
+            static (e, _) => new Right.Twin { Value = e.GetProperty("Value").GetSingle() }));
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Left.Twin { Value = 3 });
+        ecs.Add(entity, new Right.Twin { Value = 0.5f });
+
+        var json = SceneFile.Write(ecs, [entity]);
+        var loaded = NewWorld();
+        var back = SceneFile.Read(loaded, json).Single();
+
+        json.Should().Contain(typeof(Left.Twin).FullName!).And.Contain(typeof(Right.Twin).FullName!).And.NotContain("\"Twin\":");
+        loaded.Resource<EcsWorld>().GetRef<Left.Twin>(back).Value.Should().Be(3);
+        loaded.Resource<EcsWorld>().GetRef<Right.Twin>(back).Value.Should().Be(0.5f);
+        SceneComponents.Find("Twin").Should().BeNull("a name two types share names neither");
+    }
 }

@@ -84,7 +84,7 @@ public interface ISceneCodec
     /// <summary>Whether the entity has the component.</summary>
     bool Has(EcsWorld ecs, int entity);
 
-    /// <summary>Writes the entity's component as an object of its fields.</summary>
+    /// <summary>Writes the entity's component's fields into the object the caller has opened for it.</summary>
     void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context);
 
     /// <summary>Reads a component from an object of its fields and adds it to the entity, replacing one it has.</summary>
@@ -112,10 +112,7 @@ public sealed class SceneCodec<T>(string name, SceneCodec<T>.Writer write, Scene
     /// <inheritdoc />
     public void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
     {
-        if (!ecs.TryGet<T>(entity, out var value)) return;
-        writer.WriteStartObject(Name);
-        write(writer, value!, context);
-        writer.WriteEndObject();
+        if (ecs.TryGet<T>(entity, out var value)) write(writer, value!, context);
     }
 
     /// <inheritdoc />
@@ -128,41 +125,56 @@ public sealed class SceneCodec<T>(string name, SceneCodec<T>.Writer write, Scene
 }
 
 /// <summary>The component types a scene file can hold, registered by the generated code of each assembly.</summary>
+/// <remarks>
+/// A component is written under its type's name, and under its full name when another registered
+/// type has the same name, so neither is read back as the other whichever registered first.
+/// </remarks>
 public static class SceneComponents
 {
     private static readonly object Gate = new();
-    private static readonly Dictionary<string, ISceneCodec> ByName = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, ISceneCodec> ByFullName = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, List<ISceneCodec>> ByName = new(StringComparer.Ordinal);
 
-    /// <summary>Registers a component type's codec. A second type of the same name is reached by its full name.</summary>
+    /// <summary>Registers a component type's codec. Registering the same type again replaces it.</summary>
     public static void Add(ISceneCodec codec)
     {
         lock (Gate)
         {
-            ByName.TryAdd(codec.Name, codec);
-            ByName[codec.Type.FullName ?? codec.Name] = codec;
+            var fullName = FullName(codec);
+            if (ByFullName.Remove(fullName, out var replaced)) ByName[replaced.Name].Remove(replaced);
+            ByFullName[fullName] = codec;
+            if (!ByName.TryGetValue(codec.Name, out var named)) ByName[codec.Name] = named = [];
+            named.Add(codec);
         }
     }
 
-    /// <summary>Every registered codec, once each.</summary>
+    /// <summary>Every registered codec.</summary>
     public static IReadOnlyList<ISceneCodec> All
     {
-        get { lock (Gate) return ByName.Values.Distinct().ToArray(); }
+        get { lock (Gate) return ByFullName.Values.ToArray(); }
     }
 
-    /// <summary>The codec written under <paramref name="name"/>, or null.</summary>
-    public static ISceneCodec? Find(string name)
+    /// <summary>
+    /// The codec written under <paramref name="key"/>: a type's full name, or its name when no other
+    /// registered type shares it. Null for none, or for a name more than one type has.
+    /// </summary>
+    public static ISceneCodec? Find(string key)
     {
-        lock (Gate) return ByName.GetValueOrDefault(name);
+        lock (Gate)
+        {
+            if (ByFullName.TryGetValue(key, out var exact)) return exact;
+            return ByName.TryGetValue(key, out var named) && named.Count == 1 ? named[0] : null;
+        }
     }
 
     /// <summary>The key a codec's components are written under: its name, or its full name when another type shares the name.</summary>
-    internal static string KeyOf(ISceneCodec codec)
+    public static string KeyOf(ISceneCodec codec)
     {
         lock (Gate)
-            return ByName.TryGetValue(codec.Name, out var first) && ReferenceEquals(first, codec)
-                ? codec.Name
-                : codec.Type.FullName ?? codec.Name;
+            return ByName.TryGetValue(codec.Name, out var named) && named.Count > 1 ? FullName(codec) : codec.Name;
     }
+
+    private static string FullName(ISceneCodec codec) => codec.Type.FullName ?? codec.Name;
 }
 
 /// <summary>What a component's writer asks of the scene being saved.</summary>
@@ -313,7 +325,14 @@ public static partial class SceneFile
             .ToArray();
 
         using var buffer = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true }))
+        // The relaxed encoder writes characters such as the + of a nested type's name as they are
+        // rather than as \u escapes, which a file a person reads is better without. It still
+        // escapes what JSON needs escaped.
+        using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions
+               {
+                   Indented = true,
+                   Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+               }))
         {
             writer.WriteStartObject();
             writer.WriteString("format", Format);
@@ -329,8 +348,12 @@ public static partial class SceneFile
 
                 writer.WriteStartObject("components");
                 foreach (var codec in codecs)
-                    if (codec.Has(ecs, entity))
-                        codec.Write(writer, ecs, entity, context);
+                {
+                    if (!codec.Has(ecs, entity)) continue;
+                    writer.WriteStartObject(SceneComponents.KeyOf(codec));
+                    codec.Write(writer, ecs, entity, context);
+                    writer.WriteEndObject();
+                }
                 writer.WriteEndObject();
                 writer.WriteEndObject();
             }
@@ -391,7 +414,8 @@ public static partial class SceneFile
             {
                 if (SceneComponents.Find(component.Name) is not { } codec)
                 {
-                    Logger.Warn($"Scene file: no component is called '{component.Name}', so it is skipped.");
+                    Logger.Warn($"Scene file: no single component is called '{component.Name}', so it is skipped. "
+                                + "A name two component types share is written as a full name.");
                     continue;
                 }
                 codec.Read(component.Value, ecs, spawned[i], context);
