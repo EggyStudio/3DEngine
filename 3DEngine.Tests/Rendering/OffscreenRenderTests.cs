@@ -279,4 +279,57 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(spot, 52, 32).R.Should().BeLessThan(10, "the wall's edge is far outside an 8 degree cone");
         GetImageColor(ranged, 32, 32).R.Should().BeLessThan(10, "the wall is past the light's range");
     }
+
+    // A white wall facing a camera 4 units away down +Z, filling the frame.
+    private static void SpawnWallAndCamera(EcsWorld ecs)
+    {
+        var camera = ecs.Spawn();
+        ecs.Add(camera, new Camera(45f));
+        ecs.Add(camera, new Transform(new Vector3(0, 0, 4)));
+        var wall = ecs.Spawn();
+        ecs.Add(wall, new Mesh([new(-2, -2, 0), new(2, -2, 0), new(2, 2, 0), new(-2, -2, 0), new(2, 2, 0), new(-2, 2, 0)]));
+        ecs.Add(wall, new Material(Vector4.One));
+        ecs.Add(wall, new Transform(Vector3.Zero));
+    }
+
+    [NeedsVulkanFact]
+    public void A_Highlight_Is_Brighter_Than_The_Same_Surface_Lit_Diffusely()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnWallAndCamera(ecs);
+
+        // Pointing straight at the wall the way the camera looks, so the diffuse light it gives
+        // equals an ambient light of the same color, and the middle of the wall mirrors it.
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, Light.Directional(Vector3.One, 0.5f));
+        ecs.Add(lamp, new Transform(Vector3.Zero));
+        var direct = Capture(() => ClearBackground(Color.Black), "direct");
+
+        ecs.GetRef<Light>(lamp) = Light.Ambient(Vector3.One, 0.5f);
+        var ambient = Capture(() => ClearBackground(Color.Black), "ambient");
+
+        int highlight = GetImageColor(direct, 32, 32).R;
+        int diffuse = GetImageColor(ambient, 32, 32).R;
+        diffuse.Should().BeInRange(100, 220, "half a white light on a white wall is a middle gray once tonemapped");
+        highlight.Should().BeGreaterThan(diffuse + 15, "the directional light adds a highlight where the wall mirrors it into the camera");
+    }
+
+    [NeedsVulkanFact]
+    public void Light_Summed_Past_One_Keeps_Its_Hue_Instead_Of_Clamping_To_White()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnWallAndCamera(ecs);
+
+        // An orange light four times over: (4, 2, 1), which a plain clamp turns white.
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, Light.Ambient(new Vector3(1f, 0.5f, 0.25f), 4f));
+        var image = Capture(() => ClearBackground(Color.Black), "orange");
+
+        var color = GetImageColor(image, 32, 32);
+        color.R.Should().BeGreaterThan(230, "the brightest channel comes close to full");
+        ((int)color.R).Should().BeGreaterThan(color.G + 5, "red stays above green");
+        ((int)color.G).Should().BeGreaterThan(color.B + 15, "green stays above blue, so the light reads as orange");
+    }
 }

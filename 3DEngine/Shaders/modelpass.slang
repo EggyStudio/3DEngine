@@ -64,7 +64,28 @@ public struct ModelVertexOutput
     public float3 normal : NORMAL;
     public float3 world : POSITION1;
     public float2 uv : TEXCOORD0;
+    // From the surface toward the camera, unnormalized, for specular light.
+    public float3 toEye : TEXCOORD1;
 };
+
+// Where the camera is, worked out from the transform alone, since the push constants have no
+// room for it. Under a perspective projection the eye is the one point clip space's x, y and w all
+// take as zero, three planes whose meeting point Cramer's rule gives. An orthographic projection
+// has no such point, and gives the way toward the camera instead, with w of 0.
+float4 eyeInModelSpace()
+{
+    float4 a = push.transform[0];
+    float4 b = push.transform[1];
+    float4 c = push.transform[3];
+    float3 bc = cross(b.xyz, c.xyz);
+    float det = dot(a.xyz, bc);
+    if (abs(det) > 1e-8)
+        return float4((-a.w * bc - b.w * cross(c.xyz, a.xyz) - c.w * cross(a.xyz, b.xyz)) / det, 1.0);
+
+    // Toward the camera is where depth falls, which is against the transform's depth row.
+    float3 back = normalize(cross(a.xyz, b.xyz));
+    return float4(dot(back, push.transform[2].xyz) > 0.0 ? -back : back, 0.0);
+}
 
 // LightKind's values.
 static const int Directional = 0;
@@ -80,6 +101,10 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
     output.normal = float3(dot(push.worldX.xyz, normal), dot(push.worldY.xyz, normal), dot(push.worldZ.xyz, normal));
     output.world = float3(dot(push.worldX, float4(position, 1.0)), dot(push.worldY, float4(position, 1.0)), dot(push.worldZ, float4(position, 1.0)));
     output.uv = uv;
+
+    float4 eye = eyeInModelSpace();
+    float3 eyeWorld = float3(dot(push.worldX, eye), dot(push.worldY, eye), dot(push.worldZ, eye));
+    output.toEye = eye.w == 0.0 ? eyeWorld : eyeWorld - output.world;
     return output;
 }
 
@@ -119,8 +144,24 @@ float3 arriving(Light light, float3 world, float3 n)
     return color * result;
 }
 
-// A color lit at this point: by the frame's light entities, or by one fixed light from above over
-// an ambient floor when there are none.
+// The way light comes from one light to a point, for specular.
+float3 fromLight(Light light, float3 world)
+{
+    int kind = int(light.positionAndKind.w);
+    return kind == Directional ? light.directionAndRange.xyz : normalize(world - light.positionAndKind.xyz);
+}
+
+// The ACES curve as Krzysztof Narkowicz fitted it. A sum of lights past 1 bends toward white
+// instead of clipping, so a bright light shows how bright it is.
+public float3 tonemap(float3 color)
+{
+    return saturate((color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14));
+}
+
+// A color lit at this point. With light entities it is their diffuse light and a Blinn-Phong
+// highlight of each light that is not ambient, with the ACES curve over the sum. With none it is
+// one fixed light from above over an ambient floor and no highlight, which is how the flat API's
+// models look.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
@@ -130,8 +171,19 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         return albedo * (0.35 + 0.65 * max(dot(n, toLight), 0.0));
     }
 
-    float3 light = float3(0.0);
+    float3 v = normalize(input.toEye);
+    float3 diffuse = float3(0.0);
+    float3 specular = float3(0.0);
     for (int i = 0; i < min(lighting.count, 16); i++)
-        light += arriving(lighting.lights[i], input.world, n);
-    return saturate(albedo * light);
+    {
+        Light light = lighting.lights[i];
+        float3 arrived = arriving(light, input.world, n);
+        diffuse += arrived;
+        if (int(light.positionAndKind.w) != Ambient)
+        {
+            float3 h = normalize(v - fromLight(light, input.world));
+            specular += arrived * 0.25 * pow(max(dot(n, h), 0.0), 32.0);
+        }
+    }
+    return tonemap(albedo * diffuse + specular);
 }

@@ -131,8 +131,14 @@ from a ring of one per frame in flight. A `Light` is a kind (directional, point,
 a color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
 `modelpass.slang` adds each light by Lambert's cosine: a directional light by its direction, an
 ambient light everywhere alike, and a point or spot by the square of the distance, brought smoothly
-to nothing at its range and cut by a spot's cone. The sum is clamped rather than tonemapped, and
-there is no specular yet.
+to nothing at its range and cut by a spot's cone. Every light but an ambient one adds a
+Blinn-Phong highlight (a quarter of its light, at an exponent of 32), toward a camera the shader
+finds from the transform alone, since the push constants have no room for its position. The sum
+goes through the ACES curve as Krzysztof Narkowicz fitted it, so a sum past one bends toward white
+and keeps its hue where a clamp would turn it white. The curve runs at the end of the model pass,
+because the engine has no main color target to run it over. Once one exists it moves into the
+post processing chain, and the model pass writes linear light. The fallback light of a world with
+no lights is neither tonemapped nor given a highlight, so the flat API's models look as before.
 
 The first shadow
 is one cascaded shadow map for the main directional light, rendered as a depth-only node before the
@@ -182,6 +188,7 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 1. Normals and one directional light.
 2. Assimp models with textures, and the material struct.
 3. Dynamic rendering and synchronization2, then VMA.
-4. Tonemapping, as a full-screen pass over a render target.
+4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
+   model pass.
 5. The directional shadow map, then point and spot shadows.
 6. Bloom and FXAA.
