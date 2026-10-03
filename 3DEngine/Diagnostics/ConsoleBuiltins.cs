@@ -132,6 +132,100 @@ internal static class ConsoleBuiltins
         return text.ToString().TrimEnd();
     }
 
+    [Command("entity.spawn", "Spawns an entity with a Name and answers its id: entity.spawn <name>")]
+    internal static string EntitySpawn(string name)
+    {
+        var ecs = ConsoleHost.Ecs;
+        var entity = ecs.Spawn();
+        ecs.SetName(entity, name);
+        return entity.ToString();
+    }
+
+    [Command("entity.despawn", "Despawns an entity and its children: entity.despawn <id>")]
+    internal static string EntityDespawn(int id)
+    {
+        var ecs = ConsoleHost.Ecs;
+        if (!ecs.IsAlive(ecs.Handle(id)))
+        {
+            ConsoleHost.Fail("NOT_FOUND", $"Entity {id} is not alive.");
+            return $"no entity {id}";
+        }
+        ecs.DespawnRecursive(id);
+        return $"despawned {id}";
+    }
+
+    [Command("entity.add", "Adds a component with its default values, which entity.set then changes: entity.add <id> <Component>")]
+    internal static string EntityAdd(int id, string componentName)
+    {
+        var ecs = ConsoleHost.Ecs;
+        if (!ecs.IsAlive(ecs.Handle(id)))
+        {
+            ConsoleHost.Fail("NOT_FOUND", $"Entity {id} is not alive.");
+            return $"no entity {id}";
+        }
+
+        var candidates = ComponentTypesNamed(componentName);
+        if (candidates.Count != 1)
+        {
+            var message = candidates.Count == 0
+                ? $"No component type is called {componentName}."
+                : $"{componentName} could be any of {string.Join(", ", candidates.Select(t => t.FullName))}.";
+            ConsoleHost.Fail(candidates.Count == 0 ? "NOT_FOUND" : "AMBIGUOUS", message);
+            return message;
+        }
+
+        var type = candidates[0];
+        if (ecs.GetBoxed(id, type) is not null)
+        {
+            ConsoleHost.Fail("EXISTS", $"Entity {id} already has a {type.Name}. Change it with entity.set.");
+            return $"entity {id} already has a {type.Name}";
+        }
+
+        var value = DefaultOf(type);
+        ecs.AddBoxed(id, value);
+        return $"{type.Name} {Describe(value)}";
+    }
+
+    // Value types named so in the loaded assemblies, the engine's first. A component is any
+    // struct, so the name is all there is to go on, and an ambiguous one is refused.
+    private static List<Type> ComponentTypesNamed(string name)
+    {
+        var found = new List<Type>();
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (assembly.IsDynamic) continue;
+            Type[] types;
+            try { types = assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException ex) { types = ex.Types.OfType<Type>().ToArray(); }
+            foreach (var type in types)
+                if (type is { IsValueType: true, IsEnum: false, IsPrimitive: false, IsGenericTypeDefinition: false, IsPublic: true }
+                    && type.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    found.Add(type);
+        }
+        var engine = found.Where(t => t.Namespace == "Engine").ToList();
+        return engine.Count == 1 ? engine : found;
+    }
+
+    // A component as a new one should start: its static Default or Identity when it has one, else
+    // a constructor whose parameters all have defaults, else the zero value. Several components
+    // are wrong at zero (a Transform of scale zero, a Material that is transparent black).
+    private static object DefaultOf(Type type)
+    {
+        foreach (var name in new[] { "Default", "Identity" })
+        {
+            if (type.GetProperty(name, BindingFlags.Public | BindingFlags.Static) is { } property && property.PropertyType == type)
+                return property.GetValue(null)!;
+            if (type.GetField(name, BindingFlags.Public | BindingFlags.Static) is { } field && field.FieldType == type)
+                return field.GetValue(null)!;
+        }
+
+        var optional = type.GetConstructors().FirstOrDefault(c => c.GetParameters() is { Length: > 0 } ps && ps.All(p => p.HasDefaultValue));
+        if (optional is not null)
+            return optional.Invoke(optional.GetParameters().Select(p => p.DefaultValue).ToArray());
+
+        return Activator.CreateInstance(type)!;
+    }
+
     [Command("entity.set", "Sets one field of an entity's component: entity.set <id> <Component.Field> <value>, with vectors and colors as 1,2,3")]
     internal static string EntitySet(int id, string path, string value)
     {

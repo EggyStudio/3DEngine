@@ -53,7 +53,9 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |
 | `entity.find <name>` | the id of the first entity with that name |
-| `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`), marking it changed |
+| `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`, enums by name), marking it changed |
+| `entity.spawn <name>`, `entity.despawn <id>` | makes a named entity and answers its id, or removes one with its children |
+| `entity.add <id> <Component>` | adds a component at sensible defaults (a unit `Transform`, a white `Material`), which `entity.set` then changes |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
 | `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |

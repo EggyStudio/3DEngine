@@ -16,6 +16,9 @@ public struct Transform
     /// <summary>Scale factor per axis.</summary>
     public Vector3 Scale;
 
+    /// <summary>At the origin, unrotated, at unit scale. A default <see cref="Transform"/> has zero scale instead.</summary>
+    public static Transform Identity => new(Vector3.Zero);
+
     /// <summary>Creates a transform at the specified position with identity rotation and unit scale.</summary>
     /// <param name="position">World-space position.</param>
     public Transform(Vector3 position)

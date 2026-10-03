@@ -25,7 +25,9 @@ removed from this file, and an item that is partly done is rewritten around what
   query of three components, and `Query<...>` yields copies through an allocating iterator.
 - **Transform propagation walks every parented entity each frame**, with a dictionary, in
   `Stage.Render`. It has no change detection, so a large static hierarchy costs its size every
-  frame, and physics writes a body's `Transform` as if it had no parent.
+  frame, and physics writes a body's `Transform` as if it had no parent. Skipping unchanged chains
+  by change bits needs `GetRef` to mark what it hands out as changed, as Bevy's `Mut` does, since
+  code moves transforms through it and it marks nothing.
 
 ### Behaviors
 
@@ -149,6 +151,7 @@ what is left.
 - **No package.** The engine is consumed as a project reference. A NuGet package carrying the
   shaders and the native SDL3 libraries is needed for a game outside this repository.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
-  text, mouse and gamepads, reaching ImGui as well) and captures, `entity.set` writes one field, and
-  a game adds commands with `[Command]`, but C# cannot be typed at a running app, and an entity
-  cannot be spawned or given a new component from the CLI.
+  text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
+  adds components and writes their fields, and a game adds commands with `[Command]`, but C#
+  cannot be typed at a running app, and a field holding an array (a `Mesh`'s positions) cannot be
+  written from it.

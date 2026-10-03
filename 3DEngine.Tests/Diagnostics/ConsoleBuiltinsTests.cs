@@ -89,4 +89,29 @@ public class ConsoleBuiltinsTests
         Run(world, app, "entity.set 1 Health.Value lots").Should().Contain("not a Int32");
         Run(world, app, "entity.set 1 Armor.Value 1").Should().Contain("no Armor");
     }
+
+    [Fact]
+    public void Entities_Are_Spawned_Given_Components_With_Sensible_Defaults_And_Despawned()
+    {
+        var (world, app) = Setup();
+        var ecs = world.Resource<EcsWorld>();
+
+        var id = int.Parse(Run(world, app, "entity.spawn crate"));
+        ecs.FindByName("crate").Should().Be(id);
+
+        Run(world, app, $"entity.add {id} Transform").Should().Contain("Scale=<1, 1, 1>");
+        Run(world, app, $"entity.add {id} material").Should().StartWith("Material");
+        ecs.TryGet<Material>(id, out var material).Should().BeTrue();
+        material.Albedo.Should().Be(System.Numerics.Vector4.One);
+        Run(world, app, $"entity.add {id} Camera");
+        ecs.TryGet<Camera>(id, out var camera).Should().BeTrue();
+        camera.FovY.Should().BeApproximately(float.DegreesToRadians(60), 1e-5f, "the optional constructor's defaults are used");
+
+        Run(world, app, $"entity.add {id} Transform").Should().Contain("already has a Transform");
+        Run(world, app, $"entity.add {id} NoSuchThing").Should().Contain("No component type");
+
+        Run(world, app, $"entity.despawn {id}").Should().Be($"despawned {id}");
+        ecs.IsAlive(ecs.Handle(id)).Should().BeFalse();
+        Run(world, app, $"entity.despawn {id}").Should().Be($"no entity {id}");
+    }
 }

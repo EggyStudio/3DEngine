@@ -515,6 +515,19 @@ public sealed partial class EcsWorld
         lock (_stores) return _stores.TryGetValue(value.GetType(), out var store) && store.SetBoxed(entity, value);
     }
 
+    /// <summary>Adds a component given as an object, whatever its type, making its store when it has none.</summary>
+    /// <remarks>
+    /// For tools such as the console, which know a component only at run time. The typed
+    /// <see cref="Add{T}"/> is reached through reflection, once per call, so a system's loop uses
+    /// that instead.
+    /// </remarks>
+    public void AddBoxed(int entity, object value) =>
+        typeof(EcsWorld).GetMethod(nameof(AddTyped), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .MakeGenericMethod(value.GetType())
+            .Invoke(this, [entity, value]);
+
+    private void AddTyped<T>(int entity, object value) => Add(entity, (T)value);
+
     /// <summary>How many entities have a component of <paramref name="type"/>.</summary>
     public int CountOf(Type type)
     {

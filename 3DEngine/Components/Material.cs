@@ -85,6 +85,12 @@ public struct Material
     /// Convenience for callers that only need a flat-shaded color.
     /// </summary>
     /// <param name="albedo">RGBA albedo (0..1).</param>
+    /// <summary>
+    /// White and opaque. A default <see cref="Material"/> has an albedo of zero, which is
+    /// transparent black and draws nothing.
+    /// </summary>
+    public static Material Default => new(Vector4.One);
+
     public Material(Vector4 albedo)
     {
         Albedo = albedo;
