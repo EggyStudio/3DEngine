@@ -44,6 +44,8 @@ public sealed partial class PhysicsWorld : IDisposable
     // Each body's pose before the last step, by handle, for interpolation (SyncTransforms).
     private readonly Dictionary<int, (System.Numerics.Vector3 Position, System.Numerics.Quaternion Orientation)> _previousPoses = new();
 
+    private readonly ContactCollector _contacts;
+
     /// <summary>Time accumulator for the fixed-timestep integrator.</summary>
     private float _accumulator;
 
@@ -58,7 +60,9 @@ public sealed partial class PhysicsWorld : IDisposable
             ? Math.Max(1, Environment.ProcessorCount - 1)
             : settings.WorkerThreads;
         Dispatcher = new ThreadDispatcher(workers);
+        _contacts = new ContactCollector(Dispatcher.ThreadCount);
         var narrowCallbacks = BepuNarrowPhaseCallbacks.Default();
+        narrowCallbacks.Contacts = _contacts;
         var integrator = new BepuPoseIntegratorCallbacks
         {
             Gravity = settings.Gravity,

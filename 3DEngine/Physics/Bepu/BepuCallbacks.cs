@@ -9,8 +9,34 @@ using BepuUtilities;
 namespace Engine;
 
 /// <summary>
+/// The pairs of collidables touching during one step, gathered from the narrow phase's worker
+/// threads into a list per worker, so recording one takes no lock.
+/// </summary>
+internal sealed class ContactCollector
+{
+    private readonly List<(CollidableReference A, CollidableReference B)>[] _byWorker;
+
+    public ContactCollector(int workers) =>
+        _byWorker = Enumerable.Range(0, Math.Max(1, workers)).Select(_ => new List<(CollidableReference, CollidableReference)>()).ToArray();
+
+    public void Record(int workerIndex, CollidableReference a, CollidableReference b) =>
+        _byWorker[workerIndex].Add((a, b));
+
+    /// <summary>Every pair recorded since the last call, which it forgets.</summary>
+    public IEnumerable<(CollidableReference A, CollidableReference B)> Take()
+    {
+        foreach (var list in _byWorker)
+        {
+            foreach (var pair in list) yield return pair;
+            list.Clear();
+        }
+    }
+}
+
+/// <summary>
 /// Per-pair material accept/configure callbacks. Filters out static-static and
-/// kinematic-static pairs and applies a single global friction/restitution.
+/// kinematic-static pairs, applies a single global friction/restitution, and records every pair
+/// whose manifold has a contact at or past touching into <see cref="Contacts"/>.
 /// </summary>
 internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
@@ -18,6 +44,10 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public float Friction;
     public float Restitution;
     public float MaximumRecoveryVelocity;
+    public ContactCollector? Contacts;
+
+    /// <summary>The gap in world units below which a contact counts as touching.</summary>
+    public const float TouchingGap = 0.01f;
 
     public static BepuNarrowPhaseCallbacks Default() => new()
     {
@@ -45,6 +75,18 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         pairMaterial.FrictionCoefficient = Friction;
         pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
         pairMaterial.SpringSettings = ContactSpringiness;
+
+        // A speculative contact has a negative depth, for shapes close enough to meet within the
+        // step. Shapes a hundredth of a unit apart or closer count as touching, since the solver
+        // leaves a resting pair hovering about a depth of zero, which a strict test would see start
+        // and end over and over.
+        if (Contacts is not null)
+            for (int i = 0; i < manifold.Count; i++)
+                if (manifold.GetDepth(i) >= -TouchingGap)
+                {
+                    Contacts.Record(workerIndex, pair.A, pair.B);
+                    break;
+                }
         return true;
     }
 

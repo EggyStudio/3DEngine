@@ -111,8 +111,16 @@ the engine's own shortcuts ask `WantTextInput` instead.
 `Stage.FixedUpdate` run on `FixedTime`'s step (the same steps `[OnFixedUpdate]` behaviors run on),
 answers `Raycast`, and writes each body's `Transform` blended between its last two steps by
 `FixedTime.Alpha`. That blend is the `Transform` game code reads too, so code that needs the
-simulation's own pose asks `PhysicsWorld.GetPosition`. There is no `Engine3D` surface for it, a
-body's `Transform` is written as if it had no parent, and contacts are not reported as events.
+simulation's own pose asks `PhysicsWorld.GetPosition`. A body under a `Parent` is given the local
+`Transform` that puts it at its pose under the parent as the parent is in that frame, so it can be
+grouped under a level's entity and stays where the simulation has it, and a parent never carries
+it. Two bodies starting and stopping touching (a hundredth of a unit apart or closer) are sent as
+`ContactStarted` and `ContactEnded` events after each step and cleared at `Stage.First`, with the
+entities as they were when the contact started. A resting pair whose bodies sleep stays touching.
+
+What is missing is an `Engine3D` surface for physics, contact points, normals and impulses on the
+events, triggers that report overlap without colliding, and a body whose parent moves it, as a
+platform carries what stands on it, which needs a kinematic body driven from the parent's pose.
 
 ### Scenes
 

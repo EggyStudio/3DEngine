@@ -17,6 +17,7 @@ public sealed partial class PhysicsWorld
             while (_accumulator >= _settings.FixedTimeStep && steps < _settings.MaxStepsPerFrame)
             {
                 Simulation.Timestep(_settings.FixedTimeStep, Dispatcher);
+                UpdateContacts();
                 _accumulator -= _settings.FixedTimeStep;
                 steps++;
             }
@@ -27,6 +28,7 @@ public sealed partial class PhysicsWorld
         else
         {
             Simulation.Timestep(deltaSeconds, Dispatcher);
+            UpdateContacts();
         }
     }
 
@@ -38,6 +40,7 @@ public sealed partial class PhysicsWorld
         if (seconds <= 0f) return;
         RememberPoses();
         Simulation.Timestep(seconds, Dispatcher);
+        UpdateContacts();
     }
 
     /// <summary>Writes every body's pose into its entity's <see cref="Transform"/>, as it is.</summary>
@@ -52,6 +55,13 @@ public sealed partial class PhysicsWorld
     /// which is smooth however frames and steps line up. A body created since the last step, or
     /// moved with <see cref="SetPosition"/> or <see cref="SetRotation"/>, has no earlier pose to
     /// blend from and is written as it is.
+    /// <para>
+    /// A body's entity under a <see cref="Parent"/> is given the local transform that puts it at
+    /// the body's pose under its parent as the parent is in this frame, its own scale kept, so the body stays
+    /// where the simulation has it however the parent moves. A parent scaled unevenly and rotated
+    /// cannot carry every rotation of a child, and its child then stands as near as a
+    /// decomposition gets.
+    /// </para>
     /// </remarks>
     public void SyncTransforms(EcsWorld ecs, float alpha)
     {
@@ -64,16 +74,32 @@ public sealed partial class PhysicsWorld
             var br = bodies.GetBodyReference(new BodyHandle(handleValue));
             if (!ecs.Has<Transform>(entity)) continue;
             ref var t = ref ecs.GetRef<Transform>(entity);
+            Vector3 position;
+            Quaternion rotation;
             if (alpha < 1f && _previousPoses.TryGetValue(handleValue, out var before))
             {
-                t.Position = Vector3.Lerp(before.Position, br.Pose.Position, alpha);
-                t.Rotation = Quaternion.Slerp(before.Orientation, br.Pose.Orientation, alpha);
+                position = Vector3.Lerp(before.Position, br.Pose.Position, alpha);
+                rotation = Quaternion.Slerp(before.Orientation, br.Pose.Orientation, alpha);
             }
             else
             {
-                t.Position = br.Pose.Position;
-                t.Rotation = br.Pose.Orientation;
+                position = br.Pose.Position;
+                rotation = br.Pose.Orientation;
             }
+
+            var parent = ecs.ParentOf(entity);
+            if (parent != 0 && Matrix4x4.Invert(TransformPropagation.ComposedWorldMatrix(ecs, parent), out var toParent))
+            {
+                var world = Matrix4x4.CreateScale(t.Scale) * Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(position);
+                if (Matrix4x4.Decompose(world * toParent, out _, out var localRotation, out var localPosition))
+                {
+                    position = localPosition;
+                    rotation = localRotation;
+                }
+            }
+
+            t.Position = position;
+            t.Rotation = rotation;
         }
     }
 

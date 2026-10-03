@@ -122,6 +122,22 @@ public static class TransformPropagation
         : ecs.TryGet<Transform>(entity, out var local) ? ToMatrix(local)
         : System.Numerics.Matrix4x4.Identity;
 
+    /// <summary>
+    /// The world matrix of <paramref name="entity"/> composed from the <see cref="Transform"/>s of
+    /// it and its parents as they are, rather than read from the <see cref="GlobalTransform"/>
+    /// written in the last <see cref="Stage.Render"/>, for code that runs after a parent has moved.
+    /// </summary>
+    public static System.Numerics.Matrix4x4 ComposedWorldMatrix(EcsWorld ecs, int entity)
+    {
+        var world = System.Numerics.Matrix4x4.Identity;
+        for (int depth = 0; entity != 0 && depth < 256; depth++)
+        {
+            if (ecs.TryGet<Transform>(entity, out var t)) world *= ToMatrix(t);
+            entity = ecs.ParentOf(entity);
+        }
+        return world;
+    }
+
     /// <summary>Writes every parented entity's <see cref="GlobalTransform"/>.</summary>
     public static void Run(World world)
     {

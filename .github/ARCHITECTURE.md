@@ -35,7 +35,7 @@ A frame is nine stages:
 | `Startup` | once, before the first frame |
 | `First` | time advances, change bits clear, the draw list clears |
 | `PreUpdate` | ImGui's frame starts, finished asset loads land, scenes spawn, then queued state moves apply |
-| `FixedUpdate` | zero or more times, once per whole step of `FixedTime` (60 Hz by default), physics steps |
+| `FixedUpdate` | zero or more times, once per whole step of `FixedTime` (60 Hz by default), physics steps and sends its contacts as events |
 | `Update` | the game |
 | `PostUpdate` | deferred ECS commands apply, physics bodies are written back |
 | `Render` | ImGui windows that systems draw |

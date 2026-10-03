@@ -46,24 +46,41 @@ public sealed class PhysicsPlugin : IPlugin
         // With FixedTime (TimePlugin adds it), the simulation advances one step per FixedUpdate run,
         // on the same steps as [OnFixedUpdate] behaviors, so a behavior that pushes a body pushes it
         // once per step. Without it, PhysicsWorld keeps its own accumulator and steps in PreUpdate.
+        // Contacts are sent as events after each step and kept until the next frame starts, so
+        // code in any stage of the frame reads every contact of the frame's steps once.
+        app.AddSystem(Stage.First, new SystemDescriptor(static w =>
+            {
+                w.ClearEvents<ContactStarted>();
+                w.ClearEvents<ContactEnded>();
+            }, "Physics.ClearContacts")
+            .Write<Events<ContactStarted>>()
+            .Write<Events<ContactEnded>>());
+
         app.AddSystem(Stage.FixedUpdate, new SystemDescriptor(static w =>
             {
-                if (w.TryGetResource<FixedTime>(out var fixedTime))
-                    w.Resource<PhysicsWorld>().StepOnce((float)fixedTime.StepSeconds);
+                if (!w.TryGetResource<FixedTime>(out var fixedTime)) return;
+                var phys = Prepared(w);
+                phys.StepOnce((float)fixedTime.StepSeconds);
+                SendContacts(w, phys);
             }, "Physics.FixedStep")
             .Read<FixedTime>()
             .Write<PhysicsWorld>()
+            .Write<Events<ContactStarted>>()
+            .Write<Events<ContactEnded>>()
             .MainThreadOnly());
 
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(static w =>
             {
                 if (w.ContainsResource<FixedTime>()) return;
-                var phys = w.Resource<PhysicsWorld>();
+                var phys = Prepared(w);
                 var time = w.Resource<Time>();
                 phys.Step((float)time.DeltaSeconds);
+                SendContacts(w, phys);
             }, "Physics.Step")
             .Read<Time>()
             .Write<PhysicsWorld>()
+            .Write<Events<ContactStarted>>()
+            .Write<Events<ContactEnded>>()
             .MainThreadOnly());
 
         app.AddSystem(Stage.PostUpdate, new SystemDescriptor(static w =>
@@ -79,5 +96,35 @@ public sealed class PhysicsPlugin : IPlugin
             .Write<EcsWorld>());
 
         Logger.Info("PhysicsPlugin: physics systems registered (FixedUpdate=Step, PostUpdate=SyncTransforms).");
+    }
+
+    // Reused by the step systems, which run on the main thread only.
+    private static readonly List<PhysicsContact> Started = [];
+    private static readonly List<PhysicsContact> Ended = [];
+
+    // The physics world, able to name the entities of the contacts its next step finds.
+    private static PhysicsWorld Prepared(World w)
+    {
+        var phys = w.Resource<PhysicsWorld>();
+        if (phys.EntityHandle is null && w.TryGetResource<EcsWorld>(out var ecs))
+            phys.EntityHandle = ecs.Handle;
+        return phys;
+    }
+
+    private static void SendContacts(World w, PhysicsWorld phys)
+    {
+        Started.Clear();
+        Ended.Clear();
+        phys.TakeContacts(Started, Ended);
+        if (Started.Count > 0)
+        {
+            var events = Events.Get<ContactStarted>(w);
+            foreach (var c in Started) events.Send(new ContactStarted(c.A, c.B, c.BodyA, c.BodyB));
+        }
+        if (Ended.Count > 0)
+        {
+            var events = Events.Get<ContactEnded>(w);
+            foreach (var c in Ended) events.Send(new ContactEnded(c.A, c.B, c.BodyA, c.BodyB));
+        }
     }
 }
