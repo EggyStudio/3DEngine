@@ -18,21 +18,39 @@ public sealed class AppExitPlugin : IPlugin
         // Ensure exit state resource exists.
         app.World.InitResource<AppExit>();
 
-        // When the window signals quit, raise the Requested flag.
-        var window = app.World.Resource<AppWindow>();
-        window.QuitEvent += () =>
+        // When the window signals quit, raise the Requested flag. A headless run has no window.
+        if (app.World.TryGetResource<AppWindow>(out var window))
         {
-            Logger.Info("Quit event received - flagging application exit.");
-            app.World.Resource<AppExit>().Requested = true;
-        };
+            window.QuitEvent += () =>
+            {
+                Logger.Info("Quit event received - flagging application exit.");
+                app.World.Resource<AppExit>().Requested = true;
+            };
+        }
+
+        // --frames N: ask to close once N frames have run, at the end of the last one.
+        var frames = app.World.Resource<Config>().Frames;
+        if (frames > 0)
+        {
+            app.AddSystem(Stage.Last, new SystemDescriptor(world =>
+                {
+                    if (world.Resource<Time>().FrameCount >= frames && !world.Resource<AppExit>().Requested)
+                    {
+                        Logger.Info($"Ran the {frames} frame(s) asked for - closing.");
+                        world.Resource<AppExit>().Requested = true;
+                    }
+                }, "AppExitPlugin.Frames")
+                .Read<Time>()
+                .Write<AppExit>());
+        }
 
         // Early frame: if an exit was requested previously, ask window to close (will break main loop).
         app.AddSystem(Stage.First, new SystemDescriptor(world =>
             {
-                if (world.Resource<AppExit>().Requested)
+                if (world.Resource<AppExit>().Requested && world.TryGetResource<AppWindow>(out var appWindow))
                 {
                     Logger.Info("Exit requested - closing window to break main loop.");
-                    world.Resource<AppWindow>().RequestClose();
+                    appWindow.RequestClose();
                 }
             }, "AppExitPlugin.Update")
             .Read<AppExit>()

@@ -86,8 +86,14 @@ public sealed class RenderPlugin : IPlugin
             .Write<DrawList>()
             .Write<ModelDrawList>());
 
-        // Initialize Vulkan against SDL window if configured
-        var window = app.World.Resource<AppWindow>();
+        // A headless run has no window, so the renderer is made and never initialized, and the
+        // render system below returns at once every frame.
+        if (!app.World.TryGetResource<AppWindow>(out var window))
+        {
+            Logger.Info("RenderPlugin: No window (headless run) - the renderer stays uninitialized.");
+            app.AddSystem(Stage.Cleanup, new SystemDescriptor(world => world.RemoveResource<Renderer>(), "RenderPlugin.Cleanup").MainThreadOnly());
+            return;
+        }
 
         // -- Debounce state for the expensive higher-level resize --
         // Captured by both the ResizeEvent lambda and the per-frame system lambda.

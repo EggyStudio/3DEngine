@@ -15,6 +15,7 @@ void SetWindowTitle(string title);                       // Set the window's tit
 int GetScreenWidth();                                    // Window width
 int GetScreenHeight();                                   // Window height
 App GetApp();                                            // The app InitWindow built, for plugins, systems and resources
+void TakeScreenshot(string fileName);                    // Write the frame being drawn to a PNG once it is presented
 
 void SetTargetFPS(int fps);                              // Cap the frame rate (0 for no cap)
 float GetFrameTime();                                    // Seconds the last frame took

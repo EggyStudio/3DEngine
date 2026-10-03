@@ -60,6 +60,9 @@ internal sealed class EntityPool
     /// <summary>The next entity ID that will be allocated (useful for capacity hints).</summary>
     public int NextEntityId => _nextEntity;
 
+    /// <summary>How many entities are alive: every id handed out, less those back on the free stack.</summary>
+    public int AliveCount => _nextEntity - 1 - _free.Count;
+
     /// <summary>Pre-grows the generation array to hold at least <paramref name="maxEntityId"/> IDs without resizing during bulk spawns.</summary>
     /// <param name="maxEntityId">The maximum entity ID expected.</param>
     public void ReserveCapacity(int maxEntityId)

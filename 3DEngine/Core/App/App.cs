@@ -79,7 +79,7 @@ public sealed partial class App : IDisposable
         Log.PrintStartupBanner();
         Logger.Info("Creating App instance...");
 
-        var cfg = config ?? Config.Default;
+        var cfg = RunMode.Apply(config ?? Config.Default);
         World.InsertResource(cfg);
         World.InsertResource(Schedule.Diagnostics);
 

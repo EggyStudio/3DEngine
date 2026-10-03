@@ -46,6 +46,10 @@ public sealed class Logger : ILogger
         if (level >= LogConfig.MinimumLevel && FileLoggerProvider.Instance is { } file)
             file.Log(level, _category, message, exception);
 
+        // The console log the CLI reads (log.tail).
+        if (level >= LogLevel.Info)
+            ConsoleLog.Write(level, exception is null ? $"[{_category}] {message}" : $"[{_category}] {message}: {exception.Message}");
+
         // Any extra user-added providers.
         foreach (var provider in _extraProviders)
             if (level >= LogConfig.MinimumLevel)

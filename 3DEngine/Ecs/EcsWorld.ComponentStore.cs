@@ -45,6 +45,8 @@ public sealed partial class EcsWorld
         /// <returns><c>true</c> if found; otherwise <c>false</c>.</returns>
         public bool TryGet(int entity, out T value) => _set.TryGet(entity, out value!);
 
+        public object? GetBoxed(int entity) => _set.TryGet(entity, out var value) ? value : null;
+
         /// <summary>Returns <c>true</c> if the component on <paramref name="entity"/> was modified this frame.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <param name="currentTick">The current frame tick (reserved for future use).</param>

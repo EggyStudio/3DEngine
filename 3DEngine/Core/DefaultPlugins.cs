@@ -52,6 +52,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new InputPlugin(),
         new EcsPlugin(),
         new PhysicsPlugin(),
+        new CliPlugin(),
     ];
 
     /// <summary>

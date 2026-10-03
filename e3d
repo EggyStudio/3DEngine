@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# Runs the e3d command line out of this checkout, building it first if it is not built.
+#
+# A script rather than a global tool, so an agent in a fresh clone can use ./e3d at once and the
+# CLI it runs is always this checkout's.
+set -eu
+
+root=$(cd "$(dirname "$0")" && pwd)
+binary="$root/3DEngine.Cli/bin/Debug/net10.0/e3d"
+
+if [ ! -x "$binary" ]; then
+    dotnet build "$root/3DEngine.Cli/3DEngine.Cli.csproj" -v q --nologo >&2
+fi
+
+exec "$binary" "$@"

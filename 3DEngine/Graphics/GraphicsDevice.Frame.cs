@@ -45,6 +45,7 @@ public sealed unsafe partial class GraphicsDevice
     /// <param name="ctx">The frame context returned by <see cref="BeginFrameInternal"/>.</param>
     private partial void SubmitFrame(VulkanFrameContext ctx)
     {
+        var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
         var waitStage = VkPipelineStageFlags.ColorAttachmentOutput;
@@ -68,6 +69,9 @@ public sealed unsafe partial class GraphicsDevice
 
         _deviceApi.vkResetFences(_inFlightFences[_currentFrame]).CheckResult();
         _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]).CheckResult();
+
+        if (capture is { } taken)
+            FinishCapture(taken, _inFlightFences[_currentFrame]);
 
         VkSemaphore* presentWaitSemaphores = stackalloc VkSemaphore[1];
         presentWaitSemaphores[0] = _renderFinishedSemaphores[_currentFrame];

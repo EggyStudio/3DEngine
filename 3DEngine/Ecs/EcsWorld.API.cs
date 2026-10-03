@@ -447,4 +447,49 @@ public sealed partial class EcsWorld
     /// <param name="components">Mutable span of component values in dense order.</param>
     /// <param name="entities">Read-only span of entity IDs, aligned with <paramref name="components"/>.</param>
     public delegate void BulkProcessAction<T>(Span<T> components, ReadOnlySpan<int> entities);
+
+    // -- Introspection
+
+    /// <summary>How many entities are alive.</summary>
+    public int EntityCount => _entities.AliveCount;
+
+    /// <summary>Every component type that has had a store made for it, sorted by name.</summary>
+    /// <remarks>For tools such as the console. A type appears once something has added it, and stays after its last component is removed.</remarks>
+    public IReadOnlyList<Type> ComponentTypes
+    {
+        get { lock (_stores) return _stores.Keys.OrderBy(t => t.Name, StringComparer.Ordinal).ToArray(); }
+    }
+
+    /// <summary>The types of every component <paramref name="entity"/> has, sorted by name.</summary>
+    /// <remarks>Asks every store, so it costs one lookup per component type. Meant for tools, not for a system's loop.</remarks>
+    public IReadOnlyList<Type> ComponentTypesOf(int entity)
+    {
+        lock (_stores)
+            return _stores.Where(pair => pair.Value.Has(entity)).Select(pair => pair.Key).OrderBy(t => t.Name, StringComparer.Ordinal).ToArray();
+    }
+
+    /// <summary>The component of <paramref name="type"/> that <paramref name="entity"/> has, boxed, or <c>null</c>.</summary>
+    /// <remarks>Boxes the value, so it is for tools such as the console rather than a system's loop.</remarks>
+    public object? GetBoxed(int entity, Type type)
+    {
+        lock (_stores) return _stores.TryGetValue(type, out var store) ? store.GetBoxed(entity) : null;
+    }
+
+    /// <summary>How many entities have a component of <paramref name="type"/>.</summary>
+    public int CountOf(Type type)
+    {
+        lock (_stores) return _stores.TryGetValue(type, out var store) ? store.Count : 0;
+    }
+
+    /// <summary>Every entity with a component of <paramref name="type"/>, in storage order.</summary>
+    public IReadOnlyList<int> EntitiesOf(Type type)
+    {
+        IComponentStore? store;
+        lock (_stores) _stores.TryGetValue(type, out store);
+        if (store is null) return [];
+        var found = new List<int>(store.Count);
+        for (int id = 1; id < _entities.NextEntityId; id++)
+            if (store.Has(id)) found.Add(id);
+        return found;
+    }
 }

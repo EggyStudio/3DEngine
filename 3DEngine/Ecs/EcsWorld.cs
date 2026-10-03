@@ -66,5 +66,9 @@ public sealed partial class EcsWorld
         bool TryRemove(int entity, out IDisposable? disposable);
         /// <summary>Clears all per-frame change-tracking bits.</summary>
         void ClearChangedTicks();
+        /// <summary>Whether <paramref name="entity"/> has a component in this store.</summary>
+        bool Has(int entity);
+        /// <summary>The component of <paramref name="entity"/>, boxed, or <c>null</c>.</summary>
+        object? GetBoxed(int entity);
     }
 }

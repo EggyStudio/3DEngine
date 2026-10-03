@@ -143,7 +143,28 @@ one only after the frames in flight that might read it have finished.
 flight and a depth buffer. `NullGraphicsDevice` stands in for it in tests. Shaders are Slang,
 compiled per stage by `slangc` and cached (see [RENDERING.md](RENDERING.md) §1).
 
+## The command line
+
+`CliPlugin` (in `DefaultPlugins`, idle unless `Config.Serve` is set) listens on a loopback port with
+a random token and writes a session file naming both. The `e3d` client reads session files to find
+an app and sends one JSON line per request. The socket thread only queues a request, and the queue
+is answered at the top of `First` on the main thread, so a command reads and changes the world
+between frames. A command can answer at once, hold its answer until a later frame
+(`ConsoleHost.Hold`, as `frames.wait` does), or answer when a poll says it is ready
+(`ConsoleHost.Later`, as `shot` does while the capture is written).
+
+Commands are static methods marked `[Command]`, which `CommandGenerator` registers from a module
+initializer with typed argument parsing. Input commands write into `Input` through
+`SyntheticInput`, which also hands mouse events to ImGui, and captures copy the presented swapchain
+image into a host buffer (`GraphicsDevice.RequestCapture`) and write it with `PngWriter`.
+
+`RunMode` reads `--serve`, `--headless`, `--hidden` and `--frames` from the command line and the
+environment into `Config` when the `App` is made. A headless run has no `AppWindow`.
+`HeadlessLoopDriver` paces its frames, the renderer stays uninitialized, and ImGui ends its own
+frame.
+
 ## Logging
 
 `Log.Category(name)` returns a logger. Messages go to the console and to `logs/Engine.log` beside
-the program, and unhandled exceptions to `Crash.log` as well.
+the program, unhandled exceptions to `Crash.log` as well, and every line at Info or above to
+`ConsoleLog`, the ring `log.tail` reads.

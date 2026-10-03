@@ -132,6 +132,10 @@ what is left.
   macOS runners, and a job that runs the examples offscreen, are not set up.
 - **No package.** The engine is consumed as a project reference. A NuGet package carrying the
   shaders and the native SDL3 libraries is needed for a game outside this repository.
-- **No command line.** A running app cannot be asked what is in its world or told to take a
-  screenshot from a terminal, which makes checking a change by an agent slow. A local socket that
-  answers console commands in JSON, with a small client, would do it.
+- **The command line has no evaluator.** `./e3d` lists, runs commands, drives input and captures,
+  and a game adds commands with `[Command]`, but C# cannot be typed at a running app, and changing a
+  component's field needs a command written for it. ImGui receives the mouse from `input.*` and not
+  the keyboard, so typing into an ImGui field is not possible from the CLI.
+- **A headless run cannot capture.** `--hidden` renders into a window that is never shown, which
+  needs a display server. Rendering into an image with no surface at all (for CI) needs an
+  offscreen target in place of the swapchain.

@@ -38,6 +38,33 @@ public sealed record Config
     /// <summary>Desired graphics backend for the application window.</summary>
     public GraphicsBackend Graphics { get; init; } = GraphicsBackend.Vulkan;
 
+    /// <summary>
+    /// Whether the app answers the <c>e3d</c> command line on a local socket. Also set by
+    /// <c>--serve</c> or <c>E3D_SERVE=1</c> (see <see cref="RunMode"/>).
+    /// </summary>
+    public bool Serve { get; init; }
+
+    /// <summary>
+    /// Whether the app runs with no window and no renderer: the schedule, the ECS and the flat
+    /// API's logic run, and nothing is drawn. Also set by <c>--headless</c> or <c>E3D_HEADLESS=1</c>.
+    /// </summary>
+    public bool Headless { get; init; }
+
+    /// <summary>
+    /// Whether the window is created hidden. Frames are still rendered, so screenshots work, but
+    /// nothing appears on the desktop. Also set by <c>--hidden</c> or <c>E3D_HIDDEN=1</c>.
+    /// </summary>
+    public bool Hidden { get; init; }
+
+    /// <summary>
+    /// How many frames to run before closing, or 0 to run until asked to close. Also set by
+    /// <c>--frames N</c> or <c>E3D_FRAMES=N</c>.
+    /// </summary>
+    public ulong Frames { get; init; }
+
+    /// <summary>Frames per second a headless app runs at, so it does not spin a core. Defaults to 60.</summary>
+    public double HeadlessFps { get; init; } = 60;
+
     /// <summary>Returns a copy with the provided window properties.</summary>
     /// <param name="title">Window title bar text.</param>
     /// <param name="width">Window width in pixels.</param>
@@ -66,5 +93,5 @@ public sealed record Config
 
     /// <summary>Human-readable summary for diagnostics and logging.</summary>
     public override string ToString() => 
-        $"Config {{ Window=\"{WindowData.Title}\" {WindowData.Width}x{WindowData.Height}, Graphics={Graphics}, Command={WindowCommand} }}";
+        $"Config {{ Window=\"{WindowData.Title}\" {WindowData.Width}x{WindowData.Height}, Graphics={Graphics}, Command={WindowCommand}, Mode={RunMode.Describe(this)}, Serve={Serve}, Frames={Frames} }}";
 }

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>Engine.Cli</RootNamespace>
+        <AssemblyName>e3d</AssemblyName>
+        <IsPackable>false</IsPackable>
+        <!-- Nothing here is API. The verbs are documented in the skill and in BUILDING.md. -->
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <!-- The engine, for the session file, the envelope and the client, so the shapes the app
+         writes and the shapes this reads are one definition. -->
+    <ItemGroup>
+        <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
+    </ItemGroup>
+
+</Project>

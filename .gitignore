@@ -25,6 +25,8 @@ msbuild.log
 /build/tools/
 /build/artifacts/
 /build/package/
+# What an app launched by `e3d open` writes, so its output can be read after it is gone.
+/build/sessions/
 
 # Compiled Slang, written beside the assets of whatever ran a shader. Every checkout fetches
 # slangc and fills this again, so a copy in git would go stale with every shader edit. A game

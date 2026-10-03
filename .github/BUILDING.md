@@ -21,11 +21,26 @@ green suite on a machine without it says nothing about shaders.
 ```
 build/               fetch-slang.sh, and the compiler it downloads under tools/
 3DEngine/            the engine library, one folder per area
-3DEngine.Generator/  the Roslyn source generator for behaviors
+3DEngine.Generator/  the Roslyn source generators for behaviors and console commands
+3DEngine.Cli/        the e3d command line, which ./e3d builds and runs
 3DEngine.Tests/      xUnit tests, in folders matching the engine's
 3DEngine.Examples/   programs that use the engine
 .github/             the documents, and the images the README shows
 ```
+
+## Running without a window
+
+Every program built on the engine reads these flags, or the variables beside them:
+
+| flag | variable | effect |
+|---|---|---|
+| `--serve` | `E3D_SERVE=1` | answers `./e3d` on a local socket |
+| `--hidden` | `E3D_HIDDEN=1` | renders into a window that is never shown, so captures work and nothing appears |
+| `--headless` | `E3D_HEADLESS=1` | no window and no renderer, frames paced at 60 per second |
+| `--frames N` | `E3D_FRAMES=N` | closes after N frames |
+
+`./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
+`.claude/skills/e3d-cli/SKILL.md` covers driving it.
 
 ## The generator
 

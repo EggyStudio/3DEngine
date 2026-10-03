@@ -5,6 +5,24 @@ program opens a window, draws each frame with plain static calls, and draws ImGu
 An ECS with source-generated behaviors runs underneath for programs that grow into it.
 [.github/DESIGN.md](.github/DESIGN.md) sets out the API's rules and is read before adding to it.
 
+## Driving the engine with `./e3d`
+
+`./e3d` talks to a running app over a local socket. **Before asking anything about a running
+program (what is in its world, what a key does, what it looks like), check `./e3d status` and drive
+the live session instead of launching a process per question.**
+
+```bash
+./e3d status                          # is anything serving?
+./e3d open models_loading --hidden    # start an example, rendering in a window never shown
+./e3d list                            # what that app can be asked
+./e3d command input.key W 30          # input through the engine, not the desktop
+./e3d shot /tmp/x.png                 # capture the next frame
+./e3d stop
+```
+
+The workflow, the commands and the failure modes are in `.claude/skills/e3d-cli/SKILL.md`. Read it
+before driving a session.
+
 ## Documents
 
 | File | Holds |
@@ -29,18 +47,15 @@ The suite uses `NullGraphicsDevice` wherever a test would otherwise need a GPU, 
 machine with no display. Shader tests return early without `slangc`, so a green suite says nothing
 about shaders until `build/fetch-slang.sh` has run.
 
-A running example can be captured from a terminal by forcing SDL onto X11, where ImageMagick can
-read the window: `SDL_VIDEODRIVER=x11` before the run, then
-`import -window $(xdotool search --pid <pid> | tail -1) shot.png`. Keys reach it through
-`xdotool keydown --window <id> w`. Without `--window`, xdotool's input does not reach the window
-under GNOME's Xwayland, and while the desktop session is locked or idle no synthetic key reaches it
-at all, so a key that changes nothing in a capture is checked against a known-good example before
-it is blamed on the engine. The flat API can also be run without a window by
-`Engine3D.UseApp(app)` in a test, as `Engine3DAudioTests` does.
+Captures and input go through `./e3d` (above), which works in a hidden window and on a locked
+desktop session. xdotool does not, because its events reach a window only while it has focus and
+the session accepts them. The flat API can also run without a window in a test, through
+`Engine3D.UseApp(app)`, as `Engine3DAudioTests` does.
 
-A new or changed example gets a fresh capture in `.github/assets/examples/<name>.png`, and the
-README links captures by `https://raw.githubusercontent.com/EggyStudio/3DEngine/main/...`, so they
-show once the commit is pushed.
+A new or changed example gets a fresh capture in `.github/assets/examples/<name>.png`
+(`./e3d open <name> --hidden`, then `./e3d shot`), and the README links captures by
+`https://raw.githubusercontent.com/EggyStudio/3DEngine/main/...`, so they show once the commit is
+pushed.
 
 ## Where things are
 
@@ -60,8 +75,11 @@ show once the commit is pushed.
 | `3DEngine/Physics` | Rigid bodies over BepuPhysics |
 | `3DEngine/Shaders` | Built-in Slang shaders, staged under `source/shaders` beside every program |
 | `build/` | `fetch-slang.sh`, and the compiler it downloads under `tools/` |
-| `3DEngine.Generator` | The behavior source generator, which the engine also compiles in for scripts |
+| `3DEngine.Generator` | The behavior and command source generators. The engine also compiles the behavior one in for scripts |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
+| `3DEngine/Diagnostics` | `[Command]` and the console catalog, the log ring, built-in and input commands, `PngWriter` |
+| `3DEngine/Cli` | The server side of `./e3d`: socket, request queue, session files, `CliPlugin` |
+| `3DEngine.Cli` | The `e3d` client, which `./e3d` builds and runs |
 | `3DEngine.Examples` | raylib-style example programs, run by name |
 | `.github/assets/examples` | A capture of each example, which the README shows |
 
@@ -74,6 +92,8 @@ show once the commit is pushed.
   so that it survives trimming and AOT.
 - There is no editor application, and none is planned (DESIGN.md §7). Tools are ImGui windows a
   program draws in its own frame.
+- A `[Command]` method is a console command, an `e3d command` verb and a line in `e3d list` at
+  once. Adding one is writing one.
 - Every public function of the flat API has its line in `.github/CHEATSHEET.md`, changed in the same
   commit as the function.
 - No dependency is added beyond what [.github/DESIGN.md](.github/DESIGN.md) §8 allows without that

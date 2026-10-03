@@ -41,6 +41,7 @@ program uses as much of it as it needs.
 
 - [Examples](#examples)
 - [The ECS underneath](#the-ecs-underneath)
+- [Driving a running app](#driving-a-running-app)
 - [Building](#building)
 - [Status](#status)
 - [Documents](#documents)
@@ -122,6 +123,22 @@ foreach (var (_, ball) in GetApp().World.Resource<EcsWorld>().Query<Ball>())
 The ECS keeps components in sparse sets, runs systems in parallel batches by the components they
 read and write, defers structural changes through `EcsCommands`, and compiles behaviors from
 source files while an app runs. [ARCHITECTURE.md](.github/ARCHITECTURE.md) describes how.
+
+## Driving a running app
+
+`./e3d` drives any program built on the engine from a terminal, which is how changes are checked
+without opening a visible window:
+
+```bash
+./e3d open models_loading --hidden     # renders, but no window appears
+./e3d command entity.count
+./e3d command input.key W 40           # input through the engine
+./e3d shot after.png                   # the next frame, as a PNG
+./e3d stop
+```
+
+Programs take `--serve`, `--hidden`, `--headless` and `--frames N`, and a game adds commands with
+`[Command]` on a static method. [The skill](.claude/skills/e3d-cli/SKILL.md) lists the commands.
 
 ## Building
 

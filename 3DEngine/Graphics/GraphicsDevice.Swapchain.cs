@@ -17,6 +17,7 @@ public sealed unsafe partial class GraphicsDevice
         Logger.Debug("Querying swapchain support (capabilities, formats, present modes)...");
         var support = QuerySwapchainSupport(_physicalDevice);
         var surfaceFormat = ChooseSwapchainFormat(support.Formats);
+        _swapchainCopyable = (support.Capabilities.supportedUsageFlags & VkImageUsageFlags.TransferSrc) != 0;
         var presentMode = ChoosePresentMode(support.PresentModes);
         var extent = ChooseSwapExtent(support.Capabilities, (uint)drawable.Width, (uint)drawable.Height);
         Logger.Debug($"Chosen surface format: {surfaceFormat.format}, color space: {surfaceFormat.colorSpace}");
@@ -38,7 +39,9 @@ public sealed unsafe partial class GraphicsDevice
             imageColorSpace = surfaceFormat.colorSpace,
             imageExtent = extent,
             imageArrayLayers = 1,
-            imageUsage = VkImageUsageFlags.ColorAttachment,
+            // Copyable where the surface allows it, so a frame can be captured (RequestCapture).
+            imageUsage = VkImageUsageFlags.ColorAttachment
+                         | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0),
             preTransform = support.Capabilities.currentTransform,
             compositeAlpha = VkCompositeAlphaFlagsKHR.Opaque,
             presentMode = presentMode,

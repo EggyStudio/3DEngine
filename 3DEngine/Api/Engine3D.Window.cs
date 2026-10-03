@@ -55,13 +55,27 @@ public static partial class Engine3D
     public static void SetExitKey(Key key) => _exitKey = key;
 
     /// <summary>Sets the window's title.</summary>
-    public static void SetWindowTitle(string title) => SDL.SetWindowTitle(World.Resource<AppWindow>().Sdl.Window, title);
+    public static void SetWindowTitle(string title)
+    {
+        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowTitle(window.Sdl.Window, title);
+    }
 
-    /// <summary>The window's width, in the units mouse positions and 2D drawing use.</summary>
-    public static int GetScreenWidth() => World.Resource<AppWindow>().Sdl.Width;
+    /// <summary>The window's width, in the units mouse positions and 2D drawing use. In a headless run, the width asked for.</summary>
+    public static int GetScreenWidth() =>
+        World.TryGetResource<AppWindow>(out var window) ? window.Sdl.Width : World.Resource<Config>().WindowData.Width;
 
-    /// <summary>The window's height, in the units mouse positions and 2D drawing use.</summary>
-    public static int GetScreenHeight() => World.Resource<AppWindow>().Sdl.Height;
+    /// <summary>The window's height, in the units mouse positions and 2D drawing use. In a headless run, the height asked for.</summary>
+    public static int GetScreenHeight() =>
+        World.TryGetResource<AppWindow>(out var window) ? window.Sdl.Height : World.Resource<Config>().WindowData.Height;
+
+    /// <summary>Writes the frame being drawn to a PNG file, once it is presented at <see cref="EndDrawing"/>.</summary>
+    /// <remarks>A headless run draws nothing, so it logs why and writes nothing.</remarks>
+    public static void TakeScreenshot(string fileName)
+    {
+        var path = Path.GetFullPath(fileName);
+        if (Screenshots.Request(World, path, failure => { if (failure is not null) Log.Category("Engine.Api").Warn($"TakeScreenshot: {failure}"); }) is { } refusal)
+            Log.Category("Engine.Api").Warn($"TakeScreenshot: {refusal}");
+    }
 
     // -- Timing
 
@@ -94,9 +108,12 @@ public static partial class Engine3D
     // because a sleep on most systems overshoots by up to a millisecond.
     private static void WaitForTargetFrame()
     {
-        if (_targetFps > 0)
+        // A headless run with no target set is paced at Config.HeadlessFps, so it does not spin a core.
+        var config = World.Resource<Config>();
+        var fps = _targetFps > 0 ? _targetFps : config.Headless ? config.HeadlessFps : 0;
+        if (fps > 0)
         {
-            var deadline = _lastFrameEnd + Stopwatch.Frequency / _targetFps;
+            var deadline = _lastFrameEnd + (long)(Stopwatch.Frequency / fps);
             while (true)
             {
                 var remaining = (deadline - Stopwatch.GetTimestamp()) * 1000.0 / Stopwatch.Frequency;

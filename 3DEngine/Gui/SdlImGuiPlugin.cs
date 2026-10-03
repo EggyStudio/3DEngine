@@ -40,7 +40,13 @@ public sealed class SdlImGuiPlugin : IPlugin
         var cfg = app.World.Resource<Config>();
         bool isVulkan = cfg.Graphics == GraphicsBackend.Vulkan;
 
-        var sdlWindow = app.World.Resource<AppWindow>().Sdl;
+        if (!app.World.TryGetResource<AppWindow>(out var existingWindow))
+        {
+            BuildHeadless(app, cfg, logger);
+            return;
+        }
+
+        var sdlWindow = existingWindow.Sdl;
         io.DisplaySize = new Vector2(Math.Max(1, sdlWindow.Width), Math.Max(1, sdlWindow.Height));
         io.DeltaTime = 1f / 60f;
 
@@ -140,5 +146,29 @@ public sealed class SdlImGuiPlugin : IPlugin
             .MainThreadOnly()
             .Write<AppWindow>()
             .Write<SdlImGuiRenderer>());
+    }
+
+    // A headless run keeps ImGui working for code that calls it between BeginDrawing and
+    // EndDrawing: the frame starts in PreUpdate on the configured size and ends in Last, which the
+    // render node does when there is a renderer. Nothing is drawn.
+    private static void BuildHeadless(App app, Config config, ILogger logger)
+    {
+        var io = ImGui.GetIO();
+        io.DisplaySize = new Vector2(Math.Max(1, config.WindowData.Width), Math.Max(1, config.WindowData.Height));
+        io.DeltaTime = 1f / 60f;
+        io.Fonts.GetTexDataAsRGBA32(out IntPtr _, out int _, out int _, out _);
+        logger.Info($"ImGui initialized without a window - display size: {io.DisplaySize.X}x{io.DisplaySize.Y}");
+
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
+            {
+                var time = world.Resource<Time>();
+                ImGui.GetIO().DeltaTime = time.DeltaSeconds > 0 ? (float)time.DeltaSeconds : 1f / 60f;
+                ImGui.NewFrame();
+            }, "SdlImGuiPlugin.PreUpdate")
+            .MainThreadOnly()
+            .Read<Time>());
+
+        app.AddSystem(Stage.Last, new SystemDescriptor(_ => ImGui.EndFrame(), "SdlImGuiPlugin.EndFrame").MainThreadOnly());
+        app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => ImGui.DestroyContext(), "SdlImGuiPlugin.Cleanup").MainThreadOnly());
     }
 }

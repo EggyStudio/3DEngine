@@ -99,11 +99,26 @@ public sealed class AppWindowPlugin : IPlugin
         var logger = Log.Category("Engine.Application");
         var config = app.World.Resource<Config>();
 
+        if (config.Headless)
+        {
+            logger.Info($"AppWindowPlugin: Headless run - no window, frames paced at {config.HeadlessFps} per second.");
+            app.World.InitResource<AppExit>();
+            app.World.InsertResource<IMainLoopDriver>(new HeadlessLoopDriver(app.World, config.HeadlessFps));
+            return;
+        }
+
         logger.Info($"AppWindowPlugin: Creating window \"{config.WindowData.Title}\" ({config.WindowData.Width}x{config.WindowData.Height}) with backend={config.Graphics}...");
         var window = new AppWindow(config.WindowData, config.Graphics);
 
-        logger.Info($"Showing window with command: {config.WindowCommand}");
-        window.Show(config.WindowCommand);
+        if (config.Hidden)
+        {
+            logger.Info("Hidden run - the window is created and drawn into, and never shown.");
+        }
+        else
+        {
+            logger.Info($"Showing window with command: {config.WindowCommand}");
+            window.Show(config.WindowCommand);
+        }
 
         app.World.InsertResource(window);
         app.World.InsertResource<IMainLoopDriver>(new SdlMainLoopDriver(window));
