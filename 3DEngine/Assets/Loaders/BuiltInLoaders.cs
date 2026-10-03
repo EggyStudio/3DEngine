@@ -44,7 +44,7 @@ public sealed class ByteArrayLoader : IAssetLoader<byte[]>
 /// <example>
 /// <code>
 /// server.RegisterLoader(new StringLoader());
-/// Handle&lt;string&gt; source = server.Load&lt;string&gt;("shaders/mesh.slang");
+/// Handle&lt;string&gt; source = server.Load&lt;string&gt;("shaders/model.slang");
 /// </code>
 /// </example>
 /// <seealso cref="IAssetLoader{T}"/>

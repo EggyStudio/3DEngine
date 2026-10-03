@@ -240,13 +240,20 @@ public static class SceneSpawner
 
         if (mesh is not null)
         {
-            // v1 contract: de-index into a flat positions array (one entry per index).
-            // Future renderer upgrades can read the indexed data via SceneMeshPayload
-            // directly (carried losslessly through SceneInstance lookup).
-            var positions = new Vector3[mesh.Indices.Length];
-            for (int i = 0; i < mesh.Indices.Length; i++)
-                positions[i] = mesh.Positions[mesh.Indices[i]];
-            ecs.Add(entity, new Mesh(positions));
+            // De-indexed into three vertices per triangle, which is what Mesh holds, with the
+            // normals and first texture coordinates beside the positions when the file has them.
+            var count = mesh.Indices.Length;
+            var positions = new Vector3[count];
+            var normals = mesh.Normals is { } sourceNormals && sourceNormals.Length == mesh.Positions.Length ? new Vector3[count] : null;
+            var uvs = mesh.Uv0 is { } sourceUvs && sourceUvs.Length == mesh.Positions.Length ? new Vector2[count] : null;
+            for (int i = 0; i < count; i++)
+            {
+                var index = mesh.Indices[i];
+                positions[i] = mesh.Positions[index];
+                if (normals is not null) normals[i] = mesh.Normals![index];
+                if (uvs is not null) uvs[i] = mesh.Uv0![index];
+            }
+            ecs.Add(entity, new Mesh(positions, normals, uvs));
 
             // Material: explicit payload wins; otherwise apply the configured default
             // so the renderer sees a fully-formed (Mesh, Material) pair.

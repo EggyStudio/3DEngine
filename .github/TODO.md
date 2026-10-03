@@ -66,8 +66,10 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Meshes are positions only**, drawn in their material's base color, so normals, textures and the
-  lighting buffer change nothing on screen (RENDERING.md §3 and §4).
+- **Meshes are lit by one fixed light.** Mesh entities and models share the model pass, with
+  normals and base color textures, but the lights the ECS holds are uploaded and not read, and of
+  a material only the base color is used (RENDERING.md §3 and §4). A mesh entity is drawn through
+  the first camera entity only, into the window only.
 - **Shader reflection, compute and a shipped shader cache** are not built (RENDERING.md §1).
 - **There are no shadows.**
 

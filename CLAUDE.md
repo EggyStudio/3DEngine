@@ -68,7 +68,7 @@ pushed.
 | `3DEngine/Components` | `Transform`, `Camera`, `Mesh`, `Material` and the render-side mirrors |
 | `3DEngine/Platform` | The SDL3 window, main loop and input, and audio under `Audio/` |
 | `3DEngine/Graphics` | The Vulkan device over Vortice.Vulkan, and `SlangCompiler` |
-| `3DEngine/Rendering` | `Renderer`, `RenderPlugin`, the render graph, phases, extracts, pipelines, lighting, and the `DrawList` and its pass under `Immediate/` |
+| `3DEngine/Rendering` | `Renderer`, `RenderPlugin`, the render graph, extracts, pipelines, lighting, the `DrawList` and its pass under `Immediate/`, and the model pass with `MeshEntityDraws` under `Models/` |
 | `3DEngine/Gui` | Dear ImGui's context and input, and its Vulkan pass under `Vulkan/` |
 | `3DEngine/Assets` | `AssetServer`, handles, textures (StbImageSharp), models (Assimp), materials |
 | `3DEngine/Scenes` | The scene model a reader produces, and the spawner that turns it into entities |

@@ -6,7 +6,7 @@ namespace Engine;
 /// Render-thread world, analogous to <see cref="World"/> but for GPU-side data.
 /// Contains both singleton resources (cameras, swapchain target, pipeline cache) accessed via
 /// <see cref="TryGet{T}"/>/<see cref="Set{T}"/>, <b>and</b> a full <see cref="EcsWorld"/>
-/// for per-entity render components (<see cref="RenderMeshInstance"/>, <see cref="ExtractedView"/>).
+/// for per-entity render components (<see cref="ExtractedView"/>, <see cref="RenderLight"/>).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -22,7 +22,6 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="Renderer"/>
 /// <seealso cref="World"/>
-/// <seealso cref="RenderMeshInstance"/>
 /// <seealso cref="ExtractedView"/>
 public sealed class RenderWorld
 {
@@ -35,8 +34,8 @@ public sealed class RenderWorld
     /// <remarks>
     /// Use this for ECS queries over render entities:
     /// <code>
-    /// foreach (var (entity, mesh) in renderWorld.Entities.Query&lt;RenderMeshInstance&gt;())
-    ///     registry.GetOrCreate(mesh.MainEntityId, mesh.MeshData, gfx);
+    /// foreach (var (_, light) in renderWorld.Entities.Query&lt;RenderLight&gt;())
+    ///     Pack(light);
     /// </code>
     /// </remarks>
     public EcsWorld Entities { get; } = new();
@@ -54,10 +53,6 @@ public sealed class RenderWorld
     public void ClearEntities()
     {
         // EcsWorld doesn't expose a "despawn all", so clear each known render-entity component bucket.
-        var meshEntities = Entities.EntitiesWith<RenderMeshInstance>();
-        for (int i = meshEntities.Length - 1; i >= 0; i--)
-            Entities.Despawn(meshEntities[i]);
-
         var viewEntities = Entities.EntitiesWith<ExtractedView>();
         for (int i = viewEntities.Length - 1; i >= 0; i--)
             Entities.Despawn(viewEntities[i]);

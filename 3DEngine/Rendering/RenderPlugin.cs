@@ -68,9 +68,6 @@ public sealed class RenderPlugin : IPlugin
         renderer.AddExtractSystem(new ClearColorExtract());
         renderer.AddExtractSystem(new DrawListExtract());
         renderer.AddExtractSystem(new CameraExtract());
-        renderer.AddExtractSystem(new MeshMaterialExtract());
-        renderer.AddPrepareSystem(new MeshPrepare());
-        renderer.AddPrepareSystem(new TexturePrepare());
         renderer.AddPrepareSystem(new GpuTexturesPrepare());
         renderer.AddPrepareSystem(new GpuMeshesPrepare());
         app.World.InsertResource(renderer);
@@ -88,6 +85,7 @@ public sealed class RenderPlugin : IPlugin
             }, "RenderPlugin.ClearDrawLists")
             .Write<DrawList>()
             .Write<ModelDrawList>());
+        app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
 
         // A headless run has no window, so the renderer is made and never initialized, and the
         // render system below returns at once every frame.

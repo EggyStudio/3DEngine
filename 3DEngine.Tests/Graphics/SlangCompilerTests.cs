@@ -89,7 +89,7 @@ public class SlangCompilerTests : IDisposable
         if (!SlangCompiler.Available) return;
 
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
-        foreach (var file in new[] { "mesh.slang", "imgui.slang", "immediate.slang", "model.slang" })
+        foreach (var file in new[] { "imgui.slang", "immediate.slang", "model.slang" })
         {
             var program = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, file)), file);
             program.Stages.Keys.Should().BeEquivalentTo([ShaderStage.Vertex, ShaderStage.Fragment], file);

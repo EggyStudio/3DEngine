@@ -31,13 +31,7 @@ public sealed class CameraExtract : IExtractSystem
 
             float aspect = hPixels > 0 ? (float)wPixels / hPixels : 1f;
 
-            // Position and orientation in world space, composed through parents when it has one.
-            Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, entity), out _, out var rotation, out var position);
-            var t = new Transform(position, rotation, Vector3.One);
-            var view = Matrix4x4.CreateTranslation(-t.Position) * Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(t.Rotation));
-            var proj = Matrix4x4.CreatePerspectiveFieldOfView(cam.FovY, aspect, cam.Near, cam.Far);
-            // Flip Y for Vulkan NDC (Y points downward), preserving CCW front-face winding.
-            proj.M22 = -proj.M22;
+            var (view, proj) = Matrices(ecs, entity, cam, aspect);
 
             int renderEntity = renderWorld.Spawn();
             renderWorld.Entities.Add(renderEntity, new ExtractedView
@@ -48,5 +42,17 @@ public sealed class CameraExtract : IExtractSystem
                 Height = hPixels
             });
         }
+    }
+
+    /// <summary>A camera entity's view and projection matrices, with Y flipped for Vulkan.</summary>
+    /// <remarks>The position and orientation are in world space, composed through parents when it has one.</remarks>
+    public static (Matrix4x4 View, Matrix4x4 Projection) Matrices(EcsWorld ecs, int entity, in global::Engine.Camera cam, float aspect)
+    {
+        Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, entity), out _, out var rotation, out var position);
+        var view = Matrix4x4.CreateTranslation(-position) * Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(rotation));
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView(cam.FovY, aspect, cam.Near, cam.Far);
+        // Flip Y for Vulkan NDC (Y points downward), preserving CCW front-face winding.
+        proj.M22 = -proj.M22;
+        return (view, proj);
     }
 }

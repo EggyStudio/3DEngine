@@ -135,22 +135,26 @@ and `SceneSpawner` turns it into entities.
 
 ## The renderer
 
-`RenderPlugin` builds the `Renderer` and runs it in `Last`. A frame has four steps:
+`RenderPlugin` builds the `Renderer` and runs it in `Last`. A frame has three steps:
 
-1. **Extract** copies what the frame needs out of the `World` into a `RenderWorld` (cameras, meshes
-   and materials, lights, the clear color, the draw list).
-2. **Prepare** uploads what changed (vertex buffers, textures, the lighting buffer) and fills
-   per-frame buffers from `DynamicBufferAllocator`, a ring of arenas one per frame in flight.
-3. **Queue** sorts draw items into `Opaque3dPhase` and `Transparent3dPhase`.
-4. **Graph** runs the render graph's nodes in dependency order.
+1. **Extract** copies what the frame needs out of the `World` into a `RenderWorld` (cameras,
+   lights, the clear color, the draw lists).
+2. **Prepare** uploads what changed (meshes, textures, the lighting buffer) and fills per-frame
+   buffers from `DynamicBufferAllocator`, a ring of arenas one per frame in flight.
+3. **Graph** runs the render graph's nodes in dependency order.
+
+Mesh entities reach the renderer the way `DrawModel` does. `MeshEntityDraws`, a system in
+`Render`, records every entity with a `Mesh` and a `Material` into the `ModelDrawList` through
+the first `Camera` entity, uploading a mesh's arrays to `MeshStore` the first time and copying its
+base color texture from the asset store into `TextureStore` once loaded.
 
 The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass:
 
 | node | draws |
 |---|---|
 | `targets` | every render target sent drawing this frame: its models, then its shapes, each into its own pass |
-| `main_pass` | clears, then the meshes ECS cameras see, through `mesh.slang` |
-| `models` | the frame's `ModelDrawList`: every mesh `DrawModel` and `DrawMesh` recorded, through `model.slang` |
+| `main_pass` | begins the window's pass, clearing it |
+| `models` | the frame's `ModelDrawList`: every mesh `DrawModel` and `DrawMesh` recorded and every mesh entity, through `model.slang` |
 | `immediate` | the frame's `DrawList`: every shape and texture the flat API recorded, through `immediate.slang` |
 | `imgui` | Dear ImGui's draw data, through `imgui.slang` |
 

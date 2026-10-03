@@ -16,7 +16,7 @@ namespace Engine;
 /// <example>
 /// <code>
 /// server.RegisterLoader(new SlangLoader());
-/// var mesh = server.LoadSync&lt;ShaderProgram&gt;("shaders/mesh.slang");
+/// var mesh = server.LoadSync&lt;ShaderProgram&gt;("shaders/model.slang");
 /// var node = new MainPassNode(mesh.Vertex, mesh.Fragment);
 /// </code>
 /// </example>

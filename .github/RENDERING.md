@@ -14,20 +14,18 @@ needs an offline toolchain beyond `slangc`.
   `NullGraphicsDevice` stands in for it in tests.
 - **Classic render passes.** Every pass is a `VkRenderPass` with framebuffers. Dynamic rendering and
   synchronization2 are not used.
-- **A frame in four steps**, each a list of systems in `Renderer`:
+- **A frame in three steps**, each a list of systems in `Renderer`:
   1. **Extract** copies what the frame needs out of the game's `World` into a separate `RenderWorld`
-     (`CameraExtract`, `MeshMaterialExtract`, `LightExtract`), so the game can change its world
-     while the frame is drawn.
-  2. **Prepare** uploads what changed (`MeshPrepare`, `TexturePrepare`, `LightingUboPrepare`) and
-     fills per-frame buffers through `DynamicBufferAllocator`.
-  3. **Queue** sorts draw items into phases (`Opaque3dPhase`, `Transparent3dPhase`).
-  4. **Graph** runs the render graph's nodes in topological order. `MainPassNode` clears the
-     swapchain image and drains the phases, and `ImGuiRenderNode` draws Dear ImGui into the same
-     pass.
-- **Meshes** carry positions only and are drawn in their material's base color, so lighting is
-  extracted and uploaded but not yet visible.
+     (`CameraExtract`, `LightExtract`, the draw lists), so the game can change its world while
+     the frame is drawn.
+  2. **Prepare** uploads what changed (`GpuMeshesPrepare`, `GpuTexturesPrepare`,
+     `LightingUboPrepare`) and fills per-frame buffers through `DynamicBufferAllocator`.
+  3. **Graph** runs the render graph's nodes in topological order. `MainPassNode` begins and
+     clears the swapchain pass, and the model, immediate and ImGui nodes draw into it.
 - **The immediate pass** (§2) draws the shapes and textures the flat API records.
-- **The model pass** (§3) draws the meshes `DrawModel` records, lit by one fixed light.
+- **The model pass** (§3) draws the meshes `DrawModel` records and every mesh entity, which
+  `MeshEntityDraws` records through the first camera entity, lit by one fixed light. Lighting is
+  extracted and uploaded but not yet read by it.
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 
 ## 1. Slang through slangc
@@ -90,13 +88,18 @@ no frame in flight can read them.
 
 ## 3. Meshes and materials
 
-The flat API's models draw through their own pass, `ModelNode`, between the ECS meshes and the
-immediate shapes. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
+Every mesh draws through one pass, `ModelNode`, before the immediate shapes: the flat API's
+models and the ECS's mesh entities alike. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
 vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
 `GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
 each frame. The push constants are the full transform, the world matrix's rotation as three rows
 for the normals, and the color, 128 bytes, which every device supports. `model.slang` shades by
 one fixed light from above over an ambient floor.
+
+A mesh entity is a `Mesh` (positions three per triangle, with optional normals and texture
+coordinates) and a `Material`. `MeshEntityDraws` uploads its arrays once, keyed by the positions
+array, frees them the first frame no entity draws them, and copies the material's base color
+texture asset into `TextureStore`. A triangle without normals is lit by its face's normal.
 
 What follows is where meshes go from there.
 
@@ -154,7 +157,7 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 ### Debugging
 
 - **Validation layers on in Debug builds**, with every message routed into the engine log.
-- **Object names** through `VK_EXT_debug_utils`, so RenderDoc shows `Opaque3dPhase` instead of a
+- **Object names** through `VK_EXT_debug_utils`, so RenderDoc shows `model pass` instead of a
   handle.
 
 ## Order of work

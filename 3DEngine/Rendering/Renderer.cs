@@ -57,9 +57,7 @@ public sealed class Renderer : IDisposable
         Logger.Debug("Renderer diagnostics initialized.");
 
         var server = world.Resource<AssetServer>();
-        var mesh = server.LoadSync<ShaderProgram>("shaders/mesh.slang");
-
-        Graph.AddNode("main_pass", new MainPassNode(mesh.Vertex, mesh.Fragment));
+        Graph.AddNode("main_pass", new MainPassNode());
 
         var model = server.LoadSync<ShaderProgram>("shaders/model.slang");
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
@@ -80,10 +78,6 @@ public sealed class Renderer : IDisposable
         var pipelineCache = new PipelineCache(Context.Graphics);
         RenderWorld.Set(pipelineCache);
         Logger.Debug("PipelineCache created and registered in RenderWorld.");
-
-        // Runs after MeshPrepare so vertex buffers are uploaded before phase items reference them.
-        AddPrepareSystem(new QueueMeshPhaseItems());
-        Logger.Debug("QueueMeshPhaseItems prepare system registered.");
 
         _initialized = true;
         Logger.Info($"Renderer initialized in {sw.ElapsedMilliseconds}ms.");

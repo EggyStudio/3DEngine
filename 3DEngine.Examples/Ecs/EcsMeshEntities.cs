@@ -14,7 +14,7 @@ public static class EcsMeshEntities
         {
             BeginDrawing();
             ClearBackground(Color.DarkGray);
-            DrawText("A camera and a mesh spawned as entities, drawn by the mesh pass.", 10, 10, 20, Color.RayWhite);
+            DrawText("A camera, a triangle and a spinning cube, spawned as entities.", 10, 10, 20, Color.RayWhite);
             EndDrawing();
         }
 
@@ -22,7 +22,7 @@ public static class EcsMeshEntities
     }
 }
 
-/// <summary>Spawns a camera entity and a triangle entity, which the renderer's mesh pass draws.</summary>
+/// <summary>Spawns a camera entity and two mesh entities, which the model pass draws lit.</summary>
 [Behavior]
 public struct MeshScene
 {
@@ -34,11 +34,38 @@ public struct MeshScene
     {
         var camera = ctx.Ecs.Spawn();
         ctx.Ecs.Add(camera, new Camera(fovY: 60f, near: 0.1f, far: 1000f));
-        ctx.Ecs.Add(camera, new Transform(new Vector3(0, 0, 3)));
+        ctx.Ecs.Add(camera, new Transform(new Vector3(0, 1, 5), Quaternion.CreateFromAxisAngle(Vector3.UnitX, -0.2f), Vector3.One));
 
-        var mesh = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(mesh, new Mesh([new Vector3(0, 1, 0), new Vector3(-1, -1, 0), new Vector3(1, -1, 0)]));
-        ctx.Ecs.Add(mesh, new Material(new Vector4(1f, 0.63f, 0f, 1f)));
-        ctx.Ecs.Add(mesh, new Transform(Vector3.Zero));
+        var triangle = ctx.Ecs.Spawn();
+        ctx.Ecs.Add(triangle, new Mesh([new Vector3(0, 1, 0), new Vector3(-1, -1, 0), new Vector3(1, -1, 0)]));
+        ctx.Ecs.Add(triangle, new Material(new Vector4(1f, 0.63f, 0f, 1f)));
+        ctx.Ecs.Add(triangle, new Transform(new Vector3(-1.5f, 0, 0)));
+
+        var cube = ctx.Ecs.Spawn();
+        ctx.Ecs.Add(cube, new Mesh(Cube()));
+        ctx.Ecs.Add(cube, new Material(new Vector4(0.2f, 0.6f, 1f, 1f)));
+        ctx.Ecs.Add(cube, new Transform(new Vector3(1.5f, 0, 0), Quaternion.Identity, Vector3.One));
+        ctx.Ecs.Add(cube, new MeshScene());
+    }
+
+    /// <summary>Turns the cube, the one entity carrying this behavior.</summary>
+    [OnUpdate]
+    public void Spin(BehaviorContext ctx)
+    {
+        var dt = (float)ctx.Time.DeltaSeconds;
+        ref var transform = ref ctx.Ecs.GetRef<Transform>(ctx.EntityId);
+        transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0.8f * dt, 0.5f * dt, 0);
+    }
+
+    // A unit cube as twelve triangles, counterclockwise from outside, which light flat by face.
+    private static Vector3[] Cube()
+    {
+        Vector3[] c = [new(-.5f, -.5f, -.5f), new(.5f, -.5f, -.5f), new(.5f, .5f, -.5f), new(-.5f, .5f, -.5f),
+                       new(-.5f, -.5f, .5f), new(.5f, -.5f, .5f), new(.5f, .5f, .5f), new(-.5f, .5f, .5f)];
+        int[] quads = [4, 5, 6, 7, 1, 0, 3, 2, 0, 4, 7, 3, 5, 1, 2, 6, 7, 6, 2, 3, 0, 1, 5, 4];
+        var positions = new List<Vector3>();
+        for (int q = 0; q < quads.Length; q += 4)
+            positions.AddRange([c[quads[q]], c[quads[q + 1]], c[quads[q + 2]], c[quads[q]], c[quads[q + 2]], c[quads[q + 3]]]);
+        return [.. positions];
     }
 }

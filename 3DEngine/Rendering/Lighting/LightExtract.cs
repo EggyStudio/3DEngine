@@ -6,7 +6,7 @@ namespace Engine;
 /// Extracts entities with a <see cref="Light"/> component (and optionally <see cref="Transform"/>
 /// + <see cref="LightShadow"/> + <see cref="LightShaping"/>) into render entities carrying
 /// <see cref="RenderLight"/>, plus a flat <see cref="RenderLights"/> singleton on the
-/// <see cref="RenderWorld"/>. Mirrors the <c>MeshMaterialExtract</c> pattern.
+/// <see cref="RenderWorld"/>.
 /// </summary>
 /// <remarks>
 /// The render-side per-frame buckets are cleared by <see cref="RenderWorld.ClearEntities"/>

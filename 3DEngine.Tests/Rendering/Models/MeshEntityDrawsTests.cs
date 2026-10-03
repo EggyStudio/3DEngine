@@ -1,0 +1,114 @@
+using System.Numerics;
+using FluentAssertions;
+
+namespace Engine.Tests.Rendering.Models;
+
+/// <summary>Mesh entities recorded into the model pass's draw list, without a GPU.</summary>
+[Trait("Category", "Unit")]
+public class MeshEntityDrawsTests
+{
+    private static readonly Vector3[] Triangle = [new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)];
+
+    private static (World World, EcsWorld Ecs) Scene(bool camera = true)
+    {
+        var world = new World();
+        var ecs = new EcsWorld();
+        world.InsertResource(ecs);
+        world.InitResource<ModelDrawList>();
+        world.InitResource<MeshStore>();
+        world.InitResource<TextureStore>();
+        if (camera)
+        {
+            var cam = ecs.Spawn();
+            ecs.Add(cam, new Camera(60f));
+            ecs.Add(cam, new Transform(new Vector3(0, 0, 5)));
+        }
+        return (world, ecs);
+    }
+
+    private static int SpawnMesh(EcsWorld ecs, Vector3[] positions, Vector3 at, Vector4 albedo)
+    {
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Mesh(positions));
+        ecs.Add(entity, new Material(albedo));
+        ecs.Add(entity, new Transform(at));
+        return entity;
+    }
+
+    [Fact]
+    public void A_Mesh_Entity_Is_Drawn_With_Its_Transform_And_Color()
+    {
+        var (world, ecs) = Scene();
+        SpawnMesh(ecs, Triangle, new Vector3(2, 0, 0), new Vector4(1, 0.5f, 0, 1));
+
+        MeshEntityDraws.Run(world);
+
+        var draw = world.Resource<ModelDrawList>().Draws.Should().ContainSingle().Subject;
+        draw.World.Translation.Should().Be(new Vector3(2, 0, 0));
+        draw.Color.Should().Be(new Color(255, 127, 0, 255));
+        draw.Texture.Should().Be(0);
+        world.Resource<MeshStore>().Contains(draw.Mesh).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Nothing_Is_Drawn_Without_A_Camera_Entity()
+    {
+        var (world, ecs) = Scene(camera: false);
+        SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+
+        MeshEntityDraws.Run(world);
+
+        world.Resource<ModelDrawList>().Draws.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void A_Mesh_Is_Uploaded_Once_And_Its_Normals_Face_The_Triangle()
+    {
+        var (world, ecs) = Scene();
+        SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        SpawnMesh(ecs, Triangle, Vector3.One, Vector4.One);
+
+        MeshEntityDraws.Run(world);
+        MeshEntityDraws.Run(world);
+
+        var upload = world.Resource<MeshStore>().Take().Uploads.Should().ContainSingle("both entities share one positions array").Subject;
+        upload.Vertices.Select(v => v.Normal).Should().AllBeEquivalentTo(Vector3.UnitZ);
+        world.Resource<ModelDrawList>().Draws.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void A_Despawned_Mesh_Is_Freed_The_Next_Frame()
+    {
+        var (world, ecs) = Scene();
+        var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        MeshEntityDraws.Run(world);
+        var id = world.Resource<ModelDrawList>().Draws[0].Mesh;
+
+        ecs.Despawn(entity);
+        MeshEntityDraws.Run(world);
+
+        world.Resource<MeshStore>().Contains(id).Should().BeFalse();
+        world.Resource<MeshEntityDraws>().MeshCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void A_Loaded_Base_Color_Texture_Is_Copied_Once_At_Its_First_Mip()
+    {
+        var (world, ecs) = Scene();
+        var assets = new Assets<Texture>();
+        world.InsertResource(assets);
+        var handle = new Handle<Texture>(AssetId.Next(), new AssetPath("wood.png"), strong: false);
+        var pixels = new byte[2 * 2 * 4 + 4]; // a 2x2 level and a 1x1 mip
+        pixels[0] = 9;
+        assets.Set(handle.Id, new Texture { Pixels = pixels, Width = 2, Height = 2, MipCount = 2, Format = TextureFormat.Rgba8 });
+        var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        ecs.GetRef<Material>(entity).BaseColorTexture = handle;
+
+        MeshEntityDraws.Run(world);
+        MeshEntityDraws.Run(world);
+
+        var upload = world.Resource<TextureStore>().Take().Uploads.Should().ContainSingle().Subject;
+        (upload.Width, upload.Height, upload.Rgba!.Length, upload.Rgba[0]).Should().Be((2, 2, 16, (byte)9));
+        world.Resource<ModelDrawList>().Draws.Should().OnlyContain(d => d.Texture == upload.Id);
+    }
+}

@@ -4,8 +4,8 @@ namespace Engine;
 
 /// <summary>
 /// Render-thread per-light component, populated each frame by <see cref="LightExtract"/>
-/// from the main-world <see cref="Light"/> + <see cref="Transform"/> pair. Symmetric to
-/// <see cref="RenderMeshInstance"/>: the world-space pose is baked, the energy is
+/// from the main-world <see cref="Light"/> + <see cref="Transform"/> pair. The world-space
+/// pose is baked, the energy is
 /// premultiplied (color × intensity × 2^exposure × optional Kelvin tint), and the
 /// shape parameters are flattened so render passes don't need to revisit the main world.
 /// </summary>
