@@ -94,7 +94,10 @@ Allocator replace them (RENDERING.md, What the engine needs).
 ### Dear ImGui
 
 ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `PreUpdate`, so ImGui
-calls a system makes in `First` are lost, and there is no docking or viewport support. Keyboard
+calls a system makes in `First` are lost. Docking is enabled (`gui_imgui_window` makes a dock
+space over the window), but docking by a drag has not been checked, since a drag injected through
+`./e3d` moves a window without resting on the drop targets. Viewports, which take ImGui windows
+out of the game's window, are not supported. Keyboard
 navigation is on, which makes `WantCaptureKeyboard` true whenever an ImGui window has focus, so
 the engine's own shortcuts ask `WantTextInput` instead.
 

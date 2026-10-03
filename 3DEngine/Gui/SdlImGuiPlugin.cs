@@ -31,7 +31,10 @@ public sealed class SdlImGuiPlugin : IPlugin
         logger.Info("SdlImGuiPlugin: Creating ImGui context...");
         ImGui.CreateContext();
         var io = ImGui.GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad;
+        // Docking lets a window be dragged onto another or onto a dock space, which
+        // ImGui.DockSpaceOverViewport makes of the whole window. Viewports, which take ImGui
+        // windows out of the game's window, need a platform backend the engine does not have.
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad | ImGuiConfigFlags.DockingEnable;
         ImGui.StyleColorsDark();
 
         // ImGui's Vulkan adapter. No-op when the graphics backend isn't Vulkan.

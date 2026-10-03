@@ -31,13 +31,23 @@ public static class GuiImGuiWindow
             DrawGrid(10, 1);
             EndMode3D();
 
-            // ImGui works anywhere between BeginDrawing and EndDrawing.
+            // ImGui works anywhere between BeginDrawing and EndDrawing. The dock space covers the
+            // window and lets the scene show through its middle, so a window dragged to an edge
+            // docks there.
+            ImGui.DockSpaceOverViewport(0, ImGui.GetMainViewport(), ImGuiDockNodeFlags.PassthruCentralNode);
+
             ImGui.SetNextWindowSize(new Vector2(280, 0), ImGuiCond.FirstUseEver);
             ImGui.Begin("Cube");
             ImGui.SliderFloat("Size", ref size, 0.5f, 5f);
             ImGui.ColorEdit3("Color", ref color);
             ImGui.Checkbox("Wires", ref wires);
             ImGui.Text($"{GetFPS()} FPS");
+            ImGui.End();
+
+            ImGui.SetNextWindowPos(new Vector2(480, 300), ImGuiCond.FirstUseEver);
+            ImGui.SetNextWindowSize(new Vector2(240, 100), ImGuiCond.FirstUseEver);
+            ImGui.Begin("Help");
+            ImGui.TextWrapped("Drag a window by its title to an edge to dock it.");
             ImGui.End();
 
             EndDrawing();
