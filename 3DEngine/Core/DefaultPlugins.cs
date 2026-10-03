@@ -39,7 +39,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new ExceptionsPlugin(),
         new AppWindowPlugin(),
         new AppExitPlugin(),
-        new SdlPlugin(),
+        new RenderPlugin(),
         new SdlImGuiPlugin(),
         new AssetPlugin(),
         new ScenesPlugin(),

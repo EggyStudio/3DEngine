@@ -60,6 +60,10 @@ public sealed class Renderer : IDisposable
         var mesh = server.LoadSync<ShaderProgram>("shaders/mesh.slang");
 
         Graph.AddNode("main_pass", new MainPassNode(mesh.Vertex, mesh.Fragment));
+
+        var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
+        Graph.AddNode("immediate", new ImmediateNode(immediate.Vertex, immediate.Fragment));
+        Graph.AddNodeEdge("main_pass", "immediate");
         Logger.Debug("Default MainPassNode added to render graph.");
 
         // Pipeline cache deduplicates compiled pipelines across nodes.

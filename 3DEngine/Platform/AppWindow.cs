@@ -87,69 +87,78 @@ public sealed class AppWindow
     /// </remarks>
     public void Looping(params Delegate[] onFrame)
     {
-        bool running = true;
-        while (running)
+        while (PollEvents())
         {
-            if (_shouldClose) running = false;
-
-            // -- Coalesced resize state for this poll batch --
-            bool resizedThisBatch = false;
-            int coalescedW = 0, coalescedH = 0;
-
-            while (SDL.PollEvent(out var e))
-            {
-                SDLEvent?.Invoke(e);
-
-                var evtType = (SDL.EventType)e.Type;
-
-                if (evtType == SDL.EventType.Quit)
-                {
-                    QuitEvent?.Invoke();
-                    running = false;
-                }
-                if (evtType == SDL.EventType.WindowCloseRequested
-                    && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
-                {
-                    QuitEvent?.Invoke();
-                    running = false;
-                }
-                if (evtType == SDL.EventType.WindowResized
-                    && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
-                {
-                    // Update display scale (may change if window moved between monitors).
-                    float resizeScale = SDL.GetWindowDisplayScale(Sdl.Window);
-                    if (resizeScale <= 0f) resizeScale = 1f;
-                    Sdl.DisplayScale = resizeScale;
-
-                    // GetWindowSize returns logical coordinates on native Wayland,
-                    // macOS, and iOS - but physical pixels on Windows, X11 (XWayland),
-                    // and Android.
-                    SDL.GetWindowSize(Sdl.Window, out int rawW, out int rawH);
-                    if (Sdl.NeedsManualHiDpiScaling && resizeScale > 1.001f)
-                    {
-                        coalescedW = (int)(rawW / resizeScale);
-                        coalescedH = (int)(rawH / resizeScale);
-                    }
-                    else
-                    {
-                        coalescedW = rawW;
-                        coalescedH = rawH;
-                    }
-                    resizedThisBatch = true;
-                }
-            }
-
-            // -- Dispatch the single coalesced resize (if any) --
-            if (resizedThisBatch && coalescedW > 0 && coalescedH > 0)
-            {
-                Sdl.Width = coalescedW;
-                Sdl.Height = coalescedH;
-                ResizeEvent?.Invoke(coalescedW, coalescedH);
-            }
-
             foreach (var frame in onFrame)
                 frame?.DynamicInvoke();
         }
+    }
+
+    /// <summary>
+    /// Processes every pending SDL event once, raising <see cref="SDLEvent"/>,
+    /// <see cref="QuitEvent"/> and <see cref="ResizeEvent"/> as they apply.
+    /// </summary>
+    /// <returns><c>false</c> once the window has been asked to close.</returns>
+    public bool PollEvents()
+    {
+        bool running = !_shouldClose;
+
+        // -- Coalesced resize state for this poll batch --
+        bool resizedThisBatch = false;
+        int coalescedW = 0, coalescedH = 0;
+
+        while (SDL.PollEvent(out var e))
+        {
+            SDLEvent?.Invoke(e);
+
+            var evtType = (SDL.EventType)e.Type;
+
+            if (evtType == SDL.EventType.Quit)
+            {
+                QuitEvent?.Invoke();
+                running = false;
+            }
+            if (evtType == SDL.EventType.WindowCloseRequested
+                && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
+            {
+                QuitEvent?.Invoke();
+                running = false;
+            }
+            if (evtType == SDL.EventType.WindowResized
+                && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
+            {
+                // Update display scale (may change if window moved between monitors).
+                float resizeScale = SDL.GetWindowDisplayScale(Sdl.Window);
+                if (resizeScale <= 0f) resizeScale = 1f;
+                Sdl.DisplayScale = resizeScale;
+
+                // GetWindowSize returns logical coordinates on native Wayland,
+                // macOS, and iOS - but physical pixels on Windows, X11 (XWayland),
+                // and Android.
+                SDL.GetWindowSize(Sdl.Window, out int rawW, out int rawH);
+                if (Sdl.NeedsManualHiDpiScaling && resizeScale > 1.001f)
+                {
+                    coalescedW = (int)(rawW / resizeScale);
+                    coalescedH = (int)(rawH / resizeScale);
+                }
+                else
+                {
+                    coalescedW = rawW;
+                    coalescedH = rawH;
+                }
+                resizedThisBatch = true;
+            }
+        }
+
+        // -- Dispatch the single coalesced resize (if any) --
+        if (resizedThisBatch && coalescedW > 0 && coalescedH > 0)
+        {
+            Sdl.Width = coalescedW;
+            Sdl.Height = coalescedH;
+            ResizeEvent?.Invoke(coalescedW, coalescedH);
+        }
+
+        return running;
     }
 
     /// <summary>Disposes the underlying SDL resources, optionally invoking a callback before return.</summary>

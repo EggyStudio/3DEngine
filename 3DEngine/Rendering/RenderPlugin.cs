@@ -8,9 +8,9 @@ namespace Engine;
 /// <seealso cref="Renderer"/>
 /// <seealso cref="RendererContext"/>
 /// <seealso cref="AppWindowPlugin"/>
-public sealed class SdlPlugin : IPlugin
+public sealed class RenderPlugin : IPlugin
 {
-    private static readonly ILogger Logger = Log.Category("Engine.SdlRenderer");
+    private static readonly ILogger Logger = Log.Category("Engine.Renderer");
 
     /// <summary>Delay (ms) after the last resize event before committing the expensive
     /// swapchain + allocator + camera rebuild.  During this window the Vulkan lazy path
@@ -28,6 +28,22 @@ public sealed class SdlPlugin : IPlugin
         }
     }
 
+    /// <summary>
+    /// Extract system that hands the <see cref="DrawList"/> to the render world. It is handed over
+    /// rather than copied, because the frame is rendered on the main thread in
+    /// <see cref="Stage.Last"/> and nothing records into the list again until
+    /// <see cref="Stage.First"/> clears it.
+    /// </summary>
+    private sealed class DrawListExtract : IExtractSystem
+    {
+        /// <inheritdoc />
+        public void Run(World world, RenderWorld renderWorld)
+        {
+            if (world.TryGetResource<DrawList>(out var drawList))
+                renderWorld.Set(drawList);
+        }
+    }
+
     /// <inheritdoc />
     public void Build(App app)
     {
@@ -38,15 +54,20 @@ public sealed class SdlPlugin : IPlugin
             : new ClearColor(0.45f, 0.55f, 0.60f, 1.00f)); // blue-ish for SDL
         Logger.Info($"Clear color set (R={color.R:F2}, G={color.G:F2}, B={color.B:F2}, A={color.A:F2}) for {cfg.Graphics} backend.");
 
-        Logger.Info("SdlPlugin: Creating Renderer and wiring extract/prepare systems...");
+        Logger.Info("RenderPlugin: Creating Renderer and wiring extract/prepare systems...");
         var renderer = new Renderer(new RendererContext());
         renderer.AddExtractSystem(new ClearColorExtract());
+        renderer.AddExtractSystem(new DrawListExtract());
         renderer.AddExtractSystem(new CameraExtract());
         renderer.AddExtractSystem(new MeshMaterialExtract());
         renderer.AddPrepareSystem(new MeshPrepare());
         renderer.AddPrepareSystem(new TexturePrepare());
         app.World.InsertResource(renderer);
         Logger.Debug("Renderer resource registered with extract and prepare systems.");
+
+        app.World.InitResource<DrawList>();
+        app.AddSystem(Stage.First, new SystemDescriptor(static world => world.Resource<DrawList>().Clear(), "RenderPlugin.ClearDrawList")
+            .Write<DrawList>());
 
         // Initialize Vulkan against SDL window if configured
         var window = app.World.Resource<AppWindow>();
@@ -58,7 +79,7 @@ public sealed class SdlPlugin : IPlugin
 
         if (cfg.Graphics == GraphicsBackend.Vulkan)
         {
-            Logger.Info("SdlPlugin: Vulkan backend selected - initializing graphics context against SDL window...");
+            Logger.Info("RenderPlugin: Vulkan backend selected - initializing graphics context against SDL window...");
             // Grab the ISurfaceSource that AppWindowPlugin inserted
             var surface = app.World.Resource<ISurfaceSource>();
             renderer.Context.Initialize(surface, cfg.WindowData.Title);
@@ -83,7 +104,7 @@ public sealed class SdlPlugin : IPlugin
         }
         else
         {
-            Logger.Info("SdlPlugin: Non-Vulkan backend - Vulkan renderer initialization skipped.");
+            Logger.Info("RenderPlugin: Non-Vulkan backend - Vulkan renderer initialization skipped.");
         }
 
         // Build the base render graph now so "main_pass" exists before any Stage.Startup
@@ -107,7 +128,7 @@ public sealed class SdlPlugin : IPlugin
                 }
             
                 r.RenderFrame(world);
-            }, "SdlPlugin.Render")
+            }, "RenderPlugin.Render")
             .MainThreadOnly()
             .Read<ClearColor>()
             .Read<EcsWorld>()
@@ -118,14 +139,14 @@ public sealed class SdlPlugin : IPlugin
             {
                 if (world.TryGetResource<Renderer>(out var r))
                 {
-                    Logger.Info("SdlPlugin: Cleanup stage - disposing Renderer...");
+                    Logger.Info("RenderPlugin: Cleanup stage - disposing Renderer...");
                     r.Dispose();
                     world.RemoveResource<Renderer>();
                 }
-            }, "SdlPlugin.Cleanup")
+            }, "RenderPlugin.Cleanup")
             .MainThreadOnly()
             .Write<Renderer>());
 
-        Logger.Info("SdlPlugin: Build complete.");
+        Logger.Info("RenderPlugin: Build complete.");
     }
 }

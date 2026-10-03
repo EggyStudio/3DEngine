@@ -2,54 +2,105 @@ namespace Engine;
 
 public sealed partial class App
 {
+    private bool _started;
+    private bool _shutDown;
+
     /// <summary>
-    /// Runs the application: executes <see cref="Stage.Startup"/> once, enters the per-frame main loop,
-    /// then runs <see cref="Stage.Cleanup"/> on exit.
+    /// Runs the application: <see cref="Startup"/>, then <see cref="Frame"/> for as long as the
+    /// <see cref="IMainLoopDriver"/> keeps looping, then <see cref="Shutdown"/>.
     /// </summary>
     /// <remarks>
-    /// <para>The main loop is driven by the <see cref="IMainLoopDriver"/> resource, which must be
-    /// present in the <see cref="World"/> (typically inserted by a window plugin such as
-    /// <c>AppWindowPlugin</c>).</para>
-    /// <para>Each frame executes all stages from <see cref="Stage.First"/> through <see cref="Stage.Last"/>
-    /// in fixed order. After the loop exits, <see cref="Stage.Cleanup"/> runs, the driver is shut down,
-    /// and all <see cref="IDisposable"/> resources are disposed.</para>
+    /// The main loop is driven by the <see cref="IMainLoopDriver"/> resource, which a window plugin
+    /// such as <c>AppWindowPlugin</c> inserts. A program that drives its own loop calls the same
+    /// steps itself, which is how <see cref="Engine3D"/> runs a frame between
+    /// <c>BeginDrawing</c> and <c>EndDrawing</c>.
     /// </remarks>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if no <see cref="IMainLoopDriver"/> resource has been inserted into the <see cref="World"/>.
+    /// No <see cref="IMainLoopDriver"/> resource has been inserted into the <see cref="World"/>.
     /// </exception>
     /// <seealso cref="IMainLoopDriver"/>
     /// <seealso cref="Stage"/>
     public void Run()
     {
-        Logger.Info("App.Run() - Resolving main loop driver...");
         var loop = World.Resource<IMainLoopDriver>();
         Logger.Info($"Main loop driver: {loop.GetType().Name}");
+
+        Startup();
+        loop.Run(Frame);
+        Logger.Info($"Main loop exited after {_frameCount} frames.");
+        Shutdown();
+    }
+
+    /// <summary>Runs <see cref="Stage.Startup"/>, once. Later calls do nothing.</summary>
+    public void Startup()
+    {
+        if (_started) return;
+        _started = true;
 
         Logger.Info("Running Startup stage - one-time initialization systems...");
         Schedule.RunStage(Stage.Startup, World);
         Logger.Info("Startup stage complete.");
+    }
 
-        Logger.Info("Entering main loop - per-frame execution begins.");
-        loop.Run(() =>
-        {
-            _frameCount++;
-            if (_frameCount <= 3 || (_frameCount % 1000 == 0))
-                Logger.FrameTrace($"Frame #{_frameCount} begin");
+    /// <summary>Runs one whole frame, <see cref="Stage.First"/> through <see cref="Stage.Last"/>.</summary>
+    public void Frame()
+    {
+        BeginFrame();
+        EndFrame();
+    }
 
-            foreach (var stage in StageOrder.FrameStages())
-                Schedule.RunStage(stage, World);
-        });
+    /// <summary>
+    /// Runs the first half of a frame, <see cref="Stage.First"/> through <see cref="Stage.Update"/>,
+    /// running <see cref="Startup"/> first if it has not run.
+    /// </summary>
+    /// <remarks>
+    /// Whatever the caller does between this and <see cref="EndFrame"/> belongs to the frame, so
+    /// draw calls made there are rendered by it and ImGui windows begun there are drawn with it.
+    /// </remarks>
+    public void BeginFrame()
+    {
+        Startup();
 
-        Logger.Info($"Main loop exited after {_frameCount} frames.");
+        _frameCount++;
+        if (_frameCount <= 3 || _frameCount % 1000 == 0)
+            Logger.FrameTrace($"Frame #{_frameCount} begin");
+
+        foreach (var stage in StageOrder.BeginFrameStages())
+            Schedule.RunStage(stage, World);
+    }
+
+    /// <summary>
+    /// Runs the second half of a frame, <see cref="Stage.PostUpdate"/> through <see cref="Stage.Last"/>,
+    /// which applies deferred commands, renders and presents.
+    /// </summary>
+    public void EndFrame()
+    {
+        foreach (var stage in StageOrder.EndFrameStages())
+            Schedule.RunStage(stage, World);
+    }
+
+    /// <summary>
+    /// Runs <see cref="Stage.Cleanup"/>, shuts the main loop driver down and disposes every
+    /// disposable resource, once. Later calls do nothing.
+    /// </summary>
+    /// <remarks>
+    /// The driver is shut down after <see cref="Stage.Cleanup"/>, so GPU resources that depend on
+    /// the window's surface are released before the window goes away.
+    /// </remarks>
+    public void Shutdown()
+    {
+        if (_shutDown) return;
+        _shutDown = true;
+
         Logger.Info("Running Cleanup stage - teardown and resource disposal...");
         Schedule.RunStage(Stage.Cleanup, World);
 
-        // Tear down platform resources (e.g., SDL window) *after* Cleanup systems
-        // have released GPU resources that depend on the window/surface.
-        Logger.Info("Shutting down main loop driver (platform teardown)...");
-        loop.Shutdown();
+        if (World.TryGetResource<IMainLoopDriver>(out var loop))
+        {
+            Logger.Info("Shutting down main loop driver (platform teardown)...");
+            loop.Shutdown();
+        }
 
-        // Dispose all IDisposable resources as a safety net.
         World.Dispose();
         Logger.Info("Cleanup stage complete. Application shutdown finished.");
     }

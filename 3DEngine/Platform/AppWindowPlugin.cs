@@ -36,6 +36,8 @@ public sealed class AppWindowPlugin : IPlugin
             window.Looping(frameStep);
         }
 
+        public bool PumpEvents() => window.PollEvents();
+
         /// <inheritdoc />
         public void Shutdown()
         {

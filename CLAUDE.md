@@ -31,19 +31,26 @@ about shaders until `build/fetch-slang.sh` has run.
 
 A running example can be captured from a terminal by forcing SDL onto X11, where ImageMagick can
 read the window: `SDL_VIDEODRIVER=x11` before the run, then
-`import -window $(xdotool search --pid <pid> | tail -1) shot.png`.
+`import -window $(xdotool search --pid <pid> | tail -1) shot.png`. Keys reach it through
+`xdotool keydown --window <id> w`. Without `--window`, xdotool's input does not reach the window
+under GNOME's Xwayland.
+
+A new or changed example gets a fresh capture in `.github/assets/examples/<name>.png`, and the
+README links captures by `https://raw.githubusercontent.com/EggyStudio/3DEngine/main/...`, so they
+show once the commit is pushed.
 
 ## Where things are
 
 | Path | Holds |
 |---|---|
+| `3DEngine/Api` | `Engine3D`, the flat API, one file per area, with `Color` and `Camera3D` |
 | `3DEngine/Core` | `App`, `Config`, `World` (resources), the schedule and stages, plugins, events, input, time, logging |
 | `3DEngine/Ecs` | `EcsWorld` (sparse sets), `EcsCommands`, the frame's change bits |
 | `3DEngine/Behaviors` | `[Behavior]` attributes, `BehaviorContext`, `BehaviorsPlugin`, the runtime behavior compiler |
 | `3DEngine/Components` | `Transform`, `Camera`, `Mesh`, `Material` and the render-side mirrors |
 | `3DEngine/Platform` | The SDL3 window, main loop and input, and audio under `Audio/` |
 | `3DEngine/Graphics` | The Vulkan device over Vortice.Vulkan, and `SlangCompiler` |
-| `3DEngine/Rendering` | `Renderer`, the render graph, phases, extracts, pipelines and lighting |
+| `3DEngine/Rendering` | `Renderer`, `RenderPlugin`, the render graph, phases, extracts, pipelines, lighting, and the `DrawList` and its pass under `Immediate/` |
 | `3DEngine/Gui` | Dear ImGui's context and input, and its Vulkan pass under `Vulkan/` |
 | `3DEngine/Assets` | `AssetServer`, handles, textures (StbImageSharp), models (Assimp), materials |
 | `3DEngine/Scenes` | The scene model a reader produces, and the spawner that turns it into entities |
@@ -52,7 +59,8 @@ read the window: `SDL_VIDEODRIVER=x11` before the run, then
 | `build/` | `fetch-slang.sh`, and the compiler it downloads under `tools/` |
 | `3DEngine.Generator` | The behavior source generator, which the engine also compiles in for scripts |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
-| `3DEngine.Examples` | Programs that use the engine |
+| `3DEngine.Examples` | raylib-style example programs, run by name |
+| `.github/assets/examples` | A capture of each example, which the README shows |
 
 ## Conventions
 

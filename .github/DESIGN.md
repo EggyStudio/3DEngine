@@ -20,11 +20,12 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **Behaviors**, which are `[Behavior]` structs whose stage methods a Roslyn generator turns into
   systems, with filters, run conditions and toggle keys.
 - **An SDL3 window** with keyboard and mouse input, and **a Vulkan device** over Vortice.Vulkan with
-  a render graph that draws meshes and ImGui, with shaders in Slang.
+  a render graph that draws meshes, the immediate draw list and ImGui, with shaders in Slang.
+- **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
+  listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
-What is missing is the surface this document describes. There is no flat API, a program has to
-assemble an `App` and its plugins before anything is drawn, and nothing can be drawn without
-spawning an entity first.
+What is missing is the half of the flat API that loads things: textures, models, shaders, sounds
+and render targets.
 
 ## 1. One flat API
 
@@ -63,35 +64,36 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 
 | file | covers |
 |---|---|
-| `Engine3D.Window.cs` | the window, the monitor, frame timing |
-| `Engine3D.Input.cs` | keyboard, mouse and gamepad |
-| `Engine3D.Drawing.cs` | the frame, cameras and render targets |
+| `Engine3D.Window.cs` | the window and frame timing (the monitor is not covered) |
+| `Engine3D.Input.cs` | keyboard and mouse (gamepads are not covered) |
+| `Engine3D.Drawing.cs` | the frame and cameras (render targets are not covered) |
 | `Engine3D.Shapes.cs` | 2D shapes |
 | `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
-| `Engine3D.Textures.cs` | images and textures |
-| `Engine3D.Text.cs` | fonts and text |
-| `Engine3D.Models.cs` | meshes, models and materials |
-| `Engine3D.Shaders.cs` | Slang shaders and their parameters |
-| `Engine3D.Audio.cs` | sounds and music |
+| `Engine3D.Text.cs` | text, drawn with ImGui's font |
+| `Engine3D.Textures.cs` | images and textures, not written |
+| `Engine3D.Models.cs` | meshes, models and materials, not written |
+| `Engine3D.Shaders.cs` | Slang shaders and their parameters, not written |
+| `Engine3D.Audio.cs` | sounds and music, not written |
 
 Arguments are plain values (`Vector3`, `Color`, `Rectangle`, `Camera3D`), and resources are small
 structs holding an id, so nothing in the API needs a class hierarchy to be understood.
 
 ## 2. The frame
 
-`InitWindow` builds an `App` with the default plugins and runs its `Startup` stage. The loop the
-program writes then drives the app one frame at a time:
+`InitWindow` builds an `App` with the default plugins. The loop the program writes then drives
+the app one frame at a time, through `App.BeginFrame` and `App.EndFrame`:
 
 | call | what runs |
 |---|---|
-| `WindowShouldClose` | reports whether the window was asked to close |
-| `BeginDrawing` | `First`, `PreUpdate` and `Update`, which poll SDL, advance time and input and run the game's systems, then a new ImGui frame |
+| `WindowShouldClose` | processes the window's events, then reports whether the window or the exit key (Escape) asked to close |
+| `BeginDrawing` | `Startup` on the first frame, then `First`, `PreUpdate` and `Update`, which advance time, start the ImGui frame and run the game's systems |
 | `EndDrawing` | `PostUpdate`, `Render` and `Last`, which apply deferred commands, render what was recorded and present, then waits for the target frame time |
 | `CloseWindow` | `Cleanup`, then disposes the app |
 
 So the frame a raylib-style loop sees and the frame an ECS system sees are the same frame, and a
-program can mix the two. `App.Run()` drives the same steps for a program that hands the loop to the
-engine.
+program can mix the two. `Startup` waits for the first frame, so plugins and behaviors added between
+`InitWindow` and the loop take part in it. `App.Run()` drives the same steps for a program that
+hands the loop to the engine.
 
 ## 3. Immediate drawing
 
@@ -100,8 +102,9 @@ outlives the frame, so a cube drawn in one frame and not the next is gone. Shape
 lines and triangles of position and color, in the manner of raylib's rlgl layer, and drawn by one
 pass after the meshes the ECS holds and before ImGui.
 
-`BeginMode3D(camera)` sets the view the following calls draw through, and `EndMode3D` returns to
-screen space for 2D shapes and text. A `Camera3D` is a plain struct the program keeps and updates
+`BeginMode3D(camera)` sets the view the following calls draw through, with depth testing, and
+`EndMode3D` returns to screen space, in pixels from the top left corner, for 2D shapes. Text is
+drawn with ImGui's font into ImGui's foreground layer, so it is always on top. A `Camera3D` is a plain struct the program keeps and updates
 (`UpdateCamera(ref camera, CameraMode.Free)`), so a camera is a value rather than an entity until a
 program decides it should be one.
 
@@ -124,12 +127,12 @@ is already immediate and flat, and a second name for each widget would be a seco
 
 ## 5. The ECS underneath
 
-`Engine3D.App` is the app `InitWindow` built. A program reaches the ECS through it, and anything
+`GetApp()` returns the app `InitWindow` built. A program reaches the ECS through it, and anything
 registered there runs inside the frames the loop drives:
 
 ```csharp
 InitWindow(1280, 720, "Spinning");
-App.AddPlugin(new PhysicsPlugin());
+var ecs = GetApp().World.Resource<EcsWorld>();
 
 [Behavior]
 public partial struct Spin
@@ -145,13 +148,15 @@ public partial struct Spin
 }
 ```
 
-The flat functions work inside systems too, so an `[OnRender]` method can call `DrawCube`. A game
-that outgrows the loop moves its logic into behaviors one piece at a time, and nothing in the flat
-API has to be unlearned.
+The flat functions work inside systems too, when the app is the one `InitWindow` built, so an
+`[OnRender]` method can call `DrawCube`. A game that outgrows the loop moves its logic into
+behaviors one piece at a time, and nothing in the flat API has to be unlearned. The `ecs_behaviors`
+example moves balls in a behavior and draws them from the loop.
 
 ## 6. Resources the program owns
 
-`Load` returns a resource and `Unload` frees it, and the program decides when. There is no
+`Load` returns a resource and `Unload` frees it, and the program decides when. No `Load` function
+exists yet, and this section is the rule they follow. There is no
 reference counting and no garbage collection of GPU memory in the flat API, since raylib's
 experience is that a pair of calls is understood by everyone and leaks are found by the log, which
 reports what was still loaded at `CloseWindow`. The asset server under the ECS keeps its own
@@ -181,15 +186,17 @@ that is added. The set is:
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
 Scene description formats, material graph languages, embedded browsers, web servers, spatial
-audio middleware and an editor are left out. Each brings more surface than the engine has users for, and each was
-tried in an earlier revision of this repository and kept on the `legacy-modules` branch.
+audio middleware and an editor are left out. Each brings more surface than the engine has users
+for, and each was tried in an earlier revision of this repository and kept on the `legacy-modules`
+branch.
 
 ## 9. One project
 
 The engine is one project, `3DEngine/`, with a folder per area (`Core`, `Ecs`, `Behaviors`,
 `Components`, `Platform`, `Graphics`, `Rendering`, `Gui`, `Assets`, `Scenes`, `Physics`, and `Api`
-for the flat functions). Beside it are the generator, the tests and the examples. A folder is a namespace's worth of code, and there are no
-module repositories, so a change that touches the ECS and the renderer is one commit.
+for the flat functions). Beside it are the generator, the tests and the examples. A folder is a
+namespace's worth of code, and there are no module repositories, so a change that touches the ECS
+and the renderer is one commit.
 
 ## 10. The cheatsheet
 
@@ -199,9 +206,10 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. `App.Startup`, `App.Frame` and `App.Shutdown`, then `Engine3D.Window`, `Input` and `Drawing`, with
-   ImGui inside the frame.
-2. The draw list and its pass, then `Shapes3D`, cameras and the first examples.
-3. `Textures`, `Models` through Assimp, `Shaders`, then `Text` and `Shapes`.
+1. `Textures`, with textured quads in the draw list.
+2. `Models` through Assimp, drawn through the mesh pass with a transform per call.
+3. `Shaders`, with parameters set by name.
 4. `Audio`, gamepads and render targets.
-5. The cheatsheet as each area lands, and the examples beside it.
+5. Text from a font file of the program's choosing, drawn in the draw list rather than ImGui.
+
+Each area lands with its lines in the cheatsheet and an example beside it.

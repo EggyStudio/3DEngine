@@ -26,7 +26,7 @@ public static class LogConfig
     internal static readonly Stopwatch EngineTimer = Stopwatch.StartNew();
 
     /// <summary>
-    /// Directory where engine log files (Engine.log, Crash.log, ultralight.log, ...) are written.
+    /// Directory where engine log files (Engine.log, Crash.log, ...) are written.
     /// Defaults to a <c>logs/</c> subfolder next to the executable. The directory is created
     /// on first access so callers can pass the returned path straight to a file writer.
     /// </summary>

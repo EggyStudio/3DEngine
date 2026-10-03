@@ -1,32 +1,39 @@
-using System.Numerics;
-using Engine;
+using Engine.Examples;
 
-var config = Config.Default;
-new App(config)
-    .AddPlugin(new DefaultPlugins())
-    .Run();
-
-[Behavior]
-public struct CameraTest
+// Each example is a program of its own, in the manner of raylib's examples, and this file picks
+// one by name: dotnet run --project 3DEngine.Examples -- core_3d_camera_free
+var examples = new Dictionary<string, Action>
 {
-    [OnStartup]
-    public static void Start(BehaviorContext ctx)
-    {
-        var camera = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(camera, new Camera(fovY: 60f, near: 0.1f, far: 1000f));
-        ctx.Ecs.Add(camera, new Transform(new Vector3(0, 0, 1)));
-    }
+    ["core_basic_window"] = CoreBasicWindow.Run,
+    ["core_3d_camera_free"] = Core3DCameraFree.Run,
+    ["shapes_basic_2d"] = ShapesBasic2D.Run,
+    ["shapes_basic_3d"] = ShapesBasic3D.Run,
+    ["gui_imgui_window"] = GuiImGuiWindow.Run,
+    ["ecs_behaviors"] = EcsBehaviors.Run,
+    ["ecs_mesh_entities"] = EcsMeshEntities.Run,
+};
+
+var name = args.Length > 0 ? args[0] : "core_3d_camera_free";
+if (!examples.TryGetValue(name, out var run))
+{
+    Console.WriteLine($"No example called '{name}'. The examples are:");
+    foreach (var known in examples.Keys) Console.WriteLine($"  {known}");
+    return 1;
 }
 
-[Behavior]
-public struct TriangleMeshTest
+Example.Current = name;
+run();
+return 0;
+
+namespace Engine.Examples
 {
-    [OnStartup]
-    public static void Start(BehaviorContext ctx)
+    /// <summary>Which example is running, so an example's behaviors run only in that example.</summary>
+    /// <remarks>
+    /// Behaviors are discovered across the whole assembly, and every example lives in this one, so
+    /// each behavior here carries a <c>[RunIf]</c> that asks this.
+    /// </remarks>
+    public static class Example
     {
-        var mesh = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(mesh, new Mesh(new[] { new Vector3(0, 1, 0), new Vector3(-1, -1, 0), new Vector3(1, -1, 0) }));
-        ctx.Ecs.Add(mesh, new Material(new Vector4(1, 1, 1, 1)));
-        ctx.Ecs.Add(mesh, new Transform(Vector3.Zero, Vector3.One * 0.1f));
+        public static string Current { get; set; } = "";
     }
 }

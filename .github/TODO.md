@@ -4,20 +4,15 @@ Work outstanding on 3DEngine, in the order it blocks making a game: a window
 and a frame a program drives with plain calls, something on screen, content loaded from files, an
 interface, behavior, and shipping the result.
 
-The ECS, the schedule and the behavior generator exist and are tested. What is thin is the surface
-a program touches. The flat API described in [DESIGN.md](DESIGN.md) does not exist, and the renderer
-draws meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md).
+The ECS, the schedule and the behavior generator exist and are tested, and the flat API described
+in [DESIGN.md](DESIGN.md) covers the window, input, the frame, cameras, shapes and text. What is
+thin is loading: nothing a program owns can be loaded through the flat API, and the renderer draws
+meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.
 
 ## Core
-
-### Driving the frame from outside
-
-`App.Run` owns the loop and hands it to `IMainLoopDriver`, so a program cannot run one frame and
-return. `App` needs `Startup`, `Frame` and `Shutdown`, with `Run` built on them, before
-`BeginDrawing` and `EndDrawing` can exist.
 
 ### Entities
 
@@ -49,9 +44,18 @@ return. `App` needs `Startup`, `Frame` and `Shutdown`, with `Run` built on them,
 
 ### The flat API
 
-`Engine3D` does not exist. The first areas are `Window`, `Input` and `Drawing`, then `Shapes3D` over
-the immediate pass (RENDERING.md §2), then `Textures`, `Models`, `Shaders`, `Text`, `Shapes` and
-`Audio`, each with its line in a cheatsheet and an example.
+`Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes
+and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
+
+- **Loading.** `LoadTexture`, `LoadModel`, `LoadShader` and `LoadSound`, each with its `Unload`,
+  its `Draw` call and an example. Models need the mesh pass to draw a mesh at a transform given
+  per call rather than per entity.
+- **Text has no font of its own.** `DrawText` draws with ImGui's built-in font into ImGui's
+  foreground layer, so text is always on top of shapes and windows and scales the 13-pixel bitmap.
+  A glyph atlas baked from a TTF and drawn in the draw list is needed.
+- **Gamepads, render targets and monitors** have no functions.
+- **`UpdateCamera`** has the free and orbital modes. raylib's first-person and third-person modes,
+  which lock the cursor, are not written.
 
 ### Meshes, materials and light
 
@@ -66,17 +70,14 @@ Every pass is a `VkRenderPass` with framebuffers, every buffer and image has an 
 own, and barriers are synchronization1. Dynamic rendering, synchronization2 and the Vulkan Memory
 Allocator replace them (RENDERING.md, What the engine needs).
 
-### Text
-
-There is no font rendering outside ImGui. `DrawText` needs a glyph atlas baked from a TTF (stb
-truetype or SDL3_ttf) and quads in the immediate pass.
-
 ## Interface
 
 ### Dear ImGui
 
 ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `PreUpdate`, so ImGui
-calls made before that stage in a frame are lost, and there is no docking or viewport support.
+calls a system makes in `First` are lost, and there is no docking or viewport support. Keyboard
+navigation is on, which makes `WantCaptureKeyboard` true whenever an ImGui window has focus, so
+the engine's own shortcuts ask `WantTextInput` instead.
 
 ## Simulation
 
@@ -116,6 +117,8 @@ outside ImGui and touch are not read.
 
 - **FluentAssertions 8** is licensed per seat for commercial use, so the suite is to move to plain
   xUnit assertions.
+- **One run failed most tests that construct an `App`**, right after a build, and sixteen runs
+  after it passed. The cause is not known, and the failing run's messages were not kept.
 - **Nothing renders in a test.** Tests use `NullGraphicsDevice`. A headless or offscreen Vulkan run
   with a screenshot to compare would cover the renderer.
 

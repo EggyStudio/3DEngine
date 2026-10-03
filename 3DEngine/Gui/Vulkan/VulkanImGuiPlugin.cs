@@ -40,6 +40,8 @@ public sealed class VulkanImGuiPlugin : IPlugin
 
                 renderer.Graph.AddNode("imgui", new ImGuiRenderNode(shader.Vertex, shader.Fragment));
                 renderer.Graph.AddNodeEdge("main_pass", "imgui");
+                if (renderer.Graph.ContainsNode("immediate"))
+                    renderer.Graph.AddNodeEdge("immediate", "imgui");
 
                 Logger.Info("ImGuiRenderNode registered in render graph (after 'main_pass').");
             }, "VulkanImGuiPlugin.Startup")

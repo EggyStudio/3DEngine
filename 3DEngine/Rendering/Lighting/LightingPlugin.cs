@@ -11,7 +11,7 @@ namespace Engine;
 /// <para>
 /// <b>Order:</b> consumer-tier (<see cref="PluginOrder.Default"/>); needs
 /// <see cref="ScenesPlugin"/> for the payload contract and the <see cref="Renderer"/>
-/// resource (created by <see cref="SdlPlugin"/>) for extract-system registration. Both
+/// resource (created by <see cref="RenderPlugin"/>) for extract-system registration. Both
 /// will exist by the time this plugin builds when launched via <see cref="DefaultPlugins"/>.
 /// </para>
 /// <para>

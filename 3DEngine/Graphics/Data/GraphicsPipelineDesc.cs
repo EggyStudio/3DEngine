@@ -36,6 +36,7 @@ public enum CompareOp
 /// <param name="DepthTestEnabled">Whether depth testing is enabled. Defaults to <c>false</c> for backward compatibility with overlay pipelines.</param>
 /// <param name="DepthWriteEnabled">Whether depth writes are enabled. Only meaningful when <paramref name="DepthTestEnabled"/> is <c>true</c>.</param>
 /// <param name="DepthCompareOp">The comparison function for depth testing. Defaults to <see cref="CompareOp.Less"/>.</param>
+/// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>
 public readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -49,4 +50,15 @@ public readonly record struct GraphicsPipelineDesc(
     bool PremultipliedAlpha = false,
     bool DepthTestEnabled = false,
     bool DepthWriteEnabled = false,
-    CompareOp DepthCompareOp = CompareOp.Less);
+    CompareOp DepthCompareOp = CompareOp.Less,
+    PrimitiveTopology Topology = PrimitiveTopology.TriangleList);
+
+/// <summary>How a pipeline assembles vertices into primitives.</summary>
+public enum PrimitiveTopology
+{
+    /// <summary>Every three vertices form a triangle.</summary>
+    TriangleList,
+
+    /// <summary>Every two vertices form a line one pixel wide.</summary>
+    LineList,
+}

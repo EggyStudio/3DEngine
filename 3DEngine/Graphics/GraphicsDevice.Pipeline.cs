@@ -165,7 +165,9 @@ public sealed unsafe partial class GraphicsDevice
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = new()
         {
-            topology = VkPrimitiveTopology.TriangleList
+            topology = desc.Topology == PrimitiveTopology.LineList
+                ? VkPrimitiveTopology.LineList
+                : VkPrimitiveTopology.TriangleList
         };
 
         VkViewport viewport = new(0, 0, _swapchainExtent.width, _swapchainExtent.height, 0, 1);

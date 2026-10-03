@@ -26,6 +26,13 @@ public interface IMainLoopDriver
     void Run(Action frameStep);
 
     /// <summary>
+    /// Processes the platform's pending events once, for a program that drives its own loop
+    /// instead of calling <see cref="Run"/>.
+    /// </summary>
+    /// <returns><c>false</c> once the application has been asked to close.</returns>
+    bool PumpEvents() => true;
+
+    /// <summary>
     /// Called after the <see cref="Stage.Cleanup"/> stage has finished to tear down platform
     /// resources (e.g., destroy the SDL window). Override when the driver owns resources that
     /// other Cleanup systems depend on.

@@ -26,6 +26,7 @@ needs an offline toolchain beyond `slangc`.
      pass.
 - **Meshes** carry positions only and are drawn in their material's base color, so lighting is
   extracted and uploaded but not yet visible.
+- **The immediate pass** (§2) draws the shapes the flat API records.
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 
 ## 1. Slang through slangc
@@ -59,15 +60,17 @@ second set of files. What is not built:
 
 ## 2. The immediate pass
 
-`Draw` calls from the flat API (see [DESIGN.md](DESIGN.md)) record into a `DrawList` resource: a
-growing array of position and color vertices, split into a line batch and a triangle batch per
-depth mode and per view. `ImmediateNode` runs after `MainPassNode` and before ImGui. It writes the
-frame's vertices into the dynamic buffer arena in one copy and issues one draw per batch with
-`immediate.slang`. The list is cleared at the start of every frame.
+`Draw` calls from the flat API (see [DESIGN.md](DESIGN.md)) record into the `DrawList` resource, a
+growing array of 16-byte vertices (position and color) split into batches. A batch is a run of
+consecutive shapes with the same topology (lines or triangles), transform and depth mode, so a
+scene drawn through one camera is two batches. `ImmediateNode` runs after `main_pass` and before
+ImGui. It writes the frame's vertices into the dynamic buffer arena in one copy and issues one draw
+per batch with `immediate.slang`, the batch's transform a push constant. The list is cleared in
+`First`.
 
 This is raylib's rlgl layer in Vulkan terms. It keeps shapes, grids, gizmos and debug lines out of
-the ECS and out of the mesh path, and it is the first thing a program sees on screen, so it is
-built before materials.
+the ECS and out of the mesh path. Its four pipelines (lines or triangles, depth tested or not)
+blend by alpha and do not cull, so a shape's triangles may wind either way.
 
 ## 3. Meshes and materials
 
@@ -89,7 +92,7 @@ by name.
 is one cascaded shadow map for the main directional light, rendered as a depth-only node before the
 main pass. Point and spot shadows follow as an atlas.
 
-## 5. Render targets and post processing
+## 4. Render targets and post processing
 
 `BeginTextureMode(target)` redirects the calls that follow into an offscreen image, which a later
 draw can sample. Post processing is a chain of full-screen Slang passes over the main color target
@@ -122,10 +125,9 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 
 ## Order of work
 
-1. The immediate pass and the `DrawList`, so shapes and grids appear.
-2. Normals and one directional light.
-3. Assimp models with textures, and the material struct.
-4. Dynamic rendering and synchronization2, then VMA.
-5. Render targets, then tonemapping.
-6. The directional shadow map, then point and spot shadows.
-7. Bloom and FXAA.
+1. Normals and one directional light.
+2. Assimp models with textures, and the material struct.
+3. Dynamic rendering and synchronization2, then VMA.
+4. Render targets, then tonemapping.
+5. The directional shadow map, then point and spot shadows.
+6. Bloom and FXAA.
