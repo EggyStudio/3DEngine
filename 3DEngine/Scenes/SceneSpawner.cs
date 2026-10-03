@@ -151,7 +151,8 @@ public static class SceneSpawner
         ulong sceneAssetId,
         List<int> entities,
         SpawnContext ctx,
-        int parentEntity = 0)
+        int parentEntity = 0,
+        Matrix4x4 parentEntityWorld = default)
     {
         var localMatrix = ComposeLocalMatrix(node.LocalTransform);
         var worldMatrix = localMatrix * parentWorld;
@@ -160,13 +161,20 @@ public static class SceneSpawner
                        && settings.IncludePurposes.HasFlag(PurposeFlag(node.Purpose));
 
         var spawned = parentEntity;
+        var spawnedWorld = parentEntityWorld;
         if (include && HasSpawnablePayload(node))
         {
             var entity = ecs.Spawn();
             entities.Add(entity);
             spawned = entity;
+            spawnedWorld = worldMatrix;
 
-            ecs.Add(entity, DecomposeToTransform(worldMatrix));
+            // A child's transform is relative to the entity it hangs from, which propagation
+            // composes back into its world matrix. A root keeps the world matrix itself.
+            var relative = worldMatrix;
+            if (parentEntity != 0 && Matrix4x4.Invert(parentEntityWorld, out var inverse))
+                relative = worldMatrix * inverse;
+            ecs.Add(entity, DecomposeToTransform(relative));
             ecs.Add(entity, new Name(node.Name));
             if (parentEntity != 0) ecs.SetParent(entity, parentEntity);
 
@@ -184,7 +192,7 @@ public static class SceneSpawner
 
         // A node without a payload spawns nothing, so its children hang from the nearest ancestor that did.
         foreach (var child in node.Children)
-            SpawnRecursive(ecs, child, worldMatrix, settings, sceneAssetId, entities, ctx, spawned);
+            SpawnRecursive(ecs, child, worldMatrix, settings, sceneAssetId, entities, ctx, spawned, spawnedWorld);
     }
 
     private static bool HasSpawnablePayload(SceneNode node)

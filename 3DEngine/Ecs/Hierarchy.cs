@@ -18,8 +18,9 @@ public struct Name
 /// for the new entity with its id.
 /// </summary>
 /// <remarks>
-/// A parent is a relation for tools and for despawning together. Transforms are not composed
-/// through it: every <see cref="Transform"/> is in world space.
+/// A child's <see cref="Transform"/> is relative to its parent's, and
+/// <see cref="TransformPropagation"/> writes the composed world matrix into its
+/// <see cref="GlobalTransform"/> each frame.
 /// </remarks>
 public struct Parent
 {
@@ -88,5 +89,66 @@ public sealed partial class EcsWorld
     {
         foreach (var child in ChildrenOf(entity)) DespawnRecursive(child);
         Despawn(entity);
+    }
+}
+
+/// <summary>
+/// The world matrix of an entity that has a <see cref="Parent"/>: its own <see cref="Transform"/>
+/// composed with every ancestor's, written by <see cref="TransformPropagation"/> each frame.
+/// </summary>
+/// <remarks>An entity with no parent has none, and its <see cref="Transform"/> is its world transform.</remarks>
+public struct GlobalTransform
+{
+    /// <summary>Model to world space, in <c>System.Numerics</c> order (row vectors).</summary>
+    public System.Numerics.Matrix4x4 Matrix;
+}
+
+/// <summary>
+/// Composes the transforms of entities with parents into their <see cref="GlobalTransform"/>, in
+/// <see cref="Stage.Render"/>, after physics has written its bodies' transforms and before the
+/// renderer reads them.
+/// </summary>
+public static class TransformPropagation
+{
+    /// <summary>A transform as a matrix: scale, then rotation, then translation.</summary>
+    public static System.Numerics.Matrix4x4 ToMatrix(in Transform t) =>
+        System.Numerics.Matrix4x4.CreateScale(t.Scale)
+        * System.Numerics.Matrix4x4.CreateFromQuaternion(t.Rotation)
+        * System.Numerics.Matrix4x4.CreateTranslation(t.Position);
+
+    /// <summary>The world matrix of <paramref name="entity"/>: its <see cref="GlobalTransform"/>, or its <see cref="Transform"/>, or identity.</summary>
+    public static System.Numerics.Matrix4x4 WorldMatrix(EcsWorld ecs, int entity) =>
+        ecs.TryGet<GlobalTransform>(entity, out var global) ? global.Matrix
+        : ecs.TryGet<Transform>(entity, out var local) ? ToMatrix(local)
+        : System.Numerics.Matrix4x4.Identity;
+
+    /// <summary>Writes every parented entity's <see cref="GlobalTransform"/>.</summary>
+    public static void Run(World world)
+    {
+        if (!world.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+
+        var done = new Dictionary<int, System.Numerics.Matrix4x4>();
+        foreach (var (entity, _) in ecs.Query<Parent>())
+            Compose(ecs, entity, done, depth: 0);
+    }
+
+    // Recursion bounded by the depth of the hierarchy, which SetParent keeps free of cycles; the
+    // depth guard covers a cycle made by writing Parent components directly.
+    private static System.Numerics.Matrix4x4 Compose(EcsWorld ecs, int entity, Dictionary<int, System.Numerics.Matrix4x4> done, int depth)
+    {
+        if (done.TryGetValue(entity, out var known)) return known;
+
+        var local = ecs.TryGet<Transform>(entity, out var t) ? ToMatrix(t) : System.Numerics.Matrix4x4.Identity;
+        var parent = ecs.ParentOf(entity);
+        var world = parent != 0 && depth < 256 ? local * Compose(ecs, parent, done, depth + 1) : local;
+
+        done[entity] = world;
+        if (parent != 0)
+        {
+            var global = new GlobalTransform { Matrix = world };
+            if (ecs.Has<GlobalTransform>(entity)) ecs.Update(entity, global);
+            else ecs.Add(entity, global);
+        }
+        return world;
     }
 }

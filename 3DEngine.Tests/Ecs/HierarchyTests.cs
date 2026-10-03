@@ -63,4 +63,24 @@ public class HierarchyTests
 
         act.Should().Throw<InvalidOperationException>();
     }
+
+    [Fact]
+    public void Moving_A_Parent_Moves_Its_Children()
+    {
+        var world = new World();
+        var ecs = new EcsWorld();
+        world.InsertResource(ecs);
+        var parent = ecs.Spawn();
+        ecs.Add(parent, new Transform(new System.Numerics.Vector3(10, 0, 0)));
+        var child = ecs.Spawn();
+        ecs.Add(child, new Transform(new System.Numerics.Vector3(0, 2, 0)));
+        ecs.SetParent(child, parent);
+
+        TransformPropagation.Run(world);
+        TransformPropagation.WorldMatrix(ecs, child).Translation.Should().Be(new System.Numerics.Vector3(10, 2, 0));
+
+        ecs.GetRef<Transform>(parent).Position = new System.Numerics.Vector3(-5, 0, 0);
+        TransformPropagation.Run(world);
+        TransformPropagation.WorldMatrix(ecs, child).Translation.Should().Be(new System.Numerics.Vector3(-5, 2, 0));
+    }
 }

@@ -169,7 +169,16 @@ public class SceneSpawnerTests
         var parentT = ecs.GetRef<Transform>(spawned[0]);
         var childT = ecs.GetRef<Transform>(spawned[1]);
         parentT.Position.X.Should().BeApproximately(10f, 1e-5f);
-        childT.Position.X.Should().BeApproximately(11f, 1e-5f);
+
+        // The child is stored relative to its parent, and propagation composes its world position.
+        childT.Position.X.Should().BeApproximately(1f, 1e-5f);
+        ecs.ParentOf(spawned[1]).Should().Be(spawned[0]);
+        ecs.NameOf(spawned[1]).Should().Be("C");
+
+        var world = new World();
+        world.InsertResource(ecs);
+        TransformPropagation.Run(world);
+        TransformPropagation.WorldMatrix(ecs, spawned[1]).Translation.X.Should().BeApproximately(11f, 1e-5f);
     }
 
     [Fact]

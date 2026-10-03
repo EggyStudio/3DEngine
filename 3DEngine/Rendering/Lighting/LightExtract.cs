@@ -27,8 +27,9 @@ public sealed class LightExtract : IExtractSystem
         {
             // Identity transform when the entity has none (e.g. dome lights authored at
             // the stage root with no Xform parent).
-            Transform t = default;
-            ecs.TryGet(entity, out t);
+            // Position and orientation in world space, composed through parents when it has one.
+            Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, entity), out _, out var rotation, out var position);
+            var t = new Transform(position, rotation, Vector3.One);
 
             // UsdLux convention: distant / spot lights emit along -Z. Apply only the
             // rotation (translation goes into Position; scale is irrelevant for direction).

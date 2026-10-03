@@ -31,8 +31,9 @@ public sealed class CameraExtract : IExtractSystem
 
             float aspect = hPixels > 0 ? (float)wPixels / hPixels : 1f;
 
-            Transform t = default;
-            ecs.TryGet(entity, out t);
+            // Position and orientation in world space, composed through parents when it has one.
+            Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, entity), out _, out var rotation, out var position);
+            var t = new Transform(position, rotation, Vector3.One);
             var view = Matrix4x4.CreateTranslation(-t.Position) * Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(t.Rotation));
             var proj = Matrix4x4.CreatePerspectiveFieldOfView(cam.FovY, aspect, cam.Near, cam.Far);
             // Flip Y for Vulkan NDC (Y points downward), preserving CCW front-face winding.

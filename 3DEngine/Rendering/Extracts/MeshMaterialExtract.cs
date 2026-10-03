@@ -47,13 +47,9 @@ public sealed class MeshMaterialExtract : IExtractSystem
             if (!ecs.TryGet(entity, out Material mat)) continue;
             if (mesh.Positions is null || mesh.Positions.Length == 0) continue;
 
-            // Identity transform if the entity has no Transform component.
-            Transform t = default;
-            ecs.TryGet(entity, out t);
-
-            var model = Matrix4x4.CreateScale(t.Scale)
-                      * Matrix4x4.CreateFromQuaternion(t.Rotation)
-                      * Matrix4x4.CreateTranslation(t.Position);
+            // The world matrix: composed through parents when the entity has one, identity when
+            // it has no Transform at all.
+            var model = TransformPropagation.WorldMatrix(ecs, entity);
 
             int renderEntity = renderWorld.Spawn();
             renderWorld.Entities.Add(renderEntity, new RenderMeshInstance

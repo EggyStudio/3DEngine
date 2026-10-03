@@ -79,8 +79,9 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   `BulkProcess<T>` hands a span of the dense array to a delegate.
 - `Changed<T>(entity)` reads the change bit, which `Update<T>` and `QueryRef` set and `First` clears.
 - `Name` and `Parent` components give entities names and a hierarchy (`SetName`, `SetParent`,
-  `ChildrenOf`, `DespawnRecursive`). The parent is a handle, and transforms are not composed through
-  it.
+  `ChildrenOf`, `DespawnRecursive`). The parent is a handle. A child's `Transform` is relative to
+  its parent, and `TransformPropagation` writes the composed world matrix into its
+  `GlobalTransform` in `Render`, which the renderer's extracts read.
 - `EcsCommands` queues spawns, despawns, adds and removes as closures, applied in `PostUpdate`, so a
   system can change the world's shape while iterating it.
 

@@ -67,6 +67,11 @@ public sealed class EcsPlugin : IPlugin
             .Write<EcsWorld>());
         Logger.Info("EcsPlugin: ECS command flush system registered to PostUpdate stage.");
 
+        // In Render, which runs on one thread after PostUpdate (where commands land and physics
+        // writes its bodies) and before Last (where the renderer reads transforms).
+        app.AddSystem(Stage.Render, new SystemDescriptor(TransformPropagation.Run, "EcsPlugin.TransformPropagation")
+            .Write<EcsWorld>());
+
         // Code-generated [Behavior] layer that registers systems against the ECS world.
         app.AddPlugin(new BehaviorsPlugin());
     }
