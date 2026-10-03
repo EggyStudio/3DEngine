@@ -659,25 +659,23 @@ public sealed class AssimpModelReader : ISceneReader
 
     private static SceneLightPayload ConvertLight(A.Light l)
     {
+        var spot = l.LightType == A.LightSourceType.Spot;
         return new SceneLightPayload
         {
             Name = string.IsNullOrEmpty(l.Name) ? "Light" : l.Name,
-            Type = l.LightType switch
+            // An area light has no counterpart in the model pass, so it lights as a point.
+            Kind = l.LightType switch
             {
-                A.LightSourceType.Directional => SceneLightType.Distant,
-                A.LightSourceType.Point       => SceneLightType.Sphere,
-                A.LightSourceType.Spot        => SceneLightType.Sphere,
-                A.LightSourceType.Area        => SceneLightType.Rect,
-                A.LightSourceType.Ambient     => SceneLightType.Dome,
-                _                             => SceneLightType.Sphere,
+                A.LightSourceType.Directional => LightKind.Directional,
+                A.LightSourceType.Spot => LightKind.Spot,
+                A.LightSourceType.Ambient => LightKind.Ambient,
+                _ => LightKind.Point,
             },
-            Color = l.ColorDiffuse, // already System.Numerics.Vector3
+            Color = l.ColorDiffuse,
             Intensity = 1f,
-            Width = l.AreaSize.X != 0f ? l.AreaSize.X : null,
-            Height = l.AreaSize.Y != 0f ? l.AreaSize.Y : null,
-            ConeAngle = l.LightType == A.LightSourceType.Spot
-                ? l.AngleOuterCone * (180f / MathF.PI)
-                : null,
+            // Assimp gives a spot's cone angles from its axis in radians, as glTF writes them.
+            InnerAngle = spot ? float.RadiansToDegrees(l.AngleInnerCone) : 25f,
+            OuterAngle = spot ? float.RadiansToDegrees(l.AngleOuterCone) : 30f,
         };
     }
 

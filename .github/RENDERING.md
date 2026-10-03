@@ -127,13 +127,14 @@ by name.
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set
-from a ring of one per frame in flight. `model.slang` adds each light by Lambert's cosine: a
-distant light by its direction, a dome light as ambient, and every other kind as a point with the
-square of the distance, cut by a spot's cone. The sum is clamped rather than tonemapped, and there
-is no specular yet.
+from a ring of one per frame in flight. A `Light` is a kind (directional, point, spot or ambient),
+a color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
+`modelpass.slang` adds each light by Lambert's cosine: a directional light by its direction, an
+ambient light everywhere alike, and a point or spot by the square of the distance, brought smoothly
+to nothing at its range and cut by a spot's cone. The sum is clamped rather than tonemapped, and
+there is no specular yet.
 
-`Light` still carries UsdLux's kinds and fields, which are to shrink to a kind (directional, point,
-spot), a color, an intensity and a range. The first shadow
+The first shadow
 is one cascaded shadow map for the main directional light, rendered as a depth-only node before the
 main pass. Point and spot shadows follow as an atlas.
 

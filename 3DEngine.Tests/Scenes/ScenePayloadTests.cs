@@ -166,36 +166,15 @@ public class ScenePayloadTests
     }
 
     [Fact]
-    public void SceneLightPayload_Defaults_Are_White_Unit_Intensity()
+    public void SceneLightPayload_Defaults_To_A_White_Light_Of_Intensity_One()
     {
-        var light = new SceneLightPayload { Type = SceneLightType.Sphere };
+        var light = new SceneLightPayload { Kind = LightKind.Point };
 
         light.Name.Should().Be("Light");
-        light.Type.Should().Be(SceneLightType.Sphere);
         light.Color.Should().Be(Vector3.One);
         light.Intensity.Should().Be(1f);
-        light.Exposure.Should().Be(0f);
-        light.Radius.Should().BeNull();
-        light.Width.Should().BeNull();
-        light.Height.Should().BeNull();
-        light.Length.Should().BeNull();
-        light.ConeAngle.Should().BeNull();
-        light.ConeSoftness.Should().BeNull();
-        light.IesProfilePath.Should().BeNull();
-        light.DomeTexturePath.Should().BeNull();
-    }
-
-    [Theory]
-    [InlineData(SceneLightType.Distant)]
-    [InlineData(SceneLightType.Sphere)]
-    [InlineData(SceneLightType.Rect)]
-    [InlineData(SceneLightType.Disk)]
-    [InlineData(SceneLightType.Cylinder)]
-    [InlineData(SceneLightType.Dome)]
-    public void SceneLightPayload_Accepts_Every_UsdLux_Shape(SceneLightType type)
-    {
-        var light = new SceneLightPayload { Type = type };
-        light.Type.Should().Be(type);
+        light.Range.Should().Be(0f);
+        (light.InnerAngle, light.OuterAngle).Should().Be((25f, 30f));
     }
 
     [Fact]
@@ -239,7 +218,7 @@ public class ScenePayloadTests
         var node = new SceneNode { Name = "thing" };
         var mesh = new SceneMeshPayload { Positions = Array.Empty<Vector3>(), Indices = Array.Empty<int>() };
         var cam = new SceneCameraPayload();
-        var light = new SceneLightPayload { Type = SceneLightType.Distant };
+        var light = new SceneLightPayload { Kind = LightKind.Directional };
 
         node.Components.Add(mesh);
         node.Components.Add(cam);

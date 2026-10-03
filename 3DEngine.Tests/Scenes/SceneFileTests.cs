@@ -29,7 +29,7 @@ public class SceneFileTests
         ecs.Add(eye, new Camera(75f, 0.5f, 200f));
         ecs.SetParent(eye, rig);
         var lamp = ecs.Spawn();
-        ecs.Add(lamp, new Light { Type = LightType.Sphere, Color = new Vector3(1, 0.5f, 0.25f), Intensity = 4, Radius = 0.2f });
+        ecs.Add(lamp, Light.Spot(new Vector3(1, 0.5f, 0.25f), 4, innerAngle: 15, outerAngle: 35, range: 12));
         ecs.Add(lamp, new Material(new Vector4(0.1f, 0.2f, 0.3f, 1)));
 
         var json = SceneFile.Write(ecs);
@@ -47,9 +47,9 @@ public class SceneFileTests
         back.GetRef<Camera>(eyeBack).Far.Should().Be(200);
 
         var lampBack = spawned.Single(e => back.Has<Light>(e));
-        back.GetRef<Light>(lampBack).Type.Should().Be(LightType.Sphere);
+        back.GetRef<Light>(lampBack).Kind.Should().Be(LightKind.Spot);
         back.GetRef<Light>(lampBack).Color.Should().Be(new Vector3(1, 0.5f, 0.25f));
-        back.GetRef<Light>(lampBack).Radius.Should().Be(0.2f, "a nullable field keeps its value");
+        (back.GetRef<Light>(lampBack).InnerAngle, back.GetRef<Light>(lampBack).OuterAngle, back.GetRef<Light>(lampBack).Range).Should().Be((15f, 35f, 12f));
         back.GetRef<Material>(lampBack).Albedo.Should().Be(new Vector4(0.1f, 0.2f, 0.3f, 1));
         back.GetRef<SceneId>(eyeBack).Value.Should().Be(ecs.GetRef<SceneId>(eye).Value, "an entity keeps its id");
     }

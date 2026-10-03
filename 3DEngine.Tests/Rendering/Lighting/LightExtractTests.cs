@@ -15,94 +15,64 @@ public class LightExtractTests
         return (world, ecs, new RenderWorld());
     }
 
+    private static RenderLight Only(RenderWorld render) => render.Entities.Query<RenderLight>().Should().ContainSingle().Subject.Item2;
+
     [Fact]
-    public void Extract_Spawns_RenderLight_With_Premultiplied_Emission_And_Pose()
+    public void A_Light_Is_Extracted_With_Its_Color_Times_Intensity_And_Its_Pose()
     {
         var (world, ecs, render) = NewWorlds();
         var entity = ecs.Spawn();
-        ecs.Add(entity, new Transform
-        {
-            Position = new Vector3(1f, 2f, 3f),
-            Rotation = Quaternion.Identity,
-            Scale = Vector3.One,
-        });
-        ecs.Add(entity, new Light
-        {
-            Type = LightType.Sphere,
-            Color = new Vector3(1f, 1f, 1f),
-            Intensity = 4f,
-            Exposure = 1f, // 2^1 = 2
-            Radius = 0.25f,
-        });
+        ecs.Add(entity, new Transform(new Vector3(1f, 2f, 3f)));
+        ecs.Add(entity, Light.Point(new Vector3(1f, 0.5f, 0.25f), 4f, range: 10f));
 
         new LightExtract().Run(world, render);
 
-        var rendered = render.Entities.Query<RenderLight>().ToList();
-        rendered.Should().HaveCount(1);
-        var rl = rendered[0].Item2;
-        rl.MainEntityId.Should().Be(entity);
-        rl.Type.Should().Be(LightType.Sphere);
-        rl.Position.Should().Be(new Vector3(1f, 2f, 3f));
-        rl.EmittedColor.Should().Be(new Vector3(8f, 8f, 8f), "color * intensity * 2^exposure = 1 * 4 * 2");
-        rl.Radius.Should().Be(0.25f);
-        rl.CastsShadows.Should().BeTrue("default when no LightShadow component");
-        rl.HasCone.Should().BeFalse();
-
-        render.TryGet<RenderLights>().Should().NotBeNull();
-        render.TryGet<RenderLights>()!.All.Should().HaveCount(1);
+        var light = Only(render);
+        light.MainEntityId.Should().Be(entity);
+        light.Kind.Should().Be(LightKind.Point);
+        light.Position.Should().Be(new Vector3(1f, 2f, 3f));
+        light.EmittedColor.Should().Be(new Vector3(4f, 2f, 1f));
+        light.Range.Should().Be(10f);
+        render.TryGet<RenderLights>()!.All.Should().ContainSingle();
     }
 
     [Fact]
-    public void Extract_Honors_LightShadow_Disable_And_Shaping_Cone()
+    public void A_Spots_Angles_Become_Cosines_With_The_Inner_Kept_Inside_The_Outer()
     {
         var (world, ecs, render) = NewWorlds();
         var entity = ecs.Spawn();
-        ecs.Add(entity, new Light { Type = LightType.Sphere, Color = Vector3.One, Intensity = 1f });
-        ecs.Add(entity, new LightShadow { Enable = false });
-        ecs.Add(entity, new LightShaping { ConeAngle = 30f, ConeSoftness = 0.1f });
+        ecs.Add(entity, Light.Spot(Vector3.One, 1f, innerAngle: 50f, outerAngle: 30f));
 
         new LightExtract().Run(world, render);
 
-        var rl = render.Entities.Query<RenderLight>().Single().Item2;
-        rl.CastsShadows.Should().BeFalse();
-        rl.HasCone.Should().BeTrue();
-        rl.ConeAngle.Should().Be(30f);
-        rl.ConeSoftness.Should().Be(0.1f);
+        var light = Only(render);
+        light.CosOuter.Should().BeApproximately(MathF.Cos(float.DegreesToRadians(30)), 1e-6f);
+        light.CosInner.Should().Be(light.CosOuter, "an inner angle past the outer one is taken as the outer");
     }
 
     [Fact]
-    public void ClearEntities_Despawns_RenderLight_Bucket()
+    public void A_Lights_Direction_Is_Its_Entitys_Minus_Z()
     {
         var (world, ecs, render) = NewWorlds();
         var entity = ecs.Spawn();
-        ecs.Add(entity, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 1f });
+        ecs.Add(entity, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2), Vector3.One));
+        ecs.Add(entity, Light.Directional(Vector3.One, 1f));
 
         new LightExtract().Run(world, render);
-        render.Entities.Count<RenderLight>().Should().Be(1);
+
+        var direction = Only(render).Direction;
+        Vector3.Distance(direction, -Vector3.UnitX).Should().BeLessThan(1e-5f, "-Z turned a quarter about Y points along -X");
+    }
+
+    [Fact]
+    public void ClearEntities_Despawns_The_Frames_Lights()
+    {
+        var (world, ecs, render) = NewWorlds();
+        ecs.Add(ecs.Spawn(), Light.Ambient(Vector3.One, 0.2f));
+        new LightExtract().Run(world, render);
 
         render.ClearEntities();
-        render.Entities.Count<RenderLight>().Should().Be(0);
-    }
 
-    [Fact]
-    public void Extract_Direction_Follows_Rotation_From_NegZ_Convention()
-    {
-        var (world, ecs, render) = NewWorlds();
-        var entity = ecs.Spawn();
-        // 90 deg around Y rotates -Z to -X.
-        ecs.Add(entity, new Transform
-        {
-            Position = Vector3.Zero,
-            Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2f),
-            Scale = Vector3.One,
-        });
-        ecs.Add(entity, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 1f });
-
-        new LightExtract().Run(world, render);
-
-        var rl = render.Entities.Query<RenderLight>().Single().Item2;
-        rl.Direction.X.Should().BeApproximately(-1f, 1e-5f);
-        rl.Direction.Y.Should().BeApproximately(0f, 1e-5f);
-        rl.Direction.Z.Should().BeApproximately(0f, 1e-5f);
+        render.Entities.Query<RenderLight>().Should().BeEmpty();
     }
 }

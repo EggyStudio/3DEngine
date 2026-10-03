@@ -51,11 +51,11 @@ public static class ScenesLevel
 
         var sun = ecs.Spawn();
         ecs.SetName(sun, "Sun");
-        ecs.Add(sun, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 0.9f });
+        ecs.Add(sun, Light.Directional(Vector3.One, 0.9f));
         ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0.5f, -0.9f, 0), Vector3.One));
         var sky = ecs.Spawn();
         ecs.SetName(sky, "Sky");
-        ecs.Add(sky, new Light { Type = LightType.Dome, Color = new Vector3(0.5f, 0.6f, 0.8f), Intensity = 0.3f });
+        ecs.Add(sky, Light.Ambient(new Vector3(0.5f, 0.6f, 0.8f), 0.3f));
 
         for (int i = 0; i < 3; i++)
         {

@@ -31,8 +31,7 @@ public sealed class LightingPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        // Spawn driver: turn SceneLightPayloads into Light + (optional) LightShadow /
-        // LightShaping. PreUpdate matches SceneSpawnSystem; ordering inside the stage is
+        // Turns SceneLightPayloads into Lights. PreUpdate matches SceneSpawnSystem; ordering inside the stage is
         // registration order, and ScenesPlugin (which registers SceneSpawnSystem) runs
         // earlier because of its lower Order, so this descriptor lands after it.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(LightSpawnSystem.Run, "LightSpawnSystem"));

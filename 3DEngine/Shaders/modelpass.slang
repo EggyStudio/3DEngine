@@ -34,15 +34,14 @@ public ConstantBuffer<ModelPushConstants> push;
 [[vk::binding(1, 0)]]
 public Sampler2D boundTexture;
 
-// One light, packed by LightingUboPacker: position and kind, direction and radius, emitted
-// color, shape, and the cone of a spot.
+// One light, packed by LightingUboPacker: position and kind, direction and range, color times
+// intensity, and the cosines of a spot's inner and outer angles.
 public struct Light
 {
-    public float4 positionAndType;
-    public float4 directionAndRadius;
-    public float4 emittedColorAndShadow;
-    public float4 shapeParams;
-    public float4 shapingParams;
+    public float4 positionAndKind;
+    public float4 directionAndRange;
+    public float4 colorAndShadow;
+    public float4 cone;
 };
 
 // Three separate pads rather than an int3, which std140 would align to 16 bytes and so move the
@@ -67,9 +66,11 @@ public struct ModelVertexOutput
     public float2 uv : TEXCOORD0;
 };
 
-// The kinds of LightType that light differently from a point.
-static const int Distant = 0;
-static const int Dome = 5;
+// LightKind's values.
+static const int Directional = 0;
+static const int Point = 1;
+static const int Spot = 2;
+static const int Ambient = 3;
 
 // The vertex stage every model shader uses unless it writes its own.
 public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv)
@@ -88,30 +89,33 @@ public float4 baseColor(ModelVertexOutput input)
     return push.color * boundTexture.Sample(input.uv);
 }
 
-// Light arriving at a point with a normal from one light: Lambert's cosine, with the square of the
-// distance for anything that is not distant and the cone's edge for a spot.
+// Light arriving at a point with a normal from one light: Lambert's cosine, divided by the square
+// of the distance for a point or a spot, brought smoothly to nothing at its range, and cut to a
+// spot's cone.
 float3 arriving(Light light, float3 world, float3 n)
 {
-    int kind = int(light.positionAndType.w);
-    float3 color = light.emittedColorAndShadow.xyz;
-    if (kind == Dome)
+    int kind = int(light.positionAndKind.w);
+    float3 color = light.colorAndShadow.xyz;
+    if (kind == Ambient)
         return color;
-    if (kind == Distant)
-        return color * max(dot(n, -light.directionAndRadius.xyz), 0.0);
+    if (kind == Directional)
+        return color * max(dot(n, -light.directionAndRange.xyz), 0.0);
 
-    float3 toLight = light.positionAndType.xyz - world;
+    float3 toLight = light.positionAndKind.xyz - world;
     float distanceSquared = max(dot(toLight, toLight), 1e-4);
     float3 l = toLight * rsqrt(distanceSquared);
     float result = max(dot(n, l), 0.0) / distanceSquared;
 
-    float cone = light.shapeParams.w;
-    if (cone > 0.0)
+    float range = light.directionAndRange.w;
+    if (range > 0.0)
     {
-        // Full inside the cone less its soft band, nothing outside it.
-        float outer = cos(radians(cone));
-        float inner = cos(radians(cone * (1.0 - saturate(light.shapingParams.x))));
-        result *= smoothstep(outer, max(inner, outer + 1e-4), dot(-l, light.directionAndRadius.xyz));
+        // Full near the light and nothing at the range, without the step a plain cut leaves.
+        float edge = saturate(1.0 - pow(distanceSquared / (range * range), 2.0));
+        result *= edge * edge;
     }
+
+    if (kind == Spot)
+        result *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-l, light.directionAndRange.xyz));
     return color * result;
 }
 

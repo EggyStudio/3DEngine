@@ -49,11 +49,11 @@ public struct MeshScene
 
         // A dim light from above, and a warm one that circles between the two meshes.
         var sun = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(sun, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 0.25f });
+        ctx.Ecs.Add(sun, Light.Directional(Vector3.One, 0.25f));
         ctx.Ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitX, -1.2f), Vector3.One));
 
         var lamp = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(lamp, new Light { Type = LightType.Sphere, Color = new Vector3(1f, 0.8f, 0.5f), Intensity = 3f });
+        ctx.Ecs.Add(lamp, Light.Point(new Vector3(1f, 0.8f, 0.5f), 3f));
         ctx.Ecs.Add(lamp, new Transform(new Vector3(0, 0, 1.5f)));
         ctx.Ecs.Add(lamp, new Lamp());
     }

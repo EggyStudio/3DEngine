@@ -99,7 +99,7 @@ public sealed class OffscreenRenderTests : IDisposable
         ecs.Add(square, new Material(Vector4.One));
         ecs.Add(square, new Transform(Vector3.Zero));
         var lamp = ecs.Spawn();
-        ecs.Add(lamp, new Light { Type = LightType.Sphere, Color = Vector3.One, Intensity = 4f });
+        ecs.Add(lamp, Light.Point(Vector3.One, 4f));
         ecs.Add(lamp, new Transform(new Vector3(0, 0, 2)));
 
         var front = Capture(() => ClearBackground(Color.Black), "front");
@@ -250,5 +250,33 @@ public sealed class OffscreenRenderTests : IDisposable
 
         GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "ImGui draws after the immediate shapes, over them");
         GetImageColor(image, 48, 16).Should().Be(Color.Blue, "the rest of the frame is the shapes beneath");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Spot_Lights_Inside_Its_Cone_And_A_Range_Ends_A_Light()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var camera = ecs.Spawn();
+        ecs.Add(camera, new Camera(45f));
+        ecs.Add(camera, new Transform(new Vector3(0, 0, 4)));
+        var wall = ecs.Spawn();
+        ecs.Add(wall, new Mesh([new(-2, -2, 0), new(2, -2, 0), new(2, 2, 0), new(-2, -2, 0), new(2, 2, 0), new(-2, 2, 0)]));
+        ecs.Add(wall, new Material(Vector4.One));
+        ecs.Add(wall, new Transform(Vector3.Zero));
+
+        // A narrow spot 2 units in front of the wall, pointing at it along -Z.
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, Light.Spot(Vector3.One, 8f, innerAngle: 5f, outerAngle: 8f));
+        ecs.Add(lamp, new Transform(new Vector3(0, 0, 2)));
+        var spot = Capture(() => ClearBackground(Color.Black), "spot");
+
+        // The same light as a point that stops 1 unit short of the wall.
+        ecs.GetRef<Light>(lamp) = Light.Point(Vector3.One, 8f, range: 1f);
+        var ranged = Capture(() => ClearBackground(Color.Black), "ranged");
+
+        GetImageColor(spot, 32, 32).R.Should().BeGreaterThan(200, "the middle of the wall is inside the cone");
+        GetImageColor(spot, 52, 32).R.Should().BeLessThan(10, "the wall's edge is far outside an 8 degree cone");
+        GetImageColor(ranged, 32, 32).R.Should().BeLessThan(10, "the wall is past the light's range");
     }
 }

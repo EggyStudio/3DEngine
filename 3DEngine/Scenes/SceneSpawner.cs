@@ -230,9 +230,8 @@ public static class SceneSpawner
 
         if (light is not null)
         {
-            // Hand the payload off to ECS verbatim. The Engine.Lighting LightSpawnSystem
-            // (Stage.PreUpdate, after this system) translates it into a runtime Light
-            // (+ optional LightShadow / LightShaping) and removes the payload component.
+            // Hand the payload off to ECS verbatim. LightSpawnSystem (Stage.PreUpdate, after
+            // this system) turns it into a Light and removes the payload component.
             // Keeping the translation out of Engine.Scenes preserves the layering: Scenes
             // doesn't depend on Lighting; Lighting depends on Scenes for the payload type.
             ecs.Add(entity, light);

@@ -75,9 +75,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Lighting is diffuse only.** The model pass sums up to 16 light entities (distant, dome as
-  ambient, and every other kind as a point, with a spot's cone), by Lambert's cosine and the
-  square of the distance, and falls back to one fixed light when there are none. There is no
+- **Lighting is diffuse only.** The model pass sums up to 16 light entities (directional, point,
+  spot and ambient), by Lambert's cosine, the square of the distance and a range, and falls back
+  to one fixed light when there are none. There is no
   specular, no tonemapping (the sum is clamped), and of a material only the base color is used
   (RENDERING.md §3 and §4). A mesh entity is drawn through the first camera entity only, into the
   window only.
@@ -122,10 +122,8 @@ a runtime handle and is not saved either, and nothing describes one for a file y
 prefabs (a scene file spawned as part of another), and an older file is read by keeping the
 fields it has, with no migration.
 
-The payload types (`SceneLightPayload`, `SceneMaterialPayload`, `Light`) are modeled on UsdLux and
-`UsdPreviewSurface`, with dome, portal, cylinder and plugin lights and prim paths the renderer never
-reads. They are to shrink to the directional, point and spot lights and the metallic-roughness
-material that RENDERING.md §3 and §4 describe, which also makes a light in a scene file short.
+`SceneLightPayload` and `Light` hold what the model pass reads. `SceneMaterialPayload` already has
+the metallic-roughness fields, and of them the model pass reads only the base color.
 
 ## Platform
 

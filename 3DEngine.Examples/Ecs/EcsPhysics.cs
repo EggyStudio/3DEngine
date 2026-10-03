@@ -40,10 +40,10 @@ public struct Boxes
         ctx.Ecs.Add(camera, new Transform(new Vector3(0, 6, 14), Quaternion.CreateFromAxisAngle(Vector3.UnitX, -0.35f), Vector3.One));
 
         var sun = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(sun, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 0.9f });
+        ctx.Ecs.Add(sun, Light.Directional(Vector3.One, 0.9f));
         ctx.Ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0.6f, -1.0f, 0), Vector3.One));
         var sky = ctx.Ecs.Spawn();
-        ctx.Ecs.Add(sky, new Light { Type = LightType.Dome, Color = new Vector3(0.6f, 0.7f, 0.9f), Intensity = 0.25f });
+        ctx.Ecs.Add(sky, Light.Ambient(new Vector3(0.6f, 0.7f, 0.9f), 0.25f));
 
         // The ground: a static body and a flat box mesh 20 units wide.
         var ground = ctx.Ecs.Spawn();
