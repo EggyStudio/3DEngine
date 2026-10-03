@@ -55,7 +55,7 @@ images and textures, models and meshes, and text ([CHEATSHEET.md](CHEATSHEET.md)
 - **Text has no font of its own.** `DrawText` draws with ImGui's built-in font into ImGui's
   foreground layer, so text is always on top of shapes and windows and scales the 13-pixel bitmap.
   A glyph atlas baked from a TTF and drawn in the draw list is needed.
-- **Gamepads, render targets and monitors** have no functions.
+- **Render targets and monitors** have no functions.
 - **`UpdateCamera`** has the free and orbital modes. raylib's first-person and third-person modes,
   which lock the cursor, are not written.
 
@@ -106,8 +106,9 @@ material that RENDERING.md §3 and §4 describe.
 
 ### Input
 
-Keyboard and mouse come from SDL3 into the `Input` resource. Gamepads, text input for fields
-outside ImGui and touch are not read.
+Keyboard, mouse and gamepads come from SDL3 into the `Input` resource. Text input for fields
+outside ImGui and touch are not read, and a gamepad's sensors (gyro, touchpad) and lights are not
+reached.
 
 ## Project
 

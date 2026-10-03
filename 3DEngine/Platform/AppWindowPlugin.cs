@@ -82,6 +82,32 @@ public sealed class AppWindowPlugin : IPlugin
                         if (!string.IsNullOrEmpty(s)) input.AddText(s);
                     }
                     break;
+                case SDL.EventType.GamepadAdded:
+                    {
+                        var handle = SDL.OpenGamepad(e.GDevice.Which);
+                        var name = handle == 0 ? "Gamepad" : SDL.GetGamepadName(handle) ?? "Gamepad";
+                        input.ConnectGamepad(e.GDevice.Which, name, handle);
+                    }
+                    break;
+                case SDL.EventType.GamepadRemoved:
+                    {
+                        var handle = input.DisconnectGamepad(e.GDevice.Which);
+                        if (handle != 0) SDL.CloseGamepad(handle);
+                    }
+                    break;
+                case SDL.EventType.GamepadButtonDown:
+                case SDL.EventType.GamepadButtonUp:
+                    input.GamepadById(e.GButton.Which)?.SetButton((GamepadButton)e.GButton.Button,
+                        (SDL.EventType)e.Type == SDL.EventType.GamepadButtonDown);
+                    break;
+                case SDL.EventType.GamepadAxisMotion:
+                    {
+                        // Sticks report -32768 to 32767 and triggers 0 to 32767, so both scale by
+                        // 32767 into -1 to 1 and 0 to 1.
+                        var value = Math.Clamp(e.GAxis.Value / 32767f, -1f, 1f);
+                        input.GamepadById(e.GAxis.Which)?.SetAxis((GamepadAxis)e.GAxis.Axis, value);
+                    }
+                    break;
                 case SDL.EventType.KeyDown:
                 case SDL.EventType.KeyUp:
                     bool down = (SDL.EventType)e.Type == SDL.EventType.KeyDown;

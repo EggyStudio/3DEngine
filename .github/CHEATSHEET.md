@@ -55,7 +55,20 @@ int GetMouseX();                                         // Pointer x
 int GetMouseY();                                         // Pointer y
 Vector2 GetMouseDelta();                                 // How far the pointer moved this frame
 float GetMouseWheelMove();                               // How far the wheel turned this frame
+
+bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
+string GetGamepadName(int gamepad);                                    // Its name
+bool IsGamepadButtonPressed(int gamepad, GamepadButton button);        // Button went down this frame
+bool IsGamepadButtonDown(int gamepad, GamepadButton button);           // Button is held
+bool IsGamepadButtonReleased(int gamepad, GamepadButton button);       // Button came up this frame
+bool IsGamepadButtonUp(int gamepad, GamepadButton button);             // Button is not held
+float GetGamepadAxisMovement(int gamepad, GamepadAxis axis);           // Stick -1 to 1, trigger 0 to 1
+int GetGamepadAxisCount(int gamepad);                                  // Six for a connected pad
+void SetGamepadVibration(int gamepad, float left, float right, float seconds); // Rumble
 ```
+
+Pads are indexed in the order they connected. Buttons are named by position (`South`, `East`,
+`West`, `North`, `DpadUp`, `LeftShoulder`, `Start`, ...) rather than by the letter printed on them.
 
 ## 2D shapes
 

@@ -25,7 +25,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
   listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
-What is missing from the flat API is custom shaders, render targets and gamepads.
+What is missing from the flat API is custom shaders and render targets.
 
 ## 1. One flat API
 
@@ -65,7 +65,7 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 | file | covers |
 |---|---|
 | `Engine3D.Window.cs` | the window and frame timing (the monitor is not covered) |
-| `Engine3D.Input.cs` | keyboard and mouse (gamepads are not covered) |
+| `Engine3D.Input.cs` | keyboard, mouse and gamepads |
 | `Engine3D.Drawing.cs` | the frame and cameras (render targets are not covered) |
 | `Engine3D.Shapes.cs` | 2D shapes |
 | `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
@@ -208,7 +208,7 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 ## Order
 
 1. `Shaders`, with parameters set by name.
-2. Gamepads and render targets.
+2. Render targets.
 3. Text from a font file of the program's choosing, drawn in the draw list rather than ImGui.
 
 Each area lands with its lines in the cheatsheet and an example beside it.

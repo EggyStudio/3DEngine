@@ -1,4 +1,5 @@
 using System.Numerics;
+using SDL3;
 
 namespace Engine;
 
@@ -48,4 +49,40 @@ public static partial class Engine3D
 
     /// <summary>How far the wheel turned this frame, positive away from the user.</summary>
     public static float GetMouseWheelMove() => Input.WheelY;
+
+    // -- Gamepads, by index in the order they connected
+
+    /// <summary>Whether a gamepad is connected at <paramref name="gamepad"/>.</summary>
+    public static bool IsGamepadAvailable(int gamepad) => Input.Gamepad(gamepad) is not null;
+
+    /// <summary>The name of the gamepad at <paramref name="gamepad"/>, or an empty string.</summary>
+    public static string GetGamepadName(int gamepad) => Input.Gamepad(gamepad)?.Name ?? "";
+
+    /// <summary>Whether <paramref name="button"/> went down this frame.</summary>
+    public static bool IsGamepadButtonPressed(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonPressed(button) ?? false;
+
+    /// <summary>Whether <paramref name="button"/> is held.</summary>
+    public static bool IsGamepadButtonDown(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonDown(button) ?? false;
+
+    /// <summary>Whether <paramref name="button"/> came up this frame.</summary>
+    public static bool IsGamepadButtonReleased(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonReleased(button) ?? false;
+
+    /// <summary>Whether <paramref name="button"/> is not held, which is true of a pad that is not connected.</summary>
+    public static bool IsGamepadButtonUp(int gamepad, GamepadButton button) => !IsGamepadButtonDown(gamepad, button);
+
+    /// <summary>An axis, from -1 to 1 for sticks and 0 to 1 for triggers.</summary>
+    public static float GetGamepadAxisMovement(int gamepad, GamepadAxis axis) => Input.Gamepad(gamepad)?.Axis(axis) ?? 0f;
+
+    /// <summary>How many axes a gamepad has, which is six for every pad SDL maps.</summary>
+    public static int GetGamepadAxisCount(int gamepad) => IsGamepadAvailable(gamepad) ? 6 : 0;
+
+    /// <summary>Rumbles a gamepad, each motor from 0 to 1, for <paramref name="seconds"/>.</summary>
+    public static void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds)
+    {
+        if (Input.Gamepad(gamepad) is not { Handle: not 0 } pad) return;
+        SDL.RumbleGamepad(pad.Handle,
+            (ushort)(Math.Clamp(leftMotor, 0f, 1f) * ushort.MaxValue),
+            (ushort)(Math.Clamp(rightMotor, 0f, 1f) * ushort.MaxValue),
+            (uint)Math.Max(0, seconds * 1000));
+    }
 }

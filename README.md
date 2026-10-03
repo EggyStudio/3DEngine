@@ -63,6 +63,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/gui_imgui_window.png" width="400"/><br>`gui_imgui_window` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_behaviors.png" width="400"/><br>`ecs_behaviors` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.png" width="400"/><br>`textures_basic` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.png" width="400"/><br>`models_loading` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound.png" width="400"/><br>`audio_sound` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gamepad.png" width="400"/><br>`core_input_gamepad` | |
 
 A 3D scene with a camera the keyboard and mouse move:
 
@@ -165,7 +166,7 @@ scheduler and behaviors are tested. What is missing:
 - **Lighting is one fixed light.** Models are shaded by it, shapes are unlit as raylib's are, and
   the ECS's meshes are drawn in their base color.
 - **Text is ImGui's font**, drawn above everything else.
-- **No gamepads or render targets** in the flat API.
+- **No render targets** in the flat API.
 - **Linux is the tested platform**, in CI on every push. Windows and macOS build from the same
   packages and are not covered by CI.
 

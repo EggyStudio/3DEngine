@@ -52,6 +52,8 @@ outside the examples is driven by running it with `--serve`.
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
 | `input.drag <button> <dx> <dy> <frames>` | holds a button while moving the pointer, as a camera drag |
 | `input.wheel <amount>` | turns the wheel |
+| `input.button <pad> <button> <frames>` | holds a gamepad button (`South`, `East`, `DpadUp`, `Start`), on a console pad when none is connected |
+| `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
 
 A game adds its own with a static method:
 

@@ -59,6 +59,8 @@ public sealed class Input
     private readonly HashSet<MouseButton> _mousePressed = [];
     private readonly HashSet<MouseButton> _mouseReleased = [];
 
+    private readonly List<GamepadState> _gamepads = [];
+
     /// <summary>Absolute X position of the mouse cursor in window pixels.</summary>
     public int MouseX { get; private set; }
 
@@ -149,7 +151,32 @@ public sealed class Input
     /// <returns><c>true</c> if the button transitioned to up this frame; otherwise <c>false</c>.</returns>
     public bool MouseReleased(int button) => _mouseReleased.Contains((MouseButton)button);
 
+    /// <summary>The connected gamepads, in the order they connected. Index 0 is the first.</summary>
+    public IReadOnlyList<GamepadState> Gamepads => _gamepads;
+
+    /// <summary>The gamepad at <paramref name="index"/>, or <c>null</c> when fewer are connected.</summary>
+    public GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
+
     // -- Mutation (internal - platform backends only) --
+
+    internal GamepadState ConnectGamepad(uint id, string name, nint handle)
+    {
+        var existing = _gamepads.Find(p => p.Id == id);
+        if (existing is not null) return existing;
+        var pad = new GamepadState(id, name, handle);
+        _gamepads.Add(pad);
+        return pad;
+    }
+
+    internal nint DisconnectGamepad(uint id)
+    {
+        var pad = _gamepads.Find(p => p.Id == id);
+        if (pad is null) return 0;
+        _gamepads.Remove(pad);
+        return pad.Handle;
+    }
+
+    internal GamepadState? GamepadById(uint id) => _gamepads.Find(p => p.Id == id);
 
     /// <summary>Clears per-frame transient state. Called once at the end of each frame.</summary>
     internal void BeginFrame()
@@ -163,6 +190,7 @@ public sealed class Input
         WheelX = 0;
         WheelY = 0;
         _textInput.Clear();
+        foreach (var pad in _gamepads) pad.BeginFrame();
     }
 
     /// <summary>Updates the state of a keyboard key.</summary>

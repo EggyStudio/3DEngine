@@ -43,6 +43,20 @@ public sealed class SyntheticInput
         _releases.Add((frame + (ulong)Math.Max(1, frames), i => i.SetKey(key, false)));
     }
 
+    /// <summary>The id of the pad the console makes when no real one is connected.</summary>
+    public const uint ConsolePadId = 0xC0FFEE;
+
+    /// <summary>The gamepad at <paramref name="index"/>, or a console pad made for index 0 when none is connected.</summary>
+    public static GamepadState? Pad(Input input, int index) =>
+        input.Gamepad(index) ?? (index == 0 && input.Gamepads.Count == 0 ? input.ConnectGamepad(ConsolePadId, "Console gamepad", 0) : null);
+
+    /// <summary>Holds a gamepad button for <paramref name="frames"/> frames.</summary>
+    public void PadButton(GamepadState pad, GamepadButton button, ulong frame, int frames)
+    {
+        pad.SetButton(button, true);
+        _releases.Add((frame + (ulong)Math.Max(1, frames), _ => pad.SetButton(button, false)));
+    }
+
     /// <summary>Moves the pointer to (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public static void Move(Input input, int x, int y)
     {
@@ -126,6 +140,46 @@ internal static class InputCommands
         SyntheticInput.Move(input, input.MouseX + dx, input.MouseY + dy);
         ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 1);
         return $"dragged {which} by {dx}, {dy}";
+    }
+
+    [Command("input.button", "Holds a gamepad button for some frames, on a console pad when none is connected: input.button <pad> <button> <frames>")]
+    internal static string PadButton(int pad, string button, int frames)
+    {
+        if (!Enum.TryParse<GamepadButton>(button, ignoreCase: true, out var which))
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", $"'{button}' is not a gamepad button. They are South, East, West, North, Start, Back, LeftShoulder, DpadUp and the rest of GamepadButton.");
+            return $"not a button: {button}";
+        }
+
+        var (input, synthetic, frame) = Parts();
+        if (SyntheticInput.Pad(input, pad) is not { } state)
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}.");
+            return $"no gamepad at {pad}";
+        }
+
+        synthetic.PadButton(state, which, frame, frames);
+        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 1);
+        return $"held {which} on {state.Name} for {Math.Max(1, frames)} frame(s)";
+    }
+
+    [Command("input.axis", "Sets a gamepad axis until it is set again, on a console pad when none is connected: input.axis <pad> <axis> <value>")]
+    internal static string PadAxis(int pad, string axis, float value)
+    {
+        if (!Enum.TryParse<GamepadAxis>(axis, ignoreCase: true, out var which))
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", $"'{axis}' is not a gamepad axis. They are LeftX, LeftY, RightX, RightY, LeftTrigger and RightTrigger.");
+            return $"not an axis: {axis}";
+        }
+
+        if (SyntheticInput.Pad(Parts().Input, pad) is not { } state)
+        {
+            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}.");
+            return $"no gamepad at {pad}";
+        }
+
+        state.SetAxis(which, Math.Clamp(value, -1f, 1f));
+        return $"{which} on {state.Name} at {value}";
     }
 
     [Command("input.wheel", "Turns the mouse wheel, positive away from the user: input.wheel <amount>")]
