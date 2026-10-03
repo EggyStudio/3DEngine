@@ -42,8 +42,7 @@ void EndTextureMode();                                   // Return to the window
 
 Inside texture mode, `ClearBackground` clears the target, 2D drawing is in its pixels and cameras
 use its shape. `target.Texture` draws like any texture. A target is drawn before the window in a
-frame that sends anything to it, and keeps its picture in frames that do not. Text, which is drawn
-by ImGui, does not reach a target.
+frame that sends anything to it, and keeps its picture in frames that do not.
 
 `Camera3D` holds `Position`, `Target`, `Up`, `FovY` (degrees) and `Projection` (`Perspective` or
 `Orthographic`). `CameraMode.Free` moves with W, A, S, D, Q and E, turns while the right mouse
@@ -198,13 +197,25 @@ void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is a
 float GetMusicTimeLength(Music music);                    // Length in seconds
 ```
 
-## Text
+## Text and fonts
 
 ```csharp
-void DrawText(string text, int x, int y, int fontSize, Color color);  // Text, top left at (x, y), always on top
-int MeasureText(string text, int fontSize);                           // Width DrawText would draw text at
-void DrawFPS(int x, int y);                                           // The frame rate
+void DrawText(string text, int x, int y, int fontSize, Color color);                       // Text in the default font, top left at (x, y)
+int MeasureText(string text, int fontSize);                                                 // Width DrawText would draw it at
+void DrawFPS(int x, int y);                                                                 // The frame rate
+
+Font GetFontDefault();                                                                      // The default font (ProggyClean, 13 pixels)
+Font GetFontDefault(int size);                                                              // The default font baked at a size, kept for reuse
+Font LoadFont(string fileName);                                                             // A TrueType or OpenType font, baked at 32 pixels
+Font LoadFontEx(string fileName, int fontSize);                                             // Baked at a size, with the Latin-1 characters
+void UnloadFont(Font font);                                                                 // Free its atlas
+void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
+Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing);               // Its width and height
 ```
+
+Text is drawn in the draw list like any shape, so it keeps its place among shapes, reaches render
+targets, and draws through `BeginMode3D` on the plane z = 0. `DrawText` bakes the default font at
+the size it is drawn, so small text stays sharp. A newline starts a new line.
 
 ## Colors
 

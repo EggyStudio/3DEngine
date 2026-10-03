@@ -25,7 +25,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
   listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
-What is missing from the flat API is custom shaders and text from a font of the program's own.
+What is missing from the flat API is custom shaders.
 
 ## 1. One flat API
 
@@ -69,7 +69,7 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 | `Engine3D.Drawing.cs` | the frame, cameras and render targets |
 | `Engine3D.Shapes.cs` | 2D shapes |
 | `Engine3D.Shapes3D.cs` | 3D shapes and the grid |
-| `Engine3D.Text.cs` | text, drawn with ImGui's font |
+| `Engine3D.Text.cs`, `Engine3D.Fonts.cs` | text and fonts |
 | `Engine3D.Textures.cs` | images and textures |
 | `Engine3D.Models.cs` | meshes, models and materials |
 | `Engine3D.Shaders.cs` | Slang shaders and their parameters, not written |
@@ -103,8 +103,8 @@ lines and triangles of position and color, in the manner of raylib's rlgl layer,
 pass after the meshes the ECS holds and before ImGui.
 
 `BeginMode3D(camera)` sets the view the following calls draw through, with depth testing, and
-`EndMode3D` returns to screen space, in pixels from the top left corner, for 2D shapes. Text is
-drawn with ImGui's font into ImGui's foreground layer, so it is always on top. A `Camera3D` is a plain struct the program keeps and updates
+`EndMode3D` returns to screen space, in pixels from the top left corner, for 2D shapes and text.
+Text is glyphs from a font atlas drawn as textured quads in the same list. A `Camera3D` is a plain struct the program keeps and updates
 (`UpdateCamera(ref camera, CameraMode.Free)`), so a camera is a value rather than an entity until a
 program decides it should be one.
 
@@ -208,6 +208,5 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 ## Order
 
 1. `Shaders`, with parameters set by name.
-2. Text from a font file of the program's choosing, drawn in the draw list rather than ImGui.
 
 Each area lands with its lines in the cheatsheet and an example beside it.
