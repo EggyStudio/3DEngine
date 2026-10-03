@@ -25,7 +25,12 @@ public struct ModelPushConstants
     public float4 worldX;
     public float4 worldY;
     public float4 worldZ;
-    public float4 color;
+    // The material in the last 16 bytes, which is its color as four bytes (red lowest), how
+    // metallic and how rough it is, and how strongly its normal map bends the surface, 0 for none.
+    public uint packedColor;
+    public float metallic;
+    public float roughness;
+    public float normalScale;
 };
 
 [[vk::push_constant]]
@@ -33,6 +38,22 @@ public ConstantBuffer<ModelPushConstants> push;
 
 [[vk::binding(1, 0)]]
 public Sampler2D boundTexture;
+
+// The material's tangent-space normal map, read only when its normal scale is above 0.
+[[vk::binding(2, 0)]]
+public Sampler2D normalMap;
+
+// The material's metallic-roughness map as glTF packs it, roughness in green and metallic in
+// blue, multiplying its factors. White when it has none.
+[[vk::binding(3, 0)]]
+public Sampler2D metallicRoughnessMap;
+
+// The material's color, unpacked from its four bytes.
+public float4 materialColor()
+{
+    uint c = push.packedColor;
+    return float4(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF, c >> 24) / 255.0;
+}
 
 // One light, packed by LightingUboPacker: position and kind, direction and range, color times
 // intensity, and the cosines of a spot's inner and outer angles.
@@ -116,7 +137,38 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
 // The material's color times its texture at this point.
 public float4 baseColor(ModelVertexOutput input)
 {
-    return push.color * boundTexture.Sample(input.uv);
+    return materialColor() * boundTexture.Sample(input.uv);
+}
+
+// The surface's normal at this point, bent by the normal map when the material has one. The map's
+// tangent frame is worked out per pixel from how the position and texture coordinates change
+// across the screen (Christian Schüler's cotangent frame), so a mesh needs no tangents. Up in the
+// map is toward the top of the image, which is falling v.
+public float3 surfaceNormal(ModelVertexOutput input)
+{
+    float3 n = normalize(input.normal);
+    if (push.normalScale <= 0.0)
+        return n;
+
+    float3 dp1 = ddx(input.world);
+    float3 dp2 = ddy(input.world);
+    float2 duv1 = ddx(input.uv);
+    float2 duv2 = ddy(input.uv);
+    float3 dp2perp = cross(dp2, n);
+    float3 dp1perp = cross(n, dp1);
+    // The frame over the determinant's sign rather than its size, which the scale below takes
+    // out, since a projection that mirrors the screen flips it.
+    float flip = dot(dp1, dp2perp) < 0.0 ? -1.0 : 1.0;
+    float3 t = (dp2perp * duv1.x + dp1perp * duv2.x) * flip;
+    float3 b = -(dp2perp * duv1.y + dp1perp * duv2.y) * flip;
+    float scale = max(dot(t, t), dot(b, b));
+    if (scale <= 1e-20)
+        return n;
+
+    float3 mapped = normalMap.Sample(input.uv).xyz * 2.0 - 1.0;
+    mapped.xy *= push.normalScale;
+    float s = rsqrt(scale);
+    return normalize(t * s * mapped.x + b * s * mapped.y + n * mapped.z);
 }
 
 // Light arriving at a point with a normal from one light: Lambert's cosine, divided by the square
@@ -193,34 +245,79 @@ public float3 tonemap(float3 color)
     return max(color, 0.0) * (bent / peak);
 }
 
-// A color lit at this point. With light entities it is their diffuse light, the shadowed one's
-// cut by its shadow map, and a Blinn-Phong highlight of each light that is not ambient. With none
-// it is one fixed light from above over an ambient floor and no highlight, which is how the flat
-// API's models look. Either goes through the same tonemap.
+static const float PI = 3.14159265;
+
+// How much of a light reflects toward the eye off microfacets of this roughness, as GGX's
+// distribution and Smith's height-correlated shadowing have it, with Schlick's Fresnel. Times pi,
+// since a light here is given as the light a white diffuse surface facing it returns, so the
+// diffuse term is the albedo itself rather than the albedo over pi.
+float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, out float3 fresnel)
+{
+    float3 h = normalize(v + l);
+    float nl = max(dot(n, l), 1e-4);
+    float nv = max(dot(n, v), 1e-4);
+    float nh = max(dot(n, h), 0.0);
+    float a2 = alpha * alpha;
+    float d = nh * nh * (a2 - 1.0) + 1.0;
+    float distribution = a2 / (PI * d * d);
+    float visibility = 0.5 / (nl * sqrt(nv * nv * (1.0 - a2) + a2) + nv * sqrt(nl * nl * (1.0 - a2) + a2));
+    fresnel = f0 + (1.0 - f0) * pow(1.0 - max(dot(v, h), 0.0), 5.0);
+    return distribution * visibility * fresnel * PI;
+}
+
+// The share of light from all around that a surface reflects, with no environment to reflect,
+// as Brian Karis fitted it for mobile, so a smooth or metal surface under an ambient light is not
+// black.
+float3 ambientReflected(float3 f0, float roughness, float nv)
+{
+    float4 c0 = float4(-1.0, -0.0275, -0.572, 0.022);
+    float4 c1 = float4(1.0, 0.0425, 1.04, -0.04);
+    float4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * nv)) * r.x + r.y;
+    float2 ab = float2(-1.04, 1.04) * a004 + r.zw;
+    return f0 * ab.x + ab.y;
+}
+
+// A color lit at this point. With light entities it is each light reflected by the material's
+// metallic-roughness model, the shadowed light cut by its shadow map. With none it is one fixed
+// light from above over an ambient floor and no highlight, which is how the flat API's models
+// look. Either goes through the same tonemap.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
-    float3 n = normalize(input.normal);
+    float3 n = surfaceNormal(input);
     if (lighting.count == 0)
     {
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
         return tonemap(albedo * (0.35 + 0.65 * max(dot(n, toLight), 0.0)));
     }
 
+    float4 packed = metallicRoughnessMap.Sample(input.uv);
+    float metallic = saturate(push.metallic * packed.b);
+    float roughness = clamp(push.roughness * packed.g, 0.045, 1.0);
+    float alpha = roughness * roughness;
+    float3 f0 = lerp(float3(0.04), albedo, metallic);
+    float3 diffuseColor = albedo * (1.0 - metallic);
+
     float3 v = normalize(input.toEye);
-    float3 diffuse = float3(0.0);
-    float3 specular = float3(0.0);
+    float nv = max(dot(n, v), 1e-4);
+    float3 color = float3(0.0);
     for (int i = 0; i < min(lighting.count, 16); i++)
     {
         Light light = lighting.lights[i];
         float3 arrived = arriving(light, input.world, n);
-        if (i == lighting.shadowLight)
-            arrived *= lightReaching(input.world, n);
-        diffuse += arrived;
-        if (int(light.positionAndKind.w) != Ambient)
+        if (int(light.positionAndKind.w) == Ambient)
         {
-            float3 h = normalize(v - fromLight(light, input.world));
-            specular += arrived * 0.25 * pow(max(dot(n, h), 0.0), 32.0);
+            color += arrived * (diffuseColor + ambientReflected(f0, roughness, nv));
+            continue;
         }
+
+        if (i == lighting.shadowLight)
+            arrived *= lightReaching(input.world, normalize(input.normal));
+        float3 l = -fromLight(light, input.world);
+        float3 fresnel;
+        float3 specular = specularReflected(n, v, l, f0, alpha, fresnel);
+        // What the surface reflects at its face is not there to scatter diffusely.
+        color += arrived * (diffuseColor * (1.0 - fresnel) + specular);
     }
-    return tonemap(albedo * diffuse + specular);
+    return tonemap(color);
 }

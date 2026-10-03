@@ -285,7 +285,7 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     // A white wall facing a camera 4 units away down +Z, filling the frame.
-    private static void SpawnWallAndCamera(EcsWorld ecs)
+    private static int SpawnWallAndCamera(EcsWorld ecs)
     {
         var camera = ecs.Spawn();
         ecs.Add(camera, new Camera(45f));
@@ -294,29 +294,102 @@ public sealed class OffscreenRenderTests : IDisposable
         ecs.Add(wall, new Mesh([new(-2, -2, 0), new(2, -2, 0), new(2, 2, 0), new(-2, -2, 0), new(2, 2, 0), new(-2, 2, 0)]));
         ecs.Add(wall, new Material(Vector4.One));
         ecs.Add(wall, new Transform(Vector3.Zero));
+        return wall;
     }
 
     [NeedsVulkanFact]
-    public void A_Highlight_Is_Brighter_Than_The_Same_Surface_Lit_Diffusely()
+    public void A_Smooth_Surface_Mirrors_A_Light_A_Rough_One_Scatters()
     {
         Open(64, 64);
         var ecs = GetApp().World.Resource<EcsWorld>();
-        SpawnWallAndCamera(ecs);
+        var wall = SpawnWallAndCamera(ecs);
 
-        // Pointing straight at the wall the way the camera looks, so the diffuse light it gives
-        // equals an ambient light of the same color, and the middle of the wall mirrors it.
+        // Pointing straight at the wall the way the camera looks, so the middle of the wall
+        // mirrors it into the camera, and its diffuse light equals an ambient light's.
         var lamp = ecs.Spawn();
         ecs.Add(lamp, Light.Directional(Vector3.One, 0.5f));
         ecs.Add(lamp, new Transform(Vector3.Zero));
-        var direct = Capture(() => ClearBackground(Color.Black), "direct");
-
+        ecs.GetRef<Material>(wall).RoughnessFactor = 0.25f;
+        var smooth = Capture(() => ClearBackground(Color.Black), "smooth");
+        ecs.GetRef<Material>(wall).RoughnessFactor = 0.9f;
+        var rough = Capture(() => ClearBackground(Color.Black), "rough");
         ecs.GetRef<Light>(lamp) = Light.Ambient(Vector3.One, 0.5f);
         var ambient = Capture(() => ClearBackground(Color.Black), "ambient");
 
-        int highlight = GetImageColor(direct, 32, 32).R;
         int diffuse = GetImageColor(ambient, 32, 32).R;
-        diffuse.Should().BeInRange(125, 130, "half a white light on a white wall is half white, below where the tonemap bends");
-        highlight.Should().BeGreaterThan(diffuse + 15, "the directional light adds a highlight where the wall mirrors it into the camera");
+        diffuse.Should().BeInRange(125, 140, "half a white light on a white wall is about half white, below where the tonemap bends");
+        ((int)GetImageColor(rough, 32, 32).R).Should().BeInRange(diffuse - 12, diffuse + 12, "a rough surface spreads its highlight too thin to see");
+        ((int)GetImageColor(smooth, 32, 32).R).Should().BeGreaterThan(diffuse + 60, "a smooth one gathers it where the wall mirrors the light");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Metal_Reflects_In_Its_Own_Color_And_Scatters_No_Diffuse_Light()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var wall = SpawnWallAndCamera(ecs);
+        ref var material = ref ecs.GetRef<Material>(wall);
+        material.Albedo = new Vector4(1, 0.2f, 0.2f, 1);
+        material.RoughnessFactor = 0.3f;
+
+        // From the side, so the middle of the wall shows its diffuse light and no highlight.
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, Light.Directional(Vector3.One, 1f));
+        ecs.Add(lamp, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 3), Vector3.One));
+        var plastic = Capture(() => ClearBackground(Color.Black), "plastic");
+        ecs.GetRef<Material>(wall).MetallicFactor = 1;
+        var metal = Capture(() => ClearBackground(Color.Black), "metal");
+
+        GetImageColor(plastic, 32, 32).R.Should().BeGreaterThan(100, "red plastic scatters the light that falls on it");
+        GetImageColor(metal, 32, 32).R.Should().BeLessThan(40, "a metal scatters none, and this light is not mirrored toward the camera");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Normal_Map_Turns_A_Flat_Surface_Toward_A_Light()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 4, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var sun = ecs.Spawn();
+        // From +X, 20 degrees over the plane, so a surface tilted toward +X faces it. The light's
+        // -Z turned a quarter about Y points down -X, and then 20 degrees about Z points it down.
+        ecs.Add(sun, Light.Directional(Vector3.One, 1f));
+        ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.Concatenate(
+            Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0.35f)), Vector3.One));
+
+        // A plane facing up whose texture coordinates run along X, and a normal map leaning every
+        // normal 45 degrees toward +u.
+        var plane = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        plane.Materials[0] = plane.Materials[0] with { Roughness = 1 };
+        var flat = Capture(Draw, "flat");
+        var leaning = LoadTextureFromImage(GenImageColor(4, 4, new Color(218, 128, 218)));
+        plane.Materials[0] = plane.Materials[0] with { NormalMap = leaning };
+        var mapped = Capture(Draw, "mapped");
+
+        ((int)GetImageColor(mapped, 32, 32).R).Should().BeGreaterThan(GetImageColor(flat, 32, 32).R + 40, "the map turns the surface toward the low light");
+
+        // Up in the map is toward the top of the image, falling v, which on this plane is -Z. A
+        // map leaning that way faces a sun low in -Z and turns from one low in +Z.
+        var up = LoadTextureFromImage(GenImageColor(4, 4, new Color(128, 218, 218)));
+        plane.Materials[0] = plane.Materials[0] with { NormalMap = up };
+        ecs.GetRef<Transform>(sun).Rotation = Quaternion.Concatenate(
+            Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI), Quaternion.CreateFromAxisAngle(Vector3.UnitX, 0.35f));
+        var facing = Capture(Draw, "facing");
+        ecs.GetRef<Transform>(sun).Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, -0.35f);
+        var away = Capture(Draw, "away");
+        ((int)GetImageColor(facing, 32, 32).R).Should().BeGreaterThan(GetImageColor(away, 32, 32).R + 40, "the map's up leans toward -Z");
+
+        UnloadModel(plane);
+        UnloadTexture(leaning);
+        UnloadTexture(up);
+
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(plane, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
     }
 
     [NeedsVulkanFact]

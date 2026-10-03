@@ -38,12 +38,13 @@ public struct MeshScene
 
         var triangle = ctx.Ecs.Spawn();
         ctx.Ecs.Add(triangle, new Mesh([new Vector3(0, 1, 0), new Vector3(-1, -1, 0), new Vector3(1, -1, 0)]));
-        ctx.Ecs.Add(triangle, new Material(new Vector4(1f, 0.63f, 0f, 1f)));
+        ctx.Ecs.Add(triangle, new Material(new Vector4(1f, 0.63f, 0f, 1f)) { RoughnessFactor = 0.6f });
         ctx.Ecs.Add(triangle, new Transform(new Vector3(-1.5f, 0, 0)));
 
         var cube = ctx.Ecs.Spawn();
         ctx.Ecs.Add(cube, new Mesh(Cube()));
-        ctx.Ecs.Add(cube, new Material(new Vector4(0.2f, 0.6f, 1f, 1f)));
+        // Smooth enough to catch a highlight from each light.
+        ctx.Ecs.Add(cube, new Material(new Vector4(0.2f, 0.6f, 1f, 1f)) { RoughnessFactor = 0.35f });
         ctx.Ecs.Add(cube, new Transform(new Vector3(1.5f, 0, 0), Quaternion.Identity, Vector3.One));
         ctx.Ecs.Add(cube, new MeshScene());
 

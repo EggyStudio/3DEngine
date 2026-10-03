@@ -169,8 +169,9 @@ scheduler and behaviors are tested. What is missing:
 - **Custom shaders reach shapes, textures and text**, not models, which keep the engine's model
   shader.
 - **Music is decoded whole** rather than streamed, so a long piece costs its length in memory.
-- **Lighting is one fixed light.** Models are shaded by it, shapes are unlit as raylib's are, and
-  the ECS's meshes are drawn in their base color.
+- **The flat API has no lights of its own.** Its models are shaded by one fixed light, shapes are
+  unlit as raylib's are, and light entities in the ECS light models and meshes alike by their
+  metallic-roughness materials, with shadows from one directional light.
 - **Linux is the tested platform**, in CI on every push. Windows and macOS build from the same
   packages and are not covered by CI.
 

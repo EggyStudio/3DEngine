@@ -63,7 +63,12 @@ public sealed class MeshEntityDraws
                     TransformPropagation.WorldMatrix(ecs, entity),
                     viewProjection,
                     new Color((byte)color.X, (byte)color.Y, (byte)color.Z, (byte)color.W),
-                    TextureFor(material.BaseColorTexture, assets, textures)));
+                    TextureFor(material.BaseColorTexture, assets, textures),
+                    Metallic: material.MetallicFactor,
+                    Roughness: material.RoughnessFactor,
+                    NormalMap: TextureFor(material.NormalTexture, assets, textures),
+                    NormalScale: material.NormalScale,
+                    MetallicRoughnessMap: TextureFor(material.MetallicRoughnessTexture, assets, textures)));
             }
         }
 

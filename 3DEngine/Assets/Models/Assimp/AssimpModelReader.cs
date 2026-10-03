@@ -225,19 +225,24 @@ public sealed class AssimpModelReader : ISceneReader
             // (glTF imported via Assimp, FBX from PBR exporters) populate metallic/roughness/
             // emissive too via $mat.* properties.
             var diffuse = m.HasColorDiffuse ? m.ColorDiffuse : Vector4.One;
-            float metallic = TryGetFloat(m, "$mat.reflectivity", 0f);
-            // Phong "shininess" (0..1000) → roughness fallback when the source isn't PBR.
-            float roughness = 1f;
-            if (m.HasShininess) roughness = 1f - MathF.Min(1f, MathF.Max(0f, m.Shininess) / 1000f);
+            // glTF's own factors where the file has them. A Phong material has no metal, and its
+            // shininess (0 to 1000) stands in for smoothness.
+            float metallic = TryGetFloat(m, "$mat.metallicFactor", 0f);
+            float roughness = TryGetFloat(m, "$mat.roughnessFactor", float.NaN);
+            if (float.IsNaN(roughness))
+                roughness = m.HasShininess ? 1f - MathF.Min(1f, MathF.Max(0f, m.Shininess) / 1000f) : 1f;
 
             var emissive = m.HasColorEmissive
                 ? new Vector3(m.ColorEmissive.X, m.ColorEmissive.Y, m.ColorEmissive.Z)
                 : Vector3.Zero;
 
             SceneTextureRef? baseTex = TryGetTexture(m, A.TextureType.Diffuse) ?? TryGetTexture(m, A.TextureType.BaseColor);
+            // glTF's packed map, which Assimp lists as metalness, as roughness, or in older
+            // versions as unknown. A Phong specular map is not one, since its channels mean
+            // something else.
             SceneTextureRef? mrTex = TryGetTexture(m, A.TextureType.Metalness)
                                      ?? TryGetTexture(m, A.TextureType.Roughness)
-                                     ?? TryGetTexture(m, A.TextureType.Specular);
+                                     ?? TryGetTexture(m, A.TextureType.Unknown);
             SceneTextureRef? normalTex = TryGetTexture(m, A.TextureType.Normals) ?? TryGetTexture(m, A.TextureType.Height);
             SceneTextureRef? emissiveTex = TryGetTexture(m, A.TextureType.Emissive);
             SceneTextureRef? occlusionTex = TryGetTexture(m, A.TextureType.AmbientOcclusion) ?? TryGetTexture(m, A.TextureType.Lightmap);

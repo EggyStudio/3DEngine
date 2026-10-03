@@ -28,9 +28,32 @@ public readonly record struct ModelMesh(int Id, int VertexCount, int TriangleCou
     public bool IsValid => Id > 0;
 }
 
-/// <summary>What a mesh is drawn with: a color, multiplied with a texture when it has one, and a shader of the program's own.</summary>
+/// <summary>
+/// What a mesh is drawn with, which is a color multiplied with a texture when it has one, how
+/// metallic and rough it is, a normal map, and a shader of the program's own.
+/// </summary>
+/// <remarks>
+/// The surface follows glTF's metallic-roughness model, which every format Assimp reads is mapped
+/// onto. It shows under light entities. The fixed light of a world with none shows the color, the
+/// texture and the normal map only.
+/// </remarks>
 public record struct ModelMaterial(Color Color, Texture2D Texture = default)
 {
+    /// <summary>How metallic the surface is, from 0 (plastic, stone, wood) to 1 (bare metal), multiplied by the blue of <see cref="MetallicRoughnessMap"/>.</summary>
+    public float Metallic { get; set; } = 0;
+
+    /// <summary>How rough the surface is, from 0 (a mirror) to 1 (chalk), multiplied by the green of <see cref="MetallicRoughnessMap"/>.</summary>
+    public float Roughness { get; set; } = 0.5f;
+
+    /// <summary>A tangent-space normal map, with up toward the top of the image, as glTF has it. A default texture means none.</summary>
+    public Texture2D NormalMap { get; set; }
+
+    /// <summary>How strongly <see cref="NormalMap"/> bends the surface, 1 as authored.</summary>
+    public float NormalScale { get; set; } = 1;
+
+    /// <summary>A map with roughness in green and metallic in blue, as glTF packs them. A default texture means none.</summary>
+    public Texture2D MetallicRoughnessMap { get; set; }
+
     /// <summary>
     /// A shader that draws the mesh in place of the model pass's own, which imports
     /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
@@ -263,33 +286,43 @@ public static partial class Engine3D
             if (materialIndex.TryGetValue(material, out var index)) return index;
 
             var c = Vector4.Clamp(material.BaseColorFactor, Vector4.Zero, Vector4.One) * 255;
-            var texture = default(Texture2D);
-            if (material.BaseColorTexture is { AssetPath: var texturePath })
+            materials.Add(new ModelMaterial(new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W), TextureAt(material.BaseColorTexture))
             {
-                if (scene.FindEmbeddedTexture(texturePath) is { } embedded)
+                Metallic = Math.Clamp(material.MetallicFactor, 0, 1),
+                Roughness = Math.Clamp(material.RoughnessFactor, 0, 1),
+                NormalMap = TextureAt(material.NormalTexture),
+                NormalScale = material.NormalScale,
+                MetallicRoughnessMap = TextureAt(material.MetallicRoughnessTexture),
+            });
+            return materialIndex[material] = materials.Count - 1;
+        }
+
+        // A texture the file embeds or names beside it, loaded once however many materials use it.
+        Texture2D TextureAt(SceneTextureRef? reference)
+        {
+            if (reference is not { AssetPath: var texturePath }) return default;
+            var texture = default(Texture2D);
+            if (scene.FindEmbeddedTexture(texturePath) is { } embedded)
+            {
+                var key = "embedded:" + texturePath;
+                if (!textures.TryGetValue(key, out texture))
                 {
-                    var key = "embedded:" + texturePath;
-                    if (!textures.TryGetValue(key, out texture))
-                    {
-                        texture = LoadEmbeddedTexture(embedded, fileName, texturePath);
-                        GenTextureMipmaps(ref texture);
-                        textures[key] = texture;
-                    }
-                }
-                else if (!texturePath.StartsWith('*'))
-                {
-                    var full = Path.Combine(directory, texturePath.Replace('\\', Path.DirectorySeparatorChar));
-                    if (!textures.TryGetValue(full, out texture))
-                    {
-                        texture = LoadTexture(full);
-                        GenTextureMipmaps(ref texture);
-                        textures[full] = texture;
-                    }
+                    texture = LoadEmbeddedTexture(embedded, fileName, texturePath);
+                    GenTextureMipmaps(ref texture);
+                    textures[key] = texture;
                 }
             }
-
-            materials.Add(new ModelMaterial(new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W), texture));
-            return materialIndex[material] = materials.Count - 1;
+            else if (!texturePath.StartsWith('*'))
+            {
+                var full = Path.Combine(directory, texturePath.Replace('\\', Path.DirectorySeparatorChar));
+                if (!textures.TryGetValue(full, out texture))
+                {
+                    texture = LoadTexture(full);
+                    GenTextureMipmaps(ref texture);
+                    textures[full] = texture;
+                }
+            }
+            return texture;
         }
 
         foreach (var root in scene.Roots) Visit(root, Matrix4x4.Identity);
@@ -440,7 +473,10 @@ public static partial class Engine3D
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
         var shader = material.Shader.IsValid ? material.Shader.Id : 0;
         World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
-            shader, shader == 0 ? null : UniformSnapshot(material.Shader)));
+            shader, shader == 0 ? null : UniformSnapshot(material.Shader),
+            material.Metallic, material.Roughness,
+            material.NormalMap.IsValid ? material.NormalMap.Id : 0, material.NormalScale,
+            material.MetallicRoughnessMap.IsValid ? material.MetallicRoughnessMap.Id : 0));
     }
 
     /// <summary>Draws a box's edges.</summary>

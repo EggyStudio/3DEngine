@@ -54,9 +54,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   textures, kept for four frames, so a frame has room for about a thousand such draws.
 - **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
   file played as music is read whole rather than streamed.
-- **Models are partial.** Only the base color and its texture are used of a material, and the
-  flat API has no lights of its own, so models are lit by one fixed light unless the ECS holds
-  light entities. `UpdateModelAnimation` poses skinned meshes on the CPU and uploads new vertex
+- **Models are partial.** The flat API has no lights of its own, so models are lit by one fixed
+  light, which shows their color, texture and normal map but not how metallic or rough they are,
+  unless the ECS holds light entities. `UpdateModelAnimation` poses skinned meshes on the CPU and uploads new vertex
   buffers each call, as raylib does by default, so a crowd of animated models costs their vertex
   counts every frame where GPU skinning would cost a buffer of bone matrices. Clips are sampled at
   60 frames a second with no blending between frames or between two clips, and mesh entities have
@@ -76,12 +76,12 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Lighting is Blinn-Phong with no materials behind it.** The model pass sums up to 16 light
-  entities (directional, point, spot and ambient), by Lambert's cosine, the square of the distance
-  and a range, adds a fixed highlight and tonemaps the sum at the end of the pass, and falls back
-  to one fixed light when there are none. Of a material only the base color is used,
-  so the highlight's size and strength are the same on every surface (RENDERING.md §3 and §4). A
-  mesh entity is drawn through the first camera entity only, into the window only.
+- **Materials have no emission, occlusion or environment.** The model pass reflects up to 16
+  light entities by the material's metallic-roughness model, with its normal map, and tonemaps the
+  sum (RENDERING.md §3 and §4). Emissive color and occlusion maps are read from files and not
+  drawn, there is no environment map, so a smooth metal reflects black where no light is mirrored,
+  and textures are sampled as linear where glTF's base color is sRGB. A mesh entity is drawn
+  through the first camera entity only, into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
 - **One directional light casts a shadow, from one map.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The
@@ -134,8 +134,8 @@ a runtime handle and is not saved either, and nothing describes one for a file y
 prefabs (a scene file spawned as part of another), and an older file is read by keeping the
 fields it has, with no migration.
 
-`SceneLightPayload` and `Light` hold what the model pass reads. `SceneMaterialPayload` already has
-the metallic-roughness fields, and of them the model pass reads only the base color.
+`SceneLightPayload` and `Light` hold what the model pass reads. Of `SceneMaterialPayload`'s fields
+the model pass reads all but the emissive and occlusion ones.
 
 ## Platform
 

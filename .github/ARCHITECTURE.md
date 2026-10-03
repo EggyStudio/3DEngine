@@ -161,7 +161,8 @@ file brings them back. The console's `scene.save` and `scene.load` do the same f
 Mesh entities reach the renderer the way `DrawModel` does. `MeshEntityDraws`, a system in
 `Render`, records every entity with a `Mesh` and a `Material` into the `ModelDrawList` through
 the first `Camera` entity, uploading a mesh's arrays to `MeshStore` the first time and copying its
-base color texture from the asset store into `TextureStore` once loaded.
+base color, normal and metallic-roughness textures from the asset store into `TextureStore` once
+loaded.
 
 The graph has five nodes. The first draws into render targets, and the rest into one swapchain pass:
 

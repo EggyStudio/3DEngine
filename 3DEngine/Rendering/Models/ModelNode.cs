@@ -40,7 +40,10 @@ public sealed class ModelRenderer : IDisposable
         public Vector4 WorldX;
         public Vector4 WorldY;
         public Vector4 WorldZ;
-        public Vector4 Color;
+        public uint PackedColor;
+        public float Metallic;
+        public float Roughness;
+        public float NormalScale;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
@@ -49,6 +52,15 @@ public sealed class ModelRenderer : IDisposable
     private IShader? _fragmentShader;
     private IPipeline? _pipeline;
     private IDescriptorSetLayout? _defaultLayout;
+    private IDescriptorSetLayout? _materialLayout;
+    private IBuffer? _noUniforms;
+
+    // Sets of the model pass's own draws, one per combination of a base color texture, a normal
+    // map and a metallic-roughness map, by their views, with the frame each was last bound in. A
+    // set unbound for RetireFrames frames is freed, since no frame in flight can read it, so the
+    // views of unloaded textures do not hold sets forever.
+    private readonly Dictionary<(IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
+    private long _frames;
     private readonly List<IDescriptorSet> _lightSets = [];
     private int _lightSet;
     private FrameLightingBinding? _lastFrame;
@@ -107,19 +119,25 @@ public sealed class ModelRenderer : IDisposable
             }
 
             pass.SetBindGroup(pipeline, program is null
-                ? textures.SetFor(gfx, draw.Texture)
+                ? MaterialSet(gfx, textures, draw)
                 : DrawSet(gfx, renderContext, textures, draw, program));
             pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
             pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
 
             var w = draw.World;
+            var c = draw.Color;
             var push = new Push
             {
                 Transform = w * draw.ViewProjection,
                 WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
                 WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
                 WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
-                Color = draw.Color.ToVector4(),
+                PackedColor = c.R | (uint)c.G << 8 | (uint)c.B << 16 | (uint)c.A << 24,
+                Metallic = draw.Metallic,
+                Roughness = draw.Roughness,
+                // No map, no bending, which also keeps the shader from reading the white texture
+                // in its place as a normal.
+                NormalScale = draw.NormalMap == 0 ? 0 : draw.NormalScale,
             };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed(mesh.IndexCount);
@@ -200,6 +218,57 @@ public sealed class ModelRenderer : IDisposable
         _lastContext = renderContext;
         _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
         _drawSetNext = 0;
+
+        _frames++;
+        if (_materialSets.Count == 0) return;
+        foreach (var (key, (set, used)) in _materialSets.ToArray())
+            if (_frames - used > SetRingFrames)
+            {
+                set.Dispose();
+                _materialSets.Remove(key);
+            }
+    }
+
+    // The set of a draw with the model pass's own shader, made once per combination of textures.
+    private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
+    {
+        var color = textures.ViewFor(gfx, draw.Texture);
+        var normal = textures.ViewFor(gfx, draw.NormalMap);
+        var packed = textures.ViewFor(gfx, draw.MetallicRoughnessMap);
+        var key = (color.View, normal.View, packed.View);
+        if (_materialSets.TryGetValue(key, out var known))
+        {
+            _materialSets[key] = known with { Used = _frames };
+            return known.Set;
+        }
+
+        var set = gfx.CreateDescriptorSet(MaterialLayout(gfx));
+        WriteMaterial(gfx, set, NoUniforms(gfx), color, normal, packed);
+        _materialSets[key] = (set, _frames);
+        return set;
+    }
+
+    // Binding 0's uniforms, and the three maps at bindings 1 to 3. One sampler per call is what
+    // the device's update takes, so the maps go in one call each.
+    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms,
+        (IImageView View, ISampler Sampler) color, (IImageView View, ISampler Sampler) normal, (IImageView View, ISampler Sampler) packed)
+    {
+        gfx.UpdateDescriptorSet(set, uniforms, new CombinedImageSamplerBinding(color.View, color.Sampler, 1));
+        gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(normal.View, normal.Sampler, 2));
+        gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(packed.View, packed.Sampler, 3));
+    }
+
+    // Sixteen zero bytes for the uniforms binding of the model pass's own draws, which its shader
+    // does not read.
+    private UniformBufferBinding NoUniforms(IGraphicsDevice gfx)
+    {
+        if (_noUniforms is null)
+        {
+            _noUniforms = gfx.CreateBuffer(new BufferDesc(16, BufferUsage.Uniform, CpuAccessMode.Write));
+            gfx.Map(_noUniforms).Clear();
+            gfx.Unmap(_noUniforms);
+        }
+        return new UniformBufferBinding(_noUniforms, 0, 0, 16);
     }
 
     // A descriptor set for one draw with a shader of its own: its uniform values in this frame's
@@ -207,7 +276,7 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, GpuTextures textures, ModelDraw draw, ShaderProgram program)
     {
         var sets = _drawSets[_drawSetSlot];
-        if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet());
+        if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet(MaterialLayout(gfx)));
         var set = sets[_drawSetNext++];
 
         // At least one 16-byte row, so binding 0 holds a buffer whether the shader declares uniforms or not.
@@ -223,8 +292,9 @@ public sealed class ModelRenderer : IDisposable
             uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
         }
 
-        var (view, sampler) = textures.ViewFor(gfx, draw.Texture);
-        gfx.UpdateDescriptorSet(set, uniforms, new CombinedImageSamplerBinding(view, sampler, 1));
+        if (uniforms is { } bound)
+            WriteMaterial(gfx, set, bound, textures.ViewFor(gfx, draw.Texture), textures.ViewFor(gfx, draw.NormalMap),
+                textures.ViewFor(gfx, draw.MetallicRoughnessMap));
         return set;
     }
 
@@ -244,9 +314,9 @@ public sealed class ModelRenderer : IDisposable
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
-            // Both sets have the device's default layout: the texture at binding 1 of the first,
-            // and the frame's lights at binding 0 of the second.
-            DescriptorSetLayouts: [DefaultLayout(gfx), DefaultLayout(gfx)],
+            // The material's set, with uniforms at binding 0 and its three maps after, then the
+            // frame's lights at binding 0 of the second and the shadow map at binding 1.
+            DescriptorSetLayouts: [MaterialLayout(gfx), DefaultLayout(gfx)],
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.LessOrEqual);
@@ -292,6 +362,14 @@ public sealed class ModelRenderer : IDisposable
         return _lightSets[_lightSet];
     }
 
+    private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(
+    [
+        new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+    ]);
+
     private IDescriptorSetLayout DefaultLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
     [
         new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
@@ -309,6 +387,10 @@ public sealed class ModelRenderer : IDisposable
             vertex.Dispose();
             fragment.Dispose();
         }
+        foreach (var (set, _) in _materialSets.Values) set.Dispose();
+        _materialSets.Clear();
+        _noUniforms?.Dispose();
+        _materialLayout?.Dispose();
         _noLights?.Dispose();
         _shadowMap?.Dispose();
         _noLightsBuffer?.Dispose();

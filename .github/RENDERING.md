@@ -107,8 +107,17 @@ puts uniforms declared at the top level, beside the texture at binding 1.
 
 A mesh entity is a `Mesh` (positions three per triangle, with optional normals and texture
 coordinates) and a `Material`. `MeshEntityDraws` uploads its arrays once, keyed by the positions
-array, frees them the first frame no entity draws them, and copies the material's base color
-texture asset into `TextureStore`. A triangle without normals is lit by its face's normal.
+array, frees them the first frame no entity draws them, and copies the material's base color,
+normal and metallic-roughness texture assets into `TextureStore`. A triangle without normals is
+lit by its face's normal.
+
+A draw's material is its color, packed into four bytes, its metallic and roughness factors and its
+normal map's strength, in the last 16 bytes of the push constants, and its base color texture,
+normal map and metallic-roughness map at bindings 1 to 3 of the first set. The model pass's own
+draws share one set per combination of the three textures, freed once no frame in flight binds it.
+A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
+texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
+the map is toward the top of the image, as glTF has it.
 
 What follows is where meshes go from there.
 
@@ -117,11 +126,10 @@ A mesh carries position, normal, tangent, two texture coordinates and a color, i
 texture paths in one pass, and textures are decoded by StbImageSharp with mipmaps generated on the
 GPU.
 
-The material is one struct for every mesh: base color, metallic, roughness, emissive, normal scale
-and occlusion strength, each with an optional texture. That is the glTF metallic-roughness model,
-which Assimp maps every format it reads onto. A program that needs something else writes a Slang
-shader and passes it to `LoadMaterial`, and the engine binds the standard set of parameters for it
-by name.
+The material holds glTF's metallic-roughness model, which Assimp maps every format it reads
+onto. The base color, metallic, roughness and normal map are drawn. Emissive color and occlusion
+are read from files and not yet drawn. A program that needs something else writes a Slang shader
+that imports `modelpass`.
 
 ## 4. Lights and shadows
 
@@ -131,9 +139,15 @@ from a ring of one per frame in flight. A `Light` is a kind (directional, point,
 a color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
 `modelpass.slang` adds each light by Lambert's cosine: a directional light by its direction, an
 ambient light everywhere alike, and a point or spot by the square of the distance, brought smoothly
-to nothing at its range and cut by a spot's cone. Every light but an ambient one adds a
-Blinn-Phong highlight (a quarter of its light, at an exponent of 32), toward a camera the shader
-finds from the transform alone, since the push constants have no room for its position.
+to nothing at its range and cut by a spot's cone. The light that arrives is reflected by the
+material's metallic-roughness model. Each light but an ambient one reflects by GGX's
+distribution, Smith's height-correlated shadowing and Schlick's Fresnel, toward a camera the
+shader finds from the transform alone, since the push constants have no room for its position,
+and scatters diffusely what Fresnel leaves, none of it off a metal. An ambient light scatters its
+diffuse share and reflects the share Karis's fit of the environment term gives with no
+environment to reflect. A light's color times its intensity is the light a white diffuse surface
+facing it returns, so the diffuse term is the albedo itself and the specular term is multiplied
+by pi to match.
 
 The sum goes through a tonemap that leaves the brightest channel alone up to 0.9, bends it smoothly
 toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
