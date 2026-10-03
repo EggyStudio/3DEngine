@@ -15,8 +15,9 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
   namespace, with the source generator as a separate analyzer assembly.
 - **A sparse-set ECS** (`EcsWorld`) with deferred commands, change bits and queries over up to three
   components, and a resource map (`World`) beside it.
-- **A staged schedule** (`Startup`, `First`, `PreUpdate`, `Update`, `PostUpdate`, `Render`, `Last`,
-  `Cleanup`) that runs systems in parallel batches by their declared reads and writes.
+- **A staged schedule** (`Startup`, `First`, `PreUpdate`, `FixedUpdate`, `Update`, `PostUpdate`,
+  `Render`, `Last`, `Cleanup`) that runs systems in parallel batches by their declared reads and
+  writes.
 - **Behaviors**, which are `[Behavior]` structs whose stage methods a Roslyn generator turns into
   systems, with filters, run conditions and toggle keys.
 - **An SDL3 window** with keyboard and mouse input, and **a Vulkan device** over Vortice.Vulkan with

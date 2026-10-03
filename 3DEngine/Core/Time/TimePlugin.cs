@@ -37,6 +37,7 @@ public sealed class TimePlugin : IPlugin
     {
         Logger.Info("TimePlugin: Registering Time resource and frame-timing system.");
         app.World.InitResource<Time>();
+        app.World.InitResource<FixedTime>();
 
         var watch = Stopwatch.StartNew();
         double lastElapsed = 0.0;
@@ -49,7 +50,9 @@ public sealed class TimePlugin : IPlugin
             
                 var time = world.Resource<Time>();
                 time.Update(now, rawDelta);
+                world.Resource<FixedTime>().Accumulate(time.DeltaSeconds);
             }, "TimePlugin.Update")
-            .Write<Time>());
+            .Write<Time>()
+            .Write<FixedTime>());
     }
 }

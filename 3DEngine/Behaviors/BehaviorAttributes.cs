@@ -71,6 +71,10 @@ public sealed class OnUpdateAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class OnPostUpdateAttribute : Attribute;
 
+/// <summary>Runs at a fixed rate, zero or more times a frame, between pre-update and update (see <see cref="FixedTime"/>).</summary>
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class OnFixedUpdateAttribute : Attribute;
+
 /// <summary>Runs during the render stage each frame.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class OnRenderAttribute : Attribute;

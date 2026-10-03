@@ -27,18 +27,12 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Behaviors
 
-- **Two methods on one stage do not compile.** `BehaviorGenerator` names a runner after the stage,
-  so a second method on the same stage emits a duplicate member. `RunIf` and `ToggleKey` are read
-  from the first method of each stage only.
-- **`BehaviorContext` requires physics.** Its constructor resolves `PhysicsWorld`, so an app without
-  `PhysicsPlugin` cannot run a behavior.
-- **There is no fixed stage.** Physics keeps an accumulator of its own and steps at
-  `PhysicsSettings.FixedTimeStep`, but a behavior runs once per frame. A `FixedUpdate` stage run zero
-  or more times a frame at `Config.FixedHz`, with `[OnFixedUpdate]`, is needed, and physics then
-  steps inside it.
 - **States** (`[OnEnter]`, `[OnExit]`, `[InState]`) are not implemented.
-- **Diagnostics.** The generator reports nothing when a behavior is not `partial` or a method has
-  the wrong signature, and the build fails later in generated code instead.
+- **Diagnostics stop at the method.** The generator reports a wrong signature, two stage
+  attributes and a bad `[RunIf]` (E3D001 to E3D003). A filter naming a type that is not a
+  component, and a behavior whose fields hold references, are not reported.
+- **`BehaviorContext` has no fixed delta.** A `[OnFixedUpdate]` method reads the step from
+  `ctx.Res<FixedTime>().StepSeconds`, where `ctx.Time.DeltaSeconds` is the frame's.
 
 ## Rendering
 
@@ -84,7 +78,8 @@ the engine's own shortcuts ask `WantTextInput` instead.
 ### Physics
 
 `PhysicsWorld` runs BepuPhysics with bodies and colliders from components, steps at a fixed rate
-through its own accumulator, and answers `Raycast`. There is no `Engine3D` surface for it, and the
+through its own accumulator in `PreUpdate`, and answers `Raycast`. It is to step in
+`Stage.FixedUpdate` on `FixedTime` instead, so behaviors that push bodies run on the same steps. There is no `Engine3D` surface for it, and the
 interpolation between steps is not applied to `Transform`, so a body moves in visible steps when the
 frame rate is above the physics rate.
 

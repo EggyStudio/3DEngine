@@ -35,4 +35,14 @@ public enum Stage
     Last,
     /// <summary>Runs once after the main loop exits - teardown and resource disposal.</summary>
     Cleanup,
+
+    /// <summary>
+    /// Runs between <see cref="PreUpdate"/> and <see cref="Update"/>, zero or more times a frame, once
+    /// for every whole step of <see cref="FixedTime"/> that has accumulated.
+    /// </summary>
+    /// <remarks>
+    /// The last value of the enum so the values of the others are unchanged. Execution order is
+    /// <see cref="StageOrder"/>'s, not the enum's.
+    /// </remarks>
+    FixedUpdate,
 }

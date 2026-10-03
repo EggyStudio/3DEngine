@@ -28,13 +28,14 @@ both. `DefaultPlugins` is the set a windowed program uses, sorted by `IPlugin.Or
 foundations (logging, the window, assets) build before what depends on them, and a plugin that
 names a missing dependency fails with `PluginOrderException`.
 
-A frame is eight stages:
+A frame is nine stages:
 
 | stage | runs |
 |---|---|
 | `Startup` | once, before the first frame |
 | `First` | time advances, change bits clear, the draw list clears |
 | `PreUpdate` | ImGui's frame starts, finished asset loads land, scenes spawn, physics steps |
+| `FixedUpdate` | zero or more times, once per whole step of `FixedTime` (60 Hz by default) |
 | `Update` | the game |
 | `PostUpdate` | deferred ECS commands apply, physics bodies are written back |
 | `Render` | ImGui windows that systems draw |
@@ -79,15 +80,20 @@ reused from a free list.
 
 ## Behaviors
 
-A `[Behavior]` struct's methods carry a stage attribute (`[OnStartup]`, `[OnUpdate]`, `[OnRender]`
-and the rest). `BehaviorGenerator`, a Roslyn incremental generator, emits a system per method:
+A `[Behavior]` struct's methods carry a stage attribute (`[OnStartup]`, `[OnFixedUpdate]`,
+`[OnUpdate]`, `[OnRender]` and the rest). `BehaviorGenerator`, a Roslyn incremental generator,
+emits a system per method, so a behavior may have several methods on one stage:
 
 - a **static** method is one system, called with a `BehaviorContext`;
 - an **instance** method runs once per entity that has the struct as a component, with `this` by
   reference, and switches to a parallel loop above 4096 entities.
 
 `[With]`, `[Without]` and `[Changed]` filter the entities, `[RunIf(nameof(member))]` gates a method
-on a static bool, and `[ToggleKey]` lets a key switch it on and off. The generated registrations are
+on a static bool, and `[ToggleKey]` lets a key switch it on and off. A method with the wrong
+signature, two stage attributes or a `[RunIf]` naming nothing usable is reported on the method
+(E3D001 to E3D003) and left out of what is generated. `BehaviorContext` resolves the ECS, commands,
+time and input when it is made, and `ctx.Physics` only when it is read, so behaviors run without
+`PhysicsPlugin`. The generated registrations are
 found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches `source/behaviors`
 beside the program, compiles what it finds with Roslyn and the same generator into a collectible
 load context, and replaces the previous generation's systems.

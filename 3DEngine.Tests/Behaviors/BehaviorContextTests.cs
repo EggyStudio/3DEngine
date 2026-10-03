@@ -31,15 +31,18 @@ public class BehaviorContextTests
     }
 
     [Fact]
-    public void Constructor_Throws_When_Physics_Missing()
+    public void Constructor_Works_Without_Physics_And_Physics_Throws_When_Read()
     {
         using var world = new World();
         world.InsertResource(new EcsWorld());
         world.InsertResource(new EcsCommands());
         world.InsertResource(new Time());
         world.InsertResource(new Input());
-        var act = () => new BehaviorContext(world);
-        act.Should().Throw<InvalidOperationException>();
+
+        var ctx = new BehaviorContext(world);
+        var read = () => ctx.Physics;
+
+        read.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]

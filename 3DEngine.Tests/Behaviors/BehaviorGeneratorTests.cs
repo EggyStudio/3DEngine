@@ -1,0 +1,88 @@
+using FluentAssertions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace Engine.Tests.Behaviors;
+
+/// <summary>Runs the behavior generator over small sources and compiles what it emits.</summary>
+[Trait("Category", "Unit")]
+public class BehaviorGeneratorTests
+{
+    private static (ImmutableArrayResult Result, Compilation Output) Generate(string source)
+    {
+        var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+            .Split(Path.PathSeparator)
+            .Select(path => MetadataReference.CreateFromFile(path))
+            .Append(MetadataReference.CreateFromFile(typeof(App).Assembly.Location));
+
+        var compilation = CSharpCompilation.Create("Generated",
+            [CSharpSyntaxTree.ParseText(source)],
+            references,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        CSharpGeneratorDriver.Create(new BehaviorGenerator())
+            .RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
+
+        return (new ImmutableArrayResult(diagnostics.ToArray(), output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray()), output);
+    }
+
+    private sealed record ImmutableArrayResult(Diagnostic[] Generator, Diagnostic[] Compile);
+
+    [Fact]
+    public void Two_Methods_On_One_Stage_Become_Two_Systems()
+    {
+        var (result, output) = Generate("""
+            using Engine;
+            [Behavior]
+            public struct Twice
+            {
+                public static bool Never => false;
+                [OnUpdate] public static void A(BehaviorContext ctx) { }
+                [OnUpdate, RunIf(nameof(Never))] public static void B(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Should().BeEmpty();
+        result.Compile.Should().BeEmpty();
+        var generated = string.Concat(output.SyntaxTrees.Select(t => t.ToString()));
+        generated.Should().Contain("Twice_Generated_Update_A").And.Contain("Twice_Generated_Update_B");
+    }
+
+    [Fact]
+    public void A_Fixed_Update_Method_Registers_On_The_Fixed_Stage()
+    {
+        var (result, output) = Generate("""
+            using Engine;
+            [Behavior]
+            public struct Stepper
+            {
+                [OnFixedUpdate] public static void Step(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Compile.Should().BeEmpty();
+        string.Concat(output.SyntaxTrees.Select(t => t.ToString())).Should().Contain("Engine.Stage.FixedUpdate");
+    }
+
+    [Theory]
+    [InlineData("[OnUpdate] public static int Wrong(BehaviorContext ctx) => 0;", "E3D001")]
+    [InlineData("[OnUpdate] public static void Wrong() { }", "E3D001")]
+    [InlineData("[OnUpdate, OnRender] public static void Wrong(BehaviorContext ctx) { }", "E3D002")]
+    [InlineData("[OnUpdate, RunIf(\"Missing\")] public static void Wrong(BehaviorContext ctx) { }", "E3D003")]
+    [InlineData("public bool NotStatic; [OnUpdate, RunIf(nameof(NotStatic))] public static void Wrong(BehaviorContext ctx) { }", "E3D003")]
+    public void A_Method_That_Cannot_Run_Is_Reported_On_The_Method(string member, string id)
+    {
+        var (result, _) = Generate($$"""
+            using Engine;
+            [Behavior]
+            public struct Faulty
+            {
+                {{member}}
+            }
+            """);
+
+        result.Generator.Should().ContainSingle(d => d.Id == id)
+            .Which.Location.SourceTree.Should().NotBeNull();
+        result.Compile.Should().BeEmpty("a reported method is left out of what is generated");
+    }
+}

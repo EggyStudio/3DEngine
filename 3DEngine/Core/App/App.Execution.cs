@@ -54,6 +54,11 @@ public sealed partial class App
     /// running <see cref="Startup"/> first if it has not run.
     /// </summary>
     /// <remarks>
+    /// <see cref="Stage.FixedUpdate"/> runs between <see cref="Stage.PreUpdate"/> and
+    /// <see cref="Stage.Update"/> once per step <see cref="FixedTime.TryStep"/> grants, and not at
+    /// all when the world has no <see cref="FixedTime"/>.
+    /// </remarks>
+    /// <remarks>
     /// Whatever the caller does between this and <see cref="EndFrame"/> belongs to the frame, so
     /// draw calls made there are rendered by it and ImGui windows begun there are drawn with it.
     /// </remarks>
@@ -65,8 +70,14 @@ public sealed partial class App
         if (_frameCount <= 3 || _frameCount % 1000 == 0)
             Logger.FrameTrace($"Frame #{_frameCount} begin");
 
-        foreach (var stage in StageOrder.BeginFrameStages())
-            Schedule.RunStage(stage, World);
+        Schedule.RunStage(Stage.First, World);
+        Schedule.RunStage(Stage.PreUpdate, World);
+
+        if (World.TryGetResource<FixedTime>(out var fixedTime))
+            while (fixedTime.TryStep())
+                Schedule.RunStage(Stage.FixedUpdate, World);
+
+        Schedule.RunStage(Stage.Update, World);
     }
 
     /// <summary>

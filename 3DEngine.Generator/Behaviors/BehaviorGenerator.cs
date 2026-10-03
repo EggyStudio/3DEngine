@@ -8,15 +8,39 @@ namespace Engine;
 /// <para>
 /// Produces two kinds of source outputs:
 /// <list type="number">
-///   <item><description>Per-behavior <c>{Name}_Generated.g.cs</c> files containing system functions for each stage method.</description></item>
+///   <item><description>Per-behavior <c>{Name}_Generated.g.cs</c> files containing one system function per stage method.</description></item>
 ///   <item><description>A single <c>BehaviorsRegistration.g.cs</c> file marked with <c>[GeneratedBehaviorRegistration]</c>,
 ///     discoverable by <c>BehaviorsPlugin</c> at runtime via reflection.</description></item>
 /// </list>
+/// </para>
+/// <para>
+/// Each stage method is a system of its own, named after the behavior, the stage and the method,
+/// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
+/// and <c>[ToggleKey]</c>. A method the generator cannot call is reported (E3D001 to E3D003) and
+/// left out, so the error is on the method rather than in generated code.
 /// </para>
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 public sealed class BehaviorGenerator : IIncrementalGenerator
 {
+    private static readonly DiagnosticDescriptor BadSignature = new(
+        "E3D001",
+        "A behavior stage method has the wrong signature",
+        "'{0}' must return void and take one BehaviorContext parameter to run as a {1} system",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor SeveralStages = new(
+        "E3D002",
+        "A behavior method names more than one stage",
+        "'{0}' carries more than one stage attribute, and a method runs in one stage",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor BadRunIf = new(
+        "E3D003",
+        "A [RunIf] member is missing or has the wrong shape",
+        "[RunIf(\"{0}\")] on '{1}' must name a static bool field or property, or a static bool method taking a World, on the same behavior",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
     /// <summary>Configures syntax providers, collects candidate structs, and registers source outputs.</summary>
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -37,40 +61,70 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
         ctx.RegisterSourceOutput(ctx.CompilationProvider.Combine(candidates), (spc, pair) =>
         {
-            var behaviors = pair.Right
-                .OfType<INamedTypeSymbol>()
-                .Select(BuildModel)
-                .ToList();
-
-            foreach (var b in behaviors)
-                spc.AddSource($"{b.SafeName}.g.cs", GenBehaviorSystems(b));
+            var behaviors = new List<BehaviorModel>();
+            foreach (var type in pair.Right.OfType<INamedTypeSymbol>().Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default))
+            {
+                var model = BuildModel(type, spc);
+                behaviors.Add(model);
+                spc.AddSource($"{model.SafeName}.g.cs", GenBehaviorSystems(model));
+            }
 
             if (behaviors.Count > 0)
                 spc.AddSource("BehaviorsRegistration.g.cs", GenRegistration(behaviors));
         });
     }
 
-    // -- Model extraction --
+    // -- Model extraction
 
-    /// <summary>Builds a behavior model (namespace, name, stage methods, filters) from a type symbol.</summary>
-    private static BehaviorModel BuildModel(INamedTypeSymbol type)
+    /// <summary>Builds a behavior model from a type symbol, reporting and skipping methods that cannot run.</summary>
+    private static BehaviorModel BuildModel(INamedTypeSymbol type, SourceProductionContext spc)
     {
         var ns = type.ContainingNamespace.IsGlobalNamespace ? "Engine" : type.ContainingNamespace.ToDisplayString();
-        var methods = type.GetMembers()
-            .OfType<IMethodSymbol>()
-            .Select(m => (Method: m, Stage: GetStage(m)))
-            .Where(x => x.Stage is not null)
-            .Select(x => new StageMethod
+        var methods = new List<StageMethod>();
+
+        foreach (var method in type.GetMembers().OfType<IMethodSymbol>())
+        {
+            var stages = GetStages(method);
+            if (stages.Count == 0) continue;
+
+            var location = method.Locations.FirstOrDefault();
+            if (stages.Count > 1)
             {
-                Stage = x.Stage!.Value,
-                IsStatic = x.Method.IsStatic,
+                spc.ReportDiagnostic(Diagnostic.Create(SeveralStages, location, method.Name));
+                continue;
+            }
+
+            if (!method.ReturnsVoid || method.Parameters.Length != 1 ||
+                method.Parameters[0].Type.ToDisplayString() != "Engine.BehaviorContext")
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(BadSignature, location, method.Name, stages[0]));
+                continue;
+            }
+
+            var runIfName = GetRunIfName(method);
+            (string Name, MemberKind Kind)? runIf = null;
+            if (runIfName is not null)
+            {
+                var kind = ResolveRunIf(runIfName, type);
+                if (kind is null)
+                {
+                    spc.ReportDiagnostic(Diagnostic.Create(BadRunIf, location, runIfName, method.Name));
+                    continue;
+                }
+                runIf = (runIfName, kind.Value);
+            }
+
+            methods.Add(new StageMethod
+            {
+                Stage = stages[0],
+                IsStatic = method.IsStatic,
                 MethodContainer = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                MethodName = x.Method.Name,
-                Filters = GetFilters(x.Method),
-                RunIf = GetRunIf(x.Method, type),
-                ToggleKey = GetToggleKey(x.Method),
-            })
-            .ToList();
+                MethodName = method.Name,
+                Filters = GetFilters(method),
+                RunIf = runIf,
+                ToggleKey = GetToggleKey(method),
+            });
+        }
 
         return new BehaviorModel
         {
@@ -82,25 +136,29 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         };
     }
 
-    /// <summary>Maps method attributes to a scheduling stage if present.</summary>
-    private static Stage? GetStage(IMethodSymbol m)
+    /// <summary>Maps a method's attributes to the stages they name.</summary>
+    private static List<Stage> GetStages(IMethodSymbol m)
     {
+        var stages = new List<Stage>();
         foreach (var a in m.GetAttributes())
         {
-            switch (a.AttributeClass?.ToDisplayString())
+            Stage? stage = a.AttributeClass?.ToDisplayString() switch
             {
-                case "Engine.OnStartupAttribute": return Stage.Startup;
-                case "Engine.OnFirstAttribute": return Stage.First;
-                case "Engine.OnPreUpdateAttribute": return Stage.PreUpdate;
-                case "Engine.OnUpdateAttribute": return Stage.Update;
-                case "Engine.OnPostUpdateAttribute": return Stage.PostUpdate;
-                case "Engine.OnRenderAttribute": return Stage.Render;
-                case "Engine.OnLastAttribute": return Stage.Last;
-                case "Engine.OnCleanupAttribute": return Stage.Cleanup;
-            }
+                "Engine.OnStartupAttribute" => Stage.Startup,
+                "Engine.OnFirstAttribute" => Stage.First,
+                "Engine.OnPreUpdateAttribute" => Stage.PreUpdate,
+                "Engine.OnFixedUpdateAttribute" => Stage.FixedUpdate,
+                "Engine.OnUpdateAttribute" => Stage.Update,
+                "Engine.OnPostUpdateAttribute" => Stage.PostUpdate,
+                "Engine.OnRenderAttribute" => Stage.Render,
+                "Engine.OnLastAttribute" => Stage.Last,
+                "Engine.OnCleanupAttribute" => Stage.Cleanup,
+                _ => null,
+            };
+            if (stage is not null) stages.Add(stage.Value);
         }
 
-        return null;
+        return stages;
     }
 
     /// <summary>Extracts With/Without/Changed filters from method attributes.</summary>
@@ -127,29 +185,37 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         return new Filters(with, without, changed);
     }
 
-    /// <summary>Extracts the [RunIf] condition member (method/property/field) info from a method's attributes.</summary>
-    private static (string Name, MemberKind Kind)? GetRunIf(IMethodSymbol method, INamedTypeSymbol behaviorType)
+    /// <summary>The member name a method's [RunIf] names, or null.</summary>
+    private static string? GetRunIfName(IMethodSymbol method)
     {
-        string? attrName = null;
         foreach (var a in method.GetAttributes())
-        {
             if (a.AttributeClass?.ToDisplayString() == "Engine.RunIfAttribute" &&
                 a.ConstructorArguments.Length > 0 &&
                 a.ConstructorArguments[0].Value is string name)
-            {
-                attrName = name;
-                break;
-            }
-        }
+                return name;
+        return null;
+    }
 
-        if (attrName is null) return null;
-
-        foreach (var member in behaviorType.GetMembers())
+    /// <summary>
+    /// Classifies the member a [RunIf] names, or returns null when it is not a static bool field or
+    /// property, or a static bool method taking a World, which are the shapes the emitted call fits.
+    /// </summary>
+    private static MemberKind? ResolveRunIf(string name, INamedTypeSymbol behaviorType)
+    {
+        foreach (var member in behaviorType.GetMembers(name))
         {
-            if (member.Name != attrName) continue;
-            if (member is IMethodSymbol) return (attrName, MemberKind.Method);
-            if (member is IPropertySymbol) return (attrName, MemberKind.Property);
-            if (member is IFieldSymbol) return (attrName, MemberKind.Field);
+            if (!member.IsStatic) continue;
+            switch (member)
+            {
+                case IMethodSymbol m when m.ReturnType.SpecialType == SpecialType.System_Boolean &&
+                                          m.Parameters.Length == 1 &&
+                                          m.Parameters[0].Type.ToDisplayString() == "Engine.World":
+                    return MemberKind.Method;
+                case IPropertySymbol p when p.Type.SpecialType == SpecialType.System_Boolean:
+                    return MemberKind.Property;
+                case IFieldSymbol f when f.Type.SpecialType == SpecialType.System_Boolean:
+                    return MemberKind.Field;
+            }
         }
 
         return null;
@@ -181,15 +247,15 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         return null;
     }
 
-    // -- Source emission --
+    // -- Source emission
 
-    /// <summary>Generates per-stage system functions and a static Register helper for one behavior.</summary>
+    private static string SystemName(BehaviorModel b, StageMethod m) => $"{b.SafeName}_{m.Stage}_{m.MethodName}";
+
+    /// <summary>Generates one system function per stage method and a static Register helper for one behavior.</summary>
     private static string GenBehaviorSystems(BehaviorModel b)
     {
-        var registerCalls = string.Concat(b.StageMethods
-            .GroupBy(m => m.Stage)
-            .Select(g =>
-                $"        app.AddSystem(Engine.Stage.{g.Key}, {BuildDescriptor(b, g.Key, g.First(), g.Any(m => !m.IsStatic))});\n"));
+        var registerCalls = string.Concat(b.StageMethods.Select(m =>
+            $"        app.AddSystem(Engine.Stage.{m.Stage}, {BuildDescriptor(b, m)});\n"));
 
         var stageMethods = string.Concat(b.StageMethods.Select(m => "\n" + GenStageMethod(b, m)));
 
@@ -202,48 +268,43 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
               {
                   public static void Register(Engine.App app)
                   {
-                      {{registerCalls}}    
-                  }
-                  {{stageMethods}}
+              {{registerCalls}}    }
+              {{stageMethods}}
               }
 
               """;
     }
 
-    /// <summary>Builds the <c>SystemDescriptor</c> chained-call expression for one stage group.</summary>
+    /// <summary>Builds the <c>SystemDescriptor</c> chained-call expression for one stage method.</summary>
     /// <remarks>
-    /// Fine-grained resource access: instance behaviors write only to their own component
-    /// store type; static-only behaviors declare a read on EcsWorld. This prevents false
-    /// write/write conflicts between unrelated behavior types, allowing the parallel
-    /// scheduler to batch them together.
+    /// Fine-grained resource access: an instance method writes only to its own component store
+    /// type, and a static method declares a read on EcsWorld. This prevents false write/write
+    /// conflicts between unrelated behavior types, allowing the parallel scheduler to batch them
+    /// together. A [ToggleKey] and a [RunIf] on one method both apply.
     /// </remarks>
-    private static string BuildDescriptor(BehaviorModel b, Stage stage, StageMethod first, bool hasInstanceMethod)
+    private static string BuildDescriptor(BehaviorModel b, StageMethod m)
     {
-        var systemId = $"{b.SafeName}_{stage}";
-        var access = hasInstanceMethod
-            ? $".Write<{b.BehaviorFqn}>()"
-            : ".Read<global::Engine.EcsWorld>()";
-        var ctor = $"new global::Engine.SystemDescriptor({systemId}, \"{systemId}\")";
+        var systemId = SystemName(b, m);
+        var descriptor = $"new global::Engine.SystemDescriptor({systemId}, \"{systemId}\")";
 
-        if (first.ToggleKey is { } tk)
+        if (m.ToggleKey is { } tk)
         {
             var def = tk.DefaultEnabled ? "true" : "false";
-            return
-                $"{ctor}.RunIf(global::Engine.BehaviorConditions.KeyToggle(\"{systemId}\", (global::Engine.Key){tk.Key}, (global::Engine.KeyModifier){tk.Modifier}, {def})){access}";
+            descriptor += $".RunIf(global::Engine.BehaviorConditions.KeyToggle(\"{systemId}\", (global::Engine.Key){tk.Key}, (global::Engine.KeyModifier){tk.Modifier}, {def}))";
         }
 
-        if (first.RunIf is { } ri)
+        if (m.RunIf is { } ri)
         {
             var expr = ri.Kind == MemberKind.Method
                 ? $"{b.BehaviorFqn}.{ri.Name}"
                 : $"_ => {b.BehaviorFqn}.{ri.Name}";
-            return $"{ctor}.RunIf({expr}){access}";
+            descriptor += $".RunIf({expr})";
         }
 
-        return $"{ctor}{access}";
+        return descriptor + (m.IsStatic ? ".Read<global::Engine.EcsWorld>()" : $".Write<{b.BehaviorFqn}>()");
     }
 
-    /// <summary>Generates the per-stage system method body (static dispatch or chunked parallel iteration).</summary>
+    /// <summary>Generates one system method body (static dispatch or chunked parallel iteration).</summary>
     /// <remarks>
     /// Non-static optimizations applied (Arch/Bevy ECS patterns):
     /// <list type="number">
@@ -255,7 +316,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     /// </remarks>
     private static string GenStageMethod(BehaviorModel b, StageMethod m)
     {
-        var name = $"{b.SafeName}_{m.Stage}";
+        var name = SystemName(b, m);
 
         if (m.IsStatic)
         {
@@ -282,13 +343,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                       var __cmd = world.Resource<Engine.EcsCommands>();
                       var __time = world.Resource<Engine.Time>();
                       var __input = world.Resource<Engine.Input>();
-                      var __physics = world.Resource<Engine.PhysicsWorld>();
                       var __store = ecs.GetStorePublic<{{b.BehaviorFqn}}>();
                       var __count = __store.Count;
                       if (__count == 0) return;
                       var __entities = __store.EntitiesArray;
                       var __components = __store.ComponentsArray;
-                      {{hoist}}        
+              {{hoist}}
                       if (__count >= 4096)
                       {
                           System.Threading.Tasks.Parallel.ForEach(
@@ -296,11 +356,11 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                                   System.Math.Max(256, __count / (System.Environment.ProcessorCount * 4))),
                               __range =>
                               {
-                                  var ctx = new Engine.BehaviorContext(world, ecs, __cmd, __time, __input, __physics);
+                                  var ctx = new Engine.BehaviorContext(world, ecs, __cmd, __time, __input);
                                   for (int __i = __range.Item1; __i < __range.Item2; __i++)
                                   {
                                       int entity = __entities[__i];
-                                      {{parChecks}}                        
+              {{parChecks}}
                                       ctx.EntityId = entity;
                                       ref var behv = ref __components[__i];
                                       behv.{{m.MethodName}}(ctx);
@@ -310,11 +370,11 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                       }
                       else
                       {
-                          var ctx = new Engine.BehaviorContext(world, ecs, __cmd, __time, __input, __physics);
+                          var ctx = new Engine.BehaviorContext(world, ecs, __cmd, __time, __input);
                           for (int __i = 0; __i < __count; __i++)
                           {
                               int entity = __entities[__i];
-                              {{seqChecks}}                
+              {{seqChecks}}
                               ctx.EntityId = entity;
                               ref var behv = ref __components[__i];
                               behv.{{m.MethodName}}(ctx);
@@ -334,7 +394,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             lines.Add($"{indent}var __fWout{i} = ecs.GetStorePublic<{f.Without[i]}>();");
         for (int i = 0; i < f.Changed.Count; i++)
             lines.Add($"{indent}var __fChg{i} = ecs.GetStorePublic<{f.Changed[i]}>();");
-        return lines.Count == 0 ? "" : string.Join("\n", lines) + "\n";
+        return string.Join("\n", lines);
     }
 
     /// <summary>Emits per-entity filter checks using the hoisted store variables from <see cref="GenFilterHoist"/>.</summary>
@@ -347,7 +407,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             lines.Add($"{indent}if (__fWout{i}.Has(entity)) {skip};");
         for (int i = 0; i < f.Changed.Count; i++)
             lines.Add($"{indent}if (!__fChg{i}.ChangedThisFrame(entity, 0)) {skip};");
-        return lines.Count == 0 ? "" : string.Join("\n", lines) + "\n";
+        return string.Join("\n", lines);
     }
 
     /// <summary>Emits a registration method marked with [GeneratedBehaviorRegistration] that registers all discovered behaviors.</summary>
@@ -366,14 +426,13 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                   [global::Engine.GeneratedBehaviorRegistration]
                   public static void Register(global::Engine.App app)
                   {
-                      {{calls}}    
-                  }
+              {{calls}}    }
               }
 
               """;
     }
 
-    // -- Intermediate representation --
+    // -- Intermediate representation
 
     /// <summary>Scheduling stage for generated system registration.</summary>
     private enum Stage
@@ -381,6 +440,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         Startup,
         First,
         PreUpdate,
+        FixedUpdate,
         Update,
         PostUpdate,
         Render,
