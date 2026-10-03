@@ -33,7 +33,10 @@ A running example can be captured from a terminal by forcing SDL onto X11, where
 read the window: `SDL_VIDEODRIVER=x11` before the run, then
 `import -window $(xdotool search --pid <pid> | tail -1) shot.png`. Keys reach it through
 `xdotool keydown --window <id> w`. Without `--window`, xdotool's input does not reach the window
-under GNOME's Xwayland.
+under GNOME's Xwayland, and while the desktop session is locked or idle no synthetic key reaches it
+at all, so a key that changes nothing in a capture is checked against a known-good example before
+it is blamed on the engine. The flat API can also be run without a window by
+`Engine3D.UseApp(app)` in a test, as `Engine3DAudioTests` does.
 
 A new or changed example gets a fresh capture in `.github/assets/examples/<name>.png`, and the
 README links captures by `https://raw.githubusercontent.com/EggyStudio/3DEngine/main/...`, so they

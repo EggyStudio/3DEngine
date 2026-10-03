@@ -30,5 +30,11 @@ public static partial class Engine3D
 
     private static World World => GetApp().World;
 
+    /// <summary>
+    /// Runs the flat API against an app the caller built, or against none, so tests can exercise
+    /// the functions that need no window.
+    /// </summary>
+    internal static void UseApp(App? app) => _app = app;
+
     private static DrawList DrawList => World.Resource<DrawList>();
 }

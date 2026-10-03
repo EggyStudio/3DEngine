@@ -34,6 +34,7 @@
         <PackageReference Include="BepuPhysics" Version="2.5.0-beta.29" />
         <PackageReference Include="BepuUtilities" Version="2.5.0-beta.29" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
+        <PackageReference Include="NVorbis" Version="0.10.5" />
         <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260213-150035" />
         <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />
         <PackageReference Include="StbImageSharp" Version="2.30.15" />
@@ -42,9 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj"
-                          OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 </Project>

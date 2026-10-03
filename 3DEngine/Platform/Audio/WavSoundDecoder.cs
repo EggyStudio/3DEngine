@@ -12,8 +12,8 @@ namespace Engine;
 /// <para>
 /// <b>Coverage:</b> uncompressed PCM (<c>WAVE_FORMAT_PCM</c>, code 0x0001) at 8/16/24/32
 /// bits-per-sample, plus IEEE 32-bit float (<c>WAVE_FORMAT_IEEE_FLOAT</c>, code 0x0003).
-/// Compressed flavours (ADPCM, MP3-in-WAV, etc.) are out of scope - those should arrive
-/// via a future <c>Engine.Sound.Vorbis</c> / <c>.Opus</c> / <c>.Mp3</c> backend.
+/// Compressed formats inside a WAV (ADPCM, MP3) are not read. Ogg Vorbis files go through
+/// <see cref="OggSoundDecoder"/>.
 /// </para>
 /// <para>
 /// <b>Channel order:</b> samples are interleaved per the canonical WAV layout

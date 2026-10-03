@@ -104,7 +104,8 @@ load context, and replaces the previous generation's systems.
 returns a `Handle<T>` at once, `LoadSync<T>` blocks, and the same path loads once. A loader is an
 `IAssetLoader<T>` registered for its extensions. The built-in ones are Slang programs
 (`SlangLoader`), textures (StbImageSharp) and models (Assimp), and `SoundsPlugin`, which is not in
-`DefaultPlugins`, adds WAV sounds. Files are read from
+`DefaultPlugins` and which `InitAudioDevice` adds, reads WAV and Ogg Vorbis sounds and plays them
+through SDL3. Files are read from
 `source/` beside the program, and a watched file that changes is loaded again and announced as
 `AssetEvent<T>.Modified`.
 

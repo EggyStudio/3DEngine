@@ -61,7 +61,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_2d.png" width="400"/><br>`shapes_basic_2d` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_3d.png" width="400"/><br>`shapes_basic_3d` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/gui_imgui_window.png" width="400"/><br>`gui_imgui_window` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_behaviors.png" width="400"/><br>`ecs_behaviors` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.png" width="400"/><br>`textures_basic` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.png" width="400"/><br>`models_loading` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound.png" width="400"/><br>`audio_sound` |
 
 A 3D scene with a camera the keyboard and mouse move:
 
@@ -139,15 +139,16 @@ dotnet test 3DEngine.Tests
 ## Status
 
 Early. The window, input, the frame, cameras, 2D and 3D shapes, images and textures, models
-through Assimp, text and ImGui work through the flat API, and the ECS, the scheduler and behaviors
-are tested. What is missing:
+through Assimp, sounds and music, text and ImGui work through the flat API, and the ECS, the
+scheduler and behaviors are tested. What is missing:
 
-- **Shaders and sounds do not load through the flat API.** There are no `LoadShader` or
-  `LoadSound`.
+- **Shaders do not load through the flat API.** There is no `LoadShader`, so every draw uses the
+  engine's own shaders.
+- **Music is decoded whole** rather than streamed, so a long piece costs its length in memory.
 - **Lighting is one fixed light.** Models are shaded by it, shapes are unlit as raylib's are, and
   the ECS's meshes are drawn in their base color.
 - **Text is ImGui's font**, drawn above everything else.
-- **No gamepads, render targets or audio** in the flat API.
+- **No gamepads or render targets** in the flat API.
 - **Linux is the tested platform.** Windows and macOS build from the same packages and are not
   covered by CI.
 

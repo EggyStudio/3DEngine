@@ -41,8 +41,11 @@ removed from this file, and an item that is partly done is rewritten around what
 `Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes,
 images and textures, models and meshes, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Loading shaders and sounds.** `LoadShader` and `LoadSound`, each with its `Unload`, its `Set`
-  or `Play` calls and an example.
+- **Loading shaders.** `LoadShader` with `BeginShaderMode`, its parameters set by name, and an
+  example.
+- **Music is not streamed.** `LoadMusicStream` decodes the whole file, so `UpdateMusicStream` does
+  nothing and a long piece costs its length in memory. Sounds have no pan, and the time a piece has
+  played is not reported (`GetMusicTimePlayed`). MP3 and FLAC are not read.
 - **Models are partial.** Textures embedded in a file (as `.glb` carries them) are not read, only
   the base color and its texture are used of a material, animation is not played, and models are
   lit by one fixed light. `DrawModelWires`, `GenMeshCylinder` and the other generators raylib has
@@ -105,11 +108,6 @@ material that RENDERING.md §3 and §4 describe.
 
 Keyboard and mouse come from SDL3 into the `Input` resource. Gamepads, text input for fields
 outside ImGui and touch are not read.
-
-### Audio
-
-`AudioServer` plays WAV through SDL3. There is no streaming of longer files (OGG, MP3) and no
-`Engine3D.Audio` surface.
 
 ## Project
 

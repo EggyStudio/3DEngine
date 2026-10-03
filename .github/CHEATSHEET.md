@@ -139,6 +139,40 @@ A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a 
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
 mesh. Models are lit by one fixed light from above, and draw through the camera `BeginMode3D` set.
 
+## Audio
+
+```csharp
+void InitAudioDevice();                                   // Open the audio device (sounds are silent until then)
+void CloseAudioDevice();                                  // Stop every sound and music the flat API started
+bool IsAudioDeviceReady();                                // Whether the device is open with a backend that makes sound
+void SetMasterVolume(float volume);                       // Volume every sound is multiplied by (0 to 1)
+float GetMasterVolume();                                  // That volume
+
+Sound LoadSound(string fileName);                         // Read a WAV or Ogg Vorbis file into memory
+bool IsSoundValid(Sound sound);                           // Whether a sound has samples
+void UnloadSound(Sound sound);                            // Stop a sound
+void PlaySound(Sound sound);                              // Play from the start, restarting it if it was playing
+void StopSound(Sound sound);                              // Stop
+void PauseSound(Sound sound);                             // Pause
+void ResumeSound(Sound sound);                            // Resume
+bool IsSoundPlaying(Sound sound);                         // Whether it is playing
+void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), now and for the next play
+void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
+
+Music LoadMusicStream(string fileName);                   // Read a WAV or Ogg Vorbis file as music
+void UnloadMusicStream(Music music);                      // Stop music
+bool IsMusicValid(Music music);                           // Whether music has samples
+void PlayMusicStream(Music music);                        // Play from the start, looping unless music.Looping is false
+void UpdateMusicStream(Music music);                      // Nothing (music is decoded whole)
+void StopMusicStream(Music music);                        // Stop
+void PauseMusicStream(Music music);                       // Pause
+void ResumeMusicStream(Music music);                      // Resume
+bool IsMusicStreamPlaying(Music music);                   // Whether it is playing
+void SetMusicVolume(Music music, float volume);           // Volume (0 to 1)
+void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is as recorded
+float GetMusicTimeLength(Music music);                    // Length in seconds
+```
+
 ## Text
 
 ```csharp

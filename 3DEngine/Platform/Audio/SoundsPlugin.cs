@@ -48,9 +48,9 @@ public sealed class SoundsPlugin : IPlugin
     {
         Logger.Info("SoundsPlugin: Registering sound model (backend-agnostic)...");
 
-        // Decoder registry + built-in WAV decoder.
         var registry = new SoundDecoderRegistry();
         registry.RegisterDecoder(new WavSoundDecoder());
+        registry.RegisterDecoder(new OggSoundDecoder());
         app.World.InsertResource(registry);
 
         // Pre-create Assets<Sound> so handle-based PlaySound calls don't race the first
