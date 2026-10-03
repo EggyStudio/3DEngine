@@ -61,9 +61,8 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   as raylib's does.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
   shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
-  cellular noise are not generated. Mip levels are made by GPU blits, which have not been run
-  under the validation layers, since the machine they were written on has none installed.
-  Anisotropic filtering is not offered.
+  cellular noise are not generated. Mip levels are made by GPU blits. Anisotropic filtering is
+  not offered.
 - **Fonts bake at one size each**, with no signed distance fields, so text far larger than its
   bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
   (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.

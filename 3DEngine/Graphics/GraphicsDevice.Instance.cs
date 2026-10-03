@@ -24,6 +24,7 @@ public sealed unsafe partial class GraphicsDevice
 
         Logger.Debug("Checking for validation layer support...");
         _validationEnabled = ShouldEnableValidation() && AreValidationLayersAvailable();
+        ValidationActive = _validationEnabled;
         Logger.Info($"Validation layers: {(_validationEnabled ? "ENABLED" : "DISABLED")}");
 
         VkUtf8ReadOnlyString appNameUtf8 = Encoding.UTF8.GetBytes(appName);
@@ -171,6 +172,22 @@ public sealed unsafe partial class GraphicsDevice
         };
     }
 
+    private static readonly object ValidationGate = new();
+    private static readonly List<string> ValidationErrorList = [];
+
+    /// <summary>Whether the last device made has the Khronos validation layer running.</summary>
+    /// <remarks>On in Debug builds and with <c>ENGINE_VULKAN_VALIDATION=1</c>, when the layer is installed.</remarks>
+    public static bool ValidationActive { get; private set; }
+
+    /// <summary>
+    /// Every error the validation layer has reported in this process, in order, so a test or a
+    /// check after a run can fail on one instead of finding it in the log.
+    /// </summary>
+    public static IReadOnlyList<string> ValidationErrors
+    {
+        get { lock (ValidationGate) return ValidationErrorList.ToArray(); }
+    }
+
     /// <summary>Native callback invoked by the Vulkan validation layer; routes messages to <see cref="Log"/>.</summary>
     [UnmanagedCallersOnly]
     private static uint DebugCallback(
@@ -183,7 +200,10 @@ public sealed unsafe partial class GraphicsDevice
         var logger = Log.Category("Vulkan.Validation");
         var formatted = $"[{type}] {message}";
         if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error))
+        {
+            lock (ValidationGate) ValidationErrorList.Add(formatted);
             logger.Error(formatted);
+        }
         else if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Warning))
             logger.Warn(formatted);
         else

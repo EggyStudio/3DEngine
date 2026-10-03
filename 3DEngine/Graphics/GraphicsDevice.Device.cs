@@ -50,12 +50,9 @@ public sealed unsafe partial class GraphicsDevice
             pEnabledFeatures = &features
         };
 
-        if (_validationEnabled)
-        {
-            using var validation = new VkStringArray(ValidationLayers);
-            createInfo.enabledLayerCount = validation.Length;
-            createInfo.ppEnabledLayerNames = validation;
-        }
+        // No device layers. They have been ignored since Vulkan 1.0.13, the instance's layers cover
+        // the device, and the array once named here was freed before vkCreateDevice read it, which
+        // crashed every run that had the validation layer installed.
 
         Logger.Debug("Calling vkCreateDevice...");
         _instanceApi.vkCreateDevice(_physicalDevice, &createInfo, null, out _device).CheckResult();

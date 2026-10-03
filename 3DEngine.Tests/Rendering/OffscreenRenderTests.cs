@@ -18,6 +18,9 @@ public sealed class OffscreenRenderTests : IDisposable
 {
     private readonly string _directory = Directory.CreateTempSubdirectory("engine-offscreen-").FullName;
 
+    // Errors the validation layer had reported before this test, so the test fails on its own.
+    private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
+
     public void Dispose()
     {
         CloseWindow();
@@ -44,6 +47,7 @@ public sealed class OffscreenRenderTests : IDisposable
             EndDrawing();
         }
         File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong with the frames drawn");
         return LoadImage(path);
     }
 
@@ -361,5 +365,16 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(shadowed, 27, 32).R.Should().BeLessThan(10, "the square stands between the sun and this part of the wall");
         GetImageColor(shadowed, 27, 9).R.Should().BeGreaterThan(120, "the wall above the square's shadow is lit");
         GetImageColor(unshadowed, 27, 32).R.Should().BeGreaterThan(120, "a light that does not cast shadows lights the wall behind the square");
+    }
+
+    // CI installs the layer and sets E3D_REQUIRE_VALIDATION, so a missing layer there fails here
+    // instead of letting every frame pass unchecked.
+    [NeedsVulkanFact]
+    public void The_Validation_Layer_Runs_Where_The_Build_Requires_It()
+    {
+        Open(16, 16);
+        Capture(() => ClearBackground(Color.Black));
+        if (Environment.GetEnvironmentVariable("E3D_REQUIRE_VALIDATION") == "1")
+            GraphicsDevice.ValidationActive.Should().BeTrue("E3D_REQUIRE_VALIDATION is set, and a Debug build enables the layer when it is installed");
     }
 }

@@ -192,7 +192,10 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 
 ### Debugging
 
-- **Validation layers on in Debug builds**, with every message routed into the engine log.
+- **Validation layers on in Debug builds** when installed, with every message routed into the
+  engine log and every error kept in `GraphicsDevice.ValidationErrors`. CI installs the layer
+  beside lavapipe, so an error fails the render test that drew the frame, or the example whose
+  log holds it.
 - **Object names** through `VK_EXT_debug_utils`, so RenderDoc shows `model pass` instead of a
   handle.
 

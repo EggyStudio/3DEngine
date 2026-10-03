@@ -341,15 +341,8 @@ public sealed unsafe partial class GraphicsDevice
             pDepthStencilAttachment = &depthAttachmentRef
         };
 
-        var dependency = new VkSubpassDependency
-        {
-            srcSubpass = uint.MaxValue,
-            dstSubpass = 0,
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            srcAccessMask = 0,
-            dstAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite
-        };
+        var dependencies = stackalloc VkSubpassDependency[2];
+        ColorDepthDependencies(dependencies);
 
         VkRenderPassCreateInfo renderPassInfo = new()
         {
@@ -357,11 +350,46 @@ public sealed unsafe partial class GraphicsDevice
             pAttachments = attachments,
             subpassCount = 1,
             pSubpasses = &subpass,
-            dependencyCount = 1,
-            pDependencies = &dependency
+            dependencyCount = 2,
+            pDependencies = dependencies
         };
 
         _deviceApi.vkCreateRenderPass(&renderPassInfo, null, out _renderPass).CheckResult();
+    }
+
+    /// <summary>
+    /// Writes the two subpass dependencies every color and depth pass has, which are the window's,
+    /// its load pass's and a render target's.
+    /// </summary>
+    /// <remarks>
+    /// One pair for all three, because a pipeline made for one render pass is used inside the others,
+    /// and Vulkan counts render passes compatible only when their dependencies are identical. Before
+    /// the pass, earlier attachment writes and fragment shader reads of the images have finished, which
+    /// covers the swapchain image's acquire and the last frame's sampling of a render target. After it,
+    /// the color writes are visible to the fragment shaders of later passes that sample a target.
+    /// </remarks>
+    internal static void ColorDepthDependencies(VkSubpassDependency* dependencies)
+    {
+        dependencies[0] = new VkSubpassDependency
+        {
+            srcSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
+            dstSubpass = 0,
+            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests |
+                           VkPipelineStageFlags.LateFragmentTests | VkPipelineStageFlags.FragmentShader,
+            dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
+            srcAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite,
+            dstAccessMask = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite |
+                            VkAccessFlags.DepthStencilAttachmentRead | VkAccessFlags.DepthStencilAttachmentWrite,
+        };
+        dependencies[1] = new VkSubpassDependency
+        {
+            srcSubpass = 0,
+            dstSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
+            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
+            dstStageMask = VkPipelineStageFlags.FragmentShader,
+            srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
+            dstAccessMask = VkAccessFlags.ShaderRead,
+        };
     }
 
     /// <summary>Creates a second render pass with <c>loadOp = Load</c> for subsequent passes that preserve existing content.</summary>
@@ -375,7 +403,9 @@ public sealed unsafe partial class GraphicsDevice
             storeOp = VkAttachmentStoreOp.Store,
             stencilLoadOp = VkAttachmentLoadOp.DontCare,
             stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.PresentSrcKHR,
+            // Where the pass before left it. Offscreen that is TransferSrcOptimal, and naming
+            // PresentSrcKHR there names a layout of an extension the device has not enabled.
+            initialLayout = _finalLayout,
             finalLayout = _finalLayout
         };
 
@@ -406,15 +436,8 @@ public sealed unsafe partial class GraphicsDevice
             pDepthStencilAttachment = &depthAttachmentRef
         };
 
-        var dependency = new VkSubpassDependency
-        {
-            srcSubpass = uint.MaxValue,
-            dstSubpass = 0,
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
-            dstAccessMask = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite
-        };
+        var dependencies = stackalloc VkSubpassDependency[2];
+        ColorDepthDependencies(dependencies);
 
         VkRenderPassCreateInfo renderPassInfo = new()
         {
@@ -422,8 +445,8 @@ public sealed unsafe partial class GraphicsDevice
             pAttachments = attachments,
             subpassCount = 1,
             pSubpasses = &subpass,
-            dependencyCount = 1,
-            pDependencies = &dependency
+            dependencyCount = 2,
+            pDependencies = dependencies
         };
 
         _deviceApi.vkCreateRenderPass(&renderPassInfo, null, out _loadRenderPass).CheckResult();

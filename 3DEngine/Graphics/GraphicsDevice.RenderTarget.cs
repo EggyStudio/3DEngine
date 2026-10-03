@@ -91,27 +91,9 @@ public sealed unsafe partial class GraphicsDevice
             pDepthStencilAttachment = &depthRef,
         };
 
-        // Before: the last frame's sampling of this image has finished. After: the image's writes
-        // are visible to the fragment shaders of the passes that sample it later in the frame.
+        // The window's pair, so the window's pipelines draw into the target (ColorDepthDependencies).
         var dependencies = stackalloc VkSubpassDependency[2];
-        dependencies[0] = new VkSubpassDependency
-        {
-            srcSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
-            dstSubpass = 0,
-            srcStageMask = VkPipelineStageFlags.FragmentShader,
-            dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            srcAccessMask = VkAccessFlags.ShaderRead,
-            dstAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite,
-        };
-        dependencies[1] = new VkSubpassDependency
-        {
-            srcSubpass = 0,
-            dstSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
-            dstStageMask = VkPipelineStageFlags.FragmentShader,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
-            dstAccessMask = VkAccessFlags.ShaderRead,
-        };
+        ColorDepthDependencies(dependencies);
 
         var passInfo = new VkRenderPassCreateInfo
         {

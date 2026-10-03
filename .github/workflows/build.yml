@@ -2,7 +2,9 @@
 #
 # Nothing here needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on the CPU,
 # so the render tests draw for real and the examples run with --offscreen, and slangc is fetched
-# so the shaders compile instead of the tests that need them being skipped.
+# so the shaders compile instead of the tests that need them being skipped. The Khronos validation
+# layer runs under both, since a Debug build enables it when it is installed, and an error it
+# reports fails the render test or the example that caused it.
 name: build
 
 on:
@@ -29,12 +31,14 @@ jobs:
 
       - run: build/fetch-slang.sh
 
-      - name: Install lavapipe, a Vulkan device on the CPU
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1
+      - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
 
       - run: dotnet build 3DEngine.slnx
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+        env:
+          E3D_REQUIRE_VALIDATION: '1'
 
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -42,15 +46,22 @@ jobs:
           name: test-results
           path: 3DEngine.Tests/TestResults/
 
-      # Each example opened with no window, captured once it is up, and closed.
+      # Each example opened with no window, captured once it is up, checked for validation errors
+      # in its log, and closed. Every example is captured before the step fails.
       - name: Capture every example offscreen
         run: |
           mkdir -p captures
+          failed=0
           for example in $(grep -oP '^\s*\["\K[a-z0-9_]+' 3DEngine.Examples/Program.cs); do
             ./e3d open "$example" --offscreen --quiet
             ./e3d shot "captures/$example.png" --quiet
+            if ./e3d logs -n 100000 | grep -F 'ERROR [Vulkan.Validation]'; then
+              echo "::error::$example: the validation layer reported an error"
+              failed=1
+            fi
             ./e3d stop --quiet
           done
+          exit $failed
 
       - uses: actions/upload-artifact@v4
         if: always()
