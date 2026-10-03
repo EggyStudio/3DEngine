@@ -111,12 +111,13 @@ array, frees them the first frame no entity draws them, and copies the material'
 normal and metallic-roughness texture assets into `TextureStore`. A triangle without normals is
 lit by its face's normal.
 
-A draw's material is packed into the last 16 bytes of the push constants. Its color goes in as four
-sRGB bytes, metallic and roughness as two 16-bit fractions, the normal map's strength and the
-occlusion map's as two half floats, and its emission, linear, as RGB9E5, which reaches past 1. Its base
-color texture, normal map, metallic-roughness map, emissive map and occlusion map are at bindings
-1 to 5 of the first set. The model pass's own draws share one set per combination of the five
-textures, freed once no frame in flight binds it.
+The push constants hold the transform and the world rows only, 112 bytes. A draw's material is in
+its set, the first. Its base color texture, normal map, metallic-roughness map, emissive map and
+occlusion map are at bindings 1 to 5, and its factors at binding 6, as plain floats. Its color and
+emission are linear, decoded on the CPU, then its metallic, roughness, normal and occlusion
+strengths. The model pass's own draws share one set per material, its maps and factors together,
+with a buffer of the factors written once, freed once no frame in flight binds it. A draw with a
+shader of its own writes its factors into the frame's buffer beside its uniforms.
 A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
 texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
 the map is toward the top of the image, as glTF has it.

@@ -30,41 +30,31 @@ public struct ModelPushConstants
     public float4 worldX;
     public float4 worldY;
     public float4 worldZ;
-    // The material in the last 16 bytes, packed. Its color is four sRGB bytes (red lowest), how
-    // metallic and how rough it is two 16-bit fractions, how strongly its normal map bends the
-    // surface (0 for no map) and how strongly its occlusion map darkens it two half floats, and
-    // the light it gives off, linear, RGB9E5, which reaches past 1.
-    public uint packedColor;
-    public uint metallicRoughness;
-    public uint normalOcclusion;
-    public uint emission;
 };
 
-// The packed material fields, read out.
-public float materialMetallic() { return float(push.metallicRoughness & 0xFFFF) / 65535.0; }
-public float materialRoughness() { return float(push.metallicRoughness >> 16) / 65535.0; }
-public float materialNormalScale() { return halfToFloat(push.normalOcclusion & 0xFFFF); }
-public float materialOcclusionStrength() { return halfToFloat(push.normalOcclusion >> 16); }
-
-// A half float's bits as a float, by hand, since f16tof32 compiles to SPIR-V that asks for the
-// Float16 and Int16 features, which the device does not enable.
-float halfToFloat(uint bits)
+// The material's factors, in a uniform block of its set rather than the push constants, which the
+// transform and the world rows fill to near the 128 bytes every device guarantees. Its color and
+// emission are linear, decoded on the CPU.
+public struct MaterialFactors
 {
-    uint exponent = (bits >> 10) & 0x1F;
-    float mantissa = float(bits & 0x3FF);
-    float value = exponent == 0 ? mantissa * exp2(-24.0)
-        : exponent == 31 ? 65504.0
-        : (1.0 + mantissa / 1024.0) * exp2(float(int(exponent) - 15));
-    return (bits & 0x8000) != 0 ? -value : value;
-}
+    public float4 color;
+    // xyz is the light the material gives off, which may pass 1.
+    public float4 emission;
+    public float metallic;
+    public float roughness;
+    // 0 when the material has no normal map.
+    public float normalScale;
+    public float occlusionStrength;
+};
 
-// Three 9-bit mantissas sharing a 5-bit exponent, biased by 15, as Vulkan's E5B9G9R9 has them.
-public float3 materialEmission()
-{
-    uint e = push.emission;
-    float scale = exp2(float(int(e >> 27)) - 24.0);
-    return float3(e & 0x1FF, (e >> 9) & 0x1FF, (e >> 18) & 0x1FF) * scale;
-}
+[[vk::binding(6, 0)]]
+public ConstantBuffer<MaterialFactors> material;
+
+public float materialMetallic() { return material.metallic; }
+public float materialRoughness() { return material.roughness; }
+public float materialNormalScale() { return material.normalScale; }
+public float materialOcclusionStrength() { return material.occlusionStrength; }
+public float3 materialEmission() { return material.emission.xyz; }
 
 [[vk::push_constant]]
 public ConstantBuffer<ModelPushConstants> push;
@@ -116,13 +106,10 @@ public float3 toDisplay(float3 linear)
     return linearToSrgb(tonemap(linear));
 }
 
-// The material's color, unpacked from its four bytes and decoded to linear. Its alpha is linear
-// as it is.
+// The material's color, linear.
 public float4 materialColor()
 {
-    uint c = push.packedColor;
-    float4 bytes = float4(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF, c >> 24) / 255.0;
-    return float4(srgbToLinear(bytes.rgb), bytes.a);
+    return material.color;
 }
 
 // One light, packed by LightingUboPacker: position and kind, direction and range, color times

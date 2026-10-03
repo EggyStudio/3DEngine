@@ -40,42 +40,30 @@ public sealed class ModelRenderer : IDisposable
         public Vector4 WorldX;
         public Vector4 WorldY;
         public Vector4 WorldZ;
-        public uint PackedColor;
-        public uint MetallicRoughness;
-        public uint NormalOcclusion;
-        public uint Emission;
     }
 
-    // The material as modelpass.slang unpacks it from the last 16 bytes of the push constants.
-    private static (uint MetallicRoughness, uint NormalOcclusion, uint Emission) PackMaterial(in ModelDraw draw)
+    /// <summary>A draw's material factors as <c>modelpass.slang</c>'s <c>MaterialFactors</c> block lays them out, 48 bytes.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal readonly record struct MaterialFactors(Vector4 Color, Vector4 Emission, float Metallic, float Roughness, float NormalScale, float OcclusionStrength)
     {
-        static uint Unorm16(float v) => (uint)MathF.Round(Math.Clamp(v, 0, 1) * 65535);
-        static uint Half16(float v) => BitConverter.HalfToUInt16Bits((Half)v);
-        // No map, no bending, which also keeps the shader from reading the white texture in its
-        // place as a normal.
-        var normalScale = draw.NormalMap == 0 ? 0 : draw.NormalScale;
-        return (Unorm16(draw.Metallic) | Unorm16(draw.Roughness) << 16,
-            Half16(normalScale) | Half16(draw.OcclusionStrength) << 16,
-            Rgb9E5(draw.Emission));
-    }
+        public const int Size = 48;
 
-    /// <summary>A linear color as Vulkan's E5B9G9R9, three 9-bit mantissas sharing a 5-bit exponent biased by 15.</summary>
-    internal static uint Rgb9E5(Vector3 color)
-    {
-        const float Largest = 511f / 512f * 65536f;
-        var c = Vector3.Clamp(color, Vector3.Zero, new Vector3(Largest));
-        var peak = MathF.Max(c.X, MathF.Max(c.Y, c.Z));
-        if (peak <= 0) return 0;
-
-        int exponent = Math.Max(-16, (int)MathF.Floor(MathF.Log2(peak))) + 16;
-        var step = MathF.Pow(2, exponent - 24);
-        if ((int)MathF.Floor(peak / step + 0.5f) == 512)
+        /// <summary>A draw's factors, its color decoded from sRGB to linear.</summary>
+        public static MaterialFactors Of(in ModelDraw draw)
         {
-            step *= 2;
-            exponent++;
+            static float Linear(byte value)
+            {
+                var c = value / 255f;
+                return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+            }
+            var color = draw.Color;
+            // No map, no bending, which also keeps the shader from reading the white texture in
+            // its place as a normal.
+            return new MaterialFactors(
+                new Vector4(Linear(color.R), Linear(color.G), Linear(color.B), color.A / 255f),
+                new Vector4(draw.Emission, 0),
+                draw.Metallic, draw.Roughness, draw.NormalMap == 0 ? 0 : draw.NormalScale, draw.OcclusionStrength);
         }
-        uint Mantissa(float v) => (uint)Math.Min(511, (int)MathF.Floor(v / step + 0.5f));
-        return Mantissa(c.X) | Mantissa(c.Y) << 9 | Mantissa(c.Z) << 18 | (uint)exponent << 27;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
@@ -87,11 +75,14 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSetLayout? _materialLayout;
     private IBuffer? _noUniforms;
 
-    // Sets of the model pass's own draws, one per combination of a base color texture, a normal
-    // map, a metallic-roughness map, an emissive map and an occlusion map, by their views, with the frame each was last bound in. A
-    // set unbound for RetireFrames frames is freed, since no frame in flight can read it, so the
-    // views of unloaded textures do not hold sets forever.
-    private readonly Dictionary<(IImageView, IImageView, IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
+    // Sets of the model pass's own draws, one per material, which is its five maps (a base color
+    // texture, a normal map, a metallic-roughness map, an emissive map and an occlusion map) by
+    // their views and its factors, with a buffer of the factors written once, since the key fixes
+    // them, and the frame the set was last bound in. A set unbound for RetireFrames frames is freed
+    // with its buffer, since no frame in flight can read it, so the views of unloaded textures and
+    // the materials of past frames do not hold sets forever.
+    private readonly Dictionary<((IImageView, IImageView, IImageView, IImageView, IImageView) Maps, MaterialFactors Factors),
+        (IDescriptorSet Set, IBuffer Factors, long Used)> _materialSets = [];
     private long _frames;
     private readonly List<IDescriptorSet> _lightSets = [];
     private int _lightSet;
@@ -157,18 +148,12 @@ public sealed class ModelRenderer : IDisposable
             pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
 
             var w = draw.World;
-            var c = draw.Color;
-            var (metallicRoughness, normalOcclusion, emission) = PackMaterial(draw);
             var push = new Push
             {
                 Transform = w * draw.ViewProjection,
                 WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
                 WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
                 WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
-                PackedColor = c.R | (uint)c.G << 8 | (uint)c.B << 16 | (uint)c.A << 24,
-                MetallicRoughness = metallicRoughness,
-                NormalOcclusion = normalOcclusion,
-                Emission = emission,
             };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed(mesh.IndexCount);
@@ -252,28 +237,34 @@ public sealed class ModelRenderer : IDisposable
 
         _frames++;
         if (_materialSets.Count == 0) return;
-        foreach (var (key, (set, used)) in _materialSets.ToArray())
+        foreach (var (key, (set, factors, used)) in _materialSets.ToArray())
             if (_frames - used > SetRingFrames)
             {
                 set.Dispose();
+                factors.Dispose();
                 _materialSets.Remove(key);
             }
     }
 
-    // The set of a draw with the model pass's own shader, made once per combination of textures.
+    // The set of a draw with the model pass's own shader, made once per material.
     private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
         var maps = Maps(gfx, textures, draw);
-        var key = (maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View);
+        var factors = MaterialFactors.Of(draw);
+        var key = ((maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View), factors);
         if (_materialSets.TryGetValue(key, out var known))
         {
             _materialSets[key] = known with { Used = _frames };
             return known.Set;
         }
 
+        var buffer = gfx.CreateBuffer(new BufferDesc(MaterialFactors.Size, BufferUsage.Uniform, CpuAccessMode.Write));
+        MemoryMarshal.Write(gfx.Map(buffer), in factors);
+        gfx.Unmap(buffer);
+
         var set = gfx.CreateDescriptorSet(MaterialLayout(gfx));
-        WriteMaterial(gfx, set, NoUniforms(gfx), maps);
-        _materialSets[key] = (set, _frames);
+        WriteMaterial(gfx, set, NoUniforms(gfx), new UniformBufferBinding(buffer, 6, 0, MaterialFactors.Size), maps);
+        _materialSets[key] = (set, buffer, _frames);
         return set;
     }
 
@@ -287,12 +278,14 @@ public sealed class ModelRenderer : IDisposable
         textures.ViewFor(gfx, draw.OcclusionMap),
     ];
 
-    // Binding 0's uniforms, and the maps at bindings 1 to 5. One sampler per call is what the
-    // device's update takes, so the maps go in one call each.
-    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms, (IImageView View, ISampler Sampler)[] maps)
+    // Binding 0's uniforms, the maps at bindings 1 to 5 and the factors at binding 6. One buffer
+    // and one sampler per call is what the device's update takes, so they go in one call each.
+    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms, UniformBufferBinding factors,
+        (IImageView View, ISampler Sampler)[] maps)
     {
         for (int i = 0; i < maps.Length; i++)
-            gfx.UpdateDescriptorSet(set, i == 0 ? uniforms : null, new CombinedImageSamplerBinding(maps[i].View, maps[i].Sampler, (uint)(i + 1)));
+            gfx.UpdateDescriptorSet(set, i == 0 ? uniforms : i == 1 ? factors : null,
+                new CombinedImageSamplerBinding(maps[i].View, maps[i].Sampler, (uint)(i + 1)));
     }
 
     // Sixteen zero bytes for the uniforms binding of the model pass's own draws, which its shader
@@ -316,21 +309,23 @@ public sealed class ModelRenderer : IDisposable
         if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet(MaterialLayout(gfx)));
         var set = sets[_drawSetNext++];
 
+        if (renderContext.DynamicAllocator is not { } allocator) return set;
+
         // At least one 16-byte row, so binding 0 holds a buffer whether the shader declares uniforms or not.
         var size = (ulong)Math.Max(16, program.UniformSize);
-        UniformBufferBinding? uniforms = null;
-        if (renderContext.DynamicAllocator is { } allocator)
-        {
-            var allocation = allocator.Allocate(size, BufferUsage.Uniform);
-            var bytes = allocator.Map(allocation);
-            bytes.Clear();
-            draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
-            allocator.Unmap(allocation);
-            uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
-        }
+        var allocation = allocator.Allocate(size, BufferUsage.Uniform);
+        var bytes = allocator.Map(allocation);
+        bytes.Clear();
+        draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+        allocator.Unmap(allocation);
 
-        if (uniforms is { } bound)
-            WriteMaterial(gfx, set, bound, Maps(gfx, textures, draw));
+        var factors = MaterialFactors.Of(draw);
+        var block = allocator.Allocate(MaterialFactors.Size, BufferUsage.Uniform);
+        MemoryMarshal.Write(allocator.Map(block), in factors);
+        allocator.Unmap(block);
+
+        WriteMaterial(gfx, set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size),
+            new UniformBufferBinding(block.Buffer, 6, block.Offset, MaterialFactors.Size), Maps(gfx, textures, draw));
         return set;
     }
 
@@ -350,7 +345,7 @@ public sealed class ModelRenderer : IDisposable
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
-            // The material's set, with uniforms at binding 0 and its five maps after, then the
+            // The material's set, with uniforms at binding 0, its five maps and its factors after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [MaterialLayout(gfx), DefaultLayout(gfx)],
             DepthTestEnabled: true,
@@ -406,6 +401,7 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(5, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(6, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
     ]);
 
     private IDescriptorSetLayout DefaultLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
@@ -425,7 +421,11 @@ public sealed class ModelRenderer : IDisposable
             vertex.Dispose();
             fragment.Dispose();
         }
-        foreach (var (set, _) in _materialSets.Values) set.Dispose();
+        foreach (var (set, factors, _) in _materialSets.Values)
+        {
+            set.Dispose();
+            factors.Dispose();
+        }
         _materialSets.Clear();
         _noUniforms?.Dispose();
         _materialLayout?.Dispose();
