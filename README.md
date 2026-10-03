@@ -1,6 +1,6 @@
 <h1 align="center">3D Engine</h1>
 
-<p align="center">A C# engine on SDL3, Vulkan, ImGui and Slang: raylib's design over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors.</p>
+<p align="center">A C# engine on SDL3, Vulkan, ImGui and Slang. Raylib's design over a Bevy-style ECS and scheduler, scripted with its own Unity-style behaviors.</p>
 
 <p align="center">
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10.0-512BD4">
