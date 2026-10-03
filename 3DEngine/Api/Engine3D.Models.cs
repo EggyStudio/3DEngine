@@ -35,7 +35,8 @@ public readonly record struct ModelMesh(int Id, int VertexCount, int TriangleCou
 /// <remarks>
 /// The surface follows glTF's metallic-roughness model, which every format Assimp reads is mapped
 /// onto. It shows under light entities. The fixed light of a world with none shows the color, the
-/// texture and the normal map only.
+/// texture and the normal map only. The color and the texture are sRGB, as raylib's colors are,
+/// and the model pass decodes them to light them in linear space. The maps are linear.
 /// </remarks>
 public record struct ModelMaterial(Color Color, Texture2D Texture = default)
 {

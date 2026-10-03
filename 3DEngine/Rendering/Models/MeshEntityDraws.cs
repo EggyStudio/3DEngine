@@ -57,7 +57,9 @@ public sealed class MeshEntityDraws
                 if (!_meshes.TryGetValue(mesh.Positions, out var id))
                     _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
 
-                var color = Vector4.Clamp(material.Albedo, Vector4.Zero, Vector4.One) * 255;
+                // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
+                var color = Vector4.Clamp(material.Albedo, Vector4.Zero, Vector4.One);
+                color = new Vector4(LinearToSrgb(color.X), LinearToSrgb(color.Y), LinearToSrgb(color.Z), color.W) * 255 + new Vector4(0.5f);
                 draws.Add(new ModelDraw(
                     id,
                     TransformPropagation.WorldMatrix(ecs, entity),
@@ -80,6 +82,9 @@ public sealed class MeshEntityDraws
                 _meshes.Remove(positions);
             }
     }
+
+    private static float LinearToSrgb(float c) =>
+        c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
 
     /// <summary>World to clip space through the first camera entity, as <see cref="CameraExtract"/> builds it.</summary>
     private static Matrix4x4? FirstCamera(World world, EcsWorld ecs)

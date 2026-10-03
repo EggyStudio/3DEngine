@@ -82,6 +82,10 @@ public interface IGraphicsDevice : IDisposable
     /// <returns>A new <see cref="IImageView"/> handle.</returns>
     IImageView CreateImageView(IImage image);
 
+    /// <summary>A view of <paramref name="image"/> in another format of its class, as sRGB for a UNORM color image.</summary>
+    /// <remarks>A device that cannot reinterpret an image gives the image's own view.</remarks>
+    IImageView CreateImageView(IImage image, ImageFormat format) => CreateImageView(image);
+
     /// <summary>Creates a texture sampler with the specified filtering and addressing modes.</summary>
     /// <param name="desc">Sampler creation descriptor.</param>
     /// <returns>A new <see cref="ISampler"/> handle.</returns>

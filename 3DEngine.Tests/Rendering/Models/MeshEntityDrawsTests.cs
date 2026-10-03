@@ -45,7 +45,7 @@ public class MeshEntityDrawsTests
 
         var draw = world.Resource<ModelDrawList>().Draws.Should().ContainSingle().Subject;
         draw.World.Translation.Should().Be(new Vector3(2, 0, 0));
-        draw.Color.Should().Be(new Color(255, 127, 0, 255));
+        draw.Color.Should().Be(new Color(255, 188, 0, 255), "albedo is linear, and half of it is sRGB 188");
         draw.Texture.Should().Be(0);
         world.Resource<MeshStore>().Contains(draw.Mesh).Should().BeTrue();
     }

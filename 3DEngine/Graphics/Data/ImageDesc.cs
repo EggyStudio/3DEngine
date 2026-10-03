@@ -12,7 +12,14 @@ public enum ImageFormat
     /// <summary>24-bit depth + 8-bit stencil.</summary>
     D24_UNorm_S8_UInt,
     /// <summary>32-bit floating-point depth (no stencil).</summary>
-    D32_Float
+    D32_Float,
+    /// <summary>
+    /// 8-bit RGBA whose color the sampler decodes from sRGB to linear, for a view of an
+    /// <see cref="R8G8B8A8_UNorm"/> image that a shader lights in linear space.
+    /// </summary>
+    R8G8B8A8_Srgb,
+    /// <summary>8-bit BGRA decoded from sRGB to linear when sampled, for a view of a <see cref="B8G8R8A8_UNorm"/> image.</summary>
+    B8G8R8A8_Srgb,
 }
 
 /// <summary>Flags describing how a GPU image will be used.</summary>

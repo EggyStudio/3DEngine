@@ -284,6 +284,14 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(ranged, 32, 32).R.Should().BeLessThan(10, "the wall is past the light's range");
     }
 
+    // A byte of a captured frame as the linear light it encodes, since the model pass lights in
+    // linear space and stores sRGB.
+    private static float Linear(byte value)
+    {
+        var c = value / 255f;
+        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+    }
+
     // A white wall facing a camera 4 units away down +Z, filling the frame.
     private static int SpawnWallAndCamera(EcsWorld ecs)
     {
@@ -316,10 +324,10 @@ public sealed class OffscreenRenderTests : IDisposable
         ecs.GetRef<Light>(lamp) = Light.Ambient(Vector3.One, 0.5f);
         var ambient = Capture(() => ClearBackground(Color.Black), "ambient");
 
-        int diffuse = GetImageColor(ambient, 32, 32).R;
-        diffuse.Should().BeInRange(125, 140, "half a white light on a white wall is about half white, below where the tonemap bends");
-        ((int)GetImageColor(rough, 32, 32).R).Should().BeInRange(diffuse - 12, diffuse + 12, "a rough surface spreads its highlight too thin to see");
-        ((int)GetImageColor(smooth, 32, 32).R).Should().BeGreaterThan(diffuse + 60, "a smooth one gathers it where the wall mirrors the light");
+        var diffuse = Linear(GetImageColor(ambient, 32, 32).R);
+        diffuse.Should().BeInRange(0.48f, 0.58f, "half a white light on a white wall returns about half the light, stored as sRGB 188");
+        Linear(GetImageColor(rough, 32, 32).R).Should().BeApproximately(diffuse, 0.06f, "a rough surface spreads its highlight too thin to see");
+        Linear(GetImageColor(smooth, 32, 32).R).Should().BeGreaterThan(diffuse + 0.3f, "a smooth one gathers it where the wall mirrors the light");
     }
 
     [NeedsVulkanFact]
@@ -340,8 +348,8 @@ public sealed class OffscreenRenderTests : IDisposable
         ecs.GetRef<Material>(wall).MetallicFactor = 1;
         var metal = Capture(() => ClearBackground(Color.Black), "metal");
 
-        GetImageColor(plastic, 32, 32).R.Should().BeGreaterThan(100, "red plastic scatters the light that falls on it");
-        GetImageColor(metal, 32, 32).R.Should().BeLessThan(40, "a metal scatters none, and this light is not mirrored toward the camera");
+        Linear(GetImageColor(plastic, 32, 32).R).Should().BeGreaterThan(0.3f, "red plastic scatters the light that falls on it");
+        Linear(GetImageColor(metal, 32, 32).R).Should().BeLessThan(0.05f, "a metal scatters none, and this light is not mirrored toward the camera");
     }
 
     [NeedsVulkanFact]
@@ -406,8 +414,8 @@ public sealed class OffscreenRenderTests : IDisposable
 
         var color = GetImageColor(image, 32, 32);
         color.R.Should().BeGreaterThan(245, "the brightest channel comes close to full");
-        ((int)color.G).Should().BeInRange(115, 140, "green keeps half of red");
-        ((int)color.B).Should().BeInRange(55, 75, "blue keeps a quarter of red, so the light reads as the same orange");
+        Linear(color.G).Should().BeApproximately(0.5f * Linear(color.R), 0.04f, "green keeps half of red's light");
+        Linear(color.B).Should().BeApproximately(0.25f * Linear(color.R), 0.03f, "blue keeps a quarter, so the light reads as the same orange");
     }
 
     [NeedsVulkanFact]
@@ -478,5 +486,33 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(bent, 32, 24).R.Should().BeLessThan(10, "bent, the upper arm has left the space above the elbow");
         GetImageColor(bent, 23, 32).R.Should().BeGreaterThan(40, "for the space to its left");
         UnloadModel(model);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Texture_Is_Decoded_From_SRGB_As_A_Color_Is()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45);
+        var gray = LoadTextureFromImage(GenImageColor(4, 4, new Color(128, 128, 128)));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+
+        // Gray as the material's color, then white with a gray texture. Both are sRGB 128, a
+        // fifth of white's light, and a texture read as its bytes would light as half of it.
+        cube.Materials[0] = new ModelMaterial(new Color(128, 128, 128));
+        var colored = Capture(Draw, "colored");
+        cube.Materials[0] = new ModelMaterial(Color.White, gray);
+        var textured = Capture(Draw, "textured");
+
+        ((int)GetImageColor(textured, 32, 32).R).Should().BeInRange(GetImageColor(colored, 32, 32).R - 2, GetImageColor(colored, 32, 32).R + 2);
+        UnloadModel(cube);
+        UnloadTexture(gray);
+
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
     }
 }

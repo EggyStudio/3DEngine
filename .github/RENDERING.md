@@ -149,6 +149,14 @@ environment to reflect. A light's color times its intensity is the light a white
 facing it returns, so the diffuse term is the albedo itself and the specular term is multiplied
 by pi to match.
 
+The pass lights in linear space. Frames and render targets stay UNORM and hold sRGB-encoded bytes,
+so the immediate pass, text and every 2D color stay byte for byte as raylib draws them. A texture
+image can also be viewed as sRGB, and the model pass samples a base color through that view, so
+the sampler decodes it before filtering. A draw's color bytes are decoded in the shader, and normal
+and metallic-roughness maps are read as linear, as glTF has them. A light's color and intensity
+are linear. The pass encodes what it returns, and `toDisplay` does the same for a model shader of
+the program's own that works out a color itself.
+
 The sum goes through a tonemap that leaves the brightest channel alone up to 0.9, bends it smoothly
 toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
 clamp per channel turns it white, and a color below the bend is unchanged. The fixed light of a

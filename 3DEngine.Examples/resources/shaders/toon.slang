@@ -18,5 +18,7 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 
     // Strongest where the surface turns away from the viewer.
     float rim = pow(1.0 - saturate(dot(n, normalize(viewer - input.world))), 3.0);
-    return float4(color.rgb * level + rimColor.rgb * rimColor.a * rim, color.a);
+    // The base color is linear, so it is encoded for the frame, and the rim, a color the program
+    // set, is added as it is.
+    return float4(toDisplay(color.rgb * level) + rimColor.rgb * rimColor.a * rim, color.a);
 }

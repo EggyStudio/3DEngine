@@ -49,7 +49,7 @@ public struct Boxes
         var ground = ctx.Ecs.Spawn();
         ctx.Physics.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 0.5f, 10), entityId: ground);
         ctx.Ecs.Add(ground, new Mesh(Cube));
-        ctx.Ecs.Add(ground, new Material(new Vector4(0.45f, 0.6f, 0.35f, 1)));
+        ctx.Ecs.Add(ground, new Material(new Color(115, 153, 89)));
         ctx.Ecs.Add(ground, new Transform(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20)));
 
         Drop(ctx, 40);
@@ -70,7 +70,7 @@ public struct Boxes
             var box = ctx.Ecs.Spawn();
             ctx.Ecs.Add(box, ctx.Physics.CreateBox(at, new Vector3(0.5f), entityId: box));
             ctx.Ecs.Add(box, new Mesh(Cube));
-            ctx.Ecs.Add(box, new Material(new Vector4(0.9f, 0.4f + Random.Shared.NextSingle() * 0.4f, 0.2f, 1)));
+            ctx.Ecs.Add(box, new Material(new Color(230, (byte)(102 + Random.Shared.Next(102)), 51)));
             ctx.Ecs.Add(box, new Transform(at));
         }
     }

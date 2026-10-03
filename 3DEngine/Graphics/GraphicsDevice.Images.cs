@@ -128,6 +128,11 @@ public sealed unsafe partial class GraphicsDevice
     {
         VkImageCreateInfo imageInfo = new()
         {
+            // A sampled color image can be viewed as sRGB too (CreateImageView with a format), so
+            // the model pass decodes a base color texture that the 2D passes read as its bytes.
+            flags = desc.Usage.HasFlag(ImageUsage.Sampled) && desc.Format is ImageFormat.R8G8B8A8_UNorm or ImageFormat.B8G8R8A8_UNorm
+                ? VkImageCreateFlags.MutableFormat
+                : 0,
             imageType = VkImageType.Image2D,
             format = ToVkFormat(desc.Format),
             extent = new VkExtent3D(desc.Extent.Width, desc.Extent.Height, 1),
@@ -158,7 +163,13 @@ public sealed unsafe partial class GraphicsDevice
     /// <summary>Creates a typed <c>VkImageView</c> for the given image, selecting aspect flags based on the image format.</summary>
     /// <param name="image">The image to create a view for (must originate from this device).</param>
     /// <returns>A new <see cref="IImageView"/> handle.</returns>
-    public IImageView CreateImageView(IImage image)
+    public IImageView CreateImageView(IImage image) => CreateImageView(image, image.Description.Format);
+
+    /// <summary>
+    /// Creates a view of <paramref name="image"/> in <paramref name="format"/>, which for a sampled
+    /// UNORM color image may be its sRGB counterpart, so sampling decodes it to linear.
+    /// </summary>
+    public IImageView CreateImageView(IImage image, ImageFormat format)
     {
         if (image is not VulkanImage vkImage)
             throw new ArgumentException("Image was not created by this device.", nameof(image));
@@ -174,7 +185,7 @@ public sealed unsafe partial class GraphicsDevice
         {
             image = vkImage.Image,
             viewType = VkImageViewType.Image2D,
-            format = ToVkFormat(vkImage.Description.Format),
+            format = ToVkFormat(format),
             components = VkComponentMapping.Rgba,
             subresourceRange = new VkImageSubresourceRange(aspect, 0, Math.Max(1, vkImage.Description.MipLevels), 0, 1)
         };
@@ -228,6 +239,8 @@ public sealed unsafe partial class GraphicsDevice
         ImageFormat.B8G8R8A8_UNorm => VkFormat.B8G8R8A8Unorm,
         ImageFormat.D24_UNorm_S8_UInt => VkFormat.D24UnormS8Uint,
         ImageFormat.D32_Float => VkFormat.D32Sfloat,
+        ImageFormat.R8G8B8A8_Srgb => VkFormat.R8G8B8A8Srgb,
+        ImageFormat.B8G8R8A8_Srgb => VkFormat.B8G8R8A8Srgb,
         _ => VkFormat.Undefined
     };
 

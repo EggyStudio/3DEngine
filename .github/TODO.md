@@ -79,9 +79,8 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 - **Materials have no emission, occlusion or environment.** The model pass reflects up to 16
   light entities by the material's metallic-roughness model, with its normal map, and tonemaps the
   sum (RENDERING.md §3 and §4). Emissive color and occlusion maps are read from files and not
-  drawn, there is no environment map, so a smooth metal reflects black where no light is mirrored,
-  and textures are sampled as linear where glTF's base color is sRGB. A mesh entity is drawn
-  through the first camera entity only, into the window only.
+  drawn, and there is no environment map, so a smooth metal reflects black where no light is
+  mirrored. A mesh entity is drawn through the first camera entity only, into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
 - **One directional light casts a shadow, from one map.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The

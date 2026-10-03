@@ -232,7 +232,7 @@ public sealed class ModelRenderer : IDisposable
     // The set of a draw with the model pass's own shader, made once per combination of textures.
     private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
-        var color = textures.ViewFor(gfx, draw.Texture);
+        var color = textures.ViewFor(gfx, draw.Texture, srgb: true);
         var normal = textures.ViewFor(gfx, draw.NormalMap);
         var packed = textures.ViewFor(gfx, draw.MetallicRoughnessMap);
         var key = (color.View, normal.View, packed.View);
@@ -293,7 +293,7 @@ public sealed class ModelRenderer : IDisposable
         }
 
         if (uniforms is { } bound)
-            WriteMaterial(gfx, set, bound, textures.ViewFor(gfx, draw.Texture), textures.ViewFor(gfx, draw.NormalMap),
+            WriteMaterial(gfx, set, bound, textures.ViewFor(gfx, draw.Texture, srgb: true), textures.ViewFor(gfx, draw.NormalMap),
                 textures.ViewFor(gfx, draw.MetallicRoughnessMap));
         return set;
     }

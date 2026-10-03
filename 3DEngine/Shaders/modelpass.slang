@@ -14,6 +14,11 @@
 //
 // Uniforms a shader declares at the top level are set by name with SetShaderValue. A shader with no
 // vertexMain uses the one in model.slang.
+//
+// Color is linear inside the pass and sRGB-encoded where it leaves it. baseColor gives linear
+// color, lit takes linear color and gives it encoded, ready to return, and toDisplay encodes a
+// linear color a shader works out itself. A color a shader returns as it is, such as a uniform
+// set from the program, is taken as already encoded, as the 2D passes take every color.
 module modelpass;
 
 public struct ModelPushConstants
@@ -48,11 +53,32 @@ public Sampler2D normalMap;
 [[vk::binding(3, 0)]]
 public Sampler2D metallicRoughnessMap;
 
-// The material's color, unpacked from its four bytes.
+// sRGB's transfer function, exactly rather than as a power of 2.2, so a byte decoded and encoded
+// again comes back as itself.
+public float3 srgbToLinear(float3 c)
+{
+    return select(c <= 0.04045, c / 12.92, pow((max(c, 0.0) + 0.055) / 1.055, 2.4));
+}
+
+public float3 linearToSrgb(float3 c)
+{
+    c = saturate(c);
+    return select(c <= 0.0031308, c * 12.92, 1.055 * pow(c, 1.0 / 2.4) - 0.055);
+}
+
+// Linear color as the frame stores it, tonemapped first, since a target holds sRGB-encoded bytes.
+public float3 toDisplay(float3 linear)
+{
+    return linearToSrgb(tonemap(linear));
+}
+
+// The material's color, unpacked from its four bytes and decoded to linear. Its alpha is linear
+// as it is.
 public float4 materialColor()
 {
     uint c = push.packedColor;
-    return float4(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF, c >> 24) / 255.0;
+    float4 bytes = float4(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF, c >> 24) / 255.0;
+    return float4(srgbToLinear(bytes.rgb), bytes.a);
 }
 
 // One light, packed by LightingUboPacker: position and kind, direction and range, color times
@@ -134,7 +160,8 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
     return output;
 }
 
-// The material's color times its texture at this point.
+// The material's color times its texture at this point, in linear color. The texture is bound
+// through a view that decodes it from sRGB as it is sampled, so filtering blends linear values.
 public float4 baseColor(ModelVertexOutput input)
 {
     return materialColor() * boundTexture.Sample(input.uv);
@@ -278,17 +305,19 @@ float3 ambientReflected(float3 f0, float roughness, float nv)
     return f0 * ab.x + ab.y;
 }
 
-// A color lit at this point. With light entities it is each light reflected by the material's
-// metallic-roughness model, the shadowed light cut by its shadow map. With none it is one fixed
-// light from above over an ambient floor and no highlight, which is how the flat API's models
-// look. Either goes through the same tonemap.
+// A linear color lit at this point, given sRGB-encoded for the frame. With light entities it is
+// each light reflected by the material's metallic-roughness model, the shadowed light cut by its
+// shadow map. With none it is one fixed light from above over an ambient floor and no highlight,
+// which is how the flat API's models look. Either goes through the same tonemap and encoding.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = surfaceNormal(input);
     if (lighting.count == 0)
     {
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
-        return tonemap(albedo * (0.35 + 0.65 * max(dot(n, toLight), 0.0)));
+        // The ramp from 0.35 to 1 the light had when the pass worked in sRGB, raised to 2.2 so it
+        // encodes back to the same shades and the flat API's models look as they did.
+        return toDisplay(albedo * pow(0.35 + 0.65 * max(dot(n, toLight), 0.0), 2.2));
     }
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
@@ -319,5 +348,5 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         // What the surface reflects at its face is not there to scatter diffusely.
         color += arrived * (diffuseColor * (1.0 - fresnel) + specular);
     }
-    return tonemap(color);
+    return toDisplay(color);
 }

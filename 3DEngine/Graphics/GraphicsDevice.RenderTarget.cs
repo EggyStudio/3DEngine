@@ -16,11 +16,12 @@ public sealed class RenderTarget : IDisposable
 {
     private readonly Action _dispose;
 
-    internal RenderTarget(IRenderPass renderPass, IFramebuffer framebuffer, IImageView colorView, Extent2D extent, Action dispose)
+    internal RenderTarget(IRenderPass renderPass, IFramebuffer framebuffer, IImageView colorView, IImageView srgbColorView, Extent2D extent, Action dispose)
     {
         RenderPass = renderPass;
         Framebuffer = framebuffer;
         ColorView = colorView;
+        SrgbColorView = srgbColorView;
         Extent = extent;
         _dispose = dispose;
     }
@@ -33,6 +34,9 @@ public sealed class RenderTarget : IDisposable
 
     /// <summary>The color image's view, for sampling the result.</summary>
     public IImageView ColorView { get; }
+
+    /// <summary>The color image viewed as sRGB, which a pass lighting in linear space samples it through.</summary>
+    public IImageView SrgbColorView { get; }
 
     /// <summary>The target's size in pixels.</summary>
     public Extent2D Extent { get; }
@@ -52,8 +56,9 @@ public sealed unsafe partial class GraphicsDevice
         height = Math.Max(1, height);
 
         var (color, colorMemory) = TargetImage(_swapchainFormat, width, height,
-            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc);
+            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc, VkImageCreateFlags.MutableFormat);
         var colorView = TargetView(color, _swapchainFormat, VkImageAspectFlags.Color);
+        var srgbView = TargetView(color, SrgbOf(_swapchainFormat), VkImageAspectFlags.Color);
         var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment);
         var depthView = TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth);
 
@@ -127,9 +132,11 @@ public sealed unsafe partial class GraphicsDevice
             new VulkanRenderPass(renderPass),
             new VulkanFramebuffer(framebuffer),
             new VulkanImageView(this, colorImage, colorView),
+            new VulkanImageView(this, colorImage, srgbView),
             new Extent2D(width, height),
             () =>
             {
+                _deviceApi.vkDestroyImageView(srgbView);
                 _deviceApi.vkDestroyFramebuffer(framebuffer);
                 _deviceApi.vkDestroyRenderPass(renderPass);
                 _deviceApi.vkDestroyImageView(depthView);
@@ -140,10 +147,20 @@ public sealed unsafe partial class GraphicsDevice
             });
     }
 
-    private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage)
+    // The sRGB format of the same class, for a view that decodes a UNORM image when sampled.
+    private static VkFormat SrgbOf(VkFormat format) => format switch
+    {
+        VkFormat.B8G8R8A8Unorm => VkFormat.B8G8R8A8Srgb,
+        VkFormat.R8G8B8A8Unorm => VkFormat.R8G8B8A8Srgb,
+        _ => format,
+    };
+
+    private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage,
+        VkImageCreateFlags flags = 0)
     {
         var info = new VkImageCreateInfo
         {
+            flags = flags,
             imageType = VkImageType.Image2D,
             format = format,
             extent = new VkExtent3D(width, height, 1),

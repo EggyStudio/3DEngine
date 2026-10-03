@@ -19,12 +19,14 @@ public sealed class GpuTextures : IDisposable
     /// </summary>
     public const int RetireFrames = 4;
 
-    // A render target's image and view belong to its RenderTarget, so Image is null for one.
-    private sealed record Entry(IImage? Image, IImageView View, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null)
+    // A render target's image and views belong to its RenderTarget, so Image is null for one.
+    // SrgbView is the same pixels decoded from sRGB when sampled, which the model pass reads a base
+    // color through, since it lights in linear space.
+    private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null)
     {
         public IDisposable[] Owned => Target is not null
             ? [Set, Sampler, Target]
-            : [Set, Sampler, View, Image!];
+            : [Set, Sampler, SrgbView, View, Image!];
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
@@ -39,11 +41,15 @@ public sealed class GpuTextures : IDisposable
     public IDescriptorSet SetFor(IGraphicsDevice gfx, int id) =>
         id != 0 && _entries.TryGetValue(id, out var entry) ? entry.Set : White(gfx).Set;
 
-    /// <summary>The view and sampler of texture <paramref name="id"/>, or the white one's when it is not loaded, for a descriptor set of a pass's own.</summary>
-    public (IImageView View, ISampler Sampler) ViewFor(IGraphicsDevice gfx, int id)
+    /// <summary>
+    /// The view and sampler of texture <paramref name="id"/>, or the white one's when it is not
+    /// loaded, for a descriptor set of a pass's own. With <paramref name="srgb"/> the view decodes
+    /// the texture's color from sRGB to linear as it is sampled.
+    /// </summary>
+    public (IImageView View, ISampler Sampler) ViewFor(IGraphicsDevice gfx, int id, bool srgb = false)
     {
         var entry = id != 0 && _entries.TryGetValue(id, out var found) ? found : White(gfx);
-        return (entry.View, entry.Sampler);
+        return (srgb ? entry.SrgbView : entry.View, entry.Sampler);
     }
 
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
@@ -70,7 +76,7 @@ public sealed class GpuTextures : IDisposable
                     if (gfx is not GraphicsDevice device) continue;
                     var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
                     var targetSampler = CreateSampler(gfx, upload.Filter);
-                    _entries[upload.Id] = new Entry(null, target.ColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
+                    _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
                     if (existing is not null) Retire(existing.Owned);
                     continue;
                 }
@@ -83,7 +89,7 @@ public sealed class GpuTextures : IDisposable
                     mipDevice.CopyWithMipmaps(old, image);
                     var view = gfx.CreateImageView(image);
                     var sampler = CreateSampler(gfx, upload.Filter);
-                    _entries[upload.Id] = new Entry(image, view, sampler, CreateSet(gfx, view, sampler));
+                    _entries[upload.Id] = new Entry(image, view, gfx.CreateImageView(image, ImageFormat.R8G8B8A8_Srgb), sampler, CreateSet(gfx, view, sampler));
                     Retire(existing.Owned);
                     continue;
                 }
@@ -127,7 +133,7 @@ public sealed class GpuTextures : IDisposable
         gfx.UploadTexture2D(image, rgba, (uint)width, (uint)height, 4);
         var view = gfx.CreateImageView(image);
         var sampler = CreateSampler(gfx, filter);
-        return new Entry(image, view, sampler, CreateSet(gfx, view, sampler));
+        return new Entry(image, view, gfx.CreateImageView(image, ImageFormat.R8G8B8A8_Srgb), sampler, CreateSet(gfx, view, sampler));
     }
 
     private static ImageDesc MipmappedDesc(uint width, uint height) => new(
