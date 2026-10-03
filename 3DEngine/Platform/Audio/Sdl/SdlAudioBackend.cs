@@ -273,6 +273,8 @@ public sealed class SdlAudioBackend : IAudioBackend
         lock (_lock)
         {
             if (!_voices.TryGetValue(voiceId, out var rec)) return false;
+            // A paused voice is not mixing, whatever it has queued.
+            if (rec.Paused) return false;
             // Loop voices are always "playing" until explicitly stopped.
             if (rec.Looping) return true;
             int queued = SDL.GetAudioStreamQueued(rec.StreamL);
