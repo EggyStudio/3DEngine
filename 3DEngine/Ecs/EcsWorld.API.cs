@@ -339,6 +339,22 @@ public sealed partial class EcsWorld
         return RefEnumerable<T1, T2>.From(s1, s2, markOnIterate: true, this);
     }
 
+    /// <summary>Returns a zero-allocation ref-enumerable over entities that have all of <typeparamref name="T1"/>, <typeparamref name="T2"/> and <typeparamref name="T3"/>.</summary>
+    /// <example>
+    /// <code>
+    /// foreach (var row in ecs.QueryRef&lt;Transform, Velocity, Mass&gt;().Without&lt;Frozen&gt;())
+    ///     row.C1.Position += row.C2.Value / row.C3.Value * dt;
+    /// </code>
+    /// </example>
+    public RefEnumerable<T1, T2, T3> QueryRef<T1, T2, T3>()
+    {
+        var s1 = GetStore<T1>(create: false);
+        var s2 = GetStore<T2>(create: false);
+        var s3 = GetStore<T3>(create: false);
+        if (s1 == null || s2 == null || s3 == null) return RefEnumerable<T1, T2, T3>.Empty();
+        return RefEnumerable<T1, T2, T3>.From(s1, s2, s3, markOnIterate: true, this);
+    }
+
     /// <summary>Returns a span view of all components of type <typeparamref name="T"/> for raw iteration.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <returns>A <see cref="ComponentSpan{T}"/> containing parallel entity ID and component spans.</returns>

@@ -380,4 +380,160 @@ public sealed partial class EcsWorld
             }
         }
     }
+
+    /// <summary>Zero-allocation ref wrapper for three components on the same entity.</summary>
+    /// <example>
+    /// <code>
+    /// foreach (var row in ecs.QueryRef&lt;Position, Velocity, Mass&gt;())
+    ///     row.C2.Y -= 9.81f * row.C3.Value * dt;
+    /// </code>
+    /// </example>
+    public readonly ref struct RefComponents<T1, T2, T3>
+    {
+        /// <summary>The entity ID owning these components.</summary>
+        public readonly int Entity;
+        private readonly ComponentStore<T1> _s1;
+        private readonly ComponentStore<T2> _s2;
+        private readonly ComponentStore<T3> _s3;
+
+        private RefComponents(int entity, ComponentStore<T1> s1, ComponentStore<T2> s2, ComponentStore<T3> s3)
+        {
+            Entity = entity;
+            _s1 = s1;
+            _s2 = s2;
+            _s3 = s3;
+        }
+
+        internal static RefComponents<T1, T2, T3> Create(int entity, ComponentStore<T1> s1, ComponentStore<T2> s2, ComponentStore<T3> s3) =>
+            new(entity, s1, s2, s3);
+
+        /// <summary>A mutable reference to the first component.</summary>
+        public ref T1 C1 => ref _s1.GetRef(Entity);
+
+        /// <summary>A mutable reference to the second component.</summary>
+        public ref T2 C2 => ref _s2.GetRef(Entity);
+
+        /// <summary>A mutable reference to the third component.</summary>
+        public ref T3 C3 => ref _s3.GetRef(Entity);
+    }
+
+    /// <summary>
+    /// A <c>foreach</c>-able view of the entities that have all three component types, by reference,
+    /// narrowed by <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and
+    /// <see cref="Changed{TChanged}"/> as the smaller queries are. Returned by
+    /// <see cref="EcsWorld.QueryRef{T1,T2,T3}"/>.
+    /// </summary>
+    /// <remarks>
+    /// Walks the store with the fewest components and probes the other two, so its cost follows the
+    /// rarest of the three types.
+    /// </remarks>
+    public readonly ref struct RefEnumerable<T1, T2, T3>
+    {
+        private readonly ComponentStore<T1>? _a;
+        private readonly ComponentStore<T2>? _b;
+        private readonly ComponentStore<T3>? _c;
+        private readonly bool _markOnIterate;
+        private readonly EcsWorld? _world;
+        private readonly QueryFilter _filter;
+
+        private RefEnumerable(ComponentStore<T1>? a, ComponentStore<T2>? b, ComponentStore<T3>? c, bool markOnIterate,
+            EcsWorld? world = null, QueryFilter filter = default)
+        {
+            _a = a;
+            _b = b;
+            _c = c;
+            _markOnIterate = markOnIterate;
+            _world = world;
+            _filter = filter;
+        }
+
+        internal static RefEnumerable<T1, T2, T3> Empty() => new(null, null, null, false);
+
+        internal static RefEnumerable<T1, T2, T3> From(ComponentStore<T1> a, ComponentStore<T2> b, ComponentStore<T3> c, bool markOnIterate, EcsWorld world) =>
+            new(a, b, c, markOnIterate, world);
+
+        /// <summary>Only entities that also have a <typeparamref name="TWith"/>.</summary>
+        public RefEnumerable<T1, T2, T3> With<TWith>() => Filtered(_filter.With(_world?.StoreOrNull<TWith>()));
+
+        /// <summary>Only entities that do not have a <typeparamref name="TWithout"/>.</summary>
+        public RefEnumerable<T1, T2, T3> Without<TWithout>() => Filtered(_filter.Without(_world?.StoreOrNull<TWithout>()));
+
+        /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
+        public RefEnumerable<T1, T2, T3> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        private RefEnumerable<T1, T2, T3> Filtered(QueryFilter filter) => new(_a, _b, _c, _markOnIterate, _world, filter);
+
+        /// <summary>The enumerator <c>foreach</c> uses.</summary>
+        public RefEnumerator GetEnumerator() => new(_a, _b, _c, _markOnIterate, _filter);
+
+        /// <summary>Walks the smallest store, skipping entities missing either other type or refused by the filter.</summary>
+        public ref struct RefEnumerator
+        {
+            private readonly ComponentStore<T1>? _a;
+            private readonly ComponentStore<T2>? _b;
+            private readonly ComponentStore<T3>? _c;
+            private readonly IComponentStore? _driver;
+            private readonly bool _mark;
+            private readonly QueryFilter _filter;
+            private int _i;
+            private int _entity;
+
+            internal RefEnumerator(ComponentStore<T1>? a, ComponentStore<T2>? b, ComponentStore<T3>? c, bool mark, QueryFilter filter)
+            {
+                _a = a;
+                _b = b;
+                _c = c;
+                _mark = mark;
+                _filter = filter;
+                _i = -1;
+                _entity = -1;
+                _driver = a is null || b is null || c is null ? null
+                    : a.Count <= b.Count && a.Count <= c.Count ? a
+                    : b.Count <= c.Count ? b
+                    : c;
+            }
+
+            /// <summary>The current entity and its three components by reference. Reading it marks all three changed.</summary>
+            public RefComponents<T1, T2, T3> Current
+            {
+                get
+                {
+                    if (_mark)
+                    {
+                        Mark(_a!, _entity);
+                        Mark(_b!, _entity);
+                        Mark(_c!, _entity);
+                    }
+                    return RefComponents<T1, T2, T3>.Create(_entity, _a!, _b!, _c!);
+                }
+            }
+
+            private static void Mark<TC>(ComponentStore<TC> store, int entity)
+            {
+                int index = store.DenseIndexOf(entity);
+                if (index >= 0) store.MarkChangedByDenseIndex(index, 0);
+            }
+
+            /// <summary>Moves to the next entity with all three types that passes the filter.</summary>
+            public bool MoveNext()
+            {
+                if (_driver is null) return false;
+                while (++_i < _driver.Count)
+                {
+                    int e = EntityAt(_i);
+                    if (_a!.Has(e) && _b!.Has(e) && _c!.Has(e) && (_filter.IsEmpty || _filter.Passes(e)))
+                    {
+                        _entity = e;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            private readonly int EntityAt(int i) =>
+                ReferenceEquals(_driver, _a) ? _a!.EntityByDenseIndex(i)
+                : ReferenceEquals(_driver, _b) ? _b!.EntityByDenseIndex(i)
+                : _c!.EntityByDenseIndex(i);
+        }
+    }
 }

@@ -100,4 +100,52 @@ public class QueryFilterTests
         foreach (var _ in ecs.QueryRef<Velocity, Mass>().With<Never>()) none++;
         none.Should().Be(0);
     }
+
+    [Fact]
+    public void A_Three_Component_Query_Yields_Entities_With_All_Three_By_Reference()
+    {
+        var (ecs, falling, landed, floating) = World();
+        ecs.Add(falling, new Mass { Kg = 2 });
+        ecs.Add(landed, new Mass { Kg = 3 });
+        ecs.Add(floating, new Mass { Kg = 4 });
+
+        var found = new List<int>();
+        foreach (var row in ecs.QueryRef<Velocity, Falls, Mass>())
+        {
+            row.C1.Y -= row.C3.Kg;
+            found.Add(row.Entity);
+        }
+
+        found.Should().BeEquivalentTo([falling, landed], "the floating entity does not fall");
+        ecs.GetRef<Velocity>(falling).Y.Should().Be(-2, "the first component is changed in place");
+        ecs.GetRef<Velocity>(floating).Y.Should().Be(0);
+    }
+
+    [Fact]
+    public void A_Three_Component_Query_Takes_Filters_And_Is_Empty_Without_A_Store()
+    {
+        var (ecs, falling, landed, _) = World();
+        ecs.Add(falling, new Mass());
+        ecs.Add(landed, new Mass());
+
+        var found = new List<int>();
+        foreach (var row in ecs.QueryRef<Velocity, Falls, Mass>().Without<Grounded>()) found.Add(row.Entity);
+        found.Should().Equal(falling);
+
+        foreach (var _ in ecs.QueryRef<Velocity, Falls, Never>()) throw new InvalidOperationException("no entity has a Never");
+    }
+
+    [Fact]
+    public void A_Three_Component_Query_Marks_What_It_Hands_Out_As_Changed()
+    {
+        var (ecs, falling, _, _) = World();
+        ecs.Add(falling, new Mass());
+        ecs.BeginFrame();
+
+        foreach (var _ in ecs.QueryRef<Velocity, Falls, Mass>()) { }
+
+        var changed = new List<int>();
+        foreach (var row in ecs.QueryRef<Velocity>().Changed<Mass>()) changed.Add(row.Entity);
+        changed.Should().Equal(falling);
+    }
 }

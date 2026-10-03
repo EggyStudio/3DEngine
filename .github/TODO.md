@@ -20,9 +20,9 @@ removed from this file, and an item that is partly done is rewritten around what
   later spawn reuses. `Entity` (from `ecs.Handle(id)` or `ctx.Entity`) carries the generation, and
   `TryResolve` and `IsAlive` refuse a stale one, but nothing stops code from keeping the bare `int`
   across frames instead. Components holding entity references have no type that does this for them.
-- **Copying queries do not filter.** `QueryRef<T>()` and `QueryRef<T1, T2>()` narrow with
-  `With`, `Without` and `Changed` (up to four of each) and allocate nothing. There is no by-reference
-  query of three components, and `Query<...>` yields copies through an allocating iterator.
+- **Copying queries do not filter.** `QueryRef` of one, two or three components narrows with
+  `With`, `Without` and `Changed` (up to four of each) and allocates nothing. `Query<...>` yields
+  copies through an allocating iterator and takes no filter.
 - **Transform propagation walks every parented entity each frame**, with a dictionary, in
   `Stage.Render`. It has no change detection, so a large static hierarchy costs its size every
   frame, and physics writes a body's `Transform` as if it had no parent. Skipping unchanged chains
