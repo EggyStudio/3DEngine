@@ -60,39 +60,101 @@ public static partial class SlangCompiler
     /// </exception>
     public static byte[] Compile(string source, string fileName, string entryPoint, ShaderStage stage,
         string? cacheDirectory = null, string? importDirectory = null) =>
-        Compile(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, CompilerPath);
+        CompileStage(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, CompilerPath).Spirv;
 
     internal static byte[] Compile(string source, string fileName, string entryPoint, ShaderStage stage,
+        string? cacheDirectory, string? importDirectory, string? compiler) =>
+        CompileStage(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, compiler).Spirv;
+
+    /// <summary>
+    /// Compiles one entry point, or reads it from the cache, with the uniforms it declares at the
+    /// top level, which a program sets by name.
+    /// </summary>
+    /// <remarks>
+    /// The uniforms come from <c>slangc -reflection-json</c> and are cached beside the SPIR-V as a
+    /// <c>.uniforms</c> file. An entry cached before uniforms were kept has none.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    /// The cache has no entry for this source and there is no compiler, or the compiler reported an error.
+    /// </exception>
+    public static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage,
+        string? cacheDirectory = null, string? importDirectory = null) =>
+        CompileStage(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, CompilerPath);
+
+    internal static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage,
         string? cacheDirectory, string? importDirectory, string? compiler)
     {
         var key = CacheKey(source, entryPoint, stage, importDirectory);
         var cached = cacheDirectory is null
             ? null
             : Path.Combine(cacheDirectory, $"{Path.GetFileNameWithoutExtension(fileName)}.{entryPoint}.{key}.spv");
+        var uniformsFile = cached is null ? null : Path.ChangeExtension(cached, ".uniforms");
 
         if (cached is not null && File.Exists(cached))
-            return File.ReadAllBytes(cached);
+            return new SlangStage(File.ReadAllBytes(cached),
+                File.Exists(uniformsFile) ? ReadUniforms(File.ReadAllText(uniformsFile)) : []);
 
         if (compiler is null)
             throw new InvalidOperationException(
                 $"'{fileName}' ({entryPoint}) is not in the shader cache and slangc was not found. " +
                 "Run build/fetch-slang.sh or set ENGINE_SLANGC.");
 
-        var bytecode = Run(compiler, source, fileName, entryPoint, stage, importDirectory);
+        var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory);
+        var uniforms = UniformsOf(reflection);
 
         if (cached is not null)
         {
             Directory.CreateDirectory(cacheDirectory!);
-            // Written beside and moved into place, so a reader never sees half an entry.
-            var partial = cached + ".partial";
-            File.WriteAllBytes(partial, bytecode);
-            File.Move(partial, cached, overwrite: true);
+            // Written beside and moved into place, so a reader never sees half an entry. The
+            // uniforms go first, so an entry whose SPIR-V is there has them too.
+            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms)));
+            WriteAtomically(cached, bytecode);
         }
 
-        return bytecode;
+        return new SlangStage(bytecode, uniforms);
     }
 
-    private static byte[] Run(string compiler, string source, string fileName, string entryPoint, ShaderStage stage,
+    private static void WriteAtomically(string path, byte[] bytes)
+    {
+        var partial = path + ".partial";
+        File.WriteAllBytes(partial, bytes);
+        File.Move(partial, path, overwrite: true);
+    }
+
+    /// <summary>The uniforms declared at the top level of a shader, from slangc's reflection JSON.</summary>
+    /// <remarks>
+    /// Slang gathers them into one constant buffer at binding 0 of set 0, with each field's offset
+    /// and size in it, which is all a program needs to set one by name.
+    /// </remarks>
+    internal static IReadOnlyList<ShaderUniform> UniformsOf(string? reflectionJson)
+    {
+        if (string.IsNullOrEmpty(reflectionJson)) return [];
+        using var document = System.Text.Json.JsonDocument.Parse(reflectionJson);
+        var uniforms = new List<ShaderUniform>();
+        if (!document.RootElement.TryGetProperty("parameters", out var parameters)) return uniforms;
+        foreach (var parameter in parameters.EnumerateArray())
+        {
+            if (!parameter.TryGetProperty("binding", out var binding) ||
+                binding.GetProperty("kind").GetString() != "uniform") continue;
+            uniforms.Add(new ShaderUniform(
+                parameter.GetProperty("name").GetString()!,
+                binding.GetProperty("offset").GetInt32(),
+                binding.GetProperty("size").GetInt32()));
+        }
+        return uniforms;
+    }
+
+    // A cached stage's uniforms, one "name offset size" per line.
+    private static string WriteUniforms(IReadOnlyList<ShaderUniform> uniforms) =>
+        string.Concat(uniforms.Select(u => $"{u.Name} {u.Offset} {u.Size}\n"));
+
+    private static IReadOnlyList<ShaderUniform> ReadUniforms(string text) =>
+        text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split(' '))
+            .Select(parts => new ShaderUniform(parts[0], int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
+            .ToArray();
+
+    private static (byte[] Spirv, string? Reflection) Run(string compiler, string source, string fileName, string entryPoint, ShaderStage stage,
         string? importDirectory)
     {
         // slangc reads files rather than standard input, and the source may not exist on disk at
@@ -102,6 +164,7 @@ public static partial class SlangCompiler
         {
             var input = Path.Combine(work.FullName, Path.GetFileName(fileName));
             var output = Path.Combine(work.FullName, "out.spv");
+            var reflection = Path.Combine(work.FullName, "out.json");
             File.WriteAllText(input, source);
 
             var info = new ProcessStartInfo(compiler)
@@ -122,6 +185,8 @@ public static partial class SlangCompiler
                 info.ArgumentList.Add("-I");
                 info.ArgumentList.Add(importDirectory);
             }
+            info.ArgumentList.Add("-reflection-json");
+            info.ArgumentList.Add(reflection);
             info.ArgumentList.Add("-o");
             info.ArgumentList.Add(output);
 
@@ -138,7 +203,7 @@ public static partial class SlangCompiler
 
             var bytecode = File.ReadAllBytes(output);
             Logger.Debug($"Compiled {fileName} ({entryPoint}) to {bytecode.Length} bytes of SPIR-V in {stopwatch.ElapsedMilliseconds}ms.");
-            return bytecode;
+            return (bytecode, File.Exists(reflection) ? File.ReadAllText(reflection) : null);
         }
         finally
         {
@@ -150,7 +215,9 @@ public static partial class SlangCompiler
     private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        hash.AppendData(Encoding.UTF8.GetBytes($"{Arguments}\n{entryPoint}\n{stage}\n"));
+        // The version names what an entry holds, so entries from before uniforms were cached
+        // beside the SPIR-V are compiled again rather than read without them.
+        hash.AppendData(Encoding.UTF8.GetBytes($"entries 2\n{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
@@ -249,3 +316,9 @@ public static partial class SlangCompiler
         return null;
     }
 }
+
+/// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V and its top-level uniforms.</summary>
+public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms);
+
+/// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
+public readonly record struct ShaderUniform(string Name, int Offset, int Size);

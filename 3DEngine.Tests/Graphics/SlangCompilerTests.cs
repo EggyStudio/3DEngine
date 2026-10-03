@@ -130,4 +130,27 @@ public class SlangCompilerTests : IDisposable
         var stale = () => SlangCompiler.Compile(immediate, "immediate.slang", "fragmentMain", ShaderStage.Fragment, cache, shaders, compiler: null);
         stale.Should().Throw<InvalidOperationException>().WithMessage("*not in the shader cache*");
     }
+
+    [NeedsSlangFact]
+    public void Top_Level_Uniforms_Are_Reflected_And_Kept_In_The_Cache()
+    {
+        const string withUniforms = """
+            uniform float4 tint;
+            uniform float strength;
+
+            [shader("fragment")]
+            float4 fragmentMain() : SV_Target
+            {
+                return tint * strength;
+            }
+            """;
+
+        var compiled = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _cache);
+        var cached = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _cache, null, compiler: null);
+
+        compiled.Uniforms.Should().Equal(new ShaderUniform("tint", 0, 16), new ShaderUniform("strength", 16, 4));
+        cached.Uniforms.Should().Equal(compiled.Uniforms);
+        new ShaderProgram("tinted.slang", new Dictionary<ShaderStage, byte[]> { [ShaderStage.Fragment] = compiled.Spirv }, compiled.Uniforms)
+            .UniformSize.Should().Be(32);
+    }
 }

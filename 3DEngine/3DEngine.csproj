@@ -22,7 +22,7 @@
         <None Include="..\3DEngine.Generator\bin\$(Configuration)\netstandard2.0\3DEngine.Generator.dll"
               Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- The shaders compiled ahead by build/pack.sh, so a game loads them with no slangc. -->
-        <Content Include="..\build\shader-cache\*.spv" Visible="false" CopyToOutputDirectory="Never"
+        <Content Include="..\build\shader-cache\*.spv;..\build\shader-cache\*.uniforms" Visible="false" CopyToOutputDirectory="Never"
                  Pack="true" PackagePath="contentFiles/any/any/source/.slang-cache/"
                  PackageCopyToOutput="true" BuildAction="None" />
     </ItemGroup>

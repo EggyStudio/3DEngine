@@ -54,8 +54,10 @@ Slang is chosen over GLSL because one language covers vertex, fragment and compu
 generics and interfaces, and because the same source can later target Metal or Direct3D without a
 second set of files. What is not built:
 
-- **Reflection.** Descriptor layouts and vertex inputs are written by hand beside each pipeline.
-  `slangc -reflection-json` reports them, and reading it would let a shader declare its own.
+- **Reflection beyond uniforms.** `slangc -reflection-json` is read for the uniforms a shader
+  declares at the top level, their names, offsets and sizes, which are cached beside the SPIR-V
+  (`ShaderProgram.Uniforms`). Descriptor layouts and vertex inputs are still written by hand
+  beside each pipeline.
 - **Compute.** Only the vertex and fragment stages are compiled.
 
 ## 2. The immediate pass

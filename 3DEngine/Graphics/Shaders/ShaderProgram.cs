@@ -12,11 +12,20 @@ public sealed class ShaderProgram
     /// <summary>Creates a program from compiled stages.</summary>
     /// <param name="name">The file the program was compiled from, for messages.</param>
     /// <param name="stages">The SPIR-V of each stage.</param>
-    public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages)
+    /// <param name="uniforms">The uniforms its stages declare at the top level, by name.</param>
+    public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null)
     {
         Name = name;
         Stages = stages;
+        Uniforms = uniforms ?? [];
+        UniformSize = Uniforms.Count == 0 ? 0 : (Uniforms.Max(u => u.Offset + u.Size) + 15) / 16 * 16;
     }
+
+    /// <summary>The uniforms the program declares at the top level, which a program sets by name.</summary>
+    public IReadOnlyList<ShaderUniform> Uniforms { get; }
+
+    /// <summary>The size of the constant buffer the uniforms are read from, rounded up to 16 bytes, or 0 with none.</summary>
+    public int UniformSize { get; }
 
     /// <summary>The file the program was compiled from.</summary>
     public string Name { get; }
