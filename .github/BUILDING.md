@@ -48,6 +48,20 @@ one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. T
 `3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and return early where there is
 no device.
 
+## The package
+
+```bash
+dotnet build 3DEngine.slnx -c Release
+dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package
+```
+
+The package carries the library, the built-in shaders as content files that land in
+`source/shaders` beside a game's program, and the generator as an analyzer, so `[Behavior]` and
+`[Command]` code in a game is generated as it is here. SDL3's native libraries come with the
+`SDL3-CS.Native` dependency. A game using it needs `slangc` at run time, found through
+`ENGINE_SLANGC` or `PATH`, because no compiled shader cache is shipped. The package is not
+published anywhere, and a game outside this repository points a `nuget.config` at the folder.
+
 ## The generator
 
 `3DEngine.Generator` targets netstandard2.0 and references Roslyn 4.14, because the compiler refuses

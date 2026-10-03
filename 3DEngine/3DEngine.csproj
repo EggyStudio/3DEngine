@@ -8,7 +8,20 @@
              RuntimeBehaviorCompiler can run it through CSharpGeneratorDriver on scripts compiled
              while an app runs. RS1041, RS1036 and RS2008 apply only to the analyzer hosting model. -->
         <NoWarn>$(NoWarn);RS1041;RS1036;RS2008</NoWarn>
+
+        <PackageId>3DEngine</PackageId>
+        <Version>0.1.0-preview.1</Version>
+        <Title>3DEngine</Title>
     </PropertyGroup>
+
+    <!-- What the package carries beside the library: its icon and readme, the generator as an
+         analyzer so a game's [Behavior] and [Command] code is generated, and the shaders. -->
+    <ItemGroup>
+        <None Include="..\.github\assets\symbol.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\README.md" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\3DEngine.Generator\bin\$(Configuration)\netstandard2.0\3DEngine.Generator.dll"
+              Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
 
     <ItemGroup>
         <Compile Include="..\3DEngine.Generator\Behaviors\**\*.cs" Link="Behaviors\Generator\%(RecursiveDir)%(Filename)%(Extension)" />
@@ -22,6 +35,11 @@
         <Content Include="Shaders\**\*">
             <TargetPath>source\shaders\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <!-- In the package, as content files a consuming project copies to the same place. -->
+            <Pack>true</Pack>
+            <PackagePath>contentFiles/any/any/source/shaders/%(RecursiveDir)</PackagePath>
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+            <BuildAction>None</BuildAction>
         </Content>
     </ItemGroup>
 
@@ -43,7 +61,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\3DEngine.Generator\3DEngine.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
 </Project>

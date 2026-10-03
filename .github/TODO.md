@@ -156,8 +156,10 @@ what is left.
 - **CI covers Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and captures
   every example offscreen on Ubuntu, which has not been run since it was written. Windows and
   macOS runners are not set up.
-- **No package.** The engine is consumed as a project reference. A NuGet package carrying the
-  shaders and the native SDL3 libraries is needed for a game outside this repository.
+- **The package needs slangc.** `dotnet pack` makes a package a game outside this repository
+  builds and runs from (BUILDING.md), but the built-in shaders are compiled when first used, so
+  the game needs `slangc` until a compiled cache is shipped beside them. It is not published to
+  nuget.org.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
   adds components and writes their fields, and a game adds commands with `[Command]`, but C#
