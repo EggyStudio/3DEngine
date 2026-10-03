@@ -131,6 +131,8 @@ public struct Lighting
     public float shadowTexel;
     public int pad0;
     public float4x4 shadowViewProjection;
+    // The environment map's intensity, its last mip, and 1 when there is one.
+    public float4 environment;
     public Light lights[16];
 };
 
@@ -140,6 +142,10 @@ public ConstantBuffer<Lighting> lighting;
 // The depths the shadowed light sees, or a white texture, which reads as nothing in shadow.
 [[vk::binding(1, 1)]]
 public Sampler2D shadowMap;
+
+// The light from all around, prefiltered by roughness down its mips, or a black cube for none.
+[[vk::binding(2, 1)]]
+public SamplerCube environmentMap;
 
 public struct ModelVertexOutput
 {
@@ -346,7 +352,8 @@ float3 ambientReflected(float3 f0, float roughness, float nv)
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = surfaceNormal(input);
-    if (lighting.count == 0)
+    bool environment = lighting.environment.z > 0.0;
+    if (lighting.count == 0 && !environment)
     {
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
         // The ramp from 0.35 to 1 the light had when the pass worked in sRGB, raised to 2.2 so it
@@ -367,6 +374,19 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     float3 v = normalize(input.toEye);
     float nv = max(dot(n, v), 1e-4);
     float3 color = float3(0.0);
+
+    // The environment, as an ambient light that differs by direction. The mirror direction is
+    // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
+    // ambient light's reflection, and the roughest mip around the normal stands in for the light
+    // the diffuse share scatters.
+    if (environment)
+    {
+        float lastMip = lighting.environment.y;
+        float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;
+        float3 around = environmentMap.SampleLevel(n, lastMip).rgb;
+        color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
+    }
+
     for (int i = 0; i < min(lighting.count, 16); i++)
     {
         Light light = lighting.lights[i];

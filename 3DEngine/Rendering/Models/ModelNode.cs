@@ -90,6 +90,10 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
     private ShadowMap? _shadowMap;
+    private CubeMap? _environment;
+    private EnvironmentMap? _environmentSource;
+    private CubeMap? _noEnvironment;
+    private readonly List<(long Frame, CubeMap Cube)> _retiredCubes = [];
     private IPipeline? _shadowPipeline;
 
     // Pipelines of the program's own shaders, by ShaderStore id, with the modules they were made from.
@@ -236,6 +240,12 @@ public sealed class ModelRenderer : IDisposable
         _drawSetNext = 0;
 
         _frames++;
+        for (int i = _retiredCubes.Count - 1; i >= 0; i--)
+            if (_frames - _retiredCubes[i].Frame > SetRingFrames)
+            {
+                _retiredCubes[i].Cube.Dispose();
+                _retiredCubes.RemoveAt(i);
+            }
         if (_materialSets.Count == 0) return;
         foreach (var (key, (set, factors, used)) in _materialSets.ToArray())
             if (_frames - used > SetRingFrames)
@@ -347,7 +357,7 @@ public sealed class ModelRenderer : IDisposable
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
             // The material's set, with uniforms at binding 0, its five maps and its factors after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
-            DescriptorSetLayouts: [MaterialLayout(gfx), DefaultLayout(gfx)],
+            DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx)],
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.LessOrEqual);
@@ -359,12 +369,13 @@ public sealed class ModelRenderer : IDisposable
 
     // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
     // set the GPU may still read is never written, or a set over an empty buffer when there are no
-    // lights, which the shader reads as "use the fixed light". Binding 1 holds the shadow map when
-    // the frame has a shadow, and the white texture otherwise, so it is always valid.
+    // lights and no environment, which the shader reads as "use the fixed light". Binding 1 holds
+    // the shadow map when the frame has a shadow, and the white texture otherwise, and binding 2
+    // the environment map or a black cube, so both are always valid.
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
-        if (renderWorld.TryGet<FrameLightingBinding>() is not { LightCount: > 0 } frame)
+        if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame || (frame.LightCount == 0 && !frame.HasEnvironment))
         {
             if (_noLights is null)
             {
@@ -372,9 +383,11 @@ public sealed class ModelRenderer : IDisposable
                 var span = gfx.Map(_noLightsBuffer);
                 span.Clear();
                 gfx.Unmap(_noLightsBuffer);
-                _noLights = gfx.CreateDescriptorSet();
+                _noLights = gfx.CreateDescriptorSet(LightsLayout(gfx));
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     new CombinedImageSamplerBinding(white, whiteSampler, 1));
+                if (EnvironmentCube(gfx, null) is { } black)
+                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 2));
             }
             return _noLights;
         }
@@ -383,12 +396,14 @@ public sealed class ModelRenderer : IDisposable
         if (!ReferenceEquals(frame, _lastFrame))
         {
             _lastFrame = frame;
-            if (_lightSets.Count < gfx.FramesInFlight) _lightSets.Add(gfx.CreateDescriptorSet());
+            if (_lightSets.Count < gfx.FramesInFlight) _lightSets.Add(gfx.CreateDescriptorSet(LightsLayout(gfx)));
             _lightSet = (_lightSet + 1) % _lightSets.Count;
             var shadow = renderWorld.TryGet<FrameShadow>() is not null ? _shadowMap : null;
             gfx.UpdateDescriptorSet(_lightSets[_lightSet], frame.Binding, shadow is null
                 ? new CombinedImageSamplerBinding(white, whiteSampler, 1)
                 : new CombinedImageSamplerBinding(shadow.DepthView, shadow.Sampler, 1));
+            if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
+                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
         }
         return _lightSets[_lightSet];
     }
@@ -404,11 +419,29 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(6, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
     ]);
 
-    private IDescriptorSetLayout DefaultLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
+    private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
     [
         new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
     ]);
+
+    // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
+    // for none. A cube replaced is kept for RetireFrames frames, since a frame in flight may read it.
+    private CubeMap? EnvironmentCube(IGraphicsDevice gfx, EnvironmentMap? environment)
+    {
+        if (gfx is not GraphicsDevice device) return null;
+        if (environment is null)
+            return _noEnvironment ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
+
+        if (!ReferenceEquals(environment, _environmentSource))
+        {
+            if (_environment is not null) _retiredCubes.Add((_frames, _environment));
+            _environment = device.CreateCubeMap((uint)environment.Size, (uint)environment.MipLevels, environment.Texels);
+            _environmentSource = environment;
+        }
+        return _environment;
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -431,6 +464,9 @@ public sealed class ModelRenderer : IDisposable
         _materialLayout?.Dispose();
         _noLights?.Dispose();
         _shadowMap?.Dispose();
+        _environment?.Dispose();
+        _noEnvironment?.Dispose();
+        foreach (var (_, cube) in _retiredCubes) cube.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();

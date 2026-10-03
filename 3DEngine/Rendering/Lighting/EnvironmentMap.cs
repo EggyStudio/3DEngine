@@ -1,0 +1,225 @@
+using System.Numerics;
+
+namespace Engine;
+
+/// <summary>
+/// The light from all around a scene, as a cube map prefiltered by roughness, which the model pass
+/// reflects off every surface and scatters off its diffuse share. A world resource, set by
+/// <see cref="Engine3D.SetEnvironmentMap"/> or inserted directly.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Made on the CPU from an equirectangular image (longitude across, latitude down, the top row
+/// straight up), decoded from sRGB. Mip 0 is the image itself, for a mirror, and each mip after it
+/// is the image as a surface of roughness <c>mip / (mips - 1)</c> reflects it, by GGX importance
+/// sampling around the direction it is looked up by, as Brian Karis's split sum takes it. Each
+/// sample reads a level of the image blurred to the solid angle it stands for, so 64 samples a
+/// texel come out smooth.
+/// </para>
+/// <para>
+/// The roughest mip stands in for the diffuse light too, which a cosine lobe would give more
+/// exactly. Making one takes a few hundred milliseconds for a 64 texel face, so it is meant for a
+/// level's start rather than every frame.
+/// </para>
+/// </remarks>
+public sealed class EnvironmentMap
+{
+    private const int Samples = 64;
+
+    private EnvironmentMap(int size, int mipLevels, Half[] texels, float intensity)
+    {
+        Size = size;
+        MipLevels = mipLevels;
+        Texels = texels;
+        Intensity = intensity;
+    }
+
+    /// <summary>The width of a face at the first mip.</summary>
+    public int Size { get; }
+
+    /// <summary>How many mips, from a mirror at the first to fully rough at the last.</summary>
+    public int MipLevels { get; }
+
+    /// <summary>RGBA half floats, linear, mip by mip and face by face in Vulkan's order (+X, -X, +Y, -Y, +Z, -Z).</summary>
+    public Half[] Texels { get; }
+
+    /// <summary>What the map's light is multiplied by.</summary>
+    public float Intensity { get; set; }
+
+    /// <summary>Makes a map from an equirectangular image of sRGB color, with faces <paramref name="faceSize"/> texels wide.</summary>
+    /// <exception cref="ArgumentException">The image is empty.</exception>
+    public static EnvironmentMap FromEquirectangular(Image image, float intensity = 1, int faceSize = 64)
+    {
+        if (image.Width <= 0 || image.Height <= 0 || image.Data.Length < image.Width * image.Height * 4)
+            throw new ArgumentException("An environment needs an image with pixels.", nameof(image));
+
+        faceSize = Math.Max(1, (int)BitOperations.RoundUpToPowerOf2((uint)faceSize));
+        int mips = BitOperations.Log2((uint)faceSize) + 1;
+        var source = Pyramid.From(image);
+
+        // Each mip's GGX samples around +Z, with the level of the image each reads.
+        var lobes = new (Vector3 Direction, float Level)[mips][];
+        for (int m = 1; m < mips; m++) lobes[m] = Lobe((float)m / (mips - 1), source.TexelSolidAngle);
+
+        var offsets = new int[mips + 1];
+        for (int m = 0; m < mips; m++)
+        {
+            int s = Math.Max(1, faceSize >> m);
+            offsets[m + 1] = offsets[m] + s * s * 6 * 4;
+        }
+        var texels = new Half[offsets[mips]];
+
+        for (int m = 0; m < mips; m++)
+        {
+            int s = Math.Max(1, faceSize >> m);
+            int mip = m;
+            // A texel of this mip covers about this many of the image's, which its level blurs over.
+            float ownLevel = MathF.Max(0, 0.5f * MathF.Log2(4 * MathF.PI / (6f * s * s) / source.TexelSolidAngle));
+            Parallel.For(0, 6 * s, row =>
+            {
+                int face = row / s, y = row % s;
+                for (int x = 0; x < s; x++)
+                {
+                    var n = Direction(face, (x + 0.5f) / s * 2 - 1, (y + 0.5f) / s * 2 - 1);
+                    var color = mip == 0 ? source.Sample(n, ownLevel) : Filtered(source, n, lobes[mip]);
+                    int at = offsets[mip] + ((face * s + y) * s + x) * 4;
+                    texels[at] = (Half)color.X;
+                    texels[at + 1] = (Half)color.Y;
+                    texels[at + 2] = (Half)color.Z;
+                    texels[at + 3] = (Half)1f;
+                }
+            });
+        }
+
+        return new EnvironmentMap(faceSize, mips, texels, intensity);
+    }
+
+    /// <summary>The direction a cube texel looks along, for face coordinates from -1 to 1, as Vulkan's cube lookup has it.</summary>
+    internal static Vector3 Direction(int face, float u, float v) => Vector3.Normalize(face switch
+    {
+        0 => new Vector3(1, -v, -u),
+        1 => new Vector3(-1, -v, u),
+        2 => new Vector3(u, 1, v),
+        3 => new Vector3(u, -1, -v),
+        4 => new Vector3(u, -v, 1),
+        _ => new Vector3(-u, -v, -1),
+    });
+
+    // The image as a surface around n reflects it, every sample of the lobe turned from +Z to n
+    // and weighted by its cosine.
+    private static Vector3 Filtered(Pyramid source, Vector3 n, (Vector3 Direction, float Level)[] lobe)
+    {
+        var up = MathF.Abs(n.Z) < 0.999f ? Vector3.UnitZ : Vector3.UnitX;
+        var tangent = Vector3.Normalize(Vector3.Cross(up, n));
+        var bitangent = Vector3.Cross(n, tangent);
+
+        var sum = Vector3.Zero;
+        float weight = 0;
+        foreach (var (d, level) in lobe)
+        {
+            var l = tangent * d.X + bitangent * d.Y + n * d.Z;
+            sum += source.Sample(l, level) * d.Z;
+            weight += d.Z;
+        }
+        return weight > 0 ? sum / weight : source.Sample(n, 0);
+    }
+
+    // Light directions around +Z (the normal and the eye both) for a roughness, by GGX importance
+    // sampling on a Hammersley set, with the image's level each sample's solid angle blurs over.
+    private static (Vector3, float)[] Lobe(float roughness, float texelSolidAngle)
+    {
+        float a = MathF.Max(roughness * roughness, 1e-3f);
+        float a2 = a * a;
+        var lobe = new List<(Vector3, float)>(Samples);
+        for (uint i = 0; i < Samples; i++)
+        {
+            float x = (float)i / Samples;
+            float y = RadicalInverse(i);
+            float phi = 2 * MathF.PI * x;
+            float cosTheta = MathF.Sqrt((1 - y) / (1 + (a2 - 1) * y));
+            float sinTheta = MathF.Sqrt(1 - cosTheta * cosTheta);
+            var h = new Vector3(sinTheta * MathF.Cos(phi), sinTheta * MathF.Sin(phi), cosTheta);
+            var l = 2 * h.Z * h - Vector3.UnitZ;
+            if (l.Z <= 0) continue;
+
+            // With the eye along the normal the sample's pdf is D / 4.
+            float d = a2 / (MathF.PI * MathF.Pow(h.Z * h.Z * (a2 - 1) + 1, 2));
+            float solidAngle = 1 / (Samples * d / 4 + 1e-4f);
+            lobe.Add((l, MathF.Max(0, 0.5f * MathF.Log2(solidAngle / texelSolidAngle) + 1)));
+        }
+        return [.. lobe];
+    }
+
+    // Van der Corput's sequence, the bits of i mirrored about the binary point.
+    private static float RadicalInverse(uint i)
+    {
+        i = (i << 16) | (i >> 16);
+        i = ((i & 0x55555555u) << 1) | ((i & 0xAAAAAAAAu) >> 1);
+        i = ((i & 0x33333333u) << 2) | ((i & 0xCCCCCCCCu) >> 2);
+        i = ((i & 0x0F0F0F0Fu) << 4) | ((i & 0xF0F0F0F0u) >> 4);
+        i = ((i & 0x00FF00FFu) << 8) | ((i & 0xFF00FF00u) >> 8);
+        return i / 4294967296f;
+    }
+
+    // The equirectangular image in linear color, halved level by level, sampled by direction.
+    private sealed class Pyramid
+    {
+        private readonly List<(Vector3[] Pixels, int Width, int Height)> _levels = [];
+
+        public float TexelSolidAngle { get; private init; }
+
+        public static Pyramid From(Image image)
+        {
+            var linear = new Vector3[image.Width * image.Height];
+            for (int i = 0; i < linear.Length; i++)
+                linear[i] = new Vector3(Decode(image.Data[i * 4]), Decode(image.Data[i * 4 + 1]), Decode(image.Data[i * 4 + 2]));
+
+            var pyramid = new Pyramid { TexelSolidAngle = 4 * MathF.PI / (image.Width * image.Height) };
+            pyramid._levels.Add((linear, image.Width, image.Height));
+            while (pyramid._levels[^1] is { Width: > 1 } or { Height: > 1 })
+            {
+                var (pixels, w, h) = pyramid._levels[^1];
+                int w2 = Math.Max(1, w / 2), h2 = Math.Max(1, h / 2);
+                var half = new Vector3[w2 * h2];
+                for (int y = 0; y < h2; y++)
+                for (int x = 0; x < w2; x++)
+                {
+                    int x0 = Math.Min(w - 1, x * 2), x1 = Math.Min(w - 1, x * 2 + 1);
+                    int y0 = Math.Min(h - 1, y * 2), y1 = Math.Min(h - 1, y * 2 + 1);
+                    half[y * w2 + x] = (pixels[y0 * w + x0] + pixels[y0 * w + x1] + pixels[y1 * w + x0] + pixels[y1 * w + x1]) / 4;
+                }
+                pyramid._levels.Add((half, w2, h2));
+            }
+            return pyramid;
+        }
+
+        public Vector3 Sample(Vector3 direction, float level)
+        {
+            level = Math.Clamp(level, 0, _levels.Count - 1);
+            int below = (int)level;
+            int above = Math.Min(below + 1, _levels.Count - 1);
+            var u = 0.5f + MathF.Atan2(direction.X, -direction.Z) / (2 * MathF.PI);
+            var v = MathF.Acos(Math.Clamp(direction.Y, -1, 1)) / MathF.PI;
+            return Vector3.Lerp(Bilinear(_levels[below], u, v), Bilinear(_levels[above], u, v), level - below);
+        }
+
+        private static Vector3 Bilinear((Vector3[] Pixels, int Width, int Height) level, float u, float v)
+        {
+            var (pixels, w, h) = level;
+            float x = u * w - 0.5f, y = Math.Clamp(v * h - 0.5f, 0, h - 1);
+            int x0 = (int)MathF.Floor(x), y0 = (int)MathF.Floor(y);
+            float fx = x - x0, fy = y - y0;
+            int Wrap(int i) => ((i % w) + w) % w;
+            int y1 = Math.Min(y0 + 1, h - 1);
+            var top = Vector3.Lerp(pixels[y0 * w + Wrap(x0)], pixels[y0 * w + Wrap(x0 + 1)], fx);
+            var bottom = Vector3.Lerp(pixels[y1 * w + Wrap(x0)], pixels[y1 * w + Wrap(x0 + 1)], fx);
+            return Vector3.Lerp(top, bottom, fy);
+        }
+
+        private static float Decode(byte value)
+        {
+            var c = value / 255f;
+            return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+        }
+    }
+}

@@ -44,6 +44,9 @@ public struct LightingUbo
     /// <summary>World space to the shadow map's clip space, the light's view and projection.</summary>
     public Matrix4x4 ShadowViewProjection;
 
+    /// <summary>x: the environment map's intensity. y: its last mip. z: 1 when there is one.</summary>
+    public Vector4 Environment;
+
     /// <summary>Inline fixed-size light array. Use <see cref="LightingUboPacker.WriteEntry"/> to populate by index.</summary>
     public LightUboEntryArray Lights;
 }
@@ -66,7 +69,7 @@ public static class LightingUboPacker
     /// Hard cap on the number of analytic lights the lighting UBO carries per frame.
     /// Matches the array size compiled into the engine-side struct - shaders should
     /// declare a matching constant. Picked to fit comfortably within a single 16 KiB
-    /// uniform buffer (16 lights of 64 bytes and an 80-byte header, about 1 KiB).
+    /// uniform buffer (16 lights of 64 bytes and a 96-byte header, about 1 KiB).
     /// </summary>
     public const int MaxLights = 16;
 

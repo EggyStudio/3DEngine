@@ -168,6 +168,16 @@ same lit by its first light entity as by the fixed light. The curve runs at the 
 pass, because the engine has no main color target to run it over. Once one exists it moves into the
 post processing chain, and the model pass writes linear light.
 
+An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
+lights a frame from all around. It is prefiltered on the CPU into a half-float cube map with faces
+64 texels wide, mip 0 for a mirror and each mip after for a roughness of `mip / (mips - 1)`, by
+GGX importance sampling with the eye along the normal (Karis's split sum), each sample reading the
+image blurred to its solid angle. The model pass looks the mirror direction up at the mip for the
+surface's roughness, weighted by Karis's fit, and takes the roughest mip around the normal for the
+diffuse share, both darkened by occlusion. The cube is set 1's binding 2, a black cube when there
+is none, and the lighting buffer carries its intensity and last mip. With a map set the fixed
+light is not used, whether or not there are light entities.
+
 The first directional light with `CastsShadows` set casts the frame's one shadow. `ShadowFit` fits
 a 2048 texel depth map to the sphere around the window camera's view out to 40 units, moved in
 whole texels so the edges of shadows hold still as the camera moves, and reaching four radii

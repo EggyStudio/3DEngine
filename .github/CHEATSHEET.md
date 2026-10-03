@@ -289,6 +289,9 @@ ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A 
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 
+void SetEnvironmentMap(Image equirectangular, float intensity = 1);         // Light models from all around by a sky image, which smooth and metal surfaces reflect
+void UnloadEnvironmentMap();                                               // Back to the fixed light, or the light entities alone
+
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
 bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has

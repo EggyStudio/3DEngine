@@ -34,6 +34,10 @@ public sealed class LightingUboPrepare : IPrepareSystem
             ubo.ShadowTexel = shadow.Texel;
         }
 
+        var environment = renderWorld.TryGet<EnvironmentMap>();
+        if (environment is not null)
+            ubo.Environment = new System.Numerics.Vector4(environment.Intensity, environment.MipLevels - 1, 1, 0);
+
         var sizeBytes = (ulong)LightingUboPacker.SizeBytes;
 
         var alloc = allocator.Allocate(sizeBytes, BufferUsage.Uniform);
@@ -43,7 +47,8 @@ public sealed class LightingUboPrepare : IPrepareSystem
 
         renderWorld.Set(new FrameLightingBinding(
             new UniformBufferBinding(alloc.Buffer, Binding: 0, alloc.Offset, sizeBytes),
-            ubo.LightCount));
+            ubo.LightCount,
+            environment is not null));
 
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {sizeBytes}-byte UBO.");
     }
@@ -78,5 +83,6 @@ public sealed class LightingUboPrepare : IPrepareSystem
 /// </summary>
 /// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet"/>.</param>
 /// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
-public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount);
+/// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
+public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false);
 

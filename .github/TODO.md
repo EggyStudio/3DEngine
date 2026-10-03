@@ -76,11 +76,12 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Materials have no environment.** The model pass reflects up to 16 light entities by the
-  material's metallic-roughness model, with its normal, emissive and occlusion maps, and tonemaps
-  the sum (RENDERING.md §3 and §4). There is no environment map, so a smooth metal reflects black
-  where no light is mirrored. A mesh entity is drawn through the first camera entity only, into
-  the window only.
+- **The environment is one prefiltered cube.** The model pass reflects up to 16 light entities
+  and an environment map by the material's metallic-roughness model (RENDERING.md §3 and §4). The
+  map's roughest mip stands in for a cosine-weighted irradiance, it is not drawn as a sky behind
+  the scene, it is made on the CPU in a few hundred milliseconds, and there are no reflection
+  probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
+  into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
 - **One directional light casts a shadow, from one map.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The

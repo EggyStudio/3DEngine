@@ -584,4 +584,38 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(cube);
         UnloadTexture(crease);
     }
+
+    [NeedsVulkanFact]
+    public void A_Smooth_Metal_Reflects_The_Environment_Where_A_Rough_Surface_Scatters_It()
+    {
+        Open(64, 64);
+        // A sky red above the horizon and blue below, and no light entities.
+        var sky = GenImageColor(64, 32, new Color(0, 0, 255));
+        ImageDrawRectangle(ref sky, 0, 0, 64, 16, new Color(255, 0, 0));
+        SetEnvironmentMap(sky);
+
+        // A plane facing up, seen from straight above, so it mirrors the sky overhead.
+        var camera = new Camera3D(new Vector3(0, 4, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+        var plane = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(plane, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        plane.Materials[0] = new ModelMaterial(Color.White) { Metallic = 1, Roughness = 0.05f };
+        var mirror = Capture(Draw, "mirror");
+        plane.Materials[0] = new ModelMaterial(Color.White) { Metallic = 0, Roughness = 1 };
+        var chalk = Capture(Draw, "chalk");
+
+        var m = GetImageColor(mirror, 32, 32);
+        Linear(m.R).Should().BeGreaterThan(0.6f, "a mirror facing up shows the red sky above it");
+        Linear(m.B).Should().BeLessThan(0.05f, "and none of the blue below the horizon");
+        var c = GetImageColor(chalk, 32, 32);
+        c.B.Should().BeGreaterThan(20, "a rough white surface gathers light from both halves");
+        UnloadModel(plane);
+        UnloadEnvironmentMap();
+    }
 }
