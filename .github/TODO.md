@@ -104,9 +104,10 @@ the engine's own shortcuts ask `WantTextInput` instead.
 
 `PhysicsWorld` runs BepuPhysics with bodies and colliders from components, steps once per
 `Stage.FixedUpdate` run on `FixedTime`'s step (the same steps `[OnFixedUpdate]` behaviors run on),
-and answers `Raycast`. There is no `Engine3D` surface for it, and the interpolation between steps
-(`FixedTime.Alpha`) is not applied to `Transform`, so a body moves in visible steps when the frame
-rate is above the fixed rate.
+answers `Raycast`, and writes each body's `Transform` blended between its last two steps by
+`FixedTime.Alpha`. That blend is the `Transform` game code reads too, so code that needs the
+simulation's own pose asks `PhysicsWorld.GetPosition`. There is no `Engine3D` surface for it, a
+body's `Transform` is written as if it had no parent, and contacts are not reported as events.
 
 ### Scenes
 

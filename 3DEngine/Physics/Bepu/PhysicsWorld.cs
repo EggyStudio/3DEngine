@@ -41,6 +41,9 @@ public sealed partial class PhysicsWorld : IDisposable
     /// <summary>Maps a Bepu <see cref="StaticHandle"/>.Value to the owning ECS entity (0 = none).</summary>
     private readonly Dictionary<int, int> _staticToEntity = new();
 
+    // Each body's pose before the last step, by handle, for interpolation (SyncTransforms).
+    private readonly Dictionary<int, (System.Numerics.Vector3 Position, System.Numerics.Quaternion Orientation)> _previousPoses = new();
+
     /// <summary>Time accumulator for the fixed-timestep integrator.</summary>
     private float _accumulator;
 

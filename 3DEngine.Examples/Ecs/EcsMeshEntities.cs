@@ -67,8 +67,10 @@ public struct MeshScene
         transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0.8f * dt, 0.5f * dt, 0);
     }
 
-    // A unit cube as twelve triangles, counterclockwise from outside, which light flat by face.
-    private static Vector3[] Cube()
+    private static Vector3[] Cube() => CubePositions();
+
+    /// <summary>A unit cube as twelve triangles, counterclockwise from outside, which light flat by face.</summary>
+    public static Vector3[] CubePositions()
     {
         Vector3[] c = [new(-.5f, -.5f, -.5f), new(.5f, -.5f, -.5f), new(.5f, .5f, -.5f), new(-.5f, .5f, -.5f),
                        new(-.5f, -.5f, .5f), new(.5f, -.5f, .5f), new(.5f, .5f, .5f), new(-.5f, .5f, .5f)];

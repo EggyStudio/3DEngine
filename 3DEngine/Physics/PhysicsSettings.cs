@@ -25,4 +25,11 @@ public sealed class PhysicsSettings
 
     /// <summary>Number of worker threads used by the simulation. <c>0</c> = <c>Environment.ProcessorCount - 1</c>. Default 1 (deterministic, test-friendly).</summary>
     public int WorkerThreads { get; set; } = 1;
+
+    /// <summary>
+    /// Whether a body's <see cref="Transform"/> is blended between its pose before and after the
+    /// last fixed step by <see cref="FixedTime.Alpha"/>, so it moves smoothly when frames come
+    /// more often than steps. It is drawn up to one step behind the simulation. Default <c>true</c>.
+    /// </summary>
+    public bool Interpolate { get; set; } = true;
 }

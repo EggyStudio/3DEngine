@@ -70,7 +70,10 @@ public sealed class PhysicsPlugin : IPlugin
             {
                 var phys = w.Resource<PhysicsWorld>();
                 var ecs = w.Resource<EcsWorld>();
-                phys.SyncTransforms(ecs);
+                var alpha = w.Resource<PhysicsSettings>().Interpolate && w.TryGetResource<FixedTime>(out var fixedTime)
+                    ? (float)fixedTime.Alpha
+                    : 1f;
+                phys.SyncTransforms(ecs, alpha);
             }, "Physics.SyncTransforms")
             .Read<PhysicsWorld>()
             .Write<EcsWorld>());

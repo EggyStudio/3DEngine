@@ -28,6 +28,7 @@ public sealed partial class PhysicsWorld
         {
             Simulation.Bodies.Remove(new BodyHandle(body.Handle));
             _bodyToEntity.Remove(body.Handle);
+            _previousPoses.Remove(body.Handle);
         }
     }
 
@@ -66,6 +67,8 @@ public sealed partial class PhysicsWorld
             br.Pose.Position = position;
             br.Awake = true;
             br.UpdateBounds();
+            // A teleport, so it is not blended into.
+            _previousPoses.Remove(body.Handle);
         }
     }
 
@@ -86,6 +89,7 @@ public sealed partial class PhysicsWorld
             br.Pose.Orientation = rotation;
             br.Awake = true;
             br.UpdateBounds();
+            _previousPoses.Remove(body.Handle);
         }
     }
 
