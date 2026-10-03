@@ -19,4 +19,32 @@ public interface ISurfaceSource
     /// <summary>Returns the current drawable size of the surface in pixels.</summary>
     /// <returns>A tuple of (Width, Height) in pixels.</returns>
     (uint Width, uint Height) GetDrawableSize();
+
+    /// <summary>
+    /// Whether there is no window at all, so the device draws into images of its own and
+    /// presents nothing. False for every window.
+    /// </summary>
+    bool IsOffscreen => false;
+}
+
+/// <summary>
+/// A surface with no window behind it, for rendering with no display: the device draws into
+/// images of its own of this size, which a capture reads as it would a window's.
+/// </summary>
+/// <param name="width">The width drawn at.</param>
+/// <param name="height">The height drawn at.</param>
+public sealed class OffscreenSurface(uint width, uint height) : ISurfaceSource
+{
+    /// <inheritdoc />
+    public IReadOnlyList<string> GetRequiredInstanceExtensions() => [];
+
+    /// <inheritdoc />
+    public nint CreateSurfaceHandle(nint instanceHandle) =>
+        throw new NotSupportedException("An offscreen surface has no window to make a VkSurfaceKHR from.");
+
+    /// <inheritdoc />
+    public (uint Width, uint Height) GetDrawableSize() => (Math.Max(1, width), Math.Max(1, height));
+
+    /// <inheritdoc />
+    public bool IsOffscreen => true;
 }

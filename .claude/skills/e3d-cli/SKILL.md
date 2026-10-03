@@ -23,18 +23,23 @@ If nothing is serving, start one and wait for it to be ready:
 
 ```bash
 ./e3d open models_loading --hidden            # renders into a window that is never shown
+./e3d open models_loading --offscreen         # renders with no window and no display at all
 ./e3d open ecs_behaviors --headless           # no window, no GPU: logic, ECS and the flat API's state only
 ./e3d open shapes_basic_3d                    # a visible window, when a person should see it
 ./e3d open core_basic_window --frames 300     # closes itself after 300 frames
 ```
 
 `open` returns once the app has written that it is ready, so the next command is answered.
-`--hidden` is the default choice for an agent: everything renders and `shot` works, and nothing
-appears on the desktop. `--headless` is for logic, because there is nothing to capture.
+`--hidden` or `--offscreen` is the default choice for an agent: everything renders and `shot`
+works, and nothing appears on the desktop. `--offscreen` needs no display server, so it also works
+over SSH, in a container or on a locked session, and a software Vulkan device (lavapipe) is
+enough. A run with no window has no window events, so input arrives only through `input.*`.
+`--headless` is for logic, because there is nothing to capture.
 
-Any program built on the engine takes the same flags (`--serve`, `--headless`, `--hidden`,
-`--frames N`) or the variables `E3D_SERVE`, `E3D_HEADLESS`, `E3D_HIDDEN`, `E3D_FRAMES`, so a game
-outside the examples is driven by running it with `--serve`.
+Any program built on the engine takes the same flags (`--serve`, `--headless`, `--offscreen`,
+`--hidden`, `--frames N`) or the variables `E3D_SERVE`, `E3D_HEADLESS`, `E3D_OFFSCREEN`,
+`E3D_HIDDEN`, `E3D_FRAMES`, so a game outside the examples is driven by running it with
+`--serve`.
 
 ## The catalog is the API
 

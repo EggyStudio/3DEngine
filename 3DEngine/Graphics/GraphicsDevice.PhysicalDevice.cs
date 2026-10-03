@@ -42,12 +42,6 @@ public sealed unsafe partial class GraphicsDevice
             var deviceName = Utf8(new ReadOnlySpan<byte>(props.deviceName, MaxPhysicalDeviceNameSize));
             Logger.Debug($"  Evaluating GPU: {deviceName} (type={props.deviceType}, vendorId=0x{props.vendorID:X4}, deviceId=0x{props.deviceID:X4})");
 
-            if (!features.geometryShader)
-            {
-                Logger.Debug($"    Rejected - no geometry shader support.");
-                continue;
-            }
-
             var score = props.deviceType switch
             {
                 VkPhysicalDeviceType.DiscreteGpu => 1000,
@@ -98,9 +92,17 @@ public sealed unsafe partial class GraphicsDevice
             if ((props[(int)i].queueFlags & VkQueueFlags.Graphics) != 0)
                 result.Graphics = i;
 
-            _instanceApi.vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, out VkBool32 supports);
-            if (supports)
-                result.Present = i;
+            if (_offscreen)
+            {
+                // Nothing is presented, so the graphics family stands in for the present one.
+                result.Present = result.Graphics;
+            }
+            else
+            {
+                _instanceApi.vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, out VkBool32 supports);
+                if (supports)
+                    result.Present = i;
+            }
 
             if (result.IsComplete) break;
         }

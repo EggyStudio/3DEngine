@@ -87,9 +87,13 @@ public sealed class RenderPlugin : IPlugin
             .Write<ModelDrawList>());
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
 
+        // An offscreen run has no window either, and renders into the device's own images.
+        if (cfg.Offscreen && !app.World.ContainsResource<AppWindow>() && cfg.Graphics == GraphicsBackend.Vulkan)
+            InitializeOffscreen(app, renderer, cfg);
+
         // A headless run has no window, so the renderer is made and never initialized, and the
         // render system below returns at once every frame.
-        if (!app.World.TryGetResource<AppWindow>(out var window))
+        if (!app.World.TryGetResource<AppWindow>(out var window) && !renderer.Context.IsInitialized)
         {
             Logger.Info("RenderPlugin: No window (headless run) - the renderer stays uninitialized.");
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(world => world.RemoveResource<Renderer>(), "RenderPlugin.Cleanup").MainThreadOnly());
@@ -101,7 +105,11 @@ public sealed class RenderPlugin : IPlugin
         bool pendingRendererResize = false;
         long lastResizeTick = 0;
 
-        if (cfg.Graphics == GraphicsBackend.Vulkan)
+        if (window is null)
+        {
+            // Offscreen: initialized above, with a fixed size and no resizes to follow.
+        }
+        else if (cfg.Graphics == GraphicsBackend.Vulkan)
         {
             Logger.Info("RenderPlugin: Vulkan backend selected - initializing graphics context against SDL window...");
             // Grab the ISurfaceSource that AppWindowPlugin inserted
@@ -172,5 +180,23 @@ public sealed class RenderPlugin : IPlugin
             .Write<Renderer>());
 
         Logger.Info("RenderPlugin: Build complete.");
+    }
+
+    // Brings the renderer up with no window, drawing into images the device makes of the window
+    // size the config asks for. A machine with no Vulkan device leaves it down, as a headless
+    // run is, and says so.
+    private static void InitializeOffscreen(App app, Renderer renderer, Config cfg)
+    {
+        var (width, height) = ((uint)Math.Max(1, cfg.WindowData.Width), (uint)Math.Max(1, cfg.WindowData.Height));
+        try
+        {
+            renderer.Context.Initialize(new OffscreenSurface(width, height), cfg.WindowData.Title);
+            renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = (int)width, Height = (int)height });
+            Logger.Info($"RenderPlugin: Offscreen run - rendering {width}x{height} frames with no window.");
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or Vortice.Vulkan.VkException or DllNotFoundException)
+        {
+            Logger.Warn($"RenderPlugin: Offscreen rendering could not start, so nothing is drawn: {ex.Message}");
+        }
     }
 }

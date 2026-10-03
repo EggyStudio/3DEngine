@@ -31,8 +31,10 @@ public sealed unsafe partial class GraphicsDevice
             };
         }
 
-        Logger.Debug($"Enabling device extensions: {string.Join(", ", DeviceExtensions)}");
-        using var deviceExts = new VkStringArray(DeviceExtensions);
+        // Drawing offscreen presents nothing, so it needs no swapchain extension.
+        var extensionNames = _offscreen ? [] : DeviceExtensions;
+        Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
+        using var deviceExts = new VkStringArray(extensionNames);
 
         VkPhysicalDeviceFeatures features = new()
         {

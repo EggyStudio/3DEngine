@@ -138,14 +138,14 @@ source files while an app runs. [ARCHITECTURE.md](.github/ARCHITECTURE.md) descr
 without opening a visible window:
 
 ```bash
-./e3d open models_loading --hidden     # renders, but no window appears
+./e3d open models_loading --offscreen  # renders, with no window and no display needed
 ./e3d command entity.count
 ./e3d command input.key W 40           # input through the engine
 ./e3d shot after.png                   # the next frame, as a PNG
 ./e3d stop
 ```
 
-Programs take `--serve`, `--hidden`, `--headless` and `--frames N`, and a game adds commands with
+Programs take `--serve`, `--hidden`, `--offscreen`, `--headless` and `--frames N`, and a game adds commands with
 `[Command]` on a static method. [The skill](.claude/skills/e3d-cli/SKILL.md) lists the commands.
 
 ## Building

@@ -12,7 +12,7 @@ public static class Screenshots
     public static string? Request(World world, string path, Action<string?>? done = null)
     {
         if (!world.TryGetResource<Renderer>(out var renderer) || !renderer.Context.IsInitialized)
-            return "There is no renderer to capture from (a headless run draws nothing).";
+            return "There is no renderer to capture from (a headless run draws nothing, and --offscreen draws with no window).";
         if (renderer.Context.Graphics is not GraphicsDevice device)
             return "The renderer's device cannot capture frames.";
 

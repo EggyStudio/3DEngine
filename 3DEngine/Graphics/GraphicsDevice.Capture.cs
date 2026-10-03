@@ -27,7 +27,7 @@ public sealed unsafe partial class GraphicsDevice
 
     // Records the copy of the presented image into a host-visible buffer, if a capture was asked
     // for. Called while the frame's command buffer is still open, after the render pass has ended
-    // and left the image in PresentSrcKHR.
+    // and left the image in its final layout, PresentSrcKHR or, offscreen, TransferSrcOptimal.
     private (VulkanBuffer Buffer, Action<byte[], int, int> Callback, int Width, int Height)? RecordCapture(VkCommandBuffer cmd, uint imageIndex)
     {
         if (_captureRequest is not { } callback || imageIndex >= _swapchainImages.Length) return null;
@@ -39,7 +39,7 @@ public sealed unsafe partial class GraphicsDevice
 
         VkImageMemoryBarrier toCopy = new()
         {
-            oldLayout = VkImageLayout.PresentSrcKHR,
+            oldLayout = _finalLayout,
             newLayout = VkImageLayout.TransferSrcOptimal,
             srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
             dstAccessMask = VkAccessFlags.TransferRead,
@@ -64,7 +64,7 @@ public sealed unsafe partial class GraphicsDevice
         VkImageMemoryBarrier toPresent = toCopy with
         {
             oldLayout = VkImageLayout.TransferSrcOptimal,
-            newLayout = VkImageLayout.PresentSrcKHR,
+            newLayout = _finalLayout,
             srcAccessMask = VkAccessFlags.TransferRead,
             dstAccessMask = 0,
         };

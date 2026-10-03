@@ -18,8 +18,13 @@ public sealed unsafe partial class GraphicsDevice
         // previous frame - safe to dispose them now.
         FlushDeferredStagingBuffers(_currentFrame);
 
-        var result = _deviceApi.vkAcquireNextImageKHR(_swapchain, ulong.MaxValue,
-            _imageAvailableSemaphores[_currentFrame], default, out uint imageIndex);
+        uint imageIndex;
+        var result = VkResult.Success;
+        if (_offscreen)
+            imageIndex = _offscreenNext++ % (uint)_swapchainImages.Length;
+        else
+            result = _deviceApi.vkAcquireNextImageKHR(_swapchain, ulong.MaxValue,
+                _imageAvailableSemaphores[_currentFrame], default, out imageIndex);
 
         if (result == VkResult.ErrorOutOfDateKHR)
         {
@@ -56,14 +61,16 @@ public sealed unsafe partial class GraphicsDevice
         VkSemaphore* signalSemaphores = stackalloc VkSemaphore[1];
         signalSemaphores[0] = _renderFinishedSemaphores[_currentFrame];
 
+        // Offscreen, no image is acquired to wait for and none is presented to signal.
+        uint semaphores = _offscreen ? 0u : 1u;
         VkSubmitInfo submitInfo = new()
         {
-            waitSemaphoreCount = 1,
+            waitSemaphoreCount = semaphores,
             pWaitSemaphores = waitSemaphores,
             pWaitDstStageMask = &waitStage,
             commandBufferCount = 1,
             pCommandBuffers = commandBuffers,
-            signalSemaphoreCount = 1,
+            signalSemaphoreCount = semaphores,
             pSignalSemaphores = signalSemaphores
         };
 
@@ -72,6 +79,12 @@ public sealed unsafe partial class GraphicsDevice
 
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
+
+        if (_offscreen)
+        {
+            _currentFrame = (_currentFrame + 1) % MaxFramesInFlight;
+            return;
+        }
 
         VkSemaphore* presentWaitSemaphores = stackalloc VkSemaphore[1];
         presentWaitSemaphores[0] = _renderFinishedSemaphores[_currentFrame];

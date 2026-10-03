@@ -184,10 +184,13 @@ initializer with typed argument parsing. Input commands write into `Input` throu
 `SyntheticInput`, which also hands mouse events to ImGui, and captures copy the presented swapchain
 image into a host buffer (`GraphicsDevice.RequestCapture`) and write it with `PngWriter`.
 
-`RunMode` reads `--serve`, `--headless`, `--hidden` and `--frames` from the command line and the
-environment into `Config` when the `App` is made. A headless run has no `AppWindow`.
-`HeadlessLoopDriver` paces its frames, the renderer stays uninitialized, and ImGui ends its own
-frame.
+`RunMode` reads `--serve`, `--headless`, `--offscreen`, `--hidden` and `--frames` from the
+command line and the environment into `Config` when the `App` is made. A headless run has no
+`AppWindow`. `HeadlessLoopDriver` paces its frames, the renderer stays uninitialized, and ImGui
+ends its own frame. An offscreen run is a headless one whose renderer is initialized against an
+`OffscreenSurface`: the device makes no surface and no swapchain, draws each frame into one of
+its own images in the swapchain's usual format, presents nothing, and captures from it as from a
+swapchain image.
 
 ## Logging
 

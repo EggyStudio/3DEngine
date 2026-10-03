@@ -1,7 +1,8 @@
-# Builds the solution and runs the tests on every push and pull request.
+# Builds the solution, runs the tests and captures every example on every push and pull request.
 #
-# The tests need no GPU or display, because rendering tests use NullGraphicsDevice. slangc is
-# fetched so the shader tests compile the built-in shaders instead of returning early.
+# Nothing here needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on the CPU,
+# so the render tests draw for real and the examples run with --offscreen, and slangc is fetched
+# so the shaders compile instead of the tests that need them returning early.
 name: build
 
 on:
@@ -28,6 +29,9 @@ jobs:
 
       - run: build/fetch-slang.sh
 
+      - name: Install lavapipe, a Vulkan device on the CPU
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1
+
       - run: dotnet build 3DEngine.slnx
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
@@ -37,3 +41,19 @@ jobs:
         with:
           name: test-results
           path: 3DEngine.Tests/TestResults/
+
+      # Each example opened with no window, captured once it is up, and closed.
+      - name: Capture every example offscreen
+        run: |
+          mkdir -p captures
+          for example in $(grep -oP '^\s*\["\K[a-z0-9_]+' 3DEngine.Examples/Program.cs); do
+            ./e3d open "$example" --offscreen --quiet
+            ./e3d shot "captures/$example.png" --quiet
+            ./e3d stop --quiet
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: example-captures
+          path: captures/

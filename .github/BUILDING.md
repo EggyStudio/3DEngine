@@ -36,11 +36,17 @@ Every program built on the engine reads these flags, or the variables beside the
 |---|---|---|
 | `--serve` | `E3D_SERVE=1` | answers `./e3d` on a local socket |
 | `--hidden` | `E3D_HIDDEN=1` | renders into a window that is never shown, so captures work and nothing appears |
+| `--offscreen` | `E3D_OFFSCREEN=1` | no window and no display needed, rendering into images of the device's own, so captures work on CI and over SSH |
 | `--headless` | `E3D_HEADLESS=1` | no window and no renderer, frames paced at 60 per second |
 | `--frames N` | `E3D_FRAMES=N` | closes after N frames |
 
 `./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
 `.claude/skills/e3d-cli/SKILL.md` covers driving it.
+
+`--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
+one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. The render tests in
+`3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and return early where there is
+no device.
 
 ## The generator
 

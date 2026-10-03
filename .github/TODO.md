@@ -124,8 +124,9 @@ reached.
 
 - **One run failed most tests that construct an `App`**, right after a build, and sixteen runs
   after it passed. The cause is not known, and the failing run's messages were not kept.
-- **Nothing renders in a test.** Tests use `NullGraphicsDevice`. A headless or offscreen Vulkan run
-  with a screenshot to compare would cover the renderer.
+- **Few tests render.** `OffscreenRenderTests` draws shapes and a lit cube offscreen and reads the
+  pixels back. The other passes (text, ImGui, render targets, custom shaders) are covered only by
+  the example captures CI takes, which nothing compares against a reference.
 
 ### Prose
 
@@ -137,14 +138,12 @@ what is left.
 
 ### Build and release
 
-- **CI covers Linux only.** `.github/workflows/build.yml` builds and tests on Ubuntu. Windows and
-  macOS runners, and a job that runs the examples offscreen, are not set up.
+- **CI covers Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and captures
+  every example offscreen on Ubuntu, which has not been run since it was written. Windows and
+  macOS runners are not set up.
 - **No package.** The engine is consumed as a project reference. A NuGet package carrying the
   shaders and the native SDL3 libraries is needed for a game outside this repository.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, `entity.set` writes one field, and
   a game adds commands with `[Command]`, but C# cannot be typed at a running app, and an entity
   cannot be spawned or given a new component from the CLI.
-- **A headless run cannot capture.** `--hidden` renders into a window that is never shown, which
-  needs a display server. Rendering into an image with no surface at all (for CI) needs an
-  offscreen target in place of the swapchain.

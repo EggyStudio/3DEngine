@@ -14,6 +14,7 @@ the live session instead of launching a process per question.**
 ```bash
 ./e3d status                          # is anything serving?
 ./e3d open models_loading --hidden    # start an example, rendering in a window never shown
+                                      # (--offscreen renders with no display at all)
 ./e3d list                            # what that app can be asked
 ./e3d command input.key W 30          # input through the engine, not the desktop
 ./e3d shot /tmp/x.png                 # capture the next frame

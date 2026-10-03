@@ -51,6 +51,14 @@ public sealed record Config
     public bool Headless { get; init; }
 
     /// <summary>
+    /// Whether a run with no window still renders, into images of the device's own, so frames can
+    /// be captured with no display at all, as on a CI machine. Implies <see cref="Headless"/>.
+    /// Needs a Vulkan device, which may be a software one such as lavapipe. Also set by
+    /// <c>--offscreen</c> or <c>E3D_OFFSCREEN=1</c>.
+    /// </summary>
+    public bool Offscreen { get; init; }
+
+    /// <summary>
     /// Whether the window is created hidden. Frames are still rendered, so screenshots work, but
     /// nothing appears on the desktop. Also set by <c>--hidden</c> or <c>E3D_HIDDEN=1</c>.
     /// </summary>

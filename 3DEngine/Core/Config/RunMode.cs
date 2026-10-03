@@ -7,9 +7,10 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The flags are <c>--serve</c>, <c>--headless</c>, <c>--hidden</c> and <c>--frames N</c>, and the
-/// variables <c>E3D_SERVE</c>, <c>E3D_HEADLESS</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>, <c>true</c>,
-/// <c>yes</c>, <c>on</c>) and <c>E3D_FRAMES</c>. A flag or variable only turns a mode on, so a
+/// The flags are <c>--serve</c>, <c>--headless</c>, <c>--offscreen</c>, <c>--hidden</c> and
+/// <c>--frames N</c>, and the variables <c>E3D_SERVE</c>, <c>E3D_HEADLESS</c>,
+/// <c>E3D_OFFSCREEN</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>, <c>true</c>, <c>yes</c>, <c>on</c>)
+/// and <c>E3D_FRAMES</c>. A flag or variable only turns a mode on, so a
 /// program that sets <see cref="Config.Serve"/> itself stays served.
 /// </para>
 /// <para>
@@ -34,17 +35,20 @@ public static class RunMode
         if (index >= 0 && index + 1 < arguments.Length && ulong.TryParse(arguments[index + 1], out var given)) frames = given;
         else if (ulong.TryParse(Variable("E3D_FRAMES"), out var variable)) frames = variable;
 
+        var offscreen = config.Offscreen || Asked(arguments, "--offscreen", "E3D_OFFSCREEN");
         return config with
         {
             Serve = config.Serve || Asked(arguments, "--serve", "E3D_SERVE"),
-            Headless = config.Headless || Asked(arguments, "--headless", "E3D_HEADLESS"),
+            Headless = config.Headless || offscreen || Asked(arguments, "--headless", "E3D_HEADLESS"),
+            Offscreen = offscreen,
             Hidden = config.Hidden || Asked(arguments, "--hidden", "E3D_HIDDEN"),
             Frames = frames,
         };
     }
 
-    /// <summary><c>headless</c>, <c>hidden</c> or <c>window</c>.</summary>
-    public static string Describe(Config config) => config.Headless ? "headless" : config.Hidden ? "hidden" : "window";
+    /// <summary><c>offscreen</c>, <c>headless</c>, <c>hidden</c> or <c>window</c>.</summary>
+    public static string Describe(Config config) =>
+        config.Offscreen ? "offscreen" : config.Headless ? "headless" : config.Hidden ? "hidden" : "window";
 
     /// <summary>Whether the world has a renderer that draws.</summary>
     public static bool HasRenderer(World world) =>

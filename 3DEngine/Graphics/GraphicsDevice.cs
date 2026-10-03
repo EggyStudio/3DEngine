@@ -72,6 +72,8 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     {
         if (IsInitialized) return;
         _surfaceSource = surfaceSource;
+        _offscreen = surfaceSource.IsOffscreen;
+        _finalLayout = _offscreen ? VkImageLayout.TransferSrcOptimal : VkImageLayout.PresentSrcKHR;
 
         Logger.Info("Initializing Vulkan graphics device...");
         var totalSw = Stopwatch.StartNew();
@@ -83,7 +85,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
 
         Logger.Info("Step 2/6: Creating window surface - binding the platform window to Vulkan via VkSurfaceKHR...");
         sw.Restart();
-        CreateSurface();
+        if (!_offscreen) CreateSurface();
         Logger.Info($"Step 2/6: Window surface created in {sw.ElapsedMilliseconds}ms");
 
         Logger.Info("Step 3/6: Selecting physical device - enumerating GPUs, scoring capabilities, and choosing the best adapter...");
@@ -204,6 +206,13 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     private uint _presentQueueFamily;
     private VkQueue _graphicsQueue;
     private VkQueue _presentQueue;
+
+    // With no window, the frames are drawn into images the device owns rather than a swapchain's,
+    // and left in a layout a capture copies from rather than one a display presents.
+    private bool _offscreen;
+    private VkImageLayout _finalLayout = VkImageLayout.PresentSrcKHR;
+    private VkDeviceMemory[] _offscreenMemory = [];
+    private uint _offscreenNext;
     private VkInstanceApi _instanceApi = null!;
     private VkDeviceApi _deviceApi = null!;
     private VkCommandPool _commandPool;

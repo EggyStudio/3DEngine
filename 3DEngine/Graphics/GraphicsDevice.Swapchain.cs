@@ -14,6 +14,13 @@ public sealed unsafe partial class GraphicsDevice
             drawable = (1, 1);
         Logger.Debug($"Drawable size: {drawable.Width}x{drawable.Height}");
 
+        if (_offscreen)
+        {
+            CreateOffscreenImages((uint)drawable.Width, (uint)drawable.Height);
+            CreateFrameResources();
+            return;
+        }
+
         Logger.Debug("Querying swapchain support (capabilities, formats, present modes)...");
         var support = QuerySwapchainSupport(_physicalDevice);
         var surfaceFormat = ChooseSwapchainFormat(support.Formats);
@@ -73,6 +80,13 @@ public sealed unsafe partial class GraphicsDevice
         _swapchainImages = images.ToArray();
         Logger.Debug($"Retrieved {_swapchainImages.Length} swapchain images.");
 
+        CreateFrameResources();
+    }
+
+    // What every frame image needs, from a swapchain or not: views, depth, the passes, the
+    // framebuffers and the command buffers.
+    private void CreateFrameResources()
+    {
         Logger.Debug("Creating image views for swapchain images...");
         CreateImageViews();
         Logger.Debug("Creating depth buffer resources (D32_Sfloat)...");
@@ -108,6 +122,14 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkDestroyRenderPass(_loadRenderPass);
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
+        if (_offscreen)
+        {
+            foreach (var image in _swapchainImages)
+                if (image.Handle != 0) _deviceApi.vkDestroyImage(image);
+            foreach (var memory in _offscreenMemory)
+                if (memory.Handle != 0) _deviceApi.vkFreeMemory(memory);
+            _offscreenMemory = [];
+        }
         if (_commandPool.Handle != 0)
             _deviceApi.vkDestroyCommandPool(_commandPool);
 
@@ -122,6 +144,46 @@ public sealed unsafe partial class GraphicsDevice
         _depthImage = default;
         _depthImageMemory = default;
         _depthImageView = default;
+    }
+
+    /// <summary>
+    /// Makes the frame images of a run with no window: one per frame in flight, in the format a
+    /// swapchain usually offers, drawable and copyable, so the passes and captures treat them as
+    /// a swapchain's.
+    /// </summary>
+    private void CreateOffscreenImages(uint width, uint height)
+    {
+        _swapchainFormat = VkFormat.B8G8R8A8Unorm;
+        _swapchainExtent = new VkExtent2D(width, height);
+        _swapchainCopyable = true;
+        _swapchainImages = new VkImage[MaxFramesInFlight];
+        _offscreenMemory = new VkDeviceMemory[MaxFramesInFlight];
+        for (int i = 0; i < MaxFramesInFlight; i++)
+        {
+            VkImageCreateInfo info = new()
+            {
+                imageType = VkImageType.Image2D,
+                format = _swapchainFormat,
+                extent = new VkExtent3D(width, height, 1),
+                mipLevels = 1,
+                arrayLayers = 1,
+                samples = VkSampleCountFlags.Count1,
+                tiling = VkImageTiling.Optimal,
+                usage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferSrc,
+                sharingMode = VkSharingMode.Exclusive,
+                initialLayout = VkImageLayout.Undefined,
+            };
+            _deviceApi.vkCreateImage(&info, null, out _swapchainImages[i]).CheckResult();
+            _deviceApi.vkGetImageMemoryRequirements(_swapchainImages[i], out VkMemoryRequirements req);
+            VkMemoryAllocateInfo alloc = new()
+            {
+                allocationSize = req.size,
+                memoryTypeIndex = FindMemoryType(req.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
+            };
+            _deviceApi.vkAllocateMemory(&alloc, null, out _offscreenMemory[i]).CheckResult();
+            _deviceApi.vkBindImageMemory(_swapchainImages[i], _offscreenMemory[i], 0).CheckResult();
+        }
+        Logger.Info($"Offscreen frames: {MaxFramesInFlight} images of {width}x{height}, no window.");
     }
 
     /// <summary>Queries surface capabilities, supported formats, and present modes for swapchain creation.</summary>
@@ -249,7 +311,7 @@ public sealed unsafe partial class GraphicsDevice
             stencilLoadOp = VkAttachmentLoadOp.DontCare,
             stencilStoreOp = VkAttachmentStoreOp.DontCare,
             initialLayout = VkImageLayout.Undefined,
-            finalLayout = VkImageLayout.PresentSrcKHR
+            finalLayout = _finalLayout
         };
 
         var depthAttachment = new VkAttachmentDescription
@@ -314,7 +376,7 @@ public sealed unsafe partial class GraphicsDevice
             stencilLoadOp = VkAttachmentLoadOp.DontCare,
             stencilStoreOp = VkAttachmentStoreOp.DontCare,
             initialLayout = VkImageLayout.PresentSrcKHR,
-            finalLayout = VkImageLayout.PresentSrcKHR
+            finalLayout = _finalLayout
         };
 
         var depthAttachment = new VkAttachmentDescription
