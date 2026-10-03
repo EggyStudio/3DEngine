@@ -232,17 +232,22 @@ public static partial class SlangCompiler
     /// <summary>
     /// Every file <paramref name="source"/> imports or includes from <paramref name="importDirectory"/>,
     /// followed through their own imports, each once, in the order they are first reached: its path
-    /// from the directory with forward slashes, and its bytes, or <c>null</c> for one not found there,
+    /// from the directory with forward slashes, and its bytes, or <c>null</c> for one not found,
     /// whose name still counts.
     /// </summary>
+    /// <remarks>
+    /// A name is looked for beside the file that names it first and in the import directory after,
+    /// as slangc looks, so a shader in a subfolder that includes its neighbor is keyed by that
+    /// neighbor. The source itself has no folder of its own, since it is compiled from a copy.
+    /// </remarks>
     internal static IEnumerable<(string Path, byte[]? Bytes)> ImportedFiles(string source, string? importDirectory)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        var pending = new Queue<string>(ImportedNames(source));
-        while (pending.TryDequeue(out var name))
+        var pending = new Queue<(string Name, string? From)>(ImportedNames(source).Select(n => (n, (string?)null)));
+        while (pending.TryDequeue(out var next))
         {
-            var found = importDirectory is null ? null : Resolve(importDirectory, name);
-            var path = found is null ? "?" + name : Path.GetRelativePath(importDirectory!, found).Replace('\\', '/');
+            var found = importDirectory is null ? null : Resolve(next.From, importDirectory, next.Name);
+            var path = found is null ? "?" + next.Name : Path.GetRelativePath(importDirectory!, found).Replace('\\', '/');
             if (!seen.Add(path)) continue;
             if (found is null)
             {
@@ -252,8 +257,9 @@ public static partial class SlangCompiler
 
             var bytes = File.ReadAllBytes(found);
             yield return (path, bytes);
-            foreach (var next in ImportedNames(Encoding.UTF8.GetString(bytes)))
-                pending.Enqueue(next);
+            var folder = Path.GetDirectoryName(found);
+            foreach (var name in ImportedNames(Encoding.UTF8.GetString(bytes)))
+                pending.Enqueue((name, folder));
         }
     }
 
@@ -267,12 +273,14 @@ public static partial class SlangCompiler
                 : match.Groups["file"].Value;
     }
 
-    // Slang writes an underscore in a module's name as a dash in its file's, and accepts either.
-    private static string? Resolve(string importDirectory, string name)
+    // Beside the naming file first, then in the import directory. Slang writes an underscore in
+    // a module's name as a dash in its file's, and accepts either.
+    private static string? Resolve(string? fromFolder, string importDirectory, string name)
     {
+        foreach (var folder in fromFolder is null ? [importDirectory] : new[] { fromFolder, importDirectory })
         foreach (var candidate in new[] { name, name.Replace('_', '-') })
         {
-            var full = Path.GetFullPath(Path.Combine(importDirectory, candidate));
+            var full = Path.GetFullPath(Path.Combine(folder, candidate));
             if (File.Exists(full)) return full;
         }
         return null;

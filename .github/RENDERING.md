@@ -38,8 +38,9 @@ vector)` the meaning `matrix * vector` has in GLSL over the same bytes, so the e
 `System.Numerics` matrices unchanged.
 
 Each result is cached in `source/.slang-cache` beside the running program, keyed by a hash of the
-source, the entry point, the arguments, and every file it imports or includes from the import
-directory, followed through their imports, with paths written with forward slashes. A machine
+source, the entry point, the arguments, and every file it imports or includes, looked for beside
+the file that names it and then in the import directory as slangc looks, followed through their
+imports, with paths written with forward slashes. A machine
 without `slangc` reads the cache, an entry whose sources have changed is never used, and a shader
 added beside the others leaves their entries valid. `e3d shaders <folder> <cache>` fills a cache
 ahead of time, which is how `build/pack.sh` ships the built-in shaders compiled.

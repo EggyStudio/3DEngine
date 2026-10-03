@@ -153,4 +153,22 @@ public class SlangCompilerTests : IDisposable
         new ShaderProgram("tinted.slang", new Dictionary<ShaderStage, byte[]> { [ShaderStage.Fragment] = compiled.Spirv }, compiled.Uniforms)
             .UniformSize.Should().Be(32);
     }
+
+    [Fact]
+    public void An_Include_Is_Found_Beside_The_File_That_Names_It_Before_The_Import_Folder()
+    {
+        var folder = Directory.CreateDirectory(Path.Combine(_cache, "nested")).FullName;
+        Directory.CreateDirectory(Path.Combine(folder, "water"));
+        File.WriteAllText(Path.Combine(folder, "water", "ocean.slang"), "#include \"waves.slang\"");
+        File.WriteAllText(Path.Combine(folder, "water", "waves.slang"), "// beside ocean");
+        File.WriteAllText(Path.Combine(folder, "waves.slang"), "// in the import folder");
+
+        byte[]? Waves() => SlangCompiler.ImportedFiles("import water.ocean;", folder).Single(f => f.Path.EndsWith("waves.slang")).Bytes;
+
+        SlangCompiler.ImportedFiles("import water.ocean;", folder).Select(f => f.Path)
+            .Should().Equal("water/ocean.slang", "water/waves.slang");
+        var before = Waves();
+        File.WriteAllText(Path.Combine(folder, "water", "waves.slang"), "// changed beside ocean");
+        Waves().Should().NotEqual(before, "an edit to the included file changes what is hashed");
+    }
 }
