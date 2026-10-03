@@ -6,6 +6,7 @@ var examples = new Dictionary<string, Action>
 {
     ["core_basic_window"] = CoreBasicWindow.Run,
     ["core_3d_camera_free"] = Core3DCameraFree.Run,
+    ["core_3d_camera_first_person"] = Core3DCameraFirstPerson.Run,
     ["core_input_gamepad"] = CoreInputGamepad.Run,
     ["shapes_basic_2d"] = ShapesBasic2D.Run,
     ["shapes_basic_3d"] = ShapesBasic3D.Run,

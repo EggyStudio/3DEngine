@@ -50,6 +50,42 @@ public static partial class Engine3D
     /// <summary>How far the wheel turned this frame, positive away from the user.</summary>
     public static float GetMouseWheelMove() => Input.WheelY;
 
+    // -- Cursor
+
+    private static bool _cursorHidden;
+
+    /// <summary>Shows the mouse cursor over the window.</summary>
+    public static void ShowCursor()
+    {
+        _cursorHidden = false;
+        if (World.TryGetResource<AppWindow>(out _)) SDL.ShowCursor();
+    }
+
+    /// <summary>Hides the mouse cursor over the window.</summary>
+    public static void HideCursor()
+    {
+        _cursorHidden = true;
+        if (World.TryGetResource<AppWindow>(out _)) SDL.HideCursor();
+    }
+
+    /// <summary>Whether the cursor is hidden, by <see cref="HideCursor"/> or <see cref="DisableCursor"/>.</summary>
+    public static bool IsCursorHidden() => _cursorHidden;
+
+    /// <summary>Hides the cursor and holds it in the window, so the mouse only reports movement, as a first-person camera needs.</summary>
+    /// <remarks><see cref="GetMouseDelta"/> keeps reporting movement while the cursor is held, without it reaching the window's edge.</remarks>
+    public static void DisableCursor()
+    {
+        _cursorHidden = true;
+        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, true);
+    }
+
+    /// <summary>Releases and shows the cursor that <see cref="DisableCursor"/> held.</summary>
+    public static void EnableCursor()
+    {
+        _cursorHidden = false;
+        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, false);
+    }
+
     // -- Gamepads, by index in the order they connected
 
     /// <summary>Whether a gamepad is connected at <paramref name="gamepad"/>.</summary>

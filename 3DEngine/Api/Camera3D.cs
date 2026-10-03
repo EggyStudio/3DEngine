@@ -23,6 +23,18 @@ public enum CameraMode
 
     /// <summary>The camera circles its target, and the wheel moves it closer or further.</summary>
     Orbital,
+
+    /// <summary>
+    /// The mouse turns the camera without a button, and W, A, S and D walk along the ground, the
+    /// plane across <see cref="Camera3D.Up"/>. Meant with <see cref="Engine3D.DisableCursor"/>.
+    /// </summary>
+    FirstPerson,
+
+    /// <summary>
+    /// The camera looks at its target from behind. The mouse turns it around the target without a
+    /// button, W, A, S and D walk both along the ground, and the wheel moves closer or further.
+    /// </summary>
+    ThirdPerson,
 }
 
 /// <summary>A camera the program keeps and passes to <see cref="Engine3D.BeginMode3D"/>.</summary>

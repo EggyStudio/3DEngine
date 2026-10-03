@@ -62,8 +62,6 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 - **Fonts bake Latin-1 only**, at one size each, with no signed distance fields, so text far
   larger than its bake blurs. Characters outside Latin-1 are skipped.
 - **Monitors** have no functions, and render targets have no multisampling and no depth to sample.
-- **`UpdateCamera`** has the free and orbital modes. raylib's first-person and third-person modes,
-  which lock the cursor, are not written.
 
 ### Meshes, materials and light
 

@@ -139,16 +139,41 @@ public static partial class Engine3D
         }
 
         var forward = Vector3.Normalize(-offset);
-        if (mouse && input.MouseDown(MouseButton.Right))
+        // The first- and third-person cameras turn with the mouse as it moves, the free camera
+        // only while the right button is held.
+        var turns = mode is CameraMode.FirstPerson or CameraMode.ThirdPerson || input.MouseDown(MouseButton.Right);
+        if (mouse && turns)
+            forward = Turn(forward, up, input.MouseDeltaX, input.MouseDeltaY);
+
+        if (mode is CameraMode.FirstPerson or CameraMode.ThirdPerson)
         {
-            const float sensitivity = 0.003f;
-            var right = Vector3.Normalize(Vector3.Cross(forward, up));
-            var yaw = Quaternion.CreateFromAxisAngle(up, -input.MouseDeltaX * sensitivity);
-            var turned = Vector3.Transform(forward, yaw);
-            var pitched = Vector3.Transform(turned, Quaternion.CreateFromAxisAngle(right, -input.MouseDeltaY * sensitivity));
-            // Stops short of straight up or down, where the look-at basis has no defined right.
-            if (MathF.Abs(Vector3.Dot(pitched, up)) < 0.99f) turned = pitched;
-            forward = Vector3.Normalize(turned);
+            // Walking stays on the ground, whatever the camera looks at.
+            var ahead = forward - Vector3.Dot(forward, up) * up;
+            ahead = ahead.LengthSquared() > 1e-6f ? Vector3.Normalize(ahead) : forward;
+            var aside = Vector3.Normalize(Vector3.Cross(ahead, up));
+            var walk = Vector3.Zero;
+            if (keys)
+            {
+                if (input.KeyDown(Key.W)) walk += ahead;
+                if (input.KeyDown(Key.S)) walk -= ahead;
+                if (input.KeyDown(Key.D)) walk += aside;
+                if (input.KeyDown(Key.A)) walk -= aside;
+            }
+            var pace = keys && (input.KeyDown(Key.LShift) || input.KeyDown(Key.RShift)) ? 10f : 5f;
+            if (walk != Vector3.Zero) walk = Vector3.Normalize(walk) * pace * dt;
+
+            if (mode == CameraMode.FirstPerson)
+            {
+                camera.Position += walk;
+                camera.Target = camera.Position + forward * MathF.Max(distance, 0.001f);
+            }
+            else
+            {
+                if (mouse && input.WheelY != 0) distance = Math.Clamp(distance * MathF.Pow(0.9f, input.WheelY), 0.5f, 1000f);
+                camera.Target += walk;
+                camera.Position = camera.Target - forward * distance;
+            }
+            return;
         }
 
         var side = Vector3.Normalize(Vector3.Cross(forward, up));
@@ -169,6 +194,19 @@ public static partial class Engine3D
 
         camera.Position += move;
         camera.Target = camera.Position + forward * MathF.Max(distance, 0.001f);
+    }
+
+    // Turns a direction by the mouse's movement: around the up axis for sideways movement, and up
+    // or down for vertical movement, stopping short of straight up or down, where the look-at
+    // basis has no defined right.
+    private static Vector3 Turn(Vector3 forward, Vector3 up, int dx, int dy)
+    {
+        const float sensitivity = 0.003f;
+        var right = Vector3.Normalize(Vector3.Cross(forward, up));
+        var turned = Vector3.Transform(forward, Quaternion.CreateFromAxisAngle(up, -dx * sensitivity));
+        var pitched = Vector3.Transform(turned, Quaternion.CreateFromAxisAngle(right, -dy * sensitivity));
+        if (MathF.Abs(Vector3.Dot(pitched, up)) < 0.99f) turned = pitched;
+        return Vector3.Normalize(turned);
     }
 
     // Pixels from the top left corner to clip space. Vulkan's clip space points down, so the top

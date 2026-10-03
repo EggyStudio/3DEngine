@@ -46,7 +46,9 @@ frame that sends anything to it, and keeps its picture in frames that do not.
 
 `Camera3D` holds `Position`, `Target`, `Up`, `FovY` (degrees) and `Projection` (`Perspective` or
 `Orthographic`). `CameraMode.Free` moves with W, A, S, D, Q and E, turns while the right mouse
-button is dragged, and goes faster with Shift.
+button is dragged, and goes faster with Shift. `Orbital` circles the target. `FirstPerson` turns
+with the mouse and walks along the ground with W, A, S and D, and `ThirdPerson` does the same
+around its target, which the program draws as the player. Both are meant with `DisableCursor`.
 
 ## Input
 
@@ -65,6 +67,11 @@ int GetMouseX();                                         // Pointer x
 int GetMouseY();                                         // Pointer y
 Vector2 GetMouseDelta();                                 // How far the pointer moved this frame
 float GetMouseWheelMove();                               // How far the wheel turned this frame
+void ShowCursor();                                       // Show the cursor
+void HideCursor();                                       // Hide the cursor
+bool IsCursorHidden();                                   // Whether it is hidden
+void DisableCursor();                                    // Hide the cursor and hold it, for mouse look
+void EnableCursor();                                     // Release and show it
 
 bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
 string GetGamepadName(int gamepad);                                    // Its name
