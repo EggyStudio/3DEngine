@@ -84,7 +84,7 @@ public static class SceneSpawner
 
         var entities = new List<int>();
         var rootMatrix = ComputeRootMatrix(scene, settings);
-        var ctx = new SpawnContext(assetServer, sceneSourcePath, materialLibrary);
+        var ctx = new SpawnContext(assetServer, sceneSourcePath, materialLibrary, scene);
 
         foreach (var node in scene.Roots)
             SpawnRecursive(ecs, node, rootMatrix, settings, sceneAssetId, entities, ctx);
@@ -98,11 +98,15 @@ public static class SceneSpawner
         public AssetServer? Server { get; }
         public string? SceneDirectory { get; }
         public MaterialLibrary? Materials { get; }
-        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials)
+        public Scene Scene { get; }
+        public string SceneKey { get; }
+        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials, Scene scene)
         {
             Server = server;
             SceneDirectory = ResolveSceneDirectory(sceneSourcePath);
             Materials = materials;
+            Scene = scene;
+            SceneKey = (sceneSourcePath ?? scene.Name).Replace('\\', '/').TrimStart('/');
         }
 
         private static string? ResolveSceneDirectory(string? sceneSourcePath)
@@ -349,12 +353,37 @@ public static class SceneSpawner
     private static Handle<Texture> LoadTexture(SpawnContext ctx, SceneTextureRef? texRef, bool srgb)
     {
         if (texRef is null || ctx.Server is null) return Handle<Texture>.Invalid;
-        var resolved = ResolveTexturePath(ctx.SceneDirectory, texRef.AssetPath);
+        var resolved = EmbeddedTexturePath(ctx, texRef.AssetPath) ?? ResolveTexturePath(ctx.SceneDirectory, texRef.AssetPath);
         if (string.IsNullOrEmpty(resolved)) return Handle<Texture>.Invalid;
 
         return srgb
             ? ctx.Server.LoadTextureSrgb(resolved, generateMips: true)
             : ctx.Server.LoadTextureLinear(resolved, generateMips: true);
+    }
+
+    /// <summary>
+    /// Publishes an image the scene file carries inside itself to the in-memory asset source and
+    /// returns the path it is read from there, or returns null when the path names a file.
+    /// </summary>
+    /// <remarks>
+    /// The path is keyed by the scene and the image's index, so two models whose materials both
+    /// say <c>*0</c> do not share a texture. Raw pixels, which few formats store, have no file
+    /// format for the texture loader to read and are left out with a warning.
+    /// </remarks>
+    private static string? EmbeddedTexturePath(SpawnContext ctx, string texturePath)
+    {
+        if (ctx.Scene.FindEmbeddedTexture(texturePath) is not { } embedded) return null;
+        if (embedded.Encoded is not { } bytes)
+        {
+            Logger.Warn($"SceneSpawner: '{ctx.Scene.Name}' embeds {texturePath} as raw pixels, which the asset server cannot load. It is left out.");
+            return string.Empty;
+        }
+
+        var index = ctx.Scene.EmbeddedTextures.IndexOf(embedded);
+        var extension = embedded.FormatHint is { Length: > 0 } hint ? hint.ToLowerInvariant() : "png";
+        var path = $"__embedded__/{ctx.SceneKey}/{index}.{extension}";
+        InMemoryAssetReader.Publish(new AssetPath(path), bytes);
+        return path;
     }
 
     /// <summary>

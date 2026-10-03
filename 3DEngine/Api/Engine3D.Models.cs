@@ -1,4 +1,5 @@
 using System.Numerics;
+using StbImageSharp;
 
 namespace Engine;
 
@@ -173,8 +174,8 @@ public static partial class Engine3D
     /// </summary>
     /// <returns>The model, or an empty one when the file cannot be read, with the reason in the log.</returns>
     /// <remarks>
-    /// Textures are looked for beside the model file. Textures embedded in the file (as a
-    /// <c>.glb</c> carries them) are not read, and those meshes draw in their color alone.
+    /// Textures embedded in the file, as a <c>.glb</c> carries them, are decoded from it, and the
+    /// rest are looked for beside the model file.
     /// </remarks>
     public static Model LoadModel(string fileName)
     {
@@ -235,11 +236,20 @@ public static partial class Engine3D
 
             var c = Vector4.Clamp(material.BaseColorFactor, Vector4.Zero, Vector4.One) * 255;
             var texture = default(Texture2D);
-            if (material.BaseColorTexture is { AssetPath: var texturePath } && !texturePath.StartsWith('*'))
+            if (material.BaseColorTexture is { AssetPath: var texturePath })
             {
-                var full = Path.Combine(directory, texturePath.Replace('\\', Path.DirectorySeparatorChar));
-                if (!textures.TryGetValue(full, out texture))
-                    textures[full] = texture = LoadTexture(full);
+                if (scene.FindEmbeddedTexture(texturePath) is { } embedded)
+                {
+                    var key = "embedded:" + texturePath;
+                    if (!textures.TryGetValue(key, out texture))
+                        textures[key] = texture = LoadEmbeddedTexture(embedded, fileName, texturePath);
+                }
+                else if (!texturePath.StartsWith('*'))
+                {
+                    var full = Path.Combine(directory, texturePath.Replace('\\', Path.DirectorySeparatorChar));
+                    if (!textures.TryGetValue(full, out texture))
+                        textures[full] = texture = LoadTexture(full);
+                }
             }
 
             materials.Add(new ModelMaterial(new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W), texture));
@@ -258,6 +268,23 @@ public static partial class Engine3D
             MeshMaterial = [.. meshMaterial],
             OwnedTextures = [.. textures.Values.Where(t => t.IsValid)],
         };
+    }
+
+    private static Texture2D LoadEmbeddedTexture(SceneEmbeddedTexture embedded, string fileName, string texturePath)
+    {
+        if (embedded.Rgba is { } rgba)
+            return LoadTextureFromImage(new Image(rgba, embedded.Width, embedded.Height));
+
+        try
+        {
+            var result = ImageResult.FromMemory(embedded.Encoded!, ColorComponents.RedGreenBlueAlpha);
+            return LoadTextureFromImage(new Image(result.Data, result.Width, result.Height));
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        {
+            ApiLogger.Warn($"LoadModel: '{fileName}' embeds a texture ({texturePath}, {embedded.FormatHint}) that could not be decoded: {ex.Message}");
+            return default;
+        }
     }
 
     /// <summary>Makes a model of one mesh with a white material.</summary>

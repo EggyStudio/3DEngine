@@ -58,6 +58,29 @@ public sealed class Scene
     /// </summary>
     public double SourceMetersPerUnit { get; init; } = 1.0;
 
+    /// <summary>Images the source file carries inside itself, as a <c>.glb</c> does, which its materials name as <c>*0</c>, <c>*1</c> and so on.</summary>
+    public List<SceneEmbeddedTexture> EmbeddedTextures { get; } = new();
+
+    /// <summary>
+    /// The embedded image a material's texture path names, or null when the path names a file.
+    /// </summary>
+    /// <remarks>
+    /// A path of <c>*</c> and an index names one by position, which is what glTF and FBX imports
+    /// write. Some formats name an embedded image by its original file name instead, so a path
+    /// whose file name matches one is answered too, as Assimp's own <c>GetEmbeddedTexture</c> does.
+    /// </remarks>
+    public SceneEmbeddedTexture? FindEmbeddedTexture(string path)
+    {
+        if (path.StartsWith('*'))
+            return int.TryParse(path.AsSpan(1), out var index) && index >= 0 && index < EmbeddedTextures.Count
+                ? EmbeddedTextures[index]
+                : null;
+
+        var name = System.IO.Path.GetFileName(path.Replace('\\', '/'));
+        return EmbeddedTextures.FirstOrDefault(t =>
+            t.FileName is { Length: > 0 } file && string.Equals(System.IO.Path.GetFileName(file.Replace('\\', '/')), name, StringComparison.OrdinalIgnoreCase));
+    }
+
     /// <summary>Depth-first enumeration of every node in the scene.</summary>
     public IEnumerable<SceneNode> Traverse()
     {
@@ -85,3 +108,17 @@ public enum SceneCoordinateSystem
     /// <summary>Right-handed, Z-up (common for USD, Blender, Unreal).</summary>
     ZUp,
 }
+
+/// <summary>An image carried inside a model file.</summary>
+/// <remarks>
+/// Either <see cref="Encoded"/> holds a whole image file (PNG or JPEG, as glTF stores them) with
+/// <see cref="FormatHint"/> naming its kind, or <see cref="Rgba"/> holds decoded pixels,
+/// <see cref="Width"/> by <see cref="Height"/>, which a few formats store raw.
+/// </remarks>
+/// <param name="FileName">The name the image had before it was embedded, when the file kept it.</param>
+/// <param name="Encoded">The image file's bytes, or null for raw pixels.</param>
+/// <param name="FormatHint">The encoded image's kind, such as <c>png</c> or <c>jpg</c>.</param>
+/// <param name="Width">The width of raw pixels, or zero for an encoded image.</param>
+/// <param name="Height">The height of raw pixels, or zero for an encoded image.</param>
+/// <param name="Rgba">Raw pixels, four bytes each, or null for an encoded image.</param>
+public sealed record SceneEmbeddedTexture(string? FileName, byte[]? Encoded, string FormatHint, int Width, int Height, byte[]? Rgba);

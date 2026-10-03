@@ -172,7 +172,7 @@ textures. Models keep the engine's model shader.
 ## Models and meshes
 
 ```csharp
-Model LoadModel(string fileName);                                          // Read a model through Assimp (glTF, FBX, OBJ, ...) with its base colors and textures
+Model LoadModel(string fileName);                                          // Read a model through Assimp (glTF, FBX, OBJ, ...) with its base colors and textures, embedded ones too
 Model LoadModelFromMesh(ModelMesh mesh);                                   // A model of one mesh with a white material
 void UnloadModel(Model model);                                             // Free a model's meshes and the textures it loaded
 bool IsModelValid(Model model);                                            // Whether a model's meshes are loaded

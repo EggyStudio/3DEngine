@@ -154,6 +154,11 @@ public sealed class AssimpModelReader : ISceneReader
             }
         }
 
+        // Every embedded image is kept, in Assimp's order, because materials name them by index.
+        if (aScene.HasTextures)
+            foreach (var texture in aScene.Textures)
+                scene.EmbeddedTextures.Add(ConvertEmbedded(texture));
+
         // Animations: clip per aiAnimation, attached to the scene root for now (a future
         // ticket can move them onto the resolved target nodes once a clip-graph component
         // exists). LoadPayloads has no dedicated Animations flag yet; gate on whether the
@@ -256,6 +261,24 @@ public sealed class AssimpModelReader : ISceneReader
             };
         }
         return result;
+    }
+
+    private static SceneEmbeddedTexture ConvertEmbedded(A.EmbeddedTexture texture)
+    {
+        if (texture.IsCompressed)
+            return new SceneEmbeddedTexture(texture.Filename, texture.CompressedData, texture.CompressedFormatHint ?? "", 0, 0, null);
+
+        // Assimp stores raw pixels as BGRA.
+        var texels = texture.NonCompressedData;
+        var rgba = new byte[texels.Length * 4];
+        for (int i = 0; i < texels.Length; i++)
+        {
+            rgba[i * 4] = texels[i].R;
+            rgba[i * 4 + 1] = texels[i].G;
+            rgba[i * 4 + 2] = texels[i].B;
+            rgba[i * 4 + 3] = texels[i].A;
+        }
+        return new SceneEmbeddedTexture(texture.Filename, null, "", texture.Width, texture.Height, rgba);
     }
 
     private static SceneTextureRef? TryGetTexture(A.Material m, A.TextureType type)
