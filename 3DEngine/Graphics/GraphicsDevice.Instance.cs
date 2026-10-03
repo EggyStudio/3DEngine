@@ -75,7 +75,10 @@ public sealed unsafe partial class GraphicsDevice
         }
 
         Logger.Debug($"VkInstance created (handle=0x{_instance.Handle:X}).");
-        _instanceApi = GetApi(_instance);
+        // Made directly rather than through GetApi, which caches tables by handle forever. A later
+        // instance can be given a destroyed one's handle, and would get its table, whose pointers
+        // lead into a driver the loader has since unloaded.
+        _instanceApi = new VkInstanceApi(_instance);
 
         if (_validationEnabled)
         {

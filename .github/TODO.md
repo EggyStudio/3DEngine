@@ -130,10 +130,10 @@ not reached.
 
 ### Testing
 
-- **Runs right after a build are sometimes wrong.** One failed most tests that construct an `App`,
-  and another reported 627 of 635 tests, all passing, with none missing from the runs before and
-  after. Both followed a `dotnet test` that rebuilt the test project, and neither repeated in the
-  runs after. The cause is not known.
+- **One run failed most tests that construct an `App`**, right after a build, and sixteen runs
+  after it passed. The cause is not known, and the failing run's messages were not kept. (Runs
+  that reported fewer tests than exist were the test host crashing in the render tests, through
+  Vortice's cache of API tables by handle, which the device no longer uses.)
 - **Few tests render.** `OffscreenRenderTests` draws shapes and a lit cube offscreen and reads the
   pixels back. The other passes (text, ImGui, render targets, custom shaders) are covered only by
   the example captures CI takes, which nothing compares against a reference.

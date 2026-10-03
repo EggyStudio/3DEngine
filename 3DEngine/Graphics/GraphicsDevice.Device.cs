@@ -61,7 +61,8 @@ public sealed unsafe partial class GraphicsDevice
         _instanceApi.vkCreateDevice(_physicalDevice, &createInfo, null, out _device).CheckResult();
         Logger.Debug($"VkDevice created (handle=0x{_device.Handle:X}).");
 
-        _deviceApi = GetApi(_instance, _device);
+        // Made directly for the same reason as the instance's table: GetApi's cache outlives the device.
+        _deviceApi = new VkDeviceApi(_instanceApi, _device);
 
         Logger.Debug("Retrieving graphics and present device queues...");
         _deviceApi.vkGetDeviceQueue(_graphicsQueueFamily, 0, out _graphicsQueue);
