@@ -68,9 +68,22 @@ internal static class ConsoleBuiltins
         var entities = ecs.ComponentTypes.SelectMany(ecs.EntitiesOf).Distinct().Order().ToList();
         var text = new StringBuilder();
         foreach (var entity in entities.Take(Math.Max(1, limit)))
-            text.Append(entity).Append(": ").AppendJoin(", ", ecs.ComponentTypesOf(entity).Select(t => t.Name)).Append('\n');
+        {
+            text.Append(entity);
+            if (ecs.NameOf(entity) is { } name) text.Append(" \"").Append(name).Append('"');
+            if (ecs.ParentOf(entity) is var parent and not 0) text.Append(" under ").Append(parent);
+            text.Append(": ").AppendJoin(", ", ecs.ComponentTypesOf(entity).Select(t => t.Name)).Append('\n');
+        }
         if (entities.Count > limit) text.Append($"... {entities.Count - limit} more\n");
         return entities.Count == 0 ? "no entities with components" : text.ToString().TrimEnd();
+    }
+
+    [Command("entity.find", "The id of the first entity with a name: entity.find <name>")]
+    internal static string EntityFind(string name)
+    {
+        var entity = ConsoleHost.Ecs.FindByName(name);
+        if (entity == 0) ConsoleHost.Fail("NOT_FOUND", $"No entity is named '{name}'.");
+        return entity == 0 ? $"no entity named {name}" : entity.ToString();
     }
 
     [Command("entity.get", "An entity's components with their fields: entity.get <id>")]

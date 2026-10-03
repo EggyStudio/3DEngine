@@ -78,6 +78,9 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.
 - `Changed<T>(entity)` reads the change bit, which `Update<T>` and `QueryRef` set and `First` clears.
+- `Name` and `Parent` components give entities names and a hierarchy (`SetName`, `SetParent`,
+  `ChildrenOf`, `DespawnRecursive`). The parent is a handle, and transforms are not composed through
+  it.
 - `EcsCommands` queues spawns, despawns, adds and removes as closures, applied in `PostUpdate`, so a
   system can change the world's shape while iterating it.
 

@@ -46,7 +46,8 @@ outside the examples is driven by running it with `--serve`.
 | `frames.wait <n>` | answers once n more frames have run |
 | `shot <path>` | writes the next frame to a PNG and answers once it is written (`./e3d shot <path>`) |
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
-| `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities, their component types, and one entity's fields |
+| `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |
+| `entity.find <name>` | the id of the first entity with that name |
 | `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`), marking it changed |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |

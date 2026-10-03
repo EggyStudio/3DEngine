@@ -23,8 +23,10 @@ removed from this file, and an item that is partly done is rewritten around what
 - **Only single-component queries filter.** `QueryRef<T>()` narrows with `With`, `Without` and
   `Changed` (up to four of each) and allocates nothing. `QueryRef<T1, T2>` has no filters, and
   `Query<...>` yields copies through an allocating iterator.
-- **Entities have no names or parents**, which scene files and an ImGui window listing the world
-  need.
+- **Parents do not compose transforms.** `Name` and `Parent` components (with `SetName`,
+  `FindByName`, `SetParent`, `ChildrenOf`, `DespawnRecursive`) give entities names and a hierarchy,
+  and the scene spawner fills both in, but every `Transform` is in world space, so moving a parent
+  does not move its children. A local transform propagated to a world one each frame is needed.
 
 ### Behaviors
 

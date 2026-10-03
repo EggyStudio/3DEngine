@@ -150,7 +150,8 @@ public static class SceneSpawner
         SceneSpawnSettings settings,
         ulong sceneAssetId,
         List<int> entities,
-        SpawnContext ctx)
+        SpawnContext ctx,
+        int parentEntity = 0)
     {
         var localMatrix = ComposeLocalMatrix(node.LocalTransform);
         var worldMatrix = localMatrix * parentWorld;
@@ -158,12 +159,16 @@ public static class SceneSpawner
         bool include = node.Enabled
                        && settings.IncludePurposes.HasFlag(PurposeFlag(node.Purpose));
 
+        var spawned = parentEntity;
         if (include && HasSpawnablePayload(node))
         {
             var entity = ecs.Spawn();
             entities.Add(entity);
+            spawned = entity;
 
             ecs.Add(entity, DecomposeToTransform(worldMatrix));
+            ecs.Add(entity, new Name(node.Name));
+            if (parentEntity != 0) ecs.SetParent(entity, parentEntity);
 
             if (settings.AttachSceneInstanceMarker)
             {
@@ -177,8 +182,9 @@ public static class SceneSpawner
             AttachComponents(ecs, entity, node, settings, ctx);
         }
 
+        // A node without a payload spawns nothing, so its children hang from the nearest ancestor that did.
         foreach (var child in node.Children)
-            SpawnRecursive(ecs, child, worldMatrix, settings, sceneAssetId, entities, ctx);
+            SpawnRecursive(ecs, child, worldMatrix, settings, sceneAssetId, entities, ctx, spawned);
     }
 
     private static bool HasSpawnablePayload(SceneNode node)
