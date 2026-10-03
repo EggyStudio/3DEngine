@@ -41,8 +41,10 @@ removed from this file, and an item that is partly done is rewritten around what
 `Engine3D` covers the window, timing, keyboard and mouse, the frame, `Camera3D`, 2D and 3D shapes,
 images and textures, models and meshes, and text ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Loading shaders.** `LoadShader` with `BeginShaderMode`, its parameters set by name, and an
-  example.
+- **Custom shaders are for the immediate pass only.** A shader loaded with `LoadShader` replaces
+  the stages of shapes, textures and text, and reads four `float4` slots (`SetShaderValue`) rather
+  than parameters by name. Models cannot take one, and a shader cannot bind textures of its own
+  beyond the one it draws.
 - **Music is not streamed.** `LoadMusicStream` decodes the whole file, so `UpdateMusicStream` does
   nothing and a long piece costs its length in memory. Sounds have no pan, and the time a piece has
   played is not reported (`GetMusicTimePlayed`). MP3 and FLAC are not read.

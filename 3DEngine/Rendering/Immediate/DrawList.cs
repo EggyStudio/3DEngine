@@ -15,8 +15,11 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="VertexCount">Number of vertices in the run.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
 /// <param name="Target">The render target the run draws into, or 0 for the window.</param>
+/// <param name="Shader">The <see cref="ShaderStore"/> id the run draws with, or 0 for the engine's own.</param>
+/// <param name="Params">The values the shader reads with <c>param</c>.</param>
 public readonly record struct DrawBatch(
-    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount, int Texture = 0, int Target = 0);
+    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount,
+    int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default);
 
 /// <summary>
 /// The lines and triangles recorded for the current frame by the flat API's <c>Draw</c> calls,
@@ -49,6 +52,22 @@ public sealed class DrawList
 
     /// <summary>The render target the next recorded shapes draw into, or 0 for the window.</summary>
     public int Target { get; private set; }
+
+    /// <summary>The shader the next recorded shapes draw with, or 0 for the engine's own.</summary>
+    public int Shader { get; private set; }
+
+    /// <summary>The values that shader reads.</summary>
+    public ShaderParams Params { get; private set; }
+
+    /// <summary>Draws the following shapes with shader <paramref name="shader"/>, reading <paramref name="parameters"/>, or with the engine's own when it is 0.</summary>
+    public void SetShader(int shader, ShaderParams parameters)
+    {
+        lock (_gate)
+        {
+            Shader = shader;
+            Params = parameters;
+        }
+    }
 
     private readonly Dictionary<int, Color> _targetClears = [];
 
@@ -147,6 +166,8 @@ public sealed class DrawList
             Transform = Matrix4x4.Identity;
             DepthTest = false;
             Target = 0;
+            Shader = 0;
+            Params = default;
             _targetClears.Clear();
         }
     }
@@ -165,14 +186,15 @@ public sealed class DrawList
         {
             var last = _batches[^1];
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
-                && last.Texture == texture && last.Target == Target && last.FirstVertex + last.VertexCount == at)
+                && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
+                && last.FirstVertex + last.VertexCount == at)
             {
                 _batches[^1] = last with { VertexCount = last.VertexCount + vertices };
                 return at;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params));
         return at;
     }
 }

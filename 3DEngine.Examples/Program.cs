@@ -12,6 +12,7 @@ var examples = new Dictionary<string, Action>
     ["textures_basic"] = TexturesBasic.Run,
     ["textures_render_target"] = TexturesRenderTarget.Run,
     ["models_loading"] = ModelsLoading.Run,
+    ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["text_fonts"] = TextFonts.Run,
     ["audio_sound"] = AudioSound.Run,
     ["gui_imgui_window"] = GuiImGuiWindow.Run,

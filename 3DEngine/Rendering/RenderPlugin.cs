@@ -48,6 +48,8 @@ public sealed class RenderPlugin : IPlugin
                 renderWorld.Set(models);
             if (world.TryGetResource<MeshStore>(out var meshes))
                 renderWorld.Set(meshes);
+            if (world.TryGetResource<ShaderStore>(out var shaders))
+                renderWorld.Set(shaders);
         }
     }
 
@@ -78,6 +80,7 @@ public sealed class RenderPlugin : IPlugin
         app.World.InitResource<ModelDrawList>();
         app.World.InitResource<TextureStore>();
         app.World.InitResource<MeshStore>();
+        app.World.InitResource<ShaderStore>();
         app.AddSystem(Stage.First, new SystemDescriptor(static world =>
             {
                 world.Resource<DrawList>().Clear();

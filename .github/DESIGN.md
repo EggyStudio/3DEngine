@@ -25,7 +25,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **The flat API** for the window, timing, input, the frame, cameras, 2D and 3D shapes and text,
   listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
-What is missing from the flat API is custom shaders.
+Every area of the flat API has a first version. What each lacks is in [TODO.md](TODO.md).
 
 ## 1. One flat API
 
@@ -72,7 +72,7 @@ The areas mirror raylib's modules, and each is one file under `3DEngine/Api/`:
 | `Engine3D.Text.cs`, `Engine3D.Fonts.cs` | text and fonts |
 | `Engine3D.Textures.cs` | images and textures |
 | `Engine3D.Models.cs` | meshes, models and materials |
-| `Engine3D.Shaders.cs` | Slang shaders and their parameters, not written |
+| `Engine3D.Shaders.cs` | Slang shaders and their parameters |
 | `Engine3D.Audio.cs` | sounds and music |
 
 Arguments are plain values (`Vector3`, `Color`, `Rectangle`, `Camera3D`), and resources are small
@@ -207,6 +207,8 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. `Shaders`, with parameters set by name.
+1. Shaders for models, with parameters by name from Slang's reflection.
+2. Mipmaps and image editing (`ImageResize`, `ImageDraw*`).
+3. More mesh generators and `DrawModelWires`.
 
-Each area lands with its lines in the cheatsheet and an example beside it.
+Each lands with its lines in the cheatsheet and an example beside it.

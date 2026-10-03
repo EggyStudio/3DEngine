@@ -1,32 +1,12 @@
 // Draws the lines and triangles the flat API's Draw calls record: each vertex's color times the
-// batch's texture, which is a white pixel for untextured shapes.
-
-struct PushConstants
-{
-    float4x4 transform;
-};
-
-[[vk::push_constant]]
-ConstantBuffer<PushConstants> push;
-
-[[vk::binding(1, 0)]]
-Sampler2D boundTexture;
-
-struct VertexOutput
-{
-    float4 position : SV_Position;
-    float2 uv : TEXCOORD0;
-    float4 color : COLOR0;
-};
+// batch's texture, which is a white pixel for untextured shapes. A shader loaded with LoadShader
+// replaces fragmentMain, and vertexMain when it has one, for the draws inside BeginShaderMode.
+import engine;
 
 [shader("vertex")]
 VertexOutput vertexMain(float3 position : POSITION, float2 uv : TEXCOORD0, float4 color : COLOR0)
 {
-    VertexOutput output;
-    output.position = mul(push.transform, float4(position, 1.0));
-    output.uv = uv;
-    output.color = color;
-    return output;
+    return transformVertex(position, uv, color);
 }
 
 [shader("fragment")]

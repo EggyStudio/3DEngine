@@ -70,6 +70,14 @@ ImGui. It writes the frame's vertices into the dynamic buffer arena in one copy 
 per batch with `immediate.slang`, the batch's transform a push constant. The list is cleared in
 `First`.
 
+A batch also carries a shader id and four `float4` values. Inside `BeginShaderMode`, the batch draws
+with the stages of a program the flat API compiled (`ShaderStore`), whose fragment stage, and
+vertex stage when it has one, replace the engine's. Every immediate shader imports
+`shaders/engine.slang`, which declares the vertex output, the texture binding and the 128-byte push
+block (the transform, then the four values), so a program's shader matches the pipeline without
+declaring any of it. An unloaded shader's stages and pipelines are destroyed after the frames in
+flight that might use them.
+
 This is raylib's rlgl layer in Vulkan terms. It keeps shapes, grids, gizmos and debug lines out of
 the ECS and out of the mesh path. Its four pipelines (lines or triangles, depth tested or not)
 blend by alpha and do not cull, so a shape's triangles may wind either way. A texel with no

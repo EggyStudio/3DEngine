@@ -23,6 +23,7 @@ public static partial class Engine3D
         GetApp().BeginFrame();
         _inFrame = true;
         _target = default;
+        _shader = default;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
     }
 

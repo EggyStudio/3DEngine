@@ -16,8 +16,9 @@ namespace Engine;
 /// both read the same buffer.
 /// </para>
 /// <para>
-/// Each batch is one draw call with its transform as a push constant and its texture, from
-/// <see cref="GpuTextures"/>, as the descriptor set. Culling is off, so a shape's triangles may wind
+/// Each batch is one draw call with its transform and its shader's four values as push constants
+/// and its texture, from <see cref="GpuTextures"/>, as the descriptor set. A batch recorded inside
+/// <c>BeginShaderMode</c> draws with that shader's stages, from <see cref="ShaderStore"/>. Culling is off, so a shape's triangles may wind
 /// either way. Render targets have render passes compatible with the window's, so the same
 /// pipelines draw into both.
 /// </para>
@@ -26,9 +27,30 @@ public sealed class ImmediateRenderer : IDisposable
 {
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
-    private IShader? _vertexShader;
-    private IShader? _fragmentShader;
-    private readonly IPipeline?[] _pipelines = new IPipeline?[4];
+    // The push block: the transform, then the four float4 values a custom shader reads.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Push
+    {
+        public Matrix4x4 Transform;
+        public ShaderParams Params;
+    }
+
+    private sealed class Stages(IShader vertex, IShader fragment) : IDisposable
+    {
+        public IShader Vertex { get; } = vertex;
+        public IShader Fragment { get; } = fragment;
+        public void Dispose()
+        {
+            Fragment.Dispose();
+            Vertex.Dispose();
+        }
+    }
+
+    private Stages? _engineStages;
+    private readonly Dictionary<int, Stages> _customStages = [];
+    private readonly Dictionary<(int Shader, int Slot), IPipeline> _pipelines = [];
+    private readonly List<(long Frame, IDisposable Stages)> _retired = [];
+    private long _frame;
     private DynamicAllocation? _vertices;
 
     /// <summary>Creates the renderer from the compiled stages of <c>immediate.slang</c>.</summary>
@@ -42,6 +64,7 @@ public sealed class ImmediateRenderer : IDisposable
     public void Upload(RenderContext renderContext, RenderWorld renderWorld)
     {
         _vertices = null;
+        RetireUnloadedShaders(renderWorld.TryGet<ShaderStore>());
         var drawList = renderWorld.TryGet<DrawList>();
         if (drawList is null || drawList.Vertices.IsEmpty || renderContext.DynamicAllocator is not { } allocator) return;
 
@@ -70,13 +93,13 @@ public sealed class ImmediateRenderer : IDisposable
                 bound = true;
             }
 
+            // A batch whose shader was unloaded after it was recorded draws with the engine's own.
             var pipeline = Pipeline(gfx, renderPass, renderWorld, batch);
             pass.SetPipeline(pipeline);
             pass.SetBindGroup(pipeline, textures.SetFor(gfx, batch.Texture));
 
-            var transform = batch.Transform;
-            pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0,
-                MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in transform)));
+            var push = new Push { Transform = batch.Transform, Params = batch.Params };
+            pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.Draw((uint)batch.VertexCount, 1, (uint)batch.FirstVertex);
         }
     }
@@ -84,15 +107,13 @@ public sealed class ImmediateRenderer : IDisposable
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, DrawBatch batch)
     {
         var slot = (batch.Topology == PrimitiveTopology.LineList ? 2 : 0) + (batch.DepthTest ? 1 : 0);
-        if (_pipelines[slot] is { } existing) return existing;
-
-        _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
-        _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
+        var stages = StagesFor(gfx, renderWorld, batch.Shader, out var shader);
+        if (_pipelines.TryGetValue((shader, slot), out var existing)) return existing;
 
         var desc = new GraphicsPipelineDesc(
             renderPass,
-            _vertexShader,
-            _fragmentShader,
+            stages.Vertex,
+            stages.Fragment,
             BlendEnabled: true,
             CullBackFace: false,
             VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ImmediateVertex>())],
@@ -102,23 +123,80 @@ public sealed class ImmediateRenderer : IDisposable
                 new VertexInputAttributeDesc(1, 0, VertexFormat.Float2, 12),
                 new VertexInputAttributeDesc(2, 0, VertexFormat.UNormR8G8B8A8, 20),
             ],
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
             DepthTestEnabled: batch.DepthTest,
             DepthWriteEnabled: batch.DepthTest,
             DepthCompareOp: CompareOp.LessOrEqual,
             Topology: batch.Topology);
 
-        var pipeline = renderWorld.TryGet<PipelineCache>() is { } cache
+        // Custom shaders' pipelines are kept out of the shared cache, because they are destroyed
+        // when the shader is unloaded and the cache would hand them out afterward.
+        var pipeline = shader == 0 && renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)
             : gfx.CreateGraphicsPipeline(desc);
-        return _pipelines[slot] = pipeline;
+        return _pipelines[(shader, slot)] = pipeline;
+    }
+
+    // The stages for a batch's shader, made on first use. A shader that is not loaded falls back
+    // to the engine's own, and shader is set to the id the stages belong to.
+    private Stages StagesFor(IGraphicsDevice gfx, RenderWorld renderWorld, int id, out int shader)
+    {
+        _engineStages ??= new Stages(
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv)),
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv)));
+
+        shader = 0;
+        if (id == 0) return _engineStages;
+        if (_customStages.TryGetValue(id, out var custom))
+        {
+            shader = id;
+            return custom;
+        }
+        if (renderWorld.TryGet<ShaderStore>()?.Get(id) is not { } program) return _engineStages;
+
+        var vertex = program.Stages.TryGetValue(ShaderStage.Vertex, out var vs) ? vs : _vertexSpv.ToArray();
+        custom = new Stages(
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, vertex)),
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment)));
+        _customStages[id] = custom;
+        shader = id;
+        return custom;
+    }
+
+    // An unloaded shader's stages and pipelines may still be in use by a frame in flight, so they
+    // are destroyed GpuTextures.RetireFrames frames after the shader is unloaded.
+    private void RetireUnloadedShaders(ShaderStore? store)
+    {
+        _frame++;
+        if (store is not null)
+        {
+            foreach (var id in store.TakeRemovals())
+            {
+                if (_customStages.Remove(id, out var stages)) _retired.Add((_frame, stages));
+                foreach (var key in _pipelines.Keys.Where(k => k.Shader == id).ToList())
+                {
+                    if (_pipelines.Remove(key, out var pipeline) && pipeline is IDisposable disposable)
+                        _retired.Add((_frame, disposable));
+                }
+            }
+        }
+
+        for (int i = _retired.Count - 1; i >= 0; i--)
+        {
+            if (_frame - _retired[i].Frame < GpuTextures.RetireFrames) continue;
+            _retired[i].Stages.Dispose();
+            _retired.RemoveAt(i);
+        }
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        _fragmentShader?.Dispose();
-        _vertexShader?.Dispose();
+        foreach (var (_, disposable) in _retired) disposable.Dispose();
+        foreach (var ((shader, _), pipeline) in _pipelines)
+            if (shader != 0 && pipeline is IDisposable disposable) disposable.Dispose();
+        foreach (var stages in _customStages.Values) stages.Dispose();
+        _engineStages?.Dispose();
     }
 }
 

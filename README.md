@@ -64,7 +64,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.png" width="400"/><br>`textures_basic` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.png" width="400"/><br>`models_loading` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.png" width="400"/><br>`ecs_mesh_entities` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound.png" width="400"/><br>`audio_sound` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gamepad.png" width="400"/><br>`core_input_gamepad` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_render_target.png" width="400"/><br>`textures_render_target` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_fonts.png" width="400"/><br>`text_fonts` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_fonts.png" width="400"/><br>`text_fonts` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_postprocessing.png" width="400"/><br>`shaders_postprocessing` |
 
 A 3D scene with a camera the keyboard and mouse move:
 
@@ -158,11 +158,11 @@ dotnet test 3DEngine.Tests
 ## Status
 
 Early. The window, input, the frame, cameras, 2D and 3D shapes, images and textures, models
-through Assimp, sounds and music, text in fonts, render targets, gamepads and ImGui work through the flat API, and the ECS, the
+through Assimp, sounds and music, text in fonts, render targets, Slang shaders, gamepads and ImGui work through the flat API, and the ECS, the
 scheduler and behaviors are tested. What is missing:
 
-- **Shaders do not load through the flat API.** There is no `LoadShader`, so every draw uses the
-  engine's own shaders.
+- **Custom shaders reach shapes, textures and text**, not models, which keep the engine's model
+  shader.
 - **Music is decoded whole** rather than streamed, so a long piece costs its length in memory.
 - **Lighting is one fixed light.** Models are shaded by it, shapes are unlit as raylib's are, and
   the ECS's meshes are drawn in their base color.

@@ -138,6 +138,37 @@ A file name is looked for as given, then beside the program, then under `source/
 that cannot be read gives an invalid image or texture and a warning in the log, and drawing an
 invalid texture draws nothing. `CloseWindow` logs how many textures were still loaded.
 
+## Shaders
+
+```csharp
+Shader LoadShader(string fileName);                                  // Compile a Slang file with fragmentMain (and vertexMain if it moves vertices)
+Shader LoadShaderFromMemory(string code, string name);               // The same from source in memory
+bool IsShaderValid(Shader shader);                                   // Whether it is loaded
+void UnloadShader(Shader shader);                                    // Free it
+void BeginShaderMode(Shader shader);                                 // Draw shapes, textures and text with it until EndShaderMode
+void EndShaderMode();                                                // Return to the engine's shader
+void SetShaderValue(Shader shader, int slot, float value);           // Slot 0 to 3, read in the shader as param(slot)
+void SetShaderValue(Shader shader, int slot, Vector2 value);         // (also Vector3 and Vector4)
+```
+
+A shader imports the engine's module, which gives it `VertexOutput` (position, uv, color),
+`boundTexture` and `param(slot)`:
+
+```slang
+import engine;
+
+[shader("fragment")]
+float4 fragmentMain(VertexOutput input) : SV_Target
+{
+    float4 color = input.color * boundTexture.Sample(input.uv);
+    float gray = dot(color.rgb, float3(0.299, 0.587, 0.114));
+    return float4(lerp(color.rgb, float3(gray, gray, gray), param(0).x), color.a);
+}
+```
+
+Shaders apply to the immediate pass: shapes, textures, text and render textures drawn as
+textures. Models keep the engine's model shader.
+
 ## Models and meshes
 
 ```csharp
