@@ -268,19 +268,25 @@ bool IsSoundPlaying(Sound sound);                         // Whether it is playi
 void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), now and for the next play
 void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
 
-Music LoadMusicStream(string fileName);                   // Read a WAV or Ogg Vorbis file as music
-void UnloadMusicStream(Music music);                      // Stop music
+Music LoadMusicStream(string fileName);                   // Open a WAV or Ogg Vorbis file as music, streamed as it plays
+void UnloadMusicStream(Music music);                      // Stop music and close its file
 bool IsMusicValid(Music music);                           // Whether music has samples
 void PlayMusicStream(Music music);                        // Play from the start, looping unless music.Looping is false
-void UpdateMusicStream(Music music);                      // Nothing (music is decoded whole)
+void UpdateMusicStream(Music music);                      // Feed it from the file (every frame it plays)
 void StopMusicStream(Music music);                        // Stop
 void PauseMusicStream(Music music);                       // Pause
 void ResumeMusicStream(Music music);                      // Resume
+void SeekMusicStream(Music music, float position);        // Move to a time in seconds
 bool IsMusicStreamPlaying(Music music);                   // Whether it is playing
 void SetMusicVolume(Music music, float volume);           // Volume (0 to 1)
 void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is as recorded
 float GetMusicTimeLength(Music music);                    // Length in seconds
+float GetMusicTimePlayed(Music music);                    // How far into it the music heard is, in seconds
 ```
+
+A sound is decoded whole when it loads. Music is read from its file half a second ahead of what
+is heard, by `UpdateMusicStream`, so a program calls it every frame the music plays, as with
+raylib. Pausing one sound or piece of music leaves the others playing.
 
 ## Text and fonts
 

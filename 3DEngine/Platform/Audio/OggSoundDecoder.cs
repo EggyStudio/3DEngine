@@ -5,7 +5,8 @@ namespace Engine;
 /// <summary><see cref="ISoundDecoder"/> for Ogg Vorbis files, through NVorbis.</summary>
 /// <remarks>
 /// The whole file is decoded into memory, as <see cref="WavSoundDecoder"/> does, so a long piece of
-/// music costs its full length in samples. Streaming is not written (see TODO.md).
+/// music costs its full length in samples. Music played through <c>LoadMusicStream</c> is
+/// decoded from its file as it plays instead, by <c>OggMusicDecoder</c>.
 /// </remarks>
 public sealed class OggSoundDecoder : ISoundDecoder
 {

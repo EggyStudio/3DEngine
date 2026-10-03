@@ -38,6 +38,20 @@ public sealed class Engine3DAudioTests : IDisposable
         public void SetVoicePaused(int voiceId, bool paused) { if (paused) Paused.Add(voiceId); else Paused.Remove(voiceId); }
         public void SetListenerPosition(Vector3 position) { }
         public void SetVoicePlaybackRate(int voiceId, float rate) => Rates[voiceId] = rate;
+
+        // Stream voices keep what is queued, and Play stands in for the device taking it.
+        public readonly Dictionary<int, List<float>> Streams = [];
+        public readonly Dictionary<int, int> StreamChannels = [];
+        public int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters)
+        {
+            Voices[_next] = parameters;
+            Streams[_next] = [];
+            StreamChannels[_next] = channels;
+            return _next++;
+        }
+        public void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples) => Streams[voiceId].AddRange(samples);
+        public long QueuedVoiceFrames(int voiceId) => Streams.TryGetValue(voiceId, out var queued) && Voices.ContainsKey(voiceId) ? queued.Count / StreamChannels[voiceId] : 0;
+        public void Play(int voiceId, int frames) => Streams[voiceId].RemoveRange(0, Math.Min(Streams[voiceId].Count, frames * StreamChannels[voiceId]));
         public void Update() { }
         public void Dispose() { }
     }
@@ -126,15 +140,62 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
-    public void Music_Plays_On_A_Looping_Voice()
+    public void Looping_Music_Keeps_Half_A_Second_Queued_On_A_Stream_Voice()
     {
         var music = LoadMusicStream(WriteWav());
 
         PlayMusicStream(music);
 
-        _backend.Voices.Values.Should().ContainSingle().Which.Looping.Should().BeTrue();
+        var voice = _backend.Streams.Keys.Should().ContainSingle().Subject;
+        // A tenth of a second at 8 kHz, read round and round until half a second is queued.
+        _backend.QueuedVoiceFrames(voice).Should().BeGreaterThanOrEqualTo(4000);
         IsMusicStreamPlaying(music).Should().BeTrue();
         GetMusicTimeLength(music).Should().BeApproximately(0.1f, 1e-3f);
+
+        _backend.Play(voice, 4000);
+        GetMusicTimePlayed(music).Should().BeApproximately(0f, 1e-3f, "4000 frames is five whole rounds of 800");
+        UpdateMusicStream(music);
+        _backend.QueuedVoiceFrames(voice).Should().BeGreaterThanOrEqualTo(4000);
+    }
+
+    [Fact]
+    public void Music_That_Does_Not_Loop_Stops_Playing_Once_Its_Queue_Runs_Out()
+    {
+        var music = LoadMusicStream(WriteWav());
+        music.Looping = false;
+
+        PlayMusicStream(music);
+        var voice = _backend.Streams.Keys.Single();
+        _backend.QueuedVoiceFrames(voice).Should().Be(800);
+        IsMusicStreamPlaying(music).Should().BeTrue();
+
+        _backend.Play(voice, 200);
+        GetMusicTimePlayed(music).Should().BeApproximately(0.025f, 1e-4f);
+
+        _backend.Play(voice, 600);
+        UpdateMusicStream(music);
+        IsMusicStreamPlaying(music).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Seeking_Restarts_The_Voice_At_The_Time_Asked_And_Keeps_A_Pause()
+    {
+        var music = LoadMusicStream(WriteWav());
+        music.Looping = false;
+        PlayMusicStream(music);
+        PauseMusicStream(music);
+
+        SeekMusicStream(music, 0.05f);
+
+        var voice = _backend.Streams.Keys.Max();
+        _backend.Stopped.Should().ContainSingle();
+        _backend.QueuedVoiceFrames(voice).Should().Be(400);
+        GetMusicTimePlayed(music).Should().BeApproximately(0.05f, 1e-4f);
+        _backend.Paused.Should().Contain(voice);
+        IsMusicStreamPlaying(music).Should().BeFalse();
+
+        ResumeMusicStream(music);
+        IsMusicStreamPlaying(music).Should().BeTrue();
     }
 
     [Fact]

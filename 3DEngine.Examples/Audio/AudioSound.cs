@@ -34,13 +34,16 @@ public static class AudioSound
             BeginDrawing();
             ClearBackground(Color.RayWhite);
             DrawText("SPACE plays a sound, P pauses the music, UP and DOWN change its volume", 20, 20, 20, Color.DarkGray);
-            DrawText($"Music: {(IsMusicStreamPlaying(drone) ? "playing" : "paused")}, {GetMusicTimeLength(drone):0.0} s long, volume {volume:0.00}",
+            DrawText($"Music: {(IsMusicStreamPlaying(drone) ? "playing" : "paused")}, {GetMusicTimePlayed(drone):0.0} of {GetMusicTimeLength(drone):0.0} s, volume {volume:0.00}",
                 20, 60, 20, Color.Gray);
             DrawText($"Audio device ready: {IsAudioDeviceReady()}", 20, 100, 20, Color.Gray);
 
-            DrawRectangle(20, 140, 400, 20, Color.LightGray);
-            DrawRectangle(20, 140, (int)(400 * volume), 20, Color.Maroon);
-            if (IsSoundPlaying(coin)) DrawCircle(460, 150, 12, Color.Gold);
+            // How far through the piece it is, and how loud.
+            DrawRectangle(20, 140, 400, 12, Color.LightGray);
+            DrawRectangle(20, 140, (int)(400 * GetMusicTimePlayed(drone) / GetMusicTimeLength(drone)), 12, Color.Maroon);
+            DrawRectangle(20, 160, 400, 12, Color.LightGray);
+            DrawRectangle(20, 160, (int)(400 * volume), 12, Color.DarkBlue);
+            if (IsSoundPlaying(coin)) DrawCircle(460, 156, 12, Color.Gold);
             EndDrawing();
         }
 

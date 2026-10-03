@@ -213,6 +213,43 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>
+    /// Starts a non-spatial voice with no samples of its own, which plays what
+    /// <see cref="QueueSamples"/> gives it until it is stopped. Music streamed from its file is
+    /// played this way.
+    /// </summary>
+    /// <returns>The voice, which is invalid when the backend cannot stream.</returns>
+    public AudioSource PlayStream(int channels, int sampleRate, AudioVoiceParams parameters = default)
+    {
+        if (parameters.Volume == 0f) parameters = parameters with { Volume = 1f };
+        if (parameters.PlaybackRate <= 0f) parameters = parameters with { PlaybackRate = 1f };
+        lock (_lock)
+        {
+            var voiceId = _backend.CreateStreamVoice(channels, sampleRate, parameters);
+            if (voiceId == 0) return AudioSource.Invalid;
+            int ticket = _nextTicket++;
+            _voices[ticket] = new VoiceRecord(voiceId, IsSpatial: false, Position: Vector3.Zero, Volume: parameters.Volume,
+                Looping: false, Paused: parameters.Paused, Orientation: null, DipoleWeight: 0f, DipolePower: 1f,
+                PlaybackRate: parameters.PlaybackRate);
+            return new AudioSource(ticket, this);
+        }
+    }
+
+    /// <summary>Appends interleaved samples to a voice from <see cref="PlayStream"/>.</summary>
+    public void QueueSamples(AudioSource source, ReadOnlySpan<float> samples)
+    {
+        lock (_lock)
+            if (_voices.TryGetValue(source.Id, out var rec) && rec.VoiceId != 0)
+                _backend.QueueVoiceSamples(rec.VoiceId, samples);
+    }
+
+    /// <summary>How many frames a voice from <see cref="PlayStream"/> has queued and not yet played.</summary>
+    public long QueuedFrames(AudioSource source)
+    {
+        lock (_lock)
+            return _voices.TryGetValue(source.Id, out var rec) && rec.VoiceId != 0 ? _backend.QueuedVoiceFrames(rec.VoiceId) : 0;
+    }
+
+    /// <summary>
     /// Walks the pending-voice list and instantiates any whose asset has finished loading.
     /// Pumped each frame by <see cref="AudioUpdateSystem"/>.
     /// </summary>

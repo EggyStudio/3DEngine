@@ -50,9 +50,8 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   the stages of shapes, textures and text, and reads four `float4` slots (`SetShaderValue`) rather
   than parameters by name. Models cannot take one, and a shader cannot bind textures of its own
   beyond the one it draws.
-- **Music is not streamed.** `LoadMusicStream` decodes the whole file, so `UpdateMusicStream` does
-  nothing and a long piece costs its length in memory. Sounds have no pan, and the time a piece has
-  played is not reported (`GetMusicTimePlayed`). MP3 and FLAC are not read.
+- **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
+  file played as music is read whole rather than streamed.
 - **Models are partial.** Only the base color and its texture are used of a material, animation
   is not played, and models are lit by one fixed light. A mesh cannot be changed after upload,
   and raylib's `GenMeshHeightmap` and `GenMeshCubicmap`, which build terrain from an image, are

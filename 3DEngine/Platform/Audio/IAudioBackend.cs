@@ -122,6 +122,20 @@ public interface IAudioBackend : IDisposable
     void SetVoicePlaybackRate(int voiceId, float rate) { }
 
     /// <summary>
+    /// Creates a voice with no samples of its own, which plays what
+    /// <see cref="QueueVoiceSamples"/> gives it and stays until stopped, for music streamed from
+    /// its file a piece at a time.
+    /// </summary>
+    /// <returns>The voice id, or 0 when the backend cannot stream, which the default does.</returns>
+    int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters) => 0;
+
+    /// <summary>Appends interleaved samples to a voice from <see cref="CreateStreamVoice"/>.</summary>
+    void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples) { }
+
+    /// <summary>How many frames (one sample per channel) a stream voice has queued and not yet played.</summary>
+    long QueuedVoiceFrames(int voiceId) => 0;
+
+    /// <summary>
     /// Pumps backend bookkeeping (3D recompute, voice recycling). Called once per frame
     /// by <see cref="AudioUpdateSystem"/>; backends may also do this internally on their
     /// own thread.

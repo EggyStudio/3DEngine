@@ -214,13 +214,68 @@ public sealed class SdlAudioBackend : IAudioBackend
 
             if (parameters.Paused)
             {
-                SDL.PauseAudioStreamDevice(streamL);
-                if (streamR != IntPtr.Zero) SDL.PauseAudioStreamDevice(streamR);
+                SDL.UnbindAudioStream(streamL);
+                if (streamR != IntPtr.Zero) SDL.UnbindAudioStream(streamR);
             }
 
             int id = _nextVoiceId++;
             _voices[id] = new VoiceRecord(streamL, streamR, sound, parameters.Looping, parameters.Paused, vol, 0f);
             return id;
+        }
+    }
+
+    /// <inheritdoc />
+    public int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters)
+    {
+        if (!_initialized || channels <= 0 || sampleRate <= 0) return 0;
+        var srcSpec = new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = channels, Freq = sampleRate };
+        lock (_lock)
+        {
+            var stream = SDL.CreateAudioStream(in srcSpec, in _deviceSpec);
+            if (stream == IntPtr.Zero)
+            {
+                Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for a stream voice: {SDL.GetError()}");
+                return 0;
+            }
+            if (!SDL.BindAudioStream(_device, stream))
+            {
+                Logger.Warn($"SdlAudioBackend: BindAudioStream failed for a stream voice: {SDL.GetError()}");
+                SDL.DestroyAudioStream(stream);
+                return 0;
+            }
+
+            var volume = parameters.Volume;
+            SDL.SetAudioStreamGain(stream, volume);
+            if (parameters.PlaybackRate > 0f && Math.Abs(parameters.PlaybackRate - 1f) > 1e-6f)
+                ApplyPlaybackRate(stream, parameters.PlaybackRate);
+            if (parameters.Paused) SDL.UnbindAudioStream(stream);
+
+            int id = _nextVoiceId++;
+            _voices[id] = new VoiceRecord(stream, IntPtr.Zero, null, Looping: false, parameters.Paused, volume, 0f, Channels: channels);
+            return id;
+        }
+    }
+
+    /// <inheritdoc />
+    public unsafe void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples)
+    {
+        if (!_initialized || samples.IsEmpty) return;
+        lock (_lock)
+        {
+            if (!_voices.TryGetValue(voiceId, out var rec) || rec.Channels == 0) return;
+            fixed (float* data = samples)
+                SDL.PutAudioStreamData(rec.StreamL, (IntPtr)data, samples.Length * sizeof(float));
+        }
+    }
+
+    /// <inheritdoc />
+    public long QueuedVoiceFrames(int voiceId)
+    {
+        if (!_initialized) return 0;
+        lock (_lock)
+        {
+            if (!_voices.TryGetValue(voiceId, out var rec) || rec.Channels == 0) return 0;
+            return SDL.GetAudioStreamQueued(rec.StreamL) / (sizeof(float) * rec.Channels);
         }
     }
 
@@ -275,8 +330,9 @@ public sealed class SdlAudioBackend : IAudioBackend
             if (!_voices.TryGetValue(voiceId, out var rec)) return false;
             // A paused voice is not mixing, whatever it has queued.
             if (rec.Paused) return false;
-            // Loop voices are always "playing" until explicitly stopped.
-            if (rec.Looping) return true;
+            // Loop voices are always "playing" until explicitly stopped, and so are stream
+            // voices, which their owner feeds and stops.
+            if (rec.Looping || rec.Channels != 0) return true;
             int queued = SDL.GetAudioStreamQueued(rec.StreamL);
             int avail = SDL.GetAudioStreamAvailable(rec.StreamL);
             if (queued > 0 || avail > 0) return true;
@@ -330,16 +386,8 @@ public sealed class SdlAudioBackend : IAudioBackend
         lock (_lock)
         {
             if (!_voices.TryGetValue(voiceId, out var rec)) return;
-            if (paused)
-            {
-                SDL.PauseAudioStreamDevice(rec.StreamL);
-                if (rec.StreamR != IntPtr.Zero) SDL.PauseAudioStreamDevice(rec.StreamR);
-            }
-            else
-            {
-                SDL.ResumeAudioStreamDevice(rec.StreamL);
-                if (rec.StreamR != IntPtr.Zero) SDL.ResumeAudioStreamDevice(rec.StreamR);
-            }
+            if (paused == rec.Paused) return;
+            SetBound(rec, !paused);
             _voices[voiceId] = rec with { Paused = paused };
         }
     }
@@ -399,6 +447,20 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// side receives the full <c>volume</c> and the other is silent. For non-spatial
     /// voices (no R stream) the L stream just receives the raw <paramref name="volume"/>.
     /// </summary>
+    // Pauses a voice by taking its streams off the device, which keeps what they have queued
+    // and stops them mixing, and resumes it by putting them back. Pausing the device instead
+    // would pause every voice, because they all share it.
+    private void SetBound(VoiceRecord rec, bool bound)
+    {
+        foreach (var stream in new[] { rec.StreamL, rec.StreamR })
+        {
+            if (stream == IntPtr.Zero) continue;
+            if (!bound) SDL.UnbindAudioStream(stream);
+            else if (!SDL.BindAudioStream(_device, stream))
+                Logger.Warn($"SdlAudioBackend: BindAudioStream failed resuming a voice: {SDL.GetError()}");
+        }
+    }
+
     private static void ApplyGainAndPan(IntPtr streamL, IntPtr streamR, float volume, float pan)
     {
         if (streamR == IntPtr.Zero)
@@ -423,10 +485,14 @@ public sealed class SdlAudioBackend : IAudioBackend
             List<int>? toRemove = null;
             foreach (var (id, rec) in _voices)
             {
-                if (rec.Looping)
+                if (rec.Channels != 0)
                 {
-                    RefillIfDraining(rec.StreamL, rec.Sound);
-                    if (rec.StreamR != IntPtr.Zero) RefillIfDraining(rec.StreamR, rec.Sound);
+                    // A stream voice is fed by its owner and lives until it is stopped.
+                }
+                else if (rec.Looping)
+                {
+                    RefillIfDraining(rec.StreamL, rec.Sound!);
+                    if (rec.StreamR != IntPtr.Zero) RefillIfDraining(rec.StreamR, rec.Sound!);
                 }
                 else if (StreamFullyConsumed(rec.StreamL) &&
                          (rec.StreamR == IntPtr.Zero || StreamFullyConsumed(rec.StreamR)))
@@ -464,9 +530,9 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// the entry removed - so a Sound that's been unloaded (or never played again)
     /// stops keeping its sample buffer pinned in managed memory.
     /// </summary>
-    private void ReleasePin(Sound sound)
+    private void ReleasePin(Sound? sound)
     {
-        if (!_samplePins.TryGetValue(sound, out var pin)) return;
+        if (sound is null || !_samplePins.TryGetValue(sound, out var pin)) return;
         if (--pin.RefCount > 0) return;
         if (pin.Handle.IsAllocated) pin.Handle.Free();
         _samplePins.Remove(sound);
@@ -521,15 +587,18 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// Non-spatial voices leave <see cref="StreamR"/> as <see cref="IntPtr.Zero"/>;
     /// <see cref="Pan"/> is then ignored. <see cref="Sound"/> is retained so loop
     /// refills can find the original sample buffer without re-querying ECS / AssetServer.
+    /// A stream voice has no <see cref="Sound"/> and records its <see cref="Channels"/>, which
+    /// are 0 for every other voice.
     /// </summary>
     private sealed record VoiceRecord(
         IntPtr StreamL,
         IntPtr StreamR,
-        Sound Sound,
+        Sound? Sound,
         bool Looping,
         bool Paused,
         float Volume,
-        float Pan);
+        float Pan,
+        int Channels = 0);
 
     /// <summary>
     /// Mutable refcounted holder for a pinned sample buffer. <see cref="RefCount"/>
