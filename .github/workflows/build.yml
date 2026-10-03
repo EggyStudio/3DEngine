@@ -1,0 +1,39 @@
+# Builds the solution and runs the tests on every push and pull request.
+#
+# The tests need no GPU or display, because rendering tests use NullGraphicsDevice. slangc is
+# fetched so the shader tests compile the built-in shaders instead of returning early.
+name: build
+
+on:
+  push:
+    paths-ignore: ['**.md', '.github/assets/**']
+  pull_request:
+    paths-ignore: ['**.md', '.github/assets/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # The pinned Slang release, cached by its version so it downloads once.
+      - uses: actions/cache@v4
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      - run: dotnet build 3DEngine.slnx
+
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: 3DEngine.Tests/TestResults/

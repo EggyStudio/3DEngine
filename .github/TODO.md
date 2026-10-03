@@ -113,8 +113,6 @@ outside ImGui and touch are not read.
 
 ### Testing
 
-- **FluentAssertions 8** is licensed per seat for commercial use, so the suite is to move to plain
-  xUnit assertions.
 - **One run failed most tests that construct an `App`**, right after a build, and sixteen runs
   after it passed. The cause is not known, and the failing run's messages were not kept.
 - **Nothing renders in a test.** Tests use `NullGraphicsDevice`. A headless or offscreen Vulkan run
@@ -130,7 +128,8 @@ what is left.
 
 ### Build and release
 
-- **No CI.** A workflow that builds and runs the tests on Linux, Windows and macOS is needed.
+- **CI covers Linux only.** `.github/workflows/build.yml` builds and tests on Ubuntu. Windows and
+  macOS runners, and a job that runs the examples offscreen, are not set up.
 - **No package.** The engine is consumed as a project reference. A NuGet package carrying the
   shaders and the native SDL3 libraries is needed for a game outside this repository.
 - **No command line.** A running app cannot be asked what is in its world or told to take a

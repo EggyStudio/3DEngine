@@ -149,8 +149,8 @@ scheduler and behaviors are tested. What is missing:
   the ECS's meshes are drawn in their base color.
 - **Text is ImGui's font**, drawn above everything else.
 - **No gamepads or render targets** in the flat API.
-- **Linux is the tested platform.** Windows and macOS build from the same packages and are not
-  covered by CI.
+- **Linux is the tested platform**, in CI on every push. Windows and macOS build from the same
+  packages and are not covered by CI.
 
 [TODO.md](.github/TODO.md) lists the rest, in the order it blocks making a game.
 

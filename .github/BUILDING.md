@@ -54,5 +54,6 @@ run from anywhere in the checkout finds it.
 | Windows | SDL3 | Vulkan |
 | macOS | SDL3 | Vulkan through MoltenVK |
 
-Linux is where the engine is developed and tested. Windows and macOS build from the same packages
-and are not covered by CI yet.
+Linux is where the engine is developed and tested, and `.github/workflows/build.yml` builds and
+tests it on Ubuntu for every push. Windows and macOS build from the same packages and are not
+covered by CI.
