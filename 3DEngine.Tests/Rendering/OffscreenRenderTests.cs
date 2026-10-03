@@ -311,7 +311,7 @@ public sealed class OffscreenRenderTests : IDisposable
 
         int highlight = GetImageColor(direct, 32, 32).R;
         int diffuse = GetImageColor(ambient, 32, 32).R;
-        diffuse.Should().BeInRange(100, 220, "half a white light on a white wall is a middle gray once tonemapped");
+        diffuse.Should().BeInRange(125, 130, "half a white light on a white wall is half white, below where the tonemap bends");
         highlight.Should().BeGreaterThan(diffuse + 15, "the directional light adds a highlight where the wall mirrors it into the camera");
     }
 
@@ -328,8 +328,38 @@ public sealed class OffscreenRenderTests : IDisposable
         var image = Capture(() => ClearBackground(Color.Black), "orange");
 
         var color = GetImageColor(image, 32, 32);
-        color.R.Should().BeGreaterThan(230, "the brightest channel comes close to full");
-        ((int)color.R).Should().BeGreaterThan(color.G + 5, "red stays above green");
-        ((int)color.G).Should().BeGreaterThan(color.B + 15, "green stays above blue, so the light reads as orange");
+        color.R.Should().BeGreaterThan(245, "the brightest channel comes close to full");
+        ((int)color.G).Should().BeInRange(115, 140, "green keeps half of red");
+        ((int)color.B).Should().BeInRange(55, 75, "blue keeps a quarter of red, so the light reads as the same orange");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Directional_Light_Casts_A_Shadow_Only_When_Asked()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnWallAndCamera(ecs);
+
+        // A square a unit in front of the wall, right of the middle, and a sun pointing down -X and
+        // -Z at 45 degrees, which throws the square's shadow a unit to its left on the wall. That
+        // puts it over the wall's middle, where the square itself does not hide it from the camera.
+        var square = ecs.Spawn();
+        ecs.Add(square, new Mesh([new(0.25f, -0.5f, 1), new(1.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, 0.5f, 1)]));
+        ecs.Add(square, new Material(Vector4.One));
+        ecs.Add(square, new Transform(Vector3.Zero));
+
+        var sun = ecs.Spawn();
+        ecs.Add(sun, Light.Directional(Vector3.One, 1f) with { CastsShadows = true });
+        ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4), Vector3.One));
+        var shadowed = Capture(() => ClearBackground(Color.Black), "shadowed");
+
+        ecs.GetRef<Light>(sun).CastsShadows = false;
+        var unshadowed = Capture(() => ClearBackground(Color.Black), "unshadowed");
+
+        // Pixel 27 across is the wall a quarter unit left of the middle, in the shadow. Pixel 9
+        // down from the top is the wall above the square's reach.
+        GetImageColor(shadowed, 27, 32).R.Should().BeLessThan(10, "the square stands between the sun and this part of the wall");
+        GetImageColor(shadowed, 27, 9).R.Should().BeGreaterThan(120, "the wall above the square's shadow is lit");
+        GetImageColor(unshadowed, 27, 32).R.Should().BeGreaterThan(120, "a light that does not cast shadows lights the wall behind the square");
     }
 }

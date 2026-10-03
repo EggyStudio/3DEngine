@@ -22,9 +22,9 @@ public struct LightUboEntry
 }
 
 /// <summary>
-/// CPU mirror of the lighting UBO the model pass reads (<c>modelpass.slang</c>),
-/// a count followed by a fixed-size array of <see cref="LightUboEntry"/>. The size
-/// matches the shader declaration <see cref="LightingUboPacker"/> generates / expects.
+/// CPU mirror of the lighting UBO the model pass reads (<c>modelpass.slang</c>): a count, the
+/// shadowed light and its shadow map's world to map transform, then a fixed-size array of
+/// <see cref="LightUboEntry"/>.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct LightingUbo
@@ -32,8 +32,17 @@ public struct LightingUbo
     /// <summary>Number of valid entries in <c>Lights</c> (<c>0..MaxLights</c>).</summary>
     public int LightCount;
 
-    /// <summary>Padding so the array starts on a 16-byte boundary (std140 vec4 alignment).</summary>
-    public int _pad0, _pad1, _pad2;
+    /// <summary>The index in <c>Lights</c> of the light the shadow map was drawn from, or -1 for none.</summary>
+    public int ShadowLight;
+
+    /// <summary>The width in world units one texel of the shadow map covers, which the shader offsets a surface by along its normal.</summary>
+    public float ShadowTexel;
+
+    /// <summary>Padding so the matrix starts on a 16-byte boundary (std140 vec4 alignment).</summary>
+    public int _pad0;
+
+    /// <summary>World space to the shadow map's clip space, the light's view and projection.</summary>
+    public Matrix4x4 ShadowViewProjection;
 
     /// <summary>Inline fixed-size light array. Use <see cref="LightingUboPacker.WriteEntry"/> to populate by index.</summary>
     public LightUboEntryArray Lights;
@@ -57,7 +66,7 @@ public static class LightingUboPacker
     /// Hard cap on the number of analytic lights the lighting UBO carries per frame.
     /// Matches the array size compiled into the engine-side struct - shaders should
     /// declare a matching constant. Picked to fit comfortably within a single 16 KiB
-    /// uniform buffer (16 lights of 64 bytes and a 16-byte header, about 1 KiB).
+    /// uniform buffer (16 lights of 64 bytes and an 80-byte header, about 1 KiB).
     /// </summary>
     public const int MaxLights = 16;
 
@@ -74,6 +83,7 @@ public static class LightingUboPacker
         var ubo = default(LightingUbo);
         int count = lights.Count < MaxLights ? lights.Count : MaxLights;
         ubo.LightCount = count;
+        ubo.ShadowLight = -1;
 
         for (int i = 0; i < count; i++)
         {

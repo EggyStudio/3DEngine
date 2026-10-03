@@ -44,19 +44,24 @@ public struct Light
     public float4 cone;
 };
 
-// Three separate pads rather than an int3, which std140 would align to 16 bytes and so move the
-// lights 16 bytes past where LightingUbo puts them.
+// Laid out as LightingUbo is: the count, the shadowed light's index or -1, the world width of a
+// shadow map texel and a pad, so the matrix starts 16 bytes in, then the lights.
 public struct Lighting
 {
     public int count;
+    public int shadowLight;
+    public float shadowTexel;
     public int pad0;
-    public int pad1;
-    public int pad2;
+    public float4x4 shadowViewProjection;
     public Light lights[16];
 };
 
 [[vk::binding(0, 1)]]
 public ConstantBuffer<Lighting> lighting;
+
+// The depths the shadowed light sees, or a white texture, which reads as nothing in shadow.
+[[vk::binding(1, 1)]]
+public Sampler2D shadowMap;
 
 public struct ModelVertexOutput
 {
@@ -144,6 +149,28 @@ float3 arriving(Light light, float3 world, float3 n)
     return color * result;
 }
 
+// How much of the shadowed light reaches this point, from 0 to 1. The point is moved off its
+// surface along the normal by a texel and a half before it is compared, so a surface does not
+// shadow itself where the map's texels slant across it, and nine depths around it are compared and
+// averaged, which softens the stair steps of the map's texels into a gradient one texel wide.
+float lightReaching(float3 world, float3 n)
+{
+    float4 clip = mul(lighting.shadowViewProjection, float4(world + n * lighting.shadowTexel * 1.5, 1.0));
+    float3 p = clip.xyz / clip.w;
+    float2 uv = p.xy * 0.5 + 0.5;
+    if (any(uv < 0.0) || any(uv > 1.0) || p.z > 1.0)
+        return 1.0;
+
+    uint width, height;
+    shadowMap.GetDimensions(width, height);
+    float2 texel = 1.0 / float2(width, height);
+    float reached = 0.0;
+    for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
+            reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+    return reached / 9.0;
+}
+
 // The way light comes from one light to a point, for specular.
 float3 fromLight(Light light, float3 world)
 {
@@ -151,24 +178,32 @@ float3 fromLight(Light light, float3 world)
     return kind == Directional ? light.directionAndRange.xyz : normalize(world - light.positionAndKind.xyz);
 }
 
-// The ACES curve as Krzysztof Narkowicz fitted it. A sum of lights past 1 bends toward white
-// instead of clipping, so a bright light shows how bright it is.
+// Brings light past 1 back under it. The brightest channel is left alone up to 0.9 and bends
+// smoothly toward 1 past it, and the other two are scaled with it, so a bright orange light stays
+// orange where a clamp per channel turns it white. Below the bend the color is unchanged, so a
+// model looks the same lit by its first light entity as by the fixed light, which goes through
+// the same curve.
 public float3 tonemap(float3 color)
 {
-    return saturate((color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14));
+    static const float knee = 0.9;
+    float peak = max(color.r, max(color.g, color.b));
+    if (peak <= knee)
+        return max(color, 0.0);
+    float bent = knee + (1.0 - knee) * (1.0 - exp(-(peak - knee) / (1.0 - knee)));
+    return max(color, 0.0) * (bent / peak);
 }
 
-// A color lit at this point. With light entities it is their diffuse light and a Blinn-Phong
-// highlight of each light that is not ambient, with the ACES curve over the sum. With none it is
-// one fixed light from above over an ambient floor and no highlight, which is how the flat API's
-// models look.
+// A color lit at this point. With light entities it is their diffuse light, the shadowed one's
+// cut by its shadow map, and a Blinn-Phong highlight of each light that is not ambient. With none
+// it is one fixed light from above over an ambient floor and no highlight, which is how the flat
+// API's models look. Either goes through the same tonemap.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
     if (lighting.count == 0)
     {
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
-        return albedo * (0.35 + 0.65 * max(dot(n, toLight), 0.0));
+        return tonemap(albedo * (0.35 + 0.65 * max(dot(n, toLight), 0.0)));
     }
 
     float3 v = normalize(input.toEye);
@@ -178,6 +213,8 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     {
         Light light = lighting.lights[i];
         float3 arrived = arriving(light, input.world, n);
+        if (i == lighting.shadowLight)
+            arrived *= lightReaching(input.world, n);
         diffuse += arrived;
         if (int(light.positionAndKind.w) != Ambient)
         {

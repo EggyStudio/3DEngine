@@ -24,7 +24,7 @@ public enum CompareOp
 /// <summary>Descriptor for creating a graphics pipeline.</summary>
 /// <param name="RenderPass">The render pass this pipeline will be used with.</param>
 /// <param name="VertexShader">The compiled vertex shader.</param>
-/// <param name="FragmentShader">The compiled fragment shader.</param>
+/// <param name="FragmentShader">The compiled fragment shader, or <c>null</c> for a pipeline that writes depth only, into a depth-only pass such as a <see cref="ShadowMap"/>'s.</param>
 /// <param name="BlendEnabled">Whether alpha blending is enabled.</param>
 /// <param name="CullBackFace">Whether back-face culling is enabled.</param>
 /// <param name="VertexBindings">Optional vertex buffer binding descriptions.</param>
@@ -40,7 +40,7 @@ public enum CompareOp
 public readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
-    IShader FragmentShader,
+    IShader? FragmentShader,
     bool BlendEnabled = false,
     bool CullBackFace = true,
     VertexInputBindingDesc[]? VertexBindings = null,

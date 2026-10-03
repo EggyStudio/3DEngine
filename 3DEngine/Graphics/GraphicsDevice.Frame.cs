@@ -197,8 +197,14 @@ public sealed unsafe partial class GraphicsDevice
     {
         /// <summary>The underlying Vulkan render pass handle.</summary>
         internal VkRenderPass Handle { get; }
+        /// <summary>Whether the pass has a depth attachment and no color one, as a shadow map's has.</summary>
+        internal bool DepthOnly { get; }
         /// <summary>Creates a wrapper around the given Vulkan render pass handle.</summary>
-        public VulkanRenderPass(VkRenderPass handle) => Handle = handle;
+        public VulkanRenderPass(VkRenderPass handle, bool depthOnly = false)
+        {
+            Handle = handle;
+            DepthOnly = depthOnly;
+        }
     }
 
     /// <summary>Thin wrapper around a native <c>VkFramebuffer</c> handle.</summary>

@@ -65,8 +65,10 @@ public sealed class Renderer : IDisposable
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
-        // Render targets first, so the window's passes can sample them.
+        // The shadow map first, then render targets, so the window's passes can sample both.
+        Graph.AddNode("shadows", new ShadowNode());
         Graph.AddNode("targets", new TargetsNode());
+        Graph.AddNodeEdge("shadows", "targets");
         Graph.AddNodeEdge("targets", "main_pass");
         Graph.AddNode("models", new ModelNode());
         Graph.AddNodeEdge("main_pass", "models");

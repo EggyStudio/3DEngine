@@ -133,16 +133,29 @@ a color, an intensity, a range and a spot's inner and outer angles, and each is 
 ambient light everywhere alike, and a point or spot by the square of the distance, brought smoothly
 to nothing at its range and cut by a spot's cone. Every light but an ambient one adds a
 Blinn-Phong highlight (a quarter of its light, at an exponent of 32), toward a camera the shader
-finds from the transform alone, since the push constants have no room for its position. The sum
-goes through the ACES curve as Krzysztof Narkowicz fitted it, so a sum past one bends toward white
-and keeps its hue where a clamp would turn it white. The curve runs at the end of the model pass,
-because the engine has no main color target to run it over. Once one exists it moves into the
-post processing chain, and the model pass writes linear light. The fallback light of a world with
-no lights is neither tonemapped nor given a highlight, so the flat API's models look as before.
+finds from the transform alone, since the push constants have no room for its position.
 
-The first shadow
-is one cascaded shadow map for the main directional light, rendered as a depth-only node before the
-main pass. Point and spot shadows follow as an atlas.
+The sum goes through a tonemap that leaves the brightest channel alone up to 0.9, bends it smoothly
+toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
+clamp per channel turns it white, and a color below the bend is unchanged. The fixed light of a
+world with no light entities goes through the same curve, with no highlight, so a model looks the
+same lit by its first light entity as by the fixed light. The curve runs at the end of the model
+pass, because the engine has no main color target to run it over. Once one exists it moves into the
+post processing chain, and the model pass writes linear light.
+
+The first directional light with `CastsShadows` set casts the frame's one shadow. `ShadowFit` fits
+a 2048 texel depth map to the sphere around the window camera's view out to 40 units, moved in
+whole texels so the edges of shadows hold still as the camera moves, and reaching four radii
+further toward the light for casters above the view. `ShadowNode` draws the window's meshes into it
+before any other pass, with `model.slang`'s vertex stage and no fragment stage, through a
+depth-only render pass (`GraphicsDevice.CreateShadowMap`). The map is bound at binding 1 of the
+lights' set, beside the light-space matrix in the lighting buffer, and the white texture takes its
+place in a frame with no shadow. The shader moves a point off its surface by a texel and a half
+along its normal and averages nine comparisons around it. A model shader with a vertex stage of its
+own casts the shadow of its mesh as it was before that stage moved it.
+
+What follows is cascades, so near shadows keep their detail over a long view, then point and spot
+shadows as an atlas.
 
 ## 4. Render targets and post processing
 
@@ -190,5 +203,5 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 3. Dynamic rendering and synchronization2, then VMA.
 4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
    model pass.
-5. The directional shadow map, then point and spot shadows.
+5. Shadow cascades, then point and spot shadows.
 6. Bloom and FXAA.

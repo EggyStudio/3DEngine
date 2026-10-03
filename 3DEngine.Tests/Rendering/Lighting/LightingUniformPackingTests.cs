@@ -45,9 +45,18 @@ public class LightingUniformPackingTests
     }
 
     [Fact]
-    public void The_Buffer_Is_A_16_Byte_Header_And_16_Entries_Of_64_Bytes()
+    public void The_Buffer_Is_An_80_Byte_Header_And_16_Entries_Of_64_Bytes()
     {
         Marshal.SizeOf<LightUboEntry>().Should().Be(64);
-        LightingUboPacker.SizeBytes.Should().Be(16 + LightingUboPacker.MaxLights * 64);
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ShadowViewProjection)).Should().Be(16, "a float4x4 starts on a 16-byte boundary");
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Lights)).Should().Be(80);
+        LightingUboPacker.SizeBytes.Should().Be(80 + LightingUboPacker.MaxLights * 64);
+    }
+
+    [Fact]
+    public void Packing_Marks_No_Light_As_Shadowed()
+    {
+        LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Directional, CastsShadows = true }]).ShadowLight
+            .Should().Be(-1, "the prepare step names the shadowed light once it has fitted a map for it");
     }
 }

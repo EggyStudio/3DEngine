@@ -191,18 +191,21 @@ public sealed unsafe partial class GraphicsDevice
 
         // Swapchain render passes include a depth attachment (2 attachments total).
         // Offscreen render passes have only 1 color attachment.
+        // A depth-only pass has its depth attachment first and alone.
         bool hasDepth = renderPass is VulkanRenderPass;
+        bool depthOnly = renderPass is VulkanRenderPass { DepthOnly: true };
 
         VkClearValue* clearValues = stackalloc VkClearValue[2];
         clearValues[0] = colorClear;
         clearValues[1] = new VkClearValue(new VkClearDepthStencilValue(1.0f, 0));
+        if (depthOnly) clearValues[0] = clearValues[1];
 
         VkRenderPassBeginInfo rpBegin = new()
         {
             renderPass = rpHandle,
             framebuffer = fbHandle,
             renderArea = new VkRect2D(new VkOffset2D(0, 0), new VkExtent2D(extent.Width, extent.Height)),
-            clearValueCount = hasDepth ? 2u : 1u,
+            clearValueCount = hasDepth && !depthOnly ? 2u : 1u,
             pClearValues = clearValues
         };
 

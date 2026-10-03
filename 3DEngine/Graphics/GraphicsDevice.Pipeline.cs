@@ -107,7 +107,8 @@ public sealed unsafe partial class GraphicsDevice
 
 
         var vs = (VulkanShader)desc.VertexShader;
-        var fs = (VulkanShader)desc.FragmentShader;
+        var fs = (VulkanShader?)desc.FragmentShader;
+        bool depthOnly = desc.RenderPass is VulkanRenderPass { DepthOnly: true };
 
         VkUtf8ReadOnlyString entryName = Encoding.UTF8.GetBytes(desc.VertexShader.Description.EntryPoint);
 
@@ -118,12 +119,14 @@ public sealed unsafe partial class GraphicsDevice
             module = vs.Module,
             pName = entryName
         };
-        stages[1] = new VkPipelineShaderStageCreateInfo
-        {
-            stage = VkShaderStageFlags.Fragment,
-            module = fs.Module,
-            pName = entryName
-        };
+        // A pipeline with no fragment stage writes depth only.
+        if (fs is not null)
+            stages[1] = new VkPipelineShaderStageCreateInfo
+            {
+                stage = VkShaderStageFlags.Fragment,
+                module = fs.Module,
+                pName = entryName
+            };
 
         // Vertex input state - use custom bindings/attributes if provided
         var vertexBindingCount = desc.VertexBindings?.Length ?? 0;
@@ -208,8 +211,8 @@ public sealed unsafe partial class GraphicsDevice
 
         VkPipelineColorBlendStateCreateInfo colorBlend = new()
         {
-            attachmentCount = 1,
-            pAttachments = &colorBlendAttachment
+            attachmentCount = depthOnly ? 0u : 1u,
+            pAttachments = depthOnly ? null : &colorBlendAttachment
         };
 
         // Depth-stencil state
@@ -277,7 +280,7 @@ public sealed unsafe partial class GraphicsDevice
 
         VkGraphicsPipelineCreateInfo pipelineInfo = new()
         {
-            stageCount = 2,
+            stageCount = fs is null ? 1u : 2u,
             pStages = stages,
             pVertexInputState = &vertexInput,
             pInputAssemblyState = &inputAssembly,

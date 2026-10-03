@@ -21,6 +21,12 @@ namespace Engine;
 /// sets come from a ring per frame in flight, reused once the GPU is done with that frame.
 /// </para>
 /// <para>
+/// The frame's directional shadow is drawn by <see cref="DrawShadow"/> into a <see cref="ShadowMap"/>
+/// with <c>model.slang</c>'s vertex stage and no fragment stage, so a model shader with a vertex
+/// stage of its own casts the shadow of its mesh as it was before that stage moved it. The map
+/// is bound beside the lights, or the white texture in its place in a frame with no shadow.
+/// </para>
+/// <para>
 /// The pipelines do not cull, because a model loaded from a file may wind its
 /// triangles either way, and the cost is small next to drawing a back face wrong.
 /// </para>
@@ -48,6 +54,8 @@ public sealed class ModelRenderer : IDisposable
     private FrameLightingBinding? _lastFrame;
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
+    private ShadowMap? _shadowMap;
+    private IPipeline? _shadowPipeline;
 
     // Pipelines of the program's own shaders, by ShaderStore id, with the modules they were made from.
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, IPipeline Pipeline)> _custom = [];
@@ -95,7 +103,7 @@ public sealed class ModelRenderer : IDisposable
             {
                 pipeline = wanted;
                 pass.SetPipeline(pipeline);
-                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld), index: 1);
+                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures), index: 1);
             }
 
             pass.SetBindGroup(pipeline, program is null
@@ -118,11 +126,43 @@ public sealed class ModelRenderer : IDisposable
         }
     }
 
+    /// <summary>Draws the window's meshes into the shadow map, as <paramref name="shadow"/>'s light sees them.</summary>
+    public void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow)
+    {
+        var draws = renderWorld.TryGet<ModelDrawList>();
+        var meshes = renderWorld.TryGet<GpuMeshes>();
+        if (draws is null || meshes is null || renderContext.Device is not GraphicsDevice device) return;
+
+        var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.MapSize);
+        if (_shadowPipeline is null)
+        {
+            _vertexShader ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
+            _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, fragment: null);
+        }
+
+        var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+            map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
+        pass.SetViewport(0, 0, map.Extent.Width, map.Extent.Height, 0, 1);
+        pass.SetScissor(0, 0, map.Extent.Width, map.Extent.Height);
+        pass.SetPipeline(_shadowPipeline);
+
+        foreach (var draw in draws.Draws)
+        {
+            if (draw.Target != 0 || meshes.Get(draw.Mesh) is not { } mesh) continue;
+            pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
+            pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
+            var push = new Push { Transform = draw.World * shadow.ViewProjection };
+            pass.PushConstants(_shadowPipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+            pass.DrawIndexed(mesh.IndexCount);
+        }
+        pass.EndRenderPass();
+    }
+
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld)
     {
         if (_pipeline is not null) return _pipeline;
 
-        _vertexShader = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
+        _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         return _pipeline = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader);
     }
@@ -188,7 +228,7 @@ public sealed class ModelRenderer : IDisposable
         return set;
     }
 
-    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader fragment)
+    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment)
     {
         var desc = new GraphicsPipelineDesc(
             renderPass,
@@ -218,9 +258,11 @@ public sealed class ModelRenderer : IDisposable
 
     // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
     // set the GPU may still read is never written, or a set over an empty buffer when there are no
-    // lights, which the shader reads as "use the fixed light".
-    private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld)
+    // lights, which the shader reads as "use the fixed light". Binding 1 holds the shadow map when
+    // the frame has a shadow, and the white texture otherwise, so it is always valid.
+    private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures)
     {
+        var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { LightCount: > 0 } frame)
         {
             if (_noLights is null)
@@ -230,7 +272,8 @@ public sealed class ModelRenderer : IDisposable
                 span.Clear();
                 gfx.Unmap(_noLightsBuffer);
                 _noLights = gfx.CreateDescriptorSet();
-                gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes), samplerBinding: null);
+                gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
+                    new CombinedImageSamplerBinding(white, whiteSampler, 1));
             }
             return _noLights;
         }
@@ -241,7 +284,10 @@ public sealed class ModelRenderer : IDisposable
             _lastFrame = frame;
             if (_lightSets.Count < gfx.FramesInFlight) _lightSets.Add(gfx.CreateDescriptorSet());
             _lightSet = (_lightSet + 1) % _lightSets.Count;
-            gfx.UpdateDescriptorSet(_lightSets[_lightSet], frame.Binding, samplerBinding: null);
+            var shadow = renderWorld.TryGet<FrameShadow>() is not null ? _shadowMap : null;
+            gfx.UpdateDescriptorSet(_lightSets[_lightSet], frame.Binding, shadow is null
+                ? new CombinedImageSamplerBinding(white, whiteSampler, 1)
+                : new CombinedImageSamplerBinding(shadow.DepthView, shadow.Sampler, 1));
         }
         return _lightSets[_lightSet];
     }
@@ -264,6 +310,7 @@ public sealed class ModelRenderer : IDisposable
             fragment.Dispose();
         }
         _noLights?.Dispose();
+        _shadowMap?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();

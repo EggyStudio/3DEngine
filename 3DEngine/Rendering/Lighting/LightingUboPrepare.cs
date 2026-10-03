@@ -24,6 +24,16 @@ public sealed class LightingUboPrepare : IPrepareSystem
         // Always upload (even with zero lights) so the shader can rely on the binding
         // existing - the count is what the shader iterates against.
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
+        var shadow = Shadow(renderWorld, lights, ubo.LightCount);
+        if (shadow is null) renderWorld.Remove<FrameShadow>();
+        else
+        {
+            renderWorld.Set(shadow);
+            ubo.ShadowLight = shadow.Light;
+            ubo.ShadowViewProjection = shadow.ViewProjection;
+            ubo.ShadowTexel = shadow.Texel;
+        }
+
         var sizeBytes = (ulong)LightingUboPacker.SizeBytes;
 
         var alloc = allocator.Allocate(sizeBytes, BufferUsage.Uniform);
@@ -36,6 +46,27 @@ public sealed class LightingUboPrepare : IPrepareSystem
             ubo.LightCount));
 
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {sizeBytes}-byte UBO.");
+    }
+
+    // The first directional light that casts shadows, fitted to the camera of the first mesh
+    // drawn into the window, or null when either is missing.
+    private static FrameShadow? Shadow(RenderWorld renderWorld, RenderLights? lights, int count)
+    {
+        if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { } draws) return null;
+
+        int index = -1;
+        for (int i = 0; i < count && index < 0; i++)
+            if (lights.All[i] is { Kind: LightKind.Directional, CastsShadows: true }) index = i;
+        if (index < 0) return null;
+
+        foreach (var draw in draws.Draws)
+        {
+            if (draw.Target != 0) continue;
+            return ShadowFit.TryFit(draw.ViewProjection, lights.All[index].Direction, out var viewProjection, out var texel)
+                ? new FrameShadow(index, viewProjection, texel)
+                : null;
+        }
+        return null;
     }
 }
 

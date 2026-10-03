@@ -51,7 +51,7 @@ public static class ScenesLevel
 
         var sun = ecs.Spawn();
         ecs.SetName(sun, "Sun");
-        ecs.Add(sun, Light.Directional(Vector3.One, 0.9f));
+        ecs.Add(sun, Light.Directional(Vector3.One, 0.9f) with { CastsShadows = true });
         ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0.5f, -0.9f, 0), Vector3.One));
         var sky = ecs.Spawn();
         ecs.SetName(sky, "Sky");

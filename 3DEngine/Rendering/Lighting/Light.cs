@@ -54,7 +54,7 @@ public struct Light
     /// <summary>A spot's angle from its axis outside which it gives nothing, in degrees.</summary>
     public float OuterAngle;
 
-    /// <summary>Whether the light is to cast shadows, which no pass draws yet.</summary>
+    /// <summary>Whether the light casts shadows, which the first directional light with it set does, over what the window's camera sees.</summary>
     public bool CastsShadows;
 
     /// <summary>A white point light of intensity 1, which a spot made from it opens to 30 degrees.</summary>

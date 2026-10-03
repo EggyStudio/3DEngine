@@ -5,10 +5,9 @@ and a frame a program drives with plain calls, something on screen, content load
 interface, behavior, and shipping the result.
 
 The ECS, the schedule and the behavior generator exist and are tested, and every area of the flat
-API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth: lighting is
-diffuse only, with no shadows, custom shaders reach the immediate pass and not models, and each
-area of the flat API lacks pieces raylib has. The renderer's own plan is
-[RENDERING.md](RENDERING.md).
+API described in [DESIGN.md](DESIGN.md) has a first version. What is thin is depth. Lighting has
+one shadow and no materials behind it, and each area of the flat API lacks pieces raylib has. The
+renderer's own plan is [RENDERING.md](RENDERING.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.
@@ -77,12 +76,15 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 - **Lighting is Blinn-Phong with no materials behind it.** The model pass sums up to 16 light
   entities (directional, point, spot and ambient), by Lambert's cosine, the square of the distance
-  and a range, adds a fixed highlight and tonemaps the sum by the ACES curve at the end of the pass,
-  and falls back to one fixed light when there are none. Of a material only the base color is used,
-  so the highlight's size and strength are the same on every surface (RENDERING.md §3 and §4). A mesh entity is drawn through the first camera entity only, into the
-  window only.
+  and a range, adds a fixed highlight and tonemaps the sum at the end of the pass, and falls back
+  to one fixed light when there are none. Of a material only the base color is used,
+  so the highlight's size and strength are the same on every surface (RENDERING.md §3 and §4). A
+  mesh entity is drawn through the first camera entity only, into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
-- **There are no shadows.**
+- **One directional light casts a shadow, from one map.** The first directional light with
+  `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The
+  map's size and that distance are constants, a long view loses detail near the camera without
+  cascades, point and spot lights cast none, and render targets sample the window camera's map.
 
 ### The device
 
