@@ -9,7 +9,10 @@ namespace Engine;
 /// <param name="Color">Multiplied with the texture and the shading.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id, or 0 for none.</param>
 /// <param name="Target">The render target the mesh draws into, or 0 for the window.</param>
-public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0);
+/// <param name="Shader">The <see cref="ShaderStore"/> id of the material's own shader, or 0 for the model pass's.</param>
+/// <param name="Uniforms">That shader's uniform values as they were when the draw was recorded, laid out as it declares them.</param>
+public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
+    int Shader = 0, byte[]? Uniforms = null);
 
 /// <summary>
 /// The meshes recorded for the current frame by <c>DrawModel</c> and <c>DrawMesh</c>, drawn by

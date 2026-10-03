@@ -209,7 +209,7 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. Shaders for models, with parameters by name from Slang's reflection, which the material work
-   after it needs as well.
+1. Materials beyond a base color (metallic, roughness, normal maps), through the model pass and
+   the reflection model shaders already use.
 
 Each lands with its lines in the cheatsheet and an example beside it.

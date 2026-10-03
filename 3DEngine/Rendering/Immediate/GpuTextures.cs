@@ -39,6 +39,13 @@ public sealed class GpuTextures : IDisposable
     public IDescriptorSet SetFor(IGraphicsDevice gfx, int id) =>
         id != 0 && _entries.TryGetValue(id, out var entry) ? entry.Set : White(gfx).Set;
 
+    /// <summary>The view and sampler of texture <paramref name="id"/>, or the white one's when it is not loaded, for a descriptor set of a pass's own.</summary>
+    public (IImageView View, ISampler Sampler) ViewFor(IGraphicsDevice gfx, int id)
+    {
+        var entry = id != 0 && _entries.TryGetValue(id, out var found) ? found : White(gfx);
+        return (entry.View, entry.Sampler);
+    }
+
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
     public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
 

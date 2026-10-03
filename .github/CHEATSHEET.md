@@ -218,8 +218,10 @@ bool IsShaderValid(Shader shader);                                   // Whether 
 void UnloadShader(Shader shader);                                    // Free it
 void BeginShaderMode(Shader shader);                                 // Draw shapes, textures and text with it until EndShaderMode
 void EndShaderMode();                                                // Return to the engine's shader
-void SetShaderValue(Shader shader, int slot, float value);           // Slot 0 to 3, read in the shader as param(slot)
-void SetShaderValue(Shader shader, int slot, Vector2 value);         // (also Vector3 and Vector4)
+int GetShaderLocation(Shader shader, string uniformName);            // A uniform declared at the top level, by name (-1 when there is none)
+void SetShaderValue(Shader shader, int location, float value);       // A named uniform, or slot 0 to 3 read as param(slot)
+void SetShaderValue(Shader shader, int location, Vector2 value);     // (also Vector3, Vector4 and int)
+void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value); // A named float4x4 uniform
 ```
 
 A shader imports the engine's module, which gives it `VertexOutput` (position, uv, color),
@@ -237,8 +239,31 @@ float4 fragmentMain(VertexOutput input) : SV_Target
 }
 ```
 
-Shaders apply to the immediate pass: shapes, textures, text and render textures drawn as
-textures. Models keep the engine's model shader.
+Inside `BeginShaderMode`, a shader applies to the immediate pass: shapes, textures, text and
+render textures drawn as textures. A model takes one through its material,
+`model.Materials[0].Shader = shader;`, and such a shader imports `modelpass` instead, which gives
+it `ModelVertexOutput` (position, normal, world position, uv), `baseColor(input)` and
+`lit(color, input)`, the model pass's own lighting. A model shader's uniforms are set by name:
+
+```slang
+import modelpass;
+
+uniform float4 tint;
+
+[shader("fragment")]
+float4 fragmentMain(ModelVertexOutput input) : SV_Target
+{
+    float4 color = baseColor(input) * tint;
+    return float4(lit(color.rgb, input), color.a);
+}
+```
+
+```csharp
+SetShaderValue(shader, GetShaderLocation(shader, "tint"), new Vector4(1, 0.5f, 0.5f, 1));
+```
+
+A value set before a draw is the one that draw uses, so one shader can draw with several in a
+frame.
 
 ## Models and meshes
 

@@ -99,6 +99,10 @@ each frame. The push constants are the full transform, the world matrix as three
 (the rotation for normals and the translation for world positions), and the color, 128 bytes,
 which every device supports. `model.slang` shades by the frame's lights, or by one fixed light
 from above over an ambient floor when the world has none, which is how the flat API's models look.
+`model.slang` is built on the `modelpass` module, which a model shader of the program's own imports
+too. A draw with one is drawn by a pipeline made from it, and its uniforms, copied when the draw
+was recorded, reach it in a uniform buffer at binding 0 of the first descriptor set, where Slang
+puts uniforms declared at the top level, beside the texture at binding 1.
 
 A mesh entity is a `Mesh` (positions three per triangle, with optional normals and texture
 coordinates) and a `Material`. `MeshEntityDraws` uploads its arrays once, keyed by the positions

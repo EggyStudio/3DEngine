@@ -8,11 +8,22 @@ namespace Engine;
 /// draws the meshes meant for one target into whichever pass is open.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Each draw binds its mesh's buffers from <see cref="GpuMeshes"/> and its texture from
 /// <see cref="GpuTextures"/>, and pushes its transform, its world matrix as a 3x4 and its color.
 /// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
-/// second descriptor set. The pipeline does not cull, because a model loaded from a file may wind its
+/// second descriptor set.
+/// </para>
+/// <para>
+/// A draw whose material has a shader of the program's own is drawn with a pipeline made from that
+/// shader, its vertex stage or <c>model.slang</c>'s when it has none, and a descriptor set of its
+/// own holding its uniform values, copied when the draw was recorded, beside its texture. Those
+/// sets come from a ring per frame in flight, reused once the GPU is done with that frame.
+/// </para>
+/// <para>
+/// The pipelines do not cull, because a model loaded from a file may wind its
 /// triangles either way, and the cost is small next to drawing a back face wrong.
+/// </para>
 /// </remarks>
 public sealed class ModelRenderer : IDisposable
 {
@@ -38,6 +49,17 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
 
+    // Pipelines of the program's own shaders, by ShaderStore id, with the modules they were made from.
+    private readonly Dictionary<int, (IShader Vertex, IShader Fragment, IPipeline Pipeline)> _custom = [];
+
+    // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
+    // order each frame and kept for the next time the slot comes round.
+    private const int SetRingFrames = GpuTextures.RetireFrames;
+    private readonly List<IDescriptorSet>[] _drawSets = Enumerable.Range(0, SetRingFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
+    private int _drawSetSlot;
+    private int _drawSetNext;
+    private RenderContext? _lastContext;
+
     /// <summary>Creates the renderer from the compiled stages of <c>model.slang</c>.</summary>
     public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
     {
@@ -55,20 +77,30 @@ public sealed class ModelRenderer : IDisposable
 
         var gfx = renderContext.Device;
         IPipeline? pipeline = null;
+        var store = renderWorld.TryGet<ShaderStore>();
+        BeginFrameOfSets(renderContext);
+        RetireUnloadedShaders(store);
 
         foreach (var draw in draws.Draws)
         {
             // A mesh unloaded after its draw was recorded is skipped.
             if (draw.Target != target || meshes.Get(draw.Mesh) is not { } mesh) continue;
 
-            if (pipeline is null)
+            // A shader unloaded after the draw was recorded draws with the model pass's own.
+            var program = draw.Shader != 0 ? store?.Get(draw.Shader) : null;
+            var wanted = program is null
+                ? Pipeline(gfx, renderPass, renderWorld)
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program);
+            if (!ReferenceEquals(wanted, pipeline))
             {
-                pipeline = Pipeline(gfx, renderPass, renderWorld);
+                pipeline = wanted;
                 pass.SetPipeline(pipeline);
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld), index: 1);
             }
 
-            pass.SetBindGroup(pipeline, textures.SetFor(gfx, draw.Texture));
+            pass.SetBindGroup(pipeline, program is null
+                ? textures.SetFor(gfx, draw.Texture)
+                : DrawSet(gfx, renderContext, textures, draw, program));
             pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
             pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
 
@@ -92,11 +124,76 @@ public sealed class ModelRenderer : IDisposable
 
         _vertexShader = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
+        return _pipeline = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader);
+    }
 
+    private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program)
+    {
+        if (_custom.TryGetValue(id, out var made)) return made.Pipeline;
+
+        var vertex = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex,
+            program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv));
+        var fragment = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment));
+        var pipeline = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment);
+        _custom[id] = (vertex, fragment, pipeline);
+        return pipeline;
+    }
+
+    // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
+    // PipelineCache, and a pipeline does not need its modules once it is made.
+    private void RetireUnloadedShaders(ShaderStore? store)
+    {
+        if (_custom.Count == 0) return;
+        foreach (var id in _custom.Keys.Where(id => store?.Get(id) is null).ToArray())
+        {
+            _custom[id].Vertex.Dispose();
+            _custom[id].Fragment.Dispose();
+            _custom.Remove(id);
+        }
+    }
+
+    // Moves to the next slot of draw sets once a frame, however many targets draw in it. Each
+    // frame has a RenderContext of its own.
+    private void BeginFrameOfSets(RenderContext renderContext)
+    {
+        if (ReferenceEquals(renderContext, _lastContext)) return;
+        _lastContext = renderContext;
+        _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
+        _drawSetNext = 0;
+    }
+
+    // A descriptor set for one draw with a shader of its own: its uniform values in this frame's
+    // buffer at binding 0, and its texture at binding 1.
+    private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, GpuTextures textures, ModelDraw draw, ShaderProgram program)
+    {
+        var sets = _drawSets[_drawSetSlot];
+        if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet());
+        var set = sets[_drawSetNext++];
+
+        // At least one 16-byte row, so binding 0 holds a buffer whether the shader declares uniforms or not.
+        var size = (ulong)Math.Max(16, program.UniformSize);
+        UniformBufferBinding? uniforms = null;
+        if (renderContext.DynamicAllocator is { } allocator)
+        {
+            var allocation = allocator.Allocate(size, BufferUsage.Uniform);
+            var bytes = allocator.Map(allocation);
+            bytes.Clear();
+            draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+            allocator.Unmap(allocation);
+            uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
+        }
+
+        var (view, sampler) = textures.ViewFor(gfx, draw.Texture);
+        gfx.UpdateDescriptorSet(set, uniforms, new CombinedImageSamplerBinding(view, sampler, 1));
+        return set;
+    }
+
+    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader fragment)
+    {
         var desc = new GraphicsPipelineDesc(
             renderPass,
-            _vertexShader,
-            _fragmentShader,
+            vertex,
+            fragment,
             BlendEnabled: true,
             CullBackFace: false,
             VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>())],
@@ -114,10 +211,9 @@ public sealed class ModelRenderer : IDisposable
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.LessOrEqual);
 
-        _pipeline = renderWorld.TryGet<PipelineCache>() is { } cache
+        return renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)
             : gfx.CreateGraphicsPipeline(desc);
-        return _pipeline;
     }
 
     // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
@@ -160,6 +256,13 @@ public sealed class ModelRenderer : IDisposable
     public void Dispose()
     {
         foreach (var set in _lightSets) set.Dispose();
+        foreach (var sets in _drawSets)
+            foreach (var set in sets) set.Dispose();
+        foreach (var (vertex, fragment, _) in _custom.Values)
+        {
+            vertex.Dispose();
+            fragment.Dispose();
+        }
         _noLights?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();

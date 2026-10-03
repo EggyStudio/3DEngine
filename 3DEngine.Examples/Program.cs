@@ -19,6 +19,7 @@ var examples = new Dictionary<string, Action>
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
     ["models_terrain"] = ModelsTerrain.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
+    ["shaders_model"] = ShadersModel.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,
     ["audio_sound"] = AudioSound.Run,

@@ -28,8 +28,16 @@ public readonly record struct ModelMesh(int Id, int VertexCount, int TriangleCou
     public bool IsValid => Id > 0;
 }
 
-/// <summary>What a mesh is drawn with: a color, multiplied with a texture when it has one.</summary>
-public record struct ModelMaterial(Color Color, Texture2D Texture = default);
+/// <summary>What a mesh is drawn with: a color, multiplied with a texture when it has one, and a shader of the program's own.</summary>
+public record struct ModelMaterial(Color Color, Texture2D Texture = default)
+{
+    /// <summary>
+    /// A shader that draws the mesh in place of the model pass's own, which imports
+    /// <c>modelpass</c> and has its uniforms set by name. A default shader uses the model pass's.
+    /// </summary>
+    /// <remarks>As raylib's <c>material.shader</c>: <c>model.Materials[0].Shader = LoadShader("toon.slang");</c>.</remarks>
+    public Shader Shader { get; set; }
+}
 
 /// <summary>Meshes with their materials, loaded from a file or made from a mesh, drawn as one.</summary>
 /// <remarks>
@@ -380,7 +388,9 @@ public static partial class Engine3D
     {
         if (!mesh.IsValid) return;
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
-        World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target));
+        var shader = material.Shader.IsValid ? material.Shader.Id : 0;
+        World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
+            shader, shader == 0 ? null : UniformSnapshot(material.Shader)));
     }
 
     /// <summary>Draws a box's edges.</summary>

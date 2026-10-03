@@ -49,10 +49,10 @@ removed from this file, and an item that is partly done is rewritten around what
 images and textures, models and meshes, shaders, text and fonts, and audio
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Custom shaders are for the immediate pass only.** A shader loaded with `LoadShader` replaces
-  the stages of shapes, textures and text, and reads four `float4` slots (`SetShaderValue`) rather
-  than parameters by name. Models cannot take one, and a shader cannot bind textures of its own
-  beyond the one it draws.
+- **Custom shaders are partial.** A model shader reads uniforms by name, but an immediate shader
+  still reads four `float4` slots, and no shader can bind textures of its own beyond the one it
+  draws. Each draw with a model shader takes a descriptor set from a pool of 4096 shared with
+  textures, kept for four frames, so a frame has room for about a thousand such draws.
 - **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
   file played as music is read whole rather than streamed.
 - **Models are partial.** Only the base color and its texture are used of a material, animation

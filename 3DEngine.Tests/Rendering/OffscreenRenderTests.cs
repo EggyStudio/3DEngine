@@ -109,4 +109,46 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(front, 32, 32).R.Should().BeGreaterThan(200, "the light is 2 units in front of the square, facing it");
         GetImageColor(behind, 32, 32).R.Should().BeLessThan(10, "a face turned away from the only light gets none");
     }
+
+    [NeedsVulkanFact]
+    public void A_Model_Shader_Reads_Its_Uniforms_By_Name_As_Each_Draw_Set_Them()
+    {
+        Open(96, 48);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            uniform float4 paint;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return paint;
+            }
+            """, "paint.slang");
+        var paint = GetShaderLocation(shader, "paint");
+        paint.Should().BeGreaterThanOrEqualTo(0);
+        GetShaderLocation(shader, "missing").Should().Be(-1);
+
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0].Shader = shader;
+        // From 3 units away a 96 by 48 frame shows 2.5 units either side, so the cubes' centers
+        // land 23 pixels either side of the middle.
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            SetShaderValue(shader, paint, new Vector4(1, 0, 0, 1));
+            DrawModel(cube, new Vector3(-1.2f, 0, 0), 1, Color.White);
+            SetShaderValue(shader, paint, new Vector4(0, 0, 1, 1));
+            DrawModel(cube, new Vector3(1.2f, 0, 0), 1, Color.White);
+            EndMode3D();
+        });
+
+        GetImageColor(image, 24, 24).Should().Be(new Color(255, 0, 0), "the left cube was drawn while paint was red");
+        GetImageColor(image, 72, 24).Should().Be(new Color(0, 0, 255), "the right cube was drawn after paint turned blue");
+        UnloadModel(cube);
+        UnloadShader(shader);
+    }
 }
