@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text;
 using FluentAssertions;
 using static Engine.Engine3D;
@@ -105,5 +106,71 @@ public sealed class Engine3DModelTests : IDisposable
         scene.FindEmbeddedTexture("C:\\art\\Wood.png")!.FormatHint.Should().Be("png");
         scene.FindEmbeddedTexture("*2").Should().BeNull();
         scene.FindEmbeddedTexture("stone.png").Should().BeNull();
+    }
+
+    public static TheoryData<string, Vector3, Vector3> Generators => new()
+    {
+        { "poly", new(-1, 0, -1), new(1, 0, 1) },
+        { "cylinder", new(-1, 0, -1), new(1, 2, 1) },
+        { "cone", new(-1, 0, -1), new(1, 2, 1) },
+        { "hemisphere", new(-1, 0, -1), new(1, 1, 1) },
+        { "torus", new(-1.25f, -0.25f, -1.25f), new(1.25f, 0.25f, 1.25f) },
+    };
+
+    private static ModelMesh Generate(string shape) => shape switch
+    {
+        "poly" => GenMeshPoly(64, 1),
+        "cylinder" => GenMeshCylinder(1, 2, 64),
+        "cone" => GenMeshCone(1, 2, 64),
+        "hemisphere" => GenMeshHemiSphere(1, 16, 64),
+        "torus" => GenMeshTorus(1, 0.25f, 64, 32),
+        _ => GenMeshKnot(3, 0.3f, 128, 16),
+    };
+
+    [Theory]
+    [MemberData(nameof(Generators))]
+    public void A_Generated_Mesh_Faces_Outward_With_Unit_Normals_Inside_Its_Bounds(string shape, Vector3 min, Vector3 max)
+    {
+        var mesh = Generate(shape);
+
+        _app.World.Resource<MeshStore>().TryGetData(mesh.Id, out var vertices, out var indices).Should().BeTrue();
+        vertices.Should().OnlyContain(v => MathF.Abs(v.Normal.Length() - 1) < 1e-4f);
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            var (a, b, c) = (vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
+            var face = Vector3.Cross(b.Position - a.Position, c.Position - a.Position);
+            if (face.LengthSquared() < 1e-12f) continue; // the cone's tip
+            Vector3.Dot(face, a.Normal + b.Normal + c.Normal).Should().BePositive($"triangle {i / 3} of the {shape} winds counterclockwise from outside");
+        }
+        Vector3.Distance(mesh.Bounds.Min, min).Should().BeLessThan(0.01f);
+        Vector3.Distance(mesh.Bounds.Max, max).Should().BeLessThan(0.01f);
+    }
+
+    [Fact]
+    public void A_Knot_Faces_Outward_Without_A_Seam()
+    {
+        var mesh = Generate("knot");
+
+        _app.World.Resource<MeshStore>().TryGetData(mesh.Id, out var vertices, out var indices).Should().BeTrue();
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            var (a, b, c) = (vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
+            Vector3.Dot(Vector3.Cross(b.Position - a.Position, c.Position - a.Position), a.Normal).Should().BePositive();
+        }
+        // The last ring of the tube lies on the first.
+        for (int j = 0; j <= 16; j++)
+            Vector3.Distance(vertices[j].Position, vertices[128 * 17 + j].Position).Should().BeLessThan(1e-3f);
+    }
+
+    [Fact]
+    public void DrawModelWires_Draws_Each_Shared_Edge_Once()
+    {
+        _app.World.InitResource<DrawList>();
+        var model = LoadModelFromMesh(GenMeshPoly(4, 1));
+
+        DrawModelWires(model, Vector3.Zero, 1, Color.Red);
+
+        // A square fan of four triangles has four rim edges and four spokes.
+        _app.World.Resource<DrawList>().Vertices.Length.Should().Be(8 * 2);
     }
 }

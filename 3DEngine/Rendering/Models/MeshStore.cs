@@ -13,7 +13,9 @@ public readonly record struct ModelVertex(Vector3 Position, Vector3 Normal, Vect
 /// </summary>
 /// <remarks>
 /// The same queue as <see cref="TextureStore"/>, for vertex and index buffers. Id 0 is never given
-/// out, so a default <see cref="ModelMesh"/> is recognizably not loaded.
+/// out, so a default <see cref="ModelMesh"/> is recognizably not loaded. Each mesh's vertices and
+/// indices stay here while it is loaded, as raylib keeps a mesh's arrays beside its buffers, so a
+/// mesh can be read back and drawn as wires.
 /// </remarks>
 public sealed class MeshStore
 {
@@ -21,7 +23,7 @@ public sealed class MeshStore
     public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices);
 
     private readonly object _gate = new();
-    private readonly HashSet<int> _live = [];
+    private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -45,7 +47,7 @@ public sealed class MeshStore
         lock (_gate)
         {
             var id = _next++;
-            _live.Add(id);
+            _live.Add(id, (vertices, indices));
             _uploads.Add(new Upload(id, vertices, indices));
             return id;
         }
@@ -54,7 +56,19 @@ public sealed class MeshStore
     /// <summary>Whether <paramref name="id"/> names a loaded mesh.</summary>
     public bool Contains(int id)
     {
-        lock (_gate) return _live.Contains(id);
+        lock (_gate) return _live.ContainsKey(id);
+    }
+
+    /// <summary>A loaded mesh's vertices and triangle indices, which the caller must not change.</summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    public bool TryGetData(int id, out ModelVertex[] vertices, out uint[] indices)
+    {
+        lock (_gate)
+        {
+            var found = _live.TryGetValue(id, out var data);
+            (vertices, indices) = found ? data : ([], []);
+            return found;
+        }
     }
 
     /// <summary>Unloads a mesh. Its buffers are destroyed once no frame in flight can use them.</summary>

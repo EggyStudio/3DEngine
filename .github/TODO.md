@@ -54,8 +54,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   nothing and a long piece costs its length in memory. Sounds have no pan, and the time a piece has
   played is not reported (`GetMusicTimePlayed`). MP3 and FLAC are not read.
 - **Models are partial.** Only the base color and its texture are used of a material, animation
-  is not played, and models are lit by one fixed light. `DrawModelWires`, `GenMeshCylinder` and the other generators raylib has
-  are not written, and a mesh cannot be read back or changed after upload.
+  is not played, and models are lit by one fixed light. A mesh cannot be changed after upload,
+  and raylib's `GenMeshHeightmap` and `GenMeshCubicmap`, which build terrain from an image, are
+  not written.
 - **Textures have no mipmaps**, so a texture drawn much smaller than its size shimmers, and an
   image cannot be edited in place (raylib's `ImageDraw*`, `ImageResize` and the rest).
 - **Fonts bake Latin-1 only**, at one size each, with no signed distance fields, so text far

@@ -181,11 +181,19 @@ BoundingBox GetModelBoundingBox(Model model);                              // Th
 ModelMesh GenMeshCube(float width, float height, float length);            // A box
 ModelMesh GenMeshSphere(float radius, int rings, int slices);              // A sphere
 ModelMesh GenMeshPlane(float width, float length, int resX, int resZ);     // A flat rectangle facing up
+ModelMesh GenMeshPoly(int sides, float radius);                             // A flat regular polygon facing up
+ModelMesh GenMeshHemiSphere(float radius, int rings, int slices);          // The upper half of a sphere, closed
+ModelMesh GenMeshCylinder(float radius, float height, int slices);         // A closed cylinder standing on y 0
+ModelMesh GenMeshCone(float radius, float height, int slices);             // A cone standing on y 0
+ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of radius, a tube of size, lying flat
+ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot as a tube of size
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 
 void DrawModel(Model model, Vector3 position, float scale, Color tint);                                               // A model
 void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated (degrees) and scaled
+void DrawModelWires(Model model, Vector3 position, float scale, Color tint);                                          // A model's triangle edges
+void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
 void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);                                           // One mesh at a transform
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
 ```

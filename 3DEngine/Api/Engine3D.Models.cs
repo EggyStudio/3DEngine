@@ -335,6 +335,37 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>Draws a model's triangle edges in one color, at a position and scaled the same on every axis.</summary>
+    public static void DrawModelWires(Model model, Vector3 position, float scale, Color tint) =>
+        DrawModelWiresEx(model, position, Vector3.UnitY, 0, new Vector3(scale), tint);
+
+    /// <summary>Draws a model's triangle edges in one color, rotated (degrees) and scaled.</summary>
+    /// <remarks>
+    /// The edges are lines in the immediate pass, one per edge however many triangles share it,
+    /// built each call from the mesh's arrays, so a dense model costs its edge count every frame.
+    /// </remarks>
+    public static void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
+    {
+        var axis = rotationAxis == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(rotationAxis);
+        var world = model.Transform * Matrix4x4.CreateScale(scale)
+                    * Matrix4x4.CreateFromAxisAngle(axis, float.DegreesToRadians(rotationAngle))
+                    * Matrix4x4.CreateTranslation(position);
+
+        var edges = new HashSet<(uint, uint)>();
+        foreach (var mesh in model.Meshes)
+        {
+            if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
+            edges.Clear();
+            for (int i = 0; i < indices.Length; i += 3)
+                for (int k = 0; k < 3; k++)
+                {
+                    uint a = indices[i + k], b = indices[i + (k + 1) % 3];
+                    if (edges.Add(a < b ? (a, b) : (b, a)))
+                        DrawLine3D(Vector3.Transform(vertices[a].Position, world), Vector3.Transform(vertices[b].Position, world), tint);
+                }
+        }
+    }
+
     /// <summary>Draws one mesh with a material and a model to world transform.</summary>
     public static void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {
