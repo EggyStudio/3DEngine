@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine;
 
-public sealed partial class EcsWorld
+public sealed partial class EcsWorld : IDisposable
 {
     /// <summary>Per-world ID counter for static-generic store cache indexing.</summary>
     private static int _nextWorldId;
@@ -16,9 +16,55 @@ public sealed partial class EcsWorld
     /// </summary>
     private static class StoreCache<T>
     {
-        // Indexed by EcsWorld.WorldId. Grows on demand; reads are lock-free via volatile length check.
+        // Indexed by EcsWorld.WorldId. Grown and written under SyncRoot by replacing the array
+        // whole, and read without the lock through Volatile.Read, which sees either the old array
+        // or the new one completely.
         internal static ComponentStore<T>?[] Stores = Array.Empty<ComponentStore<T>?>();
         internal static readonly object SyncRoot = new();
+
+        // Drops one world's store, so the static array no longer keeps it reachable.
+        internal static void Release(int worldId)
+        {
+            lock (SyncRoot)
+                if (worldId < Stores.Length) Stores[worldId] = null;
+        }
+    }
+
+    // One release per component type this world made a store for, run when it is disposed or
+    // collected. The cache arrays are static and outlive every world, so without this each world
+    // made in a process kept all its component data alive for good.
+    private readonly List<Action<int>> _cacheReleases = [];
+    private int _released;
+
+    /// <summary>
+    /// Drops this world's component stores, from the static cache its typed lookups go through as
+    /// well as from the world itself. The world is not used afterward.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="World"/> disposes the <see cref="EcsWorld"/> it holds with the app. A world that is
+    /// never disposed is released when it is collected, since the cache holds its stores and not
+    /// the world.
+    /// </remarks>
+    public void Dispose()
+    {
+        ReleaseCaches();
+        lock (_stores)
+        {
+            _stores.Clear();
+            _storeList.Clear();
+        }
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>Releases the cache slots of a world that was dropped without being disposed.</summary>
+    ~EcsWorld() => ReleaseCaches();
+
+    private void ReleaseCaches()
+    {
+        if (Interlocked.Exchange(ref _released, 1) == 1) return;
+        Action<int>[] releases;
+        lock (_cacheReleases) releases = [.. _cacheReleases];
+        foreach (var release in releases) release(WorldId);
     }
 
     /// <summary>Retrieves or creates the typed component store for <typeparamref name="T"/>.</summary>
@@ -29,7 +75,7 @@ public sealed partial class EcsWorld
     private ComponentStore<T> GetStore<T>(bool create = true)
     {
         var id = WorldId;
-        var arr = StoreCache<T>.Stores;
+        var arr = Volatile.Read(ref StoreCache<T>.Stores);
         if ((uint)id < (uint)arr.Length)
         {
             var cached = arr[id];
@@ -58,6 +104,7 @@ public sealed partial class EcsWorld
             var created = new ComponentStore<T>();
             _stores[typeof(T)] = created;
             _storeList.Add(created);
+            lock (_cacheReleases) _cacheReleases.Add(StoreCache<T>.Release);
             SetStoreCache(created);
             return created;
         }
@@ -70,13 +117,18 @@ public sealed partial class EcsWorld
         var id = WorldId;
         lock (StoreCache<T>.SyncRoot)
         {
-            if (id >= StoreCache<T>.Stores.Length)
+            var stores = StoreCache<T>.Stores;
+            if (id >= stores.Length)
             {
-                var newArr = new ComponentStore<T>?[Math.Max(id + 1, 4)];
-                StoreCache<T>.Stores.CopyTo(newArr, 0);
-                StoreCache<T>.Stores = newArr;
+                var grown = new ComponentStore<T>?[Math.Max(id + 1, 4)];
+                stores.CopyTo(grown, 0);
+                grown[id] = store;
+                Volatile.Write(ref StoreCache<T>.Stores, grown);
             }
-            StoreCache<T>.Stores[id] = store;
+            else
+            {
+                Volatile.Write(ref stores[id], store);
+            }
         }
     }
 
