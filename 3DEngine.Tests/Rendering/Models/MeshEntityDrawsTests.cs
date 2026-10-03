@@ -111,4 +111,18 @@ public class MeshEntityDrawsTests
         (upload.Width, upload.Height, upload.Rgba!.Length, upload.Rgba[0]).Should().Be((2, 2, 16, (byte)9));
         world.Resource<ModelDrawList>().Draws.Should().OnlyContain(d => d.Texture == upload.Id);
     }
+
+    [Fact]
+    public void With_No_Window_The_Camera_Takes_The_Shape_Of_The_Configured_Size()
+    {
+        var (world, ecs) = Scene();
+        world.InsertResource(Config.Default.WithWindow("offscreen", 800, 400));
+        SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+
+        MeshEntityDraws.Run(world);
+
+        // The camera has no rotation, so the projection's scales show through the view's translation.
+        var vp = world.Resource<ModelDrawList>().Draws[0].ViewProjection;
+        (MathF.Abs(vp.M22) / MathF.Abs(vp.M11)).Should().BeApproximately(2f, 1e-4f, "an 800 by 400 frame is twice as wide as it is tall");
+    }
 }

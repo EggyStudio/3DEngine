@@ -81,9 +81,13 @@ public sealed class MeshEntityDraws
     {
         foreach (var (entity, camera) in ecs.Query<Camera>())
         {
-            var aspect = 1f;
-            if (world.TryGetResource<AppWindow>(out var window) && window.Sdl.Height > 0)
-                aspect = (float)window.Sdl.Width / window.Sdl.Height;
+            // The window's shape, or with no window (an offscreen run) the size the config asked
+            // for, which is what the frames are drawn at. Assuming square there stretched every
+            // mesh entity in an offscreen capture while the 2D drawing beside it was right.
+            var (width, height) = world.TryGetResource<AppWindow>(out var window)
+                ? (window.Sdl.Width, window.Sdl.Height)
+                : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
+            var aspect = height > 0 ? (float)width / height : 1f;
             var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
             return view * projection;
         }
