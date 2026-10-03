@@ -106,6 +106,9 @@ public sealed class NullGraphicsDevice : IGraphicsDevice
     public void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline) { }
     /// <inheritdoc />
     public void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet) { }
+
+    /// <inheritdoc />
+    public void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index) { }
     /// <inheritdoc />
     public void Draw(ICommandBuffer commandBuffer, uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0) { }
     /// <inheritdoc />

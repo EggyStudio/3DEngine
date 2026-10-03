@@ -246,7 +246,8 @@ void DrawBoundingBox(BoundingBox box, Color color);                             
 
 A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`. A
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
-mesh. Models are lit by one fixed light from above, and draw through the camera `BeginMode3D` set.
+mesh. Models are lit by one fixed light from above, unless the ECS holds `Light` entities, and
+draw through the camera `BeginMode3D` set.
 
 ## Audio
 

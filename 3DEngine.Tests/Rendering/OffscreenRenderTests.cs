@@ -34,9 +34,9 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     // Draws frames until the capture asked for in the first has been written.
-    private Image Capture(Action draw)
+    private Image Capture(Action draw, string name = "frame")
     {
-        var path = Path.Combine(_directory, "frame.png");
+        var path = Path.Combine(_directory, name + ".png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();
@@ -85,5 +85,29 @@ public sealed class OffscreenRenderTests : IDisposable
         (center.R == center.G && center.G == center.B).Should().BeTrue("a white cube is shaded gray, not tinted");
         center.R.Should().BeInRange(60, 254, "the face toward the camera is lit by the fixed light, not black and not full white");
         UnloadModel(cube);
+    }
+
+    [Fact]
+    public void A_Point_Light_Entity_Lights_The_Faces_Turned_Toward_It()
+    {
+        if (!Open(64, 64)) return;
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var camera = ecs.Spawn();
+        ecs.Add(camera, new Camera(45f));
+        ecs.Add(camera, new Transform(new Vector3(0, 0, 4)));
+        var square = ecs.Spawn();
+        ecs.Add(square, new Mesh([new(-1, -1, 0), new(1, -1, 0), new(1, 1, 0), new(-1, -1, 0), new(1, 1, 0), new(-1, 1, 0)]));
+        ecs.Add(square, new Material(Vector4.One));
+        ecs.Add(square, new Transform(Vector3.Zero));
+        var lamp = ecs.Spawn();
+        ecs.Add(lamp, new Light { Type = LightType.Sphere, Color = Vector3.One, Intensity = 4f });
+        ecs.Add(lamp, new Transform(new Vector3(0, 0, 2)));
+
+        var front = Capture(() => ClearBackground(Color.Black), "front");
+        ecs.GetRef<Transform>(lamp).Position = new Vector3(0, 0, -2);
+        var behind = Capture(() => ClearBackground(Color.Black), "behind");
+
+        GetImageColor(front, 32, 32).R.Should().BeGreaterThan(200, "the light is 2 units in front of the square, facing it");
+        GetImageColor(behind, 32, 32).R.Should().BeLessThan(10, "a face turned away from the only light gets none");
     }
 }

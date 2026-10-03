@@ -24,8 +24,8 @@ needs an offline toolchain beyond `slangc`.
      clears the swapchain pass, and the model, immediate and ImGui nodes draw into it.
 - **The immediate pass** (§2) draws the shapes and textures the flat API records.
 - **The model pass** (§3) draws the meshes `DrawModel` records and every mesh entity, which
-  `MeshEntityDraws` records through the first camera entity, lit by one fixed light. Lighting is
-  extracted and uploaded but not yet read by it.
+  `MeshEntityDraws` records through the first camera entity, lit by the light entities or, with
+  none, by one fixed light (§4).
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 
 ## 1. Slang through slangc
@@ -92,9 +92,10 @@ Every mesh draws through one pass, `ModelNode`, before the immediate shapes: the
 models and the ECS's mesh entities alike. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
 vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
 `GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
-each frame. The push constants are the full transform, the world matrix's rotation as three rows
-for the normals, and the color, 128 bytes, which every device supports. `model.slang` shades by
-one fixed light from above over an ambient floor.
+each frame. The push constants are the full transform, the world matrix as three rows of a 3x4
+(the rotation for normals and the translation for world positions), and the color, 128 bytes,
+which every device supports. `model.slang` shades by the frame's lights, or by one fixed light
+from above over an ambient floor when the world has none, which is how the flat API's models look.
 
 A mesh entity is a `Mesh` (positions three per triangle, with optional normals and texture
 coordinates) and a `Material`. `MeshEntityDraws` uploads its arrays once, keyed by the positions
@@ -116,8 +117,15 @@ by name.
 
 ## 4. Lights and shadows
 
-`Light` is one struct with a kind (directional, point, spot), a color, an intensity and a range, and
-`LightingUboPrepare` packs every visible light into one uniform buffer per frame. The first shadow
+`LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
+to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set
+from a ring of one per frame in flight. `model.slang` adds each light by Lambert's cosine: a
+distant light by its direction, a dome light as ambient, and every other kind as a point with the
+square of the distance, cut by a spot's cone. The sum is clamped rather than tonemapped, and there
+is no specular yet.
+
+`Light` still carries UsdLux's kinds and fields, which are to shrink to a kind (directional, point,
+spot), a color, an intensity and a range. The first shadow
 is one cascaded shadow map for the main directional light, rendered as a depth-only node before the
 main pass. Point and spot shadows follow as an atlas.
 

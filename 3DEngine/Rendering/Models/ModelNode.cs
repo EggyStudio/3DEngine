@@ -9,8 +9,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Each draw binds its mesh's buffers from <see cref="GpuMeshes"/> and its texture from
-/// <see cref="GpuTextures"/>, and pushes its transform, the rotation part of its world matrix and
-/// its color. The pipeline does not cull, because a model loaded from a file may wind its
+/// <see cref="GpuTextures"/>, and pushes its transform, its world matrix as a 3x4 and its color.
+/// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
+/// second descriptor set. The pipeline does not cull, because a model loaded from a file may wind its
 /// triangles either way, and the cost is small next to drawing a back face wrong.
 /// </remarks>
 public sealed class ModelRenderer : IDisposable
@@ -19,9 +20,9 @@ public sealed class ModelRenderer : IDisposable
     private struct Push
     {
         public Matrix4x4 Transform;
-        public Vector4 NormalX;
-        public Vector4 NormalY;
-        public Vector4 NormalZ;
+        public Vector4 WorldX;
+        public Vector4 WorldY;
+        public Vector4 WorldZ;
         public Vector4 Color;
     }
 
@@ -30,6 +31,12 @@ public sealed class ModelRenderer : IDisposable
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
     private IPipeline? _pipeline;
+    private IDescriptorSetLayout? _defaultLayout;
+    private readonly List<IDescriptorSet> _lightSets = [];
+    private int _lightSet;
+    private FrameLightingBinding? _lastFrame;
+    private IDescriptorSet? _noLights;
+    private IBuffer? _noLightsBuffer;
 
     /// <summary>Creates the renderer from the compiled stages of <c>model.slang</c>.</summary>
     public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
@@ -58,6 +65,7 @@ public sealed class ModelRenderer : IDisposable
             {
                 pipeline = Pipeline(gfx, renderPass, renderWorld);
                 pass.SetPipeline(pipeline);
+                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld), index: 1);
             }
 
             pass.SetBindGroup(pipeline, textures.SetFor(gfx, draw.Texture));
@@ -68,9 +76,9 @@ public sealed class ModelRenderer : IDisposable
             var push = new Push
             {
                 Transform = w * draw.ViewProjection,
-                NormalX = new Vector4(w.M11, w.M21, w.M31, 0),
-                NormalY = new Vector4(w.M12, w.M22, w.M32, 0),
-                NormalZ = new Vector4(w.M13, w.M23, w.M33, 0),
+                WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
+                WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
+                WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
                 Color = draw.Color.ToVector4(),
             };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
@@ -99,6 +107,9 @@ public sealed class ModelRenderer : IDisposable
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
+            // Both sets have the device's default layout: the texture at binding 1 of the first,
+            // and the frame's lights at binding 0 of the second.
+            DescriptorSetLayouts: [DefaultLayout(gfx), DefaultLayout(gfx)],
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.LessOrEqual);
@@ -109,9 +120,49 @@ public sealed class ModelRenderer : IDisposable
         return _pipeline;
     }
 
+    // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
+    // set the GPU may still read is never written, or a set over an empty buffer when there are no
+    // lights, which the shader reads as "use the fixed light".
+    private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<FrameLightingBinding>() is not { LightCount: > 0 } frame)
+        {
+            if (_noLights is null)
+            {
+                _noLightsBuffer = gfx.CreateBuffer(new BufferDesc((ulong)LightingUboPacker.SizeBytes, BufferUsage.Uniform, CpuAccessMode.Write));
+                var span = gfx.Map(_noLightsBuffer);
+                span.Clear();
+                gfx.Unmap(_noLightsBuffer);
+                _noLights = gfx.CreateDescriptorSet();
+                gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes), samplerBinding: null);
+            }
+            return _noLights;
+        }
+
+        // Once a frame, however many targets draw models in it.
+        if (!ReferenceEquals(frame, _lastFrame))
+        {
+            _lastFrame = frame;
+            if (_lightSets.Count < gfx.FramesInFlight) _lightSets.Add(gfx.CreateDescriptorSet());
+            _lightSet = (_lightSet + 1) % _lightSets.Count;
+            gfx.UpdateDescriptorSet(_lightSets[_lightSet], frame.Binding, samplerBinding: null);
+        }
+        return _lightSets[_lightSet];
+    }
+
+    private IDescriptorSetLayout DefaultLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
+    [
+        new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+    ]);
+
     /// <inheritdoc />
     public void Dispose()
     {
+        foreach (var set in _lightSets) set.Dispose();
+        _noLights?.Dispose();
+        _noLightsBuffer?.Dispose();
+        _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();
         _vertexShader?.Dispose();
     }

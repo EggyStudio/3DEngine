@@ -14,7 +14,7 @@ public static class EcsMeshEntities
         {
             BeginDrawing();
             ClearBackground(Color.DarkGray);
-            DrawText("A camera, a triangle and a spinning cube, spawned as entities.", 10, 10, 20, Color.RayWhite);
+            DrawText("A camera, two meshes and two lights, spawned as entities.", 10, 10, 20, Color.RayWhite);
             EndDrawing();
         }
 
@@ -46,6 +46,16 @@ public struct MeshScene
         ctx.Ecs.Add(cube, new Material(new Vector4(0.2f, 0.6f, 1f, 1f)));
         ctx.Ecs.Add(cube, new Transform(new Vector3(1.5f, 0, 0), Quaternion.Identity, Vector3.One));
         ctx.Ecs.Add(cube, new MeshScene());
+
+        // A dim light from above, and a warm one that circles between the two meshes.
+        var sun = ctx.Ecs.Spawn();
+        ctx.Ecs.Add(sun, new Light { Type = LightType.Distant, Color = Vector3.One, Intensity = 0.25f });
+        ctx.Ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitX, -1.2f), Vector3.One));
+
+        var lamp = ctx.Ecs.Spawn();
+        ctx.Ecs.Add(lamp, new Light { Type = LightType.Sphere, Color = new Vector3(1f, 0.8f, 0.5f), Intensity = 3f });
+        ctx.Ecs.Add(lamp, new Transform(new Vector3(0, 0, 1.5f)));
+        ctx.Ecs.Add(lamp, new Lamp());
     }
 
     /// <summary>Turns the cube, the one entity carrying this behavior.</summary>
@@ -67,5 +77,20 @@ public struct MeshScene
         for (int q = 0; q < quads.Length; q += 4)
             positions.AddRange([c[quads[q]], c[quads[q + 1]], c[quads[q + 2]], c[quads[q]], c[quads[q + 2]], c[quads[q + 3]]]);
         return [.. positions];
+    }
+}
+
+/// <summary>Moves its light along a circle in front of the meshes.</summary>
+[Behavior]
+public struct Lamp
+{
+    public float Angle;
+
+    [OnUpdate]
+    public void Circle(BehaviorContext ctx)
+    {
+        Angle += (float)ctx.Time.DeltaSeconds;
+        ref var transform = ref ctx.Ecs.GetRef<Transform>(ctx.EntityId);
+        transform.Position = new Vector3(MathF.Sin(Angle) * 2.5f, 0.5f, 1.2f);
     }
 }

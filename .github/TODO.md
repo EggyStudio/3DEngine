@@ -53,7 +53,8 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 - **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
   file played as music is read whole rather than streamed.
 - **Models are partial.** Only the base color and its texture are used of a material, animation
-  is not played, and models are lit by one fixed light. A mesh cannot be changed after upload,
+  is not played, and the flat API has no lights of its own, so models are lit by one fixed light
+  unless the ECS holds light entities. A mesh cannot be changed after upload,
   and raylib's `GenMeshHeightmap` and `GenMeshCubicmap`, which build terrain from an image, are
   not written.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
@@ -67,10 +68,12 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 
 ### Meshes, materials and light
 
-- **Meshes are lit by one fixed light.** Mesh entities and models share the model pass, with
-  normals and base color textures, but the lights the ECS holds are uploaded and not read, and of
-  a material only the base color is used (RENDERING.md §3 and §4). A mesh entity is drawn through
-  the first camera entity only, into the window only.
+- **Lighting is diffuse only.** The model pass sums up to 16 light entities (distant, dome as
+  ambient, and every other kind as a point, with a spot's cone), by Lambert's cosine and the
+  square of the distance, and falls back to one fixed light when there are none. There is no
+  specular, no tonemapping (the sum is clamped), and of a material only the base color is used
+  (RENDERING.md §3 and §4). A mesh entity is drawn through the first camera entity only, into the
+  window only.
 - **Shader reflection, compute and a shipped shader cache** are not built (RENDERING.md §1).
 - **There are no shadows.**
 
@@ -122,8 +125,10 @@ reached.
 
 ### Testing
 
-- **One run failed most tests that construct an `App`**, right after a build, and sixteen runs
-  after it passed. The cause is not known, and the failing run's messages were not kept.
+- **Runs right after a build are sometimes wrong.** One failed most tests that construct an `App`,
+  and another reported 627 of 635 tests, all passing, with none missing from the runs before and
+  after. Both followed a `dotnet test` that rebuilt the test project, and neither repeated in the
+  runs after. The cause is not known.
 - **Few tests render.** `OffscreenRenderTests` draws shapes and a lit cube offscreen and reads the
   pixels back. The other passes (text, ImGui, render targets, custom shaders) are covered only by
   the example captures CI takes, which nothing compares against a reference.

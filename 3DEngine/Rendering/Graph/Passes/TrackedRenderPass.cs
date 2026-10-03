@@ -48,6 +48,10 @@ public sealed class TrackedRenderPass : IDisposable
     public void SetBindGroup(IPipeline pipeline, IDescriptorSet descriptorSet)
         => _gfx.BindDescriptorSet(_cmd, pipeline, descriptorSet);
 
+    /// <summary>Binds a descriptor set at a set index other than the first.</summary>
+    public void SetBindGroup(IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
+        => _gfx.BindDescriptorSet(_cmd, pipeline, descriptorSet, index);
+
     /// <summary>Issues a non-indexed draw call.</summary>
     public void Draw(uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0)
         => _gfx.Draw(_cmd, vertexCount, instanceCount, firstVertex, firstInstance);
