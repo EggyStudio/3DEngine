@@ -92,7 +92,7 @@ public class AssimpModelReaderTests
     }
 
     [Fact]
-    public void ReadFile_Finds_The_Material_Library_Beside_The_Model()
+    public void A_Model_Finds_The_Material_Library_Beside_It_From_A_Path_Or_A_File_Stream()
     {
         var directory = Directory.CreateTempSubdirectory("engine-assimp-test-").FullName;
         try
@@ -102,15 +102,24 @@ public class AssimpModelReaderTests
                 "mtllib tri.mtl\no Tri\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl Red\nf 1 2 3\n");
 
             var scene = new AssimpModelReader().ReadFile(Path.Combine(directory, "tri.obj"), new SceneImportSettings());
+            AssertRed(scene);
 
-            var material = scene.Traverse().SelectMany(n => n.Components).OfType<SceneMaterialPayload>().Should().ContainSingle().Subject;
-            material.BaseColorFactor.X.Should().BeApproximately(1f, 1e-5f);
-            material.BaseColorFactor.Y.Should().BeApproximately(0f, 1e-5f);
-            material.BaseColorTexture!.AssetPath.Should().Be("red.png");
+            // The asset server hands the reader the file opened from disk, and the library beside
+            // it is found that way too.
+            using var context = new AssetLoadContext(File.OpenRead(Path.Combine(directory, "tri.obj")), new AssetPath("tri.obj"), _ => default);
+            AssertRed(new AssimpModelReader().ReadAsync(context, new SceneImportSettings(), default).GetAwaiter().GetResult());
         }
         finally
         {
             Directory.Delete(directory, recursive: true);
+        }
+
+        static void AssertRed(Scene scene)
+        {
+            var material = scene.Traverse().SelectMany(n => n.Components).OfType<SceneMaterialPayload>().Should().ContainSingle().Subject;
+            material.BaseColorFactor.X.Should().BeApproximately(1f, 1e-5f);
+            material.BaseColorFactor.Y.Should().BeApproximately(0f, 1e-5f);
+            material.BaseColorTexture!.AssetPath.Should().Be("red.png");
         }
     }
 }

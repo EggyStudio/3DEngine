@@ -55,9 +55,9 @@ public sealed class AssimpModelReader : ISceneReader
     /// <c>.mtl</c>, a glTF's <c>.bin</c>, external textures) are found where they are.
     /// </summary>
     /// <remarks>
-    /// <see cref="ReadAsync"/> reads through a stream, which may not come from a file, and spools it
-    /// to a temporary file first, where those siblings are not. The flat API's <c>LoadModel</c>
-    /// has the real path and uses this instead.
+    /// <see cref="ReadAsync"/> does the same for a file the asset server opened from disk, and
+    /// spools any other stream to a temporary file, where those siblings are not. The flat API's
+    /// <c>LoadModel</c> has the real path and uses this.
     /// </remarks>
     internal Scene ReadFile(string path, SceneImportSettings settings, CancellationToken ct = default)
     {
@@ -93,6 +93,12 @@ public sealed class AssimpModelReader : ISceneReader
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(settings);
+
+        // A file the asset server opened from disk is read where it is, so the files beside it
+        // (an OBJ's .mtl, a glTF's .bin, its textures) are found. Spooled to a temporary file,
+        // they were not, and every model loaded through the server lost its materials.
+        if (context.GetStream() is FileStream { Name: var onDisk } && File.Exists(onDisk))
+            return Task.FromResult(Import(onDisk, context, settings, ct));
 
         var tempPath = SpoolToTempFile(context);
         try
