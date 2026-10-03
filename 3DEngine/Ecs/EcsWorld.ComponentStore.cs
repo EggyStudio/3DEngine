@@ -60,6 +60,8 @@ public sealed partial class EcsWorld
         /// <returns><c>true</c> if changed; otherwise <c>false</c>.</returns>
         public bool ChangedThisFrame(int entity, int currentTick) => _set.ChangedThisFrame(entity);
 
+        public bool Changed(int entity) => _set.ChangedThisFrame(entity);
+
         /// <summary>Returns a zero-allocation enumerable over all (entity, component) pairs.</summary>
         /// <returns>A <see cref="ComponentEnumerable"/> for <c>foreach</c> iteration.</returns>
         public ComponentEnumerable Enumerate() => new(this);

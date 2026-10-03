@@ -55,7 +55,7 @@ public sealed partial class EcsWorld
     private readonly List<IComponentStore> _storeList = new();
 
     /// <summary>Internal marker interface for type-erased component storage.</summary>
-    private interface IComponentStore
+    internal interface IComponentStore
     {
         /// <summary>Number of components in this store.</summary>
         int Count { get; }
@@ -72,5 +72,7 @@ public sealed partial class EcsWorld
         object? GetBoxed(int entity);
         /// <summary>Replaces the component of <paramref name="entity"/> with a boxed value, marking it changed.</summary>
         bool SetBoxed(int entity, object value);
+        /// <summary>Whether <paramref name="entity"/>'s component in this store changed this frame.</summary>
+        bool Changed(int entity);
     }
 }

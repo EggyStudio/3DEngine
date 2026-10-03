@@ -308,8 +308,12 @@ public sealed partial class EcsWorld
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return RefEnumerable<T>.From(default);
-        return RefEnumerable<T>.FromStore(store, markOnIterate: true);
+        return RefEnumerable<T>.FromStore(store, markOnIterate: true, this);
     }
+
+    // The store for a filter, which reads it with the type-erased interface. Not created when it
+    // does not exist, because a query must not add stores as a side effect.
+    internal IComponentStore? StoreOrNull<T>() => GetStore<T>(create: false);
 
     /// <summary>Returns a zero-allocation ref-enumerable over entities matching both <typeparamref name="T1"/> and <typeparamref name="T2"/>.</summary>
     /// <typeparam name="T1">The first component type.</typeparam>

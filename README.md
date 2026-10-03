@@ -122,6 +122,9 @@ foreach (var (_, ball) in GetApp().World.Resource<EcsWorld>().Query<Ball>())
     DrawSphere(ball.Position, 0.3f, Color.Red);
 ```
 
+Hand-written systems query the same world: `ecs.QueryRef<Velocity>().With<Falls>().Without<Grounded>()`
+yields each matching component by reference.
+
 The ECS keeps components in sparse sets, runs systems in parallel batches by the components they
 read and write, defers structural changes through `EcsCommands`, and compiles behaviors from
 source files while an app runs. [ARCHITECTURE.md](.github/ARCHITECTURE.md) describes how.

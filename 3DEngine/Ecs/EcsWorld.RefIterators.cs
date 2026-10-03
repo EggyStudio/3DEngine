@@ -35,15 +35,83 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>
-    /// Zero-allocation ref-based enumerable for iterating a single component type with direct mutable access.
-    /// Returned by <see cref="EcsWorld.QueryRef{T}"/>.
+    /// Up to four component types an entity must have, four it must not have, and four that must
+    /// have changed this frame, checked per entity by a filtered query. A struct of fixed slots, so
+    /// a filtered query allocates nothing.
     /// </summary>
-    /// <typeparam name="T">The component type.</typeparam>
+    public readonly struct QueryFilter
+    {
+        private readonly IComponentStore? _w0, _w1, _w2, _w3, _n0, _n1, _n2, _n3, _c0, _c1, _c2, _c3;
+        private readonly byte _with, _without, _changed;
+        private readonly bool _impossible;
+
+        private QueryFilter(QueryFilter from, int list, IComponentStore? store)
+        {
+            this = from;
+            // A required type that has no store yet means no entity can pass.
+            if (list != 1 && store is null)
+            {
+                _impossible = true;
+                return;
+            }
+
+            switch (list)
+            {
+                case 0:
+                    if (_with >= 4) throw new InvalidOperationException("A query takes at most four With filters.");
+                    if (_with == 0) _w0 = store; else if (_with == 1) _w1 = store; else if (_with == 2) _w2 = store; else _w3 = store;
+                    _with++;
+                    break;
+                case 1:
+                    // A forbidden type that has no store yet forbids nothing.
+                    if (store is null) return;
+                    if (_without >= 4) throw new InvalidOperationException("A query takes at most four Without filters.");
+                    if (_without == 0) _n0 = store; else if (_without == 1) _n1 = store; else if (_without == 2) _n2 = store; else _n3 = store;
+                    _without++;
+                    break;
+                default:
+                    if (_changed >= 4) throw new InvalidOperationException("A query takes at most four Changed filters.");
+                    if (_changed == 0) _c0 = store; else if (_changed == 1) _c1 = store; else if (_changed == 2) _c2 = store; else _c3 = store;
+                    _changed++;
+                    break;
+            }
+        }
+
+        internal QueryFilter With(IComponentStore? store) => new(this, 0, store);
+        internal QueryFilter Without(IComponentStore? store) => new(this, 1, store);
+        internal QueryFilter Changed(IComponentStore? store) => new(this, 2, store);
+
+        /// <summary>Whether the filter has anything to check.</summary>
+        public bool IsEmpty => !_impossible && _with == 0 && _without == 0 && _changed == 0;
+
+        /// <summary>Whether <paramref name="entity"/> passes every filter.</summary>
+        public bool Passes(int entity)
+        {
+            if (_impossible) return false;
+            if (_with > 0 && !_w0!.Has(entity)) return false;
+            if (_with > 1 && !_w1!.Has(entity)) return false;
+            if (_with > 2 && !_w2!.Has(entity)) return false;
+            if (_with > 3 && !_w3!.Has(entity)) return false;
+            if (_without > 0 && _n0!.Has(entity)) return false;
+            if (_without > 1 && _n1!.Has(entity)) return false;
+            if (_without > 2 && _n2!.Has(entity)) return false;
+            if (_without > 3 && _n3!.Has(entity)) return false;
+            if (_changed > 0 && !_c0!.Changed(entity)) return false;
+            if (_changed > 1 && !_c1!.Changed(entity)) return false;
+            if (_changed > 2 && !_c2!.Changed(entity)) return false;
+            if (_changed > 3 && !_c3!.Changed(entity)) return false;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// A <c>foreach</c>-able view of every component of one type, by reference, narrowed by
+    /// <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and <see cref="Changed{TChanged}"/>.
+    /// </summary>
     /// <example>
     /// <code>
-    /// // Heal all entities with a Health component
-    /// foreach (var rc in ecs.QueryRef&lt;Health&gt;())
-    ///     rc.Component.Current = Math.Min(rc.Component.Current + 1, rc.Component.Max);
+    /// foreach (var row in ecs.QueryRef&lt;Velocity&gt;().With&lt;Falls&gt;().Without&lt;Grounded&gt;())
+    ///     row.Component.Y -= 9.81f * dt;
     /// </code>
     /// </example>
     public readonly ref struct RefEnumerable<T>
@@ -52,35 +120,45 @@ public sealed partial class EcsWorld
         private readonly Span<T> _components;
         private readonly ComponentStore<T>? _store;
         private readonly bool _markOnIterate;
+        private readonly EcsWorld? _world;
+        private readonly QueryFilter _filter;
 
-        private RefEnumerable(ReadOnlySpan<int> entities, Span<T> components, ComponentStore<T>? store, bool markOnIterate)
+        private RefEnumerable(ReadOnlySpan<int> entities, Span<T> components, ComponentStore<T>? store, bool markOnIterate,
+            EcsWorld? world = null, QueryFilter filter = default)
         {
             _entities = entities;
             _components = components;
             _store = store;
             _markOnIterate = markOnIterate;
+            _world = world;
+            _filter = filter;
         }
 
-        /// <summary>Creates a <see cref="RefEnumerable{T}"/> from a pre-existing <see cref="ComponentSpan{T}"/>.</summary>
-        /// <param name="span">The span to iterate over.</param>
-        /// <returns>A new enumerable wrapping the span (no change marking).</returns>
+        /// <summary>A view over a span of components, with no store to mark changes in.</summary>
         public static RefEnumerable<T> From(ComponentSpan<T> span) => new(span.Entities, span.Components, null, false);
 
-        /// <summary>Creates a <see cref="RefEnumerable{T}"/> from a component store, optionally marking iterated components as changed.</summary>
-        /// <param name="store">The component store to iterate.</param>
-        /// <param name="markOnIterate">When <c>true</c>, each accessed component is marked changed.</param>
-        /// <returns>A new enumerable wrapping the store's data.</returns>
-        internal static RefEnumerable<T> FromStore(ComponentStore<T> store, bool markOnIterate)
+        internal static RefEnumerable<T> FromStore(ComponentStore<T> store, bool markOnIterate, EcsWorld? world = null)
         {
             var span = store.AsSpan();
-            return new RefEnumerable<T>(span.Entities, span.Components, store, markOnIterate);
+            return new RefEnumerable<T>(span.Entities, span.Components, store, markOnIterate, world);
         }
 
-        /// <summary>Returns the enumerator for <c>foreach</c> iteration.</summary>
-        /// <returns>A <see cref="RefEnumerator"/>.</returns>
-        public RefEnumerator GetEnumerator() => new(_entities, _components, _store, _markOnIterate);
+        /// <summary>Only entities that also have a <typeparamref name="TWith"/>.</summary>
+        public RefEnumerable<T> With<TWith>() => Filtered(_filter.With(_world?.StoreOrNull<TWith>()));
 
-        /// <summary>Ref-based enumerator yielding <see cref="RefComponent{T}"/> instances with direct mutable access.</summary>
+        /// <summary>Only entities that do not have a <typeparamref name="TWithout"/>.</summary>
+        public RefEnumerable<T> Without<TWithout>() => Filtered(_filter.Without(_world?.StoreOrNull<TWithout>()));
+
+        /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
+        public RefEnumerable<T> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        private RefEnumerable<T> Filtered(QueryFilter filter) =>
+            new(_entities, _components, _store, _markOnIterate, _world, filter);
+
+        /// <summary>The enumerator <c>foreach</c> uses.</summary>
+        public RefEnumerator GetEnumerator() => new(_entities, _components, _store, _markOnIterate, _filter);
+
+        /// <summary>Walks the dense array, skipping entities the filter refuses.</summary>
         public ref struct RefEnumerator
         {
             private ReadOnlySpan<int> _entities;
@@ -88,18 +166,19 @@ public sealed partial class EcsWorld
             private int _index;
             private readonly ComponentStore<T>? _store;
             private readonly bool _mark;
+            private readonly QueryFilter _filter;
 
-            /// <summary>Creates a new enumerator positioned before the first element.</summary>
-            internal RefEnumerator(ReadOnlySpan<int> entities, Span<T> components, ComponentStore<T>? store, bool mark)
+            internal RefEnumerator(ReadOnlySpan<int> entities, Span<T> components, ComponentStore<T>? store, bool mark, QueryFilter filter)
             {
                 _entities = entities;
                 _components = components;
                 _index = -1;
                 _store = store;
                 _mark = mark;
+                _filter = filter;
             }
 
-            /// <summary>Gets the current <see cref="RefComponent{T}"/> with mutable component access.</summary>
+            /// <summary>The current entity and its component by reference. Reading it marks the component changed.</summary>
             public RefComponent<T> Current
             {
                 get
@@ -109,11 +188,11 @@ public sealed partial class EcsWorld
                 }
             }
 
-            /// <summary>Advances to the next element.</summary>
-            /// <returns><c>true</c> if there is a next element; otherwise <c>false</c>.</returns>
+            /// <summary>Moves to the next entity that passes the filter.</summary>
             public bool MoveNext()
             {
-                _index++;
+                do _index++;
+                while (_index < _entities.Length && !_filter.IsEmpty && !_filter.Passes(_entities[_index]));
                 return _index < _entities.Length;
             }
         }
