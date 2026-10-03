@@ -258,6 +258,8 @@ ModelMesh GenMeshCylinder(float radius, float height, int slices);         // A 
 ModelMesh GenMeshCone(float radius, float height, int slices);             // A cone standing on y 0
 ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of radius, a tube of size, lying flat
 ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot as a tube of size
+ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
+ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 

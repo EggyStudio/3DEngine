@@ -17,6 +17,7 @@ var examples = new Dictionary<string, Action>
     ["textures_mipmaps"] = TexturesMipmaps.Run,
     ["models_loading"] = ModelsLoading.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
+    ["models_terrain"] = ModelsTerrain.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,

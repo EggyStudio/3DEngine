@@ -115,6 +115,8 @@ public sealed class Engine3DModelTests : IDisposable
         { "cone", new(-1, 0, -1), new(1, 2, 1) },
         { "hemisphere", new(-1, 0, -1), new(1, 1, 1) },
         { "torus", new(-1.25f, -0.25f, -1.25f), new(1.25f, 0.25f, 1.25f) },
+        { "heightmap", new(0, 0, 0), new(4, 2, 4) },
+        { "cubicmap", new(0, 0, 0), new(3, 1, 3) },
     };
 
     private static ModelMesh Generate(string shape) => shape switch
@@ -124,6 +126,8 @@ public sealed class Engine3DModelTests : IDisposable
         "cone" => GenMeshCone(1, 2, 64),
         "hemisphere" => GenMeshHemiSphere(1, 16, 64),
         "torus" => GenMeshTorus(1, 0.25f, 64, 32),
+        "heightmap" => GenMeshHeightmap(GenImageGradientLinear(8, 8, 90, Color.Black, Color.White), new Vector3(4, 2, 4)),
+        "cubicmap" => GenMeshCubicmap(Maze(), Vector3.One),
         _ => GenMeshKnot(3, 0.3f, 128, 16),
     };
 
@@ -172,5 +176,22 @@ public sealed class Engine3DModelTests : IDisposable
 
         // A square fan of four triangles has four rim edges and four spokes.
         _app.World.Resource<DrawList>().Vertices.Length.Should().Be(8 * 2);
+    }
+
+    // A 3 by 3 maze with one wall in the middle.
+    private static Image Maze()
+    {
+        var image = GenImageColor(3, 3, Color.Black);
+        ImageDrawPixel(ref image, 1, 1, Color.White);
+        return image;
+    }
+
+    [Fact]
+    public void A_Cubicmap_Makes_Only_The_Faces_That_Can_Be_Seen()
+    {
+        var mesh = GenMeshCubicmap(Maze(), Vector3.One);
+
+        // Eight open cells with a floor, and the wall's top and four sides.
+        mesh.TriangleCount.Should().Be((8 + 1 + 4) * 2);
     }
 }

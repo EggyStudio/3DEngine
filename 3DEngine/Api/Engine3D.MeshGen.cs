@@ -104,6 +104,89 @@ public static partial class Engine3D
         return mesh.Upload();
     }
 
+    /// <summary>
+    /// Makes terrain from an image: a grid with a vertex per pixel, raised by the pixel's
+    /// brightness, from the origin to <paramref name="size"/>, where black is at y 0 and white at
+    /// <c>size.Y</c>.
+    /// </summary>
+    /// <remarks>As raylib's, the terrain lies on +X and +Z from the origin rather than centered.</remarks>
+    public static ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size)
+    {
+        if (!heightmap.IsValid || heightmap.Width < 2 || heightmap.Height < 2) return default;
+        int w = heightmap.Width, h = heightmap.Height;
+        var step = new Vector3(size.X / (w - 1), size.Y / 255f, size.Z / (h - 1));
+
+        float Height(int x, int z)
+        {
+            var c = GetImageColor(heightmap, Math.Clamp(x, 0, w - 1), Math.Clamp(z, 0, h - 1));
+            return (c.R + c.G + c.B) / 3f * step.Y;
+        }
+
+        var mesh = new MeshBuilder();
+        for (int z = 0; z < h; z++)
+        for (int x = 0; x < w; x++)
+        {
+            // The normal from the slopes to the neighbors on each side.
+            var normal = Vector3.Normalize(new Vector3(
+                (Height(x - 1, z) - Height(x + 1, z)) / (2 * step.X), 1,
+                (Height(x, z - 1) - Height(x, z + 1)) / (2 * step.Z)));
+            mesh.Vertex(new Vector3(x * step.X, Height(x, z), z * step.Z), normal, new Vector2((float)x / (w - 1), (float)z / (h - 1)));
+        }
+
+        for (int z = 0; z + 1 < h; z++)
+        for (int x = 0; x + 1 < w; x++)
+        {
+            var a = (uint)(z * w + x);
+            mesh.Quad(a, a + 1, a + 1 + (uint)w, a + (uint)w);
+        }
+        return mesh.Upload();
+    }
+
+    /// <summary>
+    /// Makes a maze from an image: a block of <paramref name="cubeSize"/> for every white pixel,
+    /// and floor under every other, from the origin along +X and +Z.
+    /// </summary>
+    /// <remarks>
+    /// Only the faces that can be seen are made: a wall's side where it meets an open cell, the
+    /// floor of open cells, and a wall's top. raylib's also roofs the open cells, which its back
+    /// face culling hides from above. The model pass draws both sides of a face, so a roof would
+    /// hide the maze, and it is left out. Every face has texture coordinates from 0 to 1, so one
+    /// texture covers each.
+    /// </remarks>
+    public static ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize)
+    {
+        if (!cubicmap.IsValid) return default;
+        int w = cubicmap.Width, h = cubicmap.Height;
+        bool Wall(int x, int z) => x >= 0 && z >= 0 && x < w && z < h && GetImageColor(cubicmap, x, z) is { R: 255, G: 255, B: 255 };
+
+        var mesh = new MeshBuilder();
+        var s = cubeSize;
+        void Face(Vector3 center, Vector3 normal, Vector3 u, Vector3 v)
+        {
+            uint V(float a, float b, float tu, float tv) => mesh.Vertex(center + u * a + v * b, normal, new Vector2(tu, tv));
+            mesh.Quad(V(-0.5f, -0.5f, 0, 1), V(0.5f, -0.5f, 1, 1), V(0.5f, 0.5f, 1, 0), V(-0.5f, 0.5f, 0, 0));
+        }
+
+        for (int z = 0; z < h; z++)
+        for (int x = 0; x < w; x++)
+        {
+            var center = new Vector3((x + 0.5f) * s.X, s.Y / 2, (z + 0.5f) * s.Z);
+            var (ux, uy, uz) = (Vector3.UnitX * s.X, Vector3.UnitY * s.Y, Vector3.UnitZ * s.Z);
+            if (!Wall(x, z))
+            {
+                Face(center with { Y = 0 }, Vector3.UnitY, ux, -uz);
+                continue;
+            }
+
+            Face(center with { Y = s.Y }, Vector3.UnitY, ux, -uz);
+            if (!Wall(x + 1, z)) Face(center + Vector3.UnitX * s.X / 2, Vector3.UnitX, -uz, uy);
+            if (!Wall(x - 1, z)) Face(center - Vector3.UnitX * s.X / 2, -Vector3.UnitX, uz, uy);
+            if (!Wall(x, z + 1)) Face(center + Vector3.UnitZ * s.Z / 2, Vector3.UnitZ, ux, uy);
+            if (!Wall(x, z - 1)) Face(center - Vector3.UnitZ * s.Z / 2, -Vector3.UnitZ, -ux, uy);
+        }
+        return mesh.Upload();
+    }
+
     /// <summary>Collects vertices and triangles for a generated mesh.</summary>
     private sealed class MeshBuilder
     {

@@ -56,9 +56,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   file played as music is read whole rather than streamed.
 - **Models are partial.** Only the base color and its texture are used of a material, animation
   is not played, and the flat API has no lights of its own, so models are lit by one fixed light
-  unless the ECS holds light entities. A mesh cannot be changed after upload,
-  and raylib's `GenMeshHeightmap` and `GenMeshCubicmap`, which build terrain from an image, are
-  not written.
+  unless the ECS holds light entities. A mesh cannot be changed after upload, and the model
+  pass draws both sides of every face, so `GenMeshCubicmap` makes no roof over a maze's open cells
+  as raylib's does.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
   shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
   cellular noise are not generated. Mip levels are made by GPU blits, which have not been run
