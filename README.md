@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/icon.png" alt="3D Engine icon" width="160"/>
-</p>
-
 <h1 align="center">3D Engine</h1>
 
 <p align="center">A C# engine on SDL3, Vulkan, Dear ImGui and Slang, used the way raylib is used.</p>
