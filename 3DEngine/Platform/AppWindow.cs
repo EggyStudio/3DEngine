@@ -30,6 +30,9 @@ public sealed class AppWindow
     /// <summary>Raised for every SDL event polled; allows input systems to consume events.</summary>
     public event Action<SDL.Event>? SDLEvent;
 
+    /// <summary>Raised after each <see cref="PollEvents"/>, once the pending events have been processed.</summary>
+    public event Action? EventsPolled;
+
     private volatile bool _shouldClose;
 
     /// <summary>Creates a new window with the specified properties and graphics backend.</summary>
@@ -149,6 +152,8 @@ public sealed class AppWindow
                 resizedThisBatch = true;
             }
         }
+
+        EventsPolled?.Invoke();
 
         // -- Dispatch the single coalesced resize (if any) --
         if (resizedThisBatch && coalescedW > 0 && coalescedH > 0)

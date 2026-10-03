@@ -16,9 +16,10 @@ namespace Engine;
 /// path depends on neither, and works in a headless run, where there is no window at all.
 /// </para>
 /// <para>
-/// A press goes down when the command runs, at the top of <see cref="Stage.First"/>, so the frame
-/// that follows sees it as pressed, and it is released at the top of the frame after the last one
-/// it was held for.
+/// Changes are queued on <see cref="Input"/> and made when the loop next processes events, where a
+/// real key arrives, so a raylib-style loop that reads <c>IsKeyPressed</c> before
+/// <c>BeginDrawing</c> sees a press in the frame it is made for. A held key is released the same
+/// way after the last frame it was held for.
 /// </para>
 /// </remarks>
 public sealed class SyntheticInput
@@ -31,7 +32,7 @@ public sealed class SyntheticInput
         for (int i = _releases.Count - 1; i >= 0; i--)
         {
             if (_releases[i].Frame > frame) continue;
-            _releases[i].Release(input);
+            input.Enqueue(_releases[i].Release);
             _releases.RemoveAt(i);
         }
     }
@@ -39,7 +40,7 @@ public sealed class SyntheticInput
     /// <summary>Holds a key for <paramref name="frames"/> frames, starting with the next.</summary>
     public void Key(Input input, Key key, ulong frame, int frames)
     {
-        input.SetKey(key, true);
+        input.Enqueue(i => i.SetKey(key, true));
         _releases.Add((frame + (ulong)Math.Max(1, frames), i => i.SetKey(key, false)));
     }
 
@@ -51,24 +52,27 @@ public sealed class SyntheticInput
         input.Gamepad(index) ?? (index == 0 && input.Gamepads.Count == 0 ? input.ConnectGamepad(ConsolePadId, "Console gamepad", 0) : null);
 
     /// <summary>Holds a gamepad button for <paramref name="frames"/> frames.</summary>
-    public void PadButton(GamepadState pad, GamepadButton button, ulong frame, int frames)
+    public void PadButton(Input input, GamepadState pad, GamepadButton button, ulong frame, int frames)
     {
-        pad.SetButton(button, true);
+        input.Enqueue(_ => pad.SetButton(button, true));
         _releases.Add((frame + (ulong)Math.Max(1, frames), _ => pad.SetButton(button, false)));
     }
 
     /// <summary>Moves the pointer to (<paramref name="x"/>, <paramref name="y"/>).</summary>
     public static void Move(Input input, int x, int y)
     {
-        input.AddMouseDelta(x - input.MouseX, y - input.MouseY);
-        input.SetMousePosition(x, y);
+        input.Enqueue(i =>
+        {
+            i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
+            i.SetMousePosition(x, y);
+        });
         if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMousePosEvent(x, y);
     }
 
     /// <summary>Holds a mouse button for <paramref name="frames"/> frames at the pointer's position.</summary>
     public void Button(Input input, MouseButton button, ulong frame, int frames)
     {
-        input.SetMouseButton(button, true);
+        input.Enqueue(i => i.SetMouseButton(button, true));
         if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent((int)button, true);
         _releases.Add((frame + (ulong)Math.Max(1, frames), i =>
         {
@@ -80,7 +84,7 @@ public sealed class SyntheticInput
     /// <summary>Turns the wheel by <paramref name="amount"/>, positive away from the user.</summary>
     public static void Wheel(Input input, float amount)
     {
-        input.AddWheel(0, amount);
+        input.Enqueue(i => i.AddWheel(0, amount));
         if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseWheelEvent(0, amount);
     }
 }
@@ -105,7 +109,7 @@ internal static class InputCommands
 
         var (input, synthetic, frame) = Parts();
         synthetic.Key(input, key, frame, frames);
-        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 1);
+        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 2);
         return $"held {key} for {Math.Max(1, frames)} frame(s)";
     }
 
@@ -122,7 +126,7 @@ internal static class InputCommands
         var (input, synthetic, frame) = Parts();
         SyntheticInput.Move(input, x, y);
         synthetic.Button(input, MouseButton.Left, frame, 1);
-        ConsoleHost.Hold(frame + 2);
+        ConsoleHost.Hold(frame + 3);
         return $"clicked {x}, {y}";
     }
 
@@ -138,7 +142,7 @@ internal static class InputCommands
         var (input, synthetic, frame) = Parts();
         synthetic.Button(input, which, frame, frames);
         SyntheticInput.Move(input, input.MouseX + dx, input.MouseY + dy);
-        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 1);
+        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 2);
         return $"dragged {which} by {dx}, {dy}";
     }
 
@@ -158,8 +162,8 @@ internal static class InputCommands
             return $"no gamepad at {pad}";
         }
 
-        synthetic.PadButton(state, which, frame, frames);
-        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 1);
+        synthetic.PadButton(input, state, which, frame, frames);
+        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 2);
         return $"held {which} on {state.Name} for {Math.Max(1, frames)} frame(s)";
     }
 
@@ -180,6 +184,16 @@ internal static class InputCommands
 
         state.SetAxis(which, Math.Clamp(value, -1f, 1f));
         return $"{which} on {state.Name} at {value}";
+    }
+
+    [Command("input.state", "What the engine's input holds: keys and buttons down, the pointer, the gamepads")]
+    internal static string State()
+    {
+        var input = Parts().Input;
+        var keys = Enum.GetValues<Key>().Where(k => k != Engine.Key.Unknown && input.KeyDown(k)).Distinct().Select(k => k.ToString());
+        var buttons = Enum.GetValues<MouseButton>().Where(input.MouseDown).Select(b => b.ToString());
+        var pads = input.Gamepads.Select((p, i) => $"{i}: {p.Name}");
+        return $"keys: {string.Join(", ", keys)}\nmouse: {input.MouseX}, {input.MouseY} {string.Join(", ", buttons)}\ngamepads: {string.Join("; ", pads)}";
     }
 
     [Command("input.wheel", "Turns the mouse wheel, positive away from the user: input.wheel <amount>")]

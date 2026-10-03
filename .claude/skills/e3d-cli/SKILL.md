@@ -52,6 +52,7 @@ outside the examples is driven by running it with `--serve`.
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
 | `input.drag <button> <dx> <dy> <frames>` | holds a button while moving the pointer, as a camera drag |
 | `input.wheel <amount>` | turns the wheel |
+| `input.state` | the keys and buttons down, the pointer and the gamepads, as the engine sees them |
 | `input.button <pad> <button> <frames>` | holds a gamepad button (`South`, `East`, `DpadUp`, `Start`), on a console pad when none is connected |
 | `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
 
@@ -70,8 +71,11 @@ Commands run between frames on the main thread, so they may read and change the 
 hidden or headless run and on a locked session, where xdotool's events do not arrive. Use it
 rather than xdotool.
 
-`input.key` and `input.click` answer after the input is released, so the next `shot` sees the
-result:
+Injected input is made when the loop next processes events, as a real key would be, so a program
+that reads `IsKeyPressed` before `BeginDrawing` sees it. `input.key` and `input.click` answer after
+the input is released, so the next `shot` sees the result. Each `./e3d` call is a process of its
+own and takes a few frames to start, so a result shorter than that (a quarter-second sound) may be
+over before a separate `shot` arrives. `input.state` says whether input arrived.
 
 ```bash
 ./e3d command input.key W 40 && ./e3d shot /tmp/after.png

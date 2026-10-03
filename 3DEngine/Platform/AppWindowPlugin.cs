@@ -56,6 +56,7 @@ public sealed class AppWindowPlugin : IPlugin
             // Hook SDL events to update input; AppWindow already pumps events but we add handlers.
             var win = app.World.Resource<AppWindow>();
             win.SDLEvent += e => ProcessInputEvent(e, input);
+            win.EventsPolled += input.ApplyQueued;
         }
 
         private static void ProcessInputEvent(SDL.Event e, Input input)

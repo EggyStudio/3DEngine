@@ -60,6 +60,7 @@ public sealed class Input
     private readonly HashSet<MouseButton> _mouseReleased = [];
 
     private readonly List<GamepadState> _gamepads = [];
+    private readonly System.Collections.Concurrent.ConcurrentQueue<Action<Input>> _queued = new();
 
     /// <summary>Absolute X position of the mouse cursor in window pixels.</summary>
     public int MouseX { get; private set; }
@@ -158,6 +159,18 @@ public sealed class Input
     public GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
 
     // -- Mutation (internal - platform backends only) --
+
+    /// <summary>
+    /// Queues a change to be made when the platform's events are next processed, where a real key
+    /// or click would arrive, so code that reads input before the frame begins sees it.
+    /// </summary>
+    internal void Enqueue(Action<Input> change) => _queued.Enqueue(change);
+
+    /// <summary>Makes the queued changes. Called by the loop driver as it processes events.</summary>
+    internal void ApplyQueued()
+    {
+        while (_queued.TryDequeue(out var change)) change(this);
+    }
 
     internal GamepadState ConnectGamepad(uint id, string name, nint handle)
     {

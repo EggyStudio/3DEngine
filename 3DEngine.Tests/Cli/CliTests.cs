@@ -142,11 +142,15 @@ public sealed class CliTests : IDisposable
         var synthetic = new SyntheticInput();
 
         synthetic.Key(input, Key.W, frame: 10, frames: 3);
+        input.KeyDown(Key.W).Should().BeFalse("the press waits for the loop to process events");
+        input.ApplyQueued();
         input.KeyPressed(Key.W).Should().BeTrue();
 
         synthetic.Update(input, 12);
+        input.ApplyQueued();
         input.KeyDown(Key.W).Should().BeTrue();
         synthetic.Update(input, 13);
+        input.ApplyQueued();
         input.KeyDown(Key.W).Should().BeFalse();
         input.KeyReleased(Key.W).Should().BeTrue();
     }

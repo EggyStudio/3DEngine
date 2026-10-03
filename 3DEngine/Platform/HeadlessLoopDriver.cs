@@ -27,7 +27,12 @@ public sealed class HeadlessLoopDriver(World world, double fps) : IMainLoopDrive
     }
 
     /// <inheritdoc />
-    public bool PumpEvents() => !(world.TryGetResource<AppExit>(out var exit) && exit.Requested);
+    public bool PumpEvents()
+    {
+        // There are no platform events, but input the console queued arrives here, as a window's would.
+        if (world.TryGetResource<Input>(out var input)) input.ApplyQueued();
+        return !(world.TryGetResource<AppExit>(out var exit) && exit.Requested);
+    }
 
     /// <summary>Waits out the rest of the frame at the paced rate.</summary>
     public void Pace()
