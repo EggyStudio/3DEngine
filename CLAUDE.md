@@ -1,0 +1,48 @@
+# 3DEngine
+
+A C# game engine on .NET 10 with SDL3, Vulkan, Dear ImGui and Slang, used the way raylib is used. A
+program opens a window, draws each frame with plain static calls, and draws ImGui in the same frame.
+An ECS with source-generated behaviors runs underneath for programs that grow into it.
+[.github/DESIGN.md](.github/DESIGN.md) sets out the API's rules and is read before adding to it.
+
+## Documents
+
+| File | Holds |
+|---|---|
+| [.github/DESIGN.md](.github/DESIGN.md) | The flat API, the frame, immediate drawing, the dependency policy |
+| [.github/RENDERING.md](.github/RENDERING.md) | The renderer as it is, and the order it grows in |
+| [.github/EDITOR.md](.github/EDITOR.md) | The ImGui editor plan |
+| [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
+| [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
+| [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
+
+## Building and testing
+
+```bash
+dotnet build
+dotnet test
+```
+
+The suite uses `NullGraphicsDevice` wherever a test would otherwise need a GPU, so it runs on a
+machine with no display.
+
+## Conventions
+
+- Comments explain **why**, in prose. Match the surrounding density rather than trimming them.
+- Public API carries XML docs, with a `<remarks>` section where there is reasoning or a trap to
+  record.
+- The library does not reflect at runtime where the generator can emit the registration instead,
+  so that it survives trimming and AOT.
+- Every public function of the flat API has its line in `.github/CHEATSHEET.md`, changed in the same
+  commit as the function.
+- No dependency is added beyond what [.github/DESIGN.md](.github/DESIGN.md) §7 allows without that
+  section being changed to say why.
+- Prose in this repository follows `.github/STYLE.md`, which governs comments, XML documentation,
+  messages and Markdown. Read it before writing any of them.
+- Each finished batch of work is committed on `main` and never pushed, with a message whose subject
+  is three invisible marks and whose description is one plain sentence. Before each commit,
+  `.github/STYLE.md` is read and applied to what is staged, the message included.
+  `.github/COMMITS.md` has the exact form, that pass, and how to split a batch that shares a file
+  with another.
+- The code before the redesign is on the local `legacy-modules` branch, as git submodules under
+  `Modules/`. It is read for reference and not merged back.
