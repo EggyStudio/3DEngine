@@ -36,10 +36,9 @@ public sealed class VulkanImGuiPlugin : IPlugin
 
                 // Load shaders via AssetServer at startup
                 var server = world.Resource<AssetServer>();
-                var vertexSpv = server.LoadSync<byte[]>("shaders/imgui.vert.glsl");
-                var fragmentSpv = server.LoadSync<byte[]>("shaders/imgui.frag.glsl");
+                var shader = server.LoadSync<ShaderProgram>("shaders/imgui.slang");
 
-                renderer.Graph.AddNode("imgui", new ImGuiRenderNode(vertexSpv, fragmentSpv));
+                renderer.Graph.AddNode("imgui", new ImGuiRenderNode(shader.Vertex, shader.Fragment));
                 renderer.Graph.AddNodeEdge("main_pass", "imgui");
 
                 Logger.Info("ImGuiRenderNode registered in render graph (after 'main_pass').");

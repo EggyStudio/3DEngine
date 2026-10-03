@@ -6,7 +6,7 @@ namespace Engine;
 
 /// <summary>
 /// Per-light entry in <see cref="LightingUbo"/>. Layout matches std140 alignment
-/// rules so it can be uploaded verbatim into a GLSL <c>uniform LightData { ... }</c>
+/// rules so it can be uploaded verbatim into a shader constant buffer <c>LightData { ... }</c>
 /// block. <see cref="LightingUboPacker.MaxLights"/> entries are reserved per frame.
 /// </summary>
 /// <remarks>
@@ -37,7 +37,7 @@ public struct LightUboEntry
 /// <summary>
 /// CPU mirror of the lighting UBO consumed by the mesh fragment shader,
 /// a count followed by a fixed-size array of <see cref="LightUboEntry"/>. The size
-/// matches the GLSL declaration <see cref="LightingUboPacker"/> generates / expects.
+/// matches the shader declaration <see cref="LightingUboPacker"/> generates / expects.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct LightingUbo

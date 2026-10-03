@@ -20,7 +20,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 - **Behaviors**, which are `[Behavior]` structs whose stage methods a Roslyn generator turns into
   systems, with filters, run conditions and toggle keys.
 - **An SDL3 window** with keyboard and mouse input, and **a Vulkan device** over Vortice.Vulkan with
-  a render graph that draws meshes and ImGui.
+  a render graph that draws meshes and ImGui, with shaders in Slang.
 
 What is missing is the surface this document describes. There is no flat API, a program has to
 assemble an `App` and its plugins before anything is drawn, and nothing can be drawn without
@@ -192,10 +192,9 @@ or removed changes the cheatsheet in the same commit, so the sheet is always the
 
 ## Order
 
-1. Slang through `slangc` in place of GLSL, with a cache so a shipped game needs no compiler.
-2. `App.Startup`, `App.Frame` and `App.Shutdown`, then `Engine3D.Window`, `Input` and `Drawing`, with
+1. `App.Startup`, `App.Frame` and `App.Shutdown`, then `Engine3D.Window`, `Input` and `Drawing`, with
    ImGui inside the frame.
-3. The draw list and its pass, then `Shapes3D`, cameras and the first examples.
-4. `Textures`, `Models` through Assimp, `Shaders`, then `Text` and `Shapes`.
-5. `Audio`, gamepads and render targets.
-6. The cheatsheet as each area lands, and the examples beside it.
+2. The draw list and its pass, then `Shapes3D`, cameras and the first examples.
+3. `Textures`, `Models` through Assimp, `Shaders`, then `Text` and `Shapes`.
+4. `Audio`, gamepads and render targets.
+5. The cheatsheet as each area lands, and the examples beside it.

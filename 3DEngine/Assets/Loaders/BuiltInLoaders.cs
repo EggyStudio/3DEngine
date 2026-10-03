@@ -39,12 +39,12 @@ public sealed class ByteArrayLoader : IAssetLoader<byte[]>
 
 /// <summary>
 /// Built-in asset loader that reads files as UTF-8 <see cref="string"/>s.
-/// Useful for text files, JSON, TOML, GLSL sources, scripts, etc.
+/// Useful for text files, JSON, TOML, Slang sources, scripts, etc.
 /// </summary>
 /// <example>
 /// <code>
 /// server.RegisterLoader(new StringLoader());
-/// Handle&lt;string&gt; glsl = server.Load&lt;string&gt;("shaders/mesh.vert.glsl");
+/// Handle&lt;string&gt; source = server.Load&lt;string&gt;("shaders/mesh.slang");
 /// </code>
 /// </example>
 /// <seealso cref="IAssetLoader{T}"/>

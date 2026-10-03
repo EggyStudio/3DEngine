@@ -1,16 +1,16 @@
 namespace Engine;
 
 /// <summary>
-/// Registers shader/pipeline asset loaders with the <see cref="AssetServer"/>. Currently
-/// installs the <see cref="GlslLoader"/> so any plugin or system can <c>Load&lt;byte[]&gt;</c>
-/// a <c>.glsl</c> file and receive compiled SPIR-V bytecode.
+/// Registers shader asset loaders with the <see cref="AssetServer"/>. Installs the
+/// <see cref="SlangLoader"/>, so any plugin or system can <c>Load&lt;ShaderProgram&gt;</c> a
+/// <c>.slang</c> file and receive the SPIR-V of each of its stages.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Order:</b> <see cref="PluginOrder.Foundation"/> + 100 - runs after <see cref="AssetPlugin"/>
 /// so <see cref="AssetServer"/> is guaranteed to exist, and before any consumer plugin that
-/// loads a <c>.glsl</c> shader at <see cref="Stage.Startup"/> (e.g. the renderer's
-/// <c>main_pass</c>, <c>VulkanImGuiPlugin</c>, <c>VulkanWebViewPlugin</c>).
+/// loads a shader at <see cref="Stage.Startup"/>, such as the renderer's <c>main_pass</c> and
+/// <c>VulkanImGuiPlugin</c>.
 /// </para>
 /// <para>
 /// Bundled in <see cref="DefaultPlugins"/>; standalone consumers that opt out of
@@ -21,7 +21,7 @@ namespace Engine;
 /// </code>
 /// </para>
 /// </remarks>
-/// <seealso cref="GlslLoader"/>
+/// <seealso cref="SlangLoader"/>
 /// <seealso cref="AssetServer"/>
 public sealed class PipelinesPlugin : IPlugin
 {
@@ -39,7 +39,7 @@ public sealed class PipelinesPlugin : IPlugin
     {
         // AssetPlugin is at PluginOrder.Foundation → AssetServer is guaranteed here.
         var server = app.World.Resource<AssetServer>();
-        server.RegisterLoader(new GlslLoader());
-        Logger.Info("PipelinesPlugin: GlslLoader registered with AssetServer.");
+        server.RegisterLoader(new SlangLoader());
+        Logger.Info("PipelinesPlugin: SlangLoader registered with AssetServer.");
     }
 }

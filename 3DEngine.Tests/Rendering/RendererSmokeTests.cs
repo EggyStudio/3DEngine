@@ -16,6 +16,9 @@ public class RendererSmokeTests
     [Fact]
     public void Renderer_Can_Render_Frame_With_NullGraphics()
     {
+        // The renderer compiles its built-in shaders while it initializes.
+        if (!SlangCompiler.Available) return;
+
         var nullGfx = new NullGraphicsDevice();
         var context = new RendererContext(nullGfx);
         context.Initialize(new StubSurfaceSource());
@@ -24,7 +27,7 @@ public class RendererSmokeTests
         var world = new World();
         var server = new AssetServer(workerCount: 1);
         server.AddSource(new FileAssetReader());
-        server.RegisterLoader(new GlslLoader());
+        server.RegisterLoader(new SlangLoader());
         world.InsertResource(server);
 
         renderer.Initialize(world);

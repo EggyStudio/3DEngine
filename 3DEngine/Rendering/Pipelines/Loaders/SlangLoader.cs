@@ -1,0 +1,103 @@
+using System.Text.RegularExpressions;
+
+namespace Engine;
+
+/// <summary>
+/// Asset loader that compiles a <c>.slang</c> file into a <see cref="ShaderProgram"/>, one stage
+/// per function marked <c>[shader("vertex")]</c> or <c>[shader("fragment")]</c>.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Compiled stages are cached in <see cref="CacheDirectory"/> (see <see cref="SlangCompiler"/>), and
+/// <c>import</c> statements resolve against <see cref="ImportDirectory"/>. Both default to folders
+/// under <c>source/</c> beside the running program, where the built-in shaders are staged.
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// server.RegisterLoader(new SlangLoader());
+/// var mesh = server.LoadSync&lt;ShaderProgram&gt;("shaders/mesh.slang");
+/// var node = new MainPassNode(mesh.Vertex, mesh.Fragment);
+/// </code>
+/// </example>
+/// <seealso cref="SlangCompiler"/>
+/// <seealso cref="ShaderProgram"/>
+public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
+{
+    /// <summary>Creates a loader.</summary>
+    /// <param name="cacheDirectory">Where compiled SPIR-V is kept. Defaults to <c>source/.slang-cache</c>.</param>
+    /// <param name="importDirectory">Where imports resolve. Defaults to <c>source/shaders</c>.</param>
+    public SlangLoader(string? cacheDirectory = null, string? importDirectory = null)
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "source");
+        CacheDirectory = cacheDirectory ?? Path.Combine(root, ".slang-cache");
+        ImportDirectory = importDirectory ?? Path.Combine(root, "shaders");
+    }
+
+    /// <summary>Where compiled SPIR-V is kept.</summary>
+    public string CacheDirectory { get; }
+
+    /// <summary>Where <c>import</c> statements resolve.</summary>
+    public string ImportDirectory { get; }
+
+    /// <inheritdoc />
+    public string[] Extensions => [".slang"];
+
+    /// <inheritdoc />
+    public async Task<AssetLoadResult<ShaderProgram>> LoadAsync(AssetLoadContext context, CancellationToken ct)
+    {
+        var source = await context.ReadAllTextAsync(ct);
+        var fileName = context.Path.FileName;
+
+        try
+        {
+            var program = Compile(source, fileName);
+            return AssetLoadResult<ShaderProgram>.Ok(program);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return AssetLoadResult<ShaderProgram>.Fail(ex.Message);
+        }
+    }
+
+    /// <summary>Compiles every entry point in <paramref name="source"/>.</summary>
+    /// <param name="source">The Slang source.</param>
+    /// <param name="fileName">The file's name, for messages and cache entries.</param>
+    /// <returns>The compiled program.</returns>
+    /// <exception cref="InvalidOperationException">The source has no entry points, or one failed to compile.</exception>
+    public ShaderProgram Compile(string source, string fileName)
+    {
+        var stages = new Dictionary<ShaderStage, byte[]>();
+        foreach (var (entryPoint, stage) in EntryPoints(source))
+            stages[stage] = SlangCompiler.Compile(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory);
+
+        if (stages.Count == 0)
+            throw new InvalidOperationException(
+                $"'{fileName}' has no function marked [shader(\"vertex\")] or [shader(\"fragment\")].");
+
+        return new ShaderProgram(fileName, stages);
+    }
+
+    /// <summary>Finds the functions marked with a stage attribute, in the order they appear.</summary>
+    /// <remarks>
+    /// A pattern rather than a parse, because the attribute and the function name are all the
+    /// loader needs, and <c>slangc</c> reports anything malformed when it compiles the entry point.
+    /// </remarks>
+    internal static IEnumerable<(string EntryPoint, ShaderStage Stage)> EntryPoints(string source)
+    {
+        foreach (Match match in EntryPointPattern().Matches(source))
+        {
+            var stage = match.Groups["stage"].Value switch
+            {
+                "vertex" => ShaderStage.Vertex,
+                "fragment" or "pixel" => ShaderStage.Fragment,
+                _ => (ShaderStage?)null,
+            };
+            if (stage is not null)
+                yield return (match.Groups["name"].Value, stage.Value);
+        }
+    }
+
+    [GeneratedRegex("""\[shader\("(?<stage>\w+)"\)\]\s*(?:\[[^\]]*\]\s*)*[\w<>,\s]+?\s(?<name>\w+)\s*\(""")]
+    private static partial Regex EntryPointPattern();
+}

@@ -24,17 +24,22 @@ needs an offline toolchain beyond `slangc`.
   4. **Graph** runs the render graph's nodes in topological order. `MainPassNode` clears the
      swapchain image and drains the phases, and `ImGuiRenderNode` draws Dear ImGui into the same
      pass.
-- **Meshes** carry positions only, and the fragment shader writes a constant white, so materials
-  and lighting are extracted and uploaded but not yet visible.
-- **Shaders** are GLSL compiled to SPIR-V at runtime through shaderc.
+- **Meshes** carry positions only and are drawn in their material's base color, so lighting is
+  extracted and uploaded but not yet visible.
+- **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 
 ## 1. Slang through slangc
 
-Every shader is a `.slang` file holding all of its entry points. `SlangCompiler` runs `slangc` per
-stage with `-target spirv`, and the result is cached under the asset root in `.slang-cache`, keyed
-by a hash of the source, everything it imports and the defines it was compiled with. A machine
-without `slangc` reads the cache, so a shipped game needs no compiler, and an entry whose sources
-have changed is never used.
+Every shader is a `.slang` file holding all of its entry points, and `SlangLoader` turns it into a
+`ShaderProgram` with the SPIR-V of each stage. A function marked `[shader("vertex")]` or
+`[shader("fragment")]` is an entry point, and its SPIR-V names it `main`. `SlangCompiler` runs
+`slangc` per stage with `-target spirv -matrix-layout-column-major`, which gives `mul(matrix,
+vector)` the meaning `matrix * vector` has in GLSL over the same bytes, so the engine uploads
+`System.Numerics` matrices unchanged.
+
+Each result is cached in `source/.slang-cache` beside the running program, keyed by a hash of the
+source, the entry point, the arguments and every `.slang` file in the import directory. A machine
+without `slangc` reads the cache, and an entry whose sources have changed is never used.
 
 `slangc` is a tool rather than a library. `build/fetch-slang.sh` downloads a pinned release into
 `build/tools/slang`, and the compiler is looked for in `ENGINE_SLANGC`, then on the `PATH`, then
@@ -44,8 +49,13 @@ nothing shipped.
 
 Slang is chosen over GLSL because one language covers vertex, fragment and compute with modules,
 generics and interfaces, and because the same source can later target Metal or Direct3D without a
-second set of files. Reflection comes from `slangc -reflection-json` and replaces hand-written
-descriptor layouts where a shader declares its own parameters.
+second set of files. What is not built:
+
+- **Reflection.** Descriptor layouts and vertex inputs are written by hand beside each pipeline.
+  `slangc -reflection-json` reports them, and reading it would let a shader declare its own.
+- **Compute.** Only the vertex and fragment stages are compiled.
+- **Shipping the cache.** The cache is written beside the program that compiled it, and nothing
+  copies it into a published build yet.
 
 ## 2. The immediate pass
 
@@ -112,11 +122,10 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 
 ## Order of work
 
-1. Slang in place of GLSL, with the cache, and the existing mesh and ImGui shaders ported.
-2. The immediate pass and the `DrawList`, so shapes and grids appear.
-3. Base color reaching the screen, then normals and one directional light.
-4. Assimp models with textures, and the material struct.
-5. Dynamic rendering and synchronization2, then VMA.
-6. Render targets, then tonemapping.
-7. The directional shadow map, then point and spot shadows.
-8. Bloom and FXAA.
+1. The immediate pass and the `DrawList`, so shapes and grids appear.
+2. Normals and one directional light.
+3. Assimp models with textures, and the material struct.
+4. Dynamic rendering and synchronization2, then VMA.
+5. Render targets, then tonemapping.
+6. The directional shadow map, then point and spot shadows.
+7. Bloom and FXAA.

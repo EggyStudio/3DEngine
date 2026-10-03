@@ -6,7 +6,7 @@ interface, behavior, and shipping the result.
 
 The ECS, the schedule and the behavior generator exist and are tested. What is thin is the surface
 a program touches. The flat API described in [DESIGN.md](DESIGN.md) does not exist, and the renderer
-draws meshes in white. The renderer's own plan is [RENDERING.md](RENDERING.md), and the editor's is
+draws meshes unlit. The renderer's own plan is [RENDERING.md](RENDERING.md), and the editor's is
 [EDITOR.md](EDITOR.md).
 
 An item says what exists, what is missing, and what the missing part needs. Finished work is
@@ -47,11 +47,6 @@ return. `App` needs `Startup`, `Frame` and `Shutdown`, with `Run` built on them,
 
 ## Rendering
 
-### Shaders
-
-Shaders are GLSL compiled at runtime through shaderc. They are to be Slang compiled by `slangc`, with
-a cache beside the assets so a shipped game needs no compiler (RENDERING.md §1).
-
 ### The flat API
 
 `Engine3D` does not exist. The first areas are `Window`, `Input` and `Drawing`, then `Shapes3D` over
@@ -60,8 +55,9 @@ the immediate pass (RENDERING.md §2), then `Textures`, `Models`, `Shaders`, `Te
 
 ### Meshes, materials and light
 
-- **Meshes are positions only** and the fragment shader writes white, so `Material.Albedo`, normals
-  and the lighting buffer reach the GPU and change nothing on screen (RENDERING.md §3 and §4).
+- **Meshes are positions only**, drawn in their material's base color, so normals, textures and the
+  lighting buffer change nothing on screen (RENDERING.md §3 and §4).
+- **Shader reflection, compute and a shipped shader cache** are not built (RENDERING.md §1).
 - **There are no shadows.**
 
 ### The device

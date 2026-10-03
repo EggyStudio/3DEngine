@@ -39,7 +39,7 @@ public interface IAssetLoader<T>
 {
     /// <summary>
     /// File extensions this loader handles, including the leading dot.
-    /// E.g. <c>[".png", ".jpg"]</c>, <c>[".glsl"]</c>, <c>[".gltf", ".glb"]</c>.
+    /// E.g. <c>[".png", ".jpg"]</c>, <c>[".slang"]</c>, <c>[".gltf", ".glb"]</c>.
     /// </summary>
     string[] Extensions { get; }
 

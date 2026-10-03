@@ -20,13 +20,19 @@ An ECS with source-generated behaviors runs underneath for programs that grow in
 ## Building and testing
 
 ```bash
+build/fetch-slang.sh          # slangc, once per checkout
 dotnet build 3DEngine.slnx
 dotnet test 3DEngine.Tests
 dotnet run --project 3DEngine.Examples
 ```
 
 The suite uses `NullGraphicsDevice` wherever a test would otherwise need a GPU, so it runs on a
-machine with no display.
+machine with no display. Shader tests return early without `slangc`, so a green suite says nothing
+about shaders until `build/fetch-slang.sh` has run.
+
+A running example can be captured from a terminal by forcing SDL onto X11, where ImageMagick can
+read the window: `SDL_VIDEODRIVER=x11` before the run, then
+`import -window $(xdotool search --pid <pid> | tail -1) shot.png`.
 
 ## Where things are
 
@@ -37,13 +43,14 @@ machine with no display.
 | `3DEngine/Behaviors` | `[Behavior]` attributes, `BehaviorContext`, `BehaviorsPlugin`, the runtime behavior compiler |
 | `3DEngine/Components` | `Transform`, `Camera`, `Mesh`, `Material` and the render-side mirrors |
 | `3DEngine/Platform` | The SDL3 window, main loop and input, and audio under `Audio/` |
-| `3DEngine/Graphics` | The Vulkan device over Vortice.Vulkan, and shader compilation |
+| `3DEngine/Graphics` | The Vulkan device over Vortice.Vulkan, and `SlangCompiler` |
 | `3DEngine/Rendering` | `Renderer`, the render graph, phases, extracts, pipelines and lighting |
 | `3DEngine/Gui` | Dear ImGui's context and input, and its Vulkan pass under `Vulkan/` |
 | `3DEngine/Assets` | `AssetServer`, handles, textures (StbImageSharp), models (Assimp), materials |
 | `3DEngine/Scenes` | The scene model a reader produces, and the spawner that turns it into entities |
 | `3DEngine/Physics` | Rigid bodies over BepuPhysics |
-| `3DEngine/Shaders` | Built-in shaders, staged under `source/shaders` beside every program |
+| `3DEngine/Shaders` | Built-in Slang shaders, staged under `source/shaders` beside every program |
+| `build/` | `fetch-slang.sh`, and the compiler it downloads under `tools/` |
 | `3DEngine.Generator` | The behavior source generator, which the engine also compiles in for scripts |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
 | `3DEngine.Examples` | Programs that use the engine |

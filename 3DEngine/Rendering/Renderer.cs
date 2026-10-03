@@ -57,10 +57,9 @@ public sealed class Renderer : IDisposable
         Logger.Debug("Renderer diagnostics initialized.");
 
         var server = world.Resource<AssetServer>();
-        var meshVertSpv = server.LoadSync<byte[]>("shaders/mesh.vert.glsl");
-        var meshFragSpv = server.LoadSync<byte[]>("shaders/mesh.frag.glsl");
+        var mesh = server.LoadSync<ShaderProgram>("shaders/mesh.slang");
 
-        Graph.AddNode("main_pass", new MainPassNode(meshVertSpv, meshFragSpv));
+        Graph.AddNode("main_pass", new MainPassNode(mesh.Vertex, mesh.Fragment));
         Logger.Debug("Default MainPassNode added to render graph.");
 
         // Pipeline cache deduplicates compiled pipelines across nodes.

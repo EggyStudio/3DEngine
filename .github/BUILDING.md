@@ -2,20 +2,24 @@
 
 How to build the engine, run its tests and run the examples.
 
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/download) and a Vulkan driver. The SDL3,
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download), a Vulkan driver, and `slangc`,
+which `build/fetch-slang.sh` downloads. The SDL3,
 Assimp and Dear ImGui native libraries arrive with their NuGet packages, so nothing else is
 installed by hand. macOS draws through MoltenVK, which the Vulkan SDK provides.
 
 ```bash
+build/fetch-slang.sh                       # slangc, into build/tools/slang (once)
 dotnet build 3DEngine.slnx                 # the engine, the generator, the tests and the examples
 dotnet test 3DEngine.Tests                 # the suite
 dotnet run --project 3DEngine.Examples     # a window
 ```
 
 The suite needs no GPU or display, because the tests that touch rendering use
-`NullGraphicsDevice`. The examples need both.
+`NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests return early, so a
+green suite on a machine without it says nothing about shaders.
 
 ```
+build/               fetch-slang.sh, and the compiler it downloads under tools/
 3DEngine/            the engine library, one folder per area
 3DEngine.Generator/  the Roslyn source generator for behaviors
 3DEngine.Tests/      xUnit tests, in folders matching the engine's
@@ -34,8 +38,13 @@ same way a project is.
 ## Shaders
 
 Built-in shaders live in `3DEngine/Shaders` and are copied to `source/shaders` beside every program
-that references the engine, where `AssetServer` reads them. They are compiled to SPIR-V when they
-are loaded.
+that references the engine, where `AssetServer` reads them. They are Slang, compiled to SPIR-V by
+`slangc` when they are loaded and cached in `source/.slang-cache`.
+
+`build/fetch-slang.sh` (or `build/fetch-slang.ps1` on Windows) downloads a pinned release into
+`build/tools/slang`. The engine looks for the compiler in `ENGINE_SLANGC`, then on the `PATH`, then
+in `build/tools/slang/bin` above the running program and above the working directory, so a program
+run from anywhere in the checkout finds it.
 
 ## Platforms
 
