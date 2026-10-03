@@ -16,7 +16,7 @@ namespace Engine;
 /// A mesh's arrays are uploaded to <see cref="MeshStore"/> the first time they are drawn and freed
 /// on the first frame no entity draws them. A material's base color texture is copied from the
 /// asset store into <see cref="TextureStore"/> once it has loaded, and copied again when the asset
-/// is reloaded. Only the first mip level of an RGBA8 texture is used.
+/// is reloaded. Only the first mip level of an RGBA8 texture is copied, and the GPU makes the rest.
 /// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
@@ -103,7 +103,7 @@ public sealed class MeshEntityDraws
         }
         var bytes = texture.Width * texture.Height * 4;
         var pixels = texture.Pixels.Length == bytes ? texture.Pixels : texture.Pixels[..bytes];
-        return _textures[handle.Id] = textures.Add(pixels, texture.Width, texture.Height);
+        return _textures[handle.Id] = textures.Add(pixels, texture.Width, texture.Height, mipmaps: true);
     }
 
     private void ForgetReloadedTextures(World world, TextureStore textures)

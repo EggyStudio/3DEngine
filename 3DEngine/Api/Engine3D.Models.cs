@@ -175,7 +175,8 @@ public static partial class Engine3D
     /// <returns>The model, or an empty one when the file cannot be read, with the reason in the log.</returns>
     /// <remarks>
     /// Textures embedded in the file, as a <c>.glb</c> carries them, are decoded from it, and the
-    /// rest are looked for beside the model file.
+    /// rest are looked for beside the model file. Each gets mip levels, since a model is seen from
+    /// any distance.
     /// </remarks>
     public static Model LoadModel(string fileName)
     {
@@ -242,13 +243,21 @@ public static partial class Engine3D
                 {
                     var key = "embedded:" + texturePath;
                     if (!textures.TryGetValue(key, out texture))
-                        textures[key] = texture = LoadEmbeddedTexture(embedded, fileName, texturePath);
+                    {
+                        texture = LoadEmbeddedTexture(embedded, fileName, texturePath);
+                        GenTextureMipmaps(ref texture);
+                        textures[key] = texture;
+                    }
                 }
                 else if (!texturePath.StartsWith('*'))
                 {
                     var full = Path.Combine(directory, texturePath.Replace('\\', Path.DirectorySeparatorChar));
                     if (!textures.TryGetValue(full, out texture))
-                        textures[full] = texture = LoadTexture(full);
+                    {
+                        texture = LoadTexture(full);
+                        GenTextureMipmaps(ref texture);
+                        textures[full] = texture;
+                    }
                 }
             }
 

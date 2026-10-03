@@ -17,6 +17,9 @@ public readonly record struct Texture2D(int Id, int Width, int Height)
 {
     /// <summary>Whether this names a texture that was loaded.</summary>
     public bool IsValid => Id > 0;
+
+    /// <summary>How many mip levels the texture has: one until <see cref="Engine3D.GenTextureMipmaps"/> makes the rest.</summary>
+    public int Mipmaps { get; init; } = 1;
 }
 
 /// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="Texture"/>.</summary>
@@ -131,6 +134,20 @@ public static partial class Engine3D
     public static bool UpdateTexture(Texture2D texture, Image image) =>
         texture.IsValid && image.Width == texture.Width && image.Height == texture.Height &&
         Textures.Update(texture.Id, (byte[])image.Data.Clone());
+
+    /// <summary>
+    /// Gives a texture mip levels, each half the size of the one before, down to one pixel, so it
+    /// stays smooth instead of shimmering when drawn smaller than its size.
+    /// </summary>
+    /// <remarks>
+    /// The levels are made on the GPU from the texture's pixels. They are kept when the texture is
+    /// updated or its filter changes. A render target cannot have them.
+    /// </remarks>
+    public static void GenTextureMipmaps(ref Texture2D texture)
+    {
+        if (texture.IsValid && Textures.GenerateMipmaps(texture.Id))
+            texture = texture with { Mipmaps = (int)ImageDesc.FullMipChain((uint)texture.Width, (uint)texture.Height) };
+    }
 
     /// <summary>Sets how a texture is sampled between its pixels. Textures load bilinear.</summary>
     public static void SetTextureFilter(Texture2D texture, TextureFilter filter)

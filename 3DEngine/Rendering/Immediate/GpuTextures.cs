@@ -68,6 +68,19 @@ public sealed class GpuTextures : IDisposable
                     continue;
                 }
 
+                if (upload.Rgba is null && upload.Mipmaps && existing is { Image: { } old } && old.Description.MipLevels <= 1 && gfx is GraphicsDevice mipDevice)
+                {
+                    // Mip levels asked for after the pixels went up, so a new image takes them
+                    // from the old one on the GPU.
+                    var image = gfx.CreateImage(MipmappedDesc(old.Description.Extent.Width, old.Description.Extent.Height));
+                    mipDevice.CopyWithMipmaps(old, image);
+                    var view = gfx.CreateImageView(image);
+                    var sampler = CreateSampler(gfx, upload.Filter);
+                    _entries[upload.Id] = new Entry(image, view, sampler, CreateSet(gfx, view, sampler));
+                    Retire(existing.Owned);
+                    continue;
+                }
+
                 if (upload.Rgba is null)
                 {
                     // Only the filter changed, so the image stays and the sampler and set are new.
@@ -78,7 +91,7 @@ public sealed class GpuTextures : IDisposable
                     continue;
                 }
 
-                _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter);
+                _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter, upload.Mipmaps);
                 if (existing is not null)
                     Retire(existing.Owned);
             }
@@ -98,17 +111,23 @@ public sealed class GpuTextures : IDisposable
         return _entries[0] = Create(gfx, [255, 255, 255, 255], 1, 1, TextureFilter.Point);
     }
 
-    private static Entry Create(IGraphicsDevice gfx, byte[] rgba, int width, int height, TextureFilter filter)
+    private static Entry Create(IGraphicsDevice gfx, byte[] rgba, int width, int height, TextureFilter filter, bool mipmaps = false)
     {
-        var image = gfx.CreateImage(new ImageDesc(
-            new Extent2D((uint)width, (uint)height),
-            ImageFormat.R8G8B8A8_UNorm,
-            ImageUsage.Sampled | ImageUsage.TransferDst));
+        // A copy source too, so mip levels can be made from it later.
+        var image = gfx.CreateImage(mipmaps
+            ? MipmappedDesc((uint)width, (uint)height)
+            : new ImageDesc(new Extent2D((uint)width, (uint)height), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc));
         gfx.UploadTexture2D(image, rgba, (uint)width, (uint)height, 4);
         var view = gfx.CreateImageView(image);
         var sampler = CreateSampler(gfx, filter);
         return new Entry(image, view, sampler, CreateSet(gfx, view, sampler));
     }
+
+    private static ImageDesc MipmappedDesc(uint width, uint height) => new(
+        new Extent2D(width, height),
+        ImageFormat.R8G8B8A8_UNorm,
+        ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc,
+        ImageDesc.FullMipChain(width, height));
 
     private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter)
     {

@@ -165,6 +165,7 @@ void UnloadTexture(Texture2D texture);                                          
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
 void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point or Bilinear (the default)
+void GenTextureMipmaps(ref Texture2D texture);                                         // Make mip levels on the GPU, so it stays smooth drawn small
 
 void DrawTexture(Texture2D texture, int x, int y, Color tint);                                         // Texture at a position
 void DrawTextureV(Texture2D texture, Vector2 position, Color tint);                                    // Texture at a position

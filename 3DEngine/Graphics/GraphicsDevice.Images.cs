@@ -131,7 +131,7 @@ public sealed unsafe partial class GraphicsDevice
             imageType = VkImageType.Image2D,
             format = ToVkFormat(desc.Format),
             extent = new VkExtent3D(desc.Extent.Width, desc.Extent.Height, 1),
-            mipLevels = 1,
+            mipLevels = Math.Max(1, desc.MipLevels),
             arrayLayers = 1,
             samples = VkSampleCountFlags.Count1,
             tiling = VkImageTiling.Optimal,
@@ -176,7 +176,7 @@ public sealed unsafe partial class GraphicsDevice
             viewType = VkImageViewType.Image2D,
             format = ToVkFormat(vkImage.Description.Format),
             components = VkComponentMapping.Rgba,
-            subresourceRange = new VkImageSubresourceRange(aspect, 0, 1, 0, 1)
+            subresourceRange = new VkImageSubresourceRange(aspect, 0, Math.Max(1, vkImage.Description.MipLevels), 0, 1)
         };
 
         _deviceApi.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();
@@ -200,7 +200,12 @@ public sealed unsafe partial class GraphicsDevice
             unnormalizedCoordinates = false,
             compareEnable = false,
             compareOp = VkCompareOp.Always,
-            mipmapMode = VkSamplerMipmapMode.Linear
+            // Blends between mip levels when the texture is smoothed and picks the nearest level
+            // when it is not, and lets an image with mip levels use all of them. An image without
+            // them has one level, which the bound leaves alone.
+            mipmapMode = desc.MinFilter == SamplerFilter.Linear ? VkSamplerMipmapMode.Linear : VkSamplerMipmapMode.Nearest,
+            minLod = 0,
+            maxLod = Vulkan.VK_LOD_CLAMP_NONE,
         };
 
         _deviceApi.vkCreateSampler(&info, null, out VkSampler sampler).CheckResult();
@@ -329,7 +334,7 @@ public sealed unsafe partial class GraphicsDevice
 
             var cmd = BeginSingleTimeCommands();
 
-            // Transition image to transfer dst
+            // Transition image to transfer dst, every mip level, which the chain below fills
             VkImageMemoryBarrier barrierToDst = new()
             {
                 oldLayout = vkImage.Layout,
@@ -337,7 +342,7 @@ public sealed unsafe partial class GraphicsDevice
                 srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
                 dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
                 image = vkImage.Image,
-                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1)
+                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, LevelsOf(vkImage), 0, 1)
             };
 
             VkPipelineStageFlags srcStage = VkPipelineStageFlags.TopOfPipe;
@@ -358,21 +363,8 @@ public sealed unsafe partial class GraphicsDevice
 
             _deviceApi.vkCmdCopyBufferToImage(cmd, staging.Buffer, vkImage.Image, VkImageLayout.TransferDstOptimal, 1, &region);
 
-            // Transition image to shader read-only
-            VkImageMemoryBarrier barrierToShaderRead = new()
-            {
-                oldLayout = VkImageLayout.TransferDstOptimal,
-                newLayout = VkImageLayout.ShaderReadOnlyOptimal,
-                srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                image = vkImage.Image,
-                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1)
-            };
-
-            srcStage = VkPipelineStageFlags.Transfer;
-            dstStage = VkPipelineStageFlags.FragmentShader;
-
-            _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrierToShaderRead);
+            // Fill the smaller levels from the first, which leaves every level ready to sample
+            RecordMipChain(cmd, vkImage);
 
             _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
@@ -487,6 +479,99 @@ public sealed unsafe partial class GraphicsDevice
         // Track staging buffer for deferred disposal after frame fence signals
         _deferredStagingBuffers[_currentFrame] ??= new List<IBuffer>();
         _deferredStagingBuffers[_currentFrame]!.Add(staging);
+    }
+
+    /// <summary>
+    /// Copies the first level of <paramref name="source"/> into a new image with mip levels, of
+    /// the same size and format, and fills its smaller levels from it.
+    /// </summary>
+    /// <remarks>
+    /// How a texture gains mip levels after its pixels were uploaded and let go of on the CPU. The
+    /// source must have been made with <see cref="ImageUsage.TransferSrc"/> and be ready to sample,
+    /// and is left that way.
+    /// </remarks>
+    public void CopyWithMipmaps(IImage source, IImage destination)
+    {
+        if (source is not VulkanImage src || destination is not VulkanImage dst)
+            throw new ArgumentException("Images were not created by this device.");
+
+        var cmd = BeginSingleTimeCommands();
+        Barrier(cmd, src, 0, 1, src.Layout, VkImageLayout.TransferSrcOptimal, VkAccessFlags.ShaderRead, VkAccessFlags.TransferRead,
+            VkPipelineStageFlags.FragmentShader, VkPipelineStageFlags.Transfer);
+        Barrier(cmd, dst, 0, LevelsOf(dst), VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 0, VkAccessFlags.TransferWrite,
+            VkPipelineStageFlags.TopOfPipe, VkPipelineStageFlags.Transfer);
+
+        var extent = src.Description.Extent;
+        VkImageCopy region = new()
+        {
+            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            extent = new VkExtent3D(extent.Width, extent.Height, 1),
+        };
+        _deviceApi.vkCmdCopyImage(cmd, src.Image, VkImageLayout.TransferSrcOptimal, dst.Image, VkImageLayout.TransferDstOptimal, 1, &region);
+
+        Barrier(cmd, src, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal, VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead,
+            VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+        src.Layout = VkImageLayout.ShaderReadOnlyOptimal;
+        RecordMipChain(cmd, dst);
+        EndSingleTimeCommands(cmd);
+    }
+
+    private static uint LevelsOf(VulkanImage image) => Math.Max(1, image.Description.MipLevels);
+
+    /// <summary>
+    /// Records the blits that fill every mip level from the one above it, halving the size each
+    /// time with linear filtering, and leaves every level ready to sample.
+    /// </summary>
+    /// <remarks>
+    /// Expects every level in transfer-destination layout with the first one written. An image
+    /// with one level is only moved to the sampling layout. R8G8B8A8 is required by Vulkan to
+    /// support blits with linear filtering, so the formats textures use need no check.
+    /// </remarks>
+    private void RecordMipChain(VkCommandBuffer cmd, VulkanImage image)
+    {
+        var levels = LevelsOf(image);
+        int width = (int)image.Description.Extent.Width, height = (int)image.Description.Extent.Height;
+        for (uint level = 1; level < levels; level++)
+        {
+            Barrier(cmd, image, level - 1, 1, VkImageLayout.TransferDstOptimal, VkImageLayout.TransferSrcOptimal,
+                VkAccessFlags.TransferWrite, VkAccessFlags.TransferRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.Transfer);
+
+            int nextWidth = Math.Max(1, width / 2), nextHeight = Math.Max(1, height / 2);
+            VkImageBlit blit = new()
+            {
+                srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, level - 1, 0, 1),
+                dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, level, 0, 1),
+            };
+            blit.srcOffsets[1] = new VkOffset3D(width, height, 1);
+            blit.dstOffsets[1] = new VkOffset3D(nextWidth, nextHeight, 1);
+            _deviceApi.vkCmdBlitImage(cmd, image.Image, VkImageLayout.TransferSrcOptimal, image.Image, VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Linear);
+
+            Barrier(cmd, image, level - 1, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+            (width, height) = (nextWidth, nextHeight);
+        }
+
+        Barrier(cmd, image, levels - 1, 1, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+            VkAccessFlags.TransferWrite, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+        image.Layout = VkImageLayout.ShaderReadOnlyOptimal;
+    }
+
+    private void Barrier(VkCommandBuffer cmd, VulkanImage image, uint firstLevel, uint levelCount, VkImageLayout from, VkImageLayout to,
+        VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage)
+    {
+        VkImageMemoryBarrier barrier = new()
+        {
+            oldLayout = from,
+            newLayout = to,
+            srcAccessMask = srcAccess,
+            dstAccessMask = dstAccess,
+            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+            image = image.Image,
+            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, firstLevel, levelCount, 0, 1),
+        };
+        _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrier);
     }
 
     IImage IGraphicsDevice.CreateImage(ImageDesc desc) => CreateImage(desc);

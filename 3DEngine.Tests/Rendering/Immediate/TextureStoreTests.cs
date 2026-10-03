@@ -88,4 +88,50 @@ public class TextureStoreTests
         upload.Rgba.Should().BeNull();
         store.Contains(id).Should().BeTrue();
     }
+
+    [Fact]
+    public void Mipmaps_Asked_For_Before_Upload_Ride_On_The_Pending_Pixels()
+    {
+        var store = new TextureStore();
+        var id = store.Add(new byte[16], 2, 2);
+
+        store.GenerateMipmaps(id).Should().BeTrue();
+
+        store.Take().Uploads.Should().ContainSingle().Which.Should().Match<TextureStore.Upload>(u => u.Mipmaps && u.Rgba != null);
+        store.HasMipmaps(id).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Mipmaps_Asked_For_After_Upload_Queue_A_Rebuild_And_Stay_Through_Updates()
+    {
+        var store = new TextureStore();
+        var id = store.Add(new byte[16], 2, 2);
+        store.Take();
+
+        store.GenerateMipmaps(id).Should().BeTrue();
+        store.GenerateMipmaps(id).Should().BeTrue();
+        store.Take().Uploads.Should().ContainSingle().Which.Should().Match<TextureStore.Upload>(u => u.Mipmaps && u.Rgba == null);
+
+        store.Update(id, new byte[16]);
+        store.SetFilter(id, TextureFilter.Point);
+        store.Take().Uploads.Should().OnlyContain(u => u.Mipmaps);
+    }
+
+    [Fact]
+    public void A_Render_Target_Or_Unknown_Texture_Has_No_Mipmaps()
+    {
+        var store = new TextureStore();
+        var target = store.AddTarget(4, 4);
+
+        store.GenerateMipmaps(target).Should().BeFalse();
+        store.GenerateMipmaps(999).Should().BeFalse();
+    }
+
+    [Fact]
+    public void The_Full_Mip_Chain_Reaches_One_Pixel()
+    {
+        ImageDesc.FullMipChain(1, 1).Should().Be(1);
+        ImageDesc.FullMipChain(256, 256).Should().Be(9);
+        ImageDesc.FullMipChain(300, 20).Should().Be(9);
+    }
 }

@@ -37,7 +37,12 @@ public enum ImageUsage
 /// <param name="Extent">Image dimensions in pixels.</param>
 /// <param name="Format">Pixel format.</param>
 /// <param name="Usage">Usage flags.</param>
-public readonly record struct ImageDesc(Extent2D Extent, ImageFormat Format, ImageUsage Usage);
+/// <param name="MipLevels">How many mip levels the image has, each half the size of the one before. One for none.</param>
+public readonly record struct ImageDesc(Extent2D Extent, ImageFormat Format, ImageUsage Usage, uint MipLevels = 1)
+{
+    /// <summary>The levels down to one pixel for an image of the given size, the full mip chain.</summary>
+    public static uint FullMipChain(uint width, uint height) => (uint)System.Numerics.BitOperations.Log2(Math.Max(1, Math.Max(width, height))) + 1;
+}
 
 /// <summary>Abstract image layout states used for pipeline barrier transitions.</summary>
 public enum ImageLayout

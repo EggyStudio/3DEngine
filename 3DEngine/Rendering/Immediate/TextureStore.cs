@@ -35,10 +35,14 @@ public sealed class TextureStore
     /// <param name="Height">Height in pixels.</param>
     /// <param name="Filter">How the texture is sampled.</param>
     /// <param name="Target">Whether the texture is a render target, drawn into rather than uploaded.</param>
-    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false);
+    /// <param name="Mipmaps">
+    /// Whether the texture has mip levels. With <paramref name="Rgba"/> <c>null</c> on a texture
+    /// already uploaded without them, they are made from what is on the GPU.
+    /// </param>
+    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false);
 
     private readonly object _gate = new();
-    private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter)> _live = [];
+    private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps)> _live = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -49,18 +53,43 @@ public sealed class TextureStore
         get { lock (_gate) return _live.Count; }
     }
 
-    /// <summary>Queues a new texture and returns its id.</summary>
+    /// <summary>Queues a new texture, with mip levels when <paramref name="mipmaps"/> is set, and returns its id.</summary>
     /// <exception cref="ArgumentException">The pixel array does not hold <paramref name="width"/> by <paramref name="height"/> pixels.</exception>
-    public int Add(byte[] rgba, int width, int height, TextureFilter filter = TextureFilter.Bilinear)
+    public int Add(byte[] rgba, int width, int height, TextureFilter filter = TextureFilter.Bilinear, bool mipmaps = false)
     {
         Validate(rgba, width, height);
         lock (_gate)
         {
             var id = _next++;
-            _live[id] = (width, height, filter);
-            _uploads.Add(new Upload(id, rgba, width, height, filter));
+            _live[id] = (width, height, filter, mipmaps);
+            _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
             return id;
         }
+    }
+
+    /// <summary>Gives a loaded texture mip levels, made on the GPU from its pixels.</summary>
+    /// <returns>Whether the texture is loaded and can have them. A render target cannot.</returns>
+    public bool GenerateMipmaps(int id)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var texture)) return false;
+            if (_uploads.Any(u => u.Id == id && u.Target)) return false;
+            if (texture.Mipmaps) return true;
+            _live[id] = texture with { Mipmaps = true };
+
+            // Pixels still waiting to go up are sent with mip levels instead of being copied twice.
+            var pending = _uploads.FindLastIndex(u => u.Id == id && u.Rgba is not null);
+            if (pending >= 0) _uploads[pending] = _uploads[pending] with { Mipmaps = true };
+            else _uploads.Add(new Upload(id, null, texture.Width, texture.Height, texture.Filter, Mipmaps: true));
+            return true;
+        }
+    }
+
+    /// <summary>Whether a loaded texture has mip levels.</summary>
+    public bool HasMipmaps(int id)
+    {
+        lock (_gate) return _live.TryGetValue(id, out var texture) && texture.Mipmaps;
     }
 
     /// <summary>Queues a render target of the given size and returns its id, which is also its texture's id.</summary>
@@ -70,7 +99,7 @@ public sealed class TextureStore
         lock (_gate)
         {
             var id = _next++;
-            _live[id] = (width, height, filter);
+            _live[id] = (width, height, filter, false);
             _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
             return id;
         }
@@ -84,7 +113,7 @@ public sealed class TextureStore
         {
             if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4)
                 return false;
-            _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter));
+            _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps));
             return true;
         }
     }
@@ -97,7 +126,7 @@ public sealed class TextureStore
         {
             if (!_live.TryGetValue(id, out var texture)) return false;
             _live[id] = texture with { Filter = filter };
-            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, filter));
+            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, filter, Mipmaps: texture.Mipmaps));
             return true;
         }
     }
