@@ -97,11 +97,13 @@ public static partial class Engine3D
     {
         if (_eventsPumped) return;
         _eventsPumped = true;
+        _sizeBeforeEvents = (GetScreenWidth(), GetScreenHeight());
 
         if (!World.Resource<IMainLoopDriver>().PumpEvents())
             _shouldClose = true;
         if (_exitKey != Key.Unknown && World.Resource<Input>().KeyPressed(_exitKey))
             _shouldClose = true;
+        _resized = (GetScreenWidth(), GetScreenHeight()) != _sizeBeforeEvents;
     }
 
     // Sleeps through most of what is left of the frame and spins through the last millisecond,

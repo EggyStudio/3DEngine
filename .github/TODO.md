@@ -66,7 +66,10 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   Anisotropic filtering is not offered.
 - **Fonts bake Latin-1 only**, at one size each, with no signed distance fields, so text far
   larger than its bake blurs. Characters outside Latin-1 are skipped.
-- **Monitors** have no functions, and render targets have no multisampling and no depth to sample.
+- **Render targets** have no multisampling and no depth to sample, and the window has no
+  multisampling either. Window state and monitors are queried and changed, but a monitor's
+  modes cannot be listed or switched, and there is no `SetConfigFlags` for choosing these before
+  the window opens.
 
 ### Meshes, materials and light
 

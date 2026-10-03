@@ -14,6 +14,29 @@ void SetExitKey(Key key);                                // Key that closes the 
 void SetWindowTitle(string title);                       // Set the window's title
 int GetScreenWidth();                                    // Window width
 int GetScreenHeight();                                   // Window height
+bool IsWindowResized();                                  // Whether its size changed this frame
+bool IsWindowFullscreen();                               // Whether it is fullscreen
+bool IsWindowMaximized();                                // Whether it is maximized
+bool IsWindowMinimized();                                // Whether it is minimized
+bool IsWindowFocused();                                  // Whether it has the keyboard focus
+bool IsWindowHidden();                                   // Whether it is hidden (or there is no window)
+void ToggleFullscreen();                                 // Between fullscreen and a window
+void MaximizeWindow();                                   // Maximize
+void MinimizeWindow();                                   // Minimize
+void RestoreWindow();                                    // Back from maximized or minimized
+void SetWindowSize(int width, int height);               // Resize
+void SetWindowMinSize(int width, int height);            // Smallest size a resize may reach
+void SetWindowPosition(int x, int y);                    // Move on the desktop
+Vector2 GetWindowPosition();                             // Top left corner on the desktop
+
+int GetMonitorCount();                                   // Connected monitors
+int GetCurrentMonitor();                                 // The monitor the window is on
+int GetMonitorWidth(int monitor);                        // Its width in its current mode
+int GetMonitorHeight(int monitor);                       // Its height in its current mode
+int GetMonitorRefreshRate(int monitor);                  // Its refresh rate in hertz
+string GetMonitorName(int monitor);                      // Its name
+void SetClipboardText(string text);                      // Put text on the clipboard
+string GetClipboardText();                               // The text on the clipboard
 App GetApp();                                            // The app InitWindow built, for plugins, systems and resources
 void TakeScreenshot(string fileName);                    // Write the frame being drawn to a PNG once it is presented
 
