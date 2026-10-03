@@ -69,7 +69,9 @@ in the order they were added, and there is no before or after ordering.
 `EcsWorld` is a resource. Each component type has a sparse set: an array from entity to dense
 index, and dense arrays of entities, components and change bits, so iterating one component is a
 walk over a contiguous array and adding or removing is constant time. Entities are `int` ids,
-reused from a free list.
+reused from a free list, each with a generation that a despawn bumps. An `Entity` handle
+(`ecs.Handle(id)`) carries the generation, so a reference kept across frames can tell, through
+`TryResolve` or `IsAlive`, that its entity is gone even when a new one has its id.
 
 - `Query<T1, T2, T3>()` walks the smallest set and looks the others up, yielding copies.
   `QueryRef<T>()` yields references and marks what it visits as changed.

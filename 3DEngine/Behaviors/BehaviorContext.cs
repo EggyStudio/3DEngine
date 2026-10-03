@@ -64,6 +64,9 @@ public sealed class BehaviorContext
     /// <summary>Entity being processed for instance methods; <c>0</c> if not applicable.</summary>
     public int EntityId { get; set; }
 
+    /// <summary>A handle to the entity being processed that can be kept across frames (see <see cref="Engine.Entity"/>).</summary>
+    public Entity Entity => Ecs.Handle(EntityId);
+
     /// <summary>Creates a new <see cref="BehaviorContext"/> by resolving resources from the specified <paramref name="world"/>.</summary>
     /// <param name="world">The <see cref="World"/> from which to resolve ECS, commands, time and input.</param>
     /// <exception cref="InvalidOperationException">

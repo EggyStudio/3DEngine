@@ -92,7 +92,35 @@ public sealed partial class EcsWorld
             if (list[i].TryRemove(entity, out var disposable) && disposable is not null)
                 try { disposable.Dispose(); } catch { }
 
+        // Refused for an id that is not alive, so despawning twice frees the id once.
         _entities.Despawn(entity);
+    }
+
+    /// <summary>Despawns the entity <paramref name="entity"/> names, if it is still that entity.</summary>
+    /// <returns>Whether it was alive and is despawned.</returns>
+    public bool Despawn(Entity entity)
+    {
+        if (!TryResolve(entity, out var id)) return false;
+        Despawn(id);
+        return true;
+    }
+
+    /// <summary>Whether <paramref name="entity"/> is alive.</summary>
+    public bool IsAlive(int entity) => _entities.IsAlive(entity);
+
+    /// <summary>Whether the entity <paramref name="entity"/> was taken from is still alive and has not been replaced.</summary>
+    public bool IsAlive(Entity entity) =>
+        !entity.IsNone && _entities.IsAlive(entity.Index) && _entities.GetGeneration(entity.Index) == entity.Generation;
+
+    /// <summary>A handle to <paramref name="entity"/> that can be kept across frames, or <see cref="Entity.None"/> when it is not alive.</summary>
+    public Entity Handle(int entity) =>
+        _entities.IsAlive(entity) ? new Entity(entity, _entities.GetGeneration(entity)) : Entity.None;
+
+    /// <summary>The id <paramref name="entity"/> names, when it is still alive and still the same entity.</summary>
+    public bool TryResolve(Entity entity, out int id)
+    {
+        id = IsAlive(entity) ? entity.Index : 0;
+        return id != 0;
     }
 
     /// <summary>

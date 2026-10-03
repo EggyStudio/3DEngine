@@ -16,9 +16,10 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Entities
 
-- **An entity is an `int`.** `EcsWorld` tracks generations but does not put them in the handle, so
-  a handle kept past a despawn refers to whatever entity reuses the slot. An `Entity` struct holding
-  an index and a generation, checked on every access, fixes it.
+- **Stale ids are caught only through handles.** `EcsWorld`'s operations take an `int` id, which a
+  later spawn reuses. `Entity` (from `ecs.Handle(id)` or `ctx.Entity`) carries the generation, and
+  `TryResolve` and `IsAlive` refuse a stale one, but nothing stops code from keeping the bare `int`
+  across frames instead. Components holding entity references have no type that does this for them.
 - **Queries have no filters.** `Query` and `QueryRef` take up to three and two components, with no
   `With` or `Without`, and `Query` allocates an iterator. Behaviors filter by attribute, so the gap
   is in hand-written systems.

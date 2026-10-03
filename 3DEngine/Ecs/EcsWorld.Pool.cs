@@ -23,6 +23,10 @@ internal sealed class EntityPool
     /// <summary>Per-ID generation counters; index is entity ID, value is generation (0 = never used).</summary>
     private int[] _generations = System.Array.Empty<int>();
 
+    // Whether each id is alive, so a second despawn of one id is refused instead of putting it on
+    // the free stack twice, where two later spawns would both receive it.
+    private bool[] _alive = System.Array.Empty<bool>();
+
     /// <summary>Allocates a new entity ID (or reuses a despawned one) and returns it.</summary>
     /// <returns>The allocated entity ID with its generation initialized to at least <c>1</c>.</returns>
     public int Spawn()
@@ -30,6 +34,7 @@ internal sealed class EntityPool
         int id = _free.Count > 0 ? _free.Pop() : _nextEntity++;
         EnsureCapacity(id);
         if (_generations[id] == 0) _generations[id] = FirstGeneration;
+        _alive[id] = true;
         return id;
     }
 
@@ -47,14 +52,21 @@ internal sealed class EntityPool
     /// The caller must have already removed all components for this entity.
     /// </summary>
     /// <param name="id">The entity ID to despawn.</param>
-    public void Despawn(int id)
+    /// <summary>Whether <paramref name="id"/> is alive.</summary>
+    public bool IsAlive(int id) => (uint)id < (uint)_alive.Length && _alive[id];
+
+    /// <summary>Releases <paramref name="id"/>, bumping its generation, unless it is not alive.</summary>
+    /// <returns>Whether the id was alive.</returns>
+    public bool Despawn(int id)
     {
-        EnsureCapacity(id);
+        if (!IsAlive(id)) return false;
+        _alive[id] = false;
         int g = _generations[id];
         if (g == 0) g = FirstGeneration;
         g = g == int.MaxValue ? FirstGeneration : g + 1;
         _generations[id] = g;
         _free.Push(id);
+        return true;
     }
 
     /// <summary>The next entity ID that will be allocated (useful for capacity hints).</summary>
@@ -78,5 +90,6 @@ internal sealed class EntityPool
         int newSize = _generations.Length == 0 ? System.Math.Max(128, id + 1) : _generations.Length;
         while (id >= newSize) newSize *= 2;
         System.Array.Resize(ref _generations, newSize);
+        System.Array.Resize(ref _alive, newSize);
     }
 }
