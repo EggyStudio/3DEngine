@@ -151,4 +151,104 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(cube);
         UnloadShader(shader);
     }
+
+    // How many pixels of a rectangle of the image pass a test.
+    private static int Count(Image image, int x0, int y0, int x1, int y1, Func<Color, bool> test)
+    {
+        var count = 0;
+        for (int y = y0; y < y1; y++)
+        for (int x = x0; x < x1; x++)
+            if (test(GetImageColor(image, x, y))) count++;
+        return count;
+    }
+
+    [NeedsVulkanFact]
+    public void Text_Lands_Inside_The_Box_MeasureText_Gives_It()
+    {
+        Open(96, 48);
+        var red = new Color(255, 0, 0);
+        var width = 0;
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawText("HH", 8, 8, 20, red);
+            width = MeasureText("HH", 20);
+        });
+
+        // Glyph edges blend into the background, so a stroke pixel is one that is mostly red.
+        Count(image, 8, 8, 8 + width, 28, c => c.R > 150 && c.G < 60 && c.B < 60).Should().BeGreaterThan(40, "the strokes of two H's are drawn there");
+        Count(image, 8 + width + 4, 0, 96, 48, c => c == Color.Black).Should().Be((96 - 8 - width - 4) * 48, "nothing is drawn past the text");
+        Count(image, 0, 32, 96, 48, c => c == Color.Black).Should().Be(96 * 16, "nothing is drawn below it");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Render_Target_Holds_What_Was_Drawn_Into_It_And_Draws_As_A_Texture()
+    {
+        Open(64, 32);
+        var target = LoadRenderTexture(16, 16);
+        var green = new Color(0, 255, 0);
+
+        var image = Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(green);
+            DrawRectangle(0, 0, 8, 16, Color.Blue);
+            EndTextureMode();
+
+            ClearBackground(Color.Black);
+            DrawTexture(target.Texture, 32, 8, Color.White);
+        });
+
+        GetImageColor(image, 36, 16).Should().Be(Color.Blue, "the target's left half was drawn blue");
+        GetImageColor(image, 44, 16).Should().Be(green, "its right half kept the clear color");
+        GetImageColor(image, 16, 16).Should().Be(Color.Black, "the window around it is the window's own clear");
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
+    public void An_Immediate_Shader_Reads_Its_Slot_And_Applies_Only_Inside_Its_Mode()
+    {
+        Open(64, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return param(0);
+            }
+            """, "slot.slang");
+        SetShaderValue(shader, 0, new Vector4(1, 0, 1, 1));
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 32, 32, Color.White);
+            EndShaderMode();
+            DrawRectangle(32, 0, 32, 32, Color.White);
+        });
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(255, 0, 255), "the shader returns slot 0");
+        GetImageColor(image, 48, 16).Should().Be(Color.White, "after EndShaderMode the engine's own shader draws");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void ImGui_Draws_Over_The_Frame_Where_It_Is_Told()
+    {
+        Open(64, 32);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawRectangle(0, 0, 64, 32, Color.Blue);
+            // ImGui colors are packed as ABGR, so this is opaque green.
+            ImGuiNET.ImGui.GetForegroundDrawList().AddRectFilled(new Vector2(8, 8), new Vector2(24, 24), 0xFF00FF00);
+        });
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "ImGui draws after the immediate shapes, over them");
+        GetImageColor(image, 48, 16).Should().Be(Color.Blue, "the rest of the frame is the shapes beneath");
+    }
 }

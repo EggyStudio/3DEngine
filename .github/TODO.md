@@ -139,9 +139,10 @@ not reached.
 
 ### Testing
 
-- **Few tests render.** `OffscreenRenderTests` draws shapes and a lit cube offscreen and reads the
-  pixels back. The other passes (text, ImGui, render targets, custom shaders) are covered only by
-  the example captures CI takes, which nothing compares against a reference.
+- **Render tests check a few pixels.** `OffscreenRenderTests` draws each pass offscreen (shapes,
+  text, render targets, immediate and model shaders, lit models and ImGui) and reads chosen pixels
+  back. Whole frames are not compared with references, so a fault that leaves those pixels right
+  is caught only by looking at the example captures CI takes.
 
 ### Prose
 
