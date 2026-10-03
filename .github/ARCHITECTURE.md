@@ -85,8 +85,8 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
 `TryResolve` or `IsAlive`, that its entity is gone even when a new one has its id.
 
 - `Query<T1, T2, T3>()` walks the smallest set and looks the others up, yielding copies.
-  `QueryRef<T>()` yields references and marks what it visits as changed, and narrows with
-  `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
+  `QueryRef<T>()` and `QueryRef<T1, T2>()` yield references and mark what they visit as changed,
+  and narrow with `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.
 - `Changed<T>(entity)` reads the change bit, which `Update<T>` and `QueryRef` set and `First` clears.
 - `Name` and `Parent` components give entities names and a hierarchy (`SetName`, `SetParent`,

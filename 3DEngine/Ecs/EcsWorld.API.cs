@@ -336,7 +336,7 @@ public sealed partial class EcsWorld
         var s1 = GetStore<T1>(create: false);
         var s2 = GetStore<T2>(create: false);
         if (s1 == null || s2 == null) return RefEnumerable<T1, T2>.Empty();
-        return RefEnumerable<T1, T2>.From(s1, s2, markOnIterate: true);
+        return RefEnumerable<T1, T2>.From(s1, s2, markOnIterate: true, this);
     }
 
     /// <summary>Returns a span view of all components of type <typeparamref name="T"/> for raw iteration.</summary>

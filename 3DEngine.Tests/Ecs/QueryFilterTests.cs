@@ -9,6 +9,7 @@ public class QueryFilterTests
     private struct Falls;
     private struct Grounded;
     private struct Never;
+    private struct Mass { public float Kg; }
 
     private static (EcsWorld Ecs, int Falling, int Landed, int Floating) World()
     {
@@ -69,5 +70,34 @@ public class QueryFilterTests
 
         ecs.TryGet<Velocity>(falling, out var v).Should().BeTrue();
         v.Y.Should().Be(-1);
+    }
+
+    [Fact]
+    public void A_Two_Component_Query_Takes_The_Same_Filters()
+    {
+        var (ecs, falling, landed, floating) = World();
+        foreach (var entity in new[] { falling, landed, floating })
+            ecs.Add(entity, new Mass { Kg = 2 });
+
+        var found = new List<int>();
+        foreach (var row in ecs.QueryRef<Velocity, Mass>().With<Falls>().Without<Grounded>())
+        {
+            row.C1.Y -= row.C2.Kg;
+            found.Add(row.Entity);
+        }
+
+        found.Should().Equal(falling);
+        ecs.TryGet<Velocity>(falling, out var v).Should().BeTrue();
+        v.Y.Should().Be(-2);
+
+        ecs.BeginFrame();
+        ecs.Update(landed, new Grounded());
+        var changed = new List<int>();
+        foreach (var row in ecs.QueryRef<Velocity, Mass>().Changed<Grounded>()) changed.Add(row.Entity);
+        changed.Should().Equal(landed);
+
+        var none = 0;
+        foreach (var _ in ecs.QueryRef<Velocity, Mass>().With<Never>()) none++;
+        none.Should().Be(0);
     }
 }

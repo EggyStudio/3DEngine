@@ -241,7 +241,9 @@ public sealed partial class EcsWorld
     /// <summary>
     /// Zero-allocation ref-based enumerable for iterating entities that match both
     /// <typeparamref name="T1"/> and <typeparamref name="T2"/>, providing direct mutable access to both.
-    /// Returned by <see cref="EcsWorld.QueryRef{T1,T2}"/>.
+    /// Returned by <see cref="EcsWorld.QueryRef{T1,T2}"/>, and narrowed by
+    /// <see cref="With{TWith}"/>, <see cref="Without{TWithout}"/> and <see cref="Changed{TChanged}"/>
+    /// as the single-component query is.
     /// </summary>
     /// <typeparam name="T1">The first component type.</typeparam>
     /// <typeparam name="T2">The second component type.</typeparam>
@@ -263,30 +265,46 @@ public sealed partial class EcsWorld
         private readonly ComponentStore<T2>? _b;
         private readonly int _which;
         private readonly bool _markOnIterate;
+        private readonly EcsWorld? _world;
+        private readonly QueryFilter _filter;
 
-        private RefEnumerable(ComponentStore<T1>? a, ComponentStore<T2>? b, int which, bool markOnIterate)
+        private RefEnumerable(ComponentStore<T1>? a, ComponentStore<T2>? b, int which, bool markOnIterate,
+            EcsWorld? world = null, QueryFilter filter = default)
         {
             _a = a;
             _b = b;
             _which = which;
             _markOnIterate = markOnIterate;
+            _world = world;
+            _filter = filter;
         }
 
         /// <summary>Returns an empty enumerable that yields no results.</summary>
         /// <returns>An empty <see cref="RefEnumerable{T1,T2}"/>.</returns>
         internal static RefEnumerable<T1, T2> Empty() => new(null, null, 0, false);
 
+        /// <summary>Only entities that also have a <typeparamref name="TWith"/>.</summary>
+        public RefEnumerable<T1, T2> With<TWith>() => Filtered(_filter.With(_world?.StoreOrNull<TWith>()));
+
+        /// <summary>Only entities that do not have a <typeparamref name="TWithout"/>.</summary>
+        public RefEnumerable<T1, T2> Without<TWithout>() => Filtered(_filter.Without(_world?.StoreOrNull<TWithout>()));
+
+        /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
+        public RefEnumerable<T1, T2> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        private RefEnumerable<T1, T2> Filtered(QueryFilter filter) => new(_a, _b, _which, _markOnIterate, _world, filter);
+
         /// <summary>Creates an enumerable that iterates the smaller of the two stores for optimal performance.</summary>
         /// <param name="a">Store for <typeparamref name="T1"/>.</param>
         /// <param name="b">Store for <typeparamref name="T2"/>.</param>
         /// <param name="markOnIterate">When <c>true</c>, each accessed component pair is marked changed.</param>
         /// <returns>A new enumerable wrapping both stores.</returns>
-        internal static RefEnumerable<T1, T2> From(ComponentStore<T1> a, ComponentStore<T2> b, bool markOnIterate) =>
-            new(a, b, a.Count <= b.Count ? 1 : 2, markOnIterate);
+        internal static RefEnumerable<T1, T2> From(ComponentStore<T1> a, ComponentStore<T2> b, bool markOnIterate, EcsWorld? world = null) =>
+            new(a, b, a.Count <= b.Count ? 1 : 2, markOnIterate, world);
 
         /// <summary>Returns the enumerator for <c>foreach</c> iteration.</summary>
         /// <returns>A <see cref="RefEnumerator"/>.</returns>
-        public RefEnumerator GetEnumerator() => new(_a, _b, _which, _markOnIterate);
+        public RefEnumerator GetEnumerator() => new(_a, _b, _which, _markOnIterate, _filter);
 
         /// <summary>
         /// Ref-based enumerator yielding <see cref="RefComponents{T1,T2}"/> for entities that have both component types.
@@ -298,15 +316,17 @@ public sealed partial class EcsWorld
             private readonly ComponentStore<T2>? _b;
             private readonly int _which;
             private readonly bool _mark;
+            private readonly QueryFilter _filter;
             private int _i;
 
             /// <summary>Creates a new two-component enumerator positioned before the first element.</summary>
-            internal RefEnumerator(ComponentStore<T1>? a, ComponentStore<T2>? b, int which, bool mark)
+            internal RefEnumerator(ComponentStore<T1>? a, ComponentStore<T2>? b, int which, bool mark, QueryFilter filter)
             {
                 _a = a;
                 _b = b;
                 _which = which;
                 _mark = mark;
+                _filter = filter;
                 _i = -1;
             }
 
@@ -348,13 +368,13 @@ public sealed partial class EcsWorld
                     {
                         if (_i >= _a.Count) return false;
                         int e = _a.EntityByDenseIndex(_i);
-                        if (_b.Has(e)) return true;
+                        if (_b.Has(e) && (_filter.IsEmpty || _filter.Passes(e))) return true;
                     }
                     else
                     {
                         if (_i >= _b.Count) return false;
                         int e = _b.EntityByDenseIndex(_i);
-                        if (_a.Has(e)) return true;
+                        if (_a.Has(e) && (_filter.IsEmpty || _filter.Passes(e))) return true;
                     }
                 } while (true);
             }
