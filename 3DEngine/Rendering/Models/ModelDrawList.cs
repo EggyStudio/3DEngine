@@ -113,29 +113,58 @@ public sealed class ModelDrawList
 /// is recorded, so the model pass copies them into its ring as they are and draws them as one batch.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Mesh entities are recorded this way, tens of thousands a frame, where a <see cref="ModelDraw"/>
 /// of about 200 bytes each, sorted into batches again by the pass, cost more than the rest of
 /// their frame (RENDERING.md section 6). A group is kept by its recorder from frame to frame and
 /// filled again each frame, and the draw list holds it until the list is cleared.
+/// </para>
+/// <para>
+/// The instances are in segments, each written by one thread into a buffer of its own, so entities
+/// recorded in parallel share a group without a lock, and the pass copies the segments one after
+/// another.
+/// </para>
 /// </remarks>
 internal sealed class InstanceGroup
 {
+    private readonly List<(ModelRenderer.Instance[] Items, int Count)> _segments = [];
+
     /// <summary>What every instance shares: the mesh, the maps, the sides, the alpha mode and the camera. Its world matrix and factors are unused.</summary>
     public ModelDraw Template;
 
-    /// <summary>The instances, of which the first <see cref="Count"/> are this frame's.</summary>
-    public ModelRenderer.Instance[] Instances = new ModelRenderer.Instance[64];
-
     /// <summary>How many instances this frame holds.</summary>
-    public int Count;
+    public int Count { get; private set; }
 
-    /// <summary>This frame's instances.</summary>
-    public ReadOnlySpan<ModelRenderer.Instance> Span => Instances.AsSpan(0, Count);
-
-    /// <summary>The next instance to write, grown into when the array is full.</summary>
-    public ref ModelRenderer.Instance Next()
+    /// <summary>Forgets last frame's segments.</summary>
+    public void Clear()
     {
-        if (Count == Instances.Length) Array.Resize(ref Instances, Instances.Length * 2);
-        return ref Instances[Count++];
+        _segments.Clear();
+        Count = 0;
+    }
+
+    /// <summary>Adds the first <paramref name="count"/> instances of <paramref name="items"/>, which stay unwritten until the draw list is cleared.</summary>
+    public void Add(ModelRenderer.Instance[] items, int count)
+    {
+        if (count == 0) return;
+        _segments.Add((items, count));
+        Count += count;
+    }
+
+    /// <summary>Copies the frame's instances into <paramref name="destination"/>, segment after segment.</summary>
+    public void CopyTo(Span<ModelRenderer.Instance> destination)
+    {
+        foreach (var (items, count) in _segments)
+        {
+            items.AsSpan(0, count).CopyTo(destination);
+            destination = destination[count..];
+        }
+    }
+
+    /// <summary>The frame's instances, copied into an array.</summary>
+    public ModelRenderer.Instance[] ToArray()
+    {
+        var all = new ModelRenderer.Instance[Count];
+        CopyTo(all);
+        return all;
     }
 }

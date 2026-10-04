@@ -35,11 +35,12 @@ removed from this file, and an item that is partly done is rewritten around what
 ### Cost
 
 - **Per-draw work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
-  `models_stress`). Mesh entities write their instances straight into groups the pass draws as
-  they are, and a frame holds about 146,000, of which `MeshEntityDraws` takes 12 ms, about 82
-  nanoseconds an entity, most of it reading each entity's transform, making its matrix and
-  writing its instance. An entity whose transform has not changed could keep its instance where it
-  was written, and the work could be split across threads. Each `DrawTexture` costs about 55 nanoseconds, which writing four vertices for a quad in
+  `models_stress`). Mesh entities write their instances on several threads straight into groups
+  the pass draws as they are, and a frame holds about 267,000, of which `MeshEntityDraws` takes
+  5.2 ms and copying the 43 MB of instances into the ring 5.8 ms, while the GPU takes 12.5 ms for
+  the shadow and model passes. An entity whose transform has not changed could keep its instance
+  in a buffer the GPU reads from frame to frame, which would remove most of both copies, and the
+  GPU's share needs culling, since every cascade draws every entity. Each `DrawTexture` costs about 55 nanoseconds, which writing four vertices for a quad in
   place of six did not change measurably, so the draw list's lock is the next part to time, and
   the GPU draws 186,000 sprites in 5.1 ms.
 

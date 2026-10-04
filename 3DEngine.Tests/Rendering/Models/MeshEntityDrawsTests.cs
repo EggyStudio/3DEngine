@@ -34,7 +34,7 @@ public class MeshEntityDrawsTests
         var list = world.Resource<ModelDrawList>();
         var drawn = new List<ModelDraw>();
         foreach (var group in list.Groups)
-            foreach (var instance in group.Span)
+            foreach (var instance in group.ToArray())
             {
                 var world4 = new Matrix4x4(
                     instance.WorldX.X, instance.WorldY.X, instance.WorldZ.X, 0,
@@ -127,9 +127,43 @@ public class MeshEntityDrawsTests
         var list = world.Resource<ModelDrawList>();
         list.Draws.Should().BeEmpty("opaque entities are recorded as instances");
         list.Groups.Select(g => g.Count).Should().Equal(2, 1);
-        list.Groups[0].Span.ToArray().Select(i => i.Color).Should().Equal(new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1));
+        list.Groups[0].ToArray().Select(i => i.Color).Should().Equal(new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1));
         list.Groups[1].Template.DoubleSided.Should().BeFalse("a single-sided material is drawn by another pipeline");
         list.WindowViewProjection.Should().Be(list.Groups[0].Template.ViewProjection, "the shadow is fitted to the camera the groups were recorded through");
+    }
+
+    [Fact]
+    public void Entities_Past_A_Chunk_Are_Recorded_On_Threads_And_Each_Drawn_Once_Where_It_Is()
+    {
+        var (world, ecs) = Scene();
+        Vector3[] other = [new(0, 0, 0), new(0, 1, 0), new(0, 0, 1)];
+        void Spawn(int from, int to)
+        {
+            for (int i = from; i < to; i++)
+                SpawnMesh(ecs, i % 5 == 0 ? other : Triangle, new Vector3(i, 0, 0),
+                    i % 7 == 0 ? new Vector4(0, 0, 1, 0.5f) : new Vector4(i % 3 == 0 ? 1 : 0, 1, 0, 1));
+        }
+        var draws = world.Resource<ModelDrawList>();
+        void Frame()
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+        }
+
+        Spawn(0, 10_000);
+        Frame();
+        // Spawned between frames, with meshes and looks of their own, so chunks leave them for after.
+        Vector3[] third = [new(0, 0, 0), new(1, 1, 0), new(0, 0, 1)];
+        for (int i = 10_000; i < 10_100; i++) SpawnMesh(ecs, third, new Vector3(i, 0, 0), new Vector4(0.25f, 0.5f, 0.75f, 1));
+        Spawn(10_100, 12_000);
+        Frame();
+
+        var drawn = Drawn(world);
+        drawn.Select(d => d.World.Translation.X).Order().Should().Equal(Enumerable.Range(0, 12_000).Select(i => (float)i), "each entity is drawn once");
+        draws.Draws.Should().HaveCount(Enumerable.Range(0, 12_000).Count(i => (i < 10_000 || i >= 10_100) && i % 7 == 0));
+        draws.Draws.Select(d => Vector3.DistanceSquared(d.World.Translation, new Vector3(0, 0, 5))).Should().BeInDescendingOrder("translucent draws go from far to near");
+        drawn.Where(d => d.World.Translation.X is >= 10_000 and < 10_100).Should().OnlyContain(d => d.Color == new Color(137, 188, 225, 255));
+        world.Resource<MeshEntityDraws>().MeshCount.Should().Be(3);
     }
 
     [Fact]

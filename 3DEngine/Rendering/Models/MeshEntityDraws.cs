@@ -32,6 +32,12 @@ namespace Engine;
 /// world matrix and camera, and the model pass copies each group as it is and draws it as one
 /// batch (RENDERING.md section 6).
 /// </para>
+/// <para>
+/// Past 4,096 entities they are recorded in chunks of that many, each on a thread of its own and
+/// into buffers of its own. An entity that needs its mesh uploaded or its look built is left by its
+/// chunk and recorded after the chunks, on the calling thread, since those change what the other
+/// chunks read.
+/// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
 {
@@ -89,6 +95,61 @@ public sealed class MeshEntityDraws
     private readonly record struct GroupKey(int Mesh, int Texture, int NormalMap, int MetallicRoughnessMap, int EmissiveMap,
         int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode);
 
+    // Entities are recorded in chunks of this many, a thread each, once there is more than one.
+    private const int ChunkSize = 4096;
+    private Chunk[] _chunks = [];
+
+    // What a chunk gathers apart from the others: the positions arrays it drew, the mesh of the
+    // entity before, its translucent draws, the entities it left for after, and its instances, a
+    // buffer for each group. The buffers and their counts are the chunk's own, since threads
+    // counting into objects that lie side by side wait on each other's writes to the same line.
+    private sealed class Chunk
+    {
+        public readonly HashSet<Vector3[]> Seen = new(ReferenceEqualityComparer.Instance);
+        public readonly List<(float Distance, ModelDraw Draw)> Translucent = [];
+        public readonly List<int> Deferred = [];
+        public Vector3[]? LastPositions;
+        public int LastMesh;
+        public Writer[] Writers = [];
+
+        // Padded to a cache line, since the chunks' arrays of writers are allocated one after
+        // another and every entity counts into one.
+        public struct Writer
+        {
+            public ModelRenderer.Instance[] Items;
+            public int Count;
+#pragma warning disable CS0169 // Never read, the padding.
+            private long _pad0, _pad1, _pad2, _pad3, _pad4, _pad5;
+#pragma warning restore CS0169
+        }
+
+        // Empties the buffers for a frame of this many groups.
+        public void Begin(int groups)
+        {
+            if (Writers.Length < groups) Array.Resize(ref Writers, groups);
+            for (int i = 0; i < Writers.Length; i++) Writers[i].Count = 0;
+        }
+
+        // The next instance of a group, in a buffer grown as it fills. A group made after the
+        // chunks began, by the pass after them, grows the array.
+        public ref ModelRenderer.Instance Next(int group)
+        {
+            if (group >= Writers.Length) Array.Resize(ref Writers, Math.Max(group + 1, Writers.Length * 2));
+            ref var writer = ref Writers[group];
+            if (writer.Items is null) writer.Items = new ModelRenderer.Instance[64];
+            else if (writer.Count == writer.Items.Length) Array.Resize(ref writer.Items, writer.Items.Length * 2);
+            return ref writer.Items[writer.Count++];
+        }
+
+        public void Clear()
+        {
+            Seen.Clear();
+            Translucent.Clear();
+            Deferred.Clear();
+            LastPositions = null;
+        }
+    }
+
     // A look or a group past this many is a sign of materials made anew each frame, as a color
     // that flashes, and every look and group is forgotten rather than kept growing.
     private const int MaxLooks = 4096;
@@ -121,58 +182,43 @@ public sealed class MeshEntityDraws
         if (_colors.Count > 4096) _colors.Clear();
         if (ecs.Count<Mesh>() > 0 && FirstCamera(world, ecs) is { } camera)
         {
-            var (viewProjection, eye) = camera;
-            // Entities spawned together usually share one positions array, so the mesh of the
-            // entity before is checked first.
-            Vector3[]? lastPositions = null;
-            var id = 0;
-            // The stores once, rather than a lookup by type for each entity.
-            var globals = ecs.GetStorePublic<GlobalTransform>();
-            var locals = ecs.GetStorePublic<Transform>();
-            foreach (var group in _groups) group.Count = 0;
-            foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
+            var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
+                ecs.GetStorePublic<Transform>(), camera.ViewProjection, camera.Eye, meshes, assets, textures);
+            var count = frame.Meshes.Count;
+            var entities = frame.Meshes.EntitiesArray;
+            var last = 0;
+            for (int i = 0; i < count; i++) last = Math.Max(last, entities[i]);
+            if (last >= _kept.Length) Array.Resize(ref _kept, Math.Max(last + 1, _kept.Length * 2));
+
+            // A chunk of entities a thread, each written into a segment of its own of each group,
+            // and one segment more for the entities a chunk defers, written after.
+            var chunks = Math.Max(1, (count + ChunkSize - 1) / ChunkSize);
+            if (_chunks.Length < chunks + 1) Array.Resize(ref _chunks, chunks + 1);
+            for (int c = 0; c <= chunks; c++) (_chunks[c] ??= new Chunk()).Clear();
+            for (int c = 0; c <= chunks; c++) _chunks[c].Begin(_groups.Count);
+
+            if (chunks == 1) RecordChunk(0, count, frame);
+            else Parallel.For(0, chunks, c => RecordChunk(c, Math.Min(count, (c + 1) * ChunkSize), frame));
+
+            // What a chunk could not do on its thread, uploading a mesh or building a look.
+            var late = _chunks[chunks];
+            for (int c = 0; c < chunks; c++)
+                foreach (var dense in _chunks[c].Deferred)
+                    Place(dense, late, canBuild: true, frame);
+
+            for (int c = 0; c <= chunks; c++)
             {
-                var entity = row.Entity;
-                ref readonly var mesh = ref row.C1;
-                if (mesh.Positions is not { Length: >= 3 }) continue;
-
-                if (!ReferenceEquals(mesh.Positions, lastPositions))
-                {
-                    lastPositions = mesh.Positions;
-                    _seen.Add(mesh.Positions);
-                    if (!_meshes.TryGetValue(mesh.Positions, out id))
-                        _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
-                }
-
-                if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
-                ref var kept = ref _kept[entity];
-                if (kept.Generation != _generation || kept.Mesh != id || !_looks[kept.Look].Material.Equals(row.C2))
-                    kept = new Kept { Generation = _generation, Mesh = id, Look = LookFor(id, row.C2, assets, textures) };
-                ref var look = ref _looks[kept.Look];
-                if (look.Pending && look.Built != _frame) look = Build(id, look.Material, assets, textures);
-
-                var placed = globals.TryGet(entity, out var global) ? global.Matrix
-                    : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
-                    : Matrix4x4.Identity;
-                if (look.Group < 0)
-                {
-                    _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), look.Draw with { World = placed, ViewProjection = viewProjection }));
-                    continue;
-                }
-
-                // As ModelRenderer.Instance.Of writes them, the factors kept.
-                ref var instance = ref _groups[look.Group].Next();
-                instance = look.Instance;
-                instance.Transform = placed * viewProjection;
-                instance.WorldX = new Vector4(placed.M11, placed.M21, placed.M31, placed.M41);
-                instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
-                instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
+                _seen.UnionWith(_chunks[c].Seen);
+                _translucent.AddRange(_chunks[c].Translucent);
             }
-
-            foreach (var group in _groups)
+            for (int g = 0; g < _groups.Count; g++)
             {
+                var group = _groups[g];
+                group.Clear();
+                for (int c = 0; c <= chunks; c++)
+                    if (g < _chunks[c].Writers.Length) group.Add(_chunks[c].Writers[g].Items, _chunks[c].Writers[g].Count);
                 if (group.Count == 0) continue;
-                group.Template = group.Template with { ViewProjection = viewProjection };
+                group.Template = group.Template with { ViewProjection = camera.ViewProjection };
                 draws.AddGroup(group);
             }
             if (_lookCount > MaxLooks || _groups.Count > MaxLooks) Forget();
@@ -204,6 +250,80 @@ public sealed class MeshEntityDraws
         _groups.Clear();
         _groupOf.Clear();
         _generation++;
+    }
+
+    // What a frame's entities are recorded from, the stores read once rather than looked up by
+    // type for each entity.
+    private readonly record struct Frame(EcsWorld.ComponentStore<Mesh> Meshes, EcsWorld.ComponentStore<Material> Materials,
+        EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals, Matrix4x4 ViewProjection,
+        Vector3 Eye, MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures);
+
+    // The entities of a chunk, from its first dense index in the mesh store up to end.
+    private void RecordChunk(int chunk, int end, in Frame frame)
+    {
+        var state = _chunks[chunk];
+        for (int dense = chunk * ChunkSize; dense < end; dense++)
+            if (!Place(dense, state, canBuild: false, frame))
+                state.Deferred.Add(dense);
+    }
+
+    // Writes one entity's instance into its group's segment, or its draw among the translucent
+    // ones, answering false when it needs a mesh uploaded or a look built, which only a call with
+    // canBuild does, since those change what the chunks on other threads read.
+    private bool Place(int dense, Chunk state, bool canBuild, in Frame frame)
+    {
+        ref readonly var mesh = ref frame.Meshes.ComponentRefByDenseIndex(dense);
+        if (mesh.Positions is not { Length: >= 3 } positions) return true;
+        var entity = frame.Meshes.EntityByDenseIndex(dense);
+        var materialAt = frame.Materials.DenseIndexOf(entity);
+        if (materialAt < 0) return true;
+        ref readonly var material = ref frame.Materials.ComponentRefByDenseIndex(materialAt);
+
+        // Entities spawned together usually share one positions array, so the mesh of the entity
+        // before is checked first.
+        if (!ReferenceEquals(positions, state.LastPositions))
+        {
+            if (!_meshes.TryGetValue(positions, out var found))
+            {
+                if (!canBuild) return false;
+                _meshes[positions] = found = frame.MeshStore.Add(Vertices(mesh), Sequence(positions.Length / 3 * 3));
+            }
+            state.LastPositions = positions;
+            state.LastMesh = found;
+            state.Seen.Add(positions);
+        }
+        var id = state.LastMesh;
+
+        ref var kept = ref _kept[entity];
+        if (kept.Generation != _generation || kept.Mesh != id || !_looks[kept.Look].Material.Equals(material))
+        {
+            if (!canBuild) return false;
+            kept = new Kept { Generation = _generation, Mesh = id, Look = LookFor(id, material, frame.Assets, frame.Textures) };
+        }
+        ref var look = ref _looks[kept.Look];
+        if (look.Pending && look.Built != _frame)
+        {
+            if (!canBuild) return false;
+            look = Build(id, look.Material, frame.Assets, frame.Textures);
+        }
+
+        var placed = frame.Globals.TryGet(entity, out var global) ? global.Matrix
+            : frame.Locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
+            : Matrix4x4.Identity;
+        if (look.Group < 0)
+        {
+            state.Translucent.Add((Vector3.DistanceSquared(placed.Translation, frame.Eye), look.Draw with { World = placed, ViewProjection = frame.ViewProjection }));
+            return true;
+        }
+
+        // As ModelRenderer.Instance.Of writes them, the factors kept.
+        ref var instance = ref state.Next(look.Group);
+        instance = look.Instance;
+        instance.Transform = placed * frame.ViewProjection;
+        instance.WorldX = new Vector4(placed.M11, placed.M21, placed.M31, placed.M41);
+        instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
+        instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
+        return true;
     }
 
     // The look of a mesh and material, built the first time an entity is drawn with them.

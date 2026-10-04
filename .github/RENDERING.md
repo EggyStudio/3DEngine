@@ -472,6 +472,14 @@ The largest costs as they were measured, in order, each with what changed:
    7.4 ms and `MeshEntityDraws` at 12.0 ms, about 82 nanoseconds an entity, most of what a frame
    costs. Timed alone over 100,000 entities, reading the entity's `Transform` or `GlobalTransform`
    and making its matrix took about 30 nanoseconds of that and writing its instance about 18.
+   **Changed after.** Past 4,096 entities `MeshEntityDraws` records them in chunks of that many on
+   threads of their own, each into buffers of its own, padded so that no two chunks count into
+   one cache line, which at first left each chunk ten times slower than alone. An entity that
+   needs a mesh uploaded or a look built is recorded after the chunks. Timed alone over 100,000
+   entities it took 3.2 ms in place of 7.7. The run without arms afterward held 266,673 entities,
+   with `MeshEntityDraws` at 5.2 ms, about 20 nanoseconds an entity, the program's own loop turning
+   each entity at 5.6 ms, and the shadow pass recording for 5.8 ms, most of it copying 43 MB of
+   instances into the ring. The GPU took 8.0 ms for the shadow and 4.5 ms for the model pass.
 
 ## What the engine needs
 

@@ -456,7 +456,7 @@ public sealed class ModelRenderer : IDisposable
             instances[(int)_filled[b]++] = instanceOf(in draws[i]);
         }
         foreach (var batch in _batches)
-            if (batch.Group >= 0) groups[batch.Group].Span.CopyTo(instances[(int)batch.First..]);
+            if (batch.Group >= 0) groups[batch.Group].CopyTo(instances[(int)batch.First..]);
         return (_instanceRing!, offset);
     }
 
