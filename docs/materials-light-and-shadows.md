@@ -110,8 +110,9 @@ intensity 1 lights white as white, and a lamp is brighter near it and dimmer awa
 A light made with `castsShadows: true`, or turned on later with `SetLightCastsShadows`, darkens
 what other models hide from it. The first directional light that casts shadows casts the sun's,
 out to 150 units from the camera and sharpest near it. `SetShadowDistance` brings that in for a
-small scene, which sharpens it, or out for a wide one. The first four spot lights and the first four
-point lights that cast shadows cast theirs too, a point light's all around it.
+small scene, which sharpens it, or out for a wide one. Four spot lights and four point lights that
+cast shadows cast theirs too, a point light's all around it, the four of each whose reach comes
+nearest the camera, so a level of many torches shadows the ones around the player.
 
 `SetShadowMapSize` sets how many texels wide each tile of the shadow map is, 2048 unless set, which
 is the shadow quality a game's settings offer: 4096 sharpens every shadow at four times the memory,

@@ -34,7 +34,8 @@ public sealed class LightingUboPrepare : IPrepareSystem
         // The lights without their shadows, which each view's buffer starts from.
         var unshadowed = ubo;
         var draws = renderWorld.TryGet<ModelDrawList>();
-        var casters = Casters(renderWorld, lights, ubo.LightCount);
+        var first = draws?.WindowViewProjection ?? (draws?.Targets() is [var t, ..] ? draws.ViewProjectionOf(t) : null);
+        var casters = Casters(renderWorld, lights, ubo.LightCount, first is { } camera0 ? EyeOf(camera0) : null);
         var shadow = casters is not null && draws?.WindowViewProjection is { } window ? casters.For(window) : null;
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -124,8 +125,18 @@ public sealed class LightingUboPrepare : IPrepareSystem
         }
     }
 
-    // The lights that cast shadows, or null when none does or no mesh is drawn.
-    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count)
+    // Where a camera is, near enough, the middle of its near plane.
+    private static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection)
+    {
+        if (!System.Numerics.Matrix4x4.Invert(viewProjection, out var inverse)) return null;
+        var near = System.Numerics.Vector4.Transform(new System.Numerics.Vector4(0, 0, 0, 1), inverse);
+        return near.W == 0 ? null : new System.Numerics.Vector3(near.X, near.Y, near.Z) / near.W;
+    }
+
+    // The lights that cast shadows, or null when none does or no mesh is drawn. Past the four
+    // spot and four point lights there is room for, the ones whose reach comes nearest the eye
+    // are taken, so a level of many torches shadows those around the camera.
+    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count, System.Numerics.Vector3? eye)
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false }) return null;
 
@@ -133,17 +144,29 @@ public sealed class LightingUboPrepare : IPrepareSystem
         var distance = settings?.Distance is > 0 and var d ? d : ShadowFit.Distance;
         var tileSize = settings?.TileSize is >= 64 and var t ? t : ShadowFit.TileSize;
         int sun = -1;
-        var spotLights = new List<int>();
-        var points = new List<(int, System.Numerics.Matrix4x4[])>();
+        var spotCandidates = new List<int>();
+        var pointCandidates = new List<int>();
         for (int i = 0; i < count; i++)
         {
             var light = lights.All[i];
             if (!light.CastsShadows) continue;
             if (sun < 0 && light.Kind == LightKind.Directional) sun = i;
-            if (spotLights.Count < ShadowFit.MaxSpotLights && light.Kind == LightKind.Spot) spotLights.Add(i);
-            if (points.Count < ShadowFit.MaxPointLights && light.Kind == LightKind.Point)
-                points.Add((i, ShadowFit.FitPoint(light.Position, light.Range, distance)));
+            if (light.Kind == LightKind.Spot) spotCandidates.Add(i);
+            if (light.Kind == LightKind.Point) pointCandidates.Add(i);
         }
+
+        // How far a light's reach is from the eye, 0 inside it, and the distance itself for a light
+        // with no range. A stable sort keeps the order lights were made in among equals.
+        float Reach(int i)
+        {
+            var light = lights.All[i];
+            if (eye is not { } at) return 0;
+            var away = System.Numerics.Vector3.Distance(light.Position, at);
+            return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
+        }
+        var spotLights = spotCandidates.OrderBy(Reach).Take(ShadowFit.MaxSpotLights).ToList();
+        var points = pointCandidates.OrderBy(Reach).Take(ShadowFit.MaxPointLights)
+            .Select(i => (i, ShadowFit.FitPoint(lights.All[i].Position, lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
         // The spot lights share the spot tile, so each one's texels are as wide as its share of it.

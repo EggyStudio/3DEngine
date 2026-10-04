@@ -1212,6 +1212,34 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Of_More_Shadowed_Point_Lights_Than_There_Is_Room_For_The_Ones_Near_The_Camera_Cast()
+    {
+        Open(64, 64);
+        // Four lamps far off, made first, and a fifth over the scene the camera looks at, which a
+        // limit taken in the order lights were made would leave without a shadow.
+        for (int i = 0; i < 4; i++) CreatePointLight(new Vector3(80 + 10 * i, 1.5f, 80), Color.Red, 30, 5, castsShadows: true);
+        CreatePointLight(new Vector3(0, 1.5f, 0), Color.White, 30, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 15, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, Color.White);
+            DrawModel(cube, new Vector3(2, 0.5f, 0), 1, Color.White);
+            EndMode3D();
+        }, "near lamp");
+
+        // As in the test above, the ground 3.5 units out along +X, behind the cube, and along -X.
+        int behind = GetImageColor(image, 50, 32).G, clear = GetImageColor(image, 14, 32).G;
+        behind.Should().BeLessThan(clear / 3, $"the lamp near the camera shadows the ground past the cube ({behind} against {clear})");
+        UnloadModel(ground);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);

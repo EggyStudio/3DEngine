@@ -72,11 +72,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   to the window's format.
 - **One directional, four spot and four point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
-  `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones
-  in the map's last tile, and the first four such point lights shadow all around them, six faces of
-  a quarter of a tile each (RENDERING.md §4). `SetShadowMapSize` sets the tile from 256 to 4096
-  texels (2048 by default). A fifth spot or point light casts none, and each render target that
-  draws meshes draws the map again for its own camera.
+  `SetShadowDistance` sets, in three cascades, four such spot lights shadow their cones in the
+  map's last tile, and four such point lights shadow all around them, six faces of a quarter of a
+  tile each (RENDERING.md §4), the four of each whose reach comes nearest the camera.
+  `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default). A fifth spot or point
+  light near the camera casts none, and each render target that draws meshes draws the map again
+  for its own camera, with the point and spot lights chosen for the window's.
 
 ### The device
 

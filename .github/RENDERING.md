@@ -276,7 +276,9 @@ and fits a tile of a depth map two tiles on a side, 2048 texels a tile unless `S
 puts another size in `ShadowSettings`, to the sphere around each, so the near slice spends its
 texels on a few units and the far one on many. Each is moved in whole texels so the edges of shadows
 hold still as the camera moves, and reaches four radii further toward the light for casters above
-the view. The first four spot lights with `CastsShadows` set draw into the fourth tile, the whole of
+the view. Four spot lights with `CastsShadows` set, those whose reach (their range around them, or
+their position for one with none) comes nearest the window's camera, or the first target's when
+the window draws no mesh, draw into the fourth tile, the whole of
 it for one and a quarter each for more, through a perspective projection from the light as wide as
 its outer cone and as deep as its range, or the shadow distance for a light with none. A shadowed
 spot light carries its slot, counted from one, in its cone's third component, as a point light does,
@@ -305,7 +307,7 @@ next, and past the last cascade's band the shadow fades out rather than ending a
 light's texels widen with distance from it, so its offset grows with that distance. A model shader
 with a vertex stage of its own casts the shadow of its mesh as it was before that stage moved it.
 
-The first four point lights with `CastsShadows` set shadow everything around them, each in six
+Four point lights with `CastsShadows` set, chosen the same way, shadow everything around them, each in six
 faces of a quarter of a tile, 512 texels by default, a little wider than a right angle so the nine comparisons near a face's edge
 stay on it. The faces are layers of a second depth image, drawn one layer at a time with the
 shadow pipelines and sampled as an array at the lights' set's binding 4, and their views and

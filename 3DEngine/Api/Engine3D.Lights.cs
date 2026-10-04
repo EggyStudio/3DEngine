@@ -22,8 +22,8 @@ public static partial class Engine3D
 
     /// <summary>
     /// A light shining every way from <paramref name="position"/>, reaching <paramref name="range"/>
-    /// units, or every distance with 0, which may cast shadows all around it, as the first four
-    /// such lights do.
+    /// units, or every distance with 0, which may cast shadows all around it, as the four such
+    /// lights whose reach comes nearest the camera do.
     /// </summary>
     /// <remarks>
     /// A model drawn around a shadowed light, as a lamp's bulb, shadows everything from it. Draw the
@@ -62,7 +62,7 @@ public static partial class Engine3D
         l.Intensity = intensity;
     }
 
-    /// <summary>Sets whether a light casts shadows, which the first directional, the first spot and the first four point lights that do cast.</summary>
+    /// <summary>Sets whether a light casts shadows, which the first directional light that does casts, and of spot and point lights the four of each whose reach comes nearest the camera.</summary>
     public static void SetLightCastsShadows(LightHandle light, bool castsShadows)
     {
         if (Resolve(light) is { } entity) Ecs.GetRef<Light>(entity).CastsShadows = castsShadows;
