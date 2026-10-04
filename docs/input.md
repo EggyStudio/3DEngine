@@ -126,6 +126,22 @@ trigger from 0 to 1. A stick rests a little off its middle, so a game ignores sm
 `SetGamepadVibration` rumbles a pad for some seconds. A pad with a gyro, an accelerometer, a
 touchpad or a light bar has calls for each, which the cheatsheet lists.
 
+## Dropped files
+
+A file dragged from the desktop onto the window is kept by the engine until the program takes it,
+so a drop is not lost to a frame that did not ask. `LoadDroppedFiles` gives the paths in the order
+they arrived and `UnloadDroppedFiles` forgets them. From the `core_drop_files` example:
+
+```csharp
+if (IsFileDropped())
+{
+    files.AddRange(LoadDroppedFiles());
+    UnloadDroppedFiles();
+}
+```
+
+A level editor drawn in ImGui loads a dropped scene file this way, and a model viewer a model.
+
 ## Input and ImGui
 
 ImGui reads the same keyboard and mouse. `UpdateCamera` leaves the camera still while the mouse is
@@ -157,6 +173,7 @@ that is not there. The [Driving a program with e3d](driving-with-e3d.md) page co
 - Examples: [`core_input_gamepad`](../3DEngine.Examples/Core/CoreInputGamepad.cs),
   [`core_input_gestures`](../3DEngine.Examples/Core/CoreInputGestures.cs),
   [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs),
+  [`core_drop_files`](../3DEngine.Examples/Core/CoreDropFiles.cs),
   [`text_input_box`](../3DEngine.Examples/Text/TextInputBox.cs)
 - The cheatsheet's [Input](../CHEATSHEET.md#input)
 - Previous: [Audio](audio.md)

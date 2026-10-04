@@ -259,6 +259,16 @@ internal static class InputCommands
         return $"typed {text.Length} character(s)";
     }
 
+    [Command("input.drop", "Drops a file on the window, as dragging it from the desktop does: input.drop <path>")]
+    internal static string Drop(string path)
+    {
+        var (input, _, frame) = Parts();
+        // Where a real drop arrives, as the loop processes events, so a program asking before the frame sees it.
+        input.Enqueue(i => i.AddDroppedFile(path));
+        ConsoleHost.Hold(frame + 2);
+        return $"dropped {path}";
+    }
+
     [Command("input.state", "What the engine's input holds: keys and buttons down, the pointer, the fingers, the gamepads")]
     internal static string State()
     {

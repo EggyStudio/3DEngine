@@ -38,7 +38,18 @@ UnloadSound(coin);
 ```
 
 Playing a sound that is already playing starts it again from the start. A sound heard several
-times over itself, as rapid gunfire, is loaded as many times as it overlaps.
+times over itself, as rapid gunfire, plays through aliases, each a sound sharing the samples of
+the one it was made from and playing apart from it:
+
+```csharp
+var shot = LoadSound("resources/shot.wav");
+var shots = Enumerable.Range(0, 4).Select(_ => LoadSoundAlias(shot)).ToArray();
+var next = 0;
+// ...
+if (IsMouseButtonPressed(MouseButton.Left)) PlaySound(shots[next++ % shots.Length]);
+```
+
+An alias copies no samples, so four of them cost four handles, and `UnloadSoundAlias` stops one.
 
 Each sound has a volume from 0 to 1, a pitch where 1 is as recorded and 2 an octave up, and a pan
 from 0 at the left to 1 at the right. They hold for the play under way and the plays after it:

@@ -120,6 +120,25 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void An_Alias_Plays_Over_Its_Source_From_The_Same_Samples()
+    {
+        var sound = LoadSound(WriteWav());
+        var alias = LoadSoundAlias(sound);
+
+        PlaySound(sound);
+        PlaySound(alias);
+
+        alias.Samples.Should().BeSameAs(sound.Samples, "an alias copies no samples");
+        _backend.Stopped.Should().BeEmpty("the alias's play leaves the source's voice playing");
+        IsSoundPlaying(sound).Should().BeTrue();
+        IsSoundPlaying(alias).Should().BeTrue();
+
+        UnloadSoundAlias(alias);
+        IsSoundPlaying(alias).Should().BeFalse();
+        IsSoundPlaying(sound).Should().BeTrue();
+    }
+
+    [Fact]
     public void Stop_Pause_And_Resume_Reach_The_Voice()
     {
         var sound = LoadSound(WriteWav());

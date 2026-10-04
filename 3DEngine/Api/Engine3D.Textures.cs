@@ -121,6 +121,15 @@ public static partial class Engine3D
         return new Color(image.Data[i], image.Data[i + 1], image.Data[i + 2], image.Data[i + 3]);
     }
 
+    /// <summary>Every pixel of an image as a color, row by row from the top left.</summary>
+    public static Color[] LoadImageColors(Image image)
+    {
+        var colors = new Color[image.Width * image.Height];
+        for (int i = 0; i < colors.Length && i * 4 + 3 < image.Data.Length; i++)
+            colors[i] = new Color(image.Data[i * 4], image.Data[i * 4 + 1], image.Data[i * 4 + 2], image.Data[i * 4 + 3]);
+        return colors;
+    }
+
     /// <summary>Does nothing, because an image is managed memory. Kept so raylib programs read the same.</summary>
     public static void UnloadImage(Image image) { }
 

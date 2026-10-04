@@ -183,6 +183,49 @@ public static partial class Engine3D
 
     // -- Clipboard
 
+    /// <summary>
+    /// Switches between a window and a borderless one covering the monitor at its desktop mode,
+    /// which changes no display mode and so switches at once.
+    /// </summary>
+    public static void ToggleBorderlessWindowed()
+    {
+        if (WindowHandle is not 0 and var w)
+        {
+            if (IsWindowFullscreen())
+                SDL.SetWindowFullscreen(w, false);
+            else
+            {
+                SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
+                SDL.SetWindowFullscreen(w, true);
+            }
+        }
+    }
+
+    /// <summary>How many pixels the window's content has for each unit of its size, 1 on most monitors and 2 on a doubled one.</summary>
+    public static System.Numerics.Vector2 GetWindowScaleDPI()
+    {
+        var scale = WindowHandle is not 0 and var w ? SDL.GetWindowDisplayScale(w) : 1f;
+        return new System.Numerics.Vector2(scale > 0 ? scale : 1f);
+    }
+
+    /// <summary>Sets the window's icon from an image, which the desktop scales to what it shows.</summary>
+    public static unsafe void SetWindowIcon(Image image)
+    {
+        if (WindowHandle is not (not 0 and var w) || !image.IsValid) return;
+        fixed (byte* pixels = image.Data)
+        {
+            // ABGR8888 is the bytes R, G, B and A in order on a little-endian machine, as an image holds them.
+            var surface = SDL.CreateSurfaceFrom(image.Width, image.Height, SDL.PixelFormat.ABGR8888, (IntPtr)pixels, image.Width * 4);
+            if (surface == IntPtr.Zero)
+            {
+                ApiLogger.Warn($"SetWindowIcon: the image could not be made a surface: {SDL.GetError()}");
+                return;
+            }
+            SDL.SetWindowIcon(w, surface);
+            SDL.DestroySurface(surface);
+        }
+    }
+
     /// <summary>Puts text on the system clipboard.</summary>
     public static void SetClipboardText(string text)
     {

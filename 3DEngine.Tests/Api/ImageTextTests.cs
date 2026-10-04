@@ -35,4 +35,18 @@ public sealed class ImageTextTests : IDisposable
         red.Max(p => p.X).Should().BeLessThan(4 + MeasureText("Hi", 20) + 1, "nor past its measured width");
         red.Should().OnlyContain(p => GetImageColor(image, (int)p.X, (int)p.Y).G == 0, "the glyphs take the text's color");
     }
+
+    [Fact]
+    public void ImageText_Makes_An_Image_As_Large_As_The_Text_Clear_Around_It()
+    {
+        var image = ImageText("Hello", 20, Color.Red);
+
+        image.Width.Should().Be(MeasureText("Hello", 20));
+        image.Height.Should().BeGreaterThanOrEqualTo(20);
+        var colors = LoadImageColors(image);
+        colors.Should().HaveCount(image.Width * image.Height);
+        colors.Should().Contain(c => c.R > 128 && c.A > 128, "the glyphs are drawn");
+        colors.Should().Contain(c => c.A == 0, "and around them it is clear");
+        colors[image.Width + 1].Should().Be(GetImageColor(image, 1, 1), "the colors are row by row");
+    }
 }

@@ -466,6 +466,19 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>A new image holding text in the default font, as large as the text, clear around it.</summary>
+    public static Image ImageText(string text, int fontSize, Color color) =>
+        ImageTextEx(GetFontDefault(fontSize), text, fontSize, 0, color);
+
+    /// <summary>A new image holding text in a font, as large as the text, clear around it.</summary>
+    public static Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color tint)
+    {
+        var size = MeasureTextEx(font, text, fontSize, spacing);
+        var image = GenImageColor(Math.Max(1, (int)MathF.Ceiling(size.X)), Math.Max(1, (int)MathF.Ceiling(size.Y)), Color.Blank);
+        ImageDrawTextEx(ref image, font, text, Vector2.Zero, fontSize, spacing, tint);
+        return image;
+    }
+
     /// <summary>The width and height <see cref="DrawTextEx"/> would draw <paramref name="text"/> at.</summary>
     public static Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing)
     {

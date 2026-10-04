@@ -99,6 +99,18 @@ public sealed class Input
     // What raylib's GetCharPressed and GetKeyPressed hand out one at a time: the characters
     // typed and the keys pressed this frame, in order, each taken once.
     private readonly Queue<int> _charQueue = [];
+    private readonly List<string> _dropped = [];
+
+    /// <summary>
+    /// The paths of the files dropped on the window, in the order they arrived, kept from frame to
+    /// frame until <see cref="ClearDroppedFiles"/>, as raylib keeps them until they are unloaded.
+    /// </summary>
+    public IReadOnlyList<string> DroppedFiles => _dropped;
+
+    /// <summary>Forgets the dropped files, so the next drop starts a new list.</summary>
+    public void ClearDroppedFiles() => _dropped.Clear();
+
+    internal void AddDroppedFile(string path) => _dropped.Add(path);
     private readonly Queue<Key> _keyQueue = [];
 
     /// <summary>Takes the next character typed this frame, as a Unicode code point, or 0 when none is left.</summary>

@@ -85,6 +85,10 @@ public sealed class AppWindowPlugin : IPlugin
                 case SDL.EventType.MouseWheel:
                     input.AddWheel(e.Wheel.X, e.Wheel.Y);
                     break;
+                case SDL.EventType.DropFile:
+                    if (e.Drop.Data != IntPtr.Zero && Marshal.PtrToStringUTF8(e.Drop.Data) is { Length: > 0 } dropped)
+                        input.AddDroppedFile(dropped);
+                    break;
                 case SDL.EventType.TextInput:
                     if (e.Text.Text != IntPtr.Zero)
                     {

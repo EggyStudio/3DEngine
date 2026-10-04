@@ -25,5 +25,32 @@ public class Engine3DDisplayTests
         SetWindowFullscreenMode(new MonitorMode(1280, 720, 60));
         SetWindowMonitor(0);
         IsWindowFullscreen().Should().BeFalse();
+        ToggleBorderlessWindowed();
+        SetWindowIcon(GenImageColor(16, 16, Color.Red));
+        GetWindowScaleDPI().Should().Be(System.Numerics.Vector2.One);
+    }
+
+    [Fact]
+    public void Dropped_Files_Are_Kept_Until_They_Are_Unloaded()
+    {
+        var app = new App();
+        app.World.InitResource<Input>();
+        UseApp(app);
+        try
+        {
+            IsFileDropped().Should().BeFalse();
+            app.World.Resource<Input>().AddDroppedFile("/levels/one.json");
+            app.World.Resource<Input>().AddDroppedFile("/levels/two.json");
+            app.World.Resource<Input>().BeginFrame();
+
+            IsFileDropped().Should().BeTrue("a drop outlasts the frame it arrived in");
+            LoadDroppedFiles().Should().Equal("/levels/one.json", "/levels/two.json");
+            UnloadDroppedFiles();
+            IsFileDropped().Should().BeFalse();
+        }
+        finally
+        {
+            UseApp(null);
+        }
     }
 }

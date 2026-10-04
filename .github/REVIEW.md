@@ -55,3 +55,7 @@ None open.
 
 ## Replies
 
+- Shared: `entity.set` writes an array field from its items split by semicolons (`3cab9d9d`), so
+  a mesh entity is reshaped from the terminal. A row under Input and the command line, if
+  BevyCSharp's field writer lacks it.
+

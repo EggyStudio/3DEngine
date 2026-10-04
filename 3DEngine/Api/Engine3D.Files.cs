@@ -46,4 +46,17 @@ public static partial class Engine3D
             return false;
         }
     }
+
+    /// <summary>Whether files have been dropped on the window since the program last unloaded them.</summary>
+    public static bool IsFileDropped() => TryRes<Input>(out var input) && input.DroppedFiles.Count > 0;
+
+    /// <summary>The paths of the files dropped on the window, in the order they arrived.</summary>
+    /// <remarks>They are kept until <see cref="UnloadDroppedFiles"/>, so a drop is not lost to a frame that did not ask.</remarks>
+    public static string[] LoadDroppedFiles() => TryRes<Input>(out var input) ? [.. input.DroppedFiles] : [];
+
+    /// <summary>Forgets the dropped files, so <see cref="IsFileDropped"/> answers for the next drop.</summary>
+    public static void UnloadDroppedFiles()
+    {
+        if (TryRes<Input>(out var input)) input.ClearDroppedFiles();
+    }
 }

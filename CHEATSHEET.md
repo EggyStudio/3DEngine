@@ -30,6 +30,9 @@ void SetWindowSize(int width, int height);               // Resize
 void SetWindowMinSize(int width, int height);            // Smallest size a resize may reach
 void SetWindowPosition(int x, int y);                    // Move on the desktop
 Vector2 GetWindowPosition();                             // Top left corner on the desktop
+Vector2 GetWindowScaleDPI();                             // Pixels for each unit of its size, 2 on a doubled monitor
+void ToggleBorderlessWindowed();                         // Between a window and a borderless one covering the monitor
+void SetWindowIcon(Image image);                         // The icon the desktop shows for it
 
 int GetMonitorCount();                                   // Connected monitors
 int GetCurrentMonitor();                                 // The monitor the window is on
@@ -284,6 +287,7 @@ Image GenImageCellular(int width, int height, int tileSize);                    
 Image ImageCopy(Image image);                                                          // A copy with pixels of its own
 Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
+Color[] LoadImageColors(Image image);                                                  // Every pixel's color, row by row
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file
 void UnloadImage(Image image);                                                         // Nothing (images are managed memory)
 
@@ -315,6 +319,8 @@ void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color co
 void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint); // Part of an image into another, blended
 void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color); // Text in the default font
 void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
+Image ImageText(string text, int fontSize, Color color);                               // A new image of text in the default font, as large as the text
+Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color tint);  // The same in a font
 
 Texture2D LoadTexture(string fileName);                                                // Read an image file into a texture
 Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture
@@ -624,6 +630,8 @@ float GetMasterVolume();                                  // That volume
 Sound LoadSound(string fileName);                         // Read a WAV, Ogg Vorbis, MP3 or FLAC file into memory
 bool IsSoundValid(Sound sound);                           // Whether a sound has samples
 void UnloadSound(Sound sound);                            // Stop a sound
+Sound LoadSoundAlias(Sound source);                       // A sound sharing its samples that plays apart, to be heard over itself
+void UnloadSoundAlias(Sound alias);                       // Stop an alias
 void PlaySound(Sound sound);                              // Play from the start, restarting it if it was playing
 void StopSound(Sound sound);                              // Stop
 void PauseSound(Sound sound);                             // Pause
@@ -685,6 +693,9 @@ string GetApplicationDirectory();                        // The folder the progr
 bool FileExists(string fileName);                        // Whether a file is beside the program or in the working directory
 string? LoadFileText(string fileName);                   // A text file's contents, null when there is none
 bool SaveFileText(string fileName, string text);         // Write text to a file, beside the program for a relative name
+bool IsFileDropped();                                    // Whether files were dropped on the window since they were last unloaded
+string[] LoadDroppedFiles();                             // Their paths, in the order they arrived
+void UnloadDroppedFiles();                               // Forget them, for the next drop
 ```
 
 ## Colors

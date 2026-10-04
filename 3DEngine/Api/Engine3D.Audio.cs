@@ -265,6 +265,23 @@ public static partial class Engine3D
     /// <summary>Stops a sound. Its samples are managed memory and are collected with it.</summary>
     public static void UnloadSound(Sound sound) => StopSound(sound);
 
+    /// <summary>
+    /// A second sound sharing <paramref name="source"/>'s samples and playing apart from it, with a
+    /// volume, pitch and pan of its own, so one sound is heard over itself, as rapid shots are.
+    /// </summary>
+    /// <remarks>The samples are not copied, so an alias costs a handle, and the source may be unloaded first.</remarks>
+    public static Sound LoadSoundAlias(Sound source) => new()
+    {
+        Samples = source.Samples,
+        SampleRate = source.SampleRate,
+        Channels = source.Channels,
+        SourcePath = source.SourcePath,
+        SourceFormat = source.SourceFormat,
+    };
+
+    /// <summary>Stops an alias, leaving the sound it shares samples with as it is.</summary>
+    public static void UnloadSoundAlias(Sound alias) => StopSound(alias);
+
     /// <summary>Plays a sound from its start, stopping it first if it was playing.</summary>
     public static void PlaySound(Sound sound)
     {

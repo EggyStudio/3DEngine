@@ -30,6 +30,12 @@ case "$example" in
   ecs_states)
     ./e3d command input.key Enter 2 --quiet
     ;;
+  core_drop_files)
+    # Three files dropped, as dragging them from the desktop does.
+    for file in levels/forest.json textures/bark.png sounds/wind.ogg; do
+      ./e3d command input.drop "/home/player/game/$file" --quiet
+    done
+    ;;
   core_2d_camera)
     # Zoomed out, so the rooftops and the spline through them are in the picture.
     ./e3d command input.wheel -7 --quiet

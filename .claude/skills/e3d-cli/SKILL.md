@@ -65,6 +65,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `input.touch <id> <x> <y> <frames>` | holds a finger at a window position, which `GetTouchPosition` and `input.state` see |
 | `input.wheel <amount>` | turns the wheel |
 | `input.text <text>` | types text into the game's text input and the focused ImGui field |
+| `input.drop <path>` | drops a file on the window, as dragging it from the desktop does, which `LoadDroppedFiles` returns |
 | `input.state` | the keys and buttons down, the pointer and the gamepads, as the engine sees them |
 | `input.button <pad> <button> <frames>` | holds a gamepad button (`South`, `East`, `DpadUp`, `Start`), on a console pad when none is connected |
 | `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
