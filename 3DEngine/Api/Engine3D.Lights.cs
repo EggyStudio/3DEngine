@@ -76,7 +76,7 @@ public static partial class Engine3D
         if (intensity > 0) _ambient = Spawn(Light.Ambient(Linear(color), intensity), Vector3.Zero, -Vector3.UnitZ).Entity;
     }
 
-    private static EcsWorld Ecs => World.Resource<EcsWorld>();
+    private static EcsWorld Ecs => Res<EcsWorld>();
 
     private static LightHandle Spawn(Light light, Vector3 position, Vector3 direction)
     {

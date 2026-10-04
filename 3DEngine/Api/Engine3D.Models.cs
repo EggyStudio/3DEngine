@@ -123,7 +123,7 @@ public sealed class Model
 
 public static partial class Engine3D
 {
-    private static MeshStore Meshes => World.Resource<MeshStore>();
+    private static MeshStore Meshes => Res<MeshStore>();
 
     // -- Meshes
 
@@ -493,7 +493,7 @@ public static partial class Engine3D
         if (!mesh.IsValid) return;
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
         var shader = material.Shader.IsValid ? material.Shader.Id : 0;
-        World.Resource<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
+        Res<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
             shader, shader == 0 ? null : UniformSnapshot(material.Shader),
             material.Metallic, material.Roughness,
             material.NormalMap.IsValid ? material.NormalMap.Id : 0, material.NormalScale,

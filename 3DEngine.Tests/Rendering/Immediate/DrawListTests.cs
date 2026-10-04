@@ -106,4 +106,18 @@ public class DrawListTests
         list.TargetClears.Should().BeEmpty();
         list.Target.Should().Be(0);
     }
+
+    [Fact]
+    public void A_Batch_Read_Mid_Frame_Keeps_Growing_And_A_Transform_Set_Back_Extends_It()
+    {
+        var list = new DrawList();
+        list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
+        list.Batches.Should().ContainSingle().Which.VertexCount.Should().Be(2);
+
+        list.Line(Vector3.Zero, Vector3.UnitY, Color.Red);
+        list.SetTransform(Matrix4x4.Identity, depthTest: false);
+        list.Line(Vector3.Zero, Vector3.UnitZ, Color.Red);
+
+        list.Batches.Should().ContainSingle("the transform was set to what it was").Which.VertexCount.Should().Be(6);
+    }
 }

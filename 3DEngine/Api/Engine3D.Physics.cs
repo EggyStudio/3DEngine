@@ -7,7 +7,7 @@ public readonly record struct Ray(Vector3 Position, Vector3 Direction);
 
 public static partial class Engine3D
 {
-    private static PhysicsWorld Physics => World.Resource<PhysicsWorld>();
+    private static PhysicsWorld Physics => Res<PhysicsWorld>();
 
     // -- Bodies
 
@@ -39,14 +39,14 @@ public static partial class Engine3D
     /// <remarks>A character whose entity has a <see cref="CharacterController"/>, as one a scene file made, is walked through it.</remarks>
     public static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity)
     {
-        if (Controller(body) is { } entity) World.Resource<EcsWorld>().GetRef<CharacterController>(entity).Velocity = velocity;
+        if (Controller(body) is { } entity) Res<EcsWorld>().GetRef<CharacterController>(entity).Velocity = velocity;
         else Physics.MoveCharacter(body, velocity);
     }
 
     /// <summary>Makes a character on the ground jump, leaving it upward at <paramref name="speed"/>.</summary>
     public static void JumpPhysicsCharacter(PhysicsBody body, float speed)
     {
-        if (Controller(body) is { } entity) World.Resource<EcsWorld>().GetRef<CharacterController>(entity).Jump = speed;
+        if (Controller(body) is { } entity) Res<EcsWorld>().GetRef<CharacterController>(entity).Jump = speed;
         else Physics.JumpCharacter(body, speed);
     }
 
@@ -55,7 +55,7 @@ public static partial class Engine3D
     private static int? Controller(PhysicsBody body)
     {
         var entity = Physics.EntityOf(body);
-        return entity != 0 && World.TryGetResource<EcsWorld>(out var ecs) && ecs.Has<CharacterController>(entity) ? entity : null;
+        return entity != 0 && TryRes<EcsWorld>(out var ecs) && ecs.Has<CharacterController>(entity) ? entity : null;
     }
 
     /// <summary>Whether a character stands on ground it can walk on.</summary>
@@ -82,7 +82,7 @@ public static partial class Engine3D
     /// <example><code>box.Transform = GetPhysicsBodyTransform(body); DrawModel(box, Vector3.Zero, 1, Color.Orange);</code></example>
     public static Matrix4x4 GetPhysicsBodyTransform(PhysicsBody body)
     {
-        var alpha = World.Resource<PhysicsSettings>().Interpolate && World.TryGetResource<FixedTime>(out var fixedTime)
+        var alpha = Res<PhysicsSettings>().Interpolate && TryRes<FixedTime>(out var fixedTime)
             ? (float)fixedTime.Alpha
             : 1f;
         var (position, rotation) = Physics.GetPose(body, alpha);
@@ -105,10 +105,10 @@ public static partial class Engine3D
     public static void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse) => Physics.ApplyImpulse(body, impulse, Vector3.Zero);
 
     /// <summary>Holds the simulation still, as a pause menu does, or lets it run again. Bodies keep their velocities across a pause.</summary>
-    public static void SetPhysicsPaused(bool paused) => World.Resource<PhysicsSettings>().Paused = paused;
+    public static void SetPhysicsPaused(bool paused) => Res<PhysicsSettings>().Paused = paused;
 
     /// <summary>Whether the simulation is held still.</summary>
-    public static bool IsPhysicsPaused() => World.Resource<PhysicsSettings>().Paused;
+    public static bool IsPhysicsPaused() => Res<PhysicsSettings>().Paused;
 
     /// <summary>Sets the acceleration every dynamic body falls by, (0, -9.81, 0) to begin with.</summary>
     public static void SetPhysicsGravity(Vector3 gravity) => Physics.Gravity = gravity;

@@ -5,8 +5,11 @@ public sealed partial class World
     /// <summary>Inserts or replaces a resource of type <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The resource type. Keyed by concrete type - at most one instance per type.</typeparam>
     /// <param name="value">The resource instance to store. Replaces any existing resource of the same type.</param>
-    public void InsertResource<T>(T value) where T : notnull => 
+    public void InsertResource<T>(T value) where T : notnull
+    {
         _resources[typeof(T)] = value;
+        Interlocked.Increment(ref _resourceVersion);
+    }
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or inserts <paramref name="value"/> and returns it.
@@ -15,8 +18,8 @@ public sealed partial class World
     /// <typeparam name="T">The resource type to retrieve or insert.</typeparam>
     /// <param name="value">The fallback value to insert if the resource does not exist.</param>
     /// <returns>The existing or newly inserted resource instance.</returns>
-    public T GetOrInsertResource<T>(T value) where T : notnull => 
-        (T)_resources.GetOrAdd(typeof(T), value);
+    public T GetOrInsertResource<T>(T value) where T : notnull =>
+        _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), value));
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or creates one via <paramref name="factory"/>,
@@ -26,8 +29,8 @@ public sealed partial class World
     /// <typeparam name="T">The resource type to retrieve or create.</typeparam>
     /// <param name="factory">A delegate invoked to create the resource when it does not exist.</param>
     /// <returns>The existing or newly created resource instance.</returns>
-    public T GetOrInsertResource<T>(Func<T> factory) where T : notnull => 
-        (T)_resources.GetOrAdd(typeof(T), _ => factory());
+    public T GetOrInsertResource<T>(Func<T> factory) where T : notnull =>
+        _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), _ => factory()));
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or creates a default instance via <c>new T()</c>,
@@ -35,12 +38,29 @@ public sealed partial class World
     /// </summary>
     /// <typeparam name="T">The resource type. Must have a public parameterless constructor.</typeparam>
     /// <returns>The existing or newly created resource instance.</returns>
-    public T InitResource<T>() where T : notnull, new() => 
-        (T)_resources.GetOrAdd(typeof(T), _ => new T());
+    public T InitResource<T>() where T : notnull, new() =>
+        _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), _ => new T()));
 
     /// <summary>Removes the resource of type <typeparamref name="T"/> if present.</summary>
     /// <typeparam name="T">The resource type to remove.</typeparam>
     /// <returns><c>true</c> if a resource was removed; <c>false</c> if no resource of that type existed.</returns>
-    public bool RemoveResource<T>() where T : notnull => 
-        _resources.TryRemove(typeof(T), out _);
+    public bool RemoveResource<T>() where T : notnull
+    {
+        Interlocked.Increment(ref _resourceVersion);
+        return _resources.TryRemove(typeof(T), out _);
+    }
+
+    /// <summary>
+    /// Changes whenever a resource is inserted, replaced or removed, so a caller that keeps a
+    /// resource it looked up knows when to look again.
+    /// </summary>
+    public int ResourceVersion => Volatile.Read(ref _resourceVersion);
+
+    private int _resourceVersion;
+
+    private T Added<T>(T value)
+    {
+        Interlocked.Increment(ref _resourceVersion);
+        return value;
+    }
 }

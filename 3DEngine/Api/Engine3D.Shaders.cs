@@ -51,7 +51,7 @@ public static partial class Engine3D
         try
         {
             var program = new SlangLoader().Compile(code, name);
-            return new Shader(World.Resource<ShaderStore>().Add(program));
+            return new Shader(Res<ShaderStore>().Add(program));
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
         {
@@ -61,13 +61,13 @@ public static partial class Engine3D
     }
 
     /// <summary>Whether <paramref name="shader"/> is loaded.</summary>
-    public static bool IsShaderValid(Shader shader) => shader.IsValid && World.Resource<ShaderStore>().Get(shader.Id) is not null;
+    public static bool IsShaderValid(Shader shader) => shader.IsValid && Res<ShaderStore>().Get(shader.Id) is not null;
 
     /// <summary>Frees a shader. Drawing with it afterward uses the engine's own.</summary>
     public static void UnloadShader(Shader shader)
     {
         if (!shader.IsValid) return;
-        World.Resource<ShaderStore>().Remove(shader.Id);
+        Res<ShaderStore>().Remove(shader.Id);
         ShaderValues.Remove(shader.Id);
         UniformValues.Remove(shader.Id);
     }
@@ -93,7 +93,7 @@ public static partial class Engine3D
     /// <remarks>A model shader's uniforms are read this way. The immediate pass's shaders read the four slots 0 to 3.</remarks>
     public static int GetShaderLocation(Shader shader, string uniformName)
     {
-        if (!shader.IsValid || World.Resource<ShaderStore>().Get(shader.Id) is not { } program) return -1;
+        if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return -1;
         for (int i = 0; i < program.Uniforms.Count; i++)
             if (program.Uniforms[i].Name == uniformName) return NamedLocationBase + i;
         return -1;
@@ -114,7 +114,7 @@ public static partial class Engine3D
     // into a float stays out of the field after it.
     private static void WriteUniform(Shader shader, int location, ReadOnlySpan<byte> value)
     {
-        if (!shader.IsValid || World.Resource<ShaderStore>().Get(shader.Id) is not { } program) return;
+        if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return;
         var index = location - NamedLocationBase;
         if (index < 0 || index >= program.Uniforms.Count) return;
         var uniform = program.Uniforms[index];

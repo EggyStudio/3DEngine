@@ -33,7 +33,7 @@ public static partial class Engine3D
 {
     private static readonly ILogger ApiLogger = Log.Category("Engine.Api");
 
-    private static TextureStore Textures => World.Resource<TextureStore>();
+    private static TextureStore Textures => Res<TextureStore>();
 
     // -- Images
 
@@ -191,9 +191,12 @@ public static partial class Engine3D
         if (source.Width < 0) (u0, u1) = (u1, u0);
         if (source.Height < 0) (v0, v1) = (v1, v0);
 
-        var turn = Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        // Unturned, as most sprites are, a corner is an offset, with no sine and cosine to work out.
         var at = new Vector2(dest.X, dest.Y);
-        Vector3 Corner(float x, float y) => new(Vector2.Transform(new Vector2(x, y) - origin, turn) + at, 0);
+        var turn = rotation == 0 ? Matrix3x2.Identity : Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        Vector3 Corner(float x, float y) => rotation == 0
+            ? new Vector3(x - origin.X + at.X, y - origin.Y + at.Y, 0)
+            : new Vector3(Vector2.Transform(new Vector2(x, y) - origin, turn) + at, 0);
 
         DrawList.TexturedQuad(
             Corner(0, 0), Corner(dest.Width, 0), Corner(dest.Width, dest.Height), Corner(0, dest.Height),

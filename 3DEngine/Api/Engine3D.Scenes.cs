@@ -36,5 +36,5 @@ public static partial class Engine3D
 
     /// <summary>Saves every entity of the ECS that a scene did not spawn, or only <paramref name="entities"/>, to a scene file.</summary>
     public static void SaveScene(string fileName, IEnumerable<int>? entities = null) =>
-        SceneFile.Save(World.Resource<EcsWorld>(), fileName, entities);
+        SceneFile.Save(Res<EcsWorld>(), fileName, entities);
 }

@@ -5,7 +5,7 @@ namespace Engine;
 
 public static partial class Engine3D
 {
-    private static Input Input => World.Resource<Input>();
+    private static Input Input => Res<Input>();
 
     // -- Keyboard
 
@@ -71,14 +71,14 @@ public static partial class Engine3D
     public static void ShowCursor()
     {
         _cursorHidden = false;
-        if (World.TryGetResource<AppWindow>(out _)) SDL.ShowCursor();
+        if (TryRes<AppWindow>(out _)) SDL.ShowCursor();
     }
 
     /// <summary>Hides the mouse cursor over the window.</summary>
     public static void HideCursor()
     {
         _cursorHidden = true;
-        if (World.TryGetResource<AppWindow>(out _)) SDL.HideCursor();
+        if (TryRes<AppWindow>(out _)) SDL.HideCursor();
     }
 
     /// <summary>Whether the cursor is hidden, by <see cref="HideCursor"/> or <see cref="DisableCursor"/>.</summary>
@@ -89,14 +89,14 @@ public static partial class Engine3D
     public static void DisableCursor()
     {
         _cursorHidden = true;
-        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, true);
+        if (TryRes<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, true);
     }
 
     /// <summary>Releases and shows the cursor that <see cref="DisableCursor"/> held.</summary>
     public static void EnableCursor()
     {
         _cursorHidden = false;
-        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, false);
+        if (TryRes<AppWindow>(out var window)) SDL.SetWindowRelativeMouseMode(window.Sdl.Window, false);
     }
 
     // -- Gamepads, by index in the order they connected

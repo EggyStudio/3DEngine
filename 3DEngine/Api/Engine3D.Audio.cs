@@ -391,7 +391,7 @@ public static partial class Engine3D
 
     private static AudioServer? Audio()
     {
-        if (World.TryGetResource<AudioServer>(out var audio)) return audio;
+        if (TryRes<AudioServer>(out var audio)) return audio;
         if (!_warnedNoAudio)
         {
             _warnedNoAudio = true;

@@ -127,7 +127,7 @@ public static partial class Engine3D
     public static void UpdateCamera(ref Camera3D camera, CameraMode mode)
     {
         var dt = GetFrameTime();
-        var input = World.Resource<Input>();
+        var input = Res<Input>();
         var io = ImGui.GetIO();
         // WantTextInput rather than WantCaptureKeyboard, because with keyboard navigation on ImGui
         // claims the keyboard whenever any of its windows has focus, which is nearly always.

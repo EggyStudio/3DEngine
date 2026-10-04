@@ -36,5 +36,34 @@ public static partial class Engine3D
     /// </summary>
     internal static void UseApp(App? app) => _app = app;
 
-    private static DrawList DrawList => World.Resource<DrawList>();
+    private static DrawList DrawList => Res<DrawList>();
+
+    // A resource as the flat API reads it, kept from the last lookup until the world or its
+    // resources change. A function like GetScreenWidth or DrawTexture is called thousands of times
+    // a frame in ordinary code, where a lookup each call cost a measurable part of the frame
+    // (RENDERING.md section 6). The flat API is called from the program's thread, as raylib's is.
+    private static class Cached<T> where T : notnull
+    {
+        public static World? World;
+        public static int Version;
+        public static bool Found;
+        public static T Value = default!;
+    }
+
+    private static T Res<T>() where T : notnull =>
+        TryRes<T>(out var value) ? value : throw new InvalidOperationException($"Resource of type {typeof(T).Name} not found.");
+
+    private static bool TryRes<T>(out T value) where T : notnull
+    {
+        var world = World;
+        var version = world.ResourceVersion;
+        if (!ReferenceEquals(Cached<T>.World, world) || Cached<T>.Version != version)
+        {
+            Cached<T>.Found = world.TryGetResource(out Cached<T>.Value);
+            Cached<T>.World = world;
+            Cached<T>.Version = version;
+        }
+        value = Cached<T>.Value;
+        return Cached<T>.Found;
+    }
 }

@@ -12,7 +12,7 @@ public static partial class Engine3D
     /// <summary>The value a state machine is in.</summary>
     /// <exception cref="InvalidOperationException">No state over <typeparamref name="TState"/> was added.</exception>
     public static TState GetState<TState>() where TState : struct, Enum =>
-        World.TryGetResource<State<TState>>(out var state)
+        TryRes<State<TState>>(out var state)
             ? state.Current
             : throw new InvalidOperationException($"No state over {typeof(TState).Name} was added. Call AddState first.");
 
@@ -23,7 +23,7 @@ public static partial class Engine3D
     /// <exception cref="InvalidOperationException">No state over <typeparamref name="TState"/> was added.</exception>
     public static void SetState<TState>(TState value) where TState : struct, Enum
     {
-        if (!World.TryGetResource<NextState<TState>>(out var next))
+        if (!TryRes<NextState<TState>>(out var next))
             throw new InvalidOperationException($"No state over {typeof(TState).Name} was added. Call AddState first.");
         next.Set(value);
     }

@@ -60,16 +60,16 @@ public static partial class Engine3D
     /// <summary>Sets the window's title.</summary>
     public static void SetWindowTitle(string title)
     {
-        if (World.TryGetResource<AppWindow>(out var window)) SDL.SetWindowTitle(window.Sdl.Window, title);
+        if (TryRes<AppWindow>(out var window)) SDL.SetWindowTitle(window.Sdl.Window, title);
     }
 
     /// <summary>The window's width, in the units mouse positions and 2D drawing use. In a headless run, the width asked for.</summary>
     public static int GetScreenWidth() =>
-        World.TryGetResource<AppWindow>(out var window) ? window.Sdl.Width : World.Resource<Config>().WindowData.Width;
+        TryRes<AppWindow>(out var window) ? window.Sdl.Width : Res<Config>().WindowData.Width;
 
     /// <summary>The window's height, in the units mouse positions and 2D drawing use. In a headless run, the height asked for.</summary>
     public static int GetScreenHeight() =>
-        World.TryGetResource<AppWindow>(out var window) ? window.Sdl.Height : World.Resource<Config>().WindowData.Height;
+        TryRes<AppWindow>(out var window) ? window.Sdl.Height : Res<Config>().WindowData.Height;
 
     /// <summary>Writes the frame being drawn to a PNG file, once it is presented at <see cref="EndDrawing"/>.</summary>
     /// <remarks>A headless run draws nothing, so it logs why and writes nothing.</remarks>
@@ -87,13 +87,13 @@ public static partial class Engine3D
     public static void SetTargetFPS(int fps) => _targetFps = Math.Max(0, fps);
 
     /// <summary>Seconds the last frame took.</summary>
-    public static float GetFrameTime() => (float)World.Resource<Time>().DeltaSeconds;
+    public static float GetFrameTime() => (float)Res<Time>().DeltaSeconds;
 
     /// <summary>Seconds since the first frame.</summary>
-    public static double GetTime() => World.Resource<Time>().ElapsedSeconds;
+    public static double GetTime() => Res<Time>().ElapsedSeconds;
 
     /// <summary>Frames per second, smoothed over the last few frames.</summary>
-    public static int GetFPS() => (int)Math.Round(World.Resource<Time>().SmoothedFps);
+    public static int GetFPS() => (int)Math.Round(Res<Time>().SmoothedFps);
 
     // Processes the window's events once per frame. Input keeps a key's pressed state until
     // Stage.Last, so events read here are seen by everything in the frame that follows.
@@ -103,9 +103,9 @@ public static partial class Engine3D
         _eventsPumped = true;
         _sizeBeforeEvents = (GetScreenWidth(), GetScreenHeight());
 
-        if (!World.Resource<IMainLoopDriver>().PumpEvents())
+        if (!Res<IMainLoopDriver>().PumpEvents())
             _shouldClose = true;
-        if (_exitKey != Key.Unknown && World.Resource<Input>().KeyPressed(_exitKey))
+        if (_exitKey != Key.Unknown && Res<Input>().KeyPressed(_exitKey))
             _shouldClose = true;
         _resized = (GetScreenWidth(), GetScreenHeight()) != _sizeBeforeEvents;
     }
@@ -115,7 +115,7 @@ public static partial class Engine3D
     private static void WaitForTargetFrame()
     {
         // A headless run with no target set is paced at Config.HeadlessFps, so it does not spin a core.
-        var config = World.Resource<Config>();
+        var config = Res<Config>();
         var fps = _targetFps ?? (config.Headless ? config.HeadlessFps : 0);
         if (fps > 0)
         {

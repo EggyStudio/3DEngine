@@ -44,6 +44,16 @@ public sealed class DrawList
     private int _count;
     private readonly List<DrawBatch> _batches = [];
 
+    // The last batch while calls keep extending it. Its topology, texture and vertex count are kept
+    // here, and the count is written into the list only when another batch opens or the batches
+    // are read. Comparing a
+    // whole DrawBatch and copying it back on every shape cost most of a sprite's recording. Any
+    // change of transform, target or shader closes it.
+    private bool _open;
+    private PrimitiveTopology _openTopology;
+    private int _openTexture;
+    private int _openCount;
+
     /// <summary>The transform the next recorded shapes are drawn through.</summary>
     public Matrix4x4 Transform { get; private set; } = Matrix4x4.Identity;
 
@@ -66,6 +76,7 @@ public sealed class DrawList
         {
             Shader = shader;
             Params = parameters;
+            Close();
         }
     }
 
@@ -80,6 +91,7 @@ public sealed class DrawList
         lock (_gate)
         {
             Target = target;
+            Close();
             if (target != 0) _targetClears.TryAdd(target, Color.Blank);
         }
     }
@@ -95,7 +107,17 @@ public sealed class DrawList
     public ReadOnlySpan<ImmediateVertex> Vertices => _vertices.AsSpan(0, _count);
 
     /// <summary>The runs the vertices are drawn in, in recording order.</summary>
-    public IReadOnlyList<DrawBatch> Batches => _batches;
+    public IReadOnlyList<DrawBatch> Batches
+    {
+        get
+        {
+            lock (_gate)
+            {
+                Close();
+                return _batches;
+            }
+        }
+    }
 
     /// <summary>Sets the transform and depth mode the following shapes are recorded with.</summary>
     public void SetTransform(Matrix4x4 transform, bool depthTest)
@@ -104,6 +126,7 @@ public sealed class DrawList
         {
             Transform = transform;
             DepthTest = depthTest;
+            Close();
         }
     }
 
@@ -163,6 +186,7 @@ public sealed class DrawList
         {
             _count = 0;
             _batches.Clear();
+            _open = false;
             Transform = Matrix4x4.Identity;
             DepthTest = false;
             Target = 0;
@@ -182,6 +206,14 @@ public sealed class DrawList
         var at = _count;
         _count += vertices;
 
+        if (_open && _openTopology == topology && _openTexture == texture)
+        {
+            _openCount += vertices;
+            return at;
+        }
+
+        // A batch that matches the last one closed, as after a transform set to what it was, extends it.
+        Close();
         if (_batches.Count > 0)
         {
             var last = _batches[^1];
@@ -189,12 +221,30 @@ public sealed class DrawList
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && last.FirstVertex + last.VertexCount == at)
             {
-                _batches[^1] = last with { VertexCount = last.VertexCount + vertices };
+                Open(topology, texture, last.VertexCount + vertices);
                 return at;
             }
         }
 
         _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params));
+        Open(topology, texture, vertices);
         return at;
+    }
+
+    private void Open(PrimitiveTopology topology, int texture, int count)
+    {
+        _open = true;
+        _openTopology = topology;
+        _openTexture = texture;
+        _openCount = count;
+    }
+
+    // Writes the open batch's count into the list. Called under the lock.
+    private void Close()
+    {
+        if (!_open) return;
+        _open = false;
+        if (_batches[^1].VertexCount != _openCount)
+            _batches[^1] = _batches[^1] with { VertexCount = _openCount };
     }
 }

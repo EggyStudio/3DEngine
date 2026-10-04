@@ -266,10 +266,29 @@ each search ended on. Times are milliseconds a frame.
 | Shadow pass, CPU / GPU | | 0.3 / 0.2 | 1.3 / 0.6 |
 | Immediate pass, GPU | 4.0 | 0.0 | 0.0 |
 
-The count with arms moves between about 1,700 and 4,700 from run to run, because the arms' cost
-varies more than the entities' does.
+The count with arms moved between about 1,700 and 4,700 from run to run, because the arms' cost
+varied more than the entities' did.
 
-The three largest costs, in order:
+The same runs after the three changes below:
+
+| | bunnymark | stress, 8 arms | stress, no arms |
+|---|---|---|---|
+| Count that holds 60 a second | 186,473 sprites | 32,416 entities | 27,614 entities |
+| Frame | 16.7 | 17.3 | 16.6 |
+| Program's update | 3.0 | 0.6 | 0.5 |
+| Program's drawing calls | 10.4 | 0.0 | 0.0 |
+| Schedule's stages | 3.3 | 16.6 | 16.0 |
+| `MeshEntityDraws` | | 7.5 | 6.3 |
+| Prepare | 2.0 (immediate upload) | 0.0 | 0.0 |
+| Graph, CPU | 0.1 | 7.8 | 8.4 |
+| Model pass, CPU / GPU | | 4.7 / 1.4 | 4.8 / 1.2 |
+| Shadow pass, CPU / GPU | | 3.1 / 1.6 | 3.6 / 1.2 |
+| Immediate pass, GPU | 5.1 | 0.0 | 0.0 |
+
+A search ends within about 3 percent of where a frame leaves the budget, and runs differ by more
+than that, so the arms' count above the one without them is noise rather than a gain.
+
+The three largest costs as first measured, in order, each with what changed:
 
 1. **An animated mesh's vertices go into a buffer created for them each frame.** `UpdateMeshVertices`
    queues the skinned vertices, and `GpuMeshes` creates, allocates and maps a vertex buffer for them
@@ -297,6 +316,14 @@ The three largest costs, in order:
    upload and 4.0 ms on the GPU. The example's own movement loop takes 5.4 ms, much of it in
    `GetScreenWidth` and `GetScreenHeight`, which it calls for each sprite as raylib's does and
    which look up a resource each call.
+   **Changed.** The flat API keeps each resource it reads until the world's resources change
+   (`World.ResourceVersion`), the draw list keeps its open batch's count in fields where it
+   compared and copied a whole batch on every shape, and an unturned sprite skips its sine and
+   cosine. The same run afterward held 186,473 sprites in place of 121,613, with the movement
+   loop at 3.0 ms and `DrawTexture` at about 55 nanoseconds a sprite (10.4 ms). What is left of
+   it is the draw list's lock, which a system on a worker thread needs, and six vertices of 24
+   bytes for each quad, since the immediate pass draws without an index buffer. The GPU takes 5.1
+   ms for them and the upload 2.0 ms.
 
 ## What the engine needs
 
