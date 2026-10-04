@@ -143,6 +143,26 @@ public sealed partial class PhysicsWorld
         br.Awake = true;
     }
 
+    /// <summary>
+    /// Gives a kinematic body the velocities that carry it to <paramref name="position"/> and
+    /// <paramref name="rotation"/> over the next <paramref name="seconds"/>, so it reaches the pose
+    /// by moving there, which carries what rests on it, rather than by being put there.
+    /// </summary>
+    public void FollowPose(PhysicsBody body, Vector3 position, Quaternion rotation, float seconds)
+    {
+        if (body.Kind != BodyKind.Kinematic || seconds <= 0 || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return;
+        var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        reference.Velocity.Linear = (position - reference.Pose.Position) / seconds;
+
+        // The turn from the pose it has to the one it is to have, the short way round.
+        var turn = Quaternion.Normalize(rotation * Quaternion.Conjugate(reference.Pose.Orientation));
+        if (turn.W < 0) turn = -turn;
+        var half = MathF.Acos(Math.Clamp(turn.W, -1f, 1f));
+        var sin = MathF.Sin(half);
+        reference.Velocity.Angular = sin > 1e-6f ? new Vector3(turn.X, turn.Y, turn.Z) / sin * (2 * half / seconds) : Vector3.Zero;
+        reference.Awake = true;
+    }
+
     // -- Forces / impulses --
 
     /// <inheritdoc />

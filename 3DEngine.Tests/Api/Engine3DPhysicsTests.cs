@@ -93,6 +93,53 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Platform_Under_A_Moving_Parent_Carries_A_Crate_And_A_Character()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        // A carrier entity moved along +X by the program, with a kinematic platform under it.
+        var carrier = ecs.Spawn();
+        ecs.Add(carrier, new Transform(Vector3.Zero));
+        var platform = ecs.Spawn();
+        ecs.Add(platform, new Transform(new Vector3(0, 0.25f, 0)));
+        ecs.Add(platform, Collider.Box(new Vector3(6, 0.5f, 6)));
+        ecs.Add(platform, RigidBody.Kinematic);
+        ecs.SetParent(platform, carrier);
+        var crate = ecs.Spawn();
+        ecs.Add(crate, new Transform(new Vector3(-1.5f, 1, 0)));
+        ecs.Add(crate, Collider.Box(Vector3.One));
+        ecs.Add(crate, RigidBody.Dynamic());
+        var walker = ecs.Spawn();
+        ecs.Add(walker, new Transform(new Vector3(1.5f, 1.4f, 0)));
+        ecs.Add(walker, Collider.Capsule(0.3f, 1.8f));
+        ecs.Add(walker, RigidBody.Dynamic(80));
+        ecs.Add(walker, CharacterController.Default);
+
+        // Settled first, then carried along X at two units a second for a second and a half.
+        var clock = 0f;
+        RunUntil(() => (clock += GetFrameTime()) > 0.5f);
+        var crateFrom = ecs.GetReadOnly<Transform>(crate).Position.X;
+        var walkerFrom = ecs.GetReadOnly<Transform>(walker).Position.X;
+        clock = 0;
+        RunUntil(() =>
+        {
+            ecs.GetRef<Transform>(carrier).Position.X += 2 * GetFrameTime();
+            return (clock += GetFrameTime()) > 1.5f;
+        });
+
+        var moved = ecs.GetReadOnly<Transform>(carrier).Position.X;
+        moved.Should().BeGreaterThan(2.5f);
+        var platformAt = GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(platform));
+        platformAt.X.Should().BeApproximately(moved, 0.1f, "the platform followed its parent");
+        // The crate is carried by friction, so it takes a moment to catch up with a platform that
+        // starts at once, and then keeps its pace. The character walks relative to what it stands
+        // on, so it keeps the pace from the start.
+        GetPhysicsBodyVelocity(ecs.GetReadOnly<PhysicsBody>(crate)).X.Should().BeApproximately(2, 0.1f, "the crate moves with the platform");
+        (ecs.GetReadOnly<Transform>(crate).Position.X - crateFrom).Should().BeGreaterThan(moved * 0.6f, "it rode most of the way");
+        (ecs.GetReadOnly<Transform>(walker).Position.X - walkerFrom).Should().BeApproximately(moved, 0.15f, "the character rode the whole way");
+        ecs.GetReadOnly<Transform>(platform).Position.Should().Be(new Vector3(0, 0.25f, 0), "the platform's own transform is its place under the parent");
+    }
+
+    [Fact]
     public void A_Ray_Finds_The_Body_In_Its_Way()
     {
         var box = CreatePhysicsStaticBox(new Vector3(0, 0, -5), Vector3.One);

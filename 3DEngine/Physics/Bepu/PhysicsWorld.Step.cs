@@ -65,6 +65,11 @@ public sealed partial class PhysicsWorld
     /// cannot carry every rotation of a child, and its child then stands as near as a
     /// decomposition gets.
     /// </para>
+    /// <para>
+    /// A kinematic body under a parent is the other way round: it follows its place under the
+    /// parent, which <c>PhysicsPlugin</c> moves it to by velocity before each step, so it carries
+    /// what stands on it, and its transform is left as the program wrote it.
+    /// </para>
     /// </remarks>
     public void SyncTransforms(EcsWorld ecs, float alpha)
     {
@@ -76,6 +81,9 @@ public sealed partial class PhysicsWorld
             if (loc.SetIndex < 0) continue;
             var br = bodies.GetBodyReference(new BodyHandle(handleValue));
             if (!ecs.Has<Transform>(entity)) continue;
+            // A kinematic body under a parent follows its place under the parent, so its own
+            // transform says where it is and is left as written.
+            if (br.Kinematic && ecs.ParentOf(entity) != 0) continue;
             // Read without marking, since a body at rest leaves its transform as it was, and a
             // transform marked every frame would have propagation recompute its chain each frame.
             ref readonly var t = ref ecs.GetReadOnly<Transform>(entity);

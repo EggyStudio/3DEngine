@@ -110,6 +110,7 @@ public sealed partial class PhysicsWorld
             // under one side of the foot still counts as ground. The highest ground found wins.
             character.Grounded = false;
             character.GroundNormal = Vector3.UnitY;
+            var groundVelocity = Vector3.Zero;
             var reach = character.HalfHeight + 0.08f;
             float nearest = float.MaxValue;
             var spread = character.Radius * 0.7f;
@@ -124,6 +125,7 @@ public sealed partial class PhysicsWorld
                 nearest = hit.Distance;
                 character.Grounded = true;
                 character.GroundNormal = hit.Normal;
+                groundVelocity = VelocityAt(hit.Body, hit.Point);
             }
 
             var velocity = reference.Velocity.Linear;
@@ -135,7 +137,8 @@ public sealed partial class PhysicsWorld
                 var along = character.Wanted - Vector3.Dot(character.Wanted, n) * n;
                 if (along != Vector3.Zero) along = Vector3.Normalize(along) * character.Wanted.Length();
                 var pull = gravity - Vector3.Dot(gravity, n) * n;
-                velocity = along - pull * dt + MathF.Min(0, Vector3.Dot(velocity, n)) * n;
+                // On a body that moves, as a platform, it walks relative to that body, so it rides it.
+                velocity = groundVelocity + along - pull * dt + MathF.Min(0, Vector3.Dot(velocity - groundVelocity, n)) * n;
                 if (character.JumpSpeed > 0)
                 {
                     velocity.Y = character.JumpSpeed;
@@ -159,5 +162,13 @@ public sealed partial class PhysicsWorld
             reference.Velocity.Angular = Vector3.Zero;
             if (!reference.Awake) Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
         }
+    }
+
+    // How fast a point of a body moves, from its linear and angular velocity, or zero for a static one.
+    private Vector3 VelocityAt(PhysicsBody body, Vector3 point)
+    {
+        if (body.Kind == BodyKind.Static || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return Vector3.Zero;
+        var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        return reference.Velocity.Linear + Vector3.Cross(reference.Velocity.Angular, point - reference.Pose.Position);
     }
 }

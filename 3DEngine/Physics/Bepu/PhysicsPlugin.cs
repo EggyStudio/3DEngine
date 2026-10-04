@@ -68,6 +68,7 @@ public sealed class PhysicsPlugin : IPlugin
                 if (!w.TryGetResource<FixedTime>(out var fixedTime) || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
                 DriveCharacters(w, phys);
+                FollowParents(w, phys, (float)fixedTime.StepSeconds);
                 phys.StepOnce((float)fixedTime.StepSeconds);
                 ReportCharacters(w, phys);
                 SendContacts(w, phys);
@@ -84,6 +85,7 @@ public sealed class PhysicsPlugin : IPlugin
                 var phys = Prepared(w);
                 var time = w.Resource<Time>();
                 DriveCharacters(w, phys);
+                FollowParents(w, phys, (float)time.DeltaSeconds);
                 phys.Step((float)time.DeltaSeconds);
                 ReportCharacters(w, phys);
                 SendContacts(w, phys);
@@ -123,6 +125,22 @@ public sealed class PhysicsPlugin : IPlugin
                 phys.JumpCharacter(row.C2, controller.Jump);
                 ecs.GetRef<CharacterController>(row.Entity).Jump = 0;
             }
+        }
+    }
+
+    // Each kinematic body under a parent moved over the step to its place under the parent, as its
+    // own Transform puts it, so a platform an animated parent carries carries what stands on it.
+    private static void FollowParents(World w, PhysicsWorld phys, float seconds)
+    {
+        if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+        foreach (var row in ecs.QueryReadOnly<PhysicsBody, Transform>())
+        {
+            if (row.C1.Kind != BodyKind.Kinematic) continue;
+            var parent = ecs.ParentOf(row.Entity);
+            if (parent == 0) continue;
+            var world = TransformPropagation.ToMatrix(row.C2) * TransformPropagation.ComposedWorldMatrix(ecs, parent);
+            if (System.Numerics.Matrix4x4.Decompose(world, out _, out var rotation, out var position))
+                phys.FollowPose(row.C1, position, rotation, seconds);
         }
     }
 
