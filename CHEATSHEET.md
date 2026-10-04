@@ -588,7 +588,8 @@ poses frame by frame. A
 mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap`
 as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
 `OcclusionMap` with its `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below
-its `AlphaCutoff`, or `Opaque`) and `DoubleSided` (true by default), both of which a glTF file sets. Models are lit by one fixed light from above, unless
+its `AlphaCutoff`, or `Opaque`) and `DoubleSided` (true by default), both of which a glTF file sets,
+and `CastsShadows` (true by default), false for a glow that leaves no shadow. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
 ## States

@@ -72,6 +72,9 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// </summary>
     public bool DoubleSided { get; set; } = true;
 
+    /// <summary>Whether the surface casts shadows, true unless set, false for a glow, a light's bulb or an effect that would darken what is under it.</summary>
+    public bool CastsShadows { get; set; } = true;
+
     /// <summary>The color of the light the surface gives off whatever lights it, black for none.</summary>
     public Color Emissive { get; set; } = Color.Black;
 
@@ -686,7 +689,7 @@ public static partial class Engine3D
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
             material.OcclusionStrength,
             material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided,
-            shader == 0 ? null : TextureSnapshot(material.Shader));
+            shader == 0 ? null : TextureSnapshot(material.Shader), material.CastsShadows);
     }
 
     /// <summary>Draws a box's edges.</summary>

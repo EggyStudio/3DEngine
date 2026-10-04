@@ -62,13 +62,14 @@ var clips = LoadModelAnimations("resources/hero.gltf");
 ModelAnimation Clip(string name) => clips.First(c => c.Name == name);
 var (idle, run, jump) = (Clip("idle"), Clip("run"), Clip("jump"));
 var orb = LoadModelFromMesh(GenMeshSphere(0.3f, 16, 16));
-orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 200, 90), EmissiveIntensity = 5 };
+// A glow casts no shadow, which would darken the ground under each orb.
+orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 200, 90), EmissiveIntensity = 5, CastsShadows = false };
 var ball = LoadModelFromMesh(GenMeshSphere(0.5f, 32, 32));
 ball.Materials[0] = new ModelMaterial(new Color(230, 190, 110)) { Metallic = 1, Roughness = 0.15f };
 var plank = LoadModel("resources/models/plank.obj");
 var slab = LoadModelFromMesh(GenMeshCube(3, 0.4f, 3));
 var glow = LoadModelFromMesh(GenMeshCube(1.6f, 0.05f, 1.6f));
-glow.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(120, 255, 170), EmissiveIntensity = 3 };
+glow.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(120, 255, 170), EmissiveIntensity = 3, CastsShadows = false };
 
 var music = LoadMusicStream("resources/music.wav");
 SetMusicVolume(music, 0.5f);

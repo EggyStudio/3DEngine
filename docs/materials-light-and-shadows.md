@@ -64,7 +64,9 @@ Light past white shows as white until bloom spreads it into the pixels around it
 light glows through a lens. `SetBloom(intensity, threshold)` turns it on, 0 turns it off, which it
 is by default, and the threshold, 1 unless given, is how bright a pixel has to be to glow, so a
 surface lit no brighter than white stays sharp. Text and shapes drawn after `EndMode3D` go on top
-untouched. `shaders_bloom` runs it, with B turning it off and on.
+untouched. `shaders_bloom` runs it, with B turning it off and on. A glowing orb or a bulb casts a
+shadow like any surface unless its material's `CastsShadows` is false, as `games/Summit`'s orbs'
+are.
 
 ```csharp
 SetBloom(0.8f);
