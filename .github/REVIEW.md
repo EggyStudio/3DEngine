@@ -8,9 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `e93c99a5`. A model instance of 96 bytes with its camera pushed by the batch, which
-the stress run puts at 410,000 entities (`8e2162e5`), and mesh entities gathered once a frame for
-every camera (`e93c99a5`) were taken on their descriptions and raised nothing.
+Reviewed up to `739a7ef8`. Shadows fitted to a render target's own camera (`23d95abb`), whole scenes
+compared with checked-in references (`771f10e9`, `fd5bcc84`), device memory carved from blocks
+(`3d3cabef`), the nearest lights casting the shadows (`739a7ef8`) and the comments brought under
+STYLE.md (`37b09928`) were taken on their descriptions and raised nothing. Comparing whole
+pictures with references closes what the first review asked of the captures, and is in
+[SHARED.md](SHARED.md).
 
 ## Now
 

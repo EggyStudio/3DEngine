@@ -598,6 +598,10 @@ void SetShadowDistance(float distance);                                    // Ho
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
+ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky
+void UpdateReflectionProbe(ReflectionProbeHandle probe);                   // Capture it again, after its room changed
+bool IsReflectionProbeReady(ReflectionProbeHandle probe);                  // Whether its capture is made, a frame or two after it
+void UnloadReflectionProbe(ReflectionProbeHandle probe);                   // Remove it
 ```
 
 With no lights, models are lit by one fixed light from above. Lights are `Light` entities in the

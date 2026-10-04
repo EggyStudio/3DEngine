@@ -58,10 +58,14 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### Meshes, materials and light
 
-- **The environment is one prefiltered cube.** The model pass reflects up to 16 light entities and
-  an environment map by the material's metallic-roughness model, its diffuse light from nine
-  spherical harmonics of irradiance (RENDERING.md §3 and §4). The map is made on the CPU in a few
-  hundred milliseconds, and there are no reflection probes for the inside of a room. A mesh entity
+- **Probes are captured in light the frame tonemapped.** The model pass reflects up to 16 light
+  entities and an environment map by the material's metallic-roughness model, its diffuse light
+  from nine spherical harmonics of irradiance (RENDERING.md §3 and §4), and inside a reflection
+  probe's box the probe's capture in place of the map. The map is made on the CPU in a few
+  hundred milliseconds. A probe is captured into eight-bit targets, so light past the tonemap's
+  shoulder comes back dimmer than it was, and it captures what the window draws, so a probe in a
+  room the window does not show waits until it does. A point light's shadow speckles a wall it
+  meets at a grazing angle, as the left wall of `models_reflection_probe` shows. A mesh entity
   and an `AnimatedModel` are drawn into the window through the first camera entity without a
   render texture, and into each camera entity's render texture, each with its shadow fitted to
   its own camera.

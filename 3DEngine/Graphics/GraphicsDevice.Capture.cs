@@ -97,4 +97,84 @@ public sealed unsafe partial class GraphicsDevice
             capture.Buffer.Dispose();
         }
     }
+
+    // Render target images asked to be read back at the end of this frame, each with what is told
+    // the pixels.
+    private readonly List<(VulkanImage Image, Action<byte[]> Done)> _readbacks = [];
+
+    /// <summary>
+    /// Asks for a render target's color image as the frame being recorded leaves it, as four bytes
+    /// a pixel (red, green, blue, alpha), rows from the top, handed to <paramref name="done"/> on
+    /// the thread that submits the frame.
+    /// </summary>
+    /// <remarks>
+    /// The submit waits for the copy, as a capture's does, so a readback costs the frame a stall,
+    /// which a reflection probe's capture, made once, can take.
+    /// </remarks>
+    internal void RequestReadback(IImage image, Action<byte[]> done) => _readbacks.Add(((VulkanImage)image, done));
+
+    // Records the copy of each image asked for into a buffer of its own. Called while the frame's
+    // command buffer is still open, after every pass has ended and left the images ready to sample.
+    private List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)>? RecordReadbacks(VkCommandBuffer cmd)
+    {
+        if (_readbacks.Count == 0) return null;
+        var recorded = new List<(VulkanBuffer, VulkanImage, Action<byte[]>)>(_readbacks.Count);
+        foreach (var (image, done) in _readbacks)
+        {
+            var extent = image.Description.Extent;
+            var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+            VkImageMemoryBarrier toCopy = new()
+            {
+                oldLayout = VkImageLayout.ShaderReadOnlyOptimal,
+                newLayout = VkImageLayout.TransferSrcOptimal,
+                srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
+                dstAccessMask = VkAccessFlags.TransferRead,
+                srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+                dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+                image = image.Image,
+                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1),
+            };
+            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.FragmentShader,
+                VkPipelineStageFlags.Transfer, 0, 0, null, 0, null, 1, &toCopy);
+            VkBufferImageCopy region = new()
+            {
+                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+                imageExtent = new VkExtent3D(extent.Width, extent.Height, 1),
+            };
+            _deviceApi.vkCmdCopyImageToBuffer(cmd, image.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            VkImageMemoryBarrier back = toCopy with
+            {
+                oldLayout = VkImageLayout.TransferSrcOptimal,
+                newLayout = VkImageLayout.ShaderReadOnlyOptimal,
+                srcAccessMask = VkAccessFlags.TransferRead,
+                dstAccessMask = VkAccessFlags.ShaderRead,
+            };
+            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader, 0, 0, null, 0, null, 1, &back);
+            recorded.Add((buffer, image, done));
+        }
+        _readbacks.Clear();
+        return recorded;
+    }
+
+    // Waits for the frame that carried the copies and hands each image's pixels on in RGBA order.
+    private void FinishReadbacks(List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)> readbacks, VkFence fence)
+    {
+        _deviceApi.vkWaitForFences(fence, true, ulong.MaxValue).CheckResult();
+        var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
+        foreach (var (buffer, _, done) in readbacks)
+        {
+            try
+            {
+                var pixels = Map(buffer).ToArray();
+                if (bgra)
+                    for (int i = 0; i < pixels.Length; i += 4)
+                        (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
+                done(pixels);
+            }
+            finally
+            {
+                buffer.Dispose();
+            }
+        }
+    }
 }

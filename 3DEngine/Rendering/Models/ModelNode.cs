@@ -298,8 +298,13 @@ public sealed class ModelRenderer : IDisposable
         _shadowMaskSpv = shadowMaskSpv;
     }
 
-    /// <summary>Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
-    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target)
+    /// <summary>
+    /// Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>, through
+    /// the cameras they were recorded through, or all through <paramref name="viewProjection"/>,
+    /// as a reflection probe's face draws the window's.
+    /// </summary>
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
+        Matrix4x4? viewProjection = null)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -331,17 +336,17 @@ public sealed class ModelRenderer : IDisposable
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, target), index: 1);
                 pushed = null;
             }
-            if (pushed != batch.ViewProjection)
+            var through = viewProjection ?? batch.ViewProjection;
+            if (pushed != through)
             {
-                var viewProjection = batch.ViewProjection;
-                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
-                pushed = viewProjection;
+                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in through)));
+                pushed = through;
             }
 
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, blocks, batch.ViewProjection);
+            DrawCalls += DrawSeen(pass, batch, blocks, through);
         }
     }
 
@@ -1098,7 +1103,8 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
-        if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame || (frame.LightCount == 0 && !frame.HasEnvironment))
+        if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
+            || (frame.LightCount == 0 && !frame.HasEnvironment && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
         {
             if (_noLights is null)
             {
@@ -1110,10 +1116,8 @@ public sealed class ModelRenderer : IDisposable
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     new CombinedImageSamplerBinding(white, whiteSampler, 1));
                 if (EnvironmentCube(gfx, null) is { } black)
-                {
-                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 2));
-                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 3));
-                }
+                    for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
+                        if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, b));
                 if (gfx is GraphicsDevice stub)
                 {
                     var none = NoPointShadowMap(stub);
@@ -1153,6 +1157,15 @@ public sealed class ModelRenderer : IDisposable
         {
             var points = shadow is { PointLights.Count: > 0 } ? PointShadowMap(device, shadow.PointFaceSize) : NoPointShadowMap(device);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
+
+            // Each bound probe's cube at its slot, and the black cube past them.
+            var slots = renderWorld.TryGet<BoundProbes>()?.Slots ?? [];
+            for (int s = 0; s < LightingUboPacker.MaxProbes; s++)
+            {
+                var probeCube = s < slots.Count ? ProbeCube(device, slots[s]) : EnvironmentCube(gfx, null)!;
+                gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(probeCube.View, probeCube.Sampler, (uint)(5 + s)));
+            }
+            ForgetProbeCubes(renderWorld);
         }
         return set;
     }
@@ -1174,6 +1187,7 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        .. Enumerable.Range(5, LightingUboPacker.MaxProbes).Select(b => new DescriptorSetLayoutBinding((uint)b, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
     ]);
 
     // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
@@ -1193,6 +1207,96 @@ public sealed class ModelRenderer : IDisposable
             _environmentSource = environment;
         }
         return _environment;
+    }
+
+    // The six faces a probe is drawn into, made for the first capture and kept for the next.
+    private RenderTarget[]? _probeFaces;
+
+    /// <summary>The width in texels of each face a probe is captured into.</summary>
+    internal const int ProbeFaceSize = 64;
+
+    // Each face's way and up, any orientation serving, since the map is read back through each
+    // face's own view-projection.
+    private static readonly (Vector3 Forward, Vector3 Up)[] ProbeFaceAxes =
+    [
+        (Vector3.UnitX, Vector3.UnitY), (-Vector3.UnitX, Vector3.UnitY), (Vector3.UnitY, -Vector3.UnitZ),
+        (-Vector3.UnitY, Vector3.UnitZ), (Vector3.UnitZ, Vector3.UnitY), (-Vector3.UnitZ, Vector3.UnitY),
+    ];
+
+    /// <summary>
+    /// Captures the first probe whose capture is out of date, drawing the window's meshes from its
+    /// position into six faces, which are read back at the end of the frame and prefiltered on a
+    /// worker thread. One a frame, and none while nothing is drawn into the window. A probe is
+    /// captured twice, the second time with the first bound, so the metal in its room reflects the
+    /// room in the capture rather than the sky.
+    /// </summary>
+    public void CaptureProbes(RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<ReflectionProbes>() is not { } probes || renderContext.Device is not GraphicsDevice device) return;
+        if (renderWorld.TryGet<ModelDrawList>() is not { WindowViewProjection: not null }) return;
+        var probe = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
+        if (probe is null) return;
+
+        _probeFaces ??= [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize))];
+        var wanted = probe.Wanted;
+        var eye = wanted.Position;
+        // Cleared as the window is, so an opening shows what the window shows past the room.
+        var clear = renderWorld.TryGet<ClearColor>() is { } windowClear ? windowClear with { A = 1 } : ClearColor.Black;
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
+        projection.M22 = -projection.M22;
+        var viewProjections = new Matrix4x4[6];
+        var faces = new byte[6][];
+        var arrived = 0;
+        probe.Capturing = true;
+        for (int f = 0; f < 6; f++)
+        {
+            var (forward, up) = ProbeFaceAxes[f];
+            viewProjections[f] = Matrix4x4.CreateLookAt(eye, eye + forward, up) * projection;
+            var target = _probeFaces[f];
+            var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
+            pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
+            pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
+            Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjections[f]);
+            pass.EndRenderPass();
+
+            var face = f;
+            device.RequestReadback(target.ColorView.Image, pixels =>
+            {
+                faces[face] = pixels;
+                if (++arrived < 6) return;
+                Task.Run(() =>
+                {
+                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye);
+                    probe.Done = new ReflectionProbes.Capture(map, wanted);
+                });
+            });
+        }
+    }
+
+    // Each probe's cube, uploaded when its capture is new, kept by the capture it was made from.
+    private readonly Dictionary<ReflectionProbes.Probe, (EnvironmentMap Map, CubeMap Cube)> _probeCubes = [];
+
+    private CubeMap ProbeCube(GraphicsDevice device, ReflectionProbes.Probe probe)
+    {
+        var map = probe.Map!;
+        if (_probeCubes.TryGetValue(probe, out var made) && ReferenceEquals(made.Map, map)) return made.Cube;
+        if (made.Cube is not null) _retiredCubes.Add((_frames, made.Cube));
+        var cube = device.CreateCubeMap((uint)map.Size, (uint)map.MipLevels, map.Texels);
+        _probeCubes[probe] = (map, cube);
+        return cube;
+    }
+
+    // Lets the cubes of probes gone go, once no frame in flight reads them.
+    private void ForgetProbeCubes(RenderWorld renderWorld)
+    {
+        if (_probeCubes.Count == 0) return;
+        var probes = renderWorld.TryGet<ReflectionProbes>();
+        foreach (var gone in _probeCubes.Keys.Where(p => probes is null || !probes.ByEntity.ContainsValue(p)).ToArray())
+        {
+            _retiredCubes.Add((_frames, _probeCubes[gone].Cube));
+            _probeCubes.Remove(gone);
+        }
     }
 
     /// <inheritdoc />
@@ -1221,6 +1325,9 @@ public sealed class ModelRenderer : IDisposable
         _sky?.Dispose();
         _noEnvironment?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
+        foreach (var (_, cube) in _probeCubes.Values) cube.Dispose();
+        if (_probeFaces is not null)
+            foreach (var face in _probeFaces) face.Dispose();
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         foreach (var (_, retired) in _retiredShaderSets) retired.Dispose();
         _shadowMaskShader?.Dispose();

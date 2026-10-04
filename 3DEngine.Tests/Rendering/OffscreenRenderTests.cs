@@ -1240,6 +1240,49 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Mirror_In_A_Probes_Box_Reflects_The_Room_Rather_Than_The_Sky()
+    {
+        Open(64, 64);
+        // A blue sky outside, and a red room around a mirror ball, lit by a lamp inside. The ball
+        // sits below the probe's middle, which a probe inside it would see only the ball from.
+        SetEnvironmentMap(GenImageColor(64, 32, new Color(40, 90, 255)));
+        CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
+        var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));
+        var ball = LoadModelFromMesh(GenMeshSphere(1, 32, 32));
+        ball.Materials[0] = new ModelMaterial(Color.White) { Metallic = 1, Roughness = 0.05f };
+        var camera = new Camera3D(new Vector3(0, -1.5f, 3), new Vector3(0, -1.5f, 0), Vector3.UnitY, 60);
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(room, Vector3.Zero, 1, new Color(220, 40, 40));
+            DrawModel(ball, new Vector3(0, -1.5f, 0), 1, Color.White);
+            EndMode3D();
+        }
+
+        var sky = Capture(Draw, "sky in the ball");
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(8, 6, 8));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++)
+        {
+            BeginDrawing();
+            Draw();
+            EndDrawing();
+            Thread.Sleep(5);
+        }
+        IsReflectionProbeReady(probe).Should().BeTrue("the probe is captured, read back and prefiltered within a few frames");
+        var room0 = Capture(Draw, "room in the ball");
+
+        // The middle of the ball, which mirrors what is behind the camera.
+        var before = GetImageColor(sky, 32, 32);
+        var after = GetImageColor(room0, 32, 32);
+        ((int)before.B).Should().BeGreaterThan(before.R, $"without a probe the ball mirrors the blue sky, not {before}");
+        ((int)after.R).Should().BeGreaterThan(after.B + 30, $"with one it mirrors the red room, not {after}");
+        UnloadReflectionProbe(probe);
+        UnloadModel(room);
+        UnloadModel(ball);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);

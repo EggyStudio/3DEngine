@@ -237,6 +237,17 @@ public static class ShadowFit
 }
 
 /// <summary>
+/// Render graph node that captures a reflection probe whose capture is out of date, after the
+/// window's shadow map is drawn, so the probe sees the room lit as the window does.
+/// </summary>
+public sealed class ProbeNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>
+        renderWorld.TryGet<ModelRenderer>()?.CaptureProbes(renderContext, renderWorld);
+}
+
+/// <summary>
 /// Render graph node that draws the window's meshes into the shadow map from the frame's shadowed
 /// lights, after the render targets, which draw it for their own cameras, and before the window's
 /// passes read it.

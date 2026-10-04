@@ -31,11 +31,14 @@ public sealed class LightingUboPrepare : IPrepareSystem
             for (int i = 0; i < 9; i++) ubo.EnvironmentIrradiance[i] = new System.Numerics.Vector4(environment.Irradiance[i], 0);
         }
 
-        // The lights without their shadows, which each view's buffer starts from.
-        var unshadowed = ubo;
         var draws = renderWorld.TryGet<ModelDrawList>();
         var first = draws?.WindowViewProjection ?? (draws?.Targets() is [var t, ..] ? draws.ViewProjectionOf(t) : null);
-        var casters = Casters(renderWorld, lights, ubo.LightCount, first is { } camera0 ? EyeOf(camera0) : null);
+        var eye = first is { } camera0 ? EyeOf(camera0) : null;
+        BindProbes(renderWorld, ref ubo, eye);
+
+        // The lights without their shadows, which each view's buffer starts from.
+        var unshadowed = ubo;
+        var casters = Casters(renderWorld, lights, ubo.LightCount, eye);
         var shadow = casters is not null && draws?.WindowViewProjection is { } window ? casters.For(window) : null;
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -62,6 +65,31 @@ public sealed class LightingUboPrepare : IPrepareSystem
             }
 
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {LightingUboPacker.SizeBytes}-byte UBO.");
+    }
+
+    // The probes with a capture to reflect, the four whose boxes come nearest the eye, written into
+    // the buffer by slot and named for the model pass, which binds each one's cube at its slot.
+    private static void BindProbes(RenderWorld renderWorld, ref LightingUbo ubo, System.Numerics.Vector3? eye)
+    {
+        var bound = renderWorld.TryGet<BoundProbes>() ?? new BoundProbes();
+        renderWorld.Set(bound);
+        bound.Slots.Clear();
+        if (renderWorld.TryGet<ReflectionProbes>() is not { } probes) return;
+
+        float Away(ReflectionProbes.Probe p) => eye is { } at
+            ? System.Numerics.Vector3.Distance(System.Numerics.Vector3.Clamp(at, p.Position - p.HalfSize, p.Position + p.HalfSize), at)
+            : 0;
+        bound.Slots.AddRange(probes.ByEntity.Values.Where(p => p.Map is not null).OrderBy(Away).Take(LightingUboPacker.MaxProbes));
+        ubo.ProbeCount = new System.Numerics.Vector4(bound.Slots.Count, 0, 0, 0);
+        for (int i = 0; i < bound.Slots.Count; i++)
+        {
+            var probe = bound.Slots[i];
+            var map = probe.Map!;
+            ref var entry = ref ubo.Probes[i];
+            entry.CenterAndIntensity = new System.Numerics.Vector4(probe.Captured?.Position ?? probe.Position, probe.Intensity);
+            entry.HalfSizeAndMip = new System.Numerics.Vector4(probe.HalfSize, map.MipLevels - 1);
+            for (int c = 0; c < 9; c++) entry.Irradiance[c] = new System.Numerics.Vector4(map.Irradiance[c], 0);
+        }
     }
 
     private static UniformBufferBinding Upload(DynamicBufferAllocator allocator, in LightingUbo ubo)
@@ -180,6 +208,13 @@ public sealed class LightingUboPrepare : IPrepareSystem
         }
         return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points);
     }
+}
+
+/// <summary>The reflection probes bound this frame, by slot, which the model pass binds the cubes of.</summary>
+internal sealed class BoundProbes
+{
+    /// <summary>Each bound probe, by the slot its cube is bound at.</summary>
+    public readonly List<ReflectionProbes.Probe> Slots = [];
 }
 
 /// <summary>

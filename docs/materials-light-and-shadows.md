@@ -134,6 +134,22 @@ DrawSphere(lampAt, 0.12f, new Color(255, 230, 190));
 sky and a rough one takes its colors. The
 [Models and animation](models-and-animation.md#a-sky-around-the-world) page loads one. With a map set the fixed light goes, whether or not there are lights.
 
+## Rooms that reflect themselves
+
+Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces
+reflect what is around its middle instead, captured from what the window draws a frame or two
+after it is made. The `models_reflection_probe` example puts one in a room of three colored walls:
+
+```csharp
+var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));
+```
+
+A reflection is looked up where it leaves the box, so the room's walls hold still as the camera
+moves. Put the box's middle in the open, away from the room's objects, since what stands there
+fills the capture. `UpdateReflectionProbe` captures it again after the room changes, and four
+probes, the nearest the camera, reflect at once. In the ECS a probe is a `ReflectionProbe`
+component placed by its entity's `Transform`.
+
 ## Lights in the ECS
 
 A light made by these calls is a `Light` entity of the ECS, so lights a program makes as entities
@@ -151,6 +167,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
 ## See also
 
 - Examples: [`models_skybox`](../3DEngine.Examples/Models/ModelsSkybox.cs),
+  [`models_reflection_probe`](../3DEngine.Examples/Models/ModelsReflectionProbe.cs),
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)

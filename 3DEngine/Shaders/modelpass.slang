@@ -116,6 +116,15 @@ public struct Light
     public float4 cone;
 };
 
+// One reflection probe, as ProbeUboEntry holds it: the middle of its box, where it was captured
+// from, and its intensity, half the box's size and its cube's last mip, and its irradiance.
+public struct Probe
+{
+    public float4 centerAndIntensity;
+    public float4 halfSizeAndMip;
+    public float4 irradiance[9];
+};
+
 // Laid out as LightingUbo is. The count, the shadowed light's index or -1, how many cascades it
 // has and the shadowed spot light's index or -1 come first, then the world width of a texel of each cascade, the cascades'
 // transforms nearest first, and the lights.
@@ -144,6 +153,9 @@ public struct Lighting
     public float4x4 spotShadows[4];
     // The environment's irradiance over pi as nine spherical harmonic coefficients, in xyz.
     public float4 environmentIrradiance[9];
+    // How many probes are bound, in x, and the probes by the slot their cube is bound at.
+    public float4 probeCount;
+    public Probe probes[4];
 };
 
 [[vk::binding(0, 1)]]
@@ -165,6 +177,16 @@ public SamplerCube skyMap;
 // The depths each shadowed point light sees, a layer for each of its six faces.
 [[vk::binding(4, 1)]]
 public Sampler2DArray pointShadowMap;
+
+// The bound reflection probes' cubes, prefiltered as the environment map is, or black cubes.
+[[vk::binding(5, 1)]]
+public SamplerCube probeMap0;
+[[vk::binding(6, 1)]]
+public SamplerCube probeMap1;
+[[vk::binding(7, 1)]]
+public SamplerCube probeMap2;
+[[vk::binding(8, 1)]]
+public SamplerCube probeMap3;
 
 public struct ModelVertexOutput
 {
@@ -468,20 +490,68 @@ float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, o
     return distribution * visibility * fresnel * PI;
 }
 
+// The light a white diffuse surface facing n returns from nine spherical harmonic coefficients in
+// EnvironmentMap.Irradiance's order.
+float3 harmonics(float4 c[9], float3 n)
+{
+    float3 sum = c[0].xyz * 0.282095
+        + c[1].xyz * (0.488603 * n.y)
+        + c[2].xyz * (0.488603 * n.z)
+        + c[3].xyz * (0.488603 * n.x)
+        + c[4].xyz * (1.092548 * n.x * n.y)
+        + c[5].xyz * (1.092548 * n.y * n.z)
+        + c[6].xyz * (0.315392 * (3.0 * n.z * n.z - 1.0))
+        + c[7].xyz * (1.092548 * n.x * n.z)
+        + c[8].xyz * (0.546274 * (n.x * n.x - n.y * n.y));
+    return max(sum, float3(0.0));
+}
+
+// The bound probe whose box holds a point, the smallest where boxes overlap, or -1.
+int probeAt(float3 p)
+{
+    int found = -1;
+    float smallest = 1e30;
+    for (int i = 0; i < min(int(lighting.probeCount.x), 4); i++)
+    {
+        float3 h = lighting.probes[i].halfSizeAndMip.xyz;
+        float3 d = abs(p - lighting.probes[i].centerAndIntensity.xyz);
+        float volume = h.x * h.y * h.z;
+        if (all(d <= h) && volume < smallest)
+        {
+            found = i;
+            smallest = volume;
+        }
+    }
+    return found;
+}
+
+// A probe's cube along a direction at a mip, by its slot.
+float3 probeSample(int i, float3 direction, float mip)
+{
+    if (i == 0) return probeMap0.SampleLevel(direction, mip).rgb;
+    if (i == 1) return probeMap1.SampleLevel(direction, mip).rgb;
+    if (i == 2) return probeMap2.SampleLevel(direction, mip).rgb;
+    return probeMap3.SampleLevel(direction, mip).rgb;
+}
+
+// The way into a probe's cube that a ray from p along r meets the box's wall, from the middle the
+// probe was captured at, so a reflection lands where the room's wall is rather than at infinity.
+float3 boxProjected(int i, float3 p, float3 r)
+{
+    float3 center = lighting.probes[i].centerAndIntensity.xyz;
+    float3 h = lighting.probes[i].halfSizeAndMip.xyz;
+    float3 far = (center + h - p) / r;
+    float3 near = (center - h - p) / r;
+    float3 exits = max(far, near);
+    float t = min(exits.x, min(exits.y, exits.z));
+    return p + r * t - center;
+}
+
 // The light a white diffuse surface facing n returns from the environment, from the nine
 // spherical harmonic coefficients EnvironmentMap.Irradiance holds, in the same order.
 float3 environmentIrradiance(float3 n)
 {
-    float3 sum = lighting.environmentIrradiance[0].xyz * 0.282095
-        + lighting.environmentIrradiance[1].xyz * (0.488603 * n.y)
-        + lighting.environmentIrradiance[2].xyz * (0.488603 * n.z)
-        + lighting.environmentIrradiance[3].xyz * (0.488603 * n.x)
-        + lighting.environmentIrradiance[4].xyz * (1.092548 * n.x * n.y)
-        + lighting.environmentIrradiance[5].xyz * (1.092548 * n.y * n.z)
-        + lighting.environmentIrradiance[6].xyz * (0.315392 * (3.0 * n.z * n.z - 1.0))
-        + lighting.environmentIrradiance[7].xyz * (1.092548 * n.x * n.z)
-        + lighting.environmentIrradiance[8].xyz * (0.546274 * (n.x * n.x - n.y * n.y));
-    return max(sum, float3(0.0));
+    return harmonics(lighting.environmentIrradiance, n);
 }
 
 // The share of light from all around that a surface reflects, with no environment to reflect,
@@ -506,7 +576,8 @@ float3 ambientReflected(float3 f0, float roughness, float nv)
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = surfaceNormal(input);
-    bool environment = lighting.environment.z > 0.0;
+    int probe = probeAt(input.world);
+    bool environment = lighting.environment.z > 0.0 || probe >= 0;
     if (lighting.count == 0 && !environment)
     {
         float3 toLight = normalize(float3(0.4, 1.0, 0.3));
@@ -532,7 +603,15 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
     // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
-    if (environment)
+    // Inside a probe's box the probe's capture stands in for the environment.
+    if (probe >= 0)
+    {
+        float lastMip = lighting.probes[probe].halfSizeAndMip.w;
+        float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
+        float3 around = harmonics(lighting.probes[probe].irradiance, n);
+        color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
+    }
+    else if (environment)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;

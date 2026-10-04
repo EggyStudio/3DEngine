@@ -77,6 +77,34 @@ public struct LightingUbo
     /// zero with no map. Last, so the fields before it keep their offsets.
     /// </summary>
     public IrradianceArray EnvironmentIrradiance;
+
+    /// <summary>How many of <see cref="Probes"/> are bound, in x. After the irradiance, so the fields before keep their offsets.</summary>
+    public Vector4 ProbeCount;
+
+    /// <summary>The reflection probes bound this frame, by the slot their cube is bound at.</summary>
+    public ProbeUboArray Probes;
+}
+
+/// <summary>One reflection probe as the model pass reads it.</summary>
+[StructLayout(LayoutKind.Sequential)]
+public struct ProbeUboEntry
+{
+    /// <summary>xyz: the middle of the box, where the probe was captured from. w: its intensity.</summary>
+    public Vector4 CenterAndIntensity;
+
+    /// <summary>xyz: half the box's size. w: the last mip of its cube.</summary>
+    public Vector4 HalfSizeAndMip;
+
+    /// <summary>The capture's irradiance in xyz, nine coefficients, as the environment's.</summary>
+    public IrradianceArray Irradiance;
+}
+
+/// <summary>Fixed-size storage for the bound reflection probes.</summary>
+[InlineArray(LightingUboPacker.MaxProbes)]
+public struct ProbeUboArray
+{
+    /// <summary>The first probe.</summary>
+    public ProbeUboEntry _element0;
 }
 
 /// <summary>Fixed-size storage for the environment's nine irradiance coefficients.</summary>
@@ -135,6 +163,9 @@ public static class LightingUboPacker
 
     /// <summary>The most shadow cascades the buffer carries, the tiles of the shadow map.</summary>
     public const int MaxCascades = 4;
+
+    /// <summary>The most reflection probes bound at once, each a cube beside the environment map.</summary>
+    public const int MaxProbes = 4;
 
     /// <summary>Returns the byte size of <see cref="LightingUbo"/>.</summary>
     public static int SizeBytes => Marshal.SizeOf<LightingUbo>();

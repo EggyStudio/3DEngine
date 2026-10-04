@@ -76,7 +76,9 @@ public sealed class Renderer : IDisposable
         Graph.AddNodeEdge("skinning", "targets");
         Graph.AddNode("shadows", new ShadowNode());
         Graph.AddNodeEdge("targets", "shadows");
-        Graph.AddNodeEdge("shadows", "main_pass");
+        Graph.AddNode("probes", new ProbeNode());
+        Graph.AddNodeEdge("shadows", "probes");
+        Graph.AddNodeEdge("probes", "main_pass");
         Graph.AddNode("models", new ModelNode());
         Graph.AddNodeEdge("main_pass", "models");
         Graph.AddNode("immediate", new ImmediateNode());

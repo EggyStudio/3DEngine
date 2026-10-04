@@ -269,6 +269,23 @@ eye through each pixel and sets its depth a millionth inside the far plane, so w
 draws is in front. The draw goes through the model pass's tonemap like a reflection does, and is
 left out of the shadow map (`ModelDraw.CastsShadow`).
 
+A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
+what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
+and before its passes, captures the first probe out of date, one a frame: the window's batches
+are drawn through six views of a right angle from the probe's middle into render targets of 64
+texels (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), cleared to
+the window's clear color, and read back at the end of the frame (`GraphicsDevice.RequestReadback`,
+a stall a capture can take). A worker thread maps each direction to the face looking most nearly
+along it, through that face's own view-projection, decodes the color and undoes the tonemap, and
+prefilters the result as an environment map of faces 32 texels wide with its irradiance
+(`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
+so the metal in its room reflects the room in the capture rather than the sky. Four probes with a
+capture, those whose boxes come nearest the camera, are bound at set 1's bindings 5 to 8, and the
+lighting buffer carries each one's middle, intensity, half size, last mip and nine coefficients
+after the environment's. A surface in a box takes its reflection and diffuse light from the
+smallest box holding it, the reflection looked up where the reflected ray leaves the box (box
+projection), and a surface in none keeps the environment map.
+
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
 `ShadowFit` cuts each view's camera out to 150 units into slices ending at 12, 45 and 150
 units, or out to the distance `SetShadowDistance` puts in `ShadowSettings` in the same proportions,

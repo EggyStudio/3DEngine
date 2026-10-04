@@ -50,6 +50,7 @@ public sealed unsafe partial class GraphicsDevice
     /// <param name="ctx">The frame context returned by <see cref="BeginFrameInternal"/>.</param>
     private partial void SubmitFrame(VulkanFrameContext ctx)
     {
+        var readbacks = RecordReadbacks(ctx.CommandBufferHandle);
         var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
@@ -79,6 +80,8 @@ public sealed unsafe partial class GraphicsDevice
 
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
+        if (readbacks is not null)
+            FinishReadbacks(readbacks, _inFlightFences[_currentFrame]);
 
         if (_offscreen)
         {
