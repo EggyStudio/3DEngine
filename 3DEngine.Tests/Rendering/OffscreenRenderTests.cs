@@ -649,4 +649,34 @@ public sealed class OffscreenRenderTests : IDisposable
         (right.B > 100 && right.R < 20).Should().BeTrue($"the rightmost cube is blue, not {right}");
         UnloadModel(cube);
     }
+
+    [NeedsVulkanFact]
+    public void A_Metal_Reflects_An_HDR_Sky_Brighter_Than_White_Could_Be()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 4, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+        var plane = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        // A dark mirror, which returns a tenth of what it reflects.
+        plane.Materials[0] = new ModelMaterial(new Color(89, 89, 89)) { Metallic = 1, Roughness = 0.05f };
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(plane, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }
+
+        Vector3[] Sky(float overhead) =>
+            Enumerable.Range(0, 32 * 16).Select(i => i / 32 < 8 ? new Vector3(overhead) : Vector3.Zero).ToArray();
+
+        GetApp().World.InsertResource(EnvironmentMap.FromLinear(Sky(1), 32, 16));
+        var white = Capture(Draw, "white-sky");
+        GetApp().World.InsertResource(EnvironmentMap.FromLinear(Sky(8), 32, 16));
+        var bright = Capture(Draw, "bright-sky");
+
+        Linear(GetImageColor(white, 32, 32).R).Should().BeApproximately(0.1f, 0.03f, "a white sky gives a tenth of white");
+        Linear(GetImageColor(bright, 32, 32).R).Should().BeGreaterThan(0.6f, "a sky eight times white gives eight tenths, which no eight-bit sky can");
+        UnloadModel(plane);
+        UnloadEnvironmentMap();
+    }
 }
