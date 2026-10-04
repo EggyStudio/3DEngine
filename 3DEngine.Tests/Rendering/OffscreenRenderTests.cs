@@ -716,4 +716,28 @@ public sealed class OffscreenRenderTests : IDisposable
         four.Window.Should().BeGreaterThan(20, "with four a pixel the edge crosses is partly covered");
         four.Target.Should().BeGreaterThan(20, "and a render target is multisampled as the window is");
     }
+
+    [NeedsVulkanFact]
+    public void A_Flat_Point_Light_Lights_A_Model_In_Its_Color()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0] = new ModelMaterial(Color.White) { Roughness = 1 };
+        var lamp = CreatePointLight(new Vector3(0, 0, 1.5f), new Color(255, 0, 0), 2);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        });
+
+        var c = GetImageColor(image, 32, 32);
+        c.R.Should().BeGreaterThan(150, "the red lamp a unit in front of the face lights it");
+        c.G.Should().BeLessThan(20, "and in red only, since it is the only light");
+        UnloadLight(lamp);
+        UnloadModel(cube);
+    }
 }

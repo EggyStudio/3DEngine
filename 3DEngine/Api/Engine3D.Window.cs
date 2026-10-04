@@ -40,6 +40,7 @@ public static partial class Engine3D
         _app?.Shutdown();
         _app = null;
         ForgetConfigFlags();
+        _ambient = Entity.None;
     }
 
     /// <summary>Whether the window was asked to close, by its close button or by the exit key.</summary>

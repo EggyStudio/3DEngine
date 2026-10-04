@@ -32,9 +32,7 @@ var facing = 0f;
 
 // -- Light, sky, models and sound
 
-var sun = ecs.Spawn();
-ecs.Add(sun, Light.Directional(new Vector3(1, 0.95f, 0.85f), 2.5f) with { CastsShadows = true });
-ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromYawPitchRoll(0.5f, -0.9f, 0), Vector3.One));
+CreateDirectionalLight(new Vector3(-0.4f, -0.8f, -0.45f), new Color(255, 248, 235), 2.5f, castsShadows: true);
 var sky = GenImageGradientLinear(128, 64, 0, new Color(110, 160, 230), new Color(225, 215, 190));
 SetEnvironmentMap(sky, intensity: 0.6f);
 
@@ -46,17 +44,16 @@ var hit = LoadSound("resources/coin.wav");
 
 // -- States, for the menu, play and the pause
 
-GetApp().AddState(Screen.Menu);
+AddState(Screen.Menu);
 var score = 0;
 var camera = new Camera3D(new Vector3(0, 12, 12), Vector3.Zero, Vector3.UnitY, 45);
 
 while (!WindowShouldClose())
 {
-    var screen = world.Resource<State<Screen>>().Current;
-    var next = world.Resource<NextState<Screen>>();
-    if (screen == Screen.Menu && IsKeyPressed(Key.Enter)) next.Set(Screen.Play);
-    if (screen == Screen.Play && IsKeyPressed(Key.P)) next.Set(Screen.Pause);
-    if (screen == Screen.Pause && IsKeyPressed(Key.P)) next.Set(Screen.Play);
+    var screen = GetState<Screen>();
+    if (screen == Screen.Menu && IsKeyPressed(Key.Enter)) SetState(Screen.Play);
+    if (screen == Screen.Play && IsKeyPressed(Key.P)) SetState(Screen.Pause);
+    if (screen == Screen.Pause && IsKeyPressed(Key.P)) SetState(Screen.Play);
 
     // Moving the player, and with it the arm's bend, only while playing.
     var move = Vector3.Zero;
@@ -123,7 +120,7 @@ while (!WindowShouldClose())
     ImGui.Text($"Score: {score}");
     ImGui.Text($"State: {screen}");
     if (screen != Screen.Menu && ImGui.Button(screen == Screen.Pause ? "Resume" : "Pause"))
-        next.Set(screen == Screen.Pause ? Screen.Play : Screen.Pause);
+        SetState(screen == Screen.Pause ? Screen.Play : Screen.Pause);
     ImGui.End();
 
     EndDrawing();

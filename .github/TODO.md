@@ -45,13 +45,6 @@ removed from this file, and an item that is partly done is rewritten around what
 images and textures, models and meshes, shaders, scenes, physics, text and fonts, and audio
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Lights and states are reached through the ECS.** `games/Pusher`, a small game built from the
-  package with only the cheatsheet and the README, found the flat API has no function for a light,
-  so a game spawns `Light` entities with a `Transform` whose rotation is a quaternion, which the
-  cheatsheet does not show. Its menu, play and pause are an `App.AddState` read through the
-  `State<T>` and `NextState<T>` resources, which the cheatsheet does not list either. Both need a
-  few flat functions (a directional light with a direction vector, `GetState` and `SetState`) and
-  a cheatsheet section.
 - **Custom shaders are partial.** A model shader reads uniforms by name, but an immediate shader
   still reads four `float4` slots, and no shader can bind textures of its own beyond the one it
   draws. Each draw with a model shader takes a descriptor set from a pool of 4096 shared with

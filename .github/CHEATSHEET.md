@@ -317,6 +317,17 @@ as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `Emissiv
 `OcclusionMap` with its `OcclusionStrength`. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
+## States
+
+```csharp
+void AddState<TState>(TState initial);                  // A state machine over an enum, as a menu, play and pause
+TState GetState<TState>();                              // The value it is in
+void SetState<TState>(TState value);                    // Move it there at the start of the next frame
+bool IsState<TState>(TState value);                     // Whether it is there
+```
+
+Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]` and `[InState(...)]`.
+
 ## Scenes
 
 ```csharp
@@ -329,6 +340,22 @@ and a program's own are when marked `[SceneComponent]`, as `[SceneComponent] pub
 A `Collider` and a `RigidBody` say what is solid, and the body is made when the scene loads, so
 `ecs.GetReadOnly<PhysicsBody>(entity)` gives it to the physics functions. ARCHITECTURE.md describes
 the format.
+
+## Lights
+
+```csharp
+LightHandle CreateDirectionalLight(Vector3 direction, Color color, float intensity = 1, bool castsShadows = false); // The sun's, from far away, which may cast the shadow
+LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1, float range = 0);                  // Every way from a point, to a range or every distance
+LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, float intensity = 1, float innerAngle = 25, float outerAngle = 30, float range = 0); // A cone
+void SetLightPosition(LightHandle light, Vector3 position);                // Move a point or spot light
+void SetLightDirection(LightHandle light, Vector3 direction);              // Turn a directional or spot light
+void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Recolor it
+void UnloadLight(LightHandle light);                                       // Remove it
+void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
+```
+
+With no lights, models are lit by one fixed light from above. Lights are `Light` entities in the
+ECS, so lights made here and light entities of a program's own light the same models.
 
 ## Physics
 
