@@ -51,6 +51,7 @@ double GetTime();                                        // Seconds since the fi
 int GetFPS();                                            // Frames per second, smoothed
 void SetProfileValue(string name, double value);         // A number of the program's own in the frame profile
 double GetProfileAverage(string name);                   // A profiled average in milliseconds, as "work" or "gpu.models"
+void DrawProfileWindow();                                // The frame profile in an ImGui window
 
 void SetRandomSeed(uint seed);                           // Seed the generator, so a run's random values repeat
 int GetRandomValue(int min, int max);                    // A whole number from min to max, both included

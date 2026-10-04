@@ -65,16 +65,30 @@ public sealed class FrameProfile
     /// <summary>The program's values, then every average in milliseconds, largest first within each group.</summary>
     public string Report()
     {
+        var (values, groups) = Snapshot();
+        var text = new StringBuilder();
+        text.Append($"frames {Frames}\n");
+        foreach (var (name, value) in values) text.Append($"{name} {value:0.###}\n");
+        foreach (var (_, averages) in groups)
+            foreach (var (name, average) in averages) text.Append($"{name} {average:0.000} ms\n");
+        return text.ToString().TrimEnd();
+    }
+
+    /// <summary>
+    /// The program's values by name, and the averages in groups by the part of their name before
+    /// the first dot (<c>frame</c> first, then <c>cpu</c>, <c>gpu</c>, <c>stage</c>, <c>system</c>
+    /// and the rest by name), largest first within each.
+    /// </summary>
+    public (IReadOnlyList<(string Name, double Value)> Values, IReadOnlyList<(string Group, IReadOnlyList<(string Name, double Milliseconds)> Averages)> Groups) Snapshot()
+    {
         lock (_lock)
         {
-            var text = new StringBuilder();
-            text.Append($"frames {Frames}\n");
-            foreach (var (name, value) in _values.OrderBy(v => v.Key, StringComparer.Ordinal))
-                text.Append($"{name} {value:0.###}\n");
-            foreach (var group in _averages.GroupBy(a => a.Key.Split('.')[0]).OrderBy(g => g.Key == "frame" ? "" : g.Key, StringComparer.Ordinal))
-                foreach (var (name, average) in group.OrderByDescending(a => a.Value))
-                    text.Append($"{name} {average:0.000} ms\n");
-            return text.ToString().TrimEnd();
+            var values = _values.OrderBy(v => v.Key, StringComparer.Ordinal).Select(v => (v.Key, v.Value)).ToArray();
+            var groups = _averages.GroupBy(a => a.Key.Split('.')[0])
+                .OrderBy(g => g.Key == "frame" ? "" : g.Key, StringComparer.Ordinal)
+                .Select(g => (g.Key, (IReadOnlyList<(string, double)>)g.OrderByDescending(a => a.Value).Select(a => (a.Key, a.Value)).ToArray()))
+                .ToArray();
+            return (values, groups);
         }
     }
 }

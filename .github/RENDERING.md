@@ -510,19 +510,8 @@ The largest costs as they were measured, in order, each with what changed:
   limit the number of allocations and suballocation is a solved problem.
 - **A swapchain rebuilt on resize** without a device wait every frame.
 
-### Per frame
-
-- **An ImGui panel of the frame profile** (§6), so the cost of a pass is visible in a running
-  program as well as through `e3d command profile`.
-- **A screenshot** (`TakeScreenshot(path)`) read back from the swapchain image, which the tests and
-  the examples use to check that a frame looks right.
-
 ### Debugging
 
-- **Validation layers on in Debug builds** when installed, with every message routed into the
-  engine log and every error kept in `GraphicsDevice.ValidationErrors`. CI installs the layer
-  beside lavapipe, so an error fails the render test that drew the frame, or the example whose
-  log holds it.
 - **Object names** through `VK_EXT_debug_utils`, so RenderDoc shows `model pass` instead of a
   handle.
 

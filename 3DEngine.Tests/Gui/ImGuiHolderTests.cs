@@ -80,4 +80,30 @@ public class ImGuiHolderTests
             app.Shutdown();
         }
     }
+
+    [Fact]
+    public void The_Frame_Profile_Is_Drawn_In_A_Window_Of_Its_Own_Grouped_As_The_Report_Has_It()
+    {
+        var app = Build();
+        try
+        {
+            Engine3D.UseApp(app);
+            for (int i = 0; i < 3; i++)
+            {
+                app.BeginFrame();
+                Engine3D.DrawProfileWindow();
+                app.EndFrame();
+            }
+
+            var (_, groups) = app.World.Resource<FrameProfile>().Snapshot();
+            groups[0].Group.Should().Be("frame", "the frame comes first");
+            var stages = groups.Single(g => g.Group == "stage").Averages;
+            stages.Select(a => a.Milliseconds).Should().BeInDescendingOrder("largest first within a group");
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+            app.Shutdown();
+        }
+    }
 }
