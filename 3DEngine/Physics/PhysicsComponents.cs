@@ -11,6 +11,12 @@ public enum ColliderShape
     Sphere,
     /// <summary>An upright capsule of <see cref="Collider.Radius"/> and <see cref="Collider.Height"/>, end to end.</summary>
     Capsule,
+    /// <summary>
+    /// The triangles of the entity's <see cref="Mesh"/> and of its descendants' meshes, as placed
+    /// under it, which never moves whatever its <see cref="RigidBody"/> says, as a level's floors
+    /// and walls. A model a <see cref="ModelRef"/> spawns under the entity counts, once it has.
+    /// </summary>
+    Mesh,
 }
 
 /// <summary>
@@ -44,6 +50,9 @@ public struct Collider
 
     /// <summary>An upright capsule.</summary>
     public static Collider Capsule(float radius, float height) => new() { Shape = ColliderShape.Capsule, Radius = radius, Height = height };
+
+    /// <summary>The shape of the meshes the entity and its descendants show.</summary>
+    public static Collider Mesh => new() { Shape = ColliderShape.Mesh };
 }
 
 /// <summary>
@@ -110,13 +119,48 @@ public static class PhysicsBodies
 
         foreach (var (entity, collider, rigid) in wanted)
         {
-            Matrix4x4.Decompose(TransformPropagation.ComposedWorldMatrix(ecs, entity), out _, out var rotation, out var position);
-            var body = Make(physics, ecs, entity, collider, rigid, position);
+            var placed = TransformPropagation.ComposedWorldMatrix(ecs, entity);
+            Matrix4x4.Decompose(placed, out _, out var rotation, out var position);
+            PhysicsBody body;
+            if (collider.Shape == ColliderShape.Mesh)
+            {
+                // Made once the meshes are there, which a model loading under the entity is not yet.
+                if (TrianglesUnder(ecs, entity, placed) is not { } triangles) continue;
+                body = physics.CreateStaticMesh(position, triangles.Vertices, triangles.Indices, entityId: entity);
+                rotation = Quaternion.Identity;
+            }
+            else body = Make(physics, ecs, entity, collider, rigid, position);
             if (collider.IsTrigger) physics.SetTrigger(body, true);
             if (rotation != Quaternion.Identity && collider.Shape != ColliderShape.Capsule) physics.SetRotation(body, rotation);
             ecs.Add(entity, body);
             made[body] = ecs.Handle(entity);
         }
+    }
+
+    // The triangles of the meshes of an entity and its descendants, turned and scaled into the world
+    // about the entity's place, which the body is made at, or null when there are none. A triangle
+    // collides from the side its corners go around clockwise, so a mesh's are turned over.
+    private static (Vector3[] Vertices, int[] Indices)? TrianglesUnder(EcsWorld ecs, int entity, Matrix4x4 world)
+    {
+        var vertices = new List<Vector3>();
+        var at = world.Translation;
+        var pending = new Stack<int>();
+        pending.Push(entity);
+        while (pending.Count > 0)
+        {
+            var next = pending.Pop();
+            foreach (var child in ecs.ChildrenOf(next)) pending.Push(child);
+            if (!ecs.TryGet<Mesh>(next, out var mesh) || mesh.Positions is not { Length: >= 3 } positions) continue;
+            var placed = TransformPropagation.ComposedWorldMatrix(ecs, next);
+            for (int i = 0; i + 2 < positions.Length; i += 3)
+            {
+                vertices.Add(Vector3.Transform(positions[i], placed) - at);
+                vertices.Add(Vector3.Transform(positions[i + 2], placed) - at);
+                vertices.Add(Vector3.Transform(positions[i + 1], placed) - at);
+            }
+        }
+        if (vertices.Count == 0) return null;
+        return ([.. vertices], [.. Enumerable.Range(0, vertices.Count)]);
     }
 
     private static PhysicsBody Make(PhysicsWorld physics, EcsWorld ecs, int entity, Collider collider, RigidBody rigid, Vector3 at)

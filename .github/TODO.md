@@ -139,12 +139,13 @@ limit, rides what moves under it, crouches and stands where there is room, and r
 `SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to JSON
 and loads it back (ARCHITECTURE.md, Scene files). Arrays are not saved, so a mesh entity made in
 code comes back without its mesh, and a level shows meshes through `ModelRef`. A body is described
-by a `Collider` (box, sphere or capsule) and a `RigidBody` (static, dynamic with a mass, or
-kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
-when a `CharacterController` is beside a capsule. Joints, physics materials and mesh colliders are
-not described. A scene file placed in another with `SceneRef` is spawned once, when the reference
-first appears, and a change to the placed file reaches a running level only when it is loaded
-again. An older file is read by keeping the fields it has, with no migration.
+by a `Collider` (box, sphere, capsule, or the meshes of the entity and those under it) and a
+`RigidBody` (static, dynamic with a mass, or kinematic), which a file holds, and `PhysicsBodies`
+makes it when the entity appears, a character when a `CharacterController` is beside a capsule.
+Joints and physics materials are not described. A scene file placed in another with `SceneRef` is
+spawned once, when the reference first appears, and a change to the placed file reaches a running
+level only when it is loaded again. An older file is read by keeping the fields it has, with no
+migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter

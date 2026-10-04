@@ -86,4 +86,57 @@ public class PhysicsBodiesTests
         physics.IsCharacterGrounded(body).Should().BeFalse("it has not stepped yet");
         physics.Dispose();
     }
+
+    // A square of two triangles facing up, from -1 to 1 on X and Z, wound as a model winds them.
+    private static readonly Vector3[] Square =
+    [
+        new(-1, 0, -1), new(-1, 0, 1), new(1, 0, 1),
+        new(-1, 0, -1), new(1, 0, 1), new(1, 0, -1),
+    ];
+
+    [Fact]
+    public void A_Mesh_Collider_Is_The_Shape_Of_The_Mesh_As_Its_Entity_Scales_It()
+    {
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var physics = world.Resource<PhysicsWorld>();
+        var floor = ecs.Spawn();
+        ecs.Add(floor, new Transform(new Vector3(0, 1, 0), Quaternion.Identity, new Vector3(10, 1, 10)));
+        ecs.Add(floor, new Mesh(Square));
+        ecs.Add(floor, Collider.Mesh);
+        ecs.Add(floor, RigidBody.Dynamic());
+        var ball = physics.CreateSphere(new Vector3(6, 3, -6), 0.5f);
+
+        PhysicsBodies.Run(world);
+        for (int i = 0; i < 120; i++) physics.StepOnce(1f / 60);
+
+        ecs.GetReadOnly<PhysicsBody>(floor).Kind.Should().Be(BodyKind.Static, "a mesh never moves");
+        physics.GetPosition(ball).Y.Should().BeApproximately(1.5f, 0.05f, "it rests on the floor, scaled to reach it, a unit up");
+        physics.Dispose();
+    }
+
+    [Fact]
+    public void A_Mesh_Collider_Waits_For_The_Meshes_Under_Its_Entity()
+    {
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var level = ecs.Spawn();
+        ecs.Add(level, new Transform(Vector3.Zero));
+        ecs.Add(level, Collider.Mesh);
+        ecs.Add(level, RigidBody.Static);
+
+        PhysicsBodies.Run(world);
+        ecs.Has<PhysicsBody>(level).Should().BeFalse("nothing under it has a mesh yet, as a model still loading has not");
+
+        var room = ecs.Spawn();
+        ecs.Add(room, new Transform(new Vector3(0, 2, 0)));
+        ecs.Add(room, new Mesh(Square));
+        ecs.SetParent(room, level);
+        PhysicsBodies.Run(world);
+
+        ecs.Has<PhysicsBody>(level).Should().BeTrue("its descendant's mesh shapes it");
+        world.Resource<PhysicsWorld>().Raycast(new Vector3(0.5f, 5, 0.5f), -Vector3.UnitY, 10, out var hit).Should().BeTrue();
+        hit.Point.Y.Should().BeApproximately(2, 1e-3f, "the child's mesh is where the child places it");
+        world.Resource<PhysicsWorld>().Dispose();
+    }
 }
