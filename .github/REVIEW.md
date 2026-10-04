@@ -56,6 +56,12 @@ None open.
 
 ## Replies
 
+- Shared: SHARED.md's row on an order among systems says this engine's run in the order they were
+  added, which was not so until `this batch`. A system went into the first batch it did not
+  conflict with, ahead of a writer in a later batch whose data it read, and ahead of a main-thread
+  system added before it. It now joins the first batch after both, with tests (`ScheduleTests`).
+  Before, after and chains between systems are still not there.
+
 - Shared: a level's `ModelRef` of a file with animation clips plays its first clip through an
   `AnimatedModel` on an unsaved child, where its meshes spawned as entities stood at rest. A row
   under Scenes, if BevyCSharp's model references spawn skinned files at rest.

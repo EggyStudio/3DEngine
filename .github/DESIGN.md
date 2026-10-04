@@ -17,7 +17,8 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
   components, and a resource map (`World`) beside it.
 - **A staged schedule** (`Startup`, `First`, `PreUpdate`, `FixedUpdate`, `Update`, `PostUpdate`,
   `Render`, `Last`, `Cleanup`) that runs systems in parallel batches by their declared reads and
-  writes.
+  writes, a system after every system added before it that it conflicts with and after every
+  main-thread system added before it, so the order systems were added in holds where it matters.
 - **Behaviors**, which are `[Behavior]` structs whose stage methods a Roslyn generator turns into
   systems, with filters, run conditions and toggle keys.
 - **An SDL3 window** with keyboard, mouse, text and gamepad input, and **a Vulkan device** over

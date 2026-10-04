@@ -84,6 +84,11 @@ public sealed partial class Schedule
     /// Partitions systems into execution batches where systems within a batch have no
     /// conflicting resource access and can safely run in parallel.
     /// </summary>
+    /// <remarks>
+    /// A system joins the first batch after the last one holding a system it conflicts with and
+    /// after the last main-thread system added before it, so a system that reads what an earlier
+    /// one writes runs after it, and the order systems were added in holds wherever it matters.
+    /// </remarks>
     /// <param name="systems">The systems to partition.</param>
     /// <param name="notes">
     /// When this method returns, contains per-batch notes describing conflict reasons
@@ -104,34 +109,31 @@ public sealed partial class Schedule
                 continue;
             }
 
-            var placed = false;
+            // The earliest batch it may join, past every batch it must follow.
+            var earliest = 0;
             for (int i = 0; i < batches.Count; i++)
             {
                 var batch = batches[i];
                 if (batch.Count == 1 && batch[0].Affinity == ThreadAffinity.MainThread)
+                {
+                    earliest = i + 1;
                     continue;
-
-                var conflict = false;
+                }
                 for (int j = 0; j < batch.Count; j++)
                 {
                     if (desc.TryGetConflictReason(batch[j], out var reason))
                     {
-                        conflict = true;
+                        earliest = i + 1;
                         if (!batchNotes[i].Contains(reason))
                             batchNotes[i].Add(reason);
                         break;
                     }
                 }
-
-                if (conflict)
-                    continue;
-
-                batch.Add(desc);
-                placed = true;
-                break;
             }
 
-            if (!placed)
+            if (earliest < batches.Count)
+                batches[earliest].Add(desc);
+            else
             {
                 batches.Add([desc]);
                 batchNotes.Add([]);
