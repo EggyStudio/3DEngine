@@ -154,8 +154,9 @@ Keyboard, mouse, typed text and gamepads come from SDL3 into the `Input` resourc
 hands out typed characters and pressed keys one at a time (`GetCharPressed`, `GetKeyPressed`). Text
 input is started once on the window and never stopped, so there is no IME composition window placed
 at a text field, and typing from a real keyboard has only been checked through injected text.
-Fingers are read as touch points (`GetTouchPosition`), with no gestures such as raylib's taps and
-pinches, and a gamepad's sensors (gyro, touchpad) and lights are not reached.
+Fingers are read as touch points (`GetTouchPosition`) and recognized as raylib's gestures (taps,
+holds, drags, swipes and pinches), and a gamepad's sensors (gyro, touchpad) and lights are not
+reached.
 
 ## Project
 

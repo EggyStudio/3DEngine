@@ -70,6 +70,34 @@ public static partial class Engine3D
     /// <summary>The first finger's vertical position, or the pointer's with no finger down.</summary>
     public static int GetTouchY() => (int)GetTouchPosition(0).Y;
 
+    // -- Gestures, as raylib's rgestures recognizes them from touch or the left mouse button.
+
+    private static Gestures GesturesNow => Res<Gestures>();
+
+    /// <summary>Which gestures are recognized, all of them to begin with.</summary>
+    public static void SetGesturesEnabled(Gesture flags) => GesturesNow.Enabled = flags;
+
+    /// <summary>Whether <paramref name="gesture"/> is this frame's gesture.</summary>
+    public static bool IsGestureDetected(Gesture gesture) => GesturesNow.Current != Gesture.None && (GesturesNow.Current & gesture) != 0;
+
+    /// <summary>This frame's gesture, <see cref="Gesture.None"/> when there is none.</summary>
+    public static Gesture GetGestureDetected() => GesturesNow.Current;
+
+    /// <summary>How long the current hold has lasted, in seconds.</summary>
+    public static float GetGestureHoldDuration() => GesturesNow.HoldSeconds;
+
+    /// <summary>How far the current drag has gone, in fractions of the window.</summary>
+    public static Vector2 GetGestureDragVector() => GesturesNow.DragVector;
+
+    /// <summary>The angle of the last drag or swipe, in degrees counterclockwise from right.</summary>
+    public static float GetGestureDragAngle() => GesturesNow.DragAngle;
+
+    /// <summary>The vector between a pinch's two fingers, in fractions of the window.</summary>
+    public static Vector2 GetGesturePinchVector() => GesturesNow.PinchVector;
+
+    /// <summary>The angle between a pinch's two fingers, in degrees.</summary>
+    public static float GetGesturePinchAngle() => GesturesNow.PinchAngle;
+
     /// <summary>The pointer's position in the window, from the top left corner.</summary>
     public static Vector2 GetMousePosition() => new(Input.MouseX, Input.MouseY);
 

@@ -167,6 +167,18 @@ public sealed class DrawList
         }
     }
 
+    /// <summary>Records a triangle with a color at each corner, blended across it, as a gradient is drawn.</summary>
+    public void Triangle(Vector3 a, Color colorA, Vector3 b, Color colorB, Vector3 c, Color colorC)
+    {
+        lock (_gate)
+        {
+            var at = Reserve(PrimitiveTopology.TriangleList, 3, 0);
+            _vertices[at] = new ImmediateVertex(a, default, colorA);
+            _vertices[at + 1] = new ImmediateVertex(b, default, colorB);
+            _vertices[at + 2] = new ImmediateVertex(c, default, colorC);
+        }
+    }
+
     /// <summary>Records a quad as two triangles, with corners in order around its edge.</summary>
     public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color)
     {

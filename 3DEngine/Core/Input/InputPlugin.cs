@@ -40,6 +40,30 @@ public sealed class InputPlugin : IPlugin
                 world.Resource<Input>().BeginFrame();
             }, "InputPlugin.BeginFrame")
             .Write<Input>());
+
+        // Gestures from the frame's fingers, or the left mouse button with none, in fractions of
+        // the window, once the frame's events are in.
+        app.World.InitResource<Gestures>();
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(static world =>
+            {
+                if (!world.TryGetResource<Time>(out var time)) return;
+                var input = world.Resource<Input>();
+                var (width, height) = world.TryGetResource<AppWindow>(out var window)
+                    ? (window.Sdl.Width, window.Sdl.Height)
+                    : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
+                var size = new System.Numerics.Vector2(Math.Max(1, width), Math.Max(1, height));
+                Span<System.Numerics.Vector2> points = stackalloc System.Numerics.Vector2[Math.Min(input.Touches.Count, 10)];
+                for (int i = 0; i < points.Length; i++) points[i] = input.Touches[i].Position / size;
+                if (input.Touches.Count == 0 && input.MouseDown(MouseButton.Left))
+                {
+                    Span<System.Numerics.Vector2> mouse = [new System.Numerics.Vector2(input.MouseX, input.MouseY) / size];
+                    world.Resource<Gestures>().Update(mouse, time.ElapsedSeconds);
+                    return;
+                }
+                world.Resource<Gestures>().Update(points, time.ElapsedSeconds);
+            }, "InputPlugin.Gestures")
+            .Read<Input>()
+            .Write<Gestures>());
         Logger.Info("InputPlugin: Input system registered to Last stage.");
     }
 }

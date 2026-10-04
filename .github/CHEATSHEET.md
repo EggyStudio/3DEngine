@@ -115,6 +115,14 @@ Vector2 GetTouchPosition(int index);                     // Where a finger is (t
 int GetTouchPointId(int index);                          // The id a finger keeps while it stays down
 int GetTouchX();                                         // The first finger's x
 int GetTouchY();                                         // The first finger's y
+void SetGesturesEnabled(Gesture flags);                  // Which gestures are recognized (all)
+bool IsGestureDetected(Gesture gesture);                 // Tap, DoubleTap, Hold, Drag, Swipe*, PinchIn or PinchOut this frame
+Gesture GetGestureDetected();                            // This frame's gesture
+float GetGestureHoldDuration();                          // Seconds the hold has lasted
+Vector2 GetGestureDragVector();                          // How far the drag went, in fractions of the window
+float GetGestureDragAngle();                             // Its angle in degrees
+Vector2 GetGesturePinchVector();                         // Between a pinch's fingers
+float GetGesturePinchAngle();                            // Its angle in degrees
 
 bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
 string GetGamepadName(int gamepad);                                    // Its name
@@ -142,7 +150,37 @@ void DrawRectangleLines(int x, int y, int width, int height, Color color);      
 void DrawCircle(int centerX, int centerY, float radius, Color color);              // Filled circle
 void DrawCircleV(Vector2 center, float radius, Color color);                       // Filled circle
 void DrawCircleLines(int centerX, int centerY, float radius, Color color);         // Circle outline
+void DrawPixel(int x, int y, Color color);                                         // One pixel
+void DrawPixelV(Vector2 position, Color color);                                    // One pixel
+void DrawLineEx(Vector2 start, Vector2 end, float thick, Color color);             // Line of a width
+void DrawLineStrip(ReadOnlySpan<Vector2> points, Color color);                     // Lines joining the points in turn
+void DrawLineBezier(Vector2 start, Vector2 end, float thick, Color color);         // Curve easing in and out
+void DrawRectangleRec(Rectangle rec, Color color);                                 // Filled rectangle
+void DrawRectanglePro(Rectangle rec, Vector2 origin, float rotation, Color color); // Filled rectangle turned about an origin
+void DrawRectangleGradientV(int x, int y, int width, int height, Color top, Color bottom); // Blended top to bottom
+void DrawRectangleGradientH(int x, int y, int width, int height, Color left, Color right); // Blended left to right
+void DrawRectangleGradientEx(Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight); // Blended between corners
+void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);            // Outline of a width, inside the edge
+void DrawRectangleRounded(Rectangle rec, float roundness, int segments, Color color); // Rounded corners, roundness 0 to 1
+void DrawRectangleRoundedLines(Rectangle rec, float roundness, int segments, Color color); // Its outline
+void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color);           // Triangle outline
+void DrawTriangleFan(ReadOnlySpan<Vector2> points, Color color);                   // Triangles fanning from the first point
+void DrawTriangleStrip(ReadOnlySpan<Vector2> points, Color color);                 // A strip of triangles
+void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color); // Filled regular polygon
+void DrawPolyLines(Vector2 center, int sides, float radius, float rotation, Color color); // Its outline
+void DrawPolyLinesEx(Vector2 center, int sides, float radius, float rotation, float lineThick, Color color); // Outline of a width
+void DrawCircleSector(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Filled slice
+void DrawCircleSectorLines(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Its outline
+void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer); // Blended from the middle out
+void DrawCircleLinesV(Vector2 center, float radius, Color color);                  // Circle outline
+void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color color); // Filled ellipse
+void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color); // Its outline
+void DrawRing(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Filled ring or arc
+void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Its outline
 ```
+
+Angles are in degrees, clockwise on the screen from right, and a segment count of 0 lets the
+size choose how many pieces a curve is drawn in.
 
 ## Collision
 

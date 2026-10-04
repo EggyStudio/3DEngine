@@ -71,6 +71,32 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Gradients_Thick_Outlines_Rings_Turned_And_Rounded_Rectangles_Cover_What_They_Should()
+    {
+        Open(128, 64);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawRectangleGradientH(0, 0, 32, 32, new Color(255, 0, 0), new Color(0, 0, 255));
+            DrawRectangleLinesEx(new Rectangle(32, 0, 32, 32), 4, Color.White);
+            DrawRing(new Vector2(80, 16), 6, 14, 0, 360, 0, new Color(0, 255, 0));
+            DrawRectanglePro(new Rectangle(112, 16, 16, 16), new Vector2(8, 8), 45, Color.White);
+            DrawRectangleRounded(new Rectangle(0, 32, 32, 32), 1, 0, Color.White);
+        });
+
+        var middle = GetImageColor(image, 16, 16);
+        (middle.R is > 90 and < 170 && middle.B is > 90 and < 170).Should().BeTrue($"the gradient's middle is half red and half blue, not {middle}");
+        GetImageColor(image, 34, 16).Should().Be(Color.White, "the outline is four pixels thick inside the edge");
+        GetImageColor(image, 48, 16).Should().Be(Color.Black, "and the rectangle's inside is empty");
+        GetImageColor(image, 80, 16).Should().Be(Color.Black, "the ring has a hole");
+        GetImageColor(image, 90, 16).Should().Be(new Color(0, 255, 0), "and is green between its radii");
+        GetImageColor(image, 112, 8).Should().Be(Color.White, "turned 45 degrees, the square's corner points up");
+        GetImageColor(image, 105, 9).Should().Be(Color.Black, "and its old corner is empty");
+        GetImageColor(image, 1, 33).Should().Be(Color.Black, "a fully rounded square leaves its corners empty");
+        GetImageColor(image, 16, 48).Should().Be(Color.White);
+    }
+
+    [NeedsVulkanFact]
     public void A_Cube_Is_Lit_Through_The_Camera_And_The_Background_Is_Cleared()
     {
         Open(64, 64);
