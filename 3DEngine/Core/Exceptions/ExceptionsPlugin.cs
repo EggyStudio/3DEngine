@@ -113,7 +113,7 @@ public sealed class ExceptionsPlugin : IPlugin
     /// <param name="sb">The string builder to append to.</param>
     /// <param name="ex">The exception to format.</param>
     /// <param name="depth">Current nesting depth (controls indentation).</param>
-    private static void FormatExceptionChain(StringBuilder sb, Exception ex, int depth)
+    internal static void FormatExceptionChain(StringBuilder sb, Exception ex, int depth)
     {
         var indent = new string(' ', depth * 2);
         sb.AppendLine($"{indent}[{ex.GetType().FullName}] {ex.Message}");
@@ -125,11 +125,13 @@ public sealed class ExceptionsPlugin : IPlugin
             var top = trace.GetFrame(0);
             var file = top?.GetFileName();
             var line = top?.GetFileLineNumber() ?? 0;
-            var method = top?.GetMethod();
+            // DiagnosticMethodInfo names the method in a native build too, where the reflection
+            // GetMethod gives may be trimmed away.
+            var method = top is null ? null : System.Diagnostics.DiagnosticMethodInfo.Create(top);
             if (method is not null)
             {
                 var location = file is not null ? $"{file}:{line}" : "no source info";
-                sb.AppendLine($"{indent}  at {method.DeclaringType?.FullName}.{method.Name} ({location})");
+                sb.AppendLine($"{indent}  at {method.DeclaringTypeName}.{method.Name} ({location})");
             }
         }
 
