@@ -49,8 +49,10 @@ public sealed class BehaviorsPlugin : IPlugin
                 register(app);
         Logger.Info($"BehaviorsPlugin: {registrations.Count} generated behavior registration(s) invoked.");
 
-        // Optional dynamic contribution: hot-reload via Roslyn from a scripts directory.
-        if (!string.IsNullOrEmpty(ScriptsDirectory))
+        // Optional dynamic contribution: hot-reload via Roslyn from a scripts directory. A native
+        // build cannot load an assembly it compiles, and the AOT compiler takes this check as the
+        // constant false, so it drops the compiler and Roslyn with it from the executable.
+        if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported && !string.IsNullOrEmpty(ScriptsDirectory))
         {
             Logger.Info($"BehaviorsPlugin: Starting RuntimeBehaviorCompiler at '{ScriptsDirectory}'.");
             var compiler = new RuntimeBehaviorCompiler(app, DynamicSourceTag).WatchDirectory(ScriptsDirectory);

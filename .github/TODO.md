@@ -174,9 +174,6 @@ guide when it is next changed, and the checks at the end of STYLE.md report what
 
 ### Build and release
 
-- **A native game carries the behavior script compiler.** A game published as native AOT runs
-  (BUILDING.md, Shipping a game), and links Roslyn in for the behavior scripts it cannot compile,
-  much of its 37 MB. A feature switch the trimmer reads would let a game leave the compiler out.
 - **CI draws on Linux only.** `.github/workflows/test.yml` builds and tests with lavapipe and the
   validation layer on Ubuntu, and builds and runs the tests that need no device on Windows.
   `build.yml` runs it on each push and then captures every example offscreen, and `pack.yml` runs it

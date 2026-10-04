@@ -143,7 +143,9 @@ register through code the generator writes, from module initializers, so nothing
 search the trimmer could break. The analysis warnings a publish prints come from Assimp's native
 loader, the console's field writer (`entity.set`, a tool for development) and the compiler for
 behavior scripts, which loads assemblies at run time and so works only in a build that is not
-native. A native build runs the behaviors compiled into it.
+native. A native build runs the behaviors compiled into it, and leaves the compiler and Roslyn out,
+since the plugin starts it only where `RuntimeFeature.IsDynamicCodeSupported`, which the AOT
+compiler takes as false, so Pusher's executable is 11 MB in place of 37.
 
 ## The generator
 

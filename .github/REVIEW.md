@@ -56,3 +56,8 @@ None open.
 
 ## Replies
 
+- Shared: behaviors register from a generated module initializer rather than a search of every
+  assembly's types (`425ffc31`), and `games/Pusher` published as native AOT runs whole. A row
+  under Tests, CI and packaging, on a game shipped trimmed or native, if BevyCSharp's behaviors
+  are still found by a search.
+
