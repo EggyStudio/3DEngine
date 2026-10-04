@@ -43,6 +43,12 @@ public sealed class ModelDrawList
         lock (_gate) _draws.Add(draw);
     }
 
+    /// <summary>Records several meshes under one lock, as a system recording thousands does.</summary>
+    public void AddRange(ReadOnlySpan<ModelDraw> draws)
+    {
+        lock (_gate) _draws.AddRange(draws);
+    }
+
     /// <summary>Forgets every recorded mesh.</summary>
     public void Clear()
     {

@@ -310,14 +310,20 @@ The three largest costs as first measured, in order, each with what changed:
    draws, once per entity and once more in the shadow pass, so 8,004
    cubes of one mesh cost 10.3 ms of recording and 1.3 ms of shadows, while the GPU draws them in
    1.8 ms. `MeshEntityDraws` adds 1.8 ms walking the entities and building their draws.
-   **Changed.** Draws sharing a mesh and its maps are one instanced draw in the model and the
-   shadow pass, their transforms and factors read per instance, a draw's sRGB color decoded
-   through a table and its set found by its texture ids. The same run afterward held 27,614
-   entities without the arms in place of 8,004, and 32,416 with them, the model pass recording 4.8
-   ms and the shadow pass 3.6 ms for 27,614 draws, one call each, since the cubes and the ground
-   share a mesh and no maps. What is left is gathering and writing each instance. The largest cost at that count is `MeshEntityDraws` at 6.3
-   ms, which converts each entity's linear albedo to sRGB bytes for the draw to decode again and
-   walks its transform's parents.
+   **Changed.** Draws sharing a mesh and its maps are one instanced draw in the model and the shadow
+   pass, their transforms and factors read per instance, a draw's sRGB color decoded through a table
+   and its set found by its texture ids. The same run afterward held 27,614 entities without the
+   arms in place of 8,004, and 32,416 with them, the model pass recording 4.8 ms and the shadow pass
+   3.6 ms for 27,614 draws, one call each, since the cubes and the ground share a mesh and no maps.
+   What is left is gathering and writing each instance. The largest cost at that count is
+   `MeshEntityDraws` at 6.3 ms, about 230 nanoseconds an entity spent reading its components,
+   encoding its linear albedo as sRGB bytes with three powers for the draw to decode again, and
+   adding its draw to the list under a lock of its own, parts that cost about the same when timed
+   one by one. **Changed after.** `MeshEntityDraws` keeps each albedo's encoding, adds the frame's
+   draws under one lock, and checks an entity's mesh against the one before it. The same run held
+   34,217 entities in place of 27,614, at about 190 nanoseconds an entity. What it spends is reading
+   the mesh, material and global transform of each entity and copying a `ModelDraw` of about 200
+   bytes twice, into its own list and into the draw list.
 3. **Each sprite costs about 77 nanoseconds in `DrawTexture`** (9.4 ms for 121,613), then 1.4 ms to
    upload and 4.0 ms on the GPU. The example's own movement loop takes 5.4 ms, much of it in
    `GetScreenWidth` and `GetScreenHeight`, which it calls for each sprite as raylib's does and

@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine;
 
@@ -30,6 +31,13 @@ public sealed class MeshEntityDraws
     private readonly Dictionary<AssetId, int> _textures = [];
     private readonly List<(float Distance, ModelDraw Draw)> _translucent = [];
 
+    // The frame's opaque draws, handed to the draw list under one lock rather than one each.
+    private readonly List<ModelDraw> _opaque = [];
+
+    // Each albedo's sRGB bytes, since entities share a few materials and three powers an entity
+    // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
+    private readonly Dictionary<Vector4, Color> _colors = [];
+
     /// <summary>How many meshes are uploaded for entities.</summary>
     public int MeshCount => _meshes.Count;
 
@@ -53,26 +61,33 @@ public sealed class MeshEntityDraws
 
         _seen.Clear();
         _translucent.Clear();
+        _opaque.Clear();
+        if (_colors.Count > 4096) _colors.Clear();
         if (ecs.Count<Mesh>() > 0 && FirstCamera(world, ecs) is { } camera)
         {
             var (viewProjection, eye) = camera;
+            // Entities spawned together usually share one positions array, so the mesh of the
+            // entity before is checked first.
+            Vector3[]? lastPositions = null;
+            var id = 0;
             foreach (var (entity, mesh) in ecs.Query<Mesh>())
             {
                 if (mesh.Positions is not { Length: >= 3 } || !ecs.TryGet(entity, out Material material)) continue;
 
-                _seen.Add(mesh.Positions);
-                if (!_meshes.TryGetValue(mesh.Positions, out var id))
-                    _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
+                if (!ReferenceEquals(mesh.Positions, lastPositions))
+                {
+                    lastPositions = mesh.Positions;
+                    _seen.Add(mesh.Positions);
+                    if (!_meshes.TryGetValue(mesh.Positions, out id))
+                        _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
+                }
 
-                // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
-                var color = Vector4.Clamp(material.Albedo, Vector4.Zero, Vector4.One);
-                color = new Vector4(LinearToSrgb(color.X), LinearToSrgb(color.Y), LinearToSrgb(color.Z), color.W) * 255 + new Vector4(0.5f);
                 var placed = TransformPropagation.WorldMatrix(ecs, entity);
                 var draw = new ModelDraw(
                     id,
                     placed,
                     viewProjection,
-                    new Color((byte)color.X, (byte)color.Y, (byte)color.Z, (byte)color.W),
+                    Encoded(material.Albedo),
                     TextureFor(material.BaseColorTexture, assets, textures),
                     Metallic: material.MetallicFactor,
                     Roughness: material.RoughnessFactor,
@@ -84,11 +99,12 @@ public sealed class MeshEntityDraws
                     OcclusionMap: TextureFor(material.OcclusionTexture, assets, textures),
                     OcclusionStrength: material.OcclusionStrength);
                 if (draw.Color.A < 255) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
-                else draws.Add(draw);
+                else _opaque.Add(draw);
             }
 
             _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
-            foreach (var (_, draw) in _translucent) draws.Add(draw);
+            foreach (var (_, draw) in _translucent) _opaque.Add(draw);
+            draws.AddRange(CollectionsMarshal.AsSpan(_opaque));
         }
 
         // A mesh no entity drew this frame was despawned or replaced.
@@ -98,6 +114,15 @@ public sealed class MeshEntityDraws
                 meshes.Remove(_meshes[positions]);
                 _meshes.Remove(positions);
             }
+    }
+
+    // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
+    private Color Encoded(Vector4 albedo)
+    {
+        if (_colors.TryGetValue(albedo, out var known)) return known;
+        var c = Vector4.Clamp(albedo, Vector4.Zero, Vector4.One);
+        c = new Vector4(LinearToSrgb(c.X), LinearToSrgb(c.Y), LinearToSrgb(c.Z), c.W) * 255 + new Vector4(0.5f);
+        return _colors[albedo] = new Color((byte)c.X, (byte)c.Y, (byte)c.Z, (byte)c.W);
     }
 
     private static float LinearToSrgb(float c) =>

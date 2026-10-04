@@ -42,12 +42,14 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Cost
 
-- **Per-draw work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark`
-  and `models_stress`). Mesh entities are instanced, and a frame holds about 28,000, where
-  `MeshEntityDraws` takes 6.3 ms building a draw for each entity every frame and the two passes 8
-  ms gathering and writing instances. Each `DrawTexture` costs about 55 nanoseconds, of which the
-  draw list's lock and the two vertices a quad repeats without an index buffer are most, and the
-  GPU draws 186,000 sprites in 5.1 ms. An index buffer for quads would cut the vertices a third.
+- **Per-draw work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
+  `models_stress`). Mesh entities are instanced, and a frame holds about 34,000, where
+  `MeshEntityDraws` takes 6.4 ms building a `ModelDraw` for each entity every frame and the two
+  passes 9 ms gathering and writing instances. Writing an entity's instance straight from its
+  components, kept from frame to frame while its change bits are clear, would remove most of both.
+  Each `DrawTexture` costs about 55 nanoseconds, of which the draw list's lock and the two vertices
+  a quad repeats without an index buffer are most, and the GPU draws 186,000 sprites in 5.1 ms. An
+  index buffer for quads would cut the vertices a third.
 - **Skinning runs on the CPU.** An animated mesh's posed vertices are written into a ring of
   mapped buffers, which costs its vertex count in copying each frame. GPU skinning would upload
   the bone matrices instead, with each vertex's bone indices and weights kept in its buffer, and is
