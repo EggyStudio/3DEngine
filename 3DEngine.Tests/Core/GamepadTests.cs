@@ -2,6 +2,7 @@ using FluentAssertions;
 
 namespace Engine.Tests.Core;
 
+[Collection("Engine3D")]
 [Trait("Category", "Unit")]
 public class GamepadTests
 {
