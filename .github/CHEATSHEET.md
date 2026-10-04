@@ -315,6 +315,35 @@ as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `Emissiv
 `OcclusionMap` with its `OcclusionStrength`. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
+## Physics
+
+```csharp
+PhysicsBody CreatePhysicsBox(Vector3 position, Vector3 size, float mass = 1);   // A box that falls, collides and is pushed
+PhysicsBody CreatePhysicsSphere(Vector3 position, float radius, float mass = 1); // A ball
+PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size);              // A box that never moves, for floors and walls
+PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size);           // A box only the program moves, which pushes what it meets
+void DestroyPhysicsBody(PhysicsBody body);                                       // Remove a body
+bool IsPhysicsBodyValid(PhysicsBody body);                                       // Whether a body exists
+
+Matrix4x4 GetPhysicsBodyTransform(PhysicsBody body);                             // Where to draw it this frame, blended between steps, for model.Transform
+Vector3 GetPhysicsBodyPosition(PhysicsBody body);                                // Where it is as of its last step
+void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position);                 // Move it at once
+Vector3 GetPhysicsBodyVelocity(PhysicsBody body);                                // How fast and which way it moves
+void SetPhysicsBodyVelocity(PhysicsBody body, Vector3 velocity);                 // Set that, waking it
+void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse);                     // Push it at its center
+void SetPhysicsGravity(Vector3 gravity);                                         // What every body falls by
+
+bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets
+IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame
+bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
+Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
+Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size
+```
+
+Bodies are BepuPhysics's, stepped at the fixed rate inside `BeginDrawing`, so a box is drawn by
+setting a model's `Transform` to `GetPhysicsBodyTransform(body)` before `DrawModel`. The ECS reaches
+the same world as `PhysicsWorld`, with contacts as `ContactStarted` and `ContactEnded` events.
+
 ## Audio
 
 ```csharp

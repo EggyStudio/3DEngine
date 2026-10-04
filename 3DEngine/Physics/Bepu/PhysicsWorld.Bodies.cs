@@ -42,6 +42,21 @@ public sealed partial class PhysicsWorld
         return Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Pose.Position;
     }
 
+    /// <summary>
+    /// A body's pose blended from where it was before the last step (at 0) to where it is (at 1),
+    /// as <see cref="SyncTransforms(EcsWorld, float)"/> writes it, or as it is for a static body
+    /// or one with no earlier pose.
+    /// </summary>
+    public (Vector3 Position, Quaternion Rotation) GetPose(PhysicsBody body, float alpha)
+    {
+        var position = GetPosition(body);
+        var rotation = GetRotation(body);
+        if (body.Kind == BodyKind.Static || alpha >= 1 || !_previousPoses.TryGetValue(body.Handle, out var before))
+            return (position, rotation);
+        alpha = Math.Clamp(alpha, 0, 1);
+        return (Vector3.Lerp(before.Position, position, alpha), Quaternion.Slerp(before.Orientation, rotation, alpha));
+    }
+
     /// <inheritdoc />
     public Quaternion GetRotation(PhysicsBody body)
     {
