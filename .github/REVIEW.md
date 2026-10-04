@@ -8,29 +8,31 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `f175ae2d`. The 2D game (`f175ae2d`), with the 2D camera, collision and file functions it
-called for, the entity-handle overloads and the probe offsets are settled, on the tests and the
-played game reported.
+Reviewed up to `fffc5060`. The frame profile, the two stress examples and RENDERING.md §6
+(`fffc5060`) were read and are settled. The numbers are what the items below are ordered by.
 
 ## Now
 
-The engine does what two small games need. Nothing has measured how much of it a frame can
-hold, and every choice about batching, instancing or skinning on the GPU is a guess until
-something has. In this order.
+In this order, each ending with the same run repeated and RENDERING.md §6 holding the numbers
+before and after.
 
-1. **Measure before changing anything.** Two stress programs in the examples, in the manner of
-   raylib's bunnymark: one draws a growing number of textured sprites, the other a growing number
-   of lit mesh entities with a few materials, a shadow and some animated models. Each reports the
-   frame's time on the CPU split by stage (the schedule already runs named systems, so their
-   times are there to collect) and on the GPU by pass if timestamp queries are at hand, and the
-   count at which it leaves 60 frames a second on this machine. An `e3d` command returns the same
-   numbers, so a run is repeatable from the terminal. The numbers, the machine they were taken
-   on and the three largest costs go into RENDERING.md. No optimization is in this batch.
-2. **The largest cost the numbers show**, whatever it is. Likely candidates are a draw call and
-   a set bind for each mesh entity where instancing would do, skinning on the CPU with a vertex
-   upload each frame, and the immediate pass's batching across texture changes. The numbers
-   decide, and the same run afterward shows what the change bought.
-3. **TODO.md's order** from there.
+1. **An animated mesh keeps its vertex buffer.** A buffer made, allocated and mapped each frame
+   costs about 2 ms a mesh, so eight arms take the whole frame. Each animated mesh keeps one
+   buffer a frame in flight, mapped for its life, and a frame writes into the one the GPU is not
+   reading. Skinning on the GPU, with the bone matrices in a buffer and the weights in the
+   vertex, removes the upload as well and goes into TODO.md as the step after, to be taken when
+   the numbers after this fix say the CPU skinning is what is left.
+2. **Mesh entities that share a mesh and its maps are one instanced draw.** Recording a draw each
+   costs 10.3 ms for 8,004 cubes that the GPU draws in 1.8 ms. `MeshEntityDraws` groups by mesh
+   and the five map views, writes each group's transforms and factors into a buffer the vertex
+   stage reads by instance, and the model pass and the shadow pass each draw a group once. A
+   custom shader's draws stay as they are. Verified by the stress count rising severalfold, the
+   material pixel tests not moving, and the validation container.
+3. **The flat API's getters do not look a resource up each call.** `GetScreenWidth` and its
+   kind are called per sprite in ordinary raylib code, so they read a value the frame cached.
+   `DrawTexture`'s 77 nanoseconds a sprite is looked at in the same batch, for what it spends
+   outside writing its four vertices.
+4. **TODO.md's order** from there.
 
 ## Verdicts
 
@@ -44,12 +46,3 @@ None open.
    working session.
 
 ## Replies
-
-
-**Now 1, measurement.** `textures_bunnymark` and `models_stress` find the largest count that
-holds 60 frames a second, and `e3d command profile` returns the frame's time by stage, system,
-renderer step, prepare system and graph node, on the GPU through timestamp queries, with the
-program's own code between stages as `program.update` and `program.drawing`. An explicit
-`SetTargetFPS(0)` uncaps an offscreen run, which was paced at 60 before. The numbers, the machine
-and the three largest costs are in RENDERING.md §6. The largest is an animated mesh's vertex
-buffer created each frame, about 2 ms a mesh, which item 2 takes up next.

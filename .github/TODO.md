@@ -42,12 +42,16 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Cost
 
-- **Three costs bound a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
-  `models_stress`). An animated mesh's vertices go into a buffer created for them each frame, about
-  2 ms a mesh. Each mesh entity is its own draw, 1.3 microseconds of recording each, which caps a
-  frame near 8,000 while the GPU idles. Each `DrawTexture` costs about 77 nanoseconds before the
-  upload. A persistent vertex ring for animated meshes, instancing by mesh and material, and a
-  leaner sprite path are what each needs, measured again by the same examples after.
+- **Two costs bound a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
+  `models_stress`). Each mesh entity is its own draw, about a microsecond of recording each, which
+  caps a frame near 9,000 while the GPU idles. Each `DrawTexture` costs about 77 nanoseconds before
+  the upload, and getters such as `GetScreenWidth` look up a resource each call. Instancing by mesh
+  and material, and a leaner sprite path, are what each needs, measured again by the same examples
+  after.
+- **Skinning runs on the CPU.** An animated mesh's posed vertices are written into a ring of
+  mapped buffers, which costs its vertex count in copying each frame. GPU skinning would upload
+  the bone matrices instead, with each vertex's bone indices and weights kept in its buffer, and is
+  the step after the ring.
 
 ### The flat API
 
@@ -64,9 +68,8 @@ physics, text and fonts, audio and text files
   file played as music is read whole rather than streamed.
 - **Models are partial.** The flat API has no lights of its own, so models are lit by one fixed
   light, which shows their color, texture and normal map but not how metallic or rough they are,
-  unless the ECS holds light entities. `UpdateModelAnimation` poses skinned meshes on the CPU and uploads new vertex
-  buffers each call, as raylib does by default, so a crowd of animated models costs their vertex
-  counts every frame where GPU skinning would cost a buffer of bone matrices. Clips are sampled at
+  unless the ECS holds light entities. `UpdateModelAnimation` poses skinned meshes on the CPU, as raylib does by default,
+  and writes the vertices into a ring of buffers (Cost above). Clips are sampled at
   60 frames a second with no blending between frames or between two clips, and mesh entities have
   no animation component. The model pass draws both sides of every face, so `GenMeshCubicmap`
   makes no roof over a maze's open cells as raylib's does.

@@ -125,10 +125,20 @@ public sealed class MeshStore
 }
 
 /// <summary>The vertex and index buffers of every mesh in the <see cref="MeshStore"/>.</summary>
+/// <remarks>
+/// A mesh whose vertices are replaced, as an animated one is each frame, moves into a ring of
+/// <see cref="GpuTextures.RetireFrames"/> and one vertex buffers kept mapped, more than there are
+/// frames in flight, and each update is written into the next. Creating a buffer for each update instead
+/// cost about 2 ms a mesh in allocation on an NVIDIA driver (RENDERING.md §6).
+/// </remarks>
 public sealed class GpuMeshes : IDisposable
 {
-    /// <summary>One mesh's buffers.</summary>
-    public sealed record Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount);
+    /// <summary>One mesh's buffers, with the ring its vertices move through once they are replaced.</summary>
+    public sealed record Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount)
+    {
+        internal IBuffer[]? Ring { get; init; }
+        internal int Slot { get; init; }
+    }
 
     private readonly Dictionary<int, Entry> _entries = [];
     private readonly List<(long Frame, IBuffer Buffer)> _retired = [];
@@ -145,28 +155,19 @@ public sealed class GpuMeshes : IDisposable
         {
             var (uploads, removals) = store.Take();
             foreach (var id in removals)
-                if (_entries.Remove(id, out var gone))
-                {
-                    _retired.Add((_frame, gone.Vertices));
-                    _retired.Add((_frame, gone.Indices));
-                }
+                if (_entries.Remove(id, out var gone)) Retire(gone, vertices: true);
 
             foreach (var upload in uploads)
             {
-                var vertices = Buffer(gfx, MemoryMarshal.AsBytes(upload.Vertices.AsSpan()), BufferUsage.Vertex);
+                var bytes = MemoryMarshal.AsBytes(upload.Vertices.AsSpan());
                 if (upload.VerticesOnly && _entries.TryGetValue(upload.Id, out var old))
                 {
-                    _retired.Add((_frame, old.Vertices));
-                    _entries[upload.Id] = old with { Vertices = vertices };
+                    _entries[upload.Id] = Advance(gfx, old, bytes);
                     continue;
                 }
 
-                if (_entries.Remove(upload.Id, out var replaced))
-                {
-                    _retired.Add((_frame, replaced.Vertices));
-                    _retired.Add((_frame, replaced.Indices));
-                }
-                _entries[upload.Id] = new Entry(vertices,
+                if (_entries.Remove(upload.Id, out var replaced)) Retire(replaced, vertices: true);
+                _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex),
                     Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index),
                     (uint)upload.Indices.Length);
             }
@@ -180,6 +181,38 @@ public sealed class GpuMeshes : IDisposable
         }
     }
 
+    // Writes replaced vertices into the next buffer of the mesh's ring, making the ring the first
+    // time. A buffer comes round again only after RetireFrames more updates, at most one a frame,
+    // by which time no frame in flight reads it.
+    private Entry Advance(IGraphicsDevice gfx, Entry entry, ReadOnlySpan<byte> vertices)
+    {
+        var ring = entry.Ring;
+        if (ring is null || ring[0].Description.Size != (ulong)vertices.Length)
+        {
+            Retire(entry, vertices: true, indices: false);
+            ring = new IBuffer[GpuTextures.RetireFrames + 1];
+            for (int i = 0; i < ring.Length; i++)
+                ring[i] = gfx.CreateBuffer(new BufferDesc((ulong)vertices.Length, BufferUsage.Vertex, CpuAccessMode.Write));
+            entry = entry with { Ring = ring, Slot = -1 };
+        }
+
+        var slot = (entry.Slot + 1) % ring.Length;
+        vertices.CopyTo(gfx.Map(ring[slot]));
+        return entry with { Vertices = ring[slot], Slot = slot };
+    }
+
+    // Hands a mesh's buffers to the retired list, which destroys them once no frame can read them.
+    private void Retire(Entry entry, bool vertices, bool indices = true)
+    {
+        if (vertices)
+        {
+            if (entry.Ring is { } ring)
+                foreach (var buffer in ring) _retired.Add((_frame, buffer));
+            else _retired.Add((_frame, entry.Vertices));
+        }
+        if (indices) _retired.Add((_frame, entry.Indices));
+    }
+
     // Host-visible buffers written through a mapping. A device-local buffer behind a staging copy
     // would draw faster, which RENDERING.md lists with the move to the memory allocator.
     private static IBuffer Buffer(IGraphicsDevice gfx, ReadOnlySpan<byte> data, BufferUsage usage)
@@ -190,17 +223,17 @@ public sealed class GpuMeshes : IDisposable
         return buffer;
     }
 
-    private static void Destroy(Entry entry)
-    {
-        entry.Vertices.Dispose();
-        entry.Indices.Dispose();
-    }
-
     /// <inheritdoc />
     public void Dispose()
     {
         foreach (var (_, buffer) in _retired) buffer.Dispose();
-        foreach (var entry in _entries.Values) Destroy(entry);
+        foreach (var entry in _entries.Values)
+        {
+            if (entry.Ring is { } ring)
+                foreach (var buffer in ring) buffer.Dispose();
+            else entry.Vertices.Dispose();
+            entry.Indices.Dispose();
+        }
         _retired.Clear();
         _entries.Clear();
     }

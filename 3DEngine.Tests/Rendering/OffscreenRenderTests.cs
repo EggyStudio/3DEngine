@@ -485,6 +485,15 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(rest, 23, 32).R.Should().BeLessThan(10, "and nothing is beside it");
         GetImageColor(bent, 32, 24).R.Should().BeLessThan(10, "bent, the upper arm has left the space above the elbow");
         GetImageColor(bent, 23, 32).R.Should().BeGreaterThan(40, "for the space to its left");
+
+        // Posed every frame, the vertices go round a ring of buffers, and each frame draws its own pose.
+        for (int i = 0; i < 8; i++)
+        {
+            var atRest = i % 2 == 0;
+            UpdateModelAnimation(model, bend, atRest ? 0 : bend.FrameCount - 1);
+            var pose = Capture(Draw, $"pose{i}");
+            (GetImageColor(pose, 32, 24).R > 40).Should().Be(atRest, $"frame {i} drew the pose given that frame");
+        }
         UnloadModel(model);
     }
 

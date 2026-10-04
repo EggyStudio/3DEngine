@@ -274,6 +274,11 @@ The three largest costs, in order:
    queues the skinned vertices, and `GpuMeshes` creates, allocates and maps a vertex buffer for them
    and retires the previous one, which is destroyed four frames later. Eight small arms cost 16.3
    ms of the frame, about 2 ms each, which leaves the entities almost nothing.
+   **Changed.** A mesh whose vertices are replaced moves into a ring of five vertex buffers kept
+   mapped, more than there are frames in flight, and each update is written into the next. The
+   same run afterward held 9,338 entities with the eight arms in place of 1,687, and
+   `GpuMeshesPrepare` fell from 16.3 ms to under 0.05 ms. At that count the model pass records
+   for 8.8 ms, the shadow pass for 1.5 ms and `MeshEntityDraws` takes 2.1 ms, which is cost 2.
 2. **Each mesh entity is a draw of its own on the CPU.** The model pass binds the material's set at
    its offset in the factor ring, binds the vertex and index buffers, pushes the transform and
    draws, once per entity and once more in the shadow pass, so 8,004
