@@ -167,6 +167,28 @@ public static partial class Engine3D
             DrawList.Line(new Vector3(outline[i], 0), new Vector3(outline[(i + 1) % outline.Length], 0), color);
     }
 
+    /// <summary>Draws a rounded rectangle's outline <paramref name="lineThick"/> pixels wide, outside its edge, as raylib's does.</summary>
+    public static void DrawRectangleRoundedLinesEx(Rectangle rec, float roundness, int segments, float lineThick, Color color)
+    {
+        if (lineThick <= 1)
+        {
+            DrawRectangleRoundedLines(rec, roundness, segments, color);
+            return;
+        }
+        // The band between the edge and an outline as much larger all round, its corners' arcs
+        // made of as many pieces, so each piece of the edge and the one outside it make a quad.
+        var radius = RoundedRadius(rec, roundness);
+        var pieces = segments > 0 ? segments : Math.Max(2, CircleSegments(radius + lineThick) / 4);
+        var inner = RoundedOutline(rec, radius, pieces);
+        var outer = RoundedOutline(new Rectangle(rec.X - lineThick, rec.Y - lineThick, rec.Width + 2 * lineThick, rec.Height + 2 * lineThick),
+            radius > 0 ? radius + lineThick : 0, pieces);
+        for (int i = 0; i < inner.Length; i++)
+        {
+            var next = (i + 1) % inner.Length;
+            DrawList.Quad(new(inner[i], 0), new(outer[i], 0), new(outer[next], 0), new(inner[next], 0), color);
+        }
+    }
+
     private static float RoundedRadius(Rectangle rec, float roundness) =>
         Math.Clamp(roundness, 0, 1) * MathF.Min(rec.Width, rec.Height) / 2;
 

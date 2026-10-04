@@ -59,6 +59,21 @@ public static partial class Engine3D
     /// <summary>Whether <see cref="InitWindow"/> has opened a window that is still open.</summary>
     public static bool IsWindowReady() => _app is not null;
 
+    /// <summary>
+    /// Has <see cref="WindowShouldClose"/> wait for input or a window event before the frame goes
+    /// on, up to a tenth of a second, so a tool that changes only when used leaves the CPU idle.
+    /// </summary>
+    public static void EnableEventWaiting()
+    {
+        if (TryRes<AppWindow>(out var window)) window.WaitForEvents = true;
+    }
+
+    /// <summary>Has <see cref="WindowShouldClose"/> return at once again, as a game drawing every frame needs.</summary>
+    public static void DisableEventWaiting()
+    {
+        if (TryRes<AppWindow>(out var window)) window.WaitForEvents = false;
+    }
+
     /// <summary>Sets the key that makes <see cref="WindowShouldClose"/> return true. <see cref="Key.Unknown"/> disables it.</summary>
     public static void SetExitKey(Key key) => _exitKey = key;
 

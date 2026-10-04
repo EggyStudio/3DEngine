@@ -102,10 +102,23 @@ public static partial class Engine3D
     public static float GetGesturePinchAngle() => GesturesNow.PinchAngle;
 
     /// <summary>The pointer's position in the window, from the top left corner.</summary>
-    public static Vector2 GetMousePosition() => new(Input.MouseX, Input.MouseY);
+    public static Vector2 GetMousePosition() => (new Vector2(Input.MouseX, Input.MouseY) + MouseOffset) * MouseScale;
+
+    // raylib's mouse offset and scale, with the app they were set in, so a window opened after
+    // starts with neither. A program drawing into a render texture scaled to the window, as a
+    // letterboxed game does, sets them so the pointer reads in the texture's pixels.
+    private static (App? App, Vector2 Offset, Vector2 Scale)? _mouseTransform;
+    private static Vector2 MouseOffset => _mouseTransform is { } t && ReferenceEquals(t.App, _app) ? t.Offset : Vector2.Zero;
+    private static Vector2 MouseScale => _mouseTransform is { } t && ReferenceEquals(t.App, _app) ? t.Scale : Vector2.One;
+
+    /// <summary>Adds an offset to the pointer's position before its scale, as raylib's does.</summary>
+    public static void SetMouseOffset(int offsetX, int offsetY) => _mouseTransform = (_app, new Vector2(offsetX, offsetY), MouseScale);
+
+    /// <summary>Scales the pointer's position, after its offset, so it reads in the pixels of a texture drawn scaled to the window.</summary>
+    public static void SetMouseScale(float scaleX, float scaleY) => _mouseTransform = (_app, MouseOffset, new Vector2(scaleX, scaleY));
 
     /// <summary>The pointer's horizontal position in the window.</summary>
-    public static int GetMouseX() => Input.MouseX;
+    public static int GetMouseX() => (int)GetMousePosition().X;
 
     /// <summary>Moves the pointer to a place in the window, which <see cref="GetMousePosition"/> reports from then on.</summary>
     public static void SetMousePosition(int x, int y)
@@ -115,7 +128,7 @@ public static partial class Engine3D
     }
 
     /// <summary>The pointer's vertical position in the window.</summary>
-    public static int GetMouseY() => Input.MouseY;
+    public static int GetMouseY() => (int)GetMousePosition().Y;
 
     /// <summary>How far the pointer moved this frame.</summary>
     public static Vector2 GetMouseDelta() => new(Input.MouseDeltaX, Input.MouseDeltaY);

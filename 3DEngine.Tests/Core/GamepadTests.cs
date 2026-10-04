@@ -25,7 +25,7 @@ public class GamepadTests
     }
 
     [Fact]
-    public void Any_Pad_Pressing_A_Button_Answers_Press_Any_Button_And_The_Wheel_Reads_Both_Axes()
+    public void Press_Any_Button_The_Wheel_And_The_Pointer_Read_As_Raylibs_Do()
     {
         var app = new App();
         app.World.InitResource<Input>();
@@ -46,6 +46,26 @@ public class GamepadTests
             Engine3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));
             Engine3D.GetMouseWheelMove().Should().Be(-1);
             Engine3D.SetMouseCursor(MouseCursor.PointingHand);
+
+            // A letterboxed texture of half the window's size, 40 pixels in from its left edge.
+            input.SetMousePosition(140, 100);
+            Engine3D.SetMouseOffset(-40, 0);
+            Engine3D.SetMouseScale(0.5f, 0.5f);
+            Engine3D.GetMousePosition().Should().Be(new System.Numerics.Vector2(50, 50));
+            (Engine3D.GetMouseX(), Engine3D.GetMouseY()).Should().Be((50, 50));
+            Engine3D.EnableEventWaiting();
+            Engine3D.DisableEventWaiting();
+
+            var outline = new App();
+            outline.World.InitResource<Input>();
+            outline.World.InitResource<DrawList>();
+            Engine3D.UseApp(outline);
+            Engine3D.GetMousePosition().Should().Be(System.Numerics.Vector2.Zero, "a new app starts with no offset or scale");
+            Engine3D.DrawRectangleRoundedLinesEx(new Rectangle(10, 10, 100, 50), 0.5f, 4, 6, Color.Red);
+            var points = outline.World.Resource<DrawList>().Vertices.ToArray().Select(v => v.Position).ToArray();
+            points.Should().NotBeEmpty();
+            points.Should().OnlyContain(p => p.X >= 4 - 1e-3 && p.X <= 116 + 1e-3 && p.Y >= 4 - 1e-3 && p.Y <= 66 + 1e-3,
+                "the band lies between the edge and six pixels outside it");
         }
         finally
         {

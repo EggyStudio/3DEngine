@@ -329,4 +329,16 @@ public class ImageTests
         GetImageColor(square, 5, 5).R.Should().BeGreaterThan(200);
         GetImageColor(square, 0, 5).R.Should().BeLessThan(30, "the edge is the outer color");
     }
+
+    [Fact]
+    public void A_Dithered_Gradient_Keeps_Its_Average_In_Two_Levels()
+    {
+        var image = GenImageGradientLinear(64, 8, 90, Color.Black, Color.White);
+        var before = LoadImageColors(image).Average(c => (double)c.R);
+
+        ImageDither(ref image, 1, 1, 1, 8);
+
+        LoadImageColors(image).Should().OnlyContain(c => c.R == 0 || c.R == 255, "one bit a channel leaves black and white");
+        LoadImageColors(image).Average(c => (double)c.R).Should().BeApproximately(before, 8, "the rounding is spread, not lost");
+    }
 }

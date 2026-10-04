@@ -98,6 +98,16 @@ public sealed class AppWindow
     }
 
     /// <summary>
+    /// Whether <see cref="PollEvents"/> waits for an event before returning, up to a tenth of a
+    /// second, as a tool that redraws only when something happens does, raylib's event waiting.
+    /// </summary>
+    /// <remarks>
+    /// The wait ends after the tenth regardless, so a console command, which arrives outside SDL's
+    /// queue, is answered.
+    /// </remarks>
+    public bool WaitForEvents { get; set; }
+
+    /// <summary>
     /// Processes every pending SDL event once, raising <see cref="SDLEvent"/>,
     /// <see cref="QuitEvent"/> and <see cref="ResizeEvent"/> as they apply.
     /// </summary>
@@ -110,7 +120,9 @@ public sealed class AppWindow
         bool resizedThisBatch = false;
         int coalescedW = 0, coalescedH = 0;
 
-        while (SDL.PollEvent(out var e))
+        SDL.Event e;
+        var pending = WaitForEvents ? SDL.WaitEventTimeout(out e, 100) : SDL.PollEvent(out e);
+        for (; pending; pending = SDL.PollEvent(out e))
         {
             SDLEvent?.Invoke(e);
 

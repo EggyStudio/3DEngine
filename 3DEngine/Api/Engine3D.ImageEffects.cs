@@ -160,6 +160,40 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>
+    /// Reduces an image to so many bits for each channel, spreading each pixel's rounding to the
+    /// pixels after it (Floyd and Steinberg), so few colors still read as smooth gradients, as
+    /// art for an old console's palette is made.
+    /// </summary>
+    public static void ImageDither(ref Image image, int rBpp, int gBpp, int bBpp, int aBpp)
+    {
+        if (!image.IsValid) return;
+        int[] bits = [Math.Clamp(rBpp, 1, 8), Math.Clamp(gBpp, 1, 8), Math.Clamp(bBpp, 1, 8), Math.Clamp(aBpp, 1, 8)];
+        var (width, height, data) = (image.Width, image.Height, image.Data);
+        var values = new float[width * height * 4];
+        for (int i = 0; i < values.Length; i++) values[i] = data[i];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        for (int c = 0; c < 4; c++)
+        {
+            var at = (y * width + x) * 4 + c;
+            var levels = (1 << bits[c]) - 1;
+            var old = Math.Clamp(values[at], 0, 255);
+            var rounded = MathF.Round(old / 255 * levels) / levels * 255;
+            data[at] = (byte)rounded;
+            var error = old - rounded;
+            void Spread(int dx, int dy, float share)
+            {
+                int nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < width && ny < height) values[(ny * width + nx) * 4 + c] += error * share;
+            }
+            Spread(1, 0, 7 / 16f);
+            Spread(-1, 1, 3 / 16f);
+            Spread(0, 1, 5 / 16f);
+            Spread(1, 1, 1 / 16f);
+        }
+    }
+
     /// <summary>Fills a circle around a point.</summary>
     public static void ImageDrawCircleV(ref Image dst, Vector2 center, int radius, Color color) =>
         ImageDrawCircle(ref dst, (int)center.X, (int)center.Y, radius, color);

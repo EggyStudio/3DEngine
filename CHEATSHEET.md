@@ -16,6 +16,8 @@ void CloseWindow();                                      // Run Cleanup, close t
 bool WindowShouldClose();                                // Process events; true once the window or the exit key asks to close
 bool IsWindowReady();                                    // Whether a window is open
 void SetExitKey(Key key);                                // Key that closes the window (Escape by default, Key.Unknown for none)
+void EnableEventWaiting();                               // WindowShouldClose waits for input, up to a tenth of a second, for tools
+void DisableEventWaiting();                              // Back to returning at once
 void SetWindowTitle(string title);                       // Set the window's title
 int GetScreenWidth();                                    // Window width
 int GetScreenHeight();                                   // Window height
@@ -127,6 +129,8 @@ bool IsMouseButtonDown(MouseButton button);              // Button is held
 bool IsMouseButtonReleased(MouseButton button);          // Button came up this frame
 bool IsMouseButtonUp(MouseButton button);                // Button is not held
 Vector2 GetMousePosition();                              // Pointer position in the window
+void SetMouseOffset(int offsetX, int offsetY);           // Add to the pointer's position, before its scale
+void SetMouseScale(float scaleX, float scaleY);          // Scale the pointer's position, as for a letterboxed render texture
 void SetMousePosition(int x, int y);                     // Move the pointer within the window
 int GetMouseX();                                         // Pointer x
 int GetMouseY();                                         // Pointer y
@@ -199,6 +203,7 @@ void DrawRectangleGradientEx(Rectangle rec, Color topLeft, Color bottomLeft, Col
 void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);            // Outline of a width, inside the edge
 void DrawRectangleRounded(Rectangle rec, float roundness, int segments, Color color); // Rounded corners, roundness 0 to 1
 void DrawRectangleRoundedLines(Rectangle rec, float roundness, int segments, Color color); // Its outline
+void DrawRectangleRoundedLinesEx(Rectangle rec, float roundness, int segments, float lineThick, Color color); // Its outline, thick, outside the edge
 void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color);           // Triangle outline
 void DrawTriangleFan(ReadOnlySpan<Vector2> points, Color color);                   // Triangles fanning from the first point
 void DrawTriangleStrip(ReadOnlySpan<Vector2> points, Color color);                 // A strip of triangles
@@ -302,6 +307,7 @@ Color[] LoadImageColors(Image image);                                           
 Image GenImageGradientSquare(int width, int height, float density, Color inner, Color outer); // A square gradient, inner at the center
 Image ImageFromChannel(Image image, int selectedChannel);                              // One channel (0 red to 3 alpha) as grayscale
 void ImageAlphaClear(ref Image image, Color color, float threshold);                   // Pixels below an alpha given a color
+void ImageDither(ref Image image, int rBpp, int gBpp, int bBpp, int aBpp);             // Reduce to so many bits a channel, dithered
 void ImageAlphaMask(ref Image image, Image alphaMask);                                 // Alpha from a mask's brightness
 void ImageAlphaPremultiply(ref Image image);                                           // Color multiplied by alpha
 Rectangle GetImageAlphaBorder(Image image, float threshold);                           // The box around the pixels above an alpha
