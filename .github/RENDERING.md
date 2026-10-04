@@ -512,8 +512,9 @@ The largest costs as they were measured, in order, each with what changed:
 
 ### Debugging
 
-- **Object names** through `VK_EXT_debug_utils`, so RenderDoc shows `model pass` instead of a
-  handle.
+- **Object names** for images and buffers through `VK_EXT_debug_utils`, so a capture shows the
+  shadow map by name. Each render graph node's commands are a labeled region already, by the node's
+  name, wherever the instance has the extension, with validation or under RenderDoc.
 
 ## Order of work
 

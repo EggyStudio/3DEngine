@@ -183,6 +183,29 @@ public sealed unsafe partial class GraphicsDevice
 
     /// <summary>Thin wrapper around a native <c>VkCommandBuffer</c> handle.</summary>
     /// <seealso cref="ICommandBuffer"/>
+    private bool _debugUtils;
+
+    /// <summary>
+    /// Opens a labeled region of <paramref name="commands"/>, which a capture tool such as RenderDoc
+    /// shows by its name, where the instance has <c>VK_EXT_debug_utils</c>.
+    /// </summary>
+    public void BeginDebugLabel(ICommandBuffer commands, string name)
+    {
+        if (!_debugUtils || commands is not VulkanCommandBuffer vk) return;
+        var bytes = System.Text.Encoding.UTF8.GetBytes(name + "\0");
+        fixed (byte* text = bytes)
+        {
+            var label = new VkDebugUtilsLabelEXT { pLabelName = text };
+            _instanceApi.vkCmdBeginDebugUtilsLabelEXT(vk.Handle, &label);
+        }
+    }
+
+    /// <summary>Closes the region <see cref="BeginDebugLabel"/> opened last.</summary>
+    public void EndDebugLabel(ICommandBuffer commands)
+    {
+        if (_debugUtils && commands is VulkanCommandBuffer vk) _instanceApi.vkCmdEndDebugUtilsLabelEXT(vk.Handle);
+    }
+
     private sealed class VulkanCommandBuffer : ICommandBuffer
     {
         /// <summary>The underlying Vulkan command buffer handle.</summary>

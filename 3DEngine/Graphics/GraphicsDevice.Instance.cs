@@ -44,7 +44,10 @@ public sealed unsafe partial class GraphicsDevice
             .GetRequiredInstanceExtensions()
             .ToList();
         var debugUtils = Utf8(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        if (_validationEnabled && !requiredExtensions.Contains(debugUtils))
+        // Enabled wherever the instance offers it, with validation or under a capture tool such
+        // as RenderDoc, so each pass of a frame carries its node's name.
+        _debugUtils = _validationEnabled || IsInstanceExtensionAvailable(debugUtils);
+        if (_debugUtils && !requiredExtensions.Contains(debugUtils))
             requiredExtensions.Add(debugUtils);
 
         foreach (var ext in requiredExtensions)
@@ -121,6 +124,17 @@ public sealed unsafe partial class GraphicsDevice
     /// validation layers are present. Returns false if any layer is missing,
     /// preventing a segfault from requesting a non-existent layer.
     /// </summary>
+    private static bool IsInstanceExtensionAvailable(string name)
+    {
+        if (vkEnumerateInstanceExtensionProperties(out uint count) != VkResult.Success || count == 0) return false;
+        var properties = new VkExtensionProperties[(int)count];
+        if (vkEnumerateInstanceExtensionProperties(properties) != VkResult.Success) return false;
+        for (int i = 0; i < (int)count; i++)
+            fixed (byte* namePtr = properties[i].extensionName)
+                if (Marshal.PtrToStringUTF8((nint)namePtr) == name) return true;
+        return false;
+    }
+
     private static bool AreValidationLayersAvailable()
     {
         try

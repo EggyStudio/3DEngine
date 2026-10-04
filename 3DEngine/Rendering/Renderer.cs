@@ -191,7 +191,10 @@ public sealed class Renderer : IDisposable
             }
 
             var graphCtx = new RenderGraphContext(inputs, node.Output().Length, RunSubGraph);
+            var device = renderCtx.Device as GraphicsDevice;
+            device?.BeginDebugLabel(renderCtx.CommandBuffer, label);
             node.Run(graphCtx, renderCtx, RenderWorld);
+            device?.EndDebugLabel(renderCtx.CommandBuffer);
 
             // Outputs were rendered to, so they are now in ColorAttachmentOptimal.
             var outputs = graphCtx.GetOutputs();
