@@ -13,22 +13,20 @@ public class ModelInstanceTests
         Marshal.SizeOf<ModelRenderer.Instance>().Should().Be(ModelRenderer.Instance.Size);
         var world = Matrix4x4.CreateScale(2) * Matrix4x4.CreateTranslation(5, 6, 7);
         var instance = ModelRenderer.Instance.Of(new ModelDraw(1, world, Matrix4x4.Identity, Color.White, 0,
-            Metallic: 0.25f, Roughness: 0.5f, NormalMap: 3, NormalScale: 0.75f, OcclusionStrength: 1), Matrix4x4.Identity);
+            Metallic: 0.25f, Roughness: 0.5f, NormalMap: 3, NormalScale: 0.75f, OcclusionStrength: 1));
         var floats = MemoryMarshal.Cast<ModelRenderer.Instance, float>(new[] { instance });
 
-        // The transform by its rows, then the world matrix's columns, which carry the translation last.
-        floats[..4].ToArray().Should().Equal(2, 0, 0, 0);
-        floats[12..16].ToArray().Should().Equal(5, 6, 7, 1);
-        floats[16..20].ToArray().Should().Equal(2, 0, 0, 5);
-        floats[24..28].ToArray().Should().Equal(0, 0, 2, 7);
-        floats[36..40].ToArray().Should().Equal(0.25f, 0.5f, 0.75f, 1);
+        // The world matrix's columns, which carry the translation last, then the color, emission and factors.
+        floats[..4].ToArray().Should().Equal(2, 0, 0, 5);
+        floats[8..12].ToArray().Should().Equal(0, 0, 2, 7);
+        floats[20..24].ToArray().Should().Equal(0.25f, 0.5f, 0.75f, 1);
     }
 
     [Fact]
     public void A_Draws_Color_Is_Decoded_To_Linear_And_A_Missing_Normal_Map_Bends_Nothing()
     {
         var instance = ModelRenderer.Instance.Of(new ModelDraw(1, Matrix4x4.Identity, Matrix4x4.Identity, new Color(255, 188, 0, 128), 0,
-            NormalScale: 2, Emission: new Vector3(3, 0, 0)), Matrix4x4.Identity);
+            NormalScale: 2, Emission: new Vector3(3, 0, 0)));
 
         instance.Color.X.Should().Be(1);
         instance.Color.Y.Should().BeApproximately(0.5f, 0.005f, "sRGB 188 is half the light");
@@ -38,14 +36,14 @@ public class ModelInstanceTests
     }
 
     [Fact]
-    public void The_Transform_Carries_The_Camera_And_The_World_Rows_Do_Not()
+    public void An_Instance_Holds_Nothing_Of_The_Camera()
     {
         var world = Matrix4x4.CreateTranslation(1, 2, 3);
-        var camera = Matrix4x4.CreateScale(10);
-        var instance = ModelRenderer.Instance.Of(new ModelDraw(1, world, camera, Color.White, 0), camera);
+        var near = ModelRenderer.Instance.Of(new ModelDraw(1, world, Matrix4x4.CreateScale(10), Color.White, 0));
+        var far = ModelRenderer.Instance.Of(new ModelDraw(1, world, Matrix4x4.CreateScale(0.1f), Color.White, 0));
 
-        instance.Transform.Should().Be(world * camera);
-        instance.WorldX.W.Should().Be(1, "the world rows hold the world translation alone");
+        far.Should().Be(near, "the batch pushes the camera, so one instance serves every view");
+        near.WorldX.W.Should().Be(1, "the world rows hold the world translation alone");
     }
 
     [Theory]
@@ -64,7 +62,7 @@ public class ModelInstanceTests
     public void The_Alpha_Mode_Rides_In_The_Emissions_W()
     {
         float W(MaterialAlphaMode mode) => ModelRenderer.Instance.Of(new ModelDraw(1, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, 0,
-            AlphaMode: mode, AlphaCutoff: 0.25f), Matrix4x4.Identity).Emission.W;
+            AlphaMode: mode, AlphaCutoff: 0.25f)).Emission.W;
 
         W(MaterialAlphaMode.Opaque).Should().BeNegative();
         W(MaterialAlphaMode.Mask).Should().Be(0.25f);

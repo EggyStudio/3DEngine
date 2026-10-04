@@ -139,10 +139,12 @@ models and the ECS's mesh entities alike. A mesh is uploaded once into host-visi
 vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
 `GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
 each frame. Draws of the model pass's own shader that share a mesh and its five maps are one
-instanced draw, in the order each such batch first appears. Each draw is an instance of 160 bytes
+instanced draw, in the order each such batch first appears. Each draw is an instance of 96 bytes
 in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `ModelInstance` in the
-shader), holding the full transform, the world matrix as three rows of a 3x4 (the rotation for
-normals and the translation for world positions) and the material's factors. `model.slang` shades by the frame's lights, or by one fixed light
+shader), holding the world matrix as three rows of a 3x4 (the rotation for normals and the
+translation for world positions) and the material's factors. The camera's view-projection is a
+push constant for the batch (`modelPush`), as a light's is in the shadow pass, so draws recorded
+through two cameras are batched apart. `model.slang` shades by the frame's lights, or by one fixed light
 from above over an ambient floor when the world has none, which is how the flat API's models look.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports
 too. A draw with one is drawn by a pipeline made from it, and its uniforms, copied when the draw
@@ -531,6 +533,13 @@ The largest costs as they were measured, in order, each with what changed:
    The run without arms afterward held 321,375 entities in place of 307,699, the GPU taking 0.5 ms
    for the shadows in place of 9.8 ms and 6.2 ms for the model pass. The frame is now the CPU's,
    the program's loop turning every entity the largest part of it.
+7. **Each instance carried its camera.** The model pass's instance held the world matrix through
+   the camera, 64 of its 160 bytes, which `MeshEntityDraws` multiplied out for each entity, and
+   which the shadow pass, pushing the light's matrix, did not read.
+   **Changed.** The batch pushes the camera's view-projection, the vertex stage multiplies the
+   world position by it, and works the eye out from it, so an instance is 96 bytes and the same
+   through every view. Run one after the other on 2026-10-04, the run with arms held 410,266
+   entities in place of 379,495, and the GPU took 5.1 ms for the model pass in place of 6.4.
 
 ## What the engine needs
 

@@ -23,14 +23,11 @@ module modelpass;
 
 // One drawn copy of a mesh, read from a vertex buffer stepped once per instance, so every mesh
 // sharing a mesh and its maps is drawn by one call. A vertex stage of a shader's own takes it as a
-// parameter after the mesh's three and hands it to transformModelVertex.
+// parameter after the mesh's three and hands it to transformModelVertex. It holds nothing of the
+// camera, which modelPush carries for the whole call, so an instance is the same through every
+// camera and every light.
 public struct ModelInstance
 {
-    // The model to clip space transform, by its rows as System.Numerics lays them out.
-    public float4 transform0 : INSTANCE_TRANSFORM0;
-    public float4 transform1 : INSTANCE_TRANSFORM1;
-    public float4 transform2 : INSTANCE_TRANSFORM2;
-    public float4 transform3 : INSTANCE_TRANSFORM3;
     // The world matrix as three rows of a 3x4: the 3x3 turns normals into world space and the
     // fourth column is the translation, for the world position point lights need.
     public float4 worldX : INSTANCE_WORLDX;
@@ -43,6 +40,16 @@ public struct ModelInstance
     // Metallic, roughness, normal scale (0 when the material has no normal map) and occlusion strength.
     public float4 factors : INSTANCE_FACTORS;
 };
+
+// What a call is drawn through, world to clip space, as System.Numerics lays it out: the camera's
+// in the model pass, and the light's in the shadow pass.
+public struct ModelPush
+{
+    public float4x4 viewProjection;
+};
+
+[[vk::push_constant]]
+public ConstantBuffer<ModelPush> modelPush;
 
 [[vk::binding(1, 0)]]
 public Sampler2D boundTexture;
@@ -173,11 +180,12 @@ public struct ModelVertexOutput
     public nointerpolation float4 factors : TEXCOORD2;
 };
 
-// Where the camera is, worked out from the transform alone, so an instance carries no more than
-// it. The transform here is as mul takes it, its rows the columns System.Numerics has. Under a perspective projection the eye is the one point clip space's x, y and w all
-// take as zero, three planes whose meeting point Cramer's rule gives. An orthographic projection
-// has no such point, and gives the way toward the camera instead, with w of 0.
-float4 eyeInModelSpace(float4x4 transform)
+// Where the camera is, worked out from its view-projection alone, so the call carries no more
+// than it. The transform here is as mul takes it, its rows the columns System.Numerics has. Under
+// a perspective projection the eye is the one point clip space's x, y and w all take as zero,
+// three planes whose meeting point Cramer's rule gives. An orthographic projection has no such
+// point, and gives the way toward the camera instead, with w of 0.
+float4 eyeInWorld(float4x4 transform)
 {
     float4 a = transform[0];
     float4 b = transform[1];
@@ -201,17 +209,17 @@ static const int Ambient = 3;
 // The vertex stage every model shader uses unless it writes its own.
 public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv, ModelInstance instance)
 {
-    // The rows System.Numerics multiplies a row vector by are the columns of what mul takes.
-    float4x4 transform = transpose(float4x4(instance.transform0, instance.transform1, instance.transform2, instance.transform3));
+    // Read by columns, as a constant buffer's matrix is, so the rows System.Numerics writes are the
+    // columns of what mul takes, as the shadow stage reads it.
+    float4x4 viewProjection = modelPush.viewProjection;
     ModelVertexOutput output;
-    output.position = mul(transform, float4(position, 1.0));
-    output.normal = float3(dot(instance.worldX.xyz, normal), dot(instance.worldY.xyz, normal), dot(instance.worldZ.xyz, normal));
     output.world = float3(dot(instance.worldX, float4(position, 1.0)), dot(instance.worldY, float4(position, 1.0)), dot(instance.worldZ, float4(position, 1.0)));
+    output.position = mul(viewProjection, float4(output.world, 1.0));
+    output.normal = float3(dot(instance.worldX.xyz, normal), dot(instance.worldY.xyz, normal), dot(instance.worldZ.xyz, normal));
     output.uv = uv;
 
-    float4 eye = eyeInModelSpace(transform);
-    float3 eyeWorld = float3(dot(instance.worldX, eye), dot(instance.worldY, eye), dot(instance.worldZ, eye));
-    output.toEye = eye.w == 0.0 ? eyeWorld : eyeWorld - output.world;
+    float4 eye = eyeInWorld(viewProjection);
+    output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
     output.color = instance.color;
     output.emission = instance.emission;
     output.factors = instance.factors;

@@ -363,7 +363,6 @@ public sealed class MeshEntityDraws
         // As ModelRenderer.Instance.Of writes them, the factors kept.
         ref var instance = ref state.Next(look.Group);
         instance = look.Instance;
-        instance.Transform = placed * frame.ViewProjection;
         instance.WorldX = new Vector4(placed.M11, placed.M21, placed.M31, placed.M41);
         instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
         instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
@@ -430,7 +429,7 @@ public sealed class MeshEntityDraws
         {
             Material = material,
             Draw = draw,
-            Instance = ModelRenderer.Instance.Of(draw, Matrix4x4.Identity),
+            Instance = ModelRenderer.Instance.Of(draw),
             Group = draw.IsTranslucent ? -1 : GroupOf(draw),
             Pending = pending,
             Built = _frame,

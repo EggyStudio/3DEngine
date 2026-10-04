@@ -19,11 +19,13 @@ removed from this file, and an item that is partly done is rewritten around what
 - **Per-entity work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark`
   and `models_stress`). Mesh entities write their instances on several threads straight into
   groups the pass copies into its ring on several threads, and each view draws the blocks of 64
-  instances it sees. A frame holds about 321,000, of which `MeshEntityDraws` takes 4.8 ms and the
-  copy 3.0 ms, while the GPU takes 6.6 ms. A culled block is still written into the ring, and an
-  entity whose transform has not changed is written again each frame. A frame holds about 243,000
-  sprites, each `DrawTexture` about 48 nanoseconds with the example's loop, the upload 3.0 ms and
-  the GPU 6.3 ms, so what is left is shared between the three.
+  instances it sees. A frame holds about 410,000, of which `MeshEntityDraws` takes 5.6 ms and the
+  program's loop turning them most of the rest, while the GPU takes 5.1 ms for the model pass. A
+  culled block is still written into the ring, and an entity whose transform has not changed is
+  written again each frame, though its instance, which holds nothing of the camera, would be the
+  same. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
+  example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
+  three.
 
 ### The flat API
 

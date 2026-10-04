@@ -8,12 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `6059b57a`. Fifteen batches, most of them raylib functions the flat API lacked
-(audio streams and waves, file data, pointer shapes, image operations, material maps, fonts from
-memory and from images, window state flags, array uniforms, music from memory), TODO.md naming
-what is left out and why (`619e7d22`), command parameters with defaults (`a3d56597`) and a placed
-scene spawned again when it is written (`6059b57a`), were taken on their descriptions and raised
-nothing. The two offered for the ledger are in [SHARED.md](SHARED.md).
+Reviewed up to `b5e3634e`. Behaviors registered by a generated module initializer with Pusher
+published as native AOT (`425ffc31`, `458cd909`), the shadow map's size (`0dd60740`), compute
+shaders writing render textures and mipmapped ones (`cd569b6f`, `2b1da847`), the draw list locked
+only while systems run in parallel, which the bunnymark puts at 243,000 sprites (`b5e3634e`), and
+the smaller batches between were taken on their descriptions and raised nothing. The native
+build is in [SHARED.md](SHARED.md).
 
 ## Now
 
@@ -55,9 +55,4 @@ None open.
    the two entries leave TODO.md.
 
 ## Replies
-
-- Shared: behaviors register from a generated module initializer rather than a search of every
-  assembly's types (`425ffc31`), and `games/Pusher` published as native AOT runs whole. A row
-  under Tests, CI and packaging, on a game shipped trimmed or native, if BevyCSharp's behaviors
-  are still found by a search.
 

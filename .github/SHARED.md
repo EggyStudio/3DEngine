@@ -55,6 +55,8 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
+| An order among systems in one stage, one before or after another or a chain | to take, which Bevy's examples wait on | to consider, where systems of a stage run in the order they were added |
+| An observer told when a component is added or removed or an event of a game's own is sent to an entity | to take, which Bevy's examples wait on | to consider |
 | `Changed` and `Added` filters that a system not run every frame can trust | has, from Bevy | has (`e612ac63`, `58924752`) |
 | The entities that lost a component since a system last ran | to take | has (`Removed`, `ab052859`) |
 | A read that does not mark its component changed, beside one that does | has, from Bevy | has (`GetReadOnly`, `QueryReadOnly`) |
@@ -123,6 +125,8 @@ table also answers whether the two agree.
 |---|---|---|
 | A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
 | Examples picked by name as an argument, each with a capture CI takes | taken at `661682e`, measured against Bevy's own 421 examples in EXAMPLES.md | has (`3DEngine.Examples`, `048c072c`) |
+| Behaviors registered by a module initializer the generator writes, so a game published trimmed or as native AOT keeps them | has | has (`425ffc31`), with Pusher published native |
+| A game published as native AOT and run by CI | to take | has (`458cd909`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
