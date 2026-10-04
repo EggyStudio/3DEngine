@@ -26,20 +26,22 @@ public class DrawListTests
         list.SetTransform(Matrix4x4.CreateScale(2), depthTest: true);
         list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
 
-        list.Batches.Select(b => (b.Topology, b.DepthTest, b.FirstVertex, b.VertexCount)).Should().Equal(
+        list.Batches.Select(b => (b.Topology, b.DepthTest, b.FirstIndex, b.IndexCount)).Should().Equal(
             (PrimitiveTopology.LineList, false, 0, 2),
             (PrimitiveTopology.TriangleList, false, 2, 3),
             (PrimitiveTopology.TriangleList, true, 5, 3));
     }
 
     [Fact]
-    public void A_Quad_Is_Two_Triangles()
+    public void A_Quad_Is_Two_Triangles_Over_Its_Four_Corners()
     {
         var list = new DrawList();
+        list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
         list.Quad(Vector3.Zero, Vector3.UnitX, Vector3.One, Vector3.UnitY, Color.Blue);
 
-        list.Vertices.Length.Should().Be(6);
-        list.Batches.Should().ContainSingle().Which.Topology.Should().Be(PrimitiveTopology.TriangleList);
+        list.Vertices.Length.Should().Be(2 + 4);
+        list.Indices.ToArray().Should().Equal(0u, 1u, 2u, 3u, 4u, 2u, 4u, 5u);
+        list.Batches.Last().Should().Match<DrawBatch>(b => b.Topology == PrimitiveTopology.TriangleList && b.FirstIndex == 2 && b.IndexCount == 6);
     }
 
     [Fact]
@@ -52,6 +54,7 @@ public class DrawListTests
         list.Clear();
 
         list.Vertices.Length.Should().Be(0);
+        list.Indices.Length.Should().Be(0);
         list.Batches.Should().BeEmpty();
         list.Transform.Should().Be(Matrix4x4.Identity);
         list.DepthTest.Should().BeFalse();
@@ -65,7 +68,7 @@ public class DrawListTests
             list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
 
         list.Vertices.Length.Should().Be(10000);
-        list.Batches.Should().ContainSingle().Which.VertexCount.Should().Be(10000);
+        list.Batches.Should().ContainSingle().Which.IndexCount.Should().Be(10000);
     }
 
     [Fact]
@@ -85,7 +88,7 @@ public class DrawListTests
         list.TexturedQuad(Vector3.Zero, Vector3.UnitX, Vector3.One, Vector3.UnitY, uv, uv, uv, uv, Color.White, 3);
         list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
 
-        list.Batches.Select(b => (b.Texture, b.VertexCount)).Should().Equal((3, 12), (0, 3));
+        list.Batches.Select(b => (b.Texture, b.IndexCount)).Should().Equal((3, 12), (0, 3));
     }
 
     [Fact]
@@ -129,12 +132,12 @@ public class DrawListTests
     {
         var list = new DrawList();
         list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
-        list.Batches.Should().ContainSingle().Which.VertexCount.Should().Be(2);
+        list.Batches.Should().ContainSingle().Which.IndexCount.Should().Be(2);
 
         list.Line(Vector3.Zero, Vector3.UnitY, Color.Red);
         list.SetTransform(Matrix4x4.Identity, depthTest: false);
         list.Line(Vector3.Zero, Vector3.UnitZ, Color.Red);
 
-        list.Batches.Should().ContainSingle("the transform was set to what it was").Which.VertexCount.Should().Be(6);
+        list.Batches.Should().ContainSingle("the transform was set to what it was").Which.IndexCount.Should().Be(6);
     }
 }

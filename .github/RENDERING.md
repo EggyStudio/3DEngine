@@ -75,13 +75,14 @@ buffer yet, so what a compute shader works out reaches the screen through the CP
 ## 2. The immediate pass
 
 `Draw` calls from the flat API (see [DESIGN.md](DESIGN.md)) record into the `DrawList` resource, a
-growing array of 24-byte vertices (position, texture coordinate and color) split into batches. A
-batch is a run of consecutive shapes with the same topology (lines or triangles), transform, depth
-mode, texture, blend mode and scissor, so a scene of shapes drawn through one camera is two batches. Untextured shapes
-sample a white pixel, so one shader draws both. `ImmediateNode` runs after `main_pass` and before
-ImGui. It writes the frame's vertices into the dynamic buffer arena in one copy and issues one draw
-per batch with `immediate.slang`, the batch's transform a push constant. The list is cleared in
-`First`.
+growing array of 24-byte vertices (position, texture coordinate and color) and a growing array of
+32-bit indices into it, split into batches. A quad, which every sprite, glyph and rectangle is, is
+four vertices and six indices. A batch is a run of consecutive shapes with the same topology (lines
+or triangles), transform, depth mode, texture, blend mode and scissor, so a scene of shapes drawn
+through one camera is two batches. Untextured shapes sample a white pixel, so one shader draws
+both. `ImmediateNode` runs after `main_pass` and before ImGui. It writes the frame's vertices and
+indices into the dynamic buffer arena in one copy each and issues one indexed draw per batch with
+`immediate.slang`, the batch's transform a push constant. The list is cleared in `First`.
 
 A batch also carries a shader id and four `float4` values. Inside `BeginShaderMode`, the batch draws
 with the stages of a program the flat API compiled (`ShaderStore`), whose fragment stage, and
@@ -427,8 +428,13 @@ The three largest costs as first measured, in order, each with what changed:
    cosine. The same run afterward held 186,473 sprites in place of 121,613, with the movement
    loop at 3.0 ms and `DrawTexture` at about 55 nanoseconds a sprite (10.4 ms). What is left of
    it is the draw list's lock, which a system on a worker thread needs, and six vertices of 24
-   bytes for each quad, since the immediate pass draws without an index buffer. The GPU takes 5.1
+   bytes for each quad, since the immediate pass drew without an index buffer. The GPU takes 5.1
    ms for them and the upload 2.0 ms.
+   **Changed after.** The immediate pass draws by index, so a quad is four vertices and six indices,
+   120 bytes in place of 144. Measured one run after the other on a machine busy with other work,
+   the search ended at 133,774 sprites without the indices and 127,018 with them, which is within
+   what such a run varies by. `DrawTexture` took about 84 nanoseconds a sprite in both, so writing
+   the two vertices was not its cost, and the upload took 11.7 nanoseconds a sprite in place of 14.5.
 4. **The shadow pass wrote every instance again for each cascade.** Measured again later in the
    day on the same machine, after point lights and a fourth tile had been added, the run without
    arms held 22,811 entities, with the shadow pass recording for 6.4 ms, the model pass for 4.9 ms

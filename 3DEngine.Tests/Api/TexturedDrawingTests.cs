@@ -33,7 +33,7 @@ public sealed class TexturedDrawingTests : IDisposable
         DrawTextureNPatch(_texture, info, new Rectangle(100, 50, 200, 80), Vector2.Zero, 0, Color.White);
 
         var vertices = Vertices.ToArray();
-        vertices.Should().HaveCount(9 * 6, "nine patches of two triangles");
+        vertices.Should().HaveCount(9 * 4, "nine patches of four corners");
         var xs = vertices.Select(v => v.Position.X).Distinct().Order().ToArray();
         var ys = vertices.Select(v => v.Position.Y).Distinct().Order().ToArray();
         xs.Should().Equal(100, 110, 290, 300);
@@ -47,12 +47,12 @@ public sealed class TexturedDrawingTests : IDisposable
     {
         var info = new NPatchInfo(new Rectangle(0, 0, 30, 30), 10, 10, 10, 10);
         DrawTextureNPatch(_texture, info, new Rectangle(0, 0, 10, 100), Vector2.Zero, 0, Color.White);
-        Vertices.Length.Should().Be(6 * 6, "the middle column goes, its borders shrunk to five pixels each");
+        Vertices.Length.Should().Be(6 * 4, "the middle column goes, its borders shrunk to five pixels each");
         Vertices.ToArray().Max(v => v.Position.X).Should().Be(10);
 
         _app.World.Resource<DrawList>().Clear();
         DrawTextureNPatch(_texture, info with { Layout = NPatchLayout.ThreePatchHorizontal }, new Rectangle(0, 0, 100, 999), Vector2.Zero, 0, Color.White);
-        Vertices.Length.Should().Be(3 * 6);
+        Vertices.Length.Should().Be(3 * 4);
         Vertices.ToArray().Max(v => v.Position.Y).Should().Be(30, "three patches across keep the source's height");
     }
 

@@ -11,8 +11,8 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="Topology">Whether the vertices are lines or triangles.</param>
 /// <param name="Transform">Model to clip space, in <c>System.Numerics</c> order (row vectors).</param>
 /// <param name="DepthTest">Whether the run is tested against and writes the depth buffer.</param>
-/// <param name="FirstVertex">Index of the run's first vertex.</param>
-/// <param name="VertexCount">Number of vertices in the run.</param>
+/// <param name="FirstIndex">Where the run's indices start in <see cref="DrawList.Indices"/>.</param>
+/// <param name="IndexCount">How many indices the run draws, two a line and three a triangle.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
 /// <param name="Uniforms">The named uniforms of its shader as they were when the run was recorded, laid out as the shader declares them, or null for none.</param>
 /// <param name="Textures">The textures its shader samples, by their index in the program's textures, as they were set when the run was recorded, or null for none.</param>
@@ -22,7 +22,7 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="Blend">How the run is laid over what is there.</param>
 /// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
 public readonly record struct DrawBatch(
-    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount,
+    PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
     BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null);
 
@@ -41,6 +41,10 @@ public readonly record struct ScissorRect(int X, int Y, int Width, int Height);
 /// whatever the number of shapes. This is the scheme raylib's rlgl layer uses.
 /// </para>
 /// <para>
+/// Shapes are drawn by index, so a quad is four vertices and six indices rather than six vertices,
+/// which a sprite, a glyph and a rectangle all are.
+/// </para>
+/// <para>
 /// Recording takes a lock, because a system calling a <c>Draw</c> function may run on a worker
 /// thread in a parallel stage. The order of two systems' shapes within a stage is then not fixed.
 /// </para>
@@ -50,9 +54,11 @@ public sealed class DrawList
     private readonly object _gate = new();
     private ImmediateVertex[] _vertices = new ImmediateVertex[4096];
     private int _count;
+    private uint[] _indices = new uint[6144];
+    private int _indexCount;
     private readonly List<DrawBatch> _batches = [];
 
-    // The last batch while calls keep extending it. Its topology, texture and vertex count are kept
+    // The last batch while calls keep extending it. Its topology, texture and index count are kept
     // here, and the count is written into the list only when another batch opens or the batches
     // are read. Comparing a
     // whole DrawBatch and copying it back on every shape cost most of a sprite's recording. Any
@@ -152,6 +158,9 @@ public sealed class DrawList
     /// <summary>Every vertex recorded this frame.</summary>
     public ReadOnlySpan<ImmediateVertex> Vertices => _vertices.AsSpan(0, _count);
 
+    /// <summary>Every index recorded this frame, into <see cref="Vertices"/>, which the batches draw runs of.</summary>
+    public ReadOnlySpan<uint> Indices => _indices.AsSpan(0, _indexCount);
+
     /// <summary>The runs the vertices are drawn in, in recording order.</summary>
     public IReadOnlyList<DrawBatch> Batches
     {
@@ -184,6 +193,7 @@ public sealed class DrawList
             var at = Reserve(PrimitiveTopology.LineList, 2, 0);
             _vertices[at] = new ImmediateVertex(from, default, color);
             _vertices[at + 1] = new ImmediateVertex(to, default, color);
+            Index(at, 0, 1);
         }
     }
 
@@ -196,6 +206,7 @@ public sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, color);
             _vertices[at + 1] = new ImmediateVertex(b, default, color);
             _vertices[at + 2] = new ImmediateVertex(c, default, color);
+            Index(at, 0, 1, 2);
         }
     }
 
@@ -208,14 +219,22 @@ public sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, colorA);
             _vertices[at + 1] = new ImmediateVertex(b, default, colorB);
             _vertices[at + 2] = new ImmediateVertex(c, default, colorC);
+            Index(at, 0, 1, 2);
         }
     }
 
-    /// <summary>Records a quad as two triangles, with corners in order around its edge.</summary>
+    /// <summary>Records a quad as two triangles over its four corners, given in order around its edge.</summary>
     public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color)
     {
-        Triangle(a, b, c, color);
-        Triangle(a, c, d, color);
+        lock (_gate)
+        {
+            var at = Reserve(PrimitiveTopology.TriangleList, 4, 0);
+            _vertices[at] = new ImmediateVertex(a, default, color);
+            _vertices[at + 1] = new ImmediateVertex(b, default, color);
+            _vertices[at + 2] = new ImmediateVertex(c, default, color);
+            _vertices[at + 3] = new ImmediateVertex(d, default, color);
+            Index(at, 0, 1, 2, 0, 2, 3);
+        }
     }
 
     /// <summary>
@@ -227,13 +246,12 @@ public sealed class DrawList
     {
         lock (_gate)
         {
-            var at = Reserve(PrimitiveTopology.TriangleList, 6, texture);
+            var at = Reserve(PrimitiveTopology.TriangleList, 4, texture);
             _vertices[at] = new ImmediateVertex(a, uvA, tint);
             _vertices[at + 1] = new ImmediateVertex(b, uvB, tint);
             _vertices[at + 2] = new ImmediateVertex(c, uvC, tint);
-            _vertices[at + 3] = new ImmediateVertex(a, uvA, tint);
-            _vertices[at + 4] = new ImmediateVertex(c, uvC, tint);
-            _vertices[at + 5] = new ImmediateVertex(d, uvD, tint);
+            _vertices[at + 3] = new ImmediateVertex(d, uvD, tint);
+            Index(at, 0, 1, 2, 0, 2, 3);
         }
     }
 
@@ -243,6 +261,7 @@ public sealed class DrawList
         lock (_gate)
         {
             _count = 0;
+            _indexCount = 0;
             _batches.Clear();
             _open = false;
             Transform = Matrix4x4.Identity;
@@ -258,20 +277,39 @@ public sealed class DrawList
         }
     }
 
-    // Grows the vertex array and extends or opens the batch the vertices belong to. Called under
-    // the lock.
+    // Grows the vertex array for the vertices of a shape and returns where they start. The batch is
+    // opened or extended by Index, which counts what it draws. Called under the lock.
     private int Reserve(PrimitiveTopology topology, int vertices, int texture)
     {
         if (_count + vertices > _vertices.Length)
-            Array.Resize(ref _vertices, _vertices.Length * 2);
-
+            Array.Resize(ref _vertices, Math.Max(_vertices.Length * 2, _count + vertices));
+        _reservedTopology = topology;
+        _reservedTexture = texture;
         var at = _count;
         _count += vertices;
+        return at;
+    }
 
+    private PrimitiveTopology _reservedTopology;
+    private int _reservedTexture;
+
+    // Appends a shape's indices, relative to its first vertex at, and extends or opens the batch they
+    // belong to. Called under the lock, after Reserve.
+    private void Index(int at, params ReadOnlySpan<int> offsets)
+    {
+        var count = offsets.Length;
+        if (_indexCount + count > _indices.Length)
+            Array.Resize(ref _indices, Math.Max(_indices.Length * 2, _indexCount + count));
+        var first = _indexCount;
+        for (int i = 0; i < count; i++) _indices[first + i] = (uint)(at + offsets[i]);
+        _indexCount += count;
+
+        var topology = _reservedTopology;
+        var texture = _reservedTexture;
         if (_open && _openTopology == topology && _openTexture == texture)
         {
-            _openCount += vertices;
-            return at;
+            _openCount += count;
+            return;
         }
 
         // A batch that matches the last one closed, as after a transform set to what it was, extends it.
@@ -282,16 +320,15 @@ public sealed class DrawList
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
-                && last.Scissor == Scissor && last.FirstVertex + last.VertexCount == at)
+                && last.Scissor == Scissor && last.FirstIndex + last.IndexCount == first)
             {
-                Open(topology, texture, last.VertexCount + vertices);
-                return at;
+                Open(topology, texture, last.IndexCount + count);
+                return;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor));
-        Open(topology, texture, vertices);
-        return at;
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor));
+        Open(topology, texture, count);
     }
 
     private void Open(PrimitiveTopology topology, int texture, int count)
@@ -307,7 +344,7 @@ public sealed class DrawList
     {
         if (!_open) return;
         _open = false;
-        if (_batches[^1].VertexCount != _openCount)
-            _batches[^1] = _batches[^1] with { VertexCount = _openCount };
+        if (_batches[^1].IndexCount != _openCount)
+            _batches[^1] = _batches[^1] with { IndexCount = _openCount };
     }
 }

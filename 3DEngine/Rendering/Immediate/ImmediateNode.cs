@@ -10,7 +10,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Every vertex of the frame is written into the per-frame buffer arena in one copy by
+/// Every vertex and index of the frame is written into the per-frame buffer arena in one copy each by
 /// <see cref="Upload"/>, before the graph runs, because the batches for render targets are drawn
 /// by <see cref="TargetsNode"/> before the window's are drawn by <see cref="ImmediateNode"/>, and
 /// both read the same buffer.
@@ -56,6 +56,7 @@ public sealed class ImmediateRenderer : IDisposable
     private readonly List<(long Frame, IDisposable Stages)> _retired = [];
     private long _frame;
     private DynamicAllocation? _vertices;
+    private DynamicAllocation? _indices;
 
     // Sets of batches with uniforms of their own, a list per frame slot, handed out in order each
     // frame and reused when the slot comes round, once the GPU is done with that frame. A shader
@@ -88,21 +89,27 @@ public sealed class ImmediateRenderer : IDisposable
         _fragmentSpv = fragmentSpv;
     }
 
-    /// <summary>Writes the frame's vertices into the buffer arena, or forgets last frame's when there are none.</summary>
+    /// <summary>Writes the frame's vertices and indices into the buffer arena, or forgets last frame's when there are none.</summary>
     public void Upload(RenderContext renderContext, RenderWorld renderWorld)
     {
         _vertices = null;
+        _indices = null;
         RetireUnloadedShaders(renderWorld.TryGet<ShaderStore>());
         _uniformSetNext = 0;
         foreach (var sets in _shaderSets.Values) sets.Next = 0;
         var drawList = renderWorld.TryGet<DrawList>();
         if (drawList is null || drawList.Vertices.IsEmpty || renderContext.DynamicAllocator is not { } allocator) return;
 
-        var bytes = MemoryMarshal.AsBytes(drawList.Vertices);
-        var allocation = allocator.Allocate((ulong)bytes.Length, BufferUsage.Vertex);
+        _vertices = Copy(allocator, MemoryMarshal.AsBytes(drawList.Vertices), BufferUsage.Vertex);
+        _indices = Copy(allocator, MemoryMarshal.AsBytes(drawList.Indices), BufferUsage.Index);
+    }
+
+    private static DynamicAllocation Copy(DynamicBufferAllocator allocator, ReadOnlySpan<byte> bytes, BufferUsage usage)
+    {
+        var allocation = allocator.Allocate((ulong)bytes.Length, usage);
         bytes.CopyTo(allocator.Map(allocation));
         allocator.Unmap(allocation);
-        _vertices = allocation;
+        return allocation;
     }
 
     /// <summary>Draws the batches meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
@@ -110,7 +117,7 @@ public sealed class ImmediateRenderer : IDisposable
     {
         var drawList = renderWorld.TryGet<DrawList>();
         var textures = renderWorld.TryGet<GpuTextures>();
-        if (drawList is null || textures is null || _vertices is not { } vertices) return;
+        if (drawList is null || textures is null || _vertices is not { } vertices || _indices is not { } indices) return;
 
         var gfx = renderContext.Device;
         var bound = false;
@@ -121,6 +128,7 @@ public sealed class ImmediateRenderer : IDisposable
             if (!bound)
             {
                 pass.SetVertexBuffer(0, [vertices.Buffer], [vertices.Offset]);
+                pass.SetIndexBuffer(indices.Buffer, indices.Offset, IndexType.UInt32);
                 bound = true;
             }
             if (batch.Scissor != scissor)
@@ -136,7 +144,7 @@ public sealed class ImmediateRenderer : IDisposable
 
             var push = new Push { Transform = batch.Transform, Params = batch.Params };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
-            pass.Draw((uint)batch.VertexCount, 1, (uint)batch.FirstVertex);
+            pass.DrawIndexed((uint)batch.IndexCount, 1, (uint)batch.FirstIndex, 0, 0);
         }
         // The passes drawn after in the same render pass expect the whole target.
         if (scissor is not null) SetScissor(pass, null);

@@ -40,9 +40,9 @@ removed from this file, and an item that is partly done is rewritten around what
   frame's world matrix for every entity, 8.0 ms of the frame, and the passes take 7.1 ms gathering
   and writing the window's instances once for the shadow and the model pass. Writing an entity's
   instance straight from its components, kept while nothing about it changes, would remove most of
-  both. Each `DrawTexture` costs about 55 nanoseconds, of which the
-  draw list's lock and the two vertices a quad repeats without an index buffer are most, and the GPU
-  draws 186,000 sprites in 5.1 ms. An index buffer for quads would cut the vertices a third.
+  both. Each `DrawTexture` costs about 55 nanoseconds, which writing four vertices for a quad in
+  place of six did not change measurably, so the draw list's lock is the next part to time, and
+  the GPU draws 186,000 sprites in 5.1 ms.
 
 ### The flat API
 
