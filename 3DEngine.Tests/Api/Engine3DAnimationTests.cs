@@ -31,6 +31,66 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void A_Clip_Plays_On_A_Bone_And_Those_Below_It_Over_Another()
+    {
+        // Summit's hero, six bones under its hips, whose jump raises both arms and whose run swings them.
+        var hero = Path.Combine(AppContext.BaseDirectory, "resources", "hero.gltf");
+        var model = LoadModel(hero);
+        var clips = LoadModelAnimations(hero);
+        var (run, jump) = (clips.Single(c => c.Name == "run"), clips.Single(c => c.Name == "jump"));
+        var rest = Positions(model);
+        var leftArm = Enumerable.Range(0, rest.Length).Where(i => rest[i].X < -0.255f).ToArray();
+        var rightArm = Enumerable.Range(0, rest.Length).Where(i => rest[i].X > 0.255f).ToArray();
+        static void Near(Vector3[] actual, Vector3[] expected, string because)
+        {
+            actual.Length.Should().Be(expected.Length);
+            for (int i = 0; i < actual.Length; i++)
+                Vector3.Distance(actual[i], expected[i]).Should().BeLessThan(1e-4f, because);
+        }
+
+        UpdateModelAnimationAt(model, jump, 0.2f);
+        var jumping = Positions(model);
+        UpdateModelAnimationAt(model, run, 0.2f);
+        var running = Positions(model);
+
+        UpdateModelAnimationLayer(model, run, 0.2f, jump, 0.2f, "Hips");
+        Near(Positions(model), jumping, "a layer from the root bone poses the whole body");
+
+        UpdateModelAnimationLayer(model, run, 0.2f, jump, 0.2f, "ArmL");
+        var layered = Positions(model);
+        leftArm.Max(i => layered[i].Y).Should().BeGreaterThan(1.8f, "the left arm is raised as the jump raises it");
+        leftArm.Max(i => running[i].Y).Should().BeLessThan(1.5f, "where the run leaves it down");
+        Near([.. rightArm.Select(i => layered[i])], [.. rightArm.Select(i => running[i])], "the right arm swings with the run");
+
+        UpdateModelAnimationLayer(model, run, 0.2f, jump, 0.2f, "ArmL", weight: 0);
+        Near(Positions(model), running, "a weight of 0 leaves the first clip alone");
+    }
+
+    [Fact]
+    public void A_Morph_Target_Moves_The_Mesh_By_Its_Weight_Set_Or_Played()
+    {
+        // A strip one unit tall whose target "Raise" lifts its top edge a unit, and whose clip
+        // "pulse" takes that weight from 0 to 1 and back over a second. build/make-morph-gltf.py.
+        var file = Path.Combine(AppContext.BaseDirectory, "resources", "morph.gltf");
+        var model = LoadModel(file);
+        float Top() => Positions(model).Max(p => p.Y);
+        Top().Should().BeApproximately(1, 1e-5f, "the strip rests a unit tall");
+
+        SetModelMorphWeight(model, "Raise", 1);
+        Top().Should().BeApproximately(2, 1e-5f, "at full weight the top edge is a unit higher");
+        SetModelMorphWeight(model, "Raise", 0.5f);
+        Top().Should().BeApproximately(1.5f, 1e-5f);
+
+        var pulse = LoadModelAnimations(file).Should().ContainSingle().Subject;
+        pulse.Name.Should().Be("pulse");
+        IsModelAnimationValid(model, pulse).Should().BeTrue("a clip of weights fits a model of targets with no skeleton");
+        UpdateModelAnimationAt(model, pulse, 0.5f);
+        Top().Should().BeApproximately(2, 1e-3f, "halfway through the clip the weight is 1");
+        UpdateModelAnimationAt(model, pulse, 0.25f);
+        Top().Should().BeApproximately(1.5f, 1e-3f, "a quarter through it is a half");
+    }
+
+    [Fact]
     public void A_Skinned_Model_Loads_Its_Bones_At_Rest()
     {
         var model = LoadModel(Arm);

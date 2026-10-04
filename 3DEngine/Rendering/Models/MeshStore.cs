@@ -27,11 +27,15 @@ public sealed class MeshStore
     /// <param name="Skin">The joints and weights that pose it on the GPU, or null for a mesh that is not skinned there.</param>
     public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null);
 
-    /// <summary>A skinned mesh's four joints and four weights a vertex, and how many joints its skeleton has.</summary>
-    public sealed record Skin(ushort[] Joints, float[] Weights, int JointCount);
+    /// <summary>
+    /// A skinned mesh's four joints and four weights a vertex, how many joints its skeleton has, and
+    /// its morph targets, how far each moves each vertex's position and normal at full weight, two
+    /// float4 a vertex, target after target.
+    /// </summary>
+    public sealed record Skin(ushort[] Joints, float[] Weights, int JointCount, System.Numerics.Vector4[]? Morphs = null, int MorphCount = 0);
 
     private readonly Dictionary<int, Skin> _skins = [];
-    private readonly Dictionary<int, System.Numerics.Matrix4x4[]> _poses = [];
+    private readonly Dictionary<int, (System.Numerics.Matrix4x4[] Joints, float[]? Weights)> _poses = [];
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
@@ -149,20 +153,21 @@ public sealed class MeshStore
 
     /// <summary>
     /// Poses a skinned mesh for the next frame drawn, by each joint's matrix from rest to its pose
-    /// in the model's space. Its vertices here stay at rest, since the GPU moves them.
+    /// in the model's space, and its morph targets' weights when it has any. Its vertices here stay
+    /// at rest, since the GPU moves them.
     /// </summary>
-    public void PoseSkin(int id, System.Numerics.Matrix4x4[] joints)
+    public void PoseSkin(int id, System.Numerics.Matrix4x4[] joints, float[]? morphWeights = null)
     {
         lock (_gate)
-            if (_skins.ContainsKey(id)) _poses[id] = joints;
+            if (_skins.ContainsKey(id)) _poses[id] = (joints, morphWeights);
     }
 
     /// <summary>Hands the poses set since the last call to the renderer, the last of each mesh's.</summary>
-    internal void TakePoses(List<(int Id, System.Numerics.Matrix4x4[] Joints)> into)
+    internal void TakePoses(List<(int Id, System.Numerics.Matrix4x4[] Joints, float[]? Weights)> into)
     {
         lock (_gate)
         {
-            foreach (var (id, joints) in _poses) into.Add((id, joints));
+            foreach (var (id, pose) in _poses) into.Add((id, pose.Joints, pose.Weights));
             _poses.Clear();
         }
     }
@@ -204,7 +209,7 @@ public sealed class GpuMeshes : IDisposable
     private long _frame;
 
     /// <summary>The skinned meshes posed for this frame, with their joints' matrices, which the skinning node records.</summary>
-    internal List<(int Id, System.Numerics.Matrix4x4[] Joints)> Poses { get; } = [];
+    internal List<(int Id, System.Numerics.Matrix4x4[] Joints, float[]? Weights)> Poses { get; } = [];
 
     /// <summary>The buffers of mesh <paramref name="id"/>, or <c>null</c> when it is not loaded.</summary>
     public Entry? Get(int id) => _entries.GetValueOrDefault(id);
@@ -235,7 +240,8 @@ public sealed class GpuMeshes : IDisposable
                 // A skin the GPU poses writes its vertices into a buffer of its own.
                 if (upload.Skin is { } skinData && gfx is GraphicsDevice { CanSkin: true } device)
                 {
-                    var skin = device.CreateSkin(upload.Vertices, skinData.Joints, skinData.Weights, skinData.JointCount, GpuTextures.RetireFrames + 1);
+                    var skin = device.CreateSkin(upload.Vertices, skinData.Joints, skinData.Weights, skinData.JointCount, GpuTextures.RetireFrames + 1,
+                        skinData.Morphs, skinData.MorphCount);
                     _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin };
                     continue;
                 }
@@ -338,8 +344,8 @@ public sealed class SkinningNode : INode
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<GpuMeshes>() is not { } meshes || renderContext.Device is not GraphicsDevice device) return;
-        foreach (var (id, joints) in meshes.Poses)
+        foreach (var (id, joints, weights) in meshes.Poses)
             if (meshes.Get(id)?.Skin is { } skin)
-                device.RecordSkin(renderContext.CommandBuffer, skin, joints);
+                device.RecordSkin(renderContext.CommandBuffer, skin, joints, weights);
     }
 }

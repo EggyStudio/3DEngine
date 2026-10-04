@@ -561,6 +561,8 @@ void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Po
 void UpdateModelAnimationAt(Model model, ModelAnimation anim, float seconds); // Pose a model between frames, at a time
 void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight); // Between two clips
 void UpdateModelAnimationEx(Model model, ModelAnimation animA, float frameA, ModelAnimation animB, float frameB, float blend); // The same by frame
+void UpdateModelAnimationLayer(Model model, ModelAnimation under, float underSeconds, ModelAnimation over, float overSeconds, string bone, float weight = 1); // A clip on a bone and those below it, over another
+void SetModelMorphWeight(Model model, string target, float weight);       // Move a mesh toward a morph target by name, 0 to 1
 bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has
 void UnloadModelAnimation(ModelAnimation animation);                       // Let a clip go
 void UnloadModelAnimations(ModelAnimation[] animations);                   // Let clips go

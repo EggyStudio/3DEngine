@@ -223,6 +223,17 @@ it that makes the posed vertices visible to the shadow and model passes. A matri
 applied as System.Numerics applies a matrix to a row vector, so the CPU's layout is read as it is.
 With no renderer the CPU poses the vertices itself, as it did before, and they are the mesh's own.
 
+Morph targets ride the same dispatch. A mesh's targets, read from glTF through Assimp as how far
+each moves each vertex, are a sixth storage buffer of the skin, two float4 a vertex (position and
+normal) target after target, and each frame's weights follow the joints' matrices in the ring's
+buffer, with a push constant of the joint and target counts. `skin.slang` moves a vertex toward its
+targets before the joints move it. A mesh with targets and no skeleton is given a skin of one joint
+that never moves, so it takes the same path. A clip's weight channels are sampled with its bones
+(`ModelAnimation.FrameMorphWeights`), and `SetModelMorphWeight` poses the model again as its bones
+were last posed. A clip played on part of the skeleton (`UpdateModelAnimationLayer`) takes each
+bone's pose relative to its parent from the second clip from a bone down, and composes it onto
+where the first clip puts that bone's parent.
+
 ## 4. Lights and shadows
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up

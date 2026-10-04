@@ -56,6 +56,9 @@ public sealed class SceneAnimationChannel
     /// <see cref="TimesSeconds"/>.
     /// </summary>
     public required Vector4[] Values { get; init; }
+
+    /// <summary>For a <see cref="SceneAnimationProperty.MorphWeight"/> channel, the index of the morph target among the node's mesh's targets whose weight it drives.</summary>
+    public int MorphTarget { get; init; }
 }
 
 /// <summary>Property targeted by a <see cref="SceneAnimationChannel"/>.</summary>
@@ -70,7 +73,7 @@ public enum SceneAnimationProperty
     /// <summary>Local-space scale (<see cref="Vector4"/>.xyz).</summary>
     Scale,
 
-    /// <summary>Morph-target weight (<see cref="Vector4"/>.x), reserved for follow-up.</summary>
+    /// <summary>A morph target's weight (<see cref="Vector4"/>.x), the target named by <see cref="SceneAnimationChannel.MorphTarget"/>.</summary>
     MorphWeight,
 }
 

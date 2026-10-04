@@ -146,6 +146,32 @@ the clip's length so it loops. `UpdateModelAnimationBlend` poses it between two 
 own time, a weight of the way from the first to the second. `IsModelAnimationValid` says whether a
 clip moves the bones a model has, which a clip from another file may not.
 
+`UpdateModelAnimationLayer` plays one clip on a bone and every bone below it over another, so a
+character waves while it runs, the arm waving from wherever the run carries the shoulder:
+
+```csharp
+UpdateModelAnimationLayer(hero, run, time, wave, time, "ArmL");      // the left arm waves, the rest runs
+UpdateModelAnimationLayer(hero, walk, time, look, time, "Head", 0.5f); // the head half turns
+```
+
+## Morph targets
+
+A mesh can carry morph targets, shapes its vertices are moved toward by a weight from 0 to 1, as
+a face smiles or blinks or a ball squashes. A glTF file's targets load with the model, and its
+clips that move their weights play as any clip does. `SetModelMorphWeight` sets a target's weight
+by its name:
+
+```csharp
+// A strip whose target "Raise" lifts its top edge, and whose clip "pulse" raises and lowers it.
+var strip = LoadModel("resources/morph.gltf");
+SetModelMorphWeight(strip, "Raise", 0.5f);
+// ...
+UpdateModelAnimationAt(strip, pulse, time);
+```
+
+The GPU moves the vertices toward their targets before the skeleton poses them, so a skinned face
+smiles as its head turns. `build/make-morph-gltf.py` writes the strip.
+
 In the ECS an `AnimatedModel` component plays a clip on an entity by itself, which the
 `ecs_animated_models` example shows with five arms of one file, each at its own speed.
 

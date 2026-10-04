@@ -49,8 +49,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   and the monitor's size in millimetres (which SDL3 does not give) are left out too.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
-  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
-  a run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, where its
+  (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on
+  part of the skeleton (`UpdateModelAnimationLayer`), with their morph targets moved by weights a
+  clip or `SetModelMorphWeight` sets, and on the CPU in a run with no renderer. A clip on part of
+  the skeleton leaves the morph weights to the clip under it. A mesh posed on the GPU keeps its vertices at rest on the CPU, where its
   wires are posed from the same joints, and a collider made from it is at rest. An entity plays a
   file's clips through `AnimatedModel`, which loads a file once and gives each entity a copy with
   skinned meshes of its own, and poses and draws it through the flat API, so only in the app

@@ -13,10 +13,12 @@ public sealed class GpuSkin : IDisposable
 {
     private readonly Action _dispose;
 
-    internal GpuSkin(IBuffer output, int vertexCount, IBuffer[] rows, VkDescriptorSet[] sets, Action dispose)
+    internal GpuSkin(IBuffer output, int vertexCount, IBuffer[] rows, VkDescriptorSet[] sets, Action dispose, int jointCount = 0, int morphCount = 0)
     {
         Output = output;
         VertexCount = vertexCount;
+        JointCount = jointCount;
+        MorphCount = morphCount;
         Rows = rows;
         Sets = sets;
         _dispose = dispose;
@@ -29,6 +31,8 @@ public sealed class GpuSkin : IDisposable
     public int VertexCount { get; }
 
     internal IBuffer[] Rows { get; }
+    internal int JointCount { get; }
+    internal int MorphCount { get; }
     internal VkDescriptorSet[] Sets { get; }
     internal int Slot { get; set; } = -1;
 
@@ -48,7 +52,7 @@ public sealed class GpuSkin : IDisposable
 /// </remarks>
 public sealed unsafe partial class GraphicsDevice
 {
-    private const int SkinBindings = 5;
+    private const int SkinBindings = 6;
     private VkPipeline _skinPipeline;
     private VkPipelineLayout _skinLayout;
     private VkDescriptorSetLayout _skinSetLayout;
@@ -68,7 +72,9 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _skinSetLayout = setLayout;
 
-        var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = 1, pSetLayouts = &setLayout };
+        // The joint and morph target counts, which tell the weights from the joints in a row buffer.
+        var counts = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = 8 };
+        var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = 1, pSetLayouts = &setLayout, pushConstantRangeCount = 1, pPushConstantRanges = &counts };
         _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out _skinLayout).CheckResult();
 
         VkShaderModule module;
@@ -97,7 +103,8 @@ public sealed unsafe partial class GraphicsDevice
     /// values, and four joints and weights a vertex.
     /// </summary>
     /// <exception cref="InvalidOperationException">The skinning shader has not been given.</exception>
-    public GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring)
+    public GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring,
+        ReadOnlySpan<Vector4> morphs = default, int morphCount = 0)
     {
         if (!CanSkin) throw new InvalidOperationException("The skinning shader has not been given.");
         var count = rest.Length;
@@ -119,8 +126,11 @@ public sealed unsafe partial class GraphicsDevice
         var weightBuffer = Filled(MemoryMarshal.AsBytes(paddedWeights.AsSpan()), BufferUsage.Storage);
         // The posed vertices start at rest, so a mesh drawn before its first pose looks as it rests.
         var output = Filled(MemoryMarshal.AsBytes(rest), BufferUsage.Storage | BufferUsage.Vertex);
+        var morphBuffer = Filled(MemoryMarshal.AsBytes(morphs), BufferUsage.Storage);
+        // Each frame's joints, then its morph weights, four to a float4.
+        var rowBytes = (ulong)(Math.Max(1, jointCount) * 64 + (morphCount + 3) / 4 * 16);
         var rows = new IBuffer[ring];
-        for (int i = 0; i < ring; i++) rows[i] = CreateBuffer(new BufferDesc((ulong)(Math.Max(1, jointCount) * 64), BufferUsage.Storage, CpuAccessMode.Write));
+        for (int i = 0; i < ring; i++) rows[i] = CreateBuffer(new BufferDesc(rowBytes, BufferUsage.Storage, CpuAccessMode.Write));
 
         var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)(ring * SkinBindings) };
         var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = (uint)ring, poolSizeCount = 1, pPoolSizes = &size };
@@ -138,7 +148,7 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
             sets[i] = set;
 
-            IBuffer[] buffers = [rows[i], restBuffer, jointBuffer, weightBuffer, output];
+            IBuffer[] buffers = [rows[i], restBuffer, jointBuffer, weightBuffer, output, morphBuffer];
             for (int b = 0; b < SkinBindings; b++)
             {
                 var vk = (VulkanBuffer)buffers[b];
@@ -152,11 +162,12 @@ public sealed unsafe partial class GraphicsDevice
         {
             _deviceApi.vkDestroyDescriptorPool(pool);
             foreach (var row in rows) row.Dispose();
+            morphBuffer.Dispose();
             restBuffer.Dispose();
             jointBuffer.Dispose();
             weightBuffer.Dispose();
             output.Dispose();
-        });
+        }, jointCount, morphCount);
     }
 
     /// <summary>
@@ -164,7 +175,7 @@ public sealed unsafe partial class GraphicsDevice
     /// <paramref name="skin"/> by <paramref name="joints"/>, each a joint's matrix from rest to its
     /// pose in the model's space, as System.Numerics multiplies a row vector.
     /// </summary>
-    public void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints)
+    public void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints, ReadOnlySpan<float> morphWeights = default)
     {
         if (commands is not VulkanCommandBuffer vkCommands || !CanSkin) return;
         var cmd = vkCommands.Handle;
@@ -173,6 +184,9 @@ public sealed unsafe partial class GraphicsDevice
         var rows = Map(skin.Rows[skin.Slot]);
         var bytes = MemoryMarshal.AsBytes(joints);
         bytes[..Math.Min(bytes.Length, rows.Length)].CopyTo(rows);
+        var weightsAt = Math.Max(1, skin.JointCount) * 64;
+        var weightBytes = MemoryMarshal.AsBytes(morphWeights);
+        if (skin.MorphCount > 0 && weightsAt + weightBytes.Length <= rows.Length) weightBytes.CopyTo(rows[weightsAt..]);
 
         // Earlier frames have finished drawing the vertices about to be replaced.
         MemoryBarrier(cmd, VkPipelineStageFlags2.VertexInput | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None,
@@ -181,6 +195,8 @@ public sealed unsafe partial class GraphicsDevice
         var set = skin.Sets[skin.Slot];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _skinPipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _skinLayout, 0, 1, &set, 0, null);
+        var pushed = stackalloc uint[2] { (uint)Math.Max(1, skin.JointCount), (uint)(weightBytes.Length > 0 ? skin.MorphCount : 0) };
+        _deviceApi.vkCmdPushConstants(cmd, _skinLayout, VkShaderStageFlags.Compute, 0, 8, pushed);
         _deviceApi.vkCmdDispatch(cmd, (uint)(skin.VertexCount + 63) / 64, 1, 1);
 
         // The draws after it read what it wrote.

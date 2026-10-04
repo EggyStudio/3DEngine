@@ -24,6 +24,12 @@ public sealed class ModelAnimation
     /// <summary>For each frame, each bone's pose in the model's space.</summary>
     public Transform[][] FramePoses { get; init; } = [];
 
+    /// <summary>The morph targets the clip moves the weights of, by the node their mesh hangs from and their index among its targets.</summary>
+    public (string Node, int Target)[] MorphChannels { get; init; } = [];
+
+    /// <summary>For each frame, each of <see cref="MorphChannels"/>' weights.</summary>
+    public float[][] FrameMorphWeights { get; init; } = [];
+
     /// <summary>How many bones each frame poses.</summary>
     public int BoneCount => Bones.Length;
 
@@ -38,7 +44,23 @@ public sealed class ModelAnimation
 /// <param name="Weights">Four weights per vertex, summing to one.</param>
 /// <param name="BoneOfJoint">The model bone each of the mesh's joints is.</param>
 /// <param name="FromRest">For each joint, model space at rest to the joint's own space.</param>
-internal sealed record SkinnedMesh(int Mesh, ModelVertex[] Rest, ushort[] Joints, float[] Weights, int[] BoneOfJoint, Matrix4x4[] FromRest);
+internal sealed record SkinnedMesh(int Mesh, ModelVertex[] Rest, ushort[] Joints, float[] Weights, int[] BoneOfJoint, Matrix4x4[] FromRest)
+{
+    /// <summary>The name of the node the mesh hangs from, which a clip's morph weights name.</summary>
+    public string Node { get; init; } = "";
+
+    /// <summary>The mesh's morph targets' names, empty for a mesh with none.</summary>
+    public string[] MorphNames { get; init; } = [];
+
+    /// <summary>Each morph target's weight now, which clips and <see cref="Engine3D.SetModelMorphWeight"/> change in place.</summary>
+    public float[] MorphWeights { get; init; } = [];
+
+    /// <summary>How far each target moves each vertex at full weight, in the model's space.</summary>
+    public Vector3[][] MorphPositions { get; init; } = [];
+
+    /// <summary>How each target turns each vertex's normal at full weight, or null for a target with none.</summary>
+    public Vector3[]?[] MorphNormals { get; init; } = [];
+}
 
 public static partial class Engine3D
 {
@@ -80,6 +102,7 @@ public static partial class Engine3D
     {
         if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
         frame = ((frame % animation.FrameCount) + animation.FrameCount) % animation.FrameCount;
+        ApplyMorphs(model, animation, animation.FrameMorphWeights.Length > frame ? animation.FrameMorphWeights[frame] : null, 1);
         Pose(model, animation.FramePoses[frame]);
     }
 
@@ -94,6 +117,7 @@ public static partial class Engine3D
     public static void UpdateModelAnimationAt(Model model, ModelAnimation animation, float seconds)
     {
         if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
+        ApplyMorphs(model, animation, SampleMorphs(animation, seconds), 1);
         Pose(model, Sample(animation, seconds));
     }
 
@@ -114,7 +138,116 @@ public static partial class Engine3D
     public static void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight)
     {
         if (from.FrameCount == 0 || to.FrameCount == 0 || !IsModelAnimationValid(model, from) || !IsModelAnimationValid(model, to)) return;
-        Pose(model, Mix(Sample(from, fromSeconds), Sample(to, toSeconds), Math.Clamp(weight, 0f, 1f)));
+        weight = Math.Clamp(weight, 0f, 1f);
+        ApplyMorphs(model, from, SampleMorphs(from, fromSeconds), 1);
+        ApplyMorphs(model, to, SampleMorphs(to, toSeconds), weight);
+        Pose(model, Mix(Sample(from, fromSeconds), Sample(to, toSeconds), weight));
+    }
+
+    /// <summary>
+    /// Poses <paramref name="model"/> by <paramref name="under"/> at <paramref name="underSeconds"/>,
+    /// with <paramref name="over"/> at <paramref name="overSeconds"/> playing on
+    /// <paramref name="bone"/> and every bone below it, <paramref name="weight"/> of the way from the
+    /// first clip to the second there, as a wave of the arm over a run, or a head turning while the
+    /// rest walks.
+    /// </summary>
+    /// <remarks>
+    /// The bones below <paramref name="bone"/> take the second clip's pose relative to their parents,
+    /// so the arm waves from wherever the running body carries its shoulder. A bone the model does
+    /// not have poses the model by the first clip alone.
+    /// </remarks>
+    public static void UpdateModelAnimationLayer(Model model, ModelAnimation under, float underSeconds, ModelAnimation over, float overSeconds,
+        string bone, float weight = 1)
+    {
+        if (under.FrameCount == 0 || over.FrameCount == 0 || !IsModelAnimationValid(model, under) || !IsModelAnimationValid(model, over)) return;
+        var root = Array.FindIndex(under.Bones, b => b.Name == bone);
+        var below = Sample(under, underSeconds);
+        ApplyMorphs(model, under, SampleMorphs(under, underSeconds), 1);
+        Pose(model, root < 0 ? below : Layer(under.Bones, below, Sample(over, overSeconds), root, Math.Clamp(weight, 0f, 1f)));
+    }
+
+    // The bones from root down posed by the second clip relative to their parents, weight of the way
+    // from the first clip's, and composed onto where the first clip puts what they hang from.
+    private static Transform[] Layer(BoneInfo[] bones, Transform[] under, Transform[] over, int root, float weight)
+    {
+        var inLayer = new bool[bones.Length];
+        for (int b = 0; b < bones.Length; b++)
+            for (var at = b; at >= 0 && !inLayer[b]; at = bones[at].Parent)
+                inLayer[b] = at == root;
+
+        var result = (Transform[])under.Clone();
+        var done = new bool[bones.Length];
+        Matrix4x4 Placed(int b)
+        {
+            if (!inLayer[b]) return TransformPropagation.ToMatrix(under[b]);
+            if (done[b]) return TransformPropagation.ToMatrix(result[b]);
+            var parent = bones[b].Parent;
+            var local = Mix([Relative(under, bones, b)], [Relative(over, bones, b)], weight)[0];
+            var placed = TransformPropagation.ToMatrix(local) * (parent >= 0 ? Placed(parent) : Matrix4x4.Identity);
+            if (!Matrix4x4.Decompose(placed, out var scale, out var rotation, out var position))
+                (scale, rotation, position) = (Vector3.One, Quaternion.Identity, placed.Translation);
+            result[b] = new Transform { Position = position, Rotation = rotation, Scale = scale };
+            done[b] = true;
+            return placed;
+        }
+        for (int b = 0; b < bones.Length; b++) Placed(b);
+        return result;
+    }
+
+    // A bone's pose relative to its parent's, from the model-space poses a clip keeps.
+    private static Transform Relative(Transform[] poses, BoneInfo[] bones, int b)
+    {
+        var matrix = TransformPropagation.ToMatrix(poses[b]);
+        if (bones[b].Parent >= 0 && Matrix4x4.Invert(TransformPropagation.ToMatrix(poses[bones[b].Parent]), out var inverse)) matrix *= inverse;
+        if (!Matrix4x4.Decompose(matrix, out var scale, out var rotation, out var position))
+            (scale, rotation, position) = (Vector3.One, Quaternion.Identity, matrix.Translation);
+        return new Transform { Position = position, Rotation = rotation, Scale = scale };
+    }
+
+    /// <summary>
+    /// Sets the weight of every morph target named <paramref name="target"/> in the model's meshes,
+    /// 0 for its shape at rest and 1 for the target's, as a face's smile or a ball's squash, and
+    /// poses the model again as its bones were last posed.
+    /// </summary>
+    /// <remarks>A clip that moves the same target's weight sets it again when it is played.</remarks>
+    public static void SetModelMorphWeight(Model model, string target, float weight)
+    {
+        var found = false;
+        foreach (var skin in model.Skins)
+            for (int t = 0; t < skin.MorphNames.Length; t++)
+                if (skin.MorphNames[t] == target)
+                {
+                    skin.MorphWeights[t] = weight;
+                    found = true;
+                }
+        if (found) Pose(model, model.LastPose ?? model.BindPose);
+    }
+
+    // A clip's morph weights at a time, between the frames either side, counted round its length.
+    private static float[]? SampleMorphs(ModelAnimation animation, float seconds)
+    {
+        var frames = animation.FrameMorphWeights;
+        if (frames.Length == 0 || animation.MorphChannels.Length == 0) return null;
+        var at = seconds * AnimationFps;
+        at -= MathF.Floor(at / frames.Length) * frames.Length;
+        var first = Math.Min((int)at, frames.Length - 1);
+        var (a, b, t) = (frames[first], frames[(first + 1) % frames.Length], at - first);
+        var weights = new float[a.Length];
+        for (int i = 0; i < weights.Length; i++) weights[i] = a[i] + (b[i] - a[i]) * t;
+        return weights;
+    }
+
+    // Moves the targets a clip names toward the clip's weights, blend of the way.
+    private static void ApplyMorphs(Model model, ModelAnimation animation, float[]? weights, float blend)
+    {
+        if (weights is null) return;
+        for (int c = 0; c < animation.MorphChannels.Length && c < weights.Length; c++)
+        {
+            var (node, target) = animation.MorphChannels[c];
+            foreach (var skin in model.Skins)
+                if (skin.Node == node && target < skin.MorphWeights.Length)
+                    skin.MorphWeights[target] += (weights[c] - skin.MorphWeights[target]) * blend;
+        }
     }
 
     // A clip's bones at a time, between the frames either side, counted round its length.
@@ -148,16 +281,18 @@ public static partial class Engine3D
     // vertices are then the mesh's own.
     private static void Pose(Model model, Transform[] poses)
     {
+        model.LastPose = poses;
         var gpu = GpuSkinning;
         foreach (var skin in model.Skins)
         {
             var mesh = model.Meshes[skin.Mesh];
-            var joints = new Matrix4x4[skin.BoneOfJoint.Length];
-            for (int j = 0; j < joints.Length; j++)
+            // A mesh with morph targets and no skeleton is held by one joint that never moves.
+            Matrix4x4[] joints = skin.BoneOfJoint.Length == 0 ? [Matrix4x4.Identity] : new Matrix4x4[skin.BoneOfJoint.Length];
+            for (int j = 0; j < skin.BoneOfJoint.Length; j++)
                 joints[j] = skin.FromRest[j] * TransformPropagation.ToMatrix(poses[skin.BoneOfJoint[j]]);
             if (gpu && Meshes.IsSkinned(mesh.Id))
             {
-                Meshes.PoseSkin(mesh.Id, joints);
+                Meshes.PoseSkin(mesh.Id, joints, skin.MorphWeights.Length > 0 ? (float[])skin.MorphWeights.Clone() : null);
                 model.GpuPoses[skin.Mesh] = joints;
                 continue;
             }
@@ -166,13 +301,34 @@ public static partial class Engine3D
         }
     }
 
+    // A skinned mesh's vertices at rest moved toward its morph targets by their weights now.
+    internal static ModelVertex[] Morphed(SkinnedMesh skin)
+    {
+        if (skin.MorphWeights.Length == 0) return skin.Rest;
+        var moved = (ModelVertex[])skin.Rest.Clone();
+        for (int t = 0; t < skin.MorphWeights.Length; t++)
+        {
+            var weight = skin.MorphWeights[t];
+            if (weight == 0) continue;
+            var normals = skin.MorphNormals[t];
+            for (int v = 0; v < moved.Length; v++)
+                moved[v] = moved[v] with
+                {
+                    Position = moved[v].Position + skin.MorphPositions[t][v] * weight,
+                    Normal = normals is null ? moved[v].Normal : moved[v].Normal + normals[v] * weight,
+                };
+        }
+        return moved;
+    }
+
     // A skinned mesh's vertices moved from their rest by its joints, on the CPU.
     internal static ModelVertex[] PoseOnCpu(SkinnedMesh skin, Matrix4x4[] joints)
     {
+        var morphed = Morphed(skin);
         var posed = new ModelVertex[skin.Rest.Length];
         for (int v = 0; v < posed.Length; v++)
         {
-            var rest = skin.Rest[v];
+            var rest = morphed[v];
             Vector3 position = Vector3.Zero, normal = Vector3.Zero;
             for (int k = 0; k < 4; k++)
             {
@@ -191,7 +347,8 @@ public static partial class Engine3D
 
     /// <summary>Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has, by name and in order.</summary>
     public static bool IsModelAnimationValid(Model model, ModelAnimation animation) =>
-        model.Bones.Length > 0 && model.Bones.AsSpan().SequenceEqual(animation.Bones);
+        model.Bones.Length > 0 ? model.Bones.AsSpan().SequenceEqual(animation.Bones)
+            : animation.Bones.Length == 0 && animation.MorphChannels.Length > 0 && model.Skins.Any(s => s.MorphNames.Length > 0);
 
     /// <summary>Lets go of a clip. It holds no GPU objects, so this is for symmetry with raylib.</summary>
     public static void UnloadModelAnimation(ModelAnimation animation) { }
@@ -332,7 +489,21 @@ internal static class ModelSkeleton
             }
         }
 
-        return new ModelAnimation { Name = clip.Name, Bones = bones, FramePoses = poses };
+        // The weights the clip gives morph targets, a channel each, sampled at the same frames.
+        var morphChannels = clip.Channels.Where(c => c.Property == SceneAnimationProperty.MorphWeight).ToArray();
+        var morphWeights = new float[frames][];
+        for (int f = 0; f < frames; f++)
+        {
+            float time = MathF.Min((float)f / Engine3D.AnimationFps, clip.DurationSeconds);
+            morphWeights[f] = [.. morphChannels.Select(c => Key(c, time).X)];
+        }
+
+        return new ModelAnimation
+        {
+            Name = clip.Name, Bones = bones, FramePoses = poses,
+            MorphChannels = [.. morphChannels.Select(c => (c.TargetNodePath.TrimStart('/'), c.MorphTarget))],
+            FrameMorphWeights = morphChannels.Length > 0 ? morphWeights : [],
+        };
     }
 
     // A node's transform at a time, each property its channel has taken from the channel and the

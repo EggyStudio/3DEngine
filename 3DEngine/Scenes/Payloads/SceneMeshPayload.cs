@@ -95,7 +95,23 @@ public sealed class SceneMeshPayload
     /// its positions again.
     /// </summary>
     public SceneBounds LocalBounds { get; init; } = SceneBounds.Empty;
+
+    /// <summary>
+    /// The mesh's morph targets, each a shape its vertices are moved toward by a weight, as a face
+    /// smiles or a ball squashes, empty for a mesh with none.
+    /// </summary>
+    public IReadOnlyList<SceneMorphTarget> Morphs { get; init; } = Array.Empty<SceneMorphTarget>();
 }
+
+/// <summary>
+/// One morph target of a mesh, how far each vertex moves at full weight and the weight the file
+/// rests it at.
+/// </summary>
+/// <param name="Name">The target's name in the file, or its index as text when it has none.</param>
+/// <param name="PositionDeltas">How far each vertex moves at full weight, in the mesh's space.</param>
+/// <param name="NormalDeltas">How each vertex's normal turns at full weight, or null when the file gives none.</param>
+/// <param name="Weight">The weight the mesh rests at, 0 for most.</param>
+public sealed record SceneMorphTarget(string Name, Vector3[] PositionDeltas, Vector3[]? NormalDeltas, float Weight);
 
 /// <summary>
 /// A face-vertex index range within a <see cref="SceneMeshPayload"/> bound to a single

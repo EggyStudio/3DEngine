@@ -431,9 +431,32 @@ public sealed class AssimpModelReader : ISceneReader
                 Colors = colors,
                 Subsets = subsets,
                 LocalBounds = SceneBounds.FromPositions(positions),
+                Morphs = Morphs(am),
             };
         }
         return result;
+    }
+
+    // A mesh's morph targets as how far each vertex moves, since Assimp gives each target's
+    // vertices where they end up rather than how far they go.
+    private static SceneMorphTarget[] Morphs(A.Mesh am)
+    {
+        if (am.MeshAnimationAttachments.Count == 0) return [];
+        var targets = new SceneMorphTarget[am.MeshAnimationAttachments.Count];
+        for (int t = 0; t < targets.Length; t++)
+        {
+            var target = am.MeshAnimationAttachments[t];
+            var positions = new Vector3[am.VertexCount];
+            Vector3[]? normals = target.HasNormals && am.HasNormals ? new Vector3[am.VertexCount] : null;
+            for (int v = 0; v < am.VertexCount && v < target.VertexCount; v++)
+            {
+                positions[v] = target.Vertices[v] - am.Vertices[v];
+                if (normals is not null) normals[v] = target.Normals[v] - am.Normals[v];
+            }
+            targets[t] = new SceneMorphTarget(string.IsNullOrEmpty(target.Name) ? t.ToString(System.Globalization.CultureInfo.InvariantCulture) : target.Name,
+                positions, normals, target.Weight);
+        }
+        return targets;
     }
 
     private static SceneMeshPayload EmptyMesh(string name) => new()
@@ -702,11 +725,33 @@ public sealed class AssimpModelReader : ISceneReader
 
     private static SceneAnimationPayload? ConvertAnimation(A.Animation anim)
     {
-        if (anim.NodeAnimationChannelCount == 0) return null;
+        if (anim.NodeAnimationChannelCount == 0 && anim.MeshMorphAnimationChannelCount == 0) return null;
 
         double tps = anim.TicksPerSecond > 0.0 ? anim.TicksPerSecond : 25.0;
         double durTicks = anim.DurationInTicks;
         var channels = new List<SceneAnimationChannel>(anim.NodeAnimationChannelCount * 3);
+
+        // A morph channel keys every target of a node's mesh at once, each key naming targets and
+        // their weights, which become a channel per target, its weight in x.
+        foreach (var ch in anim.MeshMorphAnimationChannels)
+        {
+            var byTarget = new SortedDictionary<int, List<(float Time, float Weight)>>();
+            foreach (var key in ch.MeshMorphKeys)
+                for (int v = 0; v < key.Values.Count && v < key.Weights.Count; v++)
+                {
+                    if (!byTarget.TryGetValue(key.Values[v], out var keys)) byTarget[key.Values[v]] = keys = [];
+                    keys.Add(((float)(key.Time / tps), (float)key.Weights[v]));
+                }
+            foreach (var (target, keys) in byTarget)
+                channels.Add(new SceneAnimationChannel
+                {
+                    TargetNodePath = "/" + ch.Name,
+                    Property = SceneAnimationProperty.MorphWeight,
+                    TimesSeconds = [.. keys.Select(k => k.Time)],
+                    Values = [.. keys.Select(k => new Vector4(k.Weight, 0, 0, 0))],
+                    MorphTarget = target,
+                });
+        }
 
         foreach (var ch in anim.NodeAnimationChannels)
         {

@@ -42,6 +42,8 @@
         <None Include="Platform\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" />
         <!-- The skinned arm the examples animate, which the animation tests pose. -->
         <None Include="..\3DEngine.Examples\resources\arm.gltf" Link="resources\arm.gltf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\3DEngine.Examples\resources\morph.gltf" Link="resources\morph.gltf" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

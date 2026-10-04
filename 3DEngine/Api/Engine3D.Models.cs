@@ -134,6 +134,9 @@ public sealed class Model
     /// <summary>The meshes bones move, with their vertices at rest.</summary>
     internal SkinnedMesh[] Skins { get; init; } = [];
 
+    // The bones' poses as they were last set, which a morph weight set alone poses the model by again.
+    internal Transform[]? LastPose { get; set; }
+
     /// <summary>
     /// The joints each skinned mesh was last posed with on the GPU, by mesh index, which leaves the
     /// mesh's own vertices at rest, so wires drawn on the CPU pose them the same way.
@@ -284,6 +287,7 @@ public static partial class Engine3D
         var bones = ModelSkeleton.Bones(scene);
         var boneIndex = bones.Select((b, i) => (b.Name, i)).ToDictionary(x => x.Name, x => x.i, StringComparer.Ordinal);
         var skins = new List<SkinnedMesh>();
+        var morphed = new List<(int Mesh, SceneMeshPayload Payload, Matrix4x4 World, string Node)>();
 
         void Visit(SceneNode node, Matrix4x4 parent)
         {
@@ -305,6 +309,7 @@ public static partial class Engine3D
                     var path = mesh.Subsets.FirstOrDefault()?.MaterialPath;
                     meshes.Add(Bake(mesh, world));
                     meshMaterial.Add(MaterialFor(path is not null ? nodeMaterials.GetValueOrDefault(path) : null));
+                    if (mesh.Morphs.Count > 0) morphed.Add((meshes.Count - 1, mesh, world, node.Name));
                     skin = null;
                 }
                 else if (component is SceneSkinPayload s) skin = s;
@@ -377,6 +382,19 @@ public static partial class Engine3D
 
         foreach (var root in scene.Roots) Visit(root, Matrix4x4.Identity);
 
+        // A mesh with morph targets is posed as a skinned mesh is, by one joint that never moves
+        // when no skeleton holds it, its targets moving its vertices before any joint does.
+        foreach (var (index, payload, world, node) in morphed)
+        {
+            var at = skins.FindIndex(s => s.Mesh == index);
+            var skin = at >= 0 ? skins[at] : MorphOnly(index, meshes[index]);
+            skin = WithMorphs(skin, payload, world, node);
+            if (at >= 0) skins[at] = skin;
+            else skins.Add(skin);
+            Meshes.SetSkin(meshes[index].Id, new MeshStore.Skin(skin.Joints, skin.Weights, Math.Max(1, skin.BoneOfJoint.Length),
+                PackMorphs(skin), skin.MorphNames.Length));
+        }
+
         if (meshes.Count == 0)
             ApiLogger.Warn($"LoadModel: '{fileName}' has no meshes.");
 
@@ -389,7 +407,7 @@ public static partial class Engine3D
             bindPose[b] = new Transform { Position = position, Rotation = rotation, Scale = scale };
         }
 
-        return new Model
+        var model = new Model
         {
             Meshes = [.. meshes],
             Materials = [.. materials],
@@ -399,6 +417,55 @@ public static partial class Engine3D
             Skins = [.. skins],
             OwnedTextures = [.. textures.Values.Where(t => t.IsValid)],
         };
+        // A file that rests a target at a weight other than 0 is shown so from the start.
+        if (skins.Any(s => s.MorphWeights.Any(w => w != 0))) Pose(model, bindPose);
+        return model;
+    }
+
+    // A skin of one still joint holding every vertex, for a mesh with morph targets and no skeleton.
+    private static SkinnedMesh MorphOnly(int index, ModelMesh mesh)
+    {
+        Meshes.TryGetData(mesh.Id, out var rest, out _);
+        var weights = new float[rest.Length * 4];
+        for (int v = 0; v < rest.Length; v++) weights[v * 4] = 1;
+        return new SkinnedMesh(index, rest, new ushort[rest.Length * 4], weights, [], []);
+    }
+
+    // A skin with a mesh's morph targets, moved into the model's space by the node's transform as
+    // its vertices were, a delta turned and scaled but not moved.
+    private static SkinnedMesh WithMorphs(SkinnedMesh skin, SceneMeshPayload payload, Matrix4x4 world, string node)
+    {
+        var targets = payload.Morphs;
+        var positions = new Vector3[targets.Count][];
+        var normals = new Vector3[]?[targets.Count];
+        for (int t = 0; t < targets.Count; t++)
+        {
+            positions[t] = [.. targets[t].PositionDeltas.Select(d => Vector3.TransformNormal(d, world))];
+            normals[t] = targets[t].NormalDeltas is { } n ? [.. n.Select(d => Vector3.TransformNormal(d, world))] : null;
+        }
+        return skin with
+        {
+            Node = node,
+            MorphNames = [.. targets.Select(t => t.Name)],
+            MorphWeights = [.. targets.Select(t => t.Weight)],
+            MorphPositions = positions,
+            MorphNormals = normals,
+        };
+    }
+
+    // A skin's morph targets as the GPU reads them, each vertex's position and normal deltas as two
+    // float4, target after target.
+    private static Vector4[] PackMorphs(SkinnedMesh skin)
+    {
+        var count = skin.Rest.Length;
+        var packed = new Vector4[skin.MorphNames.Length * count * 2];
+        for (int t = 0; t < skin.MorphNames.Length; t++)
+            for (int v = 0; v < count; v++)
+            {
+                packed[(t * count + v) * 2] = new Vector4(skin.MorphPositions[t][v], 0);
+                packed[(t * count + v) * 2 + 1] = new Vector4(skin.MorphNormals[t]?[v] ?? Vector3.Zero, 0);
+            }
+        return packed;
     }
 
     // A mesh's skin, with each joint's matrix from the model's space at rest to the joint's own.
