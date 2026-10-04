@@ -93,9 +93,13 @@ public float3 linearToSrgb(float3 c)
 }
 
 // Linear color as the frame stores it, tonemapped first, since a target holds sRGB-encoded bytes.
+// The light is scaled by the view's exposure first, 1 for every view but a reflection probe's
+// faces, which draw at a quarter, so light up to four times the tonemap's knee survives their eight
+// bits and is scaled back as the capture is read.
 public float3 toDisplay(float3 linear)
 {
-    return linearToSrgb(tonemap(linear));
+    float exposure = lighting.environment.w > 0.0 ? lighting.environment.w : 1.0;
+    return linearToSrgb(tonemap(linear * exposure));
 }
 
 // The material's factors at this point, which its instance carried through the vertex stage.
@@ -139,7 +143,8 @@ public struct Lighting
     // A texel's world width for each cascade, and in w the spot tile's per unit of distance.
     public float4 shadowTexels;
     public float4x4 shadowCascades[4];
-    // The environment map's intensity, its last mip, and 1 when there is one.
+    // The environment map's intensity, its last mip, 1 when there is one, and the exposure a
+    // reflection probe's faces are drawn at, 0 meaning 1.
     public float4 environment;
     public Light lights[16];
     // The width of a point light's shadow texel per unit of distance from it, in x.

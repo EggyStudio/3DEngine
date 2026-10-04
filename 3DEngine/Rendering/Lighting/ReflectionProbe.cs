@@ -82,6 +82,12 @@ internal sealed class ReflectionProbes
         public bool Ready => Map is not null;
     }
 
+    /// <summary>
+    /// The exposure a probe's faces are drawn at, so light up to four times the tonemap's knee
+    /// survives their eight bits, which the capture is scaled back by as it is read.
+    /// </summary>
+    public const float CaptureExposure = 0.25f;
+
     /// <summary>How many times a probe is captured for one placement, each with the one before bound.</summary>
     public const int Passes = 2;
 

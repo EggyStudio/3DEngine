@@ -1283,6 +1283,45 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Probe_Keeps_Light_Brighter_Than_The_Tonemap_Lets_A_Frame_Show()
+    {
+        Open(64, 64);
+        // A dark room whose wall at +X gives off three times white light, past what a byte after
+        // the tonemap can hold at an exposure of 1.
+        CreatePointLight(new Vector3(0, 0, 0), Color.White, 0.1f);
+        var wall = LoadModelFromMesh(GenMeshCube(0.2f, 6, 6));
+        wall.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveIntensity = 3 };
+        var room = LoadModelFromMesh(GenMeshCube(6, 6, 6));
+        var camera = new Camera3D(new Vector3(0, 0, 2), new Vector3(1, 0, 0), Vector3.UnitY, 60);
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(room, Vector3.Zero, 1, new Color(30, 30, 30));
+            DrawModel(wall, new Vector3(2.8f, 0, 0), 1, Color.White);
+            EndMode3D();
+        }
+
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(6, 6, 6));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++)
+        {
+            BeginDrawing();
+            Draw();
+            EndDrawing();
+            Thread.Sleep(5);
+        }
+        IsReflectionProbeReady(probe).Should().BeTrue();
+
+        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
+        // The first mip's +X face, a mirror's view of the glowing wall.
+        var bright = (float)map.Texels[(map.Size * map.Size / 2 + map.Size / 2) * 4];
+        bright.Should().BeGreaterThan(2.5f, "light past the tonemap's knee comes back from a capture drawn at a quarter exposure");
+        UnloadReflectionProbe(probe);
+        UnloadModel(wall);
+        UnloadModel(room);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);

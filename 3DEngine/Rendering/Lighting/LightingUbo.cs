@@ -54,7 +54,7 @@ public struct LightingUbo
     /// </summary>
     public ShadowCascadeArray ShadowCascades;
 
-    /// <summary>x: the environment map's intensity. y: its last mip. z: 1 when there is one.</summary>
+    /// <summary>x: the environment map's intensity. y: its last mip. z: 1 when there is one. w: the exposure a reflection probe's faces are drawn at, 0 meaning 1.</summary>
     public Vector4 Environment;
 
     /// <summary>Inline fixed-size light array. Use <see cref="LightingUboPacker.WriteEntry"/> to populate by index.</summary>

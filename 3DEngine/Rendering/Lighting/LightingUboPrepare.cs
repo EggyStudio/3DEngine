@@ -49,6 +49,11 @@ public sealed class LightingUboPrepare : IPrepareSystem
         var binding = Upload(allocator, in ubo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
 
+        // The window's light at the exposure a reflection probe's faces are drawn at.
+        var capture = ubo;
+        capture.Environment.W = ReflectionProbes.CaptureExposure;
+        renderWorld.TryGet<BoundProbes>()!.CaptureBinding = Upload(allocator, in capture);
+
         // A render target drawing meshes through a camera of its own has its cascades fitted to
         // that camera, in a buffer of its own, since the window's would leave whatever it looks
         // at past them unshadowed, or all of it when nothing is drawn into the window.
@@ -215,6 +220,9 @@ internal sealed class BoundProbes
 {
     /// <summary>Each bound probe, by the slot its cube is bound at.</summary>
     public readonly List<ReflectionProbes.Probe> Slots = [];
+
+    /// <summary>The window's lighting buffer at <see cref="ReflectionProbes.CaptureExposure"/>, which a probe's faces are drawn with.</summary>
+    public UniformBufferBinding? CaptureBinding;
 }
 
 /// <summary>

@@ -12,7 +12,7 @@ public static class ModelsReflectionProbe
         // A blue sky outside, which every metal reflects with no probe, even indoors.
         var sky = GenImageGradientLinear(256, 128, 0, new Color(150, 190, 240), new Color(40, 80, 160));
         SetEnvironmentMap(sky);
-        CreatePointLight(new Vector3(0, 4.5f, 1), new Color(255, 230, 200), 25, 0, castsShadows: true);
+        CreatePointLight(new Vector3(0, 4.5f, 1), new Color(255, 230, 200), 8, 0, castsShadows: true);
 
         // A room open toward the camera, its walls in three colors, around metal balls from a
         // mirror to rough.

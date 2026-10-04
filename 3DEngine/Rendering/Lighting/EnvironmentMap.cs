@@ -167,10 +167,10 @@ public sealed class EnvironmentMap
     /// <remarks>
     /// Each direction is read from the frame whose view looks most nearly along it, through that
     /// view's own projection, so the faces may be drawn with any orientation. The color is decoded
-    /// from sRGB and the model pass's tonemap undone, which gives the light back below the knee
-    /// where most of a room's light is.
+    /// from sRGB, the model pass's tonemap undone and the <paramref name="exposure"/> the faces were
+    /// drawn at divided out, which gives the light back below the knee over the exposure.
     /// </remarks>
-    internal static EnvironmentMap FromCapture(byte[][] faces, int size, Matrix4x4[] viewProjections, Vector3 eye, int faceSize = 32)
+    internal static EnvironmentMap FromCapture(byte[][] faces, int size, Matrix4x4[] viewProjections, Vector3 eye, int faceSize = 32, float exposure = 1)
     {
         int width = 4 * size, height = 2 * size;
         var forwards = new Vector3[6];
@@ -198,7 +198,7 @@ public sealed class EnvironmentMap
                 int py = Math.Clamp((int)((clip.Y / clip.W + 1) / 2 * size), 0, size - 1);
                 var at = (py * size + px) * 4;
                 pixels[y * width + x] = Untonemapped(new Vector3(
-                    SrgbToLinear(faces[face][at]), SrgbToLinear(faces[face][at + 1]), SrgbToLinear(faces[face][at + 2])));
+                    SrgbToLinear(faces[face][at]), SrgbToLinear(faces[face][at + 1]), SrgbToLinear(faces[face][at + 2]))) / exposure;
             }
         });
         return FromLinear(pixels, width, height, 1, faceSize);

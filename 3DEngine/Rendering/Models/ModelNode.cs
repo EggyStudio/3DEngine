@@ -304,7 +304,7 @@ public sealed class ModelRenderer : IDisposable
     /// as a reflection probe's face draws the window's.
     /// </summary>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
-        Matrix4x4? viewProjection = null)
+        Matrix4x4? viewProjection = null, int? lights = null)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -333,7 +333,7 @@ public sealed class ModelRenderer : IDisposable
             {
                 pipeline = wanted;
                 pass.SetPipeline(pipeline);
-                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, target), index: 1);
+                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, lights ?? target), index: 1);
                 pushed = null;
             }
             var through = viewProjection ?? batch.ViewProjection;
@@ -1145,8 +1145,11 @@ public sealed class ModelRenderer : IDisposable
         if (slot.Count <= _lightSetOf.Count) slot.Add(gfx.CreateDescriptorSet(LightsLayout(gfx)));
         var set = _lightSetOf[target] = slot[_lightSetOf.Count];
 
-        // A render target with a camera of its own has a buffer and a shadow of its own.
-        var (binding, shadow) = target != 0 && renderWorld.TryGet<TargetShadows>() is { } targets && targets.ByTarget.TryGetValue(target, out var own)
+        // A render target with a camera of its own has a buffer and a shadow of its own, and a
+        // probe's faces the window's at the exposure they are captured at.
+        var (binding, shadow) = target == ProbeCaptureLights && renderWorld.TryGet<BoundProbes>()?.CaptureBinding is { } capture
+            ? (capture, renderWorld.TryGet<FrameShadow>())
+            : target != 0 && renderWorld.TryGet<TargetShadows>() is { } targets && targets.ByTarget.TryGetValue(target, out var own)
             ? (own.Binding, own.Shadow)
             : (frame.Binding, renderWorld.TryGet<FrameShadow>());
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
@@ -1219,6 +1222,9 @@ public sealed class ModelRenderer : IDisposable
     // The six faces a probe is drawn into, made for the first capture and kept for the next.
     private RenderTarget[]? _probeFaces;
 
+    // The key a probe's faces take their lights by, apart from every render target's id.
+    private const int ProbeCaptureLights = int.MinValue;
+
     /// <summary>The width in texels of each face a probe is captured into.</summary>
     internal const int ProbeFaceSize = 64;
 
@@ -1268,7 +1274,7 @@ public sealed class ModelRenderer : IDisposable
                 target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
             pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
             pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-            Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjections[f]);
+            Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjections[f], ProbeCaptureLights);
             pass.EndRenderPass();
 
             var face = f;
@@ -1278,7 +1284,7 @@ public sealed class ModelRenderer : IDisposable
                 if (++arrived < 6) return;
                 Task.Run(() =>
                 {
-                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye);
+                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye, exposure: ReflectionProbes.CaptureExposure);
                     probe.Done = new ReflectionProbes.Capture(map, wanted);
                 });
             });

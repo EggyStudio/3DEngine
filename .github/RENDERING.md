@@ -273,10 +273,13 @@ A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose 
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
 and before its passes, captures the first probe out of date, one a frame: the window's batches
 are drawn through six views of a right angle from the probe's middle into render targets of 64
-texels (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), cleared to
-the window's clear color, and read back at the end of the frame (`GraphicsDevice.RequestReadback`,
+texels (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the
+window's lighting buffer at a quarter exposure (`environment.w`, which `toDisplay` scales by, so
+light up to four times the tonemap's knee survives the eight bits), cleared to the window's clear
+color, and read back at the end of the frame (`GraphicsDevice.RequestReadback`,
 a stall a capture can take). A worker thread maps each direction to the face looking most nearly
-along it, through that face's own view-projection, decodes the color and undoes the tonemap, and
+along it, through that face's own view-projection, decodes the color, undoes the tonemap and the
+exposure, and
 prefilters the result as an environment map of faces 32 texels wide with its irradiance
 (`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
 so the metal in its room reflects the room in the capture rather than the sky. Four probes with a
