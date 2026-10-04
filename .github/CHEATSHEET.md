@@ -46,6 +46,8 @@ void SetTargetFPS(int fps);                              // Cap the frame rate (
 float GetFrameTime();                                    // Seconds the last frame took
 double GetTime();                                        // Seconds since the first frame
 int GetFPS();                                            // Frames per second, smoothed
+void SetProfileValue(string name, double value);         // A number of the program's own in the frame profile
+double GetProfileAverage(string name);                   // A profiled average in milliseconds, as "work" or "gpu.models"
 ```
 
 ## Frame and cameras

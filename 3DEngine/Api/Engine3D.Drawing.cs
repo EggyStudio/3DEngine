@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 
@@ -6,6 +7,7 @@ namespace Engine;
 public static partial class Engine3D
 {
     private static bool _inFrame;
+    private static long _drawingStart;
 
     // -- Frame
 
@@ -19,12 +21,16 @@ public static partial class Engine3D
         if (_inFrame)
             throw new InvalidOperationException("BeginDrawing was called twice without EndDrawing.");
 
+        // The program's own code between frames, which no stage of the schedule times.
+        var update = Stopwatch.GetElapsedTime(_lastFrameEnd);
         PumpEvents();
         GetApp().BeginFrame();
         _inFrame = true;
         _target = default;
         _shader = default;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        Profile("program.update", update);
+        _drawingStart = Stopwatch.GetTimestamp();
     }
 
     /// <summary>
@@ -37,10 +43,14 @@ public static partial class Engine3D
         if (!_inFrame)
             throw new InvalidOperationException("EndDrawing was called without BeginDrawing.");
 
+        var drawing = Stopwatch.GetElapsedTime(_drawingStart);
         GetApp().EndFrame();
         _inFrame = false;
         _eventsPumped = false;
+        var waiting = Stopwatch.GetTimestamp();
         WaitForTargetFrame();
+        Profile("program.drawing", drawing);
+        Profile("wait", Stopwatch.GetElapsedTime(waiting));
     }
 
     /// <summary>Sets the color the frame, or the render target inside <see cref="BeginTextureMode"/>, is cleared to.</summary>

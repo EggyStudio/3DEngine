@@ -8,20 +8,29 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `2ce4e7e8`. The light payloads (`a6e3023a`) and the scene file's keys (`2ce4e7e8`)
-were read and are settled, apart from decision 2.
+Reviewed up to `f175ae2d`. The 2D game (`f175ae2d`), with the 2D camera, collision and file functions it
+called for, the entity-handle overloads and the probe offsets are settled, on the tests and the
+played game reported.
 
 ## Now
 
-In this order.
+The engine does what two small games need. Nothing has measured how much of it a frame can
+hold, and every choice about batching, instancing or skinning on the GPU is a guess until
+something has. In this order.
 
-1. **Specular and tonemapping in the model pass** (RENDERING.md §3 and §4), each with a pixel
-   assertion in `OffscreenRenderTests`, such as a highlight brighter than the same surface lit
-   diffusely, and a sum of lights past one that keeps its hue instead of clamping to white.
-2. **Shadows**, for the directional light first.
-3. **Decision 2**, in the batch that next touches `SceneFile.cs`.
-
-More of raylib's breadth waits behind these, unless the owner asks for a function by name.
+1. **Measure before changing anything.** Two stress programs in the examples, in the manner of
+   raylib's bunnymark: one draws a growing number of textured sprites, the other a growing number
+   of lit mesh entities with a few materials, a shadow and some animated models. Each reports the
+   frame's time on the CPU split by stage (the schedule already runs named systems, so their
+   times are there to collect) and on the GPU by pass if timestamp queries are at hand, and the
+   count at which it leaves 60 frames a second on this machine. An `e3d` command returns the same
+   numbers, so a run is repeatable from the terminal. The numbers, the machine they were taken
+   on and the three largest costs go into RENDERING.md. No optimization is in this batch.
+2. **The largest cost the numbers show**, whatever it is. Likely candidates are a draw call and
+   a set bind for each mesh entity where instancing would do, skinning on the CPU with a vertex
+   upload each frame, and the immediate pass's batching across texture changes. The numbers
+   decide, and the same run afterward shows what the change bought.
+3. **TODO.md's order** from there.
 
 ## Verdicts
 
@@ -29,18 +38,18 @@ None open.
 
 ## Decisions
 
-1. **Commits are pushed.** The owner said on 2026-10-03 that the commits made so far are fine as
-   they are and that the working session may push `main` along with committing. COMMITS.md and
-   CLAUDE.md say commits are never pushed, and both are to say what holds, in the next batch.
-2. **An engine component keeps its short name in a scene file.** After `2ce4e7e8` the key a
-   component is written under depends on what else is registered when the file is saved. A level
-   saved with the engine's `Light` under `Light` loses its lights, with a warning, once the game
-   adds a `Light` of its own, because `Find` refuses a short name two types share. A file is to
-   read the same whatever the game registers later, so a short name that one of the engine's own
-   types holds always means that type, on writing and on reading, and the other type takes its
-   full name. Two types of a game that share a short name stay as `2ce4e7e8` has them. The
-   alternative of writing every key as a full name was rejected, because the file is read and
-   edited by a person. Recorded in ARCHITECTURE.md where the format is described.
+1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
+   commits and does not push. CLAUDE.md and COMMITS.md say since `b2b7fccb` that commits are
+   pushed, and they are to say that commits are never pushed once the owner confirms it in the
+   working session.
 
 ## Replies
 
+
+**Now 1, measurement.** `textures_bunnymark` and `models_stress` find the largest count that
+holds 60 frames a second, and `e3d command profile` returns the frame's time by stage, system,
+renderer step, prepare system and graph node, on the GPU through timestamp queries, with the
+program's own code between stages as `program.update` and `program.drawing`. An explicit
+`SetTargetFPS(0)` uncaps an offscreen run, which was paced at 60 before. The numbers, the machine
+and the three largest costs are in RENDERING.md §6. The largest is an animated mesh's vertex
+buffer created each frame, about 2 ms a mesh, which item 2 takes up next.

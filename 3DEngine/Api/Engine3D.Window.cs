@@ -8,7 +8,7 @@ public static partial class Engine3D
     private static bool _eventsPumped;
     private static bool _shouldClose;
     private static Key _exitKey = Key.Escape;
-    private static int _targetFps;
+    private static int? _targetFps;
     private static long _lastFrameEnd;
 
     // -- Window
@@ -83,6 +83,7 @@ public static partial class Engine3D
     // -- Timing
 
     /// <summary>Caps the frame rate. <see cref="EndDrawing"/> waits out the rest of each frame. Zero removes the cap.</summary>
+    /// <remarks>An offscreen or headless run is paced at <see cref="Config.HeadlessFps"/> until this is called, and zero uncaps it too, as a measurement needs.</remarks>
     public static void SetTargetFPS(int fps) => _targetFps = Math.Max(0, fps);
 
     /// <summary>Seconds the last frame took.</summary>
@@ -115,7 +116,7 @@ public static partial class Engine3D
     {
         // A headless run with no target set is paced at Config.HeadlessFps, so it does not spin a core.
         var config = World.Resource<Config>();
-        var fps = _targetFps > 0 ? _targetFps : config.Headless ? config.HeadlessFps : 0;
+        var fps = _targetFps ?? (config.Headless ? config.HeadlessFps : 0);
         if (fps > 0)
         {
             var deadline = _lastFrameEnd + (long)(Stopwatch.Frequency / fps);

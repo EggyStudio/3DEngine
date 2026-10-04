@@ -173,6 +173,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         if (!IsInitialized) return;
         Logger.Info("Disposing graphics device - waiting for device idle...");
         _deviceApi.vkDeviceWaitIdle();
+        DestroyTimestamps();
 
         // Flush all deferred staging buffers
         for (int i = 0; i < _deferredStagingBuffers.Length; i++)

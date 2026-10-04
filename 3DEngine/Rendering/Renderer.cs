@@ -99,33 +99,68 @@ public sealed class Renderer : IDisposable
     {
         if (!_initialized) Initialize(world);
 
+        var mark = Stopwatch.GetTimestamp();
         Logger.FrameTrace("RenderFrame: Running extract systems...");
         RenderWorld.ClearEntities();
         foreach (var sys in _extractSystems)
             sys.Run(world, RenderWorld);
+        Timings.ExtractMs = Lap(ref mark);
 
         Logger.FrameTrace("RenderFrame: Beginning frame...");
         var (renderCtx, frameCtx, imageIndex) = Context.BeginFrame(RenderWorld);
         SyncSurfaceInfo(frameCtx.Extent);
         UpdateDiagnostics(frameCtx.Extent);
+        Timings.BeginFrameMs = Lap(ref mark);
 
         Logger.FrameTrace("RenderFrame: Running prepare systems...");
+        var start = mark;
+        var prepareCpu = new List<(string, double)>(_prepareSystems.Count);
         foreach (var sys in _prepareSystems)
+        {
             sys.Run(RenderWorld, renderCtx);
+            prepareCpu.Add((sys.GetType().Name, Lap(ref mark)));
+        }
+        Timings.PrepareCpu = prepareCpu;
+        Timings.PrepareMs = Stopwatch.GetElapsedTime(start, mark).TotalMilliseconds;
 
         Logger.FrameTrace("RenderFrame: Executing render graph nodes...");
-        ExecuteGraph(renderCtx);
+        ExecuteGraph(renderCtx, frameCtx.InFlightIndex);
+        Timings.GraphMs = Lap(ref mark);
 
         Logger.FrameTrace("RenderFrame: Ending frame...");
         Context.EndFrame(frameCtx, imageIndex);
+        Timings.EndFrameMs = Lap(ref mark);
+    }
+
+    /// <summary>How long the last frame's rendering took, by phase and by node.</summary>
+    public RenderTimings Timings { get; } = new();
+
+    // The milliseconds since the mark, which moves to now.
+    private static double Lap(ref long mark)
+    {
+        var now = Stopwatch.GetTimestamp();
+        var elapsed = Stopwatch.GetElapsedTime(mark, now).TotalMilliseconds;
+        mark = now;
+        return elapsed;
     }
 
     /// <summary>Executes the render graph: per node calls Update → auto-barrier → Run. Ends the active swapchain pass after all nodes.</summary>
-    private void ExecuteGraph(RenderContext renderCtx)
+    private void ExecuteGraph(RenderContext renderCtx, int inFlightIndex)
     {
         var orderedNodes = Graph.TopologicalOrder();
         var outputStore = new Dictionary<string, SlotValue[]>();
         var layoutTracker = new Dictionary<IImage, ImageLayout>();
+
+        // A timestamp before the graph and after each node, which the GPU writes as it finishes
+        // what came before, read back when this slot comes round again.
+        var timer = renderCtx.Device as GraphicsDevice;
+        if (timer is not null)
+        {
+            Timings.NodeGpu = timer.BeginTimestamps(renderCtx.CommandBuffer, inFlightIndex);
+            timer.Timestamp(renderCtx.CommandBuffer, inFlightIndex, "start");
+        }
+        var nodeCpu = new List<(string, double)>(orderedNodes.Count);
+        var mark = Stopwatch.GetTimestamp();
 
         foreach (var (label, node) in orderedNodes)
         {
@@ -161,7 +196,10 @@ public sealed class Renderer : IDisposable
                 layoutTracker[imageView.Image] = ImageLayout.ColorAttachmentOptimal;
             }
             outputStore[label] = outputs;
+            nodeCpu.Add((label, Lap(ref mark)));
+            timer?.Timestamp(renderCtx.CommandBuffer, inFlightIndex, label);
         }
+        Timings.NodeCpu = nodeCpu;
 
         // End the shared swapchain pass that MainPassNode left open.
         var activePass = RenderWorld.TryGet<ActiveSwapchainPass>();

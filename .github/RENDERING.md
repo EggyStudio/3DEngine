@@ -27,6 +27,8 @@ needs an offline toolchain beyond `slangc`.
   `MeshEntityDraws` records through the first camera entity, lit by the light entities or, with
   none, by one fixed light (§4).
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
+- **A frame profile** of the schedule's stages, the renderer's steps and each pass on the CPU and
+  the GPU, with two stress examples that find how much a frame holds (§6).
 
 ## 1. Slang through slangc
 
@@ -196,7 +198,7 @@ own casts the shadow of its mesh as it was before that stage moved it.
 What follows is cascades, so near shadows keep their detail over a long view, then point and spot
 shadows as an atlas.
 
-## 4. Render targets and post processing
+## 5. Render targets and post processing
 
 The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,
 rounded down to what the device can multisample color and depth at. Their passes share one
@@ -217,6 +219,71 @@ loaded texture.
 Post processing is a chain of full-screen Slang passes over the main color target
 before it is copied to the swapchain: tonemapping first, then bloom and anti-aliasing (FXAA).
 
+## 6. What a frame costs
+
+The frame profile (`FrameProfile`, in `Diagnostics/`) averages over about a second of frames how
+long each stage of the schedule and each system in it took, the renderer's extract, begin, prepare,
+graph and end steps, each prepare system, and each graph node on the CPU and, through timestamp
+queries, on the GPU. A program on the flat API runs its own code outside the stages, which shows as
+`program.update` (between frames) and `program.drawing` (between `BeginDrawing` and
+`EndDrawing`), and the wait for the target frame rate as `wait`. `e3d command profile` returns all
+of it, and `SetProfileValue` adds a program's own numbers to it.
+
+Two examples grow what they draw until a frame takes longer than a sixtieth of a second, then
+narrow in on the largest count that held to within about 3 percent (`StressRamp`):
+
+- `textures_bunnymark`, raylib's bunnymark, 32 by 32 sprites of one texture bouncing around the
+  window, each a `DrawTexture` call.
+- `models_stress`, cube entities in four materials turning on a grid, under a sun with a shadow and
+  two point lights, beside eight skinned arms, each its own model on its own frame.
+  `E3D_STRESS_ARMS=0` leaves the arms out.
+
+A run, repeatable from the terminal:
+
+```sh
+dotnet build -c Release 3DEngine.Examples
+./e3d open 3DEngine.Examples/bin/Release/net10.0/3DEngine.Examples models_stress --offscreen
+./e3d command profile        # until "limit" is above 0
+./e3d stop
+```
+
+Taken on 2026-10-04 on an Intel Core i9-14900HX with an NVIDIA GeForce RTX 4070 Laptop GPU (driver
+615.71.09, Linux 7.2), Release build, offscreen at 800 by 450 with 4 samples a pixel, at the count
+each search ended on. Times are milliseconds a frame.
+
+| | bunnymark | stress, 8 arms | stress, no arms |
+|---|---|---|---|
+| Count that holds 60 a second | 121,613 sprites | 1,687 entities | 8,004 entities |
+| Frame | 17.5 | 20.4 | 14.7 |
+| Program's update | 5.4 | 0.1 | 0.1 |
+| Program's drawing calls | 9.4 | 0.0 | 0.0 |
+| Schedule's stages | 2.7 | 20.3 | 14.5 |
+| `MeshEntityDraws` | | 0.4 | 1.8 |
+| Prepare | 1.4 (immediate upload) | 16.3 (`GpuMeshesPrepare`) | 0.1 |
+| Graph, CPU | 0.1 | 2.5 | 11.7 |
+| Model pass, CPU / GPU | | 2.1 / 1.4 | 10.3 / 1.8 |
+| Shadow pass, CPU / GPU | | 0.3 / 0.2 | 1.3 / 0.6 |
+| Immediate pass, GPU | 4.0 | 0.0 | 0.0 |
+
+The count with arms moves between about 1,700 and 4,700 from run to run, because the arms' cost
+varies more than the entities' does.
+
+The three largest costs, in order:
+
+1. **An animated mesh's vertices go into a buffer created for them each frame.** `UpdateMeshVertices`
+   queues the skinned vertices, and `GpuMeshes` creates, allocates and maps a vertex buffer for them
+   and retires the previous one, which is destroyed four frames later. Eight small arms cost 16.3
+   ms of the frame, about 2 ms each, which leaves the entities almost nothing.
+2. **Each mesh entity is a draw of its own on the CPU.** The model pass binds the material's set at
+   its offset in the factor ring, binds the vertex and index buffers, pushes the transform and
+   draws, once per entity and once more in the shadow pass, so 8,004
+   cubes of one mesh cost 10.3 ms of recording and 1.3 ms of shadows, while the GPU draws them in
+   1.8 ms. `MeshEntityDraws` adds 1.8 ms walking the entities and building their draws.
+3. **Each sprite costs about 77 nanoseconds in `DrawTexture`** (9.4 ms for 121,613), then 1.4 ms to
+   upload and 4.0 ms on the GPU. The example's own movement loop takes 5.4 ms, much of it in
+   `GetScreenWidth` and `GetScreenHeight`, which it calls for each sprite as raylib's does and
+   which look up a resource each call.
+
 ## What the engine needs
 
 ### The device
@@ -231,8 +298,8 @@ before it is copied to the swapchain: tonemapping first, then bloom and anti-ali
 
 ### Per frame
 
-- **Timestamp queries** per node, shown in an ImGui panel, so the cost of a pass is visible without
-  an external profiler.
+- **An ImGui panel of the frame profile** (§6), so the cost of a pass is visible in a running
+  program as well as through `e3d command profile`.
 - **A screenshot** (`TakeScreenshot(path)`) read back from the swapchain image, which the tests and
   the examples use to check that a frame looks right.
 

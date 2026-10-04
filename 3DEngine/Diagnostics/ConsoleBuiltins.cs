@@ -21,6 +21,17 @@ internal static class ConsoleBuiltins
         return $"waited {count} frame(s)";
     }
 
+    [Command("profile", "Where a frame's time goes, averaged over about a second, with the program's own values")]
+    internal static string Profile() =>
+        ConsoleHost.World!.TryGetResource<FrameProfile>(out var profile) ? profile.Report() : "no profile";
+
+    [Command("profile.reset", "Starts the profile's averages afresh")]
+    internal static string ProfileReset()
+    {
+        if (ConsoleHost.World!.TryGetResource<FrameProfile>(out var profile)) profile.Reset();
+        return "reset";
+    }
+
     [Command("log.tail", "The last lines logged: log.tail <count>")]
     internal static string Tail(int count)
     {

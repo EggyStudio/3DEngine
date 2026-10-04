@@ -40,6 +40,15 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ## Rendering
 
+### Cost
+
+- **Three costs bound a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
+  `models_stress`). An animated mesh's vertices go into a buffer created for them each frame, about
+  2 ms a mesh. Each mesh entity is its own draw, 1.3 microseconds of recording each, which caps a
+  frame near 8,000 while the GPU idles. Each `DrawTexture` costs about 77 nanoseconds before the
+  upload. A persistent vertex ring for animated meshes, instancing by mesh and material, and a
+  leaner sprite path are what each needs, measured again by the same examples after.
+
 ### The flat API
 
 `Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and

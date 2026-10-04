@@ -53,6 +53,7 @@ public sealed class DefaultPlugins : IPluginGroup, IPlugin
         new EcsPlugin(),
         new PhysicsPlugin(),
         new CliPlugin(),
+        new FrameProfilePlugin(),
     ];
 
     /// <summary>
