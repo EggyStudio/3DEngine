@@ -145,13 +145,13 @@ public sealed class SystemDescriptor
     /// <param name="other">The other system descriptor to check against.</param>
     /// <returns><c>true</c> if the systems cannot safely run in parallel; otherwise <c>false</c>.</returns>
     /// <remarks>
-    /// Conservative mode: systems without explicit access metadata are treated as broad writers,
-    /// so they conflict with everything to prevent data races.
+    /// Systems without explicit access metadata are treated as broad writers, so they conflict
+    /// with everything and cannot race.
     /// </remarks>
     internal bool ConflictsWith(SystemDescriptor other)
     {
-        // Conservative mode: systems without explicit access metadata are treated as
-        // broad writers so they don't race with annotated systems.
+        // A system without explicit access metadata is treated as a broad writer, so it does not
+        // race with annotated systems.
         if ((_reads.Count == 0 && _writes.Count == 0) || (other._reads.Count == 0 && other._writes.Count == 0))
             return true;
 

@@ -302,7 +302,7 @@ public sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // Runs before the device goes, with the queue idle: whatever a program left loaded is freed.
+    // Frees whatever a program left loaded, before the device goes and with the queue idle.
     private void DestroyCompute()
     {
         lock (_computeGate)

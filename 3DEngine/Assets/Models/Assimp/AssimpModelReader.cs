@@ -165,13 +165,12 @@ public sealed class AssimpModelReader : ISceneReader
             foreach (var texture in aScene.Textures)
                 scene.EmbeddedTextures.Add(ConvertEmbedded(texture));
 
-        // Animations: clip per aiAnimation, attached to the scene root for now (a future
-        // ticket can move them onto the resolved target nodes once a clip-graph component
-        // exists). LoadPayloads has no dedicated Animations flag yet; gate on whether the
-        // source actually authored any clips.
+        // Animations, a clip per aiAnimation, attached to the scene root, whose channels name
+        // the nodes they move. LoadPayloads has no flag of their own, so they are read when the
+        // source authored any clips.
         if (aScene.AnimationCount > 0)
         {
-            // Animations should ride the first root so Scene.Traverse picks them up.
+            // The clips ride the first root, where Scene.Traverse finds them.
             if (scene.Roots.Count == 0)
             {
                 scene.Roots.Add(new SceneNode { Name = "Root", SourcePath = "/" });
@@ -353,9 +352,8 @@ public sealed class AssimpModelReader : ISceneReader
             ct.ThrowIfCancellationRequested();
             var am = aScene.Meshes[i];
 
-            // Triangulate post-process should have left only triangles; defensively skip
-            // anything else (lines / points produced by SortByPrimitiveType end up in
-            // separate aiMesh entries and are dropped here).
+            // The Triangulate step leaves only triangles, and anything else is skipped (the lines
+            // and points SortByPrimitiveType puts in meshes of their own are dropped here).
             if ((am.PrimitiveType & A.PrimitiveType.Triangle) == 0)
             {
                 result[i] = EmptyMesh(am.Name);
@@ -529,15 +527,15 @@ public sealed class AssimpModelReader : ISceneReader
                 int v = vw.VertexID;
                 if (v < 0 || v >= vc) continue;
                 int slot = counts[v];
-                if (slot >= 4) continue; // LimitBoneWeights post-process should prevent this
+                if (slot >= 4) continue; // The LimitBoneWeights step keeps a vertex to four.
                 idx[v * 4 + slot] = (ushort)b;
                 wts[v * 4 + slot] = vw.Weight;
                 counts[v] = (byte)(slot + 1);
             }
         }
 
-        // Renormalise per-vertex weights (defensive: source files in the wild rarely
-        // sum exactly to 1).
+        // Per-vertex weights are renormalised, since source files in the wild rarely sum exactly
+        // to 1.
         for (int v = 0; v < vc; v++)
         {
             float sum = wts[v * 4] + wts[v * 4 + 1] + wts[v * 4 + 2] + wts[v * 4 + 3];

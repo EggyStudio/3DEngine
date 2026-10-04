@@ -2,7 +2,7 @@
 namespace Engine;
 
 /// <summary>
-/// System delegate: receives the <see cref="World"/> to read/write resources and entities.
+/// A system, which receives the <see cref="World"/> to read and write resources and entities.
 /// This is the fundamental unit of work in the ECS schedule.
 /// </summary>
 /// <param name="world">The shared <see cref="World"/> containing all resources and entity data.</param>

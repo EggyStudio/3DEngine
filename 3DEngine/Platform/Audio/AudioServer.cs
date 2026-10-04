@@ -371,12 +371,10 @@ public sealed class AudioServer : IDisposable
         lock (_lock)
         {
             if (!_voices.TryGetValue(ticket, out var rec)) return;
-            // Honesty over silent surprise: a non-spatial voice can't be promoted to
-            // spatial after creation. Backends like SDL3 don't even allocate the
-            // dual-stream / channel-map machinery for non-spatial voices, so flipping
-            // the flag in the record (as we used to) would have left the backend
-            // unable to actually pan / attenuate the voice. Future backends (FMOD,
-            // OpenAL) make this distinction even more explicit.
+            // A non-spatial voice cannot be promoted to spatial after creation, and a warning
+            // says so rather than the call failing silently. SDL3's backend allocates no
+            // dual stream or channel map for a non-spatial voice, so flipping the flag in the
+            // record would leave the backend unable to pan or attenuate it.
             if (!rec.IsSpatial)
             {
                 if (!_warnedSpatialFlip)

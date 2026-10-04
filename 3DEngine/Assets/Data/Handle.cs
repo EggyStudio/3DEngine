@@ -14,8 +14,8 @@ namespace Engine;
 /// background load completes (typically the next frame).
 /// </para>
 /// <para>
-/// Internally backed by reference counting: strong handles keep the asset alive; when all strong
-/// handles are dropped the asset becomes eligible for removal. Use <see cref="MakeWeak"/> to
+/// Internally backed by reference counting. Strong handles keep the asset alive, and once all
+/// strong handles are dropped the asset becomes eligible for removal. Use <see cref="MakeWeak"/> to
 /// create an observation-only handle that doesn't prevent cleanup.
 /// </para>
 /// </remarks>

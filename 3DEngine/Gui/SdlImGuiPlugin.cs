@@ -176,7 +176,7 @@ public sealed class SdlImGuiPlugin : IPlugin
     }
 
     // A headless run keeps ImGui working for code that calls it between BeginDrawing and
-    // EndDrawing: the frame starts in PreUpdate on the configured size and ends in Last, which the
+    // EndDrawing. The frame starts in PreUpdate on the configured size and ends in Last, which the
     // render node does when there is a renderer. Nothing is drawn.
     private static void BuildHeadless(App app, Config config, ILogger logger)
     {

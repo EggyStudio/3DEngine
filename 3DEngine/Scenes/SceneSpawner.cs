@@ -123,7 +123,7 @@ public static class SceneSpawner
     /// <summary>
     /// Computes the root-level world matrix that bakes the scene's source basis
     /// (<see cref="SceneCoordinateSystem"/>) and unit scale into a single transform.
-    /// Exposed for testing and for callers that want to position a spawned scene
+    /// Exposed for testing and for callers positioning a spawned scene
     /// (compose with their own placement matrix before passing in).
     /// </summary>
     public static Matrix4x4 ComputeRootMatrix(Scene scene, SceneSpawnSettings settings)
@@ -254,8 +254,8 @@ public static class SceneSpawner
             }
             ecs.Add(entity, new Mesh(positions, normals, uvs));
 
-            // Material: explicit payload wins; otherwise apply the configured default
-            // so the renderer sees a fully-formed (Mesh, Material) pair.
+            // The material is the payload's when there is one and the configured default
+            // otherwise, so the renderer sees a fully formed pair of mesh and material.
             var runtimeMaterial = BuildRuntimeMaterial(material, settings, ctx);
             ecs.Add(entity, runtimeMaterial);
 
@@ -405,7 +405,7 @@ public static class SceneSpawner
         if (string.IsNullOrEmpty(texturePath)) return string.Empty;
 
         var t = texturePath.Replace('\\', '/');
-        // Already absolute-ish or in-memory synthetic path: leave untouched.
+        // A rooted path or one into memory is kept as it is.
         if (t.StartsWith('/') || t.Contains("__embedded__/", StringComparison.Ordinal))
             return t.TrimStart('/');
 

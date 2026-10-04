@@ -7,7 +7,7 @@ using BepuPhysics.Trees;
 
 namespace Engine;
 
-/// <summary>Spatial queries: raycasts (and future overlap / sweep tests).</summary>
+/// <summary>Spatial queries, which are raycasts.</summary>
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />

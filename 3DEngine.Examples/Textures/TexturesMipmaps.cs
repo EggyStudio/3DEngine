@@ -11,8 +11,8 @@ public static class TexturesMipmaps
 
         var camera = new Camera3D(new Vector3(0, 1.2f, 6), new Vector3(0, 0, -20), Vector3.UnitY, 60);
 
-        // A fine checkerboard, the worst case for a texture drawn smaller than its size: without
-        // mip levels its far rows break into noise, with them they fade to gray.
+        // A fine checkerboard, the worst case for a texture drawn smaller than its size. Without
+        // mip levels its far rows break into noise, and with them they fade to gray.
         var image = GenImageChecked(512, 512, 8, 8, Color.Black, Color.White);
         var plain = LoadTextureFromImage(image);
         var mipmapped = LoadTextureFromImage(image);

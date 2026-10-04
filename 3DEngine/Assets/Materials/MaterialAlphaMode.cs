@@ -12,8 +12,8 @@ public enum MaterialAlphaMode : byte
     Opaque,
 
     /// <summary>
-    /// Alpha-to-coverage style cutout: sampled alpha values below
-    /// <see cref="MaterialDescription.AlphaCutoff"/> discard the fragment.
+    /// A cutout, which discards a fragment whose sampled alpha is below
+    /// <see cref="MaterialDescription.AlphaCutoff"/>.
     /// </summary>
     Mask,
 

@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace Engine;
 
 /// <summary>
-/// Drives frames with no window: paced at a fixed rate so a headless app does not spin a core, and
+/// Drives frames with no window, paced at a fixed rate so a headless app does not spin a core, and
 /// ended when <see cref="AppExit.Requested"/> is set, by <c>app.quit</c>, by <c>--frames</c> or by
 /// the program.
 /// </summary>

@@ -28,7 +28,7 @@ public interface ISurfaceSource
 }
 
 /// <summary>
-/// A surface with no window behind it, for rendering with no display: the device draws into
+/// A surface with no window behind it, for rendering with no display. The device draws into
 /// images of its own of this size, which a capture reads as it would a window's.
 /// </summary>
 /// <param name="width">The width drawn at.</param>

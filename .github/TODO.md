@@ -172,9 +172,10 @@ which has been checked against the state it fills and not with a pad that has th
 
 The code carried over from the module repositories predates [STYLE.md](STYLE.md). Its dashes,
 spaced hyphens and padded banners are gone, and so are its claims of readers and modules that never
-came (USD, MaterialX). Colons still join clauses in its comments, and some restate the line below
-them. Each file is to be brought under the style
-guide when it is next changed, and the checks at the end of STYLE.md report what is left.
+came (USD, MaterialX, a web view, an editor). The colons that joined clauses in its comments are
+rewritten, so the colon check reports lists and labels, and some comments still restate the line
+below them. Each file is to be brought under the style guide when it is next changed, and the
+checks at the end of STYLE.md report what is left.
 
 ### Build and release
 

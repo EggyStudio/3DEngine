@@ -44,8 +44,8 @@ public sealed class AssetPlugin : IPlugin
 
     /// <inheritdoc />
     /// <remarks>
-    /// Foundational: many other plugins (textures, materials, scenes, models, webview,
-    /// renderer-shader-loader) rely on <see cref="AssetServer"/>. Marking this plugin
+    /// Foundational, because many other plugins (textures, materials, scenes, models and the
+    /// renderer's shaders) rely on <see cref="AssetServer"/>. Marking this plugin
     /// <see cref="PluginOrder.Foundation"/> guarantees it builds first when registered as
     /// part of an <see cref="IPluginGroup"/> (e.g. <c>DefaultPlugins</c>), so consumers do
     /// not need to declare an explicit <see cref="IPlugin.Dependencies"/> entry on it.

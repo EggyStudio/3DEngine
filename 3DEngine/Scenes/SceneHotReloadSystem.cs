@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// Reacts to <see cref="AssetEvent{T}.Modified"/> events for <see cref="SceneAsset"/> and
-/// re-spawns the affected subtree in place: every entity tracked under the asset's id in
+/// re-spawns the affected subtree in place. Every entity tracked under the asset's id in
 /// <see cref="SpawnedScenes"/> is despawned, then the new <see cref="SceneAsset"/> is
 /// translated into a fresh entity set via <see cref="SceneSpawner.Spawn"/> with the
 /// <see cref="SceneSpawnSettings"/> it was first spawned with, so a model saved in another tool
@@ -49,9 +49,8 @@ public static class SceneHotReloadSystem
             if (evt.Kind != AssetEventKind.Modified) continue;
             if (!tracking.TryGet(evt.Id, out var record)) continue;
 
-            // Resolve the new asset before touching the world: if it isn't ready yet
-            // (race with the AssetServer drain order), bail out cleanly so the next pass
-            // can retry.
+            // The new asset is resolved before the world is touched, and one not ready yet
+            // (a race with the AssetServer drain order) is left for the next pass to retry.
             if (!assets.TryGet(evt.Handle, out var asset))
             {
                 Logger.Debug($"SceneHotReloadSystem: asset {evt.Id} not yet in Assets<SceneAsset> after Modified event; deferring.");
@@ -76,7 +75,7 @@ public static class SceneHotReloadSystem
             }
             catch (Exception ex)
             {
-                // Don't leave a dangling tracking entry for entities we just despawned.
+                // The entities despawned leave no tracking entry behind.
                 tracking.Remove(evt.Id, out _);
                 Logger.Error($"SceneHotReloadSystem: re-spawn failed for '{asset.SourcePath}': {ex.Message}");
             }

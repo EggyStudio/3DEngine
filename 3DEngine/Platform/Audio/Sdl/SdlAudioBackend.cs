@@ -89,8 +89,8 @@ public sealed class SdlAudioBackend : IAudioBackend
             if (_initialized) return;
             try
             {
-                // SDL_Init is additive: if Engine.App.Sdl already booted Video|Gamepad,
-                // adding Audio just spins up the audio subsystem. Track ownership so we
+                // SDL_Init is additive, so when the app's SDL already booted Video and Gamepad,
+                // adding Audio starts the audio subsystem alone. Track ownership so we
                 // only quit-subsystem what we initialised ourselves.
                 if (!SDL.WasInit(SDL.InitFlags.Audio).HasFlag(SDL.InitFlags.Audio))
                 {
@@ -162,8 +162,8 @@ public sealed class SdlAudioBackend : IAudioBackend
         lock (_lock)
         {
             // Pin the float[] so SDL can read directly from managed memory. Pin entries
-            // are reference-counted: every voice playing this Sound bumps RefCount;
-            // StopVoice / Update reap / Dispose decrement it; the pin is freed at zero
+            // are reference-counted. Every voice playing this Sound bumps RefCount, StopVoice,
+            // the reaping in Update and Dispose decrement it, and the pin is freed at zero
             // so unloaded Sounds don't leave their sample buffers pinned forever.
             if (!_samplePins.TryGetValue(sound, out var pin))
             {
@@ -175,7 +175,7 @@ public sealed class SdlAudioBackend : IAudioBackend
             IntPtr streamL = CreateAndQueueStream(in srcSpec, in dstSpec, pin.Handle, byteCount, sound.SourcePath);
             if (streamL == IntPtr.Zero)
             {
-                ReleasePin(sound); // never actually consumed - drop the (potential) fresh pin.
+                ReleasePin(sound); // Never consumed, so a pin made fresh for it is dropped.
                 return 0;
             }
 

@@ -126,7 +126,7 @@ public sealed unsafe partial class GraphicsDevice
 
         if (vkBuffer.MappedPtr != nint.Zero)
         {
-            // Already mapped; just return the same span.
+            // Mapped already, so the same span is returned.
             return new Span<byte>((void*)vkBuffer.MappedPtr, checked((int)vkBuffer.Description.Size));
         }
 
@@ -160,7 +160,7 @@ public sealed unsafe partial class GraphicsDevice
             throw new ArgumentException("Buffer was not created by this device.", nameof(destination));
         if (data.Length == 0) return;
 
-        // If the destination is host-visible, just map and copy directly.
+        // A host-visible destination is mapped and copied into directly.
         if (dst.IsHostVisible)
         {
             var span = Map(dst);
@@ -169,7 +169,7 @@ public sealed unsafe partial class GraphicsDevice
             return;
         }
 
-        // Device-local: create a transient staging buffer and copy via one-time command buffer.
+        // A device-local buffer is filled from a transient staging buffer by a one-time command buffer.
         var stagingDesc = new BufferDesc((ulong)data.Length, BufferUsage.TransferSrc, CpuAccessMode.Write);
         var staging = (VulkanBuffer)CreateBuffer(stagingDesc);
         try

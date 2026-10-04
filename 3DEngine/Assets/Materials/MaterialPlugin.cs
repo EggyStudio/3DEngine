@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Registers the user-facing materials subsystem: inserts a singleton
+/// Registers the user-facing materials subsystem, inserting a singleton
 /// <see cref="MaterialLibrary"/> resource into the <see cref="App"/> world so any
 /// downstream system, importer or behaviour can author and resolve materials through
 /// the same engine-neutral API.

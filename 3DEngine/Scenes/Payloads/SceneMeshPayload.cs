@@ -52,16 +52,16 @@ public sealed class SceneMeshPayload
     public required Vector3[] Positions { get; init; }
 
     /// <summary>
-    /// Triangle index buffer (length is always a multiple of 3). Required: the reader
-    /// triangulates polygon meshes via <c>UsdGeomMesh.Triangulate</c> before constructing
-    /// the payload, so consumers never have to deal with arbitrary-degree faces.
+    /// Triangle index buffer (length is always a multiple of 3). The reader triangulates polygon
+    /// meshes (Assimp's <c>Triangulate</c> step) before constructing the payload, so consumers
+    /// never have to deal with faces of more sides.
     /// </summary>
     public required int[] Indices { get; init; }
 
     /// <summary>
     /// Per-vertex normals aligned with <see cref="Positions"/>, or <c>null</c> when the
-    /// source did not author them (consumer / renderer should derive flat normals from
-    /// <see cref="Indices"/> in that case).
+    /// source did not author them, in which case the consumer derives flat normals from
+    /// <see cref="Indices"/>.
     /// </summary>
     public Vector3[]? Normals { get; init; }
 

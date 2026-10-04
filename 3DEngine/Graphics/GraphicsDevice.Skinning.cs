@@ -43,7 +43,7 @@ public sealed class GpuSkin : IDisposable
 /// <remarks>
 /// The joints' matrices go through a ring of buffers the CPU writes, one more than there are frames
 /// a buffer can be read in, so the one written never belongs to a frame the GPU is still running.
-/// The vertex buffer is one, since the frames run on one queue: a barrier before each dispatch waits
+/// The vertex buffer is one, since the frames run on one queue. A barrier before each dispatch waits
 /// for earlier frames to finish reading it, and one after makes the new vertices visible to the draws.
 /// </remarks>
 public sealed unsafe partial class GraphicsDevice

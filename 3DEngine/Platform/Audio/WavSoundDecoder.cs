@@ -89,9 +89,9 @@ public sealed class WavSoundDecoder : ISoundDecoder
             else if (id[0] == 'd' && id[1] == 'a' && id[2] == 't' && id[3] == 'a')
             {
                 dataChunk = bytes.AsSpan(body, size);
-                // Don't break: a fmt chunk may still appear later in malformed files,
-                // but the canonical layout puts fmt before data so we usually have both
-                // by now. Step over to allow trailing chunks.
+                // The walk goes on, since a malformed file may still have its fmt chunk after the
+                // data, though the canonical layout puts fmt first, and trailing chunks are
+                // stepped over.
             }
 
             // Chunks are padded to even sizes.

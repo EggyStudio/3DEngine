@@ -514,7 +514,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
     /// <summary>Builds the <c>SystemDescriptor</c> chained-call expression for one stage method.</summary>
     /// <remarks>
-    /// Fine-grained resource access: an instance method writes only to its own component store
+    /// Resource access is fine-grained. An instance method writes only to its own component store
     /// type, and a static method declares a read on EcsWorld. This prevents false write/write
     /// conflicts between unrelated behavior types, allowing the parallel scheduler to batch them
     /// together. A [ToggleKey] and a [RunIf] on one method both apply.

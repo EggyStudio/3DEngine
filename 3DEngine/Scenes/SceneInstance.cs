@@ -7,10 +7,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This is intentionally a tiny <c>struct</c> so it costs nothing to query against: spawn
+/// This is intentionally a tiny <c>struct</c> so it costs nothing to query against, since spawn
 /// systems iterate <c>Query&lt;SceneInstance&gt;</c> to find every node-derived entity for
-/// re-spawn / despawn passes, and the editor uses it to highlight selections in the
-/// scene tree.
+/// re-spawn and despawn passes.
 /// </para>
 /// <para>
 /// <see cref="SceneAssetId"/> identifies which loaded <see cref="SceneAsset"/> the entity

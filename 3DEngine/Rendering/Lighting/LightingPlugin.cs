@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Wires the lighting subsystem: schedules <see cref="LightSpawnSystem"/> in
+/// Wires the lighting subsystem. It schedules <see cref="LightSpawnSystem"/> in
 /// <see cref="Stage.PreUpdate"/> (after <c>SceneSpawnSystem</c>) so payloads attached by
 /// <see cref="SceneSpawner"/> become first-class <see cref="Light"/> components on the
 /// same frame, and registers <see cref="LightExtract"/> with the <see cref="Renderer"/>

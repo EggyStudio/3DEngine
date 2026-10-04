@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// The first node drawing to the window: begins the swapchain render pass, clearing it to the
+/// The first node drawing to the window, which begins the swapchain render pass, clearing it to the
 /// <see cref="ClearColor"/>, and publishes it as <see cref="ActiveSwapchainPass"/>.
 /// </summary>
 /// <remarks>

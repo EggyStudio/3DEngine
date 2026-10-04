@@ -9,8 +9,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Mirrors the engine's pattern of failing soft when an optional native dependency is
-/// missing: the renderer logs and skips a frame; here we log once and silently absorb
-/// every call.
+/// missing. The renderer logs and skips a frame, and this backend logs once and absorbs every
+/// call.
 /// </remarks>
 public sealed class NullAudioBackend : IAudioBackend
 {

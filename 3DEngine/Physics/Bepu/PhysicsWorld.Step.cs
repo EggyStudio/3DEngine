@@ -66,7 +66,7 @@ public sealed partial class PhysicsWorld
     /// decomposition gets.
     /// </para>
     /// <para>
-    /// A kinematic body under a parent is the other way round: it follows its place under the
+    /// A kinematic body under a parent is the other way round. It follows its place under the
     /// parent, which <c>PhysicsPlugin</c> moves it to by velocity before each step, so it carries
     /// what stands on it, and its transform is left as the program wrote it.
     /// </para>

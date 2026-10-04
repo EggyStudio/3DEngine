@@ -36,7 +36,7 @@ public enum Gesture
 /// </summary>
 /// <remarks>
 /// Positions are fractions of the window, from 0 to 1 across and down, as raylib's are, so the
-/// thresholds hold at any window size. They are raylib's: a double tap is a second touch within
+/// thresholds hold at any window size. The thresholds are raylib's. A double tap is a second touch within
 /// 0.3 seconds and 0.03 of the screen of the first, a drag starts after 0.015 of the screen, a swipe
 /// is a drag released faster than 0.2 of the screen a second, and a pinch counts after the fingers'
 /// distance changes by 0.005.

@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// Holds the active swapchain render pass begun by <see cref="MainPassNode"/>.
-/// Overlay nodes (webview, imgui) retrieve this from <see cref="RenderWorld"/>
+/// Overlay nodes (ImGui's) retrieve this from <see cref="RenderWorld"/>
 /// to draw into the same render pass, eliminating per-overlay render pass begin/end overhead.
 /// The pass is ended by <see cref="Renderer"/> after all graph nodes have executed.
 /// </summary>

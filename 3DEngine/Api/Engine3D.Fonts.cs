@@ -166,8 +166,8 @@ public static partial class Engine3D
     /// Makes a font from an image of its glyphs, as a pixel-art game draws one, each glyph a run of
     /// pixels on a row, separated from the next and from the rows above and below by
     /// <paramref name="key"/>, the first glyph <paramref name="firstChar"/> and each after the next
-    /// character. raylib's rule finds the gaps: the key's width before the first glyph is the space
-    /// between glyphs, its height above the first row the space between rows.
+    /// character. raylib's rule finds the gaps, the key's width before the first glyph being the space
+    /// between glyphs and its height above the first row the space between rows.
     /// </summary>
     /// <remarks>The key's pixels become clear, and the atlas is point filtered, so the glyphs scale as pixels.</remarks>
     /// <returns>The font, or the default font when the image holds no glyphs, with the reason in the log.</returns>

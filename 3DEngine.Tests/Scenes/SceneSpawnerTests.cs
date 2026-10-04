@@ -290,10 +290,8 @@ public class SceneSpawnerTests
     [Fact]
     public void Spawn_Material_With_Texture_Refs_Maps_BaseColorFactor_To_Albedo()
     {
-        // Phase 5 contract: the runtime Material struct is Albedo-only. When a payload
-        // carries texture references (BaseColor / MR / Normal / Emissive / Occlusion),
-        // they ride along on the SceneMaterialPayload but the spawner still maps only
-        // BaseColorFactor to Material.Albedo.
+        // With no asset server to load them, a payload's texture references are left out
+        // (with one warning), and the spawner still maps BaseColorFactor to Material.Albedo.
         SceneSpawner.ResetTextureWarningForTest();
 
         var ecs = new EcsWorld();

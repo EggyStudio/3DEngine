@@ -3,8 +3,8 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// Lightweight gameplay handle to a playing (or pending) voice. Stable across the
-/// async asset-load handoff: synchronous calls like <c>ctx.PlaySpatialSound("a.wav", pos)</c>
+/// Lightweight gameplay handle to a playing (or pending) voice. It is stable across the
+/// async asset-load handoff, since synchronous calls like <c>ctx.PlaySpatialSound("a.wav", pos)</c>
 /// always return a valid <see cref="AudioSource"/>; the actual mixer voice is created
 /// later by <see cref="AudioServer.ResolvePending"/> when the <see cref="Sound"/>
 /// finishes loading. All operations route through the owning <see cref="AudioServer"/>.

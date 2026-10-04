@@ -34,7 +34,7 @@ public sealed class SceneSkeletonPayload
 
     /// <summary>
     /// Parent joint id for each joint, or <c>-1</c> for roots. Length matches
-    /// <see cref="JointNames"/>. Joints are stored in topological order: a joint's parent
+    /// <see cref="JointNames"/>. Joints are stored in topological order, so a joint's parent
     /// always appears earlier in the array.
     /// </summary>
     public required int[] ParentIndices { get; init; }

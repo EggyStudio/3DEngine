@@ -42,9 +42,8 @@ public interface ITextureDecoder
 /// Per-load decode hints forwarded by <see cref="TextureAssetLoader"/>.
 /// </summary>
 /// <remarks>
-/// Today this only carries the color-space override that scene material binding needs
-/// (BaseColor / Emissive should be sRGB; Normal / MetallicRoughness / Occlusion should be
-/// Linear). Future fields: requested mip range, max-resolution clamp, anisotropy hint.
+/// It carries the color-space override that scene material binding needs (base color and
+/// emissive maps are sRGB, and normal, metallic-roughness and occlusion maps linear).
 /// </remarks>
 public sealed class TextureLoadSettings
 {
@@ -84,8 +83,8 @@ public sealed class TextureDecoderRegistry
 
     /// <summary>Registers a decoder for all of its declared extensions and its format id.</summary>
     /// <remarks>
-    /// Last-write wins per extension: a more capable backend (e.g. KTX2) registered after
-    /// a generic one (e.g. Stb) takes precedence for any shared extensions.
+    /// The last decoder registered for an extension wins, so a more capable one registered after
+    /// a generic one takes precedence for the extensions they share.
     /// </remarks>
     public void RegisterDecoder(ITextureDecoder decoder)
     {

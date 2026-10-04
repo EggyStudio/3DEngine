@@ -88,7 +88,7 @@ public sealed partial class AssetServer
 
         using var ctx = new AssetLoadContext(stream, assetPath, depPath =>
         {
-            // Synchronous dependency tracking: just allocate an ID
+            // A dependency loaded alongside is tracked by an id alone, given here.
             string depKey = depPath.ToString();
             if (_pathToId.TryGetValue(depKey, out var dep))
                 return dep.Id;

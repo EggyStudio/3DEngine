@@ -53,8 +53,8 @@ public static class SceneSpawnExtensions
     // -- Deferred spawn-on-load (driven by SceneSpawnSystem)
 
     /// <summary>
-    /// Queues a deferred spawn: when <paramref name="handle"/> finishes loading,
-    /// <see cref="SceneSpawnSystem"/> will materialize the scene into ECS entities.
+    /// Queues a deferred spawn. When <paramref name="handle"/> finishes loading,
+    /// <see cref="SceneSpawnSystem"/> materializes the scene into ECS entities.
     /// Returns the same <see cref="EcsCommands"/> for fluent chaining.
     /// </summary>
     public static EcsCommands SpawnScene(this EcsCommands cmd, Handle<SceneAsset> handle, SceneSpawnSettings? settings = null) =>

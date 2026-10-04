@@ -14,24 +14,23 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Source generation parity: at compile time the <c>BehaviorGenerator</c> incremental generator
-/// (<c>Modules/Engine.Entities.Behaviors/Generator/</c>) is consumed by the analyzer DLL; at runtime
-/// the <em>same</em> generator type is also compiled into <c>3DEngine.dll</c> (see the engine csproj's
-/// <c>Modules\**\Generator\**</c> Compile glob) so this compiler can attach it via
+/// At compile time the <c>BehaviorGenerator</c> incremental generator (<c>3DEngine.Generator</c>) is
+/// consumed as an analyzer, and the <em>same</em> generator type is also compiled into
+/// <c>3DEngine.dll</c> (the engine csproj's <c>3DEngine.Generator\Behaviors</c> Compile glob), so
+/// this compiler can attach it via
 /// <see cref="CSharpGeneratorDriver"/> and produce the same <c>BehaviorsRegistration.g.cs</c>
 /// + per-behavior system files for hot-loaded scripts.
 /// </para>
 /// <para>
-/// Hot-reload contract: every successful compile evicts any prior generation of dynamic systems via
+/// Every successful compile evicts any prior generation of dynamic systems via
 /// <see cref="App.RemoveSystemsBySource"/> (using <see cref="SourceTag"/>), then invokes the
 /// generated <c>[GeneratedBehaviorRegistration]</c> method discovered on the new assembly under a
 /// <see cref="SystemRegistrationSourceScope"/> so newly added descriptors inherit the same tag.
 /// </para>
 /// <para>
-/// Limitation: behavior structs in a recompiled assembly are <em>new</em> CLR types in a fresh
-/// load context, so any entity components of the previous generation's struct type are stranded
-/// in the ECS until a re-spawn. v1 logs a warning; future versions can clear those component stores
-/// on swap.
+/// Behavior structs in a recompiled assembly are <em>new</em> CLR types in a fresh load context,
+/// so any entity components of the previous generation's struct type are stranded in the ECS
+/// until a re-spawn.
 /// </para>
 /// </remarks>
 public sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCompilationResult>

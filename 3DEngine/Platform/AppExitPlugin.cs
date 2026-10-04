@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Handles application exit: listens for window quit events and requests closure.
+/// Handles application exit, listening for window quit events and requesting closure.
 /// Inserts an <see cref="AppExit"/> resource and adds a <see cref="Stage.First"/> system
 /// that closes the window when <see cref="AppExit.Requested"/> is set.
 /// </summary>
@@ -63,6 +63,6 @@ public sealed class AppExitPlugin : IPlugin
 /// <summary>Resource tracking whether an application exit was requested.</summary>
 public sealed class AppExit
 {
-    /// <summary>True if a quit event was observed and the app should close.</summary>
+    /// <summary>True once a quit event was observed, which closes the app.</summary>
     public bool Requested;
 }

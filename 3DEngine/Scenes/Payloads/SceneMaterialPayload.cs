@@ -122,8 +122,8 @@ public enum SceneAlphaMode
     Opaque,
 
     /// <summary>
-    /// Alpha-to-coverage style cutout: sampled alpha values below
-    /// <see cref="SceneMaterialPayload.AlphaCutoff"/> discard the fragment.
+    /// A cutout, which discards a fragment whose sampled alpha is below
+    /// <see cref="SceneMaterialPayload.AlphaCutoff"/>.
     /// </summary>
     Mask,
 

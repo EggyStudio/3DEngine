@@ -45,8 +45,8 @@ public sealed record Config
     public bool Serve { get; init; }
 
     /// <summary>
-    /// Whether the app runs with no window and no renderer: the schedule, the ECS and the flat
-    /// API's logic run, and nothing is drawn. Also set by <c>--headless</c> or <c>E3D_HEADLESS=1</c>.
+    /// Whether the app runs with no window and no renderer, so the schedule, the ECS and the flat
+    /// API's logic run and nothing is drawn. Also set by <c>--headless</c> or <c>E3D_HEADLESS=1</c>.
     /// </summary>
     public bool Headless { get; init; }
 

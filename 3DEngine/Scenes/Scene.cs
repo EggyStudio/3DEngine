@@ -9,7 +9,7 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A <see cref="Scene"/> is an <b>immutable snapshot</b> by convention: once a reader returns one,
+/// A <see cref="Scene"/> is an <b>immutable snapshot</b> by convention. Once a reader returns one,
 /// the spawning side may iterate it freely from any thread. A changed source is read again into
 /// a new snapshot rather than changing a <see cref="Scene"/> in place, which keeps the
 /// cross-thread contract simple and
@@ -18,8 +18,8 @@ namespace Engine;
 /// <para>
 /// <b>Coordinate / unit policy:</b> readers <i>preserve</i> the source basis and units rather
 /// than per-vertex normalization. <see cref="SourceCoordinateSystem"/> and
-/// <see cref="SourceMetersPerUnit"/> are therefore <b>load-bearing</b>, not just diagnostic:
-/// downstream spawn systems (<c>SceneSpawnSystem</c>) apply a single root-level basis-change
+/// <see cref="SourceMetersPerUnit"/> are therefore <b>load-bearing</b>, more than diagnostic,
+/// since downstream spawn systems (<c>SceneSpawnSystem</c>) apply a single root-level basis-change
 /// matrix (axis swap + uniform scale) derived from these fields. Two reasons to do it this way:
 /// <list type="bullet">
 ///   <item><description>

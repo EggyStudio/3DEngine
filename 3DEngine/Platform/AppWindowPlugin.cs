@@ -19,7 +19,7 @@ public sealed class AppWindowPlugin : IPlugin
 {
     /// <inheritdoc />
     /// <remarks>
-    /// Foundational: provides <see cref="AppWindow"/>, <see cref="IMainLoopDriver"/>,
+    /// Foundational, as it provides <see cref="AppWindow"/>, <see cref="IMainLoopDriver"/>,
     /// <see cref="IInputBackend"/>, and (for Vulkan) <see cref="ISurfaceSource"/>. Plugins
     /// like <c>SdlPlugin</c>, <c>SdlImGuiPlugin</c> and <c>AppExitPlugin</c> read these
     /// resources, so this plugin sits in the foundation band and consumers don't need to

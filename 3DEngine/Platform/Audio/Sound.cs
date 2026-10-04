@@ -3,8 +3,8 @@ namespace Engine;
 /// <summary>
 /// CPU-side decoded audio asset. Holds interleaved 32-bit float PCM samples plus the
 /// metadata an <see cref="IAudioBackend"/> needs to upload them as a playable voice.
-/// Backend-agnostic: produced by any <see cref="ISoundDecoder"/> (built-in WAV today;
-/// future Vorbis / Opus / MP3 backends) and consumed by <see cref="AudioServer"/>.
+/// It is produced by any <see cref="ISoundDecoder"/> (WAV, Ogg Vorbis, MP3 and FLAC are built in)
+/// and consumed by <see cref="AudioServer"/>.
 /// </summary>
 /// <remarks>
 /// <para>

@@ -1,4 +1,4 @@
-// One step of Conway's Game of Life on a grid that wraps at its edges: each cell of next is alive
+// One step of Conway's Game of Life on a grid that wraps at its edges. Each cell of next is alive
 // when three of its neighbors in current are, or two and it was already.
 uniform uint width;
 uniform uint height;

@@ -2,9 +2,9 @@ namespace Engine;
 
 /// <summary>
 /// CPU-side texture asset. Holds decoded pixel bytes plus the metadata needed to upload
-/// them to a GPU texture later. Backend-agnostic: produced by any
-/// <see cref="ITextureDecoder"/> (StbImageSharp today; KTX2 / DDS / EXR tomorrow) and
-/// consumed by the renderer when material payloads come up for binding.
+/// them to a GPU texture later. It is produced by any <see cref="ITextureDecoder"/>
+/// (StbImageSharp is the one there is) and consumed by the renderer when material payloads come
+/// up for binding.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -46,7 +46,7 @@ public sealed class Texture
     /// <summary>Pixel format of <see cref="Pixels"/>.</summary>
     public required TextureFormat Format { get; init; }
 
-    /// <summary>How sampled values should be interpreted by the GPU.</summary>
+    /// <summary>How the GPU interprets sampled values.</summary>
     public TextureColorSpace ColorSpace { get; init; } = TextureColorSpace.Linear;
 
     /// <summary>
@@ -95,15 +95,15 @@ public enum TextureFormat
     Bc7,
 }
 
-/// <summary>How the GPU should interpret the texture's stored values when sampling.</summary>
+/// <summary>How the GPU interprets the texture's stored values when sampling.</summary>
 public enum TextureColorSpace
 {
     /// <summary>Values are already linear; no conversion on sample.</summary>
     Linear,
 
     /// <summary>
-    /// Values are sRGB-encoded; the GPU should linearise on sample. Convention for
-    /// BaseColor and Emissive textures.
+    /// Values are sRGB-encoded, and the GPU makes them linear as it samples them, as base color
+    /// and emissive textures are.
     /// </summary>
     Srgb,
 }

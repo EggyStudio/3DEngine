@@ -41,15 +41,15 @@ public sealed class BehaviorsPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        // Static contribution: tag every descriptor registered through generated methods so a
-        // future hot-reload of those same behaviors (under DynamicSourceTag) does not collide.
+        // Every descriptor the generated methods register is tagged, so a hot reload of the same
+        // behaviors (under DynamicSourceTag) does not collide with it.
         var registrations = GeneratedBehaviors.All;
         using (new SystemRegistrationSourceScope("Static.Behaviors"))
             foreach (var register in registrations)
                 register(app);
         Logger.Info($"BehaviorsPlugin: {registrations.Count} generated behavior registration(s) invoked.");
 
-        // Optional dynamic contribution: hot-reload via Roslyn from a scripts directory. A native
+        // Behaviors are also reloaded through Roslyn from a scripts directory when one is named. A native
         // build cannot load an assembly it compiles, and the AOT compiler takes this check as the
         // constant false, so it drops the compiler and Roslyn with it from the executable.
         if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported && !string.IsNullOrEmpty(ScriptsDirectory))

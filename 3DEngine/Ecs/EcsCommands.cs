@@ -8,7 +8,7 @@ namespace Engine;
 /// <remarks>
 /// Commands are deferred to prevent invalidating iterators or causing data races during system execution.
 /// Typically flushed in <see cref="Stage.PostUpdate"/> by the <see cref="EcsPlugin"/>.
-/// Thread-safe: multiple systems (including parallel instance behaviors) may enqueue commands concurrently.
+/// Thread-safe, so multiple systems (including parallel instance behaviors) may enqueue commands concurrently.
 /// </remarks>
 /// <example>
 /// <code>

@@ -452,7 +452,7 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// The model again, posed apart from it: each skinned mesh is a mesh of its own, at rest, and
+    /// The model again, posed apart from it. Each skinned mesh is a mesh of its own, at rest, and
     /// the meshes no bone moves, the materials and their textures, the bones and the bind pose are
     /// the model's, so many copies of one file cost a load and a skinned mesh each.
     /// </summary>
