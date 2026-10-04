@@ -6,12 +6,14 @@
 # validation layer runs under them, and an error it reports fails the example whose log holds it.
 name: build
 
-# The README is not ignored, since the walk below follows its steps.
+# Documents and captures are left out, apart from the README and BUILDING.md, whose steps the walk
+# below follows. A later pattern overrides an earlier one, so BUILDING.md comes after the rule
+# leaving out the other Markdown under .github.
 on:
   push:
-    paths-ignore: ['.github/**.md', '.claude/**', 'CLAUDE.md', 'games/**.md', '.github/assets/**']
+    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!CLAUDE.md', '!games/**.md', '!.github/assets/**']
   pull_request:
-    paths-ignore: ['.github/**.md', '.claude/**', 'CLAUDE.md', 'games/**.md', '.github/assets/**']
+    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!CLAUDE.md', '!games/**.md', '!.github/assets/**']
 
 jobs:
   test:
