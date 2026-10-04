@@ -87,7 +87,7 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
 - `Query<T1, T2, T3>()` walks the smallest set and looks the others up, yielding copies through a
   struct enumerator, and takes the same filters as `QueryRef`.
   `QueryRef` of one, two or three components yields references and marks what it visits as changed,
-  and narrows with `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
+  and narrows with `.With<U>()`, `.Without<U>()`, `.Changed<U>()` and `.Added<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.
 - Every component operation takes an `int` id or an `Entity` handle. The handle carries a
   generation, so one kept to an entity since despawned is refused rather than reaching the entity
@@ -98,6 +98,8 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   sees each change once whether it runs less often than once a frame, as one in `FixedUpdate` at
   a high frame rate, or more often. Code outside a system, as a program's own between
   `BeginDrawing` and `EndDrawing`, sees what changed since the ECS's frame began in `First`.
+  `Added<T>(entity)` and the `Added` filter compare the tick the component was added at the same
+  way, when its entity did not have one before, whether through `Add` or `Update`.
   `GetReadOnly<T>` and `QueryReadOnly` of one, two or three components read by reference without
   marking, and physics writes a body's `Transform` only when its pose moved. A behavior method
   marks its component unless it is `readonly`. Transform propagation in `Render` recomputes only
@@ -120,7 +122,7 @@ emits a system per method, so a behavior may have several methods on one stage:
 - an **instance** method runs once per entity that has the struct as a component, with `this` by
   reference, and switches to a parallel loop above 4096 entities.
 
-`[With]`, `[Without]` and `[Changed]` filter the entities, `[RunIf(nameof(member))]` gates a method
+`[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]` gates a method
 on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]` lets a key
 switch it on and off, and when a method has several of these it runs only when all pass.
 `[OnEnter(value)]` and `[OnExit(value)]` take the place of a stage and register the method on a

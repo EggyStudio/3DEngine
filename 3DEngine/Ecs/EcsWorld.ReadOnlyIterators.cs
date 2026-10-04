@@ -37,6 +37,9 @@ public sealed partial class EcsWorld
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public ReadOnlyEnumerable<T> Changed<TChanged>() => new(_inner.Changed<TChanged>());
 
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public ReadOnlyEnumerable<T> Added<TAdded>() => new(_inner.Added<TAdded>());
+
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
 
@@ -87,6 +90,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public ReadOnlyEnumerable<T1, T2> Changed<TChanged>() => new(_inner.Changed<TChanged>());
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public ReadOnlyEnumerable<T1, T2> Added<TAdded>() => new(_inner.Added<TAdded>());
 
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());
@@ -141,6 +147,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public ReadOnlyEnumerable<T1, T2, T3> Changed<TChanged>() => new(_inner.Changed<TChanged>());
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public ReadOnlyEnumerable<T1, T2, T3> Added<TAdded>() => new(_inner.Added<TAdded>());
 
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_inner.GetEnumerator());

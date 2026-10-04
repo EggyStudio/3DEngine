@@ -49,6 +49,27 @@ public class BehaviorGeneratorTests
     }
 
     [Fact]
+    public void Changed_And_Added_Filters_Compile_Against_The_Stores()
+    {
+        var (result, output) = Generate("""
+            using Engine;
+            public struct Health { public int Value; }
+            [Behavior]
+            public struct Watcher
+            {
+                public int Seen;
+                [OnUpdate, Changed(typeof(Health))] public void Hurt(BehaviorContext ctx) => Seen++;
+                [OnUpdate, Added(typeof(Health))] public void Born(BehaviorContext ctx) => Seen++;
+            }
+            """);
+
+        result.Generator.Should().BeEmpty();
+        result.Compile.Should().BeEmpty();
+        var generated = string.Concat(output.SyntaxTrees.Select(t => t.ToString()));
+        generated.Should().Contain(".Changed(entity)").And.Contain(".Added(entity)");
+    }
+
+    [Fact]
     public void A_Fixed_Update_Method_Registers_On_The_Fixed_Stage()
     {
         var (result, output) = Generate("""

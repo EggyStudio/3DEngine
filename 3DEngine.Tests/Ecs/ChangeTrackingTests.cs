@@ -174,4 +174,51 @@ public class ChangeTrackingTests
         physics.SyncTransforms(ecs);
         ecs.Changed<Transform>(entity).Should().BeFalse("a body that did not move writes nothing");
     }
+
+    [Fact]
+    public void A_System_Sees_A_Component_Added_Once_And_Not_When_It_Is_Overwritten()
+    {
+        var ecs = new EcsWorld();
+        long lastRun = 0;
+        // What a system finds added, run as the schedule runs it.
+        List<int> Look()
+        {
+            var outer = ChangeTicks.Enter(lastRun, out var tick);
+            try { return ecs.Query<Health>().Added<Health>().Select(r => r.Entity).ToList(); }
+            finally { ChangeTicks.Leave(outer); lastRun = tick; }
+        }
+
+        var first = ecs.Spawn();
+        ecs.Add(first, new Health { Value = 1 });
+        Look().Should().Equal(first);
+        Look().Should().BeEmpty("it was seen already");
+
+        ecs.Add(first, new Health { Value = 2 });
+        var second = ecs.Spawn();
+        ecs.Update(second, new Health { Value = 3 });
+        Look().Should().Equal([second], "overwriting a component adds nothing, and Update adds one an entity lacked");
+    }
+
+    [Fact]
+    public void Every_Query_Kind_Filters_By_Added()
+    {
+        var ecs = new EcsWorld();
+        var old = ecs.Spawn();
+        ecs.Add(old, new Health());
+        ecs.Add(old, new Transform(Vector3.Zero));
+        ecs.BeginFrame();
+        var fresh = ecs.Spawn();
+        ecs.Add(fresh, new Health());
+        ecs.Add(fresh, new Transform(Vector3.Zero));
+
+        ecs.Added<Health>(fresh).Should().BeTrue();
+        ecs.Added<Health>(old).Should().BeFalse("outside a system, added counts from the frame's start");
+        ecs.Query<Transform>().Added<Health>().Select(r => r.Entity).Should().Equal(fresh);
+        var read = new List<int>();
+        foreach (var row in ecs.QueryReadOnly<Transform, Health>().Added<Health>()) read.Add(row.Entity);
+        read.Should().Equal(fresh);
+        var visited = new List<int>();
+        foreach (var row in ecs.QueryRef<Transform>().Added<Transform>()) visited.Add(row.Entity);
+        visited.Should().Equal(fresh);
+    }
 }

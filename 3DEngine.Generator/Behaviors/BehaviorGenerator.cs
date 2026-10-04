@@ -225,12 +225,13 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         return $"(({fqn})({System.Convert.ToString(arg.Value, System.Globalization.CultureInfo.InvariantCulture)}))";
     }
 
-    /// <summary>Extracts With/Without/Changed filters from method attributes.</summary>
+    /// <summary>Extracts With/Without/Changed/Added filters from method attributes.</summary>
     private static Filters GetFilters(IMethodSymbol m)
     {
         var with = new List<string>();
         var without = new List<string>();
         var changed = new List<string>();
+        var added = new List<string>();
         foreach (var a in m.GetAttributes())
         {
             var bucket = a.AttributeClass?.ToDisplayString() switch
@@ -238,6 +239,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 "Engine.WithAttribute" => with,
                 "Engine.WithoutAttribute" => without,
                 "Engine.ChangedAttribute" => changed,
+                "Engine.AddedAttribute" => added,
                 _ => null,
             };
             if (bucket is null || a.ConstructorArguments.Length == 0) continue;
@@ -246,7 +248,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                     bucket.Add(ts.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
         }
 
-        return new Filters(with, without, changed);
+        return new Filters(with, without, changed, added);
     }
 
     /// <summary>The member name a method's [RunIf] names, or null.</summary>
@@ -401,7 +403,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                   """;
         }
 
-        var hasFilters = m.Filters.With.Count + m.Filters.Without.Count + m.Filters.Changed.Count > 0;
+        var hasFilters = m.Filters.With.Count + m.Filters.Without.Count + m.Filters.Changed.Count + m.Filters.Added.Count > 0;
         var hoist = hasFilters ? GenFilterHoist(m.Filters, "        ") : "";
         var parChecks = hasFilters ? GenFilterChecks(m.Filters, "                        ") : "";
         var seqChecks = hasFilters ? GenFilterChecks(m.Filters, "                ") : "";
@@ -472,6 +474,8 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             lines.Add($"{indent}var __fWout{i} = ecs.GetStorePublic<{f.Without[i]}>();");
         for (int i = 0; i < f.Changed.Count; i++)
             lines.Add($"{indent}var __fChg{i} = ecs.GetStorePublic<{f.Changed[i]}>();");
+        for (int i = 0; i < f.Added.Count; i++)
+            lines.Add($"{indent}var __fAdd{i} = ecs.GetStorePublic<{f.Added[i]}>();");
         return string.Join("\n", lines);
     }
 
@@ -484,7 +488,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         for (int i = 0; i < f.Without.Count; i++)
             lines.Add($"{indent}if (__fWout{i}.Has(entity)) {skip};");
         for (int i = 0; i < f.Changed.Count; i++)
-            lines.Add($"{indent}if (!__fChg{i}.ChangedThisFrame(entity, 0)) {skip};");
+            lines.Add($"{indent}if (!__fChg{i}.Changed(entity)) {skip};");
+        for (int i = 0; i < f.Added.Count; i++)
+            lines.Add($"{indent}if (!__fAdd{i}.Added(entity)) {skip};");
         return string.Join("\n", lines);
     }
 
@@ -530,11 +536,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         OnExit,
     }
 
-    /// <summary>Component filter configuration extracted from [With], [Without], [Changed] attributes.</summary>
+    /// <summary>Component filter configuration extracted from [With], [Without], [Changed] and [Added] attributes.</summary>
     private sealed record Filters(
         IReadOnlyList<string> With,
         IReadOnlyList<string> Without,
-        IReadOnlyList<string> Changed);
+        IReadOnlyList<string> Changed,
+        IReadOnlyList<string> Added);
 
     /// <summary>Represents a single stage-annotated method within a behavior struct.</summary>
     private sealed record StageMethod
@@ -549,7 +556,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         public string MethodName { get; init; } = string.Empty;
 
         public Filters Filters { get; init; } =
-            new(Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>());
+            new(Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>());
 
         public (string Name, MemberKind Kind)? RunIf { get; init; }
         public (int Key, int Modifier, bool DefaultEnabled)? ToggleKey { get; init; }

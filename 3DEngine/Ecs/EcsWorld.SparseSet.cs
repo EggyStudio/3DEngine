@@ -14,7 +14,8 @@ namespace Engine;
 /// <para>
 /// Change tracking keeps a tick per dense position (<c>_changedTicks</c>), the
 /// <see cref="ChangeTicks"/> tick of the last write marked there, 0 for none, and the largest
-/// of them, so whether anything changed after a tick is one comparison.
+/// of them, so whether anything changed after a tick is one comparison. Beside it is the tick each
+/// component was added at (<c>_addedTicks</c>), for an <c>Added</c> filter.
 /// </para>
 /// </remarks>
 /// <typeparam name="T">The component type stored in the dense array.</typeparam>
@@ -24,6 +25,8 @@ internal sealed class SparseSet<T>
     private int[] _denseEntities = Array.Empty<int>();
     private T[] _denseComponents = Array.Empty<T>();
     private long[] _changedTicks = Array.Empty<long>();
+    // The tick each component was added at, when its entity did not have one before.
+    private long[] _addedTicks = Array.Empty<long>();
     private long _latestChange;
     private int[] _sparse = Array.Empty<int>();
     private int _count;
@@ -38,6 +41,8 @@ internal sealed class SparseSet<T>
     {
         if (_changedTicks.Length < denseCapacity)
             Array.Resize(ref _changedTicks, denseCapacity);
+        if (_addedTicks.Length < denseCapacity)
+            Array.Resize(ref _addedTicks, denseCapacity);
     }
 
     /// <summary>Stamps the component at dense <paramref name="index"/> with the tick of the write.</summary>
@@ -130,6 +135,7 @@ internal sealed class SparseSet<T>
         _denseEntities[idx] = entity;
         _denseComponents[idx] = component!;
         Unstamp(idx);
+        _addedTicks[idx] = ChangeTicks.ForWrite;
         _sparse[entity] = idx;
     }
 
@@ -152,6 +158,7 @@ internal sealed class SparseSet<T>
         _denseEntities[idx] = entity;
         _denseComponents[idx] = component!;
         Stamp(idx);
+        _addedTicks[idx] = ChangeTicks.ForWrite;
         _sparse[entity] = idx;
     }
 
@@ -184,6 +191,9 @@ internal sealed class SparseSet<T>
     /// <param name="entity">The entity ID.</param>
     /// <param name="since">The tick a change has to come after.</param>
     public bool ChangedSince(int entity, long since) => entity < _sparse.Length && _sparse[entity] >= 0 && ChangedAfter(_sparse[entity], since);
+
+    /// <summary>Whether <paramref name="entity"/> got its component after tick <paramref name="since"/>, not having had one before.</summary>
+    public bool AddedSince(int entity, long since) => entity < _sparse.Length && _sparse[entity] >= 0 && _addedTicks[_sparse[entity]] > since;
 
     /// <summary>Zero-allocation enumerable over all (entity, component) pairs in the sparse set.</summary>
     public readonly struct ComponentEnumerable
@@ -290,6 +300,7 @@ internal sealed class SparseSet<T>
             _denseComponents[idx] = _denseComponents[lastIdx];
             _denseEntities[idx] = _denseEntities[lastIdx];
             _changedTicks[idx] = _changedTicks[lastIdx];
+            _addedTicks[idx] = _addedTicks[lastIdx];
             Unstamp(lastIdx);
             _sparse[_denseEntities[idx]] = idx;
         }
@@ -316,6 +327,7 @@ internal sealed class SparseSet<T>
             _denseComponents[idx] = _denseComponents[lastIdx];
             _denseEntities[idx] = _denseEntities[lastIdx];
             _changedTicks[idx] = _changedTicks[lastIdx];
+            _addedTicks[idx] = _addedTicks[lastIdx];
             Unstamp(lastIdx);
             _sparse[_denseEntities[idx]] = idx;
         }

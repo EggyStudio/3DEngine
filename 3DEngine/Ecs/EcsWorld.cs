@@ -72,5 +72,7 @@ public sealed partial class EcsWorld
         bool SetBoxed(int entity, object value);
         /// <summary>Whether <paramref name="entity"/>'s component in this store changed since the reader last looked (<see cref="ChangeTicks"/>).</summary>
         bool Changed(int entity);
+        /// <summary>Whether <paramref name="entity"/> got its component in this store since the reader last looked, not having had one.</summary>
+        bool Added(int entity);
     }
 }

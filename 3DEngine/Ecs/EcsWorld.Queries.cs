@@ -34,6 +34,9 @@ public sealed partial class EcsWorld
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public CopyQuery<T> Changed<TChanged>() => new(_world, _filter.Changed(_world.StoreOrNull<TChanged>()));
 
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public CopyQuery<T> Added<TAdded>() => new(_world, _filter.Added(_world.StoreOrNull<TAdded>()));
+
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_world.GetStore<T>(create: false), _filter);
 
@@ -101,6 +104,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public CopyQuery<T1, T2> Changed<TChanged>() => new(_world, _filter.Changed(_world.StoreOrNull<TChanged>()));
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public CopyQuery<T1, T2> Added<TAdded>() => new(_world, _filter.Added(_world.StoreOrNull<TAdded>()));
 
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() => new(_world.GetStore<T1>(create: false), _world.GetStore<T2>(create: false), _filter);
@@ -182,6 +188,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public CopyQuery<T1, T2, T3> Changed<TChanged>() => new(_world, _filter.Changed(_world.StoreOrNull<TChanged>()));
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public CopyQuery<T1, T2, T3> Added<TAdded>() => new(_world, _filter.Added(_world.StoreOrNull<TAdded>()));
 
         /// <summary>The enumerator <c>foreach</c> uses.</summary>
         public Enumerator GetEnumerator() =>

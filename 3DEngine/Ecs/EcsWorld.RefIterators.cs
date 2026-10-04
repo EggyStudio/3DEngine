@@ -36,13 +36,16 @@ public sealed partial class EcsWorld
 
     /// <summary>
     /// Up to four component types an entity must have, four it must not have, and four that must
-    /// have changed this frame, checked per entity by a filtered query. A struct of fixed slots, so
+    /// have changed or been added since the reader last looked (<see cref="ChangeTicks"/>), checked
+    /// per entity by a filtered query. A struct of fixed slots, so
     /// a filtered query allocates nothing.
     /// </summary>
     public readonly struct QueryFilter
     {
         private readonly IComponentStore? _w0, _w1, _w2, _w3, _n0, _n1, _n2, _n3, _c0, _c1, _c2, _c3;
         private readonly byte _with, _without, _changed;
+        // Which of the change slots ask whether the component was added rather than changed.
+        private readonly byte _addedMask;
         private readonly bool _impossible;
 
         private QueryFilter(QueryFilter from, int list, IComponentStore? store)
@@ -70,8 +73,9 @@ public sealed partial class EcsWorld
                     _without++;
                     break;
                 default:
-                    if (_changed >= 4) throw new InvalidOperationException("A query takes at most four Changed filters.");
+                    if (_changed >= 4) throw new InvalidOperationException("A query takes at most four Changed and Added filters.");
                     if (_changed == 0) _c0 = store; else if (_changed == 1) _c1 = store; else if (_changed == 2) _c2 = store; else _c3 = store;
+                    if (list == 3) _addedMask |= (byte)(1 << _changed);
                     _changed++;
                     break;
             }
@@ -80,6 +84,7 @@ public sealed partial class EcsWorld
         internal QueryFilter With(IComponentStore? store) => new(this, 0, store);
         internal QueryFilter Without(IComponentStore? store) => new(this, 1, store);
         internal QueryFilter Changed(IComponentStore? store) => new(this, 2, store);
+        internal QueryFilter Added(IComponentStore? store) => new(this, 3, store);
 
         /// <summary>Whether the filter has anything to check.</summary>
         public bool IsEmpty => !_impossible && _with == 0 && _without == 0 && _changed == 0;
@@ -96,12 +101,16 @@ public sealed partial class EcsWorld
             if (_without > 1 && _n1!.Has(entity)) return false;
             if (_without > 2 && _n2!.Has(entity)) return false;
             if (_without > 3 && _n3!.Has(entity)) return false;
-            if (_changed > 0 && !_c0!.Changed(entity)) return false;
-            if (_changed > 1 && !_c1!.Changed(entity)) return false;
-            if (_changed > 2 && !_c2!.Changed(entity)) return false;
-            if (_changed > 3 && !_c3!.Changed(entity)) return false;
+            if (_changed > 0 && !Seen(_c0!, 0, entity)) return false;
+            if (_changed > 1 && !Seen(_c1!, 1, entity)) return false;
+            if (_changed > 2 && !Seen(_c2!, 2, entity)) return false;
+            if (_changed > 3 && !Seen(_c3!, 3, entity)) return false;
             return true;
         }
+
+        // Whether the component in a change slot was added or changed, as the slot asks.
+        private bool Seen(IComponentStore store, int slot, int entity) =>
+            (_addedMask & (1 << slot)) != 0 ? store.Added(entity) : store.Changed(entity);
     }
 
     /// <summary>
@@ -151,6 +160,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public RefEnumerable<T> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public RefEnumerable<T> Added<TAdded>() => Filtered(_filter.Added(_world?.StoreOrNull<TAdded>()));
 
         private RefEnumerable<T> Filtered(QueryFilter filter) =>
             new(_entities, _components, _store, _markOnIterate, _world, filter);
@@ -291,6 +303,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public RefEnumerable<T1, T2> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public RefEnumerable<T1, T2> Added<TAdded>() => Filtered(_filter.Added(_world?.StoreOrNull<TAdded>()));
 
         private RefEnumerable<T1, T2> Filtered(QueryFilter filter) => new(_a, _b, _which, _markOnIterate, _world, filter);
 
@@ -460,6 +475,9 @@ public sealed partial class EcsWorld
 
         /// <summary>Only entities whose <typeparamref name="TChanged"/> changed this frame.</summary>
         public RefEnumerable<T1, T2, T3> Changed<TChanged>() => Filtered(_filter.Changed(_world?.StoreOrNull<TChanged>()));
+
+        /// <summary>Only entities that got <typeparamref name="TAdded"/> since the reader last looked.</summary>
+        public RefEnumerable<T1, T2, T3> Added<TAdded>() => Filtered(_filter.Added(_world?.StoreOrNull<TAdded>()));
 
         private RefEnumerable<T1, T2, T3> Filtered(QueryFilter filter) => new(_a, _b, _c, _markOnIterate, _world, filter);
 

@@ -111,7 +111,7 @@ public sealed class WithoutAttribute : Attribute
     public WithoutAttribute(params Type[] types) => Types = types;
 }
 
-/// <summary>Filter: run only if any of the listed component types changed this frame.</summary>
+/// <summary>Filter: an entity is visited only when each listed component changed since the method's system last ran.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class ChangedAttribute : Attribute
 {
@@ -119,8 +119,20 @@ public sealed class ChangedAttribute : Attribute
     public Type[] Types { get; }
 
     /// <summary>Creates a new <see cref="ChangedAttribute"/> watching the specified component types for changes.</summary>
-    /// <param name="types">The component types; the system runs only if any of these changed this frame.</param>
+    /// <param name="types">The component types, each of which must have changed since the system last ran.</param>
     public ChangedAttribute(params Type[] types) => Types = types;
+}
+
+/// <summary>Filter: an entity is visited only when it got each listed component since the method's system last ran.</summary>
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public sealed class AddedAttribute : Attribute
+{
+    /// <summary>The component types to watch for being added.</summary>
+    public Type[] Types { get; }
+
+    /// <summary>Creates a new <see cref="AddedAttribute"/> watching the specified component types for being added.</summary>
+    /// <param name="types">The component types, each of which the entity must have got since the system last ran.</param>
+    public AddedAttribute(params Type[] types) => Types = types;
 }
 
 /// <summary>

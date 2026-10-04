@@ -68,6 +68,12 @@ public sealed partial class EcsWorld
         /// </summary>
         public bool Changed(int entity) => _set.ChangedSince(entity, Since);
 
+        /// <summary>
+        /// Whether <paramref name="entity"/> got this component since the running system last
+        /// ran, or outside a system, since the frame began, not having had one before.
+        /// </summary>
+        public bool Added(int entity) => _set.AddedSince(entity, Since);
+
         /// <summary>Whether any component in the store changed since the running system last ran, or outside a system, since the frame began.</summary>
         public bool AnyChanged() => _set.AnyChangedSince(Since);
 

@@ -235,6 +235,16 @@ public sealed partial class EcsWorld
         return store != null && store.Changed(entity);
     }
 
+    /// <summary>
+    /// Whether <paramref name="entity"/> got component <typeparamref name="T"/> since the running
+    /// system last ran, or outside a system, since the frame began, not having had one before.
+    /// </summary>
+    public bool Added<T>(int entity)
+    {
+        var store = GetStore<T>(create: false);
+        return store != null && store.Added(entity);
+    }
+
     /// <summary>Attempts to read component <typeparamref name="T"/> from an entity.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
