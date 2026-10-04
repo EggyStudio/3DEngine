@@ -11,9 +11,9 @@ name: build
 # leaving out the other Markdown under .github.
 on:
   push:
-    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!CLAUDE.md', '!games/**.md', '!.github/assets/**']
+    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!AGENTS.md', '!games/**.md', '!.github/assets/**']
   pull_request:
-    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!CLAUDE.md', '!games/**.md', '!.github/assets/**']
+    paths: ['**', '!.github/**.md', '.github/BUILDING.md', '!.claude/**', '!AGENTS.md', '!games/**.md', '!.github/assets/**']
 
 jobs:
   test:

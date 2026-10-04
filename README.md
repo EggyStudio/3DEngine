@@ -28,6 +28,12 @@ while (!WindowShouldClose())
 CloseWindow();
 ```
 
+That is raylib's first example, and why not raylib itself is a fair question. This engine keeps
+its flat API and its loop, in C# with no binding, and adds a Vulkan renderer with shadows and
+reflections, an ECS, physics, skeletal animation, scene files and ImGui in the frame. It costs
+raylib's reach, the web, phones and small boards, and asks for Vulkan. The comparison, with what
+was measured, is [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md).
+
 ```csharp
 [Behavior]
 public struct Ball
@@ -166,6 +172,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
 | [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
 | [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log and commands of its own |
+| [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md) | What is the same as raylib, what this engine adds, what it costs, and what was measured |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

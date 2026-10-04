@@ -571,6 +571,23 @@ The largest costs as they were measured, in order, each with what changed:
    with the camera's view-projection, so a camera drawing into a render texture costs its
    translucent entities' sort and not a pass over every entity.
 
+### Beside raylib
+
+Measured on 2026-10-04 on the same machine, in a hidden 800 by 450 window with no frame rate cap,
+each with `StressRamp`'s search, by `build/raylib-bench/run.sh`. raylib at commit `30fa673`, built
+in C with `-O2` and its SDL3 backend, drawing through OpenGL 3.3, against this engine's Release
+build at `9a9d681c` through Vulkan.
+
+| | raylib | 3DEngine |
+|---|---|---|
+| Sprites, `textures_bunnymark` | 141,882 in each of three runs | 212,822 to 243,226 over three |
+| Cubes turning each frame | 6,403 in each of two runs | 294,024 to 314,537 over two |
+
+raylib draws each cube with `DrawModelEx`, unlit, one call each. `models_stress` lights its
+entities by a sun with a shadow and two point lights beside eight skinned arms, and batches them
+into instanced draws itself. raylib's counts repeat exactly, and this engine's move by a tenth from
+run to run, with the runtime's compiler and collector in the frame.
+
 ## What the engine needs
 
 ### The device
