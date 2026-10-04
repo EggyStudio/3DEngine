@@ -28,8 +28,8 @@ namespace Engine;
 /// draw is a batch of its own, an instance of one.
 /// </para>
 /// <para>
-/// The frame's directional shadow is drawn by <see cref="DrawShadow"/> into a <see cref="ShadowMap"/>
-/// with <c>model.slang</c>'s vertex stage and no fragment stage, a batch per mesh, so a model shader with a vertex
+/// The frame's directional shadow is drawn by <see cref="DrawShadow"/> into a <see cref="ShadowMap"/>,
+/// each cascade into a tile of it, with <c>model.slang</c>'s vertex stage and no fragment stage, a batch per mesh, so a model shader with a vertex
 /// stage of its own casts the shadow of its mesh as it was before that stage moved it. The map
 /// is bound beside the lights, or the white texture in its place in a frame with no shadow.
 /// </para>
@@ -358,7 +358,7 @@ public sealed class ModelRenderer : IDisposable
         var meshes = renderWorld.TryGet<GpuMeshes>();
         if (draws is null || meshes is null || renderContext.Device is not GraphicsDevice device) return;
 
-        var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.MapSize);
+        var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.AtlasSize);
         if (_shadowPipeline is null)
         {
             _vertexShader ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
@@ -368,22 +368,27 @@ public sealed class ModelRenderer : IDisposable
         // The window's draws gather by mesh alone, since the shadow reads no material.
         BeginFrameOfSets(renderContext);
         Gather(draws.Draws, meshes, static draw => (draw.Target == 0 ? Kind.Batched : Kind.Skip, null), keepOrderOfTranslucent: false);
-        // The depth pass reads the transform alone.
-        var lightViewProjection = shadow.ViewProjection;
-        var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
 
+        // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
-        pass.SetViewport(0, 0, map.Extent.Width, map.Extent.Height, 0, 1);
-        pass.SetScissor(0, 0, map.Extent.Width, map.Extent.Height);
         pass.SetPipeline(_shadowPipeline);
-
-        foreach (var batch in _batches)
+        for (int c = 0; c < shadow.Cascades.Count; c++)
         {
-            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
-            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
-            DrawCalls++;
+            var (x, y) = ShadowFit.TileOrigin(c);
+            pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
+            pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
+
+            // The depth pass reads the transform alone.
+            var lightViewProjection = shadow.Cascades[c].ViewProjection;
+            var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
+            foreach (var batch in _batches)
+            {
+                pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+                pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+                pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+                DrawCalls++;
+            }
         }
         pass.EndRenderPass();
     }

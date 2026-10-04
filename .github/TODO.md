@@ -98,10 +98,11 @@ physics, text and fonts, audio and text files
   probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
   into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).
-- **One directional light casts a shadow, from one map.** The first directional light with
-  `CastsShadows` set shadows what the window's camera sees within 40 units (RENDERING.md §4). The
-  map's size and that distance are constants, a long view loses detail near the camera without
-  cascades, point and spot lights cast none, and render targets sample the window camera's map.
+- **One directional light casts a shadow.** The first directional light with `CastsShadows` set
+  shadows what the window's camera sees within 150 units, in three cascades (RENDERING.md §4). The
+  splits, the distance and the tile size are constants, the cascades' edges show as a step in a
+  shadow's softness with no blending between them, point and spot lights cast none, and render
+  targets sample the window camera's map.
 
 ### The device
 

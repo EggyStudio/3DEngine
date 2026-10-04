@@ -200,19 +200,22 @@ diffuse share, both darkened by occlusion. The cube is set 1's binding 2, a blac
 is none, and the lighting buffer carries its intensity and last mip. With a map set the fixed
 light is not used, whether or not there are light entities.
 
-The first directional light with `CastsShadows` set casts the frame's one shadow. `ShadowFit` fits
-a 2048 texel depth map to the sphere around the window camera's view out to 40 units, moved in
-whole texels so the edges of shadows hold still as the camera moves, and reaching four radii
-further toward the light for casters above the view. `ShadowNode` draws the window's meshes into it
-before any other pass, with `model.slang`'s vertex stage and no fragment stage, through a
-depth-only render pass (`GraphicsDevice.CreateShadowMap`). The map is bound at binding 1 of the
-lights' set, beside the light-space matrix in the lighting buffer, and the white texture takes its
-place in a frame with no shadow. The shader moves a point off its surface by a texel and a half
-along its normal and averages nine comparisons around it. A model shader with a vertex stage of its
-own casts the shadow of its mesh as it was before that stage moved it.
+The first directional light with `CastsShadows` set casts the frame's one shadow, in three
+cascades. `ShadowFit` cuts the window camera's view out to 150 units into slices ending at 12, 45
+and 150 units, and fits a 2048 texel tile of a 4096 texel depth map to the sphere around each, so
+the near slice spends its texels on a few units and the far one on many. Each is moved in whole
+texels so the edges of shadows hold still as the camera moves, and reaches four radii further
+toward the light for casters above the view. The fourth tile is free for a spot light.
+`ShadowNode` clears the map once and draws the window's meshes into each tile, before any other
+pass, with `model.slang`'s vertex stage and no fragment stage, through a depth-only render pass
+(`GraphicsDevice.CreateShadowMap`). The map is bound at binding 1 of the lights' set, beside the
+cascades' matrices and texel widths in the lighting buffer, and the white texture takes its place
+in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
+little inside its edge, moves the point off its surface by a texel and a half of that cascade
+along its normal, and averages nine comparisons around it. A model shader with a vertex stage of
+its own casts the shadow of its mesh as it was before that stage moved it.
 
-What follows is cascades, so near shadows keep their detail over a long view, then point and spot
-shadows as an atlas.
+What follows is a spot light's shadow in the free tile, then point lights' shadows.
 
 ## 5. Render targets and post processing
 

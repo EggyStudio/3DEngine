@@ -4,47 +4,58 @@ namespace Engine;
 
 /// <summary>
 /// The directional shadow of the frame, published by <see cref="LightingUboPrepare"/>. It names the
-/// light that casts it and holds the light's view and projection over what the window's camera sees.
+/// light that casts it and holds, for each cascade, the light's view and projection over a slice of
+/// what the window's camera sees, nearest first.
 /// </summary>
 /// <param name="Light">The index of the shadowed light in the frame's lighting buffer.</param>
-/// <param name="ViewProjection">World space to the shadow map's clip space.</param>
-/// <param name="Texel">The width in world units of one texel of the map.</param>
-public sealed record FrameShadow(int Light, Matrix4x4 ViewProjection, float Texel);
+/// <param name="Cascades">World space to each cascade's clip space, with the width in world units of one of its texels.</param>
+public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades);
 
-/// <summary>Fits a directional light's shadow map to what a camera sees.</summary>
+/// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
 /// <remarks>
 /// <para>
-/// One map covers the camera's view out to <see cref="Distance"/> units from its near plane. The
-/// map is fitted to the sphere around that part of the view rather than to its box, so its size
-/// does not change as the camera turns, and its middle is moved in whole texels, so the edges of a
-/// shadow stay still as the camera moves instead of crawling a texel at a time.
+/// The camera's view out to <see cref="Distance"/> units from its near plane is cut into
+/// <see cref="Splits"/>, a cascade each, so the near one spends its texels on a few units and the
+/// far one on many. All of them are tiles of one map, <see cref="AtlasSize"/> texels on a side,
+/// <see cref="TileSize"/> to a tile.
 /// </para>
 /// <para>
-/// The map reaches four times the sphere's radius further toward the light than the sphere does,
-/// so a caster above the view, such as a roof over a camera indoors, still shadows it.
+/// A cascade is fitted to the sphere around its slice of the view rather than to its box, so its
+/// size does not change as the camera turns, and its middle is moved in whole texels, so the edges
+/// of a shadow stay still as the camera moves instead of crawling a texel at a time. It reaches
+/// four times the sphere's radius further toward the light than the sphere does, so a caster above
+/// the view, such as a roof over a camera indoors, still shadows it.
 /// </para>
 /// </remarks>
 public static class ShadowFit
 {
-    /// <summary>The shadow map's width and height in texels.</summary>
-    public const int MapSize = 2048;
+    /// <summary>A cascade's width and height in texels.</summary>
+    public const int TileSize = 2048;
+
+    /// <summary>The map the cascades are tiles of, two tiles on a side, with one left for a spot light.</summary>
+    public const int AtlasSize = 2 * TileSize;
 
     /// <summary>How far past the camera's near plane, in world units, shadows are drawn.</summary>
-    public const float Distance = 40f;
+    public const float Distance = 150f;
+
+    /// <summary>Where each cascade ends, in world units past the camera's near plane.</summary>
+    public static ReadOnlySpan<float> Splits => [12f, 45f, Distance];
 
     /// <summary>
-    /// The light's view and projection for a light pointing along <paramref name="direction"/>
-    /// over what <paramref name="cameraViewProjection"/> sees, or <c>false</c> when the camera's
-    /// matrix cannot be inverted.
+    /// The light's view and projection for a light pointing along <paramref name="direction"/> over
+    /// what <paramref name="cameraViewProjection"/> sees from <paramref name="from"/> to
+    /// <paramref name="to"/> units past its near plane, or <c>false</c> when the camera's matrix
+    /// cannot be inverted.
     /// </summary>
-    public static bool TryFit(Matrix4x4 cameraViewProjection, Vector3 direction, out Matrix4x4 viewProjection, out float texel)
+    public static bool TryFit(Matrix4x4 cameraViewProjection, Vector3 direction, float from, float to,
+        out Matrix4x4 viewProjection, out float texel)
     {
         viewProjection = Matrix4x4.Identity;
         texel = 0;
         if (!Matrix4x4.Invert(cameraViewProjection, out var inverse) || direction.LengthSquared() < 1e-8f) return false;
 
-        // The camera's view out to the distance: each edge of the frustum from its near corner,
-        // cut short where the far plane lies further than the distance.
+        // The slice of the camera's view, along each edge of the frustum from its near corner from
+        // the one distance to the other, cut short where the far plane comes first.
         Span<Vector3> corners = stackalloc Vector3[8];
         int n = 0;
         for (int y = -1; y <= 1; y += 2)
@@ -53,8 +64,9 @@ public static class ShadowFit
                 var near = Unproject(inverse, x, y, 0);
                 var far = Unproject(inverse, x, y, 1);
                 var length = Vector3.Distance(near, far);
-                corners[n++] = near;
-                corners[n++] = length > Distance ? near + (far - near) * (Distance / length) : far;
+                var way = length > 0 ? (far - near) / length : Vector3.Zero;
+                corners[n++] = near + way * MathF.Min(from, length);
+                corners[n++] = near + way * MathF.Min(to, length);
             }
 
         var center = Vector3.Zero;
@@ -72,8 +84,8 @@ public static class ShadowFit
         var up = MathF.Abs(direction.Y) > 0.99f ? Vector3.UnitZ : Vector3.UnitY;
         var view = Matrix4x4.CreateLookAt(Vector3.Zero, direction, up);
 
-        // The middle of the map in the light's view, moved to a whole texel.
-        texel = 2 * radius / MapSize;
+        // The middle of the cascade in the light's view, moved to a whole texel.
+        texel = 2 * radius / TileSize;
         var middle = Vector3.Transform(center, view);
         middle.X = MathF.Floor(middle.X / texel) * texel;
         middle.Y = MathF.Floor(middle.Y / texel) * texel;
@@ -85,6 +97,24 @@ public static class ShadowFit
         viewProjection = view * projection;
         return true;
     }
+
+    /// <summary>Every cascade of a light pointing along <paramref name="direction"/> over what the camera sees, nearest first, or none when it cannot be fitted.</summary>
+    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction)
+    {
+        var splits = Splits;
+        var cascades = new (Matrix4x4, float)[splits.Length];
+        float from = 0;
+        for (int i = 0; i < splits.Length; i++)
+        {
+            if (!TryFit(cameraViewProjection, direction, from, splits[i], out var viewProjection, out var texel)) return [];
+            cascades[i] = (viewProjection, texel);
+            from = splits[i];
+        }
+        return cascades;
+    }
+
+    /// <summary>The texel at which cascade or tile <paramref name="tile"/> starts in the map, across and down.</summary>
+    public static (int X, int Y) TileOrigin(int tile) => (tile % 2 * TileSize, tile / 2 * TileSize);
 
     private static Vector3 Unproject(in Matrix4x4 inverse, float x, float y, float z)
     {

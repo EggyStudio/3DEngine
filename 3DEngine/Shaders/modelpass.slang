@@ -109,15 +109,17 @@ public struct Light
     public float4 cone;
 };
 
-// Laid out as LightingUbo is: the count, the shadowed light's index or -1, the world width of a
-// shadow map texel and a pad, so the matrix starts 16 bytes in, then the lights.
+// Laid out as LightingUbo is. The count, the shadowed light's index or -1, how many cascades it
+// has and a pad come first, then the world width of a texel of each cascade, the cascades'
+// transforms nearest first, and the lights.
 public struct Lighting
 {
     public int count;
     public int shadowLight;
-    public float shadowTexel;
+    public int cascadeCount;
     public int pad0;
-    public float4x4 shadowViewProjection;
+    public float4 shadowTexels;
+    public float4x4 shadowCascades[4];
     // The environment map's intensity, its last mip, and 1 when there is one.
     public float4 environment;
     public Light lights[16];
@@ -282,26 +284,33 @@ float3 arriving(Light light, float3 world, float3 n)
     return color * result;
 }
 
-// How much of the shadowed light reaches this point, from 0 to 1. The point is moved off its
-// surface along the normal by a texel and a half before it is compared, so a surface does not
-// shadow itself where the map's texels slant across it, and nine depths around it are compared and
-// averaged, which softens the stair steps of the map's texels into a gradient one texel wide.
+// How much of the shadowed light reaches this point, from 0 to 1, from the nearest cascade whose
+// tile holds it. Each cascade is a quarter of the map, two tiles on a side. The point is moved off
+// its surface along the normal by a texel and a half of that cascade before it is compared, so a
+// surface does not shadow itself where the map's texels slant across it, and nine depths around
+// it are compared and averaged, which softens the stair steps of the texels into a gradient one
+// texel wide. A point a little inside a tile's edge goes to the next cascade, so the nine never
+// reach into a neighbouring tile.
 float lightReaching(float3 world, float3 n)
 {
-    float4 clip = mul(lighting.shadowViewProjection, float4(world + n * lighting.shadowTexel * 1.5, 1.0));
-    float3 p = clip.xyz / clip.w;
-    float2 uv = p.xy * 0.5 + 0.5;
-    if (any(uv < 0.0) || any(uv > 1.0) || p.z > 1.0)
-        return 1.0;
-
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
-    float reached = 0.0;
-    for (int y = -1; y <= 1; y++)
-        for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
-    return reached / 9.0;
+    for (int c = 0; c < lighting.cascadeCount; c++)
+    {
+        float4 clip = mul(lighting.shadowCascades[c], float4(world + n * lighting.shadowTexels[c] * 1.5, 1.0));
+        float3 p = clip.xyz / clip.w;
+        if (any(abs(p.xy) > 0.995) || p.z > 1.0)
+            continue;
+
+        float2 uv = (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
+        float reached = 0.0;
+        for (int y = -1; y <= 1; y++)
+            for (int x = -1; x <= 1; x++)
+                reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+        return reached / 9.0;
+    }
+    return 1.0;
 }
 
 // The way light comes from one light to a point, for specular.

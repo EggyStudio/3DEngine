@@ -30,8 +30,14 @@ public sealed class LightingUboPrepare : IPrepareSystem
         {
             renderWorld.Set(shadow);
             ubo.ShadowLight = shadow.Light;
-            ubo.ShadowViewProjection = shadow.ViewProjection;
-            ubo.ShadowTexel = shadow.Texel;
+            ubo.CascadeCount = shadow.Cascades.Count;
+            Span<float> texels = stackalloc float[LightingUboPacker.MaxCascades];
+            for (int i = 0; i < shadow.Cascades.Count; i++)
+            {
+                ubo.ShadowCascades[i] = shadow.Cascades[i].ViewProjection;
+                texels[i] = shadow.Cascades[i].Texel;
+            }
+            ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], texels[3]);
         }
 
         var environment = renderWorld.TryGet<EnvironmentMap>();
@@ -53,7 +59,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {sizeBytes}-byte UBO.");
     }
 
-    // The first directional light that casts shadows, fitted to the camera of the first mesh
+    // The first directional light that casts shadows, its cascades fitted to the camera of the first mesh
     // drawn into the window, or null when either is missing.
     private static FrameShadow? Shadow(RenderWorld renderWorld, RenderLights? lights, int count)
     {
@@ -67,9 +73,8 @@ public sealed class LightingUboPrepare : IPrepareSystem
         foreach (var draw in draws.Draws)
         {
             if (draw.Target != 0) continue;
-            return ShadowFit.TryFit(draw.ViewProjection, lights.All[index].Direction, out var viewProjection, out var texel)
-                ? new FrameShadow(index, viewProjection, texel)
-                : null;
+            var cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[index].Direction);
+            return cascades.Length > 0 ? new FrameShadow(index, cascades) : null;
         }
         return null;
     }

@@ -448,6 +448,36 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(unshadowed, 27, 32).R.Should().BeGreaterThan(120, "a light that does not cast shadows lights the wall behind the square");
     }
 
+    [NeedsVulkanFact]
+    public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+
+        // The scene of the test above twenty times over, seen from eighty units, past the forty
+        // the single map reached.
+        var big = new Vector3(20);
+        var camera = ecs.Spawn();
+        ecs.Add(camera, new Camera(45f));
+        ecs.Add(camera, new Transform(new Vector3(0, 0, 80)));
+        var wall = ecs.Spawn();
+        ecs.Add(wall, new Mesh([new(-2, -2, 0), new(2, -2, 0), new(2, 2, 0), new(-2, -2, 0), new(2, 2, 0), new(-2, 2, 0)]));
+        ecs.Add(wall, new Material(Vector4.One));
+        ecs.Add(wall, new Transform(Vector3.Zero, Quaternion.Identity, big));
+        var square = ecs.Spawn();
+        ecs.Add(square, new Mesh([new(0.25f, -0.5f, 1), new(1.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, 0.5f, 1)]));
+        ecs.Add(square, new Material(Vector4.One));
+        ecs.Add(square, new Transform(Vector3.Zero, Quaternion.Identity, big));
+        var sun = ecs.Spawn();
+        ecs.Add(sun, Light.Directional(Vector3.One, 1f) with { CastsShadows = true });
+        ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4), Vector3.One));
+
+        var image = Capture(() => ClearBackground(Color.Black), "far");
+
+        GetImageColor(image, 27, 32).R.Should().BeLessThan(10, "the square shadows the wall eighty units from the camera");
+        GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
+    }
+
     // CI installs the layer and sets E3D_REQUIRE_VALIDATION, so a missing layer there fails here
     // instead of letting every frame pass unchecked.
     [NeedsVulkanFact]
