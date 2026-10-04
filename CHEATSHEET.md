@@ -296,6 +296,15 @@ Image ImageCopy(Image image);                                                   
 Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
 Color[] LoadImageColors(Image image);                                                  // Every pixel's color, row by row
+Image GenImageGradientSquare(int width, int height, float density, Color inner, Color outer); // A square gradient, inner at the center
+Image ImageFromChannel(Image image, int selectedChannel);                              // One channel (0 red to 3 alpha) as grayscale
+void ImageAlphaClear(ref Image image, Color color, float threshold);                   // Pixels below an alpha given a color
+void ImageAlphaMask(ref Image image, Image alphaMask);                                 // Alpha from a mask's brightness
+void ImageAlphaPremultiply(ref Image image);                                           // Color multiplied by alpha
+Rectangle GetImageAlphaBorder(Image image, float threshold);                           // The box around the pixels above an alpha
+void ImageBlurGaussian(ref Image image, int blurSize);                                 // Blur by a Gaussian of about that many pixels
+void ImageKernelConvolution(ref Image image, float[] kernel);                          // Convolve the color with an odd square kernel
+void ImageRotate(ref Image image, int degrees);                                        // Turn clockwise, the canvas grown to fit
 Image LoadImageAnim(string fileName, out int frames);                                  // Every frame of an animated GIF, stacked from the top
 byte[] ExportImageToMemory(Image image, string fileType);                              // An image as a PNG file's bytes
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file
@@ -323,6 +332,9 @@ void ImageDrawLine(ref Image image, int startX, int startY, int endX, int endY, 
 void ImageDrawLineV(ref Image image, Vector2 start, Vector2 end, Color color);          // A line
 void ImageDrawCircle(ref Image image, int centerX, int centerY, int radius, Color color);      // A filled circle
 void ImageDrawCircleLines(ref Image image, int centerX, int centerY, int radius, Color color); // A circle's outline
+void ImageDrawLineEx(ref Image dst, Vector2 start, Vector2 end, int thick, Color color); // A line of a width
+void ImageDrawTriangle(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color); // A filled triangle
+void ImageDrawCircleV(ref Image dst, Vector2 center, int radius, Color color);         // A filled circle around a point
 void ImageDrawRectangle(ref Image image, int x, int y, int width, int height, Color color);    // A filled rectangle
 void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
 void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline

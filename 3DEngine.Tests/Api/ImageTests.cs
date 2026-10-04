@@ -247,4 +247,86 @@ public class ImageTests
         LoadFileData(file).Should().Equal(png);
         LoadFileData(file + ".missing").Should().BeNull();
     }
+
+    [Fact]
+    public void Alpha_Is_Cleared_Masked_Premultiplied_And_Bounded()
+    {
+        var image = GenImageColor(4, 4, new Color(200, 100, 50, 0));
+        ImageDrawRectangle(ref image, 1, 1, 2, 2, new Color(200, 100, 50, 255));
+        GetImageAlphaBorder(image, 0.5f).Should().Be(new Rectangle(1, 1, 2, 2));
+        GetImageAlphaBorder(GenImageColor(2, 2, Color.Blank), 0.5f).Should().Be(default(Rectangle));
+
+        var cleared = ImageCopy(image);
+        ImageAlphaClear(ref cleared, Blue, 0.5f);
+        GetImageColor(cleared, 0, 0).Should().Be(Blue);
+        GetImageColor(cleared, 1, 1).Should().Be(new Color(200, 100, 50, 255));
+
+        var masked = GenImageColor(2, 1, Red);
+        var mask = GenImageColor(2, 1, Color.Black);
+        ImageDrawPixel(ref mask, 1, 0, Color.White);
+        ImageAlphaMask(ref masked, mask);
+        (GetImageColor(masked, 0, 0).A, GetImageColor(masked, 1, 0).A).Should().Be(((byte)0, (byte)255));
+
+        var half = GenImageColor(1, 1, new Color(200, 100, 50, 128));
+        ImageAlphaPremultiply(ref half);
+        GetImageColor(half, 0, 0).Should().Be(new Color(100, 50, 25, 128));
+
+        var green = ImageFromChannel(GenImageColor(1, 1, new Color(10, 20, 30, 40)), 1);
+        GetImageColor(green, 0, 0).Should().Be(new Color(20, 20, 20, 255));
+    }
+
+    [Fact]
+    public void A_Blur_Spreads_A_Point_And_A_Kernel_Convolves_It()
+    {
+        var image = GenImageColor(9, 9, Color.Black);
+        ImageDrawPixel(ref image, 4, 4, Color.White);
+        var blurred = ImageCopy(image);
+        ImageBlurGaussian(ref blurred, 2);
+        GetImageColor(blurred, 4, 4).R.Should().BeLessThan(255).And.BeGreaterThan(GetImageColor(blurred, 5, 4).R);
+        GetImageColor(blurred, 5, 4).R.Should().BeGreaterThan(0, "the point spreads to its neighbors");
+        GetImageColor(blurred, 0, 0).R.Should().Be(0, "and not past the blur's reach");
+
+        // A kernel taking each pixel's left neighbor moves the point one to the right.
+        var moved = ImageCopy(image);
+        ImageKernelConvolution(ref moved, [0, 0, 0, 1, 0, 0, 0, 0, 0]);
+        GetImageColor(moved, 5, 4).R.Should().Be(255);
+        GetImageColor(moved, 4, 4).R.Should().Be(0);
+    }
+
+    [Fact]
+    public void A_Turned_Image_Grows_To_Hold_All_Of_It()
+    {
+        var image = GenImageColor(10, 4, Red);
+        ImageRotate(ref image, 90);
+        (image.Width, image.Height).Should().Be((4, 10));
+        GetImageColor(image, 2, 5).Should().Be(Red);
+
+        var tilted = GenImageColor(10, 10, Red);
+        ImageRotate(ref tilted, 45);
+        tilted.Width.Should().Be(15, "a square turned by 45 degrees is as wide as its diagonal");
+        GetImageColor(tilted, 7, 7).Should().Be(Red);
+        GetImageColor(tilted, 0, 0).A.Should().Be(0, "and clear in the corners it does not reach");
+    }
+
+    [Fact]
+    public void Shapes_Are_Drawn_By_Their_Points()
+    {
+        var image = GenImageColor(20, 20, Color.Black);
+        ImageDrawTriangle(ref image, new(2, 2), new(18, 2), new(2, 18), Red);
+        GetImageColor(image, 4, 4).Should().Be(Red);
+        GetImageColor(image, 16, 16).Should().Be(Color.Black, "the far corner is outside the triangle");
+
+        var line = GenImageColor(20, 20, Color.Black);
+        ImageDrawLineEx(ref line, new(2, 10), new(18, 10), 5, Blue);
+        GetImageColor(line, 10, 8).Should().Be(Blue, "a line five wide reaches two pixels either side");
+        GetImageColor(line, 10, 4).Should().Be(Color.Black);
+
+        var circle = GenImageColor(20, 20, Color.Black);
+        ImageDrawCircleV(ref circle, new(10, 10), 3, Red);
+        GetImageColor(circle, 10, 12).Should().Be(Red);
+
+        var square = GenImageGradientSquare(10, 10, 0, Color.White, Color.Black);
+        GetImageColor(square, 5, 5).R.Should().BeGreaterThan(200);
+        GetImageColor(square, 0, 5).R.Should().BeLessThan(30, "the edge is the outer color");
+    }
 }
