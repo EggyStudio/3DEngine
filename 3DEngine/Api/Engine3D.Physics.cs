@@ -93,6 +93,16 @@ public static partial class Engine3D
     public static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum) =>
         Physics.CreateDistanceJoint(a, b, pointA, pointB, minimum, maximum);
 
+    /// <summary>Keeps a hinge turned between two angles in degrees from where it was made, as a door that opens one way.</summary>
+    /// <exception cref="ArgumentException">The joint is not a hinge, or the angles are out of order.</exception>
+    public static void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees) =>
+        Physics.SetHingeLimit(hinge, float.DegreesToRadians(minimumDegrees), float.DegreesToRadians(maximumDegrees));
+
+    /// <summary>Turns a hinge at a speed in degrees a second, with no more than a torque, as a wheel's drive does.</summary>
+    /// <exception cref="ArgumentException">The joint is not a hinge.</exception>
+    public static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque) =>
+        Physics.SetHingeMotor(hinge, float.DegreesToRadians(degreesPerSecond), maximumTorque);
+
     /// <summary>Removes a joint.</summary>
     public static void DestroyPhysicsJoint(PhysicsJoint joint) => Physics.DestroyJoint(joint);
 

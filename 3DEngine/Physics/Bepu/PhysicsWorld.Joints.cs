@@ -26,6 +26,21 @@ public sealed partial class PhysicsWorld
     // Stiff enough to read as rigid at the default step, and critically damped so it does not ring.
     private static readonly SpringSettings JointSpring = new(30, 1);
 
+    // What a hinge needs to be limited or driven: its bodies, its axis on the first, the frames its
+    // angle is measured in, zero as they were placed when it was made, and its limit and motor.
+    private sealed class HingeParts
+    {
+        public required BodyHandle A;
+        public required BodyHandle B;
+        public required Vector3 LocalAxisA;
+        public required Quaternion BasisA;
+        public required Quaternion BasisB;
+        public ConstraintHandle? Limit;
+        public ConstraintHandle? Motor;
+    }
+
+    private readonly Dictionary<int, HingeParts> _hinges = [];
+
     /// <summary>Joins two bodies at a point in the world, about which each may turn freely, as a ball in a socket.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
     public PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
@@ -45,14 +60,104 @@ public sealed partial class PhysicsWorld
     {
         var (ra, rb) = Bodies(a, b);
         axis = Vector3.Normalize(axis);
-        return Add(ra, rb, new Hinge
+        var localAxisA = LocalDirection(ra, axis);
+        var joint = Add(ra, rb, new Hinge
         {
             LocalOffsetA = Local(ra, point),
-            LocalHingeAxisA = LocalDirection(ra, axis),
+            LocalHingeAxisA = localAxisA,
             LocalOffsetB = Local(rb, point),
             LocalHingeAxisB = LocalDirection(rb, axis),
             SpringSettings = JointSpring,
         });
+
+        // A frame on each body with its Z along the axis, the same in the world as placed, so the
+        // hinge's angle starts at zero.
+        var basisA = FromTo(Vector3.UnitZ, localAxisA);
+        _hinges[joint.Handle] = new HingeParts
+        {
+            A = ra.Handle,
+            B = rb.Handle,
+            LocalAxisA = localAxisA,
+            BasisA = basisA,
+            BasisB = Quaternion.Normalize(Quaternion.Conjugate(rb.Pose.Orientation) * ra.Pose.Orientation * basisA),
+        };
+        return joint;
+    }
+
+    /// <summary>
+    /// Keeps a hinge turned between <paramref name="minimum"/> and <paramref name="maximum"/>
+    /// radians from where it was made, replacing a limit set before, as a door that opens one way.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a hinge, or the angles are out of order.</exception>
+    public void SetHingeLimit(PhysicsJoint hinge, float minimum, float maximum)
+    {
+        var parts = HingeOf(hinge);
+        if (maximum < minimum) throw new ArgumentException("A hinge's minimum angle is at most its maximum.");
+        Remove(ref parts.Limit);
+        parts.Limit = Simulation.Solver.Add(parts.A, parts.B, new TwistLimit
+        {
+            LocalBasisA = parts.BasisA,
+            LocalBasisB = parts.BasisB,
+            MinimumAngle = minimum,
+            MaximumAngle = maximum,
+            SpringSettings = JointSpring,
+        });
+    }
+
+    /// <summary>
+    /// Turns a hinge at <paramref name="speed"/> radians a second, counterclockwise about its axis
+    /// seen from the axis's tip for a positive speed, with no more than
+    /// <paramref name="maximumTorque"/>, replacing a motor set before, as a wheel's drive does. A
+    /// speed of 0 with a torque holds it still against what pushes it, up to that torque.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a hinge.</exception>
+    public void SetHingeMotor(PhysicsJoint hinge, float speed, float maximumTorque)
+    {
+        var parts = HingeOf(hinge);
+        Remove(ref parts.Motor);
+        parts.Motor = Simulation.Solver.Add(parts.A, parts.B, new AngularAxisMotor
+        {
+            LocalAxisA = parts.LocalAxisA,
+            // Bepu turns B against A, and a positive speed here turns B counterclockwise seen from the axis's tip.
+            TargetVelocity = -speed,
+            Settings = new MotorSettings(Math.Max(0, maximumTorque), 1e-4f),
+        });
+        var (a, b) = (Simulation.Bodies[parts.A], Simulation.Bodies[parts.B]);
+        a.Awake = true;
+        b.Awake = true;
+    }
+
+    /// <summary>Takes a hinge's limit and motor away, leaving it free to turn.</summary>
+    public void ClearHingeLimitAndMotor(PhysicsJoint hinge)
+    {
+        if (!_hinges.TryGetValue(hinge.Handle, out var parts)) return;
+        Remove(ref parts.Limit);
+        Remove(ref parts.Motor);
+    }
+
+    private HingeParts HingeOf(PhysicsJoint hinge) =>
+        JointExists(hinge) && _hinges.TryGetValue(hinge.Handle, out var parts)
+            ? parts
+            : throw new ArgumentException("The joint is not a hinge that exists.", nameof(hinge));
+
+    // Removes a constraint a hinge added, unless it went with a body already.
+    private void Remove(ref ConstraintHandle? handle)
+    {
+        if (handle is { } h && Simulation.Solver.ConstraintExists(h)) Simulation.Solver.Remove(h);
+        handle = null;
+    }
+
+    // The shortest turn taking direction from to direction to.
+    private static Quaternion FromTo(Vector3 from, Vector3 to)
+    {
+        var dot = Vector3.Dot(from, to);
+        if (dot > 0.9999f) return Quaternion.Identity;
+        if (dot < -0.9999f)
+        {
+            var side = MathF.Abs(from.X) < 0.9f ? Vector3.UnitX : Vector3.UnitY;
+            return Quaternion.CreateFromAxisAngle(Vector3.Normalize(Vector3.Cross(from, side)), MathF.PI);
+        }
+        return Quaternion.Normalize(new Quaternion(Vector3.Cross(from, to), 1 + dot));
     }
 
     /// <summary>Joins two bodies rigidly, as they are placed when it is made, so they move as one.</summary>
@@ -81,9 +186,14 @@ public sealed partial class PhysicsWorld
         return Add(ra, rb, new DistanceLimit(Local(ra, pointA), Local(rb, pointB), minimum, maximum, JointSpring));
     }
 
-    /// <summary>Removes a joint. One already gone with a destroyed body is passed over.</summary>
+    /// <summary>Removes a joint, with a hinge's limit and motor. One already gone with a destroyed body is passed over.</summary>
     public void DestroyJoint(PhysicsJoint joint)
     {
+        if (_hinges.Remove(joint.Handle, out var parts))
+        {
+            Remove(ref parts.Limit);
+            Remove(ref parts.Motor);
+        }
         if (joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle)))
             Simulation.Solver.Remove(new ConstraintHandle(joint.Handle));
     }

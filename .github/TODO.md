@@ -119,15 +119,16 @@ entities as they were when the contact started. A resting pair whose bodies slee
 
 The flat API creates boxes, spheres, capsules, static and kinematic boxes, triggers, which report
 what enters them as contacts and stop nothing, and level geometry shaped as a model's triangles. It
-joins bodies with ball, hinge, weld and distance joints, reads their blended poses, pushes them,
-casts rays and reads the frame's contacts with the point and normal where each pair met
-(CHEATSHEET.md, Physics). A `Collider` marked `IsTrigger` makes a trigger from a scene, and a
-kinematic body under a `Parent` follows its place under the parent by velocity, so a platform a
-moving parent carries carries what stands on it, a character walking relative to it and a crate by
-friction. What is missing is the impulse on a contact and joints with limits and motors. The
-character controller is a dynamic capsule walked toward a velocity before each step, which slides
-along walls, rides edges lower than about half its radius, holds slopes up to its limit, rides what
-moves under it and reports ground. It does not climb a taller step or crouch.
+joins bodies with ball, hinge, weld and distance joints, a hinge limited between two angles or
+driven by a motor, reads their blended poses, pushes them, casts rays and reads the frame's contacts
+with the point and normal where each pair met (CHEATSHEET.md, Physics). A `Collider` marked
+`IsTrigger` makes a trigger from a scene, and a kinematic body under a `Parent` follows its place
+under the parent by velocity, so a platform a moving parent carries carries what stands on it, a
+character walking relative to it and a crate by friction. What is missing is the impulse on a
+contact, and limits and motors for the joints other than the hinge. The character controller is a
+dynamic capsule walked toward a velocity before each step, which slides along walls, rides edges
+lower than about half its radius, holds slopes up to its limit, rides what moves under it and
+reports ground. It does not climb a taller step or crouch.
 
 ### Scenes
 

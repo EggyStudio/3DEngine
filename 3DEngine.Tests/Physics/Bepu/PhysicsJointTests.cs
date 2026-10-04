@@ -83,6 +83,55 @@ public class PhysicsJointTests
         world.GetPosition(weight).Y.Should().BeApproximately(7, 0.05f, "the rope stops it three units under the hook");
     }
 
+    // The angle a door has swung about the vertical through the hinge, from where it was made along +X.
+    private static float DoorAngle(PhysicsWorld world, PhysicsBody door, Vector3 hinge)
+    {
+        var at = world.GetPosition(door) - hinge;
+        return float.RadiansToDegrees(MathF.Atan2(-at.Z, at.X));
+    }
+
+    [Fact]
+    public void A_Limited_Hinge_Stays_Between_Its_Angles_However_Hard_It_Is_Pushed()
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = Vector3.Zero });
+        var post = world.CreateKinematicBox(Vector3.Zero, new Vector3(0.05f, 1, 0.05f));
+        var door = world.CreateBox(new Vector3(0.6f, 0, 0), new Vector3(0.5f, 1, 0.05f));
+        var hinge = new Vector3(0.05f, 0, 0);
+        var joint = world.CreateHingeJoint(post, door, hinge, Vector3.UnitY);
+        world.SetHingeLimit(joint, 0, float.DegreesToRadians(45));
+
+        // Pushed toward -Z, which turns it the positive way about +Y, hard enough to go round several
+        // times. With nothing to slow it, it rings between its limits, and leaves them only by the
+        // little a joint's spring gives.
+        world.ApplyImpulse(door, new Vector3(0, 0, -3), new Vector3(0.5f, 0, 0));
+        float least = float.MaxValue, most = float.MinValue;
+        for (int i = 0; i < 120; i++)
+        {
+            world.StepOnce(Step);
+            var angle = DoorAngle(world, door, hinge);
+            (least, most) = (MathF.Min(least, angle), MathF.Max(most, angle));
+        }
+        most.Should().BeInRange(40, 50, "it swings out to 45 degrees");
+        least.Should().BeGreaterThan(-3, "and back no further than where it was made");
+    }
+
+    [Fact]
+    public void A_Motor_Turns_A_Hinge_At_Its_Speed()
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = Vector3.Zero });
+        var axle = world.CreateKinematicBox(Vector3.Zero, new Vector3(0.05f));
+        var wheel = world.CreateBox(Vector3.Zero, new Vector3(1, 1, 0.2f));
+        var joint = world.CreateHingeJoint(axle, wheel, Vector3.Zero, Vector3.UnitZ);
+        world.SetHingeMotor(joint, MathF.PI / 2, 1000);
+
+        Run(world, 60);
+
+        var spin = world.GetAngularVelocity(wheel);
+        spin.Z.Should().BeApproximately(MathF.PI / 2, 0.05f, "a quarter turn a second, counterclockwise about the axis");
+        new Vector2(spin.X, spin.Y).Length().Should().BeLessThan(0.01f, "only around the hinge's axis");
+        world.ClearHingeLimitAndMotor(joint);
+    }
+
     [Fact]
     public void A_Joint_Holds_Only_Bodies_That_Move()
     {

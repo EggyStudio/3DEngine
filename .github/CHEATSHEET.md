@@ -455,6 +455,8 @@ PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
 PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis); // Turning only around an axis
 PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b);              // Join two bodies rigidly
 PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum); // A rope or a rod
+void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees); // Keep a hinge between two angles
+void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque); // Drive a hinge at a speed
 void DestroyPhysicsJoint(PhysicsJoint joint);                                   // Remove a joint
 bool IsPhysicsJointValid(PhysicsJoint joint);                                   // Whether it still exists
 PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80); // A character controller, an upright capsule that walls stop and that slides along them
