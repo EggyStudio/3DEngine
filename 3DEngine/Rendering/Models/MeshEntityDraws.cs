@@ -400,7 +400,7 @@ public sealed class MeshEntityDraws
         c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
 
     /// <summary>World to clip space through the first camera entity, as <see cref="CameraExtract"/> builds it, and where that camera is.</summary>
-    private static (Matrix4x4 ViewProjection, Vector3 Eye)? FirstCamera(World world, EcsWorld ecs)
+    internal static (Matrix4x4 ViewProjection, Vector3 Eye)? FirstCamera(World world, EcsWorld ecs)
     {
         foreach (var (entity, camera) in ecs.Query<Camera>())
         {

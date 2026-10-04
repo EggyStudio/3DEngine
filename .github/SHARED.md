@@ -73,8 +73,10 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A body and a collider are components a scene file holds | has (`99ec076`) | has (`606cb3bf`) |
-| A character that walls stop, that slides, steps and holds slopes | to take | has (`b9f280b2`) |
+| A character that walls stop, that slides, steps and holds slopes | taken at `f2ac0cd` | has (`b9f280b2`) |
 | Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
+| A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
+| A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
 
 ### Scenes, saves and files

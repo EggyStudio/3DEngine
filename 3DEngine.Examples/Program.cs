@@ -36,6 +36,7 @@ var examples = new Dictionary<string, Action>
     ["gui_imgui_window"] = GuiImGuiWindow.Run,
     ["ecs_behaviors"] = EcsBehaviors.Run,
     ["ecs_mesh_entities"] = EcsMeshEntities.Run,
+    ["ecs_animated_models"] = EcsAnimatedModels.Run,
     ["ecs_states"] = EcsStates.Run,
     ["ecs_physics"] = EcsPhysics.Run,
     ["scenes_level"] = ScenesLevel.Run,

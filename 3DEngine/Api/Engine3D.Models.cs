@@ -480,6 +480,24 @@ public static partial class Engine3D
         }
     }
 
+    // A model's meshes recorded at a world matrix through a camera, into the window, for the systems
+    // that draw what entities hold rather than through BeginMode3D.
+    internal static void RecordModel(Model model, Matrix4x4 world, Matrix4x4 viewProjection)
+    {
+        var placed = model.Transform * world;
+        var draws = Res<ModelDrawList>();
+        for (int i = 0; i < model.Meshes.Length; i++)
+        {
+            if (!model.Meshes[i].IsValid) continue;
+            var material = model.Materials.Length == 0 ? new ModelMaterial(Color.White)
+                : model.Materials[Math.Clamp(model.MeshMaterial.ElementAtOrDefault(i), 0, model.Materials.Length - 1)];
+            draws.Add(MeshDraw(model.Meshes[i], material, placed) with { ViewProjection = viewProjection, Target = 0 });
+        }
+    }
+
+    // Whether the flat API's app is the one holding world, which the systems that call it check.
+    internal static bool Holds(World world) => _app is { } app && ReferenceEquals(app.World, world);
+
     /// <summary>Draws a model's triangle edges in one color, at a position and scaled the same on every axis.</summary>
     public static void DrawModelWires(Model model, Vector3 position, float scale, Color tint) =>
         DrawModelWiresEx(model, position, Vector3.UnitY, 0, new Vector3(scale), tint);

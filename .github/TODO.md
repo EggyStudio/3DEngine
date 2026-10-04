@@ -54,12 +54,14 @@ physics, text and fonts, audio and text files
 - **Audio reads no FLAC.** WAV, Ogg Vorbis (NVorbis) and MP3 (NLayer) are read, in managed code.
   FLAC has no managed decoder of the same standing, so a FLAC file is refused with the reason.
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
-  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
-  a run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, so its
-  wires and a collider made from it are at rest. Mesh entities have no animation component, so
-  only the flat API animates. A material the
-  program makes draws both sides of each face unless `DoubleSided` is cleared, so
-  `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
+  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in a
+  run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, so its wires
+  and a collider made from it are at rest. An entity plays a file's clips through `AnimatedModel`,
+  which loads a copy of the model for each entity and poses and draws it through the flat API, so
+  only in the app `InitWindow` built, and a skinned file a scene spawns as mesh entities through
+  `ModelRef` stands at rest. A material the program makes draws both sides of each face unless
+  `DoubleSided` is cleared, so `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's
+  does.
 - **Fonts bake at one size each**, and a coverage font drawn far larger than its bake blurs, where
   one loaded as `FontType.Sdf` stays sharp. A font has Latin-1 or the characters it was asked for,
   and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names characters

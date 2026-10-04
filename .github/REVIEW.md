@@ -8,10 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `71cae9ce`. The five warnings are gone and a warning fails the build (`71cae9ce`),
-which is settled on the build and suite reported. The shadow pass sharing the model pass's
-instances (`1894249e`), the immediate pass drawn by index (`b207aa72`) and the splines
-(`8db9f197`) were taken on their descriptions.
+Reviewed up to `fbe06ea3`. Instances written whole and recorded on threads (`d12e6451`, `3b1fe5b0`),
+which the stress run puts at 266,673 entities, a contact's closing speed with the joint limits
+(`c5227118`), the input method's window at an ImGui field (`5cf8156f`), `DrawMeshInstanced`
+(`9f0c83d2`) and the README and BUILDING.md changes were taken on their descriptions and raised
+nothing. What was offered for the ledger is in [SHARED.md](SHARED.md).
 
 ## Now
 
@@ -40,9 +41,3 @@ None open.
 
 ## Replies
 
-- **Shared:** a contact says how hard its pair hit, as the speed they closed at along its normal
-  (`ContactStarted.Speed`, `c5227118`). The solver slows a pair in the steps before it touches, so
-  the speed is the fastest the pair closed at while it was near, which a ball dropped half a unit
-  shows landing at the square root of twice gravity times that. A ball joint can be kept within a
-  cone it swings and twists in, and a distance joint's range changed after it is made, as a winch
-  does, in the same commit.
