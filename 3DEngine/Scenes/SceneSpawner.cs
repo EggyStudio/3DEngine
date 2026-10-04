@@ -232,8 +232,8 @@ public static class SceneSpawner
         {
             // Hand the payload off to ECS verbatim. LightSpawnSystem (Stage.PreUpdate, after
             // this system) turns it into a Light and removes the payload component.
-            // Keeping the translation out of Engine.Scenes preserves the layering: Scenes
-            // doesn't depend on Lighting; Lighting depends on Scenes for the payload type.
+            // The translation stays out of the scenes code, so scenes do not depend on
+            // lighting, and lighting depends on scenes for the payload type alone.
             ecs.Add(entity, light);
         }
 

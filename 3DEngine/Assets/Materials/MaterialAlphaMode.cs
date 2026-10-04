@@ -2,8 +2,8 @@ namespace Engine;
 
 /// <summary>
 /// How the alpha channel of a <see cref="MaterialDescription"/> is interpreted at render
-/// time. Mirrors the glTF 2.0 / <c>UsdPreviewSurface</c> convention so backend readers
-/// (USD, MaterialX) round-trip 1:1.
+/// time, as glTF 2.0 and <c>UsdPreviewSurface</c> define it, so a file's alpha mode is kept
+/// as it was authored.
 /// </summary>
 /// <seealso cref="MaterialDescription"/>
 public enum MaterialAlphaMode : byte

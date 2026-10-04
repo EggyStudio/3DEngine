@@ -64,10 +64,9 @@ public sealed class Texture
 }
 
 /// <summary>
-/// Pixel format enumeration covering the LDR / HDR / block-compressed formats the engine
-/// will eventually upload. Only the uncompressed entries are produced by
-/// <see cref="StbTextureDecoder"/> today; the BC* / KTX2 entries are placeholders for
-/// future <c>Engine.Textures.Ktx2</c> / <c>Engine.Textures.Dds</c> backends.
+/// The pixel formats a texture may hold, LDR, HDR and block-compressed. Only the uncompressed
+/// ones are produced, by <see cref="StbTextureDecoder"/>, and the BC entries wait for a decoder
+/// of KTX2 or DDS files.
 /// </summary>
 public enum TextureFormat
 {

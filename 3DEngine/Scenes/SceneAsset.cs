@@ -6,9 +6,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Produced by <see cref="ISceneReader"/> implementations (e.g. <c>UsdSceneReader</c>) and stored
-/// by the <see cref="AssetServer"/>. Carries the immutable scene snapshot plus provenance metadata
-/// useful for hot-reload, the editor inspector, and round-tripping back to the source format.
+/// Produced by an <see cref="ISceneReader"/>, as <see cref="AssimpModelReader"/>, and stored by
+/// the <see cref="AssetServer"/>. Carries the immutable scene snapshot and where it came from,
+/// which hot reload and writing back to the source format read.
 /// </para>
 /// <para>
 /// <b>A snapshot:</b> <see cref="SceneAsset"/> is a flattened, immutable snapshot, so a

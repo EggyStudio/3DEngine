@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic mesh payload attached to a <see cref="SceneNode"/> via
-/// <see cref="SceneNode.Components"/>. Produced by readers (e.g. <c>UsdSceneReader</c>) and
+/// <see cref="SceneNode.Components"/>. Produced by readers, as <see cref="AssimpModelReader"/>, and
 /// translated to renderer-side <see cref="Mesh"/> components by <c>SceneSpawnSystem</c>.
 /// </summary>
 /// <remarks>
@@ -15,13 +15,11 @@ namespace Engine;
 /// pick what they need based on the renderer's current capabilities.
 /// </para>
 /// <para>
-/// <b>v1 spawn-system contract</b> (per the OpenUSD-as-source-of-truth ticket): the runtime
-/// <see cref="Mesh"/> component still consumes a flat <c>Vector3[]</c>. Until the renderer
-/// grows index-buffer + UV + normal support, <c>SceneSpawnSystem</c> de-indexes
-/// <see cref="Indices"/> into a flat array of size <c>Indices.Length</c> at spawn time
-/// (positions[i] = <see cref="Positions"/>[<see cref="Indices"/>[i]]). The richer fields
-/// (<see cref="Normals"/>, <see cref="Tangents"/>, <see cref="Uv0"/>, ...) are carried
-/// forward losslessly so a renderer-side upgrade can read them without re-parsing the source.
+/// <b>Spawning:</b> the runtime <see cref="Mesh"/> holds flat arrays, three vertices a
+/// triangle, so <c>SceneSpawnSystem</c> de-indexes <see cref="Indices"/> into arrays of
+/// <c>Indices.Length</c> at spawn time (positions[i] = <see cref="Positions"/>[<see cref="Indices"/>[i]]),
+/// with the normals and first texture coordinates beside them. The other fields
+/// (<see cref="Tangents"/> and the rest) are carried whole, for whatever reads them later.
 /// </para>
 /// <para>
 /// <b>Coordinate space:</b> positions, normals and tangents are in the source file's

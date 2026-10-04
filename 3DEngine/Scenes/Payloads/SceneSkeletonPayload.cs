@@ -10,10 +10,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Backend-agnostic, like the other <c>Scene*Payload</c> types in this folder. The
-/// model-import backends (<c>Engine.Models.Assimp</c>, <c>Engine.Models.Gltf</c>)
-/// populate it today; a future UsdSkel pass in <c>Engine.Scenes.Usd</c> can attach the
-/// same payload type so consumers stay format-agnostic.
+/// Backend-agnostic, like the other <c>Scene*Payload</c> types in this folder.
+/// <see cref="AssimpModelReader"/> fills it, for glTF and every other format it reads.
 /// </para>
 /// <para>
 /// <b>Layout:</b> <see cref="JointNames"/>, <see cref="ParentIndices"/> and

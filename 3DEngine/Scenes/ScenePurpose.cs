@@ -6,17 +6,10 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// USD splits a stage into orthogonal "purposes" so that one stage can carry both a
-/// shippable hero asset and the modeller's bounding-box proxy / debug guides at the
-/// same time. The renderer / spawn system then chooses which purposes to honor:
-/// real-time previews typically want <see cref="Default"/> + <see cref="Render"/>,
-/// authoring tools also want <see cref="Proxy"/>, and DCC overlays add
-/// <see cref="Guide"/>.
-/// </para>
-/// <para>
-/// Engine canonical name is <c>ScenePurpose</c> (vs. USD's <c>UsdPurpose</c>) to
-/// keep this module backend-agnostic; the USD reader maps <c>UsdGeomTokens</c>
-/// → <see cref="ScenePurpose"/> when populating <see cref="SceneNode"/>s.
+/// USD splits a stage into "purposes", so one file can carry the model a game ships and the
+/// modeler's proxy boxes and guides. The spawn system chooses which purposes it spawns, and a
+/// game takes <see cref="Default"/> and <see cref="Render"/>. A reader of a format with no
+/// purposes, as <see cref="AssimpModelReader"/>, gives every node <see cref="Default"/>.
 /// </para>
 /// </remarks>
 public enum ScenePurpose

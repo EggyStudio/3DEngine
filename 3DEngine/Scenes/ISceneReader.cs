@@ -2,8 +2,8 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic reader interface that converts a stream / file of a particular format
-/// into an engine <see cref="Scene"/> snapshot. Implementations live in backend modules
-/// (e.g. <c>UsdSceneReader</c> in <c>Engine.Scenes.Usd</c>).
+/// into an engine <see cref="Scene"/> snapshot, as <see cref="AssimpModelReader"/> does for
+/// model files.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,11 +24,11 @@ public interface ISceneReader
 {
     /// <summary>
     /// File extensions this reader handles, including the leading dot
-    /// (e.g. <c>[".usd", ".usda", ".usdc"]</c>).
+    /// (e.g. <c>[".gltf", ".glb"]</c>).
     /// </summary>
     string[] Extensions { get; }
 
-    /// <summary>Identifier used by <see cref="SceneAsset.SourceFormat"/> (e.g. <c>"usd"</c>).</summary>
+    /// <summary>Identifier used by <see cref="SceneAsset.SourceFormat"/> (e.g. <c>"assimp"</c>).</summary>
     string FormatId { get; }
 
     /// <summary>
@@ -39,11 +39,11 @@ public interface ISceneReader
 
 /// <summary>
 /// Backend-agnostic writer interface for serializing a <see cref="Scene"/> back to a source format.
-/// Implementations live in backend modules (e.g. <c>UsdSceneWriter</c>).
+/// The engine has none, and a format that is written registers one.
 /// </summary>
 public interface ISceneWriter
 {
-    /// <summary>Identifier matching <see cref="SceneAsset.SourceFormat"/> (e.g. <c>"usd"</c>).</summary>
+    /// <summary>Identifier matching <see cref="SceneAsset.SourceFormat"/> .</summary>
     string FormatId { get; }
 
     /// <summary>Writes <paramref name="scene"/> to <paramref name="targetPath"/> in this writer's format.</summary>
@@ -52,8 +52,7 @@ public interface ISceneWriter
 
 /// <summary>
 /// Settings forwarded to an <see cref="ISceneReader"/>. Defaults match the runtime spawn
-/// path (render purposes, all payloads, UsdPreviewSurface materials); editors and
-/// thumbnail importers override per-load.
+/// path (render purposes, all payloads, every material), and a load may override them.
 /// </summary>
 public sealed class SceneImportSettings
 {
@@ -79,9 +78,8 @@ public sealed class SceneImportSettings
     public ScenePurposeMask IncludePurposes { get; init; } = ScenePurposeMask.Runtime;
 
     /// <summary>
-    /// Sample time at which to evaluate animated attributes (USD time codes; readers for
-    /// non-time-aware formats ignore this). <c>null</c> means "use the stage default
-    /// time", which for USD is <c>UsdTimeCode.Default()</c>.
+    /// The time at which a reader of a format with animated attributes evaluates them, which
+    /// other readers ignore. <c>null</c> for the file's own default time.
     /// </summary>
     public double? TimeCode { get; init; }
 
@@ -120,9 +118,8 @@ public sealed class SceneExportSettings
 
     /// <summary>
     /// Hint to the writer that the produced asset should embed referenced textures into a
-    /// single self-contained package (USD: <c>.usdz</c>). The writer infers the actual
-    /// container format from the target file extension; this flag only governs whether
-    /// referenced texture files (when present) should be packaged alongside the stage.
+    /// single self-contained package. The writer infers the container from the target file's
+    /// extension, and this flag says only whether the textures it names go inside it.
     /// Defaults to <c>false</c>, when texture files are referenced by path.
     /// </summary>
     public bool EmbedTextures { get; init; } = false;
@@ -133,14 +130,13 @@ public sealed class SceneExportSettings
 
 /// <summary>
 /// Resource that holds the set of <see cref="ISceneReader"/> / <see cref="ISceneWriter"/>
-/// implementations registered by backend plugins (USD, future glTF, etc.). Used by spawn
-/// systems and the editor to dispatch by format / extension without hard-referencing a
-/// specific backend.
+/// implementations plugins register, which spawn systems pick from by format or extension
+/// without naming a reader.
 /// </summary>
 /// <remarks>
-/// Inserted into the <see cref="World"/> by <see cref="ScenesPlugin"/>. Backend plugins
-/// (<c>UsdScenesPlugin</c>, ...) call <see cref="RegisterReader"/> / <see cref="RegisterWriter"/>
-/// during <see cref="IPlugin.Build"/>.
+/// Inserted into the <see cref="World"/> by <see cref="ScenesPlugin"/>. A plugin with a
+/// reader or writer, as <see cref="AssimpModelPlugin"/> has, calls <see cref="RegisterReader"/> or
+/// <see cref="RegisterWriter"/> during <see cref="IPlugin.Build"/>.
 /// </remarks>
 public sealed class SceneReaderRegistry
 {

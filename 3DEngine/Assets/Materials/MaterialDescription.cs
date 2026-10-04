@@ -4,16 +4,14 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic, mutable PBR material description owned by a <see cref="MaterialLibrary"/>.
-/// Mirrors the glTF 2.0 metallic-roughness model and <c>UsdPreviewSurface</c> input names so
-/// importers (USD, MaterialX, glTF) round-trip lossless and the renderer has a single shape
-/// to consume.
+/// It follows glTF 2.0's metallic-roughness model, with <c>UsdPreviewSurface</c>'s input names,
+/// so an imported material keeps what its file says and the renderer reads one shape.
 /// </summary>
 /// <remarks>
 /// <para>
-/// This is the <b>user-facing</b> material type. Backends like <c>Engine.Materials.X</c>
-/// (MaterialX) translate their own document/graph representation into this structure and
-/// hand it to <see cref="MaterialLibrary.Create(MaterialDescription)"/>. End-user code
-/// authors materials directly via the same API:
+/// This is the <b>user-facing</b> material type. An importer translates its file's materials
+/// into it and hands them to <see cref="MaterialLibrary.Create(MaterialDescription)"/>, and a
+/// program makes materials through the same call:
 /// </para>
 /// <example>
 /// <code>
@@ -36,9 +34,8 @@ public sealed class MaterialDescription
     public string Name { get; set; } = "Material";
 
     /// <summary>
-    /// Stable identifier for de-duplication and re-binding across reloads (e.g. a USD prim
-    /// path or MaterialX <c>surfacematerial</c> name). <c>null</c> for procedurally
-    /// authored materials.
+    /// A stable name, as a model file's material path, by which a material is found again
+    /// across reloads and made once. <c>null</c> for a material made in code.
     /// </summary>
     public string? SourcePath { get; set; }
 

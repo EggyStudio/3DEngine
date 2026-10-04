@@ -5,8 +5,8 @@ namespace Engine;
 /// re-spawns the affected subtree in place: every entity tracked under the asset's id in
 /// <see cref="SpawnedScenes"/> is despawned, then the new <see cref="SceneAsset"/> is
 /// translated into a fresh entity set via <see cref="SceneSpawner.Spawn"/> with the
-/// originally-recorded <see cref="SceneSpawnSettings"/>. This delivers the OpenUSD
-/// "edit, save, see changes live" workflow on top of the asset hot-reload pipeline.
+/// <see cref="SceneSpawnSettings"/> it was first spawned with, so a model saved in another tool
+/// is seen changed in the running game.
 /// </summary>
 /// <remarks>
 /// <para>

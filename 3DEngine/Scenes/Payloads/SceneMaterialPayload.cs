@@ -3,10 +3,9 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// Backend-agnostic material payload modeled directly on the <c>UsdPreviewSurface</c>
-/// shader so a USD round-trip is lossless. Produced by readers (e.g. the USD reader's
-/// material pre-pass) and translated to renderer-side <see cref="Material"/> components by
-/// <c>SceneSpawnSystem</c>.
+/// Backend-agnostic material payload modeled on the <c>UsdPreviewSurface</c> shader.
+/// Produced by readers, as <see cref="AssimpModelReader"/>'s material pass, and translated to
+/// renderer-side <see cref="Material"/> components by <c>SceneSpawnSystem</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -99,9 +98,9 @@ public sealed class SceneMaterialPayload
 
 /// <summary>Reference to a texture file that backs a <see cref="SceneMaterialPayload"/> input.</summary>
 /// <param name="AssetPath">
-/// Resolved asset path (relative to the source stage) of the texture file. May be a
-/// virtual path inside a <c>.usdz</c> package; the texture loader / asset pipeline is
-/// responsible for resolving it the same way the original USD asset resolver did.
+/// Resolved asset path of the texture file, relative to the model file. It may be a
+/// virtual <c>__embedded__/</c> path to a texture inside the model file, which the texture
+/// loader reads from memory.
 /// </param>
 /// <param name="UvSet">
 /// UV channel index used to sample this texture (0 = <see cref="SceneMeshPayload.Uv0"/>,

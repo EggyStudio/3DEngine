@@ -19,8 +19,7 @@ namespace Engine;
 /// <b>De-duplication:</b> when <see cref="MaterialSettings.DeduplicateBySourcePath"/> is
 /// enabled (the default) <see cref="CreateOrGet(MaterialDescription)"/> reuses the
 /// existing handle for any description whose <see cref="MaterialDescription.SourcePath"/>
-/// has already been registered. This matches the cache-by-prim-path behaviour the USD
-/// reader and the MaterialX bridge already rely on.
+/// has already been registered, so a material a file names twice is made once.
 /// </para>
 /// </remarks>
 /// <example>

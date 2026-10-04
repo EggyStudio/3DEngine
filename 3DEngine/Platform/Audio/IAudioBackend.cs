@@ -63,10 +63,8 @@ public readonly record struct AudioVoiceParams
 }
 
 /// <summary>
-/// Backend-agnostic playback abstraction. Concrete implementations live in backend
-/// modules: <c>SdlAudioBackend</c> in <c>Engine.Sound.Sdl</c>, future
-/// <c>FMODAudioBackend</c>, etc. Mirrors the registration shape of <see cref="ITextureDecoder"/>:
-/// <see cref="AudioServer"/> holds a single active backend that can be swapped at startup.
+/// Backend-agnostic playback, which <see cref="SdlAudioBackend"/> implements.
+/// <see cref="AudioServer"/> holds one active backend, which can be swapped at startup.
 /// </summary>
 /// <remarks>
 /// <para>

@@ -2,9 +2,8 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic decoder interface that converts a raw image stream into a
-/// <see cref="Texture"/>. Implementations live in backend modules (e.g.
-/// <c>StbTextureDecoder</c> in <c>Engine.Textures.Stb</c>; future <c>Ktx2TextureDecoder</c>
-/// in <c>Engine.Textures.Ktx2</c>, etc.).
+/// <see cref="Texture"/>, as <see cref="StbTextureDecoder"/> does for the formats StbImageSharp
+/// reads.
 /// </summary>
 /// <remarks>
 /// <para>

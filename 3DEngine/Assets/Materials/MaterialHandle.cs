@@ -5,8 +5,8 @@ namespace Engine;
 /// <summary>
 /// Lightweight value-type handle to a material inside a <see cref="MaterialLibrary"/>.
 /// Safe to store on ECS components, copy by value, and use across frames; all operations
-/// are forwarded to the owning library via the embedded reference, so backend types
-/// (MaterialX documents, USD shade graphs, etc.) never leak into user code.
+/// are forwarded to the owning library through the embedded reference, so an importer's own
+/// types never reach user code.
 /// </summary>
 /// <example>
 /// <code>

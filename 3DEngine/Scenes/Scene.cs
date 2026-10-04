@@ -4,15 +4,15 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic, in-memory representation of a scene. Produced by an <see cref="ISceneReader"/>
-/// (e.g. <c>UsdSceneReader</c>) and consumed by spawn systems that translate it into ECS entities
-/// via <c>EcsCommands</c>.
+/// (as <see cref="AssimpModelReader"/>) and consumed by spawn systems that translate it into
+/// ECS entities via <c>EcsCommands</c>.
 /// </summary>
 /// <remarks>
 /// <para>
 /// A <see cref="Scene"/> is an <b>immutable snapshot</b> by convention: once a reader returns one,
-/// the spawning side may iterate it freely from any thread. Mutating editor sessions should
-/// re-author the source (e.g. live <c>UsdStage</c>) and re-emit a new snapshot, instead of
-/// mutating <see cref="Scene"/> in place. This keeps the cross-thread contract simple and
+/// the spawning side may iterate it freely from any thread. A changed source is read again into
+/// a new snapshot rather than changing a <see cref="Scene"/> in place, which keeps the
+/// cross-thread contract simple and
 /// matches how the <see cref="AssetServer"/> publishes results from background loaders.
 /// </para>
 /// <para>
@@ -31,7 +31,6 @@ namespace Engine;
 ///     by the writer; a single matrix at the spawn root avoids both costs.
 ///   </description></item>
 /// </list>
-/// This matches Omniverse's convention of treating USD as the source of truth.
 /// </para>
 /// </remarks>
 /// <seealso cref="SceneNode"/>

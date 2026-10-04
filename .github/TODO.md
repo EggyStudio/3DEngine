@@ -161,9 +161,9 @@ which has been checked against the state it fills and not with a pad that has th
 ### Prose
 
 The code carried over from the module repositories predates [STYLE.md](STYLE.md). Its dashes,
-spaced hyphens and padded banners are gone. Colons still join clauses in its comments, about 70 of
-them name module repositories, log categories or formats that no longer exist (`Engine.Textures`,
-USD, MaterialX), and some restate the line below them. Each file is to be brought under the style
+spaced hyphens and padded banners are gone, and so are its claims of readers and modules that never
+came (USD, MaterialX). Colons still join clauses in its comments, and some restate the line below
+them. Each file is to be brought under the style
 guide when it is next changed, and the checks at the end of STYLE.md report what is left.
 
 ### Build and release
