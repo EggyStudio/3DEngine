@@ -63,6 +63,17 @@ world point under the pointer, and in 3D `GetScreenToWorldRay` gives the ray, wh
 [Drawing in 3D and cameras](drawing-3d-and-cameras.md#from-the-world-to-the-screen-and-back) page
 shows.
 
+`SetMouseCursor` sets the pointer's shape, as the bar over a text field or a hand over a link:
+
+```csharp
+SetMouseCursor(CheckCollisionPointRec(GetMousePosition(), playButton) ? MouseCursor.PointingHand : MouseCursor.Default);
+```
+
+A game drawn into a render texture and scaled to the window, as a pixel-art game letterboxed to
+any size is, sets `SetMouseOffset` and `SetMouseScale` so the pointer reads in the texture's pixels.
+The offset moves it to the texture's corner, and the scale shrinks the window's pixels to the
+texture's.
+
 ## Touch and gestures
 
 `GetTouchPointCount` says how many fingers are on the screen and `GetTouchPosition(index)` where

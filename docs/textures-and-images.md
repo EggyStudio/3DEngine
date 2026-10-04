@@ -88,8 +88,14 @@ var texture = LoadTextureFromImage(image);
 An image function that changes the image takes it by `ref`, and one that makes a new image returns
 it. The generators make gradients, checkerboards, noise, cellular patterns and plain colors, the
 editors crop, resize, flip, turn and change colors, and `ImageDraw*` draws shapes and text into an
-image as the frame draws them on the screen. `GetImageColor` reads a pixel, and `ExportImage`
-writes an image to a PNG.
+image as the frame draws them on the screen. `GetImageColor` reads a pixel, `LoadImageColors`
+every pixel, and `ExportImage` writes an image to a PNG, or `ExportImageToMemory` to bytes.
+
+Past those, images are blurred (`ImageBlurGaussian`), convolved with a kernel of the program's own
+(`ImageKernelConvolution`), turned by any angle (`ImageRotate`), dithered down to a few bits a
+channel (`ImageDither`), and trimmed to what is not clear (`GetImageAlphaBorder`). `ImageText`
+makes an image of text, and `LoadImageAnim` reads every frame of an animated GIF into one image,
+stacked from the top, which a sprite drawn frame by frame reads as a sheet.
 
 A texture already loaded is changed with `UpdateTexture(texture, image)`, which uploads an image of
 the same size again, as a picture drawn by the program every frame needs.

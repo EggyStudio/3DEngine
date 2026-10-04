@@ -92,13 +92,32 @@ while (!WindowShouldClose())
     if (IsKeyPressed(Key.M)) MaximizeWindow();
     if (IsKeyPressed(Key.N)) RestoreWindow();
     if (IsKeyPressed(Key.C)) SetClipboardText($"{GetScreenWidth()}x{GetScreenHeight()}");
+    // Flags turned on and off while the window is open, as raylib's example does.
+    foreach (var (key, flag) in new[] { (Key.T, ConfigFlags.WindowTopmost), (Key.U, ConfigFlags.WindowUndecorated) })
+        if (IsKeyPressed(key))
+        {
+            if (IsWindowState(flag)) ClearWindowState(flag);
+            else SetWindowState(flag);
+        }
     if (IsWindowResized()) resizes++;
     // ...
 }
 ```
 
-`GetScreenWidth` and `GetScreenHeight` give the window's size in pixels, which a program reads
-each frame rather than keeping, since a resizable window changes it. The monitors are counted and
+`SetWindowState` and `ClearWindowState` turn the same flags on and off for the open window, and
+`IsWindowState` asks whether it has them, except vsync and MSAA, which are chosen as it opens.
+`SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
+and `ToggleBorderlessWindowed` covers the monitor with no border and no change of display mode,
+which most games offer as their fullscreen.
+
+`GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
+rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels the
+content is drawn at `GetRenderWidth` by `GetRenderHeight`, twice as many, which
+`GetWindowScaleDPI` says.
+
+A tool that changes only when it is used, as a level editor drawn in ImGui, calls
+`EnableEventWaiting`, after which `WindowShouldClose` waits for input or a window event before the
+frame goes on, up to a tenth of a second, and the CPU rests in between. The monitors are counted and
 measured by `GetMonitorCount`, `GetMonitorWidth`, `GetMonitorRefreshRate` and the rest the
 [cheatsheet](../CHEATSHEET.md#window-and-timing) lists.
 
