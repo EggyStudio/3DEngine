@@ -125,6 +125,12 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     }
 
     /// <inheritdoc />
+    public void WaitIdle()
+    {
+        if (IsInitialized) _deviceApi.vkDeviceWaitIdle();
+    }
+
+    /// <inheritdoc />
     public void OnResize()
     {
         if (!IsInitialized) return;

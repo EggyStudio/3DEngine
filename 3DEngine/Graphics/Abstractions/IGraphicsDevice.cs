@@ -80,6 +80,9 @@ public interface IGraphicsDevice : IDisposable
     /// <summary>Creates a typed view into an existing image.</summary>
     /// <param name="image">The image to create a view for.</param>
     /// <returns>A new <see cref="IImageView"/> handle.</returns>
+    /// <summary>Waits until the GPU has finished every command submitted, so what they use can be destroyed.</summary>
+    void WaitIdle() { }
+
     IImageView CreateImageView(IImage image);
 
     /// <summary>A view of <paramref name="image"/> in another format of its class, as sRGB for a UNORM color image.</summary>

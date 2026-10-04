@@ -219,6 +219,9 @@ public sealed class Renderer : IDisposable
     {
         Logger.Info("Disposing Renderer and underlying graphics context...");
 
+        // The frames in flight still read the buffers, sets and pipelines destroyed below.
+        Context.Graphics.WaitIdle();
+
         DisposeSystems(_prepareSystems);
         DisposeSystems(_extractSystems);
         Logger.Debug("Render systems disposed.");

@@ -262,9 +262,11 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         Logger.Info($"ImGui font atlas uploaded: {width}x{height} R8G8B8A8_UNorm.");
     }
 
-    /// <summary>Disposes the font descriptor set, sampler, image view, image, and shader modules.</summary>
+    /// <summary>Disposes the pipeline, which this node made itself rather than through the pipeline cache, the font descriptor set, sampler, image view, image, and shader modules.</summary>
     public void Dispose()
     {
+        _pipeline?.Dispose();
+        _pipeline = null;
         _fontDescriptorSet?.Dispose();
         _fontSampler?.Dispose();
         _fontImageView?.Dispose();

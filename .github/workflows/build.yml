@@ -46,8 +46,9 @@ jobs:
           name: test-results
           path: 3DEngine.Tests/TestResults/
 
-      # Each example opened with no window, captured once it is up, checked for validation errors
-      # in its log, and closed. Every example is captured before the step fails.
+      # Each example opened with no window, captured once it is up, and closed, then its session
+      # log checked for validation errors, which counts the teardown too. Every example is
+      # captured before the step fails.
       - name: Capture every example offscreen
         run: |
           mkdir -p captures
@@ -55,11 +56,11 @@ jobs:
           for example in $(grep -oP '^\s*\["\K[a-z0-9_]+' 3DEngine.Examples/Program.cs); do
             ./e3d open "$example" --offscreen --quiet
             ./e3d shot "captures/$example.png" --quiet
-            if ./e3d logs -n 100000 | grep -F 'ERROR [Vulkan.Validation]'; then
+            ./e3d stop --quiet
+            if grep -F '[Vulkan.Validation]' "build/sessions/$example.log" | grep -F 'Validation Error'; then
               echo "::error::$example: the validation layer reported an error"
               failed=1
             fi
-            ./e3d stop --quiet
           done
           exit $failed
 
