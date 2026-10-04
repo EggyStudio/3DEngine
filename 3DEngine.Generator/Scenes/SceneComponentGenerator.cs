@@ -22,18 +22,24 @@ namespace Engine;
 [Generator(LanguageNames.CSharp)]
 public sealed class SceneComponentGenerator : IIncrementalGenerator
 {
+    private const string SceneComponent = "Engine.SceneComponentAttribute";
+    private const string Behavior = "Engine.BehaviorAttribute";
+
+    /// <summary>Every attribute this generator reads, by full name.</summary>
+    public static IReadOnlyList<string> Attributes { get; } = [SceneComponent, Behavior];
+
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var marked = context.SyntaxProvider
-            .ForAttributeWithMetadataName("Engine.SceneComponentAttribute",
+            .ForAttributeWithMetadataName(SceneComponent,
                 static (node, _) => node is StructDeclarationSyntax,
                 static (ctx, _) => Model(ctx.TargetSymbol as INamedTypeSymbol))
             .Where(static m => m is not null)
             .Collect();
 
         var behaviors = context.SyntaxProvider
-            .ForAttributeWithMetadataName("Engine.BehaviorAttribute",
+            .ForAttributeWithMetadataName(Behavior,
                 static (node, _) => node is StructDeclarationSyntax,
                 static (ctx, _) => Model(ctx.TargetSymbol as INamedTypeSymbol))
             .Where(static m => m is not null)

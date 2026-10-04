@@ -38,12 +38,17 @@ public sealed class CommandGenerator : IIncrementalGenerator
         "'{0}' takes a {1}, and a console command's parameters are string, bool, int, long, float or double",
         Category, DiagnosticSeverity.Error, isEnabledByDefault: true);
 
+    private const string Command = "Engine.CommandAttribute";
+
+    /// <summary>Every attribute this generator reads, by full name.</summary>
+    public static IReadOnlyList<string> Attributes { get; } = [Command];
+
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var commands = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "Engine.CommandAttribute",
+                Command,
                 predicate: static (node, _) => node is MethodDeclarationSyntax,
                 transform: static (ctx, _) => Extract(ctx))
             .Where(static command => command is not null)

@@ -25,6 +25,38 @@ namespace Engine;
 [Generator(LanguageNames.CSharp)]
 public sealed class BehaviorGenerator : IIncrementalGenerator
 {
+    // The attributes this generator reads, by full name. The code below matches against these
+    // tables, and the tests run a case for every name in Attributes, so an attribute added here
+    // without one fails them.
+    private const string Behavior = "Engine.BehaviorAttribute";
+    private const string InState = "Engine.InStateAttribute";
+    private const string RunIf = "Engine.RunIfAttribute";
+    private const string ToggleKey = "Engine.ToggleKeyAttribute";
+
+    private static readonly (string Name, Stage Stage)[] StageAttributes =
+    [
+        ("Engine.OnStartupAttribute", Stage.Startup),
+        ("Engine.OnFirstAttribute", Stage.First),
+        ("Engine.OnPreUpdateAttribute", Stage.PreUpdate),
+        ("Engine.OnFixedUpdateAttribute", Stage.FixedUpdate),
+        ("Engine.OnUpdateAttribute", Stage.Update),
+        ("Engine.OnPostUpdateAttribute", Stage.PostUpdate),
+        ("Engine.OnRenderAttribute", Stage.Render),
+        ("Engine.OnLastAttribute", Stage.Last),
+        ("Engine.OnCleanupAttribute", Stage.Cleanup),
+        ("Engine.OnEnterAttribute", Stage.OnEnter),
+        ("Engine.OnExitAttribute", Stage.OnExit),
+    ];
+
+    private const string With = "Engine.WithAttribute";
+    private const string Without = "Engine.WithoutAttribute";
+    private const string Changed = "Engine.ChangedAttribute";
+    private const string Added = "Engine.AddedAttribute";
+
+    /// <summary>Every attribute this generator reads, by full name.</summary>
+    public static IReadOnlyList<string> Attributes { get; } =
+        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey];
+
     private static readonly DiagnosticDescriptor BadSignature = new(
         "E3D001",
         "A behavior stage method has the wrong signature",
@@ -60,7 +92,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                     var type = context.SemanticModel.GetDeclaredSymbol(sds);
                     if (type is null) return null;
                     foreach (var a in type.GetAttributes())
-                        if (a.AttributeClass?.ToDisplayString() == "Engine.BehaviorAttribute")
+                        if (a.AttributeClass?.ToDisplayString() == Behavior)
                             return type;
                     return null;
                 })
@@ -122,9 +154,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             }
 
             string? inState = null;
-            if (HasAttribute(method, "Engine.InStateAttribute"))
+            if (HasAttribute(method, InState))
             {
-                inState = GetStateValue(method, "Engine.InStateAttribute");
+                inState = GetStateValue(method, InState);
                 if (inState is null)
                 {
                     spc.ReportDiagnostic(Diagnostic.Create(BadState, location, "InState", method.Name));
@@ -176,22 +208,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         var stages = new List<Stage>();
         foreach (var a in m.GetAttributes())
         {
-            Stage? stage = a.AttributeClass?.ToDisplayString() switch
-            {
-                "Engine.OnStartupAttribute" => Stage.Startup,
-                "Engine.OnFirstAttribute" => Stage.First,
-                "Engine.OnPreUpdateAttribute" => Stage.PreUpdate,
-                "Engine.OnFixedUpdateAttribute" => Stage.FixedUpdate,
-                "Engine.OnUpdateAttribute" => Stage.Update,
-                "Engine.OnPostUpdateAttribute" => Stage.PostUpdate,
-                "Engine.OnRenderAttribute" => Stage.Render,
-                "Engine.OnLastAttribute" => Stage.Last,
-                "Engine.OnCleanupAttribute" => Stage.Cleanup,
-                "Engine.OnEnterAttribute" => Stage.OnEnter,
-                "Engine.OnExitAttribute" => Stage.OnExit,
-                _ => null,
-            };
-            if (stage is not null) stages.Add(stage.Value);
+            var name = a.AttributeClass?.ToDisplayString();
+            foreach (var (attribute, stage) in StageAttributes)
+                if (attribute == name) stages.Add(stage);
         }
 
         return stages;
@@ -236,10 +255,10 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         {
             var bucket = a.AttributeClass?.ToDisplayString() switch
             {
-                "Engine.WithAttribute" => with,
-                "Engine.WithoutAttribute" => without,
-                "Engine.ChangedAttribute" => changed,
-                "Engine.AddedAttribute" => added,
+                With => with,
+                Without => without,
+                Changed => changed,
+                Added => added,
                 _ => null,
             };
             if (bucket is null || a.ConstructorArguments.Length == 0) continue;
@@ -255,7 +274,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     private static string? GetRunIfName(IMethodSymbol method)
     {
         foreach (var a in method.GetAttributes())
-            if (a.AttributeClass?.ToDisplayString() == "Engine.RunIfAttribute" &&
+            if (a.AttributeClass?.ToDisplayString() == RunIf &&
                 a.ConstructorArguments.Length > 0 &&
                 a.ConstructorArguments[0].Value is string name)
                 return name;
@@ -300,7 +319,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     {
         foreach (var a in m.GetAttributes())
         {
-            if (a.AttributeClass?.ToDisplayString() != "Engine.ToggleKeyAttribute") continue;
+            if (a.AttributeClass?.ToDisplayString() != ToggleKey) continue;
             var key = a.ConstructorArguments.Length > 0 && a.ConstructorArguments[0].Value is int k ? k : 0;
             var mod = a.ConstructorArguments.Length > 1 && a.ConstructorArguments[1].Value is int mo ? mo : 0;
             var def = true;

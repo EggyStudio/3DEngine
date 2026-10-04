@@ -8,15 +8,22 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `e9d02b0d`. Alpha modes (`96daac15`) and the three cascades (`e9d02b0d`, read) are
-settled.
+Reviewed up to `58924752`. The spot light's shadow (`51cac7a1`) and the `Added` filter with the
+generator's repair (`58924752`) are settled, on the tests reported.
 
 ## Now
 
-In this order.
+`58924752` found that a behavior using `[Changed]` had not compiled since `e612ac63`, and the
+suite passed throughout because nothing in the repository used the attribute. In this order.
 
-1. **A spot light's shadow**, which is one more tile and the same sampling.
-2. **`Added` beside `Changed`**, which the ticks of `e612ac63` make a comparison of two numbers.
+1. **Every attribute the generators accept is compiled and run by a test.** One test project
+   input, or one theory, a case for each stage attribute, each filter (`[With]`, `[Without]`,
+   `[Changed]`, `[Added]`), `[RunIf]`, the state attributes, toggle keys, `[Command]` and
+   `[SceneComponent]`, each compiled through the generator and run for a frame with an assertion
+   that it ran when it should and not when it should not. The list of attributes is taken from
+   the generator's own table where it has one, so a new attribute without a case fails the test.
+2. **A masked surface casts the shadow of its cutout**, by a fragment stage in the shadow pass
+   that discards below the cutoff for masked draws only.
 3. **TODO.md's order** from there.
 
 ## Verdicts
