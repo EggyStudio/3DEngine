@@ -160,10 +160,13 @@ which has been checked against the state it fills and not with a pad that has th
 
 ### Testing
 
-- **Render tests check a few pixels.** `OffscreenRenderTests` draws each pass offscreen (shapes,
+- **Three scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
   text, render targets, immediate and model shaders, lit models and ImGui) and reads chosen pixels
-  back. Whole frames are not compared with references, so a fault that leaves those pixels right
-  is caught only by looking at the example captures CI takes.
+  back, and `ReferenceFrameTests` compares whole frames of 2D shapes and text, a lit and shadowed
+  scene, and a render texture with the references beside it, allowing 2 percent of the pixels to
+  differ, which a missing shadow exceeds at 4. ImGui, model shaders, materials with maps and skinned
+  models have no reference, so a fault there that leaves the chosen pixels right is caught only by
+  looking at the example captures CI takes.
 
 ### Prose
 
