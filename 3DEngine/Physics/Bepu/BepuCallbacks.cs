@@ -59,6 +59,35 @@ internal sealed class TriggerFlags
     }
 }
 
+/// <summary>Each body's and static's friction and bounce, where one was given, which the narrow phase mixes for a pair.</summary>
+internal sealed class BodyMaterials
+{
+    private (float Friction, float Restitution, bool Set)[] _bodies = [];
+    private (float Friction, float Restitution, bool Set)[] _statics = [];
+
+    public void Set(PhysicsBody body, PhysicsMaterial material)
+    {
+        ref var table = ref body.Kind == BodyKind.Static ? ref _statics : ref _bodies;
+        if (table.Length <= body.Handle) Array.Resize(ref table, Math.Max(body.Handle + 1, table.Length * 2));
+        table[body.Handle] = (MathF.Max(0, material.Friction), Math.Clamp(material.Restitution, 0, 1), true);
+    }
+
+    /// <summary>Forgets a body's material, since its handle is given out again.</summary>
+    public void Clear(PhysicsBody body)
+    {
+        var table = body.Kind == BodyKind.Static ? _statics : _bodies;
+        if (body.Handle < table.Length) table[body.Handle] = default;
+    }
+
+    public (float Friction, float Restitution) Of(CollidableReference collidable, float friction, float restitution)
+    {
+        var (table, handle) = collidable.Mobility == CollidableMobility.Static
+            ? (_statics, collidable.StaticHandle.Value)
+            : (_bodies, collidable.BodyHandle.Value);
+        return handle < table.Length && table[handle].Set ? (table[handle].Friction, table[handle].Restitution) : (friction, restitution);
+    }
+}
+
 /// <summary>Which body handles are characters, whose contacts the narrow phase gives no friction.</summary>
 internal sealed class CharacterFlags
 {
@@ -88,6 +117,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public ContactCollector? Contacts;
     public CharacterFlags? Characters;
     public TriggerFlags? Triggers;
+    public BodyMaterials? Materials;
     private Simulation? _simulation;
 
     /// <summary>The gap in world units below which a contact counts as touching.</summary>
@@ -116,8 +146,13 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         out PairMaterialProperties pairMaterial)
         where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        // A character slides along what it meets, and its controller decides how it walks.
-        pairMaterial.FrictionCoefficient = Characters is not null && (Characters.Is(pair.A) || Characters.Is(pair.B)) ? 0 : Friction;
+        // A character slides along what it meets, and its controller decides how it walks. Two
+        // bodies' frictions mix as the square root of their product, as Box2D mixes them, so ice
+        // is slippery under rubber.
+        var frictionA = Materials?.Of(pair.A, Friction, Restitution).Friction ?? Friction;
+        var frictionB = Materials?.Of(pair.B, Friction, Restitution).Friction ?? Friction;
+        pairMaterial.FrictionCoefficient = Characters is not null && (Characters.Is(pair.A) || Characters.Is(pair.B)) ? 0
+            : MathF.Sqrt(frictionA * frictionB);
         pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
         pairMaterial.SpringSettings = ContactSpringiness;
 

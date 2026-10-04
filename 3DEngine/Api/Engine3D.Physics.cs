@@ -131,6 +131,13 @@ public static partial class Engine3D
     /// <summary>Whether a joint exists, which it stops doing when it or one of its bodies is destroyed.</summary>
     public static bool IsPhysicsJointValid(PhysicsJoint joint) => Physics.JointExists(joint);
 
+    /// <summary>
+    /// Gives a body a friction, 0 for ice and 1 for rubber, and a bounce, 0 for none and 1 for a
+    /// ball that comes back as fast as it fell. Two bodies mix their frictions and take the larger bounce.
+    /// </summary>
+    public static void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce) =>
+        Physics.SetMaterial(body, PhysicsMaterial.Default with { Friction = friction, Restitution = bounce });
+
     /// <summary>Makes a body a trigger, which reports what it touches and stops nothing, or a solid body again.</summary>
     public static void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger) => Physics.SetTrigger(body, trigger);
 

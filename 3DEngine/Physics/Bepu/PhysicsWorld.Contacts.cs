@@ -1,3 +1,4 @@
+using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 
@@ -72,6 +73,7 @@ public sealed partial class PhysicsWorld
             var contact = new PhysicsContact(BodyOf(a), BodyOf(b), HandleOf(EntityOf(a)), HandleOf(EntityOf(b)), point, normal, MathF.Max(speed, approached));
             _touching[key] = contact;
             _started.Add(contact);
+            Bounce(a, b, normal, contact.Speed);
         }
         if (_approaching.Count > _near.Count)
             foreach (var key in _approaching.Keys.Where(key => !_near.Contains(key)).ToArray()) _approaching.Remove(key);
@@ -84,6 +86,47 @@ public sealed partial class PhysicsWorld
             _ended.Add(_touching[key]);
             _touching.Remove(key);
         }
+    }
+
+    /// <summary>The slowest a pair may close at and bounce, below which it settles, so a body at rest does not jitter.</summary>
+    public const float BounceThreshold = 0.5f;
+
+    // Sends a pair that met apart at their bounce times the speed they closed at, as the solver,
+    // which has no bounce of its own, has stopped them at the surface. The push is shared by their
+    // masses, a static or kinematic body taking none of it.
+    private void Bounce(CollidableReference a, CollidableReference b, Vector3 normal, float closing)
+    {
+        if (closing < BounceThreshold || _triggerFlags.Is(a) || _triggerFlags.Is(b) || _characterFlags.Is(a) || _characterFlags.Is(b)) return;
+        var bounce = MathF.Max(_materials.Of(a, 1, 0).Restitution, _materials.Of(b, 1, 0).Restitution);
+        if (bounce <= 0) return;
+
+        var inverseA = InverseMass(a);
+        var inverseB = InverseMass(b);
+        if (inverseA + inverseB <= 0) return;
+        // How fast they part along the normal now, which the solver left about zero.
+        var parting = Vector3.Dot(LinearVelocity(a) - LinearVelocity(b), normal);
+        var impulse = (bounce * closing - parting) / (inverseA + inverseB);
+        if (impulse <= 0) return;
+        Push(a, normal * impulse * inverseA);
+        Push(b, -normal * impulse * inverseB);
+    }
+
+    private float InverseMass(CollidableReference collidable) =>
+        collidable.Mobility == CollidableMobility.Dynamic && Simulation.Bodies.BodyExists(collidable.BodyHandle)
+            ? Simulation.Bodies[collidable.BodyHandle].LocalInertia.InverseMass
+            : 0;
+
+    private Vector3 LinearVelocity(CollidableReference collidable) =>
+        collidable.Mobility == CollidableMobility.Static || !Simulation.Bodies.BodyExists(collidable.BodyHandle)
+            ? Vector3.Zero
+            : Simulation.Bodies[collidable.BodyHandle].Velocity.Linear;
+
+    private void Push(CollidableReference collidable, Vector3 change)
+    {
+        if (collidable.Mobility != CollidableMobility.Dynamic || change == Vector3.Zero) return;
+        var body = Simulation.Bodies[collidable.BodyHandle];
+        body.Velocity.Linear += change;
+        body.Awake = true;
     }
 
     private readonly TriggerFlags _triggerFlags = new();

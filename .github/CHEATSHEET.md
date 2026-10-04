@@ -557,6 +557,7 @@ PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size);             
 PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size);           // A box only the program moves, which pushes what it meets
 PhysicsBody CreatePhysicsCapsule(Vector3 position, float radius, float height, float mass = 1); // An upright capsule, height end to end
 PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size);               // A box that reports what enters it and stops nothing
+void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce);     // Ice or rubber, a dead or a bouncing ball
 void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     // Make a body a trigger, or solid again
 PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1); // Level geometry shaped as a model's triangles
 PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point); // Join two bodies at a point, free to turn

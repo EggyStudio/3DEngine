@@ -84,8 +84,8 @@ public struct RigidBody
 /// has none, and destroys the bodies it made whose entities are gone or no longer have one.
 /// </summary>
 /// <remarks>
-/// A body is made at its entity's place and rotation in the world, and its
-/// <see cref="PhysicsBody"/> is added to the entity, so physics writes its pose back into the
+/// A body is made at its entity's place and rotation in the world, with the entity's
+/// <see cref="PhysicsMaterial"/> when it has one, and its <see cref="PhysicsBody"/> is added to the entity, so physics writes its pose back into the
 /// entity's <see cref="Transform"/>. A dynamic capsule beside a <see cref="CharacterController"/> is
 /// made a character. The system runs in <see cref="Stage.PreUpdate"/>, after a scene's entities
 /// are spawned, and <c>LoadScene</c> runs it at once, so a level's bodies exist when it returns.
@@ -130,6 +130,7 @@ public static class PhysicsBodies
                 rotation = Quaternion.Identity;
             }
             else body = Make(physics, ecs, entity, collider, rigid, position);
+            if (ecs.TryGet<PhysicsMaterial>(entity, out var material)) physics.SetMaterial(body, material);
             if (collider.IsTrigger) physics.SetTrigger(body, true);
             if (rotation != Quaternion.Identity && collider.Shape != ColliderShape.Capsule) physics.SetRotation(body, rotation);
             ecs.Add(entity, body);

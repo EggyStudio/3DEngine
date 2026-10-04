@@ -22,8 +22,7 @@ public sealed partial class PhysicsWorld
         var handle = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
             new RigidPose(position, Quaternion.Identity), inertia, Coll(idx), new BodyActivityDescription(0.01f)));
         if (entityId != 0) _bodyToEntity[handle.Value] = entityId;
-        ApplyDamping(material);
-        return new PhysicsBody(this, handle.Value, BodyKind.Dynamic);
+        return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Dynamic), material);
     }
 
     /// <summary>Registers a convex shape and adds a kinematic body for it, returning the engine handle.</summary>
@@ -34,29 +33,47 @@ public sealed partial class PhysicsWorld
         var handle = Simulation.Bodies.Add(BodyDescription.CreateKinematic(
             new RigidPose(position, Quaternion.Identity), Coll(idx), new BodyActivityDescription(0.01f)));
         if (entityId != 0) _bodyToEntity[handle.Value] = entityId;
-        ApplyDamping(material);
-        return new PhysicsBody(this, handle.Value, BodyKind.Kinematic);
+        return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Kinematic), material);
     }
 
     /// <summary>Registers a shape and adds an immovable static collider for it, returning the engine handle.</summary>
-    private PhysicsBody RegisterStatic<TShape>(in TShape shape, Vector3 position, int entityId)
+    private PhysicsBody RegisterStatic<TShape>(in TShape shape, Vector3 position, int entityId, PhysicsMaterial? material = null)
         where TShape : unmanaged, IShape
     {
         var idx = Simulation.Shapes.Add(shape);
         var handle = Simulation.Statics.Add(new StaticDescription(position, Quaternion.Identity, idx));
         if (entityId != 0) _staticToEntity[handle.Value] = entityId;
-        return new PhysicsBody(this, handle.Value, BodyKind.Static);
+        return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Static), material);
     }
 
-    /// <summary>Folds a per-body material's damping into the global integrator (max-of-all in this simple impl).</summary>
-    private void ApplyDamping(PhysicsMaterial? material)
+    private readonly BodyMaterials _materials = new();
+
+    // A body made with a material takes it, and one made without has the world's friction and no
+    // bounce, whatever the body its handle belonged to before had.
+    private PhysicsBody WithMaterial(PhysicsBody body, PhysicsMaterial? material)
     {
-        if (material is { } m)
-        {
-            ref var cb = ref CallbacksRef;
-            cb.LinearDamping = MathF.Max(cb.LinearDamping, m.LinearDamping);
-            cb.AngularDamping = MathF.Max(cb.AngularDamping, m.AngularDamping);
-        }
+        _materials.Clear(body);
+        if (material is { } m) SetMaterial(body, m);
+        return body;
+    }
+
+    /// <summary>
+    /// Gives a body a friction and a bounce of its own. Two bodies touching mix their frictions as
+    /// the square root of their product, as Box2D does, and take the larger bounce.
+    /// </summary>
+    /// <remarks>
+    /// The solver has no bounce of its own and stops a pair at the surface, so a pair that starts
+    /// touching at <see cref="BounceThreshold"/> or faster is pushed apart at its bounce times the
+    /// speed it closed at, shared by the two bodies' masses. A bounce of 1 keeps most of the speed
+    /// and loses a little to the step. The damping is folded into the world's, the largest any
+    /// body was given, since the integrator damps every body alike.
+    /// </remarks>
+    public void SetMaterial(PhysicsBody body, PhysicsMaterial material)
+    {
+        _materials.Set(body, material);
+        ref var cb = ref CallbacksRef;
+        cb.LinearDamping = MathF.Max(cb.LinearDamping, material.LinearDamping);
+        cb.AngularDamping = MathF.Max(cb.AngularDamping, material.AngularDamping);
     }
 
     // -- Dynamic --
@@ -82,19 +99,19 @@ public sealed partial class PhysicsWorld
 
     /// <inheritdoc />
     public PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0) =>
-        RegisterStatic(new Sphere(radius), position, entityId);
+        RegisterStatic(new Sphere(radius), position, entityId, material);
 
     /// <inheritdoc />
     public PhysicsBody CreateStaticBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0) =>
-        RegisterStatic(new BepuBox(halfExtents.X * 2, halfExtents.Y * 2, halfExtents.Z * 2), position, entityId);
+        RegisterStatic(new BepuBox(halfExtents.X * 2, halfExtents.Y * 2, halfExtents.Z * 2), position, entityId, material);
 
     /// <inheritdoc />
     public PhysicsBody CreateStaticCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0) =>
-        RegisterStatic(new Capsule(radius, height), position, entityId);
+        RegisterStatic(new Capsule(radius, height), position, entityId, material);
 
     /// <inheritdoc />
     public PhysicsBody CreateGroundPlane(float y = 0, float halfSize = 500, PhysicsMaterial? material = null, int entityId = 0) =>
-        RegisterStatic(new BepuBox(halfSize * 2, 1f, halfSize * 2), new Vector3(0, y - 0.5f, 0), entityId);
+        RegisterStatic(new BepuBox(halfSize * 2, 1f, halfSize * 2), new Vector3(0, y - 0.5f, 0), entityId, material);
 
     /// <inheritdoc />
     /// <remarks>
@@ -120,7 +137,7 @@ public sealed partial class PhysicsWorld
         var idx = Simulation.Shapes.Add(mesh);
         var handle = Simulation.Statics.Add(new StaticDescription(position, Quaternion.Identity, idx));
         if (entityId != 0) _staticToEntity[handle.Value] = entityId;
-        return new PhysicsBody(this, handle.Value, BodyKind.Static);
+        return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Static), material);
     }
 
     // -- Kinematic --

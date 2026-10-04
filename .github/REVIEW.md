@@ -49,4 +49,9 @@ None open.
 - **Shared:** a scene file is placed inside another as a prefab, with a `SceneRef` naming it, which
   spawns the file under the entity, leaves its entities out of the level's save since the file
   brings them back, drops the file's ids so two copies name no entity twice, and stops eight
-  references deep, so a file naming itself ends. The commit follows this line's.
+  references deep, so a file naming itself ends (`0502362d`).
+
+- **Shared:** a collider can be the shape of the meshes an entity and those under it show
+  (`Collider.Mesh`), static, so a level's floors and walls are described by the model it places.
+  The body waits for the meshes, so one under a model still loading is made once the model has
+  spawned (`454e9276`).
