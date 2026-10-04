@@ -142,7 +142,10 @@ emits a system per method, so a behavior may have several methods on one stage:
 
 - a **static** method is one system, called with a `BehaviorContext`;
 - an **instance** method runs once per entity that has the struct as a component, with `this` by
-  reference, and switches to a parallel loop above 4096 entities.
+  reference, and switches to a parallel loop above 4096 entities. It may take the entity's other
+  components after its context, `ref` to write one, which marks it changed and declares a write to
+  the scheduler, and `in` or `ref readonly` to read one, which does neither, and then runs only for
+  entities that have them all. The generated loop finds each by its dense index, once an entity.
 
 `[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]`
 gates a method on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]`
@@ -151,11 +154,13 @@ lets a key switch it on and off, and when a method has several of these it runs 
 register the method on a state transition. A method with the wrong signature, two stage attributes,
 a `[RunIf]` naming nothing usable, a state attribute whose argument is not an enum value or a filter
 naming a type no entity can have (an interface, a static class, an open generic) is reported on the
-method (E3D001 to E3D005) and left out of what is generated. A field holding a reference other than
+method (E3D001 to E3D005) and left out of what is generated, and so is a parameter after the context
+that cannot be a component: taken by value or `out`, not a struct, the behavior itself, a type
+taken twice, or any on a static method (E3D008). A field holding a reference other than
 a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
 state declaration that cannot be registered is reported on the enum or method (E3D007).
 `3DEngine.CodeFixes` offers an editor's fixes where the change is clear: a stage method given its
-`BehaviorContext` (E3D001), one stage kept of several (E3D002), and a command made static (E3D100)
+`BehaviorContext` first, keeping the parameters taken by `ref` or `in` (E3D001), one stage kept of several (E3D002), and a command made static (E3D100)
 or internal (E3D101). `BehaviorContext` resolves the ECS, commands, time and input when it is made,
 and `ctx.Physics` only when it is read, so behaviors run without `PhysicsPlugin`. The generated
 registrations are found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches

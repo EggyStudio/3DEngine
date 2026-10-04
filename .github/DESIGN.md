@@ -142,13 +142,15 @@ public partial struct Spin
     public float Speed;
 
     [OnUpdate]
-    public void Tick(BehaviorContext ctx)
-    {
-        ref var transform = ref ctx.Ecs.GetRef<Transform>(ctx.EntityId);
+    public void Tick(BehaviorContext ctx, ref Transform transform) =>
         transform.Rotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, Speed * (float)ctx.Time.DeltaSeconds);
-    }
 }
 ```
+
+A method names the entity's other components it uses after its context, `ref` for one it writes,
+which marks it changed, and `in` for one it only reads, which does not, and runs only for entities
+that have them all. That keeps a lookup and its failure out of the method, and lets the scheduler
+see what each system writes.
 
 The flat functions work inside systems too, when the app is the one `InitWindow` built, so an
 `[OnRender]` method can call `DrawCube`. A game that outgrows the loop moves its logic into

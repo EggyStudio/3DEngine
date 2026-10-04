@@ -61,10 +61,9 @@ public struct MeshScene
 
     /// <summary>Turns the cube, the one entity carrying this behavior.</summary>
     [OnUpdate]
-    public void Spin(BehaviorContext ctx)
+    public void Spin(BehaviorContext ctx, ref Transform transform)
     {
         var dt = (float)ctx.Time.DeltaSeconds;
-        ref var transform = ref ctx.Ecs.GetRef<Transform>(ctx.EntityId);
         transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0.8f * dt, 0.5f * dt, 0);
     }
 
@@ -90,10 +89,9 @@ public struct Lamp
     public float Angle;
 
     [OnUpdate]
-    public void Circle(BehaviorContext ctx)
+    public void Circle(BehaviorContext ctx, ref Transform transform)
     {
         Angle += (float)ctx.Time.DeltaSeconds;
-        ref var transform = ref ctx.Ecs.GetRef<Transform>(ctx.EntityId);
         transform.Position = new Vector3(MathF.Sin(Angle) * 2.5f, 0.5f, 1.2f);
     }
 }

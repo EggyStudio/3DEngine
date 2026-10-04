@@ -8,34 +8,33 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `e2bdea1e`. The shadow pass's instances written once a frame (`aec68393`) and the
-flat API's further raylib functions (`e2bdea1e`) were taken on their descriptions and raised
-nothing.
+Reviewed up to `0f34d7f0`. The documentation faults with their warnings made errors, the actions on
+Node 24 and `ubuntu-24.04` (`0fc43f68`) are settled, with fifteen further faults the errors
+turned up. Blend, scissor and wrap modes (`b9d928bb`) and the logo (`0f34d7f0`) were taken on
+their descriptions.
 
 ## Now
 
-The first runs on GitHub were green on Linux and Windows, and the `pack` run made 3DEngine 5.0.0
-as its artifact. They carried 33 warnings and 2 notices, which are item 1.
+[SHARED.md](SHARED.md) records what this engine and BevyCSharp have in common. Items 2 and 3 are
+the first taken from it. Each is the idea, implemented this engine's own way, and BevyCSharp's
+form of it can be read in its checkout beside this one.
 
-1. **The runs are quiet.** Three kinds of annotation, each on all three jobs.
-   - Ten faults in XML documentation: a `cref` that fits two overloads at
-     `3DEngine/Ecs/EcsWorld.API.cs:170` (`GetRef{T}`) and `:310` (`GetReadOnly{T}`), which name
-     the overload meant; `id` and `down` with no `param` on `Input.SetTouch`
-     (`3DEngine/Core/Input/Input.cs:270`); a `param` for a parameter that is gone at
-     `3DEngine/Components/Material.cs:102` (`albedo`) and `3DEngine/Components/Camera.cs:22` to
-     `25` (`fovY`, `near`, `far`, `targetName`); and a `paramref` to `location` on
-     `Engine3D.SetShaderValue(Shader, int, Vector4)` (`3DEngine/Api/Engine3D.Shaders.cs:178`).
-     Each is corrected, and the documentation warnings of this kind (CS1572, CS1573, CS1574,
-     CS0419 and their neighbors) become errors in the engine's project, so the next one stops
-     the build where it is written and not in an annotation nobody reads.
-   - The actions run on Node 20, which GitHub has deprecated: `actions/checkout@v4`,
-     `actions/setup-dotnet@v4`, `actions/cache@v4` and `actions/upload-artifact@v4` move to
-     their current major versions in `test.yml`, `build.yml` and `pack.yml`.
-   - `ubuntu-latest` becomes Ubuntu 26 from 2026-10-19. The Linux jobs install lavapipe and the
-     validation layer from the runner's packages, so the day the label moves, those versions move
-     with it and a run can turn red with no commit to blame. The jobs name `ubuntu-24.04`, and
-     moving to 26 is a commit of its own, made when somebody is looking.
-2. **TODO.md's order** otherwise.
+1. **What the next run on GitHub says**, which the owner brings back. A red job or a new
+   annotation comes before anything else.
+2. **A behavior method names its entity's other components as parameters**, which the owner saw
+   in BevyCSharp and asked for here. `Tick(BehaviorContext ctx, ref Transform transform)` in
+   place of `ctx.Ecs.GetRef<Transform>(ctx.EntityId)`, with `ref` for a component the method may
+   write, which marks it changed, and `in` for one it only reads, which does not. A parameter
+   naming a component is also a filter, since the method runs only for entities that have it.
+   The generator reports a parameter that is not a component and a `ref` to one the method is
+   declared not to write. The examples in README.md, DESIGN.md §5, the cheatsheet and both games
+   take the form, and `GeneratorAttributeTests` gains its case. BevyCSharp's README, under
+   Behaviors, shows its form. Verified by a test of a behavior that moves a `Transform` through a
+   parameter and is found by a `Changed` query, and one that reads through `in` and is not.
+3. **An entity that lives as long as a state holds a value**, BevyCSharp's `DespawnOnExit`, so a
+   menu's entities or a level's go with the state that made them and a game keeps no list of its
+   own to clear.
+4. **TODO.md's order** otherwise.
 
 ## Verdicts
 
@@ -51,3 +50,10 @@ None open.
 
 ## Replies
 
+- **Now 2.** A `ref` parameter on a method that never writes it cannot be told from one that does
+  without reading the method's body, so it is not reported. A `readonly` method only keeps the
+  behavior's own fields unwritten, and may still write a component it takes by `ref`. What is
+  reported (E3D008) is a parameter taken by value or `out`, a type that is not a struct, the
+  behavior itself, a type taken twice, and any parameter on a static method, which runs for no
+  entity. Neither game holds a behavior, so neither changed. The E3D001 fix puts the context first
+  and keeps the parameters taken by `ref` or `in`.

@@ -18,8 +18,10 @@ namespace Engine;
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
 /// and <c>[ToggleKey]</c>. <c>[OnEnter]</c>, <c>[OnExit]</c> and <c>[OnTransition]</c> stand in
 /// for a stage and register the method on a state transition, and <c>[InState]</c> adds a run
-/// condition. A method the generator cannot call is reported (E3D001 to E3D005) and left out, so
-/// the error is on the method rather than in generated code. A field holding a reference other
+/// condition. An instance method may take its entity's other components after its context, by ref
+/// to write one or by in to read it, and runs only for entities with them. A method the generator
+/// cannot call is reported (E3D001 to E3D005, and E3D008 for a parameter that cannot be a
+/// component) and left out, so the error is on the method rather than in generated code. A field holding a reference other
 /// than a string is warned of (E3D006), since every copy of the behavior shares it. An enum with
 /// <c>[SubStateOf]</c> and a method with <c>[ComputedState]</c> are added as states by the same
 /// registration, ahead of the behaviors, and one that cannot be is reported (E3D007).
@@ -64,7 +66,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor BadSignature = new(
         "E3D001",
         "A behavior stage method has the wrong signature",
-        "'{0}' must return void and take one BehaviorContext parameter to run as a {1} system",
+        "'{0}' must return void and take a BehaviorContext parameter first to run as a {1} system",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     private static readonly DiagnosticDescriptor SeveralStages = new(
@@ -95,6 +97,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         "E3D007",
         "A state declaration cannot be registered",
         "'{0}' cannot declare a state: {1}",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor BadComponentParameter = new(
+        "E3D008",
+        "A behavior method's parameter is not one of its entity's components",
+        "'{0}' cannot take '{1}': {2}",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
     private const string SubStateOf = "Engine.SubStateOfAttribute";
@@ -185,10 +193,18 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 continue;
             }
 
-            if (!method.ReturnsVoid || method.Parameters.Length != 1 ||
+            if (!method.ReturnsVoid || method.Parameters.Length == 0 ||
                 method.Parameters[0].Type.ToDisplayString() != "Engine.BehaviorContext")
             {
                 spc.ReportDiagnostic(Diagnostic.Create(BadSignature, location, method.Name, stages[0]));
+                continue;
+            }
+
+            var components = ComponentParameters(method, type, out var badParameter);
+            if (components is null)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(BadComponentParameter, badParameter!.Value.Location ?? location,
+                    method.Name, badParameter.Value.Parameter, badParameter.Value.Why));
                 continue;
             }
 
@@ -253,6 +269,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 MethodContainer = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 MethodName = method.Name,
                 Filters = GetFilters(method),
+                Components = components,
                 RunIf = runIf,
                 ToggleKey = GetToggleKey(method),
                 Transition = transition,
@@ -268,6 +285,40 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             BehaviorFqn = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             StageMethods = methods,
         };
+    }
+
+    // The components a method takes after its context, each with whether it writes it, or null
+    // with the first parameter that cannot be one and why. A parameter is the entity's component
+    // when it is a struct taken by ref, which the method may write, or by in or ref readonly, which
+    // it only reads.
+    private static List<ComponentParameter>? ComponentParameters(IMethodSymbol method, INamedTypeSymbol behavior,
+        out (string Parameter, string Why, Location? Location)? problem)
+    {
+        problem = null;
+        var components = new List<ComponentParameter>();
+        var seen = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (var parameter in method.Parameters.Skip(1))
+        {
+            var type = parameter.Type;
+            string? why =
+                method.IsStatic ? "a static method runs once for no entity, so it takes no components"
+                : parameter.RefKind is not (RefKind.Ref or RefKind.In or RefKind.RefReadOnlyParameter)
+                    ? "a component is taken by ref to write it, or by in to read it"
+                : type.TypeKind != TypeKind.Struct || type.IsRefLikeType || type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T }
+                    ? $"{type.ToDisplayString()} is not a struct an entity can hold"
+                : SymbolEqualityComparer.Default.Equals(type, behavior)
+                    ? "the behavior is its own component, which the method reaches through this"
+                : !seen.Add(type)
+                    ? $"it takes {type.ToDisplayString()} twice, and one component cannot be handed out twice"
+                : null;
+            if (why is not null)
+            {
+                problem = ($"{parameter.Type.ToDisplayString()} {parameter.Name}", why, parameter.Locations.FirstOrDefault());
+                return null;
+            }
+            components.Add(new ComponentParameter(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), parameter.RefKind == RefKind.Ref));
+        }
+        return components;
     }
 
     // The first filter on a method naming a type no store can hold, as an interface, a static class
@@ -490,6 +541,10 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             descriptor += $".RunIf({expr})";
         }
 
+        // The components it takes are written or read as it takes them, so the scheduler keeps a
+        // system writing one apart from others using it.
+        foreach (var c in m.Components)
+            descriptor += c.Writes ? $".Write<{c.Type}>()" : $".Read<{c.Type}>()";
         return descriptor + (m.IsStatic ? ".Read<global::Engine.EcsWorld>()" : $".Write<{b.BehaviorFqn}>()");
     }
 
@@ -520,9 +575,10 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         }
 
         var hasFilters = m.Filters.With.Count + m.Filters.Without.Count + m.Filters.Changed.Count + m.Filters.Added.Count > 0;
-        var hoist = hasFilters ? GenFilterHoist(m.Filters, "        ") : "";
-        var parChecks = hasFilters ? GenFilterChecks(m.Filters, "                        ") : "";
-        var seqChecks = hasFilters ? GenFilterChecks(m.Filters, "                ") : "";
+        var hoist = (hasFilters ? GenFilterHoist(m.Filters, "        ") : "") + GenComponentHoist(m.Components, "        ");
+        var parChecks = (hasFilters ? GenFilterChecks(m.Filters, "                        ") : "") + GenComponentLookups(m.Components, "                        ", threadSafe: true);
+        var seqChecks = (hasFilters ? GenFilterChecks(m.Filters, "                ") : "") + GenComponentLookups(m.Components, "                ", threadSafe: false);
+        var arguments = string.Concat(m.Components.Select((c, i) => $", {(c.Writes ? "ref" : "in")} __c{i}.ComponentRefByDenseIndex(__d{i})"));
         // A method that may write the behavior's fields marks it changed, as GetRef marks what it
         // hands out, so a [Changed] filter on the behavior sees it. Parallel runs set the bit
         // atomically, since neighbouring entities share a word of bits.
@@ -558,7 +614,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                                       ctx.EntityId = entity;
                                       ref var behv = ref __components[__i];
               {{parMark}}
-                                      behv.{{m.MethodName}}(ctx);
+                                      behv.{{m.MethodName}}(ctx{{arguments}});
                                   }
                               }
                           );
@@ -573,7 +629,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                               ctx.EntityId = entity;
                               ref var behv = ref __components[__i];
               {{seqMark}}
-                              behv.{{m.MethodName}}(ctx);
+                              behv.{{m.MethodName}}(ctx{{arguments}});
                           }
                       }
                   }
@@ -593,6 +649,30 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         for (int i = 0; i < f.Added.Count; i++)
             lines.Add($"{indent}var __fAdd{i} = ecs.GetStorePublic<{f.Added[i]}>();");
         return string.Join("\n", lines);
+    }
+
+    /// <summary>Emits the stores of the components a method takes, hoisted out of the loop.</summary>
+    private static string GenComponentHoist(IReadOnlyList<ComponentParameter> components, string indent) =>
+        string.Concat(components.Select((c, i) => $"\n{indent}var __c{i} = ecs.GetStorePublic<{c.Type}>();"));
+
+    /// <summary>
+    /// Emits the lookup of each component a method takes, skipping an entity without one, and marks
+    /// one taken by ref changed, as GetRef marks what it hands out.
+    /// </summary>
+    private static string GenComponentLookups(IReadOnlyList<ComponentParameter> components, string indent, bool threadSafe)
+    {
+        var lines = new List<string>();
+        for (int i = 0; i < components.Count; i++)
+        {
+            lines.Add($"{indent}var __d{i} = __c{i}.DenseIndexOf(entity);");
+            lines.Add($"{indent}if (__d{i} < 0) continue;");
+        }
+        for (int i = 0; i < components.Count; i++)
+            if (components[i].Writes)
+                lines.Add(threadSafe
+                    ? $"{indent}__c{i}.MarkChangedByDenseIndexThreadSafe(__d{i});"
+                    : $"{indent}__c{i}.MarkChangedByDenseIndex(__d{i}, 0);");
+        return lines.Count == 0 ? "" : "\n" + string.Join("\n", lines);
     }
 
     /// <summary>Emits per-entity filter checks using the hoisted store variables from <see cref="GenFilterHoist"/>.</summary>
@@ -724,6 +804,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         IReadOnlyList<string> Changed,
         IReadOnlyList<string> Added);
 
+    /// <summary>A component a stage method takes after its context, by its full name, and whether it is taken by ref to write.</summary>
+    private sealed record ComponentParameter(string Type, bool Writes);
+
     /// <summary>Represents a single stage-annotated method within a behavior struct.</summary>
     private sealed record StageMethod
     {
@@ -738,6 +821,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
         public Filters Filters { get; init; } =
             new(Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>());
+
+        /// <summary>The entity's components the method takes after its context, in order.</summary>
+        public IReadOnlyList<ComponentParameter> Components { get; init; } = Array.Empty<ComponentParameter>();
 
         public (string Name, MemberKind Kind)? RunIf { get; init; }
         public (int Key, int Modifier, bool DefaultEnabled)? ToggleKey { get; init; }

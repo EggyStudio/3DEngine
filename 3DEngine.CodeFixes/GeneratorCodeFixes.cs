@@ -20,7 +20,7 @@ namespace Engine.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(GeneratorCodeFixes)), Shared]
 public sealed class GeneratorCodeFixes : CodeFixProvider
 {
-    /// <summary>A stage method whose parameters are not one <c>BehaviorContext</c>.</summary>
+    /// <summary>A stage method that does not take a <c>BehaviorContext</c> first.</summary>
     public const string BadSignature = "E3D001";
 
     /// <summary>A method with more than one stage attribute.</summary>
@@ -57,8 +57,7 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
             {
                 case BadSignature when method.ReturnType is PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.VoidKeyword }:
                     Register(context, diagnostic, root, "Take the BehaviorContext a stage method is given", method,
-                        method.WithParameterList(SyntaxFactory.ParseParameterList("(BehaviorContext ctx)")
-                            .WithTrailingTrivia(method.ParameterList.GetTrailingTrivia())));
+                        method.WithParameterList(ContextFirst(method)));
                     break;
 
                 case SeveralStages:
@@ -142,5 +141,21 @@ public sealed class GeneratorCodeFixes : CodeFixProvider
         var returnType = method.ReturnType;
         return method.WithReturnType(returnType.WithLeadingTrivia())
             .WithModifiers(SyntaxFactory.TokenList(token.WithLeadingTrivia(returnType.GetLeadingTrivia())));
+    }
+
+    // The parameters with the context first, the one the method takes kept by its name or one named
+    // ctx added, followed by those an instance method takes by ref or in, which may be its entity's
+    // components. Any other could not be one and is dropped, as a static method's all are.
+    private static ParameterListSyntax ContextFirst(MethodDeclarationSyntax method)
+    {
+        var list = method.ParameterList;
+        static bool IsContext(ParameterSyntax p) => p.Type?.ToString() is "BehaviorContext" or "Engine.BehaviorContext";
+        var isStatic = method.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
+        var context = list.Parameters.FirstOrDefault(IsContext)?.ToString() ?? "BehaviorContext ctx";
+        var rest = list.Parameters
+            .Where(p => !isStatic && !IsContext(p) && p.Modifiers.Any(m => m.IsKind(SyntaxKind.RefKeyword) || m.IsKind(SyntaxKind.InKeyword)))
+            .Select(p => p.ToString());
+        return SyntaxFactory.ParseParameterList($"({string.Join(", ", rest.Prepend(context))})")
+            .WithTrailingTrivia(list.GetTrailingTrivia());
     }
 }

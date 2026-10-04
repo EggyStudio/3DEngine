@@ -179,8 +179,9 @@ public sealed partial class EcsWorld
         /// <summary>Returns the dense array index for <paramref name="entity"/>, or <c>-1</c> if not present.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <returns>The dense index, or <c>-1</c>.</returns>
+        /// <remarks>Public for the code the behavior generator emits into a program, which finds a method's component parameters by it.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int DenseIndexOf(int entity) => _set.DenseIndexOf(entity);
+        public int DenseIndexOf(int entity) => _set.DenseIndexOf(entity);
 
         /// <summary>Returns a read-only span of entity IDs in dense order.</summary>
         internal ReadOnlySpan<int> EntitiesSpan() => _set.EntitiesSpan();

@@ -65,6 +65,22 @@ public class GeneratorCodeFixTests
     }
 
     [Fact]
+    public async Task The_Context_Moves_First_And_The_Components_Stay_After_It()
+    {
+        var (text, after) = await Fix(Behaviors, """
+            using Engine;
+            [Behavior]
+            public struct Spin
+            {
+                [OnUpdate] public void Turn(ref Transform transform, BehaviorContext context, float speed) { }
+            }
+            """, GeneratorCodeFixes.BadSignature, "Take the BehaviorContext a stage method is given");
+
+        text.Should().Contain("[OnUpdate] public void Turn(BehaviorContext context, ref Transform transform) { }");
+        after.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task One_Stage_Is_Kept_Of_Several_Whether_In_One_List_Or_Two()
     {
         var (text, after) = await Fix(Behaviors, """

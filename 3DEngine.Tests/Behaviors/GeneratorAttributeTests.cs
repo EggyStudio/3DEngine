@@ -88,6 +88,24 @@ public class GeneratorAttributeTests
             [OnUpdate, Added(typeof(Health))] public readonly void Born(BehaviorContext ctx) => Probe.Ran(ctx, "Added");
         }
 
+        // The entity's other components as parameters: ref to write one, which marks it changed,
+        // and in to read one, which does not. A parameter is also a filter.
+        public struct Velocity { public float X; }
+
+        [Behavior]
+        public struct Mover
+        {
+            [OnUpdate]
+            public readonly void Move(BehaviorContext ctx, ref Transform transform, in Velocity velocity)
+            {
+                transform.Position.X += velocity.X;
+                Probe.Ran(ctx, "RefParameter");
+            }
+
+            [OnUpdate] public readonly void Look(BehaviorContext ctx, in Health health) => Probe.Ran(ctx, "InParameter");
+            [OnPostUpdate, Changed(typeof(Transform))] public readonly void Moved(BehaviorContext ctx) => Probe.Ran(ctx, "TransformChanged");
+        }
+
         public static class Commands
         {
             [Command("probe.ping", "Answers pong")] public static string Ping() => "pong";
@@ -178,6 +196,20 @@ public class GeneratorAttributeTests
         var untagged = ecs.Spawn();
         foreach (var type in new[] { "Filtered" }) Give(untagged, type);
 
+        // One mover with a velocity and one without, which its Move skips, and the tagged entity's
+        // health read through Look.
+        var velocity = assembly.GetType("GeneratorProbe.Velocity")!;
+        var moving = ecs.Spawn();
+        Give(moving, "Mover");
+        ecs.Add(moving, new Transform(System.Numerics.Vector3.Zero));
+        var oneAStep = Activator.CreateInstance(velocity)!;
+        velocity.GetField("X")!.SetValue(oneAStep, 1f);
+        add.MakeGenericMethod(velocity).Invoke(ecs, [moving, oneAStep]);
+        var still = ecs.Spawn();
+        Give(still, "Mover");
+        ecs.Add(still, new Transform(System.Numerics.Vector3.Zero));
+        Give(tagged, "Mover");
+
         var fixedTime = app.World.Resource<FixedTime>();
         void Frame()
         {
@@ -198,6 +230,10 @@ public class GeneratorAttributeTests
         Runs("InState").Should().Be(0, "[InState] waits for its state");
         Runs("Enter").Should().Be(0);
         Runs("ToggleKey").Should().Be(1, "[ToggleKey] runs until its key is pressed");
+        Runs("RefParameter").Should().Be(1, "a method taking components runs only for the entity that has them");
+        Runs("InParameter").Should().Be(1, "and Look only for the tagged entity, which has health");
+        ecs.GetReadOnly<Transform>(moving).Position.X.Should().Be(1, "the transform taken by ref is the entity's own");
+        Runs("TransformChanged").Should().Be(1, "a component written through a ref parameter is seen as changed, and the still mover's is not");
 
         // Allow the condition, move to state B, press the toggle key and hurt the tagged entity.
         probe.GetField("Allowed")!.SetValue(null, true);
@@ -228,7 +264,8 @@ public class GeneratorAttributeTests
         Runs("Transition").Should().Be(1, "the move back from B to A is another transition");
         Runs("InState").Should().Be(1, "[InState] stops outside its state");
         Runs("ToggleKey").Should().Be(1, "it stays off until the key is pressed again");
-        Runs("Changed").Should().Be(1, "nothing changed again");
+        Runs("Changed").Should().Be(1, "nothing changed again, though Look read the health through in every frame");
+        Runs("TransformChanged").Should().Be(3, "the mover's transform changed in each of the three frames");
 
         app.Shutdown();
         Runs("Cleanup").Should().Be(1, "[OnCleanup] runs when the app shuts down");

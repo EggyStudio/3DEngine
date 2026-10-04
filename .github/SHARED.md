@@ -1,0 +1,106 @@
+# Shared
+
+What BevyCSharp and 3DEngine have in common, and which of the two has solved what. The engines
+are built differently, one over Bevy through a bridge and one on its own Vulkan renderer, and they
+answer many of the same questions: how a behavior is written, what the ECS offers it, how states,
+physics, scenes and saves work, how a running app is driven from a terminal, and how the project
+is tested, packed and versioned. An answer one of them finds is offered to the other as an idea,
+and each implements it in its own way.
+
+This file is the same in both repositories and has one writer, the session that writes
+[REVIEW.md](REVIEW.md). The session working on a repository offers something for it with a line
+under Replies in REVIEW.md that begins `Shared:`, and may read the other repository for the model
+it names, without editing it.
+
+## What counts
+
+An idea is shared when it changes what somebody using the engine writes or can rely on. How it is
+built underneath is each engine's own and is not recorded here.
+
+Shared areas:
+
+- behaviors and the generators behind them, with their attributes and diagnostics
+- the ECS a behavior reaches: queries, filters, change detection, the hierarchy, commands
+- states and their transitions
+- physics over BepuPhysics: bodies, colliders, joints, contacts, characters
+- scene files, saves, data in files, and files that outlive a renamed type
+- input, including what a script injects
+- the command-line tool that drives a running app (`bcs`, `e3d`)
+- tests, the games built from the package, measurement, CI, packing and the version
+- the rules for prose and commits
+
+Not shared:
+
+- rendering, which is Bevy's in BevyCSharp and the engine's own in 3DEngine
+- the editor, which BevyCSharp has and 3DEngine has decided against
+- the flat raylib-style API, which is 3DEngine's alone
+
+## The ledger
+
+One row an idea. The state of the engine that lacks it is `to take`, `taken at` a commit, `does
+not apply` with the reason, or `waits on the owner`. A row stays once both have it, since the
+table also answers whether the two agree.
+
+### Behaviors and generators
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (README.md, Behaviors) | to take |
+| One table of the attributes a generator accepts, and a test that compiles and runs a use of each | has (`deb1b79`) | has (`9bfd44e3`) |
+| Diagnostics for a behavior or a command written wrongly | has (`BevyCSharp.Generator/BehaviorDiagnostics.cs`) | has (E3D001 to E3D006) |
+| Fixes for those diagnostics offered in an editor | to take | has (`3DEngine.CodeFixes`, `c6b529d4`) |
+
+### The ECS
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| `Changed` and `Added` filters that a system not run every frame can trust | has, from Bevy | has (`e612ac63`, `58924752`) |
+| The entities that lost a component since a system last ran | to take | has (`Removed`, `ab052859`) |
+| A read that does not mark its component changed, beside one that does | has, from Bevy | has (`GetReadOnly`, `QueryReadOnly`) |
+
+### States
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| Sub-states and computed states, declared on the enum | has (`16c4c1e`) | has (`eca05448`) |
+| A system run on a move from one value to a particular other | to take | has (`OnTransition`, `3ca94c66`) |
+| An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | to take |
+| A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`) | to take |
+
+### Physics
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A body and a collider are components a scene file holds | has (`99ec076`) | has (`606cb3bf`) |
+| A character that walls stop, that slides, steps and holds slopes | to take | has (`b9f280b2`) |
+| Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
+| The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
+
+### Scenes, saves and files
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to take |
+| A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to take |
+| Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to take |
+| A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to take, with saves |
+
+### Input and the command line
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
+| Gamepads | waits on the owner | has |
+| C# typed at a running app | has in the editor (`eval`) | to take |
+| The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
+
+### Tests, CI and packaging
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
+| A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
+| The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
+| A version whose patch counts commits since the owner last set the major and minor | to take, in progress | has (`609bd859`) |
+| A package made by a workflow run by hand, after tests on Linux and Windows | to take, in progress | has (`22c766be`) |
+| Graphics run under a validation layer in CI, an error failing the run | does not apply, since wgpu validates for Bevy | has (`a2e19d7c`) |

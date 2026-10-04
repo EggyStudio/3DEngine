@@ -33,6 +33,7 @@ before driving a session.
 | [.github/BUILDING.md](.github/BUILDING.md) | Prerequisites, commands, platforms |
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
+| [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
 | [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
 
@@ -114,5 +115,10 @@ pushed.
   writes it after reading the code and the history, and its Now list comes before TODO.md's order.
   Only its Replies section is edited here, for an item that is disputed or blocked, and the file is
   committed with whichever batch comes next.
+- `.github/SHARED.md` records what this engine and its sibling (BevyCSharp and 3DEngine) have in
+  common and which of them has solved what. It is the same file in both repositories and is
+  written by the session that writes REVIEW.md. A batch that touches a shared area is offered
+  with a line under Replies in REVIEW.md beginning `Shared:`, and the other repository, checked
+  out beside this one, may be read for a model and is never edited from here.
 - The code before the redesign is on the local `legacy-modules` branch, as git submodules under
   `Modules/`. It is read for reference and not merged back.

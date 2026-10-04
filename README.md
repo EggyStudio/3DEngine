@@ -179,6 +179,18 @@ public struct Ball
 }
 ```
 
+A method takes the entity's other components after its context, `ref` to write one and `in` to read
+one, and runs only for the entities that have them:
+
+```csharp
+[OnUpdate]
+public readonly void Follow(BehaviorContext ctx, ref Transform transform, in Velocity velocity) =>
+    transform.Position += velocity.Value * (float)ctx.Time.DeltaSeconds;
+```
+
+One written through `ref` is marked changed, so a `[Changed]` filter or query sees it, and one read
+through `in` is not.
+
 The loop draws what the world holds with the same flat calls:
 
 ```csharp
