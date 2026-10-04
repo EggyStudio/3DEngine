@@ -10,7 +10,7 @@ public enum ConfigFlags : uint
     VsyncHint = 0x00000040,
     /// <summary>Fill the display.</summary>
     FullscreenMode = 0x00000002,
-    /// <summary>Let the window be resized, which the engine's windows are anyway.</summary>
+    /// <summary>Let the window be resized by its edges, which raylib's windows are not unless asked.</summary>
     WindowResizable = 0x00000004,
     /// <summary>No title bar or border.</summary>
     WindowUndecorated = 0x00000008,
@@ -53,6 +53,7 @@ public static partial class Engine3D
             Fullscreen = flags.HasFlag(ConfigFlags.FullscreenMode),
             Undecorated = flags.HasFlag(ConfigFlags.WindowUndecorated),
             Topmost = flags.HasFlag(ConfigFlags.WindowTopmost),
+            Resizable = flags.HasFlag(ConfigFlags.WindowResizable),
             Hidden = config.Hidden || flags.HasFlag(ConfigFlags.WindowHidden),
             WindowCommand = flags.HasFlag(ConfigFlags.WindowMaximized) ? WindowCommand.Maximize
                 : flags.HasFlag(ConfigFlags.WindowMinimized) ? WindowCommand.Minimize

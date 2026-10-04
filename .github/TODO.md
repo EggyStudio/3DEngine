@@ -80,8 +80,7 @@ physics, text and fonts, audio and text files
   (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.
 - **Render targets** have no depth to sample. The window and targets are multisampled at
   `Config.Samples` (4 by default, `SetConfigSamples` before the window opens). Window state and
-  monitors are queried and changed, but a monitor's modes cannot be listed or switched, and the
-  windows are always resizable, where raylib's are only with `FLAG_WINDOW_RESIZABLE`.
+  monitors are queried and changed, but a monitor's modes cannot be listed or switched.
 
 ### Meshes, materials and light
 
