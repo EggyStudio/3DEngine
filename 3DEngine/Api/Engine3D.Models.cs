@@ -515,9 +515,37 @@ public static partial class Engine3D
     public static void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {
         if (!mesh.IsValid) return;
+        Res<ModelDrawList>().Add(MeshDraw(mesh, material, transform));
+    }
+
+    /// <summary>Draws one mesh many times, once at each model to world transform, as one instanced draw.</summary>
+    /// <remarks>
+    /// The copies share one snapshot of the material's shader values, so with a shader of the
+    /// program's own they are drawn by one call as well, and its vertex stage tells them apart by
+    /// <c>SV_InstanceID</c>, counted from 0.
+    /// </remarks>
+    public static void DrawMeshInstanced(ModelMesh mesh, ModelMaterial material, ReadOnlySpan<Matrix4x4> transforms)
+    {
+        if (!mesh.IsValid || transforms.IsEmpty) return;
+        var first = MeshDraw(mesh, material, transforms[0]);
+        var draws = System.Buffers.ArrayPool<ModelDraw>.Shared.Rent(transforms.Length);
+        try
+        {
+            for (int i = 0; i < transforms.Length; i++) draws[i] = first with { World = transforms[i] };
+            Res<ModelDrawList>().AddRange(draws.AsSpan(0, transforms.Length));
+        }
+        finally
+        {
+            System.Buffers.ArrayPool<ModelDraw>.Shared.Return(draws);
+        }
+    }
+
+    // A mesh's draw with a material, its shader's values taken as they are now.
+    private static ModelDraw MeshDraw(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
+    {
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
         var shader = material.Shader.IsValid && Draws(material.Shader) ? material.Shader.Id : 0;
-        Res<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
+        return new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
             shader, shader == 0 ? null : UniformSnapshot(material.Shader),
             material.Metallic, material.Roughness,
             material.NormalMap.IsValid ? material.NormalMap.Id : 0, material.NormalScale,
@@ -527,7 +555,7 @@ public static partial class Engine3D
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
             material.OcclusionStrength,
             material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided,
-            shader == 0 ? null : TextureSnapshot(material.Shader)));
+            shader == 0 ? null : TextureSnapshot(material.Shader));
     }
 
     /// <summary>Draws a box's edges.</summary>

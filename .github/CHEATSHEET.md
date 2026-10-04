@@ -474,6 +474,7 @@ void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rota
 void DrawModelWires(Model model, Vector3 position, float scale, Color tint);                                          // A model's triangle edges
 void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
 void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);                                           // One mesh at a transform
+void DrawMeshInstanced(ModelMesh mesh, ModelMaterial material, ReadOnlySpan<Matrix4x4> transforms);                   // Copies of it, one draw, SV_InstanceID from 0
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
 ```
 

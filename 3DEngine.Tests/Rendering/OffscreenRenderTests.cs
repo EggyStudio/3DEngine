@@ -510,6 +510,50 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Instanced_Copies_Of_A_Mesh_With_Its_Own_Shader_Are_Told_Apart_By_Their_Instance_Counted_From_Zero()
+    {
+        Open(64, 16);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("vertex")]
+            ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0,
+                ModelInstance instance, uint id : SV_InstanceID)
+            {
+                ModelVertexOutput output = transformModelVertex(position, normal, uv, instance);
+                output.color = float4(id / 3.0, 0, 0, 1);
+                return output;
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return input.color;
+            }
+            """, "instances.slang");
+        var cube = LoadModelFromMesh(GenMeshCube(0.8f, 0.8f, 0.8f));
+        var plain = cube.Materials[0];
+        Matrix4x4[] places = [.. Enumerable.Range(0, 4).Select(i => Matrix4x4.CreateTranslation(i * 2 - 3, 0, 0))];
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY, 2, CameraProjection.Orthographic));
+            // Drawn first, so the copies' instances start past the first in the frame's ring.
+            DrawMesh(cube.Meshes[0], plain, Matrix4x4.CreateTranslation(0, 100, 0));
+            DrawMeshInstanced(cube.Meshes[0], new ModelMaterial(Color.White) { Shader = shader }, places);
+            EndMode3D();
+        }, "instanced");
+
+        Enumerable.Range(0, 4).Select(i => (int)GetImageColor(image, 8 + i * 16, 8).R)
+            .Should().Equal([0, 85, 170, 255], "each copy is colored by its instance, the first 0");
+        GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().DrawCalls
+            .Should().Be(2, "the plain cube is one call and the four copies with the shader another");
+        UnloadModel(cube);
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
     {
         Open(32, 32);

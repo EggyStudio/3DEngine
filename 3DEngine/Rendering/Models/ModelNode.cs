@@ -27,7 +27,8 @@ namespace Engine;
 /// shader, its vertex stage or <c>model.slang</c>'s when it has none, and a descriptor set of its
 /// own holding its uniform values, copied when the draw was recorded, beside its texture. Those
 /// sets come from a ring per frame in flight, reused once the GPU is done with that frame. Such a
-/// draw is a batch of its own, an instance of one.
+/// draw is a batch of its own, an instance of one, unless the draws before it share its shader's
+/// values, as the copies <c>DrawMeshInstanced</c> records do, which are one batch.
 /// </para>
 /// <para>
 /// The frame's directional shadow is drawn by <see cref="DrawShadow"/> into a <see cref="ShadowMap"/>,
@@ -361,6 +362,12 @@ public sealed class ModelRenderer : IDisposable
             }
             var culled = cullBackFaces && !draw.DoubleSided;
             var shadow = ShadowOf(draw);
+            if (kind == Kind.Alone && i > 0 && _drawBatch[i - 1] >= 0 && SameAlone(draws, _batches[_drawBatch[i - 1]].Custom, i))
+            {
+                Grow(_drawBatch[i - 1]);
+                _drawBatch.Add(_drawBatch[i - 1]);
+                continue;
+            }
             _drawBatch.Add(kind == Kind.Alone ? AddBatch(mesh, null, i, culled, shadow) : Join(mesh, (draw.Mesh, set, culled, shadow)));
         }
 
@@ -386,7 +393,12 @@ public sealed class ModelRenderer : IDisposable
             var shadow = ShadowOf(draw);
             if (kind == Kind.Alone)
             {
-                _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow);
+                if (i > 0 && _drawBatch[i - 1] >= 0 && SameAlone(draws, _batches[_drawBatch[i - 1]].Custom, i))
+                {
+                    Grow(_drawBatch[i - 1]);
+                    _drawBatch[i] = _drawBatch[i - 1];
+                }
+                else _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow);
                 lastBatch = -1;
                 continue;
             }
@@ -398,6 +410,21 @@ public sealed class ModelRenderer : IDisposable
             Grow(lastBatch);
             _drawBatch[i] = lastBatch;
         }
+    }
+
+    // Whether a draw with a shader of its own is drawn with the same values as the batch's first
+    // draw, as the copies DrawMeshInstanced records are, sharing one snapshot of the shader's
+    // uniforms and textures, so it joins that batch as one more instance.
+    private static bool SameAlone(ReadOnlySpan<ModelDraw> draws, int first, int i)
+    {
+        if (first < 0) return false;
+        ref readonly var a = ref draws[first];
+        ref readonly var b = ref draws[i];
+        return a.Shader == b.Shader && a.Mesh == b.Mesh && a.Target == b.Target && a.DoubleSided == b.DoubleSided
+            && a.CastsShadow == b.CastsShadow && a.AlphaMode == b.AlphaMode && a.IsTranslucent == b.IsTranslucent
+            && a.Texture == b.Texture && a.NormalMap == b.NormalMap && a.MetallicRoughnessMap == b.MetallicRoughnessMap
+            && a.EmissiveMap == b.EmissiveMap && a.OcclusionMap == b.OcclusionMap
+            && ReferenceEquals(a.Uniforms, b.Uniforms) && ReferenceEquals(a.ShaderTextures, b.ShaderTextures);
     }
 
     // Marks a translucent draw until the opaque batches are made.
