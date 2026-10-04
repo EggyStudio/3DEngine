@@ -285,15 +285,19 @@ pass draws after it, reading each instance's world matrix, color and cutoff, and
 pushes its light's view-projection, so the frame's instances are written once for both passes. A
 batch is gathered by the kind of shadow its draws cast as well, none, solid or masked, and a masked
 one is drawn with `shadow.slang`'s fragment stage and its maps, which cuts it out below its cutoff
-as the model pass does, so its shadow has its holes. The map is bound at binding 1 of the lights'
-set, beside the cascades' matrices and texel widths in the lighting buffer, and the white texture
-takes its place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a little inside its edge,
-moves the point off its surface by a texel and a half of that cascade along its normal, and averages
-nine comparisons around it. Across the outer fifth of a tile the next cascade is read as well and
-blended in, so the shadow's softness changes over a band where one cascade gives way to the next,
-and past the last cascade's band the shadow fades out rather than ending at a line. A spot light's
-texels widen with distance from it, so its offset grows with that distance. A model shader with a
-vertex stage of its own casts the shadow of its mesh as it was before that stage moved it.
+as the model pass does, so its shadow has its holes. A blended draw that is clear anywhere is drawn
+the masked way too, its fragment stage keeping a texel where its alpha passes a threshold that
+interleaved gradient noise spreads over the texels, so the nine samples the model pass averages give
+a shadow as dark as the surface is opaque. The map is bound at binding 1 of the lights' set, beside
+the cascades' matrices and texel widths in the lighting buffer, and the white texture takes its
+place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
+little inside its edge, moves the point off its surface by a texel and a half of that cascade along
+its normal, and averages nine comparisons around it. Across the outer fifth of a tile the next
+cascade is read as well and blended in, so the shadow's softness changes over a band where one
+cascade gives way to the next, and past the last cascade's band the shadow fades out rather than
+ending at a line. A spot light's texels widen with distance from it, so its offset grows with that
+distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
+before that stage moved it.
 
 The first four point lights with `CastsShadows` set shadow everything around them, each in six
 faces of 512 texels, a little wider than a right angle so the nine comparisons near a face's edge

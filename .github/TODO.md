@@ -132,8 +132,7 @@ first appears, and a change to the placed file reaches a running level only when
 An older file is read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
-field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter
-shadow where it is clearer.
+field of `SceneMaterialPayload`.
 
 ## Platform
 

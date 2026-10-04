@@ -1,6 +1,8 @@
 // The shadow pass's stages. Every surface is drawn into the shadow map with the vertex stage here
 // and no fragment stage, and a masked one with the fragment stage as well, which cuts it out where
-// the model pass cuts it, so its shadow has the same holes.
+// the model pass cuts it, so its shadow has the same holes. A blended surface that is clear in
+// places is drawn with the fragment stage too, which keeps a share of its texels as large as its
+// alpha, so the filtered shadow is as dark as the surface is opaque.
 //
 // The instances are the model pass's own, of which this stage reads the world matrix and the
 // material's color and alpha mode, and the light's view-projection is a push constant, so the
@@ -45,9 +47,25 @@ ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL,
     return output;
 }
 
+// A threshold from 0 to 1 for each texel, spread evenly over a small neighborhood (Jorge
+// Jimenez's interleaved gradient noise), so the texels a blended surface keeps are scattered
+// rather than banded, and the nine samples the model pass averages see its alpha.
+float threshold(float2 texel)
+{
+    return frac(52.9829189 * frac(dot(texel, float2(0.06711056, 0.00583715))));
+}
+
 [shader("fragment")]
 void fragmentMain(ModelVertexOutput input)
 {
+    float4 color = baseColor(input);
+    // A blended surface, whose mode is 0, keeps a texel as often as it is opaque.
+    if (input.emission.w == 0.0)
+    {
+        if (color.a <= threshold(input.position.xy))
+            discard;
+        return;
+    }
     // Called for the discard alone, below the material's cutoff.
-    alphaTested(baseColor(input), input);
+    alphaTested(color, input);
 }

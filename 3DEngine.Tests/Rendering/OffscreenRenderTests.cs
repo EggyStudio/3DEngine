@@ -1175,6 +1175,40 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(wall);
     }
 
+    [NeedsVulkanFact]
+    public void A_Half_Clear_Surface_Casts_A_Shadow_Between_None_And_A_Solid_Ones()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
+        var wall = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        // A unit square a unit in front of the wall, which the sun along -X and -Z throws a unit
+        // to the left, drawn solid and then half clear.
+        var square = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, 0, -1)), Color.White, 1, castsShadows: true);
+        byte Shadow(Color tint)
+        {
+            var image = Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModelEx(wall, Vector3.Zero, Vector3.UnitX, 90, Vector3.One, Color.White);
+                DrawModelEx(square, new Vector3(0.75f, 0, 1), Vector3.UnitX, 90, Vector3.One, tint);
+                EndMode3D();
+            });
+            // The wall at the middle, where the square's shadow falls, left of where the square is drawn.
+            return GetImageColor(image, 22, 32).R;
+        }
+
+        var solid = Shadow(Color.White);
+        var half = Shadow(new Color(255, 255, 255, 128));
+        var none = Shadow(new Color(255, 255, 255, 0));
+        solid.Should().BeLessThan((byte)(none / 3), "a solid square shadows the wall");
+        half.Should().BeGreaterThan((byte)(solid + 15), "a half clear square lets some of the light through");
+        half.Should().BeLessThan((byte)(none - 15), "and holds some of it back");
+        UnloadModel(square);
+        UnloadModel(wall);
+    }
+
     // CI installs the layer and sets E3D_REQUIRE_VALIDATION, so a missing layer there fails here
     // instead of letting every frame pass unchecked.
     [NeedsVulkanFact]

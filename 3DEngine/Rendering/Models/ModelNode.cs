@@ -337,8 +337,10 @@ public sealed class ModelRenderer : IDisposable
         bool keepOrderOfTranslucent, bool cullBackFaces = false, bool shadowKinds = false)
     {
         var masks = _shadowMaskPipeline is not null;
+        // A blended surface that is clear anywhere goes through the masked stage too, which drops
+        // its shadow in a pattern as dense as it is opaque.
         ShadowKind ShadowOf(in ModelDraw draw) => !shadowKinds || !draw.CastsShadow ? ShadowKind.None
-            : masks && draw.AlphaMode == MaterialAlphaMode.Mask ? ShadowKind.Masked : ShadowKind.Solid;
+            : masks && (draw.AlphaMode == MaterialAlphaMode.Mask || draw.IsTranslucent) ? ShadowKind.Masked : ShadowKind.Solid;
 
         _batches.Clear();
         _drawBatch.Clear();
