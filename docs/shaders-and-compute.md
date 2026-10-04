@@ -244,7 +244,8 @@ values by `SV_InstanceID`, so particles moved by a compute shader are drawn as m
 shader also writes a texture it declares as `RWTexture2D<float4>`, set with
 `SetShaderValueTexture`, once the texture has reached the GPU in the frame after it is loaded, and
 a render texture's color the same way, on a GPU that can store to the window's format, as most
-desktop GPUs can.
+desktop GPUs can. The shader writes a mipmapped texture's first level, and the dispatch makes the
+smaller levels again from it.
 
 ## See also
 

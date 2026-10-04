@@ -169,7 +169,16 @@ public sealed unsafe partial class GraphicsDevice
     /// Creates a view of <paramref name="image"/> in <paramref name="format"/>, which for a sampled
     /// UNORM color image may be its sRGB counterpart, so sampling decodes it to linear.
     /// </summary>
-    public IImageView CreateImageView(IImage image, ImageFormat format)
+    public IImageView CreateImageView(IImage image, ImageFormat format) => CreateImageView(image, format, 0, 0);
+
+    /// <summary>
+    /// Creates a view of the first level of <paramref name="image"/> alone, as a compute shader
+    /// writes a mipmapped texture through, since Vulkan stores through a view of one level.
+    /// </summary>
+    public IImageView CreateFirstLevelView(IImage image) => CreateImageView(image, image.Description.Format, 0, 1);
+
+    // A view of levelCount levels from firstLevel, or of all of them for a count of 0.
+    private IImageView CreateImageView(IImage image, ImageFormat format, uint firstLevel, uint levelCount)
     {
         if (image is not VulkanImage vkImage)
             throw new ArgumentException("Image was not created by this device.", nameof(image));
@@ -192,7 +201,7 @@ public sealed unsafe partial class GraphicsDevice
             viewType = VkImageViewType.Image2D,
             format = ToVkFormat(format),
             components = VkComponentMapping.Rgba,
-            subresourceRange = new VkImageSubresourceRange(aspect, 0, Math.Max(1, vkImage.Description.MipLevels), 0, 1)
+            subresourceRange = new VkImageSubresourceRange(aspect, firstLevel, levelCount == 0 ? LevelsOf(vkImage) - firstLevel : levelCount, 0, 1)
         };
 
         _deviceApi.vkCreateImageView(&viewInfo, null, out VkImageView view).CheckResult();

@@ -138,7 +138,8 @@ public sealed unsafe partial class GraphicsDevice
     /// frame being recorded and after the ones before it. Barriers on both sides order it against
     /// them on the GPU: what earlier work wrote is seen, and what it writes is seen by later work and
     /// by the CPU once <see cref="WaitForCompute"/> returns. An image it writes is moved to the
-    /// general layout for it, from the one textures are sampled in, and back after.
+    /// general layout for it, from the one textures are sampled in, and back after, and a
+    /// mipmapped one has its other levels made again from the first, which the shader writes.
     /// </para>
     /// <para>
     /// Callable from the systems of a stage that run in parallel, which a lock keeps to one
@@ -238,12 +239,21 @@ public sealed unsafe partial class GraphicsDevice
                 srcAccessMask = VkAccessFlags.ShaderWrite,
                 dstAccessMask = VkAccessFlags.MemoryRead | VkAccessFlags.MemoryWrite | VkAccessFlags.HostRead,
             };
+            // A mipmapped image goes to the transfer layout instead, since its other levels are
+            // made again from the first one the shader wrote.
             var toSampled = stackalloc VkImageMemoryBarrier[Math.Max(1, images.Count)];
             for (int i = 0; i < images.Count; i++)
-                toSampled[i] = ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
-                    VkAccessFlags.ShaderWrite, VkAccessFlags.ShaderRead | VkAccessFlags.MemoryRead);
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ComputeShader, VkPipelineStageFlags.AllCommands | VkPipelineStageFlags.Host,
+                toSampled[i] = images[i].Image.Description.MipLevels > 1
+                    ? ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
+                        VkAccessFlags.ShaderWrite, VkAccessFlags.TransferRead | VkAccessFlags.TransferWrite)
+                    : ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+                        VkAccessFlags.ShaderWrite, VkAccessFlags.ShaderRead | VkAccessFlags.MemoryRead);
+            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ComputeShader,
+                VkPipelineStageFlags.AllCommands | VkPipelineStageFlags.Host | VkPipelineStageFlags.Transfer,
                 0, 1, &after, 0, null, (uint)images.Count, toSampled);
+            foreach (var (_, image, _) in images)
+                if (image.Description.MipLevels > 1)
+                    RecordMipChain(cmd, (VulkanImage)image);
             _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
             var fenceInfo = new VkFenceCreateInfo();

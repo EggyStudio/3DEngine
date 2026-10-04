@@ -791,6 +791,42 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Compute_Shader_Writing_A_Mipmapped_Texture_Makes_Its_Smaller_Levels_Again()
+    {
+        Open(32, 32);
+        var texture = LoadTextureFromImage(GenImageColor(16, 16, Color.Black));
+        GenTextureMipmaps(ref texture);
+        SetTextureFilter(texture, TextureFilter.Bilinear);
+        Capture(() => ClearBackground(Color.Black), "upload");
+
+        var paint = LoadComputeShaderFromMemory("""
+            RWTexture2D<float4> image;
+
+            [shader("compute")]
+            [numthreads(8, 8, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                image[id.xy] = float4(1, 0, 0, 1);
+            }
+            """, "mips.slang");
+        SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), texture);
+        ComputeShaderDispatch(paint, 2, 2, 1);
+
+        // Drawn an eighth of its size, so the 2 by 2 level is what is sampled.
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTextureEx(texture, Vector2.Zero, 0, 1, Color.White);
+            DrawTextureEx(texture, new Vector2(20, 20), 0, 0.125f, Color.White);
+        }, "painted");
+        GetImageColor(image, 8, 8).Should().Be(new Color(255, 0, 0, 255), "the first level, which the shader wrote");
+        GetImageColor(image, 21, 21).Should().Be(new Color(255, 0, 0, 255), "a small level, made again from the first");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadShader(paint);
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
     {
         Open(32, 32);

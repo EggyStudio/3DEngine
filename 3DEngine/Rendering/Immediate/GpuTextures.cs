@@ -26,8 +26,13 @@ public sealed class GpuTextures : IDisposable
     private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null,
         int DepthOf = 0)
     {
+        // The first level alone, which a compute shader writes a mipmapped image through, made
+        // when one first does. A copy made for a new sampler shares it, since the image is the same.
+        public IImageView? FirstLevel { get; set; }
+
         public IDisposable[] Owned => Target is not null ? [Set, Sampler, Target]
             : DepthOf != 0 ? [Set, Sampler]
+            : FirstLevel is not null ? [Set, Sampler, FirstLevel, SrgbView, View, Image!]
             : [Set, Sampler, SrgbView, View, Image!];
     }
 
@@ -59,11 +64,17 @@ public sealed class GpuTextures : IDisposable
     /// write, a render target's color among them, or null for one not on the GPU yet, or a render
     /// target on a device that cannot store to the window's format.
     /// </summary>
-    internal (IImage Image, IImageView View)? StorageFor(int id)
+    /// <remarks>
+    /// A mipmapped texture is written through a view of its first level, which the dispatch then
+    /// makes the other levels from.
+    /// </remarks>
+    internal (IImage Image, IImageView View)? StorageFor(GraphicsDevice device, int id)
     {
         if (id == 0 || !_entries.TryGetValue(id, out var entry)) return null;
         var image = entry.Image ?? entry.Target?.ColorView.Image;
-        return image is not null && image.Description.Usage.HasFlag(ImageUsage.Storage) ? (image, entry.View) : null;
+        if (image is null || !image.Description.Usage.HasFlag(ImageUsage.Storage)) return null;
+        if (image.Description.MipLevels <= 1) return (image, entry.View);
+        return (image, entry.FirstLevel ??= device.CreateFirstLevelView(image));
     }
 
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>

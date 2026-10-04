@@ -199,7 +199,7 @@ public static partial class Engine3D
             var imageIds = ImageValues.GetValueOrDefault(shader.Id) ?? new int[program.Images.Count];
             for (int i = 0; i < program.Images.Count; i++)
             {
-                if (gpuTextures.StorageFor(imageIds[i]) is not { } storage)
+                if (gpuTextures.StorageFor(device, imageIds[i]) is not { } storage)
                 {
                     ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' has no texture on the GPU for '{program.Images[i].Name}'. "
                                    + "A texture reaches the GPU in the frame after it is loaded, and a render texture is written only where the GPU can store to the window's format.");
