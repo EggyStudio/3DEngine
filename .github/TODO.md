@@ -30,8 +30,15 @@ removed from this file, and an item that is partly done is rewritten around what
 
 `Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and
 3D shapes, 2D collision, images and textures, models and meshes, shaders, lights, states, scenes,
-physics, text and fonts, audio and text files
+physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
+
+- **A few of raylib's functions are not carried.** `UpdateTextureRec` needs a texture's pixels on
+  the CPU, which the texture store does not keep. `LoadImageFromScreen` needs the frame as it is
+  drawn, which the GPU has not finished when the call returns. The audio processors run on the
+  audio thread, which the backend does not open to the program. VR stereo, automation events
+  (which `./e3d` stands in for), `ImageMipmaps`, `GenImageText`, `ExportMesh` and the C string
+  helpers (`TextFormat`, `TextSplit` and the rest, which C# has) are left out.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
