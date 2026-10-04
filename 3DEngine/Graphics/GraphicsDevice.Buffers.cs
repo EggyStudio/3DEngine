@@ -6,7 +6,7 @@ namespace Engine;
 
 public sealed unsafe partial class GraphicsDevice
 {
-    /// <summary>Vulkan implementation of <see cref="IBuffer"/> wrapping a <c>VkBuffer</c> and its device memory.</summary>
+    /// <summary>Vulkan implementation of <see cref="IBuffer"/> wrapping a <c>VkBuffer</c> and the range of device memory it is bound to.</summary>
     /// <seealso cref="IBuffer"/>
     private sealed class VulkanBuffer : IBuffer
     {
@@ -15,8 +15,8 @@ public sealed unsafe partial class GraphicsDevice
         /// <summary>The underlying Vulkan buffer handle.</summary>
         internal VkBuffer Buffer;
 
-        /// <summary>The device memory backing this buffer.</summary>
-        internal VkDeviceMemory Memory;
+        /// <summary>The range of device memory backing this buffer.</summary>
+        internal MemorySlice? Memory;
 
         /// <inheritdoc />
         public BufferDesc Description { get; }
@@ -24,23 +24,23 @@ public sealed unsafe partial class GraphicsDevice
         /// <summary>Whether this buffer is host-visible and can be mapped for CPU access.</summary>
         internal bool IsHostVisible;
 
-        /// <summary>Pointer to the mapped memory region, or <see cref="nint.Zero"/> if unmapped.</summary>
+        /// <summary>The buffer's first byte as the CPU sees it, mapped for good with its block, or <see cref="nint.Zero"/> for a buffer the CPU cannot see.</summary>
         internal nint MappedPtr;
 
         /// <summary>Creates a new Vulkan buffer wrapper.</summary>
         /// <param name="device">The owning graphics device.</param>
         /// <param name="buffer">The Vulkan buffer handle.</param>
-        /// <param name="memory">The backing device memory.</param>
+        /// <param name="memory">The range of device memory it is bound to.</param>
         /// <param name="desc">The buffer creation descriptor.</param>
         /// <param name="hostVisible">Whether the buffer is host-visible.</param>
-        public VulkanBuffer(GraphicsDevice device, VkBuffer buffer, VkDeviceMemory memory, BufferDesc desc, bool hostVisible)
+        public VulkanBuffer(GraphicsDevice device, VkBuffer buffer, MemorySlice memory, BufferDesc desc, bool hostVisible)
         {
             _device = device;
             Buffer = buffer;
             Memory = memory;
             Description = desc;
             IsHostVisible = hostVisible;
-            MappedPtr = nint.Zero;
+            MappedPtr = hostVisible ? memory.Mapped : nint.Zero;
         }
 
         /// <inheritdoc />
@@ -52,10 +52,10 @@ public sealed unsafe partial class GraphicsDevice
                 Buffer = default;
             }
 
-            if (Memory.Handle != 0)
+            if (Memory is { } memory)
             {
-                _device._deviceApi.vkFreeMemory(Memory);
-                Memory = default;
+                _device.FreeMemory(memory);
+                Memory = null;
             }
         }
     }
@@ -99,16 +99,8 @@ public sealed unsafe partial class GraphicsDevice
             ? VkMemoryPropertyFlags.DeviceLocal
             : VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent;
 
-        uint memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, properties);
-
-        VkMemoryAllocateInfo allocInfo = new()
-        {
-            allocationSize = requirements.size,
-            memoryTypeIndex = memoryTypeIndex
-        };
-
-        _deviceApi.vkAllocateMemory(&allocInfo, null, out VkDeviceMemory memory).CheckResult();
-        _deviceApi.vkBindBufferMemory(buffer, memory, 0).CheckResult();
+        var memory = AllocateMemory(requirements, properties, image: false);
+        _deviceApi.vkBindBufferMemory(buffer, memory.Memory, memory.Offset).CheckResult();
 
         return new VulkanBuffer(this, buffer, memory, desc, desc.CpuAccess != CpuAccessMode.None);
     }
@@ -124,30 +116,19 @@ public sealed unsafe partial class GraphicsDevice
         if (!vkBuffer.IsHostVisible)
             throw new InvalidOperationException("Buffer is not host-visible and cannot be mapped.");
 
-        if (vkBuffer.MappedPtr != nint.Zero)
-        {
-            // Mapped already, so the same span is returned.
-            return new Span<byte>((void*)vkBuffer.MappedPtr, checked((int)vkBuffer.Description.Size));
-        }
-
-        void* data;
-        _deviceApi.vkMapMemory(vkBuffer.Memory, 0, vkBuffer.Description.Size, 0, &data).CheckResult();
-        vkBuffer.MappedPtr = (nint)data;
-        return new Span<byte>(data, checked((int)vkBuffer.Description.Size));
+        // Its block is mapped for good, so the buffer's own range of it is returned.
+        return new Span<byte>((void*)vkBuffer.MappedPtr, checked((int)vkBuffer.Description.Size));
     }
 
-    /// <summary>Unmaps a previously mapped buffer, invalidating any <see cref="Span{T}"/> returned by <see cref="Map"/>.</summary>
+    /// <summary>Ends a write through <see cref="Map"/>, which on this device changes nothing, since the memory stays mapped and is coherent.</summary>
     /// <param name="buffer">The buffer to unmap.</param>
     public void Unmap(IBuffer buffer)
     {
         if (buffer is not VulkanBuffer vkBuffer)
             throw new ArgumentException("Buffer was not created by this device.", nameof(buffer));
 
-        if (!vkBuffer.IsHostVisible || vkBuffer.MappedPtr == nint.Zero)
-            return;
-
-        _deviceApi.vkUnmapMemory(vkBuffer.Memory);
-        vkBuffer.MappedPtr = nint.Zero;
+        // A block stays mapped while any buffer in it lives, and its memory is coherent, so there
+        // is nothing to undo or flush.
     }
 
     /// <summary>Copies raw byte data into a GPU buffer, using staging if the buffer is device-local.</summary>

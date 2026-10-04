@@ -14,8 +14,11 @@ public sealed unsafe partial class GraphicsDevice
         /// <summary>The underlying Vulkan image handle.</summary>
         internal VkImage Image;
 
-        /// <summary>The device memory backing this image.</summary>
+        /// <summary>The device memory backing this image when it is its own, as a render target's is.</summary>
         internal VkDeviceMemory Memory;
+
+        /// <summary>The range of a block backing this image, for a texture.</summary>
+        internal MemorySlice? Slice;
 
         /// <summary>The current image layout, updated after each layout transition.</summary>
         internal VkImageLayout Layout;
@@ -49,6 +52,11 @@ public sealed unsafe partial class GraphicsDevice
             {
                 _device._deviceApi.vkFreeMemory(Memory);
                 Memory = default;
+            }
+            if (Slice is { } slice)
+            {
+                _device.FreeMemory(slice);
+                Slice = null;
             }
         }
     }
@@ -148,16 +156,10 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateImage(&imageInfo, null, out VkImage image).CheckResult();
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements req);
 
-        VkMemoryAllocateInfo allocInfo = new()
-        {
-            allocationSize = req.size,
-            memoryTypeIndex = FindMemoryType(req.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal)
-        };
+        var slice = AllocateMemory(req, VkMemoryPropertyFlags.DeviceLocal, image: true);
+        _deviceApi.vkBindImageMemory(image, slice.Memory, slice.Offset).CheckResult();
 
-        _deviceApi.vkAllocateMemory(&allocInfo, null, out VkDeviceMemory memory).CheckResult();
-        _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
-
-        return new VulkanImage(this, image, memory, desc);
+        return new VulkanImage(this, image, default, desc) { Slice = slice };
     }
 
     /// <summary>Creates a typed <c>VkImageView</c> for the given image, selecting aspect flags based on the image format.</summary>

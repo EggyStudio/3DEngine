@@ -557,8 +557,12 @@ The largest costs as they were measured, in order, each with what changed:
   framebuffers to keep in step with the swapchain. Every desktop driver in use exposes it, and it
   removes most of the code in `GraphicsDevice.Swapchain` and `GraphicsDevice.Offscreen`.
 - **Synchronization2**, so barriers name their stages and accesses in one structure.
-- **The Vulkan Memory Allocator** in place of one allocation per buffer and image, since drivers
-  limit the number of allocations and suballocation is a solved problem.
+- **Buffers and textures carved out of blocks** (`GraphicsDevice.Memory`), done, since drivers
+  limit the number of allocations, often to 4,096. Each memory type has blocks of 64 MiB, buffers
+  and images in blocks of their own so Vulkan's granularity between them never applies, a block
+  the CPU sees mapped once for good, and a request past half a block given one of its own. The
+  engine carves them itself rather than taking the Vulkan Memory Allocator, which DESIGN.md §8
+  does not list.
 - **A swapchain rebuilt on resize** without a device wait every frame.
 
 ### Debugging
@@ -571,7 +575,7 @@ The largest costs as they were measured, in order, each with what changed:
 
 1. Normals and one directional light.
 2. Assimp models with textures, and the material struct.
-3. Dynamic rendering and synchronization2, then VMA.
+3. Dynamic rendering and synchronization2.
 4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
    model pass.
 5. Shadow cascades, then point and spot shadows.

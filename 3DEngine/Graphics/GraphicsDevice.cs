@@ -187,6 +187,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySkinning();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
+        DestroyMemoryBlocks();
         Logger.Debug("Destroying logical device...");
         DestroyLogicalDevice();
         Logger.Debug("Destroying window surface...");
