@@ -87,13 +87,21 @@ public sealed class AnimatedModelDrawsTests : IDisposable
         Tip(-2).Y.Should().BeApproximately(2, 0.01f, "held at the start");
         Tip(2).X.Should().BeApproximately(-1, 0.02f, "held at the end, on a model of its own");
         _app.World.Resource<AnimatedModelDraws>().ModelCount.Should().Be(2);
+        _app.World.Resource<AnimatedModelDraws>().FileCount.Should().Be(1, "the two share one load of the file");
 
         var mesh = _app.World.Resource<ModelDrawList>().Draws.First(d => d.World.Translation.X == 2).Mesh;
         _ecs.Despawn(bent);
         Frame(0.1);
         _app.World.Resource<AnimatedModelDraws>().ModelCount.Should().Be(1);
-        _app.World.Resource<MeshStore>().Contains(mesh).Should().BeFalse("the despawned entity's model is unloaded");
+        _app.World.Resource<MeshStore>().Contains(mesh).Should().BeFalse("the despawned entity's skinned mesh is unloaded");
+        Tip(-2).Y.Should().BeApproximately(2, 0.01f, "the other still draws, from the file they shared");
         _ecs.Has<AnimatedModel>(still).Should().BeTrue();
+
+        var meshes = _app.World.Resource<MeshStore>().Count;
+        _ecs.Despawn(still);
+        Frame(0.1);
+        _app.World.Resource<AnimatedModelDraws>().FileCount.Should().Be(0, "the last entity lets the file go");
+        _app.World.Resource<MeshStore>().Count.Should().BeLessThan(meshes);
     }
 
     [Fact]

@@ -451,6 +451,42 @@ public static partial class Engine3D
         foreach (var texture in model.OwnedTextures) UnloadTexture(texture);
     }
 
+    /// <summary>
+    /// The model again, posed apart from it: each skinned mesh is a mesh of its own, at rest, and
+    /// the meshes no bone moves, the materials and their textures, the bones and the bind pose are
+    /// the model's, so many copies of one file cost a load and a skinned mesh each.
+    /// </summary>
+    /// <remarks>A copy is freed with <see cref="UnloadPosedCopy"/>, before the model it copies.</remarks>
+    internal static Model PosedCopy(Model model)
+    {
+        var meshes = (ModelMesh[])model.Meshes.Clone();
+        foreach (var skin in model.Skins)
+        {
+            var mesh = model.Meshes[skin.Mesh];
+            if (!Meshes.TryGetData(mesh.Id, out _, out var indices)) continue;
+            var id = Meshes.Add((ModelVertex[])skin.Rest.Clone(), indices);
+            Meshes.SetSkin(id, new MeshStore.Skin(skin.Joints, skin.Weights, skin.BoneOfJoint.Length));
+            meshes[skin.Mesh] = mesh with { Id = id };
+        }
+        return new Model
+        {
+            Meshes = meshes,
+            Materials = (ModelMaterial[])model.Materials.Clone(),
+            MeshMaterial = model.MeshMaterial,
+            Transform = model.Transform,
+            Bones = model.Bones,
+            BindPose = model.BindPose,
+            Skins = model.Skins,
+        };
+    }
+
+    /// <summary>Frees the meshes <see cref="PosedCopy"/> made for <paramref name="copy"/>, leaving what it shares with <paramref name="of"/>.</summary>
+    internal static void UnloadPosedCopy(Model copy, Model of)
+    {
+        for (int i = 0; i < copy.Meshes.Length; i++)
+            if (copy.Meshes[i].Id != of.Meshes[i].Id) UnloadMesh(copy.Meshes[i]);
+    }
+
     /// <summary>Whether <paramref name="model"/> has meshes that are loaded.</summary>
     public static bool IsModelValid(Model model) => model.IsValid && model.Meshes.All(m => Meshes.Contains(m.Id));
 

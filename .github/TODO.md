@@ -34,14 +34,14 @@ physics, text and fonts, audio and text files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
-  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in a
-  run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, where its
+  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
+  a run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, where its
   wires are posed from the same joints, and a collider made from it is at rest. An entity plays a
-  file's clips through `AnimatedModel`, which loads a copy of the model for each entity and poses
-  and draws it through the flat API, so only in the app `InitWindow` built, and a skinned file a
-  scene spawns as mesh entities through `ModelRef` stands at rest. A material the program makes
-  draws both sides of each face unless `DoubleSided` is cleared, so `GenMeshCubicmap` makes no roof
-  over a maze's open cells as raylib's does.
+  file's clips through `AnimatedModel`, which loads a file once and gives each entity a copy with
+  skinned meshes of its own, and poses and draws it through the flat API, so only in the app
+  `InitWindow` built, and a skinned file a scene spawns as mesh entities through `ModelRef` stands
+  at rest. A material the program makes draws both sides of each face unless `DoubleSided` is
+  cleared, so `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
 - **Fonts reach the Basic Multilingual Plane only.** A coverage font loaded from a file is baked
   again at a size it is drawn at a quarter or more past its own, eight sizes at most, and one
   loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the characters it was

@@ -10,9 +10,11 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// Runs in <see cref="Stage.Render"/>, in the app <c>InitWindow</c> built, whose models these are.
-/// An entity's model is loaded the first frame it is seen, again when its path changes, and
-/// unloaded the first frame the entity or its component is gone. A file that cannot be loaded is
-/// tried once for that path, with the reason in the log.
+/// A file is loaded once, with its clips, the first frame an entity names it, and unloaded the
+/// first frame no entity does. Each entity draws a copy of it with skinned meshes of its own, posed
+/// apart, sharing the rest (<see cref="Engine3D.PosedCopy"/>), so a crowd of one file costs a load
+/// and a skinned mesh an entity. A file that cannot be loaded is tried once while entities name
+/// it, with the reason in the log.
 /// </para>
 /// <para>
 /// A change of <see cref="AnimatedModel.Clip"/> keeps the clip before playing on beside it and
@@ -26,13 +28,24 @@ public sealed class AnimatedModelDraws
     // Each entity's model and what it is playing, by entity id, with the generation it was loaded
     // for, so an id given out again does not take over a model.
     private readonly Dictionary<int, Playing> _playing = [];
+
+    // Each file loaded once, with how many entities draw a copy of it.
+    private readonly Dictionary<string, LoadedFile> _files = [];
     private readonly HashSet<int> _seen = [];
     private bool _warned;
+
+    private sealed class LoadedFile
+    {
+        public Model? Model;
+        public ModelAnimation[] Clips = [];
+        public int Users;
+    }
 
     private sealed class Playing
     {
         public required string Path;
         public required int Generation;
+        public LoadedFile? File;
         public Model? Model;
         public ModelAnimation[] Clips = [];
         public string Clip = "";
@@ -45,8 +58,11 @@ public sealed class AnimatedModelDraws
         public float LastTime;
     }
 
-    /// <summary>How many models are loaded for entities.</summary>
+    /// <summary>How many entities have a model to draw.</summary>
     public int ModelCount => _playing.Values.Count(p => p.Model is not null);
+
+    /// <summary>How many files are loaded for those models, each once however many entities draw it.</summary>
+    public int FileCount => _files.Values.Count(f => f.Model is not null);
 
     /// <summary>The system, for <see cref="Stage.Render"/>.</summary>
     public static void Run(World world)
@@ -99,15 +115,29 @@ public sealed class AnimatedModelDraws
         _playing[entity] = playing;
         if (path.Length == 0) return playing;
 
-        var model = Engine3D.LoadModel(path);
-        if (model.Meshes.Length == 0)
+        if (!_files.TryGetValue(path, out var file))
         {
-            Logger.Warn($"AnimatedModel: '{path}' has no meshes to draw.");
-            Engine3D.UnloadModel(model);
-            return playing;
+            file = new LoadedFile();
+            _files[path] = file;
+            var model = Engine3D.LoadModel(path);
+            if (model.Meshes.Length == 0)
+            {
+                Logger.Warn($"AnimatedModel: '{path}' has no meshes to draw.");
+                Engine3D.UnloadModel(model);
+            }
+            else
+            {
+                file.Model = model;
+                file.Clips = Engine3D.LoadModelAnimations(path);
+            }
         }
-        playing.Model = model;
-        playing.Clips = Engine3D.LoadModelAnimations(path);
+        file.Users++;
+        playing.File = file;
+        if (file.Model is { } loaded)
+        {
+            playing.Model = Engine3D.PosedCopy(loaded);
+            playing.Clips = file.Clips;
+        }
         return playing;
     }
 
@@ -152,7 +182,10 @@ public sealed class AnimatedModelDraws
 
     private void Forget(int entity)
     {
-        if (!_playing.Remove(entity, out var playing)) return;
-        if (playing.Model is { } model) Engine3D.UnloadModel(model);
+        if (!_playing.Remove(entity, out var playing) || playing.File is not { } file) return;
+        if (playing.Model is { } copy && file.Model is { } model) Engine3D.UnloadPosedCopy(copy, model);
+        if (--file.Users > 0) return;
+        _files.Remove(playing.Path);
+        if (file.Model is { } last) Engine3D.UnloadModel(last);
     }
 }
