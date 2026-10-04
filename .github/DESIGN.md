@@ -152,6 +152,17 @@ which marks it changed, and `in` for one it only reads, which does not, and runs
 that have them all. That keeps a lookup and its failure out of the method, and lets the scheduler
 see what each system writes.
 
+An id from a query is the frame's own. A program that keeps an entity across frames takes its
+handle with `ecs.Handle(id)`, whose generation refuses an entity despawned since, which is one call
+where it matters and costs nothing where it does not. Query rows carrying a handle beside the id
+were considered and left out, since every query would pay for what few keep.
+
+Change detection sees what `GetRef`, `Update`, the by-reference queries and a writable span hand
+out, and a component's first arrival. A write through a store's raw array (`ComponentsArray`) is
+not seen, which is the price of generated code reaching the array. A system's first run sees every
+stamp made before it, as Bevy's does, so the two engines agree, and removals are kept for 60
+frames, which bounds the memory they hold.
+
 The flat functions work inside systems too, when the app is the one `InitWindow` built, so an
 `[OnRender]` method can call `DrawCube`. A game that outgrows the loop moves its logic into
 behaviors one piece at a time, and nothing in the flat API has to be unlearned. The `ecs_behaviors`

@@ -12,24 +12,6 @@ renderer's own plan is [RENDERING.md](RENDERING.md).
 An item says what exists, what is missing, and what the missing part needs. Finished work is
 removed from this file, and an item that is partly done is rewritten around what is left.
 
-## Core
-
-### Entities
-
-- **Queries hand out bare ids.** `Has`, `TryGet`, `GetRef`, `GetReadOnly`, `Add`, `Update`,
-  `Remove` and `Despawn` take an `Entity` handle too, whose generation refuses a stale one, reads
-  answering as if the component were missing and writes throwing. Contacts, `ctx.Entity` and the
-  flat API's scene functions hand out handles. Queries and `ctx.EntityId` still give the bare
-  `int`, which is right for the frame it is used in and which nothing stops code from keeping
-  across frames.
-- **Change detection misses raw arrays.** `GetRef`, `Update` and the by-reference queries stamp what
-  they hand out with the tick of the running system, a component's first arrival is stamped too, and
-  the `Changed` and `Added` filters and `Removed<T>()` see what happened since that system last ran
-  (`ChangeTicks`). A writable span (`GetSpan`, `BulkProcess`) stamps every component it holds, since
-  any may be written through it. A write through a store's raw array (`ComponentsArray`) is not
-  seen, removals are kept for 60 frames only, and a system that has never run sees every stamp made
-  before it.
-
 ## Rendering
 
 ### Cost
