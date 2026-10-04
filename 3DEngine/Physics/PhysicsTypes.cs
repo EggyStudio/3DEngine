@@ -120,7 +120,8 @@ internal static class PhysicsContacts
 /// <summary>
 /// Walks an entity's character body (made with <see cref="PhysicsWorld.CreateCharacter"/> and kept
 /// on the entity as its <see cref="PhysicsBody"/>): the physics step reads the wanted velocity,
-/// steepest slope and jump from it before stepping, and writes back whether it stands on ground.
+/// steepest slope, jump, step height and height from it before stepping, and writes back whether
+/// it stands on ground.
 /// </summary>
 /// <example>
 /// <code>
@@ -144,6 +145,15 @@ public struct CharacterController
 
     /// <summary>A jump's speed, taken at the next step if it stands on ground, and set back to 0.</summary>
     public float Jump;
+
+    /// <summary>The highest step, in units, it climbs onto as it walks into it, or 0 to leave it as it is, its radius to begin with.</summary>
+    public float StepHeight;
+
+    /// <summary>
+    /// How tall it stands, in units, with its feet where they are, as crouching and standing set it,
+    /// or 0 to leave it as it was made. A height it has no room for overhead is taken once there is.
+    /// </summary>
+    public float Height;
 
     /// <summary>Whether it stood on ground at the last step. Written by the physics step.</summary>
     public bool Grounded;

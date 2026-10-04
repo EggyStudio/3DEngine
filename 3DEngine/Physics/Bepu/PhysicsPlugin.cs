@@ -111,7 +111,8 @@ public sealed class PhysicsPlugin : IPlugin
         Logger.Info("PhysicsPlugin: physics systems registered (FixedUpdate=Step, PostUpdate=SyncTransforms).");
     }
 
-    // Each CharacterController's wanted walk, slope and jump, handed to its body before the step.
+    // Each CharacterController's wanted walk, slope, jump, step and height, handed to its body
+    // before the step. A height already reached costs a comparison.
     private static void DriveCharacters(World w, PhysicsWorld phys)
     {
         if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<CharacterController>() == 0) return;
@@ -120,6 +121,8 @@ public sealed class PhysicsPlugin : IPlugin
             ref readonly var controller = ref row.C1;
             phys.MoveCharacter(row.C2, controller.Velocity);
             phys.SetCharacterMaxSlope(row.C2, controller.MaxSlope);
+            if (controller.StepHeight > 0) phys.SetCharacterStepHeight(row.C2, controller.StepHeight);
+            if (controller.Height > 0) phys.SetCharacterHeight(row.C2, controller.Height);
             if (controller.Jump > 0)
             {
                 phys.JumpCharacter(row.C2, controller.Jump);

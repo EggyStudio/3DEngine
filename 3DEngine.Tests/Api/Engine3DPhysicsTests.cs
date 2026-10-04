@@ -274,4 +274,36 @@ public sealed class Engine3DPhysicsTests : IDisposable
         ecs.GetReadOnly<CharacterController>(player).Velocity.Should().Be(new Vector3(3, 0, 0));
         RunUntil(() => GetPhysicsBodyPosition(body).X > 1).Should().BeTrue("the step walks it as the controller says");
     }
+
+    [Fact]
+    public void A_Character_Controller_Sets_Its_Step_Height_And_Crouches_And_Stands_By_Its_Height()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var physics = GetApp().World.Resource<PhysicsWorld>();
+        physics.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 0.5f, 20));
+        // A step 0.6 high, higher than either character's radius of 0.4.
+        physics.CreateStaticBox(new Vector3(3, 0.3f, 0), new Vector3(1, 0.3f, 10));
+        int Character(float z, float stepHeight)
+        {
+            var entity = ecs.Spawn();
+            ecs.Add(entity, physics.CreateCharacter(new Vector3(0, 0, z), 0.4f, 1.8f, entityId: entity));
+            ecs.Add(entity, new Transform(new Vector3(0, 0.9f, z)));
+            ecs.Add(entity, CharacterController.Default with { Velocity = new Vector3(2, 0, 0), StepHeight = stepHeight });
+            return entity;
+        }
+        var low = Character(-2, 0);
+        var high = Character(2, 0.7f);
+
+        RunUntil(() => ecs.GetReadOnly<Transform>(high).Position.X > 2.5f).Should().BeTrue("the higher step height climbs onto the step");
+        ecs.GetReadOnly<Transform>(high).Position.Y.Should().BeGreaterThan(1.4f, "and stands on it");
+        ecs.GetReadOnly<Transform>(low).Position.X.Should().BeLessThan(1.7f, "the radius alone does not climb it");
+
+        ecs.GetRef<CharacterController>(low).Velocity = Vector3.Zero;
+        ecs.GetRef<CharacterController>(low).Height = 1;
+        RunUntil(() => MathF.Abs(GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(low)).Y - 0.5f) < 0.02f)
+            .Should().BeTrue("crouched to a unit, its middle is half a unit over its feet");
+        ecs.GetRef<CharacterController>(low).Height = 1.8f;
+        RunUntil(() => MathF.Abs(GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(low)).Y - 0.9f) < 0.02f)
+            .Should().BeTrue("standing again, it is as tall as it was made");
+    }
 }

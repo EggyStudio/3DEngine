@@ -133,9 +133,7 @@ not the impulse the solver gave them. A hinge has limits and a motor, a ball joi
 and twists within, and a distance joint a range that can change, and no other joint has a motor. The
 character controller is a dynamic capsule walked toward a velocity before each step, which slides
 along walls, climbs steps up to its step height (its radius unless set), holds slopes up to its
-limit, rides what moves under it, crouches and stands where there is room, and reports ground. The
-ECS's `CharacterController` sets neither its step height nor its height, which the flat API and
-`PhysicsWorld` do.
+limit, rides what moves under it, crouches and stands where there is room, and reports ground.
 
 ### Scenes
 
