@@ -26,8 +26,13 @@ public sealed class EnvironmentMap
 {
     private const int Samples = 64;
 
-    private EnvironmentMap(int size, int mipLevels, Half[] texels, float intensity)
+    // The sky cube's largest face, past which a face costs more memory than a backdrop shows.
+    private const int MaxSkySize = 512;
+
+    private EnvironmentMap(int size, int mipLevels, Half[] texels, float intensity, int skySize, Half[] skyTexels)
     {
+        SkySize = skySize;
+        SkyTexels = skyTexels;
         Size = size;
         MipLevels = mipLevels;
         Texels = texels;
@@ -42,6 +47,15 @@ public sealed class EnvironmentMap
 
     /// <summary>RGBA half floats, linear, mip by mip and face by face in Vulkan's order (+X, -X, +Y, -Y, +Z, -Z).</summary>
     public Half[] Texels { get; }
+
+    /// <summary>The width of a face of the sky cube, which keeps the image's own detail for drawing it as a backdrop.</summary>
+    public int SkySize { get; }
+
+    /// <summary>
+    /// The sky cube's RGBA half floats, linear, face by face in Vulkan's order, one mip, resampled
+    /// from the image with no prefiltering, at about the image's own resolution.
+    /// </summary>
+    public Half[] SkyTexels { get; }
 
     /// <summary>What the map's light is multiplied by.</summary>
     public float Intensity { get; set; }
@@ -128,7 +142,31 @@ public sealed class EnvironmentMap
             });
         }
 
-        return new EnvironmentMap(faceSize, mips, texels, intensity);
+        // A face spans a quarter of the image's width, so that many texels keep its detail.
+        var skySize = (int)Math.Clamp(BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, width / 4)), (uint)faceSize, (uint)Math.Max(faceSize, MaxSkySize));
+        return new EnvironmentMap(faceSize, mips, texels, intensity, skySize, Resampled(source, skySize));
+    }
+
+    // The image resampled into a cube of faces size texels wide, each texel reading the image
+    // blurred to its solid angle.
+    private static Half[] Resampled(Pyramid source, int size)
+    {
+        var texels = new Half[size * size * 6 * 4];
+        float level = MathF.Max(0, 0.5f * MathF.Log2(4 * MathF.PI / (6f * size * size) / source.TexelSolidAngle));
+        Parallel.For(0, 6 * size, row =>
+        {
+            int face = row / size, y = row % size;
+            for (int x = 0; x < size; x++)
+            {
+                var color = source.Sample(Direction(face, (x + 0.5f) / size * 2 - 1, (y + 0.5f) / size * 2 - 1), level);
+                int at = ((face * size + y) * size + x) * 4;
+                texels[at] = (Half)color.X;
+                texels[at + 1] = (Half)color.Y;
+                texels[at + 2] = (Half)color.Z;
+                texels[at + 3] = (Half)1f;
+            }
+        });
+        return texels;
     }
 
     /// <summary>The direction a cube texel looks along, for face coordinates from -1 to 1, as Vulkan's cube lookup has it.</summary>

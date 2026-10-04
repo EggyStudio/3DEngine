@@ -21,6 +21,7 @@ var examples = new Dictionary<string, Action>
     ["models_loading"] = ModelsLoading.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
     ["models_terrain"] = ModelsTerrain.Run,
+    ["models_skybox"] = ModelsSkybox.Run,
     ["models_stress"] = ModelsStress.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["shaders_model"] = ShadersModel.Run,

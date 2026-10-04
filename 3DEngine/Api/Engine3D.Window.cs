@@ -35,6 +35,7 @@ public static partial class Engine3D
     public static void CloseWindow()
     {
         if (_app is not null) ForgetDefaultFonts();
+        ForgetSky();
         if (_app?.World.TryGetResource<TextureStore>(out var textures) == true && textures.Count > 0)
             Log.Category("Engine.Api").Warn($"CloseWindow: {textures.Count} texture(s) were still loaded.");
         _app?.Shutdown();

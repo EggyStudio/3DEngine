@@ -906,6 +906,40 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Sky_Is_Drawn_Behind_Everything_In_The_Direction_Looked()
+    {
+        Open(64, 64);
+        // A sky red above the horizon and blue below, with a sharp edge between, wide enough that
+        // its cube keeps the edge.
+        var image = GenImageColor(1024, 512, new Color(0, 0, 255));
+        ImageDrawRectangle(ref image, 0, 0, 1024, 256, new Color(255, 0, 0));
+        SetEnvironmentMap(image);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+
+        Image Look(Vector3 target, string name, bool skybox = true) => Capture(() =>
+        {
+            ClearBackground(Color.Green);
+            BeginMode3D(new Camera3D(Vector3.Zero, target, Vector3.UnitY + Vector3.UnitZ * 0.01f, 60));
+            DrawModel(cube, target * 3, 1, Color.White);
+            if (skybox) DrawSkybox();
+            EndMode3D();
+        }, name);
+
+        var up = Look(Vector3.UnitY, "up");
+        var down = Look(-Vector3.UnitY, "down");
+        var bare = Look(Vector3.UnitY, "bare", skybox: false);
+
+        var sky = GetImageColor(up, 2, 2);
+        (sky.R > 200 && sky.B < 40).Should().BeTrue($"looking up shows the red sky, not {sky}");
+        var ground = GetImageColor(down, 2, 2);
+        (ground.B > 200 && ground.R < 40).Should().BeTrue($"looking down shows the blue below, not {ground}");
+        GetImageColor(up, 32, 32).Should().NotBe(sky, "the cube hides the sky behind it");
+        GetImageColor(bare, 2, 2).Should().Be(Color.Green, "with no DrawSkybox the clear color shows");
+        UnloadModel(cube);
+        UnloadEnvironmentMap();
+    }
+
+    [NeedsVulkanFact]
     public void A_Smooth_Metal_Reflects_The_Environment_Where_A_Rough_Surface_Scatters_It()
     {
         Open(64, 64);

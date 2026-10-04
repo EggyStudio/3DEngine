@@ -84,8 +84,8 @@ physics, text and fonts, audio and text files
 
 - **The environment is one prefiltered cube.** The model pass reflects up to 16 light entities
   and an environment map by the material's metallic-roughness model (RENDERING.md §3 and §4). The
-  map's roughest mip stands in for a cosine-weighted irradiance, it is not drawn as a sky behind
-  the scene, it is made on the CPU in a few hundred milliseconds, and there are no reflection
+  map's roughest mip stands in for a cosine-weighted irradiance, it is made on the CPU in a few
+  hundred milliseconds, and there are no reflection
   probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
   into the window only.
 - **Shader reflection and compute** are not built (RENDERING.md §1).

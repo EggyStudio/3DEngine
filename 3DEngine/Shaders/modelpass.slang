@@ -138,6 +138,11 @@ public Sampler2D shadowMap;
 [[vk::binding(2, 1)]]
 public SamplerCube environmentMap;
 
+// The same light unfiltered, at about its image's resolution, which sky.slang draws as a backdrop,
+// or a black cube for none.
+[[vk::binding(3, 1)]]
+public SamplerCube skyMap;
+
 public struct ModelVertexOutput
 {
     public float4 position : SV_Position;

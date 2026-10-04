@@ -213,6 +213,13 @@ diffuse share, both darkened by occlusion. The cube is set 1's binding 2, a blac
 is none, and the lighting buffer carries its intensity and last mip. With a map set the fixed
 light is not used, whether or not there are light entities.
 
+The map keeps a second cube for the sky, at a quarter of the image's width a face up to 512
+texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw
+of a cube around the camera with `sky.slang`, which looks the sky cube up along the way from the
+eye through each pixel and sets its depth a millionth inside the far plane, so whatever else the frame
+draws is in front. The draw goes through the model pass's tonemap like a reflection does, and is
+left out of the shadow map (`ModelDraw.CastsShadow`).
+
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three
 cascades. `ShadowFit` cuts the window camera's view out to 150 units into slices ending at 12, 45
 and 150 units, and fits a 2048 texel tile of a 4096 texel depth map to the sphere around each, so

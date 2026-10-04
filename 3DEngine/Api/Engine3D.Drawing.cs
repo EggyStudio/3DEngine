@@ -126,10 +126,18 @@ public static partial class Engine3D
         var (width, height) = DrawingSize();
         var aspect = (float)width / Math.Max(1, height);
         DrawList.SetTransform(camera.View * camera.ProjectionMatrix(aspect), depthTest: true);
+        _camera3D = camera;
     }
 
+    // The camera of the BeginMode3D in effect, which DrawSkybox centers its cube on.
+    private static Camera3D? _camera3D;
+
     /// <summary>Returns to drawing in screen space, in pixels from the top left corner.</summary>
-    public static void EndMode3D() => DrawList.SetTransform(ScreenTransform(), depthTest: false);
+    public static void EndMode3D()
+    {
+        _camera3D = null;
+        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+    }
 
     /// <summary>Moves <paramref name="camera"/> from this frame's input, as <paramref name="mode"/> describes.</summary>
     /// <remarks>Typing into an ImGui field, or using the mouse over an ImGui window, does not move the camera.</remarks>

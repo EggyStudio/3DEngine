@@ -324,6 +324,8 @@ void UnloadMesh(ModelMesh mesh);                                           // Fr
 void SetEnvironmentMap(Image equirectangular, float intensity = 1);         // Light models from all around by a sky image, which smooth and metal surfaces reflect
 bool SetEnvironmentMap(string fileName, float intensity = 1);              // The same from a file, a Radiance .hdr keeping light past white
 void UnloadEnvironmentMap();                                               // Back to the fixed light, or the light entities alone
+void DrawSkybox();                                                         // Draw the environment map as the sky, inside BeginMode3D
+void DrawSkybox(Color tint);                                               // The same, tinted
 
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip

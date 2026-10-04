@@ -171,6 +171,7 @@ public sealed class ModelRenderer : IDisposable
     private CubeMap? _environment;
     private EnvironmentMap? _environmentSource;
     private CubeMap? _noEnvironment;
+    private CubeMap? _sky;
     private readonly List<(long Frame, CubeMap Cube)> _retiredCubes = [];
     private IPipeline? _shadowPipeline;
 
@@ -420,7 +421,7 @@ public sealed class ModelRenderer : IDisposable
         // masked draw by its maps too, which its fragment stage cuts it out by.
         BeginFrameOfSets(renderContext);
         var masks = _shadowMaskPipeline is not null;
-        Gather(draws.Draws, meshes, draw => draw.Target != 0 ? (Kind.Skip, null)
+        Gather(draws.Draws, meshes, draw => draw.Target != 0 || !draw.CastsShadow ? (Kind.Skip, null)
             : masks && draw.AlphaMode == MaterialAlphaMode.Mask ? (Kind.Batched, MaterialSet(device, textures, draw))
             : (Kind.Batched, null), keepOrderOfTranslucent: false);
 
@@ -704,8 +705,8 @@ public sealed class ModelRenderer : IDisposable
     // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
     // set the GPU may still read is never written, or a set over an empty buffer when there are no
     // lights and no environment, which the shader reads as "use the fixed light". Binding 1 holds
-    // the shadow map when the frame has a shadow, and the white texture otherwise, and binding 2
-    // the environment map or a black cube, so both are always valid.
+    // the shadow map when the frame has a shadow, and the white texture otherwise, binding 2 the
+    // environment map and binding 3 its sky, or a black cube for each, so all are always valid.
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
@@ -721,7 +722,10 @@ public sealed class ModelRenderer : IDisposable
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     new CombinedImageSamplerBinding(white, whiteSampler, 1));
                 if (EnvironmentCube(gfx, null) is { } black)
+                {
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 2));
+                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 3));
+                }
             }
             return _noLights;
         }
@@ -737,7 +741,11 @@ public sealed class ModelRenderer : IDisposable
                 ? new CombinedImageSamplerBinding(white, whiteSampler, 1)
                 : new CombinedImageSamplerBinding(shadow.DepthView, shadow.Sampler, 1));
             if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
+            {
+                var sky = frame.HasEnvironment ? _sky ?? cube : cube;
                 gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
+                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(sky.View, sky.Sampler, 3));
+            }
         }
         return _lightSets[_lightSet];
     }
@@ -757,6 +765,7 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
     ]);
 
     // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
@@ -770,7 +779,9 @@ public sealed class ModelRenderer : IDisposable
         if (!ReferenceEquals(environment, _environmentSource))
         {
             if (_environment is not null) _retiredCubes.Add((_frames, _environment));
+            if (_sky is not null) _retiredCubes.Add((_frames, _sky));
             _environment = device.CreateCubeMap((uint)environment.Size, (uint)environment.MipLevels, environment.Texels);
+            _sky = device.CreateCubeMap((uint)environment.SkySize, 1, environment.SkyTexels);
             _environmentSource = environment;
         }
         return _environment;
@@ -796,6 +807,7 @@ public sealed class ModelRenderer : IDisposable
         _noLights?.Dispose();
         _shadowMap?.Dispose();
         _environment?.Dispose();
+        _sky?.Dispose();
         _noEnvironment?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
         foreach (var sets in _shaderSets.Values) sets.Dispose();
