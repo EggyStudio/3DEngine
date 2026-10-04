@@ -504,6 +504,12 @@ The largest costs as they were measured, in order, each with what changed:
    with `MeshEntityDraws` at 5.2 ms, about 20 nanoseconds an entity, the program's own loop turning
    each entity at 5.6 ms, and the shadow pass recording for 5.8 ms, most of it copying 43 MB of
    instances into the ring. The GPU took 8.0 ms for the shadow and 4.5 ms for the model pass.
+   **Changed after.** Past 16,384 instances the groups' segments are copied into the ring on
+   several threads, each into its own range of the mapped buffer. The run without arms, measured
+   again first at 266,673 entities as before, afterward held 307,699, with the shadow pass recording
+   for 2.3 ms in place of 5.3 ms. The GPU then took 9.8 ms for the shadow and 5.3 ms for the model
+   pass, 15.1 ms of the 16.7 a frame has, so drawing fewer instances, by culling what each cascade
+   and the camera do not see, is what raises the count next.
 
 ## What the engine needs
 

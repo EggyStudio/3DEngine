@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Engine;
 
@@ -161,6 +162,13 @@ public sealed class ModelRenderer : IDisposable
     private readonly List<Batch> _batches = [];
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
+
+    // The frame's group segments to copy into the ring, each with where its first instance goes.
+    private readonly List<(Instance[] Items, int Count, int At)> _copies = [];
+
+    // Past this many instances the segments are copied on several threads, since one thread
+    // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
+    private const int ParallelCopyInstances = 16384;
     private readonly Dictionary<(int Mesh, IDescriptorSet? Set, bool Culled, ShadowKind Shadow), int> _batchOf = [];
 
     // The window's batches and where their instances are, made once a frame by whichever of the
@@ -484,9 +492,36 @@ public sealed class ModelRenderer : IDisposable
             if (b < 0) continue;
             instances[(int)_filled[b]++] = instanceOf(in draws[i]);
         }
+        _copies.Clear();
+        var copied = 0;
         foreach (var batch in _batches)
-            if (batch.Group >= 0) groups[batch.Group].CopyTo(instances[(int)batch.First..]);
+            if (batch.Group >= 0)
+            {
+                groups[batch.Group].AddSegments(_copies, (int)batch.First);
+                copied += groups[batch.Group].Count;
+            }
+        CopySegments(instances, copied);
         return (_instanceRing!, offset);
+    }
+
+    // Copies the frame's group segments into the ring, each into its own range, on several
+    // threads when there are many instances.
+    private unsafe void CopySegments(Span<Instance> instances, int count)
+    {
+        if (count < ParallelCopyInstances || _copies.Count < 2)
+        {
+            foreach (var (items, n, at) in _copies) items.AsSpan(0, n).CopyTo(instances[at..]);
+            return;
+        }
+
+        // The ring is mapped memory, which does not move, so its address outlives the span.
+        var ring = (nint)Unsafe.AsPointer(ref MemoryMarshal.GetReference(instances));
+        var length = instances.Length;
+        Parallel.For(0, _copies.Count, i =>
+        {
+            var (items, n, at) = _copies[i];
+            items.AsSpan(0, n).CopyTo(new Span<Instance>((Instance*)ring + at, length - at));
+        });
     }
 
     // The ring of instances, with room for a region per frame slot of at least this call's

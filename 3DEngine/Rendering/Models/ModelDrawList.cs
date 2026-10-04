@@ -150,6 +150,16 @@ internal sealed class InstanceGroup
         Count += count;
     }
 
+    /// <summary>Adds each segment to <paramref name="copies"/>, with where its first instance goes when the group's first goes at <paramref name="first"/>.</summary>
+    public void AddSegments(List<(ModelRenderer.Instance[] Items, int Count, int At)> copies, int first)
+    {
+        foreach (var (items, count) in _segments)
+        {
+            copies.Add((items, count, first));
+            first += count;
+        }
+    }
+
     /// <summary>Copies the frame's instances into <paramref name="destination"/>, segment after segment.</summary>
     public void CopyTo(Span<ModelRenderer.Instance> destination)
     {
