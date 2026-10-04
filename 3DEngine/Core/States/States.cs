@@ -11,8 +11,11 @@ namespace Engine;
 /// by writing here, so every system in a frame agrees on which value it is in.
 /// </para>
 /// <para>
-/// The same idea as Bevy's <c>State</c>, kept to plain states. Sub-states and computed states are
-/// not written.
+/// The same idea as Bevy's <c>State</c>. A sub-state (<see cref="App.AddSubState{TSub, TParent}"/>)
+/// exists only while another state is in one value, and a computed state
+/// (<see cref="App.AddComputedState{TComputed, TSource}"/>) is worked out from another state, so
+/// either may have no <see cref="State{TState}"/> at all, which <c>InState</c> reads as false.
+/// Each move is sent as a <see cref="StateTransition{TState}"/> event.
 /// </para>
 /// </remarks>
 /// <typeparam name="TState">The enum the machine moves between.</typeparam>
@@ -29,6 +32,14 @@ public sealed class State<TState> where TState : struct, Enum
     /// <inheritdoc />
     public override string ToString() => Current.ToString();
 }
+
+/// <summary>
+/// An event sent when a state machine over <typeparamref name="TState"/> moves, readable with
+/// <c>world.ReadEvents</c> until the next frame begins.
+/// </summary>
+/// <param name="From">The value it left, or null when it came into being, as the first value entered or a sub-state created.</param>
+/// <param name="To">The value it entered, or null when it went away, as a sub-state whose parent left its value.</param>
+public readonly record struct StateTransition<TState>(TState? From, TState? To) where TState : struct, Enum;
 
 /// <summary>
 /// The value a state machine over <typeparamref name="TState"/> moves to at the next transition
@@ -66,6 +77,11 @@ public sealed class StateTransitions
 {
     private readonly List<IStateMachine> _order = [];
     private readonly Dictionary<Type, IStateMachine> _byType = [];
+
+    private readonly HashSet<Type> _clearing = [];
+
+    /// <summary>Whether a system clearing <paramref name="state"/>'s transition events has yet to be added, marking it added.</summary>
+    internal bool ClearsEventsOf(Type state) => _clearing.Add(state);
 
     /// <summary>The enums that have a machine, in the order transitions are applied.</summary>
     public IEnumerable<Type> StateTypes => _order.Select(m => m.StateType);
@@ -138,7 +154,13 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
 
     private readonly List<(TState Value, SystemDescriptor System)> _enter = [];
     private readonly List<(TState Value, SystemDescriptor System)> _exit = [];
+    // Told after every move, with the value entered or null when the state went away, as the
+    // computed states worked out from this one are.
+    private readonly List<Action<World, TState?>> _moved = [];
     private bool _entered;
+
+    /// <summary>Whether the first value has been entered.</summary>
+    public bool Entered => _entered;
 
     public Type StateType => typeof(TState);
 
@@ -161,8 +183,45 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
 
     public void OnExit(TState value, SystemDescriptor system) => _exit.Add((value, system));
 
+    /// <summary>Registers an exit system ahead of those already registered, as a sub-state's removal is, which leaves before its parent.</summary>
+    public void OnExitFirst(TState value, SystemDescriptor system) => _exit.Insert(0, (value, system));
+
     /// <summary>Forgets that the first value was entered, for a machine added again with a new one.</summary>
     public void Restart() => _entered = false;
+
+    /// <summary>Asks to be told after every move of this machine.</summary>
+    public void OnMoved(Action<World, TState?> moved) => _moved.Add(moved);
+
+    /// <summary>
+    /// Brings the state into being at <paramref name="initial"/>, entered at the transition point
+    /// it is in or the next, as a sub-state is when its parent enters its value.
+    /// </summary>
+    public void Activate(World world, TState initial)
+    {
+        world.InsertResource(new State<TState>(initial));
+        world.InsertResource(new NextState<TState>());
+        _entered = false;
+    }
+
+    /// <summary>Runs the exit systems of the value the state is in and takes it away, as a sub-state is when its parent leaves its value.</summary>
+    public void Deactivate(World world)
+    {
+        if (!world.TryGetResource<State<TState>>(out var state)) return;
+        var from = state.Current;
+        if (_entered) Run(_exit, from, world);
+        world.RemoveResource<State<TState>>();
+        world.RemoveResource<NextState<TState>>();
+        _entered = false;
+        Logger.Info($"State {typeof(TState).Name}: {from} -> none");
+        Moved(world, from, null);
+    }
+
+    // Sends the move as an event and tells whoever asked.
+    private void Moved(World world, TState? from, TState? to)
+    {
+        world.SendEvent(new StateTransition<TState>(from, to));
+        foreach (var moved in _moved) moved(world, to);
+    }
 
     public bool Apply(World world)
     {
@@ -175,6 +234,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         {
             _entered = true;
             Run(_enter, state.Current, world);
+            Moved(world, null, state.Current);
             return true;
         }
 
@@ -188,6 +248,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         state.Current = target;
         Logger.Info($"State {typeof(TState).Name}: {from} -> {target}");
         Run(_enter, target, world);
+        Moved(world, from, target);
         return true;
     }
 

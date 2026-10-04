@@ -157,4 +157,79 @@ public class StateTests
 
         system.RunCondition!(world).Should().BeFalse();
     }
+
+    private enum Pause { Running, Stopped }
+    private enum InGame { Yes }
+
+    [Fact]
+    public void Each_Move_Is_An_Event_Until_The_Next_Frame_Begins()
+    {
+        var (app, _) = Machine();
+        app.AddSystem(Stage.First, new SystemDescriptor(_ => { }, "First"));
+        app.Frame();
+        app.World.ReadEvents<StateTransition<Screen>>().Should().Equal(new StateTransition<Screen>(null, Screen.Menu));
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        app.World.ReadEvents<StateTransition<Screen>>().Should().Equal(new StateTransition<Screen>(Screen.Menu, Screen.Playing));
+
+        app.Frame();
+        app.World.ReadEvents<StateTransition<Screen>>().Should().BeEmpty("a frame with no move clears the last one's");
+    }
+
+    [Fact]
+    public void A_Sub_State_Exists_Only_While_Its_Parent_Is_In_Its_Value()
+    {
+        var (app, log) = Machine();
+        app.AddSubState(Screen.Playing, Pause.Running)
+            .OnEnter(Pause.Running, _ => log.Add("enter Running"))
+            .OnExit(Pause.Stopped, _ => log.Add("exit Stopped"));
+        app.Frame();
+        app.World.ContainsResource<State<Pause>>().Should().BeFalse("the menu has no pause");
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        log.Should().Equal("exit Menu", "enter Playing", "enter Running");
+        app.World.Resource<State<Pause>>().Current.Should().Be(Pause.Running);
+
+        app.World.Resource<NextState<Pause>>().Set(Pause.Stopped);
+        app.Frame();
+        app.World.Resource<State<Pause>>().Current.Should().Be(Pause.Stopped);
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Menu);
+        app.Frame();
+        log.Should().Equal("exit Stopped", "exit Playing", "enter Menu");
+        app.World.ContainsResource<State<Pause>>().Should().BeFalse("leaving play takes the pause away");
+        app.World.ReadEvents<StateTransition<Pause>>().Should().Equal(new StateTransition<Pause>(Pause.Stopped, null));
+    }
+
+    [Fact]
+    public void A_Computed_State_Follows_Its_Source_And_Moves_Only_When_Its_Value_Does()
+    {
+        var (app, log) = Machine();
+        app.AddComputedState<InGame, Screen>(screen => screen == Screen.Menu ? null : InGame.Yes)
+            .OnEnter(InGame.Yes, _ => log.Add("enter InGame"))
+            .OnExit(InGame.Yes, _ => log.Add("exit InGame"));
+        app.Frame();
+        app.World.ContainsResource<State<InGame>>().Should().BeFalse();
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        log.Should().Equal("exit Menu", "enter Playing", "enter InGame");
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Paused);
+        app.Frame();
+        log.Should().Equal("exit Playing").And.NotContain("exit InGame", "playing and paused are both in game");
+        app.World.Resource<State<InGame>>().Current.Should().Be(InGame.Yes);
+        log.Clear();
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Menu);
+        app.Frame();
+        log.Should().Equal("enter Menu", "exit InGame");
+        app.World.ContainsResource<State<InGame>>().Should().BeFalse();
+    }
 }

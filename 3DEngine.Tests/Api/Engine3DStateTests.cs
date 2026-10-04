@@ -8,6 +8,7 @@ namespace Engine.Tests.Api;
 public sealed class Engine3DStateTests : IDisposable
 {
     private enum Screen { Menu, Play, Pause }
+    private enum Menu { Main, Options }
 
     public Engine3DStateTests() =>
         UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 240 }).AddPlugin(new DefaultPlugins()));
@@ -39,5 +40,20 @@ public sealed class Engine3DStateTests : IDisposable
     {
         var get = () => GetState<Screen>();
         get.Should().Throw<InvalidOperationException>().WithMessage("*AddState*");
+    }
+
+    [Fact]
+    public void A_Sub_State_Is_Not_At_Any_Value_While_Its_Parent_Is_Elsewhere()
+    {
+        AddState(Screen.Play);
+        AddSubState(Screen.Menu, Menu.Main);
+        BeginDrawing();
+        EndDrawing();
+        IsState(Menu.Main).Should().BeFalse("the menu's sub-state does not exist during play");
+
+        SetState(Screen.Menu);
+        BeginDrawing();
+        EndDrawing();
+        IsState(Menu.Main).Should().BeTrue();
     }
 }

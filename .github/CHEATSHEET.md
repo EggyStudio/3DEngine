@@ -344,9 +344,11 @@ the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
 ```csharp
 void AddState<TState>(TState initial);                  // A state machine over an enum, as a menu, play and pause
+void AddSubState<TSub, TParent>(TParent whileIn, TSub initial);         // One that exists only while another is at a value
+void AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute); // One worked out from another, none where null
 TState GetState<TState>();                              // The value it is in
 void SetState<TState>(TState value);                    // Move it there at the start of the next frame
-bool IsState<TState>(TState value);                     // Whether it is there
+bool IsState<TState>(TState value);                     // Whether it is there, false for one with no value
 ```
 
 Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]` and `[InState(...)]`.

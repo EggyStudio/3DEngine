@@ -79,7 +79,16 @@ transition, and `BehaviorConditions.InState(value)` is a run condition. Moves ar
 applied once a frame, after `PreUpdate`, by `StateTransitions`: the old value's exit systems run,
 then the new value's enter systems, in the order they were added, and the commands they queued
 apply at once so `Update` sees what they spawned. The first value is entered on the first frame.
-A move to the value already held does nothing. Sub-states and computed states are not written.
+A move to the value already held does nothing. Each move is sent as a
+`StateTransition<Screen>(From, To)` event, readable until the next frame begins.
+
+`app.AddSubState(Screen.Playing, Pause.Running)` adds a state that exists only while its parent
+holds one value. It is created and entered when the parent enters the value, in the same
+transition point, and its exit systems run and it goes away when the parent leaves, before the
+parent's own exit systems. `app.AddComputedState<InGame, Screen>(compute)` adds a state worked
+out from another after each of its moves, with no state where `compute` gives null, and moves it
+with its own exit and enter systems only when its value changes. Either may have no `State<T>`,
+which `InState` reads as false.
 
 ## The ECS
 
