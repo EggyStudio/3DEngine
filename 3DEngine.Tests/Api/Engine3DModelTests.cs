@@ -256,4 +256,40 @@ public sealed class Engine3DModelTests : IDisposable
         textures.IsTranslucent(soft).Should().BeTrue();
         textures.IsTranslucent(cut).Should().BeFalse();
     }
+
+    [Fact]
+    public void Materials_Are_Set_By_Raylibs_Map_Names_And_Meshes_Pick_Theirs()
+    {
+        var material = LoadMaterialDefault();
+        material.Color.Should().Be(Color.White);
+        IsMaterialValid(material).Should().BeTrue("a material with no maps is drawn with");
+
+        var texture = LoadTextureFromImage(GenImageColor(2, 2, Color.Red));
+        SetMaterialTexture(ref material, MaterialMapIndex.Albedo, texture);
+        SetMaterialTexture(ref material, MaterialMapIndex.Normal, texture);
+        SetMaterialTexture(ref material, MaterialMapIndex.Roughness, texture);
+        (material.Texture, material.NormalMap, material.MetallicRoughnessMap).Should().Be((texture, texture, texture));
+        IsMaterialValid(material).Should().BeTrue();
+        UnloadTexture(texture);
+        IsMaterialValid(material).Should().BeFalse("its maps are gone");
+
+        var model = new Model { Meshes = [default, default], Materials = [LoadMaterialDefault(), material], MeshMaterial = [0, 0] };
+        SetModelMeshMaterial(model, 1, 1);
+        SetModelMeshMaterial(model, 0, 5);
+        model.MeshMaterial.Should().Equal(0, 1);
+    }
+
+    [Fact]
+    public void A_Models_Points_Are_Its_Vertices()
+    {
+        _app.World.InitResource<DrawList>();
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var drawList = _app.World.Resource<DrawList>();
+
+        DrawModelPoints(cube, Vector3.Zero, 1, Color.Red);
+
+        drawList.Vertices.Length.Should().BeGreaterThan(0);
+        drawList.Vertices.ToArray().Select(v => v.Position).Should().OnlyContain(p => MathF.Abs(p.X) <= 0.52f && MathF.Abs(p.Y) <= 0.52f && MathF.Abs(p.Z) <= 0.52f,
+            "every point is at a vertex of the unit cube");
+    }
 }

@@ -575,6 +575,61 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>Draws each of a model's vertices as a point, at a position and scaled the same on every axis.</summary>
+    public static void DrawModelPoints(Model model, Vector3 position, float scale, Color tint) =>
+        DrawModelPointsEx(model, position, Vector3.UnitY, 0, new Vector3(scale), tint);
+
+    /// <summary>Draws each of a model's vertices as a point, rotated (degrees) and scaled.</summary>
+    /// <remarks>A vertex shared by several triangles is drawn once, from the mesh's arrays each call.</remarks>
+    public static void DrawModelPointsEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
+    {
+        var axis = rotationAxis == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(rotationAxis);
+        var world = model.Transform * Matrix4x4.CreateScale(scale)
+                    * Matrix4x4.CreateFromAxisAngle(axis, float.DegreesToRadians(rotationAngle))
+                    * Matrix4x4.CreateTranslation(position);
+        for (int index = 0; index < model.Meshes.Length; index++)
+        {
+            if (!Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out _)) continue;
+            if (model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin)
+                vertices = PoseOnCpu(skin, joints);
+            foreach (var vertex in vertices) DrawPoint3D(Vector3.Transform(vertex.Position, world), tint);
+        }
+    }
+
+    /// <summary>A white material with no maps, as a model made from a mesh starts with.</summary>
+    public static ModelMaterial LoadMaterialDefault() => new(Color.White);
+
+    /// <summary>Whether a material's maps are loaded textures, or none, so it can be drawn with.</summary>
+    public static bool IsMaterialValid(ModelMaterial material)
+    {
+        static bool Ok(Texture2D map) => !map.IsValid || IsTextureValid(map);
+        return Ok(material.Texture) && Ok(material.NormalMap) && Ok(material.MetallicRoughnessMap) && Ok(material.EmissiveMap) && Ok(material.OcclusionMap);
+    }
+
+    /// <summary>
+    /// Sets one of a material's maps by raylib's name for it: the color for <see cref="MaterialMapIndex.Albedo"/>,
+    /// and the normal, metallic-roughness, emissive or occlusion map for the others it has.
+    /// </summary>
+    public static void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture)
+    {
+        switch (mapType)
+        {
+            case MaterialMapIndex.Albedo: material = material with { Texture = texture }; break;
+            case MaterialMapIndex.Normal: material.NormalMap = texture; break;
+            case MaterialMapIndex.Metalness or MaterialMapIndex.Roughness: material.MetallicRoughnessMap = texture; break;
+            case MaterialMapIndex.Emission: material.EmissiveMap = texture; break;
+            case MaterialMapIndex.Occlusion: material.OcclusionMap = texture; break;
+            default: ApiLogger.Warn($"SetMaterialTexture: a material has no {mapType} map, so it is left as it is."); break;
+        }
+    }
+
+    /// <summary>Has one of a model's meshes drawn with one of its materials, by their indices.</summary>
+    public static void SetModelMeshMaterial(Model model, int meshId, int materialId)
+    {
+        if ((uint)meshId >= (uint)model.MeshMaterial.Length || (uint)materialId >= (uint)model.Materials.Length) return;
+        model.MeshMaterial[meshId] = materialId;
+    }
+
     /// <summary>Draws one mesh with a material and a model to world transform.</summary>
     public static void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {

@@ -513,6 +513,12 @@ void DrawModel(Model model, Vector3 position, float scale, Color tint);         
 void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated (degrees) and scaled
 void DrawModelWires(Model model, Vector3 position, float scale, Color tint);                                          // A model's triangle edges
 void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
+void DrawModelPoints(Model model, Vector3 position, float scale, Color tint);                                         // Its vertices as points
+void DrawModelPointsEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
+ModelMaterial LoadMaterialDefault();                                                                                  // A white material with no maps
+bool IsMaterialValid(ModelMaterial material);                                                                         // Whether its maps are loaded
+void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture);                     // A map by raylib's name for it
+void SetModelMeshMaterial(Model model, int meshId, int materialId);                                                   // Which material a mesh draws with
 void DrawMesh(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform);                                           // One mesh at a transform
 void DrawMeshInstanced(ModelMesh mesh, ModelMaterial material, ReadOnlySpan<Matrix4x4> transforms);                   // Copies of it, one draw, SV_InstanceID from 0
 void DrawBoundingBox(BoundingBox box, Color color);                                                                   // A box's edges
