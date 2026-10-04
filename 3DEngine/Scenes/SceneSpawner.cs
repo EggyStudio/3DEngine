@@ -307,6 +307,7 @@ public static class SceneSpawner
             OcclusionStrength = material.OcclusionStrength,
             AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
             AlphaCutoff = material.AlphaCutoff,
+            DoubleSided = material.DoubleSided,
         };
 
         // Register the payload with the central MaterialLibrary so the renderer

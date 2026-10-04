@@ -102,7 +102,8 @@ public sealed class MeshEntityDraws
                     OcclusionStrength: material.OcclusionStrength,
                     AlphaMode: material.AlphaMode,
                     AlphaCutoff: material.AlphaCutoff,
-                    TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor));
+                    TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
+                    DoubleSided: material.DoubleSided);
                 if (draw.IsTranslucent) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
                 else _opaque.Add(draw);
             }

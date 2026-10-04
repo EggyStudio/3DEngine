@@ -34,8 +34,10 @@ namespace Engine;
 /// is bound beside the lights, or the white texture in its place in a frame with no shadow.
 /// </para>
 /// <para>
-/// The pipelines do not cull, because a model loaded from a file may wind its
-/// triangles either way, and the cost is small next to drawing a back face wrong.
+/// A material draws both sides of each face unless it is single-sided, as a glTF file can say,
+/// whose draws are batched apart and drawn by a pipeline that leaves the back faces out. Both
+/// sides is the default because a model from a format that does not say may wind its triangles
+/// either way, and the back of a double-sided face is lit by its normal turned toward the viewer.
 /// </para>
 /// </remarks>
 public sealed class ModelRenderer : IDisposable
@@ -101,6 +103,7 @@ public sealed class ModelRenderer : IDisposable
         public GpuMeshes.Entry Mesh;
         public IDescriptorSet? Set;
         public int Custom;
+        public bool Culled;
         public uint First;
         public uint Count;
     }
@@ -113,6 +116,7 @@ public sealed class ModelRenderer : IDisposable
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
     private IPipeline? _pipeline;
+    private IPipeline? _culledPipeline;
     private IDescriptorSetLayout? _defaultLayout;
     private IDescriptorSetLayout? _materialLayout;
     private IBuffer? _noUniforms;
@@ -139,7 +143,7 @@ public sealed class ModelRenderer : IDisposable
     private readonly List<Batch> _batches = [];
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, bool Culled), int> _batchOf = [];
     private readonly List<(Kind Kind, IDescriptorSet? Set)> _classified = [];
 
     // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can
@@ -205,7 +209,7 @@ public sealed class ModelRenderer : IDisposable
         Gather(draws.Draws, meshes, draw =>
             draw.Target != target ? (Kind.Skip, null)
             : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
-            : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true);
+            : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true);
         var ring = WriteInstances(gfx, draws.Draws, static draw => Instance.Of(draw, draw.ViewProjection));
 
         IPipeline? pipeline = null;
@@ -215,7 +219,7 @@ public sealed class ModelRenderer : IDisposable
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld)
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Culled)
                 : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program);
             if (!ReferenceEquals(wanted, pipeline))
             {
@@ -240,9 +244,10 @@ public sealed class ModelRenderer : IDisposable
     // keepOrderOfTranslucent, a draw whose color has alpha below 255 waits until the opaque
     // batches are made and goes after them in its recorded place, joining the batch before it
     // only when that batch is translucent and shares its mesh and set. The depth pass of a shadow
-    // reads no color and keeps no order.
+    // reads no color and keeps no order. With cullBackFaces, a single-sided draw is batched apart,
+    // for the pipeline that leaves its back faces out.
     private void Gather(IReadOnlyList<ModelDraw> draws, GpuMeshes meshes, Func<ModelDraw, (Kind Kind, IDescriptorSet? Set)> classify,
-        bool keepOrderOfTranslucent)
+        bool keepOrderOfTranslucent, bool cullBackFaces = false)
     {
         _batches.Clear();
         _drawBatch.Clear();
@@ -264,10 +269,11 @@ public sealed class ModelRenderer : IDisposable
                 _drawBatch.Add(Translucent);
                 continue;
             }
-            _drawBatch.Add(kind == Kind.Alone ? AddBatch(mesh, null, i) : Join(mesh, (draw.Mesh, set)));
+            var culled = cullBackFaces && !draw.DoubleSided;
+            _drawBatch.Add(kind == Kind.Alone ? AddBatch(mesh, null, i, culled) : Join(mesh, (draw.Mesh, set, culled)));
         }
 
-        var last = (Mesh: -1, Set: (IDescriptorSet?)null);
+        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Culled: false);
         var lastBatch = -1;
         for (int i = 0; i < draws.Count; i++)
         {
@@ -275,16 +281,17 @@ public sealed class ModelRenderer : IDisposable
             var draw = draws[i];
             var (kind, set) = _classified[i];
             var mesh = meshes.Get(draw.Mesh)!;
+            var culled = cullBackFaces && !draw.DoubleSided;
             if (kind == Kind.Alone)
             {
-                _drawBatch[i] = AddBatch(mesh, null, i);
+                _drawBatch[i] = AddBatch(mesh, null, i, culled);
                 lastBatch = -1;
                 continue;
             }
-            if (lastBatch < 0 || last != (draw.Mesh, set))
+            if (lastBatch < 0 || last != (draw.Mesh, set, culled))
             {
-                lastBatch = AddBatch(mesh, set, -1);
-                last = (draw.Mesh, set);
+                lastBatch = AddBatch(mesh, set, -1, culled);
+                last = (draw.Mesh, set, culled);
             }
             Grow(lastBatch);
             _drawBatch[i] = lastBatch;
@@ -294,16 +301,16 @@ public sealed class ModelRenderer : IDisposable
     // Marks a translucent draw until the opaque batches are made.
     private const int Translucent = -2;
 
-    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom)
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, bool culled)
     {
-        _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = custom, Count = custom >= 0 ? 1u : 0u });
+        _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = custom, Culled = culled, Count = custom >= 0 ? 1u : 0u });
         return _batches.Count - 1;
     }
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set) key)
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, bool Culled) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
-            _batchOf[key] = index = AddBatch(mesh, key.Set, -1);
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Culled);
         Grow(index);
         return index;
     }
@@ -424,13 +431,15 @@ public sealed class ModelRenderer : IDisposable
         pass.EndRenderPass();
     }
 
-    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld)
+    // The model pass's own pipeline, drawing both sides of each face or leaving the back ones out.
+    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, bool culled = false)
     {
-        if (_pipeline is not null) return _pipeline;
+        if ((culled ? _culledPipeline : _pipeline) is { } made) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
-        _fragmentShader = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
-        return _pipeline = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader);
+        _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
+        var pipeline = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader, culled);
+        return culled ? _culledPipeline = pipeline : _pipeline = pipeline;
     }
 
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program)
@@ -574,14 +583,15 @@ public sealed class ModelRenderer : IDisposable
         return set;
     }
 
-    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment)
+    private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
+        bool culled = false)
     {
         var desc = new GraphicsPipelineDesc(
             renderPass,
             vertex,
             fragment,
             BlendEnabled: true,
-            CullBackFace: false,
+            CullBackFace: culled,
             // The mesh's vertices at binding 0, and the instances at binding 1, ten rows of four
             // floats at locations 3 to 12 in ModelInstance's order.
             VertexBindings:

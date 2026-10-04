@@ -66,6 +66,12 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// <summary>The alpha below which <see cref="MaterialAlphaMode.Mask"/> cuts the surface out.</summary>
     public float AlphaCutoff { get; set; } = 0.5f;
 
+    /// <summary>
+    /// Whether both sides of each face are drawn, as they are for a material the program makes.
+    /// A glTF file that says a material is single-sided has its back faces left out.
+    /// </summary>
+    public bool DoubleSided { get; set; } = true;
+
     /// <summary>The color of the light the surface gives off whatever lights it, black for none.</summary>
     public Color Emissive { get; set; } = Color.Black;
 
@@ -327,6 +333,7 @@ public static partial class Engine3D
                 OcclusionStrength = material.OcclusionStrength,
                 AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
                 AlphaCutoff = material.AlphaCutoff,
+                DoubleSided = material.DoubleSided,
             });
             return materialIndex[material] = materials.Count - 1;
         }
@@ -517,7 +524,7 @@ public static partial class Engine3D
             material.EmissiveMap.IsValid ? material.EmissiveMap.Id : 0,
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
             material.OcclusionStrength,
-            material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture)));
+            material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided));
     }
 
     /// <summary>Draws a box's edges.</summary>

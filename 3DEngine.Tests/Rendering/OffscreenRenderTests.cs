@@ -39,6 +39,8 @@ public sealed class OffscreenRenderTests : IDisposable
     private Image Capture(Action draw, string name = "frame")
     {
         var path = Path.Combine(_directory, name + ".png");
+        // An earlier capture of the same name would otherwise be read back in place of this one.
+        File.Delete(path);
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();
@@ -864,6 +866,48 @@ public sealed class OffscreenRenderTests : IDisposable
 
         var middle = GetImageColor(image, 32, 32);
         (middle.R > 40 && middle.B > 40).Should().BeTrue($"the half-clear texture mixes blue with the red behind, not {middle}");
+    }
+
+    // A triangle around the origin wound counterclockwise seen from +Z, glTF's front, with a
+    // material that is single-sided or not.
+    private static string SidedTriangle(bool doubleSided)
+    {
+        var bytes = new List<byte>();
+        foreach (var f in new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0]}],"nodes":[{"mesh":0}],
+             "materials":[{"doubleSided":{{{(doubleSided ? "true" : "false")}}}}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0},"material":0}]}],
+             "buffers":[{"byteLength":36,"uri":"data:application/octet-stream;base64,{{{Convert.ToBase64String(bytes.ToArray())}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[-1,-1,0],"max":[1,1,0]}]}
+            """;
+        var path = Path.Combine(Path.GetTempPath(), $"sided-{Guid.NewGuid():N}.gltf");
+        File.WriteAllText(path, json);
+        return path;
+    }
+
+    [NeedsVulkanFact]
+    public void A_Single_Sided_Material_Hides_Its_Back_Faces_And_A_Double_Sided_One_Does_Not()
+    {
+        Open(32, 32);
+        var single = LoadModel(SidedTriangle(doubleSided: false));
+        var both = LoadModel(SidedTriangle(doubleSided: true));
+        single.Materials[0].DoubleSided.Should().BeFalse("the file says so");
+        both.Materials[0].DoubleSided.Should().BeTrue("the file says so");
+        byte Middle(Model model, float z) => GetImageColor(Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, z), Vector3.Zero, Vector3.UnitY, 60));
+            DrawModel(model, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }), 16, 18).R;
+
+        Middle(single, 3).Should().BeGreaterThan(20, "its front faces the camera");
+        Middle(single, -3).Should().Be(0, "from behind, its back face is left out");
+        Middle(both, -3).Should().BeGreaterThan(0, "a double-sided one is drawn from behind too");
+        UnloadModel(single);
+        UnloadModel(both);
     }
 
     [NeedsVulkanFact]

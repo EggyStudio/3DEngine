@@ -260,7 +260,11 @@ public sealed class AssimpModelReader : ISceneReader
             var opacity = m.HasOpacity ? m.Opacity : 1f;
             diffuse.W = opacity * diffuse.W;
 
-            bool doubleSided = m.HasTwoSided && m.IsTwoSided;
+            // A format that does not say, as OBJ, draws both sides, as the engine always did. The
+            // flag is read from its bytes, since glTF's importer stores it in a width IsTwoSided
+            // misreads as false.
+            bool doubleSided = m.GetNonTextureProperty("$mat.twosided") is not { } twoSided
+                               || twoSided.RawData is not { } raw || raw.Any(b => b != 0);
 
             result[i] = new SceneMaterialPayload
             {

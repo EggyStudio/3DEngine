@@ -128,6 +128,11 @@ model pass's own draws share one set per combination of maps, so draws differing
 factors share a set and a draw call. A set no frame in flight binds is freed. A draw with a shader
 of its own is a batch of one, with a set of its own holding its uniforms.
 
+A material is double-sided unless it says otherwise, as a glTF file can, whose draws are batched
+apart and drawn by a pipeline that culls back faces. The back of a double-sided face is lit by its
+normal turned toward the viewer, as glTF has it. A format that does not say, as OBJ, is
+double-sided.
+
 A material's alpha mode says what its alpha means, as glTF's does. Opaque ignores it. Mask cuts
 the surface out where the color times the texture is below the cutoff and leaves the rest solid,
 in the opaque batches. Blend, the default for a material the program makes, lets what is behind

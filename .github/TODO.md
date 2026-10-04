@@ -72,9 +72,9 @@ physics, text and fonts, audio and text files
 - **Models are partial.** Skinned meshes are posed on the CPU, as raylib does by default, at a
   frame, between frames (`UpdateModelAnimationAt`) or between two clips
   (`UpdateModelAnimationBlend`), and the vertices are written into a ring of buffers (Cost above).
-  Mesh entities have no animation component, so only the flat API animates. The model pass draws
-  both sides of every face, so `GenMeshCubicmap` makes no roof over a maze's open cells as
-  raylib's does, and glTF's double-sided flag is not read.
+  Mesh entities have no animation component, so only the flat API animates. A material the
+  program makes draws both sides of each face unless `DoubleSided` is cleared, so
+  `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
   shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
   cellular noise are not generated. Mip levels are made by GPU blits. Anisotropic filtering is

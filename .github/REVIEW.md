@@ -8,9 +8,9 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `ab052859`, the `Removed` list, taken on its description. A second ImGui context in a process is refused with an exception (`f98c9547`),
-which settles the verdict. Refusal over a context for each app is the right choice, since a
-program's own ImGui calls cannot be guarded.
+Reviewed up to `06728b5c`. Six batches in TODO.md's order (states, generator diagnostics, immediate
+shader uniforms, sound pan, streamed WAV music and poses between frames) raised nothing. The WAV
+reader was read, and the rest were taken on their descriptions.
 
 ## Now
 

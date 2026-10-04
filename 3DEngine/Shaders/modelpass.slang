@@ -231,6 +231,10 @@ public float4 alphaTested(float4 color, ModelVertexOutput input)
 public float3 surfaceNormal(ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
+    // The back of a double-sided face is lit as its front, by the normal turned toward the viewer,
+    // as glTF has it. A single-sided face's back is never drawn.
+    if (dot(n, input.toEye) < 0.0)
+        n = -n;
     float strength = materialNormalScale(input);
     if (strength <= 0.0)
         return n;

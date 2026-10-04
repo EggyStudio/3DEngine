@@ -91,6 +91,9 @@ public struct Material
     /// <summary>The alpha below which <see cref="MaterialAlphaMode.Mask"/> cuts the surface out.</summary>
     public float AlphaCutoff;
 
+    /// <summary>Whether both sides of each face are drawn, as the constructors set, or the back faces left out.</summary>
+    public bool DoubleSided;
+
     /// <summary>
     /// Creates a material with only the albedo factor set. PBR factors default to
     /// metal=0 / rough=1 / emissive=0; texture slots are <see cref="Handle{T}.Invalid"/>.
@@ -128,5 +131,6 @@ public struct Material
         Handle = default;
         AlphaMode = MaterialAlphaMode.Blend;
         AlphaCutoff = 0.5f;
+        DoubleSided = true;
     }
 }
