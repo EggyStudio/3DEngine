@@ -409,7 +409,7 @@ void UnloadShaderBuffer(ShaderBuffer buffer);                        // Free it
 bool IsShaderBufferValid(ShaderBuffer buffer);                       // Whether it is loaded
 void UpdateShaderBuffer<T>(ShaderBuffer buffer, ReadOnlySpan<T> data, int offset); // Write into it
 void ReadShaderBuffer<T>(ShaderBuffer buffer, Span<T> destination, int offset);    // Read it back, once the dispatches before have run
-void SetShaderValueBuffer(Shader shader, int location, ShaderBuffer buffer); // A buffer the shader declares, as RWStructuredBuffer<float> values;
+void SetShaderValueBuffer(Shader shader, int location, ShaderBuffer buffer); // A buffer the shader declares, as RWStructuredBuffer<float> values; or StructuredBuffer to draw from
 void ComputeShaderDispatch(Shader shader, int groupsX, int groupsY, int groupsZ); // Run it over groups of its threads
 ```
 
@@ -429,7 +429,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
 ```
 
 A dispatch runs on the GPU before the frame being drawn, while the program goes on, and
-`ReadShaderBuffer` waits for it.
+`ReadShaderBuffer` waits for it. A shader that draws reads the same buffer as a
+`StructuredBuffer`, set with `SetShaderValueBuffer`, so what a dispatch wrote is drawn with no copy
+through the CPU. An immediate shader reads it in `BeginShaderMode`, and a model shader drawn with
+`DrawMeshInstanced` picks each copy's values from it by `SV_InstanceID`.
 
 ## Models and meshes
 

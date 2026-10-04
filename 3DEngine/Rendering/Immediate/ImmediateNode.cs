@@ -167,19 +167,19 @@ public sealed class ImmediateRenderer : IDisposable
     }
 
     // A set with the batch's uniform values at binding 0, its texture at binding 1 and its shader's
-    // own textures after, or null for a batch whose shader declares neither, which binds its
-    // texture's own set.
+    // own textures and storage buffers after, or null for a batch whose shader declares none of
+    // them, which binds its texture's own set.
     private IDescriptorSet? UniformSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, DrawBatch batch)
     {
         if (batch.Shader == 0 || renderWorld.TryGet<ShaderStore>()?.Get(batch.Shader) is not { } program
             || renderContext.DynamicAllocator is not { } allocator)
             return null;
         var own = program.OwnTextures(PassTextures);
-        if (program.UniformSize == 0 && own.Count == 0) return null;
+        if (program.UniformSize == 0 && own.Count == 0 && program.Buffers.Count == 0) return null;
 
         IDescriptorSet set;
         var slot = (int)(_frame % _uniformSets.Length);
-        if (own.Count == 0)
+        if (own.Count == 0 && program.Buffers.Count == 0)
         {
             var sets = _uniformSets[slot];
             if (_uniformSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet());
@@ -187,16 +187,16 @@ public sealed class ImmediateRenderer : IDisposable
         }
         else
         {
-            var shaderSets = SetsFor(gfx, batch.Shader, own);
+            var shaderSets = SetsFor(gfx, batch.Shader, program);
             var ring = shaderSets.Rings[slot];
             if (shaderSets.Next == ring.Count) ring.Add(gfx.CreateDescriptorSet(shaderSets.Layout));
             set = ring[shaderSets.Next++];
         }
 
-        // A buffer at binding 0, at least one 16-byte row, unless a texture of the shader's own has
-        // the binding, as it does in a shader with no uniforms.
+        // A buffer at binding 0, at least one 16-byte row, unless a texture or storage buffer of the
+        // shader's own has the binding, as it does in a shader with no uniforms.
         UniformBufferBinding? uniforms = null;
-        if (program.UniformSize > 0 || own.Count == 0)
+        if (!ZeroTaken(program, own))
         {
             var size = (ulong)Math.Max(16, program.UniformSize);
             var allocation = allocator.Allocate(size, BufferUsage.Uniform);
@@ -216,7 +216,42 @@ public sealed class ImmediateRenderer : IDisposable
             var (ownView, ownSampler) = textures.ViewFor(gfx, id);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(ownView, ownSampler, (uint)texture.Binding));
         }
+        BindBuffers(gfx, renderWorld, set, program, batch.Textures, ref _noBuffer);
         return set;
+    }
+
+    // Whether a texture or storage buffer of the shader's own has binding 0, which the uniform
+    // buffer has otherwise.
+    internal static bool ZeroTaken(ShaderProgram program, IReadOnlyList<ShaderTexture> own) =>
+        own.Any(t => t.Binding == 0) || program.Buffers.Any(b => b.Binding == 0);
+
+    // Bound in place of a storage buffer a draw was not given.
+    private IBuffer? _noBuffer;
+
+    // Points each storage buffer the shader reads at the one the draw was given, which follows its
+    // textures in the draw's snapshot, or at a stand-in of 16 zero bytes, made once into stand, when
+    // it was given none. The model pass binds its shaders' buffers the same way.
+    internal static void BindBuffers(IGraphicsDevice gfx, RenderWorld renderWorld, IDescriptorSet set, ShaderProgram program, int[]? snapshot,
+        ref IBuffer? stand)
+    {
+        if (program.Buffers.Count == 0) return;
+        var store = renderWorld.TryGet<ShaderBufferStore>();
+        for (int i = 0; i < program.Buffers.Count; i++)
+        {
+            var index = program.Textures.Count + i;
+            var id = snapshot is { } ids && index < ids.Length ? ids[index] : 0;
+            var buffer = store?.Get(id);
+            if (buffer is null)
+            {
+                if (stand is null)
+                {
+                    stand = gfx.CreateBuffer(new BufferDesc(16, BufferUsage.Storage, CpuAccessMode.Write));
+                    gfx.Map(stand).Clear();
+                }
+                buffer = stand;
+            }
+            gfx.UpdateDescriptorSet(set, new StorageBufferBinding(buffer, (uint)program.Buffers[i].Binding));
+        }
     }
 
     private static int IndexOf(ShaderProgram program, ShaderTexture texture)
@@ -226,16 +261,18 @@ public sealed class ImmediateRenderer : IDisposable
         return -1;
     }
 
-    // The layout and ring of a shader with textures of its own, made on first use.
-    private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, IReadOnlyList<ShaderTexture> own)
+    // The layout and ring of a shader with textures or storage buffers of its own, made on first use.
+    private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, ShaderProgram program)
     {
         if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
-        // The uniform buffer at 0 unless a texture of the shader's own took it.
+        var own = program.OwnTextures(PassTextures);
+        // The uniform buffer at 0 unless a texture or buffer of the shader's own took it.
         DescriptorSetLayoutBinding[] bindings =
         [
-            .. own.Any(t => t.Binding == 0) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
+            .. ZeroTaken(program, own) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
             new(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
             .. own.Select(t => new DescriptorSetLayoutBinding((uint)t.Binding, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
+            .. program.Buffers.Select(b => new DescriptorSetLayoutBinding((uint)b.Binding, DescriptorType.StorageBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment)),
         ];
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
@@ -260,10 +297,10 @@ public sealed class ImmediateRenderer : IDisposable
                 new VertexInputAttributeDesc(2, 0, VertexFormat.UNormR8G8B8A8, 20),
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
-            // A shader with textures of its own reads them through a layout of its own.
+            // A shader with textures or storage buffers of its own reads them through a layout of its own.
             DescriptorSetLayouts: shader != 0 && renderWorld.TryGet<ShaderStore>()?.Get(shader) is { } program
-                                  && program.OwnTextures(PassTextures) is { Count: > 0 } own
-                ? [SetsFor(gfx, shader, own).Layout]
+                                  && (program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0)
+                ? [SetsFor(gfx, shader, program).Layout]
                 : null,
             DepthTestEnabled: batch.DepthTest,
             DepthWriteEnabled: batch.DepthTest,
@@ -343,6 +380,7 @@ public sealed class ImmediateRenderer : IDisposable
             foreach (var set in sets) set.Dispose();
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         _engineStages?.Dispose();
+        _noBuffer?.Dispose();
     }
 }
 

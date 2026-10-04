@@ -127,7 +127,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
 /// of valid entries inside it. Renamed each frame; consumers should read it
 /// transiently rather than caching.
 /// </summary>
-/// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet"/>.</param>
+/// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet, in UniformBufferBinding?, in CombinedImageSamplerBinding?)"/>.</param>
 /// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
 /// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
 public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false);

@@ -25,7 +25,7 @@ namespace Engine;
 /// <param name="AlphaCutoff">The alpha below which a masked surface is cut out.</param>
 /// <param name="TextureTranslucent">Whether the base color texture has alpha between clear and solid somewhere.</param>
 /// <param name="DoubleSided">Whether both sides of each face are drawn, or the back faces left out.</param>
-/// <param name="ShaderTextures">The textures the draw's shader samples, by their index in the program's textures, or null for none.</param>
+/// <param name="ShaderTextures">The textures the draw's shader samples, by their index in the program's textures, then the storage buffers it reads, by their index in its buffers, or null for none.</param>
 /// <param name="CastsShadow">Whether the mesh is drawn into the shadow map, which a sky around the camera is not.</param>
 public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,

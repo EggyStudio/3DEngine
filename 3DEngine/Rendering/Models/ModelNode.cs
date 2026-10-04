@@ -286,7 +286,7 @@ public sealed class ModelRenderer : IDisposable
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures), index: 1);
             }
 
-            pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, textures, draw, program));
+            pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
@@ -622,9 +622,8 @@ public sealed class ModelRenderer : IDisposable
         var vertex = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex,
             program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv));
         var fragment = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment));
-        var ownTextures = program.OwnTextures(PassTextures);
         var pipeline = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment,
-            material: ownTextures.Count > 0 ? SetsFor(gfx, id, ownTextures).Layout : null);
+            material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null);
         _custom[id] = (vertex, fragment, pipeline);
         return pipeline;
     }
@@ -748,11 +747,11 @@ public sealed class ModelRenderer : IDisposable
 
     // A descriptor set for one draw with a shader of its own: its uniform values in this frame's
     // buffer at binding 0, and its texture at binding 1.
-    private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, GpuTextures textures, ModelDraw draw, ShaderProgram program)
+    private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, ModelDraw draw, ShaderProgram program)
     {
         var own = program.OwnTextures(PassTextures);
         IDescriptorSet set;
-        if (own.Count == 0)
+        if (own.Count == 0 && program.Buffers.Count == 0)
         {
             var sets = _drawSets[_drawSetSlot];
             if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet(MaterialLayout(gfx)));
@@ -760,7 +759,7 @@ public sealed class ModelRenderer : IDisposable
         }
         else
         {
-            var shaderSets = SetsFor(gfx, draw.Shader, own);
+            var shaderSets = SetsFor(gfx, draw.Shader, program);
             var ring = shaderSets.Rings[_drawSetSlot];
             if (shaderSets.Next == ring.Count) ring.Add(gfx.CreateDescriptorSet(shaderSets.Layout));
             set = ring[shaderSets.Next++];
@@ -768,10 +767,10 @@ public sealed class ModelRenderer : IDisposable
 
         if (renderContext.DynamicAllocator is not { } allocator) return set;
 
-        // A buffer at binding 0, at least one 16-byte row, unless a texture of the shader's own has
-        // the binding, as it does in a shader with no uniforms.
+        // A buffer at binding 0, at least one 16-byte row, unless a texture or storage buffer of the
+        // shader's own has the binding, as it does in a shader with no uniforms.
         UniformBufferBinding? uniforms = null;
-        if (program.UniformSize > 0 || !own.Any(t => t.Binding == 0))
+        if (!ImmediateRenderer.ZeroTaken(program, own))
         {
             var size = (ulong)Math.Max(16, program.UniformSize);
             var allocation = allocator.Allocate(size, BufferUsage.Uniform);
@@ -792,19 +791,25 @@ public sealed class ModelRenderer : IDisposable
             var (view, sampler) = textures.ViewFor(gfx, id);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, sampler, (uint)texture.Binding));
         }
+        ImmediateRenderer.BindBuffers(gfx, renderWorld, set, program, draw.ShaderTextures, ref _noBuffer);
         return set;
     }
 
-    // The material layout and ring of a shader with textures of its own, made on first use.
-    private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, IReadOnlyList<ShaderTexture> own)
+    // Bound in place of a storage buffer a draw was not given.
+    private IBuffer? _noBuffer;
+
+    // The material layout and ring of a shader with textures or storage buffers of its own, made on first use.
+    private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, ShaderProgram program)
     {
         if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
-        // The uniform buffer at 0 unless a texture of the shader's own took it.
+        var own = program.OwnTextures(PassTextures);
+        // The uniform buffer at 0 unless a texture or buffer of the shader's own took it.
         DescriptorSetLayoutBinding[] bindings =
         [
-            .. own.Any(t => t.Binding == 0) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
+            .. ImmediateRenderer.ZeroTaken(program, own) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
             .. Enumerable.Range(1, MaterialBindings).Select(b => new DescriptorSetLayoutBinding((uint)b, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
             .. own.Select(t => new DescriptorSetLayoutBinding((uint)t.Binding, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
+            .. program.Buffers.Select(b => new DescriptorSetLayoutBinding((uint)b.Binding, DescriptorType.StorageBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment)),
         ];
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
@@ -978,6 +983,7 @@ public sealed class ModelRenderer : IDisposable
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();
         _vertexShader?.Dispose();
+        _noBuffer?.Dispose();
     }
 }
 

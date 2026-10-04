@@ -12,6 +12,8 @@ public enum DescriptorType
     /// that reads its own slice of one buffer.
     /// </summary>
     UniformBufferDynamic,
+    /// <summary>Storage buffer (SSBO), which a shader declares as a <c>StructuredBuffer</c>.</summary>
+    StorageBuffer,
 }
 
 /// <summary>Describes a single binding within a descriptor set layout.</summary>
@@ -28,6 +30,11 @@ public readonly record struct DescriptorSetLayoutBinding(uint Binding, Descripto
 /// <param name="Size">Byte size of the bound range.</param>
 /// <param name="Dynamic">Whether the binding is a <see cref="DescriptorType.UniformBufferDynamic"/>, whose bind adds an offset to <paramref name="Offset"/>.</param>
 public readonly record struct UniformBufferBinding(IBuffer Buffer, uint Binding, ulong Offset, ulong Size, bool Dynamic = false);
+
+/// <summary>Binding descriptor for a whole storage buffer within a descriptor set.</summary>
+/// <param name="Buffer">The storage buffer to bind.</param>
+/// <param name="Binding">Shader binding slot index.</param>
+public readonly record struct StorageBufferBinding(IBuffer Buffer, uint Binding);
 
 /// <summary>Binding descriptor for a combined image sampler within a descriptor set.</summary>
 /// <param name="ImageView">The image view providing the texture data.</param>

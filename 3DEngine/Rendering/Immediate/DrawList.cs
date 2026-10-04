@@ -15,7 +15,7 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="IndexCount">How many indices the run draws, two a line and three a triangle.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
 /// <param name="Uniforms">The named uniforms of its shader as they were when the run was recorded, laid out as the shader declares them, or null for none.</param>
-/// <param name="Textures">The textures its shader samples, by their index in the program's textures, as they were set when the run was recorded, or null for none.</param>
+/// <param name="Textures">The textures its shader samples, by their index in the program's textures, then the storage buffers it reads, by their index in its buffers, as they were set when the run was recorded, or null for none.</param>
 /// <param name="Target">The render target the run draws into, or 0 for the window.</param>
 /// <param name="Shader">The <see cref="ShaderStore"/> id the run draws with, or 0 for the engine's own.</param>
 /// <param name="Params">The values the shader reads with <c>param</c>.</param>

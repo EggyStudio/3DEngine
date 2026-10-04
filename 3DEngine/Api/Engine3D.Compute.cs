@@ -32,11 +32,10 @@ public static partial class Engine3D
 
     private const int BufferLocationBase = 1 << 21;
 
-    private static readonly Dictionary<int, IBuffer> ShaderBuffers = [];
+    private static ShaderBufferStore ShaderBuffers => Res<ShaderBufferStore>();
     private static readonly Dictionary<int, ComputePipeline> ComputePipelines = [];
     // The buffer each of a compute shader's storage buffers is set to, by its index in ShaderProgram.Buffers.
     private static readonly Dictionary<int, int[]> BufferValues = [];
-    private static int _nextShaderBuffer = 1;
 
     // The device compute runs on, or null in a run with no GPU.
     private static GraphicsDevice? ComputeDevice =>
@@ -81,9 +80,7 @@ public static partial class Engine3D
             return default;
         }
         size = Math.Max(4, (size + 3) / 4 * 4);
-        var id = _nextShaderBuffer++;
-        ShaderBuffers[id] = device.CreateStorageBuffer(size);
-        return new ShaderBuffer(id, size);
+        return new ShaderBuffer(ShaderBuffers.Add(device.CreateStorageBuffer(size)), size);
     }
 
     /// <summary>Makes a storage buffer holding <paramref name="data"/>.</summary>
@@ -98,18 +95,23 @@ public static partial class Engine3D
     public static void UnloadShaderBuffer(ShaderBuffer buffer)
     {
         if (!ShaderBuffers.Remove(buffer.Id, out var gpu)) return;
-        ComputeDevice?.WaitForCompute();
-        gpu.Dispose();
+        // A frame in flight may still draw with it, as a dispatch may still write it.
+        if (ComputeDevice is { } device)
+        {
+            device.WaitForCompute();
+            device.WaitIdle();
+        }
+        gpu!.Dispose();
     }
 
     /// <summary>Whether <paramref name="buffer"/> is loaded.</summary>
-    public static bool IsShaderBufferValid(ShaderBuffer buffer) => ShaderBuffers.ContainsKey(buffer.Id);
+    public static bool IsShaderBufferValid(ShaderBuffer buffer) => TryRes<ShaderBufferStore>(out var buffers) && buffers.Get(buffer.Id) is not null;
 
     /// <summary>Writes <paramref name="data"/> into a storage buffer, starting <paramref name="offset"/> bytes in.</summary>
     /// <remarks>Waits for the dispatches already submitted, so it never changes what one of them is reading.</remarks>
     public static void UpdateShaderBuffer<T>(ShaderBuffer buffer, ReadOnlySpan<T> data, int offset = 0) where T : unmanaged
     {
-        if (!ShaderBuffers.TryGetValue(buffer.Id, out var gpu) || ComputeDevice is not { } device) return;
+        if (ShaderBuffers.Get(buffer.Id) is not { } gpu || ComputeDevice is not { } device) return;
         device.WaitForCompute();
         var target = device.Map(gpu);
         var bytes = MemoryMarshal.AsBytes(data);
@@ -124,7 +126,7 @@ public static partial class Engine3D
     /// </remarks>
     public static void ReadShaderBuffer<T>(ShaderBuffer buffer, Span<T> destination, int offset = 0) where T : unmanaged
     {
-        if (!ShaderBuffers.TryGetValue(buffer.Id, out var gpu) || ComputeDevice is not { } device) return;
+        if (ShaderBuffers.Get(buffer.Id) is not { } gpu || ComputeDevice is not { } device) return;
         device.WaitForCompute();
         var source = device.Map(gpu);
         var bytes = MemoryMarshal.AsBytes(destination);
@@ -133,9 +135,15 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// Sets a storage buffer the compute shader uses, found by name with
-    /// <see cref="GetShaderLocation"/>, for the dispatches after it.
+    /// Sets a storage buffer the shader uses, found by name with <see cref="GetShaderLocation"/>,
+    /// for the dispatches and draws after it, as raylib's <c>rlBindShaderBuffer</c>.
     /// </summary>
+    /// <remarks>
+    /// A compute shader writes it as a <c>RWStructuredBuffer</c>, and a shader that draws, an
+    /// immediate one in <see cref="BeginShaderMode"/> or a model's, reads it as a
+    /// <c>StructuredBuffer</c>, so what a dispatch computed is drawn with no copy through the CPU.
+    /// A draw reads what the dispatches before it in the program wrote.
+    /// </remarks>
     public static void SetShaderValueBuffer(Shader shader, int location, ShaderBuffer buffer)
     {
         if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return;
@@ -143,6 +151,7 @@ public static partial class Engine3D
         if (index < 0 || index >= program.Buffers.Count) return;
         if (!BufferValues.TryGetValue(shader.Id, out var values)) BufferValues[shader.Id] = values = new int[program.Buffers.Count];
         values[index] = buffer.Id;
+        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
     /// <summary>
@@ -169,7 +178,7 @@ public static partial class Engine3D
         var buffers = new List<(int, IBuffer)>(program.Buffers.Count);
         for (int i = 0; i < program.Buffers.Count; i++)
         {
-            if (!ShaderBuffers.TryGetValue(values[i], out var gpu))
+            if (ShaderBuffers.Get(values[i]) is not { } gpu)
             {
                 ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' has no buffer set for '{program.Buffers[i].Name}'.");
                 return;
@@ -193,9 +202,9 @@ public static partial class Engine3D
     private static void ForgetCompute()
     {
         ComputeDevice?.WaitForCompute();
-        foreach (var buffer in ShaderBuffers.Values) buffer.Dispose();
+        if (TryRes<ShaderBufferStore>(out var buffers))
+            foreach (var buffer in buffers.TakeAll()) buffer.Dispose();
         foreach (var pipeline in ComputePipelines.Values) pipeline.Dispose();
-        ShaderBuffers.Clear();
         ComputePipelines.Clear();
         BufferValues.Clear();
     }

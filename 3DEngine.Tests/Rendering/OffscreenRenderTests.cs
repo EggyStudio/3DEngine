@@ -554,6 +554,81 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Shaders_That_Draw_Read_The_Storage_Buffer_A_Dispatch_Wrote()
+    {
+        Open(64, 16);
+        var fill = LoadComputeShaderFromMemory("""
+            RWStructuredBuffer<float4> colors;
+
+            [shader("compute")]
+            [numthreads(4, 1, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                colors[id.x] = float4(id.x / 3.0, 1 - id.x / 3.0, 0, 1);
+            }
+            """, "fill.slang");
+        var flat = LoadShaderFromMemory("""
+            import engine;
+
+            StructuredBuffer<float4> colors;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return colors[3];
+            }
+            """, "flat.slang");
+        var instances = LoadShaderFromMemory("""
+            import modelpass;
+
+            StructuredBuffer<float4> colors;
+
+            [shader("vertex")]
+            ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0,
+                ModelInstance instance, uint id : SV_InstanceID)
+            {
+                ModelVertexOutput output = transformModelVertex(position, normal, uv, instance);
+                output.color = colors[id];
+                return output;
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return input.color;
+            }
+            """, "instanced.slang");
+        var colors = LoadShaderBuffer(4 * 16);
+        SetShaderValueBuffer(fill, GetShaderLocation(fill, "colors"), colors);
+        SetShaderValueBuffer(flat, GetShaderLocation(flat, "colors"), colors);
+        SetShaderValueBuffer(instances, GetShaderLocation(instances, "colors"), colors);
+        ComputeShaderDispatch(fill, 1, 1, 1);
+
+        var cube = LoadModelFromMesh(GenMeshCube(0.8f, 0.8f, 0.8f));
+        Matrix4x4[] places = [.. Enumerable.Range(0, 4).Select(i => Matrix4x4.CreateTranslation(i * 2 - 3, 0, 0))];
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(flat);
+            DrawRectangle(0, 0, 64, 2, Color.White);
+            EndShaderMode();
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY, 2, CameraProjection.Orthographic));
+            DrawMeshInstanced(cube.Meshes[0], new ModelMaterial(Color.White) { Shader = instances }, places);
+            EndMode3D();
+        }, "buffers");
+
+        GetImageColor(image, 32, 0).Should().Be(new Color(255, 0, 0, 255), "the rectangle takes the last color the dispatch wrote");
+        Enumerable.Range(0, 4).Select(i => (int)GetImageColor(image, 8 + i * 16, 8).R)
+            .Should().Equal([0, 85, 170, 255], "each copy takes its own color from the buffer");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadModel(cube);
+        UnloadShaderBuffer(colors);
+        UnloadShader(fill);
+        UnloadShader(flat);
+        UnloadShader(instances);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
     {
         Open(32, 32);

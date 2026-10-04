@@ -87,18 +87,20 @@ public sealed unsafe partial class GraphicsDevice
     // Makes another pool of the same size, the one new sets come from.
     private void AddDescriptorPool()
     {
-        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs and 16384 samplers, maxSets=4096)...");
-        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[3];
+        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers and 1024 storage buffers, maxSets=4096)...");
+        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[4];
         poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
         // A model pass set holds five maps, so samplers run out first.
         poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 16384);
         poolSizes[2] = new VkDescriptorPoolSize(VkDescriptorType.UniformBufferDynamic, 4096);
+        // For the storage buffers a drawing shader reads, which few draws have.
+        poolSizes[3] = new VkDescriptorPoolSize(VkDescriptorType.StorageBuffer, 1024);
 
         VkDescriptorPoolCreateInfo poolInfo = new()
         {
             flags = VkDescriptorPoolCreateFlags.FreeDescriptorSet,
             maxSets = 4096,
-            poolSizeCount = 3,
+            poolSizeCount = 4,
             pPoolSizes = poolSizes
         };
 
@@ -170,6 +172,7 @@ public sealed unsafe partial class GraphicsDevice
                     DescriptorType.UniformBuffer => VkDescriptorType.UniformBuffer,
                     DescriptorType.CombinedImageSampler => VkDescriptorType.CombinedImageSampler,
                     DescriptorType.UniformBufferDynamic => VkDescriptorType.UniformBufferDynamic,
+                    DescriptorType.StorageBuffer => VkDescriptorType.StorageBuffer,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 descriptorCount = bindings[i].Count,
@@ -300,4 +303,24 @@ public sealed unsafe partial class GraphicsDevice
 
     void IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
         => UpdateDescriptorSet(descriptorSet, uniformBinding, samplerBinding);
+
+    /// <inheritdoc />
+    public void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
+    {
+        if (descriptorSet is not VulkanDescriptorSet vkSet)
+            throw new ArgumentException("Descriptor set was not created by this device.", nameof(descriptorSet));
+        if (storageBinding.Buffer is not VulkanBuffer vkBuffer)
+            throw new ArgumentException("Storage buffer was not created by this device.", nameof(storageBinding));
+
+        var info = new VkDescriptorBufferInfo { buffer = vkBuffer.Buffer, offset = 0, range = vkBuffer.Description.Size };
+        var write = new VkWriteDescriptorSet
+        {
+            dstSet = vkSet.Handle,
+            dstBinding = storageBinding.Binding,
+            descriptorCount = 1,
+            descriptorType = VkDescriptorType.StorageBuffer,
+            pBufferInfo = &info,
+        };
+        _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+    }
 }

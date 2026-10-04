@@ -69,8 +69,16 @@ of its own with a barrier before it against every earlier write and one after it
 read and the CPU's, and a fence the next dispatch or a wait frees its objects by. It runs after
 the frames already submitted and before the one being recorded, which is submitted at
 `Stage.Last`. Storage buffers are host-visible, so `ReadShaderBuffer` and `UpdateShaderBuffer`
-wait for the dispatches in flight and copy through the mapping. Draws cannot read a storage
-buffer yet, so what a compute shader works out reaches the screen through the CPU.
+wait for the dispatches in flight and copy through the mapping. `UpdateShaderBuffer` does not wait
+for the frames in flight, so one still drawing from a buffer may see the write.
+
+A shader that draws reads storage buffers too, declared as `StructuredBuffer`, at the bindings
+Slang gives them in its first set. The buffers set on it travel with each draw after the
+textures in the draw's snapshot of its own textures, and the immediate and model passes bind them
+in the set a shader with resources of its own has, from `ShaderBufferStore`, which the render
+world is handed. A buffer a draw was not given is bound to 16 zero bytes. The dispatch's barrier
+after it makes what it wrote visible to the frame drawn after it, so a simulation stepped on the
+GPU is drawn with no copy through the CPU, as `shaders_compute_life` draws its grid.
 
 ## 2. The immediate pass
 

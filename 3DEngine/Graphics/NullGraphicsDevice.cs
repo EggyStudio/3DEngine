@@ -101,6 +101,9 @@ public sealed class NullGraphicsDevice : IGraphicsDevice
     /// <inheritdoc />
     public void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
         => throw new NotSupportedException("NullGraphicsDevice does not support descriptors.");
+    /// <inheritdoc />
+    public void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
+        => throw new NotSupportedException("NullGraphicsDevice does not support descriptors.");
 
     /// <inheritdoc />
     public void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline) { }

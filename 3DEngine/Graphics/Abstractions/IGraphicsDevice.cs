@@ -128,6 +128,9 @@ public interface IGraphicsDevice : IDisposable
     /// <param name="samplerBinding">Optional combined image sampler binding.</param>
     void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding);
 
+    /// <summary>Points a descriptor set's storage buffer binding at a buffer.</summary>
+    void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding);
+
     // -- Draw API --
 
     /// <summary>Binds a graphics pipeline for subsequent draw commands.</summary>

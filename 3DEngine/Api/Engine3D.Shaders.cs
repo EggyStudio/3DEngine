@@ -141,9 +141,20 @@ public static partial class Engine3D
         if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
-    // A copy of a shader's textures for one draw, so textures set after it reach only later draws.
-    private static int[]? TextureSnapshot(Shader shader) =>
-        TextureValues.TryGetValue(shader.Id, out var values) ? (int[])values.Clone() : null;
+    // A copy of a shader's textures for one draw, followed by its storage buffers, so textures and
+    // buffers set after it reach only later draws. The passes read a buffer at its index in the
+    // program's buffers past the count of its textures.
+    private static int[]? TextureSnapshot(Shader shader)
+    {
+        var textures = TextureValues.GetValueOrDefault(shader.Id);
+        var buffers = BufferValues.GetValueOrDefault(shader.Id);
+        if (buffers is null) return (int[]?)textures?.Clone();
+        var count = Res<ShaderStore>().Get(shader.Id)?.Textures.Count ?? 0;
+        var both = new int[count + buffers.Length];
+        textures?.AsSpan(0, Math.Min(textures.Length, count)).CopyTo(both);
+        buffers.CopyTo(both, count);
+        return both;
+    }
 
     /// <summary>Sets a named uniform to a 4x4 matrix, as raylib's <c>SetShaderValueMatrix</c>.</summary>
     public static void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value) =>

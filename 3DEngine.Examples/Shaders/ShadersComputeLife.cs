@@ -17,17 +17,18 @@ public static class ShadersComputeLife
         var start = new uint[Width * Height];
         for (int i = 0; i < start.Length; i++) start[i] = random.Next(4) == 0 ? 1u : 0u;
         var grids = new[] { LoadShaderBuffer<uint>(start), LoadShaderBuffer(Width * Height * 4) };
-        var pixels = LoadShaderBuffer(Width * Height * 4);
 
         var life = LoadComputeShader("resources/shaders/life.slang");
         SetShaderValue(life, GetShaderLocation(life, "width"), Width);
         SetShaderValue(life, GetShaderLocation(life, "height"), Height);
         var (currentAt, nextAt) = (GetShaderLocation(life, "current"), GetShaderLocation(life, "next"));
-        SetShaderValueBuffer(life, GetShaderLocation(life, "pixels"), pixels);
 
-        var image = new Image(new byte[Width * Height * 4], Width, Height);
-        var texture = LoadTextureFromImage(image);
-        SetTextureFilter(texture, TextureFilter.Point);
+        // The grid is drawn from the buffer the dispatch wrote, as raylib's compute example does.
+        var draw = LoadShader("resources/shaders/life_draw.slang");
+        SetShaderValue(draw, GetShaderLocation(draw, "width"), Width);
+        SetShaderValue(draw, GetShaderLocation(draw, "height"), Height);
+        SetShaderValue(draw, GetShaderLocation(draw, "cellSize"), (float)CellSize);
+        var cellsAt = GetShaderLocation(draw, "cells");
         var step = 0;
 
         SetTargetFPS(30);
@@ -52,21 +53,21 @@ public static class ShadersComputeLife
             ComputeShaderDispatch(life, (Width + 15) / 16, (Height + 15) / 16, 1);
             step++;
 
-            ReadShaderBuffer<byte>(pixels, image.Data);
-            UpdateTexture(texture, image);
+            SetShaderValueBuffer(draw, cellsAt, grids[step % 2]);
 
             BeginDrawing();
             ClearBackground(Color.Black);
-            DrawTextureEx(texture, Vector2.Zero, 0, CellSize, Color.White);
+            BeginShaderMode(draw);
+            DrawRectangle(0, 0, Width * CellSize, Height * CellSize, Color.White);
+            EndShaderMode();
             DrawRectangle(0, 0, Width * CellSize, 40, Color.Black.Fade(0.7f));
             DrawText($"Generation {step}, stepped by a compute shader. Hold the mouse to draw.", 10, 10, 20, Color.RayWhite);
             EndDrawing();
         }
 
-        UnloadTexture(texture);
         UnloadShaderBuffer(grids[0]);
         UnloadShaderBuffer(grids[1]);
-        UnloadShaderBuffer(pixels);
+        UnloadShader(draw);
         UnloadShader(life);
         CloseWindow();
     }
