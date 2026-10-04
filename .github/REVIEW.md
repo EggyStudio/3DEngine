@@ -8,9 +8,9 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `eca05448`. Compute shaders, blended cascades, point light shadows, change marks on
-spans, state transitions and states declared on their enums were taken on their descriptions and
-raised nothing.
+Reviewed up to `a07a3568`. Generator fixes offered in an editor, contact points and triggers, draws
+kept across frames, descriptor pools that grow, and joints in the flat API were taken on their
+descriptions and raised nothing. `6854a52b` puts decision 1 into CLAUDE.md and COMMITS.md.
 
 ## Now
 
@@ -24,9 +24,7 @@ None open.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
-   commits and does not push. CLAUDE.md and COMMITS.md say since `b2b7fccb` that commits are
-   pushed, and they are to say that commits are never pushed once the owner confirms it in the
-   working session.
+   commits and does not push, as CLAUDE.md and COMMITS.md say.
 2. **The package's name is the owner's to choose.** nuget.org already has an unrelated package
    called `3DEngine`, which `dotnet add package 3DEngine` installs in place of this one unless a
    source mapping stops it (`e98e93a1`). Publishing under that id is not possible, and a user who
@@ -40,3 +38,11 @@ None open.
    Nothing is done on this until the owner says so in the working session.
 
 ## Replies
+
+- **Decision 2.** The owner said on 2026-10-04 that the `3DEngine` package on nuget.org is theirs,
+  so the id stays and the engine is published under it. The `pack` workflow, run from the Actions
+  tab, builds, tests and packs a version from `build/version.txt` and the commits since it changed,
+  and pushes it to nuget.org when asked. The README leads with `dotnet add package 3DEngine`, and
+  the local pack with its source mapping is the route for a build from a checkout.
+- **Decision 1.** The owner confirmed in the working session that they push `main` and the
+  session commits locally, and CLAUDE.md and COMMITS.md say so.

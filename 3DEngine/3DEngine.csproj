@@ -12,6 +12,9 @@
         <PackageId>3DEngine</PackageId>
         <Version>0.1.0-preview.1</Version>
         <Title>3DEngine</Title>
+        <Description>A C# game engine used the way raylib is: open a window, draw each frame with plain static calls, and draw Dear ImGui in the same frame, over SDL3, Vulkan and Slang, with an ECS and source-generated behaviors underneath.</Description>
+        <PackageTags>game-engine;raylib;vulkan;sdl3;imgui;slang;ecs;3d;2d</PackageTags>
+        <PackageProjectUrl>https://github.com/EggyStudio/3DEngine</PackageProjectUrl>
     </PropertyGroup>
 
     <!-- What the package carries beside the library: its icon and readme, the generator as an

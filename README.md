@@ -47,8 +47,14 @@ program uses as much of it as it needs.
 
 ## A program of your own
 
-The engine is not on nuget.org, where a package named `3DEngine` is someone else's. A program
-uses the package `build/pack.sh` makes in a checkout of this repository, which needs what
+The engine is the `3DEngine` package on nuget.org:
+
+```bash
+dotnet new console -n Hello && cd Hello
+dotnet add package 3DEngine
+```
+
+A program can use a package built from a checkout of this repository instead, which needs what
 [Building](#building) lists:
 
 ```bash
@@ -56,8 +62,9 @@ build/pack.sh                                    # in the checkout, into build/p
 dotnet new console -n Hello && cd Hello          # wherever the program is to live
 ```
 
-A `nuget.config` beside the new project sends `3DEngine` to that folder and everything else to
-nuget.org, with the folder's path in place of the one shown:
+A `nuget.config` beside the new project sends `3DEngine` to that folder, rather than to the
+version on nuget.org, and everything else to nuget.org, with the folder's path in place of the
+one shown:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>

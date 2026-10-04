@@ -64,11 +64,18 @@ The package lands in `build/package` and carries:
   is here.
 
 A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
-compiles the same way with `e3d shaders <folder> <cache>`. The package is not published anywhere,
-and a game outside this repository points a `nuget.config` at the folder. nuget.org has a package
-of the same name that is someone else's, so the `nuget.config` maps `3DEngine` to the folder alone
-(`packageSourceMapping`), as the README's and the games' do, and `dotnet add package` is given the
-version, since without one it takes the newest version nuget.org lists before the mapping applies.
+compiles the same way with `e3d shaders <folder> <cache>`. A game outside this repository built
+from a local pack points a `nuget.config` at the folder, which maps `3DEngine` to the folder alone
+(`packageSourceMapping`), as the README's and the games' do, so the version on nuget.org is not
+taken in its place, and `dotnet add package` is given the version, since without one it takes the
+newest version nuget.org lists before the mapping applies.
+
+A release is made by the `pack` workflow, run from the Actions tab on GitHub. It builds, runs the
+tests, packs with `build/pack.sh <version>` and keeps the package as the run's artifact, and with
+its "publish" box ticked pushes it to nuget.org through the `NUGET_API_KEY` secret. The version
+is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
+number of commits since that file last changed, so each commit counts the patch up by one and
+changing `0.1` to `0.2` starts it again at `0.2.0`.
 `build/readme-walk.sh <package folder>` follows the README's steps in a new folder, and CI runs it.
 
 Each pack is a version of its own, `0.1.0-preview.` and the time, since NuGet reads a version once

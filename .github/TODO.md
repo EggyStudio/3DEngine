@@ -177,9 +177,6 @@ what is left.
   validation layer and captures every example offscreen on Ubuntu, and builds and runs the tests
   that need no device on Windows. The Windows job has not run yet, nothing draws there, and macOS
   has no job.
-- **The package is local.** `build/pack.sh` makes a package a game outside this repository
-  builds and runs from with no `slangc` (BUILDING.md), but it is not published to nuget.org, its
-  version is set by hand, and CI does not make one.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
   adds components and writes their fields, and a game adds commands with `[Command]`, but C#

@@ -18,7 +18,8 @@ rm -rf Hello
 dotnet new console -n Hello -o Hello
 cd Hello
 block xml | sed "s#path/to/3DEngine/build/package#$package#" > nuget.config
-eval "$(grep -m1 '^dotnet add package' "$readme")"
+# The line for a package built from a checkout, which names its version.
+eval "$(grep -m1 '^dotnet add package 3DEngine --version' "$readme")"
 block csharp > Program.cs
 dotnet build
 dotnet run --no-build -- --offscreen --frames 30 | tee run.log

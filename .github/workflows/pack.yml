@@ -1,0 +1,71 @@
+# Builds, tests and packs the engine when run from the Actions tab ("Run workflow"), and pushes the
+# package to nuget.org when asked to.
+#
+# The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
+# commits since that file last changed. The package and its symbols are kept as the run's artifact
+# either way, so a pack can be checked, or uploaded by hand, before one is pushed.
+name: pack
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Push the package to nuget.org (needs the NUGET_API_KEY secret)'
+        type: boolean
+        default: false
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      # The whole history, since the patch counts commits.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v4
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
+
+      - name: Work out the version
+        id: version
+        run: echo "version=$(build/version.sh)" >> "$GITHUB_OUTPUT"
+
+      # A package is made only from a commit whose tests pass.
+      - run: dotnet build 3DEngine.slnx
+
+      - run: dotnet test 3DEngine.Tests --no-build
+        env:
+          E3D_REQUIRE_VALIDATION: '1'
+
+      - run: build/pack.sh "${{ steps.version.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 3DEngine-${{ steps.version.outputs.version }}
+          path: |
+            build/package/*.nupkg
+            build/package/*.snupkg
+
+      - name: Push to nuget.org
+        if: ${{ inputs.publish }}
+        run: dotnet nuget push "build/package/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Say what was made
+        run: |
+          echo "### 3DEngine ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            echo "Pushed to nuget.org." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Packed and kept as this run's artifact, not pushed." >> "$GITHUB_STEP_SUMMARY"
+          fi
