@@ -120,11 +120,18 @@ public sealed class Engine3DPhysicsTests : IDisposable
         var crateFrom = ecs.GetReadOnly<Transform>(crate).Position.X;
         var walkerFrom = ecs.GetReadOnly<Transform>(walker).Position.X;
         clock = 0;
+        // The crate's pace over the last half second, an average, since a frame slow under load
+        // moves the carrier in one step and the crate's speed at any one instant with it.
+        float? crateAtSecond = null;
+        var carried = 0f;
         RunUntil(() =>
         {
             ecs.GetRef<Transform>(carrier).Position.X += 2 * GetFrameTime();
-            return (clock += GetFrameTime()) > 1.5f;
+            clock += GetFrameTime();
+            if (clock >= 1 && crateAtSecond is null) (crateAtSecond, carried) = (ecs.GetReadOnly<Transform>(crate).Position.X, clock);
+            return clock > 1.5f;
         });
+        var pace = (ecs.GetReadOnly<Transform>(crate).Position.X - crateAtSecond!.Value) / (clock - carried);
 
         var moved = ecs.GetReadOnly<Transform>(carrier).Position.X;
         moved.Should().BeGreaterThan(2.5f);
@@ -133,7 +140,7 @@ public sealed class Engine3DPhysicsTests : IDisposable
         // The crate is carried by friction, so it takes a moment to catch up with a platform that
         // starts at once, and then keeps its pace. The character walks relative to what it stands
         // on, so it keeps the pace from the start.
-        GetPhysicsBodyVelocity(ecs.GetReadOnly<PhysicsBody>(crate)).X.Should().BeApproximately(2, 0.1f, "the crate moves with the platform");
+        pace.Should().BeApproximately(2, 0.1f, "the crate moves with the platform");
         (ecs.GetReadOnly<Transform>(crate).Position.X - crateFrom).Should().BeGreaterThan(moved * 0.6f, "it rode most of the way");
         (ecs.GetReadOnly<Transform>(walker).Position.X - walkerFrom).Should().BeApproximately(moved, 0.15f, "the character rode the whole way");
         ecs.GetReadOnly<Transform>(platform).Position.Should().Be(new Vector3(0, 0.25f, 0), "the platform's own transform is its place under the parent");
