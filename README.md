@@ -11,6 +11,7 @@
 </p>
 
 ```csharp
+using Engine;
 using static Engine.Engine3D;
 
 InitWindow(800, 450, "[core] basic window");
@@ -35,6 +36,7 @@ program uses as much of it as it needs.
 
 ## Contents
 
+- [A program of your own](#a-program-of-your-own)
 - [Examples](#examples)
 - [The ECS underneath](#the-ecs-underneath)
 - [Driving a running app](#driving-a-running-app)
@@ -42,6 +44,47 @@ program uses as much of it as it needs.
 - [Status](#status)
 - [Documents](#documents)
 - [License](#license)
+
+## A program of your own
+
+The engine is not on nuget.org, where a package named `3DEngine` is someone else's. A program
+uses the package `build/pack.sh` makes in a checkout of this repository, which needs what
+[Building](#building) lists:
+
+```bash
+build/pack.sh                                    # in the checkout, into build/package
+dotnet new console -n Hello && cd Hello          # wherever the program is to live
+```
+
+A `nuget.config` beside the new project sends `3DEngine` to that folder and everything else to
+nuget.org, with the folder's path in place of the one shown:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="engine" value="path/to/3DEngine/build/package" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+  <packageSourceMapping>
+    <packageSource key="engine">
+      <package pattern="3DEngine" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>
+```
+
+```bash
+dotnet add package 3DEngine --version "0.1.0-*"
+```
+
+The program at the top of this page goes into `Program.cs`, and `dotnet run` opens its window.
+Where there is no display, `dotnet run -- --offscreen --frames 30` draws thirty frames with no
+window and exits. `build/readme-walk.sh` follows these steps from this page in a new folder, and CI
+runs it.
 
 ## Examples
 

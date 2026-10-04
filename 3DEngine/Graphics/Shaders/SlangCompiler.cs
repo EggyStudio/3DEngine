@@ -97,7 +97,7 @@ public static partial class SlangCompiler
         if (compiler is null)
             throw new InvalidOperationException(
                 $"'{fileName}' ({entryPoint}) is not in the shader cache and slangc was not found. " +
-                "Run build/fetch-slang.sh or set ENGINE_SLANGC.");
+                "Put slangc on PATH or name it in ENGINE_SLANGC, which build/fetch-slang.sh does in a checkout.");
 
         var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory);
         var uniforms = UniformsOf(reflection);
@@ -320,7 +320,9 @@ public static partial class SlangCompiler
             }
         }
 
-        Logger.Warn("slangc was not found, so only shaders already in a cache can be loaded. Run build/fetch-slang.sh.");
+        // Informational, since a program built from the package loads the engine's shaders from the
+        // cache it ships and needs no compiler. A shader missing from every cache says so itself.
+        Logger.Info("slangc was not found, so shaders load from their caches only.");
         return null;
     }
 }

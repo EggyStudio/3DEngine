@@ -7,11 +7,12 @@
 # reports fails the render test or the example that caused it.
 name: build
 
+# The README is not ignored, since the walk below follows its steps.
 on:
   push:
-    paths-ignore: ['**.md', '.github/assets/**']
+    paths-ignore: ['.github/**.md', '.claude/**', 'CLAUDE.md', 'games/**.md', '.github/assets/**']
   pull_request:
-    paths-ignore: ['**.md', '.github/assets/**']
+    paths-ignore: ['.github/**.md', '.claude/**', 'CLAUDE.md', 'games/**.md', '.github/assets/**']
 
 jobs:
   test:
@@ -97,6 +98,12 @@ jobs:
             echo "::error::Hopper: the validation layer reported an error"
             exit 1
           fi
+
+      # The README's steps in a new folder, from the same package, as someone holding only the
+      # package would follow them. Its nuget.config, its add-package line and its first program are
+      # built and run offscreen.
+      - name: Follow the README in a new project
+        run: build/readme-walk.sh build/package "$RUNNER_TEMP/readme"
 
       - uses: actions/upload-artifact@v4
         if: always()

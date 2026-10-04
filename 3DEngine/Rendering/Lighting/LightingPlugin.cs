@@ -34,7 +34,8 @@ public sealed class LightingPlugin : IPlugin
         // Turns SceneLightPayloads into Lights. PreUpdate matches SceneSpawnSystem; ordering inside the stage is
         // registration order, and ScenesPlugin (which registers SceneSpawnSystem) runs
         // earlier because of its lower Order, so this descriptor lands after it.
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(LightSpawnSystem.Run, "LightSpawnSystem"));
+        // It adds components, which the main thread does, as the scene systems it follows.
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(LightSpawnSystem.Run, "LightSpawnSystem").MainThreadOnly());
         Logger.Debug("LightingPlugin: LightSpawnSystem scheduled in Stage.PreUpdate.");
 
         // Renderer hookup is best-effort: the extract is harmless when the renderer is

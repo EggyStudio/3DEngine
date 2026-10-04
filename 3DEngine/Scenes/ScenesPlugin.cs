@@ -47,12 +47,13 @@ public sealed class ScenesPlugin : IPlugin
         // entities are visible to gameplay systems in the same frame.
         // Model references first, so a scene file's models are asked for in the frame it loads.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(ModelRefSystem.Run, "ModelRefSystem").MainThreadOnly());
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem"));
+        // Both spawn and despawn entities, which the main thread does.
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem").MainThreadOnly());
 
         // Hot-reload driver: watches AssetEvent<SceneAsset>.Modified and re-spawns the
         // tracked entity set in place. Same stage as the spawn driver - asset events
         // persist until Stage.Last so ordering is forgiving.
-        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneHotReloadSystem.Run, "SceneHotReloadSystem"));
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneHotReloadSystem.Run, "SceneHotReloadSystem").MainThreadOnly());
 
         Logger.Info("ScenesPlugin: Scene model ready.");
     }

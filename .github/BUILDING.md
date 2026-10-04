@@ -65,7 +65,11 @@ The package lands in `build/package` and carries:
 
 A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
 compiles the same way with `e3d shaders <folder> <cache>`. The package is not published anywhere,
-and a game outside this repository points a `nuget.config` at the folder.
+and a game outside this repository points a `nuget.config` at the folder. nuget.org has a package
+of the same name that is someone else's, so the `nuget.config` maps `3DEngine` to the folder alone
+(`packageSourceMapping`), as the README's and the games' do, and `dotnet add package` is given the
+version, since without one it takes the newest version nuget.org lists before the mapping applies.
+`build/readme-walk.sh <package folder>` follows the README's steps in a new folder, and CI runs it.
 
 Each pack is a version of its own, `0.1.0-preview.` and the time, since NuGet reads a version once
 and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with

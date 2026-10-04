@@ -30,7 +30,9 @@ public sealed class InputPlugin : IPlugin
         }
         else
         {
-            Logger.Warn("InputPlugin: No IInputBackend resource found - input events will not be forwarded.");
+            // A headless or offscreen run has no window to read, and input reaches it only through
+            // the console's queue, so this is how such a run starts rather than a fault.
+            Logger.Info("InputPlugin: No IInputBackend resource found - only queued input will arrive.");
         }
 
         app.AddSystem(Stage.Last, new SystemDescriptor(static world =>
