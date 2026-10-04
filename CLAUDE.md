@@ -79,6 +79,7 @@ pushed.
 | `3DEngine/Shaders` | Built-in Slang shaders, staged under `source/shaders` beside every program |
 | `build/` | `fetch-slang.sh`, and the compiler it downloads under `tools/` |
 | `3DEngine.Generator` | The behavior and command source generators. The engine also compiles the behavior one in for scripts |
+| `3DEngine.CodeFixes` | The fixes an editor offers for the generators' diagnostics, apart because they need Roslyn's workspace layer |
 | `3DEngine.Tests` | xUnit tests, in folders matching the engine's |
 | `3DEngine/Diagnostics` | `[Command]` and the console catalog, the log ring, built-in and input commands, `PngWriter` |
 | `3DEngine/Cli` | The server side of `./e3d`: socket, request queue, session files, `CliPlugin` |

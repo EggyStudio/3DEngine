@@ -185,7 +185,7 @@ that is added. The set is:
 | AssimpNetter | reading models (glTF, FBX, OBJ and the rest) with their materials and textures |
 | NVorbis | decoding Ogg Vorbis, in managed code |
 | BepuPhysics | rigid bodies |
-| Microsoft.CodeAnalysis | the source generator, and compiling behaviors while an app runs |
+| Microsoft.CodeAnalysis | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
 Scene description formats, material graph languages, embedded browsers, web servers, spatial

@@ -30,14 +30,6 @@ removed from this file, and an item that is partly done is rewritten around what
   seen, removals are kept for 60 frames only, and a system that has never run sees every stamp made
   before it.
 
-### Behaviors
-
-- **Diagnostics have no fixes.** The generator reports a wrong signature, two stage attributes, a
-  bad `[RunIf]`, a state attribute without an enum value, a filter on a type no entity can have
-  (E3D001 to E3D005), warns of a field holding a reference (E3D006) and reports a state declaration
-  it cannot register (E3D007). None comes with a code fix an editor offers, and the command
-  generator's own diagnostics are not listed beside them.
-
 ## Rendering
 
 ### Cost

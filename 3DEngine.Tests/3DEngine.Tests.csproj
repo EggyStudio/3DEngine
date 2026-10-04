@@ -12,6 +12,13 @@
         <ProjectReference Include="..\3DEngine\3DEngine.csproj" />
     </ItemGroup>
 
+    <!-- The generators' code fixes, compiled in as the engine compiles the generators, with the
+         workspace layer they apply edits through at the engine's compiler version. -->
+    <ItemGroup>
+        <Compile Include="..\3DEngine.CodeFixes\**\*.cs" Exclude="..\3DEngine.CodeFixes\obj\**;..\3DEngine.CodeFixes\bin\**" Link="CodeFixes\%(RecursiveDir)%(Filename)%(Extension)" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.3.0" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="10.0.0">
             <PrivateAssets>all</PrivateAssets>

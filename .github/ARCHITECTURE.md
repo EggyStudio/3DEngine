@@ -154,11 +154,13 @@ naming a type no entity can have (an interface, a static class, an open generic)
 method (E3D001 to E3D005) and left out of what is generated. A field holding a reference other than
 a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
 state declaration that cannot be registered is reported on the enum or method (E3D007).
-`BehaviorContext` resolves the ECS, commands, time and input when it is made, and `ctx.Physics` only
-when it is read, so behaviors run without `PhysicsPlugin`. The generated registrations are found by
-`BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches `source/behaviors` beside the
-program, compiles what it finds with Roslyn and the same generator into a collectible load context,
-and replaces the previous generation's systems.
+`3DEngine.CodeFixes` offers an editor's fixes where the change is clear: a stage method given its
+`BehaviorContext` (E3D001), one stage kept of several (E3D002), and a command made static (E3D100)
+or internal (E3D101). `BehaviorContext` resolves the ECS, commands, time and input when it is made,
+and `ctx.Physics` only when it is read, so behaviors run without `PhysicsPlugin`. The generated
+registrations are found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches
+`source/behaviors` beside the program, compiles what it finds with Roslyn and the same generator
+into a collectible load context, and replaces the previous generation's systems.
 
 ## Assets
 
@@ -239,7 +241,9 @@ between frames. A command can answer at once, hold its answer until a later fram
 (`ConsoleHost.Later`, as `shot` does while the capture is written).
 
 Commands are static methods marked `[Command]`, which `CommandGenerator` registers from a module
-initializer with typed argument parsing. Input commands write into `Input` through
+initializer with typed argument parsing. A command that is not static (E3D100), is neither public
+nor internal (E3D101), returns something other than a string or nothing (E3D102) or takes a
+parameter the console cannot read (E3D103) is reported on the method. Input commands write into `Input` through
 `SyntheticInput`, which also hands mouse events to ImGui, and captures copy the presented swapchain
 image into a host buffer (`GraphicsDevice.RequestCapture`) and write it with `PngWriter`.
 

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The fixes an editor offers for the generators' diagnostics. They need Roslyn's workspace
+         layer, which the compiler does not load, so they live apart from the generators, which
+         the compiler runs. -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>Engine.CodeFixes</RootNamespace>
+        <!-- RS2008 asks for release-tracking files per diagnostic, which only a published
+             analyzer package needs. -->
+        <NoWarn>$(NoWarn);RS2008</NoWarn>
+    </PropertyGroup>
+
+    <!-- The same compiler version as the generators, for the same reason. -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>
