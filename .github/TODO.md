@@ -150,12 +150,12 @@ shadow where it is clearer.
 
 ### Input
 
-Keyboard, mouse, typed text and gamepads come from SDL3 into the `Input` resource, and the flat
-API hands out typed characters and pressed keys one at a time (`GetCharPressed`,
-`GetKeyPressed`). Text input is started once on the window and never stopped, so there is no IME
-composition window placed at a text field, and typing from a real keyboard has only been checked
-through injected text. Touch is not read, and a gamepad's sensors (gyro, touchpad) and lights are
-not reached.
+Keyboard, mouse, typed text and gamepads come from SDL3 into the `Input` resource, and the flat API
+hands out typed characters and pressed keys one at a time (`GetCharPressed`, `GetKeyPressed`). Text
+input is started once on the window and never stopped, so there is no IME composition window placed
+at a text field, and typing from a real keyboard has only been checked through injected text.
+Fingers are read as touch points (`GetTouchPosition`), with no gestures such as raylib's taps and
+pinches, and a gamepad's sensors (gyro, touchpad) and lights are not reached.
 
 ## Project
 

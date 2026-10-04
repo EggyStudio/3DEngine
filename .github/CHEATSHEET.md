@@ -110,6 +110,11 @@ void HideCursor();                                       // Hide the cursor
 bool IsCursorHidden();                                   // Whether it is hidden
 void DisableCursor();                                    // Hide the cursor and hold it, for mouse look
 void EnableCursor();                                     // Release and show it
+int GetTouchPointCount();                                // Fingers on the screen (1 while the left button is held with none)
+Vector2 GetTouchPosition(int index);                     // Where a finger is (the pointer for 0 with none down)
+int GetTouchPointId(int index);                          // The id a finger keeps while it stays down
+int GetTouchX();                                         // The first finger's x
+int GetTouchY();                                         // The first finger's y
 
 bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
 string GetGamepadName(int gamepad);                                    // Its name

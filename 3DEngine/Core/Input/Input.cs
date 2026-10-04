@@ -60,6 +60,10 @@ public sealed class Input
     private readonly HashSet<MouseButton> _mouseReleased = [];
 
     private readonly List<GamepadState> _gamepads = [];
+    private readonly List<TouchPoint> _touches = [];
+
+    /// <summary>The fingers on the screen, in the order they touched it, in window pixels.</summary>
+    public IReadOnlyList<TouchPoint> Touches => _touches;
     private readonly System.Collections.Concurrent.ConcurrentQueue<Action<Input>> _queued = new();
 
     /// <summary>Absolute X position of the mouse cursor in window pixels.</summary>
@@ -262,6 +266,20 @@ public sealed class Input
     /// <summary>Sets the absolute mouse position in window pixels.</summary>
     /// <param name="x">The X coordinate.</param>
     /// <param name="y">The Y coordinate.</param>
+    /// <summary>Puts a finger down, moves it, or lifts it, by its id.</summary>
+    internal void SetTouch(long id, float x, float y, bool down)
+    {
+        var index = _touches.FindIndex(t => t.Id == id);
+        if (!down)
+        {
+            if (index >= 0) _touches.RemoveAt(index);
+            return;
+        }
+        var point = new TouchPoint(id, new System.Numerics.Vector2(x, y));
+        if (index >= 0) _touches[index] = point;
+        else _touches.Add(point);
+    }
+
     internal void SetMousePosition(int x, int y)
     {
         MouseX = x;
@@ -302,3 +320,8 @@ public sealed class Input
     public override string ToString() => 
         $"Input {{ Keys={_keysDown.Count} down, Mouse=({MouseX},{MouseY}), Buttons={_mouseDown.Count} down }}";
 }
+
+/// <summary>A finger on the screen, by the id the platform gives it while it stays down.</summary>
+/// <param name="Id">The finger's id, the same from the moment it touches until it lifts.</param>
+/// <param name="Position">Where it is, in window pixels from the top left corner.</param>
+public readonly record struct TouchPoint(long Id, System.Numerics.Vector2 Position);

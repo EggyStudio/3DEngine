@@ -55,14 +55,23 @@ public sealed class AppWindowPlugin : IPlugin
         {
             // Hook SDL events to update input; AppWindow already pumps events but we add handlers.
             var win = app.World.Resource<AppWindow>();
-            win.SDLEvent += e => ProcessInputEvent(e, input);
+            win.SDLEvent += e => ProcessInputEvent(e, input, win);
             win.EventsPolled += input.ApplyQueued;
         }
 
-        private static void ProcessInputEvent(SDL.Event e, Input input)
+        private static void ProcessInputEvent(SDL.Event e, Input input, AppWindow window)
         {
             switch ((SDL.EventType)e.Type)
             {
+                // A finger's place comes as a fraction of the window, scaled here to its pixels.
+                case SDL.EventType.FingerDown:
+                case SDL.EventType.FingerMotion:
+                    input.SetTouch((long)e.TFinger.FingerID, e.TFinger.X * window.Sdl.Width, e.TFinger.Y * window.Sdl.Height, down: true);
+                    break;
+                case SDL.EventType.FingerUp:
+                case SDL.EventType.FingerCanceled:
+                    input.SetTouch((long)e.TFinger.FingerID, 0, 0, down: false);
+                    break;
                 case SDL.EventType.MouseMotion:
                     input.SetMousePosition((int)e.Motion.X, (int)e.Motion.Y);
                     input.AddMouseDelta((int)e.Motion.XRel, (int)e.Motion.YRel);

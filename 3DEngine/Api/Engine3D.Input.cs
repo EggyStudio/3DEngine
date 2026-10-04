@@ -48,6 +48,28 @@ public static partial class Engine3D
     /// <summary>Whether <paramref name="button"/> is not held.</summary>
     public static bool IsMouseButtonUp(MouseButton button) => !Input.MouseDown(button);
 
+    // -- Touch, as raylib has it: with no finger down, a held left mouse button stands in for one,
+    // so a program written for touch runs with a mouse.
+
+    /// <summary>How many fingers are on the screen, or 1 while the left mouse button is held with none.</summary>
+    public static int GetTouchPointCount() =>
+        Input.Touches.Count > 0 ? Input.Touches.Count : Input.MouseDown(MouseButton.Left) ? 1 : 0;
+
+    /// <summary>Where finger <paramref name="index"/> is, in window pixels, or the pointer for 0 with no finger down.</summary>
+    public static Vector2 GetTouchPosition(int index) =>
+        (uint)index < (uint)Input.Touches.Count ? Input.Touches[index].Position
+        : index == 0 && Input.Touches.Count == 0 ? GetMousePosition()
+        : Vector2.Zero;
+
+    /// <summary>The id finger <paramref name="index"/> keeps while it stays down, or -1 when there is no such finger.</summary>
+    public static int GetTouchPointId(int index) => (uint)index < (uint)Input.Touches.Count ? (int)Input.Touches[index].Id : -1;
+
+    /// <summary>The first finger's horizontal position, or the pointer's with no finger down.</summary>
+    public static int GetTouchX() => (int)GetTouchPosition(0).X;
+
+    /// <summary>The first finger's vertical position, or the pointer's with no finger down.</summary>
+    public static int GetTouchY() => (int)GetTouchPosition(0).Y;
+
     /// <summary>The pointer's position in the window, from the top left corner.</summary>
     public static Vector2 GetMousePosition() => new(Input.MouseX, Input.MouseY);
 
