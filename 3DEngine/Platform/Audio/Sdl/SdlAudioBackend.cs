@@ -153,7 +153,8 @@ public sealed class SdlAudioBackend : IAudioBackend
         // Spatial voices need a forced-stereo destination so the L/R channel-map split
         // works regardless of the actual hardware layout. Non-spatial voices follow the
         // device spec directly (no panning required).
-        bool spatial = parameters.Position is not null;
+        // A pannable voice takes the same two streams, so its balance can be set as a positional one's is.
+        bool spatial = parameters.Position is not null || parameters.Pannable;
         var dstSpec = spatial
             ? new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = 2, Freq = _deviceSpec.Freq }
             : _deviceSpec;
@@ -203,7 +204,8 @@ public sealed class SdlAudioBackend : IAudioBackend
 
             float vol = parameters.Volume;
             // Pan defaults to 0 (centre) -> equal-power split = sqrt(0.5) on each side.
-            ApplyGainAndPan(streamL, streamR, vol, pan: 0f);
+            float pan = parameters.Pannable ? Math.Clamp(parameters.Pan, -1f, 1f) : 0f;
+            ApplyGainAndPan(streamL, streamR, vol, pan);
 
             float rate = parameters.PlaybackRate;
             if (rate > 0f && Math.Abs(rate - 1f) > 1e-6f)
@@ -219,7 +221,7 @@ public sealed class SdlAudioBackend : IAudioBackend
             }
 
             int id = _nextVoiceId++;
-            _voices[id] = new VoiceRecord(streamL, streamR, sound, parameters.Looping, parameters.Paused, vol, 0f);
+            _voices[id] = new VoiceRecord(streamL, streamR, sound, parameters.Looping, parameters.Paused, vol, pan);
             return id;
         }
     }

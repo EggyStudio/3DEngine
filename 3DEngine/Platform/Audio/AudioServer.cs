@@ -409,6 +409,16 @@ public sealed class AudioServer : IDisposable
         }
     }
 
+    internal void SetPan(int ticket, float pan)
+    {
+        lock (_lock)
+        {
+            if (!_voices.TryGetValue(ticket, out var rec)) return;
+            // A positional voice's balance follows its position, which Tick sets each frame.
+            if (rec.VoiceId != 0 && !rec.IsSpatial) _backend.SetVoicePan(rec.VoiceId, Math.Clamp(pan, -1f, 1f));
+        }
+    }
+
     internal void SetLooping(int ticket, bool looping)
     {
         lock (_lock)

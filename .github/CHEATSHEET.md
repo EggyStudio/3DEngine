@@ -440,6 +440,7 @@ void ResumeSound(Sound sound);                            // Resume
 bool IsSoundPlaying(Sound sound);                         // Whether it is playing
 void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), now and for the next play
 void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
+void SetSoundPan(Sound sound, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
 
 Music LoadMusicStream(string fileName);                   // Open a WAV or Ogg Vorbis file as music, streamed as it plays
 void UnloadMusicStream(Music music);                      // Stop music and close its file

@@ -38,6 +38,8 @@ public sealed class Engine3DAudioTests : IDisposable
         public void SetVoicePaused(int voiceId, bool paused) { if (paused) Paused.Add(voiceId); else Paused.Remove(voiceId); }
         public void SetListenerPosition(Vector3 position) { }
         public void SetVoicePlaybackRate(int voiceId, float rate) => Rates[voiceId] = rate;
+        public readonly Dictionary<int, float> Pans = [];
+        public void SetVoicePan(int voiceId, float pan) => Pans[voiceId] = pan;
 
         // Stream voices keep what is queued, and Play stands in for the device taking it.
         public readonly Dictionary<int, List<float>> Streams = [];
@@ -204,5 +206,20 @@ public sealed class Engine3DAudioTests : IDisposable
         IsAudioDeviceReady().Should().BeTrue();
         SetMasterVolume(0.5f);
         GetMasterVolume().Should().Be(0.5f);
+    }
+
+    [Fact]
+    public void A_Sounds_Pan_Is_Raylibs_Half_For_The_Middle_On_A_Voice_Ready_To_Pan()
+    {
+        var sound = LoadSound(WriteWav());
+        SetSoundPan(sound, 0);
+        PlaySound(sound);
+
+        var voice = _backend.Voices.Keys.Single();
+        _backend.Voices[voice].Pannable.Should().BeTrue("a sound can be panned while it plays");
+        _backend.Voices[voice].Pan.Should().Be(-1, "0 is full left");
+
+        SetSoundPan(sound, 0.75f);
+        _backend.Pans[voice].Should().Be(0.5f, "0.75 is halfway from the middle to the right");
     }
 }

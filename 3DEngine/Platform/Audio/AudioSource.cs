@@ -77,6 +77,16 @@ public readonly struct AudioSource : IEquatable<AudioSource>
         Server!.SetVolume(Id, volume);
     }
 
+    /// <summary>
+    /// Sets the balance, from -1 (left) to 1 (right), of a voice played with
+    /// <see cref="AudioVoiceParams.Pannable"/>. A positional voice's balance follows its position.
+    /// </summary>
+    public void SetPan(float pan)
+    {
+        if (!IsValid) return;
+        Server!.SetPan(Id, pan);
+    }
+
     /// <summary>Toggles the loop flag.</summary>
     public void SetLooping(bool looping)
     {

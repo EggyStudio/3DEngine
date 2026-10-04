@@ -119,6 +119,7 @@ public static partial class Engine3D
         public AudioSource Voice;
         public float Volume = 1f;
         public float Pitch = 1f;
+        public float Pan = 0.5f;
     }
 
     private static readonly ConditionalWeakTable<Sound, SoundState> SoundStates = new();
@@ -195,7 +196,13 @@ public static partial class Engine3D
         if (!IsSoundValid(sound) || Audio() is not { } audio) return;
         var state = SoundStates.GetOrCreateValue(sound);
         state.Voice.Stop();
-        state.Voice = audio.Play(sound, new AudioVoiceParams { Volume = Math.Max(state.Volume, 1e-6f) });
+        // Pannable, so SetSoundPan applies to a sound already playing, as raylib's does.
+        state.Voice = audio.Play(sound, new AudioVoiceParams
+        {
+            Volume = Math.Max(state.Volume, 1e-6f),
+            Pannable = true,
+            Pan = state.Pan * 2 - 1,
+        });
         if (state.Pitch != 1f) state.Voice.SetPlaybackRate(state.Pitch);
     }
 
@@ -235,6 +242,17 @@ public static partial class Engine3D
         var state = SoundStates.GetOrCreateValue(sound);
         state.Pitch = Math.Max(0.01f, pitch);
         state.Voice.SetPlaybackRate(state.Pitch);
+    }
+
+    /// <summary>
+    /// Sets a sound's balance, as raylib's 0 (left) to 1 (right) with 0.5 in the middle, for this
+    /// play and the next.
+    /// </summary>
+    public static void SetSoundPan(Sound sound, float pan)
+    {
+        var state = SoundStates.GetOrCreateValue(sound);
+        state.Pan = Math.Clamp(pan, 0f, 1f);
+        state.Voice.SetPan(state.Pan * 2 - 1);
     }
 
     // -- Music

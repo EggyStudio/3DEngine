@@ -50,6 +50,15 @@ public readonly record struct AudioVoiceParams
     /// </summary>
     public float PlaybackRate { get; init; }
 
+    /// <summary>
+    /// Whether the voice's balance can be set, through <see cref="IAudioBackend.SetVoicePan"/>,
+    /// as a positional voice's always can. A backend may spend a second stream on it.
+    /// </summary>
+    public bool Pannable { get; init; }
+
+    /// <summary>The balance a pannable voice starts at, from -1 (left) to 1 (right).</summary>
+    public float Pan { get; init; }
+
     /// <summary>Reusable defaults: non-spatial, unity volume, no loop, playing, omni.</summary>
     public static AudioVoiceParams Default => new() { Volume = 1f, DipolePower = 1f, PlaybackRate = 1f };
 }
