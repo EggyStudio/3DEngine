@@ -506,7 +506,9 @@ float3 harmonics(float4 c[9], float3 n)
     return max(sum, float3(0.0));
 }
 
-// The bound probe whose box holds a point, the smallest where boxes overlap, or -1.
+// The bound probe whose box holds a point, the smallest where boxes overlap, or -1. A point a
+// hundredth past a wall of the box still counts, so a room's wall built on the box's wall is in it
+// everywhere rather than in it and out of it pixel by pixel.
 int probeAt(float3 p)
 {
     int found = -1;
@@ -516,7 +518,7 @@ int probeAt(float3 p)
         float3 h = lighting.probes[i].halfSizeAndMip.xyz;
         float3 d = abs(p - lighting.probes[i].centerAndIntensity.xyz);
         float volume = h.x * h.y * h.z;
-        if (all(d <= h) && volume < smallest)
+        if (all(d <= h * 1.01 + 0.01) && volume < smallest)
         {
             found = i;
             smallest = volume;
