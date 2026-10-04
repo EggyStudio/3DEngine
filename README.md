@@ -112,7 +112,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/scenes_level.png" width="400"/><br>`scenes_level` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_animation.png" width="400"/><br>`models_animation` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/physics_boxes.png" width="400"/><br>`physics_boxes` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/pusher.png" width="400"/><br>`games/Pusher` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/hopper.png" width="400"/><br>`games/Hopper` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_bunnymark.png" width="400"/><br>`textures_bunnymark` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_stress.png" width="400"/><br>`models_stress` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_stress.png" width="400"/><br>`models_stress` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_font_sdf.png" width="400"/><br>`text_font_sdf` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates

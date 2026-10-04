@@ -482,6 +482,7 @@ Font GetFontDefault(int size);                                                  
 Font LoadFont(string fileName);                                                             // A TrueType or OpenType font, baked at 32 pixels
 Font LoadFontEx(string fileName, int fontSize);                                             // Baked at a size, with the Latin-1 characters
 Font LoadFontEx(string fileName, int fontSize, int[] codepoints);                           // Baked with exactly these characters (Greek, Cyrillic, ...)
+Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type);          // FontType.Sdf bakes a distance field, sharp at any size
 int[] LoadCodepoints(string text);                                                          // The distinct characters of a text, for LoadFontEx
 void UnloadFont(Font font);                                                                 // Free its atlas
 void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font

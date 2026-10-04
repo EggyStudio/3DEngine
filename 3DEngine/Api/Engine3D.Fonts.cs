@@ -7,12 +7,31 @@ namespace Engine;
 /// <summary>One character of a <see cref="Font"/>: where it sits relative to the pen, where it is in the atlas, and how far it moves the pen.</summary>
 public readonly record struct Glyph(float X0, float Y0, float X1, float Y1, float U0, float V0, float U1, float V1, float Advance);
 
+/// <summary>How a font's glyphs are baked, as raylib's <c>FontType</c>.</summary>
+public enum FontType
+{
+    /// <summary>Glyphs as coverage, smoothed at their edges.</summary>
+    Default,
+
+    /// <summary>Glyphs as coverage, which this engine bakes the same as <see cref="Default"/>.</summary>
+    Bitmap,
+
+    /// <summary>
+    /// Glyphs as signed distance fields, which stay sharp drawn far larger than their bake.
+    /// </summary>
+    Sdf,
+}
+
 /// <summary>A font baked into a texture of glyphs at one size.</summary>
-/// <remarks>Drawing it at another size scales the glyphs, which blurs a bilinear atlas and blocks a point-filtered one.</remarks>
+/// <remarks>
+/// Drawing it at another size scales the glyphs, which blurs a bilinear atlas and blocks a
+/// point-filtered one, unless the font was loaded as <see cref="FontType.Sdf"/>.
+/// </remarks>
 public sealed class Font
 {
-    internal Font(Texture2D texture, float baseSize, float lineHeight, Dictionary<int, Glyph> glyphs, Image atlas = default)
+    internal Font(Texture2D texture, float baseSize, float lineHeight, Dictionary<int, Glyph> glyphs, Image atlas = default, FontType type = FontType.Default)
     {
+        Type = type;
         Atlas = atlas;
         Texture = texture;
         BaseSize = baseSize;
@@ -35,6 +54,14 @@ public sealed class Font
     /// <summary>The glyphs, by code point.</summary>
     public IReadOnlyDictionary<int, Glyph> Glyphs { get; }
 
+    /// <summary>How the glyphs were baked.</summary>
+    /// <remarks>
+    /// An <see cref="FontType.Sdf"/> atlas holds in its alpha the distance from each texel to the
+    /// glyph's edge, 0.5 on the edge and an eighth more for each pixel of the bake inside it, as
+    /// raylib's does, so raylib's <c>sdf.fs</c> reads it unchanged.
+    /// </remarks>
+    public FontType Type { get; }
+
     /// <summary>Whether the font has an atlas to draw from.</summary>
     public bool IsValid => Texture.IsValid && Glyphs.Count > 0;
 }
@@ -56,6 +83,9 @@ public static partial class Engine3D
         DefaultFontSizes.Clear();
         if (_defaultFont is { } fallback && IsTextureValid(fallback.Texture)) UnloadTexture(fallback.Texture);
         _defaultFont = null;
+        // The shader went with the window's shader store.
+        _sdfShader = default;
+        _sdfShaderFailed = false;
     }
 
     /// <summary>The engine's default font: ProggyClean at 13 pixels, point filtered so it scales as pixels.</summary>
@@ -144,6 +174,130 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>
+    /// Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels as
+    /// <paramref name="type"/>, with the characters in <paramref name="codepoints"/>, or the
+    /// Latin-1 ones when it is null.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A <see cref="FontType.Sdf"/> font is drawn by <see cref="DrawTextEx"/> through the engine's
+    /// distance field shader, which keeps its edges a pixel wide at any size, so a font baked at 32
+    /// pixels serves text from 16 to several hundred. Inside <see cref="BeginShaderMode"/> the
+    /// program's shader draws it instead, as raylib's <c>sdf.fs</c> example does.
+    /// </para>
+    /// <para>
+    /// The glyphs are rasterized at four times the size and their distances measured there, so
+    /// thin strokes and corners keep their shape, and loading takes longer than a coverage bake.
+    /// </para>
+    /// </remarks>
+    /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
+    public static unsafe Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type)
+    {
+        if (type != FontType.Sdf)
+            return codepoints is null ? LoadFontEx(fileName, fontSize) : LoadFontEx(fileName, fontSize, codepoints);
+
+        var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
+            return GetFontDefault();
+        }
+
+        var ranges = codepoints is null ? null : GlyphRanges(codepoints);
+        if (ranges is { Length: 1 })
+        {
+            ApiLogger.Warn("LoadFontEx: no code points below U+10000 were given. Using the default font.");
+            return GetFontDefault();
+        }
+
+        fontSize = Math.Max(4, fontSize);
+        fixed (ushort* pinned = ranges)
+        {
+            if (BakeDistanceField(path, fontSize, ranges is null ? IntPtr.Zero : (IntPtr)pinned) is not { } baked)
+            {
+                ApiLogger.Warn("A font could not be baked.");
+                return GetFontDefault();
+            }
+
+            var texture = LoadTextureFromImage(baked.Field);
+            SetTextureFilter(texture, TextureFilter.Bilinear);
+            return new Font(texture, fontSize, fontSize, baked.Glyphs, baked.Coverage, FontType.Sdf);
+        }
+    }
+
+    /// <summary>
+    /// Bakes a font file's glyphs as a distance field at <paramref name="fontSize"/> pixels, with
+    /// the characters in <paramref name="ranges"/> (pinned pairs ending in zero), or the Latin-1
+    /// ones when it is zero.
+    /// </summary>
+    internal static unsafe (Image Field, Image Coverage, Dictionary<int, Glyph> Glyphs)? BakeDistanceField(string path, int fontSize, IntPtr ranges)
+    {
+        // Glyphs past 64 pixels have detail enough at a smaller factor, and a smaller atlas.
+        var factor = fontSize <= 64 ? 4 : fontSize <= 128 ? 2 : 1;
+        var config = ImGuiNative.ImFontConfig_ImFontConfig();
+        try
+        {
+            // One texel of the bake to one pixel of the glyph, so a glyph's corners and its
+            // texture coordinates grow by the same padding.
+            config->OversampleH = 1;
+            config->OversampleV = 1;
+            var baked = BakeAtlas(atlas =>
+            {
+                // Room between glyphs for the distances on both sides of each.
+                atlas.TexGlyphPadding = 2 * SdfPadding * factor;
+                return atlas.AddFontFromFileTTF(path, fontSize * factor, new ImFontConfigPtr(config),
+                    ranges == IntPtr.Zero ? atlas.GetGlyphRangesDefault() : ranges);
+            });
+            return baked is { } b ? DistanceFieldAtlas(b.Image, b.Glyphs, factor) : null;
+        }
+        finally
+        {
+            ImGuiNative.ImFontConfig_destroy(config);
+        }
+    }
+
+    // How far past each glyph's edge, in pixels of the bake, its distances reach, which raylib's
+    // padding of 4 and scale of 32 a pixel also give.
+    internal const int SdfPadding = 4;
+
+    /// <summary>
+    /// Turns an atlas of glyphs baked <paramref name="factor"/> times too large into a distance
+    /// field atlas at the size meant, and an atlas of coverage for drawing into images, with each
+    /// glyph grown by <see cref="SdfPadding"/> pixels on every side to hold its distances.
+    /// </summary>
+    internal static (Image Field, Image Coverage, Dictionary<int, Glyph> Glyphs) DistanceFieldAtlas(Image baked, Dictionary<int, Glyph> glyphs, int factor)
+    {
+        var alpha = new byte[baked.Width * baked.Height];
+        for (int i = 0; i < alpha.Length; i++) alpha[i] = baked.Data[i * 4 + 3];
+        var distances = DistanceField.Shrink(DistanceField.Signed(alpha, baked.Width, baked.Height),
+            baked.Width, baked.Height, factor, out var width, out var height);
+
+        var field = new byte[width * height * 4];
+        var coverage = new byte[width * height * 4];
+        for (int i = 0; i < distances.Length; i++)
+        {
+            field.AsSpan(i * 4, 3).Fill(255);
+            coverage.AsSpan(i * 4, 3).Fill(255);
+            field[i * 4 + 3] = (byte)Math.Clamp(MathF.Round((0.5f + distances[i] / (2 * SdfPadding)) * 255), 0, 255);
+            coverage[i * 4 + 3] = (byte)Math.Clamp(MathF.Round((0.5f + distances[i]) * 255), 0, 255);
+        }
+
+        // Texture coordinates stay fractions of the atlas, which the shrink rounded up to whole
+        // texels, so they scale by what that rounding added.
+        var (su, sv) = ((float)baked.Width / (width * factor), (float)baked.Height / (height * factor));
+        var (pu, pv) = ((float)SdfPadding / width, (float)SdfPadding / height);
+        var grown = new Dictionary<int, Glyph>(glyphs.Count);
+        foreach (var (codepoint, g) in glyphs)
+        {
+            grown[codepoint] = g.X1 > g.X0 && g.Y1 > g.Y0
+                ? new Glyph(g.X0 / factor - SdfPadding, g.Y0 / factor - SdfPadding, g.X1 / factor + SdfPadding, g.Y1 / factor + SdfPadding,
+                    g.U0 * su - pu, g.V0 * sv - pv, g.U1 * su + pu, g.V1 * sv + pv, g.Advance / factor)
+                : g with { X0 = g.X0 / factor, Y0 = g.Y0 / factor, X1 = g.X1 / factor, Y1 = g.Y1 / factor, Advance = g.Advance / factor };
+        }
+        return (new Image(field, width, height), new Image(coverage, width, height), grown);
+    }
+
     /// <summary>The distinct code points of <paramref name="text"/>, in order, for <see cref="LoadFontEx(string, int, int[])"/>.</summary>
     public static int[] LoadCodepoints(string text) => text.EnumerateRunes().Select(r => r.Value).Distinct().ToArray();
 
@@ -178,6 +332,11 @@ public static partial class Engine3D
     {
         if (!font.IsValid || string.IsNullOrEmpty(text)) return;
 
+        // A distance field font is drawn through the engine's shader unless the program has one
+        // of its own in place.
+        var sdf = font.Type == FontType.Sdf && DrawList.Shader == 0 && SdfShader().IsValid;
+        if (sdf) DrawList.SetShader(_sdfShader.Id, default);
+
         var scale = fontSize / font.BaseSize;
         var pen = position;
         foreach (var rune in text.EnumerateRunes())
@@ -198,6 +357,27 @@ public static partial class Engine3D
             }
             pen.X += g.Advance * scale + spacing;
         }
+
+        if (sdf) DrawList.SetShader(0, default);
+    }
+
+    private static Shader _sdfShader;
+    private static bool _sdfShaderFailed;
+
+    // The engine's distance field shader, compiled once per window from the staged sdf.slang. A
+    // compiler missing or failing leaves fonts drawn from their distances as coverage, softer but
+    // readable, and says so once.
+    private static Shader SdfShader()
+    {
+        if (_sdfShader.IsValid || _sdfShaderFailed) return _sdfShader;
+        var path = Path.Combine(AppContext.BaseDirectory, "source", "shaders", "sdf.slang");
+        _sdfShader = File.Exists(path) ? LoadShaderFromMemory(File.ReadAllText(path), "sdf.slang") : default;
+        if (!_sdfShader.IsValid)
+        {
+            _sdfShaderFailed = true;
+            ApiLogger.Warn("DrawTextEx: the distance field shader is not available, so SDF fonts are drawn soft.");
+        }
+        return _sdfShader;
     }
 
     /// <summary>Draws text into an image in the default font, as <see cref="DrawText"/> draws it on the screen.</summary>

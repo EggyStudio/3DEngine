@@ -189,6 +189,39 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Distance_Field_Font_Keeps_Its_Edges_Sharp_Drawn_Far_Past_Its_Bake()
+    {
+        Open(96, 128);
+        var lato = Engine.Tests.Api.FontTests.Lato();
+        var plain = LoadFontEx(lato, 16, ['I']);
+        var sdf = LoadFontEx(lato, 16, ['I'], FontType.Sdf);
+        sdf.Type.Should().Be(FontType.Sdf);
+
+        // Pixels on an edge, between the background and the stroke, and the stroke's ink in all.
+        (int Edge, double Ink) Strokes(Font font)
+        {
+            var image = Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                DrawTextEx(font, "I", new Vector2(16, 0), 128, 0, Color.White);
+            }, $"I {font.Type}");
+            var ink = 0.0;
+            for (int y = 0; y < 128; y++)
+                for (int x = 0; x < 96; x++)
+                    ink += GetImageColor(image, x, y).R / 255.0;
+            return (Count(image, 0, 0, 96, 128, c => c.R is > 30 and < 225), ink);
+        }
+
+        var blurred = Strokes(plain);
+        var sharp = Strokes(sdf);
+        sharp.Ink.Should().BeGreaterThan(400, "the stroke is drawn");
+        sharp.Ink.Should().BeApproximately(blurred.Ink, blurred.Ink * 0.3, "both draw the same stroke");
+        sharp.Edge.Should().BeLessThan(blurred.Edge / 2, $"the distance field smooths over a pixel where a coverage bake scaled eight times smooths over eight, {sharp.Edge} against {blurred.Edge}");
+        UnloadFont(plain);
+        UnloadFont(sdf);
+    }
+
+    [NeedsVulkanFact]
     public void A_Render_Target_Holds_What_Was_Drawn_Into_It_And_Draws_As_A_Texture()
     {
         Open(64, 32);

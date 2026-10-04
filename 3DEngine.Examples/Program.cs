@@ -26,6 +26,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_model"] = ShadersModel.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,
+    ["text_font_sdf"] = TextFontSdf.Run,
     ["audio_sound"] = AudioSound.Run,
     ["gui_imgui_window"] = GuiImGuiWindow.Run,
     ["ecs_behaviors"] = EcsBehaviors.Run,

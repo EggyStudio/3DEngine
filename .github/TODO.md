@@ -75,9 +75,10 @@ physics, text and fonts, audio and text files
   Mesh entities have no animation component, so only the flat API animates. A material the
   program makes draws both sides of each face unless `DoubleSided` is cleared, so
   `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
-- **Fonts bake at one size each**, with no signed distance fields, so text far larger than its
-  bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
-  (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.
+- **Fonts bake at one size each**, and a coverage font drawn far larger than its bake blurs, where
+  one loaded as `FontType.Sdf` stays sharp. A font has Latin-1 or the characters it was asked for,
+  and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names characters
+  in 16 bits.
 - **Render targets** have no depth to sample. The window and targets are multisampled at
   `Config.Samples` (4 by default, `SetConfigSamples` before the window opens). Window state and
   monitors are queried and changed, but a monitor's modes cannot be listed or switched.
