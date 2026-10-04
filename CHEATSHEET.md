@@ -736,6 +736,12 @@ void UnloadFont(Font font);                                                     
 void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
 void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Rotated around an origin
 Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing);               // Its width and height
+Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? codepoints); // A font file already in memory (".ttf")
+void SetTextLineSpacing(int spacing);                                                       // Lines a size and this many pixels apart
+void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint); // One character by its code point
+void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint); // Characters by code point
+Glyph? GetGlyphInfo(Font font, int codepoint);                                              // Where a glyph sits and how far it advances
+Rectangle GetGlyphAtlasRec(Font font, int codepoint);                                       // Where it lies in the atlas, in pixels
 ```
 
 Text is drawn in the draw list like any shape, so it keeps its place among shapes, reaches render

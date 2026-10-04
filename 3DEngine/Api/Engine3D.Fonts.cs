@@ -395,7 +395,7 @@ public static partial class Engine3D
         {
             if (rune.Value == '\n')
             {
-                pen = new Vector2(0, pen.Y + font.LineHeight * scale);
+                pen = new Vector2(0, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
             if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
@@ -451,7 +451,7 @@ public static partial class Engine3D
         {
             if (rune.Value == '\n')
             {
-                pen = new Vector2(position.X, pen.Y + font.LineHeight * scale);
+                pen = new Vector2(position.X, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
             if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
@@ -464,6 +464,88 @@ public static partial class Engine3D
             }
             pen.X += g.Advance * scale + spacing;
         }
+    }
+
+    // The pixels between lines raylib's SetTextLineSpacing set, and the app it was set in, so a
+    // window opened afterward starts with each font's own line height.
+    private static (App? App, int Spacing)? _textLineSpacing;
+
+    /// <summary>
+    /// Sets the pixels between the tops of a text's lines to its size and this much more, for text
+    /// drawn and measured after it, in place of each font's own line height.
+    /// </summary>
+    public static void SetTextLineSpacing(int spacing) => _textLineSpacing = (_app, spacing);
+
+    // How far down a newline moves, at a size: the size and the set spacing, or the font's own height.
+    private static float LineAdvance(Font font, float fontSize) =>
+        _textLineSpacing is { } set && ReferenceEquals(set.App, _app) ? fontSize + set.Spacing : font.LineHeight * (fontSize / font.BaseSize);
+
+    /// <summary>Draws one character, by its code point, in a font.</summary>
+    public static void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint)
+    {
+        if (System.Text.Rune.IsValid(codepoint)) DrawTextEx(font, char.ConvertFromUtf32(codepoint), position, fontSize, 0, tint);
+    }
+
+    /// <summary>Draws characters by their code points in a font, as <see cref="DrawTextEx"/> draws a string.</summary>
+    public static void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint) =>
+        DrawTextEx(font, string.Concat(codepoints.Where(System.Text.Rune.IsValid).Select(char.ConvertFromUtf32)), position, fontSize, spacing, tint);
+
+    /// <summary>A character's glyph in a font, where it sits and how far it advances, or null when the font lacks it.</summary>
+    public static Glyph? GetGlyphInfo(Font font, int codepoint) => font.Glyphs.TryGetValue(codepoint, out var glyph) ? glyph : null;
+
+    /// <summary>Where a character's glyph lies in the font's atlas, in pixels, or an empty rectangle when the font lacks it.</summary>
+    public static Rectangle GetGlyphAtlasRec(Font font, int codepoint)
+    {
+        if (!font.Glyphs.TryGetValue(codepoint, out var g)) return default;
+        var (w, h) = (font.Texture.Width, font.Texture.Height);
+        return new Rectangle(g.U0 * w, g.V0 * h, (g.U1 - g.U0) * w, (g.V1 - g.V0) * h);
+    }
+
+    /// <summary>
+    /// Loads a TrueType or OpenType font from a file already in memory, by its type, as
+    /// <c>".ttf"</c>, baked at <paramref name="fontSize"/> pixels with the characters in
+    /// <paramref name="codepoints"/>, or the Latin-1 ones when it is null.
+    /// </summary>
+    /// <remarks>The bytes are kept with the font, so it is baked again at the larger sizes it is drawn at, as one from a file is.</remarks>
+    /// <returns>The font, or the default font when the bytes cannot be read, with the reason in the log.</returns>
+    public static unsafe Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? codepoints)
+    {
+        if (!fileType.TrimStart('.').ToLowerInvariant().Equals("ttf") && !fileType.TrimStart('.').ToLowerInvariant().Equals("otf"))
+        {
+            ApiLogger.Warn($"LoadFontFromMemory: '{fileType}' is not a font type the engine reads (TTF, OTF). Using the default font.");
+            return GetFontDefault();
+        }
+        var ranges = codepoints is null ? null : GlyphRanges(codepoints);
+        if (ranges is { Length: 1 })
+        {
+            ApiLogger.Warn("LoadFontFromMemory: no code points below U+10000 were given. Using the default font.");
+            return GetFontDefault();
+        }
+
+        // The atlas reads the bytes and ranges when it builds, after AddFontFromMemoryTTF returns,
+        // so both stay pinned until the bake is done, and the atlas is told the bytes are not its
+        // own to free.
+        Font? BakeAt(int size)
+        {
+            var config = ImGuiNative.ImFontConfig_ImFontConfig();
+            try
+            {
+                config->FontDataOwnedByAtlas = 0;
+                fixed (byte* data = fileData)
+                fixed (ushort* pinned = ranges)
+                {
+                    var (address, length) = ((IntPtr)data, fileData.Length);
+                    var glyphs = (IntPtr)pinned;
+                    return Bake(atlas => atlas.AddFontFromMemoryTTF(address, length, Math.Max(4, size), new ImFontConfigPtr(config),
+                        glyphs == IntPtr.Zero ? atlas.GetGlyphRangesDefault() : glyphs), TextureFilter.Bilinear);
+                }
+            }
+            finally
+            {
+                ImGuiNative.ImFontConfig_destroy(config);
+            }
+        }
+        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
     }
 
     /// <summary>A new image holding text in the default font, as large as the text, clear around it.</summary>
@@ -499,7 +581,7 @@ public static partial class Engine3D
             }
             if (font.Glyphs.TryGetValue(rune.Value, out var g)) line += g.Advance * scale + spacing;
         }
-        return new Vector2(Math.Max(width, line), lines * font.LineHeight * scale);
+        return new Vector2(Math.Max(width, line), (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
     }
 
     // Bakes the atlas, then copies its pixels into a texture, so nothing of ImGui's is kept for the font.

@@ -71,6 +71,41 @@ public class FontTests
     }
 
     [Fact]
+    public void A_Font_From_Memory_Draws_As_One_From_Its_File_And_Lines_Take_The_Spacing_Set()
+    {
+        var app = new App();
+        app.World.InitResource<TextureStore>();
+        app.World.InitResource<DrawList>();
+        Engine3D.UseApp(app);
+        try
+        {
+            var fromFile = Engine3D.LoadFontEx(Lato(), 24);
+            var fromMemory = Engine3D.LoadFontFromMemory(".ttf", File.ReadAllBytes(Lato()), 24, null);
+
+            fromMemory.Glyphs['A'].Should().Be(fromFile.Glyphs['A'], "the same bytes bake the same glyphs");
+            Engine3D.GetGlyphInfo(fromMemory, 'A').Should().Be(fromFile.Glyphs['A']);
+            Engine3D.GetGlyphInfo(fromMemory, 0x4E00).Should().BeNull("Latin-1 has no CJK");
+            var rec = Engine3D.GetGlyphAtlasRec(fromMemory, 'A');
+            (rec.Width, rec.Height).Should().Match<(float W, float H)>(s => s.W > 0 && s.H > 0);
+            Engine3D.LoadFontFromMemory(".png", [1, 2, 3], 24, null).Should().BeSameAs(Engine3D.GetFontDefault());
+
+            var twoLines = Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y;
+            Engine3D.SetTextLineSpacing(16);
+            Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().BeApproximately(24 + 16 + fromMemory.LineHeight, 0.01f,
+                "a line then moves down by the size and the spacing");
+            Engine3D.MeasureTextEx(fromMemory, "A\nA", 24, 0).Y.Should().NotBe(twoLines);
+
+            Engine3D.DrawTextCodepoints(fromMemory, ['H', 'i'], System.Numerics.Vector2.Zero, 24, 0, Color.White);
+            Engine3D.DrawTextCodepoint(fromMemory, 'A', System.Numerics.Vector2.Zero, 24, Color.White);
+            app.World.Resource<DrawList>().Vertices.Length.Should().BeGreaterThan(0);
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
+    }
+
+    [Fact]
     public void A_Font_Bakes_The_Characters_Asked_For_Beyond_Latin_1()
     {
         var lato = Lato();
