@@ -36,6 +36,26 @@ public partial class DocumentLinkTests
     }
 
     [Fact]
+    public void A_Picture_In_The_Gallery_Opens_Raylibs_Demo_Exactly_When_Raylib_Has_The_Example()
+    {
+        var root = RepoRoot();
+        var hosted = File.ReadAllLines(Path.Combine(root, "build", "raylib-examples.txt"))
+            .Where(l => l.Length > 0 && !l.StartsWith('#')).ToHashSet();
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var wrong = new List<string>();
+        foreach (Match picture in Picture().Matches(readme))
+        {
+            var name = picture.Groups["name"].Value;
+            var link = picture.Groups["link"].Success ? picture.Groups["link"].Value : null;
+            var expected = hosted.Contains(name) ? $"https://www.raylib.com/examples/{name.Split('_')[0]}/loader.html?name={name}" : null;
+            if (link != expected) wrong.Add($"{name}: links {link ?? "nothing"}, where {expected ?? "nothing"} belongs");
+        }
+
+        string.Join("\n", wrong).Should().BeEmpty("build/raylib-examples.txt names the examples raylib's site runs");
+        hosted.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void A_Heading_Is_Linked_By_Its_Words_In_Lower_Case_Joined_By_Hyphens()
     {
         Slug("Window and timing").Should().Be("window-and-timing");
@@ -67,6 +87,10 @@ public partial class DocumentLinkTests
 
     [GeneratedRegex(@"\]\((?<target>[^)\s]+)\)")]
     private static partial Regex Link();
+
+    // A gallery picture, with the address it links to when it is inside a link.
+    [GeneratedRegex(@"(?:<a href=""(?<link>[^""]+)"">)?<img src=""[^""]*/assets/examples/(?<name>[a-z0-9_]+)\.png""")]
+    private static partial Regex Picture();
 
     private static string RepoRoot()
     {

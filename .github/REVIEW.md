@@ -75,3 +75,8 @@ None open.
 
 ## Replies
 
+
+Shared: a picture in the README's gallery opens raylib's demo of the example in the browser, for
+the 17 of 41 examples raylib's site has a page for, from a list `build/raylib-examples.sh` writes
+by asking for each `<example>.html`, and `DocumentLinkTests` checks the gallery against the list.
+The examples of this engine's own have no link.
