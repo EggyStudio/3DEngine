@@ -127,6 +127,24 @@ dotnet add package 3DEngine --version "0.1.0-*"
 The program at the top of the README then goes into `Program.cs`. `build/readme-walk.sh <package
 folder>` follows these steps with that program in a new folder, and CI runs it.
 
+### Shipping a game
+
+A game is shipped with `dotnet publish`, as a folder with the .NET runtime in it or as one native
+executable through native AOT, which starts at once and needs nothing installed:
+
+```bash
+dotnet publish -c Release -r linux-x64 -p:PublishAot=true -o publish    # or win-x64, osx-arm64
+```
+
+`games/Pusher` publishes and runs this way, trimmed or native, with its level, physics, sound,
+ImGui panel and shaders, the engine's own compiled ahead in the package and the game's own in its
+`source/.slang-cache` (`e3d shaders`, above). Behaviors, scene components and console commands
+register through code the generator writes, from module initializers, so nothing is found by a
+search the trimmer could break. The analysis warnings a publish prints come from Assimp's native
+loader, the console's field writer (`entity.set`, a tool for development) and the compiler for
+behavior scripts, which loads assemblies at run time and so works only in a build that is not
+native. A native build runs the behaviors compiled into it.
+
 ## The generator
 
 `3DEngine.Generator` targets netstandard2.0 and references Roslyn 4.14, because the compiler refuses

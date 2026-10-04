@@ -1,14 +1,15 @@
 namespace Engine;
 
-/// <summary>Discovers and invokes source-generated behavior registration methods to wire systems into the app.</summary>
+/// <summary>Invokes the source-generated behavior registrations to wire systems into the app.</summary>
 /// <remarks>
-/// Scans all loaded assemblies for static methods annotated with
-/// <see cref="GeneratedBehaviorRegistrationAttribute"/>. Each discovered method is invoked with the
-/// <see cref="App"/> instance, allowing generated code to register systems, conditions, and resources.
+/// Each assembly with behaviors adds its generated registration to <see cref="GeneratedBehaviors"/>
+/// from a module initializer as it loads, and each is invoked here with the <see cref="App"/>, so
+/// generated code registers systems, conditions and resources with no search through types, which
+/// trimming and native AOT would break.
 /// </remarks>
 /// <example>
 /// <code>
-/// // Any [Behavior] struct in loaded assemblies is auto-discovered and registered:
+/// // Any [Behavior] struct in a loaded assembly is registered:
 /// [Behavior]
 /// public partial struct EnemyAI
 /// {
@@ -26,8 +27,8 @@ public sealed class BehaviorsPlugin : IPlugin
 
     /// <summary>
     /// Optional directory the <see cref="RuntimeBehaviorCompiler"/> watches for hot-reloadable
-    /// behavior scripts. When <see langword="null"/> (default), only compile-time
-    /// <c>[GeneratedBehaviorRegistration]</c> methods are scanned and no runtime compiler is started.
+    /// behavior scripts. When <see langword="null"/>, only the compile-time registrations run and no
+    /// runtime compiler is started.
     /// </summary>
     public string? ScriptsDirectory { get; init; } = Path.Combine(AppContext.BaseDirectory, "source", "behaviors");
 
@@ -40,41 +41,13 @@ public sealed class BehaviorsPlugin : IPlugin
     /// <inheritdoc />
     public void Build(App app)
     {
-        Logger.Info("BehaviorsPlugin: Scanning assemblies for generated behavior registrations...");
-        int found = 0;
         // Static contribution: tag every descriptor registered through generated methods so a
         // future hot-reload of those same behaviors (under DynamicSourceTag) does not collide.
+        var registrations = GeneratedBehaviors.All;
         using (new SystemRegistrationSourceScope("Static.Behaviors"))
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (asm.IsDynamic) continue;
-                try
-                {
-                    var bindingFlags = System.Reflection.BindingFlags.Public |
-                                       System.Reflection.BindingFlags.NonPublic |
-                                       System.Reflection.BindingFlags.Static;
-                    var attributeType = typeof(GeneratedBehaviorRegistrationAttribute);
-                    foreach (var type in asm.GetTypes())
-                    foreach (var m in type.GetMethods(bindingFlags))
-                    {
-                        if (m.GetCustomAttributes(attributeType, inherit: false).Length == 0) continue;
-                        var ps = m.GetParameters();
-                        if (ps.Length == 1 && ps[0].ParameterType == typeof(App))
-                        {
-                            Logger.Debug($"  Invoking behavior registration: {type.Name}.{m.Name}");
-                            m.Invoke(null, [app]);
-                            found++;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warn($"  Failed to scan assembly {asm.GetName().Name}: {ex.Message}");
-                }
-            }
-        }
-        Logger.Info($"BehaviorsPlugin: {found} static behavior registration(s) discovered and invoked.");
+            foreach (var register in registrations)
+                register(app);
+        Logger.Info($"BehaviorsPlugin: {registrations.Count} generated behavior registration(s) invoked.");
 
         // Optional dynamic contribution: hot-reload via Roslyn from a scripts directory.
         if (!string.IsNullOrEmpty(ScriptsDirectory))

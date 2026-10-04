@@ -771,6 +771,11 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                   public static void Register(global::Engine.App app)
                   {
               {{calls}}    }
+
+                  // Adds the registration to the engine's list as the assembly loads, so the
+                  // behaviors plugin finds it with no search of the assembly's types.
+                  [global::System.Runtime.CompilerServices.ModuleInitializer]
+                  internal static void AddToEngine() => global::Engine.GeneratedBehaviors.Add(Register);
               }
 
               """;
