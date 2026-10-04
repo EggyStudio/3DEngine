@@ -60,11 +60,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   a loop through one. A material the program makes draws both sides of each face unless
   `DoubleSided` is cleared, so `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's
   does.
-- **Fonts reach the Basic Multilingual Plane only.** A coverage font loaded from a file is baked
-  again at a size it is drawn at a quarter or more past its own, eight sizes at most, and one
-  loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the characters it was
-  asked for, and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names
-  characters in 16 bits.
+- **Color emoji and distance fields past U+FFFF are not drawn.** A coverage font loaded from a
+  file is baked again at a size it is drawn at a quarter or more past its own, eight sizes at
+  most, and one loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the
+  characters it was asked for, those past U+FFFF drawn by the engine's own TrueType reader into
+  the same atlas, since ImGui's names characters in 16 bits. A font of CFF outlines or color
+  bitmaps (most color emoji) gives none past U+FFFF, and a distance field font none either.
 
 ### Meshes, materials and light
 

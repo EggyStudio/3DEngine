@@ -2166,4 +2166,27 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(image, 34, 18).Should().Be(new Color(255, 0, 0), "the target's square is at the offset, twice its size");
         GetImageColor(image, 2, 2).Should().Be(new Color(0, 0, 255), "after EndMode2D drawing is in screen pixels again");
     }
+
+    [NeedsVulkanFact]
+    public void Characters_Past_U_FFFF_Are_Drawn_From_A_Font_File()
+    {
+        Open(160, 60);
+        var font = LoadFontEx(Engine.Tests.Fonts.TrueTypeFontTests.Planes, 40, ['A', 0x1F600, 0x1F7E0]);
+        font.Glyphs.Keys.Should().Contain([0x1F600, 0x1F7E0], "both are baked past the atlas builder's plane");
+        var text = "A" + char.ConvertFromUtf32(0x1F600) + char.ConvertFromUtf32(0x1F7E0);
+        MeasureTextEx(font, text, 40, 0).X.Should().BeApproximately(120, 1, "three glyphs 40 pixels across each");
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTextEx(font, text, new Vector2(0, 0), 40, 0, Color.White);
+        }, "planes");
+
+        // The square's glyph spans x 44 to 76 from the pen at 40, its hole 52 to 68, with its top
+        // 32 pixels above a baseline 33 down.
+        GetImageColor(image, 46, 20).R.Should().BeGreaterThan(200, "the square's edge is drawn");
+        GetImageColor(image, 60, 20).R.Should().BeLessThan(40, "its hole is left open");
+        GetImageColor(image, 100, 18).R.Should().BeGreaterThan(200, "the circle is drawn after it");
+        UnloadFont(font);
+    }
 }

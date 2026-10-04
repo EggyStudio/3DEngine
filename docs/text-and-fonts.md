@@ -82,7 +82,9 @@ DrawTextEx(wide, World, new Vector2(20, 270), 28, 0, Color.DarkPurple);
 ```
 
 A game with text in several languages bakes one font from all of its strings together. A character
-the font file lacks, or one past U+FFFF as most emoji are, draws as nothing.
+the font file lacks draws as nothing. Characters past U+FFFF, emoji and historic scripts among
+them, are baked from the font's outlines with the rest, so a monochrome emoji font such as Noto
+Emoji or Symbola draws them, where a color emoji font, whose glyphs are pictures, does not.
 
 ## Typed text
 

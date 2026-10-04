@@ -237,11 +237,15 @@ public static partial class Engine3D
     /// <summary>
     /// Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with exactly
     /// the characters in <paramref name="codepoints"/>, as raylib's does. Greek, Cyrillic, symbols
-    /// and the rest of the Basic Multilingual Plane are reached this way.
+    /// and the rest of the Basic Multilingual Plane are reached this way, and characters past U+FFFF,
+    /// such as emoji and historic scripts.
     /// </summary>
     /// <remarks>
-    /// Characters above U+FFFF, such as most emoji, are left out, because the atlas builder names
-    /// characters in 16 bits. Characters the font file does not have are skipped when drawn.
+    /// The atlas builder names characters in 16 bits, so those past U+FFFF are drawn by the engine's
+    /// own TrueType reader into a strip of the same atlas, at the same size and on the same
+    /// baseline. They need the font's outlines, which a TrueType font has and an OpenType font of
+    /// CFF outlines or a color emoji font of bitmaps does not. Characters the font file does not
+    /// have are skipped when drawn.
     /// </remarks>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
     public static unsafe Font LoadFontEx(string fileName, int fontSize, int[] codepoints)
@@ -253,12 +257,20 @@ public static partial class Engine3D
             return GetFontDefault();
         }
 
+        // Characters past U+FFFF, which the atlas builder cannot name, are drawn by the engine's own
+        // TrueType reader into the same atlas. The builder bakes at least a space, so the font has
+        // its line and baseline whatever was asked for.
+        var beyond = codepoints.Where(c => c is > 0xFFFF and <= 0x10FFFF).Distinct().Order().ToArray();
         var ranges = GlyphRanges(codepoints);
+        if (ranges.Length == 1 && beyond.Length > 0) ranges = GlyphRanges([' ']);
         if (ranges.Length == 1)
         {
-            ApiLogger.Warn("LoadFontEx: no code points below U+10000 were given. Using the default font.");
+            ApiLogger.Warn("LoadFontEx: no code points were given. Using the default font.");
             return GetFontDefault();
         }
+        var outlines = beyond.Length > 0 ? TrueTypeFont.Read(File.ReadAllBytes(path)) : null;
+        if (beyond.Length > 0 && outlines is null)
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
 
         // The atlas reads the ranges when it builds, after AddFontFromFileTTF returns, so they stay
         // pinned until the bake is done.
@@ -267,7 +279,8 @@ public static partial class Engine3D
             fixed (ushort* pinned = ranges)
             {
                 var address = (IntPtr)pinned;
-                return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, address), TextureFilter.Bilinear);
+                return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, address), TextureFilter.Bilinear,
+                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), beyond));
             }
         }
         return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
@@ -655,17 +668,73 @@ public static partial class Engine3D
     }
 
     // Bakes the atlas, then copies its pixels into a texture, so nothing of ImGui's is kept for the font.
-    private static Font? Bake(Func<ImFontAtlasPtr, ImFontPtr> add, TextureFilter filter)
+    private static Font? Bake(Func<ImFontAtlasPtr, ImFontPtr> add, TextureFilter filter,
+        Func<(Image Image, float Size, Dictionary<int, Glyph> Glyphs), (Image Image, float Size, Dictionary<int, Glyph> Glyphs)>? extend = null)
     {
         if (BakeAtlas(add) is not { } baked)
         {
             ApiLogger.Warn("A font could not be baked.");
             return null;
         }
+        if (extend is not null) baked = extend(baked);
 
         var texture = LoadTextureFromImage(baked.Image);
         SetTextureFilter(texture, filter);
         return new Font(texture, baked.Size, baked.Size, baked.Glyphs, baked.Image);
+    }
+
+    /// <summary>
+    /// An atlas with the characters past U+FFFF a font file has drawn into a strip below it, at the
+    /// size and on the baseline the atlas builder puts the rest at, which takes the builder's
+    /// scale, a pixel height of ascent to descent, and its ascent rounded up a pixel.
+    /// </summary>
+    private static (Image Image, float Size, Dictionary<int, Glyph> Glyphs) WithBeyondPlane(
+        (Image Image, float Size, Dictionary<int, Glyph> Glyphs) baked, TrueTypeFont outlines, int size, int[] codepoints)
+    {
+        var scale = size / (float)(outlines.Ascent - outlines.Descent);
+        var baseline = MathF.Round(MathF.Floor(outlines.Ascent * scale + 1));
+        var drawn = new List<(int Codepoint, byte[] Alpha, int Width, int Height, int Left, int Top, float Advance)>();
+        foreach (var codepoint in codepoints)
+        {
+            var glyph = outlines.GlyphIndex(codepoint);
+            if (glyph == 0) continue;
+            var advance = outlines.Advance(glyph) * scale;
+            if (outlines.Rasterize(glyph, scale) is { } r) drawn.Add((codepoint, r.Alpha, r.Width, r.Height, r.Left, r.Top, advance));
+            else drawn.Add((codepoint, [], 0, 0, 0, 0, advance));
+        }
+        if (drawn.Count == 0) return baked;
+
+        // Packed left to right in rows under the atlas, a texel apart.
+        var (atlas, width) = (baked.Image, baked.Image.Width);
+        var places = new List<(int X, int Y)>();
+        int x = 1, y = 1, row = 0;
+        foreach (var g in drawn)
+        {
+            if (x + g.Width + 1 > width) (x, y, row) = (1, y + row + 1, 0);
+            places.Add((x, y));
+            x += g.Width + 1;
+            row = Math.Max(row, g.Height);
+        }
+        int strip = y + row + 1, height = atlas.Height + strip;
+        var pixels = new byte[width * height * 4];
+        Array.Copy(atlas.Data, pixels, Math.Min(atlas.Data.Length, width * atlas.Height * 4));
+        var glyphs = new Dictionary<int, Glyph>();
+        foreach (var (codepoint, g) in baked.Glyphs)
+            glyphs[codepoint] = g with { V0 = g.V0 * atlas.Height / height, V1 = g.V1 * atlas.Height / height };
+        for (int i = 0; i < drawn.Count; i++)
+        {
+            var g = drawn[i];
+            var (px, py) = (places[i].X, atlas.Height + places[i].Y);
+            for (int gy = 0; gy < g.Height; gy++)
+                for (int gx = 0; gx < g.Width; gx++)
+                {
+                    int at = ((py + gy) * width + px + gx) * 4;
+                    (pixels[at], pixels[at + 1], pixels[at + 2], pixels[at + 3]) = (255, 255, 255, g.Alpha[gy * g.Width + gx]);
+                }
+            glyphs[g.Codepoint] = new Glyph(g.Left, baseline + g.Top, g.Left + g.Width, baseline + g.Top + g.Height,
+                (float)px / width, (float)py / height, (float)(px + g.Width) / width, (float)(py + g.Height) / height, g.Advance);
+        }
+        return (new Image(pixels, width, height), baked.Size, glyphs);
     }
 
     /// <summary>Builds an atlas holding one font and returns its pixels, its size and its glyph table, freeing the atlas.</summary>
