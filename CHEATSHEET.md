@@ -294,6 +294,7 @@ void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices
 ```csharp
 Image LoadImage(string fileName);                                                      // Read PNG, JPEG, BMP, TGA, PSD, GIF or HDR into memory
 Image GenImageColor(int width, int height, Color color);                               // An image of one color
+Image GenImageText(int width, int height, string text);                                // Text's bytes as gray pixels, then black
 Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard of checksX by checksY pixel squares
 Image GenImageGradientLinear(int width, int height, int direction, Color start, Color end); // A blend along a direction (0 top to bottom, 90 left to right)
 Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer); // A blend from the center outward
@@ -502,6 +503,7 @@ ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A 
 ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot as a tube of size
 ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
 ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
+bool ExportMesh(ModelMesh mesh, string fileName);                          // Write a Wavefront OBJ file of its shape
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh

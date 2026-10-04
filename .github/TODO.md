@@ -38,8 +38,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   the CPU, which the texture store does not keep. `LoadImageFromScreen` needs the frame as it is
   drawn, which the GPU has not finished when the call returns. The audio processors run on the
   audio thread, which the backend does not open to the program. VR stereo, automation events
-  (which `./e3d` stands in for), `ImageMipmaps`, `GenImageText`, `ExportMesh` and the C string
-  helpers (`TextFormat`, `TextSplit` and the rest, which C# has) are left out.
+  (which `./e3d` stands in for), `ImageMipmaps` and the C string helpers (`TextFormat`,
+  `TextSplit` and the rest, which C# has) are left out.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in

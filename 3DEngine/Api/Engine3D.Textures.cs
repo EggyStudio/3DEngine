@@ -83,6 +83,21 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>
+    /// Makes a grayscale image from text, each of its bytes a pixel as bright as the byte, row by
+    /// row from the top, and black past its end, as raylib's <c>GenImageText</c> does.
+    /// </summary>
+    public static Image GenImageText(int width, int height, string text)
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes(text ?? "");
+        return Generate(width, height, (x, y) =>
+        {
+            var at = y * width + x;
+            var value = at < bytes.Length ? bytes[at] : (byte)0;
+            return new Color(value, value, value);
+        });
+    }
+
     /// <summary>Makes an image of one color.</summary>
     public static Image GenImageColor(int width, int height, Color color)
     {

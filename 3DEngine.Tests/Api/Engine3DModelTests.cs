@@ -292,4 +292,47 @@ public sealed class Engine3DModelTests : IDisposable
         drawList.Vertices.ToArray().Select(v => v.Position).Should().OnlyContain(p => MathF.Abs(p.X) <= 0.52f && MathF.Abs(p.Y) <= 0.52f && MathF.Abs(p.Z) <= 0.52f,
             "every point is at a vertex of the unit cube");
     }
+
+    [Fact]
+    public void An_Exported_Mesh_Loads_Back_With_Its_Positions_And_Texture_Coordinates()
+    {
+        var cube = GenMeshCube(1, 2, 3);
+        var path = Path.Combine(_directory, "cube.obj");
+
+        ExportMesh(cube, path).Should().BeTrue();
+        var loaded = LoadModel(path);
+
+        var store = _app.World.Resource<MeshStore>();
+        store.TryGetData(cube.Id, out var made, out var madeIndices).Should().BeTrue();
+        loaded.Meshes.Should().ContainSingle();
+        store.TryGetData(loaded.Meshes[0].Id, out var read, out var readIndices).Should().BeTrue();
+        readIndices.Length.Should().Be(madeIndices.Length, "every triangle comes back");
+        // The corners as the triangles name them, each with where it samples the texture.
+        static string[] Corners(ModelVertex[] v, uint[] i) =>
+            [.. i.Select(n => $"{v[n].Position.X:0.###} {v[n].Position.Y:0.###} {v[n].Position.Z:0.###} {v[n].Uv.X:0.###} {v[n].Uv.Y:0.###}").Order()];
+        Corners(read, readIndices).Should().Equal(Corners(made, madeIndices));
+    }
+
+    [Fact]
+    public void An_Image_From_Text_Is_Its_Bytes_As_Gray_Then_Black()
+    {
+        var image = GenImageText(4, 2, "AB");
+
+        GetImageColor(image, 0, 0).Should().Be(new Color(65, 65, 65));
+        GetImageColor(image, 1, 0).Should().Be(new Color(66, 66, 66));
+        GetImageColor(image, 2, 0).Should().Be(new Color(0, 0, 0));
+        GetImageColor(image, 3, 1).Should().Be(new Color(0, 0, 0));
+    }
+
+    [Fact]
+    public void A_Gltf_Keeps_Its_Texture_Coordinates_Counted_From_The_Images_Top()
+    {
+        // glTF counts V down from the image's top row, as the engine samples, so the coordinates
+        // come back as the file has them, where Assimp's own convention turns them over.
+        var model = LoadModel(WriteGlbWithEmbeddedPng(new byte[32]));
+
+        _app.World.Resource<MeshStore>().TryGetData(model.Meshes[0].Id, out var vertices, out _).Should().BeTrue();
+        vertices.Single(v => v.Position == Vector3.Zero).Uv.Should().Be(new Vector2(0, 0));
+        vertices.Single(v => v.Position == Vector3.UnitY).Uv.Should().Be(new Vector2(0, 1));
+    }
 }

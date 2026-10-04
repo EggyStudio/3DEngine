@@ -79,7 +79,10 @@ public sealed class AssimpModelReader : ISceneReader
             | A.PostProcessSteps.GenerateUVCoords
             | A.PostProcessSteps.SortByPrimitiveType
             | A.PostProcessSteps.RemoveRedundantMaterials
-            | A.PostProcessSteps.FindInvalidData;
+            | A.PostProcessSteps.FindInvalidData
+            // Assimp counts V up from an image's bottom, as OBJ does, and turns glTF's over to
+            // match. The engine samples V down from the top row, as glTF and raylib count it.
+            | A.PostProcessSteps.FlipUVs;
 
         var aScene = importer.ImportFile(path, Steps);
         if (aScene is null || aScene.RootNode is null)

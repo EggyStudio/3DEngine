@@ -187,6 +187,44 @@ public static partial class Engine3D
         return mesh.Upload();
     }
 
+    /// <summary>
+    /// Writes a mesh as a Wavefront OBJ file, its positions, texture coordinates, normals and
+    /// triangles, as raylib's <c>ExportMesh</c> does, answering whether it was written.
+    /// </summary>
+    /// <remarks>
+    /// Texture coordinates are written with V from the bottom, as OBJ counts it, so the file loads
+    /// back the way it was drawn. Only the mesh's shape is written, and no material.
+    /// </remarks>
+    public static bool ExportMesh(ModelMesh mesh, string fileName)
+    {
+        if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices))
+        {
+            ApiLogger.Warn($"ExportMesh: the mesh has no data to write.");
+            return false;
+        }
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        var text = new System.Text.StringBuilder();
+        text.AppendLine("# Exported by 3DEngine");
+        foreach (var v in vertices) text.Append(invariant, $"v {v.Position.X} {v.Position.Y} {v.Position.Z}\n");
+        foreach (var v in vertices) text.Append(invariant, $"vt {v.Uv.X} {1 - v.Uv.Y}\n");
+        foreach (var v in vertices) text.Append(invariant, $"vn {v.Normal.X} {v.Normal.Y} {v.Normal.Z}\n");
+        for (int i = 0; i + 2 < indices.Length; i += 3)
+        {
+            uint a = indices[i] + 1, b = indices[i + 1] + 1, c = indices[i + 2] + 1;
+            text.Append(invariant, $"f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}\n");
+        }
+        try
+        {
+            File.WriteAllText(fileName, text.ToString());
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"ExportMesh: '{fileName}' could not be written: {ex.Message}");
+            return false;
+        }
+    }
+
     /// <summary>Collects vertices and triangles for a generated mesh.</summary>
     private sealed class MeshBuilder
     {

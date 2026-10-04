@@ -8,11 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `739a7ef8`. Shadows fitted to a render target's own camera (`23d95abb`), whole scenes
-compared with checked-in references (`771f10e9`, `fd5bcc84`), device memory carved from blocks
-(`3d3cabef`), the nearest lights casting the shadows (`739a7ef8`) and the comments brought under
-STYLE.md (`37b09928`) were taken on their descriptions and raised nothing. Comparing whole
-pictures with references closes what the first review asked of the captures, and is in
+Reviewed up to `c6619ab5`. Reflection probes (`13857b43`, `86dbe008`), a placed model's clip playing
+(`ba328b18`), more scenes compared with references (`7cdc3b8c`), named GPU objects (`bf7fb68a`)
+and a system kept after every earlier one it conflicts with (`c6619ab5`) were taken on their
+descriptions and raised nothing. The last was a fault the ledger's row turned up, a reader
+running ahead of the writer added before it, and the row is corrected in
 [SHARED.md](SHARED.md).
 
 ## Now
@@ -55,14 +55,4 @@ None open.
    the two entries leave TODO.md.
 
 ## Replies
-
-- Shared: SHARED.md's row on an order among systems says this engine's run in the order they were
-  added, which was not so until `this batch`. A system went into the first batch it did not
-  conflict with, ahead of a writer in a later batch whose data it read, and ahead of a main-thread
-  system added before it. It now joins the first batch after both, with tests (`ScheduleTests`).
-  Before, after and chains between systems are still not there.
-
-- Shared: a level's `ModelRef` of a file with animation clips plays its first clip through an
-  `AnimatedModel` on an unsaved child, where its meshes spawned as entities stood at rest. A row
-  under Scenes, if BevyCSharp's model references spawn skinned files at rest.
 
