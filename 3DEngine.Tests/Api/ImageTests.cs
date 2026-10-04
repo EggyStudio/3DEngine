@@ -341,4 +341,41 @@ public class ImageTests
         LoadImageColors(image).Should().OnlyContain(c => c.R == 0 || c.R == 255, "one bit a channel leaves black and white");
         LoadImageColors(image).Average(c => (double)c.R).Should().BeApproximately(before, 8, "the rounding is spread, not lost");
     }
+
+    [Fact]
+    public void Images_Decode_From_Memory_As_From_Files()
+    {
+        var image = Numbered();
+        var png = ExportImageToMemory(image, ".png");
+
+        var back = LoadImageFromMemory(".png", png);
+
+        IsImageValid(back).Should().BeTrue();
+        back.Data.Should().Equal(image.Data);
+        IsImageValid(LoadImageFromMemory(".png", [1, 2, 3])).Should().BeFalse("bytes that are no image decode to none");
+        var gif = LoadImageAnimFromMemory(".gif", TwoFrames, out var frames);
+        frames.Should().Be(2);
+        GetImageColor(gif, 1, 3).Should().Be(Blue);
+    }
+
+    [Fact]
+    public void An_Image_Crops_To_Its_Alpha_Grows_To_Powers_Of_Two_And_Lists_Its_Colors()
+    {
+        var image = GenImageColor(10, 6, Color.Blank);
+        ImageDrawRectangle(ref image, 2, 1, 3, 4, Red);
+        ImageDrawPixel(ref image, 4, 4, Blue);
+
+        var cropped = image;
+        ImageAlphaCrop(ref cropped, 0.5f);
+        (cropped.Width, cropped.Height).Should().Be((3, 4));
+
+        var grown = image;
+        ImageToPOT(ref grown, Color.White);
+        (grown.Width, grown.Height).Should().Be((16, 8));
+        GetImageColor(grown, 15, 7).Should().Be(Color.White, "the new pixels take the fill");
+        GetImageColor(grown, 2, 1).Should().Be(Red, "the image keeps its place at the top left");
+
+        LoadImagePalette(image, 8).Should().Equal(Color.Blank, Red, Blue);
+        LoadImagePalette(image, 2).Should().HaveCount(2);
+    }
 }

@@ -33,6 +33,7 @@ void MinimizeWindow();                                   // Minimize
 void RestoreWindow();                                    // Back from maximized or minimized
 void SetWindowSize(int width, int height);               // Resize
 void SetWindowMinSize(int width, int height);            // Smallest size a resize may reach
+void SetWindowMaxSize(int width, int height);            // Largest size a resize may reach
 void SetWindowPosition(int x, int y);                    // Move on the desktop
 Vector2 GetWindowPosition();                             // Top left corner on the desktop
 Vector2 GetWindowScaleDPI();                             // Pixels for each unit of its size, 2 on a doubled monitor
@@ -42,6 +43,7 @@ void SetWindowOpacity(float opacity);                    // How opaque it is, 0 
 void SetWindowFocused();                                 // Raise it and ask for the keyboard focus
 void ToggleBorderlessWindowed();                         // Between a window and a borderless one covering the monitor
 void SetWindowIcon(Image image);                         // The icon the desktop shows for it
+void SetWindowIcons(Image[] images);                     // Several sizes of it, the desktop picking
 
 int GetMonitorCount();                                   // Connected monitors
 int GetCurrentMonitor();                                 // The monitor the window is on
@@ -122,6 +124,7 @@ bool IsKeyReleased(Key key);                             // Key came up this fra
 bool IsKeyPressedRepeat(Key key);                        // Key repeated while held this frame, as in a text field
 bool IsKeyUp(Key key);                                   // Key is not held
 Key GetKeyPressed();                                     // Next key pressed this frame, Unknown when none is left
+string GetKeyName(Key key);                              // The key as the keyboard's layout prints it
 int GetCharPressed();                                    // Next character typed this frame (a code point), 0 when none is left
 
 bool IsMouseButtonPressed(MouseButton button);           // Button went down this frame
@@ -141,6 +144,7 @@ void SetMouseCursor(MouseCursor cursor);                 // The pointer's shape 
 void ShowCursor();                                       // Show the cursor
 void HideCursor();                                       // Hide the cursor
 bool IsCursorHidden();                                   // Whether it is hidden
+bool IsCursorOnScreen();                                 // Whether the pointer is over the window
 void DisableCursor();                                    // Hide the cursor and hold it, for mouse look
 void EnableCursor();                                     // Release and show it
 int GetTouchPointCount();                                // Fingers on the screen (1 while the left button is held with none)
@@ -161,6 +165,7 @@ bool IsGamepadAvailable(int gamepad);                                  // Whethe
 string GetGamepadName(int gamepad);                                    // Its name
 bool IsGamepadButtonPressed(int gamepad, GamepadButton button);        // Button went down this frame
 GamepadButton? GetGamepadButtonPressed();                              // A button any pad pressed this frame, null for none
+int SetGamepadMappings(string mappings);                               // Add SDL_GameControllerDB lines, how many were added
 bool IsGamepadButtonDown(int gamepad, GamepadButton button);           // Button is held
 bool IsGamepadButtonReleased(int gamepad, GamepadButton button);       // Button came up this frame
 bool IsGamepadButtonUp(int gamepad, GamepadButton button);             // Button is not held
@@ -305,6 +310,7 @@ Image ImageCopy(Image image);                                                   
 Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
 Color[] LoadImageColors(Image image);                                                  // Every pixel's color, row by row
+Color[] LoadImagePalette(Image image, int maxPaletteSize);                             // Its different colors, in the order met
 Image GenImageGradientSquare(int width, int height, float density, Color inner, Color outer); // A square gradient, inner at the center
 Image ImageFromChannel(Image image, int selectedChannel);                              // One channel (0 red to 3 alpha) as grayscale
 void ImageAlphaClear(ref Image image, Color color, float threshold);                   // Pixels below an alpha given a color
@@ -316,11 +322,16 @@ void ImageBlurGaussian(ref Image image, int blurSize);                          
 void ImageKernelConvolution(ref Image image, float[] kernel);                          // Convolve the color with an odd square kernel
 void ImageRotate(ref Image image, int degrees);                                        // Turn clockwise, the canvas grown to fit
 Image LoadImageAnim(string fileName, out int frames);                                  // Every frame of an animated GIF, stacked from the top
+Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames);       // The same from a GIF's bytes
+Image LoadImageFromMemory(string fileType, byte[] fileData);                           // Decode an image file's bytes
+bool IsImageValid(Image image);                                                        // Whether it holds pixels
 byte[] ExportImageToMemory(Image image, string fileType);                              // An image as a PNG file's bytes
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file
 void UnloadImage(Image image);                                                         // Nothing (images are managed memory)
 
 void ImageCrop(ref Image image, Rectangle rec);                                        // Keep part of an image
+void ImageAlphaCrop(ref Image image, float threshold);                                 // Crop to the pixels above an alpha
+void ImageToPOT(ref Image image, Color fill);                                          // Grow the canvas to powers of two
 void ImageResize(ref Image image, int newWidth, int newHeight);                        // Scale, blending pixels
 void ImageResizeNN(ref Image image, int newWidth, int newHeight);                      // Scale by the nearest pixel
 void ImageResizeCanvas(ref Image image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill); // Change the size without scaling
@@ -756,6 +767,8 @@ void UnloadFont(Font font);                                                     
 void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
 void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Rotated around an origin
 Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing);               // Its width and height
+Vector2 MeasureTextCodepoints(Font font, int[] codepoints, float fontSize, float spacing); // The same for codepoints
+bool IsFontValid(Font font);                                                                // Whether it has an atlas and glyphs
 Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? codepoints); // A font file already in memory (".ttf")
 void SetTextLineSpacing(int spacing);                                                       // Lines a size and this many pixels apart
 void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint); // One character by its code point

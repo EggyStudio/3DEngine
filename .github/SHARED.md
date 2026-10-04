@@ -145,4 +145,4 @@ table also answers whether the two agree.
 | A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
-| A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | to take, with Bevy | to take, with raylib |
+| A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | to take, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |

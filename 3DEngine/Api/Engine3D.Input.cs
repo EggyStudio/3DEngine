@@ -189,6 +189,38 @@ public static partial class Engine3D
     /// <summary>Whether the cursor is hidden, by <see cref="HideCursor"/> or <see cref="DisableCursor"/>.</summary>
     public static bool IsCursorHidden() => _cursorHidden;
 
+    /// <summary>Whether the pointer is over the window, the window having the mouse's focus.</summary>
+    public static bool IsCursorOnScreen()
+    {
+        if (WindowHandle is not (not 0 and var w) || SDL.GetMouseFocus() != w) return false;
+        var at = new Vector2(Input.MouseX, Input.MouseY);
+        return at.X >= 0 && at.Y >= 0 && at.X < GetScreenWidth() && at.Y < GetScreenHeight();
+    }
+
+    /// <summary>
+    /// The name of a key as the keyboard's layout prints it, as "Q" for <see cref="Key.A"/> on a
+    /// French layout, or an empty string with no window or for a key with no name.
+    /// </summary>
+    public static string GetKeyName(Key key)
+    {
+        if (SDL.WasInit(SDL.InitFlags.Video) == 0) return "";
+        var keycode = SDL.GetKeyFromScancode((SDL.Scancode)(int)key, SDL.Keymod.None, false);
+        return SDL.GetKeyName(keycode) ?? "";
+    }
+
+    /// <summary>
+    /// Adds gamepad mappings in SDL_GameControllerDB's form, one a line, so pads the engine does
+    /// not know are read as their makers lay them out, and says how many were added.
+    /// </summary>
+    public static int SetGamepadMappings(string mappings)
+    {
+        if (SDL.WasInit(SDL.InitFlags.Gamepad) == 0 || string.IsNullOrWhiteSpace(mappings)) return 0;
+        var added = 0;
+        foreach (var line in mappings.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            if (!line.StartsWith('#') && SDL.AddGamepadMapping(line) >= 0) added++;
+        return added;
+    }
+
     /// <summary>Hides the cursor and holds it in the window, so the mouse only reports movement, as a first-person camera needs.</summary>
     /// <remarks><see cref="GetMouseDelta"/> keeps reporting movement while the cursor is held, without it reaching the window's edge.</remarks>
     public static void DisableCursor()

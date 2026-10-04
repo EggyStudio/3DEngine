@@ -78,6 +78,12 @@ public static partial class Engine3D
         if (WindowHandle is not 0 and var w) SDL.SetWindowMinimumSize(w, Math.Max(0, width), Math.Max(0, height));
     }
 
+    /// <summary>Sets the largest size the window can be resized to.</summary>
+    public static void SetWindowMaxSize(int width, int height)
+    {
+        if (WindowHandle is not 0 and var w) SDL.SetWindowMaximumSize(w, Math.Max(0, width), Math.Max(0, height));
+    }
+
     /// <summary>Moves the window's top left corner to a position on the desktop.</summary>
     public static void SetWindowPosition(int x, int y)
     {
@@ -255,6 +261,40 @@ public static partial class Engine3D
             }
             SDL.SetWindowIcon(w, surface);
             SDL.DestroySurface(surface);
+        }
+    }
+
+    /// <summary>
+    /// Sets the window's icon from several sizes of one picture, the first the size it is drawn at
+    /// most and the rest alternates the desktop picks from where it draws the icon larger or smaller.
+    /// </summary>
+    public static unsafe void SetWindowIcons(Image[] images)
+    {
+        if (WindowHandle is not (not 0 and var w) || images is not { Length: > 0 } || !images[0].IsValid) return;
+        var surfaces = new List<IntPtr>();
+        var pins = new List<System.Runtime.InteropServices.GCHandle>();
+        try
+        {
+            foreach (var image in images.Where(i => i.IsValid))
+            {
+                var pin = System.Runtime.InteropServices.GCHandle.Alloc(image.Data, System.Runtime.InteropServices.GCHandleType.Pinned);
+                pins.Add(pin);
+                var surface = SDL.CreateSurfaceFrom(image.Width, image.Height, SDL.PixelFormat.ABGR8888, pin.AddrOfPinnedObject(), image.Width * 4);
+                if (surface == IntPtr.Zero) continue;
+                surfaces.Add(surface);
+            }
+            if (surfaces.Count == 0)
+            {
+                ApiLogger.Warn($"SetWindowIcons: no image could be made a surface: {SDL.GetError()}");
+                return;
+            }
+            for (int i = 1; i < surfaces.Count; i++) SDL.AddSurfaceAlternateImage(surfaces[0], surfaces[i]);
+            SDL.SetWindowIcon(w, surfaces[0]);
+        }
+        finally
+        {
+            foreach (var surface in surfaces) SDL.DestroySurface(surface);
+            foreach (var pin in pins) pin.Free();
         }
     }
 

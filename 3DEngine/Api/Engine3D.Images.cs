@@ -184,24 +184,95 @@ public static partial class Engine3D
         try
         {
             using var stream = File.OpenRead(path);
-            var all = new List<byte[]>();
-            int width = 0, height = 0;
-            foreach (var frame in StbImageSharp.ImageResult.AnimatedGifFramesFromStream(stream, StbImageSharp.ColorComponents.RedGreenBlueAlpha))
-            {
-                (width, height) = (frame.Width, frame.Height);
-                all.Add([.. frame.Data]);
-            }
-            if (all.Count == 0) return default;
-            frames = all.Count;
-            var data = new byte[width * height * 4 * all.Count];
-            for (int f = 0; f < all.Count; f++) all[f].AsSpan(0, width * height * 4).CopyTo(data.AsSpan(f * width * height * 4));
-            return new Image(data, width, height * all.Count);
+            return GifFrames(stream, out frames);
         }
         catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
         {
             ApiLogger.Warn($"LoadImageAnim: '{fileName}' could not be decoded: {ex.Message}");
             return default;
         }
+    }
+
+    /// <summary>Reads every frame of an animated GIF held in memory, as <see cref="LoadImageAnim"/> reads a file.</summary>
+    public static Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames)
+    {
+        frames = 0;
+        try
+        {
+            return GifFrames(new MemoryStream(fileData), out frames);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        {
+            ApiLogger.Warn($"LoadImageAnimFromMemory: the {fileType} data could not be decoded: {ex.Message}");
+            return default;
+        }
+    }
+
+    /// <summary>Decodes an image held in memory, as a file's bytes, the type named by its extension as ".png".</summary>
+    /// <returns>The image, or an invalid one when the bytes cannot be decoded, with the reason in the log.</returns>
+    public static Image LoadImageFromMemory(string fileType, byte[] fileData)
+    {
+        try
+        {
+            var result = StbImageSharp.ImageResult.FromMemory(fileData, StbImageSharp.ColorComponents.RedGreenBlueAlpha);
+            return new Image(result.Data, result.Width, result.Height);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        {
+            ApiLogger.Warn($"LoadImageFromMemory: the {fileType} data could not be decoded: {ex.Message}");
+            return default;
+        }
+    }
+
+    /// <summary>Whether an image holds pixels, as one loaded or made does.</summary>
+    public static bool IsImageValid(Image image) => image.IsValid;
+
+    /// <summary>Crops an image to the smallest rectangle holding every pixel with alpha above <paramref name="threshold"/>, from 0 to 1.</summary>
+    public static void ImageAlphaCrop(ref Image image, float threshold)
+    {
+        var border = GetImageAlphaBorder(image, threshold);
+        if (border.Width > 0 && border.Height > 0) ImageCrop(ref image, border);
+    }
+
+    /// <summary>Grows an image's canvas to the next power of two each way, the new pixels <paramref name="fill"/>, as an old GPU's textures had to be.</summary>
+    public static void ImageToPOT(ref Image image, Color fill)
+    {
+        if (!image.IsValid) return;
+        var width = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)image.Width);
+        var height = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)image.Height);
+        if (width != image.Width || height != image.Height) ImageResizeCanvas(ref image, width, height, 0, 0, fill);
+    }
+
+    /// <summary>The different colors of an image, in the order they are first met row by row, up to <paramref name="maxPaletteSize"/> of them.</summary>
+    public static Color[] LoadImagePalette(Image image, int maxPaletteSize)
+    {
+        var palette = new List<Color>();
+        var seen = new HashSet<Color>();
+        for (int y = 0; y < image.Height && palette.Count < maxPaletteSize; y++)
+            for (int x = 0; x < image.Width && palette.Count < maxPaletteSize; x++)
+            {
+                var color = GetImageColor(image, x, y);
+                if (seen.Add(color)) palette.Add(color);
+            }
+        return [.. palette];
+    }
+
+    // Every frame of an animated GIF stacked from the top into one image, each as tall as the GIF.
+    private static Image GifFrames(Stream stream, out int frames)
+    {
+        frames = 0;
+        var all = new List<byte[]>();
+        int width = 0, height = 0;
+        foreach (var frame in StbImageSharp.ImageResult.AnimatedGifFramesFromStream(stream, StbImageSharp.ColorComponents.RedGreenBlueAlpha))
+        {
+            (width, height) = (frame.Width, frame.Height);
+            all.Add([.. frame.Data]);
+        }
+        if (all.Count == 0) return default;
+        frames = all.Count;
+        var data = new byte[width * height * 4 * all.Count];
+        for (int f = 0; f < all.Count; f++) all[f].AsSpan(0, width * height * 4).CopyTo(data.AsSpan(f * width * height * 4));
+        return new Image(data, width, height * all.Count);
     }
 
     /// <summary>Writes an image to a PNG file.</summary>

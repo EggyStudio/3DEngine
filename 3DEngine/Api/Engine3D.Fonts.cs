@@ -624,6 +624,13 @@ public static partial class Engine3D
         return image;
     }
 
+    /// <summary>Whether a font has an atlas and glyphs, as one loaded does.</summary>
+    public static bool IsFontValid(Font font) => font.IsValid;
+
+    /// <summary>The size of a line of characters given as codepoints, as <see cref="MeasureTextEx"/> measures text.</summary>
+    public static Vector2 MeasureTextCodepoints(Font font, int[] codepoints, float fontSize, float spacing) =>
+        MeasureTextEx(font, string.Concat(codepoints.Select(c => char.ConvertFromUtf32(Math.Clamp(c, 0, 0x10FFFF) is >= 0xD800 and <= 0xDFFF ? '?' : c))), fontSize, spacing);
+
     /// <summary>The width and height <see cref="DrawTextEx"/> would draw <paramref name="text"/> at.</summary>
     public static Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing)
     {
