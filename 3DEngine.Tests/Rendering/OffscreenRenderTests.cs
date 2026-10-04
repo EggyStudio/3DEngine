@@ -753,6 +753,27 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Rectangle_Of_A_Texture_Is_Replaced_And_The_Rest_Kept()
+    {
+        Open(32, 32);
+        var texture = LoadTextureFromImage(GenImageColor(4, 2, Color.Green));
+        GenTextureMipmaps(ref texture);
+        Capture(() => ClearBackground(Color.Black), "uploaded");
+
+        var red = new byte[2 * 2 * 4];
+        for (int i = 0; i < red.Length; i += 4) (red[i], red[i + 3]) = (255, 255);
+        UpdateTextureRec(texture, new Rectangle(2, 0, 2, 2), red).Should().BeTrue();
+        UpdateTextureRec(texture, new Rectangle(3, 0, 2, 2), red).Should().BeFalse("a rectangle past the edge is refused");
+        Capture(() => ClearBackground(Color.Black), "updated");
+
+        var read = LoadImageFromTexture(texture);
+        GetImageColor(read, 0, 1).Should().Be(Color.Green, "the left half is kept");
+        GetImageColor(read, 3, 1).Should().Be(new Color(255, 0, 0, 255), "the right half is the new rectangle");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void A_Compute_Shader_Writes_A_Render_Texture_That_Is_Then_Drawn()
     {
         Open(32, 32);

@@ -400,6 +400,7 @@ Texture2D LoadTextureFromImage(Image image);                                    
 void UnloadTexture(Texture2D texture);                                                 // Free a texture
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
+bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels);                 // Replace a rectangle of it, the rest kept
 void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point, Bilinear (the default) or Anisotropic4x, 8x, 16x
 void SetTextureWrap(Texture2D texture, TextureWrap wrap);                              // Repeat (the default), Clamp or MirrorRepeat past its edges
 void GenTextureMipmaps(ref Texture2D texture);                                         // Make mip levels on the GPU, so it stays smooth drawn small

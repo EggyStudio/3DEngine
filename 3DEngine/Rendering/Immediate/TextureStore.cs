@@ -65,8 +65,12 @@ public sealed class TextureStore
     /// </param>
     /// <param name="DepthOf">The render target whose depth the texture samples, or 0 when it is not one's depth.</param>
     /// <param name="Wrap">What the texture shows past its edges.</param>
+    /// <param name="Offset">
+    /// Where <paramref name="Rgba"/>, <paramref name="Width"/> by <paramref name="Height"/> pixels,
+    /// goes in a texture already on the GPU, or null when it is the whole texture.
+    /// </param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
-        int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat);
+        int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
@@ -162,6 +166,23 @@ public sealed class TextureStore
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
+            return true;
+        }
+    }
+
+    /// <summary>Queues new pixels for a rectangle of a loaded texture, the rest kept.</summary>
+    /// <returns>Whether the texture is loaded and the rectangle lies inside it.</returns>
+    public bool UpdateRegion(int id, byte[] rgba, int x, int y, int width, int height)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var texture) || width <= 0 || height <= 0 || x < 0 || y < 0
+                || x + width > texture.Width || y + height > texture.Height || rgba.Length != width * height * 4)
+                return false;
+            _uploads.Add(new Upload(id, rgba, width, height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap, Offset: (x, y)));
+            // A rectangle with partial alpha makes the texture translucent, and one without
+            // leaves it as it was, since the pixels outside it are not known here.
+            if (HasPartialAlpha(rgba)) _translucent.Add(id);
             return true;
         }
     }

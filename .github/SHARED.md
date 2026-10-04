@@ -55,8 +55,8 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| An order among systems in one stage, one before or after another or a chain | to take, which Bevy's examples wait on | to consider, where a system runs after every earlier one it conflicts with (`c6619ab5`) and nothing orders two by name |
-| An observer told when a component is added or removed or an event of a game's own is sent to an entity | to take, which Bevy's examples wait on | to consider |
+| An order among systems in one stage, one before or after another or a chain | taken at `bb1ae57`, as `After`, `Before` and `App.Chain` | to consider, where a system runs after every earlier one it conflicts with (`c6619ab5`) and nothing orders two by name |
+| An observer told when a component is added or removed or an event of a game's own is sent to an entity | taken at `26c0a16` | to consider |
 | `Changed` and `Added` filters that a system not run every frame can trust | has, from Bevy | has (`e612ac63`, `58924752`) |
 | The entities that lost a component since a system last ran | to take | has (`Removed`, `ab052859`) |
 | A read that does not mark its component changed, beside one that does | has, from Bevy | has (`GetReadOnly`, `QueryReadOnly`) |
@@ -145,4 +145,4 @@ table also answers whether the two agree.
 | A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
-| A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | to take, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
+| A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |

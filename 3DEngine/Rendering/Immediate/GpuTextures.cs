@@ -130,6 +130,14 @@ public sealed class GpuTextures : IDisposable
                     continue;
                 }
 
+                if (upload.Offset is { } at && upload.Rgba is { } part)
+                {
+                    // A rectangle of a texture on the GPU, written into its image in place.
+                    if (existing is { Image: { } held } && gfx is GraphicsDevice regionDevice)
+                        regionDevice.UploadTextureRegion(held, part, at.X, at.Y, (uint)upload.Width, (uint)upload.Height);
+                    continue;
+                }
+
                 if (upload.Rgba is null && upload.Mipmaps && existing is { Image: { } old } && old.Description.MipLevels <= 1 && gfx is GraphicsDevice mipDevice)
                 {
                     // Mip levels asked for after the pixels went up, so a new image takes them

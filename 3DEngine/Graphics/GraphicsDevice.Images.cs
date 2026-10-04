@@ -354,7 +354,17 @@ public sealed unsafe partial class GraphicsDevice
     /// <param name="width">Texture width in pixels.</param>
     /// <param name="height">Texture height in pixels.</param>
     /// <param name="bytesPerPixel">Bytes per pixel (e.g., 4 for RGBA8).</param>
-    public void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
+    public void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel) =>
+        UploadRegion(image, data, 0, 0, width, height, bytesPerPixel);
+
+    /// <summary>
+    /// Copies four-byte pixels into a rectangle of an image already holding pixels, the rest kept,
+    /// and makes its smaller levels again, after every frame submitted before has finished reading it.
+    /// </summary>
+    internal void UploadTextureRegion(IImage image, ReadOnlySpan<byte> data, int x, int y, uint width, uint height) =>
+        UploadRegion(image, data, x, y, width, height, 4);
+
+    private void UploadRegion(IImage image, ReadOnlySpan<byte> data, int x, int y, uint width, uint height, int bytesPerPixel)
     {
         if (image is not VulkanImage vkImage)
             throw new ArgumentException("Image was not created by this device.", nameof(image));
@@ -386,7 +396,9 @@ public sealed unsafe partial class GraphicsDevice
                 subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, LevelsOf(vkImage), 0, 1)
             };
 
-            VkPipelineStageFlags srcStage = VkPipelineStageFlags.TopOfPipe;
+            // Every earlier command on the queue first, since a rectangle written into an image
+            // the frames in flight sample would otherwise race their reads of it.
+            VkPipelineStageFlags srcStage = VkPipelineStageFlags.AllCommands;
             VkPipelineStageFlags dstStage = VkPipelineStageFlags.Transfer;
 
             _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrierToDst);
@@ -398,7 +410,7 @@ public sealed unsafe partial class GraphicsDevice
                 bufferRowLength = 0,
                 bufferImageHeight = 0,
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
-                imageOffset = new VkOffset3D(0, 0, 0),
+                imageOffset = new VkOffset3D(x, y, 0),
                 imageExtent = new VkExtent3D(width, height, 1)
             };
 

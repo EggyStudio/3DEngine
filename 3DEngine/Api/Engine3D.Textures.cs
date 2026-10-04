@@ -182,6 +182,19 @@ public static partial class Engine3D
         Textures.Update(texture.Id, (byte[])image.Data.Clone());
 
     /// <summary>
+    /// Replaces the pixels of a rectangle of a texture, the rest kept, as a minimap or a painted
+    /// canvas changes a part at a time, from <paramref name="pixels"/> four bytes a pixel, red,
+    /// green, blue and alpha, rows from the top, the rectangle's size.
+    /// </summary>
+    /// <returns>Whether the texture is loaded and the rectangle lies inside it.</returns>
+    /// <remarks>
+    /// The rectangle is written into the texture on the GPU in the frame after, once the frames
+    /// before have finished drawing with it, and a texture with mip levels has them made again.
+    /// </remarks>
+    public static bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels) =>
+        texture.IsValid && Textures.UpdateRegion(texture.Id, (byte[])pixels.Clone(), (int)rec.X, (int)rec.Y, (int)rec.Width, (int)rec.Height);
+
+    /// <summary>
     /// Gives a texture mip levels, each half the size of the one before, down to one pixel, so it
     /// stays smooth instead of shimmering when drawn smaller than its size.
     /// </summary>
