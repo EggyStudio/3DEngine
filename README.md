@@ -50,8 +50,8 @@ call it can make is on one [cheatsheet](https://github.com/EggyStudio/3DEngine/b
 `BeginDrawing` and `EndDrawing` with no setup. Under the flat API is an ECS whose behaviors are
 `[Behavior]` structs like `Ball`, whose fields are each entity's state and whose methods a source
 generator turns into systems. It runs inside the same frames, so a program uses as much of it as it
-needs. [DESIGN.md](.github/DESIGN.md#5-the-ecs-underneath) shows the rest of it, and
-[ARCHITECTURE.md](.github/ARCHITECTURE.md) how it is built.
+needs. [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESIGN.md#5-the-ecs-underneath) shows the rest of it, and
+[ARCHITECTURE.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/ARCHITECTURE.md) how it is built.
 
 ## Contents
 
@@ -76,7 +76,7 @@ dotnet add package 3DEngine
 The program at the top of this page goes into `Program.cs`, and `dotnet run` opens its window.
 Where there is no display, `dotnet run -- --offscreen --frames 30` draws thirty frames with no
 window and exits. A program can use a package built from a checkout of this repository instead,
-as [BUILDING.md](.github/BUILDING.md#a-program-on-a-local-package) shows.
+as [BUILDING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md#a-program-on-a-local-package) shows.
 
 ## Examples
 
@@ -161,6 +161,7 @@ example that runs. Its pages are being written, and this list grows with them.
 | [Audio](https://github.com/EggyStudio/3DEngine/blob/main/docs/audio.md) | Sounds, streamed music, volume, pitch and pan, and sound placed in a 3D world |
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
 | [Physics](https://github.com/EggyStudio/3DEngine/blob/main/docs/physics.md) | Bodies that fall and collide, rays, contacts, triggers, joints and a character |
+| [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app
@@ -177,7 +178,7 @@ without opening a visible window:
 ```
 
 Programs take `--serve`, `--hidden`, `--offscreen`, `--headless` and `--frames N`, and a game adds commands with
-`[Command]` on a static method. [The skill](.claude/skills/e3d-cli/SKILL.md) lists the commands.
+`[Command]` on a static method. [The skill](https://github.com/EggyStudio/3DEngine/blob/main/.claude/skills/e3d-cli/SKILL.md) lists the commands.
 
 ## Building
 
@@ -190,7 +191,7 @@ dotnet build 3DEngine.slnx
 dotnet test 3DEngine.Tests
 ```
 
-[BUILDING.md](.github/BUILDING.md) has the layout, the platforms and how shaders are compiled.
+[BUILDING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md) has the layout, the platforms and how shaders are compiled.
 
 ## Status
 
@@ -207,18 +208,18 @@ scheduler and behaviors are tested. What is missing:
 - **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
   need no GPU in CI, and macOS builds from the same packages and is not covered.
 
-[TODO.md](.github/TODO.md) lists the rest, in the order it blocks making a game.
+[TODO.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/TODO.md) lists the rest, in the order it blocks making a game.
 
 ## Documents
 
 | | |
 |---|---|
-| [DESIGN.md](.github/DESIGN.md) | The rules the API follows, and the dependency policy |
-| [ARCHITECTURE.md](.github/ARCHITECTURE.md) | The app, the schedule, the ECS and the renderer |
-| [RENDERING.md](.github/RENDERING.md) | The renderer and the order it grows in |
-| [BUILDING.md](.github/BUILDING.md) | Building, testing and platforms |
-| [TODO.md](.github/TODO.md) | Outstanding work |
+| [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESIGN.md) | The rules the API follows, and the dependency policy |
+| [ARCHITECTURE.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/ARCHITECTURE.md) | The app, the schedule, the ECS and the renderer |
+| [RENDERING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/RENDERING.md) | The renderer and the order it grows in |
+| [BUILDING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md) | Building, testing and platforms |
+| [TODO.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/TODO.md) | Outstanding work |
 
 ## License
 
-[Mozilla Public License 2.0](LICENSE).
+[Mozilla Public License 2.0](https://github.com/EggyStudio/3DEngine/blob/main/LICENSE).

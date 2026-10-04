@@ -146,9 +146,9 @@ up and the highest step it climbs.
 
 ## Physics in the ECS
 
-A body belongs to an entity when it is made through the behavior context's `ctx.Physics`, and the
-entity's `Transform` follows it, so a mesh entity beside it is drawn where it is with no code. The
-`ecs_physics` example drops boxes this way. In the ECS a box is given by half its size, the
+A body belongs to an entity when it is made through `ctx.Physics`, the physics world of a
+[behavior](behaviors-and-the-ecs.md)'s context, and the entity's `Transform` follows it, so a mesh
+entity beside it is drawn where it is with no code. The `ecs_physics` example drops boxes this way. In the ECS a box is given by half its size, the
 distance from its center to each face:
 
 ```csharp
@@ -171,3 +171,4 @@ beside its body.
   [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs)
 - The cheatsheet's [Physics](../CHEATSHEET.md#physics)
 - Previous: [Input](input.md)
+- Next: [Behaviors and the ECS](behaviors-and-the-ecs.md)

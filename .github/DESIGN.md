@@ -206,9 +206,10 @@ and the renderer is one commit.
 
 ## 10. The cheatsheet
 
-`CHEATSHEET.md` at the repository's root lists every public `Engine3D` function on one line, grouped by area, with a
-comment saying what it does, in the form of the raylib cheatsheet. A function that is added, renamed
-or removed changes the cheatsheet in the same commit, so the sheet is always the API.
+`CHEATSHEET.md` at the repository's root lists every public `Engine3D` function on one line,
+grouped by area, with a comment saying what it does, in the form of the raylib cheatsheet. A
+function that is added, renamed or removed changes the cheatsheet in the same commit, so the sheet
+is always the API.
 
 ## Order
 
