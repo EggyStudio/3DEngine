@@ -90,6 +90,51 @@ public class PhysicsCharacterTests
     }
 
     [Fact]
+    public void A_Character_Climbs_A_Step_As_High_As_Its_Radius_And_Not_A_Higher_One()
+    {
+        using var world = NewWorld();
+        // A step 0.35 high from x 2, and in another lane a ledge 0.6 high, past its step height of 0.4.
+        world.CreateStaticBox(new Vector3(4, 0.175f, 0), new Vector3(2, 0.175f, 2));
+        world.CreateStaticBox(new Vector3(4, 0.3f, 10), new Vector3(2, 0.3f, 2));
+        var climber = world.CreateCharacter(Vector3.Zero, Radius, Height);
+        var stopped = world.CreateCharacter(new Vector3(0, 0, 10), Radius, Height);
+
+        world.MoveCharacter(climber, new Vector3(3, 0, 0));
+        world.MoveCharacter(stopped, new Vector3(3, 0, 0));
+        Run(world, 2);
+
+        Feet(world, climber).Y.Should().BeApproximately(0.35f, 0.05f, "it stands on the step");
+        world.GetPosition(climber).X.Should().BeGreaterThan(3, "and walked on along it");
+        Feet(world, stopped).Y.Should().BeApproximately(0, 0.05f, "a ledge higher than a step stops it");
+        world.GetPosition(stopped).X.Should().BeLessThan(2 - Radius + 0.05f);
+    }
+
+    [Fact]
+    public void A_Character_Crouches_Under_A_Ceiling_And_Stands_Only_Where_There_Is_Room()
+    {
+        using var world = NewWorld();
+        // A ceiling 1.3 high over x 2 to 6.
+        world.CreateStaticBox(new Vector3(4, 1.55f, 0), new Vector3(2, 0.25f, 3));
+        var body = world.CreateCharacter(Vector3.Zero, Radius, Height);
+
+        world.SetCharacterHeight(body, 1.1f).Should().BeTrue("crouching needs no room");
+        world.GetPosition(body).Y.Should().BeApproximately(0.55f, 0.01f, "its feet stay where they were, its middle half its new height up");
+        world.MoveCharacter(body, new Vector3(2, 0, 0));
+        Run(world, 2);
+        world.GetPosition(body).X.Should().BeInRange(3, 5.5f, "crouched, it walks in under the ceiling");
+        world.MoveCharacter(body, Vector3.Zero);
+        Run(world, 0.2f);
+
+        world.SetCharacterHeight(body, Height).Should().BeFalse("the ceiling is in the way of standing");
+        world.MoveCharacter(body, new Vector3(2, 0, 0));
+        Run(world, 2);
+        world.GetPosition(body).X.Should().BeGreaterThan(6.5f, "it walked out from under the ceiling");
+        world.SetCharacterHeight(body, Height).Should().BeTrue("where there is room it stands");
+        Run(world, 0.2f);
+        world.GetPosition(body).Y.Should().BeApproximately(Height / 2, 0.05f);
+    }
+
+    [Fact]
     public void A_Character_Holds_A_Gentle_Slope_And_Slides_Off_A_Steep_One()
     {
         using var gentle = NewWorld();

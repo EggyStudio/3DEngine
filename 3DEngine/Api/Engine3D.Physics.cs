@@ -103,6 +103,13 @@ public static partial class Engine3D
     public static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque) =>
         Physics.SetHingeMotor(hinge, float.DegreesToRadians(degreesPerSecond), maximumTorque);
 
+    /// <summary>The highest step a character climbs onto as it walks into it, its radius to begin with.</summary>
+    public static void SetPhysicsCharacterStepHeight(PhysicsBody body, float height) => Physics.SetCharacterStepHeight(body, height);
+
+    /// <summary>Makes a character a height with its feet where they are, as crouching and standing do.</summary>
+    /// <returns>Whether it has the height, which it has not when it would stand up into a ceiling.</returns>
+    public static bool SetPhysicsCharacterHeight(PhysicsBody body, float height) => Physics.SetCharacterHeight(body, height);
+
     /// <summary>Removes a joint.</summary>
     public static void DestroyPhysicsJoint(PhysicsJoint joint) => Physics.DestroyJoint(joint);
 

@@ -126,9 +126,10 @@ with the point and normal where each pair met (CHEATSHEET.md, Physics). A `Colli
 under the parent by velocity, so a platform a moving parent carries carries what stands on it, a
 character walking relative to it and a crate by friction. What is missing is the impulse on a
 contact, and limits and motors for the joints other than the hinge. The character controller is a
-dynamic capsule walked toward a velocity before each step, which slides along walls, rides edges
-lower than about half its radius, holds slopes up to its limit, rides what moves under it and
-reports ground. It does not climb a taller step or crouch.
+dynamic capsule walked toward a velocity before each step, which slides along walls, climbs steps up
+to its step height (its radius unless set), holds slopes up to its limit, rides what moves under it,
+crouches and stands where there is room, and reports ground. The ECS's `CharacterController` sets
+neither its step height nor its height, which the flat API and `PhysicsWorld` do.
 
 ### Scenes
 

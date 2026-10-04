@@ -29,6 +29,8 @@ public sealed partial class PhysicsWorld
         public float JumpSpeed;
         public bool Grounded;
         public Vector3 GroundNormal = Vector3.UnitY;
+        // The highest step it climbs onto, its radius unless set.
+        public required float StepHeight;
     }
 
     /// <summary>
@@ -53,7 +55,7 @@ public sealed partial class PhysicsWorld
         if (entityId != 0) _bodyToEntity[handle.Value] = entityId;
 
         var body = new PhysicsBody(this, handle.Value, BodyKind.Dynamic);
-        _characters[handle.Value] = new Character { Body = body, Radius = radius, HalfHeight = height / 2 };
+        _characters[handle.Value] = new Character { Body = body, Radius = radius, HalfHeight = height / 2, StepHeight = radius };
         _characterFlags.Set(handle.Value, true);
         return body;
     }
@@ -78,6 +80,49 @@ public sealed partial class PhysicsWorld
     {
         if (_characters.TryGetValue(body.Handle, out var character))
             character.MaxSlopeCos = MathF.Cos(float.DegreesToRadians(Math.Clamp(degrees, 0, 89)));
+    }
+
+    /// <summary>
+    /// The highest step, in units, a character walking into it climbs onto, its radius to begin
+    /// with. 0 leaves it to the round of its foot, which rides an edge about half its radius high.
+    /// </summary>
+    public void SetCharacterStepHeight(PhysicsBody body, float height)
+    {
+        if (_characters.TryGetValue(body.Handle, out var character)) character.StepHeight = MathF.Max(0, height);
+    }
+
+    /// <summary>
+    /// Makes a character <paramref name="height"/> tall, at least as tall as it is wide, with its feet
+    /// where they are, as crouching and standing do. It does not grow into a ceiling.
+    /// </summary>
+    /// <returns>Whether it has the height, which it has not when something above is in the way.</returns>
+    public bool SetCharacterHeight(PhysicsBody body, float height)
+    {
+        if (!_characters.TryGetValue(body.Handle, out var character) || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return false;
+        height = MathF.Max(height, 2 * character.Radius);
+        var half = height / 2;
+        if (MathF.Abs(half - character.HalfHeight) < 1e-4f) return true;
+
+        var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        var feet = reference.Pose.Position - new Vector3(0, character.HalfHeight, 0);
+        if (half > character.HalfHeight)
+        {
+            // Room overhead for the whole width of the head, searched from inside the body.
+            var top = feet.Y + 2 * character.HalfHeight;
+            foreach (var around in ProbeDirections)
+            {
+                var from = new Vector3(reference.Pose.Position.X, top - character.Radius, reference.Pose.Position.Z) + around * character.Radius * 0.7f;
+                if (Raycast(from, Vector3.UnitY, character.Radius + (half - character.HalfHeight) * 2, body, out _)) return false;
+            }
+        }
+
+        var old = reference.Collidable.Shape;
+        reference.SetShape(Simulation.Shapes.Add(new BepuPhysics.Collidables.Capsule(character.Radius, height - 2 * character.Radius)));
+        Simulation.Shapes.Remove(old);
+        reference.Pose.Position = feet + new Vector3(0, half, 0);
+        character.HalfHeight = half;
+        reference.Awake = true;
+        return true;
     }
 
     /// <summary>Whether a character stood on ground no steeper than its steepest at the last step.</summary>
@@ -129,6 +174,7 @@ public sealed partial class PhysicsWorld
             }
 
             var velocity = reference.Velocity.Linear;
+            if (character.Grounded) ClimbStep(character, ref reference);
             if (character.Grounded)
             {
                 // Along the ground, so a walk up or down a slope follows it, and with the pull along
@@ -170,5 +216,30 @@ public sealed partial class PhysicsWorld
         if (body.Kind == BodyKind.Static || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return Vector3.Zero;
         var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         return reference.Velocity.Linear + Vector3.Cross(reference.Velocity.Angular, point - reference.Pose.Position);
+    }
+
+    // A grounded character walking into a wall whose top is no higher than its step height, with
+    // room above, is lifted onto it, so it walks up stairs rather than stopping at each.
+    private void ClimbStep(Character character, ref BodyReference reference)
+    {
+        var wanted = character.Wanted with { Y = 0 };
+        if (character.StepHeight <= 0 || wanted.LengthSquared() < 1e-6f) return;
+        var way = Vector3.Normalize(wanted);
+        var center = reference.Pose.Position;
+        var feet = center - new Vector3(0, character.HalfHeight, 0);
+        var reach = character.Radius + 0.15f;
+
+        // Something steep close ahead at the foot.
+        if (!Raycast(feet + new Vector3(0, 0.02f, 0), way, reach, character.Body, out var wall) || wall.Normal.Y >= character.MaxSlopeCos) return;
+
+        // Its top, found from above, no higher than a step and flat enough to stand on.
+        var above = feet + way * (wall.Distance + 0.05f) + new Vector3(0, character.StepHeight + 0.02f, 0);
+        if (!Raycast(above, -Vector3.UnitY, character.StepHeight + 0.02f, character.Body, out var top) || top.Normal.Y < character.MaxSlopeCos) return;
+        var rise = top.Point.Y - feet.Y;
+        if (rise <= 0.01f || rise > character.StepHeight) return;
+
+        // Room for the head that high.
+        if (Raycast(center, Vector3.UnitY, character.HalfHeight + rise, character.Body, out _)) return;
+        reference.Pose.Position = center + new Vector3(0, rise + 0.01f, 0);
     }
 }
