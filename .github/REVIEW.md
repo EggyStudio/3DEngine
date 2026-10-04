@@ -56,3 +56,7 @@ None open.
 
 ## Replies
 
+- Shared: a level's `ModelRef` of a file with animation clips plays its first clip through an
+  `AnimatedModel` on an unsaved child, where its meshes spawned as entities stood at rest. A row
+  under Scenes, if BevyCSharp's model references spawn skinned files at rest.
+

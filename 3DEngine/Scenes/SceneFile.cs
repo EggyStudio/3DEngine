@@ -32,7 +32,10 @@ public struct SceneId
 /// <remarks>
 /// What a level names in place of the meshes and materials a model file holds, which
 /// <see cref="ModelRefSystem"/> spawns through the asset server. The spawned entities are not saved
-/// with the scene, since the file brings them back.
+/// with the scene, since the file brings them back. A file with animation clips, in the app
+/// <c>InitWindow</c> built, is played instead, its first clip on a loop through an
+/// <see cref="AnimatedModel"/> on a child of the entity, which is not saved either, so a character a
+/// level places moves rather than standing at rest.
 /// </remarks>
 [SceneComponent]
 public struct ModelRef
@@ -47,7 +50,8 @@ public static class ModelRefSystem
     /// <summary>The system, for <see cref="Stage.PreUpdate"/>.</summary>
     public static void Run(World world)
     {
-        if (!world.TryGetResource<EcsWorld>(out var ecs) || !world.TryGetResource<AssetServer>(out var server)) return;
+        if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
+        world.TryGetResource<AssetServer>(out var server);
         List<(int Entity, string Path)>? pending = null;
         foreach (var (entity, model) in ecs.Query<ModelRef>())
             if (!ecs.Has<ModelRefSpawned>(entity) && !string.IsNullOrEmpty(model.Path))
@@ -57,6 +61,21 @@ public static class ModelRefSystem
         foreach (var (entity, path) in pending)
         {
             ecs.Add(entity, new ModelRefSpawned());
+
+            // A file with clips plays its first through an AnimatedModel on a child, where its
+            // meshes spawned as entities would stand at rest. The child carries a SceneInstance,
+            // so a level saved with the reference is saved without it, as spawned meshes are.
+            if (Engine3D.Holds(world) && Engine3D.HasAnimations(path))
+            {
+                var child = ecs.Spawn();
+                ecs.Add(child, new AnimatedModel(path));
+                ecs.Add(child, new Transform(Vector3.Zero));
+                ecs.Add(child, new SceneInstance { SourcePath = path });
+                ecs.SetParent(child, entity);
+                continue;
+            }
+
+            if (server is null) continue;
             try
             {
                 ecs.Add(entity, new SpawnSceneRequest { Handle = server.Load<SceneAsset>(path) });

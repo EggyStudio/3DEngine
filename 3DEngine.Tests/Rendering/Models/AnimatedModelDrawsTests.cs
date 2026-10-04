@@ -197,4 +197,23 @@ public sealed class AnimatedModelDrawsTests : IDisposable
         File.WriteAllText(file, gltf.ToJsonString());
         return file;
     }
+
+    [Fact]
+    public void A_Level_That_Places_An_Animated_File_With_A_ModelRef_Plays_It_And_Saves_Only_The_Reference()
+    {
+        var placed = _ecs.Spawn();
+        _ecs.Add(placed, new Transform(new Vector3(4, 0, 0)));
+        _ecs.Add(placed, new ModelRef { Path = Arm });
+
+        ModelRefSystem.Run(_app.World);
+
+        var child = _ecs.Query<AnimatedModel>().Should().ContainSingle().Subject.Entity;
+        _ecs.GetRef<AnimatedModel>(child).Path.Should().Be(Arm);
+        _ecs.ParentOf(child).Should().Be(placed, "the child is placed by the reference's entity");
+        // As an app does in Stage.Render, before the drawing.
+        TransformPropagation.Run(_app.World);
+        Frame(0.5);
+        _app.World.Resource<ModelDrawList>().Draws.Should().Contain(d => d.World.Translation.X == 4, "the arm is drawn where the level placed it");
+        SceneFile.Write(_ecs).Should().NotContain("AnimatedModel", "the child comes back from the file, as spawned meshes do");
+    }
 }

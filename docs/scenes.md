@@ -68,7 +68,10 @@ for (int i = 0; i < 3; i++)
 
 A `ModelRef` names a model file in place of the meshes and materials in it. The engine loads the
 file and spawns its meshes under the entity, which places them with its `Transform`. The spawned
-meshes are left out of the file, since the model brings them back.
+meshes are left out of the file, since the model brings them back. A file with animation clips, a
+character, plays its first clip on a loop instead, through an `AnimatedModel` on a child of the
+entity, which is left out of the file the same way. An entity given its own `AnimatedModel` in
+place of the `ModelRef` chooses the clip and its speed.
 
 ## The file
 
