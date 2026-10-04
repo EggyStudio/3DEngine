@@ -87,7 +87,8 @@ public static void Start(BehaviorContext ctx)
 }
 ```
 
-An entity with a `Mesh`, a `Material` and a `Transform` is drawn by every camera entity, and one
+An entity with a `Mesh`, a `Material` and a `Transform` is drawn by every camera entity, or with
+no camera entity for the window, through the camera of the frame's first `BeginMode3D`, and one
 with a `Light` and a `Transform` lights them. A behavior is added to an entity as any component
 is, as `ctx.Ecs.Add(lamp, new Lamp())` gives a light the behavior that moves it.
 

@@ -28,6 +28,7 @@ public static partial class Engine3D
         _inFrame = true;
         _target = default;
         _shader = default;
+        if (TryRes<Mode3DCamera>(out var mode3D)) mode3D.ViewProjection = null;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
         Profile("program.update", update);
         _drawingStart = Stopwatch.GetTimestamp();
@@ -153,12 +154,22 @@ public static partial class Engine3D
     // -- Cameras
 
     /// <summary>Draws the following shapes through <paramref name="camera"/>, depth tested, until <see cref="EndMode3D"/>.</summary>
+    /// <remarks>
+    /// The first camera of a frame begun in the window also draws the ECS's mesh entities, the models
+    /// a loaded scene places, when no <see cref="Camera"/> entity draws the window.
+    /// </remarks>
     public static void BeginMode3D(Camera3D camera)
     {
         var (width, height) = DrawingSize();
         var aspect = (float)width / Math.Max(1, height);
-        DrawList.SetTransform(camera.View * camera.ProjectionMatrix(aspect), depthTest: true);
+        var viewProjection = camera.View * camera.ProjectionMatrix(aspect);
+        DrawList.SetTransform(viewProjection, depthTest: true);
         _camera3D = camera;
+        if (!_target.IsValid)
+        {
+            var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
+            if (mode3D.ViewProjection is null) (mode3D.ViewProjection, mode3D.Eye) = (viewProjection, camera.Position);
+        }
     }
 
     // The camera of the BeginMode3D in effect, which DrawSkybox centers its cube on.

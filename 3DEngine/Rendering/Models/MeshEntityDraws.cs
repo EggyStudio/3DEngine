@@ -12,7 +12,9 @@ namespace Engine;
 /// <para>
 /// Runs in <see cref="Stage.Render"/> and draws into the window through the first entity with a
 /// <see cref="Camera"/> that has no render texture, and into each camera's render texture through
-/// it. Without a camera, mesh entities are not drawn.
+/// it. With no camera entity for the window, they are drawn into it through the camera of the first
+/// <c>BeginMode3D</c> of the frame drawn there (<see cref="Mode3DCamera"/>), so a program on the flat
+/// API that loads a scene sees its models. With neither, mesh entities are not drawn.
 /// </para>
 /// <para>
 /// A mesh's arrays are uploaded to <see cref="MeshStore"/> the first time they are drawn and freed
@@ -487,6 +489,8 @@ public sealed class MeshEntityDraws
                 drawList?.UseTarget(target, camera.Background);
             }
         }
+        if (!window && world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } viewProjection)
+            cameras.Insert(0, (viewProjection, flat.Eye, 0));
         return cameras;
     }
 
@@ -545,4 +549,18 @@ public sealed class MeshEntityDraws
         for (uint i = 0; i < count; i++) indices[i] = i;
         return indices;
     }
+}
+
+/// <summary>
+/// The camera of the first <c>BeginMode3D</c> of the frame drawn into the window, a world resource
+/// <see cref="MeshEntityDraws"/> draws mesh entities through when no <see cref="Camera"/> entity
+/// draws the window, cleared as each frame begins.
+/// </summary>
+public sealed class Mode3DCamera
+{
+    /// <summary>The camera's view and projection, or null when no <c>BeginMode3D</c> has drawn into the window this frame.</summary>
+    public Matrix4x4? ViewProjection { get; set; }
+
+    /// <summary>Where the camera is, which the mesh entities are sorted from.</summary>
+    public Vector3 Eye { get; set; }
 }

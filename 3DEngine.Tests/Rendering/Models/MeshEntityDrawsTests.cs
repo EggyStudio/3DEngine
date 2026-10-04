@@ -178,6 +178,35 @@ public class MeshEntityDrawsTests
     }
 
     [Fact]
+    public void With_No_Camera_Entity_The_Window_Is_Drawn_Through_The_Camera_Of_BeginMode3D()
+    {
+        // As a program on the flat API that loads a scene of models has it.
+        var (world, ecs) = Scene(camera: false);
+        SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        var viewProjection = Matrix4x4.CreateLookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY)
+                             * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);
+        world.InsertResource(new Mode3DCamera { ViewProjection = viewProjection, Eye = new Vector3(0, 0, 5) });
+
+        MeshEntityDraws.Run(world);
+
+        var draw = Drawn(world).Should().ContainSingle().Subject;
+        draw.ViewProjection.Should().Be(viewProjection);
+        draw.Target.Should().Be(0, "into the window");
+    }
+
+    [Fact]
+    public void A_Camera_Entity_For_The_Window_Comes_Before_The_Camera_Of_BeginMode3D()
+    {
+        var (world, ecs) = Scene();
+        SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
+        world.InsertResource(new Mode3DCamera { ViewProjection = Matrix4x4.Identity });
+
+        MeshEntityDraws.Run(world);
+
+        Drawn(world).Should().ContainSingle().Which.ViewProjection.Should().NotBe(Matrix4x4.Identity, "the camera entity draws the window");
+    }
+
+    [Fact]
     public void A_Mesh_Is_Uploaded_Once_And_Its_Normals_Face_The_Triangle()
     {
         var (world, ecs) = Scene();

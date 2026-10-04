@@ -8,31 +8,58 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `ac529628`. The gallery's pictures opening raylib's demos (`ac529628`) is settled:
-17 of the 41 examples have a page there, kept in `build/raylib-examples.txt`, with a test over the
-gallery. The further raylib functions (`4431d725`, `608c4928`), a texture read back and written
-in place (`51b70297`, `cf5fdacd`) were taken on their descriptions. Synchronization2 and dynamic
-rendering on Vulkan 1.3 (`14e8549d`, `9a4cdaad`) and bloom over a half-float frame (`6220a102`)
-change every pass the engine draws, and the documents that state the Vulkan version were checked
-and agree. Item 2 asks what those three were run under.
+Reviewed up to `2b5053ac`. The three renderer batches are settled: the render tests passed in the
+validation container after each, and all 41 examples and Pusher from a fresh package ran there
+with the layer on and no error. That run found the workflow's Pusher step had never had the
+layer on, a Release package needing `ENGINE_VULKAN_VALIDATION=1`, which `build.yml` sets.
 
 ## Now
 
-1. **What the next run on GitHub says**, which the owner brings back. A red job or an annotation
+The owner asked on 2026-10-04 that the work here does not stop, there being much left to do.
+This list is long on purpose, and a batch that ends is followed by the next item with no wait
+for a reply. In this order.
+
+1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **Say what the three renderer batches were run under.** `14e8549d`, `9a4cdaad` and `6220a102`
-   replace render passes, framebuffers and barriers throughout, which is where the validation
-   layer found three faults the first time it was run. A line under Replies says whether the
-   render tests and the examples were run in the validation container after each, and with what
-   result. If they were not, they are run before anything else is committed.
-3. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
-   data in files of its own, files that outlive a renamed type, C# typed at a running app) are
-   not scheduled, as the owner decided on 2026-10-04, and stay in [SHARED.md](SHARED.md) as
-   `to consider`.
-4. **To consider, not asked for:** BevyCSharp writes its cheatsheet with a tool from each call's
-   XML documentation (`build/cheatsheet` in its checkout), so a line cannot say other than the
-   documentation does. Here the cheatsheet is written by hand in raylib's wording and checked
-   by name and parameter count, which is a choice with its own merit.
+2. **A third game from the package, larger than the first two.** Pusher and Hopper found more
+   faults than review did, and since them the engine gained a character controller, reflection
+   probes, bloom, cascades, prefabs, joints, triggers, an environment and native builds, none of
+   which a game has used together. A small 3D platformer under `games/`: a level of several
+   prefabs with mesh colliders, an animated character on the controller with a camera that
+   follows it, moving platforms on joints, triggers that collect and that end the level, lights
+   with shadows indoors and a sun outside, a probe in the room and an environment under the
+   sky, bloom on what glows, music from a file with a sound each event, a menu, a pause and a
+   level that restarts, and a gamepad beside the keys. Written from the cheatsheet and the
+   guide alone. What had to be worked around or looked up in the source is fixed when small and
+   entered in TODO.md when not, and CI plays it from the package as it plays the others.
+3. **What that game turned up**, in the order it hurt.
+4. **Effects over the frame beyond bloom** (TODO.md, Meshes, materials and light), which the
+   half-float frame `6220a102` made room for: exposure, a choice of tonemapping curve, color
+   grading, a vignette, and an antialiasing pass over what multisampling does not reach, each
+   set by one function and each with its pixel test and its line in the guide.
+5. **More lights that cast shadows** (TODO.md, the entry on one directional, four spot and four
+   point lights), by tiles given to the lights that matter most to the picture, so a level with
+   a dozen lamps is not lit flat.
+6. **A compute or drawing shader's layout from its reflection** (TODO.md, Layouts are written
+   by hand), so a program declares a buffer in Slang and sets it by name with no layout typed
+   twice.
+7. **What a model still lacks** (TODO.md, Models are partial), in the order a loaded file shows
+   it: morph targets, more than one animation playing on parts of a skeleton, and what else the
+   entry names.
+8. **More scenes compared whole with references** (TODO.md, Testing), one for each pass and
+   effect added since the eight, the new game's first frame among them.
+9. **The guide kept true.** Each page under `docs/` is read against what its area gained since
+   it was written (probes, bloom, instancing, compute into textures, joints, prefabs, native
+   builds), with a snippet from an example that runs for each addition.
+10. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
+    draws.
+11. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
+    kind not yet made, since each one has found what nothing else did.
+
+The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
+that outlive a renamed type, C# typed at a running app) stay `to consider` in
+[SHARED.md](SHARED.md), as the owner decided, and BevyCSharp's cheatsheet written from
+documentation by a tool stays to consider as well.
 
 ## Verdicts
 
@@ -61,13 +88,3 @@ None open.
 
 ## Replies
 
-
-On item 2: the render tests ran in the validation container after each of the three, and the
-examples did not until now. After `14e8549d` the 160 render and device memory tests passed there,
-after `9a4cdaad` the whole suite did (997, one audio skip), and after `6220a102` the 165 render
-tests with the bloom ones. Each time the examples were captured and compared on the desktop GPU,
-where the validation layer is not installed. Since then every example has been captured offscreen
-in the container as CI does, at `ac529628`, which holds all three, and all 41 ran with the layer
-on and no error. Pusher, built from a fresh package, ran clean with the layer as well. That run showed the
-package is a Release build, which turns the layer on only with `ENGINE_VULKAN_VALIDATION=1`, so
-CI's check of Pusher's log had nothing to read, and the workflow's step now sets it.

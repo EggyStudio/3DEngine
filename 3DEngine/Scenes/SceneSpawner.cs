@@ -191,7 +191,7 @@ public static class SceneSpawner
                 });
             }
 
-            AttachComponents(ecs, entity, node, settings, ctx);
+            AttachComponents(ecs, entity, node, settings, ctx, sceneAssetId, entities);
         }
 
         // A node without a payload spawns nothing, so its children hang from the nearest ancestor that did.
@@ -210,10 +210,13 @@ public static class SceneSpawner
         return false;
     }
 
-    private static void AttachComponents(EcsWorld ecs, int entity, SceneNode node, SceneSpawnSettings settings, SpawnContext ctx)
+    private static void AttachComponents(EcsWorld ecs, int entity, SceneNode node, SceneSpawnSettings settings, SpawnContext ctx,
+        ulong sceneAssetId, List<int> entities)
     {
-        SceneMeshPayload? mesh = null;
-        SceneMaterialPayload? material = null;
+        // A node's meshes, each with the material the reader put after it. A file with several
+        // materials on one object, as an OBJ of several or a glTF mesh of several primitives, gives
+        // a node several.
+        var meshes = new List<(SceneMeshPayload Mesh, SceneMaterialPayload? Material)>();
         SceneCameraPayload? camera = null;
         SceneLightPayload? light = null;
 
@@ -221,8 +224,8 @@ public static class SceneSpawner
         {
             switch (c)
             {
-                case SceneMeshPayload m: mesh ??= m; break;
-                case SceneMaterialPayload mat: material ??= mat; break;
+                case SceneMeshPayload m: meshes.Add((m, null)); break;
+                case SceneMaterialPayload mat when meshes.Count > 0 && meshes[^1].Material is null: meshes[^1] = (meshes[^1].Mesh, mat); break;
                 case SceneCameraPayload cam: camera ??= cam; break;
                 case SceneLightPayload l: light ??= l; break;
             }
@@ -237,38 +240,22 @@ public static class SceneSpawner
             ecs.Add(entity, light);
         }
 
-        if (mesh is not null)
+        // The first mesh is the node's own, and each after it a child at the node's place, since
+        // an entity holds one mesh and one material.
+        for (int i = 0; i < meshes.Count; i++)
         {
-            // De-indexed into three vertices per triangle, which is what Mesh holds, with the
-            // normals and first texture coordinates beside the positions when the file has them.
-            var count = mesh.Indices.Length;
-            var positions = new Vector3[count];
-            var normals = mesh.Normals is { } sourceNormals && sourceNormals.Length == mesh.Positions.Length ? new Vector3[count] : null;
-            var uvs = mesh.Uv0 is { } sourceUvs && sourceUvs.Length == mesh.Positions.Length ? new Vector2[count] : null;
-            for (int i = 0; i < count; i++)
+            var holder = entity;
+            if (i > 0)
             {
-                var index = mesh.Indices[i];
-                positions[i] = mesh.Positions[index];
-                if (normals is not null) normals[i] = mesh.Normals![index];
-                if (uvs is not null) uvs[i] = mesh.Uv0![index];
+                holder = ecs.Spawn();
+                entities.Add(holder);
+                ecs.Add(holder, DecomposeToTransform(Matrix4x4.Identity));
+                ecs.Add(holder, new Name(node.Name));
+                ecs.SetParent(holder, entity);
+                if (settings.AttachSceneInstanceMarker)
+                    ecs.Add(holder, new SceneInstance { SceneAssetId = sceneAssetId, SourcePath = node.SourcePath });
             }
-            ecs.Add(entity, new Mesh(positions, normals, uvs));
-
-            // The material is the payload's when there is one and the configured default
-            // otherwise, so the renderer sees a fully formed pair of mesh and material.
-            var runtimeMaterial = BuildRuntimeMaterial(material, settings, ctx);
-            ecs.Add(entity, runtimeMaterial);
-
-            // Per-mesh diagnostic: vertex/tri count, source-space AABB and the final
-            // world-space transform position the spawner produced. One pass over
-            // the positions built above, which shows a wrong scale, a mesh off screen or
-            // degenerate bounds without a debugger.
-            LogMeshDiagnostics(node, entity, positions, runtimeMaterial.Albedo);
-
-            // When no AssetServer was supplied, texture refs lose information silently;
-            // surface that exactly once so the gap is visible without log spam.
-            if (material is not null && ctx.Server is null)
-                WarnIfTexturesIgnoredOnce(material);
+            AttachMesh(ecs, holder, node, meshes[i].Mesh, meshes[i].Material, settings, ctx);
         }
 
         if (camera is not null)
@@ -285,6 +272,42 @@ public static class SceneSpawner
                 Far = camera.FarClip,
             });
         }
+    }
+
+    // A mesh and its material on an entity.
+    private static void AttachMesh(EcsWorld ecs, int entity, SceneNode node, SceneMeshPayload mesh, SceneMaterialPayload? material,
+        SceneSpawnSettings settings, SpawnContext ctx)
+    {
+        // De-indexed into three vertices per triangle, which is what Mesh holds, with the
+        // normals and first texture coordinates beside the positions when the file has them.
+        var count = mesh.Indices.Length;
+        var positions = new Vector3[count];
+        var normals = mesh.Normals is { } sourceNormals && sourceNormals.Length == mesh.Positions.Length ? new Vector3[count] : null;
+        var uvs = mesh.Uv0 is { } sourceUvs && sourceUvs.Length == mesh.Positions.Length ? new Vector2[count] : null;
+        for (int i = 0; i < count; i++)
+        {
+            var index = mesh.Indices[i];
+            positions[i] = mesh.Positions[index];
+            if (normals is not null) normals[i] = mesh.Normals![index];
+            if (uvs is not null) uvs[i] = mesh.Uv0![index];
+        }
+        ecs.Add(entity, new Mesh(positions, normals, uvs));
+
+        // The material is the payload's when there is one and the configured default
+        // otherwise, so the renderer sees a fully formed pair of mesh and material.
+        var runtimeMaterial = BuildRuntimeMaterial(material, settings, ctx);
+        ecs.Add(entity, runtimeMaterial);
+
+        // Per-mesh diagnostic: vertex/tri count, source-space AABB and the final
+        // world-space transform position the spawner produced. One pass over
+        // the positions built above, which shows a wrong scale, a mesh off screen or
+        // degenerate bounds without a debugger.
+        LogMeshDiagnostics(node, entity, positions, runtimeMaterial.Albedo);
+
+        // When no AssetServer was supplied, texture refs lose information silently;
+        // surface that exactly once so the gap is visible without log spam.
+        if (material is not null && ctx.Server is null)
+            WarnIfTexturesIgnoredOnce(material);
     }
 
     /// <summary>

@@ -214,6 +214,37 @@ public class SceneSpawnerTests
     }
 
     [Fact]
+    public void A_Node_Of_Several_Meshes_Spawns_Each_With_Its_Own_Material()
+    {
+        // As an OBJ of several materials reads, each mesh followed by its material on one node.
+        var ecs = new EcsWorld();
+        var scene = new Scene();
+        scene.Roots.Add(new SceneNode
+        {
+            Name = "Island",
+            LocalTransform = new Transform(new Vector3(0, 2, 0)),
+            Components =
+            {
+                MakeTriangle(), new SceneMaterialPayload { SourcePath = "/Rock", BaseColorFactor = new Vector4(0.5f, 0.5f, 0.5f, 1) },
+                MakeTriangle(), new SceneMaterialPayload { SourcePath = "/Grass", BaseColorFactor = new Vector4(0, 1, 0, 1) },
+                MakeTriangle(), new SceneMaterialPayload { SourcePath = "/Sand", BaseColorFactor = new Vector4(1, 1, 0, 1) },
+            },
+        });
+
+        var spawned = SceneSpawner.Spawn(ecs, scene);
+
+        spawned.Should().HaveCount(3, "every mesh is drawn, not the first alone");
+        spawned.Select(e => ecs.GetRef<Material>(e).Albedo).Should().Equal(
+            new Vector4(0.5f, 0.5f, 0.5f, 1), new Vector4(0, 1, 0, 1), new Vector4(1, 1, 0, 1));
+        ecs.GetRef<Transform>(spawned[0]).Position.Should().Be(new Vector3(0, 2, 0));
+        foreach (var part in spawned.Skip(1))
+        {
+            ecs.ParentOf(part).Should().Be(spawned[0], "a mesh after the first hangs from the node's entity");
+            ecs.GetRef<Transform>(part).Position.Should().Be(Vector3.Zero, "at the node's place");
+        }
+    }
+
+    [Fact]
     public void Spawn_Camera_Payload_Becomes_Camera_Component_With_FovY_From_Physical_Inputs()
     {
         var ecs = new EcsWorld();
