@@ -159,9 +159,8 @@ not described. There are no prefabs (a scene file spawned as part of another), a
 read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads. Of `SceneMaterialPayload`'s fields
-the model pass reads all but the double-sided flag. The alpha mode is read, but the shadow pass
-draws depth with no fragment stage, so a masked surface casts the shadow of its whole quad, holes
-and all, and a blended one the shadow of a solid.
+the model pass reads all but the double-sided flag. A blended surface casts the shadow of a
+solid, with no lighter shadow where it is clearer.
 
 ## Platform
 

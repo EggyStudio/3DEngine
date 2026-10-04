@@ -107,6 +107,9 @@ public sealed class ModelRenderer : IDisposable
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
+    private readonly ReadOnlyMemory<byte> _shadowMaskSpv;
+    private IShader? _shadowMaskShader;
+    private IPipeline? _shadowMaskPipeline;
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
     private IPipeline? _pipeline;
@@ -172,11 +175,16 @@ public sealed class ModelRenderer : IDisposable
     private int _drawSetNext;
     private RenderContext? _lastContext;
 
-    /// <summary>Creates the renderer from the compiled stages of <c>model.slang</c>.</summary>
-    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
+    /// <summary>
+    /// Creates the renderer from the compiled stages of <c>model.slang</c>, and the fragment stage
+    /// of <c>shadowmask.slang</c> that cuts a masked surface out of the shadow, or none to draw
+    /// every shadow solid.
+    /// </summary>
+    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv, ReadOnlyMemory<byte> shadowMaskSpv = default)
     {
         _vertexSpv = vertexSpv;
         _fragmentSpv = fragmentSpv;
+        _shadowMaskSpv = shadowMaskSpv;
     }
 
     /// <summary>Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
@@ -356,23 +364,34 @@ public sealed class ModelRenderer : IDisposable
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
-        if (draws is null || meshes is null || renderContext.Device is not GraphicsDevice device) return;
+        var textures = renderWorld.TryGet<GpuTextures>();
+        if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
 
         var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.AtlasSize);
         if (_shadowPipeline is null)
         {
             _vertexShader ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
             _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, fragment: null);
+            if (!_shadowMaskSpv.IsEmpty)
+            {
+                _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
+                _shadowMaskPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, _shadowMaskShader);
+            }
         }
 
-        // The window's draws gather by mesh alone, since the shadow reads no material.
+        // The window's draws gather by mesh alone, since a solid shadow reads no material, and a
+        // masked draw by its maps too, which its fragment stage cuts it out by.
         BeginFrameOfSets(renderContext);
-        Gather(draws.Draws, meshes, static draw => (draw.Target == 0 ? Kind.Batched : Kind.Skip, null), keepOrderOfTranslucent: false);
+        var masks = _shadowMaskPipeline is not null;
+        Gather(draws.Draws, meshes, draw => draw.Target != 0 ? (Kind.Skip, null)
+            : masks && draw.AlphaMode == MaterialAlphaMode.Mask ? (Kind.Batched, MaterialSet(device, textures, draw))
+            : (Kind.Batched, null), keepOrderOfTranslucent: false);
 
         // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
         pass.SetPipeline(_shadowPipeline);
+        IPipeline bound = _shadowPipeline;
         var tiles = shadow.Cascades.Count + (shadow.SpotLight >= 0 ? 1 : 0);
         for (int t = 0; t < tiles; t++)
         {
@@ -382,11 +401,20 @@ public sealed class ModelRenderer : IDisposable
             pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
             pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
 
-            // The depth pass reads the transform alone.
+            // A solid shadow reads the transform alone, and a masked one its color and cutoff too.
             var lightViewProjection = spot ? shadow.SpotViewProjection : shadow.Cascades[t].ViewProjection;
-            var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
+            var ring = WriteInstances(device, draws.Draws, draw => masks && draw.AlphaMode == MaterialAlphaMode.Mask
+                ? Instance.Of(draw, lightViewProjection)
+                : new Instance { Transform = draw.World * lightViewProjection });
             foreach (var batch in _batches)
             {
+                var pipeline = batch.Set is null ? _shadowPipeline : _shadowMaskPipeline!;
+                if (!ReferenceEquals(pipeline, bound))
+                {
+                    pass.SetPipeline(pipeline);
+                    bound = pipeline;
+                }
+                if (batch.Set is not null) pass.SetBindGroup(pipeline, batch.Set);
                 pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
                 pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
                 pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
@@ -677,6 +705,7 @@ public sealed class ModelRenderer : IDisposable
         _environment?.Dispose();
         _noEnvironment?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
+        _shadowMaskShader?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();

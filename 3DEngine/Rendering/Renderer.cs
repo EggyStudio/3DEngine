@@ -61,7 +61,8 @@ public sealed class Renderer : IDisposable
 
         var model = server.LoadSync<ShaderProgram>("shaders/model.slang");
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
-        RenderWorld.Set(new ModelRenderer(model.Vertex, model.Fragment));
+        var shadowMask = server.LoadSync<ShaderProgram>("shaders/shadowmask.slang");
+        RenderWorld.Set(new ModelRenderer(model.Vertex, model.Fragment, shadowMask.Fragment));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 

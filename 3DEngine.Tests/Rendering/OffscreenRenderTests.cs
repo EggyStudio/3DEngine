@@ -508,6 +508,38 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(unshadowed, 41, 32).R.Should().BeGreaterThan(60, "a spot that does not cast shadows lights it");
     }
 
+    [NeedsVulkanFact]
+    public void A_Masked_Surface_Casts_The_Shadow_Of_Its_Cut_Out()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
+        var wall = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        // A unit square a unit in front of the wall, from x 0.25 to 1.25, cut out on its left half
+        // and solid on its right. The sun along -X and -Z throws its shadow a unit to the left.
+        var square = LoadModelFromMesh(GenMeshPlane(1, 1, 1, 1));
+        var texture = LoadTextureFromImage(new Image([255, 255, 255, 40, 255, 255, 255, 230], 2, 1));
+        SetTextureFilter(texture, TextureFilter.Point);
+        square.Materials[0] = new ModelMaterial(Color.White, texture) { AlphaMode = MaterialAlphaMode.Mask };
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-1, 0, -1)), Color.White, 1, castsShadows: true);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(wall, Vector3.Zero, Vector3.UnitX, 90, Vector3.One, Color.White);
+            DrawModelEx(square, new Vector3(0.75f, 0, 1), Vector3.UnitX, 90, Vector3.One, Color.White);
+            EndMode3D();
+        });
+
+        // The wall half a unit left of the middle is behind the cut-out half, and the middle behind the solid one.
+        var hole = GetImageColor(image, 22, 32).R;
+        var solid = GetImageColor(image, 32, 32).R;
+        hole.Should().BeGreaterThan(60, "light passes through the cut-out half");
+        solid.Should().BeLessThan((byte)(hole / 3), "the solid half shadows the wall");
+        UnloadModel(square);
+        UnloadModel(wall);
+    }
+
     // CI installs the layer and sets E3D_REQUIRE_VALIDATION, so a missing layer there fails here
     // instead of letting every frame pass unchecked.
     [NeedsVulkanFact]

@@ -210,7 +210,9 @@ into the fourth tile, through a perspective projection from the light as wide as
 and as deep as its range, or 150 units for a light with none.
 `ShadowNode` clears the map once and draws the window's meshes into each tile in use, before any other
 pass, with `model.slang`'s vertex stage and no fragment stage, through a depth-only render pass
-(`GraphicsDevice.CreateShadowMap`). The map is bound at binding 1 of the lights' set, beside the
+(`GraphicsDevice.CreateShadowMap`). A masked surface is drawn with `shadowmask.slang`'s fragment
+stage and its maps instead, which cuts it out below its cutoff as the model pass does, so its
+shadow has its holes. The map is bound at binding 1 of the lights' set, beside the
 cascades' matrices and texel widths in the lighting buffer, and the white texture takes its place
 in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
 little inside its edge, moves the point off its surface by a texel and a half of that cascade
