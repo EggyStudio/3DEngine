@@ -96,6 +96,44 @@ public sealed class ModelRenderer : IDisposable
         }
     }
 
+    /// <summary>
+    /// One drawn copy of a mesh as <c>shadow.slang</c>'s <c>ShadowInstance</c> reads it, 80 bytes:
+    /// the world matrix and what a masked surface is cut out by, with the light's view-projection
+    /// pushed for each tile, so one write serves every cascade and face.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct ShadowInstance
+    {
+        public const int Size = 80;
+
+        public Vector4 WorldX, WorldY, WorldZ;
+        public Vector4 Color;
+        public Vector4 Emission;
+
+        /// <summary>A draw's world matrix, and its color and alpha mode as <see cref="Instance.Of"/> writes them.</summary>
+        public static ShadowInstance Of(in ModelDraw draw)
+        {
+            var w = draw.World;
+            var instance = new ShadowInstance
+            {
+                WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
+                WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
+                WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
+            };
+            // Only a masked surface's fragment stage reads its color, so a solid one skips the decode.
+            if (draw.AlphaMode == MaterialAlphaMode.Mask)
+            {
+                var full = Instance.Of(draw, Matrix4x4.Identity);
+                instance.Color = full.Color;
+                instance.Emission = full.Emission;
+            }
+            return instance;
+        }
+    }
+
+    // A draw's instance, by reference, since a ModelDraw is about 200 bytes.
+    private delegate T InstanceOf<T>(in ModelDraw draw) where T : unmanaged;
+
     // A run of instances drawn by one call. It is a mesh with a set of maps, or one draw with a
     // shader of its own, by its index in the draw list.
     private struct Batch
@@ -110,7 +148,9 @@ public sealed class ModelRenderer : IDisposable
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
+    private readonly ReadOnlyMemory<byte> _shadowVertexSpv;
     private readonly ReadOnlyMemory<byte> _shadowMaskSpv;
+    private IShader? _shadowVertexShader;
     private IShader? _shadowMaskShader;
     private IPipeline? _shadowMaskPipeline;
     private IShader? _vertexShader;
@@ -213,14 +253,17 @@ public sealed class ModelRenderer : IDisposable
     private RenderContext? _lastContext;
 
     /// <summary>
-    /// Creates the renderer from the compiled stages of <c>model.slang</c>, and the fragment stage
-    /// of <c>shadowmask.slang</c> that cuts a masked surface out of the shadow, or none to draw
-    /// every shadow solid.
+    /// Creates the renderer from the compiled stages of <c>model.slang</c>, and those of
+    /// <c>shadow.slang</c>: the vertex stage that draws into the shadow map, without which nothing
+    /// casts a shadow, and the fragment stage that cuts a masked surface out of it, without which
+    /// every shadow is solid.
     /// </summary>
-    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv, ReadOnlyMemory<byte> shadowMaskSpv = default)
+    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv,
+        ReadOnlyMemory<byte> shadowVertexSpv = default, ReadOnlyMemory<byte> shadowMaskSpv = default)
     {
         _vertexSpv = vertexSpv;
         _fragmentSpv = fragmentSpv;
+        _shadowVertexSpv = shadowVertexSpv;
         _shadowMaskSpv = shadowMaskSpv;
     }
 
@@ -239,11 +282,11 @@ public sealed class ModelRenderer : IDisposable
 
         // Draws of the pass's own shader gather by mesh and set, and a draw with a shader of its
         // own is a batch alone.
-        Gather(draws.Draws, meshes, draw =>
+        Gather(draws.Span, meshes, (in ModelDraw draw) =>
             draw.Target != target ? (Kind.Skip, null)
             : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
             : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true);
-        var ring = WriteInstances(gfx, draws.Draws, static draw => Instance.Of(draw, draw.ViewProjection));
+        var (ring, offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection));
 
         IPipeline? pipeline = null;
         foreach (var batch in _batches)
@@ -262,7 +305,7 @@ public sealed class ModelRenderer : IDisposable
             }
 
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, textures, draw, program));
-            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
             DrawCalls++;
@@ -273,23 +316,25 @@ public sealed class ModelRenderer : IDisposable
     // that share its mesh and set.
     private enum Kind { Skip, Alone, Batched }
 
+    private delegate (Kind Kind, IDescriptorSet? Set) Classify(in ModelDraw draw);
+
     // Sorts this call's draws into batches, in the order each batch first appears. With
     // keepOrderOfTranslucent, a draw whose color has alpha below 255 waits until the opaque
     // batches are made and goes after them in its recorded place, joining the batch before it
     // only when that batch is translucent and shares its mesh and set. The depth pass of a shadow
     // reads no color and keeps no order. With cullBackFaces, a single-sided draw is batched apart,
     // for the pipeline that leaves its back faces out.
-    private void Gather(IReadOnlyList<ModelDraw> draws, GpuMeshes meshes, Func<ModelDraw, (Kind Kind, IDescriptorSet? Set)> classify,
+    private void Gather(ReadOnlySpan<ModelDraw> draws, GpuMeshes meshes, Classify classify,
         bool keepOrderOfTranslucent, bool cullBackFaces = false)
     {
         _batches.Clear();
         _drawBatch.Clear();
         _batchOf.Clear();
         _classified.Clear();
-        for (int i = 0; i < draws.Count; i++)
+        for (int i = 0; i < draws.Length; i++)
         {
-            var draw = draws[i];
-            var (kind, set) = classify(draw);
+            ref readonly var draw = ref draws[i];
+            var (kind, set) = classify(in draw);
             _classified.Add((kind, set));
             // A mesh unloaded after its draw was recorded is skipped.
             if (kind == Kind.Skip || meshes.Get(draw.Mesh) is not { } mesh)
@@ -308,10 +353,10 @@ public sealed class ModelRenderer : IDisposable
 
         var last = (Mesh: -1, Set: (IDescriptorSet?)null, Culled: false);
         var lastBatch = -1;
-        for (int i = 0; i < draws.Count; i++)
+        for (int i = 0; i < draws.Length; i++)
         {
             if (_drawBatch[i] != Translucent) continue;
-            var draw = draws[i];
+            ref readonly var draw = ref draws[i];
             var (kind, set) = _classified[i];
             var mesh = meshes.Get(draw.Mesh)!;
             var culled = cullBackFaces && !draw.DoubleSided;
@@ -356,15 +401,19 @@ public sealed class ModelRenderer : IDisposable
     }
 
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
-    // instances together, and gives each batch the first of them. Returns the ring they are in.
-    private IBuffer WriteInstances(IGraphicsDevice gfx, IReadOnlyList<ModelDraw> draws, Func<ModelDraw, Instance> instanceOf)
+    // instances together, and gives each batch the first of them, counted from the returned offset
+    // in bytes. An instance smaller than the model pass's packs into fewer of the ring's slots.
+    private (IBuffer Ring, ulong Offset) WriteInstances<T>(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<T> instanceOf)
+        where T : unmanaged
     {
         uint total = 0;
         foreach (var batch in _batches) total += batch.Count;
-        EnsureInstanceRoom(gfx, (int)total);
+        var slots = (int)((total * (uint)Marshal.SizeOf<T>() + Instance.Size - 1) / Instance.Size);
+        EnsureInstanceRoom(gfx, slots);
 
-        var first = (uint)(_ringSlot * _ringCapacity + _ringCursor);
-        _ringCursor += (int)total;
+        var offset = (ulong)(_ringSlot * _ringCapacity + _ringCursor) * Instance.Size;
+        _ringCursor += slots;
+        uint first = 0;
         _filled.Clear();
         for (int b = 0; b < _batches.Count; b++)
         {
@@ -375,15 +424,14 @@ public sealed class ModelRenderer : IDisposable
             first += batch.Count;
         }
 
-        var instances = MemoryMarshal.Cast<byte, Instance>(gfx.Map(_instanceRing!));
+        var instances = MemoryMarshal.Cast<byte, T>(gfx.Map(_instanceRing!)[(int)offset..]);
         for (int i = 0; i < _drawBatch.Count; i++)
         {
             var b = _drawBatch[i];
             if (b < 0) continue;
-            var draw = draws[i];
-            instances[(int)_filled[b]++] = instanceOf(draw);
+            instances[(int)_filled[b]++] = instanceOf(in draws[i]);
         }
-        return _instanceRing!;
+        return (_instanceRing!, offset);
     }
 
     // The ring of instances, with room for a region per frame slot of at least this call's
@@ -408,14 +456,15 @@ public sealed class ModelRenderer : IDisposable
         if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
 
         var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.AtlasSize);
+        if (_shadowVertexSpv.IsEmpty) return;
         if (_shadowPipeline is null)
         {
-            _vertexShader ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
-            _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, fragment: null);
+            _shadowVertexShader = device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _shadowVertexSpv));
+            _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _shadowVertexShader, fragment: null, shadow: true);
             if (!_shadowMaskSpv.IsEmpty)
             {
                 _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
-                _shadowMaskPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, _shadowMaskShader);
+                _shadowMaskPipeline = MakePipeline(device, map.RenderPass, renderWorld, _shadowVertexShader, _shadowMaskShader, shadow: true);
             }
         }
 
@@ -423,9 +472,10 @@ public sealed class ModelRenderer : IDisposable
         // masked draw by its maps too, which its fragment stage cuts it out by.
         BeginFrameOfSets(renderContext);
         var masks = _shadowMaskPipeline is not null;
-        Gather(draws.Draws, meshes, draw => draw.Target != 0 || !draw.CastsShadow ? (Kind.Skip, null)
+        Gather(draws.Span, meshes, (in ModelDraw draw) => draw.Target != 0 || !draw.CastsShadow ? (Kind.Skip, null)
             : masks && draw.AlphaMode == MaterialAlphaMode.Mask ? (Kind.Batched, MaterialSet(device, textures, draw))
             : (Kind.Batched, null), keepOrderOfTranslucent: false);
+        var (ring, offset) = WriteInstances(device, draws.Span, static (in ModelDraw draw) => ShadowInstance.Of(draw));
 
         // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
@@ -436,7 +486,7 @@ public sealed class ModelRenderer : IDisposable
             var (x, y) = ShadowFit.TileOrigin(t);
             pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
             pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
-            DrawShadowBatches(device, pass, draws.Draws, masks, shadow.Cascades[t].ViewProjection);
+            DrawShadowBatches(pass, ring, offset, shadow.Cascades[t].ViewProjection);
         }
         var spots = shadow.SpotLights ?? [];
         for (int s = 0; s < spots.Count; s++)
@@ -444,7 +494,7 @@ public sealed class ModelRenderer : IDisposable
             var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count);
             pass.SetViewport(x, y, size, size, 0, 1);
             pass.SetScissor(x, y, (uint)size, (uint)size);
-            DrawShadowBatches(device, pass, draws.Draws, masks, spots[s].ViewProjection);
+            DrawShadowBatches(pass, ring, offset, spots[s].ViewProjection);
         }
         pass.EndRenderPass();
 
@@ -459,19 +509,19 @@ public sealed class ModelRenderer : IDisposable
                     pointMap.RenderPass, pointMap.Framebuffers[p * 6 + f], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
                 facePass.SetViewport(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize, 0, 1);
                 facePass.SetScissor(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize);
-                DrawShadowBatches(device, facePass, draws.Draws, masks, points[p].Faces[f]);
+                DrawShadowBatches(facePass, ring, offset, points[p].Faces[f]);
                 facePass.EndRenderPass();
             }
     }
 
-    // The gathered batches drawn as a light sees them through lightViewProjection. A solid shadow
-    // reads the transform alone, and a masked one its color and cutoff too.
-    private void DrawShadowBatches(GraphicsDevice device, TrackedRenderPass pass, IReadOnlyList<ModelDraw> draws, bool masks, Matrix4x4 lightViewProjection)
+    // The gathered batches, whose instances are at offset in ring, drawn as a light sees them
+    // through lightViewProjection. A solid shadow reads the world matrix alone, and a masked one
+    // its color and cutoff too.
+    private void DrawShadowBatches(TrackedRenderPass pass, IBuffer ring, ulong offset, Matrix4x4 lightViewProjection)
     {
-        var ring = WriteInstances(device, draws, draw => masks && draw.AlphaMode == MaterialAlphaMode.Mask
-            ? Instance.Of(draw, lightViewProjection)
-            : new Instance { Transform = draw.World * lightViewProjection });
+        var push = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in lightViewProjection));
         pass.SetPipeline(_shadowPipeline!);
+        pass.PushConstants(_shadowPipeline!, ShaderStageFlags.Vertex, 0, push);
         IPipeline bound = _shadowPipeline!;
         foreach (var batch in _batches)
         {
@@ -479,10 +529,11 @@ public sealed class ModelRenderer : IDisposable
             if (!ReferenceEquals(pipeline, bound))
             {
                 pass.SetPipeline(pipeline);
+                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, push);
                 bound = pipeline;
             }
             if (batch.Set is not null) pass.SetBindGroup(pipeline, batch.Set);
-            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
             DrawCalls++;
@@ -581,7 +632,7 @@ public sealed class ModelRenderer : IDisposable
     // The set of a draw with the model pass's own shader, made once per combination of maps. Within
     // a frame the same five texture ids give the same views, so most draws find their set by the
     // ids without looking the views up.
-    private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
+    private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, in ModelDraw draw)
     {
         var ids = (draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap, draw.OcclusionMap);
         if (_setByIds.TryGetValue(ids, out var found)) return found;
@@ -702,28 +753,31 @@ public sealed class ModelRenderer : IDisposable
     }
 
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
-        bool culled = false, IDescriptorSetLayout? material = null)
+        bool culled = false, IDescriptorSetLayout? material = null, bool shadow = false)
     {
+        // The shadow pass's instances are five rows, and its light's view-projection a push constant.
+        var (stride, rows) = shadow ? (ShadowInstance.Size, 5) : (Instance.Size, 10);
         var desc = new GraphicsPipelineDesc(
             renderPass,
             vertex,
             fragment,
             BlendEnabled: true,
             CullBackFace: culled,
-            // The mesh's vertices at binding 0, and the instances at binding 1, ten rows of four
-            // floats at locations 3 to 12 in ModelInstance's order.
+            // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats
+            // from location 3 in ModelInstance's order, or ShadowInstance's.
             VertexBindings:
             [
                 new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>()),
-                new VertexInputBindingDesc(1, Instance.Size, PerInstance: true),
+                new VertexInputBindingDesc(1, (uint)stride, PerInstance: true),
             ],
             VertexAttributes:
             [
                 new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
                 new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12),
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
-                .. Enumerable.Range(0, 10).Select(row => new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
+                .. Enumerable.Range(0, rows).Select(row => new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
             ],
+            PushConstantRanges: shadow ? [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)] : null,
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [material ?? MaterialLayout(gfx), LightsLayout(gfx)],
@@ -861,6 +915,7 @@ public sealed class ModelRenderer : IDisposable
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         foreach (var (_, retired) in _retiredShaderSets) retired.Dispose();
         _shadowMaskShader?.Dispose();
+        _shadowVertexShader?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();

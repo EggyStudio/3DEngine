@@ -253,9 +253,10 @@ light as wide as its outer cone and as deep as its range, or the shadow distance
 none. A shadowed spot light carries its slot, counted from one, in its cone's third component, as a
 point light does, and its projection and texel width ride in the lighting buffer. `ShadowNode`
 clears the map once and draws the window's meshes into each tile in use, before any other pass, with
-`model.slang`'s vertex stage and no fragment stage, through a depth-only render pass
-(`GraphicsDevice.CreateShadowMap`). A masked surface is drawn with `shadowmask.slang`'s fragment
-stage and its maps instead, which cuts it out below its cutoff as the model pass does, so its shadow
+`shadow.slang`'s vertex stage and no fragment stage, through a depth-only render pass
+(`GraphicsDevice.CreateShadowMap`). The frame's instances are written for the shadow once, holding
+each world matrix, and each tile and face pushes its light's view-projection. A masked surface is
+drawn with `shadow.slang`'s fragment stage and its maps as well, which cuts it out below its cutoff as the model pass does, so its shadow
 has its holes. The map is bound at binding 1 of the lights' set, beside the cascades' matrices and
 texel widths in the lighting buffer, and the white texture takes its place in a frame with no
 shadow. The shader takes the nearest cascade whose tile holds the point, a little inside its edge,
@@ -421,6 +422,20 @@ The three largest costs as first measured, in order, each with what changed:
    it is the draw list's lock, which a system on a worker thread needs, and six vertices of 24
    bytes for each quad, since the immediate pass draws without an index buffer. The GPU takes 5.1
    ms for them and the upload 2.0 ms.
+4. **The shadow pass wrote every instance again for each cascade.** Measured again later in the
+   day on the same machine, after point lights and a fourth tile had been added, the run without
+   arms held 22,811 entities, with the shadow pass recording for 6.4 ms, the model pass for 4.9 ms
+   and `MeshEntityDraws` taking 4.6 ms. Each of the three cascades wrote all 160 bytes of each
+   draw's instance, its transform through that cascade's light, so a frame wrote three times what
+   the model pass did.
+   **Changed.** The shadow pass has a vertex stage of its own in `shadow.slang`, whose instance
+   holds the world matrix, and the material's color and cutoff for a masked surface, in 80 bytes,
+   and which reads the light's view-projection as a push constant. The frame's shadow instances
+   are written once and drawn through each cascade, spot tile and point face. Both passes read the
+   draw list by reference, where they copied each draw of about 200 bytes for each call. The same
+   run afterward held 45,923 entities in place of 22,811, with the shadow pass recording for 2.4
+   ms, the model pass for 4.4 ms, and `MeshEntityDraws` at 8.4 ms, about 180 nanoseconds an entity,
+   the largest cost again.
 
 ## What the engine needs
 

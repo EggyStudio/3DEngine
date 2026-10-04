@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Engine;
 
@@ -51,6 +52,9 @@ public sealed class ModelDrawList
 
     /// <summary>The meshes recorded this frame, in recording order.</summary>
     public IReadOnlyList<ModelDraw> Draws => _draws;
+
+    /// <summary>The same draws as a span, which the model pass reads by reference, since each is about 200 bytes.</summary>
+    internal ReadOnlySpan<ModelDraw> Span => CollectionsMarshal.AsSpan(_draws);
 
     /// <summary>Records a mesh.</summary>
     public void Add(in ModelDraw draw)
