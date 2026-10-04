@@ -52,7 +52,7 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
-    public void A_Request_Over_The_Socket_Is_Answered_Between_Frames()
+    public async Task A_Request_Over_The_Socket_Is_Answered_Between_Frames()
     {
         var app = new App();
         var ecs = new EcsWorld();
@@ -78,7 +78,7 @@ public sealed class CliTests : IDisposable
 
         using var answer = JsonDocument.Parse(CliClient.Send(session, "run", "entity.count", 10));
         stop.Cancel();
-        pump.Wait();
+        await pump;
 
         answer.RootElement.GetProperty("success").GetBoolean().Should().BeTrue();
         answer.RootElement.GetProperty("data").GetProperty("result").GetString().Should().Be("1");

@@ -6,7 +6,14 @@ namespace Engine.Tests.Diagnostics;
 [Trait("Category", "Unit")]
 public class ConsoleBuiltinsTests
 {
-    private struct Health { public int Value; public System.Numerics.Vector3 Spot; }
+    private struct Health
+    {
+        public int Value;
+        // Written only by entity.set, through the console's field setter, which the compiler cannot see.
+#pragma warning disable CS0649
+        public System.Numerics.Vector3 Spot;
+#pragma warning restore CS0649
+    }
     private struct Tag;
 
     private static (World World, App App) Setup()

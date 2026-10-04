@@ -122,5 +122,7 @@ run from anywhere in the checkout finds it.
 Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
 `build.yml` runs for every push, builds and tests it on Ubuntu 24.04, named rather than the newest
 so lavapipe and the validation layer change only in a commit, drawing on lavapipe. Its Windows
-job builds it and runs the tests that need no device, since the runner has no Vulkan device. macOS builds from the same packages
+job builds it and runs the tests that need no device, since the runner has no Vulkan device. Both
+build with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is
+right to keep is turned off where it arises, with its reason. macOS builds from the same packages
 and is not covered by CI.

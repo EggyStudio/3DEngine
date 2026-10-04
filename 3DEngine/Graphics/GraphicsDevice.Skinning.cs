@@ -128,6 +128,9 @@ public sealed unsafe partial class GraphicsDevice
 
         var sets = new VkDescriptorSet[ring];
         var layout = _skinSetLayout;
+        // Above the loop, since stack space taken inside it is given back only when the method returns.
+        var infos = stackalloc VkDescriptorBufferInfo[SkinBindings];
+        var writes = stackalloc VkWriteDescriptorSet[SkinBindings];
         for (int i = 0; i < ring; i++)
         {
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &layout };
@@ -136,8 +139,6 @@ public sealed unsafe partial class GraphicsDevice
             sets[i] = set;
 
             IBuffer[] buffers = [rows[i], restBuffer, jointBuffer, weightBuffer, output];
-            var infos = stackalloc VkDescriptorBufferInfo[SkinBindings];
-            var writes = stackalloc VkWriteDescriptorSet[SkinBindings];
             for (int b = 0; b < SkinBindings; b++)
             {
                 var vk = (VulkanBuffer)buffers[b];

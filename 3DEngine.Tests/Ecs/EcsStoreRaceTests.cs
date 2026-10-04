@@ -5,7 +5,7 @@ namespace Engine.Tests.Ecs;
 [Trait("Category", "Unit")]
 public class EcsStoreRaceTests
 {
-    private struct Raced { public int Value; }
+    private struct Raced;
 
     [Fact]
     public void Systems_Touching_A_New_Type_Together_Share_One_Store()

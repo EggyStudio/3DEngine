@@ -37,7 +37,7 @@ jobs:
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
 
-      - run: dotnet build 3DEngine.slnx
+      - run: dotnet build 3DEngine.slnx -warnaserror
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
         env:
@@ -66,7 +66,7 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
-      - run: dotnet build 3DEngine.slnx
+      - run: dotnet build 3DEngine.slnx -warnaserror
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
 

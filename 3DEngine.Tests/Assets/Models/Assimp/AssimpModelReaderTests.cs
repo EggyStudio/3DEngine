@@ -92,7 +92,7 @@ public class AssimpModelReaderTests
     }
 
     [Fact]
-    public void A_Model_Finds_The_Material_Library_Beside_It_From_A_Path_Or_A_File_Stream()
+    public async Task A_Model_Finds_The_Material_Library_Beside_It_From_A_Path_Or_A_File_Stream()
     {
         var directory = Directory.CreateTempSubdirectory("engine-assimp-test-").FullName;
         try
@@ -107,7 +107,7 @@ public class AssimpModelReaderTests
             // The asset server hands the reader the file opened from disk, and the library beside
             // it is found that way too.
             using var context = new AssetLoadContext(File.OpenRead(Path.Combine(directory, "tri.obj")), new AssetPath("tri.obj"), _ => default);
-            AssertRed(new AssimpModelReader().ReadAsync(context, new SceneImportSettings(), default).GetAwaiter().GetResult());
+            AssertRed(await new AssimpModelReader().ReadAsync(context, new SceneImportSettings(), default));
         }
         finally
         {
