@@ -85,4 +85,38 @@ public sealed class Engine3DPhysicsTests : IDisposable
         var up = GetScreenToWorldRayEx(new Vector2(400, 0), camera, 800, 450);
         up.Direction.Y.Should().BeGreaterThan(0, "the top of the screen is above the middle");
     }
+
+    [Fact]
+    public void The_Default_Plugins_Mark_No_Transform_Of_A_Static_Scene()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var camera = ecs.Spawn();
+        ecs.Add(camera, new Camera(45f));
+        ecs.Add(camera, new Transform(new Vector3(0, 2, 8)));
+        var sun = ecs.Spawn();
+        ecs.Add(sun, Light.Directional(Vector3.One, 1));
+        ecs.Add(sun, new Transform(Vector3.Zero));
+        var root = ecs.Spawn();
+        ecs.Add(root, new Transform(Vector3.Zero));
+        var child = ecs.Spawn();
+        ecs.Add(child, new Transform(Vector3.UnitX));
+        ecs.Add(child, new Mesh([new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)]));
+        ecs.Add(child, new Material(Vector4.One));
+        ecs.SetParent(child, root);
+
+        // A body with no gravity to fall by, which rests where it was made.
+        SetPhysicsGravity(Vector3.Zero);
+        var resting = ecs.Spawn();
+        ecs.Add(resting, new Transform(new Vector3(0, 3, 0)));
+        GetApp().World.Resource<PhysicsWorld>().CreateSphere(new Vector3(0, 3, 0), 0.5f, entityId: resting);
+
+        for (int frame = 0; frame < 3; frame++)
+        {
+            BeginDrawing();
+            EndDrawing();
+        }
+
+        ecs.AnyChanged<Transform>().Should().BeFalse("nothing in the scene moved, so no system wrote a transform");
+        ecs.AnyChanged<GlobalTransform>().Should().BeFalse("and propagation recomputed no chain");
+    }
 }
