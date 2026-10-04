@@ -3,7 +3,7 @@
   "version": 1,
   "entities": [
     {
-      "id": "db2eeff832ef",
+      "id": "b329241bdb16",
       "name": "island",
       "components": {
         "Collider": {
@@ -14,7 +14,7 @@
           "IsTrigger": false
         },
         "ModelRef": {
-          "Path": "../resources/models/island.obj"
+          "Path": "resources/models/island.obj"
         },
         "RigidBody": {
           "Kind": "Static",

@@ -3,7 +3,7 @@
   "version": 1,
   "entities": [
     {
-      "id": "09895a2fece2",
+      "id": "2e7d1b4d19db",
       "name": "steps",
       "components": {
         "Collider": {
@@ -14,7 +14,7 @@
           "IsTrigger": false
         },
         "ModelRef": {
-          "Path": "../resources/models/steps.obj"
+          "Path": "resources/models/steps.obj"
         },
         "RigidBody": {
           "Kind": "Static",

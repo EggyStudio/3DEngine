@@ -3,7 +3,7 @@
   "version": 1,
   "entities": [
     {
-      "id": "36bcaccd2f76",
+      "id": "dafab442fe54",
       "name": "block",
       "components": {
         "Collider": {
@@ -14,7 +14,7 @@
           "IsTrigger": false
         },
         "ModelRef": {
-          "Path": "../resources/models/block.obj"
+          "Path": "resources/models/block.obj"
         },
         "RigidBody": {
           "Kind": "Static",

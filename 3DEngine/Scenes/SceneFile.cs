@@ -40,7 +40,7 @@ public struct SceneId
 [SceneComponent]
 public struct ModelRef
 {
-    /// <summary>The model file, relative to the asset folder.</summary>
+    /// <summary>The model file, from the asset folder (the program's <c>source</c> folder) or, as a <see cref="SceneRef"/>'s, from beside the program or the working directory.</summary>
     public string Path;
 }
 
@@ -55,7 +55,7 @@ public static class ModelRefSystem
         List<(int Entity, string Path)>? pending = null;
         foreach (var (entity, model) in ecs.Query<ModelRef>())
             if (!ecs.Has<ModelRefSpawned>(entity) && !string.IsNullOrEmpty(model.Path))
-                (pending ??= []).Add((entity, model.Path));
+                (pending ??= []).Add((entity, AssetPath(model.Path)));
         if (pending is null) return;
 
         foreach (var (entity, path) in pending)
@@ -85,6 +85,19 @@ public static class ModelRefSystem
                 Log.Category("Engine.Scenes").Warn($"ModelRef: '{path}' cannot be loaded: {ex.Message}");
             }
         }
+    }
+
+    /// <summary>
+    /// A model's path as the asset server takes it, from the program's <c>source</c> folder. A path
+    /// that names no file there is looked for as a <see cref="SceneRef"/>'s is, beside the program
+    /// or from the working directory, so a level names its models and its prefabs alike, and a file
+    /// written with paths from the asset folder loads as it did.
+    /// </summary>
+    internal static string AssetPath(string path)
+    {
+        var assets = System.IO.Path.Combine(AppContext.BaseDirectory, "source");
+        if (File.Exists(System.IO.Path.Combine(assets, path))) return path;
+        return SceneRefSystem.Resolve(path) is { } file ? System.IO.Path.GetRelativePath(assets, System.IO.Path.GetFullPath(file)) : path;
     }
 }
 
@@ -228,7 +241,7 @@ public static class SceneRefSystem
         return depth;
     }
 
-    private static string? Resolve(string path)
+    internal static string? Resolve(string path)
     {
         if (File.Exists(path)) return path;
         foreach (var root in new[] { AppContext.BaseDirectory, System.IO.Path.Combine(AppContext.BaseDirectory, "source") })

@@ -160,9 +160,9 @@ ecs.Add(hinge, new Transform(new Vector3(0, 2.2f, -21)));
 ecs.Add(hinge, new Joint { Kind = JointKind.Hinge, A = ecs.Handle(post), B = ecs.Handle(board), MotorSpeed = 25, MotorTorque = 20000 });
 ```
 
-A `ModelRef`'s path is taken from the program's `source` folder, where its shaders are staged, so a
-model beside the program under `resources` is `../resources/models/house.obj`. `LoadScene` and a
-`SceneRef` take a path from beside the program, as `resources/prefabs/house.json`.
+A `ModelRef`, a `SceneRef` and `LoadScene` find a file beside the program, in its `source` folder or
+from the working directory, so a level names its models and its prefabs alike, as
+`resources/models/house.obj` and `resources/prefabs/house.json`.
 
 ## Scenes inside scenes
 

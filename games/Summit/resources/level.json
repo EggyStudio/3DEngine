@@ -3,7 +3,7 @@
   "version": 1,
   "entities": [
     {
-      "id": "a399839a6397",
+      "id": "229923e8d747",
       "name": "Island",
       "components": {
         "SceneRef": {
@@ -17,7 +17,7 @@
       }
     },
     {
-      "id": "3ec2408e18f9",
+      "id": "5cb155157443",
       "name": "Steps",
       "components": {
         "SceneRef": {
@@ -31,7 +31,7 @@
       }
     },
     {
-      "id": "1c1f2d2c309d",
+      "id": "353aa636dab1",
       "name": "Block A",
       "components": {
         "SceneRef": {
@@ -45,7 +45,7 @@
       }
     },
     {
-      "id": "8e92dcacc816",
+      "id": "36c6f93960e7",
       "name": "Block B",
       "components": {
         "SceneRef": {
@@ -59,7 +59,7 @@
       }
     },
     {
-      "id": "306be6b4232b",
+      "id": "1f9d66d18391",
       "name": "Block C",
       "components": {
         "SceneRef": {
@@ -73,7 +73,7 @@
       }
     },
     {
-      "id": "5994927446e6",
+      "id": "c7f2eeac3f79",
       "name": "House",
       "components": {
         "SceneRef": {
@@ -87,7 +87,7 @@
       }
     },
     {
-      "id": "84062ae04e71",
+      "id": "7e362ffa0c48",
       "name": "Carousel post",
       "components": {
         "Collider": {
@@ -109,7 +109,7 @@
       }
     },
     {
-      "id": "3d1209c4c1a7",
+      "id": "f9bad14890cf",
       "name": "Carousel",
       "components": {
         "Collider": {
@@ -120,7 +120,7 @@
           "IsTrigger": false
         },
         "ModelRef": {
-          "Path": "../resources/models/plank.obj"
+          "Path": "resources/models/plank.obj"
         },
         "RigidBody": {
           "Kind": "Dynamic",
@@ -134,13 +134,13 @@
       }
     },
     {
-      "id": "272f0a6b2a9b",
+      "id": "e7c060248520",
       "name": "Carousel hinge",
       "components": {
         "Joint": {
           "Kind": "Hinge",
-          "A": "84062ae04e71",
-          "B": "3d1209c4c1a7",
+          "A": "7e362ffa0c48",
+          "B": "f9bad14890cf",
           "MinAngle": 0,
           "MaxAngle": 0,
           "MotorSpeed": 25,
@@ -158,7 +158,7 @@
       }
     },
     {
-      "id": "37e48e16b2bb",
+      "id": "4224b9c10065",
       "name": "Orb 1",
       "components": {
         "Collider": {
@@ -181,7 +181,7 @@
       }
     },
     {
-      "id": "9492f70961c2",
+      "id": "564d14b22b72",
       "name": "Orb 2",
       "components": {
         "Collider": {
@@ -204,7 +204,7 @@
       }
     },
     {
-      "id": "3a6566ababe3",
+      "id": "be28a640be8c",
       "name": "Orb 3",
       "components": {
         "Collider": {
@@ -227,7 +227,7 @@
       }
     },
     {
-      "id": "7909fcdcc706",
+      "id": "88ba1d611969",
       "name": "Orb 4",
       "components": {
         "Collider": {
@@ -250,7 +250,7 @@
       }
     },
     {
-      "id": "4145c6897e52",
+      "id": "79b1a88482d7",
       "name": "Orb 5",
       "components": {
         "Collider": {
@@ -273,7 +273,7 @@
       }
     },
     {
-      "id": "9ba85f5a72a0",
+      "id": "926e67d45028",
       "name": "Orb 6",
       "components": {
         "Collider": {
@@ -296,7 +296,7 @@
       }
     },
     {
-      "id": "854f250fe7ac",
+      "id": "e483a0b87b22",
       "name": "Exit",
       "components": {
         "Collider": {
@@ -319,7 +319,7 @@
       }
     },
     {
-      "id": "c033d5ab6482",
+      "id": "c5cc14fe37c2",
       "name": "Start",
       "components": {
         "Start": {},

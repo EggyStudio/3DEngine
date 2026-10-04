@@ -3,7 +3,7 @@
   "version": 1,
   "entities": [
     {
-      "id": "e4b0b71ba9ce",
+      "id": "c6ade8796365",
       "name": "house",
       "components": {
         "Collider": {
@@ -14,7 +14,7 @@
           "IsTrigger": false
         },
         "ModelRef": {
-          "Path": "../resources/models/house.obj"
+          "Path": "resources/models/house.obj"
         },
         "RigidBody": {
           "Kind": "Static",

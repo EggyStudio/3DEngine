@@ -321,13 +321,13 @@ public static class LevelBuilder
         var ecs = GetApp().World.Resource<EcsWorld>();
         Directory.CreateDirectory(Path.Combine(folder, "prefabs"));
 
-        // A prefab is one entity naming a model, solid as the model is drawn. Model paths are
-        // relative to the asset folder, the program's source folder beside it.
+        // A prefab is one entity naming a model, solid as the model is drawn, found beside the
+        // program as the prefabs themselves are.
         foreach (var name in new[] { "island", "block", "steps", "house" })
         {
             var piece = ecs.Spawn();
             ecs.SetName(piece, name);
-            ecs.Add(piece, new ModelRef { Path = $"../resources/models/{name}.obj" });
+            ecs.Add(piece, new ModelRef { Path = $"resources/models/{name}.obj" });
             ecs.Add(piece, new Transform(Vector3.Zero));
             ecs.Add(piece, Collider.Mesh);
             ecs.Add(piece, RigidBody.Static);
@@ -361,7 +361,7 @@ public static class LevelBuilder
         var board = ecs.Spawn();
         ecs.SetName(board, "Carousel");
         ecs.Add(board, new Transform(new Vector3(0, 2.35f, -21), Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2), Vector3.One));
-        ecs.Add(board, new ModelRef { Path = "../resources/models/plank.obj" });
+        ecs.Add(board, new ModelRef { Path = "resources/models/plank.obj" });
         ecs.Add(board, Collider.Box(new Vector3(6, 0.3f, 1.4f)));
         ecs.Add(board, RigidBody.Dynamic(60));
         var hinge = ecs.Spawn();
