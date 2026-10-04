@@ -30,6 +30,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["shaders_model"] = ShadersModel.Run,
     ["shaders_compute_life"] = ShadersComputeLife.Run,
+    ["shaders_bloom"] = ShadersBloom.Run,
     ["shaders_shadowmap"] = ShadersShadowmap.Run,
     ["shaders_mesh_instancing"] = ShadersMeshInstancing.Run,
     ["core_input_gestures"] = CoreInputGestures.Run,

@@ -23,7 +23,8 @@ machine, with the command that measures it again.
   language, read and stepped through together.
 - **A Vulkan renderer** with metallic-roughness materials and their maps, shadows from a sun in
   cascades and from spot and point lights, an environment map lighting from all around, reflection
-  probes for the inside of a room, instancing and compute shaders.
+  probes for the inside of a room, bloom over a frame that holds light past white, instancing and
+  compute shaders.
   [Materials, light and shadows](materials-light-and-shadows.md) and
   [Shaders and compute](shaders-and-compute.md) show them, and `models_reflection_probe`,
   `shaders_shadowmap` and `shaders_compute_life` run them.

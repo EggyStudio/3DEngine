@@ -116,6 +116,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_mesh_instancing.png" width="400"/><br>`shaders_mesh_instancing` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_animated_models.png" width="400"/><br>`ecs_animated_models` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera.png" width="400"/><br>`core_2d_camera` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_drop_files.png" width="400"/><br>`core_drop_files` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.png" width="400"/><br>`audio_raw_stream` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_reflection_probe.png" width="400"/><br>`models_reflection_probe` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.png" width="400"/><br>`shaders_bloom` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -216,7 +217,7 @@ AOT. What is missing:
 
 - **Some of raylib is not carried**, as VR stereo and the audio processors, which TODO.md names
   with the reasons.
-- **The renderer has no post processing**, as tonemapping over the frame, bloom or FXAA, past
+- **Bloom is the renderer's only effect over the frame**, with no FXAA or depth of field, past
   what a program draws through a render texture and a shader of its own.
 - **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
   need no GPU in CI, and macOS builds from the same packages and is not covered.

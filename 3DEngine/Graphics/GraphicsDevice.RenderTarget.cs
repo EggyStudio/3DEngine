@@ -22,7 +22,7 @@ public sealed class RenderTarget : IDisposable
 {
     private readonly Action _dispose;
 
-    internal RenderTarget(IRenderPass renderPass, IFramebuffer framebuffer, IImageView colorView, IImageView srgbColorView, IImageView depthView,
+    internal RenderTarget(IRenderPass renderPass, IFramebuffer framebuffer, IImageView colorView, IImageView srgbColorView, IImageView? depthView,
         Extent2D extent, Action dispose)
     {
         RenderPass = renderPass;
@@ -43,11 +43,11 @@ public sealed class RenderTarget : IDisposable
     /// <summary>The color image's view, for sampling the result.</summary>
     public IImageView ColorView { get; }
 
-    /// <summary>The color image viewed as sRGB, which a pass lighting in linear space samples it through.</summary>
+    /// <summary>The color image viewed as sRGB, which a pass lighting in linear space samples it through, or the color view for a target of another format.</summary>
     public IImageView SrgbColorView { get; }
 
-    /// <summary>The depth image, single-sampled, for sampling the distances drawn, 0 at the near plane and 1 at the far one.</summary>
-    public IImageView DepthView { get; }
+    /// <summary>The depth image, single-sampled, for sampling the distances drawn, 0 at the near plane and 1 at the far one, or null for a target made with none.</summary>
+    public IImageView? DepthView { get; }
 
     /// <summary>The target's size in pixels.</summary>
     public Extent2D Extent { get; }
@@ -58,37 +58,55 @@ public sealed class RenderTarget : IDisposable
 
 public sealed unsafe partial class GraphicsDevice
 {
-    /// <summary>Creates a target of <paramref name="width"/> by <paramref name="height"/> pixels.</summary>
+    /// <summary>Creates a target of <paramref name="width"/> by <paramref name="height"/> pixels in the window's format, with depth, at the window's samples.</summary>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
-    public RenderTarget CreateRenderTarget(uint width, uint height)
+    public RenderTarget CreateRenderTarget(uint width, uint height) => CreateRenderTarget(width, height, ImageFormat.Undefined);
+
+    /// <summary>
+    /// Creates a target of <paramref name="width"/> by <paramref name="height"/> pixels in
+    /// <paramref name="format"/>, or the window's for <see cref="ImageFormat.Undefined"/>, with a
+    /// depth image unless <paramref name="depth"/> is false, at the window's samples unless
+    /// <paramref name="multisampled"/> is false.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
+    /// <remarks>
+    /// A half-float target holds light past 1, which the HDR frame draws its scene into, and one
+    /// with no depth and one sample is a level of the bloom chain. Only a target in the window's
+    /// format has an sRGB view and is a storage image.
+    /// </remarks>
+    public RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true)
     {
         if (!IsInitialized) throw new InvalidOperationException("Graphics device not initialized");
         width = Math.Max(1, width);
         height = Math.Max(1, height);
+        bool window = format == ImageFormat.Undefined;
+        var vkFormat = window ? _swapchainFormat : ToVkFormat(format);
+        var samples = multisampled ? _samples : VkSampleCountFlags.Count1;
 
         // Storage too where the device can store to the format, so a compute shader writes the
         // target as it writes a texture.
-        var storage = TargetsAreStorage();
-        var (color, colorMemory) = TargetImage(_swapchainFormat, width, height,
+        var storage = window && TargetsAreStorage();
+        var (color, colorMemory) = TargetImage(vkFormat, width, height,
             VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | (storage ? VkImageUsageFlags.Storage : 0),
-            VkImageCreateFlags.MutableFormat);
-        var colorView = TargetView(color, _swapchainFormat, VkImageAspectFlags.Color);
-        var srgbView = TargetView(color, SrgbOf(_swapchainFormat), VkImageAspectFlags.Color, samplingOnly: storage);
+            window ? VkImageCreateFlags.MutableFormat : 0);
+        var colorView = TargetView(color, vkFormat, VkImageAspectFlags.Color);
+        var srgbView = window ? TargetView(color, SrgbOf(vkFormat), VkImageAspectFlags.Color, samplingOnly: storage) : colorView;
         // Drawn at the window's samples, into multisampled color and depth images resolved into
         // the ones sampled, so the window's pipelines draw here too. With one sample, the depth
         // drawn into is the one sampled.
-        bool msaa = _samples != VkSampleCountFlags.Count1;
-        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height,
-            VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: _samples);
-        var depthView = TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth);
-        var (msaaColor, msaaMemory) = msaa
-            ? TargetImage(_swapchainFormat, width, height, VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransientAttachment, samples: _samples)
+        bool msaa = samples != VkSampleCountFlags.Count1;
+        var (depthImage, depthMemory) = depth
+            ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: samples)
             : default;
-        var msaaView = msaa ? TargetView(msaaColor, _swapchainFormat, VkImageAspectFlags.Color) : default;
-        var (resolvedDepth, resolvedDepthMemory) = msaa
+        var depthView = depth ? TargetView(depthImage, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
+        var (msaaColor, msaaMemory) = msaa
+            ? TargetImage(vkFormat, width, height, VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransientAttachment, samples: samples)
+            : default;
+        var msaaView = msaa ? TargetView(msaaColor, vkFormat, VkImageAspectFlags.Color) : default;
+        var (resolvedDepth, resolvedDepthMemory) = msaa && depth
             ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled)
             : default;
-        var resolvedDepthView = msaa ? TargetView(resolvedDepth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
+        var resolvedDepthView = msaa && depth ? TargetView(resolvedDepth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
 
         // The depth is stored with multisampling too, since NVIDIA's driver writes nothing to the
         // resolve of a depth that is not stored.
@@ -97,45 +115,50 @@ public sealed unsafe partial class GraphicsDevice
             ? new VulkanFramebuffer(
                 new Attachment(msaaColor, msaaView, VkImageAspectFlags.Color, 0, VkImageLayout.ColorAttachmentOptimal, Store: false),
                 new Attachment(color, colorView, VkImageAspectFlags.Color, 0, sampled),
-                new Attachment(depth, depthView, VkImageAspectFlags.Depth, 0, VkImageLayout.DepthStencilAttachmentOptimal),
+                new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, VkImageLayout.DepthStencilAttachmentOptimal),
                 new Attachment(resolvedDepth, resolvedDepthView, VkImageAspectFlags.Depth, 0, sampled))
             : new VulkanFramebuffer(
                 new Attachment(color, colorView, VkImageAspectFlags.Color, 0, sampled), default,
-                new Attachment(depth, depthView, VkImageAspectFlags.Depth, 0, sampled), default);
+                new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, sampled), default);
 
         var colorImage = new VulkanImage(this, color, colorMemory,
-            new ImageDesc(new Extent2D(width, height), ImageFormat.B8G8R8A8_UNorm, ImageUsage.ColorAttachment | ImageUsage.Sampled | (storage ? ImageUsage.Storage : 0)));
+            new ImageDesc(new Extent2D(width, height), window ? ImageFormat.B8G8R8A8_UNorm : format,
+                ImageUsage.ColorAttachment | ImageUsage.Sampled | (storage ? ImageUsage.Storage : 0)));
         // Ready to sample, and to write with a dispatch, before its first pass, which leaves it so too.
         TransitionImageLayout(colorImage, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal, VkImageAspectFlags.Color);
         // The image the depth is sampled from, which owns its memory, and the one drawn into when
         // that is another.
-        var sampledDepth = msaa ? resolvedDepth : depth;
-        var depthImage = new VulkanImage(this, sampledDepth, msaa ? resolvedDepthMemory : depthMemory,
-            new ImageDesc(new Extent2D(width, height), ImageFormat.D32_Float, ImageUsage.DepthStencilAttachment | ImageUsage.Sampled));
+        var sampledDepth = depth
+            ? new VulkanImage(this, msaa ? resolvedDepth : depthImage, msaa ? resolvedDepthMemory : depthMemory,
+                new ImageDesc(new Extent2D(width, height), ImageFormat.D32_Float, ImageUsage.DepthStencilAttachment | ImageUsage.Sampled))
+            : null;
 
         return new RenderTarget(
-            WindowPass,
+            new VulkanRenderPass(vkFormat, depth ? VkFormat.D32Sfloat : VkFormat.Undefined, samples),
             framebuffer,
             new VulkanImageView(this, colorImage, colorView),
             new VulkanImageView(this, colorImage, srgbView),
-            new VulkanImageView(this, depthImage, msaa ? resolvedDepthView : depthView),
+            sampledDepth is null ? null : new VulkanImageView(this, sampledDepth, msaa ? resolvedDepthView : depthView),
             new Extent2D(width, height),
             () =>
             {
-                _deviceApi.vkDestroyImageView(srgbView);
-                _deviceApi.vkDestroyImageView(depthView);
+                if (window) _deviceApi.vkDestroyImageView(srgbView);
+                if (depth) _deviceApi.vkDestroyImageView(depthView);
                 if (msaa)
                 {
                     _deviceApi.vkDestroyImageView(msaaView);
                     _deviceApi.vkDestroyImage(msaaColor);
                     _deviceApi.vkFreeMemory(msaaMemory);
+                }
+                if (msaa && depth)
+                {
                     _deviceApi.vkDestroyImageView(resolvedDepthView);
-                    _deviceApi.vkDestroyImage(depth);
+                    _deviceApi.vkDestroyImage(depthImage);
                     _deviceApi.vkFreeMemory(depthMemory);
                 }
                 _deviceApi.vkDestroyImageView(colorView);
                 colorImage.Dispose();
-                depthImage.Dispose();
+                sampledDepth?.Dispose();
             });
     }
 

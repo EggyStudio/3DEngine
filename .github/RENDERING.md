@@ -248,9 +248,10 @@ The sum goes through a tonemap that leaves the brightest channel alone up to 0.9
 toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
 clamp per channel turns it white, and a color below the bend is unchanged. The fixed light of a
 world with no light entities goes through the same curve, with no highlight, so a model looks the
-same lit by its first light entity as by the fixed light. The curve runs at the end of the model
-pass, because the engine has no main color target to run it over. Once one exists it moves into the
-post processing chain, and the model pass writes linear light.
+same lit by its first light entity as by the fixed light. With bloom off the curve runs at the end
+of the model pass. With bloom on, the window's view writes linear light into the HDR frame instead
+(a flag in its lighting buffer, `output.x`, which `toDisplay` reads), and the curve runs once over
+the frame in the composite (§5), from the module `color.slang` both import.
 
 An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
 lights a frame from all around. A Radiance `.hdr` file is read as linear floats, so a sun keeps its
@@ -365,8 +366,28 @@ multisampled depth into a single-sampled image by each pixel's first sample, the
 every device has. The multisampled depth is stored even so, because NVIDIA's driver resolves
 nothing from a depth that is not.
 
-Post processing is a chain of full-screen Slang passes over the main color target
-before it is copied to the swapchain: tonemapping first, then bloom and anti-aliasing (FXAA).
+`SetBloom(intensity, threshold)` turns on the HDR frame, which is off and costs nothing by default
+(`BloomRenderer`, `Rendering/PostProcess`). Two nodes run between `probes` and `main_pass`.
+`hdr_scene` draws the window's models and its draw list up to its last batch with depth, the 3D
+shapes inside `BeginMode3D`, into a half-float target the size of the window at the window's
+samples, cleared to the clear color decoded to linear. The draw list's shapes there go through
+`immediate_linear.slang`, which decodes their sRGB colors, so a shape below the tonemap's knee
+comes out as it went in. `bloom` halves the target's resolved color five times, down to a
+thirty-second of the window, with Jimenez's thirteen-tap filter, keeping on the first step only the
+light past the threshold, eased in over a tenth of it. It then adds each level back onto the one
+above through a tent, so the first level holds the light spread over every size (`bloom.slang`).
+`main_pass` draws the composite first, the scene with the first level added at the intensity over
+the number of levels, tonemapped and encoded (`composite.slang`). The models node draws nothing
+more, and the immediate node draws the batches after the split over it, so a game's interface is
+never bloomed or tonemapped and keeps raylib's colors, and ImGui after it as before. The targets
+are made the first frame bloom is on and again when the window's size changes, and those they
+replace are destroyed four frames later, as are all of them the first frame bloom is off. At 800
+by 450 on the RTX 4070 the chain takes 0.26 ms and the composite 0.17 ms.
+
+Render targets drawn with `BeginTextureMode` and the probes' captures stay eight bits and
+tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
+HDR frame as it is, so its sRGB colors are read as linear there. Anti-aliasing past the samples
+(FXAA) is not written.
 
 ## 6. What a frame costs
 
@@ -616,8 +637,8 @@ run to run, with the runtime's compiler and collector in the frame.
 
 1. Normals and one directional light.
 2. Assimp models with textures, and the material struct.
-3. Dynamic rendering and synchronization2.
+3. Dynamic rendering and synchronization2, done.
 4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
-   model pass.
+   model pass, done for the HDR frame with bloom on (§5).
 5. Shadow cascades, then point and spot shadows.
-6. Bloom and FXAA.
+6. Bloom, done, and FXAA.

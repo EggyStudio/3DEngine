@@ -30,6 +30,10 @@ public sealed class MainPassNode : INode
         pass.SetViewport(0, 0, extent.Width, extent.Height, 0, 1);
         pass.SetScissor(0, 0, extent.Width, extent.Height);
 
+        // With bloom on, the HDR frame and its bloom cover the window before the rest is drawn over it.
+        if (renderWorld.TryGet<BloomFrame>() is not null && renderWorld.TryGet<BloomSettings>() is { } bloom)
+            renderWorld.TryGet<BloomRenderer>()?.Composite(pass, swapchainTarget.RenderPass, renderContext, bloom.Intensity);
+
         renderWorld.Set(new ActiveSwapchainPass(pass, extent));
     }
 }

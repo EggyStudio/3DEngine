@@ -31,6 +31,7 @@ public sealed class ImmediateRenderer : IDisposable
 {
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
+    private readonly ReadOnlyMemory<byte> _linearFragmentSpv;
     // The push block: the transform, then the four float4 values a custom shader reads.
     [StructLayout(LayoutKind.Sequential)]
     private struct Push
@@ -51,6 +52,7 @@ public sealed class ImmediateRenderer : IDisposable
     }
 
     private Stages? _engineStages;
+    private Stages? _linearStages;
     private readonly Dictionary<int, Stages> _customStages = [];
     private readonly Dictionary<(int Shader, int Slot, BlendMode Blend, IRenderPass Pass), IPipeline> _pipelines = [];
     private readonly List<(long Frame, IDisposable Stages)> _retired = [];
@@ -82,11 +84,16 @@ public sealed class ImmediateRenderer : IDisposable
         }
     }
 
-    /// <summary>Creates the renderer from the compiled stages of <c>immediate.slang</c>.</summary>
-    public ImmediateRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
+    /// <summary>
+    /// Creates the renderer from the compiled stages of <c>immediate.slang</c>, and the fragment
+    /// stage of <c>immediate_linear.slang</c> that draws into the HDR frame, which the fragment stage
+    /// given first stands in for when there is none.
+    /// </summary>
+    public ImmediateRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv, ReadOnlyMemory<byte> linearFragmentSpv = default)
     {
         _vertexSpv = vertexSpv;
         _fragmentSpv = fragmentSpv;
+        _linearFragmentSpv = linearFragmentSpv.IsEmpty ? fragmentSpv : linearFragmentSpv;
     }
 
     /// <summary>Writes the frame's vertices and indices into the buffer arena, or forgets last frame's when there are none.</summary>
@@ -112,8 +119,14 @@ public sealed class ImmediateRenderer : IDisposable
         return allocation;
     }
 
-    /// <summary>Draws the batches meant for <paramref name="target"/> into <paramref name="pass"/>.</summary>
-    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target)
+    /// <summary>Draws the batches meant for <paramref name="target"/> into <paramref name="pass"/>, of those from <paramref name="first"/> up to <paramref name="end"/>.</summary>
+    /// <remarks>
+    /// With <paramref name="linear"/> the engine's own shader decodes the colors to linear light, for
+    /// the HDR frame. A shader of the program's own draws as it is, so its colors are read as linear
+    /// there.
+    /// </remarks>
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
+        int first = 0, int end = int.MaxValue, bool linear = false)
     {
         var drawList = renderWorld.TryGet<DrawList>();
         var textures = renderWorld.TryGet<GpuTextures>();
@@ -122,8 +135,10 @@ public sealed class ImmediateRenderer : IDisposable
         var gfx = renderContext.Device;
         var bound = false;
         ScissorRect? scissor = null;
-        foreach (var batch in drawList.Batches)
+        var batches = drawList.Batches;
+        for (int i = first; i < Math.Min(end, batches.Count); i++)
         {
+            var batch = batches[i];
             if (batch.Target != target) continue;
             if (!bound)
             {
@@ -138,7 +153,7 @@ public sealed class ImmediateRenderer : IDisposable
             }
 
             // A batch whose shader was unloaded after it was recorded draws with the engine's own.
-            var pipeline = Pipeline(gfx, renderPass, renderWorld, batch);
+            var pipeline = Pipeline(gfx, renderPass, renderWorld, batch, linear);
             pass.SetPipeline(pipeline);
             pass.SetBindGroup(pipeline, UniformSet(gfx, renderContext, renderWorld, textures, batch) ?? textures.SetFor(gfx, batch.Texture));
 
@@ -277,10 +292,12 @@ public sealed class ImmediateRenderer : IDisposable
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 
-    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, DrawBatch batch)
+    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, DrawBatch batch, bool linear)
     {
         var slot = (batch.Topology == PrimitiveTopology.LineList ? 2 : 0) + (batch.DepthTest ? 1 : 0);
-        var stages = StagesFor(gfx, renderWorld, batch.Shader, out var shader);
+        // The HDR frame's pass is the only one drawn linear, so the pass in the key tells the two
+        // engine stages apart.
+        var stages = StagesFor(gfx, renderWorld, batch.Shader, linear, out var shader);
         if (_pipelines.TryGetValue((shader, slot, batch.Blend, renderPass), out var existing)) return existing;
 
         var desc = new GraphicsPipelineDesc(
@@ -318,13 +335,17 @@ public sealed class ImmediateRenderer : IDisposable
 
     // The stages for a batch's shader, made on first use. A shader that is not loaded falls back
     // to the engine's own, and shader is set to the id the stages belong to.
-    private Stages StagesFor(IGraphicsDevice gfx, RenderWorld renderWorld, int id, out int shader)
+    private Stages StagesFor(IGraphicsDevice gfx, RenderWorld renderWorld, int id, bool linear, out int shader)
     {
         _engineStages ??= new Stages(
             gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv)),
             gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv)));
 
         shader = 0;
+        if (id == 0 && linear)
+            return _linearStages ??= new Stages(
+                gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv)),
+                gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _linearFragmentSpv)));
         if (id == 0) return _engineStages;
         if (_customStages.TryGetValue(id, out var custom))
         {
@@ -380,6 +401,7 @@ public sealed class ImmediateRenderer : IDisposable
             foreach (var set in sets) set.Dispose();
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         _engineStages?.Dispose();
+        _linearStages?.Dispose();
         _noBuffer?.Dispose();
     }
 }
@@ -402,6 +424,8 @@ public sealed class ImmediateNode : INode
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
-        renderWorld.TryGet<ImmediateRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
+        // With bloom on, the batches up to the split were drawn into the HDR frame.
+        var first = renderWorld.TryGet<BloomFrame>()?.Split ?? 0;
+        renderWorld.TryGet<ImmediateRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0, first);
     }
 }

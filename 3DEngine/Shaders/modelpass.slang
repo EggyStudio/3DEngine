@@ -18,8 +18,13 @@
 // Color is linear inside the pass and sRGB-encoded where it leaves it. baseColor gives linear
 // color, lit takes linear color and gives it encoded, ready to return, and toDisplay encodes a
 // linear color a shader works out itself. A color a shader returns as it is, such as a uniform
-// set from the program, is taken as already encoded, as the 2D passes take every color.
+// set from the program, is taken as already encoded, as the 2D passes take every color. With bloom
+// on, the window's view leaves its light linear instead, and the frame is tonemapped and encoded
+// once bloom has spread it.
 module modelpass;
+
+// sRGB's transfer functions and the tonemap, which a shader importing this module reaches too.
+__exported import color;
 
 // One drawn copy of a mesh, read from a vertex buffer stepped once per instance, so every mesh
 // sharing a mesh and its maps is drawn by one call. A vertex stage of a shader's own takes it as a
@@ -79,26 +84,16 @@ public float3 emitted(ModelVertexOutput input)
     return materialEmission(input) * emissiveMap.Sample(input.uv).rgb;
 }
 
-// sRGB's transfer function, exactly rather than as a power of 2.2, so a byte decoded and encoded
-// again comes back as itself.
-public float3 srgbToLinear(float3 c)
-{
-    return select(c <= 0.04045, c / 12.92, pow((max(c, 0.0) + 0.055) / 1.055, 2.4));
-}
-
-public float3 linearToSrgb(float3 c)
-{
-    c = saturate(c);
-    return select(c <= 0.0031308, c * 12.92, 1.055 * pow(c, 1.0 / 2.4) - 0.055);
-}
-
 // Linear color as the frame stores it, tonemapped first, since a target holds sRGB-encoded bytes.
 // The light is scaled by the view's exposure first, 1 for every view but a reflection probe's
 // faces, which draw at a quarter, so light up to four times the tonemap's knee survives their eight
-// bits and is scaled back as the capture is read.
+// bits and is scaled back as the capture is read. A view drawn into the HDR frame, which bloom
+// spreads and a later pass tonemaps, keeps the light as it is.
 public float3 toDisplay(float3 linear)
 {
     float exposure = lighting.environment.w > 0.0 ? lighting.environment.w : 1.0;
+    if (lighting.output.x > 0.0)
+        return linear * exposure;
     return linearToSrgb(tonemap(linear * exposure));
 }
 
@@ -161,6 +156,8 @@ public struct Lighting
     // How many probes are bound, in x, and the probes by the slot their cube is bound at.
     public float4 probeCount;
     public Probe probes[4];
+    // 1 in x when the view is drawn into the HDR frame, whose light toDisplay leaves linear.
+    public float4 output;
 };
 
 [[vk::binding(0, 1)]]
@@ -458,21 +455,6 @@ float3 fromLight(Light light, float3 world)
 {
     int kind = int(light.positionAndKind.w);
     return kind == Directional ? light.directionAndRange.xyz : normalize(world - light.positionAndKind.xyz);
-}
-
-// Brings light past 1 back under it. The brightest channel is left alone up to 0.9 and bends
-// smoothly toward 1 past it, and the other two are scaled with it, so a bright orange light stays
-// orange where a clamp per channel turns it white. Below the bend the color is unchanged, so a
-// model looks the same lit by its first light entity as by the fixed light, which goes through
-// the same curve.
-public float3 tonemap(float3 color)
-{
-    static const float knee = 0.9;
-    float peak = max(color.r, max(color.g, color.b));
-    if (peak <= knee)
-        return max(color, 0.0);
-    float bent = knee + (1.0 - knee) * (1.0 - exp(-(peak - knee) / (1.0 - knee)));
-    return max(color, 0.0) * (bent / peak);
 }
 
 static const float PI = 3.14159265;

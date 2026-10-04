@@ -65,7 +65,10 @@ public sealed class Renderer : IDisposable
         if (Context.Graphics is GraphicsDevice device)
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
         RenderWorld.Set(new ModelRenderer(model.Vertex, model.Fragment, shadow.Vertex, shadow.Fragment));
-        RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
+        RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment, server.LoadSync<ShaderProgram>("shaders/immediate_linear.slang").Fragment));
+        var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
+        var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");
+        RenderWorld.Set(new BloomRenderer(bloom.Vertex, bloom.Fragment, composite.Vertex, composite.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then render targets, each drawing the
@@ -78,7 +81,13 @@ public sealed class Renderer : IDisposable
         Graph.AddNodeEdge("targets", "shadows");
         Graph.AddNode("probes", new ProbeNode());
         Graph.AddNodeEdge("shadows", "probes");
-        Graph.AddNodeEdge("probes", "main_pass");
+        // With bloom on, the window's scene is drawn into the HDR target and spread before the
+        // window's pass composites it.
+        Graph.AddNode("hdr_scene", new HdrSceneNode());
+        Graph.AddNodeEdge("probes", "hdr_scene");
+        Graph.AddNode("bloom", new BloomNode());
+        Graph.AddNodeEdge("hdr_scene", "bloom");
+        Graph.AddNodeEdge("bloom", "main_pass");
         Graph.AddNode("models", new ModelNode());
         Graph.AddNodeEdge("main_pass", "models");
         Graph.AddNode("immediate", new ImmediateNode());
@@ -279,6 +288,7 @@ public sealed class Renderer : IDisposable
         Graph.Dispose();
         RenderWorld.TryGet<ImmediateRenderer>()?.Dispose();
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
+        RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

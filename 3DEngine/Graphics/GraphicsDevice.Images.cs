@@ -268,6 +268,7 @@ public sealed unsafe partial class GraphicsDevice
         ImageFormat.D32_Float => VkFormat.D32Sfloat,
         ImageFormat.R8G8B8A8_Srgb => VkFormat.R8G8B8A8Srgb,
         ImageFormat.B8G8R8A8_Srgb => VkFormat.B8G8R8A8Srgb,
+        ImageFormat.R16G16B16A16_Float => VkFormat.R16G16B16A16Sfloat,
         _ => VkFormat.Undefined
     };
 

@@ -1111,7 +1111,7 @@ public sealed class ModelRenderer : IDisposable
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
-            || (frame.LightCount == 0 && !frame.HasEnvironment && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
+            || (frame.LightCount == 0 && !frame.HasEnvironment && !frame.Linear && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
         {
             if (_noLights is null)
             {
@@ -1370,6 +1370,8 @@ public sealed class ModelNode : INode
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
+        // With bloom on, the window's models were drawn into the HDR frame.
+        if (renderWorld.TryGet<BloomFrame>() is not null) return;
         renderWorld.TryGet<ModelRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
     }
 }

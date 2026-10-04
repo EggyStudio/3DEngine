@@ -331,4 +331,35 @@ public sealed class ReferenceFrameTests : IDisposable
         UnloadModel(sphere);
         UnloadEnvironmentMap();
     }
+
+    [NeedsVulkanFact]
+    public void Bloom_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        SetBloom(0.8f);
+        CreatePointLight(new Vector3(0, 2, 2), new Color(255, 210, 160), 4, 10);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var orb = LoadModelFromMesh(GenMeshSphere(0.4f, 24, 24));
+        var camera = new Camera3D(new Vector3(0, 3, 6), new Vector3(0, 0.5f, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(12, 12, 18));
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, new Color(70, 70, 80));
+            DrawModel(cube, new Vector3(0, 0.5f, 0), 1, Color.White);
+            orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(60, 200, 255), EmissiveIntensity = 4 };
+            DrawModel(orb, new Vector3(-1.8f, 1, 0), 1, Color.White);
+            orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 120, 40), EmissiveIntensity = 4 };
+            DrawModel(orb, new Vector3(1.8f, 1, 0), 1, Color.White);
+            DrawCubeWires(new Vector3(0, 0.5f, 0), 1.2f, 1.2f, 1.2f, Color.Gold);
+            EndMode3D();
+            DrawText("Bloom", 8, 8, 20, Color.RayWhite);
+        });
+        Matches(frame, "bloom");
+        UnloadModel(ground);
+        UnloadModel(cube);
+        UnloadModel(orb);
+    }
 }

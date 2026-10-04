@@ -124,8 +124,8 @@ public sealed class GpuTextures : IDisposable
                 {
                     if (!_entries.TryGetValue(upload.DepthOf, out var owner) || owner.Target is not { } depthTarget) continue;
                     var depthSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
-                    _entries[upload.Id] = new Entry(null, depthTarget.DepthView, depthTarget.DepthView, depthSampler,
-                        CreateSet(gfx, depthTarget.DepthView, depthSampler), DepthOf: upload.DepthOf);
+                    _entries[upload.Id] = new Entry(null, depthTarget.DepthView!, depthTarget.DepthView!, depthSampler,
+                        CreateSet(gfx, depthTarget.DepthView!, depthSampler), DepthOf: upload.DepthOf);
                     if (existing is not null) Retire(existing.Owned);
                     continue;
                 }

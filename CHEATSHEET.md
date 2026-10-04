@@ -642,6 +642,7 @@ void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Re
 void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Turn its shadows on or off
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
+void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold glows into its surroundings, 0 for off
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky

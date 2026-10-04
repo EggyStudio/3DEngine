@@ -22,6 +22,8 @@ public sealed class LightExtract : IExtractSystem
         else renderWorld.Remove<EnvironmentMap>();
         if (world.TryGetResource<ShadowSettings>(out var shadows)) renderWorld.Set(shadows);
         else renderWorld.Remove<ShadowSettings>();
+        if (world.TryGetResource<BloomSettings>(out var bloom)) renderWorld.Set(bloom);
+        else renderWorld.Remove<BloomSettings>();
 
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
 

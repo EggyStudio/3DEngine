@@ -20,6 +20,8 @@ public enum ImageFormat
     R8G8B8A8_Srgb,
     /// <summary>8-bit BGRA decoded from sRGB to linear when sampled, for a view of a <see cref="B8G8R8A8_UNorm"/> image.</summary>
     B8G8R8A8_Srgb,
+    /// <summary>16-bit floating-point RGBA, which holds linear light past 1.</summary>
+    R16G16B16A16_Float,
 }
 
 /// <summary>Flags describing how a GPU image will be used.</summary>

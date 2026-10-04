@@ -46,8 +46,11 @@ public sealed class LightingUboPrepare : IPrepareSystem
             renderWorld.Set(shadow);
             Apply(ref ubo, shadow);
         }
-        var binding = Upload(allocator, in ubo);
-        renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
+        // With bloom on the window's view is drawn into the HDR frame and leaves its light linear.
+        var windowUbo = ubo;
+        if (renderWorld.TryGet<BloomSettings>() is { On: true }) windowUbo.Output.X = 1;
+        var binding = Upload(allocator, in windowUbo);
+        renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
 
         // The window's light at the exposure a reflection probe's faces are drawn at.
         var capture = ubo;
@@ -249,5 +252,6 @@ internal sealed class TargetShadows
 /// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet, in UniformBufferBinding?, in CombinedImageSamplerBinding?)"/>.</param>
 /// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
 /// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
-public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false);
+/// <param name="Linear">Whether the window's view is drawn into the HDR frame, which a frame with no light still binds the buffer for, to read its output flag.</param>
+public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false, bool Linear = false);
 

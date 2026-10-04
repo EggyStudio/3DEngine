@@ -146,4 +146,4 @@ table also answers whether the two agree.
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
-| A picture of an example opens the live demo of it on the site of the engine it follows | to take, with `bevy.org/examples` | to consider, with raylib's examples in the browser |
+| A picture of an example opens the live demo of it on the site of the engine it follows | taken at `29ebd78`, 276 of Bevy's examples | to take, with raylib's examples in the browser, as the owner asked on 2026-10-04 |

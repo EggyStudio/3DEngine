@@ -60,6 +60,16 @@ nothing else, so a lamp is an emissive model with a light placed inside it.
 lamp.Materials[0] = new ModelMaterial(Color.White) { Emissive = new Color(255, 200, 120), EmissiveIntensity = 2 };
 ```
 
+Light past white shows as white until bloom spreads it into the pixels around it, as a bright
+light glows through a lens. `SetBloom(intensity, threshold)` turns it on, 0 turns it off, which it
+is by default, and the threshold, 1 unless given, is how bright a pixel has to be to glow, so a
+surface lit no brighter than white stays sharp. Text and shapes drawn after `EndMode3D` go on top
+untouched. `shaders_bloom` runs it, with B turning it off and on.
+
+```csharp
+SetBloom(0.8f);
+```
+
 A material's `AlphaMode` says what the alpha of its color and texture does:
 
 | Mode | Draws |

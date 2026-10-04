@@ -83,6 +83,9 @@ public struct LightingUbo
 
     /// <summary>The reflection probes bound this frame, by the slot their cube is bound at.</summary>
     public ProbeUboArray Probes;
+
+    /// <summary>x: 1 when the view is drawn into the HDR frame, whose light the model pass leaves linear for bloom and the composite. After the probes, so the fields before keep their offsets.</summary>
+    public Vector4 Output;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>
