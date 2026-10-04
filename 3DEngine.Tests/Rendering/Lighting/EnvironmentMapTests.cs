@@ -66,4 +66,46 @@ public class EnvironmentMapTests
         (roughSideways.X > 0.2f && roughSideways.Z > 0.2f).Should().BeTrue("a rough surface facing the horizon sees both halves");
         sideways.Should().NotBe(roughSideways);
     }
+
+    // A Radiance file of flat RGBE pixels, which stb reads when a scanline does not start as a run.
+    private static byte[] Hdr(int width, int height, Func<int, Vector3> row)
+    {
+        var bytes = new List<byte>(System.Text.Encoding.ASCII.GetBytes($"#?RADIANCE\nFORMAT=32-bit_rle_rgbe\n\n-Y {height} +X {width}\n"));
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            var c = row(y);
+            var peak = MathF.Max(c.X, MathF.Max(c.Y, c.Z));
+            if (peak < 1e-32f)
+            {
+                bytes.AddRange([0, 0, 0, 0]);
+                continue;
+            }
+            // As frexp has it, the peak is a mantissa from a half to one times 2 to the exponent.
+            int exponent = (int)MathF.Floor(MathF.Log2(peak)) + 1;
+            var scale = 256f / MathF.Pow(2, exponent);
+            bytes.AddRange([(byte)(c.X * scale), (byte)(c.Y * scale), (byte)(c.Z * scale), (byte)(exponent + 128)]);
+        }
+        return [.. bytes];
+    }
+
+    [Fact]
+    public void An_HDR_File_Keeps_Light_Past_White()
+    {
+        // A sun 20 times white above the horizon, and dim ground below.
+        var file = Hdr(16, 8, y => y < 4 ? new Vector3(20, 18, 16) : new Vector3(0.05f));
+        var map = EnvironmentMap.FromHdrFile(file, faceSize: 16);
+
+        Middle(map, 0, 2).X.Should().BeApproximately(20, 0.5f, "straight up is the sun, at its own brightness");
+        Middle(map, 0, 3).X.Should().BeApproximately(0.05f, 0.01f, "straight down is the ground");
+        Middle(map, map.MipLevels - 1, 2).X.Should().BeGreaterThan(5, "a rough surface facing up still gathers mostly sun");
+    }
+
+    [Fact]
+    public void Bytes_That_Are_Not_A_Radiance_Image_Are_Refused()
+    {
+        var act = () => EnvironmentMap.FromHdrFile([1, 2, 3, 4]);
+        act.Should().Throw<ArgumentException>();
+        SetEnvironmentMap("no-such-sky.hdr").Should().BeFalse("a missing file is reported rather than thrown");
+    }
 }

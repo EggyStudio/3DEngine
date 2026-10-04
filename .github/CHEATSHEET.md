@@ -290,6 +290,7 @@ void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Re
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 
 void SetEnvironmentMap(Image equirectangular, float intensity = 1);         // Light models from all around by a sky image, which smooth and metal surfaces reflect
+bool SetEnvironmentMap(string fileName, float intensity = 1);              // The same from a file, a Radiance .hdr keeping light past white
 void UnloadEnvironmentMap();                                               // Back to the fixed light, or the light entities alone
 
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second

@@ -172,7 +172,8 @@ pass, because the engine has no main color target to run it over. Once one exist
 post processing chain, and the model pass writes linear light.
 
 An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
-lights a frame from all around. It is prefiltered on the CPU into a half-float cube map with faces
+lights a frame from all around. A Radiance `.hdr` file is read as linear floats, so a sun keeps its
+brightness past white, and an eight-bit image is decoded from sRGB. It is prefiltered on the CPU into a half-float cube map with faces
 64 texels wide, mip 0 for a mirror and each mip after for a roughness of `mip / (mips - 1)`, by
 GGX importance sampling with the eye along the normal (Karis's split sum), each sample reading the
 image blurred to its solid angle. The model pass looks the mirror direction up at the mip for the

@@ -47,15 +47,52 @@ public sealed class EnvironmentMap
     public float Intensity { get; set; }
 
     /// <summary>Makes a map from an equirectangular image of sRGB color, with faces <paramref name="faceSize"/> texels wide.</summary>
+    /// <remarks>Eight bits a channel cap the light at white, so a sun is no brighter than a cloud. <see cref="FromHdrFile"/> keeps it.</remarks>
     /// <exception cref="ArgumentException">The image is empty.</exception>
     public static EnvironmentMap FromEquirectangular(Image image, float intensity = 1, int faceSize = 64)
     {
         if (image.Width <= 0 || image.Height <= 0 || image.Data.Length < image.Width * image.Height * 4)
             throw new ArgumentException("An environment needs an image with pixels.", nameof(image));
 
+        var linear = new Vector3[image.Width * image.Height];
+        for (int i = 0; i < linear.Length; i++)
+            linear[i] = new Vector3(Decode(image.Data[i * 4]), Decode(image.Data[i * 4 + 1]), Decode(image.Data[i * 4 + 2]));
+        return FromLinear(linear, image.Width, image.Height, intensity, faceSize);
+    }
+
+    /// <summary>
+    /// Makes a map from a Radiance <c>.hdr</c> file's equirectangular image, whose pixels are linear
+    /// light past 1, so a sun outshines the sky around it in what a metal reflects.
+    /// </summary>
+    /// <exception cref="ArgumentException">The bytes are not a Radiance image.</exception>
+    public static EnvironmentMap FromHdrFile(byte[] file, float intensity = 1, int faceSize = 64)
+    {
+        StbImageSharp.ImageResultFloat image;
+        try
+        {
+            image = StbImageSharp.ImageResultFloat.FromMemory(file, StbImageSharp.ColorComponents.RedGreenBlue);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
+        {
+            throw new ArgumentException($"Not a Radiance image: {ex.Message}", nameof(file), ex);
+        }
+
+        var linear = new Vector3[image.Width * image.Height];
+        for (int i = 0; i < linear.Length; i++)
+            linear[i] = new Vector3(image.Data[i * 3], image.Data[i * 3 + 1], image.Data[i * 3 + 2]);
+        return FromLinear(linear, image.Width, image.Height, intensity, faceSize);
+    }
+
+    /// <summary>Makes a map from an equirectangular image of linear light, row by row from the top, which may pass 1.</summary>
+    /// <exception cref="ArgumentException">The pixels are fewer than the size says.</exception>
+    public static EnvironmentMap FromLinear(Vector3[] pixels, int width, int height, float intensity = 1, int faceSize = 64)
+    {
+        if (width <= 0 || height <= 0 || pixels.Length < width * height)
+            throw new ArgumentException("An environment needs an image with pixels.", nameof(pixels));
+
         faceSize = Math.Max(1, (int)BitOperations.RoundUpToPowerOf2((uint)faceSize));
         int mips = BitOperations.Log2((uint)faceSize) + 1;
-        var source = Pyramid.From(image);
+        var source = Pyramid.From(pixels, width, height);
 
         // Each mip's GGX samples around +Z, with the level of the image each reads.
         var lobes = new (Vector3 Direction, float Level)[mips][];
@@ -168,14 +205,18 @@ public sealed class EnvironmentMap
 
         public float TexelSolidAngle { get; private init; }
 
-        public static Pyramid From(Image image)
+        public static Pyramid From(Vector3[] linear, int width, int height)
         {
-            var linear = new Vector3[image.Width * image.Height];
-            for (int i = 0; i < linear.Length; i++)
-                linear[i] = new Vector3(Decode(image.Data[i * 4]), Decode(image.Data[i * 4 + 1]), Decode(image.Data[i * 4 + 2]));
+            // Half floats stop at 65504, and a negative or broken pixel would spread through the blur.
+            var clean = new Vector3[width * height];
+            for (int i = 0; i < clean.Length; i++)
+            {
+                var p = linear[i];
+                clean[i] = float.IsFinite(p.X + p.Y + p.Z) ? Vector3.Clamp(p, Vector3.Zero, new Vector3(65000)) : Vector3.Zero;
+            }
 
-            var pyramid = new Pyramid { TexelSolidAngle = 4 * MathF.PI / (image.Width * image.Height) };
-            pyramid._levels.Add((linear, image.Width, image.Height));
+            var pyramid = new Pyramid { TexelSolidAngle = 4 * MathF.PI / (width * height) };
+            pyramid._levels.Add((clean, width, height));
             while (pyramid._levels[^1] is { Width: > 1 } or { Height: > 1 })
             {
                 var (pixels, w, h) = pyramid._levels[^1];
@@ -216,10 +257,11 @@ public sealed class EnvironmentMap
             return Vector3.Lerp(top, bottom, fy);
         }
 
-        private static float Decode(byte value)
-        {
-            var c = value / 255f;
-            return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-        }
+    }
+
+    private static float Decode(byte value)
+    {
+        var c = value / 255f;
+        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
     }
 }
