@@ -275,4 +275,60 @@ public sealed class ReferenceFrameTests : IDisposable
         Matches(frame, "skinned_arm");
         UnloadModel(model);
     }
+
+    [NeedsVulkanFact]
+    public void Point_And_Spot_Shadows_Match_Their_Reference()
+    {
+        Open(256, 160);
+        CreatePointLight(new Vector3(-1.5f, 1.6f, 0), new Color(255, 220, 180), 12, 0, castsShadows: true);
+        CreateSpotLight(new Vector3(3, 4, 2), Vector3.Normalize(new Vector3(-0.6f, -1, -0.4f)), new Color(160, 200, 255), 30, 20, 30, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(14, 14, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(0.8f, 1.2f, 0.8f));
+        var camera = new Camera3D(new Vector3(2, 7, 7), new Vector3(0, 0, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, Color.White);
+            DrawModel(cube, new Vector3(0, 0.6f, 0), 1, Color.White);
+            DrawModel(cube, new Vector3(-3, 0.6f, -1), 1, Color.White);
+            DrawModel(cube, new Vector3(1.5f, 0.6f, 1.5f), 1, Color.White);
+            EndMode3D();
+        });
+        Matches(frame, "point_and_spot_shadows");
+        UnloadModel(ground);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void An_Environment_Map_And_Its_Sky_Match_Their_Reference()
+    {
+        Open(256, 160);
+        var sky = GenImageColor(256, 128, Color.Blank);
+        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
+            new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
+        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
+            new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+        ImageDrawCircle(ref sky, 70, 35, 6, new Color(255, 250, 225));
+        SetEnvironmentMap(sky);
+        var sphere = LoadModelFromMesh(GenMeshSphere(0.8f, 32, 32));
+        var camera = new Camera3D(new Vector3(0, 1.2f, 6), new Vector3(0, 0.5f, 0), Vector3.UnitY, 50);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawSkybox();
+            for (int i = 0; i < 4; i++)
+            {
+                sphere.Materials[0] = new ModelMaterial(new Color(230, 230, 235)) { Metallic = i < 2 ? 1 : 0, Roughness = 0.05f + i * 0.3f };
+                DrawModel(sphere, new Vector3(-3 + i * 2, 0.5f, 0), 1, Color.White);
+            }
+            EndMode3D();
+        });
+        Matches(frame, "environment_and_sky");
+        UnloadModel(sphere);
+        UnloadEnvironmentMap();
+    }
 }

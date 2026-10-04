@@ -166,14 +166,14 @@ which has been checked against the state it fills and not with a pad that has th
 
 ### Testing
 
-- **Six scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
+- **Eight scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
   text, render targets, immediate and model shaders, lit models and ImGui) and reads chosen pixels
   back, and `ReferenceFrameTests` compares whole frames of 2D shapes and text, a lit and shadowed
-  scene, a render texture, an ImGui window, materials with maps beside a model shader, and a
-  skinned model posed mid-clip with the references beside it, allowing 2 percent of the pixels to
-  differ, which a missing shadow exceeds at 4. Point and spot shadows, the environment map, fonts
-  baked from files and compute shaders have no reference, and are caught by their chosen pixels
-  and the example captures CI takes.
+  scene, a render texture, an ImGui window, materials with maps beside a model shader, a skinned
+  model posed mid-clip, point and spot shadows, and an environment map with its sky with the
+  references beside it, allowing 2 percent of the pixels to differ, which a missing shadow
+  exceeds at 4. Reflection probes, fonts baked from files and compute shaders have no reference,
+  and are caught by their chosen pixels and the example captures CI takes.
 
 ### Prose
 
