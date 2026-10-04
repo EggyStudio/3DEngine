@@ -142,15 +142,16 @@ public struct Lighting
     // reflection probe's faces are drawn at, 0 meaning 1.
     public float4 environment;
     public Light lights[16];
-    // The width of a point light's shadow texel per unit of distance from it, in x.
+    // The width of a point light's shadow texel per unit of distance from it, in x, how many are
+    // shadowed in y, and in z how many of them have a layer to each face.
     public float4 pointShadow;
     // World space to each face's clip space for each shadowed point light, six to a light in the
     // order +X, -X, +Y, -Y, +Z, -Z.
-    public float4x4 pointShadowFaces[24];
+    public float4x4 pointShadowFaces[72];
     // The width of each shadowed spot light's texel per unit of distance from it, by slot.
-    public float4 spotShadowTexels;
+    public float4 spotShadowTexels[3];
     // World space to each shadowed spot light's clip space, by slot.
-    public float4x4 spotShadows[4];
+    public float4x4 spotShadows[10];
     // The environment's irradiance over pi as nine spherical harmonic coefficients, in xyz.
     public float4 environmentIrradiance[9];
     // How many probes are bound, in x, and the probes by the slot their cube is bound at.
@@ -399,7 +400,7 @@ float lightReaching(float3 world, float3 n)
 // texels widen with distance from the light, so the offset along the normal does too.
 float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
 {
-    float offset = lighting.spotShadowTexels[slot] * distance(world, lightPosition) * 1.5;
+    float offset = lighting.spotShadowTexels[slot / 4][slot % 4] * distance(world, lightPosition) * 1.5;
     float4 clip = mul(lighting.spotShadows[slot], float4(world + n * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
@@ -410,10 +411,24 @@ float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
-    // The last tile is the map's lower right quarter, split in four for more than one light.
-    float size = lighting.spotShadowCount > 1 ? 0.25 : 0.5;
-    float2 origin = float2(0.5, 0.5) + (lighting.spotShadowCount > 1 ? float2(slot % 2, slot / 2) * 0.25 : float2(0.0, 0.0));
-    float2 uv = origin + (p.xy * 0.5 + 0.5) * size;
+    // The last tile is the map's lower right quarter, split by rank as ShadowFit.SpotTileArea
+    // splits it: whole for one light, quarters for up to four, and past four quarters for the
+    // first two and sixteenths in its lower half for the rest.
+    int count = lighting.spotShadowCount;
+    float size = 0.5;
+    float2 origin = float2(0.5, 0.5);
+    if (count > 4 && slot >= 2)
+    {
+        size = 0.125;
+        origin = float2(0.5, 0.75) + float2((slot - 2) % 4, (slot - 2) / 4) * 0.125;
+    }
+    else if (count > 1)
+    {
+        size = 0.25;
+        origin = float2(0.5, 0.5) + float2(slot % 2, slot / 2) * 0.25;
+    }
+    // Kept a texel inside the square, so the comparisons around an edge read no other light's.
+    float2 uv = clamp(origin + (p.xy * 0.5 + 0.5) * size, origin + texel, origin + size - texel);
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
@@ -431,7 +446,20 @@ float pointLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
     int face = size.x >= size.y && size.x >= size.z ? (away.x >= 0.0 ? 0 : 1)
              : size.y >= size.z ? (away.y >= 0.0 ? 2 : 3)
              : (away.z >= 0.0 ? 4 : 5);
-    float offset = lighting.pointShadow.x * length(away) * 1.5;
+    // The lights that matter most have a layer to each face, and the rest a quarter of one at half
+    // the size, as ShadowFit.PointFaceArea lays them out, with texels twice as wide.
+    int full = int(lighting.pointShadow.z);
+    int layer = slot * 6 + face;
+    float2 origin = float2(0.0, 0.0);
+    float scale = 1.0;
+    if (slot >= full)
+    {
+        int index = (slot - full) * 6 + face;
+        layer = full * 6 + index / 4;
+        origin = float2(index % 4 % 2, index % 4 / 2) * 0.5;
+        scale = 0.5;
+    }
+    float offset = lighting.pointShadow.x / scale * length(away) * 1.5;
     float4 clip = mul(lighting.pointShadowFaces[slot * 6 + face], float4(world + n * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
@@ -442,11 +470,11 @@ float pointLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
     uint width, height, layers;
     pointShadowMap.GetDimensions(width, height, layers);
     float2 texel = 1.0 / float2(width, height);
-    float2 uv = p.xy * 0.5 + 0.5;
+    float2 uv = clamp(origin + (p.xy * 0.5 + 0.5) * scale, origin + texel, origin + scale - texel);
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.00002 <= pointShadowMap.SampleLevel(float3(uv + float2(x, y) * texel, slot * 6 + face), 0.0).r ? 1.0 : 0.0;
+            reached += p.z - 0.00002 <= pointShadowMap.SampleLevel(float3(uv + float2(x, y) * texel, layer), 0.0).r ? 1.0 : 0.0;
     return reached / 9.0;
 }
 

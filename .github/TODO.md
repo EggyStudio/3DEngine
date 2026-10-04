@@ -80,14 +80,15 @@ physics, text and fonts, audio, audio streams and waves, and files
   §1), but descriptor layouts and vertex inputs are still written by hand beside each pipeline
   rather than read from the reflection. A render texture is written only where the GPU can store
   to the window's format.
-- **One directional, four spot and four point lights cast shadows.** The first directional light
+- **One directional, ten spot and twelve point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
-  `SetShadowDistance` sets, in three cascades, four such spot lights shadow their cones in the
-  map's last tile, and four such point lights shadow all around them, six faces of a quarter of a
-  tile each (RENDERING.md §4), the four of each whose reach comes nearest the camera.
-  `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default). A fifth spot or point
-  light near the camera casts none, and each render target that draws meshes draws the map again
-  for its own camera, with the point and spot lights chosen for the window's.
+  `SetShadowDistance` sets, in three cascades, ten such spot lights shadow their cones in the map's
+  last tile, and twelve such point lights shadow all around them (RENDERING.md §4), those the camera
+  sees ranked first and then by how near their reach comes, the first two spots and four points
+  with the most texels. `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default).
+  An eleventh spot or a thirteenth point light casts none, the ranking does not weigh a light's
+  brightness or how much of the picture it lights, and each render target that draws meshes draws
+  the map again for its own camera, with the point and spot lights chosen for the window's.
 
 - **Effects over the frame are bloom, exposure, a curve, grading, a vignette and FXAA.** Any of
   them draws the window's scene into a half-float target and brings it into the window in one pass

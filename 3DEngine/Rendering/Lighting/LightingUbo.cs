@@ -60,14 +60,14 @@ public struct LightingUbo
     /// <summary>Inline fixed-size light array. Use <see cref="LightingUboPacker.WriteEntry"/> to populate by index.</summary>
     public LightUboEntryArray Lights;
 
-    /// <summary>The width of a point light's shadow texel per unit of distance from it, in x.</summary>
+    /// <summary>x: the width of a point light's shadow texel per unit of distance from it. y: how many are shadowed. z: how many of them have a layer to each face.</summary>
     public Vector4 PointShadow;
 
     /// <summary>World space to each face's clip space for each shadowed point light, six to a light.</summary>
     public PointShadowFaceArray PointShadowFaces;
 
-    /// <summary>The width of each shadowed spot light's texel per unit of distance from it, by slot.</summary>
-    public Vector4 SpotShadowTexels;
+    /// <summary>The width of each shadowed spot light's texel per unit of distance from it, by slot, four to an element.</summary>
+    public SpotTexelArray SpotShadowTexels;
 
     /// <summary>World space to each shadowed spot light's clip space, by slot.</summary>
     public SpotShadowArray SpotShadows;
@@ -115,6 +115,14 @@ public struct ProbeUboArray
 public struct IrradianceArray
 {
     /// <summary>The first coefficient.</summary>
+    public Vector4 _element0;
+}
+
+/// <summary>Fixed-size storage for the shadowed spot lights' texel widths, four to an element.</summary>
+[InlineArray((ShadowFit.MaxSpotLights + 3) / 4)]
+public struct SpotTexelArray
+{
+    /// <summary>The first four spot lights' widths.</summary>
     public Vector4 _element0;
 }
 

@@ -779,21 +779,33 @@ public sealed class ModelRenderer : IDisposable
         }
         pass.EndRenderPass();
 
-        // Each shadowed point light's six faces, a layer of the point map each.
+        // Each shadowed point light's six faces, a layer of the point map each for the lights that
+        // matter most and a quarter of one for the rest. A layer is cleared once and each face it
+        // holds drawn into its square.
         var points = shadow.PointLights ?? [];
         if (points.Count == 0 || _pointsFrame == _frames) return;
         _pointsFrame = _frames;
         var pointMap = PointShadowMap(device, shadow.PointFaceSize);
+        var layers = new SortedDictionary<int, List<(int X, int Y, int Size, Matrix4x4 Face)>>();
         for (int p = 0; p < points.Count; p++)
             for (int f = 0; f < 6; f++)
             {
-                var facePass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
-                    pointMap.RenderPass, pointMap.Framebuffers[p * 6 + f], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
-                facePass.SetViewport(0, 0, shadow.PointFaceSize, shadow.PointFaceSize, 0, 1);
-                facePass.SetScissor(0, 0, (uint)shadow.PointFaceSize, (uint)shadow.PointFaceSize);
-                DrawShadowBatches(facePass, view, points[p].Faces[f]);
-                facePass.EndRenderPass();
+                var (layer, x, y, size) = ShadowFit.PointFaceArea(p, f, shadow.PointFaceSize);
+                if (!layers.TryGetValue(layer, out var faces)) layers[layer] = faces = [];
+                faces.Add((x, y, size, points[p].Faces[f]));
             }
+        foreach (var (layer, faces) in layers)
+        {
+            var facePass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                pointMap.RenderPass, pointMap.Framebuffers[layer], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
+            foreach (var (x, y, size, face) in faces)
+            {
+                facePass.SetViewport(x, y, size, size, 0, 1);
+                facePass.SetScissor(x, y, (uint)size, (uint)size);
+                DrawShadowBatches(facePass, view, face);
+            }
+            facePass.EndRenderPass();
+        }
     }
 
     // The view's batches that cast a shadow, gathered into _shadowBatches, drawn as a light sees
@@ -828,7 +840,7 @@ public sealed class ModelRenderer : IDisposable
     {
         if (_pointShadowMap is { } made && made.Extent.Width == faceSize) return made;
         if (_pointShadowMap is { } old) _retiredMaps.Add((_frames, old));
-        _pointShadowMap = device.CreateShadowMap((uint)faceSize, ShadowFit.MaxPointLights * 6);
+        _pointShadowMap = device.CreateShadowMap((uint)faceSize, ShadowFit.PointLayers);
         device.Name(_pointShadowMap.DepthView.Image, "Point light shadow faces");
         return _pointShadowMap;
     }

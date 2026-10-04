@@ -38,7 +38,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
 
         // The lights without their shadows, which each view's buffer starts from.
         var unshadowed = ubo;
-        var casters = Casters(renderWorld, lights, ubo.LightCount, eye);
+        var casters = Casters(renderWorld, lights, ubo.LightCount, eye, first);
         var shadow = casters is not null && draws?.WindowViewProjection is { } window ? casters.For(window) : null;
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -127,14 +127,19 @@ public sealed class LightingUboPrepare : IPrepareSystem
         // component, as a point light does.
         var spots = shadow.SpotLights ?? [];
         ubo.SpotShadowCount = spots.Count;
-        Span<float> spotTexels = stackalloc float[ShadowFit.MaxSpotLights];
         for (int s = 0; s < spots.Count; s++)
         {
             ubo.Lights[spots[s].Light].Cone.Z = s + 1;
             ubo.SpotShadows[s] = spots[s].ViewProjection;
-            spotTexels[s] = spots[s].TexelPerUnit;
+            ref var four = ref ubo.SpotShadowTexels[s / 4];
+            switch (s % 4)
+            {
+                case 0: four.X = spots[s].TexelPerUnit; break;
+                case 1: four.Y = spots[s].TexelPerUnit; break;
+                case 2: four.Z = spots[s].TexelPerUnit; break;
+                default: four.W = spots[s].TexelPerUnit; break;
+            }
         }
-        ubo.SpotShadowTexels = new System.Numerics.Vector4(spotTexels[0], spotTexels[1], spotTexels[2], spotTexels[3]);
 
         // Each shadowed point light names its slot in the face array, counted from one in its
         // cone's third component, which a light with no shadow leaves at zero.
@@ -144,7 +149,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
             ubo.Lights[points[p].Light].Cone.Z = p + 1;
             for (int f = 0; f < 6; f++) ubo.PointShadowFaces[p * 6 + f] = points[p].Faces[f];
         }
-        ubo.PointShadow = new System.Numerics.Vector4(2 * ShadowFit.PointFaceSlack / shadow.PointFaceSize, points.Count, 0, 0);
+        ubo.PointShadow = new System.Numerics.Vector4(2 * ShadowFit.PointFaceSlack / shadow.PointFaceSize, points.Count, ShadowFit.FullPointLights, 0);
     }
 
     // The lights that cast shadows this frame: the first directional one, and the first spot and
@@ -161,6 +166,28 @@ public sealed class LightingUboPrepare : IPrepareSystem
         }
     }
 
+    // Whether a sphere is at least partly inside the view, by the six planes of its view and
+    // projection, depth running 0 to 1 as Vulkan's does.
+    internal static bool InView(System.Numerics.Matrix4x4 m, System.Numerics.Vector3 center, float radius)
+    {
+        ReadOnlySpan<System.Numerics.Vector4> planes =
+        [
+            new(m.M14 + m.M11, m.M24 + m.M21, m.M34 + m.M31, m.M44 + m.M41),
+            new(m.M14 - m.M11, m.M24 - m.M21, m.M34 - m.M31, m.M44 - m.M41),
+            new(m.M14 + m.M12, m.M24 + m.M22, m.M34 + m.M32, m.M44 + m.M42),
+            new(m.M14 - m.M12, m.M24 - m.M22, m.M34 - m.M32, m.M44 - m.M42),
+            new(m.M13, m.M23, m.M33, m.M43),
+            new(m.M14 - m.M13, m.M24 - m.M23, m.M34 - m.M33, m.M44 - m.M43),
+        ];
+        foreach (var plane in planes)
+        {
+            var normal = new System.Numerics.Vector3(plane.X, plane.Y, plane.Z);
+            var length = normal.Length();
+            if (length > 0 && (System.Numerics.Vector3.Dot(normal, center) + plane.W) / length < -radius) return false;
+        }
+        return true;
+    }
+
     // Where a camera is, near enough, the middle of its near plane.
     private static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection)
     {
@@ -169,10 +196,13 @@ public sealed class LightingUboPrepare : IPrepareSystem
         return near.W == 0 ? null : new System.Numerics.Vector3(near.X, near.Y, near.Z) / near.W;
     }
 
-    // The lights that cast shadows, or null when none does or no mesh is drawn. Past the four
-    // spot and four point lights there is room for, the ones whose reach comes nearest the eye
-    // are taken, so a level of many torches shadows those around the camera.
-    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count, System.Numerics.Vector3? eye)
+    // The lights that cast shadows, or null when none does or no mesh is drawn. Past the spot and
+    // point lights there is room for, those that matter most to the view are taken and ranked, a
+    // light whose reach the camera sees before one behind it, then the one whose reach comes nearest
+    // the eye, so a level of many torches shadows those in front of the camera, the nearest with
+    // the most texels.
+    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count, System.Numerics.Vector3? eye,
+        System.Numerics.Matrix4x4? camera)
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false }) return null;
 
@@ -200,17 +230,19 @@ public sealed class LightingUboPrepare : IPrepareSystem
             var away = System.Numerics.Vector3.Distance(light.Position, at);
             return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
         }
-        var spotLights = spotCandidates.OrderBy(Reach).Take(ShadowFit.MaxSpotLights).ToList();
-        var points = pointCandidates.OrderBy(Reach).Take(ShadowFit.MaxPointLights)
+        bool Seen(int i) => camera is not { } view
+                            || InView(view, lights.All[i].Position, lights.All[i].Range > 0 ? lights.All[i].Range : distance);
+        var spotLights = spotCandidates.OrderBy(i => Seen(i) ? 0 : 1).ThenBy(Reach).Take(ShadowFit.MaxSpotLights).ToList();
+        var points = pointCandidates.OrderBy(i => Seen(i) ? 0 : 1).ThenBy(Reach).Take(ShadowFit.MaxPointLights)
             .Select(i => (i, ShadowFit.FitPoint(lights.All[i].Position, lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
-        // The spot lights share the spot tile, so each one's texels are as wide as its share of it.
+        // The spot lights share the spot tile by rank, so each one's texels are as wide as its share of it.
         var spots = new List<(int, System.Numerics.Matrix4x4, float)>();
-        var size = ShadowFit.SpotTileArea(0, spotLights.Count, tileSize).Size;
         foreach (var i in spotLights)
         {
             var light = lights.All[i];
+            var size = ShadowFit.SpotTileArea(spots.Count, spotLights.Count, tileSize).Size;
             if (ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
                 spots.Add((i, viewProjection, texel));
         }

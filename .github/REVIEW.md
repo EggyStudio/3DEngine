@@ -8,10 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `2b5053ac`. The three renderer batches are settled: the render tests passed in the
-validation container after each, and all 41 examples and Pusher from a fresh package ran there
-with the layer on and no error. That run found the workflow's Pusher step had never had the
-layer on, a Release package needing `ENGINE_VULKAN_VALIDATION=1`, which `build.yml` sets.
+Reviewed up to `f3cf3f53`. Summit, the third game from the package (`2f158acb`), is settled, played
+in CI with the validation layer on. What it turned up was fixed in its batches: a scene's models
+drawn through the camera of `BeginMode3D`, a model of several materials spawning every mesh
+(`485bc987`), a `ModelRef` finding its file beside the program (`7a1f67a9`) and a material that
+casts no shadow (`d3c88d8d`). Exposure, a tonemap curve, grading, a vignette and FXAA over the
+frame (`f3cf3f53`) are settled on their description. TODO.md's diff was read.
 
 ## Now
 
@@ -21,39 +23,23 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **A third game from the package, larger than the first two.** Pusher and Hopper found more
-   faults than review did, and since them the engine gained a character controller, reflection
-   probes, bloom, cascades, prefabs, joints, triggers, an environment and native builds, none of
-   which a game has used together. A small 3D platformer under `games/`: a level of several
-   prefabs with mesh colliders, an animated character on the controller with a camera that
-   follows it, moving platforms on joints, triggers that collect and that end the level, lights
-   with shadows indoors and a sun outside, a probe in the room and an environment under the
-   sky, bloom on what glows, music from a file with a sound each event, a menu, a pause and a
-   level that restarts, and a gamepad beside the keys. Written from the cheatsheet and the
-   guide alone. What had to be worked around or looked up in the source is fixed when small and
-   entered in TODO.md when not, and CI plays it from the package as it plays the others.
-3. **What that game turned up**, in the order it hurt.
-4. **Effects over the frame beyond bloom** (TODO.md, Meshes, materials and light), which the
-   half-float frame `6220a102` made room for: exposure, a choice of tonemapping curve, color
-   grading, a vignette, and an antialiasing pass over what multisampling does not reach, each
-   set by one function and each with its pixel test and its line in the guide.
-5. **More lights that cast shadows** (TODO.md, the entry on one directional, four spot and four
+2. **More lights that cast shadows** (TODO.md, the entry on one directional, four spot and four
    point lights), by tiles given to the lights that matter most to the picture, so a level with
    a dozen lamps is not lit flat.
-6. **A compute or drawing shader's layout from its reflection** (TODO.md, Layouts are written
+3. **A compute or drawing shader's layout from its reflection** (TODO.md, Layouts are written
    by hand), so a program declares a buffer in Slang and sets it by name with no layout typed
    twice.
-7. **What a model still lacks** (TODO.md, Models are partial), in the order a loaded file shows
+4. **What a model still lacks** (TODO.md, Models are partial), in the order a loaded file shows
    it: morph targets, more than one animation playing on parts of a skeleton, and what else the
    entry names.
-8. **More scenes compared whole with references** (TODO.md, Testing), one for each pass and
-   effect added since the eight, the new game's first frame among them.
-9. **The guide kept true.** Each page under `docs/` is read against what its area gained since
-   it was written (probes, bloom, instancing, compute into textures, joints, prefabs, native
+5. **More scenes compared whole with references** (TODO.md, Testing), one for each pass and
+   effect added since the eight, a frame of Summit among them.
+6. **The guide kept true.** Each page under `docs/` is read against what its area gained since
+   it was written (probes, bloom and the other effects over the frame, instancing, compute into textures, joints, prefabs, native
    builds), with a snippet from an example that runs for each addition.
-10. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
+7. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
     draws.
-11. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
+8. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
     kind not yet made, since each one has found what nothing else did.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files

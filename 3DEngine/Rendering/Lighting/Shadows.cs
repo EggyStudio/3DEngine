@@ -154,20 +154,24 @@ public static class ShadowFit
     /// <summary>The tile spot lights' shadows are drawn into, after the cascades.</summary>
     public const int SpotTile = 3;
 
-    /// <summary>How many spot lights cast shadows at once, the first ones with <c>CastsShadows</c> set.</summary>
-    public const int MaxSpotLights = 4;
+    /// <summary>How many spot lights cast shadows at once, those with <c>CastsShadows</c> set that matter most to the view.</summary>
+    public const int MaxSpotLights = 10;
 
     /// <summary>
     /// The square of the spot tile a spot light's shadow is drawn into, by its slot among
-    /// <paramref name="count"/> shadowed spot lights: the whole tile for one, and a quarter each
-    /// for more, so a lone spot light keeps every texel.
+    /// <paramref name="count"/> shadowed spot lights, the slots ranked by how much the light matters
+    /// to the view: the whole tile for one, a quarter each for up to four, and past four a quarter
+    /// each for the first two and a sixteenth each for the rest, in the tile's lower half.
     /// </summary>
     public static (int X, int Y, int Size) SpotTileArea(int slot, int count, int tileSize = TileSize)
     {
         var (x, y) = TileOrigin(SpotTile, tileSize);
         if (count <= 1) return (x, y, tileSize);
-        var size = tileSize / 2;
-        return (x + slot % 2 * size, y + slot / 2 * size, size);
+        var half = tileSize / 2;
+        if (count <= 4 || slot < 2) return (x + slot % 2 * half, y + slot / 2 * half, half);
+        var quarter = tileSize / 4;
+        var small = slot - 2;
+        return (x + small % 4 * quarter, y + half + small / 4 * quarter, quarter);
     }
 
     /// <summary>
@@ -194,8 +198,27 @@ public static class ShadowFit
         return true;
     }
 
-    /// <summary>How many point lights cast shadows at once, the first ones with <c>CastsShadows</c> set.</summary>
-    public const int MaxPointLights = 4;
+    /// <summary>How many point lights cast shadows at once, those with <c>CastsShadows</c> set that matter most to the view.</summary>
+    public const int MaxPointLights = 12;
+
+    /// <summary>How many of them, the ones that matter most, draw each face into a layer of its own at <see cref="PointFaceSize"/>.</summary>
+    public const int FullPointLights = 4;
+
+    /// <summary>The layers of the point lights' map: six for each full light, then the rest's faces at half the size, four to a layer.</summary>
+    public const int PointLayers = FullPointLights * 6 + (MaxPointLights - FullPointLights) * 6 / 4;
+
+    /// <summary>
+    /// Where a point light's face is drawn in the point map, by its slot: a layer of its own for the
+    /// first <see cref="FullPointLights"/>, and for the rest a quarter of a layer after theirs, at
+    /// half the size, so a level of a dozen lamps shadows each.
+    /// </summary>
+    public static (int Layer, int X, int Y, int Size) PointFaceArea(int slot, int face, int faceSize = PointFaceSize)
+    {
+        if (slot < FullPointLights) return (slot * 6 + face, 0, 0, faceSize);
+        var index = (slot - FullPointLights) * 6 + face;
+        var half = faceSize / 2;
+        return (FullPointLights * 6 + index / 4, index % 4 % 2 * half, index % 4 / 2 * half, half);
+    }
 
     /// <summary>The width and height in texels of each of a point light's six faces, a quarter of the default tile.</summary>
     public const int PointFaceSize = TileSize / 4;
