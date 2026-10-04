@@ -78,10 +78,10 @@ internal interface IMusicDecoder : IDisposable
     void Seek(long frame);
 }
 
-/// <summary>Decodes Ogg Vorbis from its file through NVorbis as it is read.</summary>
-internal sealed class OggMusicDecoder(string path) : IMusicDecoder
+/// <summary>Decodes Ogg Vorbis from its file, or bytes in memory, through NVorbis as it is read.</summary>
+internal sealed class OggMusicDecoder(Stream stream) : IMusicDecoder
 {
-    private readonly NVorbis.VorbisReader _reader = new(path);
+    private readonly NVorbis.VorbisReader _reader = new(stream, closeOnDispose: true);
     private float[] _scratch = [];
 
     public int Channels => _reader.Channels;
@@ -103,10 +103,10 @@ internal sealed class OggMusicDecoder(string path) : IMusicDecoder
     public void Dispose() => _reader.Dispose();
 }
 
-/// <summary>Decodes FLAC from its file through <see cref="FlacReader"/> as it is read.</summary>
-internal sealed class FlacMusicDecoder(string path) : IMusicDecoder
+/// <summary>Decodes FLAC from its file, or bytes in memory, through <see cref="FlacReader"/> as it is read.</summary>
+internal sealed class FlacMusicDecoder(Stream stream) : IMusicDecoder
 {
-    private readonly FlacReader _reader = new(File.OpenRead(path));
+    private readonly FlacReader _reader = new(stream);
 
     public int Channels => _reader.Channels;
 
@@ -121,16 +121,16 @@ internal sealed class FlacMusicDecoder(string path) : IMusicDecoder
     public void Dispose() => _reader.Dispose();
 }
 
-/// <summary>Decodes MP3 from its file through NLayer as it is read.</summary>
+/// <summary>Decodes MP3 from its file, or bytes in memory, through NLayer as it is read.</summary>
 /// <remarks>NLayer measures its stream in bytes of 32-bit samples, which a frame holds one of for each channel.</remarks>
 internal sealed class Mp3MusicDecoder : IMusicDecoder
 {
     private readonly NLayer.MpegFile _file;
     private float[] _scratch = [];
 
-    public Mp3MusicDecoder(string path)
+    public Mp3MusicDecoder(Stream stream)
     {
-        _file = new NLayer.MpegFile(path);
+        _file = new NLayer.MpegFile(stream);
         if (_file.SampleRate <= 0 || _file.Channels <= 0)
         {
             _file.Dispose();
@@ -369,14 +369,7 @@ public static partial class Engine3D
 
         try
         {
-            var music = Path.GetExtension(path).ToLowerInvariant() switch
-            {
-                ".ogg" => new Music(new OggMusicDecoder(path), fileName),
-                ".wav" or ".wave" => new Music(new WavMusicDecoder(path), fileName),
-                ".mp3" => new Music(new Mp3MusicDecoder(path), fileName),
-                ".flac" => new Music(new FlacMusicDecoder(path), fileName),
-                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
-            };
+            var music = new Music(MusicDecoder(Path.GetExtension(path), new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16), fileName), fileName);
             World.GetOrInsertResource(() => new LoadedMusic()).Add(music);
             return music;
         }
@@ -384,6 +377,49 @@ public static partial class Engine3D
         {
             ApiLogger.Warn($"LoadMusicStream: '{fileName}' could not be opened: {ex.Message}");
             return new Music(null);
+        }
+    }
+
+    /// <summary>
+    /// Opens a music file already in memory, by its type, as <c>".ogg"</c>, streamed from the bytes
+    /// as it plays as one from a file is, as a game whose music comes from a pack file needs.
+    /// </summary>
+    /// <returns>The music, or an empty one when the bytes cannot be read, with the reason in the log.</returns>
+    public static Music LoadMusicStreamFromMemory(string fileType, byte[] data)
+    {
+        try
+        {
+            var name = "memory" + fileType;
+            var music = new Music(MusicDecoder(fileType, new MemoryStream(data, writable: false), name), name);
+            World.GetOrInsertResource(() => new LoadedMusic()).Add(music);
+            return music;
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)
+        {
+            ApiLogger.Warn($"LoadMusicStreamFromMemory: the {fileType} bytes could not be opened: {ex.Message}");
+            return new Music(null);
+        }
+    }
+
+    // A decoder for a stream by its type, with or without the dot, which closes the stream when
+    // it cannot read it, so a file is not left open behind a refusal.
+    private static IMusicDecoder MusicDecoder(string extension, Stream stream, string name)
+    {
+        try
+        {
+            return ("." + extension.TrimStart('.')).ToLowerInvariant() switch
+            {
+                ".ogg" => new OggMusicDecoder(stream),
+                ".wav" or ".wave" => new WavMusicDecoder(stream, name),
+                ".mp3" => new Mp3MusicDecoder(stream),
+                ".flac" => new FlacMusicDecoder(stream),
+                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
+            };
+        }
+        catch
+        {
+            stream.Dispose();
+            throw;
         }
     }
 

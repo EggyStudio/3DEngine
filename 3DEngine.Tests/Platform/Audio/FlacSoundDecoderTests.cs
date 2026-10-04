@@ -42,7 +42,7 @@ public class FlacSoundDecoderTests
     {
         var path = Path.Combine(AppContext.BaseDirectory, "Platform", "Audio", "flac16_best.flac");
         var whole = FlacSoundDecoder.Decode(File.ReadAllBytes(path)).Samples;
-        using var music = new FlacMusicDecoder(path);
+        using var music = new FlacMusicDecoder(File.OpenRead(path));
         music.TotalFrames.Should().Be(whole.Length / 2);
 
         var pieces = new List<float>();

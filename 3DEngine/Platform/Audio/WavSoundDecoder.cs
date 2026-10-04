@@ -175,18 +175,18 @@ public sealed class WavSoundDecoder : ISoundDecoder
 /// </summary>
 internal sealed class WavMusicDecoder : IMusicDecoder
 {
-    private readonly FileStream _file;
+    private readonly Stream _file;
     private readonly long _dataStart;
     private readonly int _format, _bitsPerSample, _bytesPerFrame;
     private byte[] _scratch = [];
     private long _frame;
 
-    /// <summary>Opens <paramref name="path"/> and finds its format and samples, reading nothing else.</summary>
+    /// <summary>Reads a WAV file's format from <paramref name="stream"/> and finds its samples, reading nothing else.</summary>
     /// <exception cref="InvalidDataException">The file is not a WAV file with a format and samples.</exception>
     /// <exception cref="NotSupportedException">Its samples are in a format the decoder does not read.</exception>
-    public WavMusicDecoder(string path)
+    public WavMusicDecoder(Stream stream, string path = "")
     {
-        _file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16);
+        _file = stream;
         try
         {
             Span<byte> header = stackalloc byte[12];

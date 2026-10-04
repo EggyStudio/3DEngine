@@ -34,7 +34,7 @@ public sealed class WavMusicDecoderTests : IDisposable
     {
         var path = Write(3000);
         var whole = WavSoundDecoder.Decode(File.ReadAllBytes(path)).Samples;
-        using var music = new WavMusicDecoder(path);
+        using var music = new WavMusicDecoder(File.OpenRead(path), path);
 
         music.Channels.Should().Be(2);
         music.SampleRate.Should().Be(8000);
@@ -56,7 +56,7 @@ public sealed class WavMusicDecoderTests : IDisposable
     {
         var path = Path.Combine(_directory, "not.wav");
         File.WriteAllText(path, "not a wave file at all, but long enough");
-        var open = () => new WavMusicDecoder(path);
+        var open = () => new WavMusicDecoder(File.OpenRead(path), path);
         open.Should().Throw<InvalidDataException>();
     }
 }

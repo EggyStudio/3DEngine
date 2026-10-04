@@ -692,6 +692,7 @@ void UnloadWaveSamples(float[] samples);                  // Nothing to free, ke
 bool ExportWave(Wave wave, string fileName);              // Write it to a 16-bit WAV file
 
 Music LoadMusicStream(string fileName);                   // Open a WAV, Ogg Vorbis, MP3 or FLAC file as music, streamed as it plays
+Music LoadMusicStreamFromMemory(string fileType, byte[] data); // The same from a file's bytes, by its type (".ogg")
 void UnloadMusicStream(Music music);                      // Stop music and close its file
 bool IsMusicValid(Music music);                           // Whether music has samples
 void PlayMusicStream(Music music);                        // Play from the start, looping unless music.Looping is false

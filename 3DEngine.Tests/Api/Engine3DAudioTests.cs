@@ -273,6 +273,20 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void Music_From_Memory_Streams_As_Music_From_A_File_Does()
+    {
+        var music = LoadMusicStreamFromMemory(".wav", File.ReadAllBytes(WriteWav()));
+        IsMusicValid(music).Should().BeTrue();
+        GetMusicTimeLength(music).Should().BeApproximately(0.1f, 1e-3f);
+
+        PlayMusicStream(music);
+        _backend.QueuedVoiceFrames(_backend.Streams.Keys.Single()).Should().BeGreaterThanOrEqualTo(4000);
+        UnloadMusicStream(music);
+
+        IsMusicValid(LoadMusicStreamFromMemory(".ogg", [1, 2, 3])).Should().BeFalse("bytes that are not Ogg give an empty piece");
+    }
+
+    [Fact]
     public void Music_That_Does_Not_Loop_Stops_Playing_Once_Its_Queue_Runs_Out()
     {
         var music = LoadMusicStream(WriteWav());

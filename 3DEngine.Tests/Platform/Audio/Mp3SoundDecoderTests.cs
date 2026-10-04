@@ -30,7 +30,7 @@ public class Mp3SoundDecoderTests
     [Fact]
     public void Music_Streams_From_An_Mp3_File_And_Seeks()
     {
-        using var music = new Mp3MusicDecoder(TonePath);
+        using var music = new Mp3MusicDecoder(File.OpenRead(TonePath));
         (music.Channels, music.SampleRate).Should().Be((2, 22050));
         (music.TotalFrames / 22050.0).Should().BeApproximately(0.5, 0.1);
 
