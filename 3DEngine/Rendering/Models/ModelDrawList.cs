@@ -132,6 +132,12 @@ internal sealed class InstanceGroup
     /// <summary>What every instance shares: the mesh, the maps, the sides, the alpha mode and the camera. Its world matrix and factors are unused.</summary>
     public ModelDraw Template;
 
+    /// <summary>
+    /// The sphere around the mesh in its own space, which the pass culls the instances by, a
+    /// block at a time. An infinite radius, the default, culls none.
+    /// </summary>
+    public (Vector3 Center, float Radius) Sphere = (Vector3.Zero, float.PositiveInfinity);
+
     /// <summary>How many instances this frame holds.</summary>
     public int Count { get; private set; }
 
@@ -151,11 +157,11 @@ internal sealed class InstanceGroup
     }
 
     /// <summary>Adds each segment to <paramref name="copies"/>, with where its first instance goes when the group's first goes at <paramref name="first"/>.</summary>
-    public void AddSegments(List<(ModelRenderer.Instance[] Items, int Count, int At)> copies, int first)
+    public void AddSegments(List<(ModelRenderer.Instance[] Items, int Count, int At, InstanceGroup Group)> copies, int first)
     {
         foreach (var (items, count) in _segments)
         {
-            copies.Add((items, count, first));
+            copies.Add((items, count, first, this));
             first += count;
         }
     }

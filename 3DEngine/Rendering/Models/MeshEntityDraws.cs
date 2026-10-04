@@ -43,6 +43,10 @@ namespace Engine;
 public sealed class MeshEntityDraws
 {
     private readonly Dictionary<Vector3[], int> _meshes = new(ReferenceEqualityComparer.Instance);
+
+    // The sphere around each mesh's positions, by mesh id, which a group carries for the pass to
+    // cull its instances by.
+    private readonly Dictionary<int, (Vector3 Center, float Radius)> _spheres = [];
     private readonly HashSet<Vector3[]> _seen = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<AssetId, int> _textures = [];
     private readonly List<(float Distance, ModelDraw Draw)> _translucent = [];
@@ -220,6 +224,7 @@ public sealed class MeshEntityDraws
             foreach (var positions in _meshes.Keys.Where(p => !_seen.Contains(p)).ToArray())
             {
                 meshes.Remove(_meshes[positions]);
+                _spheres.Remove(_meshes[positions]);
                 _meshes.Remove(positions);
             }
             Forget();
@@ -281,6 +286,7 @@ public sealed class MeshEntityDraws
                 if (g < _chunks[c].Writers.Length) group.Add(_chunks[c].Writers[g].Items, _chunks[c].Writers[g].Count);
             if (group.Count == 0) continue;
             group.Template = _groups[g] with { ViewProjection = frame.ViewProjection, Target = target };
+            group.Sphere = _spheres.TryGetValue(group.Template.Mesh, out var sphere) ? sphere : (Vector3.Zero, float.PositiveInfinity);
             draws.AddGroup(group);
         }
 
@@ -324,6 +330,7 @@ public sealed class MeshEntityDraws
             {
                 if (!canBuild) return false;
                 _meshes[positions] = found = frame.MeshStore.Add(Vertices(mesh), Sequence(positions.Length / 3 * 3));
+                _spheres[found] = Sphere(positions);
             }
             state.LastPositions = positions;
             state.LastMesh = found;
@@ -361,6 +368,22 @@ public sealed class MeshEntityDraws
         instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
         instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
         return true;
+    }
+
+    // The sphere around a mesh's positions, at the middle of their box.
+    private static (Vector3 Center, float Radius) Sphere(Vector3[] positions)
+    {
+        var min = new Vector3(float.MaxValue);
+        var max = new Vector3(float.MinValue);
+        foreach (var p in positions)
+        {
+            min = Vector3.Min(min, p);
+            max = Vector3.Max(max, p);
+        }
+        var center = (min + max) / 2;
+        var radius = 0f;
+        foreach (var p in positions) radius = MathF.Max(radius, Vector3.DistanceSquared(p, center));
+        return (center, MathF.Sqrt(radius));
     }
 
     // The look of a mesh and material, built the first time an entity is drawn with them.

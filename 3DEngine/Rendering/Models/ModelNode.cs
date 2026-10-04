@@ -117,6 +117,9 @@ public sealed class ModelRenderer : IDisposable
         public ShadowKind Shadow;
         public uint First;
         public uint Count;
+        // A group's blocks in the call's block list, or none for draws.
+        public int BlockStart;
+        public int BlockCount;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
@@ -163,8 +166,29 @@ public sealed class ModelRenderer : IDisposable
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
 
-    // The frame's group segments to copy into the ring, each with where its first instance goes.
-    private readonly List<(Instance[] Items, int Count, int At)> _copies = [];
+    // The frame's group segments to copy into the ring, each with where its first instance goes,
+    // and where its first block goes in _blocks.
+    private readonly List<(Instance[] Items, int Count, int At, InstanceGroup Group)> _copies = [];
+    private readonly List<int> _copyBlocks = [];
+
+    // A run of a group's instances in the ring and the box around them, which a view leaves out
+    // when the box is outside it. A group's instances are in blocks of this many, so a view draws
+    // the runs of blocks it sees, each a call, rather than every instance.
+    private const int BlockSize = 64;
+
+    private struct Block
+    {
+        public uint First;
+        public uint Count;
+        public Vector3 Min;
+        public Vector3 Max;
+    }
+
+    // The blocks of the last call's groups, and a copy of the window's, which the shadow pass and
+    // the window's model pass both read after a render target's call has written its own.
+    private Block[] _blocks = new Block[64];
+    private int _blockCount;
+    private Block[] _windowBlocks = new Block[64];
 
     // Past this many instances the segments are copied on several threads, since one thread
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
@@ -277,6 +301,7 @@ public sealed class ModelRenderer : IDisposable
             GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: false);
             (ring, offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection), draws.Groups);
         }
+        var blocks = target == 0 ? _windowBlocks : _blocks;
 
         IPipeline? pipeline = null;
         foreach (var batch in batches)
@@ -297,8 +322,9 @@ public sealed class ModelRenderer : IDisposable
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
-            DrawCalls++;
+            DrawCalls += batch.Group >= 0
+                ? DrawSeen(pass, batch, blocks, draws.Groups[batch.Group].Template.ViewProjection)
+                : DrawSeen(pass, batch, blocks, Matrix4x4.Identity);
         }
     }
 
@@ -321,6 +347,8 @@ public sealed class ModelRenderer : IDisposable
             (_windowRing, _windowOffset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection), draws.Groups);
             _windowBatches.Clear();
             _windowBatches.AddRange(_batches);
+            if (_windowBlocks.Length < _blockCount) _windowBlocks = new Block[Math.Max(_blockCount, _windowBlocks.Length * 2)];
+            Array.Copy(_blocks, _windowBlocks, _blockCount);
             _windowFrame = _frames;
         }
         return (_windowBatches, _windowRing, _windowOffset);
@@ -493,35 +521,148 @@ public sealed class ModelRenderer : IDisposable
             instances[(int)_filled[b]++] = instanceOf(in draws[i]);
         }
         _copies.Clear();
+        _copyBlocks.Clear();
+        _blockCount = 0;
         var copied = 0;
-        foreach (var batch in _batches)
-            if (batch.Group >= 0)
+        for (int b = 0; b < _batches.Count; b++)
+        {
+            var batch = _batches[b];
+            if (batch.Group < 0) continue;
+            var firstCopy = _copies.Count;
+            groups[batch.Group].AddSegments(_copies, (int)batch.First);
+            copied += groups[batch.Group].Count;
+            batch.BlockStart = _blockCount;
+            for (int c = firstCopy; c < _copies.Count; c++)
             {
-                groups[batch.Group].AddSegments(_copies, (int)batch.First);
-                copied += groups[batch.Group].Count;
+                _copyBlocks.Add(_blockCount);
+                _blockCount += (_copies[c].Count + BlockSize - 1) / BlockSize;
             }
+            batch.BlockCount = _blockCount - batch.BlockStart;
+            _batches[b] = batch;
+        }
+        if (_blocks.Length < _blockCount) Array.Resize(ref _blocks, Math.Max(_blockCount, _blocks.Length * 2));
         CopySegments(instances, copied);
         return (_instanceRing!, offset);
     }
 
-    // Copies the frame's group segments into the ring, each into its own range, on several
-    // threads when there are many instances.
+    // Copies the frame's group segments into the ring, each into its own range, and finds the
+    // box around each block of each, on several threads when there are many instances.
     private unsafe void CopySegments(Span<Instance> instances, int count)
     {
         if (count < ParallelCopyInstances || _copies.Count < 2)
         {
-            foreach (var (items, n, at) in _copies) items.AsSpan(0, n).CopyTo(instances[at..]);
+            for (int i = 0; i < _copies.Count; i++)
+            {
+                var (items, n, at, group) = _copies[i];
+                items.AsSpan(0, n).CopyTo(instances[at..]);
+                Bound(items, n, at, group.Sphere, _blocks, _copyBlocks[i]);
+            }
             return;
         }
 
         // The ring is mapped memory, which does not move, so its address outlives the span.
         var ring = (nint)Unsafe.AsPointer(ref MemoryMarshal.GetReference(instances));
         var length = instances.Length;
+        var blocks = _blocks;
         Parallel.For(0, _copies.Count, i =>
         {
-            var (items, n, at) = _copies[i];
+            var (items, n, at, group) = _copies[i];
             items.AsSpan(0, n).CopyTo(new Span<Instance>((Instance*)ring + at, length - at));
+            Bound(items, n, at, group.Sphere, blocks, _copyBlocks[i]);
         });
+    }
+
+    // The boxes of a segment's blocks, each around the spheres its instances' meshes fill: the
+    // mesh's sphere moved by the world matrix, its radius grown by the matrix's largest scale.
+    private static void Bound(Instance[] items, int count, int at, (Vector3 Center, float Radius) sphere, Block[] blocks, int firstBlock)
+    {
+        for (int start = 0, b = firstBlock; start < count; start += BlockSize, b++)
+        {
+            var end = Math.Min(count, start + BlockSize);
+            var min = new Vector3(float.MaxValue);
+            var max = new Vector3(float.MinValue);
+            if (float.IsPositiveInfinity(sphere.Radius))
+                (min, max) = (new Vector3(float.NegativeInfinity), new Vector3(float.PositiveInfinity));
+            else
+                for (int i = start; i < end; i++)
+                {
+                    ref readonly var instance = ref items[i];
+                    var c = new Vector4(sphere.Center, 1);
+                    var center = new Vector3(Vector4.Dot(instance.WorldX, c), Vector4.Dot(instance.WorldY, c), Vector4.Dot(instance.WorldZ, c));
+                    // The length of each of the mesh's axes once placed, the largest of which grows the sphere.
+                    var x = new Vector3(instance.WorldX.X, instance.WorldY.X, instance.WorldZ.X).LengthSquared();
+                    var y = new Vector3(instance.WorldX.Y, instance.WorldY.Y, instance.WorldZ.Y).LengthSquared();
+                    var z = new Vector3(instance.WorldX.Z, instance.WorldY.Z, instance.WorldZ.Z).LengthSquared();
+                    var radius = new Vector3(sphere.Radius * MathF.Sqrt(MathF.Max(x, MathF.Max(y, z))));
+                    min = Vector3.Min(min, center - radius);
+                    max = Vector3.Max(max, center + radius);
+                }
+            blocks[b] = new Block { First = (uint)(at + start), Count = (uint)(end - start), Min = min, Max = max };
+        }
+    }
+
+    // The four side planes of a view, as (normal, distance) with the inside where the sum is not
+    // negative, from a view-projection that takes row vectors to clip space (Gribb and Hartmann).
+    // Near and far are left out, so a depth convention, or a shadow box's reach toward the light,
+    // never leaves out what a view draws.
+    internal static (Vector4 Left, Vector4 Right, Vector4 Bottom, Vector4 Top) Planes(in Matrix4x4 m)
+    {
+        var x = new Vector4(m.M11, m.M21, m.M31, m.M41);
+        var y = new Vector4(m.M12, m.M22, m.M32, m.M42);
+        var w = new Vector4(m.M14, m.M24, m.M34, m.M44);
+        return (w + x, w - x, w + y, w - y);
+    }
+
+    internal static bool Outside(Vector4 plane, Vector3 min, Vector3 max)
+    {
+        // The corner of the box farthest along the plane's normal.
+        var far = new Vector3(plane.X >= 0 ? max.X : min.X, plane.Y >= 0 ? max.Y : min.Y, plane.Z >= 0 ? max.Z : min.Z);
+        return plane.X * far.X + plane.Y * far.Y + plane.Z * far.Z + plane.W < 0;
+    }
+
+    /// <summary>Whether a view through <paramref name="viewProjection"/> may see a box, by its four side planes.</summary>
+    internal static bool Seen(in Matrix4x4 viewProjection, Vector3 min, Vector3 max)
+    {
+        var (left, right, bottom, top) = Planes(viewProjection);
+        return !(Outside(left, min, max) || Outside(right, min, max) || Outside(bottom, min, max) || Outside(top, min, max));
+    }
+
+    // Draws a batch, a group's blocks a view sees as runs of calls and anything else as one, and
+    // answers how many calls it made.
+    private static int DrawSeen(TrackedRenderPass pass, in Batch batch, Block[] blocks, in Matrix4x4 viewProjection)
+    {
+        if (batch.BlockCount == 0)
+        {
+            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+            return 1;
+        }
+
+        var (left, right, bottom, top) = Planes(viewProjection);
+        int calls = 0;
+        uint runFirst = 0, runCount = 0;
+        for (int i = batch.BlockStart; i < batch.BlockStart + batch.BlockCount; i++)
+        {
+            ref readonly var block = ref blocks[i];
+            var seen = !(Outside(left, block.Min, block.Max) || Outside(right, block.Min, block.Max)
+                || Outside(bottom, block.Min, block.Max) || Outside(top, block.Min, block.Max));
+            if (seen && runCount > 0 && runFirst + runCount == block.First)
+            {
+                runCount += block.Count;
+                continue;
+            }
+            if (runCount > 0)
+            {
+                pass.DrawIndexed(batch.Mesh.IndexCount, runCount, 0, 0, runFirst);
+                calls++;
+            }
+            (runFirst, runCount) = seen ? (block.First, block.Count) : (0u, 0u);
+        }
+        if (runCount > 0)
+        {
+            pass.DrawIndexed(batch.Mesh.IndexCount, runCount, 0, 0, runFirst);
+            calls++;
+        }
+        return calls;
     }
 
     // The ring of instances, with room for a region per frame slot of at least this call's
@@ -629,8 +770,7 @@ public sealed class ModelRenderer : IDisposable
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
-            DrawCalls++;
+            DrawCalls += DrawSeen(pass, batch, _windowBlocks, lightViewProjection);
         }
     }
 

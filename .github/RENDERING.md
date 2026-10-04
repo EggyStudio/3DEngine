@@ -510,6 +510,18 @@ The largest costs as they were measured, in order, each with what changed:
    for 2.3 ms in place of 5.3 ms. The GPU then took 9.8 ms for the shadow and 5.3 ms for the model
    pass, 15.1 ms of the 16.7 a frame has, so drawing fewer instances, by culling what each cascade
    and the camera do not see, is what raises the count next.
+6. **Every view drew every instance.** The camera, each cascade, each spot tile and each point
+   face drew all of a group's instances, though the example's camera backs away to keep its grid
+   in view and so leaves the grid past the 150 units the sun's cascades reach.
+   **Changed.** `MeshEntityDraws` gives each group the sphere around its mesh, and the threads that
+   copy a group's segments into the ring find the box around each block of 64 instances, each
+   instance's sphere moved by its world matrix and grown by its largest scale. A view draws the
+   runs of blocks that its four side planes do not leave out, a call a run, so a block wholly
+   beside a view costs it nothing. Near and far are left out of the test, so neither a depth
+   convention nor a shadow box's reach toward the light can leave out a block the view draws.
+   The run without arms afterward held 321,375 entities in place of 307,699, the GPU taking 0.5 ms
+   for the shadows in place of 9.8 ms and 6.2 ms for the model pass. The frame is now the CPU's,
+   the program's loop turning every entity the largest part of it.
 
 ## What the engine needs
 
