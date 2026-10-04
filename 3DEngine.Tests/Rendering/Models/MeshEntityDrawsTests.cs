@@ -26,6 +26,33 @@ public class MeshEntityDrawsTests
         return (world, ecs);
     }
 
+    // What the frame drew for mesh entities, as draws: each opaque entity's instance with its
+    // group's template, its world matrix read back from the instance's rows and its color encoded
+    // to sRGB again, then the translucent draws in the order recorded.
+    private static List<ModelDraw> Drawn(World world)
+    {
+        var list = world.Resource<ModelDrawList>();
+        var drawn = new List<ModelDraw>();
+        foreach (var group in list.Groups)
+            foreach (var instance in group.Span)
+            {
+                var world4 = new Matrix4x4(
+                    instance.WorldX.X, instance.WorldY.X, instance.WorldZ.X, 0,
+                    instance.WorldX.Y, instance.WorldY.Y, instance.WorldZ.Y, 0,
+                    instance.WorldX.Z, instance.WorldY.Z, instance.WorldZ.Z, 0,
+                    instance.WorldX.W, instance.WorldY.W, instance.WorldZ.W, 1);
+                drawn.Add(group.Template with { World = world4, Color = Encoded(instance.Color) });
+            }
+        drawn.AddRange(list.Draws);
+        return drawn;
+    }
+
+    private static Color Encoded(Vector4 linear)
+    {
+        static byte Byte(float c) => (byte)((c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f) * 255 + 0.5f);
+        return new Color(Byte(linear.X), Byte(linear.Y), Byte(linear.Z), (byte)(linear.W * 255 + 0.5f));
+    }
+
     private static int SpawnMesh(EcsWorld ecs, Vector3[] positions, Vector3 at, Vector4 albedo)
     {
         var entity = ecs.Spawn();
@@ -43,7 +70,7 @@ public class MeshEntityDrawsTests
 
         MeshEntityDraws.Run(world);
 
-        var draw = world.Resource<ModelDrawList>().Draws.Should().ContainSingle().Subject;
+        var draw = Drawn(world).Should().ContainSingle().Subject;
         draw.World.Translation.Should().Be(new Vector3(2, 0, 0));
         draw.Color.Should().Be(new Color(255, 188, 0, 255), "albedo is linear, and half of it is sRGB 188");
         draw.Texture.Should().Be(0);
@@ -68,22 +95,41 @@ public class MeshEntityDrawsTests
         ecs.Update(entity, new Material(new Vector4(0, 0, 1, 1)));
         ecs.GetRef<Transform>(entity).Position = new Vector3(3, 0, 0);
         Frame();
-        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the material changed");
-        draws.Draws[0].World.Translation.Should().Be(new Vector3(3, 0, 0), "the world matrix is the frame's");
+        Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the material changed");
+        Drawn(world)[0].World.Translation.Should().Be(new Vector3(3, 0, 0), "the world matrix is the frame's");
 
         Frame();
-        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the kept draw holds the new material");
+        Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the kept draw holds the new material");
 
         ecs.Despawn(entity);
         var again = SpawnMesh(ecs, Triangle, Vector3.Zero, new Vector4(0, 1, 0, 1));
         again.Should().Be(entity, "the id is given out again");
         Frame();
-        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 255, 0, 255), "a new entity on the old id draws with its own material");
+        Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(0, 255, 0, 255), "a new entity on the old id draws with its own material");
 
         // Replaced by Add, which marks no change, the material still reaches the draw.
         ecs.Add(again, new Material(new Vector4(1, 1, 1, 1)));
         Frame();
-        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(255, 255, 255, 255));
+        Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(255, 255, 255, 255));
+    }
+
+    [Fact]
+    public void Opaque_Entities_Sharing_A_Mesh_And_Maps_Are_One_Group_Each_With_Its_Own_Color()
+    {
+        var (world, ecs) = Scene();
+        SpawnMesh(ecs, Triangle, new Vector3(1, 0, 0), new Vector4(1, 0, 0, 1));
+        SpawnMesh(ecs, Triangle, new Vector3(2, 0, 0), new Vector4(0, 1, 0, 1));
+        var single = SpawnMesh(ecs, Triangle, new Vector3(3, 0, 0), new Vector4(0, 0, 1, 1));
+        ecs.GetRef<Material>(single).DoubleSided = false;
+
+        MeshEntityDraws.Run(world);
+
+        var list = world.Resource<ModelDrawList>();
+        list.Draws.Should().BeEmpty("opaque entities are recorded as instances");
+        list.Groups.Select(g => g.Count).Should().Equal(2, 1);
+        list.Groups[0].Span.ToArray().Select(i => i.Color).Should().Equal(new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1));
+        list.Groups[1].Template.DoubleSided.Should().BeFalse("a single-sided material is drawn by another pipeline");
+        list.WindowViewProjection.Should().Be(list.Groups[0].Template.ViewProjection, "the shadow is fitted to the camera the groups were recorded through");
     }
 
     [Fact]
@@ -94,7 +140,7 @@ public class MeshEntityDrawsTests
 
         MeshEntityDraws.Run(world);
 
-        world.Resource<ModelDrawList>().Draws.Should().BeEmpty();
+        Drawn(world).Should().BeEmpty();
     }
 
     [Fact]
@@ -109,7 +155,7 @@ public class MeshEntityDrawsTests
 
         var upload = world.Resource<MeshStore>().Take().Uploads.Should().ContainSingle("both entities share one positions array").Subject;
         upload.Vertices.Select(v => v.Normal).Should().AllBeEquivalentTo(Vector3.UnitZ);
-        world.Resource<ModelDrawList>().Draws.Should().HaveCount(4);
+        Drawn(world).Should().HaveCount(4);
     }
 
     [Fact]
@@ -118,7 +164,7 @@ public class MeshEntityDrawsTests
         var (world, ecs) = Scene();
         var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
         MeshEntityDraws.Run(world);
-        var id = world.Resource<ModelDrawList>().Draws[0].Mesh;
+        var id = Drawn(world)[0].Mesh;
 
         ecs.Despawn(entity);
         MeshEntityDraws.Run(world);
@@ -145,7 +191,7 @@ public class MeshEntityDrawsTests
 
         var upload = world.Resource<TextureStore>().Take().Uploads.Should().ContainSingle().Subject;
         (upload.Width, upload.Height, upload.Rgba!.Length, upload.Rgba[0]).Should().Be((2, 2, 16, (byte)9));
-        world.Resource<ModelDrawList>().Draws.Should().OnlyContain(d => d.Texture == upload.Id);
+        Drawn(world).Should().OnlyContain(d => d.Texture == upload.Id);
     }
 
     [Fact]
@@ -158,7 +204,7 @@ public class MeshEntityDrawsTests
         MeshEntityDraws.Run(world);
 
         // The camera has no rotation, so the projection's scales show through the view's translation.
-        var vp = world.Resource<ModelDrawList>().Draws[0].ViewProjection;
+        var vp = Drawn(world)[0].ViewProjection;
         (MathF.Abs(vp.M22) / MathF.Abs(vp.M11)).Should().BeApproximately(2f, 1e-4f, "an 800 by 400 frame is twice as wide as it is tall");
     }
 
@@ -173,6 +219,6 @@ public class MeshEntityDrawsTests
 
         MeshEntityDraws.Run(world);
 
-        world.Resource<ModelDrawList>().Draws.Select(d => d.World.Translation.Z).Should().Equal(0, -3, 2);
+        Drawn(world).Select(d => d.World.Translation.Z).Should().Equal(0, -3, 2);
     }
 }

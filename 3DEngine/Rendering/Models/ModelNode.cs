@@ -16,7 +16,9 @@ namespace Engine;
 /// maps from <see cref="GpuTextures"/> once. Opaque batches are drawn in the order each first
 /// appears. A translucent draw (<see cref="ModelDraw.IsTranslucent"/>) blends with what is behind
 /// it, so it stays out of them and is drawn after, in the order it was recorded, batched only with
-/// the draws next to it that share its mesh and set.
+/// the draws next to it that share its mesh and set. An <see cref="InstanceGroup"/> the draw list
+/// carries, which mesh entities fill, is a batch of its own after the opaque draws, its instances
+/// copied into the ring as they are.
 /// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
 /// second descriptor set.
 /// </para>
@@ -106,6 +108,8 @@ public sealed class ModelRenderer : IDisposable
         public GpuMeshes.Entry Mesh;
         public IDescriptorSet? Set;
         public int Custom;
+        // The index of the draw list's group whose instances it draws, or -1 for draws.
+        public int Group;
         public bool Culled;
         // What the shadow pass draws it with: nothing, a solid shadow, or one its material cuts out.
         public ShadowKind Shadow;
@@ -249,7 +253,7 @@ public sealed class ModelRenderer : IDisposable
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
         var textures = renderWorld.TryGet<GpuTextures>();
-        if (draws is null || draws.Draws.Count == 0 || meshes is null || textures is null) return;
+        if (draws is null || draws.IsEmpty || meshes is null || textures is null) return;
 
         var gfx = renderContext.Device;
         var store = renderWorld.TryGet<ShaderStore>();
@@ -262,7 +266,7 @@ public sealed class ModelRenderer : IDisposable
         if (target != 0)
         {
             GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: false);
-            (ring, offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection));
+            (ring, offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection), draws.Groups);
         }
 
         IPipeline? pipeline = null;
@@ -293,7 +297,7 @@ public sealed class ModelRenderer : IDisposable
     // is a batch alone. With shadowKinds, a batch holds draws that cast the same kind of shadow.
     private void GatherFor(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store,
         bool shadowKinds) =>
-        Gather(draws.Span, meshes, (in ModelDraw draw) =>
+        Gather(draws.Span, draws.Groups, meshes, (in ModelDraw draw) =>
             draw.Target != target ? (Kind.Skip, null)
             : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
             : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true, shadowKinds);
@@ -305,7 +309,7 @@ public sealed class ModelRenderer : IDisposable
         if (_windowFrame != _frames || _windowRing is null)
         {
             GatherFor(0, gfx, draws, meshes, textures, store, shadowKinds: true);
-            (_windowRing, _windowOffset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection));
+            (_windowRing, _windowOffset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw, draw.ViewProjection), draws.Groups);
             _windowBatches.Clear();
             _windowBatches.AddRange(_batches);
             _windowFrame = _frames;
@@ -326,8 +330,9 @@ public sealed class ModelRenderer : IDisposable
     // batches are made and goes after them in its recorded place, joining the batch before it
     // only when that batch is translucent and shares its mesh and set. The depth pass of a shadow
     // reads no color and keeps no order. With cullBackFaces, a single-sided draw is batched apart,
-    // for the pipeline that leaves its back faces out.
-    private void Gather(ReadOnlySpan<ModelDraw> draws, GpuMeshes meshes, Classify classify,
+    // for the pipeline that leaves its back faces out. Each group of finished instances is a batch
+    // of its own after the opaque draws' batches, classified by its template.
+    private void Gather(ReadOnlySpan<ModelDraw> draws, IReadOnlyList<InstanceGroup> groups, GpuMeshes meshes, Classify classify,
         bool keepOrderOfTranslucent, bool cullBackFaces = false, bool shadowKinds = false)
     {
         var masks = _shadowMaskPipeline is not null;
@@ -357,6 +362,16 @@ public sealed class ModelRenderer : IDisposable
             var culled = cullBackFaces && !draw.DoubleSided;
             var shadow = ShadowOf(draw);
             _drawBatch.Add(kind == Kind.Alone ? AddBatch(mesh, null, i, culled, shadow) : Join(mesh, (draw.Mesh, set, culled, shadow)));
+        }
+
+        for (int g = 0; g < groups.Count; g++)
+        {
+            var group = groups[g];
+            if (group.Count == 0) continue;
+            var (kind, set) = classify(in group.Template);
+            if (kind != Kind.Batched || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
+            var index = AddBatch(mesh, set, -1, cullBackFaces && !group.Template.DoubleSided, ShadowOf(group.Template));
+            _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
         var last = (Mesh: -1, Set: (IDescriptorSet?)null, Culled: false, Shadow: ShadowKind.None);
@@ -390,7 +405,7 @@ public sealed class ModelRenderer : IDisposable
 
     private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, bool culled, ShadowKind shadow)
     {
-        _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = custom, Culled = culled, Shadow = shadow, Count = custom >= 0 ? 1u : 0u });
+        _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = custom, Group = -1, Culled = culled, Shadow = shadow, Count = custom >= 0 ? 1u : 0u });
         return _batches.Count - 1;
     }
 
@@ -411,13 +426,13 @@ public sealed class ModelRenderer : IDisposable
 
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
     // instances together, and gives each batch the first of them, counted from the returned offset
-    // in bytes. An instance smaller than the model pass's packs into fewer of the ring's slots.
-    private (IBuffer Ring, ulong Offset) WriteInstances<T>(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<T> instanceOf)
-        where T : unmanaged
+    // in bytes. A group's batch is its instances, copied as they are.
+    private (IBuffer Ring, ulong Offset) WriteInstances(IGraphicsDevice gfx, ReadOnlySpan<ModelDraw> draws, InstanceOf<Instance> instanceOf,
+        IReadOnlyList<InstanceGroup> groups)
     {
         uint total = 0;
         foreach (var batch in _batches) total += batch.Count;
-        var slots = (int)((total * (uint)Marshal.SizeOf<T>() + Instance.Size - 1) / Instance.Size);
+        var slots = (int)total;
         EnsureInstanceRoom(gfx, slots);
 
         var offset = (ulong)(_ringSlot * _ringCapacity + _ringCursor) * Instance.Size;
@@ -433,13 +448,15 @@ public sealed class ModelRenderer : IDisposable
             first += batch.Count;
         }
 
-        var instances = MemoryMarshal.Cast<byte, T>(gfx.Map(_instanceRing!)[(int)offset..]);
+        var instances = MemoryMarshal.Cast<byte, Instance>(gfx.Map(_instanceRing!)[(int)offset..]);
         for (int i = 0; i < _drawBatch.Count; i++)
         {
             var b = _drawBatch[i];
             if (b < 0) continue;
             instances[(int)_filled[b]++] = instanceOf(in draws[i]);
         }
+        foreach (var batch in _batches)
+            if (batch.Group >= 0) groups[batch.Group].Span.CopyTo(instances[(int)batch.First..]);
         return (_instanceRing!, offset);
     }
 

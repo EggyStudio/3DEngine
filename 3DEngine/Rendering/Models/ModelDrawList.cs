@@ -49,9 +49,38 @@ public sealed class ModelDrawList
 {
     private readonly object _gate = new();
     private readonly List<ModelDraw> _draws = [];
+    private readonly List<InstanceGroup> _groups = [];
 
     /// <summary>The meshes recorded this frame, in recording order.</summary>
     public IReadOnlyList<ModelDraw> Draws => _draws;
+
+    /// <summary>The runs of finished instances recorded this frame, which mesh entities fill.</summary>
+    internal IReadOnlyList<InstanceGroup> Groups => _groups;
+
+    /// <summary>Whether nothing is recorded this frame, neither a draw nor a group.</summary>
+    public bool IsEmpty => _draws.Count == 0 && _groups.Count == 0;
+
+    /// <summary>
+    /// The camera the first mesh drawn into the window was recorded through, a draw before a group,
+    /// which the shadow's cascades are fitted to, or null when nothing is drawn into the window.
+    /// </summary>
+    internal Matrix4x4? WindowViewProjection
+    {
+        get
+        {
+            foreach (var draw in Span)
+                if (draw.Target == 0) return draw.ViewProjection;
+            foreach (var group in _groups)
+                if (group.Count > 0 && group.Template.Target == 0) return group.Template.ViewProjection;
+            return null;
+        }
+    }
+
+    /// <summary>Records a group of instances for the frame, drawn as one batch of the group's mesh and maps.</summary>
+    internal void AddGroup(InstanceGroup group)
+    {
+        lock (_gate) _groups.Add(group);
+    }
 
     /// <summary>The same draws as a span, which the model pass reads by reference, since each is about 200 bytes.</summary>
     internal ReadOnlySpan<ModelDraw> Span => CollectionsMarshal.AsSpan(_draws);
@@ -68,31 +97,45 @@ public sealed class ModelDrawList
         lock (_gate) _draws.AddRange(draws);
     }
 
-    private int _appendStart;
-
-    /// <summary>
-    /// Room for up to <paramref name="max"/> draws written in place, so a system recording tens of
-    /// thousands copies each once. The list's lock is held until <see cref="EndAppend"/>, which
-    /// the same thread calls in a <c>finally</c>.
-    /// </summary>
-    internal Span<ModelDraw> BeginAppend(int max)
-    {
-        Monitor.Enter(_gate);
-        _appendStart = _draws.Count;
-        CollectionsMarshal.SetCount(_draws, _appendStart + max);
-        return CollectionsMarshal.AsSpan(_draws).Slice(_appendStart, max);
-    }
-
-    /// <summary>Keeps the first <paramref name="written"/> of the draws <see cref="BeginAppend"/> made room for, and releases the lock.</summary>
-    internal void EndAppend(int written)
-    {
-        CollectionsMarshal.SetCount(_draws, _appendStart + written);
-        Monitor.Exit(_gate);
-    }
-
     /// <summary>Forgets every recorded mesh.</summary>
     public void Clear()
     {
-        lock (_gate) _draws.Clear();
+        lock (_gate)
+        {
+            _draws.Clear();
+            _groups.Clear();
+        }
+    }
+}
+
+/// <summary>
+/// Instances of one mesh that share their maps, sides and alpha mode, each written whole where it
+/// is recorded, so the model pass copies them into its ring as they are and draws them as one batch.
+/// </summary>
+/// <remarks>
+/// Mesh entities are recorded this way, tens of thousands a frame, where a <see cref="ModelDraw"/>
+/// of about 200 bytes each, sorted into batches again by the pass, cost more than the rest of
+/// their frame (RENDERING.md section 6). A group is kept by its recorder from frame to frame and
+/// filled again each frame, and the draw list holds it until the list is cleared.
+/// </remarks>
+internal sealed class InstanceGroup
+{
+    /// <summary>What every instance shares: the mesh, the maps, the sides, the alpha mode and the camera. Its world matrix and factors are unused.</summary>
+    public ModelDraw Template;
+
+    /// <summary>The instances, of which the first <see cref="Count"/> are this frame's.</summary>
+    public ModelRenderer.Instance[] Instances = new ModelRenderer.Instance[64];
+
+    /// <summary>How many instances this frame holds.</summary>
+    public int Count;
+
+    /// <summary>This frame's instances.</summary>
+    public ReadOnlySpan<ModelRenderer.Instance> Span => Instances.AsSpan(0, Count);
+
+    /// <summary>The next instance to write, grown into when the array is full.</summary>
+    public ref ModelRenderer.Instance Next()
+    {
+        if (Count == Instances.Length) Array.Resize(ref Instances, Instances.Length * 2);
+        return ref Instances[Count++];
     }
 }

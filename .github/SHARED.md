@@ -45,7 +45,7 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (README.md, Behaviors) | taken at `91f0f793`, with E3D008 for a parameter it cannot hand over |
+| A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (`49ea5eb`) | taken at `91f0f793`, with E3D008 for a parameter it cannot hand over |
 | One table of the attributes a generator accepts, and a test that compiles and runs a use of each | has (`deb1b79`) | has (`9bfd44e3`) |
 | Diagnostics for a behavior or a command written wrongly | has (`BevyCSharp.Generator/BehaviorDiagnostics.cs`) | has (E3D001 to E3D006) |
 | Fixes for those diagnostics offered in an editor | to take | has (`3DEngine.CodeFixes`, `c6b529d4`) |
@@ -103,6 +103,6 @@ table also answers whether the two agree.
 | A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
-| A version whose patch counts commits since the owner last set the major and minor | to take, in progress | has (`609bd859`) |
-| A package made by a workflow run by hand, after tests on Linux and Windows | to take, in progress | has (`22c766be`) |
+| A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
+| A package made by a workflow run by hand, after tests on Linux and Windows | taken at `88954d5` | has (`22c766be`) |
 | Graphics run under a validation layer in CI, an error failing the run | does not apply, since wgpu validates for Bevy | has (`a2e19d7c`) |

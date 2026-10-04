@@ -27,9 +27,10 @@ namespace Engine;
 /// <para>
 /// Each entity's draw is kept from frame to frame and built again only when its mesh or material
 /// differs from what it was built from, a texture it names was still loading, or a texture or
-/// mesh was replaced. A frame
-/// otherwise takes the kept draw with the entity's world matrix and the camera, which halves what
-/// a frame of tens of thousands of entities costs (RENDERING.md section 6).
+/// mesh was replaced. An opaque entity's instance is then written straight into the
+/// <see cref="InstanceGroup"/> of its mesh and maps, from the kept instance with the frame's
+/// world matrix and camera, and the model pass copies each group as it is and draws it as one
+/// batch (RENDERING.md section 6).
 /// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
@@ -46,21 +47,51 @@ public sealed class MeshEntityDraws
     // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
     private readonly Dictionary<Vector4, Color> _colors = [];
 
-    // Each entity's draw as last built, by entity id, with the world matrix and camera left to the
-    // frame. A kept draw of an older generation was built before a texture or mesh was replaced.
+    // Each entity's look as last found, by entity id. A kept look of an older generation was found
+    // before the looks were forgotten. Twelve bytes, since a frame reads every entity's.
     private Kept[] _kept = [];
     private int _generation = 1;
+    private long _frame;
 
     private struct Kept
     {
-        public ModelDraw Draw;
-        // The material the draw was built from, compared rather than relying on change marks,
-        // since a material replaced by Add marks none.
-        public Material Material;
         public int Generation;
-        // A texture it names was still loading, so the next frame builds it again.
-        public bool Pending;
+        public int Mesh;
+        public int Look;
     }
+
+    // Each mesh and material entities are drawn with, built once: the draw with the world matrix
+    // and camera left to the frame, the instance with the material's factors, and the group it is
+    // written into. Entities share a few, so the comparison each makes a frame reads one already in
+    // the cache, where a draw and a material kept for each entity cost a frame several misses each.
+    private Look[] _looks = new Look[16];
+    private int _lookCount;
+    private readonly Dictionary<(int Mesh, Material Material), int> _lookOf = [];
+
+    private struct Look
+    {
+        // Compared rather than relying on change marks, since a material replaced by Add marks none.
+        public Material Material;
+        public ModelDraw Draw;
+        public ModelRenderer.Instance Instance;
+        // Its group in _groups, or -1 for a translucent draw.
+        public int Group;
+        // A texture it names was still loading, so it is built again on a later frame.
+        public bool Pending;
+        public long Built;
+    }
+
+    // The groups opaque entities are written into, by what their instances share, kept from frame
+    // to frame.
+    private readonly List<InstanceGroup> _groups = [];
+    private readonly Dictionary<GroupKey, int> _groupOf = [];
+
+    private readonly record struct GroupKey(int Mesh, int Texture, int NormalMap, int MetallicRoughnessMap, int EmissiveMap,
+        int OcclusionMap, bool DoubleSided, MaterialAlphaMode AlphaMode);
+
+    // A look or a group past this many is a sign of materials made anew each frame, as a color
+    // that flashes, and every look and group is forgotten rather than kept growing.
+    private const int MaxLooks = 4096;
 
     /// <summary>How many meshes are uploaded for entities.</summary>
     public int MeshCount => _meshes.Count;
@@ -83,6 +114,7 @@ public sealed class MeshEntityDraws
         world.TryGetResource<Assets<Texture>>(out var assets);
         ForgetReloadedTextures(world, textures);
 
+        _frame++;
         _seen.Clear();
         _translucent.Clear();
         _sorted.Clear();
@@ -97,43 +129,53 @@ public sealed class MeshEntityDraws
             // The stores once, rather than a lookup by type for each entity.
             var globals = ecs.GetStorePublic<GlobalTransform>();
             var locals = ecs.GetStorePublic<Transform>();
-            // The opaque draws are written into the draw list where they land, and the translucent
-            // ones added after, sorted.
-            var opaque = draws.BeginAppend(ecs.Count<Mesh>());
-            var written = 0;
-            try
+            foreach (var group in _groups) group.Count = 0;
+            foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
             {
-                foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
+                var entity = row.Entity;
+                ref readonly var mesh = ref row.C1;
+                if (mesh.Positions is not { Length: >= 3 }) continue;
+
+                if (!ReferenceEquals(mesh.Positions, lastPositions))
                 {
-                    var entity = row.Entity;
-                    ref readonly var mesh = ref row.C1;
-                    if (mesh.Positions is not { Length: >= 3 }) continue;
-
-                    if (!ReferenceEquals(mesh.Positions, lastPositions))
-                    {
-                        lastPositions = mesh.Positions;
-                        _seen.Add(mesh.Positions);
-                        if (!_meshes.TryGetValue(mesh.Positions, out id))
-                            _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
-                    }
-
-                    if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
-                    ref var kept = ref _kept[entity];
-                    if (kept.Generation != _generation || kept.Pending || kept.Draw.Mesh != id || !kept.Material.Equals(row.C2))
-                        kept = Build(id, row.C2, assets, textures);
-
-                    var placed = globals.TryGet(entity, out var global) ? global.Matrix
-                        : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
-                        : Matrix4x4.Identity;
-                    if (kept.Draw.IsTranslucent)
-                        _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), kept.Draw with { World = placed, ViewProjection = viewProjection }));
-                    else opaque[written++] = kept.Draw with { World = placed, ViewProjection = viewProjection };
+                    lastPositions = mesh.Positions;
+                    _seen.Add(mesh.Positions);
+                    if (!_meshes.TryGetValue(mesh.Positions, out id))
+                        _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
                 }
+
+                if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
+                ref var kept = ref _kept[entity];
+                if (kept.Generation != _generation || kept.Mesh != id || !_looks[kept.Look].Material.Equals(row.C2))
+                    kept = new Kept { Generation = _generation, Mesh = id, Look = LookFor(id, row.C2, assets, textures) };
+                ref var look = ref _looks[kept.Look];
+                if (look.Pending && look.Built != _frame) look = Build(id, look.Material, assets, textures);
+
+                var placed = globals.TryGet(entity, out var global) ? global.Matrix
+                    : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
+                    : Matrix4x4.Identity;
+                if (look.Group < 0)
+                {
+                    _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), look.Draw with { World = placed, ViewProjection = viewProjection }));
+                    continue;
+                }
+
+                // As ModelRenderer.Instance.Of writes them, the factors kept.
+                ref var instance = ref _groups[look.Group].Next();
+                instance = look.Instance;
+                instance.Transform = placed * viewProjection;
+                instance.WorldX = new Vector4(placed.M11, placed.M21, placed.M31, placed.M41);
+                instance.WorldY = new Vector4(placed.M12, placed.M22, placed.M32, placed.M42);
+                instance.WorldZ = new Vector4(placed.M13, placed.M23, placed.M33, placed.M43);
             }
-            finally
+
+            foreach (var group in _groups)
             {
-                draws.EndAppend(written);
+                if (group.Count == 0) continue;
+                group.Template = group.Template with { ViewProjection = viewProjection };
+                draws.AddGroup(group);
             }
+            if (_lookCount > MaxLooks || _groups.Count > MaxLooks) Forget();
 
             _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
             foreach (var (_, draw) in _translucent) _sorted.Add(draw);
@@ -148,12 +190,33 @@ public sealed class MeshEntityDraws
                 meshes.Remove(_meshes[positions]);
                 _meshes.Remove(positions);
             }
-            _generation++;
+            Forget();
         }
     }
 
-    // An entity's draw from its material, with the world matrix and camera left for the frame.
-    private Kept Build(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
+    // Forgets every look and group, after a mesh or texture they name was replaced or once there
+    // are too many, and with them every entity's kept look, which is found again on its next frame.
+    // The groups recorded this frame stay in the draw list until it is cleared.
+    private void Forget()
+    {
+        _lookCount = 0;
+        _lookOf.Clear();
+        _groups.Clear();
+        _groupOf.Clear();
+        _generation++;
+    }
+
+    // The look of a mesh and material, built the first time an entity is drawn with them.
+    private int LookFor(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
+    {
+        if (_lookOf.TryGetValue((mesh, material), out var index)) return index;
+        if (_lookCount == _looks.Length) Array.Resize(ref _looks, _looks.Length * 2);
+        _looks[_lookCount] = Build(mesh, material, assets, textures);
+        return _lookOf[(mesh, material)] = _lookCount++;
+    }
+
+    // A look from a material, its draw with the world matrix and camera left for the frame.
+    private Look Build(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
     {
         var pending = false;
         int Texture(Handle<Texture> handle)
@@ -183,7 +246,25 @@ public sealed class MeshEntityDraws
             AlphaCutoff: material.AlphaCutoff,
             TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
             DoubleSided: material.DoubleSided);
-        return new Kept { Draw = draw, Material = material, Generation = _generation, Pending = pending };
+        return new Look
+        {
+            Material = material,
+            Draw = draw,
+            Instance = ModelRenderer.Instance.Of(draw, Matrix4x4.Identity),
+            Group = draw.IsTranslucent ? -1 : GroupOf(draw),
+            Pending = pending,
+            Built = _frame,
+        };
+    }
+
+    // The group of an opaque draw's mesh, maps, sides and alpha mode, made the first time one is drawn.
+    private int GroupOf(in ModelDraw draw)
+    {
+        var key = new GroupKey(draw.Mesh, draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap,
+            draw.OcclusionMap, draw.DoubleSided, draw.AlphaMode);
+        if (_groupOf.TryGetValue(key, out var index)) return index;
+        _groups.Add(new InstanceGroup { Template = draw });
+        return _groupOf[key] = _groups.Count - 1;
     }
 
     // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
@@ -241,7 +322,7 @@ public sealed class MeshEntityDraws
             if (events[i].Kind is not (AssetEventKind.Modified or AssetEventKind.Removed)) continue;
             if (!_textures.Remove(events[i].Id, out var id)) continue;
             if (id != 0) textures.Remove(id);
-            _generation++;
+            Forget();
         }
     }
 

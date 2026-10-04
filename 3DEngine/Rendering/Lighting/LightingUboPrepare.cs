@@ -104,16 +104,8 @@ public sealed class LightingUboPrepare : IPrepareSystem
         }
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
-        (System.Numerics.Matrix4x4, float)[] cascades = [];
-        var drawn = false;
-        foreach (var draw in draws.Draws)
-        {
-            if (draw.Target != 0) continue;
-            drawn = true;
-            if (sun >= 0) cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[sun].Direction, distance);
-            break;
-        }
-        if (!drawn) return null;
+        if (draws.WindowViewProjection is not { } camera) return null;
+        (System.Numerics.Matrix4x4, float)[] cascades = sun >= 0 ? ShadowFit.FitCascades(camera, lights.All[sun].Direction, distance) : [];
         if (cascades.Length == 0) sun = -1;
 
         // The spot lights share the spot tile, so each one's texels are as wide as its share of it.

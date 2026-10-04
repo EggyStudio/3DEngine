@@ -384,7 +384,7 @@ The same runs after the three changes below:
 A search ends within about 3 percent of where a frame leaves the budget, and runs differ by more
 than that, so the arms' count above the one without them is noise rather than a gain.
 
-The three largest costs as first measured, in order, each with what changed:
+The largest costs as they were measured, in order, each with what changed:
 
 1. **An animated mesh's vertices go into a buffer created for them each frame.** `UpdateMeshVertices`
    queues the skinned vertices, and `GpuMeshes` creates, allocates and maps a vertex buffer for them
@@ -458,6 +458,20 @@ The three largest costs as first measured, in order, each with what changed:
    the list's lock. It took 4.5 ms in place of 8.0 ms. The same run afterward held 66,859 entities
    in place of 45,923, with `MeshEntityDraws` at 8.0 ms and the shadow pass, which gathers and
    writes the window's instances, recording for 7.1 ms, about 120 and 105 nanoseconds an entity.
+5. **Each mesh entity was a draw of about 200 bytes, sorted into batches again by the pass.**
+   `MeshEntityDraws` copied each entity's kept draw with its world matrix into the draw list, and
+   the first pass of the frame looked up each draw's material set, joined it to its batch and
+   wrote its instance from it.
+   **Changed.** An opaque entity's instance is written whole by `MeshEntityDraws` into an
+   `InstanceGroup`, one for each mesh, set of maps, sides and alpha mode, which the draw list
+   carries beside its draws and the pass copies as it is and draws as one batch. An entity keeps
+   12 bytes naming a look, one for each mesh and material in use, which holds the draw, the
+   instance's factors and the group, so the material each entity is compared with is in the
+   cache. Measured one run after the other on a machine busy with other work, the run without arms
+   held 145,873 entities in place of 72,937, with the shadow pass recording for 1.9 ms in place of
+   7.4 ms and `MeshEntityDraws` at 12.0 ms, about 82 nanoseconds an entity, most of what a frame
+   costs. Timed alone over 100,000 entities, reading the entity's `Transform` or `GlobalTransform`
+   and making its matrix took about 30 nanoseconds of that and writing its instance about 18.
 
 ## What the engine needs
 
