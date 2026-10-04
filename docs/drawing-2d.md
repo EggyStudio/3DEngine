@@ -58,7 +58,7 @@ DrawText(message, (GetScreenWidth() - width) / 2, 200, 40, Color.Maroon);
 ```
 
 The default font is baked at the size it is drawn at, so it stays crisp. Fonts loaded from files,
-characters past Latin-1 and text drawn turned are in the cheatsheet's [Text and fonts](../CHEATSHEET.md#text-and-fonts) section.
+characters past Latin-1 and text drawn turned are on the [Text and fonts](text-and-fonts.md) page.
 
 ## Splines
 

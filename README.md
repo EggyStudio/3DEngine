@@ -153,6 +153,9 @@ example that runs. Its pages are being written, and this list grows with them.
 | [The window and the frame](https://github.com/EggyStudio/3DEngine/blob/main/docs/window-and-frame.md) | Opening a window, the loop, time, the window's state and ImGui in the frame |
 | [Drawing in 2D](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-2d.md) | Shapes, colors, text, splines, a 2D camera and collision |
 | [Drawing in 3D and cameras](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-3d-and-cameras.md) | 3D shapes, moving a camera, projections, picking and drawing into a texture |
+| [Textures and images](https://github.com/EggyStudio/3DEngine/blob/main/docs/textures-and-images.md) | Loading and drawing textures, filtering, editing images, sprites and many sprites |
+| [Text and fonts](https://github.com/EggyStudio/3DEngine/blob/main/docs/text-and-fonts.md) | The default font, fonts from files, other scripts, typed text and distance field fonts |
+| [Models and animation](https://github.com/EggyStudio/3DEngine/blob/main/docs/models-and-animation.md) | Loading and generating models, terrain, skeletal animation, a sky and instancing |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

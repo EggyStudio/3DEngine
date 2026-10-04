@@ -156,3 +156,4 @@ camera entity in the ECS draws the scene's mesh entities into a texture the same
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras) and
   [3D shapes](../CHEATSHEET.md#3d-shapes)
 - Previous: [Drawing in 2D](drawing-2d.md)
+- Next: [Textures and images](textures-and-images.md)

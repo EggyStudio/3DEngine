@@ -29,7 +29,7 @@ public static class TextFontSdf
 
             DrawTextEx(font, Message, new Vector2((GetScreenWidth() - size.X) / 2, (GetScreenHeight() - size.Y) / 2 - 40), fontSize, 0, Color.Black);
             DrawTextEx(sdf, "Both fonts are baked at 32 pixels", new Vector2(20, 330), 20, 0, Color.DarkGray);
-            DrawTextEx(useSdf ? sdf : plain, useSdf ? "Distance field, drawn sharp" : "Coverage, scaled and blurred", new Vector2(20, 360), 32, 0,
+            DrawTextEx(useSdf ? sdf : plain, useSdf ? "Distance field, one bake at every size" : "Coverage, baked again at each size", new Vector2(20, 360), 32, 0,
                 useSdf ? Color.DarkGreen : Color.Maroon);
             DrawText($"Size {fontSize:0}, mouse wheel to change, hold space for the coverage font", 20, 410, 20, Color.Gray);
 
