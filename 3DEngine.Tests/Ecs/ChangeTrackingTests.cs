@@ -221,4 +221,53 @@ public class ChangeTrackingTests
         foreach (var row in ecs.QueryRef<Transform>().Added<Transform>()) visited.Add(row.Entity);
         visited.Should().Equal(fresh);
     }
+
+    [Fact]
+    public void A_System_Sees_A_Removal_And_A_Despawn_Once()
+    {
+        var ecs = new EcsWorld();
+        long lastRun = 0;
+        List<int> Look()
+        {
+            var outer = ChangeTicks.Enter(lastRun, out var tick);
+            try { return ecs.Removed<Health>(); }
+            finally { ChangeTicks.Leave(outer); lastRun = tick; }
+        }
+
+        var kept = ecs.Spawn();
+        var stripped = ecs.Spawn();
+        var gone = ecs.Spawn();
+        foreach (var entity in new[] { kept, stripped, gone }) ecs.Add(entity, new Health());
+        Look().Should().BeEmpty();
+
+        ecs.Remove<Health>(stripped);
+        ecs.Despawn(gone);
+        Look().Should().Equal(stripped, gone);
+        Look().Should().BeEmpty("each removal is seen once");
+    }
+
+    [Fact]
+    public void Removals_Are_Forgotten_After_A_Second_Of_Frames()
+    {
+        var ecs = new EcsWorld();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Health());
+        ecs.BeginFrame();
+        ecs.Remove<Health>(entity);
+
+        // A system that last ran before the removal sees it within the kept frames, and not after.
+        var before = ChangeTicks.Latest - 1;
+        List<int> SeenBy(long since)
+        {
+            var outer = ChangeTicks.Enter(since, out _);
+            try { return ecs.Removed<Health>(); }
+            finally { ChangeTicks.Leave(outer); }
+        }
+
+        for (int i = 0; i < EcsWorld.RemovalFrames - 1; i++) ecs.BeginFrame();
+        SeenBy(before).Should().Equal(entity);
+        ecs.BeginFrame();
+        ecs.BeginFrame();
+        SeenBy(before).Should().BeEmpty();
+    }
 }

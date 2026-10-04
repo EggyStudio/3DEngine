@@ -74,5 +74,7 @@ public sealed partial class EcsWorld
         bool Changed(int entity);
         /// <summary>Whether <paramref name="entity"/> got its component in this store since the reader last looked, not having had one.</summary>
         bool Added(int entity);
+        /// <summary>Forgets the removals at or before tick <paramref name="before"/>.</summary>
+        void PruneRemovals(long before);
     }
 }

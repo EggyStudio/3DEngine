@@ -27,6 +27,8 @@ internal sealed class SparseSet<T>
     private long[] _changedTicks = Array.Empty<long>();
     // The tick each component was added at, when its entity did not have one before.
     private long[] _addedTicks = Array.Empty<long>();
+    // The entities that lost a component, with the tick it went at, oldest first, until pruned.
+    private readonly List<(int Entity, long Tick)> _removed = [];
     private long _latestChange;
     private int[] _sparse = Array.Empty<int>();
     private int _count;
@@ -307,6 +309,7 @@ internal sealed class SparseSet<T>
 
         _sparse[entity] = -1;
         _count--;
+        _removed.Add((entity, ChangeTicks.ForWrite));
         return true;
     }
 
@@ -334,7 +337,21 @@ internal sealed class SparseSet<T>
 
         _sparse[entity] = -1;
         _count--;
+        _removed.Add((entity, ChangeTicks.ForWrite));
         return true;
+    }
+
+    /// <summary>Every entity that lost its component after tick <paramref name="since"/>, oldest first, into <paramref name="into"/>.</summary>
+    public void RemovedSince(long since, List<int> into)
+    {
+        foreach (var (entity, tick) in _removed)
+            if (tick > since) into.Add(entity);
+    }
+
+    /// <summary>Forgets the removals at or before tick <paramref name="before"/>.</summary>
+    public void PruneRemovals(long before)
+    {
+        if (_removed.Count > 0 && _removed[0].Tick <= before) _removed.RemoveAll(r => r.Tick <= before);
     }
 
     /// <summary>Returns the dense array index for <paramref name="entity"/>, or <c>-1</c> if not present.</summary>

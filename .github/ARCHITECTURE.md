@@ -105,7 +105,9 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   a high frame rate, or more often. Code outside a system, as a program's own between
   `BeginDrawing` and `EndDrawing`, sees what changed since the ECS's frame began in `First`.
   `Added<T>(entity)` and the `Added` filter compare the tick the component was added at the same
-  way, when its entity did not have one before, whether through `Add` or `Update`.
+  way, when its entity did not have one before, whether through `Add` or `Update`. `Removed<T>()`
+  lists the entities that lost a `T`, by `Remove` or a despawn, in the same window, from a log
+  each store keeps for 60 frames.
   `GetReadOnly<T>` and `QueryReadOnly` of one, two or three components read by reference without
   marking, and physics writes a body's `Transform` only when its pose moved. A behavior method
   marks its component unless it is `readonly`. Transform propagation in `Render` recomputes only

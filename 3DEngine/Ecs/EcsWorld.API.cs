@@ -131,7 +131,22 @@ public sealed partial class EcsWorld
     {
         _currentTick++;
         _frame.Start = ChangeTicks.Advance();
+
+        // Removals are kept for RemovalFrames frames, which a system running less often than
+        // that misses.
+        var oldest = _frameStarts[_frameStartNext];
+        _frameStarts[_frameStartNext] = _frame.Start;
+        _frameStartNext = (_frameStartNext + 1) % RemovalFrames;
+        if (oldest == 0) return;
+        var list = _storeList;
+        for (int i = 0; i < list.Count; i++) list[i].PruneRemovals(oldest);
     }
+
+    /// <summary>How many frames a removal is kept for <see cref="Removed{T}"/>, a second at 60 frames a second.</summary>
+    public const int RemovalFrames = 60;
+
+    private readonly long[] _frameStarts = new long[RemovalFrames];
+    private int _frameStartNext;
 
     /// <summary>The <see cref="ChangeTicks"/> tick the current frame began at.</summary>
     public long FrameStart => _frame.Start;
@@ -243,6 +258,22 @@ public sealed partial class EcsWorld
     {
         var store = GetStore<T>(create: false);
         return store != null && store.Added(entity);
+    }
+
+    /// <summary>
+    /// The entities that lost component <typeparamref name="T"/>, by <see cref="Remove{T}(int)"/> or
+    /// a despawn, since the running system last ran, or outside a system, since the frame began,
+    /// oldest first. An id may already name a new entity.
+    /// </summary>
+    /// <remarks>
+    /// Removals are kept for <see cref="RemovalFrames"/> frames, so a system that runs less often
+    /// than that misses the older ones.
+    /// </remarks>
+    public List<int> Removed<T>()
+    {
+        var removed = new List<int>();
+        GetStore<T>(create: false)?.Removed(removed);
+        return removed;
     }
 
     /// <summary>Attempts to read component <typeparamref name="T"/> from an entity.</summary>

@@ -74,6 +74,15 @@ public sealed partial class EcsWorld
         /// </summary>
         public bool Added(int entity) => _set.AddedSince(entity, Since);
 
+        /// <summary>
+        /// Adds to <paramref name="into"/> every entity that lost this component since the running
+        /// system last ran, or outside a system, since the frame began, oldest first.
+        /// </summary>
+        public void Removed(List<int> into) => _set.RemovedSince(Since, into);
+
+        /// <inheritdoc />
+        public void PruneRemovals(long before) => _set.PruneRemovals(before);
+
         /// <summary>Whether any component in the store changed since the running system last ran, or outside a system, since the frame began.</summary>
         public bool AnyChanged() => _set.AnyChangedSince(Since);
 
