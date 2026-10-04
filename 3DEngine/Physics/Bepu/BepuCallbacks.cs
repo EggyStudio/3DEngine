@@ -88,6 +88,43 @@ internal sealed class BodyMaterials
     }
 }
 
+/// <summary>
+/// The pairs of bodies a joint holds together, which do not collide, since a joint already decides
+/// how they move, and an axle inside its wheel would otherwise rub against it.
+/// </summary>
+internal sealed class JoinedPairs
+{
+    private readonly Dictionary<ulong, int> _pairs = [];
+    private readonly Dictionary<int, ulong> _byJoint = [];
+
+    private static ulong Key(int a, int b) => a < b ? ((ulong)(uint)a << 32) | (uint)b : ((ulong)(uint)b << 32) | (uint)a;
+
+    public void Add(int joint, int a, int b)
+    {
+        var key = Key(a, b);
+        _byJoint[joint] = key;
+        _pairs[key] = _pairs.GetValueOrDefault(key) + 1;
+    }
+
+    public void Remove(int joint)
+    {
+        if (!_byJoint.Remove(joint, out var key)) return;
+        if (--_pairs[key] <= 0) _pairs.Remove(key);
+    }
+
+    /// <summary>Forgets the joints of a destroyed body, which went with it.</summary>
+    public void RemoveBody(int body)
+    {
+        foreach (var (joint, key) in _byJoint.ToArray())
+            if ((int)(key >> 32) == body || (int)(uint)key == body) Remove(joint);
+    }
+
+    // Read by the narrow phase's workers, while nothing adds or removes, which happens between steps.
+    public bool Has(CollidableReference a, CollidableReference b) =>
+        _pairs.Count > 0 && a.Mobility != CollidableMobility.Static && b.Mobility != CollidableMobility.Static
+        && _pairs.ContainsKey(Key(a.BodyHandle.Value, b.BodyHandle.Value));
+}
+
 /// <summary>Which body handles are characters, whose contacts the narrow phase gives no friction.</summary>
 internal sealed class CharacterFlags
 {
@@ -118,6 +155,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public CharacterFlags? Characters;
     public TriggerFlags? Triggers;
     public BodyMaterials? Materials;
+    public JoinedPairs? Joined;
     private Simulation? _simulation;
 
     /// <summary>The gap in world units below which a contact counts as touching.</summary>
@@ -136,7 +174,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b,
         ref float speculativeMargin)
-        => a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic;
+        => (a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic) && Joined?.Has(a, b) != true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB) => true;
@@ -151,8 +189,12 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         // is slippery under rubber.
         var frictionA = Materials?.Of(pair.A, Friction, Restitution).Friction ?? Friction;
         var frictionB = Materials?.Of(pair.B, Friction, Restitution).Friction ?? Friction;
+        // Bepu shares a convex manifold's friction among its contacts, so a box resting on four
+        // corners slid as if a quarter as rough, and the coefficient is scaled by the count to
+        // hold back the weight times the friction, as the coefficient means.
+        var contacts = manifold.Convex ? Math.Max(1, manifold.Count) : 1;
         pairMaterial.FrictionCoefficient = Characters is not null && (Characters.Is(pair.A) || Characters.Is(pair.B)) ? 0
-            : MathF.Sqrt(frictionA * frictionB);
+            : MathF.Sqrt(frictionA * frictionB) * contacts;
         pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
         pairMaterial.SpringSettings = ContactSpringiness;
 

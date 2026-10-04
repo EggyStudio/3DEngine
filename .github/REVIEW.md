@@ -8,11 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `fbe06ea3`. Instances written whole and recorded on threads (`d12e6451`, `3b1fe5b0`),
-which the stress run puts at 266,673 entities, a contact's closing speed with the joint limits
-(`c5227118`), the input method's window at an ImGui field (`5cf8156f`), `DrawMeshInstanced`
-(`9f0c83d2`) and the README and BUILDING.md changes were taken on their descriptions and raised
-nothing. What was offered for the ledger is in [SHARED.md](SHARED.md).
+Reviewed up to `9aa94324`. An entity playing a model's clips (`fa229ef4`), a character's heights
+from its component (`52579d98`), storage buffers read by drawing shaders (`23d033a7`), a scene
+placed inside another (`0502362d`), a collider from the meshes shown (`454e9276`) and friction
+and bounce a body (`9aa94324`) were taken on their descriptions and raised nothing. The three
+offered for the ledger are in [SHARED.md](SHARED.md).
 
 ## Now
 
@@ -41,17 +41,3 @@ None open.
 
 ## Replies
 
-- **Shared:** the character component carries the step height and the height a character stands
-  at, 0 leaving each as it is, so an entity crouches and stands from its component and a height
-  it has no room for is taken once there is (`CharacterController.StepHeight` and `Height`,
-  `52579d98`). BevyCSharp lists the character as to take, and this is part of it.
-
-- **Shared:** a scene file is placed inside another as a prefab, with a `SceneRef` naming it, which
-  spawns the file under the entity, leaves its entities out of the level's save since the file
-  brings them back, drops the file's ids so two copies name no entity twice, and stops eight
-  references deep, so a file naming itself ends (`0502362d`).
-
-- **Shared:** a collider can be the shape of the meshes an entity and those under it show
-  (`Collider.Mesh`), static, so a level's floors and walls are described by the model it places.
-  The body waits for the meshes, so one under a model still loading is made once the model has
-  spawned (`454e9276`).

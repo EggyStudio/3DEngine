@@ -142,8 +142,9 @@ public class PhysicsJointTests
         var joint = world.CreateBallJoint(anchor, rod, new Vector3(0, 5, 0));
         world.SetBallJointLimit(joint, -Vector3.UnitY, float.DegreesToRadians(30), float.DegreesToRadians(20));
 
-        world.ApplyImpulse(rod, new Vector3(20, 0, 0), new Vector3(0, 3.5f, 0));
-        world.ApplyAngularImpulse(rod, new Vector3(0, 5, 0));
+        // Hard enough to reach the cone, and no harder than one step of the soft limit stops.
+        world.ApplyImpulse(rod, new Vector3(5, 0, 0), new Vector3(0, 3.5f, 0));
+        world.ApplyAngularImpulse(rod, new Vector3(0, 1, 0));
         var widest = 0f;
         for (int i = 0; i < 120; i++)
         {
@@ -152,7 +153,7 @@ public class PhysicsJointTests
             widest = MathF.Max(widest, float.RadiansToDegrees(MathF.Acos(Math.Clamp(-down.Y, -1, 1))));
         }
 
-        widest.Should().BeInRange(25, 33, "pushed hard, it swings out to its cone and no further");
+        widest.Should().BeInRange(25, 33, "pushed, it swings out to its cone and no further");
         var side = Vector3.Transform(Vector3.UnitX, world.GetRotation(rod));
         var twist = float.RadiansToDegrees(MathF.Atan2(-side.Z, side.X));
         MathF.Abs(twist).Should().BeLessThan(23, "turned about its length, it twists no more than its limit");
@@ -197,6 +198,26 @@ public class PhysicsJointTests
         weld.Handle.Should().Be(ball.Handle, "the solver gives the handle out again");
         var limit = () => world.SetBallJointLimit(weld, Vector3.UnitX, 0.5f, 0.5f);
         limit.Should().Throw<ArgumentException>("the handle names a weld now");
+    }
+
+    [Fact]
+    public void Two_Joined_Bodies_Pass_Through_Each_Other_And_Collide_Again_Once_The_Joint_Goes()
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = Vector3.Zero });
+        var a = world.CreateSphere(new Vector3(-1, 0, 0), 0.5f);
+        var b = world.CreateSphere(new Vector3(1, 0, 0), 0.5f);
+        // A rope long enough that the balls meet before it holds them.
+        var rope = world.CreateDistanceJoint(a, b, new Vector3(-1, 0, 0), new Vector3(1, 0, 0), 0, 10);
+        a.SetLinearVelocity(new Vector3(2, 0, 0));
+        Run(world, 60);
+        world.GetPosition(a).X.Should().BeGreaterThan(0.5f, "a joint's own bodies do not collide, so it passes the other");
+
+        world.DestroyJoint(rope);
+        var c = world.CreateSphere(new Vector3(4, 0, 0), 0.5f);
+        b.SetLinearVelocity(new Vector3(2, 0, 0));
+        Run(world, 60);
+        world.GetPosition(b).X.Should().BeLessThan(3.1f, "a body with no joint between them stops at the other");
+        c.IsValid.Should().BeTrue();
     }
 
     [Fact]

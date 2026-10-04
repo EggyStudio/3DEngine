@@ -41,6 +41,9 @@ public sealed partial class PhysicsWorld
 
     private readonly Dictionary<int, HingeParts> _hinges = [];
 
+    // The bodies each joint holds, which do not collide with each other.
+    private readonly JoinedPairs _joined = new();
+
     // What a ball joint needs to be limited: its bodies and the limits set on it.
     private sealed class BallParts
     {
@@ -276,6 +279,7 @@ public sealed partial class PhysicsWorld
             Remove(ref ball.Swing);
             Remove(ref ball.Twist);
         }
+        _joined.Remove(joint.Handle);
         if (joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle)))
             Simulation.Solver.Remove(new ConstraintHandle(joint.Handle));
     }
@@ -294,6 +298,8 @@ public sealed partial class PhysicsWorld
         // forgotten here, before the new joint's are kept.
         _hinges.Remove(handle);
         _balls.Remove(handle);
+        _joined.Remove(handle);
+        _joined.Add(handle, a.Handle.Value, b.Handle.Value);
         return new PhysicsJoint(handle);
     }
 

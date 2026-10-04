@@ -55,7 +55,7 @@ public class BodyMaterialTests
 
         var ice = Slide(0.02f);
         ice.Should().BeGreaterThan(7, "on ice it keeps most of its speed for two seconds");
-        Slide(1).Should().BeLessThan(ice * 0.7f, "on rubber it stops well short of that");
+        Slide(1).Should().BeLessThan(1.5f, "on rubber it stops within the 1.3 units a friction of 1 allows from 5 a second");
     }
 
     [Fact]
