@@ -70,6 +70,47 @@ public class BehaviorGeneratorTests
     }
 
     [Fact]
+    public void A_Filter_On_A_Type_No_Entity_Can_Have_Is_Reported_On_The_Method()
+    {
+        var (result, _) = Generate("""
+            using Engine;
+            public interface IThing { }
+            public static class Helpers { }
+            [Behavior]
+            public struct Picky
+            {
+                [OnUpdate, With(typeof(IThing))] public void Never(BehaviorContext ctx) { }
+                [OnUpdate, Without(typeof(Helpers))] public void Nor(BehaviorContext ctx) { }
+                [OnUpdate, With(typeof(Transform))] public void Fine(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Where(d => d.Id == "E3D005").Select(d => d.GetMessage())
+            .Should().HaveCount(2).And.Contain(m => m.Contains("an interface")).And.Contain(m => m.Contains("a static class"));
+        result.Compile.Should().BeEmpty("the reported methods are left out");
+    }
+
+    [Fact]
+    public void A_Field_Holding_A_Reference_Is_Warned_Of_And_A_String_Is_Not()
+    {
+        var (result, _) = Generate("""
+            using Engine;
+            [Behavior]
+            public struct Holder
+            {
+                public System.Collections.Generic.List<int> Shared;
+                public string Name;
+                public int Count;
+                [OnUpdate] public void Tick(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Where(d => d.Id == "E3D006").Should().ContainSingle()
+            .Which.GetMessage().Should().Contain("Holder.Shared");
+        result.Compile.Should().BeEmpty();
+    }
+
+    [Fact]
     public void A_Fixed_Update_Method_Registers_On_The_Fixed_Stage()
     {
         var (result, output) = Generate("""

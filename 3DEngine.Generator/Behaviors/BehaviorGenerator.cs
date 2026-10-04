@@ -18,8 +18,9 @@ namespace Engine;
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
 /// and <c>[ToggleKey]</c>. <c>[OnEnter]</c> and <c>[OnExit]</c> stand in for a stage and register
 /// the method on a state transition, and <c>[InState]</c> adds a run condition. A method the
-/// generator cannot call is reported (E3D001 to E3D004) and
-/// left out, so the error is on the method rather than in generated code.
+/// generator cannot call is reported (E3D001 to E3D005) and
+/// left out, so the error is on the method rather than in generated code. A field holding a
+/// reference other than a string is warned of (E3D006), since every copy of the behavior shares it.
 /// </para>
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
@@ -81,6 +82,18 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         "[{0}] on '{1}' must name a value of an enum, such as Screen.Playing",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor BadFilterType = new(
+        "E3D005",
+        "A filter names a type no entity can have",
+        "[{0}(typeof({1}))] on '{2}' names {3}, which no entity can have as a component",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor SharedField = new(
+        "E3D006",
+        "A behavior's field holds a reference",
+        "'{0}.{1}' holds a {2}, which every copy of the behavior shares, so entities run in parallel can change it at once; keep the data in the struct, or in a resource",
+        "Behaviors", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
     /// <summary>Configures syntax providers, collects candidate structs, and registers source outputs.</summary>
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -122,6 +135,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         var ns = type.ContainingNamespace.IsGlobalNamespace ? "Engine" : type.ContainingNamespace.ToDisplayString();
         var methods = new List<StageMethod>();
 
+        // A string is shared too, but nothing can change it.
+        foreach (var field in type.GetMembers().OfType<IFieldSymbol>())
+            if (!field.IsStatic && !field.IsConst && field.Type.IsReferenceType && field.Type.SpecialType != SpecialType.System_String)
+                spc.ReportDiagnostic(Diagnostic.Create(SharedField, field.Locations.FirstOrDefault(),
+                    type.Name, field.Name, field.Type.ToDisplayString()));
+
         foreach (var method in type.GetMembers().OfType<IMethodSymbol>())
         {
             var stages = GetStages(method);
@@ -138,6 +157,12 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 method.Parameters[0].Type.ToDisplayString() != "Engine.BehaviorContext")
             {
                 spc.ReportDiagnostic(Diagnostic.Create(BadSignature, location, method.Name, stages[0]));
+                continue;
+            }
+
+            if (ImpossibleFilter(method) is { } impossible)
+            {
+                spc.ReportDiagnostic(Diagnostic.Create(BadFilterType, location, impossible.Attribute, impossible.Type, method.Name, impossible.Why));
                 continue;
             }
 
@@ -200,6 +225,28 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             BehaviorFqn = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             StageMethods = methods,
         };
+    }
+
+    // The first filter on a method naming a type no store can hold, as an interface, a static class
+    // or an open generic, which would compile and never match.
+    private static (string Attribute, string Type, string Why)? ImpossibleFilter(IMethodSymbol m)
+    {
+        foreach (var a in m.GetAttributes())
+        {
+            var name = a.AttributeClass?.ToDisplayString();
+            if (name is not (With or Without or Changed or Added) || a.ConstructorArguments.Length == 0) continue;
+            foreach (var v in a.ConstructorArguments[0].Values)
+            {
+                if (v.Value is not ITypeSymbol t) continue;
+                var why = t.TypeKind == TypeKind.Interface ? "an interface"
+                    : t.IsStatic ? "a static class"
+                    : t is INamedTypeSymbol { IsUnboundGenericType: true } ? "an open generic type"
+                    : null;
+                if (why is not null)
+                    return (a.AttributeClass!.Name.Replace("Attribute", ""), t.ToDisplayString(), why);
+            }
+        }
+        return null;
     }
 
     /// <summary>Maps a method's attributes to the stages they name.</summary>

@@ -144,8 +144,10 @@ on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleK
 switch it on and off, and when a method has several of these it runs only when all pass.
 `[OnEnter(value)]` and `[OnExit(value)]` take the place of a stage and register the method on a
 state transition. A method with the wrong signature, two stage attributes, a `[RunIf]` naming
-nothing usable or a state attribute whose argument is not an enum value is reported on the method
-(E3D001 to E3D004) and left out of what is generated. `BehaviorContext` resolves the ECS, commands,
+nothing usable, a state attribute whose argument is not an enum value or a filter naming a type no
+entity can have (an interface, a static class, an open generic) is reported on the method (E3D001
+to E3D005) and left out of what is generated. A field holding a reference other than a string is
+warned of (E3D006), since every copy of the behavior shares what it points to. `BehaviorContext` resolves the ECS, commands,
 time and input when it is made, and `ctx.Physics` only when it is read, so behaviors run without
 `PhysicsPlugin`. The generated registrations are
 found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches `source/behaviors`

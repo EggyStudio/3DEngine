@@ -34,10 +34,10 @@ removed from this file, and an item that is partly done is rewritten around what
   `[OnEnter]`, `[OnExit]` and `[InState]` work, and each move is a `StateTransition` event. A
   behavior cannot declare a sub-state or computed state by attribute, so they are added in code,
   and a transition from one value to a particular other (`OnTransition`) has no system of its own.
-- **Diagnostics stop at the method.** The generator reports a wrong signature, two stage
-  attributes, a bad `[RunIf]` and a state attribute without an enum value (E3D001 to E3D004). A
-  filter naming a type that is not a component, and a behavior whose fields hold references, are
-  not reported.
+- **Diagnostics have no fixes.** The generator reports a wrong signature, two stage attributes, a
+  bad `[RunIf]`, a state attribute without an enum value, a filter on a type no entity can have
+  (E3D001 to E3D005) and warns of a field holding a reference (E3D006). None comes with a code fix
+  an editor offers, and the command generator's own diagnostics are not listed beside them.
 
 ## Rendering
 
