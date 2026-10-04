@@ -68,6 +68,28 @@ public sealed class ModelDrawList
         lock (_gate) _draws.AddRange(draws);
     }
 
+    private int _appendStart;
+
+    /// <summary>
+    /// Room for up to <paramref name="max"/> draws written in place, so a system recording tens of
+    /// thousands copies each once. The list's lock is held until <see cref="EndAppend"/>, which
+    /// the same thread calls in a <c>finally</c>.
+    /// </summary>
+    internal Span<ModelDraw> BeginAppend(int max)
+    {
+        Monitor.Enter(_gate);
+        _appendStart = _draws.Count;
+        CollectionsMarshal.SetCount(_draws, _appendStart + max);
+        return CollectionsMarshal.AsSpan(_draws).Slice(_appendStart, max);
+    }
+
+    /// <summary>Keeps the first <paramref name="written"/> of the draws <see cref="BeginAppend"/> made room for, and releases the lock.</summary>
+    internal void EndAppend(int written)
+    {
+        CollectionsMarshal.SetCount(_draws, _appendStart + written);
+        Monitor.Exit(_gate);
+    }
+
     /// <summary>Forgets every recorded mesh.</summary>
     public void Clear()
     {

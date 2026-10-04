@@ -45,7 +45,7 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (README.md, Behaviors) | to take |
+| A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (README.md, Behaviors) | taken at `91f0f793`, with E3D008 for a parameter it cannot hand over |
 | One table of the attributes a generator accepts, and a test that compiles and runs a use of each | has (`deb1b79`) | has (`9bfd44e3`) |
 | Diagnostics for a behavior or a command written wrongly | has (`BevyCSharp.Generator/BehaviorDiagnostics.cs`) | has (E3D001 to E3D006) |
 | Fixes for those diagnostics offered in an editor | to take | has (`3DEngine.CodeFixes`, `c6b529d4`) |
@@ -64,7 +64,7 @@ table also answers whether the two agree.
 |---|---|---|
 | Sub-states and computed states, declared on the enum | has (`16c4c1e`) | has (`eca05448`) |
 | A system run on a move from one value to a particular other | to take | has (`OnTransition`, `3ca94c66`) |
-| An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | to take |
+| An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | taken at `8a96917c` |
 | A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`) | to take |
 
 ### Physics
@@ -91,6 +91,8 @@ table also answers whether the two agree.
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
 | Gamepads | waits on the owner | has |
+| A pointer dragged a step a frame by one command, so a swipe or a window drag registers | to take | has (`input.drag`, `048c072c`) |
+| The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | C# typed at a running app | has in the editor (`eval`) | to take |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
 

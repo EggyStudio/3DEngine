@@ -111,10 +111,21 @@ public struct GlobalTransform
 public static class TransformPropagation
 {
     /// <summary>A transform as a matrix: scale, then rotation, then translation.</summary>
-    public static System.Numerics.Matrix4x4 ToMatrix(in Transform t) =>
-        System.Numerics.Matrix4x4.CreateScale(t.Scale)
-        * System.Numerics.Matrix4x4.CreateFromQuaternion(t.Rotation)
-        * System.Numerics.Matrix4x4.CreateTranslation(t.Position);
+    /// <remarks>
+    /// Built as the product comes out rather than by multiplying three matrices, since every mesh
+    /// entity without a parent has its matrix made this way each frame: the rotation's rows, each
+    /// scaled by its axis, and the position as the last row.
+    /// </remarks>
+    public static System.Numerics.Matrix4x4 ToMatrix(in Transform t)
+    {
+        var m = System.Numerics.Matrix4x4.CreateFromQuaternion(t.Rotation);
+        var s = t.Scale;
+        m.M11 *= s.X; m.M12 *= s.X; m.M13 *= s.X;
+        m.M21 *= s.Y; m.M22 *= s.Y; m.M23 *= s.Y;
+        m.M31 *= s.Z; m.M32 *= s.Z; m.M33 *= s.Z;
+        m.M41 = t.Position.X; m.M42 = t.Position.Y; m.M43 = t.Position.Z;
+        return m;
+    }
 
     /// <summary>The world matrix of <paramref name="entity"/>: its <see cref="GlobalTransform"/>, or its <see cref="Transform"/>, or identity.</summary>
     public static System.Numerics.Matrix4x4 WorldMatrix(EcsWorld ecs, int entity) =>

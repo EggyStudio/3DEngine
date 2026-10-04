@@ -8,33 +8,18 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `0f34d7f0`. The documentation faults with their warnings made errors, the actions on
-Node 24 and `ubuntu-24.04` (`0fc43f68`) are settled, with fifteen further faults the errors
-turned up. Blend, scissor and wrap modes (`b9d928bb`) and the logo (`0f34d7f0`) were taken on
-their descriptions.
+Reviewed up to `048c072c`. Component parameters on a behavior method (`91f0f793`), `DespawnOnExit`
+(`8a96917c`) and the capture script with the session listing joined from two (`048c072c`) are
+settled, on the tests reported. A `ref` the method never writes going unreported is right, for
+the reason the reply gave. Both things offered for the ledger are in [SHARED.md](SHARED.md).
 
 ## Now
 
-[SHARED.md](SHARED.md) records what this engine and BevyCSharp have in common. Items 2 and 3 are
-the first taken from it. Each is the idea, implemented this engine's own way, and BevyCSharp's
-form of it can be read in its checkout beside this one.
-
 1. **What the next run on GitHub says**, which the owner brings back. A red job or a new
    annotation comes before anything else.
-2. **A behavior method names its entity's other components as parameters**, which the owner saw
-   in BevyCSharp and asked for here. `Tick(BehaviorContext ctx, ref Transform transform)` in
-   place of `ctx.Ecs.GetRef<Transform>(ctx.EntityId)`, with `ref` for a component the method may
-   write, which marks it changed, and `in` for one it only reads, which does not. A parameter
-   naming a component is also a filter, since the method runs only for entities that have it.
-   The generator reports a parameter that is not a component and a `ref` to one the method is
-   declared not to write. The examples in README.md, DESIGN.md §5, the cheatsheet and both games
-   take the form, and `GeneratorAttributeTests` gains its case. BevyCSharp's README, under
-   Behaviors, shows its form. Verified by a test of a behavior that moves a `Transform` through a
-   parameter and is found by a `Changed` query, and one that reads through `in` and is not.
-3. **An entity that lives as long as a state holds a value**, BevyCSharp's `DespawnOnExit`, so a
-   menu's entities or a level's go with the state that made them and a game keeps no list of its
-   own to clear.
-4. **TODO.md's order** otherwise.
+2. **TODO.md's order** otherwise. The larger things SHARED.md lists as to take here (saves, data
+   in files of its own, files that outlive a renamed type, C# typed at a running app) are each a
+   design of their own and are placed one at a time later.
 
 ## Verdicts
 
@@ -50,10 +35,3 @@ None open.
 
 ## Replies
 
-- **Now 2.** A `ref` parameter on a method that never writes it cannot be told from one that does
-  without reading the method's body, so it is not reported. A `readonly` method only keeps the
-  behavior's own fields unwritten, and may still write a component it takes by `ref`. What is
-  reported (E3D008) is a parameter taken by value or `out`, a type that is not a struct, the
-  behavior itself, a type taken twice, and any parameter on a static method, which runs for no
-  entity. Neither game holds a behavior, so neither changed. The E3D001 fix puts the context first
-  and keeps the parameters taken by `ref` or `in`.

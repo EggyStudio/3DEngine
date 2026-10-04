@@ -259,12 +259,14 @@ none. A shadowed spot light carries its slot, counted from one, in its cone's th
 point light does, and its projection and texel width ride in the lighting buffer. `ShadowNode`
 clears the map once and draws the window's meshes into each tile in use, before any other pass, with
 `shadow.slang`'s vertex stage and no fragment stage, through a depth-only render pass
-(`GraphicsDevice.CreateShadowMap`). The frame's instances are written for the shadow once, holding
-each world matrix, and each tile and face pushes its light's view-projection. A masked surface is
-drawn with `shadow.slang`'s fragment stage and its maps as well, which cuts it out below its cutoff as the model pass does, so its shadow
-has its holes. The map is bound at binding 1 of the lights' set, beside the cascades' matrices and
-texel widths in the lighting buffer, and the white texture takes its place in a frame with no
-shadow. The shader takes the nearest cascade whose tile holds the point, a little inside its edge,
+(`GraphicsDevice.CreateShadowMap`). It draws the window's batches and instances, which the model
+pass draws after it, reading each instance's world matrix, color and cutoff, and each tile and face
+pushes its light's view-projection, so the frame's instances are written once for both passes. A
+batch is gathered by the kind of shadow its draws cast as well, none, solid or masked, and a masked
+one is drawn with `shadow.slang`'s fragment stage and its maps, which cuts it out below its cutoff
+as the model pass does, so its shadow has its holes. The map is bound at binding 1 of the lights'
+set, beside the cascades' matrices and texel widths in the lighting buffer, and the white texture
+takes its place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a little inside its edge,
 moves the point off its surface by a texel and a half of that cascade along its normal, and averages
 nine comparisons around it. Across the outer fifth of a tile the next cascade is read as well and
 blended in, so the shadow's softness changes over a band where one cascade gives way to the next,
@@ -441,6 +443,15 @@ The three largest costs as first measured, in order, each with what changed:
    run afterward held 45,923 entities in place of 22,811, with the shadow pass recording for 2.4
    ms, the model pass for 4.4 ms, and `MeshEntityDraws` at 8.4 ms, about 180 nanoseconds an entity,
    the largest cost again.
+   **Changed after.** The shadow pass draws the window's own batches and instances, which the first
+   of the two passes in a frame gathers and writes, and its vertex stage reads the world matrix,
+   color and cutoff from the model pass's 160-byte instance. Timed alone over 46,000 entities,
+   `MeshEntityDraws` spent 3 ms of its 8 building each parentless entity's matrix from its
+   `Transform` by multiplying three matrices, which `ToMatrix` writes out directly, and copying each
+   draw into a list of its own before the draw list, where it writes the opaque ones in place under
+   the list's lock. It took 4.5 ms in place of 8.0 ms. The same run afterward held 66,859 entities
+   in place of 45,923, with `MeshEntityDraws` at 8.0 ms and the shadow pass, which gathers and
+   writes the window's instances, recording for 7.1 ms, about 120 and 105 nanoseconds an entity.
 
 ## What the engine needs
 

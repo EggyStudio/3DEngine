@@ -2,11 +2,14 @@
 // and no fragment stage, and a masked one with the fragment stage as well, which cuts it out where
 // the model pass cuts it, so its shadow has the same holes.
 //
-// An instance holds the world matrix and the material's color and alpha mode alone, and the
-// light's view-projection is a push constant, so the frame's instances are written once and drawn
-// through every cascade, spot tile and point face, each pushing its own matrix.
+// The instances are the model pass's own, of which this stage reads the world matrix and the
+// material's color and alpha mode, and the light's view-projection is a push constant, so the
+// window's instances, written once a frame, are drawn through every cascade, spot tile and point
+// face, each pushing its own matrix, and then by the model pass.
 import modelpass;
 
+// The rows of ModelInstance from its world matrix to its emission, which the pipeline reads from
+// the same buffer at their offsets there.
 public struct ShadowInstance
 {
     // The world matrix as three rows of a 3x4, as ModelInstance holds it.

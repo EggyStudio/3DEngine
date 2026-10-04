@@ -39,8 +39,8 @@ public sealed class MeshEntityDraws
     private readonly Dictionary<AssetId, int> _textures = [];
     private readonly List<(float Distance, ModelDraw Draw)> _translucent = [];
 
-    // The frame's opaque draws, handed to the draw list under one lock rather than one each.
-    private readonly List<ModelDraw> _opaque = [];
+    // The frame's translucent draws in order, farthest first, handed to the draw list under one lock.
+    private readonly List<ModelDraw> _sorted = [];
 
     // Each albedo's sRGB bytes, since entities share a few materials and three powers an entity
     // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
@@ -85,7 +85,7 @@ public sealed class MeshEntityDraws
 
         _seen.Clear();
         _translucent.Clear();
-        _opaque.Clear();
+        _sorted.Clear();
         if (_colors.Count > 4096) _colors.Clear();
         if (ecs.Count<Mesh>() > 0 && FirstCamera(world, ecs) is { } camera)
         {
@@ -97,36 +97,47 @@ public sealed class MeshEntityDraws
             // The stores once, rather than a lookup by type for each entity.
             var globals = ecs.GetStorePublic<GlobalTransform>();
             var locals = ecs.GetStorePublic<Transform>();
-            foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
+            // The opaque draws are written into the draw list where they land, and the translucent
+            // ones added after, sorted.
+            var opaque = draws.BeginAppend(ecs.Count<Mesh>());
+            var written = 0;
+            try
             {
-                var entity = row.Entity;
-                ref readonly var mesh = ref row.C1;
-                if (mesh.Positions is not { Length: >= 3 }) continue;
-
-                if (!ReferenceEquals(mesh.Positions, lastPositions))
+                foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
                 {
-                    lastPositions = mesh.Positions;
-                    _seen.Add(mesh.Positions);
-                    if (!_meshes.TryGetValue(mesh.Positions, out id))
-                        _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
+                    var entity = row.Entity;
+                    ref readonly var mesh = ref row.C1;
+                    if (mesh.Positions is not { Length: >= 3 }) continue;
+
+                    if (!ReferenceEquals(mesh.Positions, lastPositions))
+                    {
+                        lastPositions = mesh.Positions;
+                        _seen.Add(mesh.Positions);
+                        if (!_meshes.TryGetValue(mesh.Positions, out id))
+                            _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
+                    }
+
+                    if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
+                    ref var kept = ref _kept[entity];
+                    if (kept.Generation != _generation || kept.Pending || kept.Draw.Mesh != id || !kept.Material.Equals(row.C2))
+                        kept = Build(id, row.C2, assets, textures);
+
+                    var placed = globals.TryGet(entity, out var global) ? global.Matrix
+                        : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
+                        : Matrix4x4.Identity;
+                    if (kept.Draw.IsTranslucent)
+                        _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), kept.Draw with { World = placed, ViewProjection = viewProjection }));
+                    else opaque[written++] = kept.Draw with { World = placed, ViewProjection = viewProjection };
                 }
-
-                if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
-                ref var kept = ref _kept[entity];
-                if (kept.Generation != _generation || kept.Pending || kept.Draw.Mesh != id || !kept.Material.Equals(row.C2))
-                    kept = Build(id, row.C2, assets, textures);
-
-                var placed = globals.TryGet(entity, out var global) ? global.Matrix
-                    : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
-                    : Matrix4x4.Identity;
-                var draw = kept.Draw with { World = placed, ViewProjection = viewProjection };
-                if (draw.IsTranslucent) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
-                else _opaque.Add(draw);
+            }
+            finally
+            {
+                draws.EndAppend(written);
             }
 
             _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
-            foreach (var (_, draw) in _translucent) _opaque.Add(draw);
-            draws.AddRange(CollectionsMarshal.AsSpan(_opaque));
+            foreach (var (_, draw) in _translucent) _sorted.Add(draw);
+            draws.AddRange(CollectionsMarshal.AsSpan(_sorted));
         }
 
         // A mesh no entity drew this frame was despawned or replaced, and its id may be given out again.
