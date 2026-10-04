@@ -70,9 +70,11 @@ from a local pack points a `nuget.config` at the folder, which maps `3DEngine` t
 taken in its place, and `dotnet add package` is given the version, since without one it takes the
 newest version nuget.org lists before the mapping applies.
 
-A release is made by the `pack` workflow, run from the Actions tab on GitHub. It builds, runs the
-tests, packs with `build/pack.sh <version>` and keeps the package as the run's artifact, and with
-its "publish" box ticked pushes it to nuget.org through the `NUGET_API_KEY` secret. The version
+A release is made by the `pack` workflow, run from the Actions tab on GitHub. It runs the tests on
+Linux and Windows through `test.yml`, the same workflow `build.yml` runs on each push, and only
+once both pass packs with `build/pack.sh <version>` and keeps the package as the run's artifact.
+With its "publish" box ticked it pushes the package to nuget.org through the `NUGET_API_KEY`
+secret. The version
 is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `0.1` to `0.2` starts it again at `0.2.0`.
@@ -111,7 +113,7 @@ run from anywhere in the checkout finds it.
 | Windows | SDL3 | Vulkan |
 | macOS | SDL3 | Vulkan through MoltenVK |
 
-Linux is where the engine is developed and tested, and `.github/workflows/build.yml` builds and
-tests it on Ubuntu for every push, drawing on lavapipe. A Windows job builds it and runs the tests
-that need no device, since the runner has no Vulkan device. macOS builds from the same packages
+Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
+`build.yml` runs for every push, builds and tests it on Ubuntu, drawing on lavapipe. Its Windows
+job builds it and runs the tests that need no device, since the runner has no Vulkan device. macOS builds from the same packages
 and is not covered by CI.

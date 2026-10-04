@@ -1,10 +1,9 @@
-# Builds the solution, runs the tests and captures every example on every push and pull request.
+# Tests every push and pull request on Linux and Windows (test.yml), then, on Linux, captures every
+# example offscreen, builds and plays the games from the package, and follows the README.
 #
 # Nothing here needs a GPU or a display. Mesa's lavapipe is a Vulkan device that runs on the CPU,
-# so the render tests draw for real and the examples run with --offscreen, and slangc is fetched
-# so the shaders compile instead of the tests that need them being skipped. The Khronos validation
-# layer runs under both, since a Debug build enables it when it is installed, and an error it
-# reports fails the render test or the example that caused it.
+# so the examples run with --offscreen, and slangc is fetched so the shaders compile. The Khronos
+# validation layer runs under them, and an error it reports fails the example whose log holds it.
 name: build
 
 # The README is not ignored, since the walk below follows its steps.
@@ -16,6 +15,10 @@ on:
 
 jobs:
   test:
+    uses: ./.github/workflows/test.yml
+
+  examples:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,16 +39,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
 
       - run: dotnet build 3DEngine.slnx
-
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
-        env:
-          E3D_REQUIRE_VALIDATION: '1'
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-results
-          path: 3DEngine.Tests/TestResults/
 
       # Each example opened with no window, captured once it is up, and closed, then its session
       # log checked for validation errors, which counts the teardown too. Every example is
@@ -110,34 +103,3 @@ jobs:
         with:
           name: example-captures
           path: captures/
-
-  # The engine's other desktop platform. A Windows runner has no Vulkan device, so the render and
-  # capture tests skip themselves with the reason, and this job finds path separators, line
-  # endings and native library names in everything else.
-  windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-
-      - uses: actions/cache@v4
-        with:
-          path: build/tools/slang
-          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.ps1') }}
-
-      - run: build/fetch-slang.ps1
-        shell: pwsh
-
-      - run: dotnet build 3DEngine.slnx
-
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-results-windows
-          path: 3DEngine.Tests/TestResults/
-

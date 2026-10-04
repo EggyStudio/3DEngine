@@ -177,10 +177,10 @@ what is left.
 
 ### Build and release
 
-- **CI draws on Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and the
-  validation layer and captures every example offscreen on Ubuntu, and builds and runs the tests
-  that need no device on Windows. The Windows job has not run yet, nothing draws there, and macOS
-  has no job.
+- **CI draws on Linux only.** `.github/workflows/test.yml` builds and tests with lavapipe and the
+  validation layer on Ubuntu, and builds and runs the tests that need no device on Windows.
+  `build.yml` runs it on each push and then captures every example offscreen, and `pack.yml` runs it
+  before packing. Nothing draws on Windows, and macOS has no job.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
   adds components and writes their fields, and a game adds commands with `[Command]`, but C#

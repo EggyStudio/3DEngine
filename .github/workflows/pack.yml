@@ -1,5 +1,6 @@
-# Builds, tests and packs the engine when run from the Actions tab ("Run workflow"), and pushes the
-# package to nuget.org when asked to.
+# Tests the engine on Linux and Windows (test.yml), then packs it, when run from the Actions tab
+# ("Run workflow"), and pushes the package to nuget.org when asked to. Nothing is packed unless both
+# test jobs pass.
 #
 # The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
 # commits since that file last changed. The package and its symbols are kept as the run's artifact
@@ -15,7 +16,11 @@ on:
         default: false
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   pack:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       # The whole history, since the patch counts commits.
@@ -34,19 +39,9 @@ jobs:
 
       - run: build/fetch-slang.sh
 
-      - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
-
       - name: Work out the version
         id: version
         run: echo "version=$(build/version.sh)" >> "$GITHUB_OUTPUT"
-
-      # A package is made only from a commit whose tests pass.
-      - run: dotnet build 3DEngine.slnx
-
-      - run: dotnet test 3DEngine.Tests --no-build
-        env:
-          E3D_REQUIRE_VALIDATION: '1'
 
       - run: build/pack.sh "${{ steps.version.outputs.version }}"
 

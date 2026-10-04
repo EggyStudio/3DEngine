@@ -1,0 +1,74 @@
+# Builds the solution and runs the tests on Linux and Windows, for the workflows that call it:
+# build.yml on every push, and pack.yml before it packs, so a package is made only from a commit
+# that passes on both.
+#
+# Linux draws for real: Mesa's lavapipe is a Vulkan device that runs on the CPU, and slangc is
+# fetched so the shaders compile instead of the tests that need them being skipped. The Khronos
+# validation layer runs, since a Debug build enables it when it is installed, and an error it
+# reports fails the render test that caused it. A Windows runner has no Vulkan device, so there the
+# render and capture tests skip themselves with the reason, and the job finds path separators,
+# line endings, file locking and native library names in everything else.
+name: test
+
+on:
+  workflow_call:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # The pinned Slang release, cached by its version so it downloads once.
+      - uses: actions/cache@v4
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
+
+      - run: dotnet build 3DEngine.slnx
+
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+        env:
+          E3D_REQUIRE_VALIDATION: '1'
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-linux
+          path: 3DEngine.Tests/TestResults/
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v4
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.ps1') }}
+
+      - run: build/fetch-slang.ps1
+        shell: pwsh
+
+      - run: dotnet build 3DEngine.slnx
+
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-windows
+          path: 3DEngine.Tests/TestResults/
