@@ -21,10 +21,9 @@ removed from this file, and an item that is partly done is rewritten around what
   groups the pass copies into its ring on several threads, and each view draws the blocks of 64
   instances it sees. A frame holds about 321,000, of which `MeshEntityDraws` takes 4.8 ms and the
   copy 3.0 ms, while the GPU takes 6.6 ms. A culled block is still written into the ring, and an
-  entity whose transform has not changed is written again each frame. Each `DrawTexture` costs
-  about 55 nanoseconds, which writing four vertices for a quad in place of six did not change
-  measurably, so the draw list's lock is the next part to time, and the GPU draws 186,000 sprites
-  in 5.1 ms.
+  entity whose transform has not changed is written again each frame. A frame holds about 243,000
+  sprites, each `DrawTexture` about 48 nanoseconds with the example's loop, the upload 3.0 ms and
+  the GPU 6.3 ms, so what is left is shared between the three.
 
 ### The flat API
 

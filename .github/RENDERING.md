@@ -459,6 +459,15 @@ The largest costs as they were measured, in order, each with what changed:
    the search ended at 133,774 sprites without the indices and 127,018 with them, which is within
    what such a run varies by. `DrawTexture` took about 84 nanoseconds a sprite in both, so writing
    the two vertices was not its cost, and the upload took 11.7 nanoseconds a sprite in place of 14.5.
+   **Changed after.** Timed alone, recording a quad took 57 nanoseconds, of which the lock, taken
+   and released, was about 30. The draw list now takes it only while a schedule runs a batch of
+   systems on several threads, the one time two threads can record at once, and a quad writes its
+   four vertices through one span and its six indices straight into the open batch, without the
+   loop over offsets the other shapes go through. Timed alone, a quad took 18 nanoseconds and a
+   `DrawTexture` 24 in place of 44. Run one after the other on 2026-10-04, the search ended at
+   154,043 sprites before, 170,258 with the lock alone left out and 243,226 with both, where the
+   drawing calls took 11.7 ms, about 48 nanoseconds a sprite with the example's loop, the upload
+   3.0 ms and the GPU 6.3 ms.
 4. **The shadow pass wrote every instance again for each cascade.** Measured again later in the
    day on the same machine, after point lights and a fourth tile had been added, the run without
    arms held 22,811 entities, with the shadow pass recording for 6.4 ms, the model pass for 4.9 ms

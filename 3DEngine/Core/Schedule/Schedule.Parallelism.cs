@@ -2,6 +2,14 @@ namespace Engine;
 
 public sealed partial class Schedule
 {
+    private static int _parallelBatches;
+
+    /// <summary>
+    /// Whether any schedule is running a batch of systems on several threads, the one time the
+    /// engine's own code can be called from two threads at once.
+    /// </summary>
+    internal static bool RunningInParallel => Volatile.Read(ref _parallelBatches) > 0;
+
     /// <summary>Marks a stage for parallel execution (default). Pass <c>false</c> to run single-threaded.</summary>
     /// <param name="stage">The <see cref="Stage"/> to configure.</param>
     /// <param name="parallel"><c>true</c> (default) for parallel execution; <c>false</c> for sequential.</param>

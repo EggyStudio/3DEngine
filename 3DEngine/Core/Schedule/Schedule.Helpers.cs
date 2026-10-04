@@ -68,7 +68,15 @@ public sealed partial class Schedule
                 continue;
             }
 
-            Parallel.ForEach(batch, desc => ExecuteSystem(stage, desc, world));
+            Interlocked.Increment(ref _parallelBatches);
+            try
+            {
+                Parallel.ForEach(batch, desc => ExecuteSystem(stage, desc, world));
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _parallelBatches);
+            }
         }
     }
 

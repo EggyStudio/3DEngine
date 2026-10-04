@@ -45,13 +45,35 @@ public readonly record struct ScissorRect(int X, int Y, int Width, int Height);
 /// which a sprite, a glyph and a rectangle all are.
 /// </para>
 /// <para>
-/// Recording takes a lock, because a system calling a <c>Draw</c> function may run on a worker
-/// thread in a parallel stage. The order of two systems' shapes within a stage is then not fixed.
+/// Recording takes a lock while a stage runs systems on several threads, since a system calling a
+/// <c>Draw</c> function may then run on a worker, and the order of two systems' shapes within the
+/// stage is not fixed. Outside one no lock is taken, as it was half of what recording a sprite
+/// cost, so a program drawing from a thread of its own, outside the schedule, is not covered,
+/// as raylib's drawing is not.
 /// </para>
 /// </remarks>
 public sealed class DrawList
 {
     private readonly object _gate = new();
+
+    // Holds the lock while systems run in parallel, and nothing otherwise.
+    private Guard Enter() => new(Schedule.RunningInParallel ? _gate : null);
+
+    private readonly ref struct Guard
+    {
+        private readonly object? _gate;
+
+        public Guard(object? gate)
+        {
+            _gate = gate;
+            if (gate is not null) Monitor.Enter(gate);
+        }
+
+        public void Dispose()
+        {
+            if (_gate is not null) Monitor.Exit(_gate);
+        }
+    }
     private ImmediateVertex[] _vertices = new ImmediateVertex[4096];
     private int _count;
     private uint[] _indices = new uint[6144];
@@ -98,7 +120,7 @@ public sealed class DrawList
     /// <summary>Lays the following shapes over what is there by <paramref name="blend"/>.</summary>
     public void SetBlend(BlendMode blend)
     {
-        lock (_gate)
+        using (Enter())
         {
             Blend = blend;
             Close();
@@ -108,7 +130,7 @@ public sealed class DrawList
     /// <summary>Keeps the following shapes to <paramref name="scissor"/>, or to the whole target for null.</summary>
     public void SetScissor(ScissorRect? scissor)
     {
-        lock (_gate)
+        using (Enter())
         {
             Scissor = scissor;
             Close();
@@ -122,7 +144,7 @@ public sealed class DrawList
     /// </summary>
     public void SetShader(int shader, ShaderParams parameters, byte[]? uniforms = null, int[]? textures = null)
     {
-        lock (_gate)
+        using (Enter())
         {
             Shader = shader;
             Params = parameters;
@@ -140,7 +162,7 @@ public sealed class DrawList
     /// <summary>Sends the following shapes to render target <paramref name="target"/>, or 0 for the window.</summary>
     public void SetTarget(int target)
     {
-        lock (_gate)
+        using (Enter())
         {
             Target = target;
             Close();
@@ -154,14 +176,14 @@ public sealed class DrawList
     /// </summary>
     public void UseTarget(int target, Color clear)
     {
-        lock (_gate)
+        using (Enter())
             if (target != 0) _targetClears.TryAdd(target, clear);
     }
 
     /// <summary>Sets the color the current render target is cleared to before it is drawn this frame.</summary>
     public void SetTargetClear(Color color)
     {
-        lock (_gate)
+        using (Enter())
             if (Target != 0) _targetClears[Target] = color;
     }
 
@@ -176,7 +198,7 @@ public sealed class DrawList
     {
         get
         {
-            lock (_gate)
+            using (Enter())
             {
                 Close();
                 return _batches;
@@ -187,7 +209,7 @@ public sealed class DrawList
     /// <summary>Sets the transform and depth mode the following shapes are recorded with.</summary>
     public void SetTransform(Matrix4x4 transform, bool depthTest)
     {
-        lock (_gate)
+        using (Enter())
         {
             Transform = transform;
             DepthTest = depthTest;
@@ -198,7 +220,7 @@ public sealed class DrawList
     /// <summary>Records a line.</summary>
     public void Line(Vector3 from, Vector3 to, Color color)
     {
-        lock (_gate)
+        using (Enter())
         {
             var at = Reserve(PrimitiveTopology.LineList, 2, 0);
             _vertices[at] = new ImmediateVertex(from, default, color);
@@ -210,7 +232,7 @@ public sealed class DrawList
     /// <summary>Records a triangle. Both faces are drawn, so the winding does not matter.</summary>
     public void Triangle(Vector3 a, Vector3 b, Vector3 c, Color color)
     {
-        lock (_gate)
+        using (Enter())
         {
             var at = Reserve(PrimitiveTopology.TriangleList, 3, 0);
             _vertices[at] = new ImmediateVertex(a, default, color);
@@ -223,7 +245,7 @@ public sealed class DrawList
     /// <summary>Records a triangle with a color at each corner, blended across it, as a gradient is drawn.</summary>
     public void Triangle(Vector3 a, Color colorA, Vector3 b, Color colorB, Vector3 c, Color colorC)
     {
-        lock (_gate)
+        using (Enter())
         {
             var at = Reserve(PrimitiveTopology.TriangleList, 3, 0);
             _vertices[at] = new ImmediateVertex(a, default, colorA);
@@ -236,14 +258,15 @@ public sealed class DrawList
     /// <summary>Records a quad as two triangles over its four corners, given in order around its edge.</summary>
     public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color)
     {
-        lock (_gate)
+        using (Enter())
         {
             var at = Reserve(PrimitiveTopology.TriangleList, 4, 0);
-            _vertices[at] = new ImmediateVertex(a, default, color);
-            _vertices[at + 1] = new ImmediateVertex(b, default, color);
-            _vertices[at + 2] = new ImmediateVertex(c, default, color);
-            _vertices[at + 3] = new ImmediateVertex(d, default, color);
-            Index(at, 0, 1, 2, 0, 2, 3);
+            var corners = _vertices.AsSpan(at, 4);
+            corners[0] = new ImmediateVertex(a, default, color);
+            corners[1] = new ImmediateVertex(b, default, color);
+            corners[2] = new ImmediateVertex(c, default, color);
+            corners[3] = new ImmediateVertex(d, default, color);
+            QuadIndices(at);
         }
     }
 
@@ -254,21 +277,22 @@ public sealed class DrawList
     public void TexturedQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d,
         Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD, Color tint, int texture)
     {
-        lock (_gate)
+        using (Enter())
         {
             var at = Reserve(PrimitiveTopology.TriangleList, 4, texture);
-            _vertices[at] = new ImmediateVertex(a, uvA, tint);
-            _vertices[at + 1] = new ImmediateVertex(b, uvB, tint);
-            _vertices[at + 2] = new ImmediateVertex(c, uvC, tint);
-            _vertices[at + 3] = new ImmediateVertex(d, uvD, tint);
-            Index(at, 0, 1, 2, 0, 2, 3);
+            var corners = _vertices.AsSpan(at, 4);
+            corners[0] = new ImmediateVertex(a, uvA, tint);
+            corners[1] = new ImmediateVertex(b, uvB, tint);
+            corners[2] = new ImmediateVertex(c, uvC, tint);
+            corners[3] = new ImmediateVertex(d, uvD, tint);
+            QuadIndices(at);
         }
     }
 
     /// <summary>Forgets every recorded shape, and returns to drawing in screen space.</summary>
     public void Clear()
     {
-        lock (_gate)
+        using (Enter())
         {
             _count = 0;
             _indexCount = 0;
@@ -288,7 +312,7 @@ public sealed class DrawList
     }
 
     // Grows the vertex array for the vertices of a shape and returns where they start. The batch is
-    // opened or extended by Index, which counts what it draws. Called under the lock.
+    // opened or extended by Index, which counts what it draws. Called inside Enter.
     private int Reserve(PrimitiveTopology topology, int vertices, int texture)
     {
         if (_count + vertices > _vertices.Length)
@@ -303,8 +327,30 @@ public sealed class DrawList
     private PrimitiveTopology _reservedTopology;
     private int _reservedTexture;
 
+    // A quad's six indices, written out where the open batch takes them rather than through
+    // Index's loop over offsets, since quads are most of what is drawn. Called inside Enter, after
+    // Reserve.
+    private void QuadIndices(int at)
+    {
+        if (_indexCount + 6 <= _indices.Length && _open && _openTopology == _reservedTopology && _openTexture == _reservedTexture)
+        {
+            var indices = _indices.AsSpan(_indexCount, 6);
+            var first = (uint)at;
+            indices[0] = first;
+            indices[1] = first + 1;
+            indices[2] = first + 2;
+            indices[3] = first;
+            indices[4] = first + 2;
+            indices[5] = first + 3;
+            _indexCount += 6;
+            _openCount += 6;
+            return;
+        }
+        Index(at, 0, 1, 2, 0, 2, 3);
+    }
+
     // Appends a shape's indices, relative to its first vertex at, and extends or opens the batch they
-    // belong to. Called under the lock, after Reserve.
+    // belong to. Called inside Enter, after Reserve.
     private void Index(int at, params ReadOnlySpan<int> offsets)
     {
         var count = offsets.Length;
@@ -349,7 +395,7 @@ public sealed class DrawList
         _openCount = count;
     }
 
-    // Writes the open batch's count into the list. Called under the lock.
+    // Writes the open batch's count into the list. Called inside Enter.
     private void Close()
     {
         if (!_open) return;
