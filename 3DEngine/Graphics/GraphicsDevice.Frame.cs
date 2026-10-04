@@ -15,7 +15,7 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkWaitForFences(_inFlightFences[_currentFrame], true, ulong.MaxValue).CheckResult();
 
         // After the fence signals, the GPU has finished reading staging buffers from this slot's
-        // previous frame - safe to dispose them now.
+        // previous frame, so they are disposed now.
         FlushDeferredStagingBuffers(_currentFrame);
 
         uint imageIndex;
@@ -28,7 +28,7 @@ public sealed unsafe partial class GraphicsDevice
 
         if (result == VkResult.ErrorOutOfDateKHR)
         {
-            Logger.Warn("Swapchain out-of-date during image acquisition - triggering resize and retry.");
+            Logger.Warn("Swapchain out of date while acquiring an image, so it is resized and the acquire retried.");
             OnResize();
             return BeginFrameInternal(clearColor);
         }
@@ -106,18 +106,18 @@ public sealed unsafe partial class GraphicsDevice
 
         if (presentResult == VkResult.ErrorOutOfDateKHR)
         {
-            // Swapchain is unusable - must rebuild now.
-            Logger.Warn("Swapchain out-of-date during present - triggering resize.");
+            // The swapchain cannot be used, so it is rebuilt now.
+            Logger.Warn("Swapchain out of date while presenting, so it is resized.");
             OnResize();
         }
         else if (presentResult == VkResult.SuboptimalKHR)
         {
             // Swapchain still works but isn't ideal (e.g. mid-drag on Linux).
-            // Let it ride - the next coalesced ResizeEvent or a future
+            // It is left as it is. The next coalesced ResizeEvent or a future
             // ErrorOutOfDateKHR will trigger a rebuild at the right time.
             if (!_suboptimalLogged)
             {
-                Logger.Debug("Swapchain suboptimal during present - deferring resize.");
+                Logger.Debug("Swapchain suboptimal while presenting, so its resize waits.");
                 _suboptimalLogged = true;
             }
         }

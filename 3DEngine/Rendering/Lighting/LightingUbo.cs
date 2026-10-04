@@ -113,7 +113,7 @@ public static class LightingUboPacker
 {
     /// <summary>
     /// Hard cap on the number of analytic lights the lighting UBO carries per frame.
-    /// Matches the array size compiled into the engine-side struct - shaders should
+    /// Matches the array size compiled into the engine-side struct, and shaders should
     /// declare a matching constant. Picked to fit comfortably within a single 16 KiB
     /// uniform buffer (16 lights of 64 bytes and a 304-byte header, about 1.3 KiB).
     /// </summary>

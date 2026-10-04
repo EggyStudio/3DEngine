@@ -70,6 +70,6 @@ public sealed partial class Schedule
         SetSingleThreaded(Stage.Startup);
         SetSingleThreaded(Stage.Render);
         SetSingleThreaded(Stage.Cleanup);
-        Logger.Trace("Schedule created - all stages initialized, Startup, Render, and Cleanup stages set to single-threaded.");
+        Logger.Trace("Schedule created, every stage initialized, and Startup, Render and Cleanup set to one thread.");
     }
 }

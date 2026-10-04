@@ -12,10 +12,10 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// <b>Why a class, not a system:</b> spawning is request-driven (load asset, then spawn
-/// once). Wrapping the algorithm in a synchronous helper keeps it usable from anywhere -
-/// startup behaviors, editor UI, tests - while <see cref="SceneSpawnSystem"/> is a thin
-/// driver that just polls for <see cref="SpawnSceneRequest"/> intent components and calls
-/// the spawner when their <see cref="Handle{T}"/> resolves.
+/// once). A synchronous helper is usable from anywhere, startup behaviors and tests among
+/// them, while <see cref="SceneSpawnSystem"/> is a thin driver that polls for
+/// <see cref="SpawnSceneRequest"/> components and calls the spawner when their
+/// <see cref="Handle{T}"/> resolves.
 /// </para>
 /// <para>
 /// <b>Coordinate / unit policy:</b> per <see cref="Scene"/>, the reader preserves the
@@ -203,7 +203,7 @@ public static class SceneSpawner
     {
         // A node without any payload is a hierarchy-only group; the v1 spawner doesn't
         // create empty entities for it. (The accumulated transform is still composed for
-        // descendants via parentWorld - we just don't allocate a slot.)
+        // descendants through parentWorld, and no entity is made for it.)
         foreach (var c in node.Components)
             if (c is SceneMeshPayload or SceneCameraPayload or SceneLightPayload or SceneMaterialPayload)
                 return true;
@@ -261,8 +261,8 @@ public static class SceneSpawner
 
             // Per-mesh diagnostic: vertex/tri count, source-space AABB and the final
             // world-space transform position the spawner produced. One pass over
-            // the freshly-built positions array - reveals scale / off-screen /
-            // degenerate-bounds issues immediately without a debugger.
+            // the positions built above, which shows a wrong scale, a mesh off screen or
+            // degenerate bounds without a debugger.
             LogMeshDiagnostics(node, entity, positions, runtimeMaterial.Albedo);
 
             // When no AssetServer was supplied, texture refs lose information silently;
@@ -453,7 +453,7 @@ public static class SceneSpawner
     {
         if (positions.Length == 0)
         {
-            Logger.Warn($"SceneSpawner:   entity {entity} '{node.SourcePath}' - 0 vertices (mesh skipped at render time).");
+            Logger.Warn($"SceneSpawner:   entity {entity} '{node.SourcePath}' has 0 vertices, so its mesh is not drawn.");
             return;
         }
 
@@ -468,7 +468,7 @@ public static class SceneSpawner
         var center = (max + min) * 0.5f;
 
         Logger.Debug(
-            $"SceneSpawner:   entity {entity} '{node.SourcePath}' - " +
+            $"SceneSpawner:   entity {entity} '{node.SourcePath}', " +
             $"verts={positions.Length}, tris={positions.Length / 3}, " +
             $"localAabb=[({min.X:0.##},{min.Y:0.##},{min.Z:0.##})..({max.X:0.##},{max.Y:0.##},{max.Z:0.##})] " +
             $"size=({size.X:0.##},{size.Y:0.##},{size.Z:0.##}) center=({center.X:0.##},{center.Y:0.##},{center.Z:0.##}), " +
@@ -526,8 +526,8 @@ public sealed class SceneSpawnSettings
 
     /// <summary>
     /// Authoring purposes to materialize. Nodes whose <see cref="SceneNode.Purpose"/>
-    /// is not in the mask are skipped (their children still recurse - children may have
-    /// different purposes and the accumulated parent transform is preserved).
+    /// is not in the mask are skipped, and their children are still visited, since a child
+    /// may have another purpose, with the parent's transform carried down.
     /// </summary>
     public ScenePurposeMask IncludePurposes { get; init; } = ScenePurposeMask.Runtime;
 

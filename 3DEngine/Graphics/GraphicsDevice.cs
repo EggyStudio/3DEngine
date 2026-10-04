@@ -78,32 +78,32 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Info("Initializing Vulkan graphics device...");
         var totalSw = Stopwatch.StartNew();
 
-        Logger.Info("Step 1/6: Creating Vulkan instance - loading Vulkan library, setting up validation layers, and creating the VkInstance...");
+        Logger.Info("Step 1/6: Creating Vulkan instance, loading Vulkan library, setting up validation layers, and creating the VkInstance...");
         var sw = Stopwatch.StartNew();
         CreateInstance(appName);
         Logger.Info($"Step 1/6: Vulkan instance created in {sw.ElapsedMilliseconds}ms");
 
-        Logger.Info("Step 2/6: Creating window surface - binding the platform window to Vulkan via VkSurfaceKHR...");
+        Logger.Info("Step 2/6: Creating window surface, binding the platform window to Vulkan via VkSurfaceKHR...");
         sw.Restart();
         if (!_offscreen) CreateSurface();
         Logger.Info($"Step 2/6: Window surface created in {sw.ElapsedMilliseconds}ms");
 
-        Logger.Info("Step 3/6: Selecting physical device - enumerating GPUs, scoring capabilities, and choosing the best adapter...");
+        Logger.Info("Step 3/6: Selecting physical device, enumerating GPUs, scoring capabilities, and choosing the best adapter...");
         sw.Restart();
         SelectPhysicalDevice();
-        Logger.Info($"Step 3/6: Physical device selected in {sw.ElapsedMilliseconds}ms - {_adapterInfo.Name} (Vendor=0x{_adapterInfo.VendorId:X4}, Device=0x{_adapterInfo.DeviceId:X4}, Type={_adapterInfo.DeviceType})");
+        Logger.Info($"Step 3/6: Physical device selected in {sw.ElapsedMilliseconds}ms, {_adapterInfo.Name} (Vendor=0x{_adapterInfo.VendorId:X4}, Device=0x{_adapterInfo.DeviceId:X4}, Type={_adapterInfo.DeviceType})");
 
-        Logger.Info("Step 4/6: Creating logical device - setting up device queues (graphics + present) and enabling required extensions...");
+        Logger.Info("Step 4/6: Creating logical device, setting up device queues (graphics + present) and enabling required extensions...");
         sw.Restart();
         CreateLogicalDevice();
         Logger.Info($"Step 4/6: Logical device created in {sw.ElapsedMilliseconds}ms (graphicsQueue={_graphicsQueueFamily}, presentQueue={_presentQueueFamily})");
 
-        Logger.Info("Step 5/6: Creating swapchain resources - swapchain, image views, depth buffer, render pass, framebuffers, and command pool...");
+        Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer, render pass, framebuffers and command pool)...");
         sw.Restart();
         CreateSwapchainResources();
         Logger.Info($"Step 5/6: Swapchain resources created in {sw.ElapsedMilliseconds}ms ({_swapchainImages.Length} images, {_swapchainExtent.width}x{_swapchainExtent.height}, format={_swapchainFormat})");
 
-        Logger.Info("Step 6/6: Creating synchronization objects - semaphores and fences for frame-in-flight management...");
+        Logger.Info("Step 6/6: Creating synchronization objects, the semaphores and fences of each frame in flight...");
         sw.Restart();
         CreateSyncObjects();
         Logger.Info($"Step 6/6: Sync objects created in {sw.ElapsedMilliseconds}ms ({MaxFramesInFlight} frames-in-flight)");
@@ -113,13 +113,13 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         for (int i = 0; i < MaxFramesInFlight; i++)
             _deferredStagingBuffers[i] = new List<IBuffer>();
 
-        Logger.Info("Creating descriptor resources - descriptor set layouts and descriptor pool for uniform buffers and samplers...");
+        Logger.Info("Creating descriptor resources, the descriptor set layouts and descriptor pool for uniform buffers and samplers...");
         sw.Restart();
         CreateDescriptorResources();
         Logger.Info($"Descriptor resources created in {sw.ElapsedMilliseconds}ms");
 
         totalSw.Stop();
-        Logger.Info($"Graphics device initialized successfully in {totalSw.ElapsedMilliseconds}ms - {_adapterInfo.Name} (Vendor=0x{_adapterInfo.VendorId:X4}, Device=0x{_adapterInfo.DeviceId:X4}, Type={_adapterInfo.DeviceType})");
+        Logger.Info($"Graphics device initialized in {totalSw.ElapsedMilliseconds}ms, {_adapterInfo.Name} (Vendor=0x{_adapterInfo.VendorId:X4}, Device=0x{_adapterInfo.DeviceId:X4}, Type={_adapterInfo.DeviceType})");
 
         IsInitialized = true;
     }
@@ -134,11 +134,11 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     public void OnResize()
     {
         if (!IsInitialized) return;
-        Logger.Info("Swapchain resize requested - waiting for device idle before recreating...");
+        Logger.Info("Swapchain resize requested, waiting for the device to idle before recreating it...");
         _deviceApi.vkDeviceWaitIdle().CheckResult();
-        Logger.Debug("Device idle - destroying old swapchain resources...");
+        Logger.Debug("Device idle, destroying the old swapchain resources...");
         DestroySwapchainResources();
-        Logger.Debug("Old swapchain resources destroyed - creating new swapchain resources...");
+        Logger.Debug("Old swapchain resources destroyed, creating new ones...");
         CreateSwapchainResources();
         _resizeVersion++;
         _suboptimalLogged = false;
@@ -171,7 +171,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     public void Dispose()
     {
         if (!IsInitialized) return;
-        Logger.Info("Disposing graphics device - waiting for device idle...");
+        Logger.Info("Disposing graphics device, waiting for the device to idle...");
         _deviceApi.vkDeviceWaitIdle();
         DestroyTimestamps();
 

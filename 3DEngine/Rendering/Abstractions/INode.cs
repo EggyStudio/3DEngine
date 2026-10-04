@@ -18,7 +18,7 @@ public interface INode
     /// <param name="renderWorld">The render world containing render resources.</param>
     void Update(RenderWorld renderWorld) { }
 
-    /// <summary>Executes the node's rendering logic - creating render passes, binding pipelines, issuing draw calls.</summary>
+    /// <summary>Runs the node: begins its render passes, binds its pipelines and records its draws.</summary>
     /// <param name="graphContext">Context for accessing slot values and running sub-graphs.</param>
     /// <param name="renderContext">Context wrapping the graphics device, command buffer, and dynamic allocator.</param>
     /// <param name="renderWorld">The render world containing render resources.</param>

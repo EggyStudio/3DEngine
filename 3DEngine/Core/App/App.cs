@@ -14,9 +14,9 @@ namespace Engine;
 /// <para>
 /// The <see cref="Run"/> method executes three phases:
 /// <list type="number">
-///   <item><description><see cref="Stage.Startup"/> - one-time initialization systems.</description></item>
-///   <item><description>Main loop - per-frame stages (<see cref="Stage.First"/> through <see cref="Stage.Last"/>), driven by <see cref="IMainLoopDriver"/>.</description></item>
-///   <item><description><see cref="Stage.Cleanup"/> - teardown and resource disposal.</description></item>
+///   <item><description><see cref="Stage.Startup"/>, the systems that initialize once.</description></item>
+///   <item><description>The main loop, the stages of each frame (<see cref="Stage.First"/> through <see cref="Stage.Last"/>), driven by <see cref="IMainLoopDriver"/>.</description></item>
+///   <item><description><see cref="Stage.Cleanup"/>, teardown and resource disposal.</description></item>
 /// </list>
 /// </para>
 /// </remarks>

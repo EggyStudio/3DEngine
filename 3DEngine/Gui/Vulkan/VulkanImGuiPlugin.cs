@@ -20,17 +20,17 @@ public sealed class VulkanImGuiPlugin : IPlugin
         var cfg = app.World.Resource<Config>();
         if (cfg.Graphics != GraphicsBackend.Vulkan)
         {
-            Logger.Info("VulkanImGuiPlugin: Non-Vulkan backend - skipping.");
+            Logger.Info("VulkanImGuiPlugin: Not a Vulkan backend, so there is nothing to add.");
             return;
         }
 
-        Logger.Info("VulkanImGuiPlugin: Building - will add ImGui render node to Vulkan graph.");
+        Logger.Info("VulkanImGuiPlugin: Adding the ImGui render node to the Vulkan graph.");
 
         app.AddSystem(Stage.Startup, new SystemDescriptor(world =>
             {
                 if (!world.TryGetResource<Renderer>(out var renderer) || !renderer.Context.IsInitialized)
                 {
-                    Logger.Info("No initialized renderer (a headless run) - ImGui render node not added.");
+                    Logger.Info("No initialized renderer (a headless run), so the ImGui render node is not added.");
                     return;
                 }
 

@@ -11,7 +11,7 @@ namespace Engine;
 /// <see cref="Dispose"/>.
 /// </para>
 /// <para>
-/// Only accessed from the render thread - no locking required.
+/// Only the render thread reaches it, so it takes no lock.
 /// </para>
 /// </summary>
 /// <seealso cref="DynamicAllocation"/>
@@ -39,7 +39,7 @@ public sealed partial class DynamicBufferAllocator : IDisposable
         for (int i = 0; i < _framesInFlight; i++)
             _arenas[i] = new FrameArena();
 
-        Logger.Info($"DynamicBufferAllocator created - {_framesInFlight} frame slots.");
+        Logger.Info($"DynamicBufferAllocator created with {_framesInFlight} frame slots.");
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public sealed partial class DynamicBufferAllocator : IDisposable
     {
         foreach (var arena in _arenas)
             arena.DisposeAll();
-        Logger.Debug("DynamicBufferAllocator reset - all backing buffers disposed.");
+        Logger.Debug("DynamicBufferAllocator reset, its backing buffers disposed.");
     }
 
     /// <summary>Disposes all backing buffers across all frame slots. Safe to call multiple times.</summary>

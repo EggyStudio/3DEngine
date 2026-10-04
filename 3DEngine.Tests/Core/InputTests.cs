@@ -5,8 +5,8 @@ namespace Engine.Tests.Common;
 
 /// <summary>
 /// Tests for the <see cref="Input"/> resource.
-/// <c>Input.SetKey</c>, <c>SetMouseButton</c>, etc. are <c>internal</c> - accessible
-/// because Engine.Common declares <c>[InternalsVisibleTo("Engine.Tests")]</c>.
+/// <c>Input.SetKey</c>, <c>SetMouseButton</c>, etc. are <c>internal</c>, and reachable
+/// because the engine declares <c>[InternalsVisibleTo("Engine.Tests")]</c>.
 /// </summary>
 [Trait("Category", "Unit")]
 public class InputTests

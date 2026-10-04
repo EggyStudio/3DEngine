@@ -15,9 +15,9 @@ namespace Engine;
 /// <b>Color space:</b> decoders never apply color-space conversion to pixel data.
 /// They may set <see cref="Texture.ColorSpace"/> from a hint passed in via
 /// <see cref="TextureLoadSettings.ColorSpace"/> or
-/// from format-native metadata (KTX2 / PNG sRGB chunk). Callers - typically
-/// <c>SceneSpawner</c> when materialising a <see cref="SceneMaterialPayload"/> - decide
-/// the semantic role of the texture.
+/// from the format's own metadata (a PNG's sRGB chunk). The caller, usually
+/// <c>SceneSpawner</c> making a <see cref="SceneMaterialPayload"/>'s textures, decides
+/// what the texture is for.
 /// </para>
 /// </remarks>
 /// <seealso cref="TextureDecoderRegistry"/>
@@ -59,8 +59,8 @@ public sealed class TextureLoadSettings
     /// <summary>
     /// When <c>true</c>, the loader runs <see cref="TextureMipGenerator.WithMipChain"/>
     /// over the decoded base level to produce a complete mip chain. Defaults to
-    /// <c>false</c> - the renderer is free to generate mips on upload, and not every
-    /// texture wants them (UI / pixel art / single-sample lookup tables).
+    /// <c>false</c>, since the renderer may make mips on upload, and a texture for an
+    /// interface, pixel art or a lookup table has no use for them.
     /// </summary>
     public bool GenerateMips { get; init; }
 

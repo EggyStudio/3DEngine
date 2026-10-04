@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>
 /// No-op <see cref="IAudioBackend"/>. Returned from <see cref="AudioServer.Backend"/>
 /// when no real backend (SDL3, FMOD, ...) is registered. Exists so gameplay code can
-/// use the audio API unconditionally without null-checking - calls just become silent.
+/// use the audio API with no null checks, its calls making no sound.
 /// </summary>
 /// <remarks>
 /// Mirrors the engine's pattern of failing soft when an optional native dependency is

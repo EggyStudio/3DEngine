@@ -5,10 +5,9 @@ using Xunit;
 namespace Engine.Tests.Assets;
 
 /// <summary>
-/// Tests for <see cref="InMemoryAssetReader"/> - process-wide synthetic asset
-/// store that backs the <c>__embedded__/</c> path scheme used by the glTF and
-/// future USDZ readers when surfacing archive-internal resources to the
-/// extension-dispatched loader pipeline.
+/// Tests for <see cref="InMemoryAssetReader"/>, the store for the whole process behind the
+/// <c>__embedded__/</c> paths the model reader uses to hand files inside a model file to the
+/// loaders, which pick one by extension.
 /// </summary>
 [Trait("Category", "Unit")]
 public class InMemoryAssetReaderTests

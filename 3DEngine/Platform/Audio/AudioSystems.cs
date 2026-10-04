@@ -29,8 +29,8 @@ public static class AudioUpdateSystem
 /// </summary>
 /// <remarks>
 /// Picks the first <c>(Transform, AudioListener)</c> tuple in query order. If no listener
-/// entity is present, the server's existing listener position is left unchanged - useful
-/// for headless / editor setups where audio is muted.
+/// entity is present, the server's listener position is left as it was, which suits a
+/// headless run where audio is muted.
 /// </remarks>
 public static class AudioListenerSystem
 {

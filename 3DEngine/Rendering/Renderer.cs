@@ -50,7 +50,7 @@ public sealed class Renderer : IDisposable
     public void Initialize(World world)
     {
         if (_initialized) return;
-        Logger.Info("Initializing Renderer - setting up diagnostics and render graph...");
+        Logger.Info("Initializing the renderer, its diagnostics and its render graph...");
         var sw = Stopwatch.StartNew();
 
         Diagnostics.Initialize(Context.AdapterInfo);
@@ -225,7 +225,7 @@ public sealed class Renderer : IDisposable
             return;
         }
         // TODO: implement sub-graph execution (own RenderContext, recursive node iteration).
-        Logger.Debug($"Sub-graph '{name}' execution placeholder - not yet implemented.");
+        Logger.Debug($"Sub-graph '{name}' is not run, since sub-graphs are not implemented.");
     }
 
     /// <summary>Syncs the render surface dimensions from the current swapchain extent.</summary>

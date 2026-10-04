@@ -32,7 +32,7 @@ public sealed class InputPlugin : IPlugin
         {
             // A headless or offscreen run has no window to read, and input reaches it only through
             // the console's queue, so this is how such a run starts rather than a fault.
-            Logger.Info("InputPlugin: No IInputBackend resource found - only queued input will arrive.");
+            Logger.Info("InputPlugin: No IInputBackend resource, so only queued input arrives.");
         }
 
         app.AddSystem(Stage.Last, new SystemDescriptor(static world =>

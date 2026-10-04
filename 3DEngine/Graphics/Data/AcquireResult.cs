@@ -7,7 +7,7 @@ public enum AcquireResult
     Success,
     /// <summary>Swapchain is out of date and must be recreated (e.g., window resize).</summary>
     OutOfDate,
-    /// <summary>Image acquired but swapchain is suboptimal - recreation recommended.</summary>
+    /// <summary>The image was acquired, but the swapchain is suboptimal and is better recreated.</summary>
     Suboptimal,
     /// <summary>Acquisition failed due to an unrecoverable error.</summary>
     Error

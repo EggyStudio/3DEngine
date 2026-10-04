@@ -63,7 +63,7 @@ public enum Key
 
     /// <summary>
     /// ISO keyboards use this code instead of 49 for the same key. Most OSes treat both
-    /// identically - prefer <see cref="Backslash"/> unless your keyboard generates both.
+    /// alike, so <see cref="Backslash"/> is the one to use unless a keyboard sends both.
     /// </summary>
     NonUshash = 50,
     Semicolon = 51,
@@ -283,7 +283,7 @@ public enum Key
     /// <summary>Left Alt / Option.</summary>
     LAlt = 226,
 
-    /// <summary>Left GUI - Windows / Command (Apple) / Meta.</summary>
+    /// <summary>Left GUI, the Windows, Command (Apple) or Meta key.</summary>
     LGUI = 227,
     RCtrl = 228,
     RShift = 229,
@@ -291,7 +291,7 @@ public enum Key
     /// <summary>Right Alt / AltGr / Option.</summary>
     RAlt = 230,
 
-    /// <summary>Right GUI - Windows / Command (Apple) / Meta.</summary>
+    /// <summary>Right GUI, the Windows, Command (Apple) or Meta key.</summary>
     RGUI = 231,
 
     /// <summary>Mode key (SDL_KMOD_MODE).</summary>
@@ -399,6 +399,6 @@ public enum Key
     /// <summary>400 to 500 are reserved for dynamic keycodes.</summary>
     Reserved = 400,
 
-    /// <summary>Not a key - marks the scancode array upper bound.</summary>
+    /// <summary>Not a key. It marks the upper bound of the scancode array.</summary>
     Count = 512,
 }

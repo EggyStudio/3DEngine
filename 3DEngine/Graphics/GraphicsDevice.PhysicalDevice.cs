@@ -68,7 +68,7 @@ public sealed unsafe partial class GraphicsDevice
 
         if (best is null)
         {
-            Logger.Error("Failed to find a suitable Vulkan GPU - no device passed all requirements.");
+            Logger.Error("No Vulkan GPU meets every requirement.");
             throw new InvalidOperationException("Failed to find a suitable GPU for Vulkan.");
         }
 

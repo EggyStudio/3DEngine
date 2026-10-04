@@ -30,8 +30,8 @@ namespace Engine;
 /// <b>Coverage (v1):</b> meshes (triangulated, normals, tangents, primary + secondary
 /// UVs, vertex colors, joint indices/weights), per-mesh material binding, basic PBR
 /// material factors mapped from Assimp's <c>aiMaterial</c> property bag (diffuse,
-/// metallic, roughness, normal, emissive, occlusion - matching the
-/// <see cref="SceneMaterialPayload"/> shape). Skeletons are extracted from
+/// metallic, roughness, normal, emissive and occlusion, as
+/// <see cref="SceneMaterialPayload"/> holds them). Skeletons are extracted from
 /// <see cref="A.Mesh.Bones"/> into <see cref="SceneSkeletonPayload"/>; animations
 /// (<see cref="A.Scene.Animations"/>) are sampled into <see cref="SceneAnimationPayload"/>.
 /// Cameras (<see cref="A.Scene.Cameras"/>) and lights (<see cref="A.Scene.Lights"/>) are
@@ -130,7 +130,7 @@ public sealed class AssimpModelReader : ISceneReader
             ? BuildMaterials(aScene)
             : Array.Empty<SceneMaterialPayload>();
 
-        // Pre-pass: convert meshes once - aiNode.MeshIndices reference these by index.
+        // The meshes are converted once, first, since aiNode.MeshIndices names them by index.
         var meshes = settings.LoadPayloads.HasFlag(LoadPayloads.Meshes)
             ? BuildMeshes(aScene, materials, ct)
             : Array.Empty<SceneMeshPayload>();
@@ -364,7 +364,7 @@ public sealed class AssimpModelReader : ISceneReader
 
             int vc = am.VertexCount;
             // AssimpNetter exposes Vertices/Normals/Tangents/BiTangents directly as
-            // List<System.Numerics.Vector3> - no per-element conversion needed.
+            // List<System.Numerics.Vector3>, so no element needs converting.
             var positions = vc == 0 ? Array.Empty<Vector3>() : am.Vertices.ToArray();
 
             // Indices: 3 per triangle face after Triangulate.
@@ -410,7 +410,7 @@ public sealed class AssimpModelReader : ISceneReader
 
             // Mesh-level material binding via SceneMeshSubset[1] over the whole index range.
             // (A SceneMeshPayload covers one Assimp mesh, which is already split per-material
-            // on import - no sub-mesh subsets to emit.)
+            // on import, so there are no subsets to emit.)
             IReadOnlyList<SceneMeshSubset> subsets = Array.Empty<SceneMeshSubset>();
             if (am.MaterialIndex >= 0 && am.MaterialIndex < materials.Length)
             {
@@ -849,7 +849,7 @@ public sealed class AssimpModelReader : ISceneReader
         foreach (var r in scene.Roots) Tally(r);
 
         Logger.Info(
-            $"AssimpModelReader: '{context.Path}' parsed - upAxis={scene.SourceCoordinateSystem}, " +
+            $"AssimpModelReader: '{context.Path}' parsed, upAxis={scene.SourceCoordinateSystem}, " +
             $"mpu={scene.SourceMetersPerUnit:0.###}, roots={scene.Roots.Count}, nodes={nodes}, " +
             $"meshes={meshes}, materials={mats}, skeletons={skels}, animations={anims}, payloads={attached}.");
 

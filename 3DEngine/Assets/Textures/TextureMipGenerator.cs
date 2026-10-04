@@ -2,15 +2,15 @@ namespace Engine;
 
 /// <summary>
 /// Generates a complete mip chain for a base-level <see cref="Texture"/> using a 2x2 box
-/// filter. Cheap, deterministic, and good enough for the runtime - higher quality
-/// (Kaiser, separable Lanczos) can be slotted in later behind the same entry point.
+/// filter, which is cheap and deterministic. A finer filter (Kaiser, separable Lanczos) would
+/// fit behind the same entry point.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Scope:</b> only the uncompressed formats the engine actually decodes today are
 /// supported (<see cref="TextureFormat.Rgba8"/>, <see cref="TextureFormat.Rgba16F"/>,
 /// <see cref="TextureFormat.Rgba32F"/>). Block-compressed inputs throw
-/// <see cref="NotSupportedException"/> - those should arrive pre-mipped from KTX2 / DDS.
+/// <see cref="NotSupportedException"/>, since such a texture comes with its mips.
 /// </para>
 /// <para>
 /// <b>Mip count:</b> the chain runs down to a 1x1 base level
@@ -18,9 +18,9 @@ namespace Engine;
 /// to match the GPU sampling rules.
 /// </para>
 /// <para>
-/// <b>Color space:</b> filtering is performed on the stored values verbatim - if the
-/// texture is sRGB-encoded the box filter happens in non-linear space, which is
-/// "correct enough" for diffuse textures and matches what most engines ship by default.
+/// <b>Color space:</b> the stored values are filtered as they are, so an sRGB texture is
+/// averaged in non-linear space, which suits diffuse textures and is what most engines do
+/// by default.
 /// HDR floats filter naturally in linear space. A future linear-aware path can branch
 /// on <see cref="Texture.ColorSpace"/> if banding becomes visible.
 /// </para>
@@ -71,7 +71,7 @@ public static class TextureMipGenerator
         }
 
         Logger.Debug(
-            $"TextureMipGenerator: '{source.SourcePath}' {w}x{h} {source.Format} - " +
+            $"TextureMipGenerator: '{source.SourcePath}' {w}x{h} {source.Format}, " +
             $"generated {mipCount} mip(s), {totalBytes} bytes total.");
 
         return new Texture

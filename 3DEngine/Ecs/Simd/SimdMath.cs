@@ -17,7 +17,7 @@ namespace Engine;
 /// <code>
 /// // Apply gravity to all Velocity components using SIMD
 /// var span = ecs.GetSpan&lt;Velocity&gt;();
-/// // Assuming Velocity is { float X, float Y } - cast to flat floats, stride 2
+/// // Velocity being { float X, float Y }, it is cast to flat floats with a stride of 2
 /// var floats = MemoryMarshal.Cast&lt;Velocity, float&gt;(span.Components);
 /// // Add -9.81*dt to every Y (odd indices): use ScaleAndOffset on a strided view,
 /// // or iterate in bulk with the span APIs.

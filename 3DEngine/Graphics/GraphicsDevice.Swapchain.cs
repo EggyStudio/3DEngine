@@ -105,7 +105,7 @@ public sealed unsafe partial class GraphicsDevice
     /// <summary>Destroys all swapchain-related resources including framebuffers, image views, depth buffer, render pass, and command pool.</summary>
     private partial void DestroySwapchainResources()
     {
-        Logger.Debug($"Destroying swapchain resources - {_framebuffers.Length} framebuffers, {_swapchainImageViews.Length} image views...");
+        Logger.Debug($"Destroying swapchain resources, {_framebuffers.Length} framebuffers, {_swapchainImageViews.Length} image views...");
         foreach (var fb in _framebuffers)
             if (fb.Handle != 0) _deviceApi.vkDestroyFramebuffer(fb);
         foreach (var iv in _swapchainImageViews)

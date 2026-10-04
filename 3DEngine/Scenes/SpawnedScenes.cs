@@ -14,7 +14,7 @@ namespace Engine;
 /// they want hot-reload behavior outside the request-driven workflow.
 /// </para>
 /// <para>
-/// One <see cref="AssetId"/> maps to one record - re-spawning the same asset replaces the
+/// One <see cref="AssetId"/> maps to one record, and spawning the same asset again replaces the
 /// previous entry. If you need multiple independent instances of the same scene asset in
 /// the same world (different placements), spawn them via the synchronous helper and skip
 /// tracking; hot-reload will only re-drive the tracked instance.

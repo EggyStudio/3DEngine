@@ -25,7 +25,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Coordinate space:</b> positions, normals and tangents are in the source file's
-/// authored basis and units. The reader does <i>not</i> normalize - <c>SceneSpawnSystem</c>
+/// authored basis and units. The reader does <i>not</i> normalize them, and <c>SceneSpawnSystem</c>
 /// applies a single root-level basis/unit matrix derived from
 /// <see cref="Scene.SourceCoordinateSystem"/> and <see cref="Scene.SourceMetersPerUnit"/>
 /// instead, to keep the read/write round-trip byte-stable (cf. Plan §B).
@@ -93,8 +93,8 @@ public sealed class SceneMeshPayload
 
     /// <summary>
     /// Axis-aligned bounding box of <see cref="Positions"/>, computed once at read time
-    /// in the source basis/units. Cheap to derive and useful for spawn-time culling, scene
-    /// stats, and editor framing - so the consumer doesn't have to re-walk positions.
+    /// in the source basis and units, so whoever culls, counts or frames the mesh need not walk
+    /// its positions again.
     /// </summary>
     public SceneBounds LocalBounds { get; init; } = SceneBounds.Empty;
 }
@@ -132,7 +132,7 @@ public readonly record struct SceneBounds(Vector3 Min, Vector3 Max)
     /// <summary>The center of the bounding box; only meaningful when <see cref="IsValid"/>.</summary>
     public Vector3 Center => (Min + Max) * 0.5f;
 
-    /// <summary>The full extents (Max - Min); only meaningful when <see cref="IsValid"/>.</summary>
+    /// <summary>The full extents (Max minus Min), only meaningful when <see cref="IsValid"/>.</summary>
     public Vector3 Size => Max - Min;
 
     /// <summary>Computes the AABB of <paramref name="positions"/> in a single pass, returning <see cref="Empty"/> if the span is empty.</summary>

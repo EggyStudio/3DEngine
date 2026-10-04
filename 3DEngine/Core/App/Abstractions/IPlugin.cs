@@ -40,13 +40,13 @@ public interface IPlugin
     /// <para>
     /// <see cref="App.AddPlugin"/> validates this list before calling <see cref="Build"/> and throws
     /// a <see cref="PluginOrderException"/> with a clear, actionable message when a dependency is
-    /// missing - replacing the obscure <see cref="NullReferenceException"/> that would otherwise
+    /// missing, in place of the obscure <see cref="NullReferenceException"/> that would otherwise
     /// surface deep inside another plugin's <c>Build()</c>.
     /// </para>
     /// <para>
     /// Only declare <b>hard</b> dependencies here (resources read via <c>World.Resource&lt;T&gt;()</c>
     /// during <see cref="Build"/>). Soft, optional dependencies (handled with <c>TryGetResource</c>)
-    /// must <b>not</b> be listed - that lets minimal apps omit them.
+    /// are <b>not</b> listed, so a minimal app can leave them out.
     /// </para>
     /// </remarks>
     /// <example>
@@ -66,8 +66,8 @@ public interface IPlugin
     /// <see cref="PluginOrder.Default"/> (0). Foundational plugins that other plugins
     /// implicitly rely on (e.g. <c>AssetPlugin</c>) should set a negative value such as
     /// <see cref="PluginOrder.Foundation"/> so they always build first when added as part
-    /// of an <see cref="IPluginGroup"/> - eliminating the need for every consumer to
-    /// declare them in <see cref="Dependencies"/>.
+    /// of an <see cref="IPluginGroup"/>, and the plugins that use them need not declare them
+    /// in <see cref="Dependencies"/>.
     /// </summary>
     /// <remarks>
     /// <para>

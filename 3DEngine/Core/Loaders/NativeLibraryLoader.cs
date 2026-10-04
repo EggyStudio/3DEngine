@@ -391,7 +391,7 @@ public sealed class NativeLibraryLoader
             }
         }
 
-        _onWarn?.Invoke($"Could not create symlink - no candidates found for: {linkPath}");
+        _onWarn?.Invoke($"Could not create symlink, since nothing was found to link {linkPath} to");
         return false;
     }
 

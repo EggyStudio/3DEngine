@@ -71,7 +71,7 @@ public sealed class FileAssetReader : IAssetReader
     {
         if (!Directory.Exists(BaseDirectory))
         {
-            Logger.Warn($"Cannot create watcher - directory does not exist: {BaseDirectory}");
+            Logger.Warn($"Cannot watch {BaseDirectory}, which does not exist.");
             return null;
         }
 

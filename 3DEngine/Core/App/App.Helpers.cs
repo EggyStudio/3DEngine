@@ -20,7 +20,7 @@ public sealed partial class App
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or inserts <paramref name="value"/> and returns it.
-    /// Atomic - safe for concurrent callers.
+    /// Atomic, so callers on several threads are safe.
     /// </summary>
     /// <typeparam name="T">The resource type to retrieve or insert.</typeparam>
     /// <param name="value">The fallback value to insert if the resource does not exist.</param>

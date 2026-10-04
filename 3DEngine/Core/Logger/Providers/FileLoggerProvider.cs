@@ -42,7 +42,7 @@ public sealed class FileLoggerProvider : ILoggerProvider, IDisposable
         }
         catch
         {
-            // Silently degrade - file logging is best-effort.
+            // File logging is best effort, so a failure here is let go.
         }
     }
 

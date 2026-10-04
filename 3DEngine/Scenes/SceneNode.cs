@@ -21,8 +21,8 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Payload bag:</b> the engine doesn't yet have a fixed taxonomy of "components on a scene
-/// node" (separate concern from ECS components - <see cref="SceneNode"/> is the *interchange*
-/// representation, not the runtime ECS layout). Backends attach typed payloads via
+/// node", which are apart from ECS components, since <see cref="SceneNode"/> is the form a
+/// file is read into, not the runtime ECS layout. Backends attach typed payloads via
 /// <see cref="Components"/>; spawn systems pattern-match on type and translate to ECS.
 /// Concrete payload types live alongside their backend (e.g. <c>SceneMeshPayload</c>,
 /// <c>SceneCameraPayload</c>) so this module stays format-agnostic.

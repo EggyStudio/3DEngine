@@ -15,8 +15,8 @@ namespace Engine;
 /// <i>ticket id</i> (not a backend voice id). The server keeps a table mapping ticket
 /// → voice; <see cref="AudioSource.SetPosition"/>, <see cref="AudioSource.Stop"/>, etc.
 /// route through the table. This lets calls like
-/// <c>ctx.PlaySpatialSound("a.wav", pos)</c> succeed synchronously - the ticket is
-/// minted immediately, the actual voice is created later from
+/// <c>ctx.PlaySpatialSound("a.wav", pos)</c> succeed at once, since the ticket is
+/// made immediately and the voice itself later, from
 /// <see cref="ResolvePending"/> once the asset loader finishes.
 /// </para>
 /// <para>
@@ -445,8 +445,8 @@ public sealed class AudioServer : IDisposable
         {
             if (!_voices.TryGetValue(ticket, out var rec)) return;
             _voices[ticket] = rec with { Orientation = orientation };
-            // Backends generally don't consume orientation directly - the spatial
-            // processor folds it into volume on the next Tick().
+            // A backend does not read the orientation itself. The spatial processor folds it
+            // into the volume on the next Tick().
         }
     }
 

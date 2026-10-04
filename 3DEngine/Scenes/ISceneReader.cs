@@ -9,7 +9,7 @@ namespace Engine;
 /// <para>
 /// Per the project's threading model, <see cref="ReadAsync"/> is called from an
 /// <see cref="AssetServer"/> background worker. Implementations must publish only immutable
-/// data via the returned <see cref="Scene"/> - no live native handles in the snapshot.
+/// data in the returned <see cref="Scene"/>, with no native handles in the snapshot.
 /// </para>
 /// <para>
 /// <b>Coordinate / unit policy:</b> readers <i>preserve</i> the source basis and units
@@ -100,10 +100,8 @@ public sealed class SceneImportSettings
     public LoadPayloads LoadPayloads { get; init; } = LoadPayloads.All;
 
     /// <summary>
-    /// Optional extra search paths the reader passes to its asset resolver for resolving
-    /// relative references / payloads (USD: appended to <c>PXR_AR_DEFAULT_SEARCH_PATH</c>;
-    /// glTF: relative-path roots). Empty by default - the reader uses only the source
-    /// file's own directory.
+    /// Further folders the reader looks in for files a model names by a relative path. Empty
+    /// by default, when the reader looks in the source file's own folder alone.
     /// </summary>
     public IReadOnlyList<string> AssetSearchPath { get; init; } = Array.Empty<string>();
 
@@ -125,7 +123,7 @@ public sealed class SceneExportSettings
     /// single self-contained package (USD: <c>.usdz</c>). The writer infers the actual
     /// container format from the target file extension; this flag only governs whether
     /// referenced texture files (when present) should be packaged alongside the stage.
-    /// Defaults to <c>false</c> - texture files are referenced by path.
+    /// Defaults to <c>false</c>, when texture files are referenced by path.
     /// </summary>
     public bool EmbedTextures { get; init; } = false;
 

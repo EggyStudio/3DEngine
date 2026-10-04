@@ -128,7 +128,7 @@ public sealed unsafe partial class GraphicsDevice
                 pName = entryName
             };
 
-        // Vertex input state - use custom bindings/attributes if provided
+        // The vertex input, from the bindings and attributes given when there are any.
         var vertexBindingCount = desc.VertexBindings?.Length ?? 0;
         var vertexAttributeCount = desc.VertexAttributes?.Length ?? 0;
 

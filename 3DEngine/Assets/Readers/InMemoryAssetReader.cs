@@ -4,8 +4,8 @@ namespace Engine;
 
 /// <summary>
 /// <see cref="IAssetReader"/> backed by an in-memory <see cref="ConcurrentDictionary{TKey,TValue}"/>.
-/// Designed for synthetic assets that don't live on disk - typically images embedded
-/// inside compound files (glTF binary buffers, USDZ archives) that the importing reader
+/// It holds assets that are not files of their own, as images embedded in a model file
+/// (a glTF binary buffer), which the importing reader
 /// has already extracted into raw bytes and wants to surface to downstream loaders
 /// (notably <c>TextureAssetLoader</c>) using the regular extension-based dispatch.
 /// </summary>

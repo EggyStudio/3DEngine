@@ -7,8 +7,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Order:</b> <see cref="PluginOrder.Foundation"/> + 100 - runs after <see cref="AssetPlugin"/>
-/// so <see cref="AssetServer"/> is guaranteed to exist, and before any consumer plugin that
+/// <b>Order:</b> <see cref="PluginOrder.Foundation"/> + 100, after <see cref="AssetPlugin"/>, so
+/// <see cref="AssetServer"/> exists, and before any consumer plugin that
 /// loads a shader at <see cref="Stage.Startup"/>, such as the renderer's <c>main_pass</c> and
 /// <c>VulkanImGuiPlugin</c>.
 /// </para>

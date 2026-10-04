@@ -37,11 +37,11 @@ public sealed class Logger : ILogger
     /// <inheritdoc />
     public void Log(LogLevel level, string message, Exception? exception = null)
     {
-        // Console: respects ConsoleMinimumLevel (defaults to Info - no startup traces on console).
+        // Console: respects ConsoleMinimumLevel (Info by default, so no startup traces reach it).
         if (level >= LogConfig.ConsoleMinimumLevel)
             ConsoleLoggerProvider.Instance.Log(level, _category, message, exception);
 
-        // File: respects MinimumLevel (defaults to Trace - all startup diagnostics captured to disk).
+        // File: respects MinimumLevel (Trace by default, so every startup diagnostic reaches it).
         // Late-bound lookup so loggers created before Initialize() still write to the file.
         if (level >= LogConfig.MinimumLevel && FileLoggerProvider.Instance is { } file)
             file.Log(level, _category, message, exception);

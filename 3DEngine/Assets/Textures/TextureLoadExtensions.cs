@@ -16,15 +16,15 @@ namespace Engine;
 /// </remarks>
 /// <example>
 /// <code>
-/// // Default: linear color-space, no mips - decoder defaults.
+/// // By default, linear color and no mips, as the decoder gives it.
 /// Handle&lt;Texture&gt; tex = ctx.LoadTexture("textures/wood.png");
 /// </code>
 /// <code>
-/// // Albedo / base-color - sRGB, mip chain generated up-front:
+/// // A base color, in sRGB, with its mips made as it loads.
 /// Handle&lt;Texture&gt; albedo = ctx.LoadTextureSrgb("textures/wood_albedo.png", generateMips: true);
 /// </code>
 /// <code>
-/// // Normal map - linear, no mips:
+/// // A normal map, linear, with no mips.
 /// Handle&lt;Texture&gt; normal = ctx.LoadTextureLinear("textures/wood_normal.png");
 /// </code>
 /// </example>

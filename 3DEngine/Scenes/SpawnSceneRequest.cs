@@ -25,7 +25,7 @@ namespace Engine;
 /// The driver system polls <c>Assets&lt;SceneAsset&gt;</c> until the handle resolves, calls
 /// <see cref="SceneSpawner.Spawn"/>, and then removes this component (so the spawn happens
 /// exactly once). The original request entity stays alive as a stable "owner" of the
-/// spawned subtree - editor / hot-reload can find it via the handle id.
+/// spawned subtree, which hot reload finds by the handle's id.
 /// </para>
 /// </remarks>
 public struct SpawnSceneRequest

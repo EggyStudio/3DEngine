@@ -60,7 +60,7 @@ public sealed partial class AssetServer
 
     /// <summary>
     /// Synchronously loads an asset, blocking the calling thread until the load completes.
-    /// Use sparingly - prefer async <see cref="Load{T}(string)"/> in most cases.
+    /// It holds the caller until the file is read, so <see cref="Load{T}(string)"/> suits most uses better.
     /// </summary>
     /// <typeparam name="T">The expected asset type.</typeparam>
     /// <param name="path">Relative asset path.</param>

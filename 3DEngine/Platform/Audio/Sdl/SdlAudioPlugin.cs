@@ -12,8 +12,8 @@ namespace Engine;
 /// can also add it directly.
 /// </para>
 /// <para>
-/// <b>Failure mode:</b> if the SDL audio subsystem can't be initialised (no audio
-/// device, headless CI), the backend stays uninitialised - <see cref="AudioServer"/>
+/// <b>Failure mode:</b> if the SDL audio subsystem cannot be initialized (no audio
+/// device, headless CI), the backend stays uninitialized, and <see cref="AudioServer"/>
 /// still has a real <see cref="IAudioBackend"/> reference but every method becomes a
 /// no-op (matches <see cref="NullAudioBackend"/> semantics). Audio is never a hard
 /// dependency for headless / editor scenarios.
@@ -32,7 +32,7 @@ public sealed class SdlAudioPlugin : IPlugin
 
         if (!app.World.TryGetResource<AudioServer>(out var server))
         {
-            Logger.Warn("SdlAudioPlugin: AudioServer was missing - did you forget SoundsPlugin? Skipping.");
+            Logger.Warn("SdlAudioPlugin: There is no AudioServer, which SoundsPlugin adds, so there is nothing to play through.");
             return;
         }
 
@@ -42,6 +42,6 @@ public sealed class SdlAudioPlugin : IPlugin
         Logger.Info(
             backend.IsInitialized
                 ? "SdlAudioPlugin: SDL3 audio backend ready."
-                : "SdlAudioPlugin: SDL3 audio backend installed but native init failed - audio will be silent.");
+                : "SdlAudioPlugin: SDL3 audio backend installed but native init failed, so audio is silent.");
     }
 }

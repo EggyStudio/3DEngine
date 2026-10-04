@@ -38,8 +38,8 @@ public sealed class ScenesPlugin : IPlugin
         // (such as the Assimp model reader) to opt-in their format support.
         app.World.InsertResource(new SceneReaderRegistry());
 
-        // Tracking table for spawned scenes - read by SceneHotReloadSystem to identify
-        // which entities to despawn when a SceneAsset hot-reloads.
+        // The spawned scenes, which SceneHotReloadSystem reads to find the entities to
+        // despawn when a SceneAsset reloads.
         app.World.InsertResource(new SpawnedScenes());
 
         // Auto-spawn driver: turns SpawnSceneRequest components into ECS entities once
@@ -53,8 +53,8 @@ public sealed class ScenesPlugin : IPlugin
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem").MainThreadOnly());
 
         // Hot-reload driver: watches AssetEvent<SceneAsset>.Modified and re-spawns the
-        // tracked entity set in place. Same stage as the spawn driver - asset events
-        // persist until Stage.Last so ordering is forgiving.
+        // tracked entity set in place. It runs in the spawn driver's stage, and asset events
+        // last until Stage.Last, so the order between them does not matter.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneHotReloadSystem.Run, "SceneHotReloadSystem").MainThreadOnly());
 
         Logger.Info("ScenesPlugin: Scene model ready.");

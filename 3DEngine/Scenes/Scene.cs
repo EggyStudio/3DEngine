@@ -23,7 +23,7 @@ namespace Engine;
 /// matrix (axis swap + uniform scale) derived from these fields. Two reasons to do it this way:
 /// <list type="bullet">
 ///   <item><description>
-///     The reader stays symmetric with the writer - a round-trip
+///     The reader stays symmetric with the writer, so a round trip
 ///     <c>read → write</c> is byte-stable, since vertex data was never rotated or rescaled.
 ///   </description></item>
 ///   <item><description>

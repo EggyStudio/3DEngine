@@ -156,7 +156,7 @@ public sealed class AppWindowPlugin : IPlugin
 
         if (config.Headless)
         {
-            logger.Info($"AppWindowPlugin: Headless run - no window, frames paced at {config.HeadlessFps} per second.");
+            logger.Info($"AppWindowPlugin: Headless run with no window, frames paced at {config.HeadlessFps} per second.");
             app.World.InitResource<AppExit>();
             app.World.InsertResource<IMainLoopDriver>(new HeadlessLoopDriver(app.World, config.HeadlessFps));
             return;
@@ -170,7 +170,7 @@ public sealed class AppWindowPlugin : IPlugin
 
         if (config.Hidden)
         {
-            logger.Info("Hidden run - the window is created and drawn into, and never shown.");
+            logger.Info("Hidden run. The window is created and drawn into, and never shown.");
         }
         else
         {

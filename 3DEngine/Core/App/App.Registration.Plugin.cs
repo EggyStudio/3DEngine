@@ -12,7 +12,7 @@ public sealed partial class App
     /// <remarks>
     /// Plugins are identified by their concrete <see cref="Type"/>. Calling <c>AddPlugin</c> twice
     /// with the same plugin type is a no-op. The plugin's <see cref="IPlugin.Build"/> method is
-    /// invoked immediately during this call - not deferred.
+    /// invoked during this call, not later.
     /// </remarks>
     /// <example>
     /// <code>
@@ -34,9 +34,9 @@ public sealed partial class App
             return this;
         }
 
-        // Validate declared plugin dependencies before Build() - converts a future
-        // NullReferenceException deep inside another plugin into a clear, typed error
-        // pointing at the actual ordering bug.
+        // The declared dependencies are checked before Build(), so a missing one is a clear,
+        // typed error naming the ordering fault rather than a NullReferenceException deep
+        // inside another plugin.
         foreach (var dep in plugin.Dependencies)
         {
             if (!_plugins.ContainsKey(dep))
@@ -103,8 +103,8 @@ public sealed partial class App
         ArgumentNullException.ThrowIfNull(group);
 
         // OrderBy is a stable sort, so plugins that share an Order keep their
-        // declaration order from GetPlugins() - which matches user expectation
-        // when reading the source-level list top-to-bottom.
+        // declaration order from GetPlugins(), which is the order a reader of the list
+        // expects.
         var ordered = group.GetPlugins().OrderBy(p => p.Order).ToList();
         Logger.Info($"AddPlugins: '{group.GetType().Name}' contributing {ordered.Count} plugin(s) (sorted by Order).");
 

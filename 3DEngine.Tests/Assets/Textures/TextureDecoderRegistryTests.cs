@@ -4,8 +4,8 @@ using Xunit;
 namespace Engine.Tests.Textures;
 
 /// <summary>
-/// Tests for <see cref="TextureDecoderRegistry"/> - extension/format dispatch and
-/// last-write-wins semantics.
+/// Tests for <see cref="TextureDecoderRegistry"/>, which picks a decoder by extension and
+/// format, the last registered winning.
 /// </summary>
 [Trait("Category", "Unit")]
 public class TextureDecoderRegistryTests

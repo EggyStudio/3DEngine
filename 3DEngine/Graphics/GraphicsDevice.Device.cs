@@ -73,7 +73,7 @@ public sealed unsafe partial class GraphicsDevice
         Logger.Debug("Retrieving graphics and present device queues...");
         _deviceApi.vkGetDeviceQueue(_graphicsQueueFamily, 0, out _graphicsQueue);
         _deviceApi.vkGetDeviceQueue(_presentQueueFamily, 0, out _presentQueue);
-        Logger.Debug($"Queues retrieved - graphics=family {_graphicsQueueFamily}, present=family {_presentQueueFamily}");
+        Logger.Debug($"Queues retrieved, graphics=family {_graphicsQueueFamily}, present=family {_presentQueueFamily}");
     }
 
     /// <summary>Destroys the Vulkan logical device.</summary>

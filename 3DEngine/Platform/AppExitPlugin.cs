@@ -23,7 +23,7 @@ public sealed class AppExitPlugin : IPlugin
         {
             window.QuitEvent += () =>
             {
-                Logger.Info("Quit event received - flagging application exit.");
+                Logger.Info("Quit event received, so the app exits.");
                 app.World.Resource<AppExit>().Requested = true;
             };
         }
@@ -36,7 +36,7 @@ public sealed class AppExitPlugin : IPlugin
                 {
                     if (world.Resource<Time>().FrameCount >= frames && !world.Resource<AppExit>().Requested)
                     {
-                        Logger.Info($"Ran the {frames} frame(s) asked for - closing.");
+                        Logger.Info($"Ran the {frames} frame(s) asked for, closing.");
                         world.Resource<AppExit>().Requested = true;
                     }
                 }, "AppExitPlugin.Frames")
@@ -49,7 +49,7 @@ public sealed class AppExitPlugin : IPlugin
             {
                 if (world.Resource<AppExit>().Requested && world.TryGetResource<AppWindow>(out var appWindow))
                 {
-                    Logger.Info("Exit requested - closing window to break main loop.");
+                    Logger.Info("Exit requested, closing the window to end the main loop.");
                     appWindow.RequestClose();
                 }
             }, "AppExitPlugin.Update")

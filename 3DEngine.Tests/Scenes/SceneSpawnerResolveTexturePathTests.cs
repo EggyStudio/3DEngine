@@ -4,7 +4,7 @@ using Xunit;
 namespace Engine.Tests.Scenes;
 
 /// <summary>
-/// Tests for <see cref="SceneSpawner.ResolveTexturePath"/> - the helper that joins
+/// Tests for <see cref="SceneSpawner.ResolveTexturePath"/>, the helper that joins
 /// scene-relative <see cref="SceneTextureRef.AssetPath"/> values against the source
 /// scene's directory while letting absolute and synthetic <c>__embedded__/</c>
 /// paths through verbatim.

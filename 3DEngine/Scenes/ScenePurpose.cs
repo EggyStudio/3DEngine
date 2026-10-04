@@ -21,7 +21,7 @@ namespace Engine;
 /// </remarks>
 public enum ScenePurpose
 {
-    /// <summary>No explicit authoring purpose - the node participates in every render pass.</summary>
+    /// <summary>No purpose was authored, so the node takes part in every render pass.</summary>
     Default = 0,
 
     /// <summary>Final-quality geometry meant for the beauty render.</summary>

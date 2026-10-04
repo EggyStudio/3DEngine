@@ -9,8 +9,8 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// <b>Sample layout:</b> <see cref="Samples"/> is a tightly packed, interleaved
-/// <c>float</c> buffer in <c>[-1, 1]</c> (no clamp enforced - HDR-style overshoot is
-/// allowed). Frame count is <c>Samples.Length / Channels</c>.
+/// <c>float</c> buffer in <c>[-1, 1]</c> (not clamped, so a sample may
+/// overshoot). Frame count is <c>Samples.Length / Channels</c>.
 /// </para>
 /// <para>
 /// <b>Why float-PCM only:</b> SDL3's audio mixer and Steam Audio both process in

@@ -99,7 +99,7 @@ public sealed class RenderPlugin : IPlugin
         // render system below returns at once every frame.
         if (!app.World.TryGetResource<AppWindow>(out var window) && !renderer.Context.IsInitialized)
         {
-            Logger.Info("RenderPlugin: No window (headless run) - the renderer stays uninitialized.");
+            Logger.Info("RenderPlugin: No window (headless run), so the renderer stays uninitialized.");
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(world => world.RemoveResource<Renderer>(), "RenderPlugin.Cleanup").MainThreadOnly());
             return;
         }
@@ -115,7 +115,7 @@ public sealed class RenderPlugin : IPlugin
         }
         else if (cfg.Graphics == GraphicsBackend.Vulkan)
         {
-            Logger.Info("RenderPlugin: Vulkan backend selected - initializing graphics context against SDL window...");
+            Logger.Info("RenderPlugin: Vulkan backend selected, initializing the graphics context against the SDL window...");
             // Grab the ISurfaceSource that AppWindowPlugin inserted
             var surface = app.World.Resource<ISurfaceSource>();
             renderer.Context.Initialize(surface, cfg.WindowData.Title, cfg.Samples, cfg.Vsync);
@@ -131,7 +131,7 @@ public sealed class RenderPlugin : IPlugin
             {
                 if (w > 0 && h > 0)
                 {
-                    Logger.Debug($"Window resized to {w}x{h} - updating render surface info (rebuild deferred).");
+                    Logger.Debug($"Window resized to {w}x{h}, updating the render surface (rebuild deferred).");
                     renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = w, Height = h });
                     pendingRendererResize = true;
                     lastResizeTick = Environment.TickCount64;
@@ -140,7 +140,7 @@ public sealed class RenderPlugin : IPlugin
         }
         else
         {
-            Logger.Info("RenderPlugin: Non-Vulkan backend - Vulkan renderer initialization skipped.");
+            Logger.Info("RenderPlugin: Not a Vulkan backend, so the Vulkan renderer is not initialized.");
         }
 
         // Build the base render graph now so "main_pass" exists before any Stage.Startup
@@ -159,7 +159,7 @@ public sealed class RenderPlugin : IPlugin
                 if (pendingRendererResize && (Environment.TickCount64 - lastResizeTick) >= ResizeDebounceMs)
                 {
                     pendingRendererResize = false;
-                    Logger.Info("Debounce elapsed - committing renderer resize (swapchain + allocator + camera)...");
+                    Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
                     r.Context.OnResize();
                 }
             
@@ -175,7 +175,7 @@ public sealed class RenderPlugin : IPlugin
             {
                 if (world.TryGetResource<Renderer>(out var r))
                 {
-                    Logger.Info("RenderPlugin: Cleanup stage - disposing Renderer...");
+                    Logger.Info("RenderPlugin: Cleanup stage, disposing the renderer...");
                     r.Dispose();
                     world.RemoveResource<Renderer>();
                 }
@@ -196,7 +196,7 @@ public sealed class RenderPlugin : IPlugin
         {
             renderer.Context.Initialize(new OffscreenSurface(width, height), cfg.WindowData.Title, cfg.Samples, cfg.Vsync);
             renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = (int)width, Height = (int)height });
-            Logger.Info($"RenderPlugin: Offscreen run - rendering {width}x{height} frames with no window.");
+            Logger.Info($"RenderPlugin: Offscreen run, rendering {width}x{height} frames with no window.");
         }
         catch (Exception ex) when (ex is InvalidOperationException or Vortice.Vulkan.VkException or DllNotFoundException)
         {

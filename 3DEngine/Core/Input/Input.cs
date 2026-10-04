@@ -180,7 +180,7 @@ public sealed class Input
     /// <summary>The gamepad at <paramref name="index"/>, or <c>null</c> when fewer are connected.</summary>
     public GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
 
-    // -- Mutation (internal - platform backends only)
+    // -- Mutation, internal, for the platform backends alone
 
     /// <summary>
     /// Queues a change to be made when the platform's events are next processed, where a real key

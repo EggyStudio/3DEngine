@@ -96,7 +96,7 @@ public sealed class SdlWindow
         // -- HiDPI handling
         // SDL3 spec: CreateWindow / GetWindowSize / SetWindowSize use *logical*
         // coordinates on native Wayland, macOS, and iOS.  Windows, X11 (including
-        // XWayland), and Android are the exceptions - they work in physical pixels.
+        // XWayland) and Android are the exceptions, working in physical pixels.
         //
         // Rather than matching on video-driver name strings (brittle), we detect
         // the coordinate mode at runtime by comparing the window size against the

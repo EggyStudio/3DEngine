@@ -37,7 +37,7 @@ public sealed partial class App
         if (_started) return;
         _started = true;
 
-        Logger.Info("Running Startup stage - one-time initialization systems...");
+        Logger.Info("Running the Startup stage, the systems that initialize once...");
         Schedule.RunStage(Stage.Startup, World);
         Logger.Info("Startup stage complete.");
     }
@@ -107,7 +107,7 @@ public sealed partial class App
         if (_shutDown) return;
         _shutDown = true;
 
-        Logger.Info("Running Cleanup stage - teardown and resource disposal...");
+        Logger.Info("Running the Cleanup stage, teardown and resource disposal...");
         Schedule.RunStage(Stage.Cleanup, World);
 
         if (World.TryGetResource<IMainLoopDriver>(out var loop))

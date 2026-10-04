@@ -40,7 +40,7 @@ public sealed class WavSoundDecoder : ISoundDecoder
         var bytes = await context.ReadAllBytesAsync(ct);
         var sound = Decode(bytes, context.Path.ToString());
         Logger.Debug(
-            $"WavSoundDecoder: '{context.Path}' decoded - {sound.SampleRate} Hz, " +
+            $"WavSoundDecoder: '{context.Path}' decoded, {sound.SampleRate} Hz, " +
             $"{sound.Channels} ch, {sound.Samples.Length / Math.Max(1, sound.Channels)} frames " +
             $"({sound.DurationSeconds:F3}s).");
         return sound;

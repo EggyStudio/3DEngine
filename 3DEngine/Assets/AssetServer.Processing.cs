@@ -17,7 +17,7 @@ public sealed partial class AssetServer
             if (!completed.Success)
             {
                 _states[completed.Id] = LoadState.Failed;
-                Logger.Error($"Asset load failed: {completed.Path} - {completed.Error}");
+                Logger.Error($"Asset load failed: {completed.Path}: {completed.Error}");
                 continue;
             }
 
@@ -74,7 +74,7 @@ public sealed partial class AssetServer
             if (GetLoadState(kv.Key) != LoadState.Loaded) continue;
             if (!IsLoadedWithDependencies(kv.Key)) continue;
 
-            // All deps satisfied - fire LoadedWithDependencies if not already done
+            // Every dependency has loaded, so LoadedWithDependencies is sent, once.
             if (!_idToPath.TryGetValue(kv.Key, out var path)) continue;
             if (!_pathToId.TryGetValue(path.ToString(), out var info)) continue;
 

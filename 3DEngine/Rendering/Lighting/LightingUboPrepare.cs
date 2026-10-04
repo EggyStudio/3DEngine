@@ -22,7 +22,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
             return;
 
         // Always upload (even with zero lights) so the shader can rely on the binding
-        // existing - the count is what the shader iterates against.
+        // existing, since the count is what the shader iterates against.
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
         var shadow = Shadow(renderWorld, lights, ubo.LightCount);
         if (shadow is null) renderWorld.Remove<FrameShadow>();

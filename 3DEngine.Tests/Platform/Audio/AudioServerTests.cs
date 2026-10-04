@@ -4,7 +4,7 @@ using FluentAssertions;
 namespace Engine.Tests.Audio;
 
 /// <summary>
-/// Unit tests for <see cref="AudioServer"/> - focused on the ticket / pending-voice
+/// Unit tests for <see cref="AudioServer"/>, on the ticket and pending-voice
 /// state machine that the gameplay-facing <see cref="AudioSource"/> handle relies on.
 /// Uses a stub <see cref="IAudioBackend"/> so we can assert the exact backend call
 /// pattern without dragging in a real audio device.
@@ -153,7 +153,7 @@ public class AudioServerTests
         var id = AssetId.Next();
         var handle = new Handle<Sound>(id, path, strong: true);
 
-        // Play first - asset isn't in the registry yet → pending.
+        // Played first, while the asset is not in the registry yet, so the voice is pending.
         var src = server.PlaySpatial(handle, assets, new Vector3(1, 2, 3));
         src.IsValid.Should().BeTrue("ticket is minted synchronously");
         src.IsPlaying.Should().BeTrue("pending voices count as playing from gameplay");
@@ -319,7 +319,7 @@ public class AudioServerTests
         src.SetPosition(new Vector3(99, 99, 99));
 
         backend.Calls.Should().NotContain(c => c.StartsWith("Pos("),
-            "the AudioServer must refuse to silently promote a 2D voice to spatial - " +
+            "the AudioServer must refuse to silently promote a 2D voice to spatial, since " +
             "the SDL backend (and most others) allocate different machinery up front");
     }
 }

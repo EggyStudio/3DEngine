@@ -7,7 +7,7 @@ public sealed class GeneratedBehaviorRegistrationAttribute : Attribute;
 /// <summary>Marks a struct as an ECS Behavior; methods with stage attributes will be scheduled by the generator.</summary>
 /// <example>
 /// <code>
-/// // Static methods run once per frame - ideal for global logic
+/// // A static method runs once a frame, as logic over the whole game does
 /// [Behavior]
 /// public partial struct PlayerMovement
 /// {

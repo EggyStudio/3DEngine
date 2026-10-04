@@ -9,7 +9,7 @@ namespace Engine;
 /// <see cref="SceneSpawner"/>) remain available for callers who need fine-grained control.
 /// </summary>
 /// <example>
-/// <para>From a behavior - one call replaces "load + Cmd.Spawn + Add SpawnSceneRequest":</para>
+/// <para>From a behavior, one call loads, spawns and adds the <c>SpawnSceneRequest</c>:</para>
 /// <code>
 /// [Behavior]
 /// public struct TeapotSceneTest

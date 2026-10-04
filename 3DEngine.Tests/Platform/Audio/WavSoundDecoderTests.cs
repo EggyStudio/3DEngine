@@ -102,7 +102,7 @@ public class WavSoundDecoderTests
     public async Task Decodes_Pcm16_Stereo_Preserves_Interleaving()
     {
         var dec = new WavSoundDecoder();
-        // Two stereo frames: (L=1, R=2) then (L=3, R=4) - at full-scale fractions.
+        // Two stereo frames: (L=1, R=2) then (L=3, R=4), as fractions of full scale.
         var s = new short[] { 16384, -16384, 8192, -8192 };
         var bytes = BuildPcmWav(s, 48000, 2, 16);
         using var ctx = OpenContext("tests/stereo.wav", bytes);

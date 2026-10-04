@@ -4,8 +4,8 @@ using Xunit;
 namespace Engine.Tests.Textures;
 
 /// <summary>
-/// Tests for <see cref="TextureMipGenerator"/> - extents math and the per-format
-/// 2x2 box filter producing a complete mip chain.
+/// Tests for <see cref="TextureMipGenerator"/>, its extents and the 2x2 box filter of
+/// each format, which make a complete mip chain.
 /// </summary>
 [Trait("Category", "Unit")]
 public class TextureMipGeneratorTests

@@ -4,11 +4,9 @@ namespace Engine;
 
 /// <summary>
 /// Convenience helpers for loading and spawning <i>model</i> files (FBX, OBJ, COLLADA,
-/// glTF, ...). Models share the runtime pipeline with USD scenes - both compile down to
-/// a <see cref="SceneAsset"/> via the format-agnostic <see cref="ISceneReader"/>
-/// registry - so these methods are thin aliases over <see cref="SceneSpawnExtensions"/>
-/// that read better at call sites where the asset is conceptually a "model" rather than
-/// a "scene".
+/// glTF, ...). A model loads as a <see cref="SceneAsset"/> through the
+/// <see cref="ISceneReader"/> registry, as any scene does, so these methods are aliases of
+/// <see cref="SceneSpawnExtensions"/> that read better where the asset is a model.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -18,7 +16,7 @@ namespace Engine;
 /// </para>
 /// </remarks>
 /// <example>
-/// <para>From a behavior - load a model file the same way you'd load a USD scene:</para>
+/// <para>From a behavior, a model file is loaded and spawned in one call:</para>
 /// <code>
 /// [Behavior]
 /// public struct HeroSpawnTest
@@ -34,7 +32,7 @@ namespace Engine;
 /// <code>
 /// ctx.SpawnModel("vehicles/tank.fbx", ModelSpawn.At(new Vector3(5, 0, 0)));
 /// </code>
-/// <para>Just load (no auto-spawn) - useful for prefab-style reuse:</para>
+/// <para>Loaded and not spawned, to be spawned later and more than once:</para>
 /// <code>
 /// var modelHandle = ctx.LoadModel("environment/rock.obj");
 /// // ...later...
@@ -108,9 +106,8 @@ public static class ModelLoadExtensions
 
 /// <summary>
 /// Static factory for the most common <see cref="SceneSpawnSettings"/> shapes when
-/// spawning a model. Identical to <see cref="SceneSpawn"/> - re-exposed under a
-/// model-flavored name so call sites that say <c>SpawnModel(...)</c> can pair with
-/// <c>ModelSpawn.At(...)</c> for symmetry.
+/// spawning a model. It is <see cref="SceneSpawn"/> under a model's name, so a call to
+/// <c>SpawnModel(...)</c> pairs with <c>ModelSpawn.At(...)</c>.
 /// </summary>
 /// <example>
 /// <code>

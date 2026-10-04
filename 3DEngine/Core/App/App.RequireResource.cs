@@ -9,7 +9,7 @@ public sealed partial class App
     /// </summary>
     /// <typeparam name="T">The resource type required by the caller.</typeparam>
     /// <param name="callerPlugin">
-    /// Name of the plugin requiring the resource - typically <c>nameof(MyPlugin)</c>. Surfaced in the error message.
+    /// Name of the plugin requiring the resource, usually <c>nameof(MyPlugin)</c>, which the error message names.
     /// </param>
     /// <param name="providingPlugin">
     /// Optional name of the plugin that is expected to provide <typeparamref name="T"/>

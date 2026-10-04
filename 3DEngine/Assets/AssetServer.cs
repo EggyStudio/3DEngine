@@ -14,7 +14,7 @@ namespace Engine;
 ///   <item><description>Pluggable <see cref="IAssetReader"/> sources (filesystem, embedded, network).</description></item>
 ///   <item><description>Pluggable <see cref="IAssetLoader{T}"/> per file extension.</description></item>
 ///   <item><description>Background thread pool for async loading via <see cref="Channel{T}"/>.</description></item>
-///   <item><description>Per-path deduplication - same path always returns the same <see cref="Handle{T}"/>.</description></item>
+///   <item><description>One handle a path, so the same path always returns the same <see cref="Handle{T}"/>.</description></item>
 ///   <item><description>Hot-reload via <see cref="IAssetWatcher"/> when enabled.</description></item>
 ///   <item><description>Typed <see cref="Assets{T}"/> storage and <see cref="AssetEvent{T}"/> lifecycle events.</description></item>
 /// </list>
@@ -57,7 +57,7 @@ public sealed partial class AssetServer : IDisposable
     // Extension → loader (e.g. ".png" → TextureLoader adapter)
     private readonly Dictionary<string, IAssetLoaderUntyped> _loaders = new(StringComparer.OrdinalIgnoreCase);
 
-    // path string → (AssetId, AssetType) - deduplication
+    // Each path to its (AssetId, AssetType), so a path loads once.
     private readonly ConcurrentDictionary<string, (AssetId Id, Type AssetType)> _pathToId = new();
     // AssetId → LoadState
     private readonly ConcurrentDictionary<AssetId, LoadState> _states = new();

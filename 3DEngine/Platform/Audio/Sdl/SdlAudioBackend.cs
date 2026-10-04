@@ -53,9 +53,9 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// no per-channel gain on a single stream, so each spatial voice owns two streams
     /// bound to the device:
     /// <list type="bullet">
-    ///   <item><description><see cref="LeftOnlyMap"/> = <c>{0, -1}</c> - the L stream
+    ///   <item><description><see cref="LeftOnlyMap"/> = <c>{0, -1}</c>, the L stream, which
     ///   plays its source on the device's left channel and is silent on the right.</description></item>
-    ///   <item><description><see cref="RightOnlyMap"/> = <c>{-1, 1}</c> - the R stream
+    ///   <item><description><see cref="RightOnlyMap"/> = <c>{-1, 1}</c>, the R stream, which
     ///   plays its source on the device's right channel and is silent on the left.</description></item>
     /// </list>
     /// We then split the per-voice gain into <c>(masterGain * leftPanGain)</c> and
@@ -96,7 +96,7 @@ public sealed class SdlAudioBackend : IAudioBackend
                 {
                     if (!SDL.InitSubSystem(SDL.InitFlags.Audio))
                     {
-                        Logger.Warn($"SdlAudioBackend: SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}' - backend disabled.");
+                        Logger.Warn($"SdlAudioBackend: SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}', so the backend is disabled.");
                         return;
                     }
                     _ownsAudioSubsystem = true;
@@ -112,7 +112,7 @@ public sealed class SdlAudioBackend : IAudioBackend
                 _device = SDL.OpenAudioDevice(SDL.AudioDeviceDefaultPlayback, in desired);
                 if (_device == 0)
                 {
-                    Logger.Warn($"SdlAudioBackend: SDL_OpenAudioDevice failed: '{SDL.GetError()}' - backend disabled.");
+                    Logger.Warn($"SdlAudioBackend: SDL_OpenAudioDevice failed: '{SDL.GetError()}', so the backend is disabled.");
                     if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
                     return;
                 }
@@ -197,9 +197,9 @@ public sealed class SdlAudioBackend : IAudioBackend
                     Logger.Debug($"SdlAudioBackend: SetAudioStreamOutputChannelMap(R) failed: {SDL.GetError()}");
             }
 
-            // The pin is now owned by the streams we just created. Bump the refcount
-            // by 1 (single voice = single logical reference, regardless of one or two
-            // streams - they all share the same sample buffer and lifetime).
+            // The pin is now held by the streams made above, and the count rises by one, since
+            // a voice is one reference whether it has one stream or two, which share the
+            // sample buffer and its lifetime.
             pin.RefCount++;
 
             float vol = parameters.Volume;
@@ -439,8 +439,8 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// to a single device channel via <see cref="SDL.SetAudioStreamOutputChannelMap"/>);
     /// pan in <c>[-1, +1]</c> is converted to constant-power L/R gains
     /// (<c>sqrt(0.5 * (1 ± pan))</c>) and applied via <see cref="SDL.SetAudioStreamGain"/>.
-    /// Non-spatial voices have no R stream, so this call is a no-op for them - matching
-    /// the interface's "balance hint" semantics.
+    /// A voice that is not spatial has no R stream, so the call does nothing for it, as the
+    /// interface allows of a balance it calls a hint.
     /// </remarks>
     public void SetVoicePan(int voiceId, float pan)
     {
@@ -562,8 +562,8 @@ public sealed class SdlAudioBackend : IAudioBackend
     /// <summary>
     /// Decrements the refcount on the pin shared by every voice playing
     /// <paramref name="sound"/>. When the last voice releases it, the pin is freed and
-    /// the entry removed - so a Sound that's been unloaded (or never played again)
-    /// stops keeping its sample buffer pinned in managed memory.
+    /// the entry removed, so a sound that is unloaded, or not played again, stops holding
+    /// its sample buffer pinned in managed memory.
     /// </summary>
     private void ReleasePin(Sound? sound)
     {

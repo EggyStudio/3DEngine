@@ -16,8 +16,8 @@ namespace Engine;
 /// </list>
 /// </para>
 /// <para>
-/// In Vulkan mode, no <see cref="SdlImGuiRenderer"/> is created - the font atlas is built
-/// but not uploaded to an SDL texture; the Vulkan ImGui render node handles GPU upload.
+/// In Vulkan mode no <see cref="SdlImGuiRenderer"/> is created. The font atlas is built and
+/// not uploaded to an SDL texture, since the Vulkan ImGui render node uploads it.
 /// </para>
 /// <para>
 /// Dear ImGui keeps its current context in one variable for the whole process, and a program calls
@@ -75,7 +75,7 @@ public sealed class SdlImGuiPlugin : IPlugin
         io.DisplaySize = new Vector2(Math.Max(1, sdlWindow.Width), Math.Max(1, sdlWindow.Height));
         io.DeltaTime = 1f / 60f;
 
-        logger.Info($"ImGui initialized - display size: {sdlWindow.Width}x{sdlWindow.Height}");
+        logger.Info($"ImGui initialized, display size {sdlWindow.Width}x{sdlWindow.Height}");
 
         if (!isVulkan)
         {
@@ -85,9 +85,9 @@ public sealed class SdlImGuiPlugin : IPlugin
         }
         else
         {
-            // Vulkan mode: build the font atlas but keep CPU pixels - the Vulkan ImGui
-            // render node uploads them to the GPU.
-            logger.Info("ImGui using Vulkan mode - building font atlas only (no SDL renderer).");
+            // In Vulkan mode the font atlas is built and its pixels kept on the CPU, which the
+            // Vulkan ImGui render node uploads to the GPU.
+            logger.Info("ImGui in Vulkan mode, building the font atlas alone (no SDL renderer).");
             var io2 = ImGui.GetIO();
             io2.Fonts.GetTexDataAsRGBA32(out IntPtr _, out int _, out int _, out _);
         }
@@ -184,7 +184,7 @@ public sealed class SdlImGuiPlugin : IPlugin
         io.DisplaySize = new Vector2(Math.Max(1, config.WindowData.Width), Math.Max(1, config.WindowData.Height));
         io.DeltaTime = 1f / 60f;
         io.Fonts.GetTexDataAsRGBA32(out IntPtr _, out int _, out int _, out _);
-        logger.Info($"ImGui initialized without a window - display size: {io.DisplaySize.X}x{io.DisplaySize.Y}");
+        logger.Info($"ImGui initialized without a window, display size {io.DisplaySize.X}x{io.DisplaySize.Y}");
 
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
             {

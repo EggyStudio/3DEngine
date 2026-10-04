@@ -27,7 +27,7 @@ namespace Engine.Files.Compiler;
 /// Subclasses provide:
 /// </para>
 /// <list type="bullet">
-///   <item><description><see cref="OnAssemblyLoaded"/> - consume the loaded assembly,
+///   <item><description><see cref="OnAssemblyLoaded"/> takes the loaded assembly,
 ///         tag/register their domain artifacts, populate the result.</description></item>
 ///   <item><description>Optional <see cref="OnNoSourceFiles"/> hook for "scripts directory empty" handling.</description></item>
 ///   <item><description>Optional <see cref="RunGenerators"/> hook to attach Roslyn source generators

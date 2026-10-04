@@ -78,8 +78,8 @@ public static class SceneSpawnSystem
                 Logger.Error($"SceneSpawnSystem: spawn failed for '{asset.SourcePath}': {ex.Message}");
             }
 
-            // Always remove the request - even on failure - so we don't loop forever on
-            // a permanently-broken asset. Hot-reload produces a new SceneAsset and is
+            // The request is removed even on failure, so a broken asset is not tried
+            // every frame. Hot-reload produces a new SceneAsset and is
             // handled by SceneHotReloadSystem (no need to re-add the request component).
             ecs.Remove<SpawnSceneRequest>(entity);
         }

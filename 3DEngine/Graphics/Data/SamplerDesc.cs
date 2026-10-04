@@ -3,9 +3,9 @@ namespace Engine;
 /// <summary>Texture filtering mode for minification and magnification.</summary>
 public enum SamplerFilter
 {
-    /// <summary>Nearest-neighbor (point) filtering - no interpolation.</summary>
+    /// <summary>Nearest-neighbor (point) filtering, with no interpolation.</summary>
     Nearest,
-    /// <summary>Bilinear filtering - smooth interpolation between texels.</summary>
+    /// <summary>Bilinear filtering, blending smoothly between texels.</summary>
     Linear
 }
 

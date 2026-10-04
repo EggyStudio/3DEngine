@@ -6,7 +6,7 @@ public sealed partial class Schedule
 {
     /// <summary>
     /// Runs all systems registered to the specified stage, using parallel execution if enabled.
-    /// Each system is isolated - exceptions are caught, logged, and do not prevent subsequent systems from running.
+    /// Each system is isolated. Its exceptions are caught and logged, and the systems after it still run.
     /// </summary>
     /// <param name="stage">The <see cref="Stage"/> to execute.</param>
     /// <param name="world">The <see cref="World"/> passed to each system delegate.</param>

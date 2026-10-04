@@ -9,8 +9,8 @@ namespace Engine;
 /// Plugins listed here are sorted by <see cref="IPlugin.Order"/> before being added to
 /// the <see cref="App"/>. Foundational plugins (e.g. <c>AssetPlugin</c> at
 /// <see cref="PluginOrder.Foundation"/>) automatically build first regardless of where
-/// they appear in the list - so consumer plugins (textures, materials, scenes, models, ...)
-/// don't need to declare an explicit dependency on them.
+/// they appear in the list, so the plugins that use them (textures, materials, scenes,
+/// models and the rest) need not declare a dependency on them.
 /// </para>
 /// </remarks>
 /// <example>

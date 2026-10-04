@@ -58,7 +58,7 @@ public class AssimpModelReaderTests
         }
         catch (Exception ex) when (ex is DllNotFoundException || ex.GetType().Name.Contains("Assimp"))
         {
-            // Native Assimp not available on this RID - skip rather than fail.
+            // Native Assimp is not available on this RID, so the test is skipped rather than failed.
             return;
         }
 

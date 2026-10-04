@@ -12,8 +12,8 @@ namespace Engine;
 /// <para>
 /// Source assets are read from the <c>sourceDirectory</c>. Processed outputs are written to
 /// the <c>processedDirectory</c>. A single <c>.cache.json</c> manifest in the processed directory
-/// tracks content hashes to skip reprocessing of unchanged assets. No per-file sidecar files
-/// are created - the source directory is never modified.
+/// tracks content hashes to skip reprocessing of unchanged assets. No file is written beside
+/// each source, and the source directory is never modified.
 /// </para>
 /// </remarks>
 /// <example>
@@ -62,7 +62,7 @@ public sealed class AssetProcessorPipeline
     /// <summary>
     /// Processes all source assets that have changed since the last run.
     /// Skips assets whose SHA-256 hash matches the cached value in <c>.cache.json</c>.
-    /// The source directory is never modified - only the processed directory is written to.
+    /// The source directory is never modified, and the processed directory alone is written to.
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The number of assets processed.</returns>
@@ -88,7 +88,7 @@ public sealed class AssetProcessorPipeline
 
             string relativePath = Path.GetRelativePath(_sourceDir, sourceFile).Replace('\\', '/');
 
-            // Check content hash against cache - skip if unchanged
+            // An asset whose content hash the cache holds is unchanged, and skipped.
             string hash = ComputeHash(sourceFile);
             if (cache.Hashes.TryGetValue(relativePath, out var cached) && cached == hash)
             {
@@ -104,7 +104,7 @@ public sealed class AssetProcessorPipeline
 
             if (!result.Success)
             {
-                Logger.Error($"Processing failed: {relativePath} - {result.Error}");
+                Logger.Error($"Processing failed: {relativePath}: {result.Error}");
                 continue;
             }
 
@@ -136,7 +136,7 @@ public sealed class AssetProcessorPipeline
     }
 
     /// <summary>
-    /// Processes a single asset by relative path. Does not use cache - always reprocesses.
+    /// Processes a single asset by relative path, every time, without the cache.
     /// </summary>
     /// <param name="relativePath">Relative path from the source directory.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -163,7 +163,7 @@ public sealed class AssetProcessorPipeline
 
         if (!result.Success)
         {
-            Logger.Error($"Processing failed: {relativePath} - {result.Error}");
+            Logger.Error($"Processing failed: {relativePath}: {result.Error}");
             return false;
         }
 

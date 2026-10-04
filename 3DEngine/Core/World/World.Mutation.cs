@@ -3,7 +3,7 @@ namespace Engine;
 public sealed partial class World
 {
     /// <summary>Inserts or replaces a resource of type <typeparamref name="T"/>.</summary>
-    /// <typeparam name="T">The resource type. Keyed by concrete type - at most one instance per type.</typeparam>
+    /// <typeparam name="T">The resource type. Keyed by concrete type, with one instance a type at most.</typeparam>
     /// <param name="value">The resource instance to store. Replaces any existing resource of the same type.</param>
     public void InsertResource<T>(T value) where T : notnull
     {
@@ -13,7 +13,7 @@ public sealed partial class World
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or inserts <paramref name="value"/> and returns it.
-    /// Atomic - safe for concurrent callers.
+    /// Atomic, so callers on several threads are safe.
     /// </summary>
     /// <typeparam name="T">The resource type to retrieve or insert.</typeparam>
     /// <param name="value">The fallback value to insert if the resource does not exist.</param>
@@ -23,7 +23,7 @@ public sealed partial class World
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or creates one via <paramref name="factory"/>,
-    /// inserts it, and returns it. Atomic - safe for concurrent callers.
+    /// inserts it, and returns it. Atomic, so callers on several threads are safe.
     /// The factory is only invoked when the resource is missing.
     /// </summary>
     /// <typeparam name="T">The resource type to retrieve or create.</typeparam>

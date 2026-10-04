@@ -8,15 +8,15 @@ namespace Engine;
 /// <para>
 /// <b>Registered resources:</b>
 /// <list type="bullet">
-///   <item><description><see cref="AssetServer"/> - central asset coordinator.</description></item>
+///   <item><description><see cref="AssetServer"/>, which loads and keeps every asset.</description></item>
 /// </list>
 /// </para>
 /// <para>
 /// <b>Registered systems:</b>
 /// <list type="bullet">
-///   <item><description><see cref="Stage.PreUpdate"/> - drains completed loads into <see cref="Assets{T}"/> and fires <see cref="AssetEvent{T}"/>.</description></item>
-///   <item><description><see cref="Stage.Last"/> - clears asset events for the frame.</description></item>
-///   <item><description><see cref="Stage.Cleanup"/> - disposes the <see cref="AssetServer"/>.</description></item>
+///   <item><description><see cref="Stage.PreUpdate"/> drains completed loads into <see cref="Assets{T}"/> and fires <see cref="AssetEvent{T}"/>.</description></item>
+///   <item><description><see cref="Stage.Last"/> clears asset events for the frame.</description></item>
+///   <item><description><see cref="Stage.Cleanup"/> disposes the <see cref="AssetServer"/>.</description></item>
 /// </list>
 /// </para>
 /// </remarks>

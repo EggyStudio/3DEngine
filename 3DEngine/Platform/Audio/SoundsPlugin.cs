@@ -11,23 +11,11 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Module split (matches <c>Engine.Textures</c>):</b>
+/// The sound model here is the same on every platform: the <see cref="Sound"/> asset, the
+/// <see cref="ISoundDecoder"/> registry with its WAV, Ogg Vorbis, MP3 and FLAC decoders, the loader,
+/// and the <see cref="AudioServer"/>. Playback is <see cref="SdlAudioPlugin"/>'s, which this plugin
+/// adds, and which leaves the server silent rather than failing where there is no audio device.
 /// </para>
-/// <list type="bullet">
-///   <item><description>
-///     <c>Engine.Sound</c> (this module) - format-agnostic <see cref="Sound"/> asset,
-///     <see cref="ISoundDecoder"/>, registry, loader, the <see cref="AudioServer"/>
-///     resource, and a built-in WAV decoder. No native deps.
-///   </description></item>
-///   <item><description>
-///     <c>Engine.Sound.Sdl</c> - SDL3 playback backend
-///     (<see cref="IAudioBackend"/>); pulled in here automatically when present.
-///   </description></item>
-///   <item><description>
-///     <c>Engine.Sound.SteamAudio</c> - Steam Audio spatial post-processor
-///     (<see cref="ISpatialAudioProcessor"/>); pulled in here automatically when present.
-///   </description></item>
-/// </list>
 /// <para>
 /// <b>Wiring:</b> add <i>after</i> <see cref="AssetPlugin"/>;
 /// <see cref="DefaultPlugins"/> brings this up automatically. The plugin re-syncs the
@@ -65,9 +53,9 @@ public sealed class SoundsPlugin : IPlugin
         var audio = new AudioServer();
         app.World.InsertResource(audio);
 
-        // Bring up the optional native backends. Each is best-effort: missing
-        // assemblies / native libs just leave the NullAudioBackend in place.
-        TryAddOptionalPlugin(app, "Engine.SdlAudioPlugin");
+        // Playback through SDL3, named rather than looked up so trimming keeps it. Where the
+        // device does not open, the backend stays silent and the server keeps working.
+        app.AddPlugin(new SdlAudioPlugin());
 
         // After backends register their decoders, register one shared loader for all
         // accumulated extensions (mirrors TexturesPlugin's pattern).
@@ -83,7 +71,7 @@ public sealed class SoundsPlugin : IPlugin
         }
         else
         {
-            Logger.Warn("SoundsPlugin: AssetServer not found - SoundAssetLoader was NOT registered. Add AssetPlugin first.");
+            Logger.Warn("SoundsPlugin: There is no AssetServer, so the SoundAssetLoader is not registered. AssetPlugin comes first.");
         }
 
         // Per-frame systems.
@@ -95,35 +83,5 @@ public sealed class SoundsPlugin : IPlugin
             .Write<AudioServer>());
 
         Logger.Info("SoundsPlugin: Audio pipeline ready.");
-    }
-
-    /// <summary>
-    /// Best-effort load-and-add of an optional backend plugin by full type name. The
-    /// <c>Engine.Sound.Sdl</c> / <c>.SteamAudio</c> modules are co-compiled into the
-    /// engine assembly via the <c>Modules\**</c> glob, so the type lookup is a simple
-    /// reflection probe against the same assembly. If the symbol is absent (the module
-    /// was excluded from the build), we skip silently - <see cref="NullAudioBackend"/>
-    /// keeps audio API calls safe.
-    /// </summary>
-    private static void TryAddOptionalPlugin(App app, string typeName)
-    {
-        var type = typeof(SoundsPlugin).Assembly.GetType(typeName, throwOnError: false);
-        if (type is null)
-        {
-            Logger.Debug($"SoundsPlugin: optional plugin '{typeName}' not present - skipping.");
-            return;
-        }
-        try
-        {
-            if (Activator.CreateInstance(type) is IPlugin plugin)
-            {
-                app.AddPlugin(plugin);
-                Logger.Info($"SoundsPlugin: optional plugin '{typeName}' added.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn($"SoundsPlugin: failed to instantiate '{typeName}': {ex.Message}");
-        }
     }
 }

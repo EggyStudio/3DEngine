@@ -13,17 +13,16 @@ namespace Engine;
 /// </para>
 /// <list type="bullet">
 ///   <item><description>
-///     <c>Engine.Textures</c> (this module) - format-agnostic <see cref="Texture"/>
-///     asset, <see cref="ITextureDecoder"/>, registry, and loader. No native deps.
+///     This plugin holds the <see cref="Texture"/> asset, <see cref="ITextureDecoder"/>, the
+///     registry and the loader, none of them native.
 ///   </description></item>
 ///   <item><description>
-///     <c>Engine.Textures.Stb</c> - StbImageSharp backend. Covers PNG / JPEG / BMP /
-///     TGA / PSD / GIF / HDR / PIC / PNM (~95% of model-referenced textures).
+///     <see cref="StbTexturesPlugin"/> decodes through StbImageSharp, which reads PNG, JPEG,
+///     BMP, TGA, PSD, GIF, HDR, PIC and PNM.
 ///   </description></item>
 ///   <item><description>
-///     <i>Future</i> <c>Engine.Textures.Ktx2</c> / <c>.Dds</c> / <c>.Exr</c> - register
-///     for their own extensions and (optionally) take precedence over Stb when both can
-///     handle the same extension (last-registration wins).
+///     A decoder of another format registers for its own extensions, and when two decoders
+///     claim one extension the last registered is used.
 ///   </description></item>
 /// </list>
 /// <para>

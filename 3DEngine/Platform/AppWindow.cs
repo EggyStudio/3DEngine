@@ -6,9 +6,9 @@ namespace Engine;
 /// Thin wrapper over SDL window and event loop with hooks for resize, quit, and raw event forwarding.
 /// </summary>
 /// <remarks>
-/// Resize events are coalesced: if multiple <c>WindowResized</c> events arrive in
-/// a single poll batch, only the final dimensions are dispatched - once - after the
-/// batch drains, collapsing N resize callbacks per frame to at most 1.
+/// Resize events are coalesced. When several <c>WindowResized</c> events arrive in one
+/// poll, the last size alone is dispatched, once, after the poll drains, so a frame has
+/// at most one resize callback.
 /// </remarks>
 /// <seealso cref="SdlWindow"/>
 /// <seealso cref="WindowData"/>
@@ -84,9 +84,9 @@ public sealed class AppWindow
     /// <summary>Pumps SDL events and calls the supplied per-frame delegates until quit is requested.</summary>
     /// <param name="onFrame">Delegates invoked once each frame iteration.</param>
     /// <remarks>
-    /// Resize events are coalesced: if multiple <c>WindowResized</c> events arrive in
-    /// a single poll batch, only the final dimensions are dispatched - once - after the
-    /// batch drains.  This collapses N resize callbacks per frame to at most 1.
+    /// Resize events are coalesced. When several <c>WindowResized</c> events arrive in one
+    /// poll, the last size alone is dispatched, once, after the poll drains, so a frame has
+    /// at most one resize callback.
     /// </remarks>
     public void Looping(params Delegate[] onFrame)
     {
@@ -136,7 +136,7 @@ public sealed class AppWindow
                 Sdl.DisplayScale = resizeScale;
 
                 // GetWindowSize returns logical coordinates on native Wayland,
-                // macOS, and iOS - but physical pixels on Windows, X11 (XWayland),
+                // macOS and iOS, and physical pixels on Windows, X11 (XWayland),
                 // and Android.
                 SDL.GetWindowSize(Sdl.Window, out int rawW, out int rawH);
                 if (Sdl.NeedsManualHiDpiScaling && resizeScale > 1.001f)

@@ -33,7 +33,7 @@ public sealed class SystemDescriptor
     /// <summary>The system delegate to invoke when this descriptor is executed.</summary>
     public SystemFn System { get; }
 
-    /// <summary>Optional predicate - when set, the system only runs if this returns <c>true</c>.</summary>
+    /// <summary>Optional predicate. When set, the system runs only while it returns <c>true</c>.</summary>
     public Func<World, bool>? RunCondition { get => _runCondition; init => _runCondition = value; }
     private Func<World, bool>? _runCondition;
 

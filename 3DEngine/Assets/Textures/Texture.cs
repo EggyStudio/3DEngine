@@ -12,12 +12,12 @@ namespace Engine;
 /// top-left-origin pixel buffer. Each pixel is <see cref="TextureFormatInfo.BytesPerPixel"/>
 /// bytes wide; the row stride is <c>Width * BytesPerPixel</c> (no padding). Mip chains
 /// follow the level 0 data sequentially, each at half the previous extents (rounded down,
-/// floor 1) - importers that don't generate mips set <see cref="MipCount"/> to 1 and the
-/// renderer can build them on upload.
+/// floor 1). An importer that makes no mips sets <see cref="MipCount"/> to 1, and the
+/// renderer may build them on upload.
 /// </para>
 /// <para>
-/// <b>Color space:</b> <see cref="ColorSpace"/> is informational only - decoders never
-/// transform pixel values. Samplers / shaders are expected to honour it (sRGB textures
+/// <b>Color space:</b> <see cref="ColorSpace"/> describes the pixels, which decoders never
+/// transform. Samplers and shaders honor it (sRGB textures
 /// use sRGB-aware sampling on the GPU). The convention matches glTF: BaseColor / Emissive
 /// are sRGB; Normal / MetallicRoughness / Occlusion / AmbientOcclusion are Linear.
 /// </para>
@@ -82,17 +82,17 @@ public enum TextureFormat
     /// <summary>Four channels, 32-bit float. High-range HDR (Radiance .hdr decode target).</summary>
     Rgba32F,
 
-    /// <summary>BC1 (DXT1) - opaque RGB or 1-bit alpha; 0.5 bpp.</summary>
+    /// <summary>BC1 (DXT1), opaque RGB or 1-bit alpha, 0.5 bytes a pixel.</summary>
     Bc1,
-    /// <summary>BC3 (DXT5) - RGB + smooth alpha; 1 bpp.</summary>
+    /// <summary>BC3 (DXT5), RGB with smooth alpha, 1 byte a pixel.</summary>
     Bc3,
-    /// <summary>BC4 - single channel; 0.5 bpp.</summary>
+    /// <summary>BC4, one channel, 0.5 bytes a pixel.</summary>
     Bc4,
-    /// <summary>BC5 - two channel (typical for normal maps); 1 bpp.</summary>
+    /// <summary>BC5, two channels, as normal maps use, 1 byte a pixel.</summary>
     Bc5,
-    /// <summary>BC6H - HDR RGB; 1 bpp.</summary>
+    /// <summary>BC6H, HDR RGB, 1 byte a pixel.</summary>
     Bc6H,
-    /// <summary>BC7 - high-quality LDR RGBA; 1 bpp.</summary>
+    /// <summary>BC7, high-quality LDR RGBA, 1 byte a pixel.</summary>
     Bc7,
 }
 

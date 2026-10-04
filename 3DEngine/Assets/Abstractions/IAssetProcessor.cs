@@ -11,8 +11,8 @@ namespace Engine;
 /// processed output directory.
 /// </para>
 /// <para>
-/// <c>AssetProcessor</c> - an offline/background pipeline that
-/// converts source assets into optimized runtime formats.
+/// <c>AssetProcessor</c> is a pipeline, run ahead or in the background, that
+/// converts source assets into formats faster to load.
 /// </para>
 /// </remarks>
 /// <example>

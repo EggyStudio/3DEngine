@@ -42,8 +42,8 @@ public static class SceneHotReloadSystem
         world.TryGetResource<AssetServer>(out var assetServer);
         world.TryGetResource<MaterialLibrary>(out var materialLibrary);
 
-        // Read (don't drain) - other systems may also consume these events; AssetPlugin
-        // clears them in Stage.Last.
+        // Read rather than drained, since other systems may read these events too, and
+        // AssetPlugin clears them in Stage.Last.
         foreach (var evt in events.Read())
         {
             if (evt.Kind != AssetEventKind.Modified) continue;

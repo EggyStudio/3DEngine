@@ -9,13 +9,11 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Where backends fit in:</b> backend modules such as <c>Engine.Materials.X</c>
-/// (MaterialX), USD readers, and the glTF importer parse their backend-specific
-/// document/graph format and hand the resulting <see cref="MaterialDescription"/> to
-/// <see cref="Create(MaterialDescription)"/> / <see cref="CreateOrGet(MaterialDescription)"/>.
-/// The library itself never references those backends - the only contract is the
-/// description shape - so user code can mix authored materials, MaterialX-imported
-/// materials, USD-imported materials, etc. interchangeably through the same handle type.
+/// <b>Where importers fit in:</b> a model reader turns its file's materials into
+/// <see cref="MaterialDescription"/> values and hands them to
+/// <see cref="Create(MaterialDescription)"/> or <see cref="CreateOrGet(MaterialDescription)"/>.
+/// The library knows the description alone, so materials a program makes and materials a file
+/// brings are used alike, through the same handle type.
 /// </para>
 /// <para>
 /// <b>De-duplication:</b> when <see cref="MaterialSettings.DeduplicateBySourcePath"/> is

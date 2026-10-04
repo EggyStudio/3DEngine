@@ -3,17 +3,17 @@ using StbImageSharp;
 namespace Engine;
 
 /// <summary>
-/// <see cref="ITextureDecoder"/> backed by <c>StbImageSharp</c> - a pure-managed port of
-/// the venerable <c>stb_image.h</c>. Covers ~95% of textures referenced by typical model
-/// files: PNG, JPEG, BMP, TGA, PSD, GIF, HDR (Radiance), PIC, and PNM/PPM/PGM.
+/// <see cref="ITextureDecoder"/> backed by <c>StbImageSharp</c>, a managed port of
+/// <c>stb_image.h</c>, which reads the textures model files usually name: PNG, JPEG, BMP,
+/// TGA, PSD, GIF, HDR (Radiance), PIC and PNM, PPM and PGM.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <b>Format selection:</b> dispatches on file extension to either the LDR path
-/// (<see cref="ImageResult.FromStream(Stream, ColorComponents)"/>) - producing
-/// <see cref="TextureFormat.Rgba8"/> - or the HDR path
+/// (<see cref="ImageResult.FromStream(Stream, ColorComponents)"/>), which makes
+/// <see cref="TextureFormat.Rgba8"/>, or the HDR path
 /// (<see cref="ImageResultFloat.FromStream(Stream, ColorComponents)"/>) for
-/// <c>.hdr</c> / <c>.pic</c> files - producing <see cref="TextureFormat.Rgba32F"/>.
+/// <c>.hdr</c> and <c>.pic</c> files, which makes <see cref="TextureFormat.Rgba32F"/>.
 /// </para>
 /// <para>
 /// <b>Channel expansion:</b> always decodes to RGBA so the renderer can use a single
@@ -83,7 +83,7 @@ public sealed class StbTextureDecoder : ITextureDecoder
                         $"StbTextureDecoder: ImageResult.FromStream returned null for '{context.Path}'.");
 
         Logger.Debug(
-            $"StbTextureDecoder(LDR): '{context.Path}' decoded - {image.Width}x{image.Height}, " +
+            $"StbTextureDecoder(LDR): '{context.Path}' decoded, {image.Width}x{image.Height}, " +
             $"src comps={image.SourceComp}, out=Rgba8 ({image.Data.Length} bytes).");
 
         return new Texture
@@ -114,7 +114,7 @@ public sealed class StbTextureDecoder : ITextureDecoder
         Buffer.BlockCopy(image.Data, 0, bytes, 0, bytes.Length);
 
         Logger.Debug(
-            $"StbTextureDecoder(HDR): '{context.Path}' decoded - {image.Width}x{image.Height}, " +
+            $"StbTextureDecoder(HDR): '{context.Path}' decoded, {image.Width}x{image.Height}, " +
             $"src comps={image.SourceComp}, out=Rgba32F ({bytes.Length} bytes).");
 
         return new Texture

@@ -4,7 +4,7 @@ using Xunit;
 namespace Engine.Tests.Textures;
 
 /// <summary>
-/// Tests for <see cref="TextureFormatInfo"/> - the per-<see cref="TextureFormat"/>
+/// Tests for <see cref="TextureFormatInfo"/>, the per-<see cref="TextureFormat"/>
 /// metadata helpers used by the loader, mip generator, and renderer upload paths.
 /// </summary>
 [Trait("Category", "Unit")]

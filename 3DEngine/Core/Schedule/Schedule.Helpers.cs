@@ -28,7 +28,7 @@ public sealed partial class Schedule
 
             if (desc.RunCondition is { } cond && !cond(world))
             {
-                Logger.FrameTrace($"  ⏭ {desc.Name} - skipped (run condition false)");
+                Logger.FrameTrace($"  ⏭ {desc.Name} skipped (run condition false)");
                 continue;
             }
 
@@ -169,7 +169,7 @@ public sealed partial class Schedule
     {
         if (desc.RunCondition is { } cond && !cond(world))
         {
-            Logger.FrameTrace($"  ⏭ {desc.Name} - skipped (run condition false)");
+            Logger.FrameTrace($"  ⏭ {desc.Name} skipped (run condition false)");
             return;
         }
 

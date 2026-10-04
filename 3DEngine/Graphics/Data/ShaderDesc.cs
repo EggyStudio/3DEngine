@@ -3,9 +3,9 @@ namespace Engine;
 /// <summary>Shader pipeline stage.</summary>
 public enum ShaderStage
 {
-    /// <summary>Vertex shader stage - transforms vertex positions.</summary>
+    /// <summary>The vertex stage, which transforms vertex positions.</summary>
     Vertex,
-    /// <summary>Fragment (pixel) shader stage - computes final pixel color.</summary>
+    /// <summary>The fragment (pixel) stage, which computes each pixel's color.</summary>
     Fragment,
     /// <summary>Compute shader stage, run by a dispatch over groups of threads rather than by drawing.</summary>
     Compute

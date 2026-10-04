@@ -5,15 +5,15 @@ namespace Engine;
 /// <summary>Global log configuration.</summary>
 public static class LogConfig
 {
-    /// <summary>Minimum severity written to the log file and any extra providers. Defaults to Trace - captures all startup diagnostics to disk.</summary>
+    /// <summary>Minimum severity written to the log file and any extra providers. Defaults to Trace, so every startup diagnostic reaches the file.</summary>
     public static LogLevel MinimumLevel { get; set; } = LogLevel.Trace;
 
-    /// <summary>Minimum severity written to the console. Defaults to Info - keeps the console readable while the log file gets the full detail.</summary>
+    /// <summary>Minimum severity written to the console. Defaults to Info, which keeps the console readable while the log file has the full detail.</summary>
     public static LogLevel ConsoleMinimumLevel { get; set; } = LogLevel.Info;
 
     /// <summary>
     /// When true, per-frame repetitive diagnostics (stage timing, render steps) are emitted at Trace level.
-    /// When false (default), only one-time startup/lifecycle logs are shown - keeping output clean at runtime.
+    /// When false (default), only the logs of starting and stopping are shown, which keeps a running app quiet.
     /// Enable via <c>LogConfig.PerFrameLogging = true</c> or the <c>ENGINE_LOG_FRAMES=1</c> environment variable.
     /// </summary>
     public static bool PerFrameLogging { get; set; }

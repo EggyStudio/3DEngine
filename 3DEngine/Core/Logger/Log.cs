@@ -15,7 +15,7 @@ namespace Engine;
 ///
 /// // Use severity helpers
 /// Logger.Info("Simulation started");
-/// Logger.Warn("Gravity is zero - objects will float");
+/// Logger.Warn("Gravity is zero, so objects float");
 /// Logger.Error("Collision solver diverged", ex);
 ///
 /// // Tune output levels
@@ -45,7 +45,7 @@ public static class Log
     {
         var logger = Category("Engine");
         logger.Info("========================================================");
-        logger.Info("  3DEngine - Initializing");
+        logger.Info("  3DEngine: Initializing");
         logger.Info("========================================================");
         logger.Info($"Runtime:      {RuntimeInformation.FrameworkDescription}");
         logger.Info($"OS:           {RuntimeInformation.OSDescription}");

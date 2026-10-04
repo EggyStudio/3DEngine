@@ -60,7 +60,7 @@ public sealed partial class World : IDisposable
 
         _resources.Clear();
         Interlocked.Increment(ref _resourceVersion);
-        Logger.Trace("World cleared - all resources removed.");
+        Logger.Trace("World cleared, every resource removed.");
     }
 
     /// <summary>

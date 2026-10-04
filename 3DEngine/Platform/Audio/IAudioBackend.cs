@@ -26,10 +26,9 @@ public readonly record struct AudioVoiceParams
     public bool Paused { get; init; }
 
     /// <summary>
-    /// Optional source orientation as a quaternion (world space). When non-null the
-    /// spatial processor uses it - together with <see cref="DipoleWeight"/> /
-    /// <see cref="DipolePower"/> - to compute directivity attenuation. <c>null</c>
-    /// = the source radiates omni-directionally.
+    /// The source's orientation in world space, which the spatial processor uses with
+    /// <see cref="DipoleWeight"/> and <see cref="DipolePower"/> to weaken the sound away from
+    /// the way the source faces. <c>null</c> for a source heard alike in every direction.
     /// </summary>
     public Quaternion? Orientation { get; init; }
 
@@ -155,8 +154,7 @@ public interface IAudioBackend : IDisposable
 /// <summary>
 /// Optional spatial post-processor that augments raw <see cref="IAudioBackend"/> output
 /// with engine-quality 3D parameters (distance attenuation, occlusion, HRTF direction).
-/// Implemented by <c>SteamAudioProcessor</c> in <c>Engine.Sound.SteamAudio</c>; absence
-/// is fine - the backend's built-in 3D maths is used instead.
+/// None is built into the engine, and without one the backend's own 3D math is used.
 /// </summary>
 public interface ISpatialAudioProcessor : IDisposable
 {
