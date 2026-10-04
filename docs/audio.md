@@ -63,6 +63,22 @@ PlaySound(step);
 
 `StopSound`, `PauseSound` and `ResumeSound` stop or hold one sound and leave the others playing.
 
+## Editing samples
+
+A `Wave` holds a file's samples in memory to work on before they are played. `WaveCrop` keeps a
+range of frames, `WaveFormat` resamples it and mixes its channels, `ExportWave` writes it to a WAV
+file, and `LoadSoundFromWave` makes a sound of it:
+
+```csharp
+var wave = LoadWave("resources/voice.ogg");
+WaveCrop(ref wave, 0, wave.SampleRate / 2);           // the first half second
+WaveFormat(ref wave, 22050, 16, 1);                   // smaller, in one channel
+var blip = LoadSoundFromWave(wave);
+```
+
+`LoadWaveSamples` copies the samples out for a program that reads them, as a waveform drawn in a
+level editor does.
+
 ## Music
 
 `LoadMusicStream` opens a file of the same formats as music, read half a second ahead of what is

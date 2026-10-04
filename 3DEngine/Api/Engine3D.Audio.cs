@@ -242,15 +242,7 @@ public static partial class Engine3D
 
         try
         {
-            var bytes = File.ReadAllBytes(path);
-            return Path.GetExtension(path).ToLowerInvariant() switch
-            {
-                ".wav" or ".wave" => WavSoundDecoder.Decode(bytes, fileName),
-                ".ogg" => OggSoundDecoder.Decode(bytes, fileName),
-                ".mp3" => Mp3SoundDecoder.Decode(bytes, fileName),
-                ".flac" => FlacSoundDecoder.Decode(bytes, fileName),
-                var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
-            };
+            return DecodeSound(File.ReadAllBytes(path), Path.GetExtension(path), fileName);
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException)
         {
@@ -258,6 +250,17 @@ public static partial class Engine3D
             return EmptySound(fileName);
         }
     }
+
+    // A file's bytes decoded by its extension, with or without the dot.
+    private static Sound DecodeSound(byte[] bytes, string extension, string name) =>
+        ("." + extension.TrimStart('.')).ToLowerInvariant() switch
+        {
+            ".wav" or ".wave" => WavSoundDecoder.Decode(bytes, name),
+            ".ogg" => OggSoundDecoder.Decode(bytes, name),
+            ".mp3" => Mp3SoundDecoder.Decode(bytes, name),
+            ".flac" => FlacSoundDecoder.Decode(bytes, name),
+            var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
+        };
 
     /// <summary>Whether a sound has samples to play.</summary>
     public static bool IsSoundValid(Sound sound) => sound.Samples.Length > 0;

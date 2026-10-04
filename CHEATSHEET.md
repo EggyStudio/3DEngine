@@ -641,6 +641,18 @@ void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), no
 void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
 void SetSoundPan(Sound sound, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
 
+Wave LoadWave(string fileName);                           // A sound file's samples in memory, to cut, convert and write
+Wave LoadWaveFromMemory(string fileType, byte[] fileData); // The same from a file's bytes, by its type (".ogg")
+bool IsWaveValid(Wave wave);                              // Whether it has samples
+void UnloadWave(Wave wave);                               // Nothing to free, kept for raylib's programs
+Sound LoadSoundFromWave(Wave wave);                       // A sound of its samples
+Wave WaveCopy(Wave wave);                                 // A copy with samples of its own
+void WaveCrop(ref Wave wave, int initFrame, int finalFrame); // Keep the frames from init up to final
+void WaveFormat(ref Wave wave, int sampleRate, int sampleSize, int channels); // Resample, and mix to one channel or spread to more
+float[] LoadWaveSamples(Wave wave);                       // A copy of its samples, interleaved, -1 to 1
+void UnloadWaveSamples(float[] samples);                  // Nothing to free, kept for raylib's programs
+bool ExportWave(Wave wave, string fileName);              // Write it to a 16-bit WAV file
+
 Music LoadMusicStream(string fileName);                   // Open a WAV, Ogg Vorbis, MP3 or FLAC file as music, streamed as it plays
 void UnloadMusicStream(Music music);                      // Stop music and close its file
 bool IsMusicValid(Music music);                           // Whether music has samples

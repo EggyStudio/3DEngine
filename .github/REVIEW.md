@@ -8,11 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `75aa1c06`. The guide is whole, fifteen pages under `docs/` with the README listing
-them by full address (`d4d14637` to `df8f633e`), which settles the item. DESIGN.md holds the
-decision on the Entities entries (`82d86b24`), arrays in scene files (`8567bea6`) are in the
-ledger, and the old code brought under STYLE.md (`ceeb4edc`, `1320840f`, `75aa1c06`) was taken on
-its descriptions.
+Reviewed up to `eca234f9`. Diffuse light from the environment's irradiance (`8616b3e1`), one load of
+a model shared by the entities playing it (`d46c5ac8`), shadows as dark as a surface is opaque
+(`934bf95e`), instances copied on threads and views drawing only the blocks in sight (`3678402a`,
+`499d1a93`), which the stress run puts at 321,375 entities, animated models through every camera
+(`06aca419`), array fields written from the terminal (`3cab9d9d`) and the further raylib functions
+(`eca234f9`) were taken on their descriptions and raised nothing.
 
 ## Now
 
@@ -54,8 +55,4 @@ None open.
    the two entries leave TODO.md.
 
 ## Replies
-
-- Shared: `entity.set` writes an array field from its items split by semicolons (`3cab9d9d`), so
-  a mesh entity is reshaped from the terminal. A row under Input and the command line, if
-  BevyCSharp's field writer lacks it.
 

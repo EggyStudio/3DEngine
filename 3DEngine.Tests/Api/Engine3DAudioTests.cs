@@ -192,6 +192,38 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void A_Wave_Is_Cut_Converted_Written_And_Read_Back()
+    {
+        var wave = LoadWave(WriteWav());
+        IsWaveValid(wave).Should().BeTrue();
+        (wave.FrameCount, wave.SampleRate, wave.Channels).Should().Be((800, 8000, 1));
+
+        // A ramp in place of the silence, so the cut and the conversion can be seen.
+        var ramp = new Wave { Samples = Enumerable.Range(0, 800).Select(i => i / 1000f).ToArray(), SampleRate = 8000, Channels = 1 };
+        var cut = WaveCopy(ramp);
+        WaveCrop(ref cut, 100, 300);
+        cut.FrameCount.Should().Be(200);
+        cut.Samples[0].Should().Be(0.1f);
+        ramp.FrameCount.Should().Be(800, "the copy is cut, not the wave it came from");
+
+        WaveFormat(ref cut, 16000, 16, 2);
+        (cut.FrameCount, cut.Channels).Should().Be((400, 2));
+        cut.Samples[2].Should().Be(cut.Samples[3], "one channel spread to two gives both the same");
+        cut.Samples[2].Should().BeApproximately(0.1005f, 1e-4f, "the frame between the first two source frames is halfway between them");
+
+        var file = Path.Combine(_directory, "cut.wav");
+        ExportWave(cut, file).Should().BeTrue();
+        var back = LoadWave(file);
+        (back.FrameCount, back.SampleRate, back.Channels).Should().Be((400, 16000, 2));
+        back.Samples[100].Should().BeApproximately(cut.Samples[100], 1f / 32767);
+
+        var sound = LoadSoundFromWave(back);
+        IsSoundValid(sound).Should().BeTrue();
+        LoadWaveFromMemory(".wav", File.ReadAllBytes(file)).FrameCount.Should().Be(400);
+        LoadWaveSamples(back).Should().Equal(back.Samples).And.NotBeSameAs(back.Samples);
+    }
+
+    [Fact]
     public void Stop_Pause_And_Resume_Reach_The_Voice()
     {
         var sound = LoadSound(WriteWav());
