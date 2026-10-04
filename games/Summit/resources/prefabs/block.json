@@ -1,0 +1,31 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "36bcaccd2f76",
+      "name": "block",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "../resources/models/block.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

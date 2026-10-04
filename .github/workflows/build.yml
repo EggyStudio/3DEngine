@@ -86,6 +86,8 @@ jobs:
 
       # The 2D game from the same package, run right and jumped with the pad's south button.
       - name: Build and play the 2D game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
         run: |
           dotnet restore games/Hopper --force-evaluate
           dotnet build games/Hopper --no-restore
@@ -97,6 +99,25 @@ jobs:
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Hopper.log | grep -F 'Validation Error'; then
             echo "::error::Hopper: the validation layer reported an error"
+            exit 1
+          fi
+
+      # The 3D platformer from the same package: its level of prefabs loads, Enter starts it once
+      # the level's meshes are solid, and the player runs up the steps.
+      - name: Build and play the 3D platformer from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Summit --force-evaluate
+          dotnet build games/Summit --no-restore
+          ./e3d open games/Summit/bin/Debug/net10.0/Summit --offscreen --quiet
+          ./e3d command frames.wait 60 --quiet
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command input.key W 120 --quiet
+          ./e3d shot captures/summit.png --quiet
+          ./e3d stop --quiet
+          if grep -F '[Vulkan.Validation]' build/sessions/Summit.log | grep -F 'Validation Error'; then
+            echo "::error::Summit: the validation layer reported an error"
             exit 1
           fi
 

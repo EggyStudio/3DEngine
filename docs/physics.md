@@ -46,7 +46,16 @@ foreach (var (body, _) in boxes) DestroyPhysicsBody(body);
 The other shapes are `CreatePhysicsSphere` and `CreatePhysicsCapsule`, and
 `CreatePhysicsStaticModel` makes level geometry from a model's own triangles, so a loaded level is
 solid where it is drawn. A box the program moves itself, as a lift or a moving platform, is
-`CreatePhysicsKinematicBox`, which pushes what it meets and is not pushed back.
+`CreatePhysicsKinematicBox`, which pushes what it meets and is not pushed back. It is moved by its
+velocity, so what stands on it rides along, where setting its position each frame jumps it to
+the place and leaves a rider behind or pushed through it. `games/Summit`'s lift heads for where it
+is due:
+
+```csharp
+var liftY = 4.5f - 1.5f * MathF.Cos((float)GetTime() * 0.6f);
+var liftAt = GetPhysicsBodyPosition(lift);
+SetPhysicsBodyVelocity(lift, new Vector3(0, (liftY - liftAt.Y) * 8, 0));
+```
 
 ## Pushing and moving
 

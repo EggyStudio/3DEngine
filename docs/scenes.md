@@ -141,7 +141,28 @@ var body = ecs.GetReadOnly<PhysicsBody>(crate);
 ApplyPhysicsImpulse(body, new Vector3(0, 5, 0));
 ```
 
-A `Joint` component on an entity of its own joins two bodies at its place, along its up.
+A collider is a `Collider.Box`, a `Collider.Sphere`, a `Collider.Capsule`, or `Collider.Mesh`, the
+triangles of the meshes the entity and those below it show, which never moves. A level's floors,
+steps and rooms are each a `ModelRef` with a mesh collider, solid where they are drawn. A mesh
+collider is made once its model has spawned, a frame or two after the scene loads, so a game waits
+until every collider has its body before it lets the player in, as `games/Summit` does:
+
+```csharp
+var ready = ecs.Query<Collider>().All(c => ecs.Has<PhysicsBody>(c.Entity));
+```
+
+A `Joint` component on an entity of its own joins two bodies at its place, along its up. Its `A`
+and `B` name the bodies' entities by the `Entity` handle `ecs.Handle(id)` gives, as `SaveScene`
+takes the entities it saves. From `games/Summit`, a plank turned about a post by a hinge's motor:
+
+```csharp
+ecs.Add(hinge, new Transform(new Vector3(0, 2.2f, -21)));
+ecs.Add(hinge, new Joint { Kind = JointKind.Hinge, A = ecs.Handle(post), B = ecs.Handle(board), MotorSpeed = 25, MotorTorque = 20000 });
+```
+
+A `ModelRef`'s path is taken from the program's `source` folder, where its shaders are staged, so a
+model beside the program under `resources` is `../resources/models/house.obj`. `LoadScene` and a
+`SceneRef` take a path from beside the program, as `resources/prefabs/house.json`.
 
 ## Scenes inside scenes
 

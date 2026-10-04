@@ -120,14 +120,19 @@ those are.
 | <a href="https://www.raylib.com/examples/shaders/loader.html?name=shaders_mesh_instancing"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_mesh_instancing.png" width="400"/></a><br>`shaders_mesh_instancing` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_animated_models.png" width="400"/><br>`ecs_animated_models` |
 | <a href="https://www.raylib.com/examples/core/loader.html?name=core_2d_camera"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera.png" width="400"/></a><br>`core_2d_camera` | <a href="https://www.raylib.com/examples/core/loader.html?name=core_drop_files"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_drop_files.png" width="400"/></a><br>`core_drop_files` |
 | <a href="https://www.raylib.com/examples/audio/loader.html?name=audio_raw_stream"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.png" width="400"/></a><br>`audio_raw_stream` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_reflection_probe.png" width="400"/><br>`models_reflection_probe` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.png" width="400"/><br>`shaders_bloom` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.png" width="400"/><br>`shaders_bloom` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/summit.png" width="400"/><br>`games/Summit` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
 into a goal with physics and contacts, a light with a shadow, a sky, a sound, text, an ImGui panel,
 and a menu, play and pause. `games/Hopper` is its 2D counterpart, a platformer with a sprite sheet,
 a tile atlas, a following 2D camera, coins, music, a loaded font, a scaled pixel view, a gamepad and
-a saved high score. BUILDING.md says how they are built.
+a saved high score. `games/Summit` is a 3D platformer: a level of prefabs solid as their meshes are
+drawn, an animated character on the character controller with a camera that follows it and comes
+in front of walls, a carousel turned by a hinge's motor, a bridge hung on ropes, a lift, orbs that
+glow through bloom and are collected by triggers, a sun outdoors and a lamp in a house a reflection
+probe lights, a sky, music and sounds, a menu, a pause, a restart and a gamepad. BUILDING.md says
+how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

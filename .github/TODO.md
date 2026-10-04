@@ -160,6 +160,13 @@ file is read by keeping the fields it has, with no migration.
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`.
 
+- **A scene's paths follow two rules.** A `ModelRef` is found from the program's `source` folder,
+  through the asset server, and `LoadScene` and a `SceneRef` from beside the program, so a level
+  with its models under `resources` names them `../resources/...` and its prefabs
+  `resources/...` (scenes.md says so). `games/Summit` was written that way. A `ModelRef` found as a
+  `SceneRef` is, with the asset folder tried first so files written the old way still load, makes
+  the two one rule.
+
 ## Platform
 
 ### Input

@@ -1,0 +1,334 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "a399839a6397",
+      "name": "Island",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/island.json"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3ec2408e18f9",
+      "name": "Steps",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/steps.json"
+        },
+        "Transform": {
+          "Position": [0, 0, -10],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "1c1f2d2c309d",
+      "name": "Block A",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/block.json"
+        },
+        "Transform": {
+          "Position": [0, 2, -15.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "8e92dcacc816",
+      "name": "Block B",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/block.json"
+        },
+        "Transform": {
+          "Position": [0, 2.6, -27],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "306be6b4232b",
+      "name": "Block C",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/block.json"
+        },
+        "Transform": {
+          "Position": [11.5, 3, -27],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "5994927446e6",
+      "name": "House",
+      "components": {
+        "SceneRef": {
+          "Path": "resources/prefabs/house.json"
+        },
+        "Transform": {
+          "Position": [12, 6, -38],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "84062ae04e71",
+      "name": "Carousel post",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.6, 0.4, 0.6],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "RigidBody": {
+          "Kind": "Kinematic",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 2, -21],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3d1209c4c1a7",
+      "name": "Carousel",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [6, 0.3, 1.4],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "../resources/models/plank.obj"
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 60
+        },
+        "Transform": {
+          "Position": [0, 2.35, -21],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "272f0a6b2a9b",
+      "name": "Carousel hinge",
+      "components": {
+        "Joint": {
+          "Kind": "Hinge",
+          "A": "84062ae04e71",
+          "B": "3d1209c4c1a7",
+          "MinAngle": 0,
+          "MaxAngle": 0,
+          "MotorSpeed": 25,
+          "MotorTorque": 20000,
+          "Swing": 0,
+          "Twist": 0,
+          "MinDistance": 0,
+          "MaxDistance": 0
+        },
+        "Transform": {
+          "Position": [0, 2.2, -21],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "37e48e16b2bb",
+      "name": "Orb 1",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-8, 2.2, -2],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "9492f70961c2",
+      "name": "Orb 2",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [7, 1.6, 5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3a6566ababe3",
+      "name": "Orb 3",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 3.2, -15.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "7909fcdcc706",
+      "name": "Orb 4",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 3.8, -27],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "4145c6897e52",
+      "name": "Orb 5",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [5, 4.6, -27],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "9ba85f5a72a0",
+      "name": "Orb 6",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.9, 0.9, 0.9],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Orb": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [11.5, 4.2, -27],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "854f250fe7ac",
+      "name": "Exit",
+      "components": {
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1.6, 2, 1.6],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": true
+        },
+        "Exit": {},
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [12, 7, -40.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "c033d5ab6482",
+      "name": "Start",
+      "components": {
+        "Start": {},
+        "Transform": {
+          "Position": [0, 0, 8],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}
