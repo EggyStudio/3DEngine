@@ -68,6 +68,14 @@ public static partial class Engine3D
         if (Resolve(light) is { } entity) Ecs.GetRef<Light>(entity).CastsShadows = castsShadows;
     }
 
+    /// <summary>
+    /// Sets how far past the camera, in world units, the sun's shadows reach (150 by default), and
+    /// how far a spot or point light with no range casts them. A shorter distance spends the same
+    /// shadow map on less ground, so its shadows are sharper.
+    /// </summary>
+    public static void SetShadowDistance(float distance) =>
+        World.GetOrInsertResource(() => new ShadowSettings()).Distance = Math.Max(1, distance);
+
     /// <summary>Removes a light.</summary>
     public static void UnloadLight(LightHandle light)
     {

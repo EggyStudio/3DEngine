@@ -30,8 +30,6 @@ public sealed class LightingUboPrepare : IPrepareSystem
         {
             renderWorld.Set(shadow);
             ubo.ShadowLight = shadow.Light;
-            ubo.SpotShadowLight = shadow.SpotLight;
-            if (shadow.SpotLight >= 0) ubo.ShadowCascades[ShadowFit.SpotTile] = shadow.SpotViewProjection;
             ubo.CascadeCount = shadow.Cascades.Count;
             Span<float> texels = stackalloc float[LightingUboPacker.MaxCascades];
             for (int i = 0; i < shadow.Cascades.Count; i++)
@@ -39,7 +37,20 @@ public sealed class LightingUboPrepare : IPrepareSystem
                 ubo.ShadowCascades[i] = shadow.Cascades[i].ViewProjection;
                 texels[i] = shadow.Cascades[i].Texel;
             }
-            ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], shadow.SpotTexelPerUnit);
+            ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], 0);
+
+            // A shadowed spot light names its slot, counted from one, in its cone's third
+            // component, as a point light does.
+            var spots = shadow.SpotLights ?? [];
+            ubo.SpotShadowCount = spots.Count;
+            Span<float> spotTexels = stackalloc float[ShadowFit.MaxSpotLights];
+            for (int s = 0; s < spots.Count; s++)
+            {
+                ubo.Lights[spots[s].Light].Cone.Z = s + 1;
+                ubo.SpotShadows[s] = spots[s].ViewProjection;
+                spotTexels[s] = spots[s].TexelPerUnit;
+            }
+            ubo.SpotShadowTexels = new System.Numerics.Vector4(spotTexels[0], spotTexels[1], spotTexels[2], spotTexels[3]);
 
             // Each shadowed point light names its slot in the face array, counted from one in its
             // cone's third component, which a light with no shadow leaves at zero.
@@ -78,18 +89,20 @@ public sealed class LightingUboPrepare : IPrepareSystem
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { } draws) return null;
 
-        int sun = -1, spot = -1;
+        var distance = renderWorld.TryGet<ShadowSettings>()?.Distance is > 0 and var d ? d : ShadowFit.Distance;
+        int sun = -1;
+        var spotLights = new List<int>();
         var points = new List<(int, System.Numerics.Matrix4x4[])>();
         for (int i = 0; i < count; i++)
         {
             var light = lights.All[i];
             if (!light.CastsShadows) continue;
             if (sun < 0 && light.Kind == LightKind.Directional) sun = i;
-            if (spot < 0 && light.Kind == LightKind.Spot) spot = i;
+            if (spotLights.Count < ShadowFit.MaxSpotLights && light.Kind == LightKind.Spot) spotLights.Add(i);
             if (points.Count < ShadowFit.MaxPointLights && light.Kind == LightKind.Point)
-                points.Add((i, ShadowFit.FitPoint(light.Position, light.Range)));
+                points.Add((i, ShadowFit.FitPoint(light.Position, light.Range, distance)));
         }
-        if (sun < 0 && spot < 0 && points.Count == 0) return null;
+        if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
         (System.Numerics.Matrix4x4, float)[] cascades = [];
         var drawn = false;
@@ -97,21 +110,22 @@ public sealed class LightingUboPrepare : IPrepareSystem
         {
             if (draw.Target != 0) continue;
             drawn = true;
-            if (sun >= 0) cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[sun].Direction);
+            if (sun >= 0) cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[sun].Direction, distance);
             break;
         }
         if (!drawn) return null;
         if (cascades.Length == 0) sun = -1;
 
-        var spotViewProjection = System.Numerics.Matrix4x4.Identity;
-        float spotTexel = 0;
-        if (spot >= 0)
+        // The spot lights share the spot tile, so each one's texels are as wide as its share of it.
+        var spots = new List<(int, System.Numerics.Matrix4x4, float)>();
+        var size = ShadowFit.SpotTileArea(0, spotLights.Count).Size;
+        foreach (var i in spotLights)
         {
-            var light = lights.All[spot];
-            if (!ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out spotViewProjection, out spotTexel))
-                spot = -1;
+            var light = lights.All[i];
+            if (ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out var viewProjection, out var texel, distance, size))
+                spots.Add((i, viewProjection, texel));
         }
-        return sun < 0 && spot < 0 && points.Count == 0 ? null : new FrameShadow(sun, cascades, spot, spotViewProjection, spotTexel, points);
+        return sun < 0 && spots.Count == 0 && points.Count == 0 ? null : new FrameShadow(sun, cascades, spots, points);
     }
 }
 

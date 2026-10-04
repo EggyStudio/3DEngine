@@ -55,7 +55,10 @@ public class LightingUniformPackingTests
         var afterLights = 304 + LightingUboPacker.MaxLights * 64;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.PointShadow)).Should().Be(afterLights);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.PointShadowFaces)).Should().Be(afterLights + 16);
-        LightingUboPacker.SizeBytes.Should().Be(afterLights + 16 + ShadowFit.MaxPointLights * 6 * 64);
+        var afterPoints = afterLights + 16 + ShadowFit.MaxPointLights * 6 * 64;
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.SpotShadowTexels)).Should().Be(afterPoints);
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.SpotShadows)).Should().Be(afterPoints + 16);
+        LightingUboPacker.SizeBytes.Should().Be(afterPoints + 16 + ShadowFit.MaxSpotLights * 64);
     }
 
     [Fact]
@@ -63,7 +66,7 @@ public class LightingUniformPackingTests
     {
         LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Directional, CastsShadows = true }]).ShadowLight
             .Should().Be(-1, "the prepare step names the shadowed light once it has fitted a map for it");
-        LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Spot, CastsShadows = true }]).SpotShadowLight
-            .Should().Be(-1, "and the shadowed spot light the same way");
+        var spot = LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Spot, CastsShadows = true }]);
+        (spot.SpotShadowCount, spot.Lights[0].Cone.Z).Should().Be((0, 0f), "and the shadowed spot lights the same way");
     }
 }

@@ -10,16 +10,28 @@ namespace Engine;
 /// </summary>
 /// <param name="Light">The index of the shadowed directional light in the frame's lighting buffer, or -1 for none.</param>
 /// <param name="Cascades">World space to each cascade's clip space, with the width in world units of one of its texels.</param>
-/// <param name="SpotLight">The index of the shadowed spot light, or -1 for none.</param>
-/// <param name="SpotViewProjection">World space to the spot light's clip space.</param>
-/// <param name="SpotTexelPerUnit">The width of one of the spot light's texels per unit of distance from it.</param>
+/// <param name="SpotLights">
+/// The shadowed spot lights, by their index in the lighting buffer, each with world space to its
+/// clip space and the width of one of its texels per unit of distance from it.
+/// </param>
 /// <param name="PointLights">
 /// The shadowed point lights, by their index in the lighting buffer, each with the view and
 /// projection of the six faces around it, in the order +X, -X, +Y, -Y, +Z, -Z.
 /// </param>
 public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
-    int SpotLight = -1, Matrix4x4 SpotViewProjection = default, float SpotTexelPerUnit = 0,
+    IReadOnlyList<(int Light, Matrix4x4 ViewProjection, float TexelPerUnit)>? SpotLights = null,
     IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null);
+
+/// <summary>How far shadows reach, a world resource the renderer reads each frame.</summary>
+public sealed class ShadowSettings
+{
+    /// <summary>
+    /// How far past the camera's near plane, in world units, a directional light's shadows are
+    /// drawn, and how far a spot or point light with no range casts them. The cascades split it in
+    /// the default's proportions, so a shorter distance gives sharper shadows over less ground.
+    /// </summary>
+    public float Distance { get; set; } = ShadowFit.Distance;
+}
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
 /// <remarks>
@@ -45,11 +57,14 @@ public static class ShadowFit
     /// <summary>The map the cascades are tiles of, two tiles on a side, with one left for a spot light.</summary>
     public const int AtlasSize = 2 * TileSize;
 
-    /// <summary>How far past the camera's near plane, in world units, shadows are drawn.</summary>
+    /// <summary>How far past the camera's near plane, in world units, shadows are drawn unless <see cref="ShadowSettings"/> says otherwise.</summary>
     public const float Distance = 150f;
 
-    /// <summary>Where each cascade ends, in world units past the camera's near plane.</summary>
+    /// <summary>Where each cascade ends, in world units past the camera's near plane, at the default distance.</summary>
     public static ReadOnlySpan<float> Splits => [12f, 45f, Distance];
+
+    /// <summary>Where each cascade ends for shadows drawn out to <paramref name="distance"/>, in the default's proportions.</summary>
+    public static float[] SplitsFor(float distance) => [distance * 12f / Distance, distance * 45f / Distance, distance];
 
     /// <summary>
     /// The light's view and projection for a light pointing along <paramref name="direction"/> over
@@ -108,10 +123,13 @@ public static class ShadowFit
         return true;
     }
 
-    /// <summary>Every cascade of a light pointing along <paramref name="direction"/> over what the camera sees, nearest first, or none when it cannot be fitted.</summary>
-    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction)
+    /// <summary>
+    /// Every cascade of a light pointing along <paramref name="direction"/> over what the camera
+    /// sees out to <paramref name="distance"/>, nearest first, or none when it cannot be fitted.
+    /// </summary>
+    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction, float distance = Distance)
     {
-        var splits = Splits;
+        var splits = SplitsFor(distance);
         var cascades = new (Matrix4x4, float)[splits.Length];
         float from = 0;
         for (int i = 0; i < splits.Length; i++)
@@ -123,8 +141,24 @@ public static class ShadowFit
         return cascades;
     }
 
-    /// <summary>The tile a spot light's shadow is drawn into, after the cascades.</summary>
+    /// <summary>The tile spot lights' shadows are drawn into, after the cascades.</summary>
     public const int SpotTile = 3;
+
+    /// <summary>How many spot lights cast shadows at once, the first ones with <c>CastsShadows</c> set.</summary>
+    public const int MaxSpotLights = 4;
+
+    /// <summary>
+    /// The square of the spot tile a spot light's shadow is drawn into, by its slot among
+    /// <paramref name="count"/> shadowed spot lights: the whole tile for one, and a quarter each
+    /// for more, so a lone spot light keeps every texel.
+    /// </summary>
+    public static (int X, int Y, int Size) SpotTileArea(int slot, int count)
+    {
+        var (x, y) = TileOrigin(SpotTile);
+        if (count <= 1) return (x, y, TileSize);
+        var size = TileSize / 2;
+        return (x + slot % 2 * size, y + slot / 2 * size, size);
+    }
 
     /// <summary>
     /// The view and projection of a spot light at <paramref name="position"/> pointing along
@@ -133,7 +167,7 @@ public static class ShadowFit
     /// of one texel per unit of distance from the light.
     /// </summary>
     public static bool TryFitSpot(Vector3 position, Vector3 direction, float cosOuter, float range,
-        out Matrix4x4 viewProjection, out float texelPerUnit)
+        out Matrix4x4 viewProjection, out float texelPerUnit, float distance = Distance, int tileSize = TileSize)
     {
         viewProjection = Matrix4x4.Identity;
         texelPerUnit = 0;
@@ -142,11 +176,11 @@ public static class ShadowFit
 
         // A little past the outer cone, so the cone's edge falls inside the tile.
         var half = MathF.Min(MathF.Acos(Math.Clamp(cosOuter, -1f, 1f)) * 1.05f, MathF.PI * 0.45f);
-        var far = range > 0 ? range : Distance;
+        var far = range > 0 ? range : distance;
         var up = MathF.Abs(direction.Y) > 0.99f ? Vector3.UnitZ : Vector3.UnitY;
         viewProjection = Matrix4x4.CreateLookAt(position, position + direction, up)
                          * Matrix4x4.CreatePerspectiveFieldOfView(2 * half, 1, MathF.Max(0.05f, far / 2000), far);
-        texelPerUnit = 2 * MathF.Tan(half) / TileSize;
+        texelPerUnit = 2 * MathF.Tan(half) / tileSize;
         return true;
     }
 
@@ -168,9 +202,9 @@ public static class ShadowFit
     /// for a light with no range, in the order +X, -X, +Y, -Y, +Z, -Z, which the shader picks
     /// between by the axis a point lies furthest along.
     /// </summary>
-    public static Matrix4x4[] FitPoint(Vector3 position, float range)
+    public static Matrix4x4[] FitPoint(Vector3 position, float range, float distance = Distance)
     {
-        var far = range > 0 ? range : Distance;
+        var far = range > 0 ? range : distance;
         var projection = Matrix4x4.CreatePerspectiveFieldOfView(2 * MathF.Atan(PointFaceSlack), 1, MathF.Max(0.05f, far / 2000), far);
         Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
         var faces = new Matrix4x4[6];

@@ -430,15 +430,21 @@ public sealed class ModelRenderer : IDisposable
         // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
-        var tiles = shadow.Cascades.Count + (shadow.SpotLight >= 0 ? 1 : 0);
-        for (int t = 0; t < tiles; t++)
+        // The cascades in the first tiles, and the spot lights in the last, sharing it when there are several.
+        for (int t = 0; t < shadow.Cascades.Count; t++)
         {
-            // The cascades in the first tiles, and the spot light in its own.
-            var spot = t == shadow.Cascades.Count;
-            var (x, y) = ShadowFit.TileOrigin(spot ? ShadowFit.SpotTile : t);
+            var (x, y) = ShadowFit.TileOrigin(t);
             pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
             pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
-            DrawShadowBatches(device, pass, draws.Draws, masks, spot ? shadow.SpotViewProjection : shadow.Cascades[t].ViewProjection);
+            DrawShadowBatches(device, pass, draws.Draws, masks, shadow.Cascades[t].ViewProjection);
+        }
+        var spots = shadow.SpotLights ?? [];
+        for (int s = 0; s < spots.Count; s++)
+        {
+            var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count);
+            pass.SetViewport(x, y, size, size, 0, 1);
+            pass.SetScissor(x, y, (uint)size, (uint)size);
+            DrawShadowBatches(device, pass, draws.Draws, masks, spots[s].ViewProjection);
         }
         pass.EndRenderPass();
 

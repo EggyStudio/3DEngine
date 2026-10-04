@@ -77,12 +77,12 @@ physics, text and fonts, audio and text files
   the GPU are drawn from a copy on the CPU, and a compute shader cannot write a texture.
   Descriptor layouts and vertex inputs are still written by hand beside each pipeline rather
   than read from the reflection.
-- **One directional, one spot and four point lights cast shadows.** The first directional light
-  with `CastsShadows` set shadows what the window's camera sees within 150 units, in three
-  cascades, the first such spot light shadows its cone in the map's last tile, and the first four
-  such point lights shadow all around them, six faces of 512 texels each (RENDERING.md §4). The
-  splits, the distance and the sizes are constants, a second spot light and a fifth point light
-  cast none, and render targets sample the window camera's map.
+- **One directional, four spot and four point lights cast shadows.** The first directional light
+  with `CastsShadows` set shadows what the window's camera sees within 150 units, or the distance
+  `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones
+  in the map's last tile, and the first four such point lights shadow all around them, six faces of
+  512 texels each (RENDERING.md §4). The tile and face sizes are constants, a fifth spot or point
+  light casts none, and render targets sample the window camera's map.
 
 ### The device
 

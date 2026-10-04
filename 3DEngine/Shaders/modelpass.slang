@@ -117,8 +117,9 @@ public struct Lighting
     public int count;
     public int shadowLight;
     public int cascadeCount;
-    // The spot light drawn into the map's last tile, or -1.
-    public int spotShadowLight;
+    // How many spot lights cast shadows, drawn into the map's last tile, the whole of it for one
+    // and a quarter each for more.
+    public int spotShadowCount;
     // A texel's world width for each cascade, and in w the spot tile's per unit of distance.
     public float4 shadowTexels;
     public float4x4 shadowCascades[4];
@@ -130,6 +131,10 @@ public struct Lighting
     // World space to each face's clip space for each shadowed point light, six to a light in the
     // order +X, -X, +Y, -Y, +Z, -Z.
     public float4x4 pointShadowFaces[24];
+    // The width of each shadowed spot light's texel per unit of distance from it, by slot.
+    public float4 spotShadowTexels;
+    // World space to each shadowed spot light's clip space, by slot.
+    public float4x4 spotShadows[4];
 };
 
 [[vk::binding(0, 1)]]
@@ -355,13 +360,13 @@ float lightReaching(float3 world, float3 n)
     return 1.0;
 }
 
-// How much of the shadowed spot light at lightPosition reaches this point, from 0 to 1, from the
-// map's last tile, compared as the cascades are. Its texels widen with distance from the light,
-// so the offset along the normal does too.
-float spotLightReaching(float3 world, float3 n, float3 lightPosition)
+// How much of the shadowed spot light in slot (counted from 0) at lightPosition reaches this
+// point, from 0 to 1, from its square of the map's last tile, compared as the cascades are. Its
+// texels widen with distance from the light, so the offset along the normal does too.
+float spotLightReaching(float3 world, float3 n, float3 lightPosition, int slot)
 {
-    float offset = lighting.shadowTexels.w * distance(world, lightPosition) * 1.5;
-    float4 clip = mul(lighting.shadowCascades[3], float4(world + n * offset, 1.0));
+    float offset = lighting.spotShadowTexels[slot] * distance(world, lightPosition) * 1.5;
+    float4 clip = mul(lighting.spotShadows[slot], float4(world + n * offset, 1.0));
     if (clip.w <= 0.0)
         return 1.0;
     float3 p = clip.xyz / clip.w;
@@ -371,7 +376,10 @@ float spotLightReaching(float3 world, float3 n, float3 lightPosition)
     uint width, height;
     shadowMap.GetDimensions(width, height);
     float2 texel = 1.0 / float2(width, height);
-    float2 uv = (p.xy * 0.5 + 0.5 + float2(1.0, 1.0)) * 0.5;
+    // The last tile is the map's lower right quarter, split in four for more than one light.
+    float size = lighting.spotShadowCount > 1 ? 0.25 : 0.5;
+    float2 origin = float2(0.5, 0.5) + (lighting.spotShadowCount > 1 ? float2(slot % 2, slot / 2) * 0.25 : float2(0.0, 0.0));
+    float2 uv = origin + (p.xy * 0.5 + 0.5) * size;
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
@@ -519,8 +527,8 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
 
         if (i == lighting.shadowLight)
             arrived *= lightReaching(input.world, normalize(input.normal));
-        else if (i == lighting.spotShadowLight)
-            arrived *= spotLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz);
+        else if (light.cone.z > 0.0 && int(light.positionAndKind.w) == Spot)
+            arrived *= spotLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz, int(light.cone.z) - 1);
         else if (light.cone.z > 0.0)
             arrived *= pointLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz, int(light.cone.z) - 1);
         float3 l = -fromLight(light, input.world);

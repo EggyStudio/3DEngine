@@ -20,6 +20,8 @@ public sealed class LightExtract : IExtractSystem
         // The environment is a world resource, there with or without an ECS.
         if (world.TryGetResource<EnvironmentMap>(out var environment)) renderWorld.Set(environment);
         else renderWorld.Remove<EnvironmentMap>();
+        if (world.TryGetResource<ShadowSettings>(out var shadows)) renderWorld.Set(shadows);
+        else renderWorld.Remove<ShadowSettings>();
 
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
 

@@ -20,6 +20,20 @@ public sealed class ShadowFitTests
     }
 
     [Fact]
+    public void A_Shorter_Distance_Splits_In_Proportion_And_Spends_The_Map_On_Less_Ground()
+    {
+        ShadowFit.SplitsFor(60).Should().Equal(4.8f, 18f, 60f);
+        ShadowFit.SplitsFor(ShadowFit.Distance).Should().Equal(ShadowFit.Splits.ToArray());
+
+        var camera = Camera(new Vector3(3, 5, 12), Vector3.Zero);
+        var sun = Vector3.Normalize(new Vector3(0.3f, -1, -0.5f));
+        var near = ShadowFit.FitCascades(camera, sun, 60);
+        var far = ShadowFit.FitCascades(camera, sun);
+        near.Should().HaveCount(3);
+        near[^1].Texel.Should().BeLessThan(far[^1].Texel * 0.6f, "the last cascade covers less than half the ground, in finer texels");
+    }
+
+    [Fact]
     public void What_The_Camera_Sees_Within_The_Distance_Lands_Inside_The_Map()
     {
         var camera = Camera(new Vector3(3, 5, 12), Vector3.Zero);

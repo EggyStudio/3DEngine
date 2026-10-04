@@ -805,6 +805,10 @@ public sealed class OffscreenRenderTests : IDisposable
 
         GetImageColor(image, 27, 32).R.Should().BeLessThan(10, "the square shadows the wall eighty units from the camera");
         GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
+
+        SetShadowDistance(40);
+        var near = Capture(() => ClearBackground(Color.Black), "near");
+        GetImageColor(near, 27, 32).R.Should().BeGreaterThan(120, "with shadows reaching forty units, the wall at eighty has none");
     }
 
     [NeedsVulkanFact]
@@ -835,6 +839,44 @@ public sealed class OffscreenRenderTests : IDisposable
         lit.Should().BeGreaterThan(60, "the spot lights the wall beside the strip");
         GetImageColor(shadowed, 41, 32).R.Should().BeLessThan((byte)(lit / 4), "the strip stands between the spot and this part of the wall");
         GetImageColor(unshadowed, 41, 32).R.Should().BeGreaterThan(60, "a spot that does not cast shadows lights it");
+    }
+
+    [NeedsVulkanFact]
+    public void Two_Spot_Lights_Cast_Shadows_At_Once()
+    {
+        Open(64, 64);
+        // A red spot left and a blue one right, each low and aimed past a cube toward the middle,
+        // so each cube's shadow falls on the ground between it and the middle, which only the other
+        // spot then lights. Seen from straight above, with -Z up the image.
+        var red = CreateSpotLight(new Vector3(-4, 2, 0), Vector3.Normalize(new Vector3(3, -2, 0)), new Color(255, 0, 0), 40, 30, 35, castsShadows: true);
+        var blue = CreateSpotLight(new Vector3(4, 2, 0), Vector3.Normalize(new Vector3(-3, -2, 0)), new Color(0, 0, 255), 40, 30, 35, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 12, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+        Image Draw(string name) => Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, Color.White);
+            DrawModel(cube, new Vector3(-2.5f, 0.5f, 0), 1, Color.White);
+            DrawModel(cube, new Vector3(2.5f, 0.5f, 0), 1, Color.White);
+            EndMode3D();
+        }, name);
+
+        var both = Draw("two spots");
+        SetLightCastsShadows(red, false);
+        SetLightCastsShadows(blue, false);
+        var none = Draw("two spots unshadowed");
+
+        // The ground a unit left of the middle is in the red cube's shadow, and a unit right in the blue one's.
+        var left = GetImageColor(both, 25, 32);
+        var right = GetImageColor(both, 38, 32);
+        left.R.Should().BeLessThan((byte)(GetImageColor(none, 25, 32).R / 4), $"the red cube shadows the ground left of the middle, {left}");
+        left.B.Should().BeGreaterThan(40, "which the blue spot still lights");
+        right.B.Should().BeLessThan((byte)(GetImageColor(none, 38, 32).B / 4), $"the blue cube shadows the ground right of it, {right}");
+        right.R.Should().BeGreaterThan(40, "which the red spot still lights");
+        UnloadModel(ground);
+        UnloadModel(cube);
     }
 
     [NeedsVulkanFact]
