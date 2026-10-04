@@ -295,13 +295,35 @@ float3 arriving(Light light, float3 world, float3 n)
     return color * result;
 }
 
+// How much of the shadowed light reaches this point through cascade c, from 0 to 1, or -1 when the
+// cascade's tile does not hold it. Each cascade is a quarter of the map, two tiles on a side. The
+// point is moved off its surface along the normal by a texel and a half of that cascade before it
+// is compared, so a surface does not shadow itself where the map's texels slant across it, and
+// nine depths around it are compared and averaged, which softens the stair steps of the texels into
+// a gradient one texel wide. A point a little inside a tile's edge counts as outside, so the nine
+// never reach into a neighbouring tile. edge says how far toward the tile's edge the point is, from
+// 0 in its middle to 1 at that border.
+float cascadeReached(int c, float3 world, float3 n, float2 texel, out float edge)
+{
+    edge = 1.0;
+    float4 clip = mul(lighting.shadowCascades[c], float4(world + n * lighting.shadowTexels[c] * 1.5, 1.0));
+    float3 p = clip.xyz / clip.w;
+    if (any(abs(p.xy) > 0.995) || p.z > 1.0)
+        return -1.0;
+
+    edge = max(abs(p.x), abs(p.y)) / 0.995;
+    float2 uv = (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
+    float reached = 0.0;
+    for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
+            reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+    return reached / 9.0;
+}
+
 // How much of the shadowed light reaches this point, from 0 to 1, from the nearest cascade whose
-// tile holds it. Each cascade is a quarter of the map, two tiles on a side. The point is moved off
-// its surface along the normal by a texel and a half of that cascade before it is compared, so a
-// surface does not shadow itself where the map's texels slant across it, and nine depths around
-// it are compared and averaged, which softens the stair steps of the texels into a gradient one
-// texel wide. A point a little inside a tile's edge goes to the next cascade, so the nine never
-// reach into a neighbouring tile.
+// tile holds it. Across the outer fifth of a tile the next cascade is read too and blended in, so
+// where one cascade gives way to the next the shadow's softness changes over a band rather than in
+// a step, and past the last cascade's band the shadow fades out rather than stopping at a line.
 float lightReaching(float3 world, float3 n)
 {
     uint width, height;
@@ -309,17 +331,17 @@ float lightReaching(float3 world, float3 n)
     float2 texel = 1.0 / float2(width, height);
     for (int c = 0; c < lighting.cascadeCount; c++)
     {
-        float4 clip = mul(lighting.shadowCascades[c], float4(world + n * lighting.shadowTexels[c] * 1.5, 1.0));
-        float3 p = clip.xyz / clip.w;
-        if (any(abs(p.xy) > 0.995) || p.z > 1.0)
+        float edge;
+        float reached = cascadeReached(c, world, n, texel, edge);
+        if (reached < 0.0)
             continue;
 
-        float2 uv = (p.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
-        float reached = 0.0;
-        for (int y = -1; y <= 1; y++)
-            for (int x = -1; x <= 1; x++)
-                reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
-        return reached / 9.0;
+        float blend = saturate((edge - 0.8) / 0.2);
+        if (blend <= 0.0)
+            return reached;
+        float nextEdge;
+        float next = c + 1 < lighting.cascadeCount ? cascadeReached(c + 1, world, n, texel, nextEdge) : -1.0;
+        return lerp(reached, next < 0.0 ? 1.0 : next, blend);
     }
     return 1.0;
 }

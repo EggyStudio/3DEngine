@@ -96,9 +96,8 @@ physics, text and fonts, audio and text files
 - **One directional and one spot light cast shadows.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 150 units, in three cascades,
   and the first such spot light shadows its cone, in the map's last tile (RENDERING.md §4). The
-  splits, the distance and the tile size are constants, the cascades' edges show as a step in a
-  shadow's softness with no blending between them, a second spot light and every point light cast
-  none, and render targets sample the window camera's map.
+  splits, the distance and the tile size are constants, a second spot light and every point light
+  cast none, and render targets sample the window camera's map.
 
 ### The device
 

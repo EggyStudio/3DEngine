@@ -245,7 +245,10 @@ shadow has its holes. The map is bound at binding 1 of the lights' set, beside t
 cascades' matrices and texel widths in the lighting buffer, and the white texture takes its place
 in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
 little inside its edge, moves the point off its surface by a texel and a half of that cascade
-along its normal, and averages nine comparisons around it. A spot light's texels widen with
+along its normal, and averages nine comparisons around it. Across the outer fifth of a tile the
+next cascade is read as well and blended in, so the shadow's softness changes over a band where
+one cascade gives way to the next, and past the last cascade's band the shadow fades out rather
+than ending at a line. A spot light's texels widen with
 distance from it, so its offset grows with that distance. A model shader with a vertex stage of
 its own casts the shadow of its mesh as it was before that stage moved it.
 

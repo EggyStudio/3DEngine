@@ -668,6 +668,39 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Shadow_Fades_Out_Toward_The_Shadow_Distance_Rather_Than_Stopping_At_A_Line()
+    {
+        Open(64, 256);
+        // A long wall left of the ground the camera looks down along, under a low sun from the
+        // left, so its shadow covers that ground as far as shadows are drawn.
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(1, -0.35f, 0)), Color.White, 1, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(800, 800, 1, 1));
+        var wall = LoadModelFromMesh(GenMeshCube(2, 80, 800));
+        var camera = new Camera3D(new Vector3(20, 30, 0), new Vector3(20, 0, -200), Vector3.UnitY, 40);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Blue);
+            BeginMode3D(camera);
+            DrawModel(ground, new Vector3(0, 0, -390), 1, Color.White);
+            DrawModel(wall, new Vector3(-10, 40, -390), 1, Color.White);
+            EndMode3D();
+        }, "fade");
+
+        // Up the middle column from the camera's feet toward the horizon, the ground goes from
+        // shadowed to lit where shadows end.
+        // The ground is gray, and the sky above the horizon blue.
+        var column = Enumerable.Range(0, 256).Select(y => GetImageColor(image, 32, 255 - y)).ToArray();
+        var ground0 = column.TakeWhile(c => c.B <= c.G + 8).Select(c => (int)c.G).ToArray();
+        var (dark, lit) = (ground0[..10].Average(), ground0[^10..].Average());
+        lit.Should().BeGreaterThan(dark + 40, "the ground near the camera is shadowed and the far ground is lit");
+        var between = ground0.Count(g => g > dark + (lit - dark) * 0.2 && g < lit - (lit - dark) * 0.2);
+        between.Should().BeGreaterThan(2, "the shadow fades over a band of rows, where it used to step from dark to lit in one");
+        UnloadModel(ground);
+        UnloadModel(wall);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);

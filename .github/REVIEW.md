@@ -8,8 +8,8 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `0f6e6e51`. Image noise and text, anisotropic filtering and the resizable flag were
-taken on their descriptions and raised nothing.
+Reviewed up to `7de5067e`. Distance-field fonts, a render texture's depth, monitor modes and the
+skybox were taken on their descriptions and raised nothing.
 
 ## Now
 
