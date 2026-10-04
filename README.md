@@ -160,6 +160,7 @@ example that runs. Its pages are being written, and this list grows with them.
 | [Shaders and compute](https://github.com/EggyStudio/3DEngine/blob/main/docs/shaders-and-compute.md) | Slang shaders for 2D drawing and models, post processing, compute shaders and their buffers |
 | [Audio](https://github.com/EggyStudio/3DEngine/blob/main/docs/audio.md) | Sounds, streamed music, volume, pitch and pan, and sound placed in a 3D world |
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
+| [Physics](https://github.com/EggyStudio/3DEngine/blob/main/docs/physics.md) | Bodies that fall and collide, rays, contacts, triggers, joints and a character |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app
