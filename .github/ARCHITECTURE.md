@@ -89,6 +89,9 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   `QueryRef` of one, two or three components yields references and marks what it visits as changed,
   and narrows with `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.
+- Every component operation takes an `int` id or an `Entity` handle. The handle carries a
+  generation, so one kept to an entity since despawned is refused rather than reaching the entity
+  that reused the id.
 - `Changed<T>(entity)` reads the change bit, which `Update<T>`, `GetRef<T>` and `QueryRef` set and
   `First` clears. `GetReadOnly<T>` and `QueryReadOnly` of one, two or three components read by
   reference without marking, and physics writes a body's `Transform` only when its pose moved. A behavior method marks its component

@@ -16,6 +16,9 @@ public sealed partial class PhysicsWorld
     // How fast a character off the ground changes its horizontal velocity toward the one it was asked for, in units a second squared.
     private const float AirAcceleration = 20;
 
+    // Where the ground probes start, in units of the probe spread, kept once rather than made each step.
+    private static readonly Vector3[] ProbeDirections = [Vector3.Zero, Vector3.UnitX, -Vector3.UnitX, Vector3.UnitZ, -Vector3.UnitZ];
+
     private sealed class Character
     {
         public required PhysicsBody Body;
@@ -110,8 +113,9 @@ public sealed partial class PhysicsWorld
             var reach = character.HalfHeight + 0.08f;
             float nearest = float.MaxValue;
             var spread = character.Radius * 0.7f;
-            foreach (var offset in new[] { Vector3.Zero, new(spread, 0, 0), new(-spread, 0, 0), new(0, 0, spread), new(0, 0, -spread) })
+            foreach (var around in ProbeDirections)
             {
+                var offset = around * spread;
                 var from = center + offset;
                 // A ray at the side starts lower, where the round of the foot is, so it reaches as far below it.
                 var length = reach - (character.Radius - MathF.Sqrt(MathF.Max(0, character.Radius * character.Radius - offset.LengthSquared())));

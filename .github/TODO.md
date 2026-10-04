@@ -16,10 +16,11 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Entities
 
-- **Stale ids are caught only through handles.** `EcsWorld`'s operations take an `int` id, which a
-  later spawn reuses. `Entity` (from `ecs.Handle(id)` or `ctx.Entity`) carries the generation, and
-  `TryResolve` and `IsAlive` refuse a stale one, but nothing stops code from keeping the bare `int`
-  across frames instead. Components holding entity references have no type that does this for them.
+- **Bare ids are still the common path.** `Has`, `TryGet`, `GetRef`, `GetReadOnly`, `Add`,
+  `Update`, `Remove` and `Despawn` take an `Entity` handle too, whose generation refuses a stale one,
+  reads answering as if the component were missing and writes throwing. Queries, `ctx.EntityId`,
+  physics contacts' `EntityId` and the flat API's scene functions still hand out the bare `int`,
+  which nothing stops code from keeping across frames.
 - **Change bits last one frame.** `GetRef`, `Update` and the by-reference queries mark what they
   hand out, and a behavior method marks its own component unless it is `readonly`. The bits are
   cleared when a frame begins, with no ticks behind them, so a system cannot ask what changed
