@@ -188,24 +188,33 @@ public sealed class ModelRenderer : IDisposable
         public Vector3 Max;
     }
 
-    // The blocks of the last call's groups, and a copy of the window's, which the shadow pass and
-    // the window's model pass both read after a render target's call has written its own.
+    // The blocks of the last gathered view's groups, which the view keeps a copy of.
     private Block[] _blocks = new Block[64];
     private int _blockCount;
-    private Block[] _windowBlocks = new Block[64];
 
     // Past this many instances the segments are copied on several threads, since one thread
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
     private readonly Dictionary<(int Mesh, IDescriptorSet? Set, bool Culled, ShadowKind Shadow, Matrix4x4 ViewProjection), int> _batchOf = [];
 
-    // The window's batches and where their instances are, made once a frame by whichever of the
+    // Each view's batches, the window's at 0 and each render target's by its id, with where their
+    // instances are and the blocks they are culled by, made once a frame by whichever of its
     // shadow and model passes comes first and drawn by both, since the shadow reads the same
     // instances through each light.
-    private readonly List<Batch> _windowBatches = [];
-    private IBuffer? _windowRing;
-    private ulong _windowOffset;
-    private long _windowFrame = -1;
+    private sealed class View
+    {
+        public readonly List<Batch> Batches = [];
+        public IBuffer? Ring;
+        public ulong Offset;
+        public Block[] Blocks = new Block[64];
+        public long Frame = -1;
+    }
+
+    private readonly Dictionary<int, View> _views = [];
+
+    // The frame the point lights' faces were last drawn in, once a frame by the first view drawing
+    // a shadow, since they look the same from every camera.
+    private long _pointsFrame = -1;
     private readonly List<(Kind Kind, IDescriptorSet? Set)> _classified = [];
 
     // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can
@@ -218,8 +227,10 @@ public sealed class ModelRenderer : IDisposable
     /// <summary>How many draw calls the model and shadow passes recorded this frame.</summary>
     internal int DrawCalls { get; private set; }
     private long _frames;
-    private readonly List<IDescriptorSet> _lightSets = [];
-    private int _lightSet;
+    // The lights' sets, a list for each frame in flight, and the set each view took this frame.
+    private readonly List<List<IDescriptorSet>> _lightSets = [];
+    private readonly Dictionary<int, IDescriptorSet> _lightSetOf = [];
+    private int _lightSlot;
     private FrameLightingBinding? _lastFrame;
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
@@ -300,15 +311,8 @@ public sealed class ModelRenderer : IDisposable
         BeginFrameOfSets(renderContext);
         RetireUnloadedShaders(store);
 
-        var (batches, ring, offset) = target == 0
-            ? WindowBatches(gfx, draws, meshes, textures, store)
-            : (_batches, (IBuffer?)null, 0ul);
-        if (target != 0)
-        {
-            GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: false);
-            (ring, offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups);
-        }
-        var blocks = target == 0 ? _windowBlocks : _blocks;
+        var view = ViewBatches(target, gfx, draws, meshes, textures, store);
+        var (batches, ring, offset, blocks) = (view.Batches, view.Ring, view.Offset, view.Blocks);
 
         IPipeline? pipeline = null;
         var pushed = default(Matrix4x4?);
@@ -324,7 +328,7 @@ public sealed class ModelRenderer : IDisposable
             {
                 pipeline = wanted;
                 pass.SetPipeline(pipeline);
-                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures), index: 1);
+                pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures, target), index: 1);
                 pushed = null;
             }
             if (pushed != batch.ViewProjection)
@@ -350,21 +354,27 @@ public sealed class ModelRenderer : IDisposable
             : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
             : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true, cullBackFaces: true, shadowKinds);
 
-    // The window's batches and their instances, gathered and written on the first call of a frame.
-    private (List<Batch> Batches, IBuffer Ring, ulong Offset) WindowBatches(IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes,
-        GpuTextures textures, ShaderStore? store)
+    // A view's batches and their instances, gathered and written on the first call of a frame.
+    private View ViewBatches(int target, IGraphicsDevice gfx, ModelDrawList draws, GpuMeshes meshes, GpuTextures textures, ShaderStore? store)
     {
-        if (_windowFrame != _frames || _windowRing is null)
+        if (!_views.TryGetValue(target, out var view))
         {
-            GatherFor(0, gfx, draws, meshes, textures, store, shadowKinds: true);
-            (_windowRing, _windowOffset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups);
-            _windowBatches.Clear();
-            _windowBatches.AddRange(_batches);
-            if (_windowBlocks.Length < _blockCount) _windowBlocks = new Block[Math.Max(_blockCount, _windowBlocks.Length * 2)];
-            Array.Copy(_blocks, _windowBlocks, _blockCount);
-            _windowFrame = _frames;
+            // The views of render targets no longer drawn into are let go before another is added.
+            foreach (var old in _views.Where(v => v.Key != 0 && _frames - v.Value.Frame > SetRingFrames).Select(v => v.Key).ToArray())
+                _views.Remove(old);
+            _views[target] = view = new View();
         }
-        return (_windowBatches, _windowRing, _windowOffset);
+        if (view.Frame != _frames || view.Ring is null)
+        {
+            GatherFor(target, gfx, draws, meshes, textures, store, shadowKinds: true);
+            (view.Ring, view.Offset) = WriteInstances(gfx, draws.Span, static (in ModelDraw draw) => Instance.Of(draw), draws.Groups);
+            view.Batches.Clear();
+            view.Batches.AddRange(_batches);
+            if (view.Blocks.Length < _blockCount) view.Blocks = new Block[Math.Max(_blockCount, view.Blocks.Length * 2)];
+            Array.Copy(_blocks, view.Blocks, _blockCount);
+            view.Frame = _frames;
+        }
+        return view;
     }
 
     private enum ShadowKind : byte { None, Solid, Masked }
@@ -697,8 +707,16 @@ public sealed class ModelRenderer : IDisposable
         _instanceRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * Instance.Size), BufferUsage.Vertex, CpuAccessMode.Write));
     }
 
-    /// <summary>Draws the window's meshes into the shadow map, as <paramref name="shadow"/>'s light sees them.</summary>
-    public void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow)
+    /// <summary>
+    /// Draws the meshes of <paramref name="target"/>, the window's at 0, into the shadow map, as
+    /// <paramref name="shadow"/>'s lights see them.
+    /// </summary>
+    /// <remarks>
+    /// Each view drawing its own shadow draws it into the same map before its pass, so a
+    /// render target's cascades follow its camera. The point lights' faces look the same from every
+    /// camera and are drawn once a frame, by the first view.
+    /// </remarks>
+    public void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow, int target = 0)
     {
         var draws = renderWorld.TryGet<ModelDrawList>();
         var meshes = renderWorld.TryGet<GpuMeshes>();
@@ -718,12 +736,12 @@ public sealed class ModelRenderer : IDisposable
             }
         }
 
-        // The window's batches, which the model pass draws after, each drawn here as the kind of
+        // The view's batches, which its model pass draws after, each drawn here as the kind of
         // shadow its draws cast, a masked one through its maps, which its fragment stage cuts it out by.
         BeginFrameOfSets(renderContext);
-        var (batches, ring, offset) = WindowBatches(device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
+        var view = ViewBatches(target, device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
         _shadowBatches.Clear();
-        foreach (var batch in batches)
+        foreach (var batch in view.Batches)
         {
             if (batch.Shadow == ShadowKind.None) continue;
             _shadowBatches.Add(batch.Shadow == ShadowKind.Masked && batch.Set is null
@@ -740,7 +758,7 @@ public sealed class ModelRenderer : IDisposable
             var (x, y) = ShadowFit.TileOrigin(t, shadow.TileSize);
             pass.SetViewport(x, y, shadow.TileSize, shadow.TileSize, 0, 1);
             pass.SetScissor(x, y, (uint)shadow.TileSize, (uint)shadow.TileSize);
-            DrawShadowBatches(pass, ring, offset, shadow.Cascades[t].ViewProjection);
+            DrawShadowBatches(pass, view, shadow.Cascades[t].ViewProjection);
         }
         var spots = shadow.SpotLights ?? [];
         for (int s = 0; s < spots.Count; s++)
@@ -748,13 +766,14 @@ public sealed class ModelRenderer : IDisposable
             var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count, shadow.TileSize);
             pass.SetViewport(x, y, size, size, 0, 1);
             pass.SetScissor(x, y, (uint)size, (uint)size);
-            DrawShadowBatches(pass, ring, offset, spots[s].ViewProjection);
+            DrawShadowBatches(pass, view, spots[s].ViewProjection);
         }
         pass.EndRenderPass();
 
         // Each shadowed point light's six faces, a layer of the point map each.
         var points = shadow.PointLights ?? [];
-        if (points.Count == 0) return;
+        if (points.Count == 0 || _pointsFrame == _frames) return;
+        _pointsFrame = _frames;
         var pointMap = PointShadowMap(device, shadow.PointFaceSize);
         for (int p = 0; p < points.Count; p++)
             for (int f = 0; f < 6; f++)
@@ -763,16 +782,17 @@ public sealed class ModelRenderer : IDisposable
                     pointMap.RenderPass, pointMap.Framebuffers[p * 6 + f], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
                 facePass.SetViewport(0, 0, shadow.PointFaceSize, shadow.PointFaceSize, 0, 1);
                 facePass.SetScissor(0, 0, (uint)shadow.PointFaceSize, (uint)shadow.PointFaceSize);
-                DrawShadowBatches(facePass, ring, offset, points[p].Faces[f]);
+                DrawShadowBatches(facePass, view, points[p].Faces[f]);
                 facePass.EndRenderPass();
             }
     }
 
-    // The window's batches that cast a shadow, whose instances are at offset in ring, drawn as a
-    // light sees them through lightViewProjection. A solid shadow reads the world matrix alone, and
-    // a masked one its color and cutoff too.
-    private void DrawShadowBatches(TrackedRenderPass pass, IBuffer ring, ulong offset, Matrix4x4 lightViewProjection)
+    // The view's batches that cast a shadow, gathered into _shadowBatches, drawn as a light sees
+    // them through lightViewProjection. A solid shadow reads the world matrix alone, and a masked
+    // one its color and cutoff too.
+    private void DrawShadowBatches(TrackedRenderPass pass, View view, Matrix4x4 lightViewProjection)
     {
+        var (ring, offset) = (view.Ring!, view.Offset);
         var push = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in lightViewProjection));
         pass.SetPipeline(_shadowPipeline!);
         pass.PushConstants(_shadowPipeline!, ShaderStageFlags.Vertex, 0, push);
@@ -789,7 +809,7 @@ public sealed class ModelRenderer : IDisposable
             if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
             pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-            DrawCalls += DrawSeen(pass, batch, _windowBlocks, lightViewProjection);
+            DrawCalls += DrawSeen(pass, batch, view.Blocks, lightViewProjection);
         }
     }
 
@@ -1067,13 +1087,15 @@ public sealed class ModelRenderer : IDisposable
             : gfx.CreateGraphicsPipeline(desc);
     }
 
-    // The lights of this frame as a descriptor set: one of a ring, a set per frame in flight so a
-    // set the GPU may still read is never written, or a set over an empty buffer when there are no
-    // lights and no environment, which the shader reads as "use the fixed light". Binding 1 holds
-    // the shadow map when the frame has a shadow, and the white texture otherwise, binding 2 the
-    // environment map and binding 3 its sky, or a black cube for each, and binding 4 the point
-    // lights' faces, or a stand-in, so all are always valid.
-    private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures)
+    // The lights of this frame as one view sees them, the window's at 0, as a descriptor set: one
+    // of the sets of this frame's slot of a ring, a slot per frame in flight so a set the GPU may
+    // still read is never written, or a set over an empty buffer when there are no lights and no
+    // environment, which the shader reads as "use the fixed light". Binding 0 holds the view's
+    // lighting buffer, with its own cascades, binding 1 the shadow map when the view has a shadow,
+    // and the white texture otherwise, binding 2 the environment map and binding 3 its sky, or a
+    // black cube for each, and binding 4 the point lights' faces, or a stand-in, so all are always
+    // valid.
+    private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame || (frame.LightCount == 0 && !frame.HasEnvironment))
@@ -1092,39 +1114,47 @@ public sealed class ModelRenderer : IDisposable
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 2));
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 3));
                 }
-                if (gfx is GraphicsDevice device)
+                if (gfx is GraphicsDevice stub)
                 {
-                    var none = NoPointShadowMap(device);
+                    var none = NoPointShadowMap(stub);
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(none.DepthView, none.Sampler, 4));
                 }
             }
             return _noLights;
         }
 
-        // Once a frame, however many targets draw models in it.
+        // Once a frame, however many views draw models in it, the next slot's sets are handed out again.
         if (!ReferenceEquals(frame, _lastFrame))
         {
             _lastFrame = frame;
-            if (_lightSets.Count < gfx.FramesInFlight) _lightSets.Add(gfx.CreateDescriptorSet(LightsLayout(gfx)));
-            _lightSet = (_lightSet + 1) % _lightSets.Count;
-            var shadow = renderWorld.TryGet<FrameShadow>() is not null ? _shadowMap : null;
-            gfx.UpdateDescriptorSet(_lightSets[_lightSet], frame.Binding, shadow is null
-                ? new CombinedImageSamplerBinding(white, whiteSampler, 1)
-                : new CombinedImageSamplerBinding(shadow.DepthView, shadow.Sampler, 1));
-            if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
-            {
-                var sky = frame.HasEnvironment ? _sky ?? cube : cube;
-                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
-                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(sky.View, sky.Sampler, 3));
-            }
-            if (gfx is GraphicsDevice device)
-            {
-                var points = renderWorld.TryGet<FrameShadow>() is { PointLights.Count: > 0 } frameShadow
-                    ? PointShadowMap(device, frameShadow.PointFaceSize) : NoPointShadowMap(device);
-                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
-            }
+            _lightSlot = (_lightSlot + 1) % Math.Max(1, gfx.FramesInFlight);
+            while (_lightSets.Count <= _lightSlot) _lightSets.Add([]);
+            _lightSetOf.Clear();
         }
-        return _lightSets[_lightSet];
+        if (_lightSetOf.TryGetValue(target, out var made)) return made;
+        var slot = _lightSets[_lightSlot];
+        if (slot.Count <= _lightSetOf.Count) slot.Add(gfx.CreateDescriptorSet(LightsLayout(gfx)));
+        var set = _lightSetOf[target] = slot[_lightSetOf.Count];
+
+        // A render target with a camera of its own has a buffer and a shadow of its own.
+        var (binding, shadow) = target != 0 && renderWorld.TryGet<TargetShadows>() is { } targets && targets.ByTarget.TryGetValue(target, out var own)
+            ? (own.Binding, own.Shadow)
+            : (frame.Binding, renderWorld.TryGet<FrameShadow>());
+        gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
+            ? new CombinedImageSamplerBinding(map.DepthView, map.Sampler, 1)
+            : new CombinedImageSamplerBinding(white, whiteSampler, 1));
+        if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
+        {
+            var sky = frame.HasEnvironment ? _sky ?? cube : cube;
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sky.View, sky.Sampler, 3));
+        }
+        if (gfx is GraphicsDevice device)
+        {
+            var points = shadow is { PointLights.Count: > 0 } ? PointShadowMap(device, shadow.PointFaceSize) : NoPointShadowMap(device);
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
+        }
+        return set;
     }
 
     private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(
@@ -1168,7 +1198,7 @@ public sealed class ModelRenderer : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (var set in _lightSets) set.Dispose();
+        foreach (var set in _lightSets.SelectMany(s => s)) set.Dispose();
         foreach (var sets in _drawSets)
             foreach (var set in sets) set.Dispose();
         foreach (var (vertex, fragment, _) in _custom.Values)

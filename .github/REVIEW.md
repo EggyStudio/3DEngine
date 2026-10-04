@@ -8,12 +8,9 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `b5e3634e`. Behaviors registered by a generated module initializer with Pusher
-published as native AOT (`425ffc31`, `458cd909`), the shadow map's size (`0dd60740`), compute
-shaders writing render textures and mipmapped ones (`cd569b6f`, `2b1da847`), the draw list locked
-only while systems run in parallel, which the bunnymark puts at 243,000 sprites (`b5e3634e`), and
-the smaller batches between were taken on their descriptions and raised nothing. The native
-build is in [SHARED.md](SHARED.md).
+Reviewed up to `e93c99a5`. A model instance of 96 bytes with its camera pushed by the batch, which
+the stress run puts at 410,000 entities (`8e2162e5`), and mesh entities gathered once a frame for
+every camera (`e93c99a5`) were taken on their descriptions and raised nothing.
 
 ## Now
 

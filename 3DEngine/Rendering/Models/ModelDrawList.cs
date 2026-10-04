@@ -64,16 +64,30 @@ public sealed class ModelDrawList
     /// The camera the first mesh drawn into the window was recorded through, a draw before a group,
     /// which the shadow's cascades are fitted to, or null when nothing is drawn into the window.
     /// </summary>
-    internal Matrix4x4? WindowViewProjection
+    internal Matrix4x4? WindowViewProjection => ViewProjectionOf(0);
+
+    /// <summary>
+    /// The camera the first mesh drawn into <paramref name="target"/> was recorded through, a draw
+    /// before a group, or null when nothing is drawn into it.
+    /// </summary>
+    internal Matrix4x4? ViewProjectionOf(int target)
     {
-        get
-        {
-            foreach (var draw in Span)
-                if (draw.Target == 0) return draw.ViewProjection;
-            foreach (var group in _groups)
-                if (group.Count > 0 && group.Template.Target == 0) return group.Template.ViewProjection;
-            return null;
-        }
+        foreach (var draw in Span)
+            if (draw.Target == target) return draw.ViewProjection;
+        foreach (var group in _groups)
+            if (group.Count > 0 && group.Template.Target == target) return group.Template.ViewProjection;
+        return null;
+    }
+
+    /// <summary>The render targets meshes are drawn into this frame, in the order each first is, the window left out.</summary>
+    internal List<int> Targets()
+    {
+        var targets = new List<int>();
+        foreach (var draw in Span)
+            if (draw.Target != 0 && !targets.Contains(draw.Target)) targets.Add(draw.Target);
+        foreach (var group in _groups)
+            if (group.Count > 0 && group.Template.Target != 0 && !targets.Contains(group.Template.Target)) targets.Add(group.Template.Target);
+        return targets;
     }
 
     /// <summary>Records a group of instances for the frame, drawn as one batch of the group's mesh and maps.</summary>

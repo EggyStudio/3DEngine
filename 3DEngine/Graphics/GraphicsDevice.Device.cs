@@ -50,8 +50,16 @@ public sealed unsafe partial class GraphicsDevice
             shaderStorageImageWriteWithoutFormat = CanWriteImages,
         };
 
+        // A shader reading SV_InstanceID counts from the draw's first instance, which Slang reads
+        // through the draw parameters, so the capability it declares needs this on.
+        var vulkan11 = new VkPhysicalDeviceVulkan11Features();
+        var supported2 = new VkPhysicalDeviceFeatures2 { pNext = &vulkan11 };
+        _instanceApi.vkGetPhysicalDeviceFeatures2(_physicalDevice, &supported2);
+        var enabled11 = new VkPhysicalDeviceVulkan11Features { shaderDrawParameters = vulkan11.shaderDrawParameters };
+
         VkDeviceCreateInfo createInfo = new()
         {
+            pNext = &enabled11,
             queueCreateInfoCount = (uint)families.Length,
             pQueueCreateInfos = queueInfos,
             enabledExtensionCount = deviceExts.Length,

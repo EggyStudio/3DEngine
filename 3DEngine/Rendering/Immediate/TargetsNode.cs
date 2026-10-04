@@ -7,7 +7,9 @@ namespace Engine;
 /// <remarks>
 /// A target is drawn only in a frame that sends something to it. It is cleared first, to the color
 /// <c>ClearBackground</c> set inside its <c>BeginTextureMode</c> or to transparent black, then its
-/// models and its immediate shapes are drawn, in that order, as the window's are.
+/// models and its immediate shapes are drawn, in that order, as the window's are. A target that
+/// draws models through a camera of its own has the shadow map drawn for that camera before it
+/// (<see cref="TargetShadows"/>), and the window's is drawn after every target.
 /// </remarks>
 public sealed class TargetsNode : INode
 {
@@ -24,6 +26,9 @@ public sealed class TargetsNode : INode
         foreach (var (id, clear) in drawList.TargetClears)
         {
             if (textures.TargetFor(id) is not { } target) continue;
+            if (models is not null && renderWorld.TryGet<TargetShadows>() is { } shadows
+                && shadows.ByTarget.TryGetValue(id, out var own) && own.Shadow is { } shadow)
+                models.DrawShadow(renderContext, renderWorld, shadow, id);
 
             var c = clear.ToVector4();
             var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(

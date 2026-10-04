@@ -1128,6 +1128,54 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Scene_Drawn_Only_Into_Render_Textures_Casts_Shadows_Fitted_To_Each_Camera()
+    {
+        Open(64, 32);
+        // Two views of two cubes on ground a hundred units apart, as a split screen draws each
+        // player's view into a texture of its own, with nothing drawn into the window in 3D. A
+        // sun from the left at 45 degrees throws each lifted cube's shadow two to four units to
+        // its right, past where the cube itself shows from above.
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(1, -1, 0)), Color.White, 1, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(400, 400, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        var left = LoadRenderTexture(32, 32);
+        var right = LoadRenderTexture(32, 32);
+        var views = new[] { (left, 0f), (right, 100f) };
+
+        var image = Capture(() =>
+        {
+            foreach (var (target, x) in views)
+            {
+                BeginTextureMode(target);
+                ClearBackground(Color.Blue);
+                // Straight down, with -Z up the view, so +X is to the right.
+                BeginMode3D(new Camera3D(new Vector3(x, 12, 0), new Vector3(x, 0, 0), -Vector3.UnitZ, 30));
+                DrawModel(ground, Vector3.Zero, 1, Color.White);
+                DrawModel(cube, new Vector3(x, 3, 0), 1, Color.Red);
+                EndMode3D();
+                EndTextureMode();
+            }
+            ClearBackground(Color.Black);
+            DrawTextureRec(left.Texture, new Rectangle(0, 0, 32, -32), Vector2.Zero, Color.White);
+            DrawTextureRec(right.Texture, new Rectangle(0, 0, 32, -32), new Vector2(32, 0), Color.White);
+        }, "split");
+
+        // About five pixels a unit on the ground: pixel 28 is two and a half units right of the
+        // cube, in its shadow, and pixel 3 as far left of it, in the sun.
+        foreach (var x0 in new[] { 0, 32 })
+        {
+            var shadowed = GetImageColor(image, x0 + 28, 16);
+            var lit = GetImageColor(image, x0 + 3, 16);
+            ((int)lit.G).Should().BeGreaterThan(shadowed.G + 40, $"the view at {x0} shadows its own ground, which its own camera's cascades reach");
+        }
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadModel(ground);
+        UnloadModel(cube);
+        UnloadRenderTexture(left);
+        UnloadRenderTexture(right);
+    }
+
+    [NeedsVulkanFact]
     public void A_Point_Light_Casts_Shadows_On_Every_Side()
     {
         Open(64, 64);

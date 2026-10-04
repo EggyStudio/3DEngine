@@ -63,20 +63,20 @@ physics, text and fonts, audio, audio streams and waves, and files
   spherical harmonics of irradiance (RENDERING.md §3 and §4). The map is made on the CPU in a few
   hundred milliseconds, and there are no reflection probes for the inside of a room. A mesh entity
   and an `AnimatedModel` are drawn into the window through the first camera entity without a
-  render texture, and into each camera entity's render texture, with the shadow fitted to the
-  window's camera.
+  render texture, and into each camera entity's render texture, each with its shadow fitted to
+  its own camera.
 - **Layouts are written by hand.** A dispatch runs a compute shader over storage buffers, which
   the CPU reads back and drawing shaders read, and textures it writes and samples (RENDERING.md
   §1), but descriptor layouts and vertex inputs are still written by hand beside each pipeline
   rather than read from the reflection. A render texture is written only where the GPU can store
   to the window's format.
 - **One directional, four spot and four point lights cast shadows.** The first directional light
-  with `CastsShadows` set shadows what the window's camera sees within 150 units, or the distance
+  with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones
   in the map's last tile, and the first four such point lights shadow all around them, six faces of
   a quarter of a tile each (RENDERING.md §4). `SetShadowMapSize` sets the tile from 256 to 4096
-  texels (2048 by default). A fifth spot or point light casts none, and render targets sample the
-  window camera's map.
+  texels (2048 by default). A fifth spot or point light casts none, and each render target that
+  draws meshes draws the map again for its own camera.
 
 ### The device
 

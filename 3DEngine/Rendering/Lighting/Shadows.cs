@@ -238,7 +238,8 @@ public static class ShadowFit
 
 /// <summary>
 /// Render graph node that draws the window's meshes into the shadow map from the frame's shadowed
-/// light, before any pass reads it.
+/// lights, after the render targets, which draw it for their own cameras, and before the window's
+/// passes read it.
 /// </summary>
 public sealed class ShadowNode : INode
 {

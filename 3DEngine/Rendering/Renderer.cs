@@ -68,14 +68,15 @@ public sealed class Renderer : IDisposable
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
-        // Skinned meshes posed before anything draws them, then the shadow map, then render targets,
-        // so the window's passes can sample both.
+        // Skinned meshes posed before anything draws them, then render targets, each drawing the
+        // shadow map for its own camera before its pass, then the window's shadow, so the window's
+        // passes can sample the targets and the map as the window's camera needs it.
         Graph.AddNode("skinning", new SkinningNode());
-        Graph.AddNode("shadows", new ShadowNode());
-        Graph.AddNodeEdge("skinning", "shadows");
         Graph.AddNode("targets", new TargetsNode());
-        Graph.AddNodeEdge("shadows", "targets");
-        Graph.AddNodeEdge("targets", "main_pass");
+        Graph.AddNodeEdge("skinning", "targets");
+        Graph.AddNode("shadows", new ShadowNode());
+        Graph.AddNodeEdge("targets", "shadows");
+        Graph.AddNodeEdge("shadows", "main_pass");
         Graph.AddNode("models", new ModelNode());
         Graph.AddNodeEdge("main_pass", "models");
         Graph.AddNode("immediate", new ImmediateNode());

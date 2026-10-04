@@ -270,7 +270,7 @@ draws is in front. The draw goes through the model pass's tonemap like a reflect
 left out of the shadow map (`ModelDraw.CastsShadow`).
 
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
-`ShadowFit` cuts the window camera's view out to 150 units into slices ending at 12, 45 and 150
+`ShadowFit` cuts each view's camera out to 150 units into slices ending at 12, 45 and 150
 units, or out to the distance `SetShadowDistance` puts in `ShadowSettings` in the same proportions,
 and fits a tile of a depth map two tiles on a side, 2048 texels a tile unless `SetShadowMapSize`
 puts another size in `ShadowSettings`, to the sphere around each, so the near slice spends its
@@ -281,9 +281,13 @@ it for one and a quarter each for more, through a perspective projection from th
 its outer cone and as deep as its range, or the shadow distance for a light with none. A shadowed
 spot light carries its slot, counted from one, in its cone's third component, as a point light does,
 and its projection and texel width ride in the lighting buffer. `ShadowNode` clears the map once and
-draws the window's meshes into each tile in use, before any other pass, with `shadow.slang`'s vertex
-stage and no fragment stage, through a depth-only render pass (`GraphicsDevice.CreateShadowMap`). It
-draws the window's batches and instances, which the model pass draws after it, reading each
+draws the window's meshes into each tile in use, before the window's passes, with `shadow.slang`'s
+vertex stage and no fragment stage, through a depth-only render pass (`GraphicsDevice.CreateShadowMap`).
+A render target that draws meshes has cascades fitted to its own camera and a lighting buffer of its
+own (`TargetShadows`), and `TargetsNode` draws the map for it before its pass, so a split screen
+drawn into two textures shadows each view. The window's map is drawn after every target, and the
+point lights' faces, the same from every camera, once a frame. Each view
+draws its own batches and instances, which its model pass draws after it, reading each
 instance's world matrix, color and cutoff, and each tile and face pushes its light's
 view-projection, so the frame's instances are written once for both passes. A batch is gathered by
 the kind of shadow its draws cast as well, none, solid or masked, and a masked one is drawn with
