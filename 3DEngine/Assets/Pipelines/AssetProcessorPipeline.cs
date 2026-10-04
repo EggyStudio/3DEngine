@@ -197,7 +197,7 @@ public sealed class AssetProcessorPipeline
         }
     }
 
-    // -- Cache manifest --
+    // -- Cache manifest
 
     private string CacheFilePath => Path.Combine(_processedDir, ".cache.json");
 

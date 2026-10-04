@@ -76,7 +76,7 @@ public sealed partial class PhysicsWorld
         cb.AngularDamping = MathF.Max(cb.AngularDamping, material.AngularDamping);
     }
 
-    // -- Dynamic --
+    // -- Dynamic
 
     /// <inheritdoc />
     public PhysicsBody CreateSphere(Vector3 position, float radius, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
@@ -95,7 +95,7 @@ public sealed partial class PhysicsWorld
     public PhysicsBody CreateCylinder(Vector3 position, float radius, float height, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterDynamic(new Cylinder(radius, height), position, mass, material, entityId);
 
-    // -- Static --
+    // -- Static
 
     /// <inheritdoc />
     public PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0) =>
@@ -140,7 +140,7 @@ public sealed partial class PhysicsWorld
         return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Static), material);
     }
 
-    // -- Kinematic --
+    // -- Kinematic
 
     /// <inheritdoc />
     public PhysicsBody CreateKinematicSphere(Vector3 position, float radius, PhysicsMaterial? material = null,

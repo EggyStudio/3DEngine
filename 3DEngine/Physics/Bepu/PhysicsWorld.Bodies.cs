@@ -36,7 +36,7 @@ public sealed partial class PhysicsWorld
         }
     }
 
-    // -- Pose --
+    // -- Pose
 
     /// <inheritdoc />
     public Vector3 GetPosition(PhysicsBody body)
@@ -112,7 +112,7 @@ public sealed partial class PhysicsWorld
         }
     }
 
-    // -- Velocities --
+    // -- Velocities
 
     /// <inheritdoc />
     public Vector3 GetLinearVelocity(PhysicsBody body)
@@ -164,7 +164,7 @@ public sealed partial class PhysicsWorld
         reference.Awake = true;
     }
 
-    // -- Forces / impulses --
+    // -- Forces / impulses
 
     /// <inheritdoc />
     public void ApplyImpulse(PhysicsBody body, Vector3 impulse, Vector3 offsetFromCenter)
@@ -184,7 +184,7 @@ public sealed partial class PhysicsWorld
         br.Awake = true;
     }
 
-    // -- Sleep state --
+    // -- Sleep state
 
     /// <inheritdoc />
     public bool IsAwake(PhysicsBody body)

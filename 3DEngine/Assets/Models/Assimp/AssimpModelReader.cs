@@ -112,7 +112,7 @@ public sealed class AssimpModelReader : ISceneReader
         }
     }
 
-    // -- aiScene → Scene --
+    // -- aiScene → Scene
 
     private static Scene BuildScene(A.Scene aScene, AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
     {
@@ -188,7 +188,7 @@ public sealed class AssimpModelReader : ISceneReader
         return scene;
     }
 
-    // -- Source basis (FBX UpAxis / UnitScaleFactor; COLLADA up_axis) --
+    // -- Source basis (FBX UpAxis / UnitScaleFactor; COLLADA up_axis)
 
     private static (SceneCoordinateSystem upAxis, double metersPerUnit) ReadSourceBasis(A.Scene aScene)
     {
@@ -210,7 +210,7 @@ public sealed class AssimpModelReader : ISceneReader
         return (upAxis, mpu);
     }
 
-    // -- Materials --
+    // -- Materials
 
     private static SceneMaterialPayload[] BuildMaterials(A.Scene aScene)
     {
@@ -342,7 +342,7 @@ public sealed class AssimpModelReader : ISceneReader
         catch { return fallback; }
     }
 
-    // -- Meshes --
+    // -- Meshes
 
     private static SceneMeshPayload[] BuildMeshes(A.Scene aScene, SceneMaterialPayload[] materials, CancellationToken ct)
     {
@@ -451,7 +451,7 @@ public sealed class AssimpModelReader : ISceneReader
         return dst;
     }
 
-    // -- Skeletons / skinning --
+    // -- Skeletons / skinning
 
     /// <summary>
     /// Builds one <see cref="SceneSkeletonPayload"/> per <c>aiMesh</c> that has bones,
@@ -557,7 +557,7 @@ public sealed class AssimpModelReader : ISceneReader
         };
     }
 
-    // -- Nodes --
+    // -- Nodes
 
     private static SceneNode? ConvertNode(
         A.Node aNode,
@@ -651,7 +651,7 @@ public sealed class AssimpModelReader : ISceneReader
         return node;
     }
 
-    // -- Cameras / lights --
+    // -- Cameras / lights
 
     private static SceneCameraPayload ConvertCamera(A.Camera c)
     {
@@ -697,7 +697,7 @@ public sealed class AssimpModelReader : ISceneReader
         };
     }
 
-    // -- Animations --
+    // -- Animations
 
     private static SceneAnimationPayload? ConvertAnimation(A.Animation anim)
     {
@@ -777,7 +777,7 @@ public sealed class AssimpModelReader : ISceneReader
         };
     }
 
-    // -- Math helpers --
+    // -- Math helpers
 
     // AssimpNetter hands over Assimp's matrices as they are, which act on column vectors with the
     // translation in the last column. System.Numerics acts on row vectors with it in the last row,
@@ -795,7 +795,7 @@ public sealed class AssimpModelReader : ISceneReader
         return new Transform { Position = translation, Rotation = rotation, Scale = scale };
     }
 
-    // -- I/O plumbing --
+    // -- I/O plumbing
 
     private static string SpoolToTempFile(AssetLoadContext context)
     {
@@ -841,7 +841,7 @@ public sealed class AssimpModelReader : ISceneReader
         }
     }
 
-    // -- Logging --
+    // -- Logging
 
     private static void LogSummary(AssetLoadContext context, Scene scene, int mats, int meshes, int skels, int anims)
     {

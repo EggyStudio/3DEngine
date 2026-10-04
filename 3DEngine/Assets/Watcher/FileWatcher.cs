@@ -82,7 +82,7 @@ public sealed class FileWatcher : IDisposable
         _directory = Path.GetFullPath(directory);
     }
 
-    // -- Configuration (fluent) --
+    // -- Configuration (fluent)
 
     /// <summary>
     /// Sets the file extension filters (e.g. <c>"*.cs"</c>, <c>"*.png"</c>).
@@ -120,7 +120,7 @@ public sealed class FileWatcher : IDisposable
         return this;
     }
 
-    // -- Lifecycle --
+    // -- Lifecycle
 
     /// <summary>Starts watching for file changes. Idempotent.</summary>
     /// <exception cref="DirectoryNotFoundException">The target directory does not exist.</exception>
@@ -167,7 +167,7 @@ public sealed class FileWatcher : IDisposable
         Logger.Debug($"FileWatcher stopped: {_directory}");
     }
 
-    // -- Event handling --
+    // -- Event handling
 
     private void OnFswEvent(object sender, FileSystemEventArgs e)
     {
@@ -220,7 +220,7 @@ public sealed class FileWatcher : IDisposable
         }
     }
 
-    // -- Disposal --
+    // -- Disposal
 
     /// <summary>Stops watching and releases all resources.</summary>
     public void Dispose()

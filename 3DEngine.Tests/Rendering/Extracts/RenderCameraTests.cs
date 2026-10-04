@@ -39,7 +39,7 @@ public class ExtractedViewTests
     }
 }
 
-// -- CameraUniform struct --
+// -- CameraUniform struct
 
 [Trait("Category", "Unit")]
 public class CameraUniformTests

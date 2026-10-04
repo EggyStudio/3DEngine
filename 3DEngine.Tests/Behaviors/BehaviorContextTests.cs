@@ -6,7 +6,7 @@ namespace Engine.Tests.Entities;
 [Trait("Category", "Unit")]
 public class BehaviorContextTests
 {
-    // -- Constructor resolves resources --
+    // -- Constructor resolves resources
     [Fact]
     public void Constructor_Resolves_All_Required_Resources()
     {
@@ -97,7 +97,7 @@ public class BehaviorContextTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    // -- EntityId --
+    // -- EntityId
     [Fact]
     public void EntityId_Defaults_To_Zero()
     {
@@ -113,7 +113,7 @@ public class BehaviorContextTests
         owned.Context.EntityId.Should().Be(42);
     }
 
-    // -- Res<T> --
+    // -- Res<T>
     [Fact]
     public void Res_Returns_Resource_From_World()
     {
@@ -137,7 +137,7 @@ public class BehaviorContextTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    // -- Helpers --
+    // -- Helpers
 
     private static OwnedContext CreateContext()
     {

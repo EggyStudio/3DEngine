@@ -6,7 +6,7 @@ namespace Engine.Tests.Renderer;
 [Trait("Category", "Unit")]
 public class RenderGraphTests
 {
-    // -- Helpers --
+    // -- Helpers
 
     private sealed class TestNode : INode
     {
@@ -29,7 +29,7 @@ public class RenderGraphTests
         public void Dispose() => IsDisposed = true;
     }
 
-    // -- Topological order --
+    // -- Topological order
 
     [Fact]
     public void TopologicalOrder_Linear_Dependencies()
@@ -99,7 +99,7 @@ public class RenderGraphTests
         order.Should().Contain("Z");
     }
 
-    // -- Cycle detection --
+    // -- Cycle detection
 
     [Fact]
     public void TopologicalOrder_Detects_Cycle()
@@ -116,7 +116,7 @@ public class RenderGraphTests
         graph.Dispose();
     }
 
-    // -- Duplicate names --
+    // -- Duplicate names
 
     [Fact]
     public void AddNode_Duplicate_Name_Throws()
@@ -131,7 +131,7 @@ public class RenderGraphTests
         graph.Dispose();
     }
 
-    // -- Slot edges --
+    // -- Slot edges
 
     [Fact]
     public void AddSlotEdge_Mismatched_Types_Throws()
@@ -172,7 +172,7 @@ public class RenderGraphTests
         order.Should().Equal("A", "B");
     }
 
-    // -- Dispose --
+    // -- Dispose
 
     [Fact]
     public void Dispose_Disposes_Disposable_Nodes()

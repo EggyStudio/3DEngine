@@ -36,7 +36,7 @@ public class EventsTests
         events.Read().Should().Equal("a", "b", "c");
     }
 
-    // -- SendBatch --
+    // -- SendBatch
 
     [Fact]
     public void SendBatch_Appends_All_Events()
@@ -98,7 +98,7 @@ public class EventsTests
         events.IsEmpty.Should().BeFalse();
     }
 
-    // -- World Extension Methods --
+    // -- World Extension Methods
 
     [Fact]
     public void WorldEventExtensions_SendEvent_And_ReadEvents_Work()

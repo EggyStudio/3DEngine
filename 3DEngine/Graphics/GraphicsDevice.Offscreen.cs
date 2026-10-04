@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 public sealed unsafe partial class GraphicsDevice
 {
-    // -- Disposable wrappers for offscreen resources --
+    // -- Disposable wrappers for offscreen resources
 
     /// <summary>Wraps a <c>VkRenderPass</c> created for offscreen rendering.</summary>
     private sealed class VulkanOffscreenRenderPass : IRenderPass, IDisposable
@@ -54,7 +54,7 @@ public sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // -- IRenderPass / IFramebuffer creation --
+    // -- IRenderPass / IFramebuffer creation
 
     /// <inheritdoc />
     public IRenderPass CreateRenderPass(RenderPassDesc desc)
@@ -143,7 +143,7 @@ public sealed unsafe partial class GraphicsDevice
         return new VulkanOffscreenFramebuffer(this, framebuffer);
     }
 
-    // -- Single-use command buffer (public wrappers) --
+    // -- Single-use command buffer (public wrappers)
 
     /// <inheritdoc />
     public ICommandBuffer BeginCommands()
@@ -160,7 +160,7 @@ public sealed unsafe partial class GraphicsDevice
         EndSingleTimeCommands(vkCmd.Handle);
     }
 
-    // -- In-command-buffer render pass begin/end --
+    // -- In-command-buffer render pass begin/end
 
     /// <inheritdoc />
     public void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer,
@@ -220,7 +220,7 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdEndRenderPass(vkCmd.Handle);
     }
 
-    // -- Pipeline barrier (image layout transition) --
+    // -- Pipeline barrier (image layout transition)
 
     /// <inheritdoc />
     public void CmdPipelineBarrier(ICommandBuffer commandBuffer, IImage image, ImageLayout oldLayout, ImageLayout newLayout)

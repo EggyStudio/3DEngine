@@ -6,7 +6,7 @@ namespace Engine.Tests.Entities;
 [Trait("Category", "Unit")]
 public class BehaviorConditionsTests
 {
-    // -- SystemToggleRegistry --
+    // -- SystemToggleRegistry
 
     [Fact]
     public void ToggleRegistry_Get_Returns_Default_When_Unset()
@@ -52,7 +52,7 @@ public class BehaviorConditionsTests
         reg.Get("sys.B").Should().BeTrue(); // untouched
     }
 
-    // -- HasResource --
+    // -- HasResource
 
     [Fact]
     public void HasResource_Returns_True_When_Present()
@@ -75,7 +75,7 @@ public class BehaviorConditionsTests
         condition(world).Should().BeFalse();
     }
 
-    // -- ResourceIs --
+    // -- ResourceIs
 
     [Fact]
     public void ResourceIs_Returns_True_When_Predicate_Passes()
@@ -109,7 +109,7 @@ public class BehaviorConditionsTests
         condition(world).Should().BeFalse();
     }
 
-    // -- AnyWithComponent --
+    // -- AnyWithComponent
 
     [Fact]
     public void AnyWithComponent_Returns_True_When_Entities_Exist()
@@ -137,7 +137,7 @@ public class BehaviorConditionsTests
         condition(world).Should().BeFalse();
     }
 
-    // -- ModifiersHeld --
+    // -- ModifiersHeld
 
     [Fact]
     public void ModifiersHeld_None_Always_Returns_True()
@@ -196,7 +196,7 @@ public class BehaviorConditionsTests
         BehaviorConditions.ModifiersHeld(input, combined).Should().BeTrue();
     }
 
-    // -- KeyToggle (string overload) --
+    // -- KeyToggle (string overload)
 
     [Fact]
     public void KeyToggle_Returns_DefaultEnabled_When_Key_Not_Pressed()

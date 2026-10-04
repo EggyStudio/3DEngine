@@ -6,7 +6,7 @@ namespace Engine.Tests.Entities;
 [Trait("Category", "Unit")]
 public class EcsWorldTests
 {
-    // -- Spawn / Add / Query --
+    // -- Spawn / Add / Query
 
     [Fact]
     public void Spawn_Add_Query_Work()
@@ -36,7 +36,7 @@ public class EcsWorldTests
         ecs.GetGeneration(id).Should().BeGreaterThanOrEqualTo(1);
     }
 
-    // -- Update / Changed --
+    // -- Update / Changed
 
     [Fact]
     public void Update_Marks_Changed_For_Current_Frame()
@@ -93,7 +93,7 @@ public class EcsWorldTests
         ecs.Changed<TestComp>(e).Should().BeTrue();
     }
 
-    // -- Mutate --
+    // -- Mutate
 
     [Fact]
     public void Mutate_Transforms_And_Marks_Changed()
@@ -122,7 +122,7 @@ public class EcsWorldTests
         ecs.TryGet<TestComp>(e, out _).Should().BeFalse();
     }
 
-    // -- TransformEach --
+    // -- TransformEach
 
     [Fact]
     public void TransformEach_Updates_All_And_Marks_Changed()
@@ -143,7 +143,7 @@ public class EcsWorldTests
         ecs.Changed<TestComp>(e2).Should().BeTrue();
     }
 
-    // -- ParallelTransformEach --
+    // -- ParallelTransformEach
 
     [Fact]
     public void ParallelTransformEach_MarksChanged()
@@ -163,7 +163,7 @@ public class EcsWorldTests
         ecs.Query<TestComp>().First(t => t.Component.A == 1).Component.A.Should().Be(1);
     }
 
-    // -- TryGet --
+    // -- TryGet
 
     [Fact]
     public void TryGet_Returns_Existing_Value()
@@ -176,7 +176,7 @@ public class EcsWorldTests
         comp.A.Should().Be(42);
     }
 
-    // -- Multi-component queries --
+    // -- Multi-component queries
 
     [Fact]
     public void Query_Two_And_Three_Components()
@@ -221,7 +221,7 @@ public class EcsWorldTests
         filtered[1].Entity.Should().Be(e3);
     }
 
-    // -- GetRef --
+    // -- GetRef
 
     [Fact]
     public void GetRef_ModifyComponent_ReflectsInQuery()
@@ -268,7 +268,7 @@ public class EcsWorldTests
         act.Should().Throw<KeyNotFoundException>();
     }
 
-    // -- GetSpan --
+    // -- GetSpan
 
     [Fact]
     public void GetSpan_MutateAll_MarksChanged()
@@ -311,7 +311,7 @@ public class EcsWorldTests
         ecs.GetReadOnlySpan<TestComp>().Components[0].A.Should().Be(99);
     }
 
-    // -- QueryRef --
+    // -- QueryRef
 
     [Fact]
     public void QueryRef_ModifiesComponents()
@@ -362,7 +362,7 @@ public class EcsWorldTests
         ecs.Changed<OtherComp>(e2).Should().BeTrue();
     }
 
-    // -- Despawn --
+    // -- Despawn
 
     [Fact]
     public void Despawn_Disposes_Disposable_Components_And_Reuses_EntityId()
@@ -397,7 +397,7 @@ public class EcsWorldTests
         ecs.GetGeneration(id2).Should().Be(g2);
     }
 
-    // -- Remove --
+    // -- Remove
 
     [Fact]
     public void Remove_Component_RemovesOnlyThatComponent()
@@ -413,7 +413,7 @@ public class EcsWorldTests
         ecs.Has<OtherComp>(e).Should().BeFalse();
     }
 
-    // -- EntitiesWith --
+    // -- EntitiesWith
 
     [Fact]
     public void EntitiesWith_Returns_All_Component_Entities()
@@ -431,7 +431,7 @@ public class EcsWorldTests
         entities.Should().Equal(e1, e3);
     }
 
-    // -- SwapBackRemoval --
+    // -- SwapBackRemoval
 
     [Fact]
     public void SwapBackRemoval_Preserves_ChangedFlag_ForMovedComponent()
@@ -459,7 +459,7 @@ public class EcsWorldTests
         ecs.Changed<TestComp>(e2).Should().BeTrue();
     }
 
-    // -- SpawnBatch --
+    // -- SpawnBatch
 
     [Fact]
     public void SpawnBatch_With_Builder_Creates_Correct_Count()
@@ -510,7 +510,7 @@ public class EcsWorldTests
     }
 }
 
-// -- Test helper types --
+// -- Test helper types
 
 public struct TestComp
 {

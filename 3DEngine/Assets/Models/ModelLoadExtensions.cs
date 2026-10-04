@@ -46,7 +46,7 @@ namespace Engine;
 /// <seealso cref="TextureLoadExtensions"/>
 public static class ModelLoadExtensions
 {
-    // -- Loading shortcuts (SceneAsset under the hood, "Model" naming for clarity) --
+    // -- Loading shortcuts (SceneAsset under the hood, "Model" naming for clarity)
 
     /// <summary>Loads a model file as a <see cref="SceneAsset"/>. Shorthand for <c>server.Load&lt;SceneAsset&gt;(path)</c>.</summary>
     public static Handle<SceneAsset> LoadModel(this AssetServer server, string path) =>
@@ -60,7 +60,7 @@ public static class ModelLoadExtensions
     public static Handle<SceneAsset> LoadModel(this BehaviorContext ctx, string path) =>
         ctx.World.Resource<AssetServer>().Load<SceneAsset>(path);
 
-    // -- Deferred spawn-on-load (driven by SceneSpawnSystem) --
+    // -- Deferred spawn-on-load (driven by SceneSpawnSystem)
 
     /// <summary>
     /// Queues a deferred spawn: when <paramref name="handle"/> finishes loading,
@@ -94,7 +94,7 @@ public static class ModelLoadExtensions
     public static Handle<SceneAsset> SpawnModel(this World world, EcsCommands cmd, string path, SceneSpawnSettings? settings = null) =>
         world.SpawnScene(cmd, path, settings);
 
-    // -- Synchronous (no-load) spawn from an in-memory Scene --
+    // -- Synchronous (no-load) spawn from an in-memory Scene
 
     /// <summary>
     /// Spawns an in-memory <see cref="Scene"/> immediately (no asset/load step). Thin

@@ -40,7 +40,7 @@ public interface IGraphicsDevice : IDisposable
     /// <summary>Handles window resize by recreating swapchain resources.</summary>
     void OnResize();
 
-    // -- Swapchain Resources --
+    // -- Swapchain Resources
 
     /// <summary>The swapchain-compatible render pass. Nodes use this to begin their own render passes targeting the swapchain.</summary>
     IRenderPass SwapchainRenderPass { get; }
@@ -54,7 +54,7 @@ public interface IGraphicsDevice : IDisposable
     /// <returns>The framebuffer for the specified swapchain image.</returns>
     IFramebuffer GetSwapchainFramebuffer(uint imageIndex);
 
-    // -- Buffer API --
+    // -- Buffer API
 
     /// <summary>Creates a GPU buffer with the specified descriptor.</summary>
     /// <param name="desc">Buffer creation descriptor (size, usage, CPU access).</param>
@@ -70,7 +70,7 @@ public interface IGraphicsDevice : IDisposable
     /// <param name="buffer">The buffer to unmap.</param>
     void Unmap(IBuffer buffer);
 
-    // -- Image / Sampler API --
+    // -- Image / Sampler API
 
     /// <summary>Creates a GPU image (texture or render target).</summary>
     /// <param name="desc">Image creation descriptor.</param>
@@ -94,7 +94,7 @@ public interface IGraphicsDevice : IDisposable
     /// <returns>A new <see cref="ISampler"/> handle.</returns>
     ISampler CreateSampler(SamplerDesc desc);
 
-    // -- Shader / Pipeline API --
+    // -- Shader / Pipeline API
 
     /// <summary>Creates a shader module from SPIR-V bytecode.</summary>
     /// <param name="desc">Shader creation descriptor.</param>
@@ -106,7 +106,7 @@ public interface IGraphicsDevice : IDisposable
     /// <returns>A new <see cref="IPipeline"/> handle.</returns>
     IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc);
 
-    // -- Descriptor API --
+    // -- Descriptor API
 
     /// <summary>Creates a descriptor set layout from an array of binding descriptions.</summary>
     /// <param name="bindings">The layout bindings.</param>
@@ -131,7 +131,7 @@ public interface IGraphicsDevice : IDisposable
     /// <summary>Points a descriptor set's storage buffer binding at a buffer.</summary>
     void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding);
 
-    // -- Draw API --
+    // -- Draw API
 
     /// <summary>Binds a graphics pipeline for subsequent draw commands.</summary>
     /// <param name="commandBuffer">The active command buffer.</param>
@@ -182,7 +182,7 @@ public interface IGraphicsDevice : IDisposable
     /// <param name="indexType">Index element type (16-bit or 32-bit).</param>
     void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType);
 
-    // -- Dynamic State --
+    // -- Dynamic State
 
     /// <summary>Sets the viewport for subsequent draw commands.</summary>
     /// <param name="commandBuffer">The active command buffer.</param>
@@ -238,7 +238,7 @@ public interface IGraphicsDevice : IDisposable
     /// <param name="inFlightIndex">The in-flight frame slot index (0 .. <see cref="FramesInFlight"/>-1).</param>
     void FlushDeferredStagingBuffers(int inFlightIndex);
 
-    // -- Offscreen Rendering --
+    // -- Offscreen Rendering
 
     /// <summary>Creates an offscreen render pass with a single color attachment.</summary>
     /// <param name="desc">Render pass creation descriptor.</param>

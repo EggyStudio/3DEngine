@@ -124,7 +124,7 @@ public sealed class AssetPlugin : IPlugin
         // Insert into world
         app.World.InsertResource(server);
 
-        // -- Systems --
+        // -- Systems
 
         // PreUpdate: drain completed loads → Assets<T> + fire AssetEvent<T>
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>

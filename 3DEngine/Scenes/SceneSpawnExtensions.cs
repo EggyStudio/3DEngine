@@ -36,7 +36,7 @@ namespace Engine;
 /// <seealso cref="SceneSpawnSettings"/>
 public static class SceneSpawnExtensions
 {
-    // -- Loading shortcuts --
+    // -- Loading shortcuts
 
     /// <summary>Loads a <see cref="SceneAsset"/> via the <see cref="AssetServer"/>. Shorthand for <c>server.Load&lt;SceneAsset&gt;(path)</c>.</summary>
     public static Handle<SceneAsset> LoadScene(this AssetServer server, string path) =>
@@ -50,7 +50,7 @@ public static class SceneSpawnExtensions
     public static Handle<SceneAsset> LoadScene(this BehaviorContext ctx, string path) =>
         ctx.World.Resource<AssetServer>().Load<SceneAsset>(path);
 
-    // -- Deferred spawn-on-load (driven by SceneSpawnSystem) --
+    // -- Deferred spawn-on-load (driven by SceneSpawnSystem)
 
     /// <summary>
     /// Queues a deferred spawn: when <paramref name="handle"/> finishes loading,
@@ -92,7 +92,7 @@ public static class SceneSpawnExtensions
         return handle;
     }
 
-    // -- Synchronous (no-load) spawn from an in-memory Scene --
+    // -- Synchronous (no-load) spawn from an in-memory Scene
 
     /// <summary>
     /// Spawns an in-memory <see cref="Scene"/> into <paramref name="ecs"/> immediately

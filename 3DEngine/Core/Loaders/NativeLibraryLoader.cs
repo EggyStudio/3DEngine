@@ -35,7 +35,7 @@ public sealed class NativeLibraryLoader
     private Action<string>? _onLog;
     private Action<string>? _onWarn;
 
-    // -- Platform detection --
+    // -- Platform detection
 
     /// <summary>OS identifier: <c>"win"</c>, <c>"linux"</c>, or <c>"osx"</c>.</summary>
     public static string PlatformName { get; } =
@@ -67,7 +67,7 @@ public sealed class NativeLibraryLoader
     public static string NativePrefix { get; } =
         OperatingSystem.IsWindows() ? "" : "lib";
 
-    // -- Configuration (fluent) --
+    // -- Configuration (fluent)
 
     /// <summary>
     /// Adds a directory to the search list. Directories are probed in the order they
@@ -125,7 +125,7 @@ public sealed class NativeLibraryLoader
         return this;
     }
 
-    // -- Loading --
+    // -- Loading
 
     /// <summary>
     /// Searches all configured directories for <paramref name="fileName"/> and loads
@@ -279,7 +279,7 @@ public sealed class NativeLibraryLoader
     /// </summary>
     public nint GetHandle(string fileName) => _loaded.GetValueOrDefault(fileName);
 
-    // -- DllImport resolution --
+    // -- DllImport resolution
 
     /// <summary>
     /// Registers this loader as the <c>[DllImport]</c> / <c>[LibraryImport]</c> resolver
@@ -341,7 +341,7 @@ public sealed class NativeLibraryLoader
         return nint.Zero;
     }
 
-    // -- Compatibility helpers --
+    // -- Compatibility helpers
 
     /// <summary>
     /// Creates a symbolic link at <paramref name="linkPath"/> pointing to the first
@@ -403,7 +403,7 @@ public sealed class NativeLibraryLoader
         catch { return false; }
     }
 
-    // -- Static helpers --
+    // -- Static helpers
 
     // RTLD_LAZY = 1, RTLD_GLOBAL = 0x100 on glibc / musl / macOS.
     private const int RTLD_LAZY = 1;

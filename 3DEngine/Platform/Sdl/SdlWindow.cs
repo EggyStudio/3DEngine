@@ -93,7 +93,7 @@ public sealed class SdlWindow
             logger.Info($"SDL window created (handle=0x{window:X}), renderer (handle=0x{renderer:X}).");
         }
 
-        // -- HiDPI handling --
+        // -- HiDPI handling
         // SDL3 spec: CreateWindow / GetWindowSize / SetWindowSize use *logical*
         // coordinates on native Wayland, macOS, and iOS.  Windows, X11 (including
         // XWayland), and Android are the exceptions - they work in physical pixels.

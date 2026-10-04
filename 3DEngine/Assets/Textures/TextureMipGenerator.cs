@@ -124,7 +124,7 @@ public static class TextureMipGenerator
         }
     }
 
-    // -- Per-format box filters: 2x2 average, with edge replication when an axis is 1 --
+    // -- Per-format box filters: 2x2 average, with edge replication when an axis is 1
 
     private static void DownsampleRgba8(
         byte[] src, int srcOffset, int srcW, int srcH,

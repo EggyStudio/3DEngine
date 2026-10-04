@@ -8,7 +8,7 @@ public class NullGraphicsDeviceTests
 {
     private readonly NullGraphicsDevice _device = new();
 
-    // -- Initialization --
+    // -- Initialization
 
     [Fact]
     public void IsInitialized_False_Before_Initialize()
@@ -24,7 +24,7 @@ public class NullGraphicsDeviceTests
         _device.IsInitialized.Should().BeTrue();
     }
 
-    // -- Swapchain --
+    // -- Swapchain
 
     [Fact]
     public void Swapchain_Reports_1x1_Extent()
@@ -48,7 +48,7 @@ public class NullGraphicsDeviceTests
         index.Should().Be(0u);
     }
 
-    // -- Adapter info --
+    // -- Adapter info
 
     [Fact]
     public void AdapterInfo_Returns_Unknown()
@@ -56,7 +56,7 @@ public class NullGraphicsDeviceTests
         _device.AdapterInfo.Should().Be(GraphicsAdapterInfo.Unknown);
     }
 
-    // -- FramesInFlight --
+    // -- FramesInFlight
 
     [Fact]
     public void FramesInFlight_Is_One()
@@ -64,7 +64,7 @@ public class NullGraphicsDeviceTests
         _device.FramesInFlight.Should().Be(1);
     }
 
-    // -- BeginFrame / EndFrame cycle --
+    // -- BeginFrame / EndFrame cycle
 
     [Fact]
     public void BeginFrame_EndFrame_Cycle_Succeeds()
@@ -92,7 +92,7 @@ public class NullGraphicsDeviceTests
         f2.FrameIndex.Should().BeGreaterThan(f1.FrameIndex);
     }
 
-    // -- OnResize / Dispose do not throw --
+    // -- OnResize / Dispose do not throw
 
     [Fact]
     public void OnResize_Does_Not_Throw()
@@ -108,7 +108,7 @@ public class NullGraphicsDeviceTests
         act.Should().NotThrow();
     }
 
-    // -- Unmap does not throw --
+    // -- Unmap does not throw
 
     [Fact]
     public void Unmap_Does_Not_Throw()
@@ -117,7 +117,7 @@ public class NullGraphicsDeviceTests
         act.Should().NotThrow();
     }
 
-    // -- All resource creation methods throw NotSupportedException --
+    // -- All resource creation methods throw NotSupportedException
 
     [Fact]
     public void CreateBuffer_Throws_NotSupportedException()
@@ -251,7 +251,7 @@ public class NullGraphicsDeviceTests
             _device.UploadTexture2D(null!, ReadOnlySpan<byte>.Empty, 1, 1, 4));
     }
 
-    // -- Stub --
+    // -- Stub
 
     private sealed class StubSurfaceSource : ISurfaceSource
     {

@@ -6,7 +6,7 @@ namespace Engine.Tests.Entities;
 [Trait("Category", "Unit")]
 public class EcsCommandsTests
 {
-    // -- Spawn --
+    // -- Spawn
 
     [Fact]
     public void Spawn_Queues_And_Apply_Creates_Entity()
@@ -28,7 +28,7 @@ public class EcsCommandsTests
         comp.A.Should().Be(99);
     }
 
-    // -- Despawn --
+    // -- Despawn
 
     [Fact]
     public void Despawn_Queues_And_Apply_Removes_Entity()
@@ -44,7 +44,7 @@ public class EcsCommandsTests
         ecs.TryGet<TestComp>(e, out _).Should().BeFalse();
     }
 
-    // -- Add --
+    // -- Add
 
     [Fact]
     public void Add_Queues_And_Apply_Attaches_Component()
@@ -61,7 +61,7 @@ public class EcsCommandsTests
         comp.A.Should().Be(42);
     }
 
-    // -- Remove --
+    // -- Remove
 
     [Fact]
     public void Remove_Queues_And_Apply_Detaches_Component()
@@ -77,7 +77,7 @@ public class EcsCommandsTests
         ecs.Has<TestComp>(e).Should().BeFalse();
     }
 
-    // -- FIFO ordering --
+    // -- FIFO ordering
 
     [Fact]
     public void Apply_Executes_Commands_In_FIFO_Order()
@@ -106,7 +106,7 @@ public class EcsCommandsTests
         capturedId.Should().BeGreaterThanOrEqualTo(1);
     }
 
-    // -- Fluent chaining --
+    // -- Fluent chaining
 
     [Fact]
     public void Methods_Support_Fluent_Chaining()
@@ -122,7 +122,7 @@ public class EcsCommandsTests
         result.Should().BeSameAs(cmd);
     }
 
-    // -- Apply empties the queue --
+    // -- Apply empties the queue
 
     [Fact]
     public void Apply_Empties_Queue_Second_Apply_Is_NoOp()
@@ -140,7 +140,7 @@ public class EcsCommandsTests
         count.Should().Be(1);
     }
 
-    // -- Complex scenario: spawn + add multiple components --
+    // -- Complex scenario: spawn + add multiple components
 
     [Fact]
     public void Spawn_With_Multiple_Components()
@@ -162,7 +162,7 @@ public class EcsCommandsTests
         results[0].C2.B.Should().Be(20);
     }
 
-    // -- SpawnBatch --
+    // -- SpawnBatch
 
     [Fact]
     public void SpawnBatch_Creates_Correct_Number_Of_Entities()

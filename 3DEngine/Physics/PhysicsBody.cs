@@ -37,7 +37,7 @@ public readonly struct PhysicsBody : IEquatable<PhysicsBody>
     /// <summary><c>true</c> if this handle is bound to a world (regardless of whether the body still exists).</summary>
     public bool IsValid => World is not null && World.Exists(this);
 
-    // -- Pose --
+    // -- Pose
 
     /// <summary>World-space position of the body.</summary>
     public Vector3 Position
@@ -59,7 +59,7 @@ public readonly struct PhysicsBody : IEquatable<PhysicsBody>
     /// <summary>Sets the body's world-space orientation.</summary>
     public void SetRotation(Quaternion rotation) => World!.SetRotation(this, rotation);
 
-    // -- Velocities --
+    // -- Velocities
 
     /// <summary>Linear velocity in world space (m/s). Static bodies always return zero.</summary>
     public Vector3 Velocity => World!.GetLinearVelocity(this);
@@ -73,7 +73,7 @@ public readonly struct PhysicsBody : IEquatable<PhysicsBody>
     /// <summary>Sets the angular velocity (no-op for static bodies). Wakes the body.</summary>
     public void SetAngularVelocity(Vector3 velocity) => World!.SetAngularVelocity(this, velocity);
 
-    // -- Forces / impulses --
+    // -- Forces / impulses
 
     /// <summary>Applies an instantaneous change in momentum at the body's centre of mass.</summary>
     public void ApplyImpulse(Vector3 impulse) => World!.ApplyImpulse(this, impulse, Vector3.Zero);
@@ -85,7 +85,7 @@ public readonly struct PhysicsBody : IEquatable<PhysicsBody>
     /// <summary>Applies an instantaneous change in angular momentum.</summary>
     public void ApplyAngularImpulse(Vector3 impulse) => World!.ApplyAngularImpulse(this, impulse);
 
-    // -- State --
+    // -- State
 
     /// <summary><c>true</c> when the body is awake (being simulated this step).</summary>
     public bool IsAwake => World!.IsAwake(this);

@@ -364,7 +364,7 @@ public sealed class AudioServer : IDisposable
         }
     }
 
-    // -- Internal calls invoked by AudioSource --
+    // -- Internal calls invoked by AudioSource
 
     internal void SetPosition(int ticket, Vector3 position)
     {
@@ -519,7 +519,7 @@ public sealed class AudioServer : IDisposable
         spatial?.Dispose();
     }
 
-    // -- Internal records --
+    // -- Internal records
 
     private sealed record VoiceRecord(
         int VoiceId,

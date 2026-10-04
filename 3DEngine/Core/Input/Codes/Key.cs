@@ -396,7 +396,7 @@ public enum Key
     /// <summary>Reject phone call.</summary>
     EndCall = 290,
 
-    /// <summary>400–500 reserved for dynamic keycodes.</summary>
+    /// <summary>400 to 500 are reserved for dynamic keycodes.</summary>
     Reserved = 400,
 
     /// <summary>Not a key - marks the scancode array upper bound.</summary>

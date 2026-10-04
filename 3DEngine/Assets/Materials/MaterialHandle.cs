@@ -42,7 +42,7 @@ public readonly struct MaterialHandle : IEquatable<MaterialHandle>
     /// <summary>Replaces the underlying description in-place. The handle id is preserved.</summary>
     public void SetDescription(MaterialDescription description) => Library!.Update(this, description);
 
-    // -- convenience factor setters --
+    // -- convenience factor setters
 
     /// <summary>Updates the linear-RGBA base-color factor on the underlying description.</summary>
     public void SetBaseColor(Vector4 color) => Library!.Mutate(this, m => m.BaseColorFactor = color);

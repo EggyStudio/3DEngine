@@ -11,13 +11,13 @@ namespace Engine;
 /// façade into Bepu calls and writes simulated poses back into the ECS each frame.
 /// </summary>
 /// <remarks>
-/// The implementation is split across several partial files for readability:
+/// The class is split across partial files by what each part does:
 /// <list type="bullet">
-///   <item><description><c>PhysicsWorld.cs</c> – construction, gravity, disposal.</description></item>
-///   <item><description><c>PhysicsWorld.Creation.cs</c> – body / shape creation factories.</description></item>
-///   <item><description><c>PhysicsWorld.Bodies.cs</c> – per-body pose / velocity / impulse operations.</description></item>
-///   <item><description><c>PhysicsWorld.Queries.cs</c> – raycasts and other spatial queries.</description></item>
-///   <item><description><c>PhysicsWorld.Step.cs</c> – per-frame stepping and ECS transform sync.</description></item>
+///   <item><description><c>PhysicsWorld.cs</c>, making and disposing the simulation, and gravity.</description></item>
+///   <item><description><c>PhysicsWorld.Creation.cs</c>, making bodies and their shapes.</description></item>
+///   <item><description><c>PhysicsWorld.Bodies.cs</c>, a body's pose, velocity and impulses.</description></item>
+///   <item><description><c>PhysicsWorld.Queries.cs</c>, raycasts and other queries of space.</description></item>
+///   <item><description><c>PhysicsWorld.Step.cs</c>, stepping each frame and writing the ECS transforms.</description></item>
 /// </list>
 /// </remarks>
 public sealed partial class PhysicsWorld : IDisposable

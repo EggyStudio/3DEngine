@@ -45,7 +45,7 @@ public static class TextureLoadExtensions
     public static Handle<Texture> LoadTexture(this BehaviorContext ctx, string path) =>
         ctx.World.Resource<AssetServer>().Load<Texture>(path);
 
-    // -- sRGB convenience (BaseColor / Emissive) --
+    // -- sRGB convenience (BaseColor / Emissive)
 
     /// <summary>Loads as sRGB-encoded; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
     public static Handle<Texture> LoadTextureSrgb(this AssetServer server, string path, bool generateMips = false) =>
@@ -59,7 +59,7 @@ public static class TextureLoadExtensions
     public static Handle<Texture> LoadTextureSrgb(this BehaviorContext ctx, string path, bool generateMips = false) =>
         ctx.World.Resource<AssetServer>().Load<Texture>(BuildLabelledPath(path, srgb: true, mips: generateMips));
 
-    // -- Linear convenience (Normal / MR / Occlusion / data) --
+    // -- Linear convenience (Normal / MR / Occlusion / data)
 
     /// <summary>Loads as linear; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
     public static Handle<Texture> LoadTextureLinear(this AssetServer server, string path, bool generateMips = false) =>

@@ -73,3 +73,7 @@ None open.
 
 ## Replies
 
+- Shared: a scene file holds arrays of every field type it already held (`8567bea6`), written
+  by the generated codec with no reflection, so a `Mesh` made in code is saved with its level. A
+  row under Scenes, saves and files, if BevyCSharp's scene format lacks it.
+

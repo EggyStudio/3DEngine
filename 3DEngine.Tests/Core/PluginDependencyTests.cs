@@ -101,7 +101,7 @@ public class PluginDependencyTests : IDisposable
         ((IPlugin)plugin).Dependencies.Should().BeEmpty();
     }
 
-    // -- Order / IPluginGroup --
+    // -- Order / IPluginGroup
 
     private sealed class FoundationPlugin : IPlugin
     {

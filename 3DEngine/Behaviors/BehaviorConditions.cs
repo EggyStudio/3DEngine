@@ -61,7 +61,7 @@ public sealed class SystemToggleRegistry
 /// <seealso cref="SystemToggleRegistry"/>
 public static class BehaviorConditions
 {
-    // -- Resource conditions --
+    // -- Resource conditions
 
     /// <summary>
     /// Passes when resource <typeparamref name="T"/> is present in the world.
@@ -89,7 +89,7 @@ public static class BehaviorConditions
         => world => world.TryGetResource<State<TState>>(out var current) &&
                     EqualityComparer<TState>.Default.Equals(current.Current, state);
 
-    // -- Component / entity conditions --
+    // -- Component / entity conditions
 
     /// <summary>
     /// Passes when at least one entity currently has component <typeparamref name="T"/>.
@@ -99,7 +99,7 @@ public static class BehaviorConditions
     public static Func<World, bool> AnyWithComponent<T>()
         => static world => world.Resource<EcsWorld>().Count<T>() > 0;
 
-    // -- Keyboard toggle --
+    // -- Keyboard toggle
 
     /// <summary>
     /// Returns a stateful toggle condition for manual registration.

@@ -29,7 +29,7 @@ namespace Engine;
 /// </example>
 public static class AudioLoadExtensions
 {
-    // -- Asset loading shortcuts (no playback) --
+    // -- Asset loading shortcuts (no playback)
 
     /// <summary>Loads a sound asset. Shorthand for <c>server.Load&lt;Sound&gt;(path)</c>.</summary>
     public static Handle<Sound> LoadSound(this AssetServer server, string path) =>
@@ -43,7 +43,7 @@ public static class AudioLoadExtensions
     public static Handle<Sound> LoadSound(this BehaviorContext ctx, string path) =>
         ctx.World.Resource<AssetServer>().Load<Sound>(path);
 
-    // -- ctx.Audio() shortcut (extension methods can't be properties; closest match to ctx.Audio) --
+    // -- ctx.Audio() shortcut (extension methods can't be properties; closest match to ctx.Audio)
 
     /// <summary>Returns the active <see cref="AudioServer"/> resource.</summary>
     public static AudioServer Audio(this World world) =>
@@ -53,7 +53,7 @@ public static class AudioLoadExtensions
     public static AudioServer Audio(this BehaviorContext ctx) =>
         ctx.World.Resource<AudioServer>();
 
-    // -- One-call play helpers (load + play) --
+    // -- One-call play helpers (load + play)
 
     /// <summary>Loads <paramref name="path"/> and starts a non-spatial 2D voice.</summary>
     public static AudioSource PlaySound(this World world, string path, AudioVoiceParams parameters = default)
@@ -81,7 +81,7 @@ public static class AudioLoadExtensions
     public static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default) =>
         ctx.World.PlaySpatialSound(path, position, parameters);
 
-    // -- AudioServer-level convenience for the user-illustrated CreateSpatialSource / CreateSource shape --
+    // -- AudioServer-level convenience for the user-illustrated CreateSpatialSource / CreateSource shape
 
     /// <summary>
     /// Creates a 3D voice at the world origin from <paramref name="path"/>. Matches the

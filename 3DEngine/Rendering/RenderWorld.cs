@@ -40,7 +40,7 @@ public sealed class RenderWorld
     /// </remarks>
     public EcsWorld Entities { get; } = new();
 
-    // -- Entity lifecycle --
+    // -- Entity lifecycle
 
     /// <summary>Spawns a new render entity and returns its ID.</summary>
     /// <returns>The newly allocated render entity ID.</returns>
@@ -64,7 +64,7 @@ public sealed class RenderWorld
         Entities.BeginFrame();
     }
 
-    // -- Singleton resource API --
+    // -- Singleton resource API
 
     /// <summary>Returns <c>true</c> if a resource of type <typeparamref name="T"/> is stored.</summary>
     /// <typeparam name="T">The resource type to check for.</typeparam>

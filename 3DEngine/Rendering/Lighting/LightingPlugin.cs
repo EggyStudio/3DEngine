@@ -15,10 +15,9 @@ namespace Engine;
 /// will exist by the time this plugin builds when launched via <see cref="DefaultPlugins"/>.
 /// </para>
 /// <para>
-/// <b>Headless / test path:</b> when no <see cref="Renderer"/> is present (e.g. unit
-/// tests using a bare <see cref="App"/>), the extract registration is skipped with a
-/// debug log and the spawn system still runs — so payload→component translation is
-/// testable without a graphics backend, mirroring how <see cref="MaterialPlugin"/> works.
+/// With no <see cref="Renderer"/>, as in a test of a bare <see cref="App"/>, the extract is not
+/// registered, which the debug log says, and the spawn system still runs, so turning payloads into
+/// components is tested with no graphics device, as <see cref="MaterialPlugin"/> is.
 /// </para>
 /// </remarks>
 /// <seealso cref="Light"/>
@@ -38,9 +37,9 @@ public sealed class LightingPlugin : IPlugin
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(LightSpawnSystem.Run, "LightSpawnSystem").MainThreadOnly());
         Logger.Debug("LightingPlugin: LightSpawnSystem scheduled in Stage.PreUpdate.");
 
-        // Renderer hookup is best-effort: the extract is harmless when the renderer is
-        // absent (tests, headless runs). If it shows up later, a follow-up registration
-        // would be needed — we don't currently watch for late insertion.
+        // The extract is registered only when the renderer is there, as it is not in tests and
+        // headless runs. A renderer inserted after this plugin is not watched for, and would need
+        // the extract registered then.
         if (app.World.TryGetResource<Renderer>(out var renderer))
         {
             renderer.AddExtractSystem(new LightExtract());

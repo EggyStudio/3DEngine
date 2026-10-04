@@ -106,7 +106,7 @@ public sealed class AppWindow
     {
         bool running = !_shouldClose;
 
-        // -- Coalesced resize state for this poll batch --
+        // -- Coalesced resize state for this poll batch
         bool resizedThisBatch = false;
         int coalescedW = 0, coalescedH = 0;
 
@@ -155,7 +155,7 @@ public sealed class AppWindow
 
         EventsPolled?.Invoke();
 
-        // -- Dispatch the single coalesced resize (if any) --
+        // -- Dispatch the single coalesced resize (if any)
         if (resizedThisBatch && coalescedW > 0 && coalescedH > 0)
         {
             Sdl.Width = coalescedW;
