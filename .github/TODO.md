@@ -34,20 +34,20 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
-- **130 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py`
-  names. Most are what C# has, its strings, codepoints, files, directories, hashes, compression
-  and freeing of memory, and the exports as C code. `UpdateTextureRec` needs a texture's pixels on
-  the CPU, which the texture store does not keep, and `LoadImageFromTexture` and
-  `LoadImageFromScreen` the GPU's pixels, which it has not finished when the call returns. Images
-  are eight bits a channel with one level, so `ImageFormat`, `LoadImageRaw`, `ImageMipmaps` and the
-  raw pixel functions have nothing to do, and textures are two-dimensional in one format, so
-  cubemaps and render textures of other formats are left out. Shapes are drawn untextured, and
-  fonts keep their glyphs by codepoint in ImGui's atlas, so the shapes texture, `GetGlyphIndex`,
-  `LoadFontData` and `GenImageFontAtlas` have no meaning. The vertex layout is fixed and has no
-  tangents, for `UpdateMeshBuffer`, `GenMeshTangents` and `GetShaderLocationAttrib`. The audio
-  processors and `UpdateSound` reach into the audio thread, which the backend does not open to the
-  program. VR stereo, automation events (which `./e3d` stands in for), the frame control a loop of
-  its own needs and the monitor's size in millimetres (which SDL3 does not give) are left out too.
+- **129 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names.
+  Most are what C# has, its strings, codepoints, files, directories, hashes, compression and freeing
+  of memory, and the exports as C code. `UpdateTextureRec` needs a texture's pixels on the CPU,
+  which the texture store does not keep, and `LoadImageFromScreen` the frame as drawn, which the GPU
+  has not finished when the call returns and has presented after. Images are eight bits a channel
+  with one level, so `ImageFormat`, `LoadImageRaw`, `ImageMipmaps` and the raw pixel functions have
+  nothing to do, and textures are two-dimensional in one format, so cubemaps and render textures of
+  other formats are left out. Shapes are drawn untextured, and fonts keep their glyphs by codepoint
+  in ImGui's atlas, so the shapes texture, `GetGlyphIndex`, `LoadFontData` and `GenImageFontAtlas`
+  have no meaning. The vertex layout is fixed and has no tangents, for `UpdateMeshBuffer`,
+  `GenMeshTangents` and `GetShaderLocationAttrib`. The audio processors and `UpdateSound` reach into
+  the audio thread, which the backend does not open to the program. VR stereo, automation events
+  (which `./e3d` stands in for), the frame control a loop of its own needs and the monitor's size in
+  millimetres (which SDL3 does not give) are left out too.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in

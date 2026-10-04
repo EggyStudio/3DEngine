@@ -177,4 +177,47 @@ public sealed unsafe partial class GraphicsDevice
             }
         }
     }
+
+    /// <summary>
+    /// The first level of a color image a pass samples, as four bytes a pixel (red, green, blue,
+    /// alpha), rows from the top, copied now and waited for, after every frame in flight has
+    /// finished with it.
+    /// </summary>
+    /// <remarks>
+    /// The device is idled first, so a call costs the frames in flight, which a program reading
+    /// a render texture back to save it can take.
+    /// </remarks>
+    internal byte[] ReadPixels(IImage image)
+    {
+        var vkImage = (VulkanImage)image;
+        var extent = vkImage.Description.Extent;
+        _deviceApi.vkDeviceWaitIdle().CheckResult();
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+        try
+        {
+            var cmd = BeginSingleTimeCommands();
+            Barrier(cmd, vkImage, 0, 1, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+                VkAccessFlags.ShaderRead, VkAccessFlags.TransferRead, VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.Transfer);
+            VkBufferImageCopy region = new()
+            {
+                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+                imageExtent = new VkExtent3D(extent.Width, extent.Height, 1),
+            };
+            _deviceApi.vkCmdCopyImageToBuffer(cmd, vkImage.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            Barrier(cmd, vkImage, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.AllCommands);
+            EndSingleTimeCommands(cmd);
+
+            var pixels = Map(buffer).ToArray();
+            // A render target's color is the window's format, which may hold blue first.
+            if (vkImage.Description.Format == ImageFormat.B8G8R8A8_UNorm && _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb)
+                for (int i = 0; i < pixels.Length; i += 4)
+                    (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
+            return pixels;
+        }
+        finally
+        {
+            buffer.Dispose();
+        }
+    }
 }

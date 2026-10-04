@@ -337,6 +337,7 @@ void ImageRotate(ref Image image, int degrees);                                 
 Image LoadImageAnim(string fileName, out int frames);                                  // Every frame of an animated GIF, stacked from the top
 Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames);       // The same from a GIF's bytes
 Image LoadImageFromMemory(string fileType, byte[] fileData);                           // Decode an image file's bytes
+Image LoadImageFromTexture(Texture2D texture);                                         // Read a texture or render texture back, waiting for the GPU
 bool IsImageValid(Image image);                                                        // Whether it holds pixels
 byte[] ExportImageToMemory(Image image, string fileType);                              // An image as a PNG file's bytes
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file

@@ -77,6 +77,10 @@ public sealed class GpuTextures : IDisposable
         return (image, entry.FirstLevel ??= device.CreateFirstLevelView(image));
     }
 
+    /// <summary>The image of texture <paramref name="id"/>, a render target's color among them, or null for one not on the GPU yet.</summary>
+    internal IImage? ImageFor(int id) =>
+        id != 0 && _entries.TryGetValue(id, out var entry) ? entry.Image ?? entry.Target?.ColorView.Image : null;
+
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
     public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
 

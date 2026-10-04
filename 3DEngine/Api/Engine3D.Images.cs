@@ -224,6 +224,28 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>
+    /// A texture's pixels read back from the GPU, a render texture's color among them, as the
+    /// frames drawn so far left it, or an invalid image when it is not on the GPU yet.
+    /// </summary>
+    /// <remarks>
+    /// The call waits for the frames in flight to finish, so it is for saving a picture of a
+    /// render texture, as <c>ExportImage(LoadImageFromTexture(target.Texture), "shot.png")</c>
+    /// does, rather than for every frame. A texture uploaded since the last frame has not reached
+    /// the GPU, and reads after the next.
+    /// </remarks>
+    public static Image LoadImageFromTexture(Texture2D texture)
+    {
+        if (!texture.IsValid || ComputeDevice is not { } device
+            || Res<Renderer>().RenderWorld.TryGet<GpuTextures>()?.ImageFor(texture.Id) is not { } image)
+        {
+            ApiLogger.Warn("LoadImageFromTexture: the texture is not on the GPU, so nothing is read.");
+            return default;
+        }
+        var extent = image.Description.Extent;
+        return new Image(device.ReadPixels(image), (int)extent.Width, (int)extent.Height);
+    }
+
     /// <summary>Whether an image holds pixels, as one loaded or made does.</summary>
     public static bool IsImageValid(Image image) => image.IsValid;
 

@@ -724,6 +724,35 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Render_Texture_And_A_Texture_Read_Back_As_Images()
+    {
+        Open(32, 32);
+        var target = LoadRenderTexture(8, 4);
+        var source = GenImageColor(4, 2, Color.Green);
+        ImageDrawPixel(ref source, 3, 1, Color.Yellow);
+        var texture = LoadTextureFromImage(source);
+        Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Blue);
+            DrawRectangle(0, 0, 4, 4, Color.Red);
+            EndTextureMode();
+            ClearBackground(Color.Black);
+        }, "drawn");
+
+        var drawn = LoadImageFromTexture(target.Texture);
+        (drawn.Width, drawn.Height).Should().Be((8, 4));
+        GetImageColor(drawn, 1, 1).Should().Be(Color.Red, "the left half was drawn red");
+        GetImageColor(drawn, 6, 2).Should().Be(Color.Blue, "and the rest cleared blue");
+
+        var read = LoadImageFromTexture(texture);
+        read.Data.Should().Equal(source.Data, "a texture reads back as the image it was made from");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadTexture(texture);
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void A_Compute_Shader_Writes_A_Render_Texture_That_Is_Then_Drawn()
     {
         Open(32, 32);
