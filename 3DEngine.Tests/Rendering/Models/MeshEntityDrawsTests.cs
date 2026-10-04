@@ -255,4 +255,31 @@ public class MeshEntityDrawsTests
 
         Drawn(world).Select(d => d.World.Translation.Z).Should().Equal(0, -3, 2);
     }
+
+    [Fact]
+    public void A_Second_Camera_Draws_The_Same_Instances_Through_Its_Own_View_And_Order()
+    {
+        var (world, ecs) = Scene();
+        // A camera behind the scene, at z -5 looking back, into a render texture, so the
+        // translucent entities' order turns around for it.
+        var screen = ecs.Spawn();
+        ecs.Add(screen, new Camera(60f) { Target = new RenderTexture2D(new Texture2D(7, 64, 64)) });
+        ecs.Add(screen, new Transform(new Vector3(0, 0, -5), Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI), Vector3.One));
+        SpawnMesh(ecs, Triangle, new Vector3(0, 0, 2), new Vector4(1, 0, 0, 0.5f));
+        SpawnMesh(ecs, Triangle, new Vector3(1, 0, 0), Vector4.One);
+        SpawnMesh(ecs, Triangle, new Vector3(0, 0, -3), new Vector4(0, 0, 1, 0.5f));
+
+        MeshEntityDraws.Run(world);
+
+        var drawn = Drawn(world);
+        var window = drawn.Where(d => d.Target == 0).ToList();
+        var texture = drawn.Where(d => d.Target == 7).ToList();
+        window.Select(d => d.World.Translation.Z).Should().Equal(0, -3, 2);
+        // From behind, z 2 is the farther.
+        texture.Select(d => d.World.Translation.Z).Should().Equal(0, 2, -3);
+        texture[0].ViewProjection.Should().NotBe(window[0].ViewProjection);
+        texture.Should().OnlyContain(d => d.ViewProjection == texture[0].ViewProjection);
+        world.Resource<ModelDrawList>().Groups.Select(g => g.ToArray()[0]).Distinct().Should().ContainSingle(
+            "the opaque entity's one instance is shared by both cameras' groups");
+    }
 }

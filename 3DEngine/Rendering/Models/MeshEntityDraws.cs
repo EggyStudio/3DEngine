@@ -30,8 +30,9 @@ namespace Engine;
 /// differs from what it was built from, a texture it names was still loading, or a texture or
 /// mesh was replaced. An opaque entity's instance is then written straight into the
 /// <see cref="InstanceGroup"/> of its mesh and maps, from the kept instance with the frame's
-/// world matrix and camera, and the model pass copies each group as it is and draws it as one
-/// batch (RENDERING.md section 6).
+/// world matrix, and the model pass copies each group as it is and draws it as one batch
+/// (RENDERING.md section 6). An instance holds nothing of the camera, so the entities are gathered
+/// once a frame, and each camera's groups hold the same instances.
 /// </para>
 /// <para>
 /// Past 4,096 entities they are recorded in chunks of that many, each on a thread of its own and
@@ -93,8 +94,8 @@ public sealed class MeshEntityDraws
     }
 
     // What the groups opaque entities are written into share, by index, kept from frame to frame,
-    // and each camera's groups, the same index for the same mesh and maps, since a camera's view is
-    // written into each instance.
+    // and each camera's groups, the same index for the same mesh and maps, which hold the same
+    // instances under a template of the camera's own.
     private readonly List<ModelDraw> _groups = [];
     private readonly Dictionary<GroupKey, int> _groupOf = [];
     private readonly List<List<InstanceGroup>> _cameraGroups = [];
@@ -107,22 +108,18 @@ public sealed class MeshEntityDraws
     private Chunk[] _chunks = [];
 
     // What a chunk gathers apart from the others: the positions arrays it drew, the mesh of the
-    // entity before, its translucent draws, the entities it left for after, and its instances, a
-    // buffer for each group. The buffers and their counts are the chunk's own, since threads
-    // counting into objects that lie side by side wait on each other's writes to the same line.
+    // entity before, its translucent draws placed in the world, the entities it left for after,
+    // and its instances, a buffer for each group. The buffers and their counts are the chunk's
+    // own, since threads counting into objects that lie side by side wait on each other's writes
+    // to the same line.
     private sealed class Chunk
     {
         public readonly HashSet<Vector3[]> Seen = new(ReferenceEqualityComparer.Instance);
-        public readonly List<(float Distance, ModelDraw Draw)> Translucent = [];
+        public readonly List<ModelDraw> Translucent = [];
         public readonly List<int> Deferred = [];
         public Vector3[]? LastPositions;
         public int LastMesh;
         public Writer[] Writers = [];
-
-        // Each camera's writers, since a camera's groups hold the buffers it wrote until the draw
-        // list is cleared, and the next camera writes buffers of its own.
-        private readonly List<Writer[]> _byCamera = [];
-        private int _camera;
 
         // Padded to a cache line, since the chunks' arrays of writers are allocated one after
         // another and every entity counts into one.
@@ -135,26 +132,18 @@ public sealed class MeshEntityDraws
 #pragma warning restore CS0169
         }
 
-        // Empties a camera's buffers for a frame of this many groups, and writes into them.
-        public void Begin(int camera, int groups)
+        // Empties the buffers for a frame of this many groups.
+        public void Begin(int groups)
         {
-            while (_byCamera.Count <= camera) _byCamera.Add([]);
-            var writers = _byCamera[camera];
-            if (writers.Length < groups) Array.Resize(ref writers, groups);
-            for (int i = 0; i < writers.Length; i++) writers[i].Count = 0;
-            _byCamera[camera] = Writers = writers;
-            _camera = camera;
+            if (Writers.Length < groups) Array.Resize(ref Writers, groups);
+            for (int i = 0; i < Writers.Length; i++) Writers[i].Count = 0;
         }
 
         // The next instance of a group, in a buffer grown as it fills. A group made after the
         // chunks began, by the pass after them, grows the array.
         public ref ModelRenderer.Instance Next(int group)
         {
-            if (group >= Writers.Length)
-            {
-                Array.Resize(ref Writers, Math.Max(group + 1, Writers.Length * 2));
-                _byCamera[_camera] = Writers;
-            }
+            if (group >= Writers.Length) Array.Resize(ref Writers, Math.Max(group + 1, Writers.Length * 2));
             ref var writer = ref Writers[group];
             if (writer.Items is null) writer.Items = new ModelRenderer.Instance[64];
             else if (writer.Count == writer.Items.Length) Array.Resize(ref writer.Items, writer.Items.Length * 2);
@@ -208,13 +197,13 @@ public sealed class MeshEntityDraws
             for (int i = 0; i < count; i++) last = Math.Max(last, entities[i]);
             if (last >= _kept.Length) Array.Resize(ref _kept, Math.Max(last + 1, _kept.Length * 2));
 
+            // The entities are gathered once, since an instance holds nothing of the camera, and each
+            // camera draws the same instances.
+            var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
+                ecs.GetStorePublic<Transform>(), meshes, assets, textures);
+            Gather(frame, count);
             for (int index = 0; index < cameras.Count; index++)
-            {
-                var camera = cameras[index];
-                var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
-                    ecs.GetStorePublic<Transform>(), camera.ViewProjection, camera.Eye, meshes, assets, textures);
-                RecordThrough(index, camera.Target, frame, count, draws);
-            }
+                DrawThrough(index, cameras[index].ViewProjection, cameras[index].Eye, cameras[index].Target, draws);
             if (_lookCount > MaxLooks || _groups.Count > MaxLooks) Forget();
         }
 
@@ -244,17 +233,20 @@ public sealed class MeshEntityDraws
         _generation++;
     }
 
-    // Every entity through one camera, into its target, the window's at 0.
-    private void RecordThrough(int camera, int target, in Frame frame, int count, ModelDrawList draws)
+    // How many chunks the frame's entities were gathered in, the deferred ones' after them.
+    private int _chunkCount;
+
+    // Every entity's instance or translucent draw, written into the chunks.
+    private void Gather(in Frame frame, int count)
     {
         // A chunk of entities a thread, each written into a segment of its own of each group,
         // and one segment more for the entities a chunk defers, written after.
-        var chunks = Math.Max(1, (count + ChunkSize - 1) / ChunkSize);
+        var chunks = _chunkCount = Math.Max(1, (count + ChunkSize - 1) / ChunkSize);
         if (_chunks.Length < chunks + 1) Array.Resize(ref _chunks, chunks + 1);
         for (int c = 0; c <= chunks; c++)
         {
             (_chunks[c] ??= new Chunk()).Clear();
-            _chunks[c].Begin(camera, _groups.Count);
+            _chunks[c].Begin(_groups.Count);
         }
 
         var local = frame;
@@ -267,14 +259,14 @@ public sealed class MeshEntityDraws
             foreach (var dense in _chunks[c].Deferred)
                 Place(dense, late, canBuild: true, frame);
 
-        _translucent.Clear();
-        _sorted.Clear();
-        for (int c = 0; c <= chunks; c++)
-        {
-            _seen.UnionWith(_chunks[c].Seen);
-            _translucent.AddRange(_chunks[c].Translucent);
-        }
+        for (int c = 0; c <= chunks; c++) _seen.UnionWith(_chunks[c].Seen);
+    }
 
+    // The gathered entities through one camera, into its target, the window's at 0, the opaque
+    // ones as groups over the chunks' instances and the translucent ones farthest first.
+    private void DrawThrough(int camera, in Matrix4x4 viewProjection, Vector3 eye, int target, ModelDrawList draws)
+    {
+        var chunks = _chunkCount;
         while (_cameraGroups.Count <= camera) _cameraGroups.Add([]);
         var groups = _cameraGroups[camera];
         while (groups.Count < _groups.Count) groups.Add(new InstanceGroup());
@@ -285,21 +277,26 @@ public sealed class MeshEntityDraws
             for (int c = 0; c <= chunks; c++)
                 if (g < _chunks[c].Writers.Length) group.Add(_chunks[c].Writers[g].Items, _chunks[c].Writers[g].Count);
             if (group.Count == 0) continue;
-            group.Template = _groups[g] with { ViewProjection = frame.ViewProjection, Target = target };
+            group.Template = _groups[g] with { ViewProjection = viewProjection, Target = target };
             group.Sphere = _spheres.TryGetValue(group.Template.Mesh, out var sphere) ? sphere : (Vector3.Zero, float.PositiveInfinity);
             draws.AddGroup(group);
         }
 
+        _translucent.Clear();
+        _sorted.Clear();
+        for (int c = 0; c <= chunks; c++)
+            foreach (var draw in _chunks[c].Translucent)
+                _translucent.Add((Vector3.DistanceSquared(draw.World.Translation, eye), draw));
         _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
-        foreach (var (_, draw) in _translucent) _sorted.Add(draw with { Target = target });
+        foreach (var (_, draw) in _translucent) _sorted.Add(draw with { ViewProjection = viewProjection, Target = target });
         draws.AddRange(CollectionsMarshal.AsSpan(_sorted));
     }
 
     // What a frame's entities are recorded from, the stores read once rather than looked up by
     // type for each entity.
     private readonly record struct Frame(EcsWorld.ComponentStore<Mesh> Meshes, EcsWorld.ComponentStore<Material> Materials,
-        EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals, Matrix4x4 ViewProjection,
-        Vector3 Eye, MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures);
+        EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals,
+        MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures);
 
     // The entities of a chunk, from its first dense index in the mesh store up to end.
     private void RecordChunk(int chunk, int end, in Frame frame)
@@ -356,7 +353,7 @@ public sealed class MeshEntityDraws
             : Matrix4x4.Identity;
         if (look.Group < 0)
         {
-            state.Translucent.Add((Vector3.DistanceSquared(placed.Translation, frame.Eye), look.Draw with { World = placed, ViewProjection = frame.ViewProjection }));
+            state.Translucent.Add(look.Draw with { World = placed });
             return true;
         }
 

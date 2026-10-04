@@ -540,6 +540,10 @@ The largest costs as they were measured, in order, each with what changed:
    world position by it, and works the eye out from it, so an instance is 96 bytes and the same
    through every view. Run one after the other on 2026-10-04, the run with arms held 410,266
    entities in place of 379,495, and the GPU took 5.1 ms for the model pass in place of 6.4.
+   **Changed after.** `MeshEntityDraws` gathers the entities once a frame, where it gathered
+   them again for each camera, and each camera's groups hold the same instances under a template
+   with the camera's view-projection, so a camera drawing into a render texture costs its
+   translucent entities' sort and not a pass over every entity.
 
 ## What the engine needs
 
