@@ -6,6 +6,8 @@ public static class CoreWindowFlags
 {
     public static void Run()
     {
+        // Asked of the window before it opens, as raylib's flags are.
+        SetConfigFlags(ConfigFlags.WindowResizable | ConfigFlags.VsyncHint | ConfigFlags.Msaa4xHint);
         InitWindow(800, 450, "[core] window flags");
         SetWindowMinSize(320, 240);
         var resizes = 0;

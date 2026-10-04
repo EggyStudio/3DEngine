@@ -67,9 +67,9 @@ images and textures, models and meshes, shaders, text and fonts, and audio
   bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
   (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.
 - **Render targets** have no depth to sample. The window and targets are multisampled at
-  `Config.Samples` (4 by default), which the flat API cannot choose, since there is no
-  `SetConfigFlags` before the window opens. Window state and monitors are queried and changed, but
-  a monitor's modes cannot be listed or switched.
+  `Config.Samples` (4 by default, `SetConfigSamples` before the window opens). Window state and
+  monitors are queried and changed, but a monitor's modes cannot be listed or switched, and the
+  windows are always resizable, where raylib's are only with `FLAG_WINDOW_RESIZABLE`.
 
 ### Meshes, materials and light
 

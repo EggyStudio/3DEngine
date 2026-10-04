@@ -24,7 +24,7 @@ public static partial class Engine3D
         if (_app is not null)
             throw new InvalidOperationException("A window is open already. Call CloseWindow first.");
 
-        _app = new App(Config.Default.WithWindow(title, width, height)).AddPlugin(new DefaultPlugins());
+        _app = new App(ConfigFor(width, height, title)).AddPlugin(new DefaultPlugins());
         _shouldClose = false;
         _eventsPumped = false;
         _lastFrameEnd = Stopwatch.GetTimestamp();
@@ -38,6 +38,7 @@ public static partial class Engine3D
             Log.Category("Engine.Api").Warn($"CloseWindow: {textures.Count} texture(s) were still loaded.");
         _app?.Shutdown();
         _app = null;
+        ForgetConfigFlags();
     }
 
     /// <summary>Whether the window was asked to close, by its close button or by the exit key.</summary>

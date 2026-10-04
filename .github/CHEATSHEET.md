@@ -6,6 +6,8 @@ imports them with `using static Engine.Engine3D;`. [DESIGN.md](DESIGN.md) has th
 ## Window and timing
 
 ```csharp
+void SetConfigFlags(ConfigFlags flags);                    // Ask the next window for vsync, fullscreen, no border, topmost, maximized, hidden or 4x MSAA
+void SetConfigSamples(int samples);                       // Samples a pixel of the next window, 1 for none, 4 unless asked
 void InitWindow(int width, int height, string title);    // Open a window and build the app behind it
 void CloseWindow();                                      // Run Cleanup, close the window and free what the app holds
 bool WindowShouldClose();                                // Process events; true once the window or the exit key asks to close

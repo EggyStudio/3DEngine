@@ -236,8 +236,10 @@ public sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Selects the preferred present mode: Mailbox &gt; Immediate &gt; FIFO.</summary>
-    private static VkPresentModeKHR ChoosePresentMode(VkPresentModeKHR[] modes)
+    private VkPresentModeKHR ChoosePresentMode(VkPresentModeKHR[] modes)
     {
+        // FIFO waits for the display's refresh, and every device has it.
+        if (Vsync) return VkPresentModeKHR.Fifo;
         if (modes.Contains(VkPresentModeKHR.Mailbox))
             return VkPresentModeKHR.Mailbox;
         if (modes.Contains(VkPresentModeKHR.Immediate))

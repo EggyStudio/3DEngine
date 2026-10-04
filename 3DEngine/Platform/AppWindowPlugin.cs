@@ -136,6 +136,9 @@ public sealed class AppWindowPlugin : IPlugin
 
         logger.Info($"AppWindowPlugin: Creating window \"{config.WindowData.Title}\" ({config.WindowData.Width}x{config.WindowData.Height}) with backend={config.Graphics}...");
         var window = new AppWindow(config.WindowData, config.Graphics);
+        SDL.SetWindowResizable(window.Sdl.Window, config.Resizable);
+        SDL.SetWindowBordered(window.Sdl.Window, !config.Undecorated);
+        SDL.SetWindowAlwaysOnTop(window.Sdl.Window, config.Topmost);
 
         if (config.Hidden)
         {
@@ -145,6 +148,7 @@ public sealed class AppWindowPlugin : IPlugin
         {
             logger.Info($"Showing window with command: {config.WindowCommand}");
             window.Show(config.WindowCommand);
+            if (config.Fullscreen) SDL.SetWindowFullscreen(window.Sdl.Window, true);
         }
 
         // SDL3 sends no text events until text input is started, unlike SDL2, so typed characters

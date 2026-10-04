@@ -77,6 +77,24 @@ public sealed record Config
     /// </summary>
     public int Samples { get; init; } = 4;
 
+    /// <summary>Whether the window can be resized by dragging its edges. Defaults to true.</summary>
+    public bool Resizable { get; init; } = true;
+
+    /// <summary>Whether the window has no title bar or border.</summary>
+    public bool Undecorated { get; init; }
+
+    /// <summary>Whether the window stays above other windows.</summary>
+    public bool Topmost { get; init; }
+
+    /// <summary>Whether the window fills its display when shown.</summary>
+    public bool Fullscreen { get; init; }
+
+    /// <summary>
+    /// Whether frames are presented in step with the display's refresh, which caps the frame rate
+    /// at it and removes tearing. Off, frames are presented as soon as they are ready.
+    /// </summary>
+    public bool Vsync { get; init; }
+
     /// <summary>Frames per second a headless app runs at, so it does not spin a core. Defaults to 60.</summary>
     public double HeadlessFps { get; init; } = 60;
 

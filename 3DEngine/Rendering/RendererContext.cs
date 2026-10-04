@@ -58,7 +58,8 @@ public sealed class RendererContext : IDisposable
     /// <param name="surfaceSource">Platform surface source for creating the swapchain.</param>
     /// <param name="appName">Application name embedded in the Vulkan instance.</param>
     /// <param name="samples">How many samples a pixel is drawn with, from <see cref="Config.Samples"/>.</param>
-    public void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1)
+    /// <param name="vsync">Whether frames wait for the display's refresh, from <see cref="Config.Vsync"/>.</param>
+    public void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1, bool vsync = false)
     {
         if (IsInitialized) return;
 
@@ -67,7 +68,11 @@ public sealed class RendererContext : IDisposable
 
         _graphics ??= _graphicsFactory?.Invoke() ?? new GraphicsDevice();
         Logger.Debug($"Graphics device type: {_graphics.GetType().Name}");
-        if (_graphics is GraphicsDevice device) device.RequestedSamples = samples;
+        if (_graphics is GraphicsDevice device)
+        {
+            device.RequestedSamples = samples;
+            device.Vsync = vsync;
+        }
 
         _graphics.Initialize(surfaceSource, appName);
 

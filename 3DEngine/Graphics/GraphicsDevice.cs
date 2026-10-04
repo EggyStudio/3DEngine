@@ -246,6 +246,9 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     /// </summary>
     public int RequestedSamples { get; set; } = 1;
 
+    /// <summary>Whether frames wait for the display's refresh, set before <see cref="Initialize"/>.</summary>
+    public bool Vsync { get; set; }
+
     /// <summary>The samples frames and render targets are drawn with, once the swapchain exists.</summary>
     public int Samples => (int)_samples;
     private GraphicsAdapterInfo _adapterInfo = GraphicsAdapterInfo.Unknown;
