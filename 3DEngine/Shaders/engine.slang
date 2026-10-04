@@ -12,7 +12,8 @@
 //
 // param(0) to param(3) are the four float4 slots SetShaderValue fills. Uniforms the shader declares
 // at the top level, as `uniform float4 tint;`, are set by name, through GetShaderLocation and
-// SetShaderValue, and hold for what is drawn after they are set.
+// SetShaderValue, and hold for what is drawn after they are set. A texture declared the same way,
+// as `Sampler2D detail;`, is set with SetShaderValueTexture.
 module engine;
 
 public struct PushConstants

@@ -279,6 +279,107 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void An_Immediate_Shader_Mixes_Its_Own_Texture_With_The_One_Drawn()
+    {
+        Open(64, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            Sampler2D detail;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return boundTexture.Sample(input.uv) * detail.Sample(input.uv);
+            }
+            """, "detail.slang");
+        var yellow = LoadTextureFromImage(GenImageColor(2, 2, new Color(255, 255, 0)));
+        var cyan = LoadTextureFromImage(GenImageColor(2, 2, new Color(0, 255, 255)));
+        var detail = GetShaderLocation(shader, "detail");
+        detail.Should().BeGreaterThanOrEqualTo(0);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            SetShaderValueTexture(shader, detail, cyan);
+            DrawTexturePro(yellow, new Rectangle(0, 0, 2, 2), new Rectangle(0, 0, 32, 32), Vector2.Zero, 0, Color.White);
+            EndShaderMode();
+        }, "immediate detail");
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "yellow times cyan is green");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void An_Immediate_Shader_With_Uniforms_And_A_Texture_Of_Its_Own_Reads_Both()
+    {
+        Open(32, 32);
+        // With a uniform, Slang puts the uniform buffer at binding 0 and the texture after the pass's.
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            uniform float4 tint;
+            Sampler2D detail;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return detail.Sample(input.uv) * tint;
+            }
+            """, "tinteddetail.slang");
+        var cyan = LoadTextureFromImage(GenImageColor(2, 2, new Color(0, 255, 255)));
+        SetShaderValueTexture(shader, GetShaderLocation(shader, "detail"), cyan);
+        SetShaderValue(shader, GetShaderLocation(shader, "tint"), new Vector4(0, 1, 0, 1));
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 32, 32, Color.White);
+            EndShaderMode();
+        }, "tinted detail");
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "cyan times green is green");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
+    {
+        Open(32, 32);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            Sampler2D detail;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return float4(toDisplay(baseColor(input).rgb) * detail.Sample(input.uv).rgb, 1.0);
+            }
+            """, "modeldetail.slang");
+        var cyan = LoadTextureFromImage(GenImageColor(2, 2, new Color(0, 255, 255)));
+        SetShaderValueTexture(shader, GetShaderLocation(shader, "detail"), cyan);
+        var cube = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        cube.Materials[0] = new ModelMaterial(new Color(255, 255, 0)) { Shader = shader };
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45));
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }, "model detail");
+
+        // Green, a little under full where the pass's tonemapping bends the brightest light.
+        var middle = GetImageColor(image, 16, 16);
+        (middle.R < 10 && middle.G > 230 && middle.B < 10).Should().BeTrue($"the yellow base color times cyan is green, not {middle}");
+        UnloadModel(cube);
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void ImGui_Draws_Over_The_Frame_Where_It_Is_Told()
     {
         Open(64, 32);

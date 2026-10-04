@@ -168,6 +168,30 @@ public sealed class ModelRenderer : IDisposable
     private readonly List<(long Frame, CubeMap Cube)> _retiredCubes = [];
     private IPipeline? _shadowPipeline;
 
+    // A shader with textures of its own past the material's five maps has a material layout of its
+    // own with them added, and its own ring of sets, by ShaderStore id.
+    private const int MaterialBindings = 5;
+
+    // The maps the pass fills itself, modelpass.slang's, at bindings 1 to 5. Any other texture a
+    // shader samples is its own.
+    private static readonly string[] PassTextures = ["boundTexture", "normalMap", "metallicRoughnessMap", "emissiveMap", "occlusionMap"];
+    private readonly Dictionary<int, ShaderSets> _shaderSets = [];
+    private readonly List<(long Frame, IDisposable Retired)> _retiredShaderSets = [];
+
+    private sealed class ShaderSets(IDescriptorSetLayout layout) : IDisposable
+    {
+        public IDescriptorSetLayout Layout { get; } = layout;
+        public List<IDescriptorSet>[] Rings { get; } = Enumerable.Range(0, SetRingFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
+        public int Next;
+
+        public void Dispose()
+        {
+            foreach (var ring in Rings)
+                foreach (var set in ring) set.Dispose();
+            Layout.Dispose();
+        }
+    }
+
     // Pipelines of the program's own shaders, by ShaderStore id, with the modules they were made from.
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, IPipeline Pipeline)> _custom = [];
 
@@ -449,7 +473,9 @@ public sealed class ModelRenderer : IDisposable
         var vertex = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex,
             program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv));
         var fragment = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment));
-        var pipeline = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment);
+        var ownTextures = program.OwnTextures(PassTextures);
+        var pipeline = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment,
+            material: ownTextures.Count > 0 ? SetsFor(gfx, id, ownTextures).Layout : null);
         _custom[id] = (vertex, fragment, pipeline);
         return pipeline;
     }
@@ -464,6 +490,8 @@ public sealed class ModelRenderer : IDisposable
             _custom[id].Vertex.Dispose();
             _custom[id].Fragment.Dispose();
             _custom.Remove(id);
+            // Its sets may still be read by a frame in flight.
+            if (_shaderSets.Remove(id, out var sets)) _retiredShaderSets.Add((_frames, sets));
         }
     }
 
@@ -477,6 +505,7 @@ public sealed class ModelRenderer : IDisposable
         _setByIds.Clear();
         _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
         _drawSetNext = 0;
+        foreach (var sets in _shaderSets.Values) sets.Next = 0;
 
         _frames++;
         _ringSlot = (int)(_frames % SetRingFrames);
@@ -486,6 +515,12 @@ public sealed class ModelRenderer : IDisposable
             {
                 _retiredBuffers[i].Buffer.Dispose();
                 _retiredBuffers.RemoveAt(i);
+            }
+        for (int i = _retiredShaderSets.Count - 1; i >= 0; i--)
+            if (_frames - _retiredShaderSets[i].Frame > SetRingFrames)
+            {
+                _retiredShaderSets[i].Retired.Dispose();
+                _retiredShaderSets.RemoveAt(i);
             }
         for (int i = _retiredCubes.Count - 1; i >= 0; i--)
             if (_frames - _retiredCubes[i].Frame > SetRingFrames)
@@ -540,7 +575,7 @@ public sealed class ModelRenderer : IDisposable
 
     // Binding 0's uniforms and the maps at bindings 1 to 5. One buffer and one sampler per call is
     // what the device's update takes, so the uniforms go with the first map.
-    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms,
+    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding? uniforms,
         (IImageView View, ISampler Sampler)[] maps)
     {
         for (int i = 0; i < maps.Length; i++)
@@ -565,26 +600,67 @@ public sealed class ModelRenderer : IDisposable
     // buffer at binding 0, and its texture at binding 1.
     private IDescriptorSet DrawSet(IGraphicsDevice gfx, RenderContext renderContext, GpuTextures textures, ModelDraw draw, ShaderProgram program)
     {
-        var sets = _drawSets[_drawSetSlot];
-        if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet(MaterialLayout(gfx)));
-        var set = sets[_drawSetNext++];
+        var own = program.OwnTextures(PassTextures);
+        IDescriptorSet set;
+        if (own.Count == 0)
+        {
+            var sets = _drawSets[_drawSetSlot];
+            if (_drawSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet(MaterialLayout(gfx)));
+            set = sets[_drawSetNext++];
+        }
+        else
+        {
+            var shaderSets = SetsFor(gfx, draw.Shader, own);
+            var ring = shaderSets.Rings[_drawSetSlot];
+            if (shaderSets.Next == ring.Count) ring.Add(gfx.CreateDescriptorSet(shaderSets.Layout));
+            set = ring[shaderSets.Next++];
+        }
 
         if (renderContext.DynamicAllocator is not { } allocator) return set;
 
-        // At least one 16-byte row, so binding 0 holds a buffer whether the shader declares uniforms or not.
-        var size = (ulong)Math.Max(16, program.UniformSize);
-        var allocation = allocator.Allocate(size, BufferUsage.Uniform);
-        var bytes = allocator.Map(allocation);
-        bytes.Clear();
-        draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
-        allocator.Unmap(allocation);
+        // A buffer at binding 0, at least one 16-byte row, unless a texture of the shader's own has
+        // the binding, as it does in a shader with no uniforms.
+        UniformBufferBinding? uniforms = null;
+        if (program.UniformSize > 0 || !own.Any(t => t.Binding == 0))
+        {
+            var size = (ulong)Math.Max(16, program.UniformSize);
+            var allocation = allocator.Allocate(size, BufferUsage.Uniform);
+            var bytes = allocator.Map(allocation);
+            bytes.Clear();
+            draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+            allocator.Unmap(allocation);
+            uniforms = new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size);
+        }
 
-        WriteMaterial(gfx, set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size), Maps(gfx, textures, draw));
+        WriteMaterial(gfx, set, uniforms, Maps(gfx, textures, draw));
+        foreach (var texture in own)
+        {
+            var index = -1;
+            for (int i = 0; i < program.Textures.Count && index < 0; i++)
+                if (program.Textures[i] == texture) index = i;
+            var id = draw.ShaderTextures is { } ids && index >= 0 && index < ids.Length ? ids[index] : 0;
+            var (view, sampler) = textures.ViewFor(gfx, id);
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, sampler, (uint)texture.Binding));
+        }
         return set;
     }
 
+    // The material layout and ring of a shader with textures of its own, made on first use.
+    private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, IReadOnlyList<ShaderTexture> own)
+    {
+        if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
+        // The uniform buffer at 0 unless a texture of the shader's own took it.
+        DescriptorSetLayoutBinding[] bindings =
+        [
+            .. own.Any(t => t.Binding == 0) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
+            .. Enumerable.Range(1, MaterialBindings).Select(b => new DescriptorSetLayoutBinding((uint)b, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
+            .. own.Select(t => new DescriptorSetLayoutBinding((uint)t.Binding, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
+        ];
+        return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
+    }
+
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
-        bool culled = false)
+        bool culled = false, IDescriptorSetLayout? material = null)
     {
         var desc = new GraphicsPipelineDesc(
             renderPass,
@@ -608,7 +684,7 @@ public sealed class ModelRenderer : IDisposable
             ],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
-            DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx)],
+            DescriptorSetLayouts: [material ?? MaterialLayout(gfx), LightsLayout(gfx)],
             DepthTestEnabled: true,
             DepthWriteEnabled: true,
             DepthCompareOp: CompareOp.LessOrEqual);
@@ -715,6 +791,8 @@ public sealed class ModelRenderer : IDisposable
         _environment?.Dispose();
         _noEnvironment?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
+        foreach (var sets in _shaderSets.Values) sets.Dispose();
+        foreach (var (_, retired) in _retiredShaderSets) retired.Dispose();
         _shadowMaskShader?.Dispose();
         _noLightsBuffer?.Dispose();
         _defaultLayout?.Dispose();

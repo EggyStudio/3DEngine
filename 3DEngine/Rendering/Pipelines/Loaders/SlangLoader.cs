@@ -69,19 +69,21 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
     {
         var stages = new Dictionary<ShaderStage, byte[]>();
         var uniforms = new Dictionary<string, ShaderUniform>();
+        var textures = new Dictionary<string, ShaderTexture>();
         foreach (var (entryPoint, stage) in EntryPoints(source))
         {
             var compiled = SlangCompiler.CompileStage(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory);
             stages[stage] = compiled.Spirv;
             // Both stages see the same top-level uniforms, laid out the same.
             foreach (var uniform in compiled.Uniforms) uniforms[uniform.Name] = uniform;
+            foreach (var texture in compiled.Textures ?? []) textures[texture.Name] = texture;
         }
 
         if (stages.Count == 0)
             throw new InvalidOperationException(
                 $"'{fileName}' has no function marked [shader(\"vertex\")] or [shader(\"fragment\")].");
 
-        return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)]);
+        return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)]);
     }
 
     /// <summary>

@@ -8,13 +8,22 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `06728b5c`. Six batches in TODO.md's order (states, generator diagnostics, immediate
-shader uniforms, sound pan, streamed WAV music and poses between frames) raised nothing. The WAV
-reader was read, and the rest were taken on their descriptions.
+Reviewed up to `3f1db07b`. The batches in TODO.md's order up to double-sided materials raised nothing.
+The stale capture in `OffscreenRenderTests.Capture` needs no further review of the tests, since
+every capture is fresh after the fix and the suite passes with them, so no assertion rests on an
+old image.
 
 ## Now
 
-1. **TODO.md's order.** Nothing read argues for changing it.
+In this order.
+
+1. **A shader's own textures**, with the descriptor layout of each shader built from Slang's
+   reflection. raylib programs hand a shader a second texture as a matter of course (a mask, a
+   lookup, a noise), and both the immediate and the model shader stop at the engine's fixed
+   bindings. `SetShaderValueTexture` by name, for both kinds, with a pixel test of a shader that
+   mixes two textures and the validation container run.
+2. **TODO.md's order** from there.
+3. **MP3 and FLAC** wait on the owner (decision 3).
 
 ## Verdicts
 
@@ -32,5 +41,10 @@ None open.
    forgets the mapping gets the wrong library with no error. The id is to change before anything
    is published, to one nobody holds, and the owner picks it. Until then the mapping in the
    README stands.
+3. **A decoder for MP3 and FLAC is proposed, and the owner decides.** DESIGN.md §8 admits no
+   dependency for them, and raylib reads both. NLayer decodes MP3 in managed code with no native
+   library, as NVorbis does for Ogg, and fits §8's rule of a basic job done completely. FLAC has
+   no managed decoder of the same standing, so it would stay unread, which TODO.md would say.
+   Nothing is done on this until the owner says so in the working session.
 
 ## Replies

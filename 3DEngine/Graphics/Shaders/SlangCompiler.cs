@@ -91,8 +91,10 @@ public static partial class SlangCompiler
         var uniformsFile = cached is null ? null : Path.ChangeExtension(cached, ".uniforms");
 
         if (cached is not null && File.Exists(cached))
-            return new SlangStage(File.ReadAllBytes(cached),
-                File.Exists(uniformsFile) ? ReadUniforms(File.ReadAllText(uniformsFile)) : []);
+        {
+            var described = File.Exists(uniformsFile) ? File.ReadAllText(uniformsFile) : "";
+            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described));
+        }
 
         if (compiler is null)
             throw new InvalidOperationException(
@@ -101,17 +103,18 @@ public static partial class SlangCompiler
 
         var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory);
         var uniforms = UniformsOf(reflection);
+        var textures = TexturesOf(reflection);
 
         if (cached is not null)
         {
             Directory.CreateDirectory(cacheDirectory!);
             // Written beside and moved into place, so a reader never sees half an entry. The
             // uniforms go first, so an entry whose SPIR-V is there has them too.
-            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms)));
+            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms) + WriteTextures(textures)));
             WriteAtomically(cached, bytecode);
         }
 
-        return new SlangStage(bytecode, uniforms);
+        return new SlangStage(bytecode, uniforms, textures);
     }
 
     private static void WriteAtomically(string path, byte[] bytes)
@@ -144,13 +147,45 @@ public static partial class SlangCompiler
         return uniforms;
     }
 
-    // A cached stage's uniforms, one "name offset size" per line.
+    /// <summary>The textures a shader samples in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
+    /// <remarks>Its engine module's own are among them, and each pass tells them from the shader's own by binding.</remarks>
+    internal static IReadOnlyList<ShaderTexture> TexturesOf(string? reflectionJson)
+    {
+        if (string.IsNullOrEmpty(reflectionJson)) return [];
+        using var document = System.Text.Json.JsonDocument.Parse(reflectionJson);
+        var textures = new List<ShaderTexture>();
+        if (!document.RootElement.TryGetProperty("parameters", out var parameters)) return textures;
+        foreach (var parameter in parameters.EnumerateArray())
+        {
+            if (!parameter.TryGetProperty("binding", out var binding) ||
+                binding.GetProperty("kind").GetString() != "descriptorTableSlot" ||
+                (binding.TryGetProperty("space", out var space) && space.GetInt32() != 0) ||
+                !parameter.TryGetProperty("type", out var type) || type.GetProperty("kind").GetString() != "resource")
+                continue;
+            textures.Add(new ShaderTexture(parameter.GetProperty("name").GetString()!, binding.GetProperty("index").GetInt32()));
+        }
+        return textures;
+    }
+
+    // A cached stage's uniforms, one "name offset size" per line, and its textures, one
+    // "texture name binding" per line.
     private static string WriteUniforms(IReadOnlyList<ShaderUniform> uniforms) =>
         string.Concat(uniforms.Select(u => $"{u.Name} {u.Offset} {u.Size}\n"));
+
+    private static string WriteTextures(IReadOnlyList<ShaderTexture> textures) =>
+        string.Concat(textures.Select(t => $"texture {t.Name} {t.Binding}\n"));
+
+    private static IReadOnlyList<ShaderTexture> ReadTextures(string text) =>
+        text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split(' '))
+            .Where(parts => parts.Length == 3 && parts[0] == "texture")
+            .Select(parts => new ShaderTexture(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
+            .ToArray();
 
     private static IReadOnlyList<ShaderUniform> ReadUniforms(string text) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
+            .Where(parts => parts[0] != "texture")
             .Select(parts => new ShaderUniform(parts[0], int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
             .ToArray();
 
@@ -215,9 +250,9 @@ public static partial class SlangCompiler
     private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        // The version names what an entry holds, so entries from before uniforms were cached
-        // beside the SPIR-V are compiled again rather than read without them.
-        hash.AppendData(Encoding.UTF8.GetBytes($"entries 2\n{Arguments}\n{entryPoint}\n{stage}\n"));
+        // The version names what an entry holds, so entries from before uniforms, and then
+        // textures, were cached beside the SPIR-V are compiled again rather than read without them.
+        hash.AppendData(Encoding.UTF8.GetBytes($"entries 3\n{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
@@ -328,7 +363,10 @@ public static partial class SlangCompiler
 }
 
 /// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V and its top-level uniforms.</summary>
-public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms);
+public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null);
 
 /// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
 public readonly record struct ShaderUniform(string Name, int Offset, int Size);
+
+/// <summary>A texture a shader samples, by its name and its binding in the first descriptor set.</summary>
+public readonly record struct ShaderTexture(string Name, int Binding);

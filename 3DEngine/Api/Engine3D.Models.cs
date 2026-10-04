@@ -524,7 +524,8 @@ public static partial class Engine3D
             material.EmissiveMap.IsValid ? material.EmissiveMap.Id : 0,
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
             material.OcclusionStrength,
-            material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided));
+            material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture), material.DoubleSided,
+            shader == 0 ? null : TextureSnapshot(material.Shader)));
     }
 
     /// <summary>Draws a box's edges.</summary>

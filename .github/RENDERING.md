@@ -82,6 +82,11 @@ block (the transform, then the four values), so a program's shader matches the p
 declaring any of it. Uniforms a shader declares at the top level, which Slang puts in a uniform
 buffer at binding 0, travel with the batch as the bytes they held when it was recorded, and the
 batch binds a set of its own with them beside its texture, from a ring kept per frame in flight.
+Textures a shader declares beyond the module's, found by name in Slang's reflection, take the
+bindings Slang gave them, binding 0 among them for a shader with no uniforms, so such a shader
+has a descriptor layout of its own built from them, and the batch's set holds the textures
+`SetShaderValueTexture` set, as they were when it was recorded. A model shader's are the same,
+beside the material's maps.
 An unloaded shader's stages and pipelines are destroyed after the frames in flight that might use
 them.
 

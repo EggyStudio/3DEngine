@@ -18,8 +18,12 @@ public static partial class Engine3D
     private static readonly Dictionary<int, byte[]> UniformValues = [];
 
     // Locations of named uniforms start here, past the immediate pass's four slots, so one
-    // SetShaderValue serves both.
+    // SetShaderValue serves both, and those of textures further on.
     private const int NamedLocationBase = 16;
+    private const int TextureLocationBase = 1 << 20;
+
+    // The texture each of a shader's textures is set to, by its index in ShaderProgram.Textures, 0 for none.
+    private static readonly Dictionary<int, int[]> TextureValues = [];
     private static Shader _shader;
 
     // -- Custom shaders. A shader is a Slang file that imports the engine's module and defines
@@ -70,13 +74,14 @@ public static partial class Engine3D
         Res<ShaderStore>().Remove(shader.Id);
         ShaderValues.Remove(shader.Id);
         UniformValues.Remove(shader.Id);
+        TextureValues.Remove(shader.Id);
     }
 
     /// <summary>Draws the following shapes, textures and text with <paramref name="shader"/> until <see cref="EndShaderMode"/>.</summary>
     public static void BeginShaderMode(Shader shader)
     {
         _shader = shader;
-        DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader));
+        DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
     /// <summary>Returns to the engine's own shader.</summary>
@@ -99,8 +104,32 @@ public static partial class Engine3D
         if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return -1;
         for (int i = 0; i < program.Uniforms.Count; i++)
             if (program.Uniforms[i].Name == uniformName) return NamedLocationBase + i;
+        for (int i = 0; i < program.Textures.Count; i++)
+            if (program.Textures[i].Name == uniformName) return TextureLocationBase + i;
         return -1;
     }
+
+    /// <summary>
+    /// Sets a texture the shader samples, found by name with <see cref="GetShaderLocation"/>, as
+    /// raylib's <c>SetShaderValueTexture</c>, for what is drawn after it.
+    /// </summary>
+    /// <remarks>
+    /// A texture the shader declares at the top level, as <c>Sampler2D detail;</c>, is one of its
+    /// own. The pass's own texture (<c>boundTexture</c> and a model's maps) is set by what is drawn.
+    /// </remarks>
+    public static void SetShaderValueTexture(Shader shader, int location, Texture2D texture)
+    {
+        if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return;
+        var index = location - TextureLocationBase;
+        if (index < 0 || index >= program.Textures.Count) return;
+        if (!TextureValues.TryGetValue(shader.Id, out var values)) TextureValues[shader.Id] = values = new int[program.Textures.Count];
+        values[index] = texture.IsValid ? texture.Id : 0;
+        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
+    }
+
+    // A copy of a shader's textures for one draw, so textures set after it reach only later draws.
+    private static int[]? TextureSnapshot(Shader shader) =>
+        TextureValues.TryGetValue(shader.Id, out var values) ? (int[])values.Clone() : null;
 
     /// <summary>Sets a named uniform to a 4x4 matrix, as raylib's <c>SetShaderValueMatrix</c>.</summary>
     public static void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value) =>
@@ -124,7 +153,7 @@ public static partial class Engine3D
         if (!UniformValues.TryGetValue(shader.Id, out var block)) UniformValues[shader.Id] = block = new byte[program.UniformSize];
         value[..Math.Min(value.Length, uniform.Size)].CopyTo(block.AsSpan(uniform.Offset));
         // Inside the shader's mode, what is drawn after takes the new values.
-        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader));
+        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
     // A copy of a shader's uniform values for one draw, so values set after it reach only later draws.
@@ -149,7 +178,7 @@ public static partial class Engine3D
         if (!shader.IsValid || slot is < 0 or > 3) return;
         var values = ShaderValues.GetValueOrDefault(shader.Id).With(slot, value);
         ShaderValues[shader.Id] = values;
-        if (_shader == shader) DrawList.SetShader(shader.Id, values, UniformSnapshot(shader));
+        if (_shader == shader) DrawList.SetShader(shader.Id, values, UniformSnapshot(shader), TextureSnapshot(shader));
     }
 
     /// <summary>Sets slot <paramref name="slot"/> to (<paramref name="value"/>, 0, 0, 0).</summary>

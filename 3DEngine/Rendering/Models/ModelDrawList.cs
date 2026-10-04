@@ -24,11 +24,12 @@ namespace Engine;
 /// <param name="AlphaCutoff">The alpha below which a masked surface is cut out.</param>
 /// <param name="TextureTranslucent">Whether the base color texture has alpha between clear and solid somewhere.</param>
 /// <param name="DoubleSided">Whether both sides of each face are drawn, or the back faces left out.</param>
+/// <param name="ShaderTextures">The textures the draw's shader samples, by their index in the program's textures, or null for none.</param>
 public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
-    bool DoubleSided = true)
+    bool DoubleSided = true, int[]? ShaderTextures = null)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:

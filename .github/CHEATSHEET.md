@@ -243,11 +243,12 @@ int GetShaderLocation(Shader shader, string uniformName);            // A unifor
 void SetShaderValue(Shader shader, int location, float value);       // A named uniform, or slot 0 to 3 read as param(slot)
 void SetShaderValue(Shader shader, int location, Vector2 value);     // (also Vector3, Vector4 and int)
 void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value); // A named float4x4 uniform
+void SetShaderValueTexture(Shader shader, int location, Texture2D texture); // A texture the shader declares, as Sampler2D detail;
 ```
 
 A shader imports the engine's module, which gives it `VertexOutput` (position, uv, color),
-`boundTexture` and `param(slot)`. Uniforms it declares at the top level are set by name too, each
-value holding for what is drawn after it:
+`boundTexture` and `param(slot)`. Uniforms and textures (`Sampler2D detail;`) it declares at the
+top level are set by name too, each value holding for what is drawn after it:
 
 ```slang
 import engine;
