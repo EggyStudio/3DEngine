@@ -48,7 +48,9 @@ public sealed class TextureStore
     /// Whether the texture has mip levels. With <paramref name="Rgba"/> <c>null</c> on a texture
     /// already uploaded without them, they are made from what is on the GPU.
     /// </param>
-    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false);
+    /// <param name="DepthOf">The render target whose depth the texture samples, or 0 when it is not one's depth.</param>
+    public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
+        int DepthOf = 0);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps)> _live = [];
@@ -115,6 +117,20 @@ public sealed class TextureStore
             var id = _next++;
             _live[id] = (width, height, filter, false);
             _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
+            return id;
+        }
+    }
+
+    /// <summary>Queues a texture that samples the depth of render target <paramref name="target"/>, and returns its id.</summary>
+    /// <remarks>It is point filtered, since a depth blended with the background's is a distance nothing is at.</remarks>
+    public int AddTargetDepth(int target)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(target, out var color)) throw new ArgumentException("No render target has that id.", nameof(target));
+            var id = _next++;
+            _live[id] = (color.Width, color.Height, TextureFilter.Point, false);
+            _uploads.Add(new Upload(id, null, color.Width, color.Height, TextureFilter.Point, DepthOf: target));
             return id;
         }
     }

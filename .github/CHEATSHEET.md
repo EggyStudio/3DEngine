@@ -65,7 +65,7 @@ Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world 
 Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // The world point under a screen point
 Matrix4x4 GetCameraMatrix2D(Camera2D camera);            // The camera's world to screen transform
 
-RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to
+RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to, its depth in .Depth
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
 bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode

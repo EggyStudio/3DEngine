@@ -417,7 +417,8 @@ public sealed unsafe partial class GraphicsDevice
     /// and Vulkan counts render passes compatible only when their dependencies are identical. Before
     /// the pass, earlier attachment writes and fragment shader reads of the images have finished, which
     /// covers the swapchain image's acquire and the last frame's sampling of a render target. After it,
-    /// the color writes are visible to the fragment shaders of later passes that sample a target.
+    /// the color and depth writes are visible to the fragment shaders of later passes that sample a
+    /// target.
     /// </remarks>
     internal static void ColorDepthDependencies(VkSubpassDependency* dependencies)
     {
@@ -436,9 +437,11 @@ public sealed unsafe partial class GraphicsDevice
         {
             srcSubpass = 0,
             dstSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
+            // A render target's depth is sampled too, stored at the late tests or resolved with
+            // its color.
+            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.LateFragmentTests,
             dstStageMask = VkPipelineStageFlags.FragmentShader,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
+            srcAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite,
             dstAccessMask = VkAccessFlags.ShaderRead,
         };
     }

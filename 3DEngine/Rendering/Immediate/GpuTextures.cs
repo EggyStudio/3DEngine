@@ -19,13 +19,15 @@ public sealed class GpuTextures : IDisposable
     /// </summary>
     public const int RetireFrames = 4;
 
-    // A render target's image and views belong to its RenderTarget, so Image is null for one.
-    // SrgbView is the same pixels decoded from sRGB when sampled, which the model pass reads a base
-    // color through, since it lights in linear space.
-    private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null)
+    // A render target's image and views belong to its RenderTarget, so Image is null for one, and
+    // for a target's depth, whose view the target owns too. SrgbView is the same pixels decoded
+    // from sRGB when sampled, which the model pass reads a base color through, since it lights in
+    // linear space.
+    private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null,
+        int DepthOf = 0)
     {
-        public IDisposable[] Owned => Target is not null
-            ? [Set, Sampler, Target]
+        public IDisposable[] Owned => Target is not null ? [Set, Sampler, Target]
+            : DepthOf != 0 ? [Set, Sampler]
             : [Set, Sampler, SrgbView, View, Image!];
     }
 
@@ -64,8 +66,17 @@ public sealed class GpuTextures : IDisposable
             var (uploads, removals) = store.Take();
 
             foreach (var id in removals)
-                if (_entries.Remove(id, out var gone))
-                    Retire(gone.Owned);
+            {
+                if (!_entries.Remove(id, out var gone)) continue;
+                Retire(gone.Owned);
+                // A target's depth goes with it, since the view it samples does.
+                if (gone.Target is not null)
+                    foreach (var (depthId, depth) in _entries.Where(e => e.Value.DepthOf == id).ToList())
+                    {
+                        _entries.Remove(depthId);
+                        Retire(depth.Owned);
+                    }
+            }
 
             foreach (var upload in uploads)
             {
@@ -77,6 +88,16 @@ public sealed class GpuTextures : IDisposable
                     var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
                     var targetSampler = CreateSampler(gfx, upload.Filter);
                     _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
+                    if (existing is not null) Retire(existing.Owned);
+                    continue;
+                }
+
+                if (upload.DepthOf != 0)
+                {
+                    if (!_entries.TryGetValue(upload.DepthOf, out var owner) || owner.Target is not { } depthTarget) continue;
+                    var depthSampler = CreateSampler(gfx, upload.Filter);
+                    _entries[upload.Id] = new Entry(null, depthTarget.DepthView, depthTarget.DepthView, depthSampler,
+                        CreateSet(gfx, depthTarget.DepthView, depthSampler), DepthOf: upload.DepthOf);
                     if (existing is not null) Retire(existing.Owned);
                     continue;
                 }

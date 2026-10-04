@@ -71,15 +71,24 @@ public static partial class Engine3D
 
     private static RenderTexture2D _target;
 
-    /// <summary>Makes an image of <paramref name="width"/> by <paramref name="height"/> pixels that drawing can be sent to.</summary>
+    /// <summary>
+    /// Makes an image of <paramref name="width"/> by <paramref name="height"/> pixels that drawing
+    /// can be sent to, with its depth to sample as <see cref="RenderTexture2D.Depth"/>.
+    /// </summary>
     public static RenderTexture2D LoadRenderTexture(int width, int height)
     {
-        var id = Textures.AddTarget(Math.Max(1, width), Math.Max(1, height));
-        return new RenderTexture2D(new Texture2D(id, Math.Max(1, width), Math.Max(1, height)));
+        (width, height) = (Math.Max(1, width), Math.Max(1, height));
+        var id = Textures.AddTarget(width, height);
+        var depth = Textures.AddTargetDepth(id);
+        return new RenderTexture2D(new Texture2D(id, width, height), new Texture2D(depth, width, height));
     }
 
-    /// <summary>Frees a render texture.</summary>
-    public static void UnloadRenderTexture(RenderTexture2D target) => UnloadTexture(target.Texture);
+    /// <summary>Frees a render texture and its depth.</summary>
+    public static void UnloadRenderTexture(RenderTexture2D target)
+    {
+        if (target.Depth.IsValid) UnloadTexture(target.Depth);
+        UnloadTexture(target.Texture);
+    }
 
     /// <summary>Whether <paramref name="target"/> is loaded.</summary>
     public static bool IsRenderTextureValid(RenderTexture2D target) => IsTextureValid(target.Texture);

@@ -221,6 +221,52 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadFont(sdf);
     }
 
+    // A cube drawn into a target, and that target's depth drawn over the window, at the given samples.
+    private Image TargetDepth(int samples)
+    {
+        Open(64, 64, samples);
+        var target = LoadRenderTexture(32, 32);
+        // A unit from the cube's front face, where the depth is 0.95 with the near plane at 0.05,
+        // and wide enough to see past its edges.
+        var camera = new Camera3D(new Vector3(0, 0, 1.5f), Vector3.Zero, Vector3.UnitY, 90);
+
+        var image = Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCube(Vector3.Zero, 1, 1, 1, Color.Red);
+            EndMode3D();
+            EndTextureMode();
+
+            ClearBackground(Color.Blue);
+            DrawTexture(target.Depth, 0, 0, Color.White);
+        }, $"depth {samples}");
+        UnloadRenderTexture(target);
+        return image;
+    }
+
+    [NeedsVulkanFact]
+    public void A_Render_Target_Has_Its_Depth_To_Sample()
+    {
+        var image = TargetDepth(4);
+
+        var cube = GetImageColor(image, 16, 16);
+        cube.R.Should().BeInRange(236, 248, "the cube's face is a unit from the camera, at a depth of 0.95");
+        (cube.G, cube.B).Should().Be(((byte)0, (byte)0), "a depth is sampled into red alone");
+        GetImageColor(image, 1, 1).R.Should().Be(255, "where nothing was drawn the depth is cleared to the far plane");
+        GetImageColor(image, 48, 48).Should().Be(Color.Blue, "the depth texture is the target's size");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Render_Target_Drawn_With_One_Sample_Has_Its_Depth_To_Sample()
+    {
+        var image = TargetDepth(1);
+
+        GetImageColor(image, 16, 16).R.Should().BeInRange(236, 248);
+        GetImageColor(image, 1, 1).R.Should().Be(255);
+    }
+
     [NeedsVulkanFact]
     public void A_Render_Target_Holds_What_Was_Drawn_Into_It_And_Draws_As_A_Texture()
     {

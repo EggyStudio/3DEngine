@@ -23,7 +23,12 @@ public readonly record struct Texture2D(int Id, int Width, int Height)
 }
 
 /// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="Texture"/>.</summary>
-public readonly record struct RenderTexture2D(Texture2D Texture)
+/// <param name="Texture">The color drawn.</param>
+/// <param name="Depth">
+/// The depth drawn, in red, from 0 at the camera's near plane to 1 at its far one, and 1 where
+/// nothing was drawn, for a shader that fogs, outlines or softens by distance.
+/// </param>
+public readonly record struct RenderTexture2D(Texture2D Texture, Texture2D Depth = default)
 {
     /// <summary>Whether this names a render texture that was loaded.</summary>
     public bool IsValid => Texture.IsValid;

@@ -241,7 +241,7 @@ The window and every render target are drawn at `Config.Samples` samples a pixel
 rounded down to what the device can multisample color and depth at. Their passes share one
 builder (`GraphicsDevice.CreateColorDepthPass`), so they stay compatible. With more than one
 sample a pass draws into a multisampled color image and depth image and resolves the color into
-the frame image or the target's sampled image at the end of the subpass. A pipeline rasterizes at
+the frame image or the target's sampled image at the end of the subpass, and a target's depth too. A pipeline rasterizes at
 the samples of the pass it is made for, and the shadow map's depth-only pass stays at one.
 
 `BeginTextureMode(target)` redirects the calls that follow into an offscreen image, which a later
@@ -252,6 +252,15 @@ target they were recorded for, and `TargetsNode` draws each target used in the f
 window's pass, clearing it first and leaving its color image ready to sample. The color image is
 registered in `GpuTextures` under the target's texture id, so `DrawTexture` samples it like a
 loaded texture.
+
+A target's depth is kept to sample as well, under a texture id of its own (`RenderTexture2D.Depth`).
+With one sample the depth image drawn into is stored and sampled. With more, the subpass resolves
+the multisampled depth into a single-sampled image by each pixel's first sample, which only
+`vkCreateRenderPass2` describes, so a target's pass is made by `CreateTargetPass` rather than the
+shared builder, with the same attachments, subpass and dependencies besides. Vulkan leaves resolve
+attachments out of compatibility for a pass of one subpass, so the window's pipelines still draw
+into it. The multisampled depth is stored even so, because NVIDIA's driver resolves nothing from a
+depth that is not.
 
 Post processing is a chain of full-screen Slang passes over the main color target
 before it is copied to the swapchain: tonemapping first, then bloom and anti-aliasing (FXAA).
