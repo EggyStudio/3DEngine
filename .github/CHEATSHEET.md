@@ -192,6 +192,21 @@ void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color c
 void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color); // Its outline
 void DrawRing(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Filled ring or arc
 void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Its outline
+void DrawSplineLinear(ReadOnlySpan<Vector2> points, float thick, Color color);     // Lines joining the points, corners closed
+void DrawSplineBasis(ReadOnlySpan<Vector2> points, float thick, Color color);      // B-spline passing near the points, at least 4
+void DrawSplineCatmullRom(ReadOnlySpan<Vector2> points, float thick, Color color); // Through every point but the first and last, at least 4
+void DrawSplineBezierQuadratic(ReadOnlySpan<Vector2> points, float thick, Color color); // Start, control, end, control, end and so on
+void DrawSplineBezierCubic(ReadOnlySpan<Vector2> points, float thick, Color color); // Start, two controls, end, two controls, end and so on
+void DrawSplineSegmentLinear(Vector2 p1, Vector2 p2, float thick, Color color);    // One segment of each
+void DrawSplineSegmentBasis(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float thick, Color color);
+void DrawSplineSegmentCatmullRom(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float thick, Color color);
+void DrawSplineSegmentBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float thick, Color color);
+void DrawSplineSegmentBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4, float thick, Color color);
+Vector2 GetSplinePointLinear(Vector2 startPos, Vector2 endPos, float t);           // The point a fraction t along each, 0 to 1
+Vector2 GetSplinePointBasis(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
+Vector2 GetSplinePointCatmullRom(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
+Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t);
+Vector2 GetSplinePointBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4, float t);
 ```
 
 Angles are in degrees, clockwise on the screen from right, and a segment count of 0 lets the
