@@ -253,7 +253,7 @@ public sealed unsafe partial class GraphicsDevice
     };
 
     private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage,
-        VkImageCreateFlags flags = 0, VkSampleCountFlags samples = VkSampleCountFlags.Count1)
+        VkImageCreateFlags flags = 0, VkSampleCountFlags samples = VkSampleCountFlags.Count1, uint layers = 1)
     {
         var info = new VkImageCreateInfo
         {
@@ -262,7 +262,7 @@ public sealed unsafe partial class GraphicsDevice
             format = format,
             extent = new VkExtent3D(width, height, 1),
             mipLevels = 1,
-            arrayLayers = 1,
+            arrayLayers = layers,
             samples = samples,
             tiling = VkImageTiling.Optimal,
             usage = usage,
@@ -281,15 +281,16 @@ public sealed unsafe partial class GraphicsDevice
         return (image, memory);
     }
 
-    private VkImageView TargetView(VkImage image, VkFormat format, VkImageAspectFlags aspect)
+    // A view of one layer from firstLayer, or with layers past one, of that many as an array.
+    private VkImageView TargetView(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint firstLayer = 0, uint layers = 1)
     {
         var info = new VkImageViewCreateInfo
         {
             image = image,
-            viewType = VkImageViewType.Image2D,
+            viewType = layers > 1 ? VkImageViewType.Image2DArray : VkImageViewType.Image2D,
             format = format,
             components = VkComponentMapping.Rgba,
-            subresourceRange = new VkImageSubresourceRange(aspect, 0, 1, 0, 1),
+            subresourceRange = new VkImageSubresourceRange(aspect, 0, 1, firstLayer, layers),
         };
         _deviceApi.vkCreateImageView(&info, null, out VkImageView view).CheckResult();
         return view;

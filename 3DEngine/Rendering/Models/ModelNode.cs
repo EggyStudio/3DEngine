@@ -168,6 +168,8 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
     private ShadowMap? _shadowMap;
+    private ShadowMap? _pointShadowMap;
+    private ShadowMap? _noPointShadowMap;
     private CubeMap? _environment;
     private EnvironmentMap? _environmentSource;
     private CubeMap? _noEnvironment;
@@ -428,8 +430,6 @@ public sealed class ModelRenderer : IDisposable
         // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
-        pass.SetPipeline(_shadowPipeline);
-        IPipeline bound = _shadowPipeline;
         var tiles = shadow.Cascades.Count + (shadow.SpotLight >= 0 ? 1 : 0);
         for (int t = 0; t < tiles; t++)
         {
@@ -438,29 +438,57 @@ public sealed class ModelRenderer : IDisposable
             var (x, y) = ShadowFit.TileOrigin(spot ? ShadowFit.SpotTile : t);
             pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
             pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
-
-            // A solid shadow reads the transform alone, and a masked one its color and cutoff too.
-            var lightViewProjection = spot ? shadow.SpotViewProjection : shadow.Cascades[t].ViewProjection;
-            var ring = WriteInstances(device, draws.Draws, draw => masks && draw.AlphaMode == MaterialAlphaMode.Mask
-                ? Instance.Of(draw, lightViewProjection)
-                : new Instance { Transform = draw.World * lightViewProjection });
-            foreach (var batch in _batches)
-            {
-                var pipeline = batch.Set is null ? _shadowPipeline : _shadowMaskPipeline!;
-                if (!ReferenceEquals(pipeline, bound))
-                {
-                    pass.SetPipeline(pipeline);
-                    bound = pipeline;
-                }
-                if (batch.Set is not null) pass.SetBindGroup(pipeline, batch.Set);
-                pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
-                pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
-                pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
-                DrawCalls++;
-            }
+            DrawShadowBatches(device, pass, draws.Draws, masks, spot ? shadow.SpotViewProjection : shadow.Cascades[t].ViewProjection);
         }
         pass.EndRenderPass();
+
+        // Each shadowed point light's six faces, a layer of the point map each.
+        var points = shadow.PointLights ?? [];
+        if (points.Count == 0) return;
+        var pointMap = PointShadowMap(device);
+        for (int p = 0; p < points.Count; p++)
+            for (int f = 0; f < 6; f++)
+            {
+                var facePass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                    pointMap.RenderPass, pointMap.Framebuffers[p * 6 + f], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
+                facePass.SetViewport(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize, 0, 1);
+                facePass.SetScissor(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize);
+                DrawShadowBatches(device, facePass, draws.Draws, masks, points[p].Faces[f]);
+                facePass.EndRenderPass();
+            }
     }
+
+    // The gathered batches drawn as a light sees them through lightViewProjection. A solid shadow
+    // reads the transform alone, and a masked one its color and cutoff too.
+    private void DrawShadowBatches(GraphicsDevice device, TrackedRenderPass pass, IReadOnlyList<ModelDraw> draws, bool masks, Matrix4x4 lightViewProjection)
+    {
+        var ring = WriteInstances(device, draws, draw => masks && draw.AlphaMode == MaterialAlphaMode.Mask
+            ? Instance.Of(draw, lightViewProjection)
+            : new Instance { Transform = draw.World * lightViewProjection });
+        pass.SetPipeline(_shadowPipeline!);
+        IPipeline bound = _shadowPipeline!;
+        foreach (var batch in _batches)
+        {
+            var pipeline = batch.Set is null ? _shadowPipeline! : _shadowMaskPipeline!;
+            if (!ReferenceEquals(pipeline, bound))
+            {
+                pass.SetPipeline(pipeline);
+                bound = pipeline;
+            }
+            if (batch.Set is not null) pass.SetBindGroup(pipeline, batch.Set);
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+            DrawCalls++;
+        }
+    }
+
+    // The point lights' faces, six layers a light, made when a point light first casts a shadow,
+    // or a stand-in of two texels for the lights' set to bind before then.
+    private ShadowMap PointShadowMap(GraphicsDevice device) =>
+        _pointShadowMap ??= device.CreateShadowMap(ShadowFit.PointFaceSize, ShadowFit.MaxPointLights * 6);
+
+    private ShadowMap NoPointShadowMap(GraphicsDevice device) => _noPointShadowMap ??= device.CreateShadowMap(1, 2);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back ones out.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, bool culled = false)
@@ -706,7 +734,8 @@ public sealed class ModelRenderer : IDisposable
     // set the GPU may still read is never written, or a set over an empty buffer when there are no
     // lights and no environment, which the shader reads as "use the fixed light". Binding 1 holds
     // the shadow map when the frame has a shadow, and the white texture otherwise, binding 2 the
-    // environment map and binding 3 its sky, or a black cube for each, so all are always valid.
+    // environment map and binding 3 its sky, or a black cube for each, and binding 4 the point
+    // lights' faces, or a stand-in, so all are always valid.
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
@@ -725,6 +754,11 @@ public sealed class ModelRenderer : IDisposable
                 {
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 2));
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, 3));
+                }
+                if (gfx is GraphicsDevice device)
+                {
+                    var none = NoPointShadowMap(device);
+                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(none.DepthView, none.Sampler, 4));
                 }
             }
             return _noLights;
@@ -746,6 +780,11 @@ public sealed class ModelRenderer : IDisposable
                 gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
                 gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(sky.View, sky.Sampler, 3));
             }
+            if (gfx is GraphicsDevice device)
+            {
+                var points = renderWorld.TryGet<FrameShadow>()?.PointLights is { Count: > 0 } ? PointShadowMap(device) : NoPointShadowMap(device);
+                gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
+            }
         }
         return _lightSets[_lightSet];
     }
@@ -766,6 +805,7 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
     ]);
 
     // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
@@ -806,6 +846,8 @@ public sealed class ModelRenderer : IDisposable
         _materialLayout?.Dispose();
         _noLights?.Dispose();
         _shadowMap?.Dispose();
+        _pointShadowMap?.Dispose();
+        _noPointShadowMap?.Dispose();
         _environment?.Dispose();
         _sky?.Dispose();
         _noEnvironment?.Dispose();

@@ -701,6 +701,42 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Point_Light_Casts_Shadows_On_Every_Side()
+    {
+        Open(64, 64);
+        // A low light in the middle of the ground, a cube to its +X and one to its -Z, seen from
+        // straight above with -Z up the image.
+        var lamp = CreatePointLight(new Vector3(0, 1.5f, 0), Color.White, 30, castsShadows: true);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 15, 0), Vector3.Zero, -Vector3.UnitZ, 45);
+        Image Draw(string name) => Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, Color.White);
+            DrawModel(cube, new Vector3(2, 0.5f, 0), 1, Color.White);
+            DrawModel(cube, new Vector3(0, 0.5f, -2), 1, Color.White);
+            EndMode3D();
+        }, name);
+
+        var shadowed = Draw("point shadows");
+        SetLightCastsShadows(lamp, false);
+        var open = Draw("point open");
+
+        // The ground 3.5 units out each way, at (px, py) for x and z of ±3.5.
+        int behindX = GetImageColor(shadowed, 50, 32).R, clearX = GetImageColor(shadowed, 14, 32).R;
+        int behindZ = GetImageColor(shadowed, 32, 14).R, clearZ = GetImageColor(shadowed, 32, 50).R;
+        behindX.Should().BeLessThan(clearX / 3, $"the cube at +X shadows the ground past it ({behindX} against {clearX})");
+        // (3.5, 0, 2) is on the +X face too, past the cube's edge, so that face lights it.
+        GetImageColor(shadowed, 50, 42).R.Should().BeGreaterThan((byte)(clearX / 2), "the +X face lights the ground the cube does not hide");
+        behindZ.Should().BeLessThan(clearZ / 3, $"the cube at -Z shadows the ground past it ({behindZ} against {clearZ})");
+        ((int)GetImageColor(open, 50, 32).R).Should().BeGreaterThan(clearX * 8 / 10, "without shadows the light reaches past the cube");
+        UnloadModel(ground);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Eighty_Units_Away_Falls_In_A_Far_Cascade()
     {
         Open(64, 64);

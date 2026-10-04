@@ -26,6 +26,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["shaders_model"] = ShadersModel.Run,
     ["shaders_compute_life"] = ShadersComputeLife.Run,
+    ["shaders_shadowmap"] = ShadersShadowmap.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,
     ["text_font_sdf"] = TextFontSdf.Run,

@@ -252,7 +252,16 @@ than ending at a line. A spot light's texels widen with
 distance from it, so its offset grows with that distance. A model shader with a vertex stage of
 its own casts the shadow of its mesh as it was before that stage moved it.
 
-What follows is point lights' shadows, six faces each, which the one tile left has no room for.
+The first four point lights with `CastsShadows` set shadow everything around them, each in six
+faces of 512 texels, a little wider than a right angle so the nine comparisons near a face's edge
+stay on it. The faces are layers of a second depth image, drawn one layer at a time with the
+shadow pipelines and sampled as an array at the lights' set's binding 4, and their views and
+projections ride in the lighting buffer after the lights, in the order +X, -X, +Y, -Y, +Z, -Z. A
+shadowed point light carries its slot, counted from one, in its cone's third component, and the
+shader picks the face by the axis the point lies furthest along, which is the face whose view
+holds it, so no cube map's conventions have to agree with the matrices. The image is moved to the
+layout it is sampled in when it is made, so its layers can be bound before any is drawn, and until
+a point light casts a shadow a stand-in of two texels is bound in its place.
 
 ## 5. Render targets and post processing
 

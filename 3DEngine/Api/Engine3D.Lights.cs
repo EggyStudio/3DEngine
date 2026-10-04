@@ -20,14 +20,26 @@ public static partial class Engine3D
     public static LightHandle CreateDirectionalLight(Vector3 direction, Color color, float intensity = 1, bool castsShadows = false) =>
         Spawn(Light.Directional(Linear(color), intensity) with { CastsShadows = castsShadows }, Vector3.Zero, direction);
 
-    /// <summary>A light shining every way from <paramref name="position"/>, reaching <paramref name="range"/> units, or every distance with 0.</summary>
-    public static LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1, float range = 0) =>
-        Spawn(Light.Point(Linear(color), intensity, range), position, -Vector3.UnitZ);
+    /// <summary>
+    /// A light shining every way from <paramref name="position"/>, reaching <paramref name="range"/>
+    /// units, or every distance with 0, which may cast shadows all around it, as the first four
+    /// such lights do.
+    /// </summary>
+    /// <remarks>
+    /// A model drawn around a shadowed light, as a lamp's bulb, shadows everything from it. Draw the
+    /// bulb as a shape, with <see cref="DrawSphere"/>, which casts no shadow.
+    /// </remarks>
+    public static LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1, float range = 0, bool castsShadows = false) =>
+        Spawn(Light.Point(Linear(color), intensity, range) with { CastsShadows = castsShadows }, position, -Vector3.UnitZ);
 
-    /// <summary>A light from <paramref name="position"/> along <paramref name="direction"/>, full inside <paramref name="innerAngle"/> and gone past <paramref name="outerAngle"/> degrees.</summary>
+    /// <summary>
+    /// A light from <paramref name="position"/> along <paramref name="direction"/>, full inside
+    /// <paramref name="innerAngle"/> and gone past <paramref name="outerAngle"/> degrees, which may
+    /// cast a shadow, as the first such light does.
+    /// </summary>
     public static LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, float intensity = 1,
-        float innerAngle = 25, float outerAngle = 30, float range = 0) =>
-        Spawn(Light.Spot(Linear(color), intensity, innerAngle, outerAngle, range), position, direction);
+        float innerAngle = 25, float outerAngle = 30, float range = 0, bool castsShadows = false) =>
+        Spawn(Light.Spot(Linear(color), intensity, innerAngle, outerAngle, range) with { CastsShadows = castsShadows }, position, direction);
 
     /// <summary>Moves a point or spot light.</summary>
     public static void SetLightPosition(LightHandle light, Vector3 position)
@@ -48,6 +60,12 @@ public static partial class Engine3D
         ref var l = ref Ecs.GetRef<Light>(entity);
         l.Color = Linear(color);
         l.Intensity = intensity;
+    }
+
+    /// <summary>Sets whether a light casts shadows, which the first directional, the first spot and the first four point lights that do cast.</summary>
+    public static void SetLightCastsShadows(LightHandle light, bool castsShadows)
+    {
+        if (Resolve(light) is { } entity) Ecs.GetRef<Light>(entity).CastsShadows = castsShadows;
     }
 
     /// <summary>Removes a light.</summary>

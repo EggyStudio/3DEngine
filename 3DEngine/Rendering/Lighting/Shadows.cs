@@ -13,8 +13,13 @@ namespace Engine;
 /// <param name="SpotLight">The index of the shadowed spot light, or -1 for none.</param>
 /// <param name="SpotViewProjection">World space to the spot light's clip space.</param>
 /// <param name="SpotTexelPerUnit">The width of one of the spot light's texels per unit of distance from it.</param>
+/// <param name="PointLights">
+/// The shadowed point lights, by their index in the lighting buffer, each with the view and
+/// projection of the six faces around it, in the order +X, -X, +Y, -Y, +Z, -Z.
+/// </param>
 public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
-    int SpotLight = -1, Matrix4x4 SpotViewProjection = default, float SpotTexelPerUnit = 0);
+    int SpotLight = -1, Matrix4x4 SpotViewProjection = default, float SpotTexelPerUnit = 0,
+    IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null);
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
 /// <remarks>
@@ -143,6 +148,38 @@ public static class ShadowFit
                          * Matrix4x4.CreatePerspectiveFieldOfView(2 * half, 1, MathF.Max(0.05f, far / 2000), far);
         texelPerUnit = 2 * MathF.Tan(half) / TileSize;
         return true;
+    }
+
+    /// <summary>How many point lights cast shadows at once, the first ones with <c>CastsShadows</c> set.</summary>
+    public const int MaxPointLights = 4;
+
+    /// <summary>The width and height in texels of each of a point light's six faces.</summary>
+    public const int PointFaceSize = 512;
+
+    /// <summary>
+    /// How much wider than a right angle each face of a point light is, so the nine depths compared
+    /// around a point near a face's edge stay inside it.
+    /// </summary>
+    public const float PointFaceSlack = 1.02f;
+
+    /// <summary>
+    /// The views and projections of the six faces around a point light at
+    /// <paramref name="position"/>, reaching <paramref name="range"/>, or <see cref="Distance"/>
+    /// for a light with no range, in the order +X, -X, +Y, -Y, +Z, -Z, which the shader picks
+    /// between by the axis a point lies furthest along.
+    /// </summary>
+    public static Matrix4x4[] FitPoint(Vector3 position, float range)
+    {
+        var far = range > 0 ? range : Distance;
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(2 * MathF.Atan(PointFaceSlack), 1, MathF.Max(0.05f, far / 2000), far);
+        Vector3[] axes = [Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ];
+        var faces = new Matrix4x4[6];
+        for (int f = 0; f < 6; f++)
+        {
+            var up = MathF.Abs(axes[f].Y) > 0.5f ? Vector3.UnitZ : Vector3.UnitY;
+            faces[f] = Matrix4x4.CreateLookAt(position, position + axes[f], up) * projection;
+        }
+        return faces;
     }
 
     /// <summary>The texel at which cascade or tile <paramref name="tile"/> starts in the map, across and down.</summary>

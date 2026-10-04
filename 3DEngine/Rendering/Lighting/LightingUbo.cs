@@ -59,6 +59,20 @@ public struct LightingUbo
 
     /// <summary>Inline fixed-size light array. Use <see cref="LightingUboPacker.WriteEntry"/> to populate by index.</summary>
     public LightUboEntryArray Lights;
+
+    /// <summary>The width of a point light's shadow texel per unit of distance from it, in x.</summary>
+    public Vector4 PointShadow;
+
+    /// <summary>World space to each face's clip space for each shadowed point light, six to a light.</summary>
+    public PointShadowFaceArray PointShadowFaces;
+}
+
+/// <summary>Fixed-size storage for the faces of the shadowed point lights.</summary>
+[InlineArray(ShadowFit.MaxPointLights * 6)]
+public struct PointShadowFaceArray
+{
+    /// <summary>The first face.</summary>
+    public Matrix4x4 _element0;
 }
 
 /// <summary>Inline storage for <see cref="LightingUbo.ShadowCascades"/>, four matrices.</summary>

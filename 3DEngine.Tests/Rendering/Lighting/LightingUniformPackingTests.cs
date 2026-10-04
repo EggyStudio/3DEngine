@@ -45,14 +45,17 @@ public class LightingUniformPackingTests
     }
 
     [Fact]
-    public void The_Buffer_Is_A_304_Byte_Header_And_16_Entries_Of_64_Bytes()
+    public void The_Buffer_Is_A_304_Byte_Header_16_Entries_Of_64_Bytes_And_The_Point_Shadow_Faces()
     {
         Marshal.SizeOf<LightUboEntry>().Should().Be(64);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ShadowTexels)).Should().Be(16, "a float4 starts on a 16-byte boundary");
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ShadowCascades)).Should().Be(32);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Environment)).Should().Be(32 + LightingUboPacker.MaxCascades * 64);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Lights)).Should().Be(304);
-        LightingUboPacker.SizeBytes.Should().Be(304 + LightingUboPacker.MaxLights * 64);
+        var afterLights = 304 + LightingUboPacker.MaxLights * 64;
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.PointShadow)).Should().Be(afterLights);
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.PointShadowFaces)).Should().Be(afterLights + 16);
+        LightingUboPacker.SizeBytes.Should().Be(afterLights + 16 + ShadowFit.MaxPointLights * 6 * 64);
     }
 
     [Fact]

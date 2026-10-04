@@ -416,11 +416,12 @@ the format.
 
 ```csharp
 LightHandle CreateDirectionalLight(Vector3 direction, Color color, float intensity = 1, bool castsShadows = false); // The sun's, from far away, which may cast the shadow
-LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1, float range = 0);                  // Every way from a point, to a range or every distance
-LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, float intensity = 1, float innerAngle = 25, float outerAngle = 30, float range = 0); // A cone
+LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1, float range = 0, bool castsShadows = false); // Every way from a point, to a range or every distance
+LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, float intensity = 1, float innerAngle = 25, float outerAngle = 30, float range = 0, bool castsShadows = false); // A cone
 void SetLightPosition(LightHandle light, Vector3 position);                // Move a point or spot light
 void SetLightDirection(LightHandle light, Vector3 direction);              // Turn a directional or spot light
 void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Recolor it
+void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Turn its shadows on or off
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 ```
