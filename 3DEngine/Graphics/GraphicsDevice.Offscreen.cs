@@ -232,67 +232,22 @@ public sealed unsafe partial class GraphicsDevice
 
         var vkOld = ToVkImageLayout(oldLayout);
         var vkNew = ToVkImageLayout(newLayout);
-
-        VkAccessFlags srcAccess = 0;
-        VkAccessFlags dstAccess = 0;
-        VkPipelineStageFlags srcStage = VkPipelineStageFlags.TopOfPipe;
-        VkPipelineStageFlags dstStage = VkPipelineStageFlags.BottomOfPipe;
-
-        // Source layout → access mask / stage
-        switch (oldLayout)
-        {
-            case ImageLayout.Undefined:
-                srcAccess = 0;
-                srcStage = VkPipelineStageFlags.TopOfPipe;
-                break;
-            case ImageLayout.ColorAttachmentOptimal:
-                srcAccess = VkAccessFlags.ColorAttachmentWrite;
-                srcStage = VkPipelineStageFlags.ColorAttachmentOutput;
-                break;
-            case ImageLayout.ShaderReadOnlyOptimal:
-                srcAccess = VkAccessFlags.ShaderRead;
-                srcStage = VkPipelineStageFlags.FragmentShader;
-                break;
-            case ImageLayout.TransferDstOptimal:
-                srcAccess = VkAccessFlags.TransferWrite;
-                srcStage = VkPipelineStageFlags.Transfer;
-                break;
-        }
-
-        // Destination layout → access mask / stage
-        switch (newLayout)
-        {
-            case ImageLayout.ColorAttachmentOptimal:
-                dstAccess = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite;
-                dstStage = VkPipelineStageFlags.ColorAttachmentOutput;
-                break;
-            case ImageLayout.ShaderReadOnlyOptimal:
-                dstAccess = VkAccessFlags.ShaderRead;
-                dstStage = VkPipelineStageFlags.FragmentShader;
-                break;
-            case ImageLayout.TransferDstOptimal:
-                dstAccess = VkAccessFlags.TransferWrite;
-                dstStage = VkPipelineStageFlags.Transfer;
-                break;
-        }
-
-        VkImageMemoryBarrier barrier = new()
-        {
-            oldLayout = vkOld,
-            newLayout = vkNew,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = vkImage.Image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1),
-            srcAccessMask = srcAccess,
-            dstAccessMask = dstAccess
-        };
-
-        _deviceApi.vkCmdPipelineBarrier(vkCmd.Handle, srcStage, dstStage,
-            0, 0, null, 0, null, 1, &barrier);
-
+        var (srcStage, srcAccess) = UseOf(oldLayout, before: true);
+        var (dstStage, dstAccess) = UseOf(newLayout, before: false);
+        PipelineBarrier(vkCmd.Handle, ImageBarrier(vkImage.Image, ColorLevels(0, 1), vkOld, vkNew, srcStage, srcAccess, dstStage, dstAccess));
         vkImage.Layout = vkNew;
     }
+
+    // The stage and access an image in a layout is used by, the writes before a change of layout
+    // and the reads and writes after it.
+    private static (VkPipelineStageFlags2 Stage, VkAccessFlags2 Access) UseOf(ImageLayout layout, bool before) => layout switch
+    {
+        ImageLayout.ColorAttachmentOptimal => (VkPipelineStageFlags2.ColorAttachmentOutput,
+            before ? VkAccessFlags2.ColorAttachmentWrite : VkAccessFlags2.ColorAttachmentRead | VkAccessFlags2.ColorAttachmentWrite),
+        ImageLayout.ShaderReadOnlyOptimal => (VkPipelineStageFlags2.FragmentShader, before ? VkAccessFlags2.None : VkAccessFlags2.ShaderRead),
+        ImageLayout.TransferDstOptimal => (VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
+        _ => (VkPipelineStageFlags2.None, VkAccessFlags2.None),
+    };
 
     /// <summary>Maps an engine <see cref="ImageLayout"/> to the Vulkan <c>VkImageLayout</c> equivalent.</summary>
     private static VkImageLayout ToVkImageLayout(ImageLayout layout) => layout switch

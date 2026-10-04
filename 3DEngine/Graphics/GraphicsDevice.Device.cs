@@ -52,10 +52,16 @@ public sealed unsafe partial class GraphicsDevice
 
         // A shader reading SV_InstanceID counts from the draw's first instance, which Slang reads
         // through the draw parameters, so the capability it declares needs this on.
-        var vulkan11 = new VkPhysicalDeviceVulkan11Features();
+        // Passes begin with dynamic rendering, and barriers are synchronization2's, both core in
+        // Vulkan 1.3, which every desktop driver in use and lavapipe have.
+        var vulkan13 = new VkPhysicalDeviceVulkan13Features();
+        var vulkan11 = new VkPhysicalDeviceVulkan11Features { pNext = &vulkan13 };
         var supported2 = new VkPhysicalDeviceFeatures2 { pNext = &vulkan11 };
         _instanceApi.vkGetPhysicalDeviceFeatures2(_physicalDevice, &supported2);
-        var enabled11 = new VkPhysicalDeviceVulkan11Features { shaderDrawParameters = vulkan11.shaderDrawParameters };
+        if (!vulkan13.dynamicRendering || !vulkan13.synchronization2)
+            throw new InvalidOperationException("The GPU's driver lacks Vulkan 1.3's dynamic rendering or synchronization2, which the engine draws with.");
+        var enabled13 = new VkPhysicalDeviceVulkan13Features { dynamicRendering = true, synchronization2 = true };
+        var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled13, shaderDrawParameters = vulkan11.shaderDrawParameters };
 
         VkDeviceCreateInfo createInfo = new()
         {

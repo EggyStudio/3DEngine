@@ -36,7 +36,7 @@ public sealed unsafe partial class GraphicsDevice
             applicationVersion = new VkVersion(1, 0, 0),
             pEngineName = engineNameUtf8,
             engineVersion = new VkVersion(1, 0, 0),
-            apiVersion = VkVersion.Version_1_2
+            apiVersion = VkVersion.Version_1_3
         };
 
         Logger.Debug("Querying required instance extensions from surface source...");

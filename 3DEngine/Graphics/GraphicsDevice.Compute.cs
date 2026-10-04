@@ -217,40 +217,45 @@ public sealed unsafe partial class GraphicsDevice
 
             // Earlier work on the queue, a frame's or another dispatch's, has finished writing
             // what this one reads.
-            var before = new VkMemoryBarrier
+            var before = new VkMemoryBarrier2
             {
-                srcAccessMask = VkAccessFlags.MemoryWrite,
-                dstAccessMask = VkAccessFlags.ShaderRead | VkAccessFlags.ShaderWrite,
+                srcStageMask = VkPipelineStageFlags2.AllCommands,
+                srcAccessMask = VkAccessFlags2.MemoryWrite,
+                dstStageMask = VkPipelineStageFlags2.ComputeShader,
+                dstAccessMask = VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
             };
-            var toGeneral = stackalloc VkImageMemoryBarrier[Math.Max(1, images.Count)];
+            var toGeneral = new VkImageMemoryBarrier2[images.Count];
             for (int i = 0; i < images.Count; i++)
                 toGeneral[i] = ImageLayoutBarrier(images[i].Image, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
-                    VkAccessFlags.ShaderRead, VkAccessFlags.ShaderRead | VkAccessFlags.ShaderWrite);
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.ComputeShader, 0, 1, &before, 0, null,
-                (uint)images.Count, toGeneral);
+                    VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead,
+                    VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
+            PipelineBarrier(cmd, toGeneral, before);
 
             _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline.Pipeline);
             _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, pipeline.Layout, 0, 1, &set, 0, null);
             _deviceApi.vkCmdDispatch(cmd, Math.Max(1, groupsX), Math.Max(1, groupsY), Math.Max(1, groupsZ));
 
             // Later work, and the CPU once the fence is waited on, see what it wrote.
-            var after = new VkMemoryBarrier
+            var later = VkPipelineStageFlags2.AllCommands | VkPipelineStageFlags2.Host | VkPipelineStageFlags2.Transfer;
+            var after = new VkMemoryBarrier2
             {
-                srcAccessMask = VkAccessFlags.ShaderWrite,
-                dstAccessMask = VkAccessFlags.MemoryRead | VkAccessFlags.MemoryWrite | VkAccessFlags.HostRead,
+                srcStageMask = VkPipelineStageFlags2.ComputeShader,
+                srcAccessMask = VkAccessFlags2.ShaderWrite,
+                dstStageMask = later,
+                dstAccessMask = VkAccessFlags2.MemoryRead | VkAccessFlags2.MemoryWrite | VkAccessFlags2.HostRead,
             };
             // A mipmapped image goes to the transfer layout instead, since its other levels are
             // made again from the first one the shader wrote.
-            var toSampled = stackalloc VkImageMemoryBarrier[Math.Max(1, images.Count)];
+            var toSampled = new VkImageMemoryBarrier2[images.Count];
             for (int i = 0; i < images.Count; i++)
                 toSampled[i] = images[i].Image.Description.MipLevels > 1
                     ? ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.TransferDstOptimal,
-                        VkAccessFlags.ShaderWrite, VkAccessFlags.TransferRead | VkAccessFlags.TransferWrite)
+                        VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                        later, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite)
                     : ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
-                        VkAccessFlags.ShaderWrite, VkAccessFlags.ShaderRead | VkAccessFlags.MemoryRead);
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ComputeShader,
-                VkPipelineStageFlags.AllCommands | VkPipelineStageFlags.Host | VkPipelineStageFlags.Transfer,
-                0, 1, &after, 0, null, (uint)images.Count, toSampled);
+                        VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                        later, VkAccessFlags2.ShaderRead | VkAccessFlags2.MemoryRead);
+            PipelineBarrier(cmd, toSampled, after);
             foreach (var (_, image, _) in images)
                 if (image.Description.MipLevels > 1)
                     RecordMipChain(cmd, (VulkanImage)image);
@@ -265,17 +270,9 @@ public sealed unsafe partial class GraphicsDevice
     }
 
     // A barrier moving every level of a color image from one layout to another.
-    private static VkImageMemoryBarrier ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to, VkAccessFlags before, VkAccessFlags after) => new()
-    {
-        srcAccessMask = before,
-        dstAccessMask = after,
-        oldLayout = from,
-        newLayout = to,
-        srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-        dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-        image = ((VulkanImage)image).Image,
-        subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, Math.Max(1, image.Description.MipLevels), 0, 1),
-    };
+    private static VkImageMemoryBarrier2 ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to,
+        VkPipelineStageFlags2 srcStage, VkAccessFlags2 before, VkPipelineStageFlags2 dstStage, VkAccessFlags2 after) =>
+        ImageBarrier(((VulkanImage)image).Image, ColorLevels(0, Math.Max(1, image.Description.MipLevels)), from, to, srcStage, before, dstStage, after);
 
     /// <summary>Waits for every dispatch submitted so far to finish, so the CPU can read or overwrite the buffers they used.</summary>
     public void WaitForCompute()

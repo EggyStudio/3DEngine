@@ -37,18 +37,8 @@ public sealed unsafe partial class GraphicsDevice
         var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(width * height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
         var image = _swapchainImages[imageIndex];
 
-        VkImageMemoryBarrier toCopy = new()
-        {
-            oldLayout = _finalLayout,
-            newLayout = VkImageLayout.TransferSrcOptimal,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
-            dstAccessMask = VkAccessFlags.TransferRead,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1),
-        };
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ColorAttachmentOutput, VkPipelineStageFlags.Transfer, 0, 0, null, 0, null, 1, &toCopy);
+        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), _finalLayout, VkImageLayout.TransferSrcOptimal,
+            VkPipelineStageFlags2.ColorAttachmentOutput, VkAccessFlags2.ColorAttachmentWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
 
         VkBufferImageCopy region = new()
         {
@@ -61,14 +51,8 @@ public sealed unsafe partial class GraphicsDevice
         };
         _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
 
-        VkImageMemoryBarrier toPresent = toCopy with
-        {
-            oldLayout = VkImageLayout.TransferSrcOptimal,
-            newLayout = _finalLayout,
-            srcAccessMask = VkAccessFlags.TransferRead,
-            dstAccessMask = 0,
-        };
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.BottomOfPipe, 0, 0, null, 0, null, 1, &toPresent);
+        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, _finalLayout,
+            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.None, VkAccessFlags2.None));
 
         return (buffer, callback, width, height);
     }
@@ -123,33 +107,17 @@ public sealed unsafe partial class GraphicsDevice
         {
             var extent = image.Description.Extent;
             var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
-            VkImageMemoryBarrier toCopy = new()
-            {
-                oldLayout = VkImageLayout.ShaderReadOnlyOptimal,
-                newLayout = VkImageLayout.TransferSrcOptimal,
-                srcAccessMask = VkAccessFlags.ColorAttachmentWrite,
-                dstAccessMask = VkAccessFlags.TransferRead,
-                srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                image = image.Image,
-                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1),
-            };
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.FragmentShader,
-                VkPipelineStageFlags.Transfer, 0, 0, null, 0, null, 1, &toCopy);
+            PipelineBarrier(cmd, ImageBarrier(image.Image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+                VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ColorAttachmentWrite,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
             VkBufferImageCopy region = new()
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(extent.Width, extent.Height, 1),
             };
             _deviceApi.vkCmdCopyImageToBuffer(cmd, image.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
-            VkImageMemoryBarrier back = toCopy with
-            {
-                oldLayout = VkImageLayout.TransferSrcOptimal,
-                newLayout = VkImageLayout.ShaderReadOnlyOptimal,
-                srcAccessMask = VkAccessFlags.TransferRead,
-                dstAccessMask = VkAccessFlags.ShaderRead,
-            };
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader, 0, 0, null, 0, null, 1, &back);
+            PipelineBarrier(cmd, ImageBarrier(image.Image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead));
             recorded.Add((buffer, image, done));
         }
         _readbacks.Clear();
@@ -197,7 +165,7 @@ public sealed unsafe partial class GraphicsDevice
         {
             var cmd = BeginSingleTimeCommands();
             Barrier(cmd, vkImage, 0, 1, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
-                VkAccessFlags.ShaderRead, VkAccessFlags.TransferRead, VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.Transfer);
+                VkAccessFlags2.ShaderRead, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkPipelineStageFlags2.Transfer);
             VkBufferImageCopy region = new()
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
@@ -205,7 +173,7 @@ public sealed unsafe partial class GraphicsDevice
             };
             _deviceApi.vkCmdCopyImageToBuffer(cmd, vkImage.Image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
             Barrier(cmd, vkImage, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.AllCommands);
+                VkAccessFlags2.TransferRead, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.AllCommands);
             EndSingleTimeCommands(cmd);
 
             var pixels = Map(buffer).ToArray();

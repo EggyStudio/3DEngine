@@ -284,7 +284,7 @@ public sealed unsafe partial class GraphicsDevice
         return flags;
     }
 
-    /// <summary>Transitions an image layout via a pipeline barrier using default stage flags.</summary>
+    /// <summary>Moves an image's first level from one layout to another, waited for before returning.</summary>
     /// <param name="image">The image to transition.</param>
     /// <param name="oldLayout">The current layout.</param>
     /// <param name="newLayout">The target layout.</param>
@@ -295,55 +295,8 @@ public sealed unsafe partial class GraphicsDevice
             throw new ArgumentException("Image was not created by this device.", nameof(image));
 
         var cmd = BeginSingleTimeCommands();
-
-        VkImageMemoryBarrier barrier = new()
-        {
-            oldLayout = oldLayout,
-            newLayout = newLayout,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = vkImage.Image,
-            subresourceRange = new VkImageSubresourceRange(aspect, 0, 1, 0, 1)
-        };
-
-        VkPipelineStageFlags srcStage = VkPipelineStageFlags.TopOfPipe;
-        VkPipelineStageFlags dstStage = VkPipelineStageFlags.BottomOfPipe;
-
-        _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrier);
-        EndSingleTimeCommands(cmd);
-        vkImage.Layout = newLayout;
-    }
-
-    /// <summary>Transitions an image layout via a pipeline barrier with explicit stage flags.</summary>
-    /// <param name="image">The image to transition.</param>
-    /// <param name="oldLayout">The current layout.</param>
-    /// <param name="newLayout">The target layout.</param>
-    /// <param name="aspect">Image aspect flags (color, depth, etc.).</param>
-    /// <param name="srcStage">Source pipeline stage for the barrier.</param>
-    /// <param name="dstStage">Destination pipeline stage for the barrier.</param>
-    internal void TransitionImageLayout(IImage image,
-        VkImageLayout oldLayout,
-        VkImageLayout newLayout,
-        VkImageAspectFlags aspect,
-        VkPipelineStageFlags srcStage,
-        VkPipelineStageFlags dstStage)
-    {
-        if (image is not VulkanImage vkImage)
-            throw new ArgumentException("Image was not created by this device.", nameof(image));
-
-        var cmd = BeginSingleTimeCommands();
-
-        VkImageMemoryBarrier barrier = new()
-        {
-            oldLayout = oldLayout,
-            newLayout = newLayout,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = vkImage.Image,
-            subresourceRange = new VkImageSubresourceRange(aspect, 0, 1, 0, 1)
-        };
-
-        _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrier);
+        PipelineBarrier(cmd, ImageBarrier(vkImage.Image, new VkImageSubresourceRange(aspect, 0, 1, 0, 1), oldLayout, newLayout,
+            VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.MemoryRead | VkAccessFlags2.MemoryWrite));
         EndSingleTimeCommands(cmd);
         vkImage.Layout = newLayout;
     }
@@ -385,23 +338,11 @@ public sealed unsafe partial class GraphicsDevice
 
             var cmd = BeginSingleTimeCommands();
 
-            // Transition image to transfer dst, every mip level, which the chain below fills
-            VkImageMemoryBarrier barrierToDst = new()
-            {
-                oldLayout = vkImage.Layout,
-                newLayout = VkImageLayout.TransferDstOptimal,
-                srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                image = vkImage.Image,
-                subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, LevelsOf(vkImage), 0, 1)
-            };
-
-            // Every earlier command on the queue first, since a rectangle written into an image
-            // the frames in flight sample would otherwise race their reads of it.
-            VkPipelineStageFlags srcStage = VkPipelineStageFlags.AllCommands;
-            VkPipelineStageFlags dstStage = VkPipelineStageFlags.Transfer;
-
-            _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrierToDst);
+            // Every mip level to transfer destination, which the chain below fills, after every
+            // earlier command on the queue, since a rectangle written into an image the frames in
+            // flight sample would otherwise race their reads of it.
+            PipelineBarrier(cmd, ImageBarrier(vkImage.Image, ColorLevels(0, LevelsOf(vkImage)), vkImage.Layout, VkImageLayout.TransferDstOptimal,
+                VkPipelineStageFlags2.AllCommands, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
 
             // Copy buffer to image
             VkBufferImageCopy region = new()
@@ -486,19 +427,8 @@ public sealed unsafe partial class GraphicsDevice
 
         var cmd = vkCmd.Handle;
 
-        // Transition image to transfer dst
-        VkImageMemoryBarrier barrierToDst = new()
-        {
-            oldLayout = vkImage.Layout,
-            newLayout = VkImageLayout.TransferDstOptimal,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = vkImage.Image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1)
-        };
-
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.TopOfPipe, VkPipelineStageFlags.Transfer,
-            0, 0, null, 0, null, 1, &barrierToDst);
+        PipelineBarrier(cmd, ImageBarrier(vkImage.Image, ColorLevels(0, 1), vkImage.Layout, VkImageLayout.TransferDstOptimal,
+            VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
 
         // Copy buffer to image
         VkBufferImageCopy region = new()
@@ -513,19 +443,8 @@ public sealed unsafe partial class GraphicsDevice
 
         _deviceApi.vkCmdCopyBufferToImage(cmd, staging.Buffer, vkImage.Image, VkImageLayout.TransferDstOptimal, 1, &region);
 
-        // Transition image to shader read-only
-        VkImageMemoryBarrier barrierToShaderRead = new()
-        {
-            oldLayout = VkImageLayout.TransferDstOptimal,
-            newLayout = VkImageLayout.ShaderReadOnlyOptimal,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = vkImage.Image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1)
-        };
-
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader,
-            0, 0, null, 0, null, 1, &barrierToShaderRead);
+        PipelineBarrier(cmd, ImageBarrier(vkImage.Image, ColorLevels(0, 1), VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead));
 
         vkImage.Layout = VkImageLayout.ShaderReadOnlyOptimal;
 
@@ -549,10 +468,10 @@ public sealed unsafe partial class GraphicsDevice
             throw new ArgumentException("Images were not created by this device.");
 
         var cmd = BeginSingleTimeCommands();
-        Barrier(cmd, src, 0, 1, src.Layout, VkImageLayout.TransferSrcOptimal, VkAccessFlags.ShaderRead, VkAccessFlags.TransferRead,
-            VkPipelineStageFlags.FragmentShader, VkPipelineStageFlags.Transfer);
-        Barrier(cmd, dst, 0, LevelsOf(dst), VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 0, VkAccessFlags.TransferWrite,
-            VkPipelineStageFlags.TopOfPipe, VkPipelineStageFlags.Transfer);
+        Barrier(cmd, src, 0, 1, src.Layout, VkImageLayout.TransferSrcOptimal, VkAccessFlags2.ShaderRead, VkAccessFlags2.TransferRead,
+            VkPipelineStageFlags2.FragmentShader, VkPipelineStageFlags2.Transfer);
+        Barrier(cmd, dst, 0, LevelsOf(dst), VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 0, VkAccessFlags2.TransferWrite,
+            VkPipelineStageFlags2.TopOfPipe, VkPipelineStageFlags2.Transfer);
 
         var extent = src.Description.Extent;
         VkImageCopy region = new()
@@ -563,8 +482,8 @@ public sealed unsafe partial class GraphicsDevice
         };
         _deviceApi.vkCmdCopyImage(cmd, src.Image, VkImageLayout.TransferSrcOptimal, dst.Image, VkImageLayout.TransferDstOptimal, 1, &region);
 
-        Barrier(cmd, src, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal, VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead,
-            VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+        Barrier(cmd, src, 0, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal, VkAccessFlags2.TransferRead, VkAccessFlags2.ShaderRead,
+            VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.FragmentShader);
         src.Layout = VkImageLayout.ShaderReadOnlyOptimal;
         RecordMipChain(cmd, dst);
         EndSingleTimeCommands(cmd);
@@ -588,7 +507,7 @@ public sealed unsafe partial class GraphicsDevice
         for (uint level = 1; level < levels; level++)
         {
             Barrier(cmd, image, level - 1, 1, VkImageLayout.TransferDstOptimal, VkImageLayout.TransferSrcOptimal,
-                VkAccessFlags.TransferWrite, VkAccessFlags.TransferRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.Transfer);
+                VkAccessFlags2.TransferWrite, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.Transfer);
 
             int nextWidth = Math.Max(1, width / 2), nextHeight = Math.Max(1, height / 2);
             VkImageBlit blit = new()
@@ -601,31 +520,18 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkCmdBlitImage(cmd, image.Image, VkImageLayout.TransferSrcOptimal, image.Image, VkImageLayout.TransferDstOptimal, 1, &blit, VkFilter.Linear);
 
             Barrier(cmd, image, level - 1, 1, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-                VkAccessFlags.TransferRead, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+                VkAccessFlags2.TransferRead, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.FragmentShader);
             (width, height) = (nextWidth, nextHeight);
         }
 
         Barrier(cmd, image, levels - 1, 1, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-            VkAccessFlags.TransferWrite, VkAccessFlags.ShaderRead, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
+            VkAccessFlags2.TransferWrite, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.Transfer, VkPipelineStageFlags2.FragmentShader);
         image.Layout = VkImageLayout.ShaderReadOnlyOptimal;
     }
 
     private void Barrier(VkCommandBuffer cmd, VulkanImage image, uint firstLevel, uint levelCount, VkImageLayout from, VkImageLayout to,
-        VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage)
-    {
-        VkImageMemoryBarrier barrier = new()
-        {
-            oldLayout = from,
-            newLayout = to,
-            srcAccessMask = srcAccess,
-            dstAccessMask = dstAccess,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = image.Image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, firstLevel, levelCount, 0, 1),
-        };
-        _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 0, null, 1, &barrier);
-    }
+        VkAccessFlags2 srcAccess, VkAccessFlags2 dstAccess, VkPipelineStageFlags2 srcStage, VkPipelineStageFlags2 dstStage) =>
+        PipelineBarrier(cmd, ImageBarrier(image.Image, ColorLevels(firstLevel, levelCount), from, to, srcStage, srcAccess, dstStage, dstAccess));
 
     IImage IGraphicsDevice.CreateImage(ImageDesc desc) => CreateImage(desc);
     IImageView IGraphicsDevice.CreateImageView(IImage image) => CreateImageView(image);

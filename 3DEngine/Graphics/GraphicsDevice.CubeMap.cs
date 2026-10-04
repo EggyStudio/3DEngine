@@ -88,17 +88,8 @@ public sealed unsafe partial class GraphicsDevice
 
             var everything = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, mipLevels, 0, 6);
             var cmd = BeginSingleTimeCommands();
-            var toDst = new VkImageMemoryBarrier
-            {
-                oldLayout = VkImageLayout.Undefined,
-                newLayout = VkImageLayout.TransferDstOptimal,
-                srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-                image = image,
-                subresourceRange = everything,
-                dstAccessMask = VkAccessFlags.TransferWrite,
-            };
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.TopOfPipe, VkPipelineStageFlags.Transfer, 0, 0, null, 0, null, 1, &toDst);
+            PipelineBarrier(cmd, ImageBarrier(image, everything, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
+                VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
 
             var regions = new VkBufferImageCopy[mipLevels];
             ulong offset = 0;
@@ -116,14 +107,8 @@ public sealed unsafe partial class GraphicsDevice
             fixed (VkBufferImageCopy* r = regions)
                 _deviceApi.vkCmdCopyBufferToImage(cmd, staging.Buffer, image, VkImageLayout.TransferDstOptimal, mipLevels, r);
 
-            var toRead = toDst with
-            {
-                oldLayout = VkImageLayout.TransferDstOptimal,
-                newLayout = VkImageLayout.ShaderReadOnlyOptimal,
-                srcAccessMask = VkAccessFlags.TransferWrite,
-                dstAccessMask = VkAccessFlags.ShaderRead,
-            };
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader, 0, 0, null, 0, null, 1, &toRead);
+            PipelineBarrier(cmd, ImageBarrier(image, everything, VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead));
             EndSingleTimeCommands(cmd);
         }
         finally

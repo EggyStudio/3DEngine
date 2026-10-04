@@ -224,34 +224,6 @@ public sealed unsafe partial class GraphicsDevice
     }
 
 
-    /// <summary>Issues a pipeline barrier on a buffer for synchronizing GPU access.</summary>
-    internal void BufferMemoryBarrier(IBuffer buffer,
-        VkAccessFlags srcAccess,
-        VkAccessFlags dstAccess,
-        VkPipelineStageFlags srcStage,
-        VkPipelineStageFlags dstStage)
-    {
-        if (buffer is not VulkanBuffer vkBuffer)
-            throw new ArgumentException("Buffer was not created by this device.", nameof(buffer));
-
-        var cmd = BeginSingleTimeCommands();
-
-        VkBufferMemoryBarrier barrier = new()
-        {
-            srcAccessMask = srcAccess,
-            dstAccessMask = dstAccess,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            buffer = vkBuffer.Buffer,
-            offset = 0,
-            size = vkBuffer.Description.Size
-        };
-
-        _deviceApi.vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, null, 1, &barrier, 0, null);
-
-        EndSingleTimeCommands(cmd);
-    }
-
     /// <summary>Allocates and begins a single-use command buffer for one-shot GPU operations.</summary>
     private VkCommandBuffer BeginSingleTimeCommands()
     {

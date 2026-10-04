@@ -166,17 +166,9 @@ public sealed unsafe partial class GraphicsDevice
     private void ToShaderRead(VkImage image, uint layers)
     {
         var cmd = BeginSingleTimeCommands();
-        var barrier = new VkImageMemoryBarrier
-        {
-            oldLayout = VkImageLayout.Undefined,
-            newLayout = VkImageLayout.ShaderReadOnlyOptimal,
-            srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
-            image = image,
-            subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Depth, 0, 1, 0, layers),
-            dstAccessMask = VkAccessFlags.ShaderRead,
-        };
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.TopOfPipe, VkPipelineStageFlags.FragmentShader, 0, 0, null, 0, null, 1, &barrier);
+        PipelineBarrier(cmd, ImageBarrier(image, new VkImageSubresourceRange(VkImageAspectFlags.Depth, 0, 1, 0, layers),
+            VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal,
+            VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderRead));
         EndSingleTimeCommands(cmd);
     }
 }

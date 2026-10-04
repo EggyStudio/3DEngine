@@ -175,8 +175,8 @@ public sealed unsafe partial class GraphicsDevice
         bytes[..Math.Min(bytes.Length, rows.Length)].CopyTo(rows);
 
         // Earlier frames have finished drawing the vertices about to be replaced.
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.VertexInput | VkPipelineStageFlags.ComputeShader,
-            VkPipelineStageFlags.ComputeShader, 0, 0, null, 0, null, 0, null);
+        MemoryBarrier(cmd, VkPipelineStageFlags2.VertexInput | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None,
+            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.None);
 
         var set = skin.Sets[skin.Slot];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _skinPipeline);
@@ -184,8 +184,7 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCmdDispatch(cmd, (uint)(skin.VertexCount + 63) / 64, 1, 1);
 
         // The draws after it read what it wrote.
-        var after = new VkMemoryBarrier { srcAccessMask = VkAccessFlags.ShaderWrite, dstAccessMask = VkAccessFlags.VertexAttributeRead };
-        _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ComputeShader, VkPipelineStageFlags.VertexInput, 0, 1, &after, 0, null, 0, null);
+        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.VertexInput, VkAccessFlags2.VertexAttributeRead);
     }
 
     // Runs before the device goes.
