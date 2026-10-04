@@ -157,6 +157,9 @@ public sealed partial class EcsWorld
         /// <param name="denseIndex">Zero-based index into the dense array.</param>
         public void MarkChangedByDenseIndexThreadSafe(int denseIndex) => _set.MarkChangedByDenseIndexThreadSafe(denseIndex);
 
+        /// <summary>Stamps every stored component as changed.</summary>
+        public void StampAll() => _set.StampAll();
+
         /// <summary>Returns a <see cref="ComponentSpan{T}"/> view of all stored components for raw iteration.</summary>
         /// <returns>A span view with parallel entity and component arrays.</returns>
         public ComponentSpan<T> AsSpan()
@@ -187,6 +190,27 @@ public sealed partial class EcsWorld
 
         /// <summary>Direct access to the underlying component array (for parallel transforms and generated iteration).</summary>
         public T[] ComponentsArray => _set.ComponentsArray;
+    }
+
+    /// <summary>A read-only span view of a component type: its entities and their components, aligned.</summary>
+    /// <typeparam name="T">The component type.</typeparam>
+    public readonly ref struct ReadOnlyComponentSpan<T>
+    {
+        /// <summary>The entity ids, aligned with <see cref="Components"/>.</summary>
+        public readonly ReadOnlySpan<int> Entities;
+
+        /// <summary>The component values, aligned with <see cref="Entities"/>.</summary>
+        public readonly ReadOnlySpan<T> Components;
+
+        /// <summary><c>true</c> when the span holds at least one component.</summary>
+        public bool IsValid => !Entities.IsEmpty;
+
+        /// <summary>Creates a view from aligned entity and component spans.</summary>
+        public ReadOnlyComponentSpan(ReadOnlySpan<int> entities, ReadOnlySpan<T> components)
+        {
+            Entities = entities;
+            Components = components;
+        }
     }
 
     /// <summary>

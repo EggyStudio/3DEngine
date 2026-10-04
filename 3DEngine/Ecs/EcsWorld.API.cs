@@ -437,14 +437,29 @@ public sealed partial class EcsWorld
         return RefEnumerable<T1, T2, T3>.From(s1, s2, s3, markOnIterate: true, this);
     }
 
-    /// <summary>Returns a span view of all components of type <typeparamref name="T"/> for raw iteration.</summary>
+    /// <summary>Returns a writable span view of all components of type <typeparamref name="T"/> for raw iteration.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <returns>A <see cref="ComponentSpan{T}"/> containing parallel entity ID and component spans.</returns>
+    /// <remarks>
+    /// Every component in it is stamped as changed when it is handed out, since any may be written
+    /// through it, as <c>QueryRef</c> stamps each it visits. Code that only reads takes
+    /// <see cref="GetReadOnlySpan{T}"/>, which stamps nothing.
+    /// </remarks>
     public ComponentSpan<T> GetSpan<T>()
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return default;
+        store.StampAll();
         return store.AsSpan();
+    }
+
+    /// <summary>A read-only span view of all components of type <typeparamref name="T"/>, which marks nothing changed.</summary>
+    public ReadOnlyComponentSpan<T> GetReadOnlySpan<T>()
+    {
+        var store = GetStore<T>(create: false);
+        if (store == null || store.Count == 0) return default;
+        var span = store.AsSpan();
+        return new ReadOnlyComponentSpan<T>(span.Entities, span.Components);
     }
 
     /// <summary>Every entity with a <typeparamref name="T"/>, with a copy of it, narrowed by <c>.With</c>, <c>.Without</c> and <c>.Changed</c>.</summary>
@@ -499,10 +514,12 @@ public sealed partial class EcsWorld
     /// });
     /// </code>
     /// </example>
+    /// <remarks>Every component is stamped as changed, since any may be written through the span.</remarks>
     public void BulkProcess<T>(BulkProcessAction<T> processor)
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return;
+        store.StampAll();
         var span = store.AsSpan();
         processor(span.Components, span.Entities);
     }

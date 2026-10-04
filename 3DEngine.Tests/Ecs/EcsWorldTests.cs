@@ -286,9 +286,7 @@ public class EcsWorldTests
         for (int i = 0; i < span.Entities.Length; i++)
             span.Components[i].A *= 2;
 
-        // Direct span mutation does not auto mark changed - explicit mark needed
-        ecs.TransformEach<TestComp>((_, c) => c);
-
+        // A writable span stamps everything it holds when it is handed out.
         ecs.Changed<TestComp>(e1).Should().BeTrue();
         ecs.Changed<TestComp>(e2).Should().BeTrue();
         var arr = ecs.Query<TestComp>().OrderBy(t => t.Entity).ToArray();
@@ -297,21 +295,20 @@ public class EcsWorldTests
     }
 
     [Fact]
-    public void SpanMutation_Without_Marking_Does_Not_Set_Changed()
+    public void A_Read_Only_Span_Marks_Nothing_And_A_Bulk_Process_Marks_Everything()
     {
         var ecs = new EcsWorld();
         int e = ecs.Spawn();
         ecs.Add(e, new TestComp { A = 10 });
 
         ecs.BeginFrame();
-        var span = ecs.GetSpan<TestComp>();
-        span.Components[0].A = 99;
+        var read = ecs.GetReadOnlySpan<TestComp>();
+        read.Components[0].A.Should().Be(10);
+        ecs.Changed<TestComp>(e).Should().BeFalse("reading through a read-only span marks nothing");
 
-        // Changed should still be false until explicit marking
-        ecs.Changed<TestComp>(e).Should().BeFalse();
-
-        ecs.TransformEach<TestComp>((_, c) => c);
-        ecs.Changed<TestComp>(e).Should().BeTrue();
+        ecs.BulkProcess<TestComp>((components, _) => components[0].A = 99);
+        ecs.Changed<TestComp>(e).Should().BeTrue("a bulk process may write any component it is given");
+        ecs.GetReadOnlySpan<TestComp>().Components[0].A.Should().Be(99);
     }
 
     // -- QueryRef --

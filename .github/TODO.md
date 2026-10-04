@@ -22,11 +22,13 @@ removed from this file, and an item that is partly done is rewritten around what
   flat API's scene functions hand out handles. Queries and `ctx.EntityId` still give the bare
   `int`, which is right for the frame it is used in and which nothing stops code from keeping
   across frames.
-- **Change detection misses spans.** `GetRef`, `Update` and the by-reference queries stamp what
-  they hand out with the tick of the running system, a component's first arrival is stamped too,
-  and the `Changed` and `Added` filters and `Removed<T>()` see what happened since that system last
-  ran (`ChangeTicks`). A write through a span of a store's array is not seen, removals are kept
-  for 60 frames only, and a system that has never run sees every stamp made before it.
+- **Change detection misses raw arrays.** `GetRef`, `Update` and the by-reference queries stamp what
+  they hand out with the tick of the running system, a component's first arrival is stamped too, and
+  the `Changed` and `Added` filters and `Removed<T>()` see what happened since that system last ran
+  (`ChangeTicks`). A writable span (`GetSpan`, `BulkProcess`) stamps every component it holds, since
+  any may be written through it. A write through a store's raw array (`ComponentsArray`) is not
+  seen, removals are kept for 60 frames only, and a system that has never run sees every stamp made
+  before it.
 
 ### Behaviors
 

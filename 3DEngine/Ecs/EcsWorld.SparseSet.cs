@@ -271,6 +271,12 @@ internal sealed class SparseSet<T>
     /// <param name="denseIndex">Zero-based index into the dense array.</param>
     public void MarkChangedByDenseIndexThreadSafe(int denseIndex) => Stamp(denseIndex);
 
+    /// <summary>Stamps every component as changed, with the writer's tick, as handing out a writable span of them does.</summary>
+    public void StampAll()
+    {
+        for (int i = 0; i < _count; i++) Stamp(i);
+    }
+
     /// <summary>Returns parallel entity and component spans over the packed dense arrays.</summary>
     /// <param name="entities">A read-only span of entity IDs.</param>
     /// <param name="components">A mutable span of component values.</param>
