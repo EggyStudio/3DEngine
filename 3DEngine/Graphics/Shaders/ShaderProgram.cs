@@ -16,9 +16,12 @@ public sealed class ShaderProgram
     /// <param name="textures">The textures its stages sample in the first descriptor set, by name and binding.</param>
     /// <param name="buffers">The storage buffers its compute stage uses in the first descriptor set, by name and binding.</param>
     /// <param name="images">The images its compute stage writes in the first descriptor set, by name and binding.</param>
+    /// <param name="bindings">Every descriptor its stages declare, in every set, with the stages that declare it.</param>
     public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null,
-        IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null)
+        IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null,
+        IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)>? bindings = null)
     {
+        Bindings = bindings ?? [];
         Buffers = buffers ?? [];
         Images = images ?? [];
         Name = name;
@@ -59,6 +62,36 @@ public sealed class ShaderProgram
 
     /// <summary>The SPIR-V of each stage the file defines.</summary>
     public IReadOnlyDictionary<ShaderStage, byte[]> Stages { get; }
+
+    /// <summary>Every descriptor the program's stages declare, in every set, with the stages that declare it.</summary>
+    public IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)> Bindings { get; }
+
+    /// <summary>
+    /// The layout of descriptor set <paramref name="set"/> as the program declares it, in binding
+    /// order, which a pipeline's layout is made from rather than typed beside it, so a binding added
+    /// to a shader reaches the pipeline with no change to the code that draws with it.
+    /// </summary>
+    /// <remarks>
+    /// The uniforms a program declares at the top level are read from a buffer at binding 0 of set 0
+    /// that the reflection does not list as a descriptor, which a pass binding them adds itself.
+    /// </remarks>
+    public DescriptorSetLayoutBinding[] LayoutOf(int set) => Merge(
+        Bindings.Where(b => b.Binding.Set == set).Select(b => new DescriptorSetLayoutBinding((uint)b.Binding.Binding, b.Binding.Type, b.Stages)));
+
+    /// <summary>
+    /// Layouts joined binding by binding, in binding order, the first to name a binding giving its
+    /// kind and every one naming it adding its stages, as a pass's own bindings and a shader's are.
+    /// </summary>
+    public static DescriptorSetLayoutBinding[] Merge(params IEnumerable<DescriptorSetLayoutBinding>[] layouts)
+    {
+        var merged = new SortedDictionary<uint, DescriptorSetLayoutBinding>();
+        foreach (var layout in layouts)
+            foreach (var binding in layout)
+                merged[binding.Binding] = merged.TryGetValue(binding.Binding, out var first)
+                    ? first with { Stages = first.Stages | binding.Stages }
+                    : binding;
+        return [.. merged.Values];
+    }
 
     /// <summary>The vertex stage's SPIR-V.</summary>
     /// <exception cref="InvalidOperationException">The file defines no vertex stage.</exception>

@@ -14,6 +14,8 @@ public enum DescriptorType
     UniformBufferDynamic,
     /// <summary>Storage buffer (SSBO), which a shader declares as a <c>StructuredBuffer</c>.</summary>
     StorageBuffer,
+    /// <summary>Storage image, which a shader declares as a <c>RWTexture2D</c> and writes.</summary>
+    StorageImage,
 }
 
 /// <summary>Describes a single binding within a descriptor set layout.</summary>

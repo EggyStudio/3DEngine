@@ -66,7 +66,9 @@ public sealed class BloomRenderer : IDisposable
     private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv,
         _fxaaVertexSpv, _fxaaFragmentSpv;
     private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment, _fxaaVertex, _fxaaFragment;
-    private IDescriptorSetLayout? _oneTexture, _twoTextures;
+    // The sets each pass reads its images through, as its shader declares them.
+    private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings;
+    private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout;
     private ISampler? _sampler;
     private IPipeline? _down, _up;
     // The composite's and FXAA's pipelines by the pass they draw in, the window's or the 8-bit
@@ -104,17 +106,12 @@ public sealed class BloomRenderer : IDisposable
         }
     }
 
-    /// <summary>Creates the renderer from the compiled stages of <c>bloom.slang</c>, <c>composite.slang</c> and <c>fxaa.slang</c>.</summary>
-    public BloomRenderer(ReadOnlyMemory<byte> bloomVertex, ReadOnlyMemory<byte> bloomFragment,
-        ReadOnlyMemory<byte> compositeVertex, ReadOnlyMemory<byte> compositeFragment,
-        ReadOnlyMemory<byte> fxaaVertex, ReadOnlyMemory<byte> fxaaFragment)
+    /// <summary>Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c> and <c>fxaa.slang</c>, compiled.</summary>
+    public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa)
     {
-        _bloomVertexSpv = bloomVertex;
-        _bloomFragmentSpv = bloomFragment;
-        _compositeVertexSpv = compositeVertex;
-        _compositeFragmentSpv = compositeFragment;
-        _fxaaVertexSpv = fxaaVertex;
-        _fxaaFragmentSpv = fxaaFragment;
+        (_bloomVertexSpv, _bloomFragmentSpv, _bloomBindings) = (bloom.Vertex, bloom.Fragment, bloom.LayoutOf(0));
+        (_compositeVertexSpv, _compositeFragmentSpv, _compositeBindings) = (composite.Vertex, composite.Fragment, composite.LayoutOf(0));
+        (_fxaaVertexSpv, _fxaaFragmentSpv, _fxaaBindings) = (fxaa.Vertex, fxaa.Fragment, fxaa.LayoutOf(0));
     }
 
     /// <summary>Whether the frame is drawn through the HDR target, with bloom or any effect over it on.</summary>
@@ -197,7 +194,7 @@ public sealed class BloomRenderer : IDisposable
         if (sized.Shown is null)
         {
             sized.Shown = device.CreateRenderTarget(sized.Extent.Width, sized.Extent.Height, ImageFormat.Undefined, depth: false, multisampled: false);
-            sized.ShownSet = device.CreateDescriptorSet(_oneTexture!);
+            sized.ShownSet = device.CreateDescriptorSet(_fxaaLayout!);
             device.UpdateDescriptorSet(sized.ShownSet, null, new CombinedImageSamplerBinding(sized.Shown.ColorView, _sampler!, 0));
         }
         var target = sized.Shown;
@@ -215,7 +212,7 @@ public sealed class BloomRenderer : IDisposable
         _fxaaVertex ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _fxaaVertexSpv));
         _fxaaFragment ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fxaaFragmentSpv));
         if (!_fxaas.TryGetValue(renderPass, out var pipeline))
-            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _oneTexture!, additive: false);
+            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _fxaaLayout!, additive: false);
         var push = new Push { TexelX = 1f / shown.Extent.Width, TexelY = 1f / shown.Extent.Height };
         pass.SetPipeline(pipeline);
         pass.SetBindGroup(pipeline, set);
@@ -254,10 +251,9 @@ public sealed class BloomRenderer : IDisposable
 
         _sampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
-        _oneTexture ??= device.CreateDescriptorSetLayout([new DescriptorSetLayoutBinding(0, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)]);
-        _twoTextures ??= device.CreateDescriptorSetLayout([
-            new DescriptorSetLayoutBinding(0, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-            new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)]);
+        _oneTexture ??= device.CreateDescriptorSetLayout(_bloomBindings);
+        _twoTextures ??= device.CreateDescriptorSetLayout(_compositeBindings);
+        _fxaaLayout ??= device.CreateDescriptorSetLayout(_fxaaBindings);
         _bloomVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _bloomVertexSpv));
         _bloomFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _bloomFragmentSpv));
         _compositeVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _compositeVertexSpv));
@@ -333,6 +329,7 @@ public sealed class BloomRenderer : IDisposable
         _compositeFragment?.Dispose();
         _oneTexture?.Dispose();
         _twoTextures?.Dispose();
+        _fxaaLayout?.Dispose();
         _sampler?.Dispose();
     }
 }

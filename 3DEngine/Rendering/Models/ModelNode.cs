@@ -292,14 +292,21 @@ public sealed class ModelRenderer : IDisposable
     /// casts a shadow, and the fragment stage that cuts a masked surface out of it, without which
     /// every shadow is solid.
     /// </summary>
-    public ModelRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv,
-        ReadOnlyMemory<byte> shadowVertexSpv = default, ReadOnlyMemory<byte> shadowMaskSpv = default)
+    public ModelRenderer(ShaderProgram model, ShaderProgram shadow)
     {
-        _vertexSpv = vertexSpv;
-        _fragmentSpv = fragmentSpv;
-        _shadowVertexSpv = shadowVertexSpv;
-        _shadowMaskSpv = shadowMaskSpv;
+        _vertexSpv = model.Vertex;
+        _fragmentSpv = model.Fragment;
+        _shadowVertexSpv = shadow.Vertex;
+        _shadowMaskSpv = shadow.Fragment;
+        // The material and lights sets as model.slang declares them, so a binding added to
+        // modelpass.slang reaches every pipeline with no layout typed here.
+        _materialBindings = ShaderProgram.Merge([Uniforms], model.LayoutOf(0));
+        _lightsBindings = model.LayoutOf(1);
     }
+
+    // The buffer of a program's uniforms, at binding 0 of the material set.
+    private static readonly DescriptorSetLayoutBinding Uniforms = new(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment);
+    private readonly DescriptorSetLayoutBinding[] _materialBindings, _lightsBindings;
 
     /// <summary>
     /// Draws the meshes meant for <paramref name="target"/> into <paramref name="pass"/>, through
@@ -1060,15 +1067,9 @@ public sealed class ModelRenderer : IDisposable
     private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, ShaderProgram program)
     {
         if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
-        var own = program.OwnTextures(PassTextures);
-        // The uniform buffer at 0 unless a texture or buffer of the shader's own took it.
-        DescriptorSetLayoutBinding[] bindings =
-        [
-            .. ImmediateRenderer.ZeroTaken(program, own) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
-            .. Enumerable.Range(1, MaterialBindings).Select(b => new DescriptorSetLayoutBinding((uint)b, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
-            .. own.Select(t => new DescriptorSetLayoutBinding((uint)t.Binding, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
-            .. program.Buffers.Select(b => new DescriptorSetLayoutBinding((uint)b.Binding, DescriptorType.StorageBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment)),
-        ];
+        // The shader's own set 0 as it declares it, with the engine's material bindings the pass
+        // fills, and the uniform buffer at 0 unless a texture or buffer of the shader's own took it.
+        var bindings = ShaderProgram.Merge(program.LayoutOf(0), _materialBindings.Where(b => b.Binding != 0), [Uniforms]);
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 
@@ -1192,25 +1193,9 @@ public sealed class ModelRenderer : IDisposable
         return set;
     }
 
-    private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(
-    [
-        new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(5, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-    ]);
+    private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(_materialBindings);
 
-    private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
-    [
-        new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        .. Enumerable.Range(5, LightingUboPacker.MaxProbes).Select(b => new DescriptorSetLayoutBinding((uint)b, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
-    ]);
+    private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(_lightsBindings);
 
     // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
     // for none. A cube replaced is kept for RetireFrames frames, since a frame in flight may read it.

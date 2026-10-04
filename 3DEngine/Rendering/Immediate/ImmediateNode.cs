@@ -280,15 +280,11 @@ public sealed class ImmediateRenderer : IDisposable
     private ShaderSets SetsFor(IGraphicsDevice gfx, int shader, ShaderProgram program)
     {
         if (_shaderSets.TryGetValue(shader, out var sets)) return sets;
-        var own = program.OwnTextures(PassTextures);
-        // The uniform buffer at 0 unless a texture or buffer of the shader's own took it.
-        DescriptorSetLayoutBinding[] bindings =
-        [
-            .. ZeroTaken(program, own) ? [] : new[] { new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment) },
-            new(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-            .. own.Select(t => new DescriptorSetLayoutBinding((uint)t.Binding, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)),
-            .. program.Buffers.Select(b => new DescriptorSetLayoutBinding((uint)b.Binding, DescriptorType.StorageBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment)),
-        ];
+        // The shader's set 0 as it declares it, with the batch's texture at 1, which the pass fills,
+        // and the uniform buffer at 0 unless a texture or buffer of the shader's own took it.
+        var bindings = ShaderProgram.Merge(program.LayoutOf(0),
+            [new DescriptorSetLayoutBinding(1, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)],
+            [new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment)]);
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 

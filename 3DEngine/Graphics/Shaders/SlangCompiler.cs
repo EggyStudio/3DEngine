@@ -93,7 +93,8 @@ public static partial class SlangCompiler
         if (cached is not null && File.Exists(cached))
         {
             var described = File.Exists(uniformsFile) ? File.ReadAllText(uniformsFile) : "";
-            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described));
+            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
+                ReadBindings(described));
         }
 
         if (compiler is null)
@@ -106,17 +107,19 @@ public static partial class SlangCompiler
         var textures = TexturesOf(reflection);
         var buffers = BuffersOf(reflection);
         var images = ImagesOf(reflection);
+        var bindings = BindingsOf(reflection);
 
         if (cached is not null)
         {
             Directory.CreateDirectory(cacheDirectory!);
             // Written beside and moved into place, so a reader never sees half an entry. The
             // uniforms go first, so an entry whose SPIR-V is there has them too.
-            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers) + WriteImages(images)));
+            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(
+                WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers) + WriteImages(images) + WriteBindings(bindings)));
             WriteAtomically(cached, bytecode);
         }
 
-        return new SlangStage(bytecode, uniforms, textures, buffers, images);
+        return new SlangStage(bytecode, uniforms, textures, buffers, images, bindings);
     }
 
     private static void WriteAtomically(string path, byte[] bytes)
@@ -163,6 +166,54 @@ public static partial class SlangCompiler
         ResourcesOf(reflectionJson, Resource.Image);
 
     private enum Resource { Texture, Buffer, Image }
+
+    /// <summary>
+    /// Every descriptor a stage declares, in every set, by name, set, binding and kind, from slangc's
+    /// reflection JSON, which a pipeline's descriptor set layouts are made from rather than typed
+    /// beside it. A constant buffer is a uniform buffer, a structured or byte address buffer a
+    /// storage buffer, a texture written to a storage image and one sampled a combined image
+    /// sampler. A sampler declared on its own is left out, since the engine binds a texture and its
+    /// sampler together.
+    /// </summary>
+    internal static IReadOnlyList<ShaderBinding> BindingsOf(string? reflectionJson)
+    {
+        if (string.IsNullOrEmpty(reflectionJson)) return [];
+        using var document = System.Text.Json.JsonDocument.Parse(reflectionJson);
+        var bindings = new List<ShaderBinding>();
+        if (!document.RootElement.TryGetProperty("parameters", out var parameters)) return bindings;
+        foreach (var parameter in parameters.EnumerateArray())
+        {
+            if (!parameter.TryGetProperty("binding", out var binding) || binding.GetProperty("kind").GetString() != "descriptorTableSlot"
+                || !parameter.TryGetProperty("type", out var type))
+                continue;
+            DescriptorType? kind = type.GetProperty("kind").GetString() switch
+            {
+                "constantBuffer" => DescriptorType.UniformBuffer,
+                "resource" when type.TryGetProperty("baseShape", out var shape) && shape.GetString() is "structuredBuffer" or "byteAddressBuffer"
+                    => DescriptorType.StorageBuffer,
+                "resource" when type.TryGetProperty("access", out var access) && access.GetString() is "readWrite" or "write"
+                    => DescriptorType.StorageImage,
+                "resource" => DescriptorType.CombinedImageSampler,
+                _ => null,
+            };
+            if (kind is not { } found) continue;
+            var set = binding.TryGetProperty("space", out var space) ? space.GetInt32() : 0;
+            bindings.Add(new ShaderBinding(parameter.GetProperty("name").GetString()!, set, binding.GetProperty("index").GetInt32(), found));
+        }
+        return bindings;
+    }
+
+    // A binding's line is "binding", its name, its set, its index and its kind.
+    private static string WriteBindings(IReadOnlyList<ShaderBinding> bindings) =>
+        string.Concat(bindings.Select(b => $"binding {b.Name} {b.Set} {b.Binding} {b.Type}\n"));
+
+    private static IReadOnlyList<ShaderBinding> ReadBindings(string text) =>
+        text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split(' '))
+            .Where(parts => parts.Length == 5 && parts[0] == "binding")
+            .Select(parts => new ShaderBinding(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture),
+                int.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture), Enum.Parse<DescriptorType>(parts[4])))
+            .ToArray();
 
     // The resources of the first descriptor set of one kind, which the reflection tells apart by
     // their shape, a structured buffer's or a texture's, and a texture's access, written or sampled.
@@ -288,9 +339,10 @@ public static partial class SlangCompiler
     private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        // The version names what an entry holds, so entries from before uniforms, and then
-        // textures, were cached beside the SPIR-V are compiled again rather than read without them.
-        hash.AppendData(Encoding.UTF8.GetBytes($"entries 3\n{Arguments}\n{entryPoint}\n{stage}\n"));
+        // The version names what an entry holds, so entries from before uniforms, then textures,
+        // then every binding were cached beside the SPIR-V are compiled again rather than read
+        // without them.
+        hash.AppendData(Encoding.UTF8.GetBytes($"entries 4\n{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
@@ -401,9 +453,12 @@ public static partial class SlangCompiler
     }
 }
 
-/// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V and its top-level uniforms.</summary>
+/// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V, its top-level uniforms and the descriptors it declares.</summary>
 public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null,
-    IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null);
+    IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null);
+
+/// <summary>A descriptor a shader declares, by its name, its set, its binding in the set and its kind.</summary>
+public readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);
 
 /// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
 public readonly record struct ShaderUniform(string Name, int Offset, int Size);

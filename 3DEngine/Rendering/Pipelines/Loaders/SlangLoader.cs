@@ -72,6 +72,7 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         var textures = new Dictionary<string, ShaderTexture>();
         var buffers = new Dictionary<string, ShaderTexture>();
         var images = new Dictionary<string, ShaderTexture>();
+        var bindings = new Dictionary<(int Set, int Binding), (ShaderBinding Binding, ShaderStageFlags Stages)>();
         foreach (var (entryPoint, stage) in EntryPoints(source))
         {
             var compiled = SlangCompiler.CompileStage(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory);
@@ -81,6 +82,12 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
             foreach (var texture in compiled.Textures ?? []) textures[texture.Name] = texture;
             foreach (var buffer in compiled.Buffers ?? []) buffers[buffer.Name] = buffer;
             foreach (var image in compiled.Images ?? []) images[image.Name] = image;
+            // A descriptor both stages declare is read by both, so its layout names each.
+            var flag = stage switch { ShaderStage.Vertex => ShaderStageFlags.Vertex, ShaderStage.Fragment => ShaderStageFlags.Fragment, _ => default };
+            foreach (var binding in compiled.Bindings ?? [])
+                bindings[(binding.Set, binding.Binding)] = bindings.TryGetValue((binding.Set, binding.Binding), out var seen)
+                    ? (seen.Binding, seen.Stages | flag)
+                    : (binding, flag);
         }
 
         if (stages.Count == 0)
@@ -88,7 +95,7 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
                 $"'{fileName}' has no function marked [shader(\"vertex\")], [shader(\"fragment\")] or [shader(\"compute\")].");
 
         return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)],
-            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)]);
+            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)], [.. bindings.Values]);
     }
 
     /// <summary>

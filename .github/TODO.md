@@ -75,11 +75,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   in a room the window does not show waits until it does. A mesh entity and an `AnimatedModel` are
   drawn into the window through the first camera entity without a render texture, and into each
   camera entity's render texture, each with its shadow fitted to its own camera.
-- **Layouts are written by hand.** A dispatch runs a compute shader over storage buffers, which
-  the CPU reads back and drawing shaders read, and textures it writes and samples (RENDERING.md
-  §1), but descriptor layouts and vertex inputs are still written by hand beside each pipeline
-  rather than read from the reflection. A render texture is written only where the GPU can store
-  to the window's format.
+- **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
+  which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
+  pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex
+  inputs are still written beside each pipeline for the engine's fixed formats, a sampler declared
+  apart from its texture is not bound, and a render texture is written only where the GPU can
+  store to the window's format.
 - **One directional, ten spot and twelve point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, ten such spot lights shadow their cones in the map's

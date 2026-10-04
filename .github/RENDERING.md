@@ -61,10 +61,15 @@ Slang is chosen over GLSL because one language covers vertex, fragment and compu
 generics and interfaces, and because the same source can later target Metal or Direct3D without a
 second set of files. What is not built:
 
-- **Reflection beyond what a program sets.** `slangc -reflection-json` is read for the
-  uniforms, textures and storage buffers a shader declares at the top level, which are cached
-  beside the SPIR-V (`ShaderProgram.Uniforms`, `Textures` and `Buffers`). Descriptor layouts and
-  vertex inputs are still written by hand beside each pipeline.
+- **Vertex inputs from reflection.** `slangc -reflection-json` is read for the uniforms a shader
+  declares at the top level and for every descriptor in every set, each with its set, binding and
+  kind (a uniform buffer, a combined image sampler, a storage buffer or image), cached beside the
+  SPIR-V. Descriptor set layouts are made from it (`ShaderProgram.LayoutOf`): the model pass's
+  material and lights sets from `model.slang`, the bloom, composite and FXAA passes' from their
+  shaders, and a program's own shader's set 0 joined with what its pass binds
+  (`ShaderProgram.Merge`), so a binding added to a shader reaches its pipeline with no layout
+  written for it. Vertex inputs are still written beside each pipeline, for the engine's fixed
+  vertex formats, and a sampler declared apart from its texture is not bound.
 
 Compute shaders are compiled from a function marked `[shader("compute")]`, and their storage
 buffers found in the reflection as structured buffers, apart from textures. A dispatch

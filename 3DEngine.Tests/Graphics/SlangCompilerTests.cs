@@ -91,6 +91,38 @@ public class SlangCompilerTests : IDisposable
         }
     }
 
+    [NeedsSlangFact]
+    public void The_Model_Pass_Sets_Are_Read_From_Its_Shader()
+    {
+        var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
+        var program = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
+
+        var lights = program.LayoutOf(1);
+        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 5 + LightingUboPacker.MaxProbes).Select(b => (uint)b),
+            "the lighting buffer, the shadow maps, the environment and sky, and the probes' cubes");
+        lights[0].Type.Should().Be(DescriptorType.UniformBuffer);
+        lights.Skip(1).Should().OnlyContain(b => b.Type == DescriptorType.CombinedImageSampler);
+        lights.Should().OnlyContain(b => b.Stages.HasFlag(ShaderStageFlags.Fragment));
+        program.LayoutOf(0).Select(b => b.Binding).Should().Equal([1u, 2u, 3u, 4u, 5u], "the material's five maps");
+
+        // The same read back from the cache, as a program that ships without slangc does.
+        var cached = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
+        cached.LayoutOf(1).Should().Equal(lights);
+    }
+
+    [Fact]
+    public void Layouts_Merge_By_Binding_The_First_Giving_The_Kind_And_Each_Its_Stages()
+    {
+        var merged = ShaderProgram.Merge(
+            [new DescriptorSetLayoutBinding(2, DescriptorType.StorageBuffer, ShaderStageFlags.Vertex)],
+            [new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Fragment),
+             new DescriptorSetLayoutBinding(2, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment)]);
+
+        merged.Should().Equal(
+            new DescriptorSetLayoutBinding(0, DescriptorType.UniformBuffer, ShaderStageFlags.Fragment),
+            new DescriptorSetLayoutBinding(2, DescriptorType.StorageBuffer, ShaderStageFlags.All));
+    }
+
     [Fact]
     public void A_Cache_Key_Follows_Imports_With_Forward_Slashes_And_Counts_Missing_Ones()
     {

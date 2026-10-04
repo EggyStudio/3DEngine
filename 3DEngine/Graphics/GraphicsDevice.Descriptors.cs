@@ -173,6 +173,7 @@ public sealed unsafe partial class GraphicsDevice
                     DescriptorType.CombinedImageSampler => VkDescriptorType.CombinedImageSampler,
                     DescriptorType.UniformBufferDynamic => VkDescriptorType.UniformBufferDynamic,
                     DescriptorType.StorageBuffer => VkDescriptorType.StorageBuffer,
+                    DescriptorType.StorageImage => VkDescriptorType.StorageImage,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 descriptorCount = bindings[i].Count,
