@@ -906,6 +906,8 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(rest, 23, 32).R.Should().BeLessThan(10, "and nothing is beside it");
         GetImageColor(bent, 32, 24).R.Should().BeLessThan(10, "bent, the upper arm has left the space above the elbow");
         GetImageColor(bent, 23, 32).R.Should().BeGreaterThan(40, "for the space to its left");
+        GetApp().World.Resource<MeshStore>().TryGetData(model.Meshes[0].Id, out var vertices, out _);
+        vertices.Max(v => v.Position.Y).Should().BeGreaterThan(1.99f, "the GPU posed it, and the mesh's own vertices stay at rest");
 
         // Posed every frame, the vertices go round a ring of buffers, and each frame draws its own pose.
         for (int i = 0; i < 8; i++)

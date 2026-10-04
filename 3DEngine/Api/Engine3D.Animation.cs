@@ -70,9 +70,11 @@ public static partial class Engine3D
     /// counted round the clip's length, by moving each skinned mesh's vertices from their rest.
     /// </summary>
     /// <remarks>
-    /// The vertices are posed on the CPU and replace the mesh's, as raylib does it, which costs a
-    /// mesh's vertex count every call. A model with no bones, or a clip whose bones are not the
-    /// model's (<see cref="IsModelAnimationValid"/>), is left as it is.
+    /// The GPU poses the vertices, handed only the joints' matrices, in the frame drawn next, and
+    /// the mesh's own vertices stay at rest. With no renderer the CPU poses them and they replace
+    /// the mesh's, as raylib does it, at a cost of the mesh's vertex count every call. A model with
+    /// no bones, or a clip whose bones are not the model's (<see cref="IsModelAnimationValid"/>),
+    /// is left as it is.
     /// </remarks>
     public static void UpdateModelAnimation(Model model, ModelAnimation animation, int frame)
     {
@@ -129,15 +131,27 @@ public static partial class Engine3D
         return mixed;
     }
 
-    // Moves each skinned mesh's vertices from their rest by the bones' poses, in the model's space.
+    // Whether the renderer poses skinned meshes on the GPU, which it does whenever it runs.
+    private static bool GpuSkinning =>
+        TryRes<Renderer>(out var renderer) && renderer.Context.IsInitialized && renderer.Context.Graphics is GraphicsDevice { CanSkin: true };
+
+    // Moves each skinned mesh's vertices from their rest by the bones' poses, in the model's space:
+    // on the GPU, which is handed the joints' matrices, or with no renderer on the CPU, whose posed
+    // vertices are then the mesh's own.
     private static void Pose(Model model, Transform[] poses)
     {
+        var gpu = GpuSkinning;
         foreach (var skin in model.Skins)
         {
             var mesh = model.Meshes[skin.Mesh];
             var joints = new Matrix4x4[skin.BoneOfJoint.Length];
             for (int j = 0; j < joints.Length; j++)
                 joints[j] = skin.FromRest[j] * TransformPropagation.ToMatrix(poses[skin.BoneOfJoint[j]]);
+            if (gpu && Meshes.IsSkinned(mesh.Id))
+            {
+                Meshes.PoseSkin(mesh.Id, joints);
+                continue;
+            }
 
             var posed = new ModelVertex[skin.Rest.Length];
             for (int v = 0; v < posed.Length; v++)

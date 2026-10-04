@@ -62,12 +62,17 @@ public sealed class Renderer : IDisposable
         var model = server.LoadSync<ShaderProgram>("shaders/model.slang");
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
         var shadowMask = server.LoadSync<ShaderProgram>("shaders/shadowmask.slang");
+        if (Context.Graphics is GraphicsDevice device)
+            device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
         RenderWorld.Set(new ModelRenderer(model.Vertex, model.Fragment, shadowMask.Fragment));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
-        // The shadow map first, then render targets, so the window's passes can sample both.
+        // Skinned meshes posed before anything draws them, then the shadow map, then render targets,
+        // so the window's passes can sample both.
+        Graph.AddNode("skinning", new SkinningNode());
         Graph.AddNode("shadows", new ShadowNode());
+        Graph.AddNodeEdge("skinning", "shadows");
         Graph.AddNode("targets", new TargetsNode());
         Graph.AddNodeEdge("shadows", "targets");
         Graph.AddNodeEdge("targets", "main_pass");

@@ -408,6 +408,8 @@ public static partial class Engine3D
             boneOfJoint[j] = boneIndex[skeleton.JointNames[j]];
             fromRest[j] = toMesh * skeleton.InverseBindMatrices[j];
         }
+        // The GPU poses it when there is one, and the CPU otherwise.
+        Meshes.SetSkin(mesh.Id, new MeshStore.Skin(skin.JointIndices, skin.JointWeights, boneOfJoint.Length));
         return new SkinnedMesh(index, rest, skin.JointIndices, skin.JointWeights, boneOfJoint, fromRest);
     }
 

@@ -42,10 +42,6 @@ removed from this file, and an item that is partly done is rewritten around what
   changes, would remove most of both. Each `DrawTexture` costs about 55 nanoseconds, of which the
   draw list's lock and the two vertices a quad repeats without an index buffer are most, and the GPU
   draws 186,000 sprites in 5.1 ms. An index buffer for quads would cut the vertices a third.
-- **Skinning runs on the CPU.** An animated mesh's posed vertices are written into a ring of
-  mapped buffers, which costs its vertex count in copying each frame. GPU skinning would upload
-  the bone matrices instead, with each vertex's bone indices and weights kept in its buffer, and is
-  the step after the ring.
 
 ### The flat API
 
@@ -56,10 +52,11 @@ physics, text and fonts, audio and text files
 
 - **Audio reads WAV and Ogg Vorbis only.** MP3 and FLAC need a decoder the dependency policy
   (DESIGN.md §8) has not admitted.
-- **Models are partial.** Skinned meshes are posed on the CPU, as raylib does by default, at a
-  frame, between frames (`UpdateModelAnimationAt`) or between two clips
-  (`UpdateModelAnimationBlend`), and the vertices are written into a ring of buffers (Cost above).
-  Mesh entities have no animation component, so only the flat API animates. A material the
+- **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
+  (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
+  a run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, so its
+  wires and a collider made from it are at rest. Mesh entities have no animation component, so
+  only the flat API animates. A material the
   program makes draws both sides of each face unless `DoubleSided` is cleared, so
   `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
 - **Fonts bake at one size each**, and a coverage font drawn far larger than its bake blurs, where

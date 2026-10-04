@@ -20,7 +20,14 @@ public readonly record struct ModelVertex(Vector3 Position, Vector3 Normal, Vect
 public sealed class MeshStore
 {
     /// <summary>A mesh waiting to be uploaded, or only its vertices when <paramref name="VerticesOnly"/> is set.</summary>
-    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false);
+    /// <param name="Skin">The joints and weights that pose it on the GPU, or null for a mesh that is not skinned there.</param>
+    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null);
+
+    /// <summary>A skinned mesh's four joints and four weights a vertex, and how many joints its skeleton has.</summary>
+    public sealed record Skin(ushort[] Joints, float[] Weights, int JointCount);
+
+    private readonly Dictionary<int, Skin> _skins = [];
+    private readonly Dictionary<int, System.Numerics.Matrix4x4[]> _poses = [];
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
@@ -105,9 +112,54 @@ public sealed class MeshStore
         lock (_gate)
         {
             if (!_live.Remove(id)) return false;
+            _skins.Remove(id);
+            _poses.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
             return true;
+        }
+    }
+
+    /// <summary>
+    /// Makes a loaded mesh one the GPU poses, by four joints and weights a vertex, which uploads it
+    /// again with them.
+    /// </summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    public bool SetSkin(int id, Skin skin)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var data)) return false;
+            _skins[id] = skin;
+            _uploads.RemoveAll(u => u.Id == id);
+            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin));
+            return true;
+        }
+    }
+
+    /// <summary>Whether a mesh is posed on the GPU.</summary>
+    public bool IsSkinned(int id)
+    {
+        lock (_gate) return _skins.ContainsKey(id);
+    }
+
+    /// <summary>
+    /// Poses a skinned mesh for the next frame drawn, by each joint's matrix from rest to its pose
+    /// in the model's space. Its vertices here stay at rest, since the GPU moves them.
+    /// </summary>
+    public void PoseSkin(int id, System.Numerics.Matrix4x4[] joints)
+    {
+        lock (_gate)
+            if (_skins.ContainsKey(id)) _poses[id] = joints;
+    }
+
+    /// <summary>Hands the poses set since the last call to the renderer, the last of each mesh's.</summary>
+    internal void TakePoses(List<(int Id, System.Numerics.Matrix4x4[] Joints)> into)
+    {
+        lock (_gate)
+        {
+            foreach (var (id, joints) in _poses) into.Add((id, joints));
+            _poses.Clear();
         }
     }
 
@@ -138,11 +190,17 @@ public sealed class GpuMeshes : IDisposable
     {
         internal IBuffer[]? Ring { get; init; }
         internal int Slot { get; init; }
+
+        /// <summary>The GPU side of a skinned mesh, whose posed vertices are <see cref="Vertices"/>, or null.</summary>
+        internal GpuSkin? Skin { get; init; }
     }
 
     private readonly Dictionary<int, Entry> _entries = [];
-    private readonly List<(long Frame, IBuffer Buffer)> _retired = [];
+    private readonly List<(long Frame, IDisposable Owned)> _retired = [];
     private long _frame;
+
+    /// <summary>The skinned meshes posed for this frame, with their joints' matrices, which the skinning node records.</summary>
+    internal List<(int Id, System.Numerics.Matrix4x4[] Joints)> Poses { get; } = [];
 
     /// <summary>The buffers of mesh <paramref name="id"/>, or <c>null</c> when it is not loaded.</summary>
     public Entry? Get(int id) => _entries.GetValueOrDefault(id);
@@ -153,6 +211,8 @@ public sealed class GpuMeshes : IDisposable
         _frame++;
         if (store is not null)
         {
+            Poses.Clear();
+            store.TakePoses(Poses);
             var (uploads, removals) = store.Take();
             foreach (var id in removals)
                 if (_entries.Remove(id, out var gone)) Retire(gone, vertices: true);
@@ -167,16 +227,22 @@ public sealed class GpuMeshes : IDisposable
                 }
 
                 if (_entries.Remove(upload.Id, out var replaced)) Retire(replaced, vertices: true);
-                _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex),
-                    Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index),
-                    (uint)upload.Indices.Length);
+                var indices = Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index);
+                // A skin the GPU poses writes its vertices into a buffer of its own.
+                if (upload.Skin is { } skinData && gfx is GraphicsDevice { CanSkin: true } device)
+                {
+                    var skin = device.CreateSkin(upload.Vertices, skinData.Joints, skinData.Weights, skinData.JointCount, GpuTextures.RetireFrames + 1);
+                    _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin };
+                    continue;
+                }
+                _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length);
             }
         }
 
         for (int i = _retired.Count - 1; i >= 0; i--)
         {
             if (_frame - _retired[i].Frame < GpuTextures.RetireFrames) continue;
-            _retired[i].Buffer.Dispose();
+            _retired[i].Owned.Dispose();
             _retired.RemoveAt(i);
         }
     }
@@ -206,7 +272,9 @@ public sealed class GpuMeshes : IDisposable
     {
         if (vertices)
         {
-            if (entry.Ring is { } ring)
+            // A skin owns its vertex buffer.
+            if (entry.Skin is { } skin) _retired.Add((_frame, skin));
+            else if (entry.Ring is { } ring)
                 foreach (var buffer in ring) _retired.Add((_frame, buffer));
             else _retired.Add((_frame, entry.Vertices));
         }
@@ -226,10 +294,11 @@ public sealed class GpuMeshes : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (var (_, buffer) in _retired) buffer.Dispose();
+        foreach (var (_, owned) in _retired) owned.Dispose();
         foreach (var entry in _entries.Values)
         {
-            if (entry.Ring is { } ring)
+            if (entry.Skin is { } skin) skin.Dispose();
+            else if (entry.Ring is { } ring)
                 foreach (var buffer in ring) buffer.Dispose();
             else entry.Vertices.Dispose();
             entry.Indices.Dispose();
@@ -253,4 +322,20 @@ public sealed class GpuMeshesPrepare : IPrepareSystem, IDisposable
 
     /// <inheritdoc />
     public void Dispose() => _meshes.Dispose();
+}
+
+/// <summary>
+/// Render graph node that poses the frame's skinned meshes on the GPU, before anything that draws
+/// them, the shadow map first.
+/// </summary>
+public sealed class SkinningNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<GpuMeshes>() is not { } meshes || renderContext.Device is not GraphicsDevice device) return;
+        foreach (var (id, joints) in meshes.Poses)
+            if (meshes.Get(id)?.Skin is { } skin)
+                device.RecordSkin(renderContext.CommandBuffer, skin, joints);
+    }
 }

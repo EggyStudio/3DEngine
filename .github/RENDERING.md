@@ -177,6 +177,18 @@ onto, and all of it is drawn. Emission is added after the lights, so it shows wi
 Occlusion darkens the light from all around (ambient lights), and leaves a lamp's light to the
 shadow map. A program that needs something else writes a Slang shader that imports `modelpass`.
 
+A skinned mesh is posed on the GPU. When a model is loaded, each skin hands the mesh store its
+four joints and weights a vertex (`MeshStore.SetSkin`), and `GpuMeshes` makes a `GpuSkin` for it:
+the vertices at rest, the joints and the weights in storage buffers, a vertex buffer the posed
+vertices are written into, which the model pass draws, and a ring of buffers for the joints'
+matrices, one more than there are frames a buffer is read in. A pose hands over only the
+matrices (`MeshStore.PoseSkin`), and `SkinningNode`, the first node of the graph, records for
+each mesh posed that frame a dispatch of `skin.slang` into the frame's command buffer, with a
+barrier before it that waits for earlier frames to finish reading the vertex buffer and one after
+it that makes the posed vertices visible to the shadow and model passes. A matrix is four rows,
+applied as System.Numerics applies a matrix to a row vector, so the CPU's layout is read as it is.
+With no renderer the CPU poses the vertices itself, as it did before, and they are the mesh's own.
+
 ## 4. Lights and shadows
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
