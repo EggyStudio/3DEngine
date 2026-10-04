@@ -131,6 +131,12 @@ public sealed class Model
     /// <summary>The meshes bones move, with their vertices at rest.</summary>
     internal SkinnedMesh[] Skins { get; init; } = [];
 
+    /// <summary>
+    /// The joints each skinned mesh was last posed with on the GPU, by mesh index, which leaves the
+    /// mesh's own vertices at rest, so wires drawn on the CPU pose them the same way.
+    /// </summary>
+    internal Dictionary<int, Matrix4x4[]> GpuPoses { get; } = [];
+
     /// <summary>Textures the model loaded itself, which <see cref="Engine3D.UnloadModel"/> frees.</summary>
     internal Texture2D[] OwnedTextures { get; init; } = [];
 
@@ -515,9 +521,13 @@ public static partial class Engine3D
                     * Matrix4x4.CreateTranslation(position);
 
         var edges = new HashSet<(uint, uint)>();
-        foreach (var mesh in model.Meshes)
+        for (int index = 0; index < model.Meshes.Length; index++)
         {
+            var mesh = model.Meshes[index];
             if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
+            // A mesh the GPU poses keeps its vertices at rest, so its wires are posed here.
+            if (model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin)
+                vertices = PoseOnCpu(skin, joints);
             edges.Clear();
             for (int i = 0; i < indices.Length; i += 3)
                 for (int k = 0; k < 3; k++)

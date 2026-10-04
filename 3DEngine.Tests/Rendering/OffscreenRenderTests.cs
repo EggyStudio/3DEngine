@@ -1215,6 +1215,18 @@ public sealed class OffscreenRenderTests : IDisposable
         GetApp().World.Resource<MeshStore>().TryGetData(model.Meshes[0].Id, out var vertices, out _);
         vertices.Max(v => v.Position.Y).Should().BeGreaterThan(1.99f, "the GPU posed it, and the mesh's own vertices stay at rest");
 
+        // Its wires are drawn on the CPU, from the joints the GPU was given.
+        var lines = Array.Empty<Vector3>();
+        Capture(() =>
+        {
+            BeginMode3D(camera);
+            DrawModelWires(model, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            lines = [.. GetApp().World.Resource<DrawList>().Vertices.ToArray().Select(v => v.Position)];
+        }, "wires");
+        lines.Max(p => p.Y).Should().BeLessThan(1.5f, "the wires follow the bent arm rather than its rest");
+        lines.Min(p => p.X).Should().BeLessThan(-0.9f, "and reach out to where the tip went");
+
         // Posed every frame, the vertices go round a ring of buffers, and each frame draws its own pose.
         for (int i = 0; i < 8; i++)
         {

@@ -84,6 +84,8 @@ table also answers whether the two agree.
 | A character crouches and stands from its component's height, and its step height is set there | to take | has (`52579d98`) |
 | A collider that is the shape of the meshes an entity and those under it show, made once they are loaded | to take, where triangles are given by hand | has (`Collider.Mesh`, `454e9276`) |
 | Friction and bounce for each body, mixed for a pair | has | has (`9aa94324`) |
+| A joint described in a scene file as an entity naming its two bodies, at its own place and axis | to take | has (`Joint`, `e46058fc`) |
+| Two bodies a joint holds do not collide with each other | has (`1f10323`) | has (`ed0f3aa6`) |
 | A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
 | A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
@@ -104,6 +106,7 @@ table also answers whether the two agree.
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
 | Gamepads | to take, as the owner decided on 2026-10-04 | has |
+| A gamepad's gyro, accelerometer, touchpad and light | to take, with gamepads | has (`73ce6326`) |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | C# typed at a running app | has in the editor (`eval`) | to consider |
@@ -120,3 +123,12 @@ table also answers whether the two agree.
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
 | A package made by a workflow run by hand, after tests on Linux and Windows | taken at `88954d5` | has (`22c766be`) |
 | Graphics run under a validation layer in CI, an error failing the run | does not apply, since wgpu validates for Bevy | has (`a2e19d7c`) |
+
+### Documents
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, `.github/` for somebody working on it | to take | to take, the README being the model |
+| The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | to take | to take |
+| A cheatsheet of the whole public surface, a line a call, held to the API by a test | to take | has (`a2336d0e`), to move to `docs/` |
+| Every link in the README and the guide followed by a check in the workflow | to take | to take |

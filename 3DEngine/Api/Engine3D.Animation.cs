@@ -150,28 +150,35 @@ public static partial class Engine3D
             if (gpu && Meshes.IsSkinned(mesh.Id))
             {
                 Meshes.PoseSkin(mesh.Id, joints);
+                model.GpuPoses[skin.Mesh] = joints;
                 continue;
             }
 
-            var posed = new ModelVertex[skin.Rest.Length];
-            for (int v = 0; v < posed.Length; v++)
-            {
-                var rest = skin.Rest[v];
-                Vector3 position = Vector3.Zero, normal = Vector3.Zero;
-                for (int k = 0; k < 4; k++)
-                {
-                    float weight = skin.Weights[v * 4 + k];
-                    if (weight <= 0) continue;
-                    ref var m = ref joints[skin.Joints[v * 4 + k]];
-                    position += Vector3.Transform(rest.Position, m) * weight;
-                    normal += Vector3.TransformNormal(rest.Normal, m) * weight;
-                }
-                // A vertex no bone holds stays where it rests.
-                if (normal == Vector3.Zero) (position, normal) = (rest.Position, rest.Normal);
-                posed[v] = rest with { Position = position, Normal = Vector3.Normalize(normal) };
-            }
-            Meshes.UpdateVertices(mesh.Id, posed);
+            Meshes.UpdateVertices(mesh.Id, PoseOnCpu(skin, joints));
         }
+    }
+
+    // A skinned mesh's vertices moved from their rest by its joints, on the CPU.
+    internal static ModelVertex[] PoseOnCpu(SkinnedMesh skin, Matrix4x4[] joints)
+    {
+        var posed = new ModelVertex[skin.Rest.Length];
+        for (int v = 0; v < posed.Length; v++)
+        {
+            var rest = skin.Rest[v];
+            Vector3 position = Vector3.Zero, normal = Vector3.Zero;
+            for (int k = 0; k < 4; k++)
+            {
+                float weight = skin.Weights[v * 4 + k];
+                if (weight <= 0) continue;
+                ref var m = ref joints[skin.Joints[v * 4 + k]];
+                position += Vector3.Transform(rest.Position, m) * weight;
+                normal += Vector3.TransformNormal(rest.Normal, m) * weight;
+            }
+            // A vertex no bone holds stays where it rests.
+            if (normal == Vector3.Zero) (position, normal) = (rest.Position, rest.Normal);
+            posed[v] = rest with { Position = position, Normal = Vector3.Normalize(normal) };
+        }
+        return posed;
     }
 
     /// <summary>Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has, by name and in order.</summary>
