@@ -175,4 +175,104 @@ public sealed class ReferenceFrameTests : IDisposable
         UnloadModel(cube);
         UnloadRenderTexture(target);
     }
+
+    [NeedsVulkanFact]
+    public void An_ImGui_Window_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        var value = 0.4f;
+        var on = true;
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(40, 44, 52));
+            DrawRectangle(0, 120, 256, 40, Color.DarkGreen);
+            ImGuiNET.ImGui.SetNextWindowPos(new Vector2(16, 12), ImGuiNET.ImGuiCond.Always);
+            ImGuiNET.ImGui.SetNextWindowSize(new Vector2(200, 110), ImGuiNET.ImGuiCond.Always);
+            ImGuiNET.ImGui.Begin("Reference");
+            ImGuiNET.ImGui.Text("Frames compared whole");
+            ImGuiNET.ImGui.Button("Button");
+            ImGuiNET.ImGui.SliderFloat("Value", ref value, 0, 1);
+            ImGuiNET.ImGui.Checkbox("On", ref on);
+            ImGuiNET.ImGui.End();
+        });
+        Matches(frame, "imgui_window");
+    }
+
+    [NeedsVulkanFact]
+    public void Materials_With_Maps_And_A_Model_Shader_Match_Their_Reference()
+    {
+        Open(256, 160);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.6f)), Color.White, 1);
+        // A checker for color, ridges across for the normal map, a stripe of light given off, and
+        // rough and smooth halves, each made here so the scene needs no file.
+        var checker = LoadTextureFromImage(GenImageChecked(64, 64, 8, 8, Color.White, new Color(90, 90, 90)));
+        var ridges = GenImageColor(64, 64, new Color(128, 128, 255));
+        for (int x = 0; x < 64; x++)
+            ImageDrawLine(ref ridges, x, 0, x, 63, (x / 4) % 2 == 0 ? new Color(200, 128, 230) : new Color(56, 128, 230));
+        var bumps = LoadTextureFromImage(ridges);
+        var glow = LoadTextureFromImage(GenImageGradientLinear(64, 64, 0, Color.Black, Color.Orange));
+        var halves = GenImageColor(64, 64, new Color(0, 40, 255));
+        ImageDrawRectangle(ref halves, 0, 0, 32, 64, new Color(0, 230, 0));
+        var roughness = LoadTextureFromImage(halves);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                float3 n = normalize(input.normal);
+                return float4(toDisplay(abs(n) * baseColor(input).rgb), 1.0);
+            }
+            """, "normals.slang");
+
+        var cube = LoadModelFromMesh(GenMeshCube(1.4f, 1.4f, 1.4f));
+        var plane = LoadModelFromMesh(GenMeshPlane(6, 6, 1, 1));
+        var sphere = LoadModelFromMesh(GenMeshSphere(0.8f, 32, 32));
+        var shaded = LoadModelFromMesh(GenMeshTorus(0.7f, 0.25f, 24, 32));
+        plane.Materials[0] = new ModelMaterial(Color.White, checker) { NormalMap = bumps };
+        cube.Materials[0] = new ModelMaterial(Color.White, checker) { EmissiveMap = glow, Emissive = Color.White };
+        sphere.Materials[0] = new ModelMaterial(new Color(220, 180, 120)) { Metallic = 1, Roughness = 1, MetallicRoughnessMap = roughness };
+        shaded.Materials[0] = new ModelMaterial(Color.White) { Shader = shader };
+        var camera = new Camera3D(new Vector3(0, 4, 6), new Vector3(0, 0.4f, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(30, 34, 46));
+            BeginMode3D(camera);
+            DrawModel(plane, Vector3.Zero, 1, Color.White);
+            DrawModel(cube, new Vector3(-1.8f, 0.7f, 0), 1, Color.White);
+            DrawModel(sphere, new Vector3(0, 0.8f, 0.6f), 1, Color.White);
+            DrawModel(shaded, new Vector3(1.9f, 0.6f, 0), 1, Color.White);
+            EndMode3D();
+        });
+        Matches(frame, "materials_and_shader");
+        UnloadModel(cube);
+        UnloadModel(plane);
+        UnloadModel(sphere);
+        UnloadModel(shaded);
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Skinned_Model_Posed_Mid_Clip_Matches_Its_Reference()
+    {
+        Open(160, 160);
+        var arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
+        var model = LoadModel(arm);
+        var bend = LoadModelAnimations(arm)[0];
+        UpdateModelAnimation(model, bend, bend.FrameCount / 2);
+        var camera = new Camera3D(new Vector3(2, 2, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(30, 34, 46));
+            BeginMode3D(camera);
+            DrawGrid(10, 0.5f);
+            DrawModel(model, Vector3.Zero, 1, new Color(230, 160, 60));
+            DrawModelWires(model, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        });
+        Matches(frame, "skinned_arm");
+        UnloadModel(model);
+    }
 }
