@@ -38,13 +38,20 @@ public struct LightingUbo
     /// <summary>How many of <see cref="ShadowCascades"/> hold a cascade.</summary>
     public int CascadeCount;
 
-    /// <summary>Padding so the vectors after start on a 16-byte boundary (std140 vec4 alignment).</summary>
-    public int _pad0;
+    /// <summary>The index in <c>Lights</c> of the spot light drawn into the map's last tile, or -1 for none.</summary>
+    public int SpotShadowLight;
 
-    /// <summary>The width in world units one texel of each cascade covers, which the shader offsets a surface by along its normal.</summary>
+    /// <summary>
+    /// xyz: the width in world units one texel of each cascade covers, which the shader offsets a
+    /// surface by along its normal. w: the width of a texel of the spot light's tile per unit of
+    /// distance from the light.
+    /// </summary>
     public Vector4 ShadowTexels;
 
-    /// <summary>World space to each cascade's clip space, the light's view and projection, nearest first.</summary>
+    /// <summary>
+    /// World space to each cascade's clip space, the light's view and projection, nearest first,
+    /// and in the last the spot light's.
+    /// </summary>
     public ShadowCascadeArray ShadowCascades;
 
     /// <summary>x: the environment map's intensity. y: its last mip. z: 1 when there is one.</summary>
@@ -101,6 +108,7 @@ public static class LightingUboPacker
         int count = lights.Count < MaxLights ? lights.Count : MaxLights;
         ubo.LightCount = count;
         ubo.ShadowLight = -1;
+        ubo.SpotShadowLight = -1;
 
         for (int i = 0; i < count; i++)
         {

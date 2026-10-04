@@ -8,26 +8,16 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `4fe32171`, scene loading by entity handle, which raised nothing. The README walk (`e98e93a1`), change ticks (`e612ac63`) and the audio
-systems' metadata (`0623ccff`) are settled, on the walk and the tests reported.
+Reviewed up to `e9d02b0d`. Alpha modes (`96daac15`) and the three cascades (`e9d02b0d`, read) are
+settled.
 
 ## Now
 
 In this order.
 
-1. **A material's alpha mode** (TODO.md's entry on it). A glTF file says whether a material is
-   opaque, cut out at a threshold or blended, and the model pass reads none of it, so foliage
-   and fences draw as solid cards and glass is opaque unless a tint makes it clear. Mask
-   discards below the cutoff and stays in the opaque batches, blend joins the translucent draws
-   `bf6f689e` ordered, and a texture's alpha counts as a color's does. Verified by pixel tests of
-   a cut-out showing what is behind its holes and a blended surface mixing with it, and the
-   validation container.
-2. **Shadows past forty units and from more than one light** (TODO.md, the entry on one map).
-   Cascades for the directional light, fitted to the camera's range and snapped as the single map
-   is, then a spot light's shadow. A level larger than a room has no shadows today beyond the
-   first forty units.
-3. **`Added` beside `Changed`**, which the ticks of `e612ac63` make a comparison of two numbers.
-4. **TODO.md's order** from there.
+1. **A spot light's shadow**, which is one more tile and the same sampling.
+2. **`Added` beside `Changed`**, which the ticks of `e612ac63` make a comparison of two numbers.
+3. **TODO.md's order** from there.
 
 ## Verdicts
 

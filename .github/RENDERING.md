@@ -205,17 +205,20 @@ cascades. `ShadowFit` cuts the window camera's view out to 150 units into slices
 and 150 units, and fits a 2048 texel tile of a 4096 texel depth map to the sphere around each, so
 the near slice spends its texels on a few units and the far one on many. Each is moved in whole
 texels so the edges of shadows hold still as the camera moves, and reaches four radii further
-toward the light for casters above the view. The fourth tile is free for a spot light.
-`ShadowNode` clears the map once and draws the window's meshes into each tile, before any other
+toward the light for casters above the view. The first spot light with `CastsShadows` set draws
+into the fourth tile, through a perspective projection from the light as wide as its outer cone
+and as deep as its range, or 150 units for a light with none.
+`ShadowNode` clears the map once and draws the window's meshes into each tile in use, before any other
 pass, with `model.slang`'s vertex stage and no fragment stage, through a depth-only render pass
 (`GraphicsDevice.CreateShadowMap`). The map is bound at binding 1 of the lights' set, beside the
 cascades' matrices and texel widths in the lighting buffer, and the white texture takes its place
 in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
 little inside its edge, moves the point off its surface by a texel and a half of that cascade
-along its normal, and averages nine comparisons around it. A model shader with a vertex stage of
+along its normal, and averages nine comparisons around it. A spot light's texels widen with
+distance from it, so its offset grows with that distance. A model shader with a vertex stage of
 its own casts the shadow of its mesh as it was before that stage moved it.
 
-What follows is a spot light's shadow in the free tile, then point lights' shadows.
+What follows is point lights' shadows, six faces each, which the one tile left has no room for.
 
 ## 5. Render targets and post processing
 

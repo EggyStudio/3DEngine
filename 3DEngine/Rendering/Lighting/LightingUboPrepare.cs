@@ -30,6 +30,8 @@ public sealed class LightingUboPrepare : IPrepareSystem
         {
             renderWorld.Set(shadow);
             ubo.ShadowLight = shadow.Light;
+            ubo.SpotShadowLight = shadow.SpotLight;
+            if (shadow.SpotLight >= 0) ubo.ShadowCascades[ShadowFit.SpotTile] = shadow.SpotViewProjection;
             ubo.CascadeCount = shadow.Cascades.Count;
             Span<float> texels = stackalloc float[LightingUboPacker.MaxCascades];
             for (int i = 0; i < shadow.Cascades.Count; i++)
@@ -37,7 +39,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
                 ubo.ShadowCascades[i] = shadow.Cascades[i].ViewProjection;
                 texels[i] = shadow.Cascades[i].Texel;
             }
-            ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], texels[3]);
+            ubo.ShadowTexels = new System.Numerics.Vector4(texels[0], texels[1], texels[2], shadow.SpotTexelPerUnit);
         }
 
         var environment = renderWorld.TryGet<EnvironmentMap>();
@@ -59,24 +61,43 @@ public sealed class LightingUboPrepare : IPrepareSystem
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {sizeBytes}-byte UBO.");
     }
 
-    // The first directional light that casts shadows, its cascades fitted to the camera of the first mesh
-    // drawn into the window, or null when either is missing.
+    // The first directional light that casts shadows, its cascades fitted to the camera of the
+    // first mesh drawn into the window, and the first spot light that does, or null when there is
+    // neither or no mesh.
     private static FrameShadow? Shadow(RenderWorld renderWorld, RenderLights? lights, int count)
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { } draws) return null;
 
-        int index = -1;
-        for (int i = 0; i < count && index < 0; i++)
-            if (lights.All[i] is { Kind: LightKind.Directional, CastsShadows: true }) index = i;
-        if (index < 0) return null;
+        int sun = -1, spot = -1;
+        for (int i = 0; i < count; i++)
+        {
+            if (!lights.All[i].CastsShadows) continue;
+            if (sun < 0 && lights.All[i].Kind == LightKind.Directional) sun = i;
+            if (spot < 0 && lights.All[i].Kind == LightKind.Spot) spot = i;
+        }
+        if (sun < 0 && spot < 0) return null;
 
+        (System.Numerics.Matrix4x4, float)[] cascades = [];
+        var drawn = false;
         foreach (var draw in draws.Draws)
         {
             if (draw.Target != 0) continue;
-            var cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[index].Direction);
-            return cascades.Length > 0 ? new FrameShadow(index, cascades) : null;
+            drawn = true;
+            if (sun >= 0) cascades = ShadowFit.FitCascades(draw.ViewProjection, lights.All[sun].Direction);
+            break;
         }
-        return null;
+        if (!drawn) return null;
+        if (cascades.Length == 0) sun = -1;
+
+        var spotViewProjection = System.Numerics.Matrix4x4.Identity;
+        float spotTexel = 0;
+        if (spot >= 0)
+        {
+            var light = lights.All[spot];
+            if (!ShadowFit.TryFitSpot(light.Position, light.Direction, light.CosOuter, light.Range, out spotViewProjection, out spotTexel))
+                spot = -1;
+        }
+        return sun < 0 && spot < 0 ? null : new FrameShadow(sun, cascades, spot, spotViewProjection, spotTexel);
     }
 }
 

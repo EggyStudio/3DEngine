@@ -478,6 +478,36 @@ public sealed class OffscreenRenderTests : IDisposable
         GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120, "the wall above the shadow is lit");
     }
 
+    [NeedsVulkanFact]
+    public void A_Spot_Light_Casts_A_Shadow_In_Its_Tile()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnWallAndCamera(ecs);
+
+        // A spot at (-2, 0, 2) aimed at the wall's middle, and a strip a unit in front of the wall
+        // from x -1 to -0.5, whose shadow falls from x 0 to 1 on the wall, right of the middle,
+        // where the strip itself does not hide it from the camera.
+        var strip = ecs.Spawn();
+        ecs.Add(strip, new Mesh([new(-1, -0.5f, 1), new(-0.5f, -0.5f, 1), new(-0.5f, 0.5f, 1), new(-1, -0.5f, 1), new(-0.5f, 0.5f, 1), new(-1, 0.5f, 1)]));
+        ecs.Add(strip, new Material(Vector4.One));
+        ecs.Add(strip, new Transform(Vector3.Zero));
+        var spot = ecs.Spawn();
+        ecs.Add(spot, Light.Spot(Vector3.One, 30f, 35, 45) with { CastsShadows = true });
+        ecs.Add(spot, new Transform(new Vector3(-2, 0, 2), Quaternion.CreateFromAxisAngle(Vector3.UnitY, -MathF.PI / 4), Vector3.One));
+        var shadowed = Capture(() => ClearBackground(Color.Black), "spot");
+
+        ecs.GetRef<Light>(spot).CastsShadows = false;
+        var unshadowed = Capture(() => ClearBackground(Color.Black), "spot unshadowed");
+
+        // Pixel 41 across is the wall half a unit right of the middle, in the shadow, and pixel 26
+        // the wall a little left of it, lit and clear of the strip.
+        var lit = GetImageColor(shadowed, 26, 32).R;
+        lit.Should().BeGreaterThan(60, "the spot lights the wall beside the strip");
+        GetImageColor(shadowed, 41, 32).R.Should().BeLessThan((byte)(lit / 4), "the strip stands between the spot and this part of the wall");
+        GetImageColor(unshadowed, 41, 32).R.Should().BeGreaterThan(60, "a spot that does not cast shadows lights it");
+    }
+
     // CI installs the layer and sets E3D_REQUIRE_VALIDATION, so a missing layer there fails here
     // instead of letting every frame pass unchecked.
     [NeedsVulkanFact]

@@ -60,5 +60,7 @@ public class LightingUniformPackingTests
     {
         LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Directional, CastsShadows = true }]).ShadowLight
             .Should().Be(-1, "the prepare step names the shadowed light once it has fitted a map for it");
+        LightingUboPacker.Pack([new RenderLight { Kind = LightKind.Spot, CastsShadows = true }]).SpotShadowLight
+            .Should().Be(-1, "and the shadowed spot light the same way");
     }
 }

@@ -373,14 +373,17 @@ public sealed class ModelRenderer : IDisposable
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
         pass.SetPipeline(_shadowPipeline);
-        for (int c = 0; c < shadow.Cascades.Count; c++)
+        var tiles = shadow.Cascades.Count + (shadow.SpotLight >= 0 ? 1 : 0);
+        for (int t = 0; t < tiles; t++)
         {
-            var (x, y) = ShadowFit.TileOrigin(c);
+            // The cascades in the first tiles, and the spot light in its own.
+            var spot = t == shadow.Cascades.Count;
+            var (x, y) = ShadowFit.TileOrigin(spot ? ShadowFit.SpotTile : t);
             pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
             pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
 
             // The depth pass reads the transform alone.
-            var lightViewProjection = shadow.Cascades[c].ViewProjection;
+            var lightViewProjection = spot ? shadow.SpotViewProjection : shadow.Cascades[t].ViewProjection;
             var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
             foreach (var batch in _batches)
             {

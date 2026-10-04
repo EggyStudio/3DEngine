@@ -3,13 +3,18 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>
-/// The directional shadow of the frame, published by <see cref="LightingUboPrepare"/>. It names the
-/// light that casts it and holds, for each cascade, the light's view and projection over a slice of
-/// what the window's camera sees, nearest first.
+/// The shadows of the frame, published by <see cref="LightingUboPrepare"/>. It names the directional
+/// light that casts them and holds, for each cascade, the light's view and projection over a slice
+/// of what the window's camera sees, nearest first, and names the spot light drawn into the map's
+/// last tile with its view and projection.
 /// </summary>
-/// <param name="Light">The index of the shadowed light in the frame's lighting buffer.</param>
+/// <param name="Light">The index of the shadowed directional light in the frame's lighting buffer, or -1 for none.</param>
 /// <param name="Cascades">World space to each cascade's clip space, with the width in world units of one of its texels.</param>
-public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades);
+/// <param name="SpotLight">The index of the shadowed spot light, or -1 for none.</param>
+/// <param name="SpotViewProjection">World space to the spot light's clip space.</param>
+/// <param name="SpotTexelPerUnit">The width of one of the spot light's texels per unit of distance from it.</param>
+public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
+    int SpotLight = -1, Matrix4x4 SpotViewProjection = default, float SpotTexelPerUnit = 0);
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
 /// <remarks>
@@ -111,6 +116,33 @@ public static class ShadowFit
             from = splits[i];
         }
         return cascades;
+    }
+
+    /// <summary>The tile a spot light's shadow is drawn into, after the cascades.</summary>
+    public const int SpotTile = 3;
+
+    /// <summary>
+    /// The view and projection of a spot light at <paramref name="position"/> pointing along
+    /// <paramref name="direction"/>, wide enough for its outer cone and reaching
+    /// <paramref name="range"/>, or <see cref="Distance"/> for a light with no range, and the width
+    /// of one texel per unit of distance from the light.
+    /// </summary>
+    public static bool TryFitSpot(Vector3 position, Vector3 direction, float cosOuter, float range,
+        out Matrix4x4 viewProjection, out float texelPerUnit)
+    {
+        viewProjection = Matrix4x4.Identity;
+        texelPerUnit = 0;
+        if (direction.LengthSquared() < 1e-8f) return false;
+        direction = Vector3.Normalize(direction);
+
+        // A little past the outer cone, so the cone's edge falls inside the tile.
+        var half = MathF.Min(MathF.Acos(Math.Clamp(cosOuter, -1f, 1f)) * 1.05f, MathF.PI * 0.45f);
+        var far = range > 0 ? range : Distance;
+        var up = MathF.Abs(direction.Y) > 0.99f ? Vector3.UnitZ : Vector3.UnitY;
+        viewProjection = Matrix4x4.CreateLookAt(position, position + direction, up)
+                         * Matrix4x4.CreatePerspectiveFieldOfView(2 * half, 1, MathF.Max(0.05f, far / 2000), far);
+        texelPerUnit = 2 * MathF.Tan(half) / TileSize;
+        return true;
     }
 
     /// <summary>The texel at which cascade or tile <paramref name="tile"/> starts in the map, across and down.</summary>

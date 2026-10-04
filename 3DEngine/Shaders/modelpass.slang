@@ -110,14 +110,16 @@ public struct Light
 };
 
 // Laid out as LightingUbo is. The count, the shadowed light's index or -1, how many cascades it
-// has and a pad come first, then the world width of a texel of each cascade, the cascades'
+// has and the shadowed spot light's index or -1 come first, then the world width of a texel of each cascade, the cascades'
 // transforms nearest first, and the lights.
 public struct Lighting
 {
     public int count;
     public int shadowLight;
     public int cascadeCount;
-    public int pad0;
+    // The spot light drawn into the map's last tile, or -1.
+    public int spotShadowLight;
+    // A texel's world width for each cascade, and in w the spot tile's per unit of distance.
     public float4 shadowTexels;
     public float4x4 shadowCascades[4];
     // The environment map's intensity, its last mip, and 1 when there is one.
@@ -313,6 +315,30 @@ float lightReaching(float3 world, float3 n)
     return 1.0;
 }
 
+// How much of the shadowed spot light at lightPosition reaches this point, from 0 to 1, from the
+// map's last tile, compared as the cascades are. Its texels widen with distance from the light,
+// so the offset along the normal does too.
+float spotLightReaching(float3 world, float3 n, float3 lightPosition)
+{
+    float offset = lighting.shadowTexels.w * distance(world, lightPosition) * 1.5;
+    float4 clip = mul(lighting.shadowCascades[3], float4(world + n * offset, 1.0));
+    if (clip.w <= 0.0)
+        return 1.0;
+    float3 p = clip.xyz / clip.w;
+    if (any(abs(p.xy) > 0.995) || p.z > 1.0 || p.z < 0.0)
+        return 1.0;
+
+    uint width, height;
+    shadowMap.GetDimensions(width, height);
+    float2 texel = 1.0 / float2(width, height);
+    float2 uv = (p.xy * 0.5 + 0.5 + float2(1.0, 1.0)) * 0.5;
+    float reached = 0.0;
+    for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
+            reached += p.z - 0.00002 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+    return reached / 9.0;
+}
+
 // The way light comes from one light to a point, for specular.
 float3 fromLight(Light light, float3 world)
 {
@@ -424,6 +450,8 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
 
         if (i == lighting.shadowLight)
             arrived *= lightReaching(input.world, normalize(input.normal));
+        else if (i == lighting.spotShadowLight)
+            arrived *= spotLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz);
         float3 l = -fromLight(light, input.world);
         float3 fresnel;
         float3 specular = specularReflected(n, v, l, f0, alpha, fresnel);
