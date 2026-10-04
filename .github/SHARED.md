@@ -117,7 +117,7 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
-| Examples picked by name as an argument, each with a capture CI takes | to take, measured against Bevy's own 416 examples | has (`3DEngine.Examples`, `048c072c`) |
+| Examples picked by name as an argument, each with a capture CI takes | taken at `661682e`, measured against Bevy's own 421 examples in EXAMPLES.md | has (`3DEngine.Examples`, `048c072c`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |

@@ -193,7 +193,7 @@ a third-party icon set, or the text of a license.
 - exception messages, log output and `GITHUB_STEP_SUMMARY` content
 - MSBuild `<!-- -->` comments and analyzer `messageFormat` strings
 - YAML comments under `.github/workflows`
-- `README.md`, `CLAUDE.md`, every Markdown file under `.github/`, the skills under
+- `README.md`, `CLAUDE.md`, every Markdown file under `.github/` and `docs/`, the skills under
   `.claude/skills/` and this file
 
 ## Checks

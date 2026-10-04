@@ -46,7 +46,7 @@ public struct Ball
 ```
 
 A program opens a window, draws each frame with static calls and closes the window, and every
-call it can make is on one [cheatsheet](.github/CHEATSHEET.md). Dear ImGui works between
+call it can make is on one [cheatsheet](https://github.com/EggyStudio/3DEngine/blob/main/docs/CHEATSHEET.md). Dear ImGui works between
 `BeginDrawing` and `EndDrawing` with no setup. Under the flat API is an ECS whose behaviors are
 `[Behavior]` structs like `Ball`, whose fields are each entity's state and whose methods a source
 generator turns into systems. It runs inside the same frames, so a program uses as much of it as it
@@ -57,6 +57,7 @@ needs. [DESIGN.md](.github/DESIGN.md#5-the-ecs-underneath) shows the rest of it,
 
 - [A program of your own](#a-program-of-your-own)
 - [Examples](#examples)
+- [Guide](#guide)
 - [Driving a running app](#driving-a-running-app)
 - [Building](#building)
 - [Status](#status)
@@ -141,6 +142,15 @@ while (!WindowShouldClose())
 }
 ```
 
+## Guide
+
+The guide in [`docs/`](https://github.com/EggyStudio/3DEngine/blob/main/docs) is for somebody using the engine, a page an area, each built on an
+example that runs. Its pages are being written, and this list grows with them.
+
+| | |
+|---|---|
+| [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/docs/CHEATSHEET.md) | Every function of the flat API on one line |
+
 ## Driving a running app
 
 `./e3d` drives any program built on the engine from a terminal, which is how changes are checked
@@ -191,7 +201,6 @@ scheduler and behaviors are tested. What is missing:
 
 | | |
 |---|---|
-| [CHEATSHEET.md](.github/CHEATSHEET.md) | Every function of the flat API |
 | [DESIGN.md](.github/DESIGN.md) | The rules the API follows, and the dependency policy |
 | [ARCHITECTURE.md](.github/ARCHITECTURE.md) | The app, the schedule, the ECS and the renderer |
 | [RENDERING.md](.github/RENDERING.md) | The renderer and the order it grows in |

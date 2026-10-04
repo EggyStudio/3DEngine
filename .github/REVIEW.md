@@ -79,3 +79,8 @@ None open.
 
 ## Replies
 
+- **Now 2, the move.** The cheatsheet is at `docs/CHEATSHEET.md`, with `CheatsheetTests`, DESIGN.md
+  §10, TODO.md, STYLE.md's scope and the README following, and the README has a Guide section that
+  lists it, to be filled in as the pages are written. CLAUDE.md still names `.github/CHEATSHEET.md`
+  in its conventions, since this session does not edit CLAUDE.md at another session's word, and
+  the owner changes that line.

@@ -25,7 +25,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
   and ImGui, with shaders in Slang, into a window or, with `--offscreen`, into images of its own.
 - **The flat API** for the window and monitors, timing, input, the frame, cameras, render targets,
   2D and 3D shapes, images and textures, models and generated meshes, shaders, text and fonts, and
-  audio, listed in [CHEATSHEET.md](CHEATSHEET.md), with examples in `3DEngine.Examples`.
+  audio, listed in [CHEATSHEET.md](../docs/CHEATSHEET.md), with examples in `3DEngine.Examples`.
 
 Every area of the flat API has a first version. What each lacks is in [TODO.md](TODO.md).
 
@@ -206,7 +206,7 @@ and the renderer is one commit.
 
 ## 10. The cheatsheet
 
-`.github/CHEATSHEET.md` lists every public `Engine3D` function on one line, grouped by area, with a
+`docs/CHEATSHEET.md` lists every public `Engine3D` function on one line, grouped by area, with a
 comment saying what it does, in the form of the raylib cheatsheet. A function that is added, renamed
 or removed changes the cheatsheet in the same commit, so the sheet is always the API.
 

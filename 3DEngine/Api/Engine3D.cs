@@ -13,7 +13,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// The class is split into a file per area, mirroring raylib's modules. Every public function
-/// has its line in <c>.github/CHEATSHEET.md</c>.
+/// has its line in <c>docs/CHEATSHEET.md</c>.
 /// </para>
 /// </remarks>
 public static partial class Engine3D
