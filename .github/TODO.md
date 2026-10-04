@@ -68,7 +68,7 @@ physics, text and fonts, audio, audio streams and waves, and files
   the CPU reads back and drawing shaders read, and textures it writes and samples (RENDERING.md
   §1), but descriptor layouts and vertex inputs are still written by hand beside each pipeline
   rather than read from the reflection. A texture a dispatch writes keeps its other mip levels as
-  they were, and a render texture cannot be written.
+  they were, and a render texture is written only where the GPU can store to the window's format.
 - **One directional, four spot and four point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what the window's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones

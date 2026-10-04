@@ -69,10 +69,14 @@ public sealed unsafe partial class GraphicsDevice
         width = Math.Max(1, width);
         height = Math.Max(1, height);
 
+        // Storage too where the device can store to the format, so a compute shader writes the
+        // target as it writes a texture.
+        var storage = TargetsAreStorage();
         var (color, colorMemory) = TargetImage(_swapchainFormat, width, height,
-            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc, VkImageCreateFlags.MutableFormat);
+            VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | (storage ? VkImageUsageFlags.Storage : 0),
+            VkImageCreateFlags.MutableFormat);
         var colorView = TargetView(color, _swapchainFormat, VkImageAspectFlags.Color);
-        var srgbView = TargetView(color, SrgbOf(_swapchainFormat), VkImageAspectFlags.Color);
+        var srgbView = TargetView(color, SrgbOf(_swapchainFormat), VkImageAspectFlags.Color, samplingOnly: storage);
         // Drawn at the window's samples, into multisampled color and depth images resolved into
         // the ones sampled, so the window's pipelines draw here too. With one sample, the depth
         // drawn into is the one sampled.
@@ -108,7 +112,9 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateFramebuffer(&framebufferInfo, null, out VkFramebuffer framebuffer).CheckResult();
 
         var colorImage = new VulkanImage(this, color, colorMemory,
-            new ImageDesc(new Extent2D(width, height), ImageFormat.B8G8R8A8_UNorm, ImageUsage.ColorAttachment | ImageUsage.Sampled));
+            new ImageDesc(new Extent2D(width, height), ImageFormat.B8G8R8A8_UNorm, ImageUsage.ColorAttachment | ImageUsage.Sampled | (storage ? ImageUsage.Storage : 0)));
+        // Ready to sample, and to write with a dispatch, before its first pass, which leaves it so too.
+        TransitionImageLayout(colorImage, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal, VkImageAspectFlags.Color);
         // The image the depth is sampled from, which owns its memory, and the one drawn into when
         // that is another.
         var sampledDepth = msaa ? resolvedDepth : depth;
@@ -252,6 +258,17 @@ public sealed unsafe partial class GraphicsDevice
         _ => format,
     };
 
+    // Whether the window's format can be a storage image on this device, which most desktop GPUs
+    // allow for eight-bit BGRA and some do not, asked once.
+    private bool? _targetsAreStorage;
+
+    private bool TargetsAreStorage()
+    {
+        if (_targetsAreStorage is { } known) return known;
+        _instanceApi.vkGetPhysicalDeviceFormatProperties(_physicalDevice, _swapchainFormat, out var properties);
+        return (_targetsAreStorage = CanWriteImages && (properties.optimalTilingFeatures & VkFormatFeatureFlags.StorageImage) != 0).Value;
+    }
+
     private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage,
         VkImageCreateFlags flags = 0, VkSampleCountFlags samples = VkSampleCountFlags.Count1, uint layers = 1)
     {
@@ -282,10 +299,15 @@ public sealed unsafe partial class GraphicsDevice
     }
 
     // A view of one layer from firstLayer, or with layers past one, of that many as an array.
-    private VkImageView TargetView(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint firstLayer = 0, uint layers = 1)
+    // With samplingOnly, the view is for sampling alone, as the sRGB view of a color image that is
+    // a storage image too must be, since an sRGB format cannot be stored to.
+    private VkImageView TargetView(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint firstLayer = 0, uint layers = 1,
+        bool samplingOnly = false)
     {
+        var usage = new VkImageViewUsageCreateInfo { usage = VkImageUsageFlags.Sampled };
         var info = new VkImageViewCreateInfo
         {
+            pNext = samplingOnly ? &usage : null,
             image = image,
             viewType = layers > 1 ? VkImageViewType.Image2DArray : VkImageViewType.Image2D,
             format = format,

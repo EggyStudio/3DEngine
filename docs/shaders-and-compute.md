@@ -242,7 +242,9 @@ EndShaderMode();
 A model shader drawn with `DrawMeshInstanced` reads a buffer the same way, each copy picking its
 values by `SV_InstanceID`, so particles moved by a compute shader are drawn as meshes. A compute
 shader also writes a texture it declares as `RWTexture2D<float4>`, set with
-`SetShaderValueTexture`, once the texture has reached the GPU in the frame after it is loaded.
+`SetShaderValueTexture`, once the texture has reached the GPU in the frame after it is loaded, and
+a render texture's color the same way, on a GPU that can store to the window's format, as most
+desktop GPUs can.
 
 ## See also
 

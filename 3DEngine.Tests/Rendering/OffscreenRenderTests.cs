@@ -700,6 +700,39 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Compute_Shader_Writes_A_Render_Texture_That_Is_Then_Drawn()
+    {
+        Open(32, 32);
+        var target = LoadRenderTexture(4, 4);
+        SetTextureFilter(target.Texture, TextureFilter.Point);
+        Capture(() => ClearBackground(Color.Black), "made");
+
+        var paint = LoadComputeShaderFromMemory("""
+            RWTexture2D<float4> image;
+
+            [shader("compute")]
+            [numthreads(4, 4, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                image[id.xy] = float4(id.x / 3.0, 0, id.y / 3.0, 1);
+            }
+            """, "target.slang");
+        SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), target.Texture);
+        ComputeShaderDispatch(paint, 1, 1, 1);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTextureEx(target.Texture, Vector2.Zero, 0, 8, Color.White);
+        }, "painted");
+        GetImageColor(image, 28, 4).Should().Be(new Color(255, 0, 0, 255), "red grows across, written through the target's own format");
+        GetImageColor(image, 4, 28).Should().Be(new Color(0, 0, 255, 255), "and blue down");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadShader(paint);
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void A_Compute_Shader_Writes_A_Texture_That_Is_Then_Drawn_And_Samples_One()
     {
         Open(32, 32);

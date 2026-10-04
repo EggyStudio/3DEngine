@@ -56,12 +56,15 @@ public sealed class GpuTextures : IDisposable
 
     /// <summary>
     /// The image of texture <paramref name="id"/> and its view as stored, for a compute shader to
-    /// write, or null for one not on the GPU yet, or a render target's, which is drawn into instead.
+    /// write, a render target's color among them, or null for one not on the GPU yet, or a render
+    /// target on a device that cannot store to the window's format.
     /// </summary>
-    internal (IImage Image, IImageView View)? StorageFor(int id) =>
-        id != 0 && _entries.TryGetValue(id, out var entry) && entry.Image is { } image && image.Description.Usage.HasFlag(ImageUsage.Storage)
-            ? (image, entry.View)
-            : null;
+    internal (IImage Image, IImageView View)? StorageFor(int id)
+    {
+        if (id == 0 || !_entries.TryGetValue(id, out var entry)) return null;
+        var image = entry.Image ?? entry.Target?.ColorView.Image;
+        return image is not null && image.Description.Usage.HasFlag(ImageUsage.Storage) ? (image, entry.View) : null;
+    }
 
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
     public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
