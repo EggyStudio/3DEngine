@@ -31,6 +31,22 @@ public class Engine3DDisplayTests
     }
 
     [Fact]
+    public void The_Trace_Log_Level_Is_The_Consoles_Least()
+    {
+        var before = LogConfig.ConsoleMinimumLevel;
+        try
+        {
+            SetTraceLogLevel(LogLevel.Warning);
+            LogConfig.ConsoleMinimumLevel.Should().Be(LogLevel.Warning);
+            TraceLog(LogLevel.Info, "below the console's level, so only in the file");
+        }
+        finally
+        {
+            LogConfig.ConsoleMinimumLevel = before;
+        }
+    }
+
+    [Fact]
     public void Dropped_Files_Are_Kept_Until_They_Are_Unloaded()
     {
         var app = new App();

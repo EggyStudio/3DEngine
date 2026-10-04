@@ -84,6 +84,15 @@ public static partial class Engine3D
         }
     }
 
+    private static readonly ILogger ProgramLogger = Log.Category("Program");
+
+    /// <summary>Writes a line to the engine's log, under the category <c>Program</c>, as raylib's <c>TraceLog</c> does.</summary>
+    /// <remarks>The line reaches the log file at every level, and the console at <see cref="SetTraceLogLevel"/>'s level and above.</remarks>
+    public static void TraceLog(LogLevel level, string text) => ProgramLogger.Log(level, text);
+
+    /// <summary>Sets the least level a line needs to reach the console, Info to begin with. The log file keeps every line.</summary>
+    public static void SetTraceLogLevel(LogLevel level) => LogConfig.ConsoleMinimumLevel = level;
+
     /// <summary>Opens a web address in the desktop's browser, as a credits screen's link does.</summary>
     /// <remarks>Only <c>http</c> and <c>https</c> addresses are opened, so a string from a save or a server cannot start a program.</remarks>
     public static void OpenURL(string url)

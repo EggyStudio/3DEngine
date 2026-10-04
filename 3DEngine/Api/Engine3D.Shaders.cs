@@ -183,6 +183,25 @@ public static partial class Engine3D
         else SetShaderValue(shader, location, new Vector4(value, 0, 0, 0));
     }
 
+    /// <summary>
+    /// Sets a named array uniform from values, as many as it holds, each a float, a vector, an int
+    /// or a matrix, as raylib's <c>SetShaderValueV</c> sets several at once.
+    /// </summary>
+    /// <remarks>
+    /// A uniform buffer lays an array out with each element at a multiple of sixteen bytes (std140),
+    /// so a <c>float weights[8]</c> takes 128 bytes, and the values are spaced to match.
+    /// </remarks>
+    public static unsafe void SetShaderValueV<T>(Shader shader, int location, ReadOnlySpan<T> values) where T : unmanaged
+    {
+        if (location < NamedLocationBase || values.IsEmpty) return;
+        var stride = (sizeof(T) + 15) / 16 * 16;
+        var spaced = new byte[stride * values.Length];
+        var bytes = System.Runtime.InteropServices.MemoryMarshal.AsBytes(values);
+        for (int i = 0; i < values.Length; i++)
+            bytes.Slice(i * sizeof(T), sizeof(T)).CopyTo(spaced.AsSpan(i * stride));
+        WriteUniform(shader, location, spaced);
+    }
+
     // Writes a value's bytes into a named uniform, as many as the uniform holds, so a float written
     // into a float stays out of the field after it.
     private static void WriteUniform(Shader shader, int location, ReadOnlySpan<byte> value)

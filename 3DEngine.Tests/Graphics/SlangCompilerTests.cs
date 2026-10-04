@@ -171,4 +171,24 @@ public class SlangCompilerTests : IDisposable
         File.WriteAllText(Path.Combine(folder, "water", "waves.slang"), "// changed beside ocean");
         Waves().Should().NotEqual(before, "an edit to the included file changes what is hashed");
     }
+
+    [NeedsSlangFact]
+    public void Uniform_Arrays_Are_Laid_Out_With_A_Stride_Of_Sixteen_Bytes()
+    {
+        const string arrays = """
+            uniform float4 tint;
+            uniform float weights[3];
+            uniform float4 colors[2];
+
+            [shader("fragment")]
+            float4 fragmentMain(float4 position : SV_Position) : SV_Target
+            {
+                return tint * weights[0] + colors[1] * weights[2];
+            }
+            """;
+        var stage = SlangCompiler.CompileStage(arrays, "arrays.slang", "fragmentMain", ShaderStage.Fragment, _cache);
+        var uniforms = stage.Uniforms.ToDictionary(u => u.Name);
+        uniforms["weights"].Size.Should().Be(48, "a float in an array takes sixteen bytes, as std140 lays a uniform buffer out");
+        uniforms["colors"].Size.Should().Be(32);
+    }
 }

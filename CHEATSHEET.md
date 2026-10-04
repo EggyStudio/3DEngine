@@ -395,6 +395,7 @@ int GetShaderLocation(Shader shader, string uniformName);            // A unifor
 void SetShaderValue(Shader shader, int location, float value);       // A named uniform, or slot 0 to 3 read as param(slot)
 void SetShaderValue(Shader shader, int location, Vector2 value);     // (also Vector3, Vector4 and int)
 void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value); // A named float4x4 uniform
+void SetShaderValueV<T>(Shader shader, int location, ReadOnlySpan<T> values); // A named array uniform, spaced as std140 lays it out
 void SetShaderValueTexture(Shader shader, int location, Texture2D texture); // A texture the shader declares, as Sampler2D detail;
 ```
 
@@ -768,6 +769,8 @@ byte[]? LoadFileData(string fileName);                   // A file's bytes, null
 bool SaveFileData(string fileName, ReadOnlySpan<byte> data); // Write bytes to a file, beside the program for a relative name
 void OpenURL(string url);                                // Open an http or https address in the browser
 void WaitTime(double seconds);                           // Hold the program for some seconds
+void TraceLog(LogLevel level, string text);              // A line in the engine's log, under Program
+void SetTraceLogLevel(LogLevel level);                   // The least level that reaches the console (Info)
 bool IsFileDropped();                                    // Whether files were dropped on the window since they were last unloaded
 string[] LoadDroppedFiles();                             // Their paths, in the order they arrived
 void UnloadDroppedFiles();                               // Forget them, for the next drop

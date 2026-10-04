@@ -408,6 +408,35 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void An_Array_Uniform_Takes_Its_Values_Each_At_Sixteen_Bytes()
+    {
+        Open(32, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            uniform float channels[3];
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return float4(channels[0], channels[1], channels[2], 1.0);
+            }
+            """, "array.slang");
+        SetShaderValueV(shader, GetShaderLocation(shader, "channels"), [1f, 0f, 1f]);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 32, 32, Color.White);
+            EndShaderMode();
+        });
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(255, 0, 255), "each float of the array reached its element");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void An_Immediate_Shader_Reads_Named_Uniforms_As_They_Were_When_Each_Shape_Was_Drawn()
     {
         Open(64, 32);
