@@ -20,6 +20,10 @@ public readonly record struct ModelVertex(Vector3 Position, Vector3 Normal, Vect
 public sealed class MeshStore
 {
     /// <summary>A mesh waiting to be uploaded, or only its vertices when <paramref name="VerticesOnly"/> is set.</summary>
+    /// <param name="Id">The mesh's id.</param>
+    /// <param name="Vertices">Its vertices.</param>
+    /// <param name="Indices">Three indices into the vertices for each triangle.</param>
+    /// <param name="VerticesOnly">Whether only the vertices changed, so the index buffer is kept.</param>
     /// <param name="Skin">The joints and weights that pose it on the GPU, or null for a mesh that is not skinned there.</param>
     public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null);
 

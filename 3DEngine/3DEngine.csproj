@@ -8,6 +8,11 @@
              analyzer, so RuntimeBehaviorCompiler can run them through CSharpGeneratorDriver on
              scripts compiled while an app runs. RS1041, RS1036 and RS2008 apply only to the analyzer hosting model. -->
         <NoWarn>$(NoWarn);RS1041;RS1036;RS2008</NoWarn>
+        <!-- A fault in the XML documentation stops the build where it is written, rather than
+             reaching CI as an annotation: malformed or misplaced comments, a param or typeparam
+             for nothing, one missing beside the others, and a cref or paramref that names
+             nothing or more than one thing. -->
+        <WarningsAsErrors>$(WarningsAsErrors);CS0419;CS1570;CS1571;CS1572;CS1573;CS1574;CS1580;CS1581;CS1584;CS1587;CS1589;CS1590;CS1592;CS1710;CS1711;CS1712;CS1723;CS1734;CS1735</WarningsAsErrors>
 
         <PackageId>3DEngine</PackageId>
         <Version>0.1.0-preview.1</Version>

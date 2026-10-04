@@ -475,13 +475,6 @@ public sealed class SdlAudioBackend : IAudioBackend
         }
     }
 
-    /// <summary>
-    /// Splits <paramref name="volume"/> across the L/R streams using a constant-power
-    /// pan law: <c>leftGain = sqrt(0.5 * (1 - pan))</c>, <c>rightGain = sqrt(0.5 * (1 + pan))</c>.
-    /// At <c>pan = 0</c> both sides receive <c>~0.707 * volume</c>; at the extremes one
-    /// side receives the full <c>volume</c> and the other is silent. For non-spatial
-    /// voices (no R stream) the L stream just receives the raw <paramref name="volume"/>.
-    /// </summary>
     // Pauses a voice by taking its streams off the device, which keeps what they have queued
     // and stops them mixing, and resumes it by putting them back. Pausing the device instead
     // would pause every voice, because they all share it.
@@ -496,6 +489,13 @@ public sealed class SdlAudioBackend : IAudioBackend
         }
     }
 
+    /// <summary>
+    /// Splits <paramref name="volume"/> across the L/R streams using a constant-power
+    /// pan law: <c>leftGain = sqrt(0.5 * (1 - pan))</c>, <c>rightGain = sqrt(0.5 * (1 + pan))</c>.
+    /// At <c>pan = 0</c> both sides receive <c>~0.707 * volume</c>; at the extremes one
+    /// side receives the full <c>volume</c> and the other is silent. For non-spatial
+    /// voices (no R stream) the L stream receives the whole <paramref name="volume"/>.
+    /// </summary>
     private static void ApplyGainAndPan(IntPtr streamL, IntPtr streamR, float volume, float pan)
     {
         if (streamR == IntPtr.Zero)

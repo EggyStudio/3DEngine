@@ -19,16 +19,16 @@ jobs:
 
   examples:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       # The pinned Slang release, cached by its version so it downloads once.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: build/tools/slang
           key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
@@ -98,7 +98,7 @@ jobs:
       - name: Follow the README in a new project
         run: build/readme-walk.sh build/package "$RUNNER_TEMP/readme"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: example-captures

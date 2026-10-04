@@ -175,7 +175,7 @@ public static partial class Engine3D
         UniformValues.TryGetValue(shader.Id, out var block) ? (byte[])block.Clone() : null;
 
     /// <summary>
-    /// Sets a named uniform found with <see cref="GetShaderLocation"/>, or slot <paramref name="location"/>
+    /// Sets a named uniform found with <see cref="GetShaderLocation"/>, or slot <paramref name="slot"/>
     /// (0 to 3), which an immediate shader reads as <c>param(slot)</c>.
     /// </summary>
     /// <remarks>

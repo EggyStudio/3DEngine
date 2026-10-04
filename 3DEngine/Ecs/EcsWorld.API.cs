@@ -167,7 +167,7 @@ public sealed partial class EcsWorld
     public int Count<T>() => GetStore<T>(create: false)?.Count ?? 0;
 
     /// <summary>
-    /// Whether any <typeparamref name="T"/> was updated or handed out by <see cref="GetRef{T}"/>
+    /// Whether any <typeparamref name="T"/> was updated or handed out by <see cref="GetRef{T}(int)"/>
     /// since the running system last ran, or outside a system, since the frame began.
     /// </summary>
     public bool AnyChanged<T>() => GetStore<T>(create: false)?.AnyChanged() ?? false;
@@ -307,7 +307,7 @@ public sealed partial class EcsWorld
     /// <remarks>
     /// Marked whether or not the caller writes, as Bevy's <c>Mut</c> is on a mutable borrow, since
     /// a ref cannot tell. A <c>Changed</c> filter and transform propagation then see writes made
-    /// through it. Code that only reads uses <see cref="GetReadOnly{T}"/>, which marks nothing.
+    /// through it. Code that only reads uses <see cref="GetReadOnly{T}(int)"/>, which marks nothing.
     /// The bit is set atomically, so systems running in parallel can call it.
     /// </remarks>
     /// <exception cref="KeyNotFoundException">Thrown if the entity does not have the component.</exception>
@@ -575,7 +575,7 @@ public sealed partial class EcsWorld
     /// <summary>Adds a component given as an object, whatever its type, making its store when it has none.</summary>
     /// <remarks>
     /// For tools such as the console, which know a component only at run time. The typed
-    /// <see cref="Add{T}"/> is reached through reflection, once per call, so a system's loop uses
+    /// <see cref="Add{T}(int, T)"/> is reached through reflection, once per call, so a system's loop uses
     /// that instead.
     /// </remarks>
     public void AddBoxed(int entity, object value) =>

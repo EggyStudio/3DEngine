@@ -145,7 +145,7 @@ public static class TransformPropagation
     /// static hierarchy costs two comparisons.
     /// </summary>
     /// <remarks>
-    /// A write through <see cref="EcsWorld.GetRef{T}"/>, <see cref="EcsWorld.Update{T}"/> or a
+    /// A write through <see cref="EcsWorld.GetRef{T}(int)"/>, <see cref="EcsWorld.Update{T}(int, T)"/> or a
     /// by-reference query marks a component changed, at the tick of the system making it
     /// (<see cref="ChangeTicks"/>), so a write made after propagation in one frame, in a later
     /// stage or by the program, reaches it the next. A write to a component reached some other way,

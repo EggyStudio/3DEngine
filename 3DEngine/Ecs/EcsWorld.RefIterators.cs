@@ -313,6 +313,7 @@ public sealed partial class EcsWorld
         /// <param name="a">Store for <typeparamref name="T1"/>.</param>
         /// <param name="b">Store for <typeparamref name="T2"/>.</param>
         /// <param name="markOnIterate">When <c>true</c>, each accessed component pair is marked changed.</param>
+        /// <param name="world">The world the stores belong to, which filters look up other stores in, or null for none.</param>
         /// <returns>A new enumerable wrapping both stores.</returns>
         internal static RefEnumerable<T1, T2> From(ComponentStore<T1> a, ComponentStore<T2> b, bool markOnIterate, EcsWorld? world = null) =>
             new(a, b, a.Count <= b.Count ? 1 : 2, markOnIterate, world);

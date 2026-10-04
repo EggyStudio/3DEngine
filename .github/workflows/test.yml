@@ -15,16 +15,19 @@ on:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    # Named rather than ubuntu-latest, since lavapipe and the validation layer come from the
+    # image's packages, and the label moving to a new release would change them under the tests
+    # with no commit to show for it. Moving to the next release is a commit of its own.
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       # The pinned Slang release, cached by its version so it downloads once.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: build/tools/slang
           key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
@@ -40,7 +43,7 @@ jobs:
         env:
           E3D_REQUIRE_VALIDATION: '1'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-linux
@@ -49,13 +52,13 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: build/tools/slang
           key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.ps1') }}
@@ -67,7 +70,7 @@ jobs:
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-windows

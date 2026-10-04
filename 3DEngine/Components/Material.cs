@@ -95,12 +95,6 @@ public struct Material : IEquatable<Material>
     public bool DoubleSided;
 
     /// <summary>
-    /// Creates a material with only the albedo factor set. PBR factors default to
-    /// metal=0 / rough=1 / emissive=0; texture slots are <see cref="Handle{T}.Invalid"/>.
-    /// Convenience for callers that only need a flat-shaded color.
-    /// </summary>
-    /// <param name="albedo">RGBA albedo (0..1).</param>
-    /// <summary>
     /// White and opaque. A default <see cref="Material"/> has an albedo of zero, which is
     /// transparent black and draws nothing.
     /// </summary>
@@ -115,6 +109,12 @@ public struct Material : IEquatable<Material>
         return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
     }
 
+    /// <summary>
+    /// Creates a material with only the albedo factor set. PBR factors default to
+    /// metal=0 / rough=1 / emissive=0; texture slots are <see cref="Handle{T}.Invalid"/>.
+    /// Convenience for callers that only need a flat-shaded color.
+    /// </summary>
+    /// <param name="albedo">RGBA albedo (0..1).</param>
     public Material(Vector4 albedo)
     {
         Albedo = albedo;

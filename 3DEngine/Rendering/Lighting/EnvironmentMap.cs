@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>
 /// The light from all around a scene, as a cube map prefiltered by roughness, which the model pass
 /// reflects off every surface and scatters off its diffuse share. A world resource, set by
-/// <see cref="Engine3D.SetEnvironmentMap"/> or inserted directly.
+/// <see cref="Engine3D.SetEnvironmentMap(string, float)"/> or inserted directly.
 /// </summary>
 /// <remarks>
 /// <para>

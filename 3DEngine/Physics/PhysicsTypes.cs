@@ -90,7 +90,7 @@ public readonly record struct ContactStarted(Entity A, Entity B, PhysicsBody Bod
 /// <summary>
 /// Sent when two bodies stop touching, or when one of them is destroyed, and readable until the
 /// frame ends. The entities are as they were when the contact started, so one despawned since
-/// is still named, and <see cref="EcsWorld.IsAlive"/> tells which.
+/// is still named, and <see cref="EcsWorld.IsAlive(Entity)"/> tells which.
 /// </summary>
 /// <param name="A">The first body's entity, or <see cref="Entity.None"/>.</param>
 /// <param name="B">The second body's entity, or <see cref="Entity.None"/>.</param>

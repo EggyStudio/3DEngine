@@ -77,11 +77,11 @@ With its "publish" box ticked it pushes the package to nuget.org through the `NU
 secret. The version
 is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
 number of commits since that file last changed, so each commit counts the patch up by one and
-changing `0.1` to `0.2` starts it again at `0.2.0`.
+changing `5.0` to `5.1` starts it again at `5.1.0`.
 `build/readme-walk.sh <package folder>` follows the README's steps in a new folder, and CI runs it.
 
-Each pack is a version of its own, `0.1.0-preview.` and the time, since NuGet reads a version once
-and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
+A pack made locally without a version is a version of its own, `0.1.0-preview.` and the time,
+since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
 the version it chose before. `games/Pusher` is such a game, built this way in CI, and
 `./e3d open games/Pusher/bin/Debug/net10.0/Pusher` drives it as it does the examples.
@@ -114,6 +114,7 @@ run from anywhere in the checkout finds it.
 | macOS | SDL3 | Vulkan through MoltenVK |
 
 Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
-`build.yml` runs for every push, builds and tests it on Ubuntu, drawing on lavapipe. Its Windows
+`build.yml` runs for every push, builds and tests it on Ubuntu 24.04, named rather than the newest
+so lavapipe and the validation layer change only in a commit, drawing on lavapipe. Its Windows
 job builds it and runs the tests that need no device, since the runner has no Vulkan device. macOS builds from the same packages
 and is not covered by CI.

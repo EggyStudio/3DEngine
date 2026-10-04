@@ -274,6 +274,10 @@ public sealed class Input
         SetMouseButton((MouseButton)button, isDown);
 
     /// <summary>Puts a finger down, moves it, or lifts it, by its id.</summary>
+    /// <param name="id">The finger's id, which it keeps while it stays down.</param>
+    /// <param name="x">Its position across the window.</param>
+    /// <param name="y">Its position down the window.</param>
+    /// <param name="down">Whether it is on the screen, false when it lifts.</param>
     internal void SetTouch(long id, float x, float y, bool down)
     {
         var index = _touches.FindIndex(t => t.Id == id);
