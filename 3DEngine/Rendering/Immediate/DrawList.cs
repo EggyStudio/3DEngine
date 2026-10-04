@@ -14,12 +14,13 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="FirstVertex">Index of the run's first vertex.</param>
 /// <param name="VertexCount">Number of vertices in the run.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
+/// <param name="Uniforms">The named uniforms of its shader as they were when the run was recorded, laid out as the shader declares them, or null for none.</param>
 /// <param name="Target">The render target the run draws into, or 0 for the window.</param>
 /// <param name="Shader">The <see cref="ShaderStore"/> id the run draws with, or 0 for the engine's own.</param>
 /// <param name="Params">The values the shader reads with <c>param</c>.</param>
 public readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount,
-    int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default);
+    int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null);
 
 /// <summary>
 /// The lines and triangles recorded for the current frame by the flat API's <c>Draw</c> calls,
@@ -69,13 +70,21 @@ public sealed class DrawList
     /// <summary>The values that shader reads.</summary>
     public ShaderParams Params { get; private set; }
 
-    /// <summary>Draws the following shapes with shader <paramref name="shader"/>, reading <paramref name="parameters"/>, or with the engine's own when it is 0.</summary>
-    public void SetShader(int shader, ShaderParams parameters)
+    /// <summary>That shader's named uniforms, or null for none.</summary>
+    public byte[]? Uniforms { get; private set; }
+
+    /// <summary>
+    /// Draws the following shapes with shader <paramref name="shader"/>, reading
+    /// <paramref name="parameters"/> and its named <paramref name="uniforms"/>, or with the
+    /// engine's own when it is 0.
+    /// </summary>
+    public void SetShader(int shader, ShaderParams parameters, byte[]? uniforms = null)
     {
         lock (_gate)
         {
             Shader = shader;
             Params = parameters;
+            Uniforms = uniforms;
             Close();
         }
     }
@@ -192,6 +201,7 @@ public sealed class DrawList
             Target = 0;
             Shader = 0;
             Params = default;
+            Uniforms = null;
             _targetClears.Clear();
         }
     }
@@ -219,14 +229,14 @@ public sealed class DrawList
             var last = _batches[^1];
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
-                && last.FirstVertex + last.VertexCount == at)
+                && ReferenceEquals(last.Uniforms, Uniforms) && last.FirstVertex + last.VertexCount == at)
             {
                 Open(topology, texture, last.VertexCount + vertices);
                 return at;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params, Uniforms));
         Open(topology, texture, vertices);
         return at;
     }

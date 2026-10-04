@@ -63,10 +63,10 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio and text files
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Custom shaders are partial.** A model shader reads uniforms by name, but an immediate shader
-  still reads four `float4` slots, and no shader can bind textures of its own beyond the one it
-  draws. Each draw with a model shader takes a descriptor set from a pool of 4096 shared with
-  textures, kept for four frames, so a frame has room for about a thousand such draws.
+- **Custom shaders bind no textures of their own.** Model and immediate shaders read uniforms by
+  name, and an immediate one the four `float4` slots as well, but no shader can bind a texture
+  beyond the one it draws. Each draw with a shader's own uniforms takes a descriptor set from a pool
+  of 4096 shared with textures, kept for four frames, so a frame has room for about a thousand.
 - **Audio is partial.** Sounds have no pan in the flat API, MP3 and FLAC are not read, and a WAV
   file played as music is read whole rather than streamed.
 - **Models are partial.** The flat API has no lights of its own, so models are lit by one fixed

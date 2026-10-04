@@ -246,7 +246,8 @@ void SetShaderValueMatrix(Shader shader, int location, Matrix4x4 value); // A na
 ```
 
 A shader imports the engine's module, which gives it `VertexOutput` (position, uv, color),
-`boundTexture` and `param(slot)`:
+`boundTexture` and `param(slot)`. Uniforms it declares at the top level are set by name too, each
+value holding for what is drawn after it:
 
 ```slang
 import engine;

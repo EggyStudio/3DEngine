@@ -240,6 +240,43 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void An_Immediate_Shader_Reads_Named_Uniforms_As_They_Were_When_Each_Shape_Was_Drawn()
+    {
+        Open(64, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            uniform float4 tint;
+            uniform float strength;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return float4(tint.rgb * strength, 1.0);
+            }
+            """, "named.slang");
+        var tint = GetShaderLocation(shader, "tint");
+        var strength = GetShaderLocation(shader, "strength");
+        tint.Should().BeGreaterThanOrEqualTo(0);
+        SetShaderValue(shader, strength, 1f);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            SetShaderValue(shader, tint, new Vector4(1, 0, 0, 1));
+            DrawRectangle(0, 0, 32, 32, Color.White);
+            SetShaderValue(shader, tint, new Vector4(0, 0, 1, 1));
+            DrawRectangle(32, 0, 32, 32, Color.White);
+            EndShaderMode();
+        });
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(255, 0, 0), "the left square was drawn while the tint was red");
+        GetImageColor(image, 48, 16).Should().Be(new Color(0, 0, 255), "and the right one after it was set to blue");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void ImGui_Draws_Over_The_Frame_Where_It_Is_Told()
     {
         Open(64, 32);

@@ -17,7 +17,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// Each batch is one draw call with its transform and its shader's four values as push constants
-/// and its texture, from <see cref="GpuTextures"/>, as the descriptor set. A batch recorded inside
+/// and its texture, from <see cref="GpuTextures"/>, as the descriptor set. A batch whose shader
+/// declares uniforms of its own gets a set of its own instead, holding their values as they were
+/// recorded at binding 0 beside the texture, from a ring kept for each frame in flight. A batch recorded inside
 /// <c>BeginShaderMode</c> draws with that shader's stages, from <see cref="ShaderStore"/>. Culling is off, so a shape's triangles may wind
 /// either way. Render targets have render passes compatible with the window's, so the same
 /// pipelines draw into both.
@@ -53,6 +55,11 @@ public sealed class ImmediateRenderer : IDisposable
     private long _frame;
     private DynamicAllocation? _vertices;
 
+    // Sets of batches with uniforms of their own, a list per frame slot, handed out in order each
+    // frame and reused when the slot comes round, once the GPU is done with that frame.
+    private readonly List<IDescriptorSet>[] _uniformSets = Enumerable.Range(0, GpuTextures.RetireFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
+    private int _uniformSetNext;
+
     /// <summary>Creates the renderer from the compiled stages of <c>immediate.slang</c>.</summary>
     public ImmediateRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv)
     {
@@ -65,6 +72,7 @@ public sealed class ImmediateRenderer : IDisposable
     {
         _vertices = null;
         RetireUnloadedShaders(renderWorld.TryGet<ShaderStore>());
+        _uniformSetNext = 0;
         var drawList = renderWorld.TryGet<DrawList>();
         if (drawList is null || drawList.Vertices.IsEmpty || renderContext.DynamicAllocator is not { } allocator) return;
 
@@ -96,12 +104,37 @@ public sealed class ImmediateRenderer : IDisposable
             // A batch whose shader was unloaded after it was recorded draws with the engine's own.
             var pipeline = Pipeline(gfx, renderPass, renderWorld, batch);
             pass.SetPipeline(pipeline);
-            pass.SetBindGroup(pipeline, textures.SetFor(gfx, batch.Texture));
+            pass.SetBindGroup(pipeline, UniformSet(gfx, renderContext, renderWorld, textures, batch) ?? textures.SetFor(gfx, batch.Texture));
 
             var push = new Push { Transform = batch.Transform, Params = batch.Params };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.Draw((uint)batch.VertexCount, 1, (uint)batch.FirstVertex);
         }
+    }
+
+    // A set with the batch's uniform values at binding 0 and its texture at binding 1, or null for a
+    // batch whose shader declares none, which binds its texture's own set.
+    private IDescriptorSet? UniformSet(IGraphicsDevice gfx, RenderContext renderContext, RenderWorld renderWorld, GpuTextures textures, DrawBatch batch)
+    {
+        if (batch.Shader == 0 || renderWorld.TryGet<ShaderStore>()?.Get(batch.Shader) is not { UniformSize: > 0 } program
+            || renderContext.DynamicAllocator is not { } allocator)
+            return null;
+
+        var sets = _uniformSets[(int)(_frame % _uniformSets.Length)];
+        if (_uniformSetNext == sets.Count) sets.Add(gfx.CreateDescriptorSet());
+        var set = sets[_uniformSetNext++];
+
+        var size = (ulong)program.UniformSize;
+        var allocation = allocator.Allocate(size, BufferUsage.Uniform);
+        var bytes = allocator.Map(allocation);
+        bytes.Clear();
+        batch.Uniforms?.AsSpan(0, Math.Min(batch.Uniforms.Length, bytes.Length)).CopyTo(bytes);
+        allocator.Unmap(allocation);
+
+        var (view, sampler) = textures.ViewFor(gfx, batch.Texture);
+        gfx.UpdateDescriptorSet(set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size),
+            new CombinedImageSamplerBinding(view, sampler, 1));
+        return set;
     }
 
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, DrawBatch batch)
@@ -196,6 +229,8 @@ public sealed class ImmediateRenderer : IDisposable
         foreach (var ((shader, _), pipeline) in _pipelines)
             if (shader != 0 && pipeline is IDisposable disposable) disposable.Dispose();
         foreach (var stages in _customStages.Values) stages.Dispose();
+        foreach (var sets in _uniformSets)
+            foreach (var set in sets) set.Dispose();
         _engineStages?.Dispose();
     }
 }

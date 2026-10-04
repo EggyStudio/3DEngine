@@ -76,7 +76,7 @@ public static partial class Engine3D
     public static void BeginShaderMode(Shader shader)
     {
         _shader = shader;
-        DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id));
+        DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader));
     }
 
     /// <summary>Returns to the engine's own shader.</summary>
@@ -90,7 +90,10 @@ public static partial class Engine3D
     /// The location of a uniform the shader declares at the top level, by name, for
     /// <see cref="SetShaderValue(Shader, int, Vector4)"/>, or -1 when it declares none of that name.
     /// </summary>
-    /// <remarks>A model shader's uniforms are read this way. The immediate pass's shaders read the four slots 0 to 3.</remarks>
+    /// <remarks>
+    /// Both a model shader's and an immediate shader's uniforms are found this way. An immediate
+    /// shader can read the four slots 0 to 3 through <c>param(slot)</c> as well.
+    /// </remarks>
     public static int GetShaderLocation(Shader shader, string uniformName)
     {
         if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return -1;
@@ -120,6 +123,8 @@ public static partial class Engine3D
         var uniform = program.Uniforms[index];
         if (!UniformValues.TryGetValue(shader.Id, out var block)) UniformValues[shader.Id] = block = new byte[program.UniformSize];
         value[..Math.Min(value.Length, uniform.Size)].CopyTo(block.AsSpan(uniform.Offset));
+        // Inside the shader's mode, what is drawn after takes the new values.
+        if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader));
     }
 
     // A copy of a shader's uniform values for one draw, so values set after it reach only later draws.
@@ -144,7 +149,7 @@ public static partial class Engine3D
         if (!shader.IsValid || slot is < 0 or > 3) return;
         var values = ShaderValues.GetValueOrDefault(shader.Id).With(slot, value);
         ShaderValues[shader.Id] = values;
-        if (_shader == shader) DrawList.SetShader(shader.Id, values);
+        if (_shader == shader) DrawList.SetShader(shader.Id, values, UniformSnapshot(shader));
     }
 
     /// <summary>Sets slot <paramref name="slot"/> to (<paramref name="value"/>, 0, 0, 0).</summary>
