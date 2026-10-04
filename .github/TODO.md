@@ -69,13 +69,12 @@ physics, text and fonts, audio and text files
   of 4096 shared with textures, kept for four frames, so a frame has room for about a thousand.
 - **Audio reads WAV and Ogg Vorbis only.** MP3 and FLAC need a decoder the dependency policy
   (DESIGN.md §8) has not admitted.
-- **Models are partial.** The flat API has no lights of its own, so models are lit by one fixed
-  light, which shows their color, texture and normal map but not how metallic or rough they are,
-  unless the ECS holds light entities. `UpdateModelAnimation` poses skinned meshes on the CPU, as raylib does by default,
-  and writes the vertices into a ring of buffers (Cost above). Clips are sampled at
-  60 frames a second with no blending between frames or between two clips, and mesh entities have
-  no animation component. The model pass draws both sides of every face, so `GenMeshCubicmap`
-  makes no roof over a maze's open cells as raylib's does.
+- **Models are partial.** Skinned meshes are posed on the CPU, as raylib does by default, at a
+  frame, between frames (`UpdateModelAnimationAt`) or between two clips
+  (`UpdateModelAnimationBlend`), and the vertices are written into a ring of buffers (Cost above).
+  Mesh entities have no animation component, so only the flat API animates. The model pass draws
+  both sides of every face, so `GenMeshCubicmap` makes no roof over a maze's open cells as
+  raylib's does, and glTF's double-sided flag is not read.
 - **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
   shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
   cellular noise are not generated. Mip levels are made by GPU blits. Anisotropic filtering is

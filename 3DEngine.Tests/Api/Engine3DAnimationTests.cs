@@ -85,4 +85,49 @@ public sealed class Engine3DAnimationTests : IDisposable
         UpdateModelAnimation(model, other, 0);
         Positions(model).Should().Equal(rest);
     }
+
+    // Where a point of the forearm at rest is when the elbow, at (0, 1), has turned by the given
+    // degrees about Z.
+    private static Vector2 Turned(Vector3 rest, float degrees)
+    {
+        var (sin, cos) = MathF.SinCos(float.DegreesToRadians(degrees));
+        var x = rest.X;
+        var y = rest.Y - 1;
+        return new Vector2(x * cos - y * sin, 1 + x * sin + y * cos);
+    }
+
+    private Vector2 Top(Model model, int index)
+    {
+        var p = Positions(model)[index];
+        return new Vector2(p.X, p.Y);
+    }
+
+    [Fact]
+    public void A_Clip_Sampled_Between_Two_Frames_Turns_The_Bone_Between_Them()
+    {
+        var model = LoadModel(Arm);
+        var clip = LoadModelAnimations(Arm)[0];
+        var rest = Positions(model);
+        var top = Array.IndexOf(rest, rest.MaxBy(p => p.Y));
+
+        // Frames 30 and 31 are 45 and 46.5 degrees, so halfway is 45.75, which no whole frame has.
+        UpdateModelAnimationAt(model, clip, 30.5f / AnimationFps);
+        Vector2.Distance(Top(model, top), Turned(rest[top], 45.75f)).Should().BeLessThan(1e-3f);
+    }
+
+    [Fact]
+    public void Two_Clips_Blend_By_Weight()
+    {
+        var model = LoadModel(Arm);
+        var clip = LoadModelAnimations(Arm)[0];
+        var rest = Positions(model);
+        var top = Array.IndexOf(rest, rest.MaxBy(p => p.Y));
+
+        // The clip's first frame, at rest, and its last, bent a quarter turn, half each.
+        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.FrameCount - 1) / (float)AnimationFps, 0.5f);
+        Vector2.Distance(Top(model, top), Turned(rest[top], 45)).Should().BeLessThan(1e-3f);
+
+        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.FrameCount - 1) / (float)AnimationFps, 0);
+        Vector2.Distance(Top(model, top), Turned(rest[top], 0)).Should().BeLessThan(1e-3f, "weight 0 is the first clip alone");
+    }
 }

@@ -78,8 +78,60 @@ public static partial class Engine3D
     {
         if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
         frame = ((frame % animation.FrameCount) + animation.FrameCount) % animation.FrameCount;
-        var poses = animation.FramePoses[frame];
+        Pose(model, animation.FramePoses[frame]);
+    }
 
+    /// <summary>
+    /// Poses <paramref name="model"/> as <paramref name="animation"/> has it <paramref name="seconds"/>
+    /// into the clip, counted round its length, between the two frames either side.
+    /// </summary>
+    /// <remarks>
+    /// Each bone's position and scale are interpolated in a straight line and its rotation along the
+    /// sphere, so a clip played at any frame rate moves smoothly where whole frames would step.
+    /// </remarks>
+    public static void UpdateModelAnimationAt(Model model, ModelAnimation animation, float seconds)
+    {
+        if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
+        Pose(model, Sample(animation, seconds));
+    }
+
+    /// <summary>
+    /// Poses <paramref name="model"/> between two clips, <paramref name="from"/> at
+    /// <paramref name="fromSeconds"/> and <paramref name="to"/> at <paramref name="toSeconds"/>,
+    /// <paramref name="weight"/> of the way from the first to the second, as a walk turning into a run.
+    /// </summary>
+    /// <remarks>Both clips move the model's bones, and each is sampled as <see cref="UpdateModelAnimationAt"/> does.</remarks>
+    public static void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight)
+    {
+        if (from.FrameCount == 0 || to.FrameCount == 0 || !IsModelAnimationValid(model, from) || !IsModelAnimationValid(model, to)) return;
+        Pose(model, Mix(Sample(from, fromSeconds), Sample(to, toSeconds), Math.Clamp(weight, 0f, 1f)));
+    }
+
+    // A clip's bones at a time, between the frames either side, counted round its length.
+    private static Transform[] Sample(ModelAnimation animation, float seconds)
+    {
+        var frames = animation.FrameCount;
+        var at = seconds * AnimationFps;
+        at -= MathF.Floor(at / frames) * frames;
+        var first = Math.Min((int)at, frames - 1);
+        return Mix(animation.FramePoses[first], animation.FramePoses[(first + 1) % frames], at - first);
+    }
+
+    // Two poses of the same bones, weight of the way from the first to the second.
+    private static Transform[] Mix(Transform[] a, Transform[] b, float weight)
+    {
+        var mixed = new Transform[a.Length];
+        for (int i = 0; i < mixed.Length; i++)
+            mixed[i] = new Transform(
+                Vector3.Lerp(a[i].Position, b[i].Position, weight),
+                Quaternion.Slerp(a[i].Rotation, b[i].Rotation, weight),
+                Vector3.Lerp(a[i].Scale, b[i].Scale, weight));
+        return mixed;
+    }
+
+    // Moves each skinned mesh's vertices from their rest by the bones' poses, in the model's space.
+    private static void Pose(Model model, Transform[] poses)
+    {
         foreach (var skin in model.Skins)
         {
             var mesh = model.Meshes[skin.Mesh];

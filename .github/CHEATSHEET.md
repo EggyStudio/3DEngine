@@ -319,6 +319,8 @@ void UnloadEnvironmentMap();                                               // Ba
 
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
+void UpdateModelAnimationAt(Model model, ModelAnimation anim, float seconds); // Pose a model between frames, at a time
+void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight); // Between two clips
 bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has
 void UnloadModelAnimation(ModelAnimation animation);                       // Let a clip go
 void UnloadModelAnimations(ModelAnimation[] animations);                   // Let clips go
