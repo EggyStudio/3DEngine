@@ -90,6 +90,25 @@ public class SceneFileTests
     }
 
     [Fact]
+    public void A_Mesh_Made_In_Code_Comes_Back_With_Its_Arrays()
+    {
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var triangle = ecs.Spawn();
+        Vector3[] positions = [new(0, 1, 0), new(-1, -1, 0), new(1, -1, 0)];
+        Vector2[] uvs = [new(0.5f, 0), new(0, 1), new(1, 1)];
+        ecs.Add(triangle, new Mesh(positions, uvs: uvs));
+
+        var loaded = NewWorld();
+        var spawned = SceneFile.Read(loaded, SceneFile.Write(ecs));
+
+        var mesh = loaded.Resource<EcsWorld>().GetRef<Mesh>(spawned[0]);
+        mesh.Positions.Should().Equal(positions);
+        mesh.Uvs.Should().Equal(uvs);
+        mesh.Normals.Should().BeNull("an array left null is written as null and read back as null");
+    }
+
+    [Fact]
     public void A_File_That_Is_Not_A_Scene_Is_Refused()
     {
         var read = () => SceneFile.Read(NewWorld(), """{ "entities": [] }""");
@@ -110,7 +129,8 @@ public class SceneFileTests
                 public bool Flag; public int Count; public float Speed; public double Exact; public string Label;
                 public Mood Mood; public Vector2 V2; public Vector3 V3; public Vector4 V4; public Quaternion Q;
                 public Matrix4x4 M; public Color Tint; public Entity Target; public Handle<Texture> Skin;
-                public float? Maybe; public Vector3? Somewhere; public int[] Skipped; public readonly int Fixed;
+                public float? Maybe; public Vector3? Somewhere; public int[] Counts; public Vector3[] Points;
+                public Entity[] Targets; public int[][] Skipped; public readonly int Fixed;
             }
             [Behavior]
             public struct Wanderer { public float Heading; [OnUpdate] public void Step(BehaviorContext ctx) { } }
@@ -129,6 +149,7 @@ public class SceneFileTests
         var generated = output.SyntaxTrees.Last(t => t.ToString().Contains("SceneComponentRegistration")).ToString();
         generated.Should().Contain("\"Everything\"").And.Contain("\"Wanderer\"").And.Contain("ctx.IdOf(v.Target)")
             .And.Contain("ctx.Load<global::Engine.Texture>").And.Contain("Enum.Parse<global::Game.Mood>")
+            .And.Contain("\"Counts\"").And.Contain("\"Points\"").And.Contain("w.WriteStringValue(ctx.IdOf(item))")
             .And.NotContain("Skipped").And.NotContain("Fixed");
     }
 

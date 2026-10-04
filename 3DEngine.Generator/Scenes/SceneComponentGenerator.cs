@@ -14,10 +14,11 @@ namespace Engine;
 /// Every public instance field that is not read-only is written by name when its type is one a
 /// scene file holds: <c>bool</c>, the whole and real number types, <c>string</c>, an enum (by
 /// name), <c>Vector2</c>, <c>Vector3</c>, <c>Vector4</c>, <c>Quaternion</c>, <c>Matrix4x4</c>,
-/// <c>Color</c>, <c>Entity</c> (by scene id), <c>Handle&lt;T&gt;</c> (by asset path), or a nullable
-/// of one of those. Other fields are left out, so a component holding a runtime handle is saved
-/// without it rather than refused. A component starts from its static <c>Default</c> or
-/// <c>Identity</c> when it has one, so a field missing from an older file keeps a sensible value.
+/// <c>Color</c>, <c>Entity</c> (by scene id), <c>Handle&lt;T&gt;</c> (by asset path), a nullable
+/// of one of those, or an array of one, as a mesh's positions are. Other fields are left out, so a
+/// component holding a runtime handle is saved without it rather than refused. A component starts
+/// from its static <c>Default</c> or <c>Identity</c> when it has one, so a field missing from an
+/// older file keeps a sensible value.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
 public sealed class SceneComponentGenerator : IIncrementalGenerator
@@ -117,47 +118,64 @@ public sealed class SceneComponentGenerator : IIncrementalGenerator
                 $"value.{name} = p.ValueKind == global::System.Text.Json.JsonValueKind.Null ? null : {innerParts.Read};");
         }
 
+        // An array is a JSON array of its elements, each written as a field of its type is but with
+        // no name, and read back into a new array of the length the file has.
+        if (type is IArrayTypeSymbol { Rank: 1 } array)
+        {
+            if (Value(array.ElementType, null, "item", "q") is not { } itemParts) return null;
+            var element = array.ElementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return new FieldModel(name,
+                $"if ({value} is null) w.WriteNull({key}); else {{ w.WriteStartArray({key}); foreach (var item in {value}) {{ {itemParts.Write} }} w.WriteEndArray(); }}",
+                $"if (p.ValueKind == global::System.Text.Json.JsonValueKind.Null) value.{name} = null!; else {{ var items = new {element}[p.GetArrayLength()]; var index = 0; foreach (var q in p.EnumerateArray()) items[index++] = {itemParts.Read}; value.{name} = items; }}");
+        }
+
         return Value(type, key, value, "p") is { } parts
             ? new FieldModel(name, parts.Write, $"value.{name} = {parts.Read};")
             : null;
     }
 
-    private static (string Write, string Read)? Value(ITypeSymbol type, string key, string value, string p)
+    // How one value is written and read. With a key it is a named property of the open object, and
+    // without one an element of the open array.
+    private static (string Write, string Read)? Value(ITypeSymbol type, string? key, string value, string p)
     {
+        string Json(string method, string argument) =>
+            key is null ? $"w.{method}Value({argument});" : $"w.{method}({key}, {argument});";
+        var named = key ?? "null";
+
         switch (type.SpecialType)
         {
-            case SpecialType.System_Boolean: return ($"w.WriteBoolean({key}, {value});", $"{p}.GetBoolean()");
-            case SpecialType.System_Byte: return ($"w.WriteNumber({key}, {value});", $"{p}.GetByte()");
-            case SpecialType.System_Int16: return ($"w.WriteNumber({key}, {value});", $"{p}.GetInt16()");
-            case SpecialType.System_Int32: return ($"w.WriteNumber({key}, {value});", $"{p}.GetInt32()");
-            case SpecialType.System_UInt32: return ($"w.WriteNumber({key}, {value});", $"{p}.GetUInt32()");
-            case SpecialType.System_Int64: return ($"w.WriteNumber({key}, {value});", $"{p}.GetInt64()");
-            case SpecialType.System_UInt64: return ($"w.WriteNumber({key}, {value});", $"{p}.GetUInt64()");
-            case SpecialType.System_Single: return ($"w.WriteNumber({key}, {value});", $"{p}.GetSingle()");
-            case SpecialType.System_Double: return ($"w.WriteNumber({key}, {value});", $"{p}.GetDouble()");
-            case SpecialType.System_String: return ($"w.WriteString({key}, {value});", $"{p}.GetString()!");
+            case SpecialType.System_Boolean: return (Json("WriteBoolean", value), $"{p}.GetBoolean()");
+            case SpecialType.System_Byte: return (Json("WriteNumber", value), $"{p}.GetByte()");
+            case SpecialType.System_Int16: return (Json("WriteNumber", value), $"{p}.GetInt16()");
+            case SpecialType.System_Int32: return (Json("WriteNumber", value), $"{p}.GetInt32()");
+            case SpecialType.System_UInt32: return (Json("WriteNumber", value), $"{p}.GetUInt32()");
+            case SpecialType.System_Int64: return (Json("WriteNumber", value), $"{p}.GetInt64()");
+            case SpecialType.System_UInt64: return (Json("WriteNumber", value), $"{p}.GetUInt64()");
+            case SpecialType.System_Single: return (Json("WriteNumber", value), $"{p}.GetSingle()");
+            case SpecialType.System_Double: return (Json("WriteNumber", value), $"{p}.GetDouble()");
+            case SpecialType.System_String: return (Json("WriteString", value), $"{p}.GetString()!");
         }
 
         var display = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         if (type.TypeKind == TypeKind.Enum)
-            return ($"w.WriteString({key}, {value}.ToString());", $"global::System.Enum.Parse<{display}>({p}.GetString()!)");
+            return (Json("WriteString", $"{value}.ToString()"), $"global::System.Enum.Parse<{display}>({p}.GetString()!)");
 
         switch (display)
         {
-            case "global::System.Numerics.Vector2": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadVector2({p})");
-            case "global::System.Numerics.Vector3": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadVector3({p})");
-            case "global::System.Numerics.Vector4": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadVector4({p})");
-            case "global::System.Numerics.Quaternion": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadQuaternion({p})");
-            case "global::System.Numerics.Matrix4x4": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadMatrix4x4({p})");
-            case "global::Engine.Color": return ($"global::Engine.SceneJson.Write(w, {key}, {value});", $"global::Engine.SceneJson.ReadColor({p})");
-            case "global::Engine.Entity": return ($"w.WriteString({key}, ctx.IdOf({value}));", $"ctx.Resolve({p}.GetString())");
+            case "global::System.Numerics.Vector2": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadVector2({p})");
+            case "global::System.Numerics.Vector3": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadVector3({p})");
+            case "global::System.Numerics.Vector4": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadVector4({p})");
+            case "global::System.Numerics.Quaternion": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadQuaternion({p})");
+            case "global::System.Numerics.Matrix4x4": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadMatrix4x4({p})");
+            case "global::Engine.Color": return ($"global::Engine.SceneJson.Write(w, {named}, {value});", $"global::Engine.SceneJson.ReadColor({p})");
+            case "global::Engine.Entity": return (Json("WriteString", $"ctx.IdOf({value})"), $"ctx.Resolve({p}.GetString())");
         }
 
         if (type is INamedTypeSymbol { IsGenericType: true } generic &&
             generic.OriginalDefinition.ToDisplayString() == "Engine.Handle<T>")
         {
             var asset = generic.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return ($"w.WriteString({key}, ctx.PathOf({value}));", $"ctx.Load<{asset}>({p}.GetString())");
+            return (Json("WriteString", $"ctx.PathOf({value})"), $"ctx.Load<{asset}>({p}.GetString())");
         }
 
         return null;

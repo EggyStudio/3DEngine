@@ -118,7 +118,8 @@ public struct Crate
 ```
 
 Its public fields of numbers, strings, enums, vectors, colors, entity references and asset handles
-are saved, and fields of other types are left out. A source generator writes the code that saves
+are saved, and arrays of those, and fields of other types are left out. A `Mesh` made in code is
+saved with its arrays this way. A source generator writes the code that saves
 and reads them as the program compiles, so loading does no reflection and works in a trimmed or
 AOT build.
 

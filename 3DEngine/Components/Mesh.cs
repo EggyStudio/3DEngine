@@ -13,9 +13,14 @@ namespace Engine;
 /// <see cref="Positions"/> array is in use. A changed mesh is a new <see cref="Mesh"/> with new
 /// arrays, because writing into the old ones is not seen.
 /// </para>
+/// <para>
+/// A scene file holds the arrays, so a mesh made in code is saved with its level. A model's meshes
+/// are not, since the model's <see cref="ModelRef"/> brings them back.
+/// </para>
 /// </remarks>
 /// <seealso cref="Material"/>
 /// <seealso cref="Transform"/>
+[SceneComponent]
 public struct Mesh
 {
     /// <summary>Vertex positions, three per triangle.</summary>
