@@ -20,11 +20,11 @@ removed from this file, and an item that is partly done is rewritten around what
   later spawn reuses. `Entity` (from `ecs.Handle(id)` or `ctx.Entity`) carries the generation, and
   `TryResolve` and `IsAlive` refuse a stale one, but nothing stops code from keeping the bare `int`
   across frames instead. Components holding entity references have no type that does this for them.
-- **Transform propagation walks every parented entity each frame**, with a dictionary, in
-  `Stage.Render`. It has no change detection, so a large static hierarchy costs its size every
-  frame, and physics writes a body's `Transform` as if it had no parent. Skipping unchanged chains
-  by change bits needs `GetRef` to mark what it hands out as changed, as Bevy's `Mut` does, since
-  code moves transforms through it and it marks nothing.
+- **Change bits last one frame.** `GetRef`, `Update` and the by-reference queries mark what they
+  hand out, and a behavior method marks its own component unless it is `readonly`. The bits are
+  cleared when a frame begins, with no ticks behind them, so a system cannot ask what changed
+  since it last ran, and transform propagation remembers writes made after it at `Stage.Last` to
+  make up for it. A write through a span of a store's array is not seen.
 
 ### Behaviors
 

@@ -89,7 +89,10 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
   `QueryRef` of one, two or three components yields references and marks what it visits as changed,
   and narrows with `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.
-- `Changed<T>(entity)` reads the change bit, which `Update<T>` and `QueryRef` set and `First` clears.
+- `Changed<T>(entity)` reads the change bit, which `Update<T>`, `GetRef<T>` and `QueryRef` set and
+  `First` clears. `GetReadOnly<T>` reads without marking. A behavior method marks its component
+  unless it is `readonly`. Transform propagation in `Render` recomputes only the chains whose
+  transforms or parents changed, and `Last` remembers writes made after it for the next frame.
 - `Name` and `Parent` components give entities names and a hierarchy (`SetName`, `SetParent`,
   `ChildrenOf`, `DespawnRecursive`). The parent is a handle. A child's `Transform` is relative to
   its parent, and `TransformPropagation` writes the composed world matrix into its

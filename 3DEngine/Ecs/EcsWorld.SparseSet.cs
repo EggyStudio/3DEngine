@@ -245,6 +245,15 @@ internal sealed class SparseSet<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MarkChangedByDenseIndex(int denseIndex) => SetBit(denseIndex);
 
+    /// <summary>Whether any component changed this frame, a scan of one word per 64 components.</summary>
+    public bool AnyChanged()
+    {
+        int words = (_count + 63) >> 6;
+        for (int i = 0; i < words && i < _changedBits.Length; i++)
+            if (_changedBits[i] != 0) return true;
+        return false;
+    }
+
     /// <summary>
     /// Thread-safe version of <see cref="MarkChangedByDenseIndex"/>.
     /// Uses <see cref="Interlocked.Or(ref long, long)"/> for atomic bit-set operations,

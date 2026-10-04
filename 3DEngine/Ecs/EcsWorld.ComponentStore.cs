@@ -62,6 +62,9 @@ public sealed partial class EcsWorld
 
         public bool Changed(int entity) => _set.ChangedThisFrame(entity);
 
+        /// <summary>Whether any component in the store changed this frame.</summary>
+        public bool AnyChanged() => _set.AnyChanged();
+
         /// <summary>Returns a zero-allocation enumerable over all (entity, component) pairs.</summary>
         /// <returns>A <see cref="ComponentEnumerable"/> for <c>foreach</c> iteration.</returns>
         public ComponentEnumerable Enumerate() => new(this);

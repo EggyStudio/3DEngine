@@ -111,4 +111,27 @@ public class BehaviorGeneratorTests
             .Which.Location.SourceTree.Should().NotBeNull();
         result.Compile.Should().BeEmpty("a reported method is left out of what is generated");
     }
+
+    [Fact]
+    public void A_Method_That_May_Write_Marks_Its_Behavior_Changed_And_A_Readonly_One_Does_Not()
+    {
+        var (result, output) = Generate("""
+            using Engine;
+            [Behavior]
+            public struct Counter
+            {
+                public int Count;
+                [OnUpdate] public void Tick(BehaviorContext ctx) => Count++;
+                [OnPostUpdate] public readonly void Show(BehaviorContext ctx) { }
+            }
+            """);
+
+        result.Generator.Should().BeEmpty();
+        result.Compile.Should().BeEmpty();
+        var systems = string.Concat(output.SyntaxTrees.Select(t => t.ToString())).Split("private static void ");
+        var tick = systems.Single(s => s.StartsWith("Counter_Generated_Update_Tick("));
+        var show = systems.Single(s => s.StartsWith("Counter_Generated_PostUpdate_Show("));
+        tick.Should().Contain("MarkChangedByDenseIndex");
+        show.Should().NotContain("MarkChangedByDenseIndex");
+    }
 }

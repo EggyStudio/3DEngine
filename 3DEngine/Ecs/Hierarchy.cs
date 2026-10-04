@@ -138,25 +138,87 @@ public static class TransformPropagation
         return world;
     }
 
-    /// <summary>Writes every parented entity's <see cref="GlobalTransform"/>.</summary>
+    /// <summary>
+    /// The entities whose chain of transforms changed after propagation ran, gathered at
+    /// <see cref="Stage.Last"/> and propagated the next frame, since change bits are cleared when
+    /// the next frame begins.
+    /// </summary>
+    internal sealed class Pending
+    {
+        public HashSet<int> Entities { get; } = [];
+    }
+
+    /// <summary>
+    /// Writes the <see cref="GlobalTransform"/> of every parented entity whose chain changed, which
+    /// is when its own or an ancestor's <see cref="Transform"/> or <see cref="Parent"/> changed this
+    /// frame or after the last run, or it has none yet. A chain nothing touched keeps the one it has, so a
+    /// static hierarchy costs a scan of the change bits, 64 entities to a word.
+    /// </summary>
+    /// <remarks>
+    /// A write through <see cref="EcsWorld.GetRef{T}"/>, <see cref="EcsWorld.Update{T}"/> or a
+    /// by-reference query marks a component changed. A write to a component reached some other
+    /// way, as through a span of the store, is not seen until something marks it.
+    /// </remarks>
     public static void Run(World world)
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+        var pending = world.GetOrInsertResource(() => new Pending()).Entities;
 
+        // Nothing moved, nothing was parented, and every parented entity has a global transform.
+        if (pending.Count == 0 && !ecs.AnyChanged<Transform>() && !ecs.AnyChanged<Parent>()
+            && ecs.Count<GlobalTransform>() >= ecs.Count<Parent>())
+            return;
+
+        var dirty = new Dictionary<int, bool>();
         var done = new Dictionary<int, System.Numerics.Matrix4x4>();
         foreach (var (entity, _) in ecs.Query<Parent>())
-            Compose(ecs, entity, done, depth: 0);
+            if (Dirty(ecs, entity, pending, dirty, 0) || !ecs.Has<GlobalTransform>(entity))
+                Compose(ecs, entity, pending, dirty, done, depth: 0);
+        pending.Clear();
     }
 
-    // Recursion bounded by the depth of the hierarchy, which SetParent keeps free of cycles; the
-    // depth guard covers a cycle made by writing Parent components directly.
-    private static System.Numerics.Matrix4x4 Compose(EcsWorld ecs, int entity, Dictionary<int, System.Numerics.Matrix4x4> done, int depth)
+    /// <summary>
+    /// Remembers, at the end of the frame, every entity whose <see cref="Transform"/> or
+    /// <see cref="Parent"/> changed this frame, so a write made after <see cref="Run"/> reaches the
+    /// global transforms the next frame.
+    /// </summary>
+    public static void Remember(World world)
+    {
+        if (!world.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+        bool transforms = ecs.AnyChanged<Transform>(), parents = ecs.AnyChanged<Parent>();
+        if (!transforms && !parents) return;
+
+        var pending = world.GetOrInsertResource(() => new Pending()).Entities;
+        if (transforms)
+            foreach (var (entity, _) in ecs.Query<Transform>().Changed<Transform>()) pending.Add(entity);
+        if (parents)
+            foreach (var (entity, _) in ecs.Query<Parent>().Changed<Parent>()) pending.Add(entity);
+    }
+
+    // Whether the entity or anything above it changed. The depth guard covers a cycle made by
+    // writing Parent components directly.
+    private static bool Dirty(EcsWorld ecs, int entity, HashSet<int> pending, Dictionary<int, bool> known, int depth)
+    {
+        if (known.TryGetValue(entity, out var answer)) return answer;
+        answer = pending.Contains(entity) || ecs.Changed<Transform>(entity) || ecs.Changed<Parent>(entity);
+        var parent = ecs.ParentOf(entity);
+        if (!answer && parent != 0 && depth < 256) answer = Dirty(ecs, parent, pending, known, depth + 1);
+        return known[entity] = answer;
+    }
+
+    // An entity's world matrix, kept from its global transform when its chain is clean and composed
+    // from its parent's otherwise, writing the global transform of a parented one it composed.
+    private static System.Numerics.Matrix4x4 Compose(EcsWorld ecs, int entity, HashSet<int> pending, Dictionary<int, bool> dirty,
+        Dictionary<int, System.Numerics.Matrix4x4> done, int depth)
     {
         if (done.TryGetValue(entity, out var known)) return known;
 
-        var local = ecs.TryGet<Transform>(entity, out var t) ? ToMatrix(t) : System.Numerics.Matrix4x4.Identity;
         var parent = ecs.ParentOf(entity);
-        var world = parent != 0 && depth < 256 ? local * Compose(ecs, parent, done, depth + 1) : local;
+        if (parent != 0 && !Dirty(ecs, entity, pending, dirty, 0) && ecs.TryGet<GlobalTransform>(entity, out var kept))
+            return done[entity] = kept.Matrix;
+
+        var local = ecs.TryGet<Transform>(entity, out var t) ? ToMatrix(t) : System.Numerics.Matrix4x4.Identity;
+        var world = parent != 0 && depth < 256 ? local * Compose(ecs, parent, pending, dirty, done, depth + 1) : local;
 
         done[entity] = world;
         if (parent != 0)

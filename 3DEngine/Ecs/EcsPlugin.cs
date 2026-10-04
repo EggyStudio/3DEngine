@@ -71,6 +71,9 @@ public sealed class EcsPlugin : IPlugin
         // writes its bodies) and before Last (where the renderer reads transforms).
         app.AddSystem(Stage.Render, new SystemDescriptor(TransformPropagation.Run, "EcsPlugin.TransformPropagation")
             .Write<EcsWorld>());
+        // Writes made after propagation, in Render or Last, reach it the next frame.
+        app.AddSystem(Stage.Last, new SystemDescriptor(TransformPropagation.Remember, "EcsPlugin.TransformPropagationRemember")
+            .Write<EcsWorld>());
 
         // Code-generated [Behavior] layer that registers systems against the ECS world.
         app.AddPlugin(new BehaviorsPlugin());

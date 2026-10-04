@@ -367,7 +367,7 @@ public static partial class SceneFile
             foreach (var entity in saved)
             {
                 writer.WriteStartObject();
-                writer.WriteString("id", ecs.GetRef<SceneId>(entity).Value);
+                writer.WriteString("id", ecs.GetReadOnly<SceneId>(entity).Value);
                 if (ecs.TryGet<Name>(entity, out var name)) writer.WriteString("name", name.Value);
                 var parent = ecs.ParentOf(entity);
                 if (parent != 0 && ecs.TryGet<SceneId>(parent, out var parentId)) writer.WriteString("parent", parentId.Value);

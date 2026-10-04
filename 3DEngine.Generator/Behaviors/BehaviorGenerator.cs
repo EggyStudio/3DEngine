@@ -149,6 +149,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             {
                 Stage = stages[0],
                 IsStatic = method.IsStatic,
+                IsReadOnly = method.IsReadOnly,
                 MethodContainer = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 MethodName = method.Name,
                 Filters = GetFilters(method),
@@ -404,6 +405,11 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         var hoist = hasFilters ? GenFilterHoist(m.Filters, "        ") : "";
         var parChecks = hasFilters ? GenFilterChecks(m.Filters, "                        ") : "";
         var seqChecks = hasFilters ? GenFilterChecks(m.Filters, "                ") : "";
+        // A method that may write the behavior's fields marks it changed, as GetRef marks what it
+        // hands out, so a [Changed] filter on the behavior sees it. Parallel runs set the bit
+        // atomically, since neighbouring entities share a word of bits.
+        var parMark = m.IsReadOnly ? "" : "                        __store.MarkChangedByDenseIndexThreadSafe(__i);";
+        var seqMark = m.IsReadOnly ? "" : "                __store.MarkChangedByDenseIndex(__i, 0);";
 
         return
             $$"""
@@ -433,6 +439,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
               {{parChecks}}
                                       ctx.EntityId = entity;
                                       ref var behv = ref __components[__i];
+              {{parMark}}
                                       behv.{{m.MethodName}}(ctx);
                                   }
                               }
@@ -447,6 +454,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
               {{seqChecks}}
                               ctx.EntityId = entity;
                               ref var behv = ref __components[__i];
+              {{seqMark}}
                               behv.{{m.MethodName}}(ctx);
                           }
                       }
@@ -533,6 +541,10 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     {
         public Stage Stage { get; init; }
         public bool IsStatic { get; init; }
+
+        /// <summary>A <c>readonly</c> method, which C# keeps from writing the behavior's fields, so running it marks nothing changed.</summary>
+        public bool IsReadOnly { get; init; }
+
         public string MethodContainer { get; init; } = string.Empty;
         public string MethodName { get; init; } = string.Empty;
 

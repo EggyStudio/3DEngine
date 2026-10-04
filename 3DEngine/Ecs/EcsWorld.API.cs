@@ -140,6 +140,9 @@ public sealed partial class EcsWorld
     /// <returns>The count of entities with this component type.</returns>
     public int Count<T>() => GetStore<T>(create: false)?.Count ?? 0;
 
+    /// <summary>Whether any <typeparamref name="T"/> was added, updated or handed out by <see cref="GetRef{T}"/> this frame.</summary>
+    public bool AnyChanged<T>() => GetStore<T>(create: false)?.AnyChanged() ?? false;
+
     /// <summary>Removes component <typeparamref name="T"/> from an entity if present.</summary>
     /// <typeparam name="T">The component type to remove.</typeparam>
     /// <param name="entity">The entity ID.</param>
@@ -240,13 +243,35 @@ public sealed partial class EcsWorld
         return false;
     }
 
-    /// <summary>Returns a ref to component <typeparamref name="T"/> on <paramref name="entity"/>, or throws if missing.</summary>
-    /// <typeparam name="T">The component type.</typeparam>
-    /// <param name="entity">The entity ID.</param>
-    /// <returns>A reference to the component value in the dense array.</returns>
+    /// <summary>
+    /// Returns a ref to component <typeparamref name="T"/> on <paramref name="entity"/> to write
+    /// through, marking it changed this frame, or throws if missing.
+    /// </summary>
+    /// <remarks>
+    /// Marked whether or not the caller writes, as Bevy's <c>Mut</c> is on a mutable borrow, since
+    /// a ref cannot tell. A <c>Changed</c> filter and transform propagation then see writes made
+    /// through it. Code that only reads uses <see cref="GetReadOnly{T}"/>, which marks nothing.
+    /// The bit is set atomically, so systems running in parallel can call it.
+    /// </remarks>
     /// <exception cref="KeyNotFoundException">Thrown if the entity does not have the component.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T GetRef<T>(int entity)
+    {
+        var store = GetStore<T>(create: false) ??
+                    throw new KeyNotFoundException($"Component {typeof(T).Name} store not found.");
+        int index = store.DenseIndexOf(entity);
+        if (index < 0) throw new KeyNotFoundException($"Entity {entity} has no {typeof(T).Name}.");
+        store.MarkChangedByDenseIndexThreadSafe(index);
+        return ref store.ComponentRefByDenseIndex(index);
+    }
+
+    /// <summary>
+    /// Returns a read-only ref to component <typeparamref name="T"/> on <paramref name="entity"/>,
+    /// which marks nothing changed, or throws if missing.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">Thrown if the entity does not have the component.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref readonly T GetReadOnly<T>(int entity)
     {
         var store = GetStore<T>(create: false) ??
                     throw new KeyNotFoundException($"Component {typeof(T).Name} store not found.");
