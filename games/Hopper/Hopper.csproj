@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- A 2D game outside the solution, built against the engine's package the way a user's is. -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- The newest the folder has, since build/pack.sh stamps each pack with its time. -->
+        <PackageReference Include="3DEngine" Version="0.1.0-*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+</Project>

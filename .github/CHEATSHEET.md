@@ -57,6 +57,10 @@ void ClearBackground(Color color);                       // Color the frame is c
 void BeginMode3D(Camera3D camera);                       // Draw the following shapes through a camera, depth tested
 void EndMode3D();                                        // Return to screen space, in pixels from the top left
 void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from input (Free or Orbital)
+void BeginMode2D(Camera2D camera);                       // Draw the following 2D calls in world units through a 2D camera
+void EndMode2D();                                        // Return to screen pixels
+Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world point appears on the screen
+Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // The world point under a screen point
 
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
@@ -69,7 +73,8 @@ Inside texture mode, `ClearBackground` clears the target, 2D drawing is in its p
 use its shape. `target.Texture` draws like any texture. A target is drawn before the window in a
 frame that sends anything to it, and keeps its picture in frames that do not.
 
-`Camera3D` holds `Position`, `Target`, `Up`, `FovY` (degrees) and `Projection` (`Perspective` or
+`Camera2D` holds `Offset` (where on the screen the target appears), `Target`, `Rotation`
+(degrees) and `Zoom`, as raylib's. `Camera3D` holds `Position`, `Target`, `Up`, `FovY` (degrees) and `Projection` (`Perspective` or
 `Orthographic`). `CameraMode.Free` moves with W, A, S, D, Q and E, turns while the right mouse
 button is dragged, and goes faster with Shift. `Orbital` circles the target. `FirstPerson` turns
 with the mouse and walks along the ground with W, A, S and D, and `ThirdPerson` does the same
@@ -126,6 +131,17 @@ void DrawRectangleLines(int x, int y, int width, int height, Color color);      
 void DrawCircle(int centerX, int centerY, float radius, Color color);              // Filled circle
 void DrawCircleV(Vector2 center, float radius, Color color);                       // Filled circle
 void DrawCircleLines(int centerX, int centerY, float radius, Color color);         // Circle outline
+```
+
+## Collision
+
+```csharp
+bool CheckCollisionRecs(Rectangle a, Rectangle b);                                  // Two rectangles overlap
+bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2); // Two circles overlap
+bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec);          // A circle and a rectangle overlap
+bool CheckCollisionPointRec(Vector2 point, Rectangle rec);                          // A point is inside a rectangle
+bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius);        // A point is inside a circle
+Rectangle GetCollisionRec(Rectangle a, Rectangle b);                                 // The rectangle two share, empty when they do not overlap
 ```
 
 ## 3D shapes
@@ -455,6 +471,15 @@ Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing);   
 Text is drawn in the draw list like any shape, so it keeps its place among shapes, reaches render
 targets, and draws through `BeginMode3D` on the plane z = 0. `DrawText` bakes the default font at
 the size it is drawn, so small text stays sharp. A newline starts a new line.
+
+## Files
+
+```csharp
+string GetApplicationDirectory();                        // The folder the program runs from
+bool FileExists(string fileName);                        // Whether a file is beside the program or in the working directory
+string? LoadFileText(string fileName);                   // A text file's contents, null when there is none
+bool SaveFileText(string fileName, string text);         // Write text to a file, beside the program for a relative name
+```
 
 ## Colors
 

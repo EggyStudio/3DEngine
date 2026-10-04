@@ -42,8 +42,9 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### The flat API
 
-`Engine3D` covers the window, timing, input, the frame, cameras, render targets, 2D and 3D shapes,
-images and textures, models and meshes, shaders, scenes, physics, text and fonts, and audio
+`Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and
+3D shapes, 2D collision, images and textures, models and meshes, shaders, lights, states, scenes,
+physics, text and fonts, audio and text files
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
 - **Custom shaders are partial.** A model shader reads uniforms by name, but an immediate shader

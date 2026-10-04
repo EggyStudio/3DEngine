@@ -740,4 +740,23 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadLight(lamp);
         UnloadModel(cube);
     }
+
+    [NeedsVulkanFact]
+    public void A_2D_Camera_Draws_The_World_Around_Its_Target()
+    {
+        Open(64, 32);
+        var camera = new Camera2D(new Vector2(32, 16), new Vector2(1000, 500), Zoom: 2);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode2D(camera);
+            DrawRectangle(1000, 500, 4, 4, new Color(255, 0, 0));
+            EndMode2D();
+            DrawRectangle(0, 0, 4, 4, new Color(0, 0, 255));
+        });
+
+        GetImageColor(image, 34, 18).Should().Be(new Color(255, 0, 0), "the target's square is at the offset, twice its size");
+        GetImageColor(image, 2, 2).Should().Be(new Color(0, 0, 255), "after EndMode2D drawing is in screen pixels again");
+    }
 }

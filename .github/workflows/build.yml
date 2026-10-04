@@ -82,6 +82,22 @@ jobs:
             exit 1
           fi
 
+      # The 2D game from the same package, run right and jumped with the pad's south button.
+      - name: Build and play the 2D game from the package
+        run: |
+          dotnet restore games/Hopper --force-evaluate
+          dotnet build games/Hopper --no-restore
+          ./e3d open games/Hopper/bin/Debug/net10.0/Hopper --offscreen --quiet
+          ./e3d command input.key Right 40 --quiet
+          ./e3d command input.button 0 South 2 --quiet
+          ./e3d command input.key Right 120 --quiet
+          ./e3d shot captures/hopper.png --quiet
+          ./e3d stop --quiet
+          if grep -F '[Vulkan.Validation]' build/sessions/Hopper.log | grep -F 'Validation Error'; then
+            echo "::error::Hopper: the validation layer reported an error"
+            exit 1
+          fi
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
