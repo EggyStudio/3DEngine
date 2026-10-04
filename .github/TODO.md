@@ -49,7 +49,7 @@ removed from this file, and an item that is partly done is rewritten around what
 `Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and
 3D shapes, 2D collision, images and textures, models and meshes, shaders, lights, states, scenes,
 physics, text and fonts, audio and text files
-([CHEATSHEET.md](../docs/CHEATSHEET.md)). What is missing:
+([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in a

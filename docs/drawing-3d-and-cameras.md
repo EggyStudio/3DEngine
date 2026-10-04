@@ -46,7 +46,7 @@ along x, y and z, a plane lies on the ground, and `DrawGrid` draws the ground's 
 origin, which helps judge where things are.
 
 The 3D shapes are cubes, spheres, cylinders and cones, capsules, planes, lines, points, circles,
-rays and triangles, each with a wire form, listed in the cheatsheet's [3D shapes](CHEATSHEET.md#3d-shapes)
+rays and triangles, each with a wire form, listed in the cheatsheet's [3D shapes](../CHEATSHEET.md#3d-shapes)
 section. Models loaded from files and meshes the program generates are drawn the same way, inside
 `BeginMode3D`, and lit by the scene's lights.
 
@@ -153,6 +153,6 @@ camera entity in the ECS draws the scene's mesh entities into a texture the same
   [`core_3d_camera_free`](../3DEngine.Examples/Core/Core3DCameraFree.cs),
   [`core_3d_camera_first_person`](../3DEngine.Examples/Core/Core3DCameraFirstPerson.cs),
   [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs)
-- The cheatsheet's [Frame and cameras](CHEATSHEET.md#frame-and-cameras) and
-  [3D shapes](CHEATSHEET.md#3d-shapes)
+- The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras) and
+  [3D shapes](../CHEATSHEET.md#3d-shapes)
 - Previous: [Drawing in 2D](drawing-2d.md)

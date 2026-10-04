@@ -18,13 +18,19 @@ on 2026-10-04, and is an uncommitted change to commit with the next batch. Posed
 
 1. **What the next run on GitHub says**, which the owner brings back. A red job or an annotation
    comes before anything else.
-2. **The cheatsheet moves to `docs/`, and a guide is written beside it**, which the owner asked
+2. **The cheatsheet goes to the root, beside the README**, which the owner asked for on
+   2026-10-04 after `3fea2ddd` put it in `docs/`. `docs/CHEATSHEET.md` becomes `CHEATSHEET.md`,
+   since it is the one document a user opens as often as the README, with `CheatsheetTests`,
+   DESIGN.md §10, TODO.md, STYLE.md's scope and the README's links following. CLAUDE.md's line
+   was changed by the reviewing session on the owner's word.
+3. **A guide is written under `docs/`**, which the owner asked
    for on 2026-10-04. The README reads well as it is and has a cheatsheet, and nothing walks a
    user through an area step by step.
    The shape is the same in both engines and is recorded in [SHARED.md](SHARED.md). Who a
    document is for decides where it lives. `README.md` is for somebody deciding whether to use
    the engine, about 200 lines. `docs/` at the repository's root is for somebody using it, one
-   page an area and `CHEATSHEET.md`. `.github/` is for somebody working on it.
+   page an area. `CHEATSHEET.md` sits at the root beside the README. `.github/` is for somebody
+   working on it.
    - **The guide, a few pages a batch between other work**, each built on examples that already
      run: `docs/window-and-frame.md`, `docs/drawing-2d.md`, `docs/drawing-3d-and-cameras.md`,
      `docs/textures-and-images.md`, `docs/text-and-fonts.md`, `docs/models-and-animation.md`,
@@ -40,7 +46,7 @@ on 2026-10-04, and is an uncommitted change to commit with the next batch. Posed
    and `docs/`.
    - Verified by `CheatsheetTests` passing at the new path, the README walk still passing, and
      the link check.
-3. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
+4. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
    data in files of its own, files that outlive a renamed type, C# typed at a running app) are
    not scheduled. The owner decided on 2026-10-04 that they stay in [SHARED.md](SHARED.md) as
    `to consider`, taken only if one comes to suit this engine, and that the work here continues

@@ -1,7 +1,7 @@
 # Cheatsheet
 
 Every public function of the flat API, one line each, grouped as raylib groups its own. A program
-imports them with `using static Engine.Engine3D;`. [DESIGN.md](../.github/DESIGN.md) has the rules they follow.
+imports them with `using static Engine.Engine3D;`. [DESIGN.md](.github/DESIGN.md) has the rules they follow.
 
 ## Window and timing
 

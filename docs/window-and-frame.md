@@ -100,7 +100,7 @@ while (!WindowShouldClose())
 `GetScreenWidth` and `GetScreenHeight` give the window's size in pixels, which a program reads
 each frame rather than keeping, since a resizable window changes it. The monitors are counted and
 measured by `GetMonitorCount`, `GetMonitorWidth`, `GetMonitorRefreshRate` and the rest the
-[cheatsheet](CHEATSHEET.md#window-and-timing) lists.
+[cheatsheet](../CHEATSHEET.md#window-and-timing) lists.
 
 ## ImGui in the same frame
 
@@ -145,6 +145,6 @@ it over, for the ECS, plugins and resources, which run inside the same frames as
 - Examples: [`core_basic_window`](../3DEngine.Examples/Core/CoreBasicWindow.cs),
   [`core_window_flags`](../3DEngine.Examples/Core/CoreWindowFlags.cs),
   [`gui_imgui_window`](../3DEngine.Examples/Gui/GuiImGuiWindow.cs)
-- The cheatsheet's [Window and timing](CHEATSHEET.md#window-and-timing) and
-  [Frame and cameras](CHEATSHEET.md#frame-and-cameras)
+- The cheatsheet's [Window and timing](../CHEATSHEET.md#window-and-timing) and
+  [Frame and cameras](../CHEATSHEET.md#frame-and-cameras)
 - Next: [Drawing in 2D](drawing-2d.md)

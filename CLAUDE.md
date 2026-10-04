@@ -99,7 +99,7 @@ pushed.
   program draws in its own frame.
 - A `[Command]` method is a console command, an `e3d command` verb and a line in `e3d list` at
   once. Adding one is writing one.
-- Every public function of the flat API has its line in `docs/CHEATSHEET.md`, changed in the same
+- Every public function of the flat API has its line in `CHEATSHEET.md` at the root, changed in the same
   commit as the function.
 - No dependency is added beyond what [.github/DESIGN.md](.github/DESIGN.md) §8 allows without that
   section being changed to say why.

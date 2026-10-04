@@ -4,8 +4,9 @@ using FluentAssertions;
 namespace Engine.Tests.Docs;
 
 /// <summary>
-/// Every link in the README and the guide under <c>docs/</c> reaches a file of this repository, and
-/// every anchor a heading of it, so a page moved or renamed breaks the suite rather than the reader.
+/// Every link in the README, the cheatsheet and the guide under <c>docs/</c> reaches a file of this
+/// repository, and every anchor a heading of it, so a page moved or renamed breaks the suite rather
+/// than the reader.
 /// </summary>
 /// <remarks>
 /// A link to this repository on GitHub, as the README's are, since it is also the package's page on
@@ -20,10 +21,11 @@ public partial class DocumentLinkTests
     private const string Raw = "https://raw.githubusercontent.com/EggyStudio/3DEngine/main/";
 
     [Fact]
-    public void Every_Link_In_The_Readme_And_The_Guide_Reaches_A_File_And_A_Heading()
+    public void Every_Link_In_The_Readme_The_Cheatsheet_And_The_Guide_Reaches_A_File_And_A_Heading()
     {
         var root = RepoRoot();
-        var pages = Directory.GetFiles(Path.Combine(root, "docs"), "*.md").Append(Path.Combine(root, "README.md"));
+        var pages = Directory.GetFiles(Path.Combine(root, "docs"), "*.md")
+            .Append(Path.Combine(root, "README.md")).Append(Path.Combine(root, "CHEATSHEET.md"));
         var broken = new List<string>();
         foreach (var page in pages)
             foreach (Match link in Link().Matches(File.ReadAllText(page)))

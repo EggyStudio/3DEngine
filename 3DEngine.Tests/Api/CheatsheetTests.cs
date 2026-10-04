@@ -22,7 +22,7 @@ public partial class CheatsheetTests
             .Where(m => !m.IsSpecialName)
             .Select(m => $"{m.Name}/{m.GetParameters().Length}")
             .ToHashSet();
-        var listed = Listed(File.ReadAllLines(Path.Combine(RepoRoot(), "docs", "CHEATSHEET.md"))).ToHashSet();
+        var listed = Listed(File.ReadAllLines(Path.Combine(RepoRoot(), "CHEATSHEET.md"))).ToHashSet();
 
         // Joined, so a failure names every function at once.
         string.Join(", ", api.Except(listed).Order()).Should().BeEmpty("each public function of Engine3D has its line in CHEATSHEET.md");

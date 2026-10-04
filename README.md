@@ -46,7 +46,7 @@ public struct Ball
 ```
 
 A program opens a window, draws each frame with static calls and closes the window, and every
-call it can make is on one [cheatsheet](https://github.com/EggyStudio/3DEngine/blob/main/docs/CHEATSHEET.md). Dear ImGui works between
+call it can make is on one [cheatsheet](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md). Dear ImGui works between
 `BeginDrawing` and `EndDrawing` with no setup. Under the flat API is an ECS whose behaviors are
 `[Behavior]` structs like `Ball`, whose fields are each entity's state and whose methods a source
 generator turns into systems. It runs inside the same frames, so a program uses as much of it as it
@@ -153,7 +153,7 @@ example that runs. Its pages are being written, and this list grows with them.
 | [The window and the frame](https://github.com/EggyStudio/3DEngine/blob/main/docs/window-and-frame.md) | Opening a window, the loop, time, the window's state and ImGui in the frame |
 | [Drawing in 2D](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-2d.md) | Shapes, colors, text, splines, a 2D camera and collision |
 | [Drawing in 3D and cameras](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-3d-and-cameras.md) | 3D shapes, moving a camera, projections, picking and drawing into a texture |
-| [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/docs/CHEATSHEET.md) | Every function of the flat API on one line |
+| [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app
 

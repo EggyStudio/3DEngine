@@ -58,7 +58,7 @@ DrawText(message, (GetScreenWidth() - width) / 2, 200, 40, Color.Maroon);
 ```
 
 The default font is baked at the size it is drawn at, so it stays crisp. Fonts loaded from files,
-characters past Latin-1 and text drawn turned are in the cheatsheet's [Text and fonts](CHEATSHEET.md#text-and-fonts) section.
+characters past Latin-1 and text drawn turned are in the cheatsheet's [Text and fonts](../CHEATSHEET.md#text-and-fonts) section.
 
 ## Splines
 
@@ -119,7 +119,7 @@ var overlap = GetCollisionRec(a, b);         // the rectangle where two overlap
 ```
 
 There are tests for points, lines, circles, rectangles, triangles and polygons, listed in the
-cheatsheet's [Collision](CHEATSHEET.md#collision) section.
+cheatsheet's [Collision](../CHEATSHEET.md#collision) section.
 
 ## Keeping drawing to a rectangle
 
@@ -130,7 +130,7 @@ until `EndScissorMode`, as a scrolling list inside a panel needs.
 
 - Examples: [`shapes_basic_2d`](../3DEngine.Examples/Shapes/ShapesBasic2D.cs),
   [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs)
-- The cheatsheet's [2D shapes](CHEATSHEET.md#2d-shapes), [Collision](CHEATSHEET.md#collision) and
-  [Colors](CHEATSHEET.md#colors)
+- The cheatsheet's [2D shapes](../CHEATSHEET.md#2d-shapes), [Collision](../CHEATSHEET.md#collision) and
+  [Colors](../CHEATSHEET.md#colors)
 - Previous: [The window and the frame](window-and-frame.md)
 - Next: [Drawing in 3D and cameras](drawing-3d-and-cameras.md)
