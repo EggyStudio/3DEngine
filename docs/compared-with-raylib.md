@@ -56,7 +56,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 489 of the 619 functions in `raylib.h` are carried, 79 percent, counted
+- **Not all of raylib.** 491 of the 619 functions in `raylib.h` are carried, 79 percent, counted
   below. The rest are mostly what C# already has, file paths, directories, hashes, compression and
   string functions, with VR stereo, automation events, the audio processors and some image and
   shape variants, which TODO.md names with reasons.
@@ -74,7 +74,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 489 (79 percent) |
+| Functions of `raylib.h` carried | 619 | 491 (79 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw
