@@ -514,7 +514,7 @@ public static partial class Engine3D
     {
         if (!mesh.IsValid) return;
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
-        var shader = material.Shader.IsValid ? material.Shader.Id : 0;
+        var shader = material.Shader.IsValid && Draws(material.Shader) ? material.Shader.Id : 0;
         Res<ModelDrawList>().Add(new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,
             shader, shader == 0 ? null : UniformSnapshot(material.Shader),
             material.Metallic, material.Roughness,

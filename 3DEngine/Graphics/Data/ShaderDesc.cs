@@ -6,7 +6,9 @@ public enum ShaderStage
     /// <summary>Vertex shader stage - transforms vertex positions.</summary>
     Vertex,
     /// <summary>Fragment (pixel) shader stage - computes final pixel color.</summary>
-    Fragment
+    Fragment,
+    /// <summary>Compute shader stage, run by a dispatch over groups of threads rather than by drawing.</summary>
+    Compute
 }
 
 /// <summary>Descriptor for creating a shader module from SPIR-V bytecode.</summary>

@@ -25,6 +25,7 @@ var examples = new Dictionary<string, Action>
     ["models_stress"] = ModelsStress.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["shaders_model"] = ShadersModel.Run,
+    ["shaders_compute_life"] = ShadersComputeLife.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,
     ["text_font_sdf"] = TextFontSdf.Run,

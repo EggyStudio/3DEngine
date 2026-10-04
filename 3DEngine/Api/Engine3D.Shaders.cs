@@ -75,14 +75,24 @@ public static partial class Engine3D
         ShaderValues.Remove(shader.Id);
         UniformValues.Remove(shader.Id);
         TextureValues.Remove(shader.Id);
+        ForgetComputeShader(shader.Id);
     }
 
     /// <summary>Draws the following shapes, textures and text with <paramref name="shader"/> until <see cref="EndShaderMode"/>.</summary>
     public static void BeginShaderMode(Shader shader)
     {
+        if (!Draws(shader))
+        {
+            ApiLogger.Warn("BeginShaderMode: a compute shader draws nothing, so the engine's own shader is used.");
+            shader = default;
+        }
         _shader = shader;
         DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }
+
+    // Whether a shader has a fragment stage to draw with, which a compute shader has not.
+    private static bool Draws(Shader shader) =>
+        !shader.IsValid || Res<ShaderStore>().Get(shader.Id)?.Stages.ContainsKey(ShaderStage.Fragment) != false;
 
     /// <summary>Returns to the engine's own shader.</summary>
     public static void EndShaderMode()
@@ -94,6 +104,8 @@ public static partial class Engine3D
     /// <summary>
     /// The location of a uniform the shader declares at the top level, by name, for
     /// <see cref="SetShaderValue(Shader, int, Vector4)"/>, or -1 when it declares none of that name.
+    /// A texture's is for <see cref="SetShaderValueTexture"/> and a compute shader's storage
+    /// buffer's for <see cref="SetShaderValueBuffer"/>.
     /// </summary>
     /// <remarks>
     /// Both a model shader's and an immediate shader's uniforms are found this way. An immediate
@@ -106,6 +118,8 @@ public static partial class Engine3D
             if (program.Uniforms[i].Name == uniformName) return NamedLocationBase + i;
         for (int i = 0; i < program.Textures.Count; i++)
             if (program.Textures[i].Name == uniformName) return TextureLocationBase + i;
+        for (int i = 0; i < program.Buffers.Count; i++)
+            if (program.Buffers[i].Name == uniformName) return BufferLocationBase + i;
         return -1;
     }
 

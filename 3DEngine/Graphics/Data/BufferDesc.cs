@@ -12,6 +12,8 @@ public enum BufferUsage
     Index = 1 << 1,
     /// <summary>Buffer can be bound as a uniform (constant) buffer.</summary>
     Uniform = 1 << 2,
+    /// <summary>Buffer can be read and written by a compute shader as a storage buffer.</summary>
+    Storage = 1 << 6,
     /// <summary>Buffer can be used as a transfer source.</summary>
     TransferSrc = 1 << 3,
     /// <summary>Buffer can be used as a transfer destination.</summary>

@@ -32,11 +32,11 @@ public sealed class ShaderStore
     private int _next = 1;
 
     /// <summary>Stores a compiled program and returns its id.</summary>
-    /// <exception cref="ArgumentException">The program has no fragment stage.</exception>
+    /// <exception cref="ArgumentException">The program has neither a fragment stage to draw with nor a compute stage to dispatch.</exception>
     public int Add(ShaderProgram program)
     {
-        if (!program.Stages.ContainsKey(ShaderStage.Fragment))
-            throw new ArgumentException($"'{program.Name}' has no fragment stage, which a shader for the immediate pass needs.", nameof(program));
+        if (!program.Stages.ContainsKey(ShaderStage.Fragment) && !program.Stages.ContainsKey(ShaderStage.Compute))
+            throw new ArgumentException($"'{program.Name}' has no fragment stage, which a shader for the immediate pass needs, and no compute stage.", nameof(program));
         lock (_gate)
         {
             var id = _next++;

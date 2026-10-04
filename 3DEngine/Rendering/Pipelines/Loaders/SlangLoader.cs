@@ -70,6 +70,7 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         var stages = new Dictionary<ShaderStage, byte[]>();
         var uniforms = new Dictionary<string, ShaderUniform>();
         var textures = new Dictionary<string, ShaderTexture>();
+        var buffers = new Dictionary<string, ShaderTexture>();
         foreach (var (entryPoint, stage) in EntryPoints(source))
         {
             var compiled = SlangCompiler.CompileStage(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory);
@@ -77,13 +78,15 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
             // Both stages see the same top-level uniforms, laid out the same.
             foreach (var uniform in compiled.Uniforms) uniforms[uniform.Name] = uniform;
             foreach (var texture in compiled.Textures ?? []) textures[texture.Name] = texture;
+            foreach (var buffer in compiled.Buffers ?? []) buffers[buffer.Name] = buffer;
         }
 
         if (stages.Count == 0)
             throw new InvalidOperationException(
-                $"'{fileName}' has no function marked [shader(\"vertex\")] or [shader(\"fragment\")].");
+                $"'{fileName}' has no function marked [shader(\"vertex\")], [shader(\"fragment\")] or [shader(\"compute\")].");
 
-        return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)]);
+        return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)],
+            [.. buffers.Values.OrderBy(b => b.Binding)]);
     }
 
     /// <summary>
@@ -125,6 +128,7 @@ public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
             {
                 "vertex" => ShaderStage.Vertex,
                 "fragment" or "pixel" => ShaderStage.Fragment,
+                "compute" => ShaderStage.Compute,
                 _ => (ShaderStage?)null,
             };
             if (stage is not null)

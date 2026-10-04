@@ -88,7 +88,11 @@ physics, text and fonts, audio and text files
   hundred milliseconds, and there are no reflection
   probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
   into the window only.
-- **Shader reflection and compute** are not built (RENDERING.md §1).
+- **Storage buffers reach compute shaders only.** A dispatch runs a compute shader over storage
+  buffers the CPU reads back (RENDERING.md §1), but no draw binds one, so particles simulated on
+  the GPU are drawn from a copy on the CPU, and a compute shader cannot write a texture.
+  Descriptor layouts and vertex inputs are still written by hand beside each pipeline rather
+  than read from the reflection.
 - **One directional and one spot light cast shadows.** The first directional light with
   `CastsShadows` set shadows what the window's camera sees within 150 units, in three cascades,
   and the first such spot light shadows its cone, in the map's last tile (RENDERING.md §4). The

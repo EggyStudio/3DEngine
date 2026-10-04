@@ -82,6 +82,7 @@ public sealed unsafe partial class GraphicsDevice
         if (desc.Usage.HasFlag(BufferUsage.Uniform)) usage |= VkBufferUsageFlags.UniformBuffer;
         if (desc.Usage.HasFlag(BufferUsage.TransferSrc)) usage |= VkBufferUsageFlags.TransferSrc;
         if (desc.Usage.HasFlag(BufferUsage.TransferDst)) usage |= VkBufferUsageFlags.TransferDst;
+        if (desc.Usage.HasFlag(BufferUsage.Storage)) usage |= VkBufferUsageFlags.StorageBuffer;
 
         VkBufferCreateInfo bufferInfo = new()
         {

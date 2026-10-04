@@ -183,6 +183,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySyncObjects();
         Logger.Debug("Destroying swapchain resources (framebuffers, image views, render pass, command pool)...");
         DestroySwapchainResources();
+        DestroyCompute();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
         Logger.Debug("Destroying logical device...");

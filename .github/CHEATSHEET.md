@@ -297,6 +297,39 @@ SetShaderValue(shader, GetShaderLocation(shader, "tint"), new Vector4(1, 0.5f, 0
 A value set before a draw is the one that draw uses, so one shader can draw with several in a
 frame.
 
+### Compute
+
+```csharp
+Shader LoadComputeShader(string fileName);                           // Compile a Slang file with a [shader("compute")] function
+Shader LoadComputeShaderFromMemory(string code, string name);        // The same from source in memory
+ShaderBuffer LoadShaderBuffer(int size);                             // A storage buffer of that many bytes, zeroed
+ShaderBuffer LoadShaderBuffer<T>(ReadOnlySpan<T> data);              // One holding the data
+void UnloadShaderBuffer(ShaderBuffer buffer);                        // Free it
+bool IsShaderBufferValid(ShaderBuffer buffer);                       // Whether it is loaded
+void UpdateShaderBuffer<T>(ShaderBuffer buffer, ReadOnlySpan<T> data, int offset); // Write into it
+void ReadShaderBuffer<T>(ShaderBuffer buffer, Span<T> destination, int offset);    // Read it back, once the dispatches before have run
+void SetShaderValueBuffer(Shader shader, int location, ShaderBuffer buffer); // A buffer the shader declares, as RWStructuredBuffer<float> values;
+void ComputeShaderDispatch(Shader shader, int groupsX, int groupsY, int groupsZ); // Run it over groups of its threads
+```
+
+A compute shader's uniforms are set by name as any shader's are, and its storage buffers the same
+way, with `SetShaderValueBuffer`:
+
+```slang
+uniform uint count;
+RWStructuredBuffer<float> values;
+
+[shader("compute")]
+[numthreads(64, 1, 1)]
+void computeMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x < count) values[id.x] *= 2;
+}
+```
+
+A dispatch runs on the GPU before the frame being drawn, while the program goes on, and
+`ReadShaderBuffer` waits for it.
+
 ## Models and meshes
 
 ```csharp
