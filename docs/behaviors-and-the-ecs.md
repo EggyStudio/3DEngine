@@ -143,8 +143,8 @@ only for the example chosen:
 public static bool Running => Example.Current == "ecs_behaviors";
 ```
 
-`[InState]`, `[OnEnter]` and `[OnExit]` run a method by the game's state, which the page on states
-covers.
+`[InState]`, `[OnEnter]` and `[OnExit]` run a method by the game's state, which the
+[States](states.md) page covers.
 
 ## The world from the loop
 
@@ -181,3 +181,4 @@ functions themselves, which work inside behaviors of the app `InitWindow` built.
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs)
 - [DESIGN.md](../.github/DESIGN.md#5-the-ecs-underneath), on why the ECS sits under the flat API
 - Previous: [Physics](physics.md)
+- Next: [States](states.md)

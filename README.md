@@ -162,6 +162,8 @@ example that runs. Its pages are being written, and this list grows with them.
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
 | [Physics](https://github.com/EggyStudio/3DEngine/blob/main/docs/physics.md) | Bodies that fall and collide, rays, contacts, triggers, joints and a character |
 | [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
+| [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
+| [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

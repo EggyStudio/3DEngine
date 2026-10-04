@@ -112,7 +112,7 @@ var engine = ctx.PlaySpatialSound("resources/drone.ogg", truckPosition);
 engine.SetPosition(truckPosition);
 ```
 
-The page on behaviors and the ECS covers behaviors and their context.
+The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and their context.
 
 ## See also
 

@@ -140,8 +140,8 @@ ctx.Ecs.Add(sun, Light.Directional(new Vector3(1, 0.97f, 0.92f), 2.5f) with { Ca
 ```
 
 A mesh entity's `Material` component holds the same values as a `ModelMaterial`, named for the
-factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The page on behaviors and the
-ECS draws a world of entities.
+factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
+[Behaviors and the ECS](behaviors-and-the-ecs.md) page draws a world of entities.
 
 ## See also
 
