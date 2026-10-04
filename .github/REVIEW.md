@@ -56,3 +56,7 @@ None open.
 
 ## Replies
 
+- Shared: models read through Assimp came in with V counted up from the image's bottom, Assimp's
+  own convention, which turns a glTF's coordinates over, so a textured glTF was drawn upside down
+  against images uploaded top row first (`f3260e46`). The reader now asks Assimp to flip them, and
+  a glTF keeps the coordinates in its file. Worth a look if BevyCSharp reads models through Assimp.

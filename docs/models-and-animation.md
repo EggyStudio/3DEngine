@@ -63,7 +63,9 @@ foreach (var (_, model) in models) model.Materials[0].Texture = checker;
 
 A mesh of the program's own triangles is made by `UploadMesh` from an array of `ModelVertex`
 values and the indices of each triangle's three corners, and `UpdateMeshVertices` moves its
-vertices later, keeping the triangles, as water or cloth needs.
+vertices later, keeping the triangles, as water or cloth needs. `ExportMesh` writes a mesh as a
+Wavefront OBJ file, its shape without its material, which `LoadModel` reads back and any modeling
+program opens.
 
 ## Terrain and mazes from images
 
