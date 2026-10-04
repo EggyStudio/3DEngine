@@ -25,6 +25,35 @@ public class GamepadTests
     }
 
     [Fact]
+    public void Any_Pad_Pressing_A_Button_Answers_Press_Any_Button_And_The_Wheel_Reads_Both_Axes()
+    {
+        var app = new App();
+        app.World.InitResource<Input>();
+        Engine3D.UseApp(app);
+        try
+        {
+            var input = app.World.Resource<Input>();
+            input.ConnectGamepad(1, "First", 0);
+            var second = input.ConnectGamepad(2, "Second", 0);
+
+            Engine3D.GetGamepadButtonPressed().Should().BeNull();
+            second.SetButton(GamepadButton.Start, true);
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.Start);
+            input.BeginFrame();
+            Engine3D.GetGamepadButtonPressed().Should().BeNull("only the frame it went down");
+
+            input.AddWheel(2, -1);
+            Engine3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));
+            Engine3D.GetMouseWheelMove().Should().Be(-1);
+            Engine3D.SetMouseCursor(MouseCursor.PointingHand);
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
+    }
+
+    [Fact]
     public void Pads_Are_Indexed_In_The_Order_They_Connected()
     {
         var input = new Input();

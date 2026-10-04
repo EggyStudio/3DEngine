@@ -31,6 +31,10 @@ void SetWindowMinSize(int width, int height);            // Smallest size a resi
 void SetWindowPosition(int x, int y);                    // Move on the desktop
 Vector2 GetWindowPosition();                             // Top left corner on the desktop
 Vector2 GetWindowScaleDPI();                             // Pixels for each unit of its size, 2 on a doubled monitor
+int GetRenderWidth();                                    // The width in pixels its content is drawn at
+int GetRenderHeight();                                   // The height in pixels its content is drawn at
+void SetWindowOpacity(float opacity);                    // How opaque it is, 0 to 1
+void SetWindowFocused();                                 // Raise it and ask for the keyboard focus
 void ToggleBorderlessWindowed();                         // Between a window and a borderless one covering the monitor
 void SetWindowIcon(Image image);                         // The icon the desktop shows for it
 
@@ -39,6 +43,7 @@ int GetCurrentMonitor();                                 // The monitor the wind
 int GetMonitorWidth(int monitor);                        // Its width in its current mode
 int GetMonitorHeight(int monitor);                       // Its height in its current mode
 int GetMonitorRefreshRate(int monitor);                  // Its refresh rate in hertz
+Vector2 GetMonitorPosition(int monitor);                 // Its top left corner on the desktop
 string GetMonitorName(int monitor);                      // Its name
 MonitorMode[] GetMonitorModes(int monitor);              // The sizes and rates it can be set to in fullscreen
 void SetWindowFullscreenMode(MonitorMode mode);          // Fullscreen at the closest mode, or the desktop's with default
@@ -124,6 +129,8 @@ int GetMouseX();                                         // Pointer x
 int GetMouseY();                                         // Pointer y
 Vector2 GetMouseDelta();                                 // How far the pointer moved this frame
 float GetMouseWheelMove();                               // How far the wheel turned this frame
+Vector2 GetMouseWheelMoveV();                            // The same on both axes, x scrolling sideways
+void SetMouseCursor(MouseCursor cursor);                 // The pointer's shape (IBeam, PointingHand, ResizeEW, ...)
 void ShowCursor();                                       // Show the cursor
 void HideCursor();                                       // Hide the cursor
 bool IsCursorHidden();                                   // Whether it is hidden
@@ -146,6 +153,7 @@ float GetGesturePinchAngle();                            // Its angle in degrees
 bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
 string GetGamepadName(int gamepad);                                    // Its name
 bool IsGamepadButtonPressed(int gamepad, GamepadButton button);        // Button went down this frame
+GamepadButton? GetGamepadButtonPressed();                              // A button any pad pressed this frame, null for none
 bool IsGamepadButtonDown(int gamepad, GamepadButton button);           // Button is held
 bool IsGamepadButtonReleased(int gamepad, GamepadButton button);       // Button came up this frame
 bool IsGamepadButtonUp(int gamepad, GamepadButton button);             // Button is not held

@@ -123,6 +123,38 @@ public static partial class Engine3D
     /// <summary>How far the wheel turned this frame, positive away from the user.</summary>
     public static float GetMouseWheelMove() => Input.WheelY;
 
+    /// <summary>How far the wheel turned this frame on both axes, x for a wheel or trackpad that scrolls sideways.</summary>
+    public static Vector2 GetMouseWheelMoveV() => new(Input.WheelX, Input.WheelY);
+
+    // The system cursors made so far, by shape, each made once and kept, since SDL frees one only
+    // when asked and setting a cursor each frame is common.
+    private static readonly Dictionary<MouseCursor, nint> Cursors = [];
+
+    /// <summary>Sets the pointer's shape over the window, as a text field's or a link's.</summary>
+    public static void SetMouseCursor(MouseCursor cursor)
+    {
+        if (!TryRes<AppWindow>(out _)) return;
+        if (!Cursors.TryGetValue(cursor, out var made))
+        {
+            made = SDL.CreateSystemCursor(cursor switch
+            {
+                MouseCursor.IBeam => SDL.SystemCursor.Text,
+                MouseCursor.Crosshair => SDL.SystemCursor.Crosshair,
+                MouseCursor.PointingHand => SDL.SystemCursor.Pointer,
+                MouseCursor.ResizeEW => SDL.SystemCursor.EWResize,
+                MouseCursor.ResizeNS => SDL.SystemCursor.NSResize,
+                MouseCursor.ResizeNWSE => SDL.SystemCursor.NWSEResize,
+                MouseCursor.ResizeNESW => SDL.SystemCursor.NESWResize,
+                MouseCursor.ResizeAll => SDL.SystemCursor.Move,
+                MouseCursor.NotAllowed => SDL.SystemCursor.NotAllowed,
+                _ => SDL.SystemCursor.Default,
+            });
+            if (made == 0) return;
+            Cursors[cursor] = made;
+        }
+        SDL.SetCursor(made);
+    }
+
     // -- Cursor
 
     private static bool _cursorHidden;
@@ -169,6 +201,15 @@ public static partial class Engine3D
 
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>
     public static bool IsGamepadButtonPressed(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonPressed(button) ?? false;
+
+    /// <summary>A button that went down this frame on any gamepad, as a "press any button" screen asks, or null for none.</summary>
+    public static GamepadButton? GetGamepadButtonPressed()
+    {
+        foreach (var pad in Input.Gamepads)
+            foreach (var button in Enum.GetValues<GamepadButton>())
+                if (pad.ButtonPressed(button)) return button;
+        return null;
+    }
 
     /// <summary>Whether <paramref name="button"/> is held.</summary>
     public static bool IsGamepadButtonDown(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonDown(button) ?? false;

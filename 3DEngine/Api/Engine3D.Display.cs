@@ -183,6 +183,38 @@ public static partial class Engine3D
 
     // -- Clipboard
 
+    /// <summary>Sets how opaque the window is, from 0 (clear) to 1, where the desktop allows it.</summary>
+    public static void SetWindowOpacity(float opacity)
+    {
+        if (WindowHandle is not 0 and var w) SDL.SetWindowOpacity(w, Math.Clamp(opacity, 0f, 1f));
+    }
+
+    /// <summary>Raises the window and asks for the keyboard focus, which the desktop may refuse.</summary>
+    public static void SetWindowFocused()
+    {
+        if (WindowHandle is not 0 and var w) SDL.RaiseWindow(w);
+    }
+
+    /// <summary>The width in pixels the window's content is drawn at, which on a doubled monitor is twice <see cref="GetScreenWidth"/>.</summary>
+    public static int GetRenderWidth() => RenderSize().Width;
+
+    /// <summary>The height in pixels the window's content is drawn at.</summary>
+    public static int GetRenderHeight() => RenderSize().Height;
+
+    private static (int Width, int Height) RenderSize()
+    {
+        if (WindowHandle is not 0 and var w && SDL.GetWindowSizeInPixels(w, out var width, out var height)) return (width, height);
+        return (GetScreenWidth(), GetScreenHeight());
+    }
+
+    /// <summary>A monitor's top left corner on the desktop, or zero when there is no such monitor.</summary>
+    public static System.Numerics.Vector2 GetMonitorPosition(int monitor)
+    {
+        var displays = Displays();
+        if (monitor < 0 || monitor >= displays.Length || !SDL.GetDisplayBounds(displays[monitor], out var bounds)) return System.Numerics.Vector2.Zero;
+        return new System.Numerics.Vector2(bounds.X, bounds.Y);
+    }
+
     /// <summary>
     /// Switches between a window and a borderless one covering the monitor at its desktop mode,
     /// which changes no display mode and so switches at once.
