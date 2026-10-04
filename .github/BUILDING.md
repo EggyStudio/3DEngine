@@ -95,5 +95,6 @@ run from anywhere in the checkout finds it.
 | macOS | SDL3 | Vulkan through MoltenVK |
 
 Linux is where the engine is developed and tested, and `.github/workflows/build.yml` builds and
-tests it on Ubuntu for every push. Windows and macOS build from the same packages and are not
-covered by CI.
+tests it on Ubuntu for every push, drawing on lavapipe. A Windows job builds it and runs the tests
+that need no device, since the runner has no Vulkan device. macOS builds from the same packages
+and is not covered by CI.

@@ -69,3 +69,34 @@ jobs:
         with:
           name: example-captures
           path: captures/
+
+  # The engine's other desktop platform. A Windows runner has no Vulkan device, so the render and
+  # capture tests skip themselves with the reason, and this job finds path separators, line
+  # endings and native library names in everything else.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v4
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.ps1') }}
+
+      - run: build/fetch-slang.ps1
+        shell: pwsh
+
+      - run: dotnet build 3DEngine.slnx
+
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-windows
+          path: 3DEngine.Tests/TestResults/
+

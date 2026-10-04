@@ -172,8 +172,8 @@ scheduler and behaviors are tested. What is missing:
 - **The flat API has no lights of its own.** Its models are shaded by one fixed light, shapes are
   unlit as raylib's are, and light entities in the ECS light models and meshes alike by their
   metallic-roughness materials, with shadows from one directional light.
-- **Linux is the tested platform**, in CI on every push. Windows and macOS build from the same
-  packages and are not covered by CI.
+- **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
+  need no GPU in CI, and macOS builds from the same packages and is not covered.
 
 [TODO.md](.github/TODO.md) lists the rest, in the order it blocks making a game.
 

@@ -164,9 +164,10 @@ what is left.
 
 ### Build and release
 
-- **CI covers Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and captures
-  every example offscreen on Ubuntu, which has not been run since it was written. Windows and
-  macOS runners are not set up.
+- **CI draws on Linux only.** `.github/workflows/build.yml` builds, tests with lavapipe and the
+  validation layer and captures every example offscreen on Ubuntu, and builds and runs the tests
+  that need no device on Windows. The Windows job has not run yet, nothing draws there, and macOS
+  has no job.
 - **The package is local.** `build/pack.sh` makes a package a game outside this repository
   builds and runs from with no `slangc` (BUILDING.md), but it is not published to nuget.org, its
   version is set by hand, and CI does not make one.
