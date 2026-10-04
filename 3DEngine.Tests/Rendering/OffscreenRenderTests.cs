@@ -650,8 +650,9 @@ public sealed class OffscreenRenderTests : IDisposable
             EndMode3D();
         });
 
-        GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().MaterialSetCount
-            .Should().Be(1, "every cube has the same maps, and its factors reach it by an offset");
+        var renderer = GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>();
+        renderer.MaterialSetCount.Should().Be(1, "every cube has the same maps, and its factors reach it in its instance");
+        renderer.DrawCalls.Should().Be(1, "the cubes share a mesh and its maps, so one instanced draw draws them all");
         var left = GetImageColor(image, 20, 16);
         var right = GetImageColor(image, 44, 16);
         (left.R > 100 && left.B < 20).Should().BeTrue($"the leftmost cube is red, not {left}");

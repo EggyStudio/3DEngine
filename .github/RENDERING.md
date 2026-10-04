@@ -98,9 +98,11 @@ Every mesh draws through one pass, `ModelNode`, before the immediate shapes: the
 models and the ECS's mesh entities alike. A mesh is uploaded once into host-visible vertex and index buffers (32-byte
 vertices of position, normal and texture coordinate, 32-bit indices) through `MeshStore` and
 `GpuMeshesPrepare`, and `DrawModel` records a mesh, a world transform, the camera and a material
-each frame. The push constants are the full transform, the world matrix as three rows of a 3x4
-(the rotation for normals and the translation for world positions), and the color, 128 bytes,
-which every device supports. `model.slang` shades by the frame's lights, or by one fixed light
+each frame. Draws of the model pass's own shader that share a mesh and its five maps are one
+instanced draw, in the order each such batch first appears. Each draw is an instance of 160 bytes
+in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `ModelInstance` in the
+shader), holding the full transform, the world matrix as three rows of a 3x4 (the rotation for
+normals and the translation for world positions) and the material's factors. `model.slang` shades by the frame's lights, or by one fixed light
 from above over an ambient floor when the world has none, which is how the flat API's models look.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports
 too. A draw with one is drawn by a pipeline made from it, and its uniforms, copied when the draw
@@ -113,16 +115,15 @@ array, frees them the first frame no entity draws them, and copies the material'
 normal and metallic-roughness texture assets into `TextureStore`. A triangle without normals is
 lit by its face's normal.
 
-The push constants hold the transform and the world rows only, 112 bytes. A draw's material is in
-its set, the first. Its base color texture, normal map, metallic-roughness map, emissive map and
-occlusion map are at bindings 1 to 5, and its factors at binding 6, as plain floats. Its color and
-emission are linear, decoded on the CPU, then its metallic, roughness, normal and occlusion
-strengths. Binding 6 is a dynamic uniform buffer. The model pass's own draws write their factors
-into a ring with a region per frame slot, in 256-byte steps, and share one set per combination of
-maps, bound at the offset of each draw's factors, so draws differing only in their factors share a
-set. A set no frame in flight binds is freed, and a ring outgrown is replaced by one twice the size.
-A draw with a shader of its own writes its factors into the frame's buffer beside its uniforms and
-is bound at offset 0.
+A draw's maps are in its set, the first. Its base color texture, normal map, metallic-roughness
+map, emissive map and occlusion map are at bindings 1 to 5. Its factors are in its instance, its
+color and emission linear, decoded on the CPU, then its metallic, roughness, normal and occlusion
+strengths, and the vertex stage hands them to the fragment stage unblended across the triangle.
+The instances are written into a ring kept mapped, with a region per frame slot, the shadow pass's
+and each target's one after another, and a ring outgrown is replaced by one twice the size. The
+model pass's own draws share one set per combination of maps, so draws differing only in their
+factors share a set and a draw call. A set no frame in flight binds is freed. A draw with a shader
+of its own is a batch of one, with a set of its own holding its uniforms.
 A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
 texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
 the map is toward the top of the image, as glTF has it.
@@ -284,6 +285,14 @@ The three largest costs, in order:
    draws, once per entity and once more in the shadow pass, so 8,004
    cubes of one mesh cost 10.3 ms of recording and 1.3 ms of shadows, while the GPU draws them in
    1.8 ms. `MeshEntityDraws` adds 1.8 ms walking the entities and building their draws.
+   **Changed.** Draws sharing a mesh and its maps are one instanced draw in the model and the
+   shadow pass, their transforms and factors read per instance, a draw's sRGB color decoded
+   through a table and its set found by its texture ids. The same run afterward held 27,614
+   entities without the arms in place of 8,004, and 32,416 with them, the model pass recording 4.8
+   ms and the shadow pass 3.6 ms for 27,614 draws, one call each, since the cubes and the ground
+   share a mesh and no maps. What is left is gathering and writing each instance. The largest cost at that count is `MeshEntityDraws` at 6.3
+   ms, which converts each entity's linear albedo to sRGB bytes for the draw to decode again and
+   walks its transform's parents.
 3. **Each sprite costs about 77 nanoseconds in `DrawTexture`** (9.4 ms for 121,613), then 1.4 ms to
    upload and 4.0 ms on the GPU. The example's own movement loop takes 5.4 ms, much of it in
    `GetScreenWidth` and `GetScreenHeight`, which it calls for each sprite as raylib's does and

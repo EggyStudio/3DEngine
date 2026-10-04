@@ -5,9 +5,9 @@
 import modelpass;
 
 [shader("vertex")]
-ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0)
+ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0, ModelInstance instance)
 {
-    return transformModelVertex(position, normal, uv);
+    return transformModelVertex(position, normal, uv, instance);
 }
 
 [shader("fragment")]

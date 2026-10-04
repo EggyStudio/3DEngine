@@ -37,7 +37,8 @@ public enum ShaderStageFlags
 /// <summary>Describes a vertex buffer binding (stride and binding slot).</summary>
 /// <param name="Binding">Binding slot index.</param>
 /// <param name="Stride">Byte stride between consecutive vertices.</param>
-public readonly record struct VertexInputBindingDesc(uint Binding, uint Stride);
+/// <param name="PerInstance">Whether the binding steps once per instance rather than once per vertex.</param>
+public readonly record struct VertexInputBindingDesc(uint Binding, uint Stride, bool PerInstance = false);
 
 /// <summary>Describes a single vertex attribute within a binding.</summary>
 /// <param name="Location">Shader attribute location.</param>

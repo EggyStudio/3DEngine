@@ -9,8 +9,11 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Each draw binds its mesh's buffers from <see cref="GpuMeshes"/> and its texture from
-/// <see cref="GpuTextures"/>, and pushes its transform, its world matrix as a 3x4 and its color.
+/// Draws of the model pass's own shader that share a mesh and its five maps are one instanced
+/// draw. Each draw is an <see cref="Instance"/> in a vertex buffer stepped per instance, holding
+/// its transform, its world matrix as a 3x4 and its material's factors, written into this frame's
+/// region of a ring, and the batch binds its mesh's buffers from <see cref="GpuMeshes"/> and its
+/// maps from <see cref="GpuTextures"/> once. Batches are drawn in the order each first appears.
 /// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
 /// second descriptor set.
 /// </para>
@@ -18,11 +21,12 @@ namespace Engine;
 /// A draw whose material has a shader of the program's own is drawn with a pipeline made from that
 /// shader, its vertex stage or <c>model.slang</c>'s when it has none, and a descriptor set of its
 /// own holding its uniform values, copied when the draw was recorded, beside its texture. Those
-/// sets come from a ring per frame in flight, reused once the GPU is done with that frame.
+/// sets come from a ring per frame in flight, reused once the GPU is done with that frame. Such a
+/// draw is a batch of its own, an instance of one.
 /// </para>
 /// <para>
 /// The frame's directional shadow is drawn by <see cref="DrawShadow"/> into a <see cref="ShadowMap"/>
-/// with <c>model.slang</c>'s vertex stage and no fragment stage, so a model shader with a vertex
+/// with <c>model.slang</c>'s vertex stage and no fragment stage, a batch per mesh, so a model shader with a vertex
 /// stage of its own casts the shadow of its mesh as it was before that stage moved it. The map
 /// is bound beside the lights, or the white texture in its place in a frame with no shadow.
 /// </para>
@@ -33,37 +37,62 @@ namespace Engine;
 /// </remarks>
 public sealed class ModelRenderer : IDisposable
 {
+    /// <summary>
+    /// One drawn copy of a mesh as <c>modelpass.slang</c>'s <c>ModelInstance</c> reads it from a
+    /// vertex buffer stepped per instance, 160 bytes.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    private struct Push
+    internal struct Instance
     {
+        public const int Size = 160;
+
+        /// <summary>Model to clip space, read by its rows.</summary>
         public Matrix4x4 Transform;
-        public Vector4 WorldX;
-        public Vector4 WorldY;
-        public Vector4 WorldZ;
+        /// <summary>The world matrix's columns, the rows of a 3x4.</summary>
+        public Vector4 WorldX, WorldY, WorldZ;
+        /// <summary>The material's color, linear.</summary>
+        public Vector4 Color;
+        /// <summary>The light the material gives off, linear, in xyz.</summary>
+        public Vector4 Emission;
+        /// <summary>Metallic, roughness, normal scale and occlusion strength.</summary>
+        public Vector4 Factors;
+
+        // Each sRGB byte's linear value, since three powers a draw cost more than the rest of it.
+        private static readonly float[] Linear = Enumerable.Range(0, 256).Select(value =>
+        {
+            var c = value / 255f;
+            return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+        }).ToArray();
+
+        /// <summary>A draw through <paramref name="viewProjection"/>, its color decoded from sRGB to linear.</summary>
+        public static Instance Of(in ModelDraw draw, in Matrix4x4 viewProjection)
+        {
+            var w = draw.World;
+            var color = draw.Color;
+            return new Instance
+            {
+                Transform = w * viewProjection,
+                WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
+                WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
+                WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
+                Color = new Vector4(Linear[color.R], Linear[color.G], Linear[color.B], color.A / 255f),
+                Emission = new Vector4(draw.Emission, 0),
+                // No map, no bending, which also keeps the shader from reading the white texture
+                // in its place as a normal.
+                Factors = new Vector4(draw.Metallic, draw.Roughness, draw.NormalMap == 0 ? 0 : draw.NormalScale, draw.OcclusionStrength),
+            };
+        }
     }
 
-    /// <summary>A draw's material factors as <c>modelpass.slang</c>'s <c>MaterialFactors</c> block lays them out, 48 bytes.</summary>
-    [StructLayout(LayoutKind.Sequential)]
-    internal readonly record struct MaterialFactors(Vector4 Color, Vector4 Emission, float Metallic, float Roughness, float NormalScale, float OcclusionStrength)
+    // A run of instances drawn by one call. It is a mesh with a set of maps, or one draw with a
+    // shader of its own, by its index in the draw list.
+    private struct Batch
     {
-        public const int Size = 48;
-
-        /// <summary>A draw's factors, its color decoded from sRGB to linear.</summary>
-        public static MaterialFactors Of(in ModelDraw draw)
-        {
-            static float Linear(byte value)
-            {
-                var c = value / 255f;
-                return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
-            }
-            var color = draw.Color;
-            // No map, no bending, which also keeps the shader from reading the white texture in
-            // its place as a normal.
-            return new MaterialFactors(
-                new Vector4(Linear(color.R), Linear(color.G), Linear(color.B), color.A / 255f),
-                new Vector4(draw.Emission, 0),
-                draw.Metallic, draw.Roughness, draw.NormalMap == 0 ? 0 : draw.NormalScale, draw.OcclusionStrength);
-        }
+        public GpuMeshes.Entry Mesh;
+        public IDescriptorSet? Set;
+        public int Custom;
+        public uint First;
+        public uint Count;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
@@ -77,27 +106,37 @@ public sealed class ModelRenderer : IDisposable
 
     // Sets of the model pass's own draws, one per combination of five maps (a base color texture, a
     // normal map, a metallic-roughness map, an emissive map and an occlusion map) by their views,
-    // with the frame each was last bound in. The factors are not in the key. Each set points at the
-    // ring of factors below through a dynamic uniform buffer, and a draw binds it at the offset of
-    // its own factors, so a thousand entities differing only in color share one set. A set unbound
-    // for RetireFrames frames is freed, since no frame in flight can read it, so the views of
-    // unloaded textures do not hold sets forever.
+    // with the frame each was last bound in. The factors are in each draw's instance, so a thousand
+    // entities differing only in color share one set and one draw. A set unbound for RetireFrames
+    // frames is freed, since no frame in flight can read it, so the views of unloaded textures do
+    // not hold sets forever.
     private readonly Dictionary<(IImageView, IImageView, IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
 
-    // The factors of the model pass's own draws, a region per frame slot of 256-byte steps, the
-    // largest uniform offset alignment devices ask for. Each frame writes its draws' factors into
-    // its own region, which the GPU finished reading RetireFrames frames ago.
-    private const int FactorStride = 256;
-    private IBuffer? _factorRing;
+    // Every draw's instance, a region per frame slot, kept mapped. Each frame writes its instances
+    // into its own region, which the GPU finished reading RetireFrames frames ago, the shadow pass's
+    // and every target's one after another.
+    private IBuffer? _instanceRing;
     private int _ringCapacity;
     private int _ringSlot;
     private int _ringCursor;
-    private readonly List<(uint Offset, MaterialFactors Factors)> _pending = [];
     private readonly List<(long Frame, IBuffer Buffer)> _retiredBuffers = [];
-    private readonly List<(long Frame, IDescriptorSet Set)> _retiredSets = [];
+
+    // This call's batches, which batch each draw went into (-1 for none), and the batch of each
+    // mesh and set, kept between calls so a frame allocates nothing once they have grown.
+    private readonly List<Batch> _batches = [];
+    private readonly List<int> _drawBatch = [];
+    private readonly List<uint> _filled = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set), int> _batchOf = [];
+
+    // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can
+    // change between frames when its texture is reloaded.
+    private readonly Dictionary<(int, int, int, int, int), IDescriptorSet> _setByIds = [];
 
     /// <summary>How many sets the model pass's own draws hold, one per combination of maps in use.</summary>
     internal int MaterialSetCount => _materialSets.Count;
+
+    /// <summary>How many draw calls the model and shadow passes recorded this frame.</summary>
+    internal int DrawCalls { get; private set; }
     private long _frames;
     private readonly List<IDescriptorSet> _lightSets = [];
     private int _lightSet;
@@ -138,20 +177,24 @@ public sealed class ModelRenderer : IDisposable
         if (draws is null || draws.Draws.Count == 0 || meshes is null || textures is null) return;
 
         var gfx = renderContext.Device;
-        IPipeline? pipeline = null;
         var store = renderWorld.TryGet<ShaderStore>();
         BeginFrameOfSets(renderContext);
         RetireUnloadedShaders(store);
-        EnsureFactorRoom(gfx, draws.Draws.Count);
-        _pending.Clear();
 
-        foreach (var draw in draws.Draws)
+        // Draws of the pass's own shader gather by mesh and set, and a draw with a shader of its
+        // own is a batch alone.
+        Gather(draws.Draws, meshes, draw =>
+            draw.Target != target ? (Kind.Skip, null)
+            : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
+            : (Kind.Batched, MaterialSet(gfx, textures, draw)));
+        var ring = WriteInstances(gfx, draws.Draws, static draw => Instance.Of(draw, draw.ViewProjection));
+
+        IPipeline? pipeline = null;
+        foreach (var batch in _batches)
         {
-            // A mesh unloaded after its draw was recorded is skipped.
-            if (draw.Target != target || meshes.Get(draw.Mesh) is not { } mesh) continue;
-
+            var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
-            var program = draw.Shader != 0 ? store?.Get(draw.Shader) : null;
+            var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
             var wanted = program is null
                 ? Pipeline(gfx, renderPass, renderWorld)
                 : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program);
@@ -162,54 +205,94 @@ public sealed class ModelRenderer : IDisposable
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures), index: 1);
             }
 
-            if (program is null)
-            {
-                // The factors go in this frame's region of the ring, at the offset the set is
-                // bound with, and are written there once the loop has them all.
-                var offset = (uint)((_ringSlot * _ringCapacity + _ringCursor++) * FactorStride);
-                _pending.Add((offset, MaterialFactors.Of(draw)));
-                pass.SetBindGroup(pipeline, MaterialSet(gfx, textures, draw), 0, [offset]);
-            }
-            else pass.SetBindGroup(pipeline, DrawSet(gfx, renderContext, textures, draw, program), 0, [0]);
-            pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
-            pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
-
-            var w = draw.World;
-            var push = new Push
-            {
-                Transform = w * draw.ViewProjection,
-                WorldX = new Vector4(w.M11, w.M21, w.M31, w.M41),
-                WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
-                WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
-            };
-            pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
-            pass.DrawIndexed(mesh.IndexCount);
-        }
-
-        if (_pending.Count > 0 && _factorRing is not null)
-        {
-            var ring = gfx.Map(_factorRing);
-            foreach (var (offset, factors) in _pending)
-                MemoryMarshal.Write(ring[(int)offset..], in factors);
-            gfx.Unmap(_factorRing);
+            pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, textures, draw, program));
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+            DrawCalls++;
         }
     }
 
-    // The ring of factors, with room for a region per frame slot of at least this call's draws
-    // past those the frame has bound already. A ring outgrown is replaced by one twice the size,
-    // and the sets pointing at the old one with it, both kept until no frame in flight reads them.
-    private void EnsureFactorRoom(IGraphicsDevice gfx, int draws)
-    {
-        if (_factorRing is not null && _ringCursor + draws <= _ringCapacity) return;
+    // What a draw is to one call. It is left out, a batch of its own, or batched with the draws
+    // that share its mesh and set.
+    private enum Kind { Skip, Alone, Batched }
 
-        if (_factorRing is not null)
+    // Sorts this call's draws into batches, in the order each batch first appears.
+    private void Gather(IReadOnlyList<ModelDraw> draws, GpuMeshes meshes, Func<ModelDraw, (Kind Kind, IDescriptorSet? Set)> classify)
+    {
+        _batches.Clear();
+        _drawBatch.Clear();
+        _batchOf.Clear();
+        for (int i = 0; i < draws.Count; i++)
         {
-            _retiredBuffers.Add((_frames, _factorRing));
-            foreach (var set in _materialSets.Values) _retiredSets.Add((_frames, set.Set));
-            _materialSets.Clear();
+            var draw = draws[i];
+            var (kind, set) = classify(draw);
+            // A mesh unloaded after its draw was recorded is skipped.
+            if (kind == Kind.Skip || meshes.Get(draw.Mesh) is not { } mesh)
+            {
+                _drawBatch.Add(-1);
+                continue;
+            }
+            if (kind == Kind.Alone)
+            {
+                _drawBatch.Add(_batches.Count);
+                _batches.Add(new Batch { Mesh = mesh, Custom = i, Count = 1 });
+                continue;
+            }
+            if (!_batchOf.TryGetValue((draw.Mesh, set), out var index))
+            {
+                _batchOf[(draw.Mesh, set)] = index = _batches.Count;
+                _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = -1 });
+            }
+            var batch = _batches[index];
+            batch.Count++;
+            _batches[index] = batch;
+            _drawBatch.Add(index);
         }
-        _ringCapacity = Math.Max(Math.Max(256, _ringCapacity * 2), _ringCursor + draws);
-        _factorRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * FactorStride), BufferUsage.Uniform, CpuAccessMode.Write));
+    }
+
+    // Writes each batched draw's instance into this frame's region of the ring, a batch's
+    // instances together, and gives each batch the first of them. Returns the ring they are in.
+    private IBuffer WriteInstances(IGraphicsDevice gfx, IReadOnlyList<ModelDraw> draws, Func<ModelDraw, Instance> instanceOf)
+    {
+        uint total = 0;
+        foreach (var batch in _batches) total += batch.Count;
+        EnsureInstanceRoom(gfx, (int)total);
+
+        var first = (uint)(_ringSlot * _ringCapacity + _ringCursor);
+        _ringCursor += (int)total;
+        _filled.Clear();
+        for (int b = 0; b < _batches.Count; b++)
+        {
+            var batch = _batches[b];
+            batch.First = first;
+            _batches[b] = batch;
+            _filled.Add(first);
+            first += batch.Count;
+        }
+
+        var instances = MemoryMarshal.Cast<byte, Instance>(gfx.Map(_instanceRing!));
+        for (int i = 0; i < _drawBatch.Count; i++)
+        {
+            var b = _drawBatch[i];
+            if (b < 0) continue;
+            var draw = draws[i];
+            instances[(int)_filled[b]++] = instanceOf(draw);
+        }
+        return _instanceRing!;
+    }
+
+    // The ring of instances, with room for a region per frame slot of at least this call's
+    // instances past those the frame has written already. A ring outgrown is replaced by one twice
+    // the size, the old one kept until no frame in flight reads it, and the frame's earlier
+    // commands keep the old one bound.
+    private void EnsureInstanceRoom(IGraphicsDevice gfx, int instances)
+    {
+        if (_instanceRing is not null && _ringCursor + instances <= _ringCapacity) return;
+
+        if (_instanceRing is not null) _retiredBuffers.Add((_frames, _instanceRing));
+        _ringCapacity = Math.Max(Math.Max(1024, _ringCapacity * 2), _ringCursor + instances);
+        _instanceRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * Instance.Size), BufferUsage.Vertex, CpuAccessMode.Write));
     }
 
     /// <summary>Draws the window's meshes into the shadow map, as <paramref name="shadow"/>'s light sees them.</summary>
@@ -226,20 +309,25 @@ public sealed class ModelRenderer : IDisposable
             _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _vertexShader, fragment: null);
         }
 
+        // The window's draws gather by mesh alone, since the shadow reads no material.
+        BeginFrameOfSets(renderContext);
+        Gather(draws.Draws, meshes, static draw => (draw.Target == 0 ? Kind.Batched : Kind.Skip, null));
+        // The depth pass reads the transform alone.
+        var lightViewProjection = shadow.ViewProjection;
+        var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
+
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             map.RenderPass, map.Framebuffer, map.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
         pass.SetViewport(0, 0, map.Extent.Width, map.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, map.Extent.Width, map.Extent.Height);
         pass.SetPipeline(_shadowPipeline);
 
-        foreach (var draw in draws.Draws)
+        foreach (var batch in _batches)
         {
-            if (draw.Target != 0 || meshes.Get(draw.Mesh) is not { } mesh) continue;
-            pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
-            pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
-            var push = new Push { Transform = draw.World * shadow.ViewProjection };
-            pass.PushConstants(_shadowPipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
-            pass.DrawIndexed(mesh.IndexCount);
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, 0]);
+            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            pass.DrawIndexed(batch.Mesh.IndexCount, batch.Count, 0, 0, batch.First);
+            DrawCalls++;
         }
         pass.EndRenderPass();
     }
@@ -284,6 +372,8 @@ public sealed class ModelRenderer : IDisposable
     {
         if (ReferenceEquals(renderContext, _lastContext)) return;
         _lastContext = renderContext;
+        DrawCalls = 0;
+        _setByIds.Clear();
         _drawSetSlot = (_drawSetSlot + 1) % SetRingFrames;
         _drawSetNext = 0;
 
@@ -295,12 +385,6 @@ public sealed class ModelRenderer : IDisposable
             {
                 _retiredBuffers[i].Buffer.Dispose();
                 _retiredBuffers.RemoveAt(i);
-            }
-        for (int i = _retiredSets.Count - 1; i >= 0; i--)
-            if (_frames - _retiredSets[i].Frame > SetRingFrames)
-            {
-                _retiredSets[i].Set.Dispose();
-                _retiredSets.RemoveAt(i);
             }
         for (int i = _retiredCubes.Count - 1; i >= 0; i--)
             if (_frames - _retiredCubes[i].Frame > SetRingFrames)
@@ -317,8 +401,17 @@ public sealed class ModelRenderer : IDisposable
             }
     }
 
-    // The set of a draw with the model pass's own shader, made once per combination of maps.
+    // The set of a draw with the model pass's own shader, made once per combination of maps. Within
+    // a frame the same five texture ids give the same views, so most draws find their set by the
+    // ids without looking the views up.
     private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
+    {
+        var ids = (draw.Texture, draw.NormalMap, draw.MetallicRoughnessMap, draw.EmissiveMap, draw.OcclusionMap);
+        if (_setByIds.TryGetValue(ids, out var found)) return found;
+        return _setByIds[ids] = MaterialSetByViews(gfx, textures, draw);
+    }
+
+    private IDescriptorSet MaterialSetByViews(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
         var maps = Maps(gfx, textures, draw);
         var key = (maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View);
@@ -329,7 +422,7 @@ public sealed class ModelRenderer : IDisposable
         }
 
         var set = gfx.CreateDescriptorSet(MaterialLayout(gfx));
-        WriteMaterial(gfx, set, NoUniforms(gfx), new UniformBufferBinding(_factorRing!, 6, 0, MaterialFactors.Size, Dynamic: true), maps);
+        WriteMaterial(gfx, set, NoUniforms(gfx), maps);
         _materialSets[key] = (set, _frames);
         return set;
     }
@@ -344,13 +437,13 @@ public sealed class ModelRenderer : IDisposable
         textures.ViewFor(gfx, draw.OcclusionMap),
     ];
 
-    // Binding 0's uniforms, the maps at bindings 1 to 5 and the factors at binding 6. One buffer
-    // and one sampler per call is what the device's update takes, so they go in one call each.
-    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms, UniformBufferBinding factors,
+    // Binding 0's uniforms and the maps at bindings 1 to 5. One buffer and one sampler per call is
+    // what the device's update takes, so the uniforms go with the first map.
+    private static void WriteMaterial(IGraphicsDevice gfx, IDescriptorSet set, UniformBufferBinding uniforms,
         (IImageView View, ISampler Sampler)[] maps)
     {
         for (int i = 0; i < maps.Length; i++)
-            gfx.UpdateDescriptorSet(set, i == 0 ? uniforms : i == 1 ? factors : null,
+            gfx.UpdateDescriptorSet(set, i == 0 ? uniforms : null,
                 new CombinedImageSamplerBinding(maps[i].View, maps[i].Sampler, (uint)(i + 1)));
     }
 
@@ -385,13 +478,7 @@ public sealed class ModelRenderer : IDisposable
         draw.Uniforms?.AsSpan(0, Math.Min(draw.Uniforms.Length, bytes.Length)).CopyTo(bytes);
         allocator.Unmap(allocation);
 
-        var factors = MaterialFactors.Of(draw);
-        var block = allocator.Allocate(MaterialFactors.Size, BufferUsage.Uniform);
-        MemoryMarshal.Write(allocator.Map(block), in factors);
-        allocator.Unmap(block);
-
-        WriteMaterial(gfx, set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size),
-            new UniformBufferBinding(block.Buffer, 6, block.Offset, MaterialFactors.Size, Dynamic: true), Maps(gfx, textures, draw));
+        WriteMaterial(gfx, set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size), Maps(gfx, textures, draw));
         return set;
     }
 
@@ -403,15 +490,21 @@ public sealed class ModelRenderer : IDisposable
             fragment,
             BlendEnabled: true,
             CullBackFace: false,
-            VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>())],
+            // The mesh's vertices at binding 0, and the instances at binding 1, ten rows of four
+            // floats at locations 3 to 12 in ModelInstance's order.
+            VertexBindings:
+            [
+                new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>()),
+                new VertexInputBindingDesc(1, Instance.Size, PerInstance: true),
+            ],
             VertexAttributes:
             [
                 new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
                 new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12),
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
+                .. Enumerable.Range(0, 10).Select(row => new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
             ],
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
-            // The material's set, with uniforms at binding 0, its five maps and its factors after, then the
+            // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [MaterialLayout(gfx), LightsLayout(gfx)],
             DepthTestEnabled: true,
@@ -472,7 +565,6 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(5, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(6, DescriptorType.UniformBufferDynamic, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
     ]);
 
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
@@ -511,9 +603,8 @@ public sealed class ModelRenderer : IDisposable
             fragment.Dispose();
         }
         foreach (var (set, _) in _materialSets.Values) set.Dispose();
-        foreach (var (_, set) in _retiredSets) set.Dispose();
         foreach (var (_, buffer) in _retiredBuffers) buffer.Dispose();
-        _factorRing?.Dispose();
+        _instanceRing?.Dispose();
         _materialSets.Clear();
         _noUniforms?.Dispose();
         _materialLayout?.Dispose();

@@ -42,12 +42,11 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Cost
 
-- **Two costs bound a frame** (RENDERING.md §6, measured by `textures_bunnymark` and
-  `models_stress`). Each mesh entity is its own draw, about a microsecond of recording each, which
-  caps a frame near 9,000 while the GPU idles. Each `DrawTexture` costs about 77 nanoseconds before
-  the upload, and getters such as `GetScreenWidth` look up a resource each call. Instancing by mesh
-  and material, and a leaner sprite path, are what each needs, measured again by the same examples
-  after.
+- **Per-draw work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark`
+  and `models_stress`). Mesh entities are instanced, and a frame holds about 28,000, where
+  `MeshEntityDraws` takes 6.3 ms building a draw for each entity every frame and the two passes 8
+  ms gathering and writing instances. Each `DrawTexture` costs about 77 nanoseconds before the
+  upload, and getters such as `GetScreenWidth` look up a resource each call.
 - **Skinning runs on the CPU.** An animated mesh's posed vertices are written into a ring of
   mapped buffers, which costs its vertex count in copying each frame. GPU skinning would upload
   the bone matrices instead, with each vertex's bone indices and weights kept in its buffer, and is

@@ -263,7 +263,9 @@ Inside `BeginShaderMode`, a shader applies to the immediate pass: shapes, textur
 render textures drawn as textures. A model takes one through its material,
 `model.Materials[0].Shader = shader;`, and such a shader imports `modelpass` instead, which gives
 it `ModelVertexOutput` (position, normal, world position, uv), `baseColor(input)` and
-`lit(color, input)`, the model pass's own lighting. A model shader's uniforms are set by name:
+`lit(color, input)`, the model pass's own lighting. A model shader with a vertex stage of its own
+takes a `ModelInstance` after the mesh's position, normal and uv, and hands it to
+`transformModelVertex`. A model shader's uniforms are set by name:
 
 ```slang
 import modelpass;

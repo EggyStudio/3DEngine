@@ -142,7 +142,7 @@ public sealed unsafe partial class GraphicsDevice
             {
                 binding = b.Binding,
                 stride = b.Stride,
-                inputRate = VkVertexInputRate.Vertex
+                inputRate = b.PerInstance ? VkVertexInputRate.Instance : VkVertexInputRate.Vertex
             };
         }
 

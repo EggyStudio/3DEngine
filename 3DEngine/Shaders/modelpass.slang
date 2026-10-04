@@ -21,43 +21,28 @@
 // set from the program, is taken as already encoded, as the 2D passes take every color.
 module modelpass;
 
-public struct ModelPushConstants
+// One drawn copy of a mesh, read from a vertex buffer stepped once per instance, so every mesh
+// sharing a mesh and its maps is drawn by one call. A vertex stage of a shader's own takes it as a
+// parameter after the mesh's three and hands it to transformModelVertex.
+public struct ModelInstance
 {
-    public float4x4 transform;
+    // The model to clip space transform, by its rows as System.Numerics lays them out.
+    public float4 transform0 : INSTANCE_TRANSFORM0;
+    public float4 transform1 : INSTANCE_TRANSFORM1;
+    public float4 transform2 : INSTANCE_TRANSFORM2;
+    public float4 transform3 : INSTANCE_TRANSFORM3;
     // The world matrix as three rows of a 3x4: the 3x3 turns normals into world space and the
-    // fourth column is the translation, for the world position point lights need. A full second
-    // matrix would take the block past the 128 bytes every device guarantees.
-    public float4 worldX;
-    public float4 worldY;
-    public float4 worldZ;
+    // fourth column is the translation, for the world position point lights need.
+    public float4 worldX : INSTANCE_WORLDX;
+    public float4 worldY : INSTANCE_WORLDY;
+    public float4 worldZ : INSTANCE_WORLDZ;
+    // The material's factors. Color and emission are linear, decoded on the CPU, and emission
+    // may pass 1.
+    public float4 color : INSTANCE_COLOR;
+    public float4 emission : INSTANCE_EMISSION;
+    // Metallic, roughness, normal scale (0 when the material has no normal map) and occlusion strength.
+    public float4 factors : INSTANCE_FACTORS;
 };
-
-// The material's factors, in a uniform block of its set rather than the push constants, which the
-// transform and the world rows fill to near the 128 bytes every device guarantees. Its color and
-// emission are linear, decoded on the CPU.
-public struct MaterialFactors
-{
-    public float4 color;
-    // xyz is the light the material gives off, which may pass 1.
-    public float4 emission;
-    public float metallic;
-    public float roughness;
-    // 0 when the material has no normal map.
-    public float normalScale;
-    public float occlusionStrength;
-};
-
-[[vk::binding(6, 0)]]
-public ConstantBuffer<MaterialFactors> material;
-
-public float materialMetallic() { return material.metallic; }
-public float materialRoughness() { return material.roughness; }
-public float materialNormalScale() { return material.normalScale; }
-public float materialOcclusionStrength() { return material.occlusionStrength; }
-public float3 materialEmission() { return material.emission.xyz; }
-
-[[vk::push_constant]]
-public ConstantBuffer<ModelPushConstants> push;
 
 [[vk::binding(1, 0)]]
 public Sampler2D boundTexture;
@@ -84,7 +69,7 @@ public Sampler2D occlusionMap;
 // The light the material gives off at this point, linear, which no light entity is needed for.
 public float3 emitted(ModelVertexOutput input)
 {
-    return materialEmission() * emissiveMap.Sample(input.uv).rgb;
+    return materialEmission(input) * emissiveMap.Sample(input.uv).rgb;
 }
 
 // sRGB's transfer function, exactly rather than as a power of 2.2, so a byte decoded and encoded
@@ -106,11 +91,13 @@ public float3 toDisplay(float3 linear)
     return linearToSrgb(tonemap(linear));
 }
 
-// The material's color, linear.
-public float4 materialColor()
-{
-    return material.color;
-}
+// The material's factors at this point, which its instance carried through the vertex stage.
+public float4 materialColor(ModelVertexOutput input) { return input.color; }
+public float materialMetallic(ModelVertexOutput input) { return input.factors.x; }
+public float materialRoughness(ModelVertexOutput input) { return input.factors.y; }
+public float materialNormalScale(ModelVertexOutput input) { return input.factors.z; }
+public float materialOcclusionStrength(ModelVertexOutput input) { return input.factors.w; }
+public float3 materialEmission(ModelVertexOutput input) { return input.emission.xyz; }
 
 // One light, packed by LightingUboPacker: position and kind, direction and range, color times
 // intensity, and the cosines of a spot's inner and outer angles.
@@ -155,17 +142,21 @@ public struct ModelVertexOutput
     public float2 uv : TEXCOORD0;
     // From the surface toward the camera, unnormalized, for specular light.
     public float3 toEye : TEXCOORD1;
+    // The instance's material factors, the same across the triangle.
+    public nointerpolation float4 color : COLOR1;
+    public nointerpolation float4 emission : COLOR2;
+    public nointerpolation float4 factors : TEXCOORD2;
 };
 
-// Where the camera is, worked out from the transform alone, since the push constants have no
-// room for it. Under a perspective projection the eye is the one point clip space's x, y and w all
+// Where the camera is, worked out from the transform alone, so an instance carries no more than
+// it. The transform here is as mul takes it, its rows the columns System.Numerics has. Under a perspective projection the eye is the one point clip space's x, y and w all
 // take as zero, three planes whose meeting point Cramer's rule gives. An orthographic projection
 // has no such point, and gives the way toward the camera instead, with w of 0.
-float4 eyeInModelSpace()
+float4 eyeInModelSpace(float4x4 transform)
 {
-    float4 a = push.transform[0];
-    float4 b = push.transform[1];
-    float4 c = push.transform[3];
+    float4 a = transform[0];
+    float4 b = transform[1];
+    float4 c = transform[3];
     float3 bc = cross(b.xyz, c.xyz);
     float det = dot(a.xyz, bc);
     if (abs(det) > 1e-8)
@@ -173,7 +164,7 @@ float4 eyeInModelSpace()
 
     // Toward the camera is where depth falls, which is against the transform's depth row.
     float3 back = normalize(cross(a.xyz, b.xyz));
-    return float4(dot(back, push.transform[2].xyz) > 0.0 ? -back : back, 0.0);
+    return float4(dot(back, transform[2].xyz) > 0.0 ? -back : back, 0.0);
 }
 
 // LightKind's values.
@@ -183,17 +174,22 @@ static const int Spot = 2;
 static const int Ambient = 3;
 
 // The vertex stage every model shader uses unless it writes its own.
-public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv)
+public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv, ModelInstance instance)
 {
+    // The rows System.Numerics multiplies a row vector by are the columns of what mul takes.
+    float4x4 transform = transpose(float4x4(instance.transform0, instance.transform1, instance.transform2, instance.transform3));
     ModelVertexOutput output;
-    output.position = mul(push.transform, float4(position, 1.0));
-    output.normal = float3(dot(push.worldX.xyz, normal), dot(push.worldY.xyz, normal), dot(push.worldZ.xyz, normal));
-    output.world = float3(dot(push.worldX, float4(position, 1.0)), dot(push.worldY, float4(position, 1.0)), dot(push.worldZ, float4(position, 1.0)));
+    output.position = mul(transform, float4(position, 1.0));
+    output.normal = float3(dot(instance.worldX.xyz, normal), dot(instance.worldY.xyz, normal), dot(instance.worldZ.xyz, normal));
+    output.world = float3(dot(instance.worldX, float4(position, 1.0)), dot(instance.worldY, float4(position, 1.0)), dot(instance.worldZ, float4(position, 1.0)));
     output.uv = uv;
 
-    float4 eye = eyeInModelSpace();
-    float3 eyeWorld = float3(dot(push.worldX, eye), dot(push.worldY, eye), dot(push.worldZ, eye));
+    float4 eye = eyeInModelSpace(transform);
+    float3 eyeWorld = float3(dot(instance.worldX, eye), dot(instance.worldY, eye), dot(instance.worldZ, eye));
     output.toEye = eye.w == 0.0 ? eyeWorld : eyeWorld - output.world;
+    output.color = instance.color;
+    output.emission = instance.emission;
+    output.factors = instance.factors;
     return output;
 }
 
@@ -201,7 +197,7 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
 // through a view that decodes it from sRGB as it is sampled, so filtering blends linear values.
 public float4 baseColor(ModelVertexOutput input)
 {
-    return materialColor() * boundTexture.Sample(input.uv);
+    return materialColor(input) * boundTexture.Sample(input.uv);
 }
 
 // The surface's normal at this point, bent by the normal map when the material has one. The map's
@@ -211,7 +207,7 @@ public float4 baseColor(ModelVertexOutput input)
 public float3 surfaceNormal(ModelVertexOutput input)
 {
     float3 n = normalize(input.normal);
-    float strength = materialNormalScale();
+    float strength = materialNormalScale(input);
     if (strength <= 0.0)
         return n;
 
@@ -362,11 +358,11 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     }
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
-    float metallic = saturate(materialMetallic() * packed.b);
-    float roughness = clamp(materialRoughness() * packed.g, 0.045, 1.0);
+    float metallic = saturate(materialMetallic(input) * packed.b);
+    float roughness = clamp(materialRoughness(input) * packed.g, 0.045, 1.0);
     // Occlusion darkens the light from all around, which reaches into a crease less, and leaves
     // the direct light, which the shadow map takes care of.
-    float occlusion = lerp(1.0, occlusionMap.Sample(input.uv).r, saturate(materialOcclusionStrength()));
+    float occlusion = lerp(1.0, occlusionMap.Sample(input.uv).r, saturate(materialOcclusionStrength(input)));
     float alpha = roughness * roughness;
     float3 f0 = lerp(float3(0.04), albedo, metallic);
     float3 diffuseColor = albedo * (1.0 - metallic);
