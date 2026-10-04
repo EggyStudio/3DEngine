@@ -51,6 +51,28 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Capsule_Lands_Upright_And_A_Trigger_It_Falls_Through_Reports_It()
+    {
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10));
+        var gate = CreatePhysicsTrigger(new Vector3(0, 2, 0), new Vector3(3, 0.5f, 3));
+        var capsule = CreatePhysicsCapsule(new Vector3(0, 4, 0), 0.4f, 2);
+
+        var entered = false;
+        RunUntil(() =>
+        {
+            foreach (var contact in GetPhysicsContacts())
+                if (contact.BodyA == gate || contact.BodyB == gate)
+                {
+                    entered = true;
+                    var toward = contact.BodyA == capsule ? contact.Normal : -contact.Normal;
+                    toward.Y.Should().BeGreaterThan(0.5f, "the trigger is under the falling capsule");
+                }
+            return entered && GetPhysicsBodyVelocity(capsule).Length() < 0.01f && GetPhysicsBodyPosition(capsule).Y < 1.5f;
+        }).Should().BeTrue("the capsule falls through the trigger and comes to rest on the floor");
+        GetPhysicsBodyPosition(capsule).Y.Should().BeApproximately(1, 0.05f, "two units tall, it stands with its middle a unit up");
+    }
+
+    [Fact]
     public void A_Ray_Finds_The_Body_In_Its_Way()
     {
         var box = CreatePhysicsStaticBox(new Vector3(0, 0, -5), Vector3.One);

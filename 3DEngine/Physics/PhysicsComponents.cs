@@ -33,6 +33,9 @@ public struct Collider
     /// <summary>A capsule's height, end to end.</summary>
     public float Height;
 
+    /// <summary>Whether it reports what enters it, as contacts, and stops nothing, as a goal or a pickup does.</summary>
+    public bool IsTrigger;
+
     /// <summary>A box this size.</summary>
     public static Collider Box(Vector3 size) => new() { Shape = ColliderShape.Box, Size = size };
 
@@ -109,6 +112,7 @@ public static class PhysicsBodies
         {
             Matrix4x4.Decompose(TransformPropagation.ComposedWorldMatrix(ecs, entity), out _, out var rotation, out var position);
             var body = Make(physics, ecs, entity, collider, rigid, position);
+            if (collider.IsTrigger) physics.SetTrigger(body, true);
             if (rotation != Quaternion.Identity && collider.Shape != ColliderShape.Capsule) physics.SetRotation(body, rotation);
             ecs.Add(entity, body);
             made[body] = ecs.Handle(entity);

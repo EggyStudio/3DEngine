@@ -446,6 +446,9 @@ PhysicsBody CreatePhysicsBox(Vector3 position, Vector3 size, float mass = 1);   
 PhysicsBody CreatePhysicsSphere(Vector3 position, float radius, float mass = 1); // A ball
 PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size);              // A box that never moves, for floors and walls
 PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size);           // A box only the program moves, which pushes what it meets
+PhysicsBody CreatePhysicsCapsule(Vector3 position, float radius, float height, float mass = 1); // An upright capsule, height end to end
+PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size);               // A box that reports what enters it and stops nothing
+void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     // Make a body a trigger, or solid again
 PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80); // A character controller, an upright capsule that walls stop and that slides along them
 void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity);                   // Walk it along the ground until given another, leaving its fall to gravity
 void JumpPhysicsCharacter(PhysicsBody body, float speed);                        // Jump, when it stands on ground
@@ -465,7 +468,7 @@ void SetPhysicsPaused(bool paused);                                             
 bool IsPhysicsPaused();                                                          // Whether it is held still
 
 bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets
-IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame
+IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where and which way
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size

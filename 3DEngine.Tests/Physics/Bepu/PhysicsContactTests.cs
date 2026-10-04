@@ -49,6 +49,56 @@ public class PhysicsContactTests
     }
 
     [Fact]
+    public void A_Contact_Says_Where_The_Bodies_Met_And_Which_Way()
+    {
+        using var world = NewWorld();
+        var floor = world.CreateStaticBox(new Vector3(2, -0.5f, 3), new Vector3(5, 0.5f, 5));
+        var ball = world.CreateSphere(new Vector3(2, 1, 3), 0.5f);
+
+        var (started, _) = Run(world, 60);
+
+        var contact = started.Should().ContainSingle().Which;
+        contact.Point.X.Should().BeApproximately(2, 0.01f, "the ball lands straight down");
+        contact.Point.Z.Should().BeApproximately(3, 0.01f);
+        contact.Point.Y.Should().BeApproximately(0, 0.05f, "it meets the floor's top");
+        var upOnBall = contact.BodyA == ball ? contact.Normal : -contact.Normal;
+        upOnBall.Y.Should().BeGreaterThan(0.99f, "the normal points from B toward A, so up toward the ball");
+        (contact.BodyA == floor || contact.BodyB == floor).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_Trigger_Reports_What_Passes_Through_It_And_Stops_Nothing()
+    {
+        using var world = NewWorld();
+        world.CreateStaticBox(new Vector3(0, -10.5f, 0), new Vector3(5, 0.5f, 5));
+        var gate = world.CreateStaticBox(new Vector3(0, -3, 0), new Vector3(2, 0.5f, 2));
+        world.SetTrigger(gate, true);
+        var ball = world.CreateSphere(new Vector3(0, 0, 0), 0.5f);
+
+        var (started, ended) = Run(world, 120);
+
+        started.Should().Contain(c => c.BodyA == gate || c.BodyB == gate, "the ball entering the trigger starts a contact");
+        ended.Should().Contain(c => c.BodyA == gate || c.BodyB == gate, "and leaving it ends one");
+        world.GetPosition(ball).Y.Should().BeLessThan(-9, "the trigger did not hold the ball, which fell to the floor below");
+    }
+
+    [Fact]
+    public void A_Body_Made_Where_A_Trigger_Was_Destroyed_Is_Solid()
+    {
+        using var world = NewWorld();
+        var gate = world.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(5, 0.5f, 5));
+        world.SetTrigger(gate, true);
+        world.Destroy(gate);
+        var floor = world.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(5, 0.5f, 5));
+        floor.Handle.Should().Be(gate.Handle, "the handle is given out again");
+        var ball = world.CreateSphere(new Vector3(0, 1, 0), 0.5f);
+
+        Run(world, 60);
+
+        world.GetPosition(ball).Y.Should().BeApproximately(0.5f, 0.05f, "the new box stops the ball");
+    }
+
+    [Fact]
     public void A_Body_Resting_Until_It_Sleeps_Stays_In_Contact_And_Ends_When_Destroyed()
     {
         using var world = NewWorld();

@@ -14,22 +14,45 @@ namespace Engine;
 /// </summary>
 internal sealed class ContactCollector
 {
-    private readonly List<(CollidableReference A, CollidableReference B)>[] _byWorker;
+    private readonly List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal)>[] _byWorker;
 
     public ContactCollector(int workers) =>
-        _byWorker = Enumerable.Range(0, Math.Max(1, workers)).Select(_ => new List<(CollidableReference, CollidableReference)>()).ToArray();
+        _byWorker = Enumerable.Range(0, Math.Max(1, workers)).Select(_ => new List<(CollidableReference, CollidableReference, Vector3, Vector3)>()).ToArray();
 
-    public void Record(int workerIndex, CollidableReference a, CollidableReference b) =>
-        _byWorker[workerIndex].Add((a, b));
+    /// <summary>Records a pair touching at a point in the world, with the normal from B toward A.</summary>
+    public void Record(int workerIndex, CollidableReference a, CollidableReference b, Vector3 point, Vector3 normal) =>
+        _byWorker[workerIndex].Add((a, b, point, normal));
 
     /// <summary>Every pair recorded since the last call, which it forgets.</summary>
-    public IEnumerable<(CollidableReference A, CollidableReference B)> Take()
+    public IEnumerable<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal)> Take()
     {
         foreach (var list in _byWorker)
         {
             foreach (var pair in list) yield return pair;
             list.Clear();
         }
+    }
+}
+
+/// <summary>Which bodies and statics are triggers, whose contacts are reported and never pushed apart.</summary>
+internal sealed class TriggerFlags
+{
+    private bool[] _bodies = [];
+    private bool[] _statics = [];
+
+    public void Set(PhysicsBody body, bool trigger)
+    {
+        ref var flags = ref body.Kind == BodyKind.Static ? ref _statics : ref _bodies;
+        if (flags.Length <= body.Handle) Array.Resize(ref flags, Math.Max(body.Handle + 1, flags.Length * 2));
+        flags[body.Handle] = trigger;
+    }
+
+    public bool Is(CollidableReference collidable)
+    {
+        var (flags, handle) = collidable.Mobility == CollidableMobility.Static
+            ? (_statics, collidable.StaticHandle.Value)
+            : (_bodies, collidable.BodyHandle.Value);
+        return handle < flags.Length && flags[handle];
     }
 }
 
@@ -61,6 +84,8 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public float MaximumRecoveryVelocity;
     public ContactCollector? Contacts;
     public CharacterFlags? Characters;
+    public TriggerFlags? Triggers;
+    private Simulation? _simulation;
 
     /// <summary>The gap in world units below which a contact counts as touching.</summary>
     public const float TouchingGap = 0.01f;
@@ -73,7 +98,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         MaximumRecoveryVelocity = 2f,
     };
 
-    public void Initialize(Simulation simulation) { }
+    public void Initialize(Simulation simulation) => _simulation = simulation;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b,
@@ -96,16 +121,34 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         // A speculative contact has a negative depth, for shapes close enough to meet within the
         // step. Shapes a hundredth of a unit apart or closer count as touching, since the solver
         // leaves a resting pair hovering about a depth of zero, which a strict test would see start
-        // and end over and over.
+        // and end over and over. The deepest contact gives the pair's point and normal.
         if (Contacts is not null)
+        {
+            int deepest = -1;
+            float depth = -TouchingGap;
             for (int i = 0; i < manifold.Count; i++)
-                if (manifold.GetDepth(i) >= -TouchingGap)
+                if (manifold.GetDepth(i) >= depth)
                 {
-                    Contacts.Record(workerIndex, pair.A, pair.B);
-                    break;
+                    depth = manifold.GetDepth(i);
+                    deepest = i;
                 }
-        return true;
+            if (deepest >= 0)
+            {
+                manifold.GetContact(deepest, out var offset, out var normal, out _, out _);
+                Contacts.Record(workerIndex, pair.A, pair.B, PositionOf(pair.A) + offset, normal);
+            }
+        }
+
+        // A trigger reports what it touches and holds nothing back.
+        return Triggers is null || !(Triggers.Is(pair.A) || Triggers.Is(pair.B));
     }
+
+    // Where a collidable is, which a contact's offset is measured from. The narrow phase reads
+    // poses and does not move them, so reading one from its workers is safe.
+    private readonly Vector3 PositionOf(CollidableReference collidable) =>
+        _simulation is null ? Vector3.Zero
+        : collidable.Mobility == CollidableMobility.Static ? _simulation.Statics[collidable.StaticHandle].Pose.Position
+        : _simulation.Bodies[collidable.BodyHandle].Pose.Position;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB,

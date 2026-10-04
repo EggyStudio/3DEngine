@@ -48,9 +48,17 @@ public struct RaycastHit
 
 /// <summary>
 /// Two bodies touching, as <see cref="PhysicsWorld.TakeContacts"/> reports them, with their
-/// entities as they were when the contact started, or <see cref="Entity.None"/>.
+/// entities as they were when the contact started, or <see cref="Entity.None"/>, and where and
+/// which way they met then.
 /// </summary>
-public readonly record struct PhysicsContact(PhysicsBody BodyA, PhysicsBody BodyB, Entity A, Entity B);
+/// <param name="BodyA">The first body.</param>
+/// <param name="BodyB">The second body.</param>
+/// <param name="A">The first body's entity.</param>
+/// <param name="B">The second body's entity.</param>
+/// <param name="Point">Where they touched first, in the world, at their deepest contact.</param>
+/// <param name="Normal">The contact's normal, from B toward A.</param>
+public readonly record struct PhysicsContact(PhysicsBody BodyA, PhysicsBody BodyB, Entity A, Entity B,
+    Vector3 Point = default, Vector3 Normal = default);
 
 /// <summary>
 /// Sent when two bodies start touching, in the fixed step it happened, and readable until the
@@ -67,10 +75,16 @@ public readonly record struct PhysicsContact(PhysicsBody BodyA, PhysicsBody Body
 /// <param name="B">The second body's entity, or <see cref="Entity.None"/>.</param>
 /// <param name="BodyA">The first body.</param>
 /// <param name="BodyB">The second body.</param>
-public readonly record struct ContactStarted(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB)
+/// <param name="Point">Where they touched, in the world, at their deepest contact.</param>
+/// <param name="Normal">The contact's normal, from B toward A, the way A is pushed.</param>
+public readonly record struct ContactStarted(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB,
+    Vector3 Point = default, Vector3 Normal = default)
 {
     /// <summary>Whether <paramref name="entity"/> is one of the two, with the other in <paramref name="other"/>.</summary>
     public bool Involves(Entity entity, out Entity other) => PhysicsContacts.Involves(A, B, entity, out other);
+
+    /// <summary>The normal pointing toward <paramref name="entity"/> and away from the other, the way it is pushed.</summary>
+    public Vector3 NormalToward(Entity entity) => entity == B ? -Normal : Normal;
 }
 
 /// <summary>

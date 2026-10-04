@@ -19,6 +19,8 @@ public sealed partial class PhysicsWorld
     /// <inheritdoc />
     public void Destroy(PhysicsBody body)
     {
+        // A handle is given out again, and the next body to have it is no trigger unless asked.
+        _triggerFlags.Set(body, false);
         if (body.Kind == BodyKind.Static)
         {
             Simulation.Statics.Remove(new StaticHandle(body.Handle));

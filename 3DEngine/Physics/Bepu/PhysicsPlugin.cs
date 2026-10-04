@@ -154,7 +154,7 @@ public sealed class PhysicsPlugin : IPlugin
         if (started.Count > 0)
         {
             var events = Events.Get<ContactStarted>(w);
-            foreach (var c in started) events.Send(new ContactStarted(c.A, c.B, c.BodyA, c.BodyB));
+            foreach (var c in started) events.Send(new ContactStarted(c.A, c.B, c.BodyA, c.BodyB, c.Point, c.Normal));
         }
         if (ended.Count > 0)
         {

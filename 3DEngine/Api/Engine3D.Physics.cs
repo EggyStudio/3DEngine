@@ -23,6 +23,25 @@ public static partial class Engine3D
     public static PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size) =>
         Physics.CreateStaticBox(position, size / 2);
 
+    /// <summary>An upright capsule <paramref name="height"/> units from end to end that falls, collides and is pushed.</summary>
+    public static PhysicsBody CreatePhysicsCapsule(Vector3 position, float radius, float height, float mass = 1) =>
+        Physics.CreateCapsule(position, radius, MathF.Max(0, height - 2 * radius), mass);
+
+    /// <summary>
+    /// A box that never moves and stops nothing, which reports what enters it as contacts that
+    /// start and end, as a goal, a pickup or a door's sensor does.
+    /// </summary>
+    /// <remarks>It sees bodies that fall and are pushed, and characters, as a static body does.</remarks>
+    public static PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size)
+    {
+        var body = Physics.CreateStaticBox(position, size / 2);
+        Physics.SetTrigger(body, true);
+        return body;
+    }
+
+    /// <summary>Makes a body a trigger, which reports what it touches and stops nothing, or a solid body again.</summary>
+    public static void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger) => Physics.SetTrigger(body, trigger);
+
     /// <summary>A box moved only by the program, through <see cref="SetPhysicsBodyPosition"/> or <see cref="SetPhysicsBodyVelocity"/>, which pushes what it meets.</summary>
     public static PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size) =>
         Physics.CreateKinematicBox(position, size / 2);

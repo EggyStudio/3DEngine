@@ -51,12 +51,12 @@ public sealed partial class PhysicsWorld
     private void UpdateContacts()
     {
         _seen.Clear();
-        foreach (var (a, b) in _contacts.Take())
+        foreach (var (a, b, point, normal) in _contacts.Take())
         {
             ulong key = Key(a, b);
             if (!_seen.Add(key) || _touching.ContainsKey(key)) continue;
 
-            var contact = new PhysicsContact(BodyOf(a), BodyOf(b), HandleOf(EntityOf(a)), HandleOf(EntityOf(b)));
+            var contact = new PhysicsContact(BodyOf(a), BodyOf(b), HandleOf(EntityOf(a)), HandleOf(EntityOf(b)), point, normal);
             _touching[key] = contact;
             _started.Add(contact);
         }
@@ -70,6 +70,15 @@ public sealed partial class PhysicsWorld
             _touching.Remove(key);
         }
     }
+
+    private readonly TriggerFlags _triggerFlags = new();
+
+    /// <summary>
+    /// Makes a body a trigger, which reports what it touches as contacts that start and end and
+    /// pushes nothing, or a solid body again.
+    /// </summary>
+    /// <remarks>A trigger reports the dynamic bodies that meet it, as a static or kinematic body sees no other.</remarks>
+    public void SetTrigger(PhysicsBody body, bool trigger) => _triggerFlags.Set(body, trigger);
 
     // The same key whichever way round the narrow phase handed the pair over.
     private static ulong Key(CollidableReference a, CollidableReference b)

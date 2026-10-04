@@ -124,14 +124,15 @@ it. Two bodies starting and stopping touching (a hundredth of a unit apart or cl
 `ContactStarted` and `ContactEnded` events after each step and cleared at `Stage.First`, with the
 entities as they were when the contact started. A resting pair whose bodies sleep stays touching.
 
-The flat API creates boxes, spheres and static and kinematic boxes, reads their blended poses,
-pushes them, casts rays and reads the frame's contacts (CHEATSHEET.md, Physics). What is missing is
-capsules, meshes and joints in the flat API, contact points, normals and impulses on the events,
-triggers that report overlap without colliding, and a body whose parent moves it, as a platform
-carries what stands on it, which needs a kinematic body driven from the parent's pose. The character
-controller is a dynamic capsule walked toward a velocity before each step, which slides along walls,
-rides edges lower than about half its radius, holds slopes up to its limit and reports ground. It
-does not climb a taller step, ride a moving platform, or crouch.
+The flat API creates boxes, spheres, capsules, static and kinematic boxes and triggers, which report
+what enters them as contacts and stop nothing, reads their blended poses, pushes them, casts rays
+and reads the frame's contacts with the point and normal where each pair met (CHEATSHEET.md,
+Physics). A `Collider` marked `IsTrigger` makes a trigger from a scene. What is missing is meshes
+and joints in the flat API, the impulse on a contact, and a body whose parent moves it, as a
+platform carries what stands on it, which needs a kinematic body driven from the parent's pose. The
+character controller is a dynamic capsule walked toward a velocity before each step, which slides
+along walls, rides edges lower than about half its radius, holds slopes up to its limit and reports
+ground. It does not climb a taller step, ride a moving platform, or crouch.
 
 ### Scenes
 
