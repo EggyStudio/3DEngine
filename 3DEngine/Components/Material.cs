@@ -81,6 +81,17 @@ public struct Material
     public MaterialHandle Handle;
 
     /// <summary>
+    /// How <see cref="Albedo"/>'s and the base color texture's alpha are meant, as glTF says:
+    /// blended where below one and drawn after the opaque meshes from far to near, cut out below
+    /// <see cref="AlphaCutoff"/>, or ignored. The constructors set blend, so a color with alpha
+    /// is see-through, and a material made with <c>new()</c> or <c>default</c> is opaque, glTF's own default.
+    /// </summary>
+    public MaterialAlphaMode AlphaMode;
+
+    /// <summary>The alpha below which <see cref="MaterialAlphaMode.Mask"/> cuts the surface out.</summary>
+    public float AlphaCutoff;
+
+    /// <summary>
     /// Creates a material with only the albedo factor set. PBR factors default to
     /// metal=0 / rough=1 / emissive=0; texture slots are <see cref="Handle{T}.Invalid"/>.
     /// Convenience for callers that only need a flat-shaded color.
@@ -115,5 +126,7 @@ public struct Material
         EmissiveTexture = default;
         OcclusionTexture = default;
         Handle = default;
+        AlphaMode = MaterialAlphaMode.Blend;
+        AlphaCutoff = 0.5f;
     }
 }

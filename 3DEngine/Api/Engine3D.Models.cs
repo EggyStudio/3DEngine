@@ -55,6 +55,17 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     /// <summary>A map with roughness in green and metallic in blue, as glTF packs them. A default texture means none.</summary>
     public Texture2D MetallicRoughnessMap { get; set; }
 
+    /// <summary>
+    /// How the color's and the texture's alpha are meant. Blend, the default, lets what is behind
+    /// show through where alpha is below one, drawn after the opaque meshes. Mask cuts out what
+    /// is below <see cref="AlphaCutoff"/> and keeps the rest solid. Opaque ignores alpha, as a
+    /// glTF material that says so is drawn.
+    /// </summary>
+    public MaterialAlphaMode AlphaMode { get; set; } = MaterialAlphaMode.Blend;
+
+    /// <summary>The alpha below which <see cref="MaterialAlphaMode.Mask"/> cuts the surface out.</summary>
+    public float AlphaCutoff { get; set; } = 0.5f;
+
     /// <summary>The color of the light the surface gives off whatever lights it, black for none.</summary>
     public Color Emissive { get; set; } = Color.Black;
 
@@ -314,6 +325,8 @@ public static partial class Engine3D
                 EmissiveMap = TextureAt(material.EmissiveTexture),
                 OcclusionMap = TextureAt(material.OcclusionTexture),
                 OcclusionStrength = material.OcclusionStrength,
+                AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
+                AlphaCutoff = material.AlphaCutoff,
             });
             return materialIndex[material] = materials.Count - 1;
         }
@@ -452,7 +465,9 @@ public static partial class Engine3D
         {
             var material = model.Materials.Length == 0 ? new ModelMaterial(Color.White)
                 : model.Materials[Math.Clamp(model.MeshMaterial.ElementAtOrDefault(i), 0, model.Materials.Length - 1)];
-            DrawMesh(model.Meshes[i], material with { Color = Multiply(material.Color, tint) }, world);
+            // A tint with alpha fades the model as raylib's does, even one its file calls opaque.
+            var mode = tint.A < 255 && material.AlphaMode == MaterialAlphaMode.Opaque ? MaterialAlphaMode.Blend : material.AlphaMode;
+            DrawMesh(model.Meshes[i], material with { Color = Multiply(material.Color, tint), AlphaMode = mode }, world);
         }
     }
 
@@ -501,7 +516,8 @@ public static partial class Engine3D
             Linear(material.Emissive) * material.EmissiveIntensity,
             material.EmissiveMap.IsValid ? material.EmissiveMap.Id : 0,
             material.OcclusionMap.IsValid ? material.OcclusionMap.Id : 0,
-            material.OcclusionStrength));
+            material.OcclusionStrength,
+            material.AlphaMode, material.AlphaCutoff, texture != 0 && Textures.IsTranslucent(texture)));
     }
 
     /// <summary>Draws a box's edges.</summary>

@@ -687,6 +687,56 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(small);
     }
 
+    // A red wall, then a blue quad of the given texture and material in front of its middle, in a
+    // 64 by 64 frame opened before the texture was loaded.
+    private Image WallBehind(Texture2D texture, MaterialAlphaMode mode)
+    {
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var wall = LoadModelFromMesh(GenMeshCube(4, 4, 0.1f));
+        // One face, since a box's back face maps the texture mirrored behind its front.
+        var front = LoadModelFromMesh(GenMeshPlane(1.5f, 1.5f, 1, 1));
+        front.Materials[0] = new ModelMaterial(new Color(0, 0, 255), texture) { AlphaMode = mode };
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModelEx(front, new Vector3(0, 0, 0.5f), Vector3.UnitX, 90, Vector3.One, Color.White);
+            DrawModel(wall, new Vector3(0, 0, -1), 1, new Color(255, 0, 0));
+            EndMode3D();
+        });
+        UnloadModel(front);
+        UnloadModel(wall);
+        return image;
+    }
+
+    [NeedsVulkanFact]
+    public void A_Masked_Surface_Shows_What_Is_Behind_Its_Holes_And_Hides_It_Elsewhere()
+    {
+        Open(64, 64);
+        // The texture's left column below the cutoff and its right column above it, but neither solid.
+        var texture = LoadTextureFromImage(new Image([255, 255, 255, 60, 255, 255, 255, 200], 2, 1));
+        SetTextureFilter(texture, TextureFilter.Point);
+
+        var image = WallBehind(texture, MaterialAlphaMode.Mask);
+
+        var hole = GetImageColor(image, 26, 32);
+        var solid = GetImageColor(image, 38, 32);
+        (hole.R > 40 && hole.B < 10).Should().BeTrue($"the wall shows through the cut-out half unmixed, not {hole}");
+        (solid.B > 40 && solid.R < 10).Should().BeTrue($"the masked half is solid blue, not {solid}");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Blended_Surface_Mixes_A_Textures_Alpha_With_What_Is_Behind()
+    {
+        Open(64, 64);
+        var texture = LoadTextureFromImage(new Image([255, 255, 255, 128], 1, 1));
+
+        var image = WallBehind(texture, MaterialAlphaMode.Blend);
+
+        var middle = GetImageColor(image, 32, 32);
+        (middle.R > 40 && middle.B > 40).Should().BeTrue($"the half-clear texture mixes blue with the red behind, not {middle}");
+    }
+
     [NeedsVulkanFact]
     public void A_Metal_Reflects_An_HDR_Sky_Brighter_Than_White_Could_Be()
     {

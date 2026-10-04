@@ -43,6 +43,10 @@ public sealed class TextureStore
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps)> _live = [];
+
+    // The textures with a pixel neither clear nor solid, which a blended material draws with
+    // what is behind it. A texture that is only clear or solid cuts out as it is.
+    private readonly HashSet<int> _translucent = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -63,6 +67,7 @@ public sealed class TextureStore
             var id = _next++;
             _live[id] = (width, height, filter, mipmaps);
             _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
+            if (HasPartialAlpha(rgba)) _translucent.Add(id);
             return id;
         }
     }
@@ -114,6 +119,8 @@ public sealed class TextureStore
             if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4)
                 return false;
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps));
+            if (HasPartialAlpha(rgba)) _translucent.Add(id);
+            else _translucent.Remove(id);
             return true;
         }
     }
@@ -144,6 +151,7 @@ public sealed class TextureStore
         lock (_gate)
         {
             if (!_live.Remove(id)) return false;
+            _translucent.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
             return true;
@@ -166,5 +174,18 @@ public sealed class TextureStore
     {
         if (width <= 0 || height <= 0 || rgba.Length != width * height * 4)
             throw new ArgumentException($"Expected {width} by {height} pixels of four bytes, and got {rgba.Length} bytes.", nameof(rgba));
+    }
+
+    /// <summary>Whether texture <paramref name="id"/> has a pixel neither clear nor solid.</summary>
+    public bool IsTranslucent(int id)
+    {
+        lock (_gate) return _translucent.Contains(id);
+    }
+
+    private static bool HasPartialAlpha(byte[] rgba)
+    {
+        for (int i = 3; i < rgba.Length; i += 4)
+            if (rgba[i] is not (0 or 255)) return true;
+        return false;
     }
 }

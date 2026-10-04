@@ -14,9 +14,9 @@ namespace Engine;
 /// its transform, its world matrix as a 3x4 and its material's factors, written into this frame's
 /// region of a ring, and the batch binds its mesh's buffers from <see cref="GpuMeshes"/> and its
 /// maps from <see cref="GpuTextures"/> once. Opaque batches are drawn in the order each first
-/// appears. A draw whose color has alpha below 255 blends with what is behind it, so it stays out
-/// of them and is drawn after, in the order it was recorded, batched only with the draws next to
-/// it that share its mesh and set.
+/// appears. A translucent draw (<see cref="ModelDraw.IsTranslucent"/>) blends with what is behind
+/// it, so it stays out of them and is drawn after, in the order it was recorded, batched only with
+/// the draws next to it that share its mesh and set.
 /// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
 /// second descriptor set.
 /// </para>
@@ -79,7 +79,14 @@ public sealed class ModelRenderer : IDisposable
                 WorldY = new Vector4(w.M12, w.M22, w.M32, w.M42),
                 WorldZ = new Vector4(w.M13, w.M23, w.M33, w.M43),
                 Color = new Vector4(Linear[color.R], Linear[color.G], Linear[color.B], color.A / 255f),
-                Emission = new Vector4(draw.Emission, 0),
+                // w carries the alpha mode to the fragment stage. Below zero ignores alpha, above
+                // zero is a mask's cutoff, and zero blends.
+                Emission = new Vector4(draw.Emission, draw.AlphaMode switch
+                {
+                    MaterialAlphaMode.Opaque => -1,
+                    MaterialAlphaMode.Mask => Math.Max(draw.AlphaCutoff, 1e-6f),
+                    _ => 0,
+                }),
                 // No map, no bending, which also keeps the shader from reading the white texture
                 // in its place as a normal.
                 Factors = new Vector4(draw.Metallic, draw.Roughness, draw.NormalMap == 0 ? 0 : draw.NormalScale, draw.OcclusionStrength),
@@ -244,7 +251,7 @@ public sealed class ModelRenderer : IDisposable
                 _drawBatch.Add(-1);
                 continue;
             }
-            if (keepOrderOfTranslucent && draw.Color.A < 255)
+            if (keepOrderOfTranslucent && draw.IsTranslucent)
             {
                 _drawBatch.Add(Translucent);
                 continue;

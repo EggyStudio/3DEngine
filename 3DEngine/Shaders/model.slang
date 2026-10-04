@@ -13,8 +13,6 @@ ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL,
 [shader("fragment")]
 float4 fragmentMain(ModelVertexOutput input) : SV_Target
 {
-    float4 color = baseColor(input);
-    if (color.a <= 0.0)
-        discard;
+    float4 color = alphaTested(baseColor(input), input);
     return float4(lit(color.rgb, input), color.a);
 }

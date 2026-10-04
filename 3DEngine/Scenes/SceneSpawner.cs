@@ -305,6 +305,8 @@ public static class SceneSpawner
             EmissiveFactor = material.EmissiveFactor,
             NormalScale = material.NormalScale,
             OcclusionStrength = material.OcclusionStrength,
+            AlphaMode = (MaterialAlphaMode)(byte)material.AlphaMode,
+            AlphaCutoff = material.AlphaCutoff,
         };
 
         // Register the payload with the central MaterialLibrary so the renderer

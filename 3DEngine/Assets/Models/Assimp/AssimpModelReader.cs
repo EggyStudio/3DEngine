@@ -247,8 +247,16 @@ public sealed class AssimpModelReader : ISceneReader
             SceneTextureRef? emissiveTex = TryGetTexture(m, A.TextureType.Emissive);
             SceneTextureRef? occlusionTex = TryGetTexture(m, A.TextureType.AmbientOcclusion) ?? TryGetTexture(m, A.TextureType.Lightmap);
 
-            var alphaMode = SceneAlphaMode.Opaque;
-            if (m.HasOpacity && m.Opacity < 1f) alphaMode = SceneAlphaMode.Blend;
+            // glTF says how its alpha is meant, which Assimp passes on as material keys. A format
+            // without them blends when its opacity is below one.
+            var alphaMode = m.GetNonTextureProperty("$mat.gltf.alphaMode")?.GetStringValue() switch
+            {
+                "MASK" => SceneAlphaMode.Mask,
+                "BLEND" => SceneAlphaMode.Blend,
+                "OPAQUE" => SceneAlphaMode.Opaque,
+                _ => m.HasOpacity && m.Opacity < 1f ? SceneAlphaMode.Blend : SceneAlphaMode.Opaque,
+            };
+            var alphaCutoff = m.GetNonTextureProperty("$mat.gltf.alphaCutoff") is { } cutoff ? cutoff.GetFloatValue() : 0.5f;
             var opacity = m.HasOpacity ? m.Opacity : 1f;
             diffuse.W = opacity * diffuse.W;
 
@@ -268,6 +276,7 @@ public sealed class AssimpModelReader : ISceneReader
                 EmissiveTexture = emissiveTex,
                 OcclusionTexture = occlusionTex,
                 AlphaMode = alphaMode,
+                AlphaCutoff = alphaCutoff,
                 DoubleSided = doubleSided,
             };
         }

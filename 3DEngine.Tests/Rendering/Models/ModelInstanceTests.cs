@@ -47,4 +47,27 @@ public class ModelInstanceTests
         instance.Transform.Should().Be(world * camera);
         instance.WorldX.W.Should().Be(1, "the world rows hold the world translation alone");
     }
+
+    [Theory]
+    [InlineData(MaterialAlphaMode.Blend, 255, false, false)]
+    [InlineData(MaterialAlphaMode.Blend, 128, false, true)]
+    [InlineData(MaterialAlphaMode.Blend, 255, true, true)]
+    [InlineData(MaterialAlphaMode.Mask, 128, true, false)]
+    [InlineData(MaterialAlphaMode.Opaque, 128, true, false)]
+    public void A_Draw_Is_Translucent_When_It_Blends_And_Its_Color_Or_Texture_Has_Alpha(MaterialAlphaMode mode, byte alpha, bool textureTranslucent, bool translucent)
+    {
+        new ModelDraw(1, Matrix4x4.Identity, Matrix4x4.Identity, new Color(255, 255, 255, alpha), 0,
+            AlphaMode: mode, TextureTranslucent: textureTranslucent).IsTranslucent.Should().Be(translucent);
+    }
+
+    [Fact]
+    public void The_Alpha_Mode_Rides_In_The_Emissions_W()
+    {
+        float W(MaterialAlphaMode mode) => ModelRenderer.Instance.Of(new ModelDraw(1, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, 0,
+            AlphaMode: mode, AlphaCutoff: 0.25f), Matrix4x4.Identity).Emission.W;
+
+        W(MaterialAlphaMode.Opaque).Should().BeNegative();
+        W(MaterialAlphaMode.Mask).Should().Be(0.25f);
+        W(MaterialAlphaMode.Blend).Should().Be(0);
+    }
 }

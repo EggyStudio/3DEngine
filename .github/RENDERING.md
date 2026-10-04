@@ -125,11 +125,20 @@ model pass's own draws share one set per combination of maps, so draws differing
 factors share a set and a draw call. A set no frame in flight binds is freed. A draw with a shader
 of its own is a batch of one, with a set of its own holding its uniforms.
 
+A material's alpha mode says what its alpha means, as glTF's does. Opaque ignores it. Mask cuts
+the surface out where the color times the texture is below the cutoff and leaves the rest solid,
+in the opaque batches. Blend, the default for a material the program makes, lets what is behind
+show through. The mode reaches the fragment stage in the instance's emission `w` (below zero for
+opaque, the cutoff for mask, zero for blend), read by `alphaTested`. A tint with alpha on a model
+whose file says opaque blends it, as raylib's tint fades a model.
+
 The pipeline blends by alpha and writes depth, so a draw that lets what is behind it show must
-come after that. A draw whose color has alpha below 255 stays out of the opaque batches and is
-drawn after all of them, in the order the program recorded it, batched only with the draws beside
-it that share its mesh and set. `MeshEntityDraws` records its translucent entities after the
-opaque ones, from the farthest from the camera to the nearest.
+come after that. A draw is translucent when it blends and its color has alpha below 255 or its
+base color texture has a pixel neither clear nor solid (`TextureStore.IsTranslucent`, found when
+the pixels are uploaded). It stays out of the opaque batches and is drawn after all of them, in
+the order the program recorded it, batched only with the draws beside it that share its mesh and
+set. `MeshEntityDraws` records its translucent entities after the opaque ones, from the farthest
+from the camera to the nearest.
 A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
 texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
 the map is toward the top of the image, as glTF has it.

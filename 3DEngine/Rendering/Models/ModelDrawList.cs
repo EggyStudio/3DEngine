@@ -20,9 +20,20 @@ namespace Engine;
 /// <param name="EmissiveMap">The <see cref="TextureStore"/> id of an sRGB map multiplying <paramref name="Emission"/>, or 0 for none.</param>
 /// <param name="OcclusionMap">The <see cref="TextureStore"/> id of a map whose red darkens the light from all around, or 0 for none.</param>
 /// <param name="OcclusionStrength">How strongly the occlusion map darkens, from 0 to 1.</param>
+/// <param name="AlphaMode">How alpha is meant, blended where below one, cut out below <paramref name="AlphaCutoff"/>, or ignored.</param>
+/// <param name="AlphaCutoff">The alpha below which a masked surface is cut out.</param>
+/// <param name="TextureTranslucent">Whether the base color texture has alpha between clear and solid somewhere.</param>
 public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
-    int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1);
+    int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
+    MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false)
+{
+    /// <summary>
+    /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:
+    /// a blended material whose color or base color texture has alpha below one.
+    /// </summary>
+    public bool IsTranslucent => AlphaMode == MaterialAlphaMode.Blend && (Color.A < 255 || TextureTranslucent);
+}
 
 /// <summary>
 /// The meshes recorded for the current frame by <c>DrawModel</c> and <c>DrawMesh</c>, drawn by

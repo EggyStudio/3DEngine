@@ -336,7 +336,8 @@ poses frame by frame. A
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
 mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap`
 as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
-`OcclusionMap` with its `OcclusionStrength`. Models are lit by one fixed light from above, unless
+`OcclusionMap` with its `OcclusionStrength`, and an `AlphaMode` (`Blend` by default, `Mask` below
+its `AlphaCutoff`, or `Opaque`) that a glTF file sets. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
 ## States

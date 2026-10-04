@@ -217,4 +217,43 @@ public sealed class Engine3DModelTests : IDisposable
         bounds.Min.X.Should().BeApproximately(5, 1e-4f, "the node is 5 units along X");
         bounds.Min.Z.Should().BeApproximately(-1, 1e-4f, "a quarter turn about Y takes the corner at +X to -Z");
     }
+
+    // One triangle with a material of the given glTF alpha fields.
+    private string WriteTriangleWithMaterial(string material)
+    {
+        var bytes = new List<byte>();
+        foreach (var f in new float[] { 0, 0, 0, 1, 0, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0]}],"nodes":[{"mesh":0}],
+             "materials":[{{{material}}}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0},"material":0}]}],
+             "buffers":[{"byteLength":36,"uri":"data:application/octet-stream;base64,{{{Convert.ToBase64String(bytes.ToArray())}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
+            """;
+        var path = Path.Combine(_directory, $"alpha-{Guid.NewGuid():N}.gltf");
+        File.WriteAllText(path, json);
+        return path;
+    }
+
+    [Fact]
+    public void A_Files_Alpha_Mode_And_Cutoff_Reach_The_Material()
+    {
+        LoadModel(WriteTriangleWithMaterial("""{"alphaMode":"MASK","alphaCutoff":0.3}""")).Materials[0]
+            .Should().Match<ModelMaterial>(m => m.AlphaMode == MaterialAlphaMode.Mask && Math.Abs(m.AlphaCutoff - 0.3f) < 1e-6f);
+        LoadModel(WriteTriangleWithMaterial("""{"alphaMode":"BLEND"}""")).Materials[0].AlphaMode.Should().Be(MaterialAlphaMode.Blend);
+        LoadModel(WriteTriangleWithMaterial("""{"pbrMetallicRoughness":{"baseColorFactor":[1,1,1,0.5]}}""")).Materials[0].AlphaMode
+            .Should().Be(MaterialAlphaMode.Opaque, "glTF's default ignores alpha, though the color has some");
+    }
+
+    [Fact]
+    public void A_Texture_With_Alpha_Between_Clear_And_Solid_Is_Translucent_And_A_Cut_Out_One_Is_Not()
+    {
+        var textures = _app.World.Resource<TextureStore>();
+        var soft = textures.Add([255, 255, 255, 128], 1, 1);
+        var cut = textures.Add([255, 255, 255, 0, 255, 255, 255, 255], 2, 1);
+
+        textures.IsTranslucent(soft).Should().BeTrue();
+        textures.IsTranslucent(cut).Should().BeFalse();
+    }
 }

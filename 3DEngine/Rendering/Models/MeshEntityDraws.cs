@@ -20,8 +20,9 @@ namespace Engine;
 /// is reloaded. Only the first mip level of an RGBA8 texture is copied, and the GPU makes the rest.
 /// </para>
 /// <para>
-/// An entity whose albedo has alpha below 1 blends with what is behind it, so it is recorded after
-/// the opaque ones, from the farthest from the camera to the nearest, which the model pass keeps.
+/// An entity whose material blends, with alpha below 1 in its albedo or base color texture, shows
+/// what is behind it, so it is recorded after the opaque ones, from the farthest from the camera
+/// to the nearest, which the model pass keeps.
 /// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
@@ -83,12 +84,13 @@ public sealed class MeshEntityDraws
                 }
 
                 var placed = TransformPropagation.WorldMatrix(ecs, entity);
+                var baseColor = TextureFor(material.BaseColorTexture, assets, textures);
                 var draw = new ModelDraw(
                     id,
                     placed,
                     viewProjection,
                     Encoded(material.Albedo),
-                    TextureFor(material.BaseColorTexture, assets, textures),
+                    baseColor,
                     Metallic: material.MetallicFactor,
                     Roughness: material.RoughnessFactor,
                     NormalMap: TextureFor(material.NormalTexture, assets, textures),
@@ -97,8 +99,11 @@ public sealed class MeshEntityDraws
                     Emission: material.EmissiveFactor,
                     EmissiveMap: TextureFor(material.EmissiveTexture, assets, textures),
                     OcclusionMap: TextureFor(material.OcclusionTexture, assets, textures),
-                    OcclusionStrength: material.OcclusionStrength);
-                if (draw.Color.A < 255) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
+                    OcclusionStrength: material.OcclusionStrength,
+                    AlphaMode: material.AlphaMode,
+                    AlphaCutoff: material.AlphaCutoff,
+                    TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor));
+                if (draw.IsTranslucent) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
                 else _opaque.Add(draw);
             }
 

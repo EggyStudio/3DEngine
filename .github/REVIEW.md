@@ -8,7 +8,7 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `0623ccff`. The README walk (`e98e93a1`), change ticks (`e612ac63`) and the audio
+Reviewed up to `4fe32171`, scene loading by entity handle, which raised nothing. The README walk (`e98e93a1`), change ticks (`e612ac63`) and the audio
 systems' metadata (`0623ccff`) are settled, on the walk and the tests reported.
 
 ## Now

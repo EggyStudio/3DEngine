@@ -200,6 +200,26 @@ public float4 baseColor(ModelVertexOutput input)
     return materialColor(input) * boundTexture.Sample(input.uv);
 }
 
+// The color as the material's alpha mode means it. Alpha is ignored for an opaque material, cut
+// out below the cutoff for a masked one and solid above it, and kept for a blended one, whose
+// clear parts are cut out so they leave the depth buffer alone. The mode rides in the
+// instance's emission w.
+public float4 alphaTested(float4 color, ModelVertexOutput input)
+{
+    float cutoff = input.emission.w;
+    if (cutoff < 0.0)
+        return float4(color.rgb, 1.0);
+    if (cutoff > 0.0)
+    {
+        if (color.a < cutoff)
+            discard;
+        return float4(color.rgb, 1.0);
+    }
+    if (color.a <= 0.0)
+        discard;
+    return color;
+}
+
 // The surface's normal at this point, bent by the normal map when the material has one. The map's
 // tangent frame is worked out per pixel from how the position and texture coordinates change
 // across the screen (Christian Schüler's cotangent frame), so a mesh needs no tangents. Up in the
