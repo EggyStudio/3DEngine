@@ -8,22 +8,16 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `3fea2ddd`. The cheatsheet at `docs/CHEATSHEET.md` with the README's Guide section
-(`3fea2ddd`) is settled, on `CheatsheetTests` and the README walk passing. CLAUDE.md's line naming
-the cheatsheet's place was changed by the reviewing session, as the owner approved with the move
-on 2026-10-04, and is an uncommitted change to commit with the next batch. Posed wires
-(`28793540`) was taken on its description.
+Reviewed up to `695b5ca6`. The cheatsheet at the root (`695b5ca6`) is settled. The guide's first
+pages (`07c15314` and after) were read in part: `docs/window-and-frame.md` is the shape asked for,
+an opening, steps each with a snippet from an example that runs, and links to the examples, the
+cheatsheet and the next page, with a test over the links.
 
 ## Now
 
 1. **What the next run on GitHub says**, which the owner brings back. A red job or an annotation
    comes before anything else.
-2. **The cheatsheet goes to the root, beside the README**, which the owner asked for on
-   2026-10-04 after `3fea2ddd` put it in `docs/`. `docs/CHEATSHEET.md` becomes `CHEATSHEET.md`,
-   since it is the one document a user opens as often as the README, with `CheatsheetTests`,
-   DESIGN.md §10, TODO.md, STYLE.md's scope and the README's links following. CLAUDE.md's line
-   was changed by the reviewing session on the owner's word.
-3. **A guide is written under `docs/`**, which the owner asked
+2. **A guide is written under `docs/`**, which the owner asked
    for on 2026-10-04. The README reads well as it is and has a cheatsheet, and nothing walks a
    user through an area step by step.
    The shape is the same in both engines and is recorded in [SHARED.md](SHARED.md). Who a
@@ -46,7 +40,7 @@ on 2026-10-04, and is an uncommitted change to commit with the next batch. Posed
    and `docs/`.
    - Verified by `CheatsheetTests` passing at the new path, the README walk still passing, and
      the link check.
-4. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
+3. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
    data in files of its own, files that outlive a renamed type, C# typed at a running app) are
    not scheduled. The owner decided on 2026-10-04 that they stay in [SHARED.md](SHARED.md) as
    `to consider`, taken only if one comes to suit this engine, and that the work here continues

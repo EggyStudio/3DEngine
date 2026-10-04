@@ -156,6 +156,8 @@ example that runs. Its pages are being written, and this list grows with them.
 | [Textures and images](https://github.com/EggyStudio/3DEngine/blob/main/docs/textures-and-images.md) | Loading and drawing textures, filtering, editing images, sprites and many sprites |
 | [Text and fonts](https://github.com/EggyStudio/3DEngine/blob/main/docs/text-and-fonts.md) | The default font, fonts from files, other scripts, typed text and distance field fonts |
 | [Models and animation](https://github.com/EggyStudio/3DEngine/blob/main/docs/models-and-animation.md) | Loading and generating models, terrain, skeletal animation, a sky and instancing |
+| [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, glowing and see-through surfaces, lights and shadows |
+| [Shaders and compute](https://github.com/EggyStudio/3DEngine/blob/main/docs/shaders-and-compute.md) | Slang shaders for 2D drawing and models, post processing, compute shaders and their buffers |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

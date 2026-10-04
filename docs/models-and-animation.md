@@ -34,8 +34,8 @@ gave it is the program's to unload. `GetModelBoundingBox` gives the box around a
 `DrawBoundingBox` draws and the collision functions test against.
 
 `DrawModelWires` draws a model's triangle edges, which shows how finely a mesh is made. Models are
-lit by one fixed light from above until the program makes lights of its own, which the page on
-materials, light and shadows covers.
+lit by one fixed light from above until the program makes lights of its own, which the
+[Materials, light and shadows](materials-light-and-shadows.md) page covers.
 
 ## Meshes the program makes
 
@@ -188,8 +188,8 @@ EndMode3D();
 ```
 
 A shader of the program's own tells the copies apart by `SV_InstanceID`, counted from 0, which the
-page on shaders covers. The `models_stress` example measures how many lit, turning entities a frame
-holds at 60 frames a second, beside skinned arms.
+[Shaders and compute](shaders-and-compute.md) page covers. The `models_stress` example measures how
+many lit, turning entities a frame holds at 60 frames a second, beside skinned arms.
 
 ## See also
 
@@ -203,3 +203,4 @@ holds at 60 frames a second, beside skinned arms.
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - The cheatsheet's [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Text and fonts](text-and-fonts.md)
+- Next: [Materials, light and shadows](materials-light-and-shadows.md)
