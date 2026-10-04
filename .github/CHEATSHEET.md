@@ -398,7 +398,16 @@ bool IsState<TState>(TState value);                     // Whether it is there, 
 ```
 
 Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]`,
-`[OnTransition(Screen.Pause, Screen.Play)]` and `[InState(...)]`.
+`[OnTransition(Screen.Pause, Screen.Play)]` and `[InState(...)]`. A sub-state or computed state
+can be declared rather than added:
+
+```csharp
+[SubStateOf(Screen.Playing)]
+public enum Pause { Running, Paused }
+
+[ComputedState]
+public static InGame? FromScreen(Screen screen) => screen is Screen.Playing ? InGame.Yes : null;
+```
 
 ## Scenes
 

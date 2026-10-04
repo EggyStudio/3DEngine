@@ -85,12 +85,15 @@ A move to the value already held does nothing. Each move is sent as a
 `StateTransition<Screen>(From, To)` event, readable until the next frame begins.
 
 `app.AddSubState(Screen.Playing, Pause.Running)` adds a state that exists only while its parent
-holds one value. It is created and entered when the parent enters the value, in the same
-transition point, and its exit systems run and it goes away when the parent leaves, before the
-parent's own exit systems. `app.AddComputedState<InGame, Screen>(compute)` adds a state worked
-out from another after each of its moves, with no state where `compute` gives null, and moves it
-with its own exit and enter systems only when its value changes. Either may have no `State<T>`,
-which `InState` reads as false.
+holds one value. It is created and entered when the parent enters the value, in the same transition
+point, and its exit systems run and it goes away when the parent leaves, before the parent's own
+exit systems. `app.AddComputedState<InGame, Screen>(compute)` adds a state worked out from another
+after each of its moves, with no state where `compute` gives null, and moves it with its own exit
+and enter systems only when its value changes. Either may have no `State<T>`, which `InState` reads
+as false. Either can be declared instead of added: `[SubStateOf(Screen.Playing)]` on an enum makes
+it a sub-state entered at its first member or at `Initial`, and `[ComputedState]` on a static method
+from the source enum to the computed one, nullable, makes the method its `compute`. The generated
+registration adds them before the behaviors.
 
 ## The ECS
 
@@ -141,20 +144,21 @@ emits a system per method, so a behavior may have several methods on one stage:
 - an **instance** method runs once per entity that has the struct as a component, with `this` by
   reference, and switches to a parallel loop above 4096 entities.
 
-`[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]` gates a method
-on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]` lets a key
-switch it on and off, and when a method has several of these it runs only when all pass.
+`[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]`
+gates a method on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]`
+lets a key switch it on and off, and when a method has several of these it runs only when all pass.
 `[OnEnter(value)]`, `[OnExit(value)]` and `[OnTransition(from, to)]` take the place of a stage and
-register the method on a state transition. A method with the wrong signature, two stage attributes, a `[RunIf]` naming
-nothing usable, a state attribute whose argument is not an enum value or a filter naming a type no
-entity can have (an interface, a static class, an open generic) is reported on the method (E3D001
-to E3D005) and left out of what is generated. A field holding a reference other than a string is
-warned of (E3D006), since every copy of the behavior shares what it points to. `BehaviorContext` resolves the ECS, commands,
-time and input when it is made, and `ctx.Physics` only when it is read, so behaviors run without
-`PhysicsPlugin`. The generated registrations are
-found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches `source/behaviors`
-beside the program, compiles what it finds with Roslyn and the same generator into a collectible
-load context, and replaces the previous generation's systems.
+register the method on a state transition. A method with the wrong signature, two stage attributes,
+a `[RunIf]` naming nothing usable, a state attribute whose argument is not an enum value or a filter
+naming a type no entity can have (an interface, a static class, an open generic) is reported on the
+method (E3D001 to E3D005) and left out of what is generated. A field holding a reference other than
+a string is warned of (E3D006), since every copy of the behavior shares what it points to, and a
+state declaration that cannot be registered is reported on the enum or method (E3D007).
+`BehaviorContext` resolves the ECS, commands, time and input when it is made, and `ctx.Physics` only
+when it is read, so behaviors run without `PhysicsPlugin`. The generated registrations are found by
+`BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches `source/behaviors` beside the
+program, compiles what it finds with Roslyn and the same generator into a collectible load context,
+and replaces the previous generation's systems.
 
 ## Assets
 

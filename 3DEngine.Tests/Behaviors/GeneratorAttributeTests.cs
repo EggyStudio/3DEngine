@@ -30,6 +30,15 @@ public class GeneratorAttributeTests
         namespace GeneratorProbe;
 
         public enum Mode { A, B }
+
+        [SubStateOf(Mode.B)] public enum Sub { One, Two }
+
+        public enum Derived { InB }
+
+        public static class Derive
+        {
+            [ComputedState] public static Derived? FromMode(Mode mode) => mode == Mode.B ? Derived.InB : null;
+        }
         public struct Health { public int Value; }
         public struct Tag;
 
@@ -63,6 +72,8 @@ public class GeneratorAttributeTests
             [OnEnter(Mode.B)] public static void Enter(BehaviorContext ctx) => Probe.Ran(ctx, "Enter");
             [OnExit(Mode.B)] public static void Exit(BehaviorContext ctx) => Probe.Ran(ctx, "Exit");
             [OnTransition(Mode.A, Mode.B)] public static void AToB(BehaviorContext ctx) => Probe.Ran(ctx, "Transition");
+            [OnEnter(Sub.One)] public static void SubEntered(BehaviorContext ctx) => Probe.Ran(ctx, "SubState");
+            [OnEnter(Derived.InB)] public static void DerivedEntered(BehaviorContext ctx) => Probe.Ran(ctx, "ComputedState");
             [OnUpdate, InState(Mode.B)] public static void InB(BehaviorContext ctx) => Probe.Ran(ctx, "InState");
             [OnUpdate, RunIf(nameof(Allow))] public static void Allowed(BehaviorContext ctx) => Probe.Ran(ctx, "RunIf");
             [OnUpdate, ToggleKey(Key.T)] public static void Toggled(BehaviorContext ctx) => Probe.Ran(ctx, "ToggleKey");
@@ -104,6 +115,8 @@ public class GeneratorAttributeTests
         ["Engine.OnEnterAttribute"] = "Enter",
         ["Engine.OnExitAttribute"] = "Exit",
         ["Engine.OnTransitionAttribute"] = "Transition",
+        ["Engine.SubStateOfAttribute"] = "SubState",
+        ["Engine.ComputedStateAttribute"] = "ComputedState",
         ["Engine.InStateAttribute"] = "InState",
         ["Engine.WithAttribute"] = "With",
         ["Engine.WithoutAttribute"] = "Without",
@@ -201,6 +214,8 @@ public class GeneratorAttributeTests
         Runs("RunIf").Should().Be(1, "[RunIf] runs once its condition holds");
         Runs("Enter").Should().Be(1, "[OnEnter] runs on entering its state");
         Runs("Transition").Should().Be(1, "[OnTransition] runs on the move from A to B");
+        Runs("SubState").Should().Be(1, "a [SubStateOf] enum comes into being, at its first value, when its parent enters B");
+        Runs("ComputedState").Should().Be(1, "a [ComputedState] method's state is entered when its source moves to B");
         Runs("InState").Should().Be(1, "[InState] runs in its state");
         Runs("ToggleKey").Should().Be(1, "pressing the key turned it off");
         Runs("Changed").Should().Be(1, "[Changed] sees the health updated since it last ran");

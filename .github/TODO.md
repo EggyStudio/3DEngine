@@ -32,14 +32,11 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Behaviors
 
-- **Sub-states and computed states are added in code.** `App.AddState`, `AddSubState`,
-  `AddComputedState`, `OnTransition`, `[OnEnter]`, `[OnExit]`, `[OnTransition]` and `[InState]`
-  work, and each move is a `StateTransition` event. An enum cannot declare by attribute that it is
-  a sub-state of a value or computed from another state, so those are added in code.
 - **Diagnostics have no fixes.** The generator reports a wrong signature, two stage attributes, a
   bad `[RunIf]`, a state attribute without an enum value, a filter on a type no entity can have
-  (E3D001 to E3D005) and warns of a field holding a reference (E3D006). None comes with a code fix
-  an editor offers, and the command generator's own diagnostics are not listed beside them.
+  (E3D001 to E3D005), warns of a field holding a reference (E3D006) and reports a state declaration
+  it cannot register (E3D007). None comes with a code fix an editor offers, and the command
+  generator's own diagnostics are not listed beside them.
 
 ## Rendering
 

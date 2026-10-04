@@ -18,10 +18,11 @@ namespace Engine;
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
 /// and <c>[ToggleKey]</c>. <c>[OnEnter]</c>, <c>[OnExit]</c> and <c>[OnTransition]</c> stand in
 /// for a stage and register the method on a state transition, and <c>[InState]</c> adds a run
-/// condition. A method the
-/// generator cannot call is reported (E3D001 to E3D005) and
-/// left out, so the error is on the method rather than in generated code. A field holding a
-/// reference other than a string is warned of (E3D006), since every copy of the behavior shares it.
+/// condition. A method the generator cannot call is reported (E3D001 to E3D005) and left out, so
+/// the error is on the method rather than in generated code. A field holding a reference other
+/// than a string is warned of (E3D006), since every copy of the behavior shares it. An enum with
+/// <c>[SubStateOf]</c> and a method with <c>[ComputedState]</c> are added as states by the same
+/// registration, ahead of the behaviors, and one that cannot be is reported (E3D007).
 /// </para>
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
@@ -58,7 +59,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
     public static IReadOnlyList<string> Attributes { get; } =
-        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey];
+        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey, SubStateOf, ComputedState];
 
     private static readonly DiagnosticDescriptor BadSignature = new(
         "E3D001",
@@ -90,6 +91,15 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         "[{0}(typeof({1}))] on '{2}' names {3}, which no entity can have as a component",
         "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor BadStateDeclaration = new(
+        "E3D007",
+        "A state declaration cannot be registered",
+        "'{0}' cannot declare a state: {1}",
+        "Behaviors", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+    private const string SubStateOf = "Engine.SubStateOfAttribute";
+    private const string ComputedState = "Engine.ComputedStateAttribute";
+
     private static readonly DiagnosticDescriptor SharedField = new(
         "E3D006",
         "A behavior's field holds a reference",
@@ -114,18 +124,38 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             .Where(s => s is not null)
             .Collect();
 
-        ctx.RegisterSourceOutput(ctx.CompilationProvider.Combine(candidates), (spc, pair) =>
+        // Enums declared sub-states, and static methods declaring computed states.
+        var states = ctx.SyntaxProvider.CreateSyntaxProvider(
+                static (node, _) => node is EnumDeclarationSyntax { AttributeLists.Count: > 0 } or MethodDeclarationSyntax { AttributeLists.Count: > 0 },
+                static (context, _) =>
+                {
+                    var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node);
+                    if (symbol is null) return null;
+                    foreach (var a in symbol.GetAttributes())
+                        if (a.AttributeClass?.ToDisplayString() is SubStateOf or ComputedState)
+                            return symbol;
+                    return null;
+                })
+            .Where(s => s is not null)
+            .Collect();
+
+        ctx.RegisterSourceOutput(ctx.CompilationProvider.Combine(candidates).Combine(states), (spc, pair) =>
         {
             var behaviors = new List<BehaviorModel>();
-            foreach (var type in pair.Right.OfType<INamedTypeSymbol>().Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default))
+            foreach (var type in pair.Left.Right.OfType<INamedTypeSymbol>().Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default))
             {
                 var model = BuildModel(type, spc);
                 behaviors.Add(model);
                 spc.AddSource($"{model.SafeName}.g.cs", GenBehaviorSystems(model));
             }
 
-            if (behaviors.Count > 0)
-                spc.AddSource("BehaviorsRegistration.g.cs", GenRegistration(behaviors));
+            var stateCalls = new List<string>();
+            foreach (var symbol in pair.Right.OfType<ISymbol>().Distinct<ISymbol>(SymbolEqualityComparer.Default))
+                if (StateRegistration(symbol, spc) is { } call)
+                    stateCalls.Add(call);
+
+            if (behaviors.Count > 0 || stateCalls.Count > 0)
+                spc.AddSource("BehaviorsRegistration.g.cs", GenRegistration(behaviors, stateCalls));
         });
     }
 
@@ -580,10 +610,74 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         return string.Join("\n", lines);
     }
 
-    /// <summary>Emits a registration method marked with [GeneratedBehaviorRegistration] that registers all discovered behaviors.</summary>
-    private static string GenRegistration(IEnumerable<BehaviorModel> behaviors)
+    /// <summary>
+    /// The call that adds a declared state: a sub-state for an enum with [SubStateOf], a computed
+    /// state for a method with [ComputedState], or null with the reason reported.
+    /// </summary>
+    private static string? StateRegistration(ISymbol symbol, SourceProductionContext spc)
     {
-        var calls = string.Concat(behaviors.Select(b =>
+        var location = symbol.Locations.FirstOrDefault();
+        string? Fail(string why)
+        {
+            spc.ReportDiagnostic(Diagnostic.Create(BadStateDeclaration, location, symbol.Name, why));
+            return null;
+        }
+
+        if (symbol is INamedTypeSymbol { TypeKind: TypeKind.Enum } sub)
+        {
+            var attribute = sub.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == SubStateOf);
+            if (attribute.ConstructorArguments.Length != 1 || EnumValue(attribute.ConstructorArguments[0]) is not { } parent)
+                return Fail("[SubStateOf] names a value of the parent state's enum");
+            var subName = sub.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            string? initial;
+            var named = attribute.NamedArguments.FirstOrDefault(n => n.Key == "Initial");
+            if (named.Key is null)
+            {
+                var first = sub.GetMembers().OfType<IFieldSymbol>().FirstOrDefault(f => f.HasConstantValue);
+                if (first is null) return Fail("a sub-state's enum has at least one member");
+                initial = $"{subName}.{first.Name}";
+            }
+            else if (EnumValue(named.Value) is { } value && SymbolEqualityComparer.Default.Equals(named.Value.Type, sub))
+                initial = value.Source;
+            else
+                return Fail("Initial is one of the sub-state's own values");
+            return $"        app.AddSubState<{subName}, {parent.Type}>({parent.Source}, {initial});\n";
+        }
+
+        if (symbol is IMethodSymbol method)
+        {
+            if (!method.IsStatic || method.Parameters.Length != 1 || method.Parameters[0].Type.TypeKind != TypeKind.Enum
+                || method.ReturnType is not INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable
+                || nullable.TypeArguments[0].TypeKind != TypeKind.Enum)
+                return Fail("[ComputedState] is on a static method taking the source state's enum and returning the computed one's, nullable");
+            if (method.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal))
+                return Fail("[ComputedState] is on a public or internal method, which the registration calls");
+            var computed = nullable.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var source = method.Parameters[0].Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var owner = method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return $"        app.AddComputedState<{computed}, {source}>({owner}.{method.Name});\n";
+        }
+        return null;
+    }
+
+    // An enum constant as source, with its enum type, or null when the constant is not an enum value.
+    private static (string Source, string Type)? EnumValue(TypedConstant constant)
+    {
+        if (constant.Kind != TypedConstantKind.Enum || constant.Type is not INamedTypeSymbol enumType || constant.Value is null) return null;
+        var fqn = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
+            if (member.HasConstantValue && Equals(member.ConstantValue, constant.Value))
+                return ($"{fqn}.{member.Name}", fqn);
+        return ($"(({fqn})({System.Convert.ToString(constant.Value, System.Globalization.CultureInfo.InvariantCulture)}))", fqn);
+    }
+
+    /// <summary>
+    /// Emits a registration method marked with [GeneratedBehaviorRegistration] that adds every
+    /// declared state, then registers every discovered behavior.
+    /// </summary>
+    private static string GenRegistration(IEnumerable<BehaviorModel> behaviors, IEnumerable<string> stateCalls)
+    {
+        var calls = string.Concat(stateCalls) + string.Concat(behaviors.Select(b =>
             $"        global::{b.Namespace}.{b.SafeName}.Register(app);\n"));
 
         return
