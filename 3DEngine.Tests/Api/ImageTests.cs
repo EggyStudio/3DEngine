@@ -186,4 +186,27 @@ public class ImageTests
         var loaded = StbImageSharp.ImageResult.FromMemory(File.ReadAllBytes(path), StbImageSharp.ColorComponents.RedGreenBlueAlpha);
         loaded.Data.Should().Equal(image.Data);
     }
+
+    [Fact]
+    public void Perlin_Noise_Is_Gray_And_Middle_Gray_Where_It_Is_Sampled_At_Whole_Numbers()
+    {
+        var flat = GenImagePerlinNoise(8, 8, 0, 0, 0);
+        flat.Data.Chunk(4).Should().OnlyContain(p => p[0] == 127 && p[1] == 127 && p[2] == 127, "noise is zero at whole coordinates");
+
+        var noise = GenImagePerlinNoise(64, 64, 10, 20, 4);
+        noise.Data.Chunk(4).Should().OnlyContain(p => p[0] == p[1] && p[1] == p[2]);
+        noise.Data.Chunk(4).Select(p => p[0]).Distinct().Count().Should().BeGreaterThan(20, "it varies across the image");
+        GenImagePerlinNoise(64, 64, 10, 20, 4).Data.Should().Equal(noise.Data, "the same arguments give the same image");
+    }
+
+    [Fact]
+    public void Cellular_Noise_Is_Dark_At_Its_Points_And_Gray_Throughout()
+    {
+        var cells = GenImageCellular(64, 64, 16);
+
+        var grays = cells.Data.Chunk(4).ToArray();
+        grays.Should().OnlyContain(p => p[0] == p[1] && p[1] == p[2]);
+        grays.Count(p => p[0] == 0).Should().BeGreaterThanOrEqualTo(16, "each of the 16 squares has its point at distance 0");
+        grays.Max(p => p[0]).Should().BeGreaterThan(64, "far from every point is lighter");
+    }
 }

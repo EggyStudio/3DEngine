@@ -172,6 +172,8 @@ Image GenImageChecked(int width, int height, int checksX, int checksY, Color fir
 Image GenImageGradientLinear(int width, int height, int direction, Color start, Color end); // A blend along a direction (0 top to bottom, 90 left to right)
 Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer); // A blend from the center outward
 Image GenImageWhiteNoise(int width, int height, float factor);                         // White pixels with the chance factor, the rest black
+Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale); // Six octaves of Perlin noise in grays
+Image GenImageCellular(int width, int height, int tileSize);                           // Cells around a point in each square
 Image ImageCopy(Image image);                                                          // A copy with pixels of its own
 Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
@@ -204,6 +206,8 @@ void ImageDrawRectangle(ref Image image, int x, int y, int width, int height, Co
 void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
 void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline
 void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint); // Part of an image into another, blended
+void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color); // Text in the default font
+void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
 
 Texture2D LoadTexture(string fileName);                                                // Read an image file into a texture
 Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture

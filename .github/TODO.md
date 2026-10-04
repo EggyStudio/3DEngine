@@ -75,10 +75,9 @@ physics, text and fonts, audio and text files
   Mesh entities have no animation component, so only the flat API animates. A material the
   program makes draws both sides of each face unless `DoubleSided` is cleared, so
   `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's does.
-- **Images and textures are partial.** Images are edited on the CPU (resize, flip, colors,
-  shapes, `ImageDraw`), but text cannot be drawn into an image (`ImageDrawText`), and Perlin and
-  cellular noise are not generated. Mip levels are made by GPU blits. Anisotropic filtering is
-  not offered.
+- **Textures offer no anisotropic filtering.** Images are edited and generated on the CPU
+  (resize, flip, colors, shapes, `ImageDraw`, text, Perlin and cellular noise), and mip levels are
+  made by GPU blits, but a texture seen at a slant blurs, with no anisotropic filtering to ask for.
 - **Fonts bake at one size each**, with no signed distance fields, so text far larger than its
   bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
   (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.

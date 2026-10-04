@@ -8,22 +8,13 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `3f1db07b`. The batches in TODO.md's order up to double-sided materials raised nothing.
-The stale capture in `OffscreenRenderTests.Capture` needs no further review of the tests, since
-every capture is fresh after the fix and the suite passes with them, so no assertion rests on an
-old image.
+Reviewed up to `aa76e9bf`. A shader's own textures (`aa76e9bf`) are settled, on the pixel tests and the
+container run reported.
 
 ## Now
 
-In this order.
-
-1. **A shader's own textures**, with the descriptor layout of each shader built from Slang's
-   reflection. raylib programs hand a shader a second texture as a matter of course (a mask, a
-   lookup, a noise), and both the immediate and the model shader stop at the engine's fixed
-   bindings. `SetShaderValueTexture` by name, for both kinds, with a pixel test of a shader that
-   mixes two textures and the validation container run.
-2. **TODO.md's order** from there.
-3. **MP3 and FLAC** wait on the owner (decision 3).
+1. **TODO.md's order.** Nothing read argues for changing it.
+2. **MP3 and FLAC** wait on the owner (decision 3).
 
 ## Verdicts
 

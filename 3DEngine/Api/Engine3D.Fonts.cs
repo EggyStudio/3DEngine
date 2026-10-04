@@ -11,8 +11,9 @@ public readonly record struct Glyph(float X0, float Y0, float X1, float Y1, floa
 /// <remarks>Drawing it at another size scales the glyphs, which blurs a bilinear atlas and blocks a point-filtered one.</remarks>
 public sealed class Font
 {
-    internal Font(Texture2D texture, float baseSize, float lineHeight, Dictionary<int, Glyph> glyphs)
+    internal Font(Texture2D texture, float baseSize, float lineHeight, Dictionary<int, Glyph> glyphs, Image atlas = default)
     {
+        Atlas = atlas;
         Texture = texture;
         BaseSize = baseSize;
         LineHeight = lineHeight;
@@ -21,6 +22,9 @@ public sealed class Font
 
     /// <summary>The atlas the glyphs are drawn from.</summary>
     public Texture2D Texture { get; }
+
+    // The atlas's pixels, kept for drawing text into an image on the CPU.
+    internal Image Atlas { get; }
 
     /// <summary>The size in pixels the glyphs were baked at.</summary>
     public float BaseSize { get; }
@@ -196,6 +200,39 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>Draws text into an image in the default font, as <see cref="DrawText"/> draws it on the screen.</summary>
+    public static void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color) =>
+        ImageDrawTextEx(ref destination, GetFontDefault(fontSize), text, new Vector2(x, y), fontSize, 0, color);
+
+    /// <summary>
+    /// Draws text into an image in a font, as <see cref="DrawTextEx"/> draws it on the screen, each
+    /// glyph scaled from its bake by the nearest pixel and blended by its coverage.
+    /// </summary>
+    public static void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
+    {
+        if (!font.IsValid || !font.Atlas.IsValid || string.IsNullOrEmpty(text)) return;
+
+        var scale = fontSize / font.BaseSize;
+        var pen = position;
+        foreach (var rune in text.EnumerateRunes())
+        {
+            if (rune.Value == '\n')
+            {
+                pen = new Vector2(position.X, pen.Y + font.LineHeight * scale);
+                continue;
+            }
+            if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
+            if (g.X1 > g.X0 && g.Y1 > g.Y0)
+            {
+                var source = new Rectangle(g.U0 * font.Atlas.Width, g.V0 * font.Atlas.Height,
+                    (g.U1 - g.U0) * font.Atlas.Width, (g.V1 - g.V0) * font.Atlas.Height);
+                var target = new Rectangle(pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, (g.X1 - g.X0) * scale, (g.Y1 - g.Y0) * scale);
+                ImageDraw(ref destination, font.Atlas, source, target, tint);
+            }
+            pen.X += g.Advance * scale + spacing;
+        }
+    }
+
     /// <summary>The width and height <see cref="DrawTextEx"/> would draw <paramref name="text"/> at.</summary>
     public static Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing)
     {
@@ -228,7 +265,7 @@ public static partial class Engine3D
 
         var texture = LoadTextureFromImage(baked.Image);
         SetTextureFilter(texture, filter);
-        return new Font(texture, baked.Size, baked.Size, baked.Glyphs);
+        return new Font(texture, baked.Size, baked.Size, baked.Glyphs, baked.Image);
     }
 
     /// <summary>Builds an atlas holding one font and returns its pixels, its size and its glyph table, freeing the atlas.</summary>
