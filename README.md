@@ -108,6 +108,7 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_skybox.png" width="400"/><br>`models_skybox` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_life.png" width="400"/><br>`shaders_compute_life` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_shadowmap.png" width="400"/><br>`shaders_shadowmap` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gestures.png" width="400"/><br>`core_input_gestures` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_mesh_instancing.png" width="400"/><br>`shaders_mesh_instancing` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_animated_models.png" width="400"/><br>`ecs_animated_models` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera.png" width="400"/><br>`core_2d_camera` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -149,6 +150,9 @@ example that runs. Its pages are being written, and this list grows with them.
 
 | | |
 |---|---|
+| [The window and the frame](https://github.com/EggyStudio/3DEngine/blob/main/docs/window-and-frame.md) | Opening a window, the loop, time, the window's state and ImGui in the frame |
+| [Drawing in 2D](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-2d.md) | Shapes, colors, text, splines, a 2D camera and collision |
+| [Drawing in 3D and cameras](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-3d-and-cameras.md) | 3D shapes, moving a camera, projections, picking and drawing into a texture |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/docs/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

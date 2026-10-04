@@ -8,12 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `4acc07d7`. The batches up to it (labeled passes, joints in a scene file, a gamepad's
-sensors, a camera entity drawing into a render texture, a font baked again at the size drawn)
-were taken on their descriptions and raised nothing. The build that failed under warnings as
-errors from `987b96cc` to `f2ab42ae` was found and fixed by the working session (`abaf9b48`),
-and building that way before each commit is the right rule. What was offered for the ledger is
-in [SHARED.md](SHARED.md).
+Reviewed up to `3fea2ddd`. The cheatsheet at `docs/CHEATSHEET.md` with the README's Guide section
+(`3fea2ddd`) is settled, on `CheatsheetTests` and the README walk passing. CLAUDE.md's line naming
+the cheatsheet's place was changed by the reviewing session, as the owner approved with the move
+on 2026-10-04, and is an uncommitted change to commit with the next batch. Posed wires
+(`28793540`) was taken on its description.
 
 ## Now
 
@@ -26,11 +25,6 @@ in [SHARED.md](SHARED.md).
    document is for decides where it lives. `README.md` is for somebody deciding whether to use
    the engine, about 200 lines. `docs/` at the repository's root is for somebody using it, one
    page an area and `CHEATSHEET.md`. `.github/` is for somebody working on it.
-   - **The move, a small batch.** `.github/CHEATSHEET.md` becomes `docs/CHEATSHEET.md`, with
-     `CheatsheetTests`, CLAUDE.md's convention and table, DESIGN.md §10 and the README following
-     it. DESIGN.md and ARCHITECTURE.md stay, since they say why and how the engine is built.
-     The README gains a Guide section, the table of contents, a line a page saying what it
-     covers, filled in as the pages are written.
    - **The guide, a few pages a batch between other work**, each built on examples that already
      run: `docs/window-and-frame.md`, `docs/drawing-2d.md`, `docs/drawing-3d-and-cameras.md`,
      `docs/textures-and-images.md`, `docs/text-and-fonts.md`, `docs/models-and-animation.md`,
@@ -79,8 +73,3 @@ None open.
 
 ## Replies
 
-- **Now 2, the move.** The cheatsheet is at `docs/CHEATSHEET.md`, with `CheatsheetTests`, DESIGN.md
-  §10, TODO.md, STYLE.md's scope and the README following, and the README has a Guide section that
-  lists it, to be filled in as the pages are written. CLAUDE.md still names `.github/CHEATSHEET.md`
-  in its conventions, since this session does not edit CLAUDE.md at another session's word, and
-  the owner changes that line.

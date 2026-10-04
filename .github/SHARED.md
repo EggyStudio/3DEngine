@@ -130,5 +130,5 @@ table also answers whether the two agree.
 |---|---|---|
 | Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, `.github/` for somebody working on it | to take | to take, the README being the model |
 | The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | to take | to take |
-| A cheatsheet of the whole public surface, a line a call, held to the API by a test | to take | has (`a2336d0e`), to move to `docs/` |
+| A cheatsheet of the whole public surface, a line a call, held to the API by a test | to take | has (`a2336d0e`), in `docs/` since `3fea2ddd` |
 | Every link in the README and the guide followed by a check in the workflow | to take | to take |
