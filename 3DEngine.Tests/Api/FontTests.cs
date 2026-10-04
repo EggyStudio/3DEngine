@@ -106,6 +106,36 @@ public class FontTests
     }
 
     [Fact]
+    public void A_Font_Drawn_As_An_Image_Is_Read_By_Its_Key_Colored_Gaps()
+    {
+        var app = new App();
+        app.World.InitResource<TextureStore>();
+        Engine3D.UseApp(app);
+        try
+        {
+            // Magenta all round, a gap of 2 before the glyphs and 1 above their row: an A three
+            // pixels wide, a gap of 2, and a B four wide, both five high.
+            var image = Engine3D.GenImageColor(16, 7, Color.Magenta);
+            Engine3D.ImageDrawRectangle(ref image, 2, 1, 3, 5, Color.White);
+            Engine3D.ImageDrawRectangle(ref image, 7, 1, 4, 5, Color.White);
+
+            var font = Engine3D.LoadFontFromImage(image, Color.Magenta, 'A');
+
+            font.BaseSize.Should().Be(5);
+            font.Glyphs.Keys.Should().Equal('A', 'B');
+            font.Glyphs['A'].Advance.Should().Be(3);
+            font.Glyphs['B'].Advance.Should().Be(4);
+            Engine3D.GetGlyphAtlasRec(font, 'B').Should().Be(new Rectangle(7, 1, 4, 5));
+            Engine3D.MeasureTextEx(font, "AB", 5, 1).X.Should().Be(3 + 1 + 4 + 1);
+            Engine3D.GetImageColor(font.Atlas, 0, 0).A.Should().Be(0, "the key becomes clear");
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
+    }
+
+    [Fact]
     public void A_Font_Bakes_The_Characters_Asked_For_Beyond_Latin_1()
     {
         var lato = Lato();

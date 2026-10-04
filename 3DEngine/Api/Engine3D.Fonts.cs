@@ -153,8 +153,71 @@ public static partial class Engine3D
         return DefaultFontSizes[size] = font;
     }
 
-    /// <summary>Loads a TrueType or OpenType font at 32 pixels.</summary>
-    public static Font LoadFont(string fileName) => LoadFontEx(fileName, 32);
+    /// <summary>
+    /// Loads a TrueType or OpenType font at 32 pixels, or a font drawn as an image, a PNG whose
+    /// glyphs are separated by magenta from the space on, as raylib's <c>LoadFont</c> reads one.
+    /// </summary>
+    public static Font LoadFont(string fileName) =>
+        Path.GetExtension(fileName).ToLowerInvariant() is ".png" or ".bmp" or ".tga" or ".gif" or ".jpg"
+            ? LoadFontFromImage(LoadImage(fileName), Color.Magenta, 32)
+            : LoadFontEx(fileName, 32);
+
+    /// <summary>
+    /// Makes a font from an image of its glyphs, as a pixel-art game draws one, each glyph a run of
+    /// pixels on a row, separated from the next and from the rows above and below by
+    /// <paramref name="key"/>, the first glyph <paramref name="firstChar"/> and each after the next
+    /// character. raylib's rule finds the gaps: the key's width before the first glyph is the space
+    /// between glyphs, its height above the first row the space between rows.
+    /// </summary>
+    /// <remarks>The key's pixels become clear, and the atlas is point filtered, so the glyphs scale as pixels.</remarks>
+    /// <returns>The font, or the default font when the image holds no glyphs, with the reason in the log.</returns>
+    public static Font LoadFontFromImage(Image image, Color key, int firstChar)
+    {
+        if (!image.IsValid)
+        {
+            ApiLogger.Warn("LoadFontFromImage: the image is empty. Using the default font.");
+            return GetFontDefault();
+        }
+        bool Key(int x, int y) => x >= image.Width || y >= image.Height || GetImageColor(image, x, y) == key;
+
+        // The first pixel that is not the key gives the gaps: its column the space between glyphs,
+        // its row the space between rows.
+        int spacing = -1, lineSpacing = -1;
+        for (int y = 0; y < image.Height && spacing < 0; y++)
+            for (int x = 0; x < image.Width; x++)
+                if (!Key(x, y))
+                {
+                    (spacing, lineSpacing) = (x, y);
+                    break;
+                }
+        if (spacing < 0)
+        {
+            ApiLogger.Warn("LoadFontFromImage: every pixel is the key, so there are no glyphs. Using the default font.");
+            return GetFontDefault();
+        }
+        var height = 0;
+        while (!Key(spacing, lineSpacing + height)) height++;
+
+        var glyphs = new Dictionary<int, Glyph>();
+        var index = 0;
+        for (var top = lineSpacing; top < image.Height; top += height + lineSpacing)
+        {
+            for (var x = spacing; x < image.Width && !Key(x, top);)
+            {
+                var width = 0;
+                while (!Key(x + width, top)) width++;
+                glyphs[firstChar + index++] = new Glyph(0, 0, width, height,
+                    (float)x / image.Width, (float)top / image.Height, (float)(x + width) / image.Width, (float)(top + height) / image.Height, width);
+                x += width + spacing;
+            }
+        }
+
+        var atlas = ImageCopy(image);
+        ImageColorReplace(ref atlas, key, Color.Blank);
+        var texture = LoadTextureFromImage(atlas);
+        SetTextureFilter(texture, TextureFilter.Point);
+        return new Font(texture, height, height, glyphs, atlas);
+    }
 
     /// <summary>Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with the Latin-1 characters.</summary>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>

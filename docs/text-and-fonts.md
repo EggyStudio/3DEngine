@@ -52,6 +52,21 @@ stays sharp. Drawn a quarter or more past it, the font is baked again at the lar
 up to 4 pixels, and kept for the next frame, up to eight sizes a font, so large text does not blur.
 `LoadFont(fileName)` bakes at 32 pixels, and `UnloadFont` frees every bake.
 
+## Fonts drawn as images
+
+A pixel-art game often draws its font by hand, every glyph on a row of one image, separated from
+the next by a key color. `LoadFontFromImage` reads such an image, and `LoadFont` reads a PNG this
+way with magenta as the key and the space as the first glyph, as raylib's does:
+
+```csharp
+var pixels = LoadFont("resources/fonts/pixel.png");
+DrawTextEx(pixels, "SCORE 1200", new Vector2(10, 10), pixels.BaseSize * 3, 3, Color.White);
+```
+
+The gap before the first glyph is the space between glyphs, and the gap above the first row the
+space between rows. The atlas is point filtered, so the font drawn at a whole multiple of its size
+stays sharp pixels.
+
 ## Characters past Latin-1
 
 A font holds only the characters it was baked with. Text in Greek, Cyrillic or another script, or

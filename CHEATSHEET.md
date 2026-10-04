@@ -738,7 +738,8 @@ void DrawFPS(int x, int y);                                                     
 
 Font GetFontDefault();                                                                      // The default font (ProggyClean, 13 pixels)
 Font GetFontDefault(int size);                                                              // The default font baked at a size, kept for reuse
-Font LoadFont(string fileName);                                                             // A TrueType or OpenType font, baked at 32 pixels
+Font LoadFont(string fileName);                                                             // A TrueType or OpenType font, baked at 32 pixels, or an image font (.png)
+Font LoadFontFromImage(Image image, Color key, int firstChar);                              // A font drawn as an image, glyphs separated by the key color
 Font LoadFontEx(string fileName, int fontSize);                                             // Baked at a size, with the Latin-1 characters
 Font LoadFontEx(string fileName, int fontSize, int[] codepoints);                           // Baked with exactly these characters (Greek, Cyrillic, ...)
 Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type);          // FontType.Sdf bakes a distance field, sharp at any size
