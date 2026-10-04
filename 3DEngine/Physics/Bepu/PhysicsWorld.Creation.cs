@@ -97,6 +97,10 @@ public sealed partial class PhysicsWorld
         RegisterStatic(new BepuBox(halfSize * 2, 1f, halfSize * 2), new Vector3(0, y - 0.5f, 0), entityId);
 
     /// <inheritdoc />
+    /// <remarks>
+    /// A triangle collides only from its front, which is the side its corners go around clockwise
+    /// seen from, the opposite of a model's winding, which <c>CreatePhysicsStaticModel</c> turns over.
+    /// </remarks>
     public PhysicsBody CreateStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<int> indices,
         PhysicsMaterial? material = null, int entityId = 0)
     {

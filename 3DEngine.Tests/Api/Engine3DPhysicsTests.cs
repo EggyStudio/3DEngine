@@ -73,6 +73,26 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Ball_Lands_On_A_Model_Made_Level_Geometry_And_A_Rope_Holds_Another()
+    {
+        var ground = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));
+        CreatePhysicsStaticModel(ground, new Vector3(0, 1, 0), 2).IsValid.Should().BeTrue();
+        var ball = CreatePhysicsSphere(new Vector3(0, 4, 0), 0.5f);
+        var hook = CreatePhysicsKinematicBox(new Vector3(5, 6, 0), new Vector3(0.2f, 0.2f, 0.2f));
+        var weight = CreatePhysicsSphere(new Vector3(5, 5, 0), 0.25f);
+        var rope = CreatePhysicsDistanceJoint(hook, weight, new Vector3(5, 6, 0), new Vector3(5, 5, 0), 0, 2);
+
+        var rested = RunUntil(() => GetPhysicsBodyVelocity(ball).Length() < 0.01f && GetPhysicsBodyPosition(ball).Y < 2);
+        rested.Should().BeTrue("the ball comes to rest on the model");
+        GetPhysicsBodyPosition(ball).Y.Should().BeApproximately(1.5f, 0.05f, "on the plane a unit up, its radius above it");
+        GetPhysicsBodyPosition(weight).Y.Should().BeApproximately(4, 0.05f, "the rope holds the weight two units under the hook");
+        IsPhysicsJointValid(rope).Should().BeTrue();
+        DestroyPhysicsJoint(rope);
+        IsPhysicsJointValid(rope).Should().BeFalse();
+        UnloadModel(ground);
+    }
+
+    [Fact]
     public void A_Ray_Finds_The_Body_In_Its_Way()
     {
         var box = CreatePhysicsStaticBox(new Vector3(0, 0, -5), Vector3.One);

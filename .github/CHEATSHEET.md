@@ -6,8 +6,8 @@ imports them with `using static Engine.Engine3D;`. [DESIGN.md](DESIGN.md) has th
 ## Window and timing
 
 ```csharp
-void SetConfigFlags(ConfigFlags flags);                    // Ask the next window for vsync, fullscreen, no border, topmost, maximized, hidden or 4x MSAA
-void SetConfigSamples(int samples);                       // Samples a pixel of the next window, 1 for none, 4 unless asked
+void SetConfigFlags(ConfigFlags flags);                  // Ask the next window for vsync, fullscreen, no border, topmost, maximized, hidden or 4x MSAA
+void SetConfigSamples(int samples);                      // Samples a pixel of the next window, 1 for none, 4 unless asked
 void InitWindow(int width, int height, string title);    // Open a window and build the app behind it
 void CloseWindow();                                      // Run Cleanup, close the window and free what the app holds
 bool WindowShouldClose();                                // Process events; true once the window or the exit key asks to close
@@ -128,12 +128,12 @@ Pads are indexed in the order they connected. Buttons are named by position (`So
 ## 2D shapes
 
 ```csharp
-void DrawLine(int startX, int startY, int endX, int endY, Color color);           // Line
+void DrawLine(int startX, int startY, int endX, int endY, Color color);            // Line
 void DrawLineV(Vector2 start, Vector2 end, Color color);                           // Line
 void DrawTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Color color);                // Filled triangle
-void DrawRectangle(int x, int y, int width, int height, Color color);             // Filled rectangle
+void DrawRectangle(int x, int y, int width, int height, Color color);              // Filled rectangle
 void DrawRectangleV(Vector2 position, Vector2 size, Color color);                  // Filled rectangle
-void DrawRectangleLines(int x, int y, int width, int height, Color color);        // Rectangle outline
+void DrawRectangleLines(int x, int y, int width, int height, Color color);         // Rectangle outline
 void DrawCircle(int centerX, int centerY, float radius, Color color);              // Filled circle
 void DrawCircleV(Vector2 center, float radius, Color color);                       // Filled circle
 void DrawCircleLines(int centerX, int centerY, float radius, Color color);         // Circle outline
@@ -147,7 +147,7 @@ bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, floa
 bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec);          // A circle and a rectangle overlap
 bool CheckCollisionPointRec(Vector2 point, Rectangle rec);                          // A point is inside a rectangle
 bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius);        // A point is inside a circle
-Rectangle GetCollisionRec(Rectangle a, Rectangle b);                                 // The rectangle two share, empty when they do not overlap
+Rectangle GetCollisionRec(Rectangle a, Rectangle b);                                // The rectangle two share, empty when they do not overlap
 ```
 
 ## 3D shapes
@@ -155,9 +155,9 @@ Rectangle GetCollisionRec(Rectangle a, Rectangle b);                            
 ```csharp
 void DrawLine3D(Vector3 start, Vector3 end, Color color);                                       // Line
 void DrawTriangle3D(Vector3 v1, Vector3 v2, Vector3 v3, Color color);                           // Filled triangle
-void DrawCube(Vector3 position, float width, float height, float length, Color color);         // Box
+void DrawCube(Vector3 position, float width, float height, float length, Color color);          // Box
 void DrawCubeV(Vector3 position, Vector3 size, Color color);                                    // Box
-void DrawCubeWires(Vector3 position, float width, float height, float length, Color color);    // Box edges
+void DrawCubeWires(Vector3 position, float width, float height, float length, Color color);     // Box edges
 void DrawCubeWiresV(Vector3 position, Vector3 size, Color color);                               // Box edges
 void DrawSphere(Vector3 center, float radius, Color color);                                     // Sphere
 void DrawSphereEx(Vector3 center, float radius, int rings, int slices, Color color);            // Sphere with a chosen detail
@@ -222,10 +222,10 @@ void GenTextureMipmaps(ref Texture2D texture);                                  
 
 void DrawTexture(Texture2D texture, int x, int y, Color tint);                                         // Texture at a position
 void DrawTextureV(Texture2D texture, Vector2 position, Color tint);                                    // Texture at a position
-void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);       // Rotated (degrees) and scaled
+void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);      // Rotated (degrees) and scaled
 void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint);                // Part of a texture
 void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint); // Part of a texture into a rectangle, rotated around origin
-void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint);       // Texture in 3D, facing the camera
+void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint);      // Texture in 3D, facing the camera
 ```
 
 An `Image` is RGBA bytes in memory. The `Image*` functions change the image passed by `ref`, as
@@ -342,7 +342,7 @@ BoundingBox GetModelBoundingBox(Model model);                              // Th
 ModelMesh GenMeshCube(float width, float height, float length);            // A box
 ModelMesh GenMeshSphere(float radius, int rings, int slices);              // A sphere
 ModelMesh GenMeshPlane(float width, float length, int resX, int resZ);     // A flat rectangle facing up
-ModelMesh GenMeshPoly(int sides, float radius);                             // A flat regular polygon facing up
+ModelMesh GenMeshPoly(int sides, float radius);                            // A flat regular polygon facing up
 ModelMesh GenMeshHemiSphere(float radius, int rings, int slices);          // The upper half of a sphere, closed
 ModelMesh GenMeshCylinder(float radius, float height, int slices);         // A closed cylinder standing on y 0
 ModelMesh GenMeshCone(float radius, float height, int slices);             // A cone standing on y 0
@@ -449,6 +449,13 @@ PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size);          
 PhysicsBody CreatePhysicsCapsule(Vector3 position, float radius, float height, float mass = 1); // An upright capsule, height end to end
 PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size);               // A box that reports what enters it and stops nothing
 void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     // Make a body a trigger, or solid again
+PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1); // Level geometry shaped as a model's triangles
+PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point); // Join two bodies at a point, free to turn
+PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis); // Turning only around an axis
+PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b);              // Join two bodies rigidly
+PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum); // A rope or a rod
+void DestroyPhysicsJoint(PhysicsJoint joint);                                   // Remove a joint
+bool IsPhysicsJointValid(PhysicsJoint joint);                                   // Whether it still exists
 PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80); // A character controller, an upright capsule that walls stop and that slides along them
 void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity);                   // Walk it along the ground until given another, leaving its fall to gravity
 void JumpPhysicsCharacter(PhysicsBody body, float speed);                        // Jump, when it stands on ground

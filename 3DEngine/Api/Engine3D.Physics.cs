@@ -39,6 +39,66 @@ public static partial class Engine3D
         return body;
     }
 
+    /// <summary>
+    /// A body that never moves, shaped as every triangle of <paramref name="model"/> placed at
+    /// <paramref name="position"/> and scaled as <c>DrawModel</c> places it, for level geometry
+    /// a box does not fit.
+    /// </summary>
+    /// <remarks>A mesh collides only with bodies that move, and a triangle only from its front, the side its winding faces.</remarks>
+    /// <returns>The body, or an invalid one when the model has no triangles, with the reason in the log.</returns>
+    public static PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1)
+    {
+        var world = model.Transform * Matrix4x4.CreateScale(scale);
+        var points = new List<Vector3>();
+        var triangles = new List<int>();
+        foreach (var mesh in model.Meshes)
+        {
+            if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
+            var first = points.Count;
+            foreach (var vertex in vertices) points.Add(Vector3.Transform(vertex.Position, world));
+            // A model's front faces wind counterclockwise and Bepu's clockwise, so each triangle is
+            // turned over.
+            for (int i = 0; i + 2 < indices.Length; i += 3)
+            {
+                triangles.Add(first + (int)indices[i]);
+                triangles.Add(first + (int)indices[i + 2]);
+                triangles.Add(first + (int)indices[i + 1]);
+            }
+        }
+        if (triangles.Count == 0)
+        {
+            ApiLogger.Warn("CreatePhysicsStaticModel: the model has no triangles loaded.");
+            return default;
+        }
+        return Physics.CreateStaticMesh(position, points.ToArray(), triangles.ToArray());
+    }
+
+    // -- Joints, which hold bodies that move. A body held to the world is joined to a kinematic one.
+
+    /// <summary>Joins two bodies at a point in the world, each free to turn about it, as a ball in a socket.</summary>
+    /// <exception cref="ArgumentException">A body is static.</exception>
+    public static PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point) => Physics.CreateBallJoint(a, b, point);
+
+    /// <summary>Joins two bodies at a point in the world, turning only around <paramref name="axis"/>, as a door on its hinge.</summary>
+    /// <exception cref="ArgumentException">A body is static.</exception>
+    public static PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis) =>
+        Physics.CreateHingeJoint(a, b, point, axis);
+
+    /// <summary>Joins two bodies rigidly, as they are placed when it is made.</summary>
+    /// <exception cref="ArgumentException">A body is static.</exception>
+    public static PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b) => Physics.CreateWeldJoint(a, b);
+
+    /// <summary>Keeps a point on each body between two distances apart, as a rope does with a minimum of 0.</summary>
+    /// <exception cref="ArgumentException">A body is static, or the distances are out of order.</exception>
+    public static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum) =>
+        Physics.CreateDistanceJoint(a, b, pointA, pointB, minimum, maximum);
+
+    /// <summary>Removes a joint.</summary>
+    public static void DestroyPhysicsJoint(PhysicsJoint joint) => Physics.DestroyJoint(joint);
+
+    /// <summary>Whether a joint exists, which it stops doing when it or one of its bodies is destroyed.</summary>
+    public static bool IsPhysicsJointValid(PhysicsJoint joint) => Physics.JointExists(joint);
+
     /// <summary>Makes a body a trigger, which reports what it touches and stops nothing, or a solid body again.</summary>
     public static void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger) => Physics.SetTrigger(body, trigger);
 
