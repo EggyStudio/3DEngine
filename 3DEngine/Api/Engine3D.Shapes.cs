@@ -78,6 +78,16 @@ public static partial class Engine3D
         DrawList.Quad(new(start + side, 0), new(end + side, 0), new(end - side, 0), new(start - side, 0), color);
     }
 
+    /// <summary>Draws a line in dashes <paramref name="dashSize"/> pixels long with gaps of <paramref name="spaceSize"/> between them.</summary>
+    public static void DrawLineDashed(Vector2 startPos, Vector2 endPos, int dashSize, int spaceSize, Color color)
+    {
+        var length = Vector2.Distance(startPos, endPos);
+        if (length < 1e-6f || dashSize <= 0) return;
+        var direction = (endPos - startPos) / length;
+        for (float at = 0; at < length; at += dashSize + Math.Max(0, spaceSize))
+            DrawLineV(startPos + direction * at, startPos + direction * MathF.Min(length, at + dashSize), color);
+    }
+
     /// <summary>Draws lines joining each point to the next.</summary>
     public static void DrawLineStrip(ReadOnlySpan<Vector2> points, Color color)
     {
@@ -215,6 +225,18 @@ public static partial class Engine3D
         return outline;
     }
 
+    /// <summary>Draws a filled triangle with a color at each corner, blended across it.</summary>
+    public static void DrawTriangleGradient(Vector2 v1, Vector2 v2, Vector2 v3, Color c1, Color c2, Color c3) =>
+        DrawList.Triangle(new Vector3(v1, 0), c1, new Vector3(v2, 0), c2, new Vector3(v3, 0), c3);
+
+    /// <summary>Draws a triangle's outline <paramref name="thick"/> pixels wide.</summary>
+    public static void DrawTriangleLinesEx(Vector2 v1, Vector2 v2, Vector2 v3, float thick, Color color)
+    {
+        DrawLineEx(v1, v2, thick, color);
+        DrawLineEx(v2, v3, thick, color);
+        DrawLineEx(v3, v1, thick, color);
+    }
+
     /// <summary>Draws a triangle's outline.</summary>
     public static void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color)
     {
@@ -284,6 +306,19 @@ public static partial class Engine3D
         DrawLineV(arc[^1], center, color);
     }
 
+    /// <summary>Draws a slice of a circle's outline <paramref name="thick"/> pixels wide, inside its edge, with its two radii.</summary>
+    public static void DrawCircleSectorLinesEx(Vector2 center, float radius, float startAngle, float endAngle, int segments, float thick, Color color)
+    {
+        DrawRing(center, MathF.Max(0, radius - thick), radius, startAngle, endAngle, segments, color);
+        var arc = Arc(center, radius, startAngle, endAngle, segments);
+        DrawLineEx(center, arc[0], thick, color);
+        DrawLineEx(center, arc[^1], thick, color);
+    }
+
+    /// <summary>Draws a circle's outline <paramref name="thick"/> pixels wide, inside its edge.</summary>
+    public static void DrawCircleLinesEx(Vector2 center, float radius, float thick, Color color) =>
+        DrawRing(center, MathF.Max(0, radius - thick), radius, 0, 360, 0, color);
+
     /// <summary>Draws a filled circle blending from <paramref name="inner"/> at its middle to <paramref name="outer"/> at its edge.</summary>
     public static void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer)
     {
@@ -310,6 +345,29 @@ public static partial class Engine3D
     /// <summary>Draws an ellipse's outline.</summary>
     public static void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color) =>
         DrawEllipseLines(new Vector2(centerX, centerY), radiusH, radiusV, color);
+
+    /// <summary>Draws a filled ellipse around a point.</summary>
+    public static void DrawEllipseV(Vector2 center, float radiusH, float radiusV, Color color)
+    {
+        var segments = CircleSegments(MathF.Max(radiusH, radiusV));
+        var c = new Vector3(center, 0);
+        for (int i = 0; i < segments; i++)
+            DrawList.Triangle(c, EllipsePoint(center, radiusH, radiusV, i, segments), EllipsePoint(center, radiusH, radiusV, i + 1, segments), color);
+    }
+
+    /// <summary>Draws an ellipse's outline around a point.</summary>
+    public static void DrawEllipseLinesV(Vector2 center, float radiusH, float radiusV, Color color) =>
+        DrawEllipseLines(center, radiusH, radiusV, color);
+
+    /// <summary>Draws an ellipse's outline <paramref name="thick"/> pixels wide, inside its edge.</summary>
+    public static void DrawEllipseLinesEx(Vector2 center, float radiusH, float radiusV, float thick, Color color)
+    {
+        var segments = CircleSegments(MathF.Max(radiusH, radiusV));
+        float innerH = MathF.Max(0, radiusH - thick), innerV = MathF.Max(0, radiusV - thick);
+        for (int i = 0; i < segments; i++)
+            DrawList.Quad(EllipsePoint(center, innerH, innerV, i, segments), EllipsePoint(center, radiusH, radiusV, i, segments),
+                EllipsePoint(center, radiusH, radiusV, i + 1, segments), EllipsePoint(center, innerH, innerV, i + 1, segments), color);
+    }
 
     private static void DrawEllipseLines(Vector2 center, float radiusH, float radiusV, Color color)
     {
@@ -352,6 +410,18 @@ public static partial class Engine3D
             DrawLineV(inner[0], outer[0], color);
             DrawLineV(inner[^1], outer[^1], color);
         }
+    }
+
+    /// <summary>Draws a ring's outline <paramref name="thick"/> pixels wide, its arcs inside their edges and, for less than a whole turn, its two ends.</summary>
+    public static void DrawRingLinesEx(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, Color color)
+    {
+        DrawRing(center, MathF.Max(0, outerRadius - thick), outerRadius, startAngle, endAngle, segments, color);
+        if (innerRadius > 0) DrawRing(center, innerRadius, innerRadius + thick, startAngle, endAngle, segments, color);
+        if (MathF.Abs(endAngle - startAngle) >= 360) return;
+        var outer = Arc(center, outerRadius, startAngle, endAngle, segments);
+        var inner = Arc(center, innerRadius, startAngle, endAngle, outer.Length - 1);
+        DrawLineEx(inner[0], outer[0], thick, color);
+        DrawLineEx(inner[^1], outer[^1], thick, color);
     }
 
     // The points along an arc, from one angle to the other in degrees, one more than its pieces.

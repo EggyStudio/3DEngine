@@ -171,6 +171,33 @@ public static partial class Engine3D
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
     }
 
+    /// <summary>
+    /// Moves and turns a camera by amounts the program works out, as raylib's does. Movement's x is
+    /// forward, y right and z up, forward and right kept level, rotation's x turns it right, y down
+    /// and z rolls it, in degrees, and <paramref name="zoom"/> moves it so many units farther from its
+    /// target, or nearer when negative, the target staying where it is.
+    /// </summary>
+    public static void UpdateCameraPro(ref Camera3D camera, Vector3 movement, Vector3 rotation, float zoom)
+    {
+        var up = Vector3.Normalize(camera.Up);
+        var toTarget = camera.Target - camera.Position;
+        var forward = Vector3.Normalize(toTarget);
+        var level = Vector3.Normalize(forward - up * Vector3.Dot(forward, up));
+        var right = Vector3.Normalize(Vector3.Cross(forward, up));
+
+        // Turned about the camera, right about its up, down about its right, and rolled about the way it looks.
+        var turn = Quaternion.CreateFromAxisAngle(up, -float.DegreesToRadians(rotation.X))
+                   * Quaternion.CreateFromAxisAngle(right, -float.DegreesToRadians(rotation.Y));
+        toTarget = Vector3.Transform(toTarget, turn);
+        if (rotation.Z != 0) camera.Up = Vector3.Transform(up, Quaternion.CreateFromAxisAngle(Vector3.Normalize(toTarget), float.DegreesToRadians(rotation.Z)));
+
+        var moved = level * movement.X + right * movement.Y + up * movement.Z;
+        camera.Position += moved;
+        camera.Target = camera.Position + toTarget;
+        var distance = MathF.Max(0.001f, toTarget.Length() + zoom);
+        camera.Position = camera.Target - Vector3.Normalize(toTarget) * distance;
+    }
+
     /// <summary>Moves <paramref name="camera"/> from this frame's input, as <paramref name="mode"/> describes.</summary>
     /// <remarks>Typing into an ImGui field, or using the mouse over an ImGui window, does not move the camera.</remarks>
     public static void UpdateCamera(ref Camera3D camera, CameraMode mode)

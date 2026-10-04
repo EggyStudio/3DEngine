@@ -194,6 +194,158 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>Draws lines within an image joining each point to the next.</summary>
+    public static void ImageDrawLineStrip(ref Image dst, Vector2[] points, Color color)
+    {
+        for (int i = 1; i < points.Length; i++) ImageDrawLineV(ref dst, points[i - 1], points[i], color);
+    }
+
+    /// <summary>Fills a triangle with a color at each corner, blended across it.</summary>
+    public static void ImageDrawTriangleGradient(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color c1, Color c2, Color c3)
+    {
+        var min = Vector2.Max(Vector2.Min(Vector2.Min(v1, v2), v3), Vector2.Zero);
+        var max = Vector2.Min(Vector2.Max(Vector2.Max(v1, v2), v3), new Vector2(dst.Width - 1, dst.Height - 1));
+        static float Edge(Vector2 a, Vector2 b, Vector2 p) => (b.X - a.X) * (p.Y - a.Y) - (b.Y - a.Y) * (p.X - a.X);
+        var area = Edge(v1, v2, v3);
+        if (MathF.Abs(area) < 1e-6f) return;
+        for (int y = (int)min.Y; y <= (int)max.Y; y++)
+        for (int x = (int)min.X; x <= (int)max.X; x++)
+        {
+            // Each corner's share at the pixel's center, which weighs its color.
+            var p = new Vector2(x + 0.5f, y + 0.5f);
+            float a = Edge(v2, v3, p) / area, b = Edge(v3, v1, p) / area, c = Edge(v1, v2, p) / area;
+            if (a < 0 || b < 0 || c < 0) continue;
+            var mixed = c1.ToVector4() * a + c2.ToVector4() * b + c3.ToVector4() * c;
+            var color = new Color((byte)MathF.Round(mixed.X * 255), (byte)MathF.Round(mixed.Y * 255), (byte)MathF.Round(mixed.Z * 255), (byte)MathF.Round(mixed.W * 255));
+            SetPixel(dst, x, y, Blend(GetImageColor(dst, x, y), color));
+        }
+    }
+
+    /// <summary>Draws a triangle's outline within an image.</summary>
+    public static void ImageDrawTriangleLines(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color)
+    {
+        ImageDrawLineV(ref dst, v1, v2, color);
+        ImageDrawLineV(ref dst, v2, v3, color);
+        ImageDrawLineV(ref dst, v3, v1, color);
+    }
+
+    /// <summary>Fills triangles fanning out from the first point through each pair of the rest.</summary>
+    public static void ImageDrawTriangleFan(ref Image dst, Vector2[] points, Color color)
+    {
+        for (int i = 2; i < points.Length; i++) ImageDrawTriangle(ref dst, points[0], points[i - 1], points[i], color);
+    }
+
+    /// <summary>Fills a strip of triangles, each from three points in a row.</summary>
+    public static void ImageDrawTriangleStrip(ref Image dst, Vector2[] points, Color color)
+    {
+        for (int i = 2; i < points.Length; i++) ImageDrawTriangle(ref dst, points[i - 2], points[i - 1], points[i], color);
+    }
+
+    /// <summary>Fills a rectangle at a position, of a size.</summary>
+    public static void ImageDrawRectangleV(ref Image dst, Vector2 position, Vector2 size, Color color) =>
+        ImageDrawRectangle(ref dst, (int)position.X, (int)position.Y, (int)size.X, (int)size.Y, color);
+
+    /// <summary>Fills a rectangle turned <paramref name="rotation"/> degrees around <paramref name="origin"/>, which is relative to its top left.</summary>
+    public static void ImageDrawRectanglePro(ref Image dst, Rectangle rec, Vector2 origin, float rotation, Color color)
+    {
+        var turn = Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        var at = new Vector2(rec.X, rec.Y);
+        Vector2 Corner(float x, float y) => Vector2.Transform(new Vector2(x, y) - origin, turn) + at;
+        Vector2 a = Corner(0, 0), b = Corner(rec.Width, 0), c = Corner(rec.Width, rec.Height), d = Corner(0, rec.Height);
+        ImageDrawTriangle(ref dst, a, b, c, color);
+        ImageDrawTriangle(ref dst, a, c, d, color);
+    }
+
+    /// <summary>Draws a rectangle's outline <paramref name="thick"/> pixels wide, inside its edge.</summary>
+    public static void ImageDrawRectangleLinesEx(ref Image dst, Rectangle rec, int thick, Color color)
+    {
+        int x = (int)rec.X, y = (int)rec.Y, w = (int)rec.Width, h = (int)rec.Height, t = Math.Clamp(thick, 1, Math.Max(1, Math.Min(w, h) / 2));
+        ImageDrawRectangle(ref dst, x, y, w, t, color);
+        ImageDrawRectangle(ref dst, x, y + h - t, w, t, color);
+        ImageDrawRectangle(ref dst, x, y + t, t, h - 2 * t, color);
+        ImageDrawRectangle(ref dst, x + w - t, y + t, t, h - 2 * t, color);
+    }
+
+    /// <summary>Fills a rectangle with a color at each corner, blended across it, given top left, bottom left, bottom right and top right.</summary>
+    public static void ImageDrawRectangleGradientEx(ref Image dst, Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight)
+    {
+        Vector2 a = new(rec.X, rec.Y), b = new(rec.X, rec.Y + rec.Height), c = new(rec.X + rec.Width, rec.Y + rec.Height), d = new(rec.X + rec.Width, rec.Y);
+        ImageDrawTriangleGradient(ref dst, a, b, c, topLeft, bottomLeft, bottomRight);
+        ImageDrawTriangleGradient(ref dst, a, c, d, topLeft, bottomRight, topRight);
+    }
+
+    /// <summary>Draws a circle's outline within an image.</summary>
+    public static void ImageDrawCircleLinesV(ref Image dst, Vector2 center, int radius, Color color) =>
+        ImageDrawCircleLines(ref dst, (int)center.X, (int)center.Y, radius, color);
+
+    /// <summary>Fills a circle blending from <paramref name="inner"/> at its middle to <paramref name="outer"/> at its edge.</summary>
+    public static void ImageDrawCircleGradient(ref Image dst, Vector2 center, float radius, Color inner, Color outer)
+    {
+        if (radius <= 0) return;
+        for (int y = Math.Max(0, (int)(center.Y - radius)); y <= Math.Min(dst.Height - 1, (int)(center.Y + radius)); y++)
+        for (int x = Math.Max(0, (int)(center.X - radius)); x <= Math.Min(dst.Width - 1, (int)(center.X + radius)); x++)
+        {
+            var distance = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center);
+            if (distance > radius) continue;
+            SetPixel(dst, x, y, Blend(GetImageColor(dst, x, y), Lerp(inner, outer, distance / radius)));
+        }
+    }
+
+    /// <summary>Draws a whole image within another with its top left at a pixel, multiplied by <paramref name="tint"/>.</summary>
+    public static void ImageDrawImage(ref Image dst, Image src, int posX, int posY, Color tint) =>
+        ImageDraw(ref dst, src, new Rectangle(0, 0, src.Width, src.Height), new Rectangle(posX, posY, src.Width, src.Height), tint);
+
+    /// <summary>Draws a part of an image within another with its top left at a position.</summary>
+    public static void ImageDrawImageRec(ref Image dst, Image src, Rectangle srcRec, Vector2 position, Color tint) =>
+        ImageDraw(ref dst, src, srcRec, new Rectangle(position.X, position.Y, MathF.Abs(srcRec.Width), MathF.Abs(srcRec.Height)), tint);
+
+    /// <summary>Draws a whole image within another, scaled and turned <paramref name="rotation"/> degrees around its top left.</summary>
+    public static void ImageDrawImageEx(ref Image dst, Image src, Vector2 position, float rotation, float scale, Color tint) =>
+        ImageDrawImagePro(ref dst, src, new Rectangle(0, 0, src.Width, src.Height),
+            new Rectangle(position.X, position.Y, src.Width * scale, src.Height * scale), Vector2.Zero, rotation, tint);
+
+    /// <summary>
+    /// Draws a part of an image into a rectangle of another, turned <paramref name="rotation"/>
+    /// degrees around <paramref name="origin"/>, which is relative to the rectangle's top left, each
+    /// pixel read between its neighbors and blended over what is there, as <c>DrawTexturePro</c> draws.
+    /// </summary>
+    public static void ImageDrawImagePro(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Vector2 origin, float rotation, Color tint)
+    {
+        if (!src.IsValid || dstRec.Width <= 0 || dstRec.Height <= 0 || srcRec.Width == 0 || srcRec.Height == 0) return;
+        var turn = Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        Matrix3x2.Invert(turn, out var back);
+        var at = new Vector2(dstRec.X, dstRec.Y);
+        Vector2 Corner(float x, float y) => Vector2.Transform(new Vector2(x, y) - origin, turn) + at;
+        Vector2[] corners = [Corner(0, 0), Corner(dstRec.Width, 0), Corner(dstRec.Width, dstRec.Height), Corner(0, dstRec.Height)];
+        var min = Vector2.Max(corners.Aggregate(Vector2.Min), Vector2.Zero);
+        var max = Vector2.Min(corners.Aggregate(Vector2.Max), new Vector2(dst.Width - 1, dst.Height - 1));
+        var source = src;
+        for (int y = (int)min.Y; y <= (int)max.Y; y++)
+        for (int x = (int)min.X; x <= (int)max.X; x++)
+        {
+            // Where the pixel's center lands in the rectangle before it was turned, and so in the source.
+            var local = Vector2.Transform(new Vector2(x + 0.5f, y + 0.5f) - at, back) + origin;
+            if (local.X < 0 || local.Y < 0 || local.X >= dstRec.Width || local.Y >= dstRec.Height) continue;
+            var u = srcRec.X + local.X / dstRec.Width * srcRec.Width - 0.5f;
+            var v = srcRec.Y + local.Y / dstRec.Height * srcRec.Height - 0.5f;
+            var over = Multiply(Sample(source, new Vector2(u, v)), tint);
+            SetPixel(dst, x, y, Blend(GetImageColor(dst, x, y), over));
+        }
+    }
+
+    /// <summary>
+    /// Draws text within an image, turned <paramref name="rotation"/> degrees around
+    /// <paramref name="origin"/>, which is relative to the text's top left.
+    /// </summary>
+    public static void ImageDrawTextPro(ref Image dst, Font font, string text, Vector2 position, Vector2 origin, float rotation,
+        float fontSize, float spacing, Color tint)
+    {
+        var lettering = ImageTextEx(font, text, fontSize, spacing, tint);
+        if (!lettering.IsValid) return;
+        ImageDrawImagePro(ref dst, lettering, new Rectangle(0, 0, lettering.Width, lettering.Height),
+            new Rectangle(position.X, position.Y, lettering.Width, lettering.Height), origin, rotation, Color.White);
+    }
+
     /// <summary>Fills a circle around a point.</summary>
     public static void ImageDrawCircleV(ref Image dst, Vector2 center, int radius, Color color) =>
         ImageDrawCircle(ref dst, (int)center.X, (int)center.Y, radius, color);

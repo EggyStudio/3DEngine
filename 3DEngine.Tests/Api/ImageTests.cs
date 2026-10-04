@@ -378,4 +378,32 @@ public class ImageTests
         LoadImagePalette(image, 8).Should().Equal(Color.Blank, Red, Blue);
         LoadImagePalette(image, 2).Should().HaveCount(2);
     }
+
+    [Fact]
+    public void Image_Shapes_Blend_Their_Corners_Keep_To_Their_Outlines_And_Turn()
+    {
+        var image = GenImageColor(20, 20, Color.Black);
+        ImageDrawTriangleGradient(ref image, new Vector2(0, 0), new Vector2(0, 20), new Vector2(20, 0), Red, Red, Blue);
+        GetImageColor(image, 0, 0).R.Should().BeGreaterThan(200, "near the red corners it is red");
+        GetImageColor(image, 18, 0).B.Should().BeGreaterThan(180, "near the blue corner it is blue");
+
+        var outline = GenImageColor(10, 10, Color.Black);
+        ImageDrawRectangleLinesEx(ref outline, new Rectangle(0, 0, 10, 10), 2, Red);
+        GetImageColor(outline, 1, 5).Should().Be(Red);
+        GetImageColor(outline, 5, 5).Should().Be(Color.Black, "the middle is left as it was");
+
+        // A 4 by 2 strip, red on its left half and blue on its right, turned a quarter around its
+        // top left, puts the red half above the blue one, to the left of the corner it turned about.
+        var strip = GenImageColor(4, 2, Red);
+        ImageDrawRectangle(ref strip, 2, 0, 2, 2, Blue);
+        var canvas = GenImageColor(10, 10, Color.Black);
+        ImageDrawImagePro(ref canvas, strip, new Rectangle(0, 0, 4, 2), new Rectangle(5, 5, 4, 2), Vector2.Zero, 90, Color.White);
+        GetImageColor(canvas, 4, 5).Should().Be(Red);
+        GetImageColor(canvas, 4, 8).Should().Be(Blue);
+
+        var glow = GenImageColor(21, 21, Color.Black);
+        ImageDrawCircleGradient(ref glow, new Vector2(10.5f, 10.5f), 10, Color.White, Color.Black);
+        GetImageColor(glow, 10, 10).R.Should().BeGreaterThan(230);
+        GetImageColor(glow, 10, 1).R.Should().BeLessThan(40);
+    }
 }

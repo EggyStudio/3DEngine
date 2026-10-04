@@ -298,6 +298,25 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>The window's SDL window, for a library of the program's own that needs it, or zero with no window.</summary>
+    public static nint GetWindowHandle() => WindowHandle;
+
+    /// <summary>An image on the system clipboard, as a PNG, JPEG or BMP copied there, or an invalid image when it holds none.</summary>
+    public static unsafe Image GetClipboardImage()
+    {
+        if (SDL.WasInit(SDL.InitFlags.Video) == 0) return default;
+        foreach (var type in new[] { "image/png", "image/jpeg", "image/bmp" })
+        {
+            if (!SDL.HasClipboardData(type)) continue;
+            var data = SDL.GetClipboardData(type, out var size);
+            if (data == IntPtr.Zero || size == 0) continue;
+            var bytes = new ReadOnlySpan<byte>((void*)data, checked((int)size)).ToArray();
+            SDL.Free(data);
+            return LoadImageFromMemory(type, bytes);
+        }
+        return default;
+    }
+
     /// <summary>Puts text on the system clipboard.</summary>
     public static void SetClipboardText(string text)
     {

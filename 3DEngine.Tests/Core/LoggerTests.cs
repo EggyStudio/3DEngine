@@ -3,6 +3,9 @@ using Xunit;
 
 namespace Engine.Tests.Common;
 
+// In the Engine3D collection, since its tests set the console's level, which a test there
+// saves and puts back, and run beside it would leave a level of the other's behind.
+[Collection("Engine3D")]
 [Trait("Category", "Unit")]
 public class LoggerTests
 {
@@ -271,5 +274,27 @@ public class LoggerTests
             => Messages.Add(new LogEntry(level, category, message, exception));
 
         public record LogEntry(LogLevel Level, string Category, string Message, Exception? Exception);
+    }
+
+    [Fact]
+    public void A_Trace_Log_Callback_Hears_The_Lines_That_Reach_The_Console()
+    {
+        var heard = new System.Collections.Concurrent.ConcurrentQueue<(LogLevel, string)>();
+        var before = LogConfig.ConsoleMinimumLevel;
+        Engine3D.SetTraceLogLevel(LogLevel.Info);
+        Engine3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
+        try
+        {
+            Engine3D.TraceLog(LogLevel.Warning, "callback test line");
+            Engine3D.TraceLog(LogLevel.Trace, "below the console's level");
+        }
+        finally
+        {
+            Engine3D.SetTraceLogCallback(null);
+            Engine3D.SetTraceLogLevel(before);
+        }
+
+        heard.Should().ContainSingle(h => h.Item2.EndsWith("callback test line") && h.Item1 == LogLevel.Warning);
+        heard.Should().NotContain(h => h.Item2.Contains("below the console's level"));
     }
 }

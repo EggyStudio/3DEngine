@@ -90,6 +90,12 @@ public static partial class Engine3D
     /// <remarks>The line reaches the log file at every level, and the console at <see cref="SetTraceLogLevel"/>'s level and above.</remarks>
     public static void TraceLog(LogLevel level, string text) => ProgramLogger.Log(level, text);
 
+    /// <summary>
+    /// Hands every line that reaches the console's level to <paramref name="callback"/> as well,
+    /// with its level, as a game showing the log in its own window does, or stops with null.
+    /// </summary>
+    public static void SetTraceLogCallback(Action<LogLevel, string>? callback) => LogConfig.Callback = callback;
+
     /// <summary>Sets the least level a line needs to reach the console, Info to begin with. The log file keeps every line.</summary>
     public static void SetTraceLogLevel(LogLevel level) => LogConfig.ConsoleMinimumLevel = level;
 

@@ -83,6 +83,9 @@ public static partial class Engine3D
     }
 
     /// <summary>The point at <paramref name="t"/>, from 0 to 1, along the quadratic Bezier curve.</summary>
+    public static Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t) => GetSplinePointBezierQuad(p1, c2, p3, t);
+
+    /// <summary>The same point as <see cref="GetSplinePointBezierQuadratic"/>, by raylib's older name for it.</summary>
     public static Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t)
     {
         var u = 1 - t;

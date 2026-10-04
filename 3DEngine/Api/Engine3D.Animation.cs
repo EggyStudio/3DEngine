@@ -98,6 +98,14 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Poses <paramref name="model"/> between two clips at frames of each, <paramref name="blend"/> of
+    /// the way from the first to the second, as raylib's does by frame where
+    /// <see cref="UpdateModelAnimationBlend"/> takes seconds.
+    /// </summary>
+    public static void UpdateModelAnimationEx(Model model, ModelAnimation animA, float frameA, ModelAnimation animB, float frameB, float blend) =>
+        UpdateModelAnimationBlend(model, animA, frameA / AnimationFps, animB, frameB / AnimationFps, blend);
+
+    /// <summary>
     /// Poses <paramref name="model"/> between two clips, <paramref name="from"/> at
     /// <paramref name="fromSeconds"/> and <paramref name="to"/> at <paramref name="toSeconds"/>,
     /// <paramref name="weight"/> of the way from the first to the second, as a walk turning into a run.

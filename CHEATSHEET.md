@@ -44,6 +44,7 @@ void SetWindowFocused();                                 // Raise it and ask for
 void ToggleBorderlessWindowed();                         // Between a window and a borderless one covering the monitor
 void SetWindowIcon(Image image);                         // The icon the desktop shows for it
 void SetWindowIcons(Image[] images);                     // Several sizes of it, the desktop picking
+nint GetWindowHandle();                                  // The window's SDL window, for a library of your own
 
 int GetMonitorCount();                                   // Connected monitors
 int GetCurrentMonitor();                                 // The monitor the window is on
@@ -57,6 +58,7 @@ void SetWindowFullscreenMode(MonitorMode mode);          // Fullscreen at the cl
 void SetWindowMonitor(int monitor);                      // Move the window to a monitor, centered
 void SetClipboardText(string text);                      // Put text on the clipboard
 string GetClipboardText();                               // The text on the clipboard
+Image GetClipboardImage();                               // An image on the clipboard, or an invalid one
 App GetApp();                                            // The app InitWindow built, for plugins, systems and resources
 void TakeScreenshot(string fileName);                    // Write the frame being drawn to a PNG once it is presented
 
@@ -82,6 +84,7 @@ void ClearBackground(Color color);                       // Color the frame is c
 void BeginMode3D(Camera3D camera);                       // Draw the following shapes through a camera, depth tested
 void EndMode3D();                                        // Return to screen space, in pixels from the top left
 void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from input (Free or Orbital)
+void UpdateCameraPro(ref Camera3D camera, Vector3 movement, Vector3 rotation, float zoom); // Move and turn it by amounts of the program's own
 void BeginMode2D(Camera2D camera);                       // Draw the following 2D calls in world units through a 2D camera
 void EndMode2D();                                        // Return to screen pixels
 Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world point appears on the screen
@@ -199,6 +202,7 @@ void DrawPixel(int x, int y, Color color);                                      
 void DrawPixelV(Vector2 position, Color color);                                    // One pixel
 void DrawLineEx(Vector2 start, Vector2 end, float thick, Color color);             // Line of a width
 void DrawLineStrip(ReadOnlySpan<Vector2> points, Color color);                     // Lines joining the points in turn
+void DrawLineDashed(Vector2 startPos, Vector2 endPos, int dashSize, int spaceSize, Color color); // A line in dashes
 void DrawLineBezier(Vector2 start, Vector2 end, float thick, Color color);         // Curve easing in and out
 void DrawRectangleRec(Rectangle rec, Color color);                                 // Filled rectangle
 void DrawRectanglePro(Rectangle rec, Vector2 origin, float rotation, Color color); // Filled rectangle turned about an origin
@@ -210,6 +214,8 @@ void DrawRectangleRounded(Rectangle rec, float roundness, int segments, Color co
 void DrawRectangleRoundedLines(Rectangle rec, float roundness, int segments, Color color); // Its outline
 void DrawRectangleRoundedLinesEx(Rectangle rec, float roundness, int segments, float lineThick, Color color); // Its outline, thick, outside the edge
 void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color);           // Triangle outline
+void DrawTriangleLinesEx(Vector2 v1, Vector2 v2, Vector2 v3, float thick, Color color); // Its outline, thick
+void DrawTriangleGradient(Vector2 v1, Vector2 v2, Vector2 v3, Color c1, Color c2, Color c3); // A color at each corner
 void DrawTriangleFan(ReadOnlySpan<Vector2> points, Color color);                   // Triangles fanning from the first point
 void DrawTriangleStrip(ReadOnlySpan<Vector2> points, Color color);                 // A strip of triangles
 void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color); // Filled regular polygon
@@ -217,12 +223,18 @@ void DrawPolyLines(Vector2 center, int sides, float radius, float rotation, Colo
 void DrawPolyLinesEx(Vector2 center, int sides, float radius, float rotation, float lineThick, Color color); // Outline of a width
 void DrawCircleSector(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Filled slice
 void DrawCircleSectorLines(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Its outline
+void DrawCircleSectorLinesEx(Vector2 center, float radius, float startAngle, float endAngle, int segments, float thick, Color color); // Its outline, thick
 void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer); // Blended from the middle out
 void DrawCircleLinesV(Vector2 center, float radius, Color color);                  // Circle outline
+void DrawCircleLinesEx(Vector2 center, float radius, float thick, Color color);     // Circle outline, thick
 void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color color); // Filled ellipse
 void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color); // Its outline
+void DrawEllipseV(Vector2 center, float radiusH, float radiusV, Color color);      // Filled ellipse around a point
+void DrawEllipseLinesV(Vector2 center, float radiusH, float radiusV, Color color); // Its outline
+void DrawEllipseLinesEx(Vector2 center, float radiusH, float radiusV, float thick, Color color); // Its outline, thick
 void DrawRing(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Filled ring or arc
 void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color); // Its outline
+void DrawRingLinesEx(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, float thick, Color color); // Its outline, thick
 void DrawSplineLinear(ReadOnlySpan<Vector2> points, float thick, Color color);     // Lines joining the points, corners closed
 void DrawSplineBasis(ReadOnlySpan<Vector2> points, float thick, Color color);      // B-spline passing near the points, at least 4
 void DrawSplineCatmullRom(ReadOnlySpan<Vector2> points, float thick, Color color); // Through every point but the first and last, at least 4
@@ -237,6 +249,7 @@ Vector2 GetSplinePointLinear(Vector2 startPos, Vector2 endPos, float t);        
 Vector2 GetSplinePointBasis(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
 Vector2 GetSplinePointCatmullRom(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
 Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t);
+Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t); // The same, by raylib's newer name
 Vector2 GetSplinePointBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4, float t);
 ```
 
@@ -351,17 +364,33 @@ void ImageDrawPixel(ref Image image, int x, int y, Color color);                
 void ImageDrawPixelV(ref Image image, Vector2 position, Color color);                  // One pixel
 void ImageDrawLine(ref Image image, int startX, int startY, int endX, int endY, Color color); // A line
 void ImageDrawLineV(ref Image image, Vector2 start, Vector2 end, Color color);          // A line
+void ImageDrawLineStrip(ref Image dst, Vector2[] points, Color color);                 // Lines joining the points
 void ImageDrawCircle(ref Image image, int centerX, int centerY, int radius, Color color);      // A filled circle
 void ImageDrawCircleLines(ref Image image, int centerX, int centerY, int radius, Color color); // A circle's outline
+void ImageDrawCircleLinesV(ref Image dst, Vector2 center, int radius, Color color);    // A circle's outline around a point
+void ImageDrawCircleGradient(ref Image dst, Vector2 center, float radius, Color inner, Color outer); // A circle blending outward
 void ImageDrawLineEx(ref Image dst, Vector2 start, Vector2 end, int thick, Color color); // A line of a width
 void ImageDrawTriangle(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color); // A filled triangle
+void ImageDrawTriangleGradient(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color c1, Color c2, Color c3); // A color at each corner
+void ImageDrawTriangleLines(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color); // A triangle's outline
+void ImageDrawTriangleFan(ref Image dst, Vector2[] points, Color color);               // Triangles fanning from the first point
+void ImageDrawTriangleStrip(ref Image dst, Vector2[] points, Color color);             // A strip of triangles
 void ImageDrawCircleV(ref Image dst, Vector2 center, int radius, Color color);         // A filled circle around a point
 void ImageDrawRectangle(ref Image image, int x, int y, int width, int height, Color color);    // A filled rectangle
+void ImageDrawRectangleV(ref Image dst, Vector2 position, Vector2 size, Color color);  // The same by vectors
+void ImageDrawRectanglePro(ref Image dst, Rectangle rec, Vector2 origin, float rotation, Color color); // Turned
+void ImageDrawRectangleLinesEx(ref Image dst, Rectangle rec, int thick, Color color); // Its outline, thick
+void ImageDrawRectangleGradientEx(ref Image dst, Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight); // A color at each corner
 void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
 void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline
 void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint); // Part of an image into another, blended
+void ImageDrawImage(ref Image dst, Image src, int posX, int posY, Color tint);         // A whole image at a pixel
+void ImageDrawImageRec(ref Image dst, Image src, Rectangle srcRec, Vector2 position, Color tint); // Part of one at a position
+void ImageDrawImageEx(ref Image dst, Image src, Vector2 position, float rotation, float scale, Color tint); // Scaled and turned
+void ImageDrawImagePro(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Vector2 origin, float rotation, Color tint); // Part, into a rectangle, turned
 void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color); // Text in the default font
 void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
+void ImageDrawTextPro(ref Image dst, Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Turned
 Image ImageText(string text, int fontSize, Color color);                               // A new image of text in the default font, as large as the text
 Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color tint);  // The same in a font
 
@@ -529,6 +558,7 @@ ModelAnimation[] LoadModelAnimations(string fileName);                     // Ev
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
 void UpdateModelAnimationAt(Model model, ModelAnimation anim, float seconds); // Pose a model between frames, at a time
 void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight); // Between two clips
+void UpdateModelAnimationEx(Model model, ModelAnimation animA, float frameA, ModelAnimation animB, float frameB, float blend); // The same by frame
 bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has
 void UnloadModelAnimation(ModelAnimation animation);                       // Let a clip go
 void UnloadModelAnimations(ModelAnimation[] animations);                   // Let clips go
@@ -540,6 +570,7 @@ void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float
 void DrawModelPoints(Model model, Vector3 position, float scale, Color tint);                                         // Its vertices as points
 void DrawModelPointsEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
 ModelMaterial LoadMaterialDefault();                                                                                  // A white material with no maps
+ModelMaterial[] LoadMaterials(string fileName);                                                                       // A model file's materials, without its meshes
 bool IsMaterialValid(ModelMaterial material);                                                                         // Whether its maps are loaded
 void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture);                     // A map by raylib's name for it
 void SetModelMeshMaterial(Model model, int meshId, int materialId);                                                   // Which material a mesh draws with
@@ -794,6 +825,7 @@ void OpenURL(string url);                                // Open an http or http
 void WaitTime(double seconds);                           // Hold the program for some seconds
 void TraceLog(LogLevel level, string text);              // A line in the engine's log, under Program
 void SetTraceLogLevel(LogLevel level);                   // The least level that reaches the console (Info)
+void SetTraceLogCallback(Action<LogLevel, string>? callback); // Hand each console line to the program as well
 bool IsFileDropped();                                    // Whether files were dropped on the window since they were last unloaded
 string[] LoadDroppedFiles();                             // Their paths, in the order they arrived
 void UnloadDroppedFiles();                               // Forget them, for the next drop

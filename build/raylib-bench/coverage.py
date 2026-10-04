@@ -11,7 +11,7 @@ from pathlib import Path
 
 header = Path(sys.argv[1]).read_text()
 cheatsheet = (Path(__file__).resolve().parents[2] / "CHEATSHEET.md").read_text()
-carried = set(re.findall(r"^[\w<>\[\],? ]+?\b(\w+)\(", cheatsheet, re.M))
+carried = set(re.findall(r"^[\w<>\[\],? ]+?\b(\w+)(?:<\w+>)?\(", cheatsheet, re.M))
 
 sections = OrderedDict()
 section = "(none)"

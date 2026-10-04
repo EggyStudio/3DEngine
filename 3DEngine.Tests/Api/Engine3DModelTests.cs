@@ -335,4 +335,16 @@ public sealed class Engine3DModelTests : IDisposable
         vertices.Single(v => v.Position == Vector3.Zero).Uv.Should().Be(new Vector2(0, 0));
         vertices.Single(v => v.Position == Vector3.UnitY).Uv.Should().Be(new Vector2(0, 1));
     }
+
+    [Fact]
+    public void A_Model_Files_Materials_Load_Without_Its_Meshes()
+    {
+        var meshesBefore = _app.World.Resource<MeshStore>().Count;
+
+        var materials = LoadMaterials(WriteGlbWithEmbeddedPng(new byte[32]));
+
+        materials.Should().NotBeEmpty();
+        materials.Should().Contain(m => m.Texture.IsValid, "the texture the material names is loaded with it");
+        _app.World.Resource<MeshStore>().Count.Should().Be(meshesBefore, "the meshes are let go");
+    }
 }

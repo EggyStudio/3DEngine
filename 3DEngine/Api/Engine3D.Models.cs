@@ -599,6 +599,18 @@ public static partial class Engine3D
     /// <summary>A white material with no maps, as a model made from a mesh starts with.</summary>
     public static ModelMaterial LoadMaterialDefault() => new(Color.White);
 
+    /// <summary>The materials of a model file, without its meshes, as raylib's reads a .mtl or a glTF's materials.</summary>
+    /// <remarks>
+    /// The textures the materials name are loaded with them and stay loaded, for the program to
+    /// unload with <see cref="UnloadTexture"/> once no material it keeps uses them.
+    /// </remarks>
+    public static ModelMaterial[] LoadMaterials(string fileName)
+    {
+        var model = LoadModel(fileName);
+        foreach (var mesh in model.Meshes) UnloadMesh(mesh);
+        return [.. model.Materials];
+    }
+
     /// <summary>Whether a material's maps are loaded textures, or none, so it can be drawn with.</summary>
     public static bool IsMaterialValid(ModelMaterial material)
     {

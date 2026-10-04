@@ -12,6 +12,12 @@ public static class LogConfig
     public static LogLevel ConsoleMinimumLevel { get; set; } = LogLevel.Info;
 
     /// <summary>
+    /// Told each line that reaches the console's level, with its category in brackets before it, as
+    /// raylib's trace log callback is, or null for none.
+    /// </summary>
+    public static Action<LogLevel, string>? Callback { get; set; }
+
+    /// <summary>
     /// When true, per-frame repetitive diagnostics (stage timing, render steps) are emitted at Trace level.
     /// When false (default), only the logs of starting and stopping are shown, which keeps a running app quiet.
     /// Enable via <c>LogConfig.PerFrameLogging = true</c> or the <c>ENGINE_LOG_FRAMES=1</c> environment variable.

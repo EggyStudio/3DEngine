@@ -105,4 +105,34 @@ public class Collision3DTests
         IsPointInFrontOfCamera(new Vector3(0, 0, 11), camera).Should().BeFalse();
         GetCameraMatrix(camera).Should().Be(camera.View);
     }
+
+    [Fact]
+    public void A_Camera_Moved_By_Amounts_Walks_Level_Turns_About_Itself_And_Zooms_Out()
+    {
+        // Above the ground looking down at a slant toward -Z.
+        var camera = new Camera3D(new Vector3(0, 2, 5), new Vector3(0, 0, 0), Vector3.UnitY, 45);
+
+        var walked = camera;
+        UpdateCameraPro(ref walked, new Vector3(1, 0, 0), Vector3.Zero, 0);
+        walked.Position.Y.Should().BeApproximately(2, 1e-4f, "forward is kept level");
+        walked.Position.Z.Should().BeApproximately(4, 1e-4f);
+        (walked.Target - walked.Position).Should().Be(camera.Target - camera.Position, "the target goes with it");
+
+        var turned = camera;
+        UpdateCameraPro(ref turned, Vector3.Zero, new Vector3(90, 0, 0), 0);
+        turned.Position.Should().Be(camera.Position, "it turns about itself");
+        Vector3.Normalize(turned.Target - turned.Position).X.Should().BeGreaterThan(0.9f, "a quarter turn right looks along +X");
+
+        var zoomed = camera;
+        UpdateCameraPro(ref zoomed, Vector3.Zero, Vector3.Zero, 1);
+        zoomed.Target.Should().Be(camera.Target);
+        Vector3.Distance(zoomed.Position, zoomed.Target).Should().BeApproximately(Vector3.Distance(camera.Position, camera.Target) + 1, 1e-4f);
+    }
+
+    [Fact]
+    public void The_Quadratic_Bezier_Point_Has_Both_Of_Raylibs_Names()
+    {
+        GetSplinePointBezierQuadratic(Vector2.Zero, new Vector2(1, 2), new Vector2(2, 0), 0.5f)
+            .Should().Be(GetSplinePointBezierQuad(Vector2.Zero, new Vector2(1, 2), new Vector2(2, 0), 0.5f));
+    }
 }

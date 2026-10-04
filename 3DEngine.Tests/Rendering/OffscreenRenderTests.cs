@@ -71,6 +71,30 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Dashes_Thick_Circles_Ellipses_And_Blended_Triangles_Cover_What_They_Should()
+    {
+        Open(96, 48);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawLineDashed(new Vector2(0, 4.5f), new Vector2(40, 4.5f), 4, 4, Color.White);
+            DrawCircleLinesEx(new Vector2(16, 28), 12, 3, Color.Red);
+            DrawEllipseV(new Vector2(52, 28), 10, 4, Color.Lime);
+            DrawTriangleGradient(new Vector2(72, 4), new Vector2(72, 44), new Vector2(94, 4), Color.Red, Color.Red, Color.Blue);
+        });
+
+        GetImageColor(image, 1, 4).Should().Be(Color.White, "a dash");
+        GetImageColor(image, 5, 4).Should().Be(Color.Black, "the gap after it");
+        GetImageColor(image, 9, 4).Should().Be(Color.White, "the next dash");
+        GetImageColor(image, 27, 28).R.Should().BeGreaterThan(200, "the circle's thick edge");
+        GetImageColor(image, 16, 28).Should().Be(Color.Black, "its middle is open");
+        GetImageColor(image, 60, 28).G.Should().BeGreaterThan(140, "the ellipse reaches its long radius");
+        GetImageColor(image, 52, 21).Should().Be(Color.Black, "and not past its short one");
+        GetImageColor(image, 73, 6).R.Should().BeGreaterThan(200, "the triangle is red at its red corners");
+        GetImageColor(image, 91, 5).B.Should().BeGreaterThan(150, "and blue toward its blue one");
+    }
+
+    [NeedsVulkanFact]
     public void Gradients_Thick_Outlines_Rings_Turned_And_Rounded_Rectangles_Cover_What_They_Should()
     {
         Open(128, 64);
