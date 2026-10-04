@@ -104,6 +104,11 @@ public sealed partial class PhysicsWorld
 
     private Entity HandleOf(int id) => id != 0 && EntityHandle is { } handle ? handle(id) : Entity.None;
 
+    /// <summary>The entity id a body was made for, or 0.</summary>
+    internal int EntityOf(PhysicsBody body) => body.Kind == BodyKind.Static
+        ? _staticToEntity.GetValueOrDefault(body.Handle)
+        : _bodyToEntity.GetValueOrDefault(body.Handle);
+
     private int EntityOf(CollidableReference collidable) =>
         collidable.Mobility == CollidableMobility.Static
             ? _staticToEntity.GetValueOrDefault(collidable.StaticHandle.Value)

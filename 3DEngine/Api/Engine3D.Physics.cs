@@ -36,10 +36,27 @@ public static partial class Engine3D
         Physics.CreateCharacter(feet, radius, height, mass);
 
     /// <summary>The velocity a character walks at along the ground, until it is given another.</summary>
-    public static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity) => Physics.MoveCharacter(body, velocity);
+    /// <remarks>A character whose entity has a <see cref="CharacterController"/>, as one a scene file made, is walked through it.</remarks>
+    public static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity)
+    {
+        if (Controller(body) is { } entity) World.Resource<EcsWorld>().GetRef<CharacterController>(entity).Velocity = velocity;
+        else Physics.MoveCharacter(body, velocity);
+    }
 
     /// <summary>Makes a character on the ground jump, leaving it upward at <paramref name="speed"/>.</summary>
-    public static void JumpPhysicsCharacter(PhysicsBody body, float speed) => Physics.JumpCharacter(body, speed);
+    public static void JumpPhysicsCharacter(PhysicsBody body, float speed)
+    {
+        if (Controller(body) is { } entity) World.Resource<EcsWorld>().GetRef<CharacterController>(entity).Jump = speed;
+        else Physics.JumpCharacter(body, speed);
+    }
+
+    // The entity a character body's CharacterController is on, which the physics step reads the
+    // walk from, so a flat call goes through it rather than being overwritten by it.
+    private static int? Controller(PhysicsBody body)
+    {
+        var entity = Physics.EntityOf(body);
+        return entity != 0 && World.TryGetResource<EcsWorld>(out var ecs) && ecs.Has<CharacterController>(entity) ? entity : null;
+    }
 
     /// <summary>Whether a character stands on ground it can walk on.</summary>
     public static bool IsPhysicsCharacterGrounded(PhysicsBody body) => Physics.IsCharacterGrounded(body);

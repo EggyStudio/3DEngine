@@ -11,8 +11,15 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Wall": {
-          "Size": [12, 1, 12]
+        "Collider": {
+          "Shape": "Box",
+          "Size": [12, 1, 12],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
         }
       }
     },
@@ -25,8 +32,15 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Wall": {
-          "Size": [12.5, 2, 0.5]
+        "Collider": {
+          "Shape": "Box",
+          "Size": [12.5, 2, 0.5],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
         }
       }
     },
@@ -39,8 +53,15 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Wall": {
-          "Size": [12.5, 2, 0.5]
+        "Collider": {
+          "Shape": "Box",
+          "Size": [12.5, 2, 0.5],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
         }
       }
     },
@@ -53,8 +74,15 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Wall": {
-          "Size": [0.5, 2, 12]
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.5, 2, 12],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
         }
       }
     },
@@ -67,8 +95,15 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Wall": {
-          "Size": [0.5, 2, 12]
+        "Collider": {
+          "Shape": "Box",
+          "Size": [0.5, 2, 12],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
         }
       }
     },
@@ -81,9 +116,17 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Goal": {
-          "Size": [3, 0.1, 2]
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [3, 0.1, 2],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Goal": {}
       }
     },
     {
@@ -95,9 +138,17 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Crate": {
-          "Size": 1
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1, 1, 1],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 2
+        },
+        "Crate": {}
       }
     },
     {
@@ -109,9 +160,17 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Crate": {
-          "Size": 1
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1, 1, 1],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 2
+        },
+        "Crate": {}
       }
     },
     {
@@ -123,9 +182,17 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Crate": {
-          "Size": 1
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1, 1, 1],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 2
+        },
+        "Crate": {}
       }
     },
     {
@@ -137,9 +204,17 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Crate": {
-          "Size": 1
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1, 1, 1],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 2
+        },
+        "Crate": {}
       }
     },
     {
@@ -151,21 +226,45 @@
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "Crate": {
-          "Size": 1
-        }
+        "Collider": {
+          "Shape": "Box",
+          "Size": [1, 1, 1],
+          "Radius": 0,
+          "Height": 0
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 2
+        },
+        "Crate": {}
       }
     },
     {
       "id": "e12",
-      "name": "Player start",
+      "name": "Player",
       "components": {
         "Transform": {
-          "Position": [0, 0, 4.5],
+          "Position": [0, 0.9, 4.5],
           "Rotation": [0, 0, 0, 1],
           "Scale": [1, 1, 1]
         },
-        "PlayerStart": {}
+        "Collider": {
+          "Shape": "Capsule",
+          "Size": [0, 0, 0],
+          "Radius": 0.4,
+          "Height": 1.8
+        },
+        "RigidBody": {
+          "Kind": "Dynamic",
+          "Mass": 80
+        },
+        "CharacterController": {
+          "Velocity": [0, 0, 0],
+          "MaxSlope": 45,
+          "Jump": 0,
+          "Grounded": false
+        },
+        "Player": {}
       }
     }
   ]

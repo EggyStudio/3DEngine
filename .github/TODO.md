@@ -136,14 +136,14 @@ does not climb a taller step, ride a moving platform, or crouch.
 
 ### Scenes
 
-`SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to
-JSON and loads it back (ARCHITECTURE.md, Scene files). Arrays are not saved, so a mesh entity made
-in code comes back without its mesh, and a level shows meshes through `ModelRef`. A physics body is
-a runtime handle and is not saved either, and nothing describes one for a file yet, so
-`games/Pusher` marks its walls and crates with components of its own and makes their bodies after
-loading. There are no
-prefabs (a scene file spawned as part of another), and an older file is read by keeping the
-fields it has, with no migration.
+`SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to JSON
+and loads it back (ARCHITECTURE.md, Scene files). Arrays are not saved, so a mesh entity made in
+code comes back without its mesh, and a level shows meshes through `ModelRef`. A body is described
+by a `Collider` (box, sphere or capsule) and a `RigidBody` (static, dynamic with a mass, or
+kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
+when a `CharacterController` is beside a capsule. Joints, physics materials and mesh colliders are
+not described. There are no prefabs (a scene file spawned as part of another), and an older file is
+read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads. Of `SceneMaterialPayload`'s fields
 the model pass reads all but the alpha mode and the double-sided flag.

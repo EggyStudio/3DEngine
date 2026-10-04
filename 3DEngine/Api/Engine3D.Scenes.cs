@@ -22,7 +22,10 @@ public static partial class Engine3D
 
         try
         {
-            return SceneFile.Load(World, path);
+            var spawned = SceneFile.Load(World, path);
+            // The bodies its Colliders and RigidBodies describe, at once rather than next frame.
+            PhysicsBodies.Run(World);
+            return spawned;
         }
         catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
         {

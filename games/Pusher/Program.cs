@@ -12,25 +12,22 @@ SetTargetFPS(60);
 var world = GetApp().World;
 var ecs = world.Resource<EcsWorld>();
 
-// -- The level, from a scene file of the game's own components
+// -- The level, from a scene file whose colliders and bodies say what is solid
 
 var level = LoadScene("resources/level.json");
 var walls = new List<(PhysicsBody Body, Vector3 Size)>();
 var crates = new List<(PhysicsBody Body, Vector3 Start)>();
-PhysicsBody goal = default;
+PhysicsBody goal = default, player = default;
 var goalSize = Vector3.One;
-var start = Vector3.Zero;
 foreach (var entity in level)
 {
-    var at = ecs.GetReadOnly<Transform>(entity).Position;
-    if (ecs.TryGet<Wall>(entity, out var wall)) walls.Add((CreatePhysicsStaticBox(at, wall.Size), wall.Size));
-    if (ecs.TryGet<Crate>(entity, out var crate)) crates.Add((CreatePhysicsBox(at, new Vector3(crate.Size), mass: 2), at));
-    if (ecs.TryGet<Goal>(entity, out var g)) (goal, goalSize) = (CreatePhysicsStaticBox(at, g.Size), g.Size);
-    if (ecs.Has<PlayerStart>(entity)) start = at;
+    var body = ecs.GetReadOnly<PhysicsBody>(entity);
+    var size = ecs.GetReadOnly<Collider>(entity).Size;
+    if (ecs.Has<Crate>(entity)) crates.Add((body, ecs.GetReadOnly<Transform>(entity).Position));
+    else if (ecs.Has<Goal>(entity)) (goal, goalSize) = (body, size);
+    else if (ecs.Has<Player>(entity)) player = body;
+    else walls.Add((body, size));
 }
-
-// The player is a character, which walls stop and which pushes the lighter crates.
-var player = CreatePhysicsCharacter(start, 0.4f, 1.8f);
 var facing = 0f;
 
 // -- Light, sky, models and sound
@@ -139,29 +136,16 @@ UnloadEnvironmentMap();
 CloseAudioDevice();
 CloseWindow();
 
-/// <summary>A wall, the floor among them, a box of this size that never moves.</summary>
+/// <summary>A crate to push into the goal.</summary>
 [SceneComponent]
-public struct Wall
-{
-    public Vector3 Size;
-}
+public struct Crate;
 
-/// <summary>A crate to push, a cube this wide.</summary>
+/// <summary>Where a crate scores.</summary>
 [SceneComponent]
-public struct Crate
-{
-    public float Size;
-}
+public struct Goal;
 
-/// <summary>Where a crate scores, a flat box of this size.</summary>
+/// <summary>The player's character.</summary>
 [SceneComponent]
-public struct Goal
-{
-    public Vector3 Size;
-}
-
-/// <summary>Where the player begins.</summary>
-[SceneComponent]
-public struct PlayerStart;
+public struct Player;
 
 public enum Screen { Menu, Play, Pause }

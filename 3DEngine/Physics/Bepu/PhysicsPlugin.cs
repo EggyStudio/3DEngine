@@ -46,6 +46,13 @@ public sealed class PhysicsPlugin : IPlugin
         // With FixedTime (TimePlugin adds it), the simulation advances one step per FixedUpdate run,
         // on the same steps as [OnFixedUpdate] behaviors, so a behavior that pushes a body pushes it
         // once per step. Without it, PhysicsWorld keeps its own accumulator and steps in PreUpdate.
+        // Bodies for the entities a scene or the program describes with a Collider and a RigidBody,
+        // after SceneSpawnSystem in this stage has spawned a scene's entities.
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(PhysicsBodies.Run, "Physics.SpawnBodies")
+            .Write<EcsWorld>()
+            .Write<PhysicsWorld>()
+            .MainThreadOnly());
+
         // Contacts are sent as events after each step and kept until the next frame starts, so
         // code in any stage of the frame reads every contact of the frame's steps once.
         app.AddSystem(Stage.First, new SystemDescriptor(static w =>

@@ -325,8 +325,10 @@ void SaveScene(string fileName, IEnumerable<int>? entities = null);  // Write th
 ```
 
 A scene file is JSON of entities and their components by name. The engine's components are saved,
-and a program's own are when marked `[SceneComponent]`, as `[SceneComponent] public struct Wall {
-public Vector3 Size; }`. ARCHITECTURE.md describes the format.
+and a program's own are when marked `[SceneComponent]`, as `[SceneComponent] public struct Crate;`.
+A `Collider` and a `RigidBody` say what is solid, and the body is made when the scene loads, so
+`ecs.GetReadOnly<PhysicsBody>(entity)` gives it to the physics functions. ARCHITECTURE.md describes
+the format.
 
 ## Physics
 

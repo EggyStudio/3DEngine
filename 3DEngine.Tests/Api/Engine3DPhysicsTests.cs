@@ -165,4 +165,24 @@ public sealed class Engine3DPhysicsTests : IDisposable
         RunUntil(() => ecs.GetReadOnly<Transform>(player).Position.Z < -1).Should().BeTrue("the controller walks it along -Z");
         ecs.GetReadOnly<CharacterController>(player).Grounded.Should().BeTrue("and it stands on the floor");
     }
+
+    [Fact]
+    public void A_Flat_Walk_Of_A_Character_With_A_Controller_Goes_Through_The_Controller()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
+        var player = ecs.Spawn();
+        ecs.Add(player, new Transform(new Vector3(0, 0.9f, 0)));
+        ecs.Add(player, Collider.Capsule(0.4f, 1.8f));
+        ecs.Add(player, RigidBody.Dynamic(80));
+        ecs.Add(player, CharacterController.Default);
+        BeginDrawing();
+        EndDrawing();
+        var body = ecs.GetReadOnly<PhysicsBody>(player);
+
+        MovePhysicsCharacter(body, new Vector3(3, 0, 0));
+
+        ecs.GetReadOnly<CharacterController>(player).Velocity.Should().Be(new Vector3(3, 0, 0));
+        RunUntil(() => GetPhysicsBodyPosition(body).X > 1).Should().BeTrue("the step walks it as the controller says");
+    }
 }

@@ -113,6 +113,7 @@ internal static class PhysicsContacts
 /// if (jumpPressed &amp;&amp; controller.Grounded) controller.Jump = 5;
 /// </code>
 /// </example>
+[SceneComponent]
 public struct CharacterController
 {
     /// <summary>The velocity it walks at along the ground. The vertical part is ignored.</summary>
