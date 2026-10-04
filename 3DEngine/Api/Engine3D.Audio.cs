@@ -14,9 +14,27 @@ namespace Engine;
 /// </remarks>
 public sealed class Music
 {
-    internal Music(IMusicDecoder? decoder) => Decoder = decoder;
+    internal Music(IMusicDecoder? decoder, string name = "")
+    {
+        Decoder = decoder;
+        Name = name;
+    }
 
     internal IMusicDecoder? Decoder { get; }
+
+    // The file it was opened from, for the log.
+    internal string Name { get; }
+
+    /// <summary>Whether its file has been closed, by unloading it or by the app shutting down.</summary>
+    internal bool Closed { get; private set; }
+
+    // Closes the file the music streams from, once.
+    internal void Close()
+    {
+        if (Closed) return;
+        Closed = true;
+        Decoder?.Dispose();
+    }
 
     internal AudioSource Voice { get; set; }
 
@@ -119,6 +137,31 @@ internal sealed class Mp3MusicDecoder : IMusicDecoder
     public void Seek(long frame) => _file.Position = Math.Clamp(frame, 0, TotalFrames) * sizeof(float) * _file.Channels;
 
     public void Dispose() => _file.Dispose();
+}
+
+/// <summary>
+/// The music the flat API has open, a world resource, so the app shutting down closes the files of
+/// any a program did not unload, and the log names them, as DESIGN.md §6 has it for what a program
+/// forgets.
+/// </summary>
+internal sealed class LoadedMusic : IDisposable
+{
+    private static readonly ILogger Logger = Log.Category("Engine.Api");
+    private readonly HashSet<Music> _open = [];
+
+    public int Count => _open.Count;
+
+    public void Add(Music music) => _open.Add(music);
+
+    public void Remove(Music music) => _open.Remove(music);
+
+    public void Dispose()
+    {
+        if (_open.Count == 0) return;
+        Logger.Warn($"{_open.Count} music stream(s) were still loaded at shutdown, and their files are closed: {string.Join(", ", _open.Select(m => m.Name))}");
+        foreach (var music in _open) music.Close();
+        _open.Clear();
+    }
 }
 
 public static partial class Engine3D
@@ -287,13 +330,15 @@ public static partial class Engine3D
 
         try
         {
-            return Path.GetExtension(path).ToLowerInvariant() switch
+            var music = Path.GetExtension(path).ToLowerInvariant() switch
             {
-                ".ogg" => new Music(new OggMusicDecoder(path)),
-                ".wav" or ".wave" => new Music(new WavMusicDecoder(path)),
-                ".mp3" => new Music(new Mp3MusicDecoder(path)),
+                ".ogg" => new Music(new OggMusicDecoder(path), fileName),
+                ".wav" or ".wave" => new Music(new WavMusicDecoder(path), fileName),
+                ".mp3" => new Music(new Mp3MusicDecoder(path), fileName),
                 var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3)."),
             };
+            World.GetOrInsertResource(() => new LoadedMusic()).Add(music);
+            return music;
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)
         {
@@ -303,10 +348,12 @@ public static partial class Engine3D
     }
 
     /// <summary>Stops a piece of music and closes its file.</summary>
+    /// <remarks>Music still loaded when the app shuts down is closed then, and the log names it.</remarks>
     public static void UnloadMusicStream(Music music)
     {
         StopMusicStream(music);
-        music.Decoder?.Dispose();
+        music.Close();
+        if (_app?.World.TryGetResource<LoadedMusic>(out var loaded) == true) loaded.Remove(music);
     }
 
     /// <summary>Whether a piece of music has samples to play.</summary>

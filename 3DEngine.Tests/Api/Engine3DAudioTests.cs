@@ -70,13 +70,19 @@ public sealed class Engine3DAudioTests : IDisposable
         UseApp(app);
     }
 
+    // The app shuts down before the directory goes, which closes any music a test left open, as
+    // Windows will not delete a file that is still open.
     public void Dispose()
     {
+        var app = GetApp();
         UseApp(null);
+        app.Shutdown();
         Directory.Delete(_directory, recursive: true);
     }
 
     // A tenth of a second of 16-bit mono silence at 8 kHz, as a canonical WAV file.
+    private int _written;
+
     private string WriteWav()
     {
         const int sampleRate = 8000, frames = 800;
@@ -88,7 +94,8 @@ public sealed class Engine3DAudioTests : IDisposable
             w.Write(sampleRate); w.Write(sampleRate * 2); w.Write((short)2); w.Write((short)16);
             w.Write("data"u8); w.Write(frames * 2); w.Write(new byte[frames * 2]);
         }
-        var path = Path.Combine(_directory, "blip.wav");
+        // A file of its own each time, since one a piece of music has open cannot be written over on Windows.
+        var path = Path.Combine(_directory, $"blip{_written++}.wav");
         File.WriteAllBytes(path, stream.ToArray());
         return path;
     }
@@ -158,6 +165,7 @@ public sealed class Engine3DAudioTests : IDisposable
         GetMusicTimePlayed(music).Should().BeApproximately(0f, 1e-3f, "4000 frames is five whole rounds of 800");
         UpdateMusicStream(music);
         _backend.QueuedVoiceFrames(voice).Should().BeGreaterThanOrEqualTo(4000);
+        UnloadMusicStream(music);
     }
 
     [Fact]
@@ -177,6 +185,7 @@ public sealed class Engine3DAudioTests : IDisposable
         _backend.Play(voice, 600);
         UpdateMusicStream(music);
         IsMusicStreamPlaying(music).Should().BeFalse();
+        UnloadMusicStream(music);
     }
 
     [Fact]
@@ -198,6 +207,21 @@ public sealed class Engine3DAudioTests : IDisposable
 
         ResumeMusicStream(music);
         IsMusicStreamPlaying(music).Should().BeTrue();
+        UnloadMusicStream(music);
+    }
+
+    [Fact]
+    public void Music_Left_Loaded_Is_Closed_When_The_App_Shuts_Down()
+    {
+        var kept = LoadMusicStream(WriteWav());
+        var unloaded = LoadMusicStream(WriteWav());
+        UnloadMusicStream(unloaded);
+        GetApp().World.Resource<LoadedMusic>().Count.Should().Be(1, "unloading takes a piece of music off the list");
+
+        GetApp().Shutdown();
+
+        kept.Closed.Should().BeTrue("shutting down closes the file of music the program did not unload");
+        unloaded.Closed.Should().BeTrue();
     }
 
     [Fact]
