@@ -123,7 +123,7 @@ public sealed class AppWindowPlugin : IPlugin
                     bool down = (SDL.EventType)e.Type == SDL.EventType.KeyDown;
                     var mapped = (Key)e.Key.Scancode;
                     if (mapped != Key.Unknown)
-                        input.SetKey(mapped, down);
+                        input.SetKey(mapped, down, e.Key.Repeat);
                     break;
             }
         }

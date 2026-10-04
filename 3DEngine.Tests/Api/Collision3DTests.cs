@@ -83,4 +83,26 @@ public class Collision3DTests
         CheckCollisionLines(Vector2.Zero, new Vector2(1, 1), new Vector2(0, 4), new Vector2(4, 0), out _).Should().BeFalse();
         CheckCollisionCircleLine(new Vector2(5, 1), 1.5f, Vector2.Zero, new Vector2(10, 0)).Should().BeTrue();
     }
+
+    [Fact]
+    public void A_World_Point_Lands_Where_The_Ray_Through_Its_Pixel_Comes_From()
+    {
+        var camera = new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY);
+        GetWorldToScreenEx(Vector3.Zero, camera, 800, 450).Should().Be(new Vector2(400, 225));
+
+        var right = GetWorldToScreenEx(new Vector3(1, 0, 0), camera, 800, 450);
+        var up = GetWorldToScreenEx(new Vector3(0, 1, 0), camera, 800, 450);
+        right.X.Should().BeGreaterThan(400);
+        up.Y.Should().BeLessThan(225, "up in the world is up the screen, where pixels count down");
+
+        // The ray through the pixel passes through the point again.
+        var point = new Vector3(2, -1, 3);
+        var ray = GetScreenToWorldRayEx(GetWorldToScreenEx(point, camera, 800, 450), camera, 800, 450);
+        var along = Vector3.Dot(point - ray.Position, ray.Direction);
+        Vector3.Distance(ray.Position + ray.Direction * along, point).Should().BeLessThan(1e-3f);
+
+        IsPointInFrontOfCamera(point, camera).Should().BeTrue();
+        IsPointInFrontOfCamera(new Vector3(0, 0, 11), camera).Should().BeFalse();
+        GetCameraMatrix(camera).Should().Be(camera.View);
+    }
 }

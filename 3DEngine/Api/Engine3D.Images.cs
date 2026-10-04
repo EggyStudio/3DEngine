@@ -39,8 +39,7 @@ public static partial class Engine3D
     /// <summary>Makes an image of white and black pixels, white with the chance <paramref name="factor"/>.</summary>
     public static Image GenImageWhiteNoise(int width, int height, float factor)
     {
-        var random = Random.Shared;
-        return Generate(width, height, (_, _) => random.NextSingle() < factor ? Color.White : Color.Black);
+        return Generate(width, height, (_, _) => RandomSingle() < factor ? Color.White : Color.Black);
     }
 
     /// <summary>
@@ -67,10 +66,9 @@ public static partial class Engine3D
     {
         tileSize = Math.Max(1, tileSize);
         int across = Math.Max(1, width / tileSize), down = Math.Max(1, height / tileSize);
-        var random = Random.Shared;
         var seeds = new Vector2[across * down];
         for (int i = 0; i < seeds.Length; i++)
-            seeds[i] = new Vector2(i % across * tileSize + random.Next(tileSize), i / across * tileSize + random.Next(tileSize));
+            seeds[i] = new Vector2(i % across * tileSize + RandomBelow(tileSize), i / across * tileSize + RandomBelow(tileSize));
 
         return Generate(width, height, (x, y) =>
         {

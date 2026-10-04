@@ -54,6 +54,7 @@ public sealed class Input
     private readonly HashSet<Key> _keysDown = [];
     private readonly HashSet<Key> _keysPressed = [];
     private readonly HashSet<Key> _keysReleased = [];
+    private readonly HashSet<Key> _keysRepeated = [];
 
     private readonly HashSet<MouseButton> _mouseDown = [];
     private readonly HashSet<MouseButton> _mousePressed = [];
@@ -120,6 +121,12 @@ public sealed class Input
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key transitioned to up this frame; otherwise <c>false</c>.</returns>
     public bool KeyReleased(Key key) => _keysReleased.Contains(key);
+
+    /// <summary>
+    /// Whether the system repeated <paramref name="key"/> this frame while it was held, as it
+    /// repeats a held key in a text field. The first press is not a repeat.
+    /// </summary>
+    public bool KeyPressedRepeat(Key key) => _keysRepeated.Contains(key);
 
     /// <summary>Returns <c>true</c> if any key is currently held down.</summary>
     /// <returns><c>true</c> if at least one key is held; otherwise <c>false</c>.</returns>
@@ -211,6 +218,7 @@ public sealed class Input
     {
         _keysPressed.Clear();
         _keysReleased.Clear();
+        _keysRepeated.Clear();
         _mousePressed.Clear();
         _mouseReleased.Clear();
         MouseDeltaX = 0;
@@ -226,10 +234,12 @@ public sealed class Input
     /// <summary>Updates the state of a keyboard key.</summary>
     /// <param name="key">The key whose state changed.</param>
     /// <param name="isDown"><c>true</c> if the key is now held; <c>false</c> if released.</param>
-    internal void SetKey(Key key, bool isDown)
+    /// <param name="repeat">Whether the event is the system repeating a held key.</param>
+    internal void SetKey(Key key, bool isDown, bool repeat = false)
     {
         if (isDown)
         {
+            if (repeat) _keysRepeated.Add(key);
             if (_keysDown.Add(key))
             {
                 _keysPressed.Add(key);
@@ -263,9 +273,6 @@ public sealed class Input
     internal void SetMouseButton(int button, bool isDown) => 
         SetMouseButton((MouseButton)button, isDown);
 
-    /// <summary>Sets the absolute mouse position in window pixels.</summary>
-    /// <param name="x">The X coordinate.</param>
-    /// <param name="y">The Y coordinate.</param>
     /// <summary>Puts a finger down, moves it, or lifts it, by its id.</summary>
     internal void SetTouch(long id, float x, float y, bool down)
     {
@@ -280,6 +287,9 @@ public sealed class Input
         else _touches.Add(point);
     }
 
+    /// <summary>Sets the absolute mouse position in window pixels.</summary>
+    /// <param name="x">The X coordinate.</param>
+    /// <param name="y">The Y coordinate.</param>
     internal void SetMousePosition(int x, int y)
     {
         MouseX = x;

@@ -34,6 +34,23 @@ public readonly record struct RenderTexture2D(Texture2D Texture, Texture2D Depth
     public bool IsValid => Texture.IsValid;
 }
 
+/// <summary>How <see cref="Engine3D.DrawTextureNPatch"/> cuts a texture: into nine patches, or three across or down.</summary>
+public enum NPatchLayout
+{
+    /// <summary>Corners kept at their size, edges stretched along their length and the middle both ways.</summary>
+    NinePatch,
+    /// <summary>A top and a bottom kept at their height, and the part between stretched down.</summary>
+    ThreePatchVertical,
+    /// <summary>A left and a right kept at their width, and the part between stretched across.</summary>
+    ThreePatchHorizontal,
+}
+
+/// <summary>
+/// The part of a texture <see cref="Engine3D.DrawTextureNPatch"/> draws, and how far in from each
+/// of its edges the borders that keep their size reach, in pixels.
+/// </summary>
+public readonly record struct NPatchInfo(Rectangle Source, int Left, int Top, int Right, int Bottom, NPatchLayout Layout = NPatchLayout.NinePatch);
+
 public static partial class Engine3D
 {
     private static readonly ILogger ApiLogger = Log.Category("Engine.Api");
@@ -210,6 +227,82 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Draws a texture stretched into <paramref name="dest"/> with its borders kept at their size,
+    /// as a panel or button is drawn from a small image of one, rotated by
+    /// <paramref name="rotation"/> degrees around <paramref name="origin"/>, which is relative to
+    /// the top left of <paramref name="dest"/>.
+    /// </summary>
+    /// <remarks>
+    /// A rectangle narrower or shorter than its two borders leaves out the middle and shrinks the
+    /// borders in proportion, as raylib's does.
+    /// </remarks>
+    public static void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle dest, Vector2 origin, float rotation, Color tint)
+    {
+        if (!texture.IsValid || texture.Width == 0 || texture.Height == 0) return;
+        float width = texture.Width, height = texture.Height;
+        var source = nPatchInfo.Source;
+        var layout = nPatchInfo.Layout;
+        var patchWidth = (int)dest.Width <= 0 ? 0 : dest.Width;
+        var patchHeight = (int)dest.Height <= 0 ? 0 : dest.Height;
+        if (source.Width < 0) source = source with { X = source.X - source.Width };
+        if (source.Height < 0) source = source with { Y = source.Y - source.Height };
+        if (layout == NPatchLayout.ThreePatchHorizontal) patchHeight = source.Height;
+        if (layout == NPatchLayout.ThreePatchVertical) patchWidth = source.Width;
+
+        float left = nPatchInfo.Left, top = nPatchInfo.Top, right = nPatchInfo.Right, bottom = nPatchInfo.Bottom;
+        bool center = true, middle = true;
+        if (patchWidth <= left + right && layout != NPatchLayout.ThreePatchVertical)
+        {
+            center = false;
+            left = left + right > 0 ? left / (left + right) * patchWidth : 0;
+            right = patchWidth - left;
+        }
+        if (patchHeight <= top + bottom && layout != NPatchLayout.ThreePatchHorizontal)
+        {
+            middle = false;
+            top = top + bottom > 0 ? top / (top + bottom) * patchHeight : 0;
+            bottom = patchHeight - top;
+        }
+
+        // The four lines across and down that cut the rectangle, and where each falls in the texture.
+        float[] xs = [0, left, patchWidth - right, patchWidth];
+        float[] ys = [0, top, patchHeight - bottom, patchHeight];
+        float[] us = [source.X / width, (source.X + left) / width, (source.X + source.Width - right) / width, (source.X + source.Width) / width];
+        float[] vs = [source.Y / height, (source.Y + top) / height, (source.Y + source.Height - bottom) / height, (source.Y + source.Height) / height];
+
+        var at = new Vector2(dest.X, dest.Y);
+        var turn = Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        Vector3 Corner(float x, float y) => new(Vector2.Transform(new Vector2(x, y) - origin, turn) + at, 0);
+        // The patch between lines i0 and i1 across and j0 and j1 down.
+        void Patch(int i0, int j0, int i1, int j1) =>
+            DrawList.TexturedQuad(Corner(xs[i0], ys[j0]), Corner(xs[i1], ys[j0]), Corner(xs[i1], ys[j1]), Corner(xs[i0], ys[j1]),
+                new Vector2(us[i0], vs[j0]), new Vector2(us[i1], vs[j0]), new Vector2(us[i1], vs[j1]), new Vector2(us[i0], vs[j1]),
+                tint, texture.Id);
+
+        switch (layout)
+        {
+            case NPatchLayout.NinePatch:
+                for (int j = 0; j < 3; j++)
+                {
+                    if (j == 1 && !middle) continue;
+                    for (int i = 0; i < 3; i++)
+                        if (i != 1 || center) Patch(i, j, i + 1, j + 1);
+                }
+                break;
+            case NPatchLayout.ThreePatchVertical:
+                Patch(0, 0, 3, 1);
+                if (middle) Patch(0, 1, 3, 2);
+                Patch(0, 2, 3, 3);
+                break;
+            case NPatchLayout.ThreePatchHorizontal:
+                Patch(0, 0, 1, 3);
+                if (center) Patch(1, 0, 2, 3);
+                Patch(2, 0, 3, 3);
+                break;
+        }
+    }
+
+    /// <summary>
     /// Draws a texture in 3D facing <paramref name="camera"/>, <paramref name="size"/> world units
     /// high and as wide as the texture's shape makes it. Call it inside <see cref="BeginMode3D"/>.
     /// </summary>
@@ -226,6 +319,59 @@ public static partial class Engine3D
             new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1),
             tint, texture.Id);
     }
+
+    /// <summary>
+    /// Draws the part of a texture <paramref name="source"/> covers in 3D, centered on
+    /// <paramref name="position"/>, <paramref name="size"/> world units across and up, turned
+    /// toward <paramref name="camera"/> about the world's up axis, as a tree or a sprite standing
+    /// on the ground is drawn.
+    /// </summary>
+    public static void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector2 size, Color tint) =>
+        DrawBillboardPro(camera, texture, source, position, Vector3.UnitY, size, size / 2, 0, tint);
+
+    /// <summary>
+    /// Draws the part of a texture <paramref name="source"/> covers in 3D, <paramref name="size"/>
+    /// world units along the camera's right and along <paramref name="up"/>, with
+    /// <paramref name="origin"/>, measured from its bottom left corner in the same units, at
+    /// <paramref name="position"/>, and turned <paramref name="rotation"/> degrees about it in the
+    /// billboard's plane, counterclockwise as the camera sees it.
+    /// </summary>
+    /// <remarks>A negative size flips the texture along that side, as raylib's does.</remarks>
+    public static void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up,
+        Vector2 size, Vector2 origin, float rotation, Color tint)
+    {
+        if (!texture.IsValid || texture.Width == 0 || texture.Height == 0) return;
+
+        var view = camera.View;
+        var right = new Vector3(view.M11, view.M21, view.M31) * size.X;
+        up *= size.Y;
+        if (size.X < 0)
+        {
+            source = source with { X = source.X + size.X, Width = -source.Width };
+            right = -right;
+            origin.X = -origin.X;
+        }
+        if (size.Y < 0)
+        {
+            source = source with { Y = source.Y + size.Y, Height = -source.Height };
+            up = -up;
+            origin.Y = -origin.Y;
+        }
+
+        var pivot = SafeNormalize(right) * origin.X + SafeNormalize(up) * origin.Y;
+        var turn = rotation == 0 ? Quaternion.Identity
+            : Quaternion.CreateFromAxisAngle(SafeNormalize(Vector3.Cross(right, up)), float.DegreesToRadians(rotation));
+        Vector3 Corner(Vector3 offset) => Vector3.Transform(offset - pivot, turn) + position;
+
+        float u0 = source.X / texture.Width, u1 = (source.X + source.Width) / texture.Width;
+        float vTop = source.Y / texture.Height, vBottom = (source.Y + source.Height) / texture.Height;
+        DrawList.TexturedQuad(
+            Corner(up), Corner(up + right), Corner(right), Corner(Vector3.Zero),
+            new Vector2(u0, vTop), new Vector2(u1, vTop), new Vector2(u1, vBottom), new Vector2(u0, vBottom),
+            tint, texture.Id);
+    }
+
+    private static Vector3 SafeNormalize(Vector3 v) => v.LengthSquared() > 0 ? Vector3.Normalize(v) : Vector3.Zero;
 
     // Finds a file the way a program run from anywhere expects: as given (relative to the working
     // directory), then beside the program, then under source/ beside it, where content items land.

@@ -51,6 +51,10 @@ double GetTime();                                        // Seconds since the fi
 int GetFPS();                                            // Frames per second, smoothed
 void SetProfileValue(string name, double value);         // A number of the program's own in the frame profile
 double GetProfileAverage(string name);                   // A profiled average in milliseconds, as "work" or "gpu.models"
+
+void SetRandomSeed(uint seed);                           // Seed the generator, so a run's random values repeat
+int GetRandomValue(int min, int max);                    // A whole number from min to max, both included
+int[] LoadRandomSequence(int count, int min, int max);   // That many different values from the range, empty when it holds fewer
 ```
 
 ## Frame and cameras
@@ -67,6 +71,10 @@ void EndMode2D();                                        // Return to screen pix
 Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world point appears on the screen
 Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // The world point under a screen point
 Matrix4x4 GetCameraMatrix2D(Camera2D camera);            // The camera's world to screen transform
+Vector2 GetWorldToScreen(Vector3 position, Camera3D camera); // Where a world point appears in the window
+Vector2 GetWorldToScreenEx(Vector3 position, Camera3D camera, int width, int height); // The same for a view of a given size
+bool IsPointInFrontOfCamera(Vector3 position, Camera3D camera); // Whether the point is ahead of the camera, so it shows there
+Matrix4x4 GetCameraMatrix(Camera3D camera);              // The camera's world to view transform
 
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to, its depth in .Depth
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
@@ -92,6 +100,7 @@ around its target, which the program draws as the player. Both are meant with `D
 bool IsKeyPressed(Key key);                              // Key went down this frame
 bool IsKeyDown(Key key);                                 // Key is held
 bool IsKeyReleased(Key key);                             // Key came up this frame
+bool IsKeyPressedRepeat(Key key);                        // Key repeated while held this frame, as in a text field
 bool IsKeyUp(Key key);                                   // Key is not held
 Key GetKeyPressed();                                     // Next key pressed this frame, Unknown when none is left
 int GetCharPressed();                                    // Next character typed this frame (a code point), 0 when none is left
@@ -101,6 +110,7 @@ bool IsMouseButtonDown(MouseButton button);              // Button is held
 bool IsMouseButtonReleased(MouseButton button);          // Button came up this frame
 bool IsMouseButtonUp(MouseButton button);                // Button is not held
 Vector2 GetMousePosition();                              // Pointer position in the window
+void SetMousePosition(int x, int y);                     // Move the pointer within the window
 int GetMouseX();                                         // Pointer x
 int GetMouseY();                                         // Pointer y
 Vector2 GetMouseDelta();                                 // How far the pointer moved this frame
@@ -292,7 +302,10 @@ void DrawTextureV(Texture2D texture, Vector2 position, Color tint);             
 void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);      // Rotated (degrees) and scaled
 void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint);                // Part of a texture
 void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint); // Part of a texture into a rectangle, rotated around origin
+void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle dest, Vector2 origin, float rotation, Color tint); // Stretched into a rectangle, its borders kept
 void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint);      // Texture in 3D, facing the camera
+void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector2 size, Color tint); // Part of one, standing upright and turned toward the camera
+void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint); // The same along an up of its own, about an origin
 ```
 
 An `Image` is RGBA bytes in memory. The `Image*` functions change the image passed by `ref`, as
@@ -617,6 +630,7 @@ Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type)
 int[] LoadCodepoints(string text);                                                          // The distinct characters of a text, for LoadFontEx
 void UnloadFont(Font font);                                                                 // Free its atlas
 void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
+void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Rotated around an origin
 Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing);               // Its width and height
 ```
 
@@ -639,6 +653,23 @@ bool SaveFileText(string fileName, string text);         // Write text to a file
 named colors: `LightGray`, `Gray`, `DarkGray`, `Yellow`, `Gold`, `Orange`, `Pink`, `Red`, `Maroon`,
 `Green`, `Lime`, `DarkGreen`, `SkyBlue`, `Blue`, `DarkBlue`, `Purple`, `Violet`, `DarkPurple`,
 `Beige`, `Brown`, `DarkBrown`, `White`, `Black`, `Blank`, `Magenta`, `RayWhite`.
+
+```csharp
+Color Fade(Color color, float alpha);                    // Its alpha set, from 0 to 1
+Color ColorAlpha(Color color, float alpha);              // The same
+bool ColorIsEqual(Color col1, Color col2);               // Whether all four channels match
+int ColorToInt(Color color);                             // As 0xRRGGBBAA
+Color GetColor(uint hexValue);                           // From 0xRRGGBBAA
+Vector4 ColorNormalize(Color color);                     // As four floats from 0 to 1
+Color ColorFromNormalized(Vector4 normalized);           // From four floats from 0 to 1
+Vector3 ColorToHSV(Color color);                         // Hue in degrees, saturation and value from 0 to 1
+Color ColorFromHSV(float hue, float saturation, float value); // From a hue, saturation and value
+Color ColorTint(Color color, Color tint);                // Multiplied channel by channel
+Color ColorBrightness(Color color, float factor);         // Toward black below 0, toward white above, from -1 to 1
+Color ColorContrast(Color color, float contrast);        // Toward gray below 0, away above, from -1 to 1
+Color ColorAlphaBlend(Color dst, Color src, Color tint); // The tinted source laid over dst by its alpha
+Color ColorLerp(Color color1, Color color2, float factor); // Part of the way from one to the other
+```
 
 ## ImGui
 

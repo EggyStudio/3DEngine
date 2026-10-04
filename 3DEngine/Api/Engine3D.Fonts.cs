@@ -328,7 +328,15 @@ public static partial class Engine3D
 
     /// <summary>Draws text with a font at <paramref name="position"/>, its top left corner, <paramref name="fontSize"/> pixels high, with <paramref name="spacing"/> pixels between characters.</summary>
     /// <remarks>A newline starts a new line. Characters the font has no glyph for are skipped.</remarks>
-    public static void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
+    public static void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint) =>
+        DrawTextPro(font, text, position, Vector2.Zero, 0, fontSize, spacing, tint);
+
+    /// <summary>
+    /// Draws text with a font as <see cref="DrawTextEx"/> does, rotated by <paramref name="rotation"/>
+    /// degrees around <paramref name="origin"/>, which is relative to the text's top left corner and
+    /// lands at <paramref name="position"/>.
+    /// </summary>
+    public static void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint)
     {
         if (!font.IsValid || string.IsNullOrEmpty(text)) return;
 
@@ -337,13 +345,18 @@ public static partial class Engine3D
         var sdf = font.Type == FontType.Sdf && DrawList.Shader == 0 && SdfShader().IsValid;
         if (sdf) DrawList.SetShader(_sdfShader.Id, default);
 
+        // Glyphs are laid out from the text's top left at zero, then moved to the origin and turned.
         var scale = fontSize / font.BaseSize;
-        var pen = position;
+        var turn = rotation == 0 ? Matrix3x2.Identity : Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
+        Vector3 Corner(float x, float y) => rotation == 0
+            ? new Vector3(x - origin.X + position.X, y - origin.Y + position.Y, 0)
+            : new Vector3(Vector2.Transform(new Vector2(x, y) - origin, turn) + position, 0);
+        var pen = Vector2.Zero;
         foreach (var rune in text.EnumerateRunes())
         {
             if (rune.Value == '\n')
             {
-                pen = new Vector2(position.X, pen.Y + font.LineHeight * scale);
+                pen = new Vector2(0, pen.Y + font.LineHeight * scale);
                 continue;
             }
             if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
@@ -352,7 +365,7 @@ public static partial class Engine3D
             {
                 // Glyph corners are relative to the top of the line, so the text hangs from position.
                 var (x0, y0, x1, y1) = (pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, pen.X + g.X1 * scale, pen.Y + g.Y1 * scale);
-                DrawList.TexturedQuad(new(x0, y0, 0), new(x1, y0, 0), new(x1, y1, 0), new(x0, y1, 0),
+                DrawList.TexturedQuad(Corner(x0, y0), Corner(x1, y0), Corner(x1, y1), Corner(x0, y1),
                     new(g.U0, g.V0), new(g.U1, g.V0), new(g.U1, g.V1), new(g.U0, g.V1), tint, font.Texture.Id);
             }
             pen.X += g.Advance * scale + spacing;

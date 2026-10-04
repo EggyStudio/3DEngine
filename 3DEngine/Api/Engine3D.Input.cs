@@ -18,6 +18,9 @@ public static partial class Engine3D
     /// <summary>Whether <paramref name="key"/> came up this frame.</summary>
     public static bool IsKeyReleased(Key key) => Input.KeyReleased(key);
 
+    /// <summary>Whether the system repeated a held <paramref name="key"/> this frame, as it does in a text field. The first press is not a repeat.</summary>
+    public static bool IsKeyPressedRepeat(Key key) => Input.KeyPressedRepeat(key);
+
     /// <summary>Whether <paramref name="key"/> is not held.</summary>
     public static bool IsKeyUp(Key key) => !Input.KeyDown(key);
 
@@ -103,6 +106,13 @@ public static partial class Engine3D
 
     /// <summary>The pointer's horizontal position in the window.</summary>
     public static int GetMouseX() => Input.MouseX;
+
+    /// <summary>Moves the pointer to a place in the window, which <see cref="GetMousePosition"/> reports from then on.</summary>
+    public static void SetMousePosition(int x, int y)
+    {
+        Input.SetMousePosition(x, y);
+        if (TryRes<AppWindow>(out var window)) SDL.WarpMouseInWindow(window.Sdl.Window, x, y);
+    }
 
     /// <summary>The pointer's vertical position in the window.</summary>
     public static int GetMouseY() => Input.MouseY;

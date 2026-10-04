@@ -36,6 +36,23 @@ public class InputTests
     }
 
     [Fact]
+    public void A_Repeat_Of_A_Held_Key_Is_Seen_For_Its_Frame_And_Is_Not_A_Press()
+    {
+        var input = new Input();
+        input.SetKey(Key.Backspace, true);
+        input.KeyPressedRepeat(Key.Backspace).Should().BeFalse("the first press is not a repeat");
+
+        input.BeginFrame();
+        input.SetKey(Key.Backspace, true, repeat: true);
+        input.KeyPressedRepeat(Key.Backspace).Should().BeTrue();
+        input.KeyPressed(Key.Backspace).Should().BeFalse();
+
+        input.BeginFrame();
+        input.KeyPressedRepeat(Key.Backspace).Should().BeFalse();
+        input.KeyDown(Key.Backspace).Should().BeTrue();
+    }
+
+    [Fact]
     public void Duplicate_KeyDown_Does_Not_Duplicate_Pressed()
     {
         var input = new Input();
