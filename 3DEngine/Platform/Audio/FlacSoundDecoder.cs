@@ -263,7 +263,7 @@ internal sealed class FlacReader : IDisposable
                     a[i] = a[i] + b[i];
                     break;
                 default: // mid, side
-                    long mid = ((long)a[i] << 1) | (b[i] & 1);
+                    long mid = (long)a[i] * 2 + (b[i] & 1);
                     long sideSample = b[i];
                     a[i] = (int)((mid + sideSample) >> 1);
                     b[i] = (int)((mid - sideSample) >> 1);
