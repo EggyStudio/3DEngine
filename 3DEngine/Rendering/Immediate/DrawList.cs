@@ -148,6 +148,16 @@ public sealed class DrawList
         }
     }
 
+    /// <summary>
+    /// Draws render target <paramref name="target"/> this frame, cleared to <paramref name="clear"/>
+    /// unless something drawn into it set its clear already, as a camera entity drawing into it does.
+    /// </summary>
+    public void UseTarget(int target, Color clear)
+    {
+        lock (_gate)
+            if (target != 0) _targetClears.TryAdd(target, clear);
+    }
+
     /// <summary>Sets the color the current render target is cleared to before it is drawn this frame.</summary>
     public void SetTargetClear(Color color)
     {

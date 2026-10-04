@@ -67,3 +67,8 @@ None open.
   names the two bodies' entities and, by its own place and up direction, the point and the axis,
   so a level hangs a door where it stands. It is made once both bodies are, destroyed with its
   entity, and one that cannot be made is marked and not tried again (`e46058fc`).
+
+- **Shared:** a gamepad's gyro, accelerometer and touchpad fingers are read, and its light set,
+  through SDL's sensor and touchpad events (`GetGamepadGyro`, `GetGamepadTouchPosition`,
+  `SetGamepadLight`, `73ce6326`), checked against the state they fill and not with a pad that has
+  them.

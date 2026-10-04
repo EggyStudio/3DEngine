@@ -94,7 +94,7 @@ public class CameraTests
         cam.FovY.Should().BeApproximately(60f * (float)(Math.PI / 180.0), 0.001f);
         cam.Near.Should().BeApproximately(0.1f, 0.001f);
         cam.Far.Should().BeApproximately(1000f, 0.1f);
-        cam.TargetName.Should().BeNull();
+        cam.Target.IsValid.Should().BeFalse("it draws into the window");
     }
 
     [Fact]
@@ -105,17 +105,17 @@ public class CameraTests
         cam.FovY.Should().Be(0f);
         cam.Near.Should().Be(0f);
         cam.Far.Should().Be(0f);
-        cam.TargetName.Should().BeNull();
+        cam.Target.IsValid.Should().BeFalse();
     }
 
     [Fact]
     public void Constructor_With_Custom_Values()
     {
-        var cam = new Camera(fovY: 85f, near: 0.5f, far: 500f, targetName: "offscreen");
+        var cam = new Camera(fovY: 85f, near: 0.5f, far: 500f, target: new RenderTexture2D(new Texture2D(9, 64, 32)));
 
         cam.FovY.Should().BeApproximately(85f * (float)(Math.PI / 180.0), 0.001f);
         cam.Near.Should().BeApproximately(0.5f, 0.001f);
         cam.Far.Should().BeApproximately(500f, 0.1f);
-        cam.TargetName.Should().Be("offscreen");
+        cam.Target.Texture.Id.Should().Be(9);
     }
 }

@@ -283,7 +283,6 @@ public static class SceneSpawner
                 FovY = fovRad,
                 Near = camera.NearClip,
                 Far = camera.FarClip,
-                TargetName = null,
             });
         }
     }

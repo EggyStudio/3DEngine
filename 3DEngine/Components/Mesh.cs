@@ -5,7 +5,7 @@ namespace Engine;
 /// <summary>A mesh component: triangles in the entity's own space, three vertices each.</summary>
 /// <remarks>
 /// <para>
-/// Drawn with its <see cref="Material"/> through the first entity with a <see cref="Camera"/>,
+/// Drawn with its <see cref="Material"/> through each entity with a <see cref="Camera"/>,
 /// lit and textured the way <c>DrawModel</c> draws a model, by <see cref="MeshEntityDraws"/>.
 /// </para>
 /// <para>

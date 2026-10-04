@@ -67,11 +67,12 @@ physics, text and fonts, audio and text files
 
 ### Meshes, materials and light
 
-- **The environment is one prefiltered cube.** The model pass reflects up to 16 light entities
-  and an environment map by the material's metallic-roughness model (RENDERING.md §3 and §4). The
-  map's roughest mip stands in for a cosine-weighted irradiance, it is made on the CPU in a few
-  hundred milliseconds, and there are no reflection
-  probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
+- **The environment is one prefiltered cube.** The model pass reflects up to 16 light entities and
+  an environment map by the material's metallic-roughness model (RENDERING.md §3 and §4). The map's
+  roughest mip stands in for a cosine-weighted irradiance, it is made on the CPU in a few hundred
+  milliseconds, and there are no reflection probes for the inside of a room. A mesh entity is drawn
+  into the window through the first camera entity without a render texture, and into each camera
+  entity's render texture, with the shadow fitted to the window's camera, and an `AnimatedModel`
   into the window only.
 - **Layouts are written by hand.** A dispatch runs a compute shader over storage buffers, which
   the CPU reads back and drawing shaders read, and textures it writes and samples (RENDERING.md

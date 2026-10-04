@@ -162,6 +162,43 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Camera_Entity_With_A_Render_Texture_Draws_Into_It_Beside_The_Window_Camera()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        Vector3[] square = [new(-1, -1, 0), new(1, -1, 0), new(1, 1, 0), new(-1, -1, 0), new(1, 1, 0), new(-1, 1, 0)];
+        var main = ecs.Spawn();
+        ecs.Add(main, new Camera(45f));
+        ecs.Add(main, new Transform(new Vector3(0, 0, 4)));
+        var red = ecs.Spawn();
+        ecs.Add(red, new Mesh(square));
+        ecs.Add(red, new Material(new Vector4(1, 0, 0, 1)) { EmissiveFactor = new Vector3(1, 0, 0) });
+        ecs.Add(red, new Transform(Vector3.Zero));
+
+        var view = LoadRenderTexture(32, 32);
+        var side = ecs.Spawn();
+        ecs.Add(side, new Camera(45f, target: view) { Background = Color.Blue });
+        ecs.Add(side, new Transform(new Vector3(20, 0, 4)));
+        var green = ecs.Spawn();
+        ecs.Add(green, new Mesh(square));
+        ecs.Add(green, new Material(new Vector4(0, 1, 0, 1)) { EmissiveFactor = new Vector3(0, 1, 0) });
+        ecs.Add(green, new Transform(new Vector3(20, 0, 0)));
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTexture(view.Texture, 0, 0, Color.White);
+        }, "cameras");
+
+        var corner = GetImageColor(image, 16, 16);
+        corner.G.Should().BeGreaterThan(200, "the side camera drew the green square into its texture");
+        corner.R.Should().BeLessThan(60);
+        GetImageColor(image, 1, 1).B.Should().BeGreaterThan(200, "its texture is cleared to the camera's background");
+        GetImageColor(image, 48, 48).R.Should().BeGreaterThan(200, "the window camera drew the red square");
+        UnloadRenderTexture(view);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Reads_Its_Uniforms_By_Name_As_Each_Draw_Set_Them()
     {
         Open(96, 48);

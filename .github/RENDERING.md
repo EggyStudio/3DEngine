@@ -24,7 +24,7 @@ needs an offline toolchain beyond `slangc`.
      clears the swapchain pass, and the model, immediate and ImGui nodes draw into it.
 - **The immediate pass** (§2) draws the shapes and textures the flat API records.
 - **The model pass** (§3) draws the meshes `DrawModel` records and every mesh entity, which
-  `MeshEntityDraws` records through the first camera entity, lit by the light entities or, with
+  `MeshEntityDraws` records through each camera entity, lit by the light entities or, with
   none, by one fixed light (§4).
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 - **A frame profile** of the schedule's stages, the renderer's steps and each pass on the CPU and

@@ -219,7 +219,8 @@ down to eight references deep. The console's `scene.save` and `scene.load` do th
 
 Mesh entities reach the renderer the way `DrawModel` does. `MeshEntityDraws`, a system in
 `Render`, records every entity with a `Mesh` and a `Material` into the `ModelDrawList` through
-the first `Camera` entity, uploading a mesh's arrays to `MeshStore` the first time and copying its
+the first `Camera` entity without a render texture, for the window, and through each with one,
+for its texture, uploading a mesh's arrays to `MeshStore` the first time and copying its
 base color, normal and metallic-roughness textures from the asset store into `TextureStore` once
 loaded.
 

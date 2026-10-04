@@ -18,15 +18,13 @@ public sealed class CameraExtract : IExtractSystem
         var surface = renderWorld.TryGet<RenderSurfaceInfo>();
         int surfaceW = surface?.Width > 0 ? surface!.Width : 1;
         int surfaceH = surface?.Height > 0 ? surface!.Height : 1;
-        var textures = renderWorld.TryGet<RenderTextures>();
-
         foreach (var (entity, cam) in ecs.Query<global::Engine.Camera>())
         {
             int wPixels = surfaceW, hPixels = surfaceH;
-            if (!string.IsNullOrEmpty(cam.TargetName) && textures != null && textures.TryGet(cam.TargetName!, out var desc))
+            if (cam.Target.IsValid)
             {
-                wPixels = Math.Max(1, desc.Width);
-                hPixels = Math.Max(1, desc.Height);
+                wPixels = Math.Max(1, cam.Target.Texture.Width);
+                hPixels = Math.Max(1, cam.Target.Texture.Height);
             }
 
             float aspect = hPixels > 0 ? (float)wPixels / hPixels : 1f;
