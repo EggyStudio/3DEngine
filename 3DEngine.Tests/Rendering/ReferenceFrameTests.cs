@@ -49,10 +49,26 @@ public sealed class ReferenceFrameTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
-    // Draws frames until the first one's capture has been written, as OffscreenRenderTests does.
-    private Image Capture(Action draw)
+    // Draws frames until the first one's capture has been written, as OffscreenRenderTests does,
+    // after settle frames for what takes a frame or more to appear, as a probe's capture or a
+    // scene's models do.
+    private Image Capture(Action draw, int settle = 0, Func<bool>? ready = null)
     {
+        // A capture taken earlier in the test is written over, rather than mistaken for this one.
         var path = Path.Combine(_directory, "frame.png");
+        File.Delete(path);
+        for (int frame = 0; frame < 120 && ready is not null && !ready(); frame++)
+        {
+            BeginDrawing();
+            draw();
+            EndDrawing();
+        }
+        for (int frame = 0; frame < settle; frame++)
+        {
+            BeginDrawing();
+            draw();
+            EndDrawing();
+        }
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();
@@ -361,5 +377,205 @@ public sealed class ReferenceFrameTests : IDisposable
         UnloadModel(ground);
         UnloadModel(cube);
         UnloadModel(orb);
+    }
+
+    [NeedsVulkanFact]
+    public void The_Effects_Over_The_Frame_Match_Their_Reference()
+    {
+        Open(256, 160);
+        SetExposure(1.3f);
+        SetTonemap(Tonemap.Aces);
+        SetColorGrading(1.1f, 0.8f, new Color(255, 236, 215));
+        SetVignette(0.5f);
+        SetFxaa(true);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.6f, -1, -0.3f)), Color.White, 1.4f, castsShadows: true);
+        SetAmbientLight(new Color(150, 170, 200), 0.3f);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1.5f, 1.5f, 1.5f));
+        var camera = new Camera3D(new Vector3(5, 4, 6), new Vector3(0, 0.5f, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(90, 120, 160));
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, new Color(200, 200, 190));
+            DrawModelEx(cube, new Vector3(0, 0.75f, 0), Vector3.UnitY, 30, Vector3.One, Color.Red);
+            DrawLine3D(new Vector3(-3, 0.02f, 2), new Vector3(3, 0.02f, -1), Color.Black);
+            EndMode3D();
+            DrawText("Effects", 8, 8, 20, Color.White);
+        });
+        Matches(frame, "frame_effects");
+        UnloadModel(ground);
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Reflection_Probe_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        CreatePointLight(new Vector3(0, 2.5f, 0), new Color(255, 230, 200), 6, range: 10);
+        var room = LoadModelFromMesh(GenMeshCube(8, 4, 8));
+        room.Materials[0] = new ModelMaterial(new Color(200, 120, 90)) { DoubleSided = true };
+        var ball = LoadModelFromMesh(GenMeshSphere(0.8f, 32, 32));
+        ball.Materials[0] = new ModelMaterial(new Color(230, 230, 235)) { Metallic = 1, Roughness = 0.1f };
+        var pillar = LoadModelFromMesh(GenMeshCube(0.6f, 3, 0.6f));
+        var probe = CreateReflectionProbe(new Vector3(0, 2, 0), new Vector3(8, 4, 8));
+        var camera = new Camera3D(new Vector3(2.5f, 1.8f, 3.2f), new Vector3(0, 0.9f, 0), Vector3.UnitY, 60);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(room, new Vector3(0, 2, 0), 1, Color.White);
+            DrawModel(pillar, new Vector3(-2, 1.5f, -2), 1, new Color(60, 140, 220));
+            DrawModel(ball, new Vector3(0, 0.8f, 0), 1, Color.White);
+            EndMode3D();
+        }, settle: 2, ready: () => IsReflectionProbeReady(probe));
+        IsReflectionProbeReady(probe).Should().BeTrue("the probe has captured the room");
+        Matches(frame, "reflection_probe");
+        UnloadModel(room);
+        UnloadModel(ball);
+        UnloadModel(pillar);
+    }
+
+    [NeedsVulkanFact]
+    public void Many_Shadowed_Lights_Match_Their_Reference()
+    {
+        Open(256, 160);
+        var floor = LoadModelFromMesh(GenMeshPlane(30, 12, 1, 1));
+        var block = LoadModelFromMesh(GenMeshCube(0.6f, 1.2f, 0.6f));
+        for (int i = 0; i < 6; i++)
+        {
+            var x = (i - 2.5f) * 4;
+            CreatePointLight(new Vector3(x - 0.8f, 1.4f, -1.5f), new Color(255, 200, 150), 3, range: 3, castsShadows: true);
+            CreateSpotLight(new Vector3(x - 0.8f, 1.4f, 1.5f), new Vector3(0.6f, -1, 0), new Color(150, 200, 255), 3,
+                innerAngle: 40, outerAngle: 50, range: 3.5f, castsShadows: true);
+        }
+        var camera = new Camera3D(new Vector3(0, 14, 9), Vector3.Zero, Vector3.UnitY, 55);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(floor, Vector3.Zero, 1, Color.White);
+            for (int i = 0; i < 6; i++)
+            {
+                DrawModel(block, new Vector3((i - 2.5f) * 4, 0.6f, -1.5f), 1, Color.White);
+                DrawModel(block, new Vector3((i - 2.5f) * 4, 0.6f, 1.5f), 1, Color.White);
+            }
+            EndMode3D();
+        });
+        Matches(frame, "many_shadows");
+        UnloadModel(floor);
+        UnloadModel(block);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Morph_Target_And_A_Clip_On_Part_Of_A_Skeleton_Match_Their_Reference()
+    {
+        Open(256, 160);
+        var strip = LoadModel(Path.Combine(AppContext.BaseDirectory, "resources", "morph.gltf"));
+        SetModelMorphWeight(strip, "Raise", 0.6f);
+        var heroFile = Path.Combine(AppContext.BaseDirectory, "resources", "hero.gltf");
+        var hero = LoadModel(heroFile);
+        var clips = LoadModelAnimations(heroFile);
+        UpdateModelAnimationLayer(hero, clips.Single(c => c.Name == "run"), 0.15f, clips.Single(c => c.Name == "jump"), 0, "ArmL");
+        var camera = new Camera3D(new Vector3(0, 1.4f, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(30, 34, 46));
+            BeginMode3D(camera);
+            DrawModel(strip, new Vector3(-1.6f, 0, 0), 1, new Color(240, 200, 80));
+            DrawModel(hero, new Vector3(1.2f, 0, 0), 1, Color.White);
+            EndMode3D();
+        });
+        Matches(frame, "morph_and_layer");
+        UnloadModel(strip);
+        UnloadModel(hero);
+    }
+
+    [NeedsVulkanFact]
+    public void Text_In_A_Font_From_A_File_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        var font = LoadFontEx(Engine.Tests.Api.FontTests.Lato(), 28);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.RayWhite);
+            DrawTextEx(font, "Lato from a file", new Vector2(10, 20), 28, 1, Color.DarkBlue);
+            DrawTextEx(font, "Small and spaced", new Vector2(10, 70), 18, 3, Color.Maroon);
+            DrawTextEx(font, "0123456789 ÆØÅ éü", new Vector2(10, 110), 22, 0, Color.Black);
+        });
+        Matches(frame, "font_from_file");
+        UnloadFont(font);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Texture_A_Compute_Shader_Wrote_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        var texture = LoadTextureFromImage(GenImageColor(64, 64, Color.Black));
+        Capture(() => ClearBackground(Color.Black));
+
+        var paint = LoadComputeShaderFromMemory("""
+            RWTexture2D<float4> image;
+
+            [shader("compute")]
+            [numthreads(8, 8, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                float2 p = (float2(id.xy) + 0.5) / 64.0 - 0.5;
+                float ring = step(0.5, frac(length(p) * 6.0));
+                image[id.xy] = float4(p.x + 0.5, ring, p.y + 0.5, 1);
+            }
+            """, "rings.slang");
+        SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), texture);
+        ComputeShaderDispatch(paint, 8, 8, 1);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTextureEx(texture, new Vector2(64, 16), 0, 2, Color.White);
+        });
+        Matches(frame, "compute_texture");
+        UnloadShader(paint);
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Frame_Of_Summit_Matches_Its_Reference()
+    {
+        // The level of games/Summit, as the game draws its island with the steps and the house
+        // beyond, through its own light, sky and bloom.
+        Open(320, 180);
+        LoadScene("resources/level.json");
+        CreateDirectionalLight(new Vector3(-0.5f, -1, -0.35f), new Color(255, 244, 225), 1.6f, castsShadows: true);
+        CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);
+        SetShadowDistance(60);
+        var sky = GenImageColor(256, 128, Color.Blank);
+        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 200), new Color(200, 220, 240)),
+            new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
+        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
+            new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+        SetEnvironmentMap(sky, intensity: 0.5f);
+        SetBloom(0.7f);
+        var orb = LoadModelFromMesh(GenMeshSphere(0.3f, 16, 16));
+        orb.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(255, 200, 90), EmissiveIntensity = 5, CastsShadows = false };
+        var camera = new Camera3D(new Vector3(0, 4.2f, 15), new Vector3(0, 1, 8), Vector3.UnitY, 55);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(60, 110, 200));
+            BeginMode3D(camera);
+            DrawSkybox();
+            foreach (var at in new[] { new Vector3(-8, 2.2f, -2), new Vector3(7, 1.6f, 5), new Vector3(0, 3.2f, -15.5f) })
+                DrawModel(orb, at, 1, Color.White);
+            EndMode3D();
+        }, settle: 10);
+        Matches(frame, "summit");
+        UnloadModel(orb);
+        UnloadEnvironmentMap();
     }
 }

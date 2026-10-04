@@ -44,6 +44,10 @@
         <None Include="..\3DEngine.Examples\resources\arm.gltf" Link="resources\arm.gltf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\3DEngine.Examples\resources\morph.gltf" Link="resources\morph.gltf" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Summit's level, its prefabs and their models, which a reference frame of the game loads. -->
+        <None Include="..\games\Summit\resources\level.json" Link="resources\level.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\games\Summit\resources\prefabs\*.json" Link="resources\prefabs\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\games\Summit\resources\models\*" Link="resources\models\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

@@ -183,14 +183,16 @@ which has been checked against the state it fills and not with a pad that has th
 
 ### Testing
 
-- **Eight scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
+- **Sixteen scenes are compared whole.** `OffscreenRenderTests` draws each pass offscreen (shapes,
   text, render targets, immediate and model shaders, lit models and ImGui) and reads chosen pixels
-  back, and `ReferenceFrameTests` compares whole frames of 2D shapes and text, a lit and shadowed
-  scene, a render texture, an ImGui window, materials with maps beside a model shader, a skinned
-  model posed mid-clip, point and spot shadows, and an environment map with its sky with the
-  references beside it, allowing 2 percent of the pixels to differ, which a missing shadow
-  exceeds at 4. Reflection probes, fonts baked from files and compute shaders have no reference,
-  and are caught by their chosen pixels and the example captures CI takes.
+  back, and `ReferenceFrameTests` compares whole frames with the references beside it, allowing 2
+  percent of the pixels to differ, which a missing shadow exceeds at 4. They are 2D shapes and
+  text, a lit and shadowed scene, a render texture, an ImGui window, materials with maps beside a
+  model shader, a skinned model posed mid-clip, point and spot shadows, an environment map with
+  its sky, bloom, the other effects over the frame together, a reflection probe, a dozen shadowed
+  lights, a morph target beside a clip on part of a skeleton, text in a font from a file, a
+  texture a compute shader wrote and a frame of Summit's level. Audio and input have no frame to
+  compare and are tested by their values.
 
 ### Prose
 
