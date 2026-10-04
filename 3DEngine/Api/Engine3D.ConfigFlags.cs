@@ -1,3 +1,5 @@
+using SDL3;
+
 namespace Engine;
 
 /// <summary>What <see cref="Engine3D.SetConfigFlags"/> asks of the next window, with raylib's names and values.</summary>
@@ -59,6 +61,63 @@ public static partial class Engine3D
                 : flags.HasFlag(ConfigFlags.WindowMinimized) ? WindowCommand.Minimize
                 : config.WindowCommand,
         };
+    }
+
+    /// <summary>Turns flags on for the open window: fullscreen, resizable, undecorated, hidden, minimized, maximized or topmost.</summary>
+    /// <remarks>Vsync and MSAA are chosen as the window opens and are left as they are, which the log says.</remarks>
+    public static void SetWindowState(ConfigFlags flags) => ChangeWindowState(flags, on: true);
+
+    /// <summary>Turns flags off for the open window, as <see cref="SetWindowState"/> turns them on.</summary>
+    public static void ClearWindowState(ConfigFlags flags) => ChangeWindowState(flags, on: false);
+
+    /// <summary>Whether the open window has every one of the flags, its vsync and MSAA as it opened with them.</summary>
+    public static bool IsWindowState(ConfigFlags flags)
+    {
+        if (WindowHandle is not (not 0 and var w)) return false;
+        var sdl = SDL.GetWindowFlags(w);
+        var config = TryRes<Config>(out var c) ? c : null;
+        bool Has(ConfigFlags flag) => flag switch
+        {
+            ConfigFlags.FullscreenMode => (sdl & SDL.WindowFlags.Fullscreen) != 0,
+            ConfigFlags.WindowResizable => (sdl & SDL.WindowFlags.Resizable) != 0,
+            ConfigFlags.WindowUndecorated => (sdl & SDL.WindowFlags.Borderless) != 0,
+            ConfigFlags.WindowHidden => (sdl & SDL.WindowFlags.Hidden) != 0,
+            ConfigFlags.WindowMinimized => (sdl & SDL.WindowFlags.Minimized) != 0,
+            ConfigFlags.WindowMaximized => (sdl & SDL.WindowFlags.Maximized) != 0,
+            ConfigFlags.WindowTopmost => (sdl & SDL.WindowFlags.AlwaysOnTop) != 0,
+            ConfigFlags.VsyncHint => config?.Vsync == true,
+            ConfigFlags.Msaa4xHint => config?.Samples > 1,
+            _ => false,
+        };
+        foreach (var flag in Enum.GetValues<ConfigFlags>())
+            if (flag != ConfigFlags.None && flags.HasFlag(flag) && !Has(flag)) return false;
+        return true;
+    }
+
+    private static void ChangeWindowState(ConfigFlags flags, bool on)
+    {
+        if (WindowHandle is not (not 0 and var w)) return;
+        if (flags.HasFlag(ConfigFlags.FullscreenMode)) SDL.SetWindowFullscreen(w, on);
+        if (flags.HasFlag(ConfigFlags.WindowResizable)) SDL.SetWindowResizable(w, on);
+        if (flags.HasFlag(ConfigFlags.WindowUndecorated)) SDL.SetWindowBordered(w, !on);
+        if (flags.HasFlag(ConfigFlags.WindowTopmost)) SDL.SetWindowAlwaysOnTop(w, on);
+        if (flags.HasFlag(ConfigFlags.WindowHidden))
+        {
+            if (on) SDL.HideWindow(w);
+            else SDL.ShowWindow(w);
+        }
+        if (flags.HasFlag(ConfigFlags.WindowMinimized))
+        {
+            if (on) SDL.MinimizeWindow(w);
+            else SDL.RestoreWindow(w);
+        }
+        if (flags.HasFlag(ConfigFlags.WindowMaximized))
+        {
+            if (on) SDL.MaximizeWindow(w);
+            else SDL.RestoreWindow(w);
+        }
+        if ((flags & (ConfigFlags.VsyncHint | ConfigFlags.Msaa4xHint)) != 0)
+            ApiLogger.Warn("Vsync and MSAA are chosen as the window opens, and SetWindowState and ClearWindowState leave them as they are.");
     }
 
     private static void ForgetConfigFlags()

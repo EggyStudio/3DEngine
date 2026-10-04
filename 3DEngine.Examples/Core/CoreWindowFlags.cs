@@ -20,6 +20,13 @@ public static class CoreWindowFlags
             if (IsKeyPressed(Key.M)) MaximizeWindow();
             if (IsKeyPressed(Key.N)) RestoreWindow();
             if (IsKeyPressed(Key.C)) SetClipboardText($"{GetScreenWidth()}x{GetScreenHeight()}");
+            // Flags turned on and off while the window is open, as raylib's example does.
+            foreach (var (key, flag) in new[] { (Key.T, ConfigFlags.WindowTopmost), (Key.U, ConfigFlags.WindowUndecorated) })
+                if (IsKeyPressed(key))
+                {
+                    if (IsWindowState(flag)) ClearWindowState(flag);
+                    else SetWindowState(flag);
+                }
             if (IsWindowResized()) resizes++;
 
             BeginDrawing();
@@ -29,20 +36,23 @@ public static class CoreWindowFlags
             var position = GetWindowPosition();
             DrawText($"Window {GetScreenWidth()}x{GetScreenHeight()} at {position.X},{position.Y}, resized {resizes} time(s)", 20, 20, 20, Color.DarkGray);
             DrawText($"Monitor {monitor} of {GetMonitorCount()}: {GetMonitorName(monitor)}", 20, 60, 20, Color.DarkGray);
-            DrawText($"{GetMonitorWidth(monitor)}x{GetMonitorHeight(monitor)} at {GetMonitorRefreshRate(monitor)} Hz", 20, 90, 20, Color.DarkGray);
+            DrawText($"{GetMonitorWidth(monitor)}x{GetMonitorHeight(monitor)} at {GetMonitorRefreshRate(monitor)} Hz, drawn at {GetRenderWidth()}x{GetRenderHeight()} pixels", 20, 90, 20, Color.DarkGray);
 
             var y = 140;
             foreach (var (name, on) in new[]
                      {
                          ("fullscreen", IsWindowFullscreen()), ("maximized", IsWindowMaximized()), ("minimized", IsWindowMinimized()),
                          ("focused", IsWindowFocused()), ("hidden", IsWindowHidden()),
+                         ("resizable", IsWindowState(ConfigFlags.WindowResizable)), ("topmost", IsWindowState(ConfigFlags.WindowTopmost)),
+                         ("undecorated", IsWindowState(ConfigFlags.WindowUndecorated)), ("vsync", IsWindowState(ConfigFlags.VsyncHint)),
                      })
             {
                 DrawText(name, 40, y, 20, on ? Color.Lime : Color.Gray);
                 y += 26;
             }
 
-            DrawText("F fullscreen, R resize, M maximize, N restore, C copies the size", 20, GetScreenHeight() - 40, 20, Color.Gray);
+            DrawText("F fullscreen, R resize, M maximize, N restore", 20, GetScreenHeight() - 66, 20, Color.Gray);
+            DrawText("T topmost, U border, C copies the size", 20, GetScreenHeight() - 40, 20, Color.Gray);
             EndDrawing();
         }
 
