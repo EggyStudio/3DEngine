@@ -19,9 +19,15 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="Target">The render target the run draws into, or 0 for the window.</param>
 /// <param name="Shader">The <see cref="ShaderStore"/> id the run draws with, or 0 for the engine's own.</param>
 /// <param name="Params">The values the shader reads with <c>param</c>.</param>
+/// <param name="Blend">How the run is laid over what is there.</param>
+/// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
 public readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstVertex, int VertexCount,
-    int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null);
+    int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
+    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null);
+
+/// <summary>A rectangle of a target's pixels, from its top left.</summary>
+public readonly record struct ScissorRect(int X, int Y, int Width, int Height);
 
 /// <summary>
 /// The lines and triangles recorded for the current frame by the flat API's <c>Draw</c> calls,
@@ -50,7 +56,7 @@ public sealed class DrawList
     // here, and the count is written into the list only when another batch opens or the batches
     // are read. Comparing a
     // whole DrawBatch and copying it back on every shape cost most of a sprite's recording. Any
-    // change of transform, target or shader closes it.
+    // change of transform, target, shader, blend mode or scissor closes it.
     private bool _open;
     private PrimitiveTopology _openTopology;
     private int _openTexture;
@@ -76,6 +82,32 @@ public sealed class DrawList
 
     /// <summary>That shader's textures, or null for none.</summary>
     public int[]? Textures { get; private set; }
+
+    /// <summary>How the next recorded shapes are laid over what is there.</summary>
+    public BlendMode Blend { get; private set; }
+
+    /// <summary>The pixels the next recorded shapes are kept to, or null for the whole target.</summary>
+    public ScissorRect? Scissor { get; private set; }
+
+    /// <summary>Lays the following shapes over what is there by <paramref name="blend"/>.</summary>
+    public void SetBlend(BlendMode blend)
+    {
+        lock (_gate)
+        {
+            Blend = blend;
+            Close();
+        }
+    }
+
+    /// <summary>Keeps the following shapes to <paramref name="scissor"/>, or to the whole target for null.</summary>
+    public void SetScissor(ScissorRect? scissor)
+    {
+        lock (_gate)
+        {
+            Scissor = scissor;
+            Close();
+        }
+    }
 
     /// <summary>
     /// Draws the following shapes with shader <paramref name="shader"/>, reading
@@ -220,6 +252,8 @@ public sealed class DrawList
             Params = default;
             Uniforms = null;
             Textures = null;
+            Blend = BlendMode.Alpha;
+            Scissor = null;
             _targetClears.Clear();
         }
     }
@@ -247,14 +281,15 @@ public sealed class DrawList
             var last = _batches[^1];
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
-                && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.FirstVertex + last.VertexCount == at)
+                && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
+                && last.Scissor == Scissor && last.FirstVertex + last.VertexCount == at)
             {
                 Open(topology, texture, last.VertexCount + vertices);
                 return at;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params, Uniforms, Textures));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, at, vertices, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor));
         Open(topology, texture, vertices);
         return at;
     }

@@ -19,12 +19,16 @@ public sealed class TrackedRenderPass : IDisposable
     {
         _gfx = gfx;
         _cmd = cmd;
+        Extent = desc.Extent;
 
         ClearColor? clear = desc.ColorLoadOp == LoadOp.Clear
             ? (desc.ClearColor ?? Engine.ClearColor.Black)
             : null;
         gfx.CmdBeginRenderPass(cmd, desc.RenderPass, desc.Framebuffer, desc.Extent, clear);
     }
+
+    /// <summary>The size of the framebuffer the pass draws into.</summary>
+    public Extent2D Extent { get; }
 
     /// <summary>Binds a graphics pipeline for subsequent draw calls.</summary>
     public void SetPipeline(IPipeline pipeline) => _gfx.BindGraphicsPipeline(_cmd, pipeline);

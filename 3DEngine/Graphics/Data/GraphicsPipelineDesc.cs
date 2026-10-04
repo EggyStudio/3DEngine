@@ -37,6 +37,7 @@ public enum CompareOp
 /// <param name="DepthWriteEnabled">Whether depth writes are enabled. Only meaningful when <paramref name="DepthTestEnabled"/> is <c>true</c>.</param>
 /// <param name="DepthCompareOp">The comparison function for depth testing. Defaults to <see cref="CompareOp.Less"/>.</param>
 /// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>
+/// <param name="Blend">How the colors combine when <paramref name="BlendEnabled"/> is <c>true</c>, raylib's blend modes.</param>
 public readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -51,7 +52,8 @@ public readonly record struct GraphicsPipelineDesc(
     bool DepthTestEnabled = false,
     bool DepthWriteEnabled = false,
     CompareOp DepthCompareOp = CompareOp.Less,
-    PrimitiveTopology Topology = PrimitiveTopology.TriangleList);
+    PrimitiveTopology Topology = PrimitiveTopology.TriangleList,
+    BlendMode Blend = BlendMode.Alpha);
 
 /// <summary>How a pipeline assembles vertices into primitives.</summary>
 public enum PrimitiveTopology

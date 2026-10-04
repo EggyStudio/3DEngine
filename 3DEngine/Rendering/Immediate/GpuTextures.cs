@@ -86,7 +86,7 @@ public sealed class GpuTextures : IDisposable
                 {
                     if (gfx is not GraphicsDevice device) continue;
                     var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
-                    var targetSampler = CreateSampler(gfx, upload.Filter);
+                    var targetSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
                     if (existing is not null) Retire(existing.Owned);
                     continue;
@@ -95,7 +95,7 @@ public sealed class GpuTextures : IDisposable
                 if (upload.DepthOf != 0)
                 {
                     if (!_entries.TryGetValue(upload.DepthOf, out var owner) || owner.Target is not { } depthTarget) continue;
-                    var depthSampler = CreateSampler(gfx, upload.Filter);
+                    var depthSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, depthTarget.DepthView, depthTarget.DepthView, depthSampler,
                         CreateSet(gfx, depthTarget.DepthView, depthSampler), DepthOf: upload.DepthOf);
                     if (existing is not null) Retire(existing.Owned);
@@ -109,7 +109,7 @@ public sealed class GpuTextures : IDisposable
                     var image = gfx.CreateImage(MipmappedDesc(old.Description.Extent.Width, old.Description.Extent.Height));
                     mipDevice.CopyWithMipmaps(old, image);
                     var view = gfx.CreateImageView(image);
-                    var sampler = CreateSampler(gfx, upload.Filter);
+                    var sampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(image, view, gfx.CreateImageView(image, ImageFormat.R8G8B8A8_Srgb), sampler, CreateSet(gfx, view, sampler));
                     Retire(existing.Owned);
                     continue;
@@ -119,13 +119,13 @@ public sealed class GpuTextures : IDisposable
                 {
                     // Only the filter changed, so the image stays and the sampler and set are new.
                     if (existing is null) continue;
-                    var sampler = CreateSampler(gfx, upload.Filter);
+                    var sampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = existing with { Sampler = sampler, Set = CreateSet(gfx, existing.View, sampler) };
                     Retire(existing.Set, existing.Sampler);
                     continue;
                 }
 
-                _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter, upload.Mipmaps);
+                _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter, upload.Mipmaps, upload.Wrap);
                 if (existing is not null)
                     Retire(existing.Owned);
             }
@@ -145,7 +145,8 @@ public sealed class GpuTextures : IDisposable
         return _entries[0] = Create(gfx, [255, 255, 255, 255], 1, 1, TextureFilter.Point);
     }
 
-    private static Entry Create(IGraphicsDevice gfx, byte[] rgba, int width, int height, TextureFilter filter, bool mipmaps = false)
+    private static Entry Create(IGraphicsDevice gfx, byte[] rgba, int width, int height, TextureFilter filter, bool mipmaps = false,
+        TextureWrap wrap = TextureWrap.Repeat)
     {
         // A copy source too, so mip levels can be made from it later.
         var image = gfx.CreateImage(mipmaps
@@ -153,7 +154,7 @@ public sealed class GpuTextures : IDisposable
             : new ImageDesc(new Extent2D((uint)width, (uint)height), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc));
         gfx.UploadTexture2D(image, rgba, (uint)width, (uint)height, 4);
         var view = gfx.CreateImageView(image);
-        var sampler = CreateSampler(gfx, filter);
+        var sampler = CreateSampler(gfx, filter, wrap);
         return new Entry(image, view, gfx.CreateImageView(image, ImageFormat.R8G8B8A8_Srgb), sampler, CreateSet(gfx, view, sampler));
     }
 
@@ -163,11 +164,17 @@ public sealed class GpuTextures : IDisposable
         ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc,
         ImageDesc.FullMipChain(width, height));
 
-    private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter) => gfx.CreateSampler(SamplerFor(filter));
+    private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter, TextureWrap wrap) => gfx.CreateSampler(SamplerFor(filter, wrap));
 
-    /// <summary>The sampler a texture filtered by <paramref name="filter"/> is read through, repeating.</summary>
-    internal static SamplerDesc SamplerFor(TextureFilter filter)
+    /// <summary>The sampler a texture filtered by <paramref name="filter"/> and wrapped by <paramref name="wrap"/> is read through.</summary>
+    internal static SamplerDesc SamplerFor(TextureFilter filter, TextureWrap wrap = TextureWrap.Repeat)
     {
+        var address = wrap switch
+        {
+            TextureWrap.Clamp => SamplerAddressMode.ClampToEdge,
+            TextureWrap.MirrorRepeat => SamplerAddressMode.MirrorRepeat,
+            _ => SamplerAddressMode.Repeat,
+        };
         var f = filter == TextureFilter.Point ? SamplerFilter.Nearest : SamplerFilter.Linear;
         var anisotropy = filter switch
         {
@@ -176,7 +183,7 @@ public sealed class GpuTextures : IDisposable
             TextureFilter.Anisotropic16x => 16f,
             _ => 1f,
         };
-        return new SamplerDesc(f, f, SamplerAddressMode.Repeat, SamplerAddressMode.Repeat, SamplerAddressMode.Repeat, anisotropy);
+        return new SamplerDesc(f, f, address, address, address, anisotropy);
     }
 
     private static IDescriptorSet CreateSet(IGraphicsDevice gfx, IImageView view, ISampler sampler)

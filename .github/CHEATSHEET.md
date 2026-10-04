@@ -81,6 +81,11 @@ void UnloadRenderTexture(RenderTexture2D target);        // Free it
 bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
 void EndTextureMode();                                   // Return to the window
+
+void BeginBlendMode(BlendMode mode);                     // Lay what is drawn over by Alpha, Additive, Multiplied, AddColors, SubtractColors or AlphaPremultiply
+void EndBlendMode();                                     // Back to Alpha
+void BeginScissorMode(int x, int y, int width, int height); // Keep shapes, textures and text to a rectangle of pixels
+void EndScissorMode();                                   // Draw over the whole window or target again
 ```
 
 Inside texture mode, `ClearBackground` clears the target, 2D drawing is in its pixels and cameras
@@ -295,6 +300,7 @@ void UnloadTexture(Texture2D texture);                                          
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
 void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point, Bilinear (the default) or Anisotropic4x, 8x, 16x
+void SetTextureWrap(Texture2D texture, TextureWrap wrap);                              // Repeat (the default), Clamp or MirrorRepeat past its edges
 void GenTextureMipmaps(ref Texture2D texture);                                         // Make mip levels on the GPU, so it stays smooth drawn small
 
 void DrawTexture(Texture2D texture, int x, int y, Color tint);                                         // Texture at a position

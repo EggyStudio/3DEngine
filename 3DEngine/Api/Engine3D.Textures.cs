@@ -177,6 +177,12 @@ public static partial class Engine3D
         if (texture.IsValid) Textures.SetFilter(texture.Id, filter);
     }
 
+    /// <summary>Sets what a texture shows past its edges, where a texture coordinate leaves 0 to 1. Textures repeat unless set.</summary>
+    public static void SetTextureWrap(Texture2D texture, TextureWrap wrap)
+    {
+        if (texture.IsValid) Textures.SetWrap(texture.Id, wrap);
+    }
+
     // -- Drawing textures
 
     /// <summary>Draws a texture with its top left corner at (<paramref name="x"/>, <paramref name="y"/>).</summary>

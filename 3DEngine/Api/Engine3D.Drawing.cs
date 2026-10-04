@@ -118,6 +118,37 @@ public static partial class Engine3D
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
     }
 
+    // -- Blending and scissors
+
+    /// <summary>Lays the following shapes, textures and text over what is there by <paramref name="mode"/> until <see cref="EndBlendMode"/>.</summary>
+    public static void BeginBlendMode(BlendMode mode) => DrawList.SetBlend(mode);
+
+    /// <summary>Returns to laying what is drawn over by its alpha.</summary>
+    public static void EndBlendMode() => DrawList.SetBlend(BlendMode.Alpha);
+
+    /// <summary>
+    /// Keeps the following drawing to a rectangle, in pixels from the top left of the window, or of
+    /// the render target inside <see cref="BeginTextureMode"/>, until <see cref="EndScissorMode"/>.
+    /// </summary>
+    /// <remarks>
+    /// It keeps the shapes, textures and text drawn after it, in 2D and 3D, to the rectangle, as a
+    /// scrolling panel does. Models and ImGui are not kept to it.
+    /// </remarks>
+    public static void BeginScissorMode(int x, int y, int width, int height)
+    {
+        // The window's units are those of mouse positions, which a display with more pixels than
+        // that, as a scaled one has, multiplies into the framebuffer's.
+        var (scaleX, scaleY) = (1f, 1f);
+        if (!_target.IsValid && TryRes<AppWindow>(out var window)
+            && SDL3.SDL.GetWindowSizeInPixels(window.Sdl.Window, out var pixelsWide, out var pixelsHigh)
+            && GetScreenWidth() > 0 && GetScreenHeight() > 0)
+            (scaleX, scaleY) = ((float)pixelsWide / GetScreenWidth(), (float)pixelsHigh / GetScreenHeight());
+        DrawList.SetScissor(new ScissorRect((int)(x * scaleX), (int)(y * scaleY), (int)(width * scaleX), (int)(height * scaleY)));
+    }
+
+    /// <summary>Returns to drawing over the whole window or render target.</summary>
+    public static void EndScissorMode() => DrawList.SetScissor(null);
+
     // -- Cameras
 
     /// <summary>Draws the following shapes through <paramref name="camera"/>, depth tested, until <see cref="EndMode3D"/>.</summary>

@@ -1361,6 +1361,83 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Blend_Modes_Combine_Colors_As_Raylib_Has_Them()
+    {
+        Open(64, 16, samples: 1);
+        var image = Capture(() =>
+        {
+            ClearBackground(new Color(50, 50, 50));
+            BeginBlendMode(BlendMode.AddColors);
+            DrawRectangle(0, 0, 16, 16, new Color(100, 0, 0));
+            BeginBlendMode(BlendMode.SubtractColors);
+            DrawRectangle(16, 0, 16, 16, new Color(200, 200, 200));
+            BeginBlendMode(BlendMode.Multiplied);
+            DrawRectangle(32, 0, 16, 16, new Color(128, 255, 0));
+            EndBlendMode();
+            DrawRectangle(48, 0, 16, 16, new Color(255, 0, 0, 128));
+        });
+
+        static void Near(Color actual, Color expected, string because)
+        {
+            (Math.Abs(actual.R - expected.R) <= 2 && Math.Abs(actual.G - expected.G) <= 2 && Math.Abs(actual.B - expected.B) <= 2)
+                .Should().BeTrue($"{because}, {expected} where {actual} was drawn");
+        }
+        Near(GetImageColor(image, 8, 8), new Color(150, 50, 50), "added colors sum");
+        Near(GetImageColor(image, 24, 8), new Color(150, 150, 150), "subtracted colors take what is there from the color");
+        Near(GetImageColor(image, 40, 8), new Color(25, 50, 0), "multiplied colors scale what is there");
+        Near(GetImageColor(image, 56, 8), new Color(152, 25, 25), "alpha lays the color over by half");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Scissor_Keeps_Drawing_To_Its_Rectangle_Until_It_Ends()
+    {
+        Open(64, 32, samples: 1);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginScissorMode(8, 8, 16, 16);
+            DrawRectangle(0, 0, 64, 32, Color.White);
+            EndScissorMode();
+            DrawRectangle(40, 0, 8, 8, Color.White);
+        });
+
+        GetImageColor(image, 12, 12).Should().Be(Color.White);
+        GetImageColor(image, 4, 4).Should().Be(Color.Black, "the rectangle covers the window, and the scissor keeps it out of here");
+        GetImageColor(image, 30, 12).Should().Be(Color.Black);
+        GetImageColor(image, 44, 4).Should().Be(Color.White, "what is drawn after the scissor ends covers the whole window again");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Clamped_Texture_Stretches_Its_Edge_Where_A_Repeating_One_Tiles()
+    {
+        Open(64, 16, samples: 1);
+        var image = GenImageColor(2, 1, new Color(255, 0, 0));
+        ImageDrawPixel(ref image, 1, 0, new Color(0, 0, 255));
+        var texture = LoadTextureFromImage(image);
+        SetTextureFilter(texture, TextureFilter.Point);
+
+        // The source runs two widths of the texture across, so the right half of the strip is past its edge.
+        Image Strip(TextureWrap wrap)
+        {
+            SetTextureWrap(texture, wrap);
+            return Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                DrawTexturePro(texture, new Rectangle(0, 0, 4, 1), new Rectangle(0, 0, 64, 16), Vector2.Zero, 0, Color.White);
+            }, $"wrap {wrap}");
+        }
+
+        var repeat = Strip(TextureWrap.Repeat);
+        GetImageColor(repeat, 40, 8).Should().Be(new Color(255, 0, 0), "the texture starts again past its edge");
+        var clamp = Strip(TextureWrap.Clamp);
+        GetImageColor(clamp, 40, 8).Should().Be(new Color(0, 0, 255), "the edge pixel goes on");
+        GetImageColor(clamp, 8, 8).Should().Be(new Color(255, 0, 0));
+        var mirror = Strip(TextureWrap.MirrorRepeat);
+        GetImageColor(mirror, 40, 8).Should().Be(new Color(0, 0, 255), "the mirrored copy starts with the edge it meets");
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void A_Metal_Reflects_An_HDR_Sky_Brighter_Than_White_Could_Be()
     {
         Open(64, 64);

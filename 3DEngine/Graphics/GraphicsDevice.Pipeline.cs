@@ -198,13 +198,23 @@ public sealed unsafe partial class GraphicsDevice
             rasterizationSamples = desc.RenderPass is VulkanRenderPass { Samples: var samples } ? samples : VkSampleCountFlags.Count1
         };
 
+        // The color's factors by the blend mode, raylib's, and alpha laid over in every mode.
+        var (srcColor, dstColor, colorOp) = (desc.PremultipliedAlpha ? BlendMode.AlphaPremultiply : desc.Blend) switch
+        {
+            BlendMode.Additive => (VkBlendFactor.SrcAlpha, VkBlendFactor.One, VkBlendOp.Add),
+            BlendMode.Multiplied => (VkBlendFactor.DstColor, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add),
+            BlendMode.AddColors => (VkBlendFactor.One, VkBlendFactor.One, VkBlendOp.Add),
+            BlendMode.SubtractColors => (VkBlendFactor.One, VkBlendFactor.One, VkBlendOp.Subtract),
+            BlendMode.AlphaPremultiply => (VkBlendFactor.One, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add),
+            _ => (VkBlendFactor.SrcAlpha, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add),
+        };
         VkPipelineColorBlendAttachmentState colorBlendAttachment = new()
         {
             colorWriteMask = VkColorComponentFlags.R | VkColorComponentFlags.G | VkColorComponentFlags.B | VkColorComponentFlags.A,
             blendEnable = desc.BlendEnabled,
-            srcColorBlendFactor = desc.PremultipliedAlpha ? VkBlendFactor.One : VkBlendFactor.SrcAlpha,
-            dstColorBlendFactor = VkBlendFactor.OneMinusSrcAlpha,
-            colorBlendOp = VkBlendOp.Add,
+            srcColorBlendFactor = srcColor,
+            dstColorBlendFactor = dstColor,
+            colorBlendOp = colorOp,
             srcAlphaBlendFactor = VkBlendFactor.One,
             dstAlphaBlendFactor = VkBlendFactor.OneMinusSrcAlpha,
             alphaBlendOp = VkBlendOp.Add

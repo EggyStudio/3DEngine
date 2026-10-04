@@ -52,7 +52,7 @@ public sealed class ImmediateRenderer : IDisposable
 
     private Stages? _engineStages;
     private readonly Dictionary<int, Stages> _customStages = [];
-    private readonly Dictionary<(int Shader, int Slot), IPipeline> _pipelines = [];
+    private readonly Dictionary<(int Shader, int Slot, BlendMode Blend), IPipeline> _pipelines = [];
     private readonly List<(long Frame, IDisposable Stages)> _retired = [];
     private long _frame;
     private DynamicAllocation? _vertices;
@@ -114,6 +114,7 @@ public sealed class ImmediateRenderer : IDisposable
 
         var gfx = renderContext.Device;
         var bound = false;
+        ScissorRect? scissor = null;
         foreach (var batch in drawList.Batches)
         {
             if (batch.Target != target) continue;
@@ -121,6 +122,11 @@ public sealed class ImmediateRenderer : IDisposable
             {
                 pass.SetVertexBuffer(0, [vertices.Buffer], [vertices.Offset]);
                 bound = true;
+            }
+            if (batch.Scissor != scissor)
+            {
+                scissor = batch.Scissor;
+                SetScissor(pass, scissor);
             }
 
             // A batch whose shader was unloaded after it was recorded draws with the engine's own.
@@ -132,6 +138,24 @@ public sealed class ImmediateRenderer : IDisposable
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.Draw((uint)batch.VertexCount, 1, (uint)batch.FirstVertex);
         }
+        // The passes drawn after in the same render pass expect the whole target.
+        if (scissor is not null) SetScissor(pass, null);
+    }
+
+    // Keeps drawing to a rectangle clipped to the pass, or to the whole of it for null.
+    private static void SetScissor(TrackedRenderPass pass, ScissorRect? scissor)
+    {
+        var (width, height) = ((int)pass.Extent.Width, (int)pass.Extent.Height);
+        if (scissor is not { } r)
+        {
+            pass.SetScissor(0, 0, (uint)width, (uint)height);
+            return;
+        }
+        var x0 = Math.Clamp(r.X, 0, width);
+        var y0 = Math.Clamp(r.Y, 0, height);
+        var x1 = Math.Clamp(r.X + Math.Max(0, r.Width), 0, width);
+        var y1 = Math.Clamp(r.Y + Math.Max(0, r.Height), 0, height);
+        pass.SetScissor(x0, y0, (uint)(x1 - x0), (uint)(y1 - y0));
     }
 
     // A set with the batch's uniform values at binding 0, its texture at binding 1 and its shader's
@@ -212,7 +236,7 @@ public sealed class ImmediateRenderer : IDisposable
     {
         var slot = (batch.Topology == PrimitiveTopology.LineList ? 2 : 0) + (batch.DepthTest ? 1 : 0);
         var stages = StagesFor(gfx, renderWorld, batch.Shader, out var shader);
-        if (_pipelines.TryGetValue((shader, slot), out var existing)) return existing;
+        if (_pipelines.TryGetValue((shader, slot, batch.Blend), out var existing)) return existing;
 
         var desc = new GraphicsPipelineDesc(
             renderPass,
@@ -236,14 +260,15 @@ public sealed class ImmediateRenderer : IDisposable
             DepthTestEnabled: batch.DepthTest,
             DepthWriteEnabled: batch.DepthTest,
             DepthCompareOp: CompareOp.LessOrEqual,
-            Topology: batch.Topology);
+            Topology: batch.Topology,
+            Blend: batch.Blend);
 
         // Custom shaders' pipelines are kept out of the shared cache, because they are destroyed
         // when the shader is unloaded and the cache would hand them out afterward.
         var pipeline = shader == 0 && renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)
             : gfx.CreateGraphicsPipeline(desc);
-        return _pipelines[(shader, slot)] = pipeline;
+        return _pipelines[(shader, slot, batch.Blend)] = pipeline;
     }
 
     // The stages for a batch's shader, made on first use. A shader that is not loaded falls back
@@ -303,7 +328,7 @@ public sealed class ImmediateRenderer : IDisposable
     public void Dispose()
     {
         foreach (var (_, disposable) in _retired) disposable.Dispose();
-        foreach (var ((shader, _), pipeline) in _pipelines)
+        foreach (var ((shader, _, _), pipeline) in _pipelines)
             if (shader != 0 && pipeline is IDisposable disposable) disposable.Dispose();
         foreach (var stages in _customStages.Values) stages.Dispose();
         foreach (var sets in _uniformSets)

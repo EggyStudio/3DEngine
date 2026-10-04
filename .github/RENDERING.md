@@ -77,7 +77,7 @@ buffer yet, so what a compute shader works out reaches the screen through the CP
 `Draw` calls from the flat API (see [DESIGN.md](DESIGN.md)) record into the `DrawList` resource, a
 growing array of 24-byte vertices (position, texture coordinate and color) split into batches. A
 batch is a run of consecutive shapes with the same topology (lines or triangles), transform, depth
-mode and texture, so a scene of shapes drawn through one camera is two batches. Untextured shapes
+mode, texture, blend mode and scissor, so a scene of shapes drawn through one camera is two batches. Untextured shapes
 sample a white pixel, so one shader draws both. `ImmediateNode` runs after `main_pass` and before
 ImGui. It writes the frame's vertices into the dynamic buffer arena in one copy and issues one draw
 per batch with `immediate.slang`, the batch's transform a push constant. The list is cleared in
@@ -100,14 +100,19 @@ An unloaded shader's stages and pipelines are destroyed after the frames in flig
 them.
 
 This is raylib's rlgl layer in Vulkan terms. It keeps shapes, grids, gizmos and debug lines out of
-the ECS and out of the mesh path. Its four pipelines (lines or triangles, depth tested or not)
-blend by alpha and do not cull, so a shape's triangles may wind either way. A texel with no
+the ECS and out of the mesh path. Its pipelines (lines or triangles, depth tested or not) do not
+cull, so a shape's triangles may wind either way, and blend by alpha unless a batch was recorded
+inside `BeginBlendMode`, which makes a pipeline for each of raylib's modes the batch asks for. Alpha
+is laid over by alpha in every mode, so a render target keeps the coverage of what was drawn into
+it. A batch recorded inside `BeginScissorMode` carries its rectangle, clipped to the target, and
+the pass sets the scissor to it and back to the whole target after its last batch. A texel with no
 coverage is discarded, so a sprite's empty corners write no depth.
 
 Textures loaded through the flat API go into `TextureStore`, and `GpuTexturesPrepare` uploads them
 before the graph runs, keeps one image, view, sampler and descriptor set per texture for every pass
 that samples them, and destroys an unloaded or replaced texture's objects four frames later, once
-no frame in flight can read them.
+no frame in flight can read them. A texture's filter and wrap are its sampler's, so changing either
+replaces the sampler and set and keeps the image.
 
 ## 3. Meshes and materials
 

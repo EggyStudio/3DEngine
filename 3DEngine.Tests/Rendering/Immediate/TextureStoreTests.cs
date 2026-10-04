@@ -55,6 +55,23 @@ public class TextureStoreTests
     }
 
     [Fact]
+    public void SetWrap_Queues_A_Sampler_Change_That_Later_Uploads_Keep()
+    {
+        var store = new TextureStore();
+        var id = store.Add(Pixels(1, 1), 1, 1);
+        store.Take();
+
+        store.SetWrap(id, TextureWrap.Clamp).Should().BeTrue();
+        store.SetWrap(999, TextureWrap.Clamp).Should().BeFalse();
+        store.Take().Uploads.Should().ContainSingle().Which.Should().Match<TextureStore.Upload>(u => u.Rgba == null && u.Wrap == TextureWrap.Clamp);
+
+        store.SetFilter(id, TextureFilter.Point);
+        store.Take().Uploads.Should().ContainSingle().Which.Wrap.Should().Be(TextureWrap.Clamp, "a filter change keeps the wrap");
+        GpuTextures.SamplerFor(TextureFilter.Point, TextureWrap.Clamp).AddressU.Should().Be(SamplerAddressMode.ClampToEdge);
+        GpuTextures.SamplerFor(TextureFilter.Point).AddressV.Should().Be(SamplerAddressMode.Repeat);
+    }
+
+    [Fact]
     public void Update_Needs_A_Loaded_Texture_Of_The_Same_Size()
     {
         var store = new TextureStore();

@@ -19,6 +19,21 @@ public enum TextureFilter
     Anisotropic16x,
 }
 
+/// <summary>What a texture shows past its edges, where a texture coordinate leaves 0 to 1.</summary>
+/// <remarks>
+/// raylib's mirror clamp is left out, since Vulkan has it only where the device turns on a feature
+/// for it.
+/// </remarks>
+public enum TextureWrap
+{
+    /// <summary>The texture again, tiled, as a floor of repeated tiles is drawn.</summary>
+    Repeat,
+    /// <summary>The edge pixel stretched on, so a sprite's edge does not take color from its far side.</summary>
+    Clamp,
+    /// <summary>The texture again, mirrored across each edge.</summary>
+    MirrorRepeat,
+}
+
 /// <summary>
 /// The textures the flat API has loaded, by id. Holds what is waiting to reach the GPU, and the
 /// ids that have been unloaded, until <see cref="ImmediateNode"/> takes them on the render thread.
@@ -37,7 +52,7 @@ public enum TextureFilter
 /// </remarks>
 public sealed class TextureStore
 {
-    /// <summary>A change waiting to reach a texture's GPU objects: new pixels, a new filter, or both.</summary>
+    /// <summary>A change waiting to reach a texture's GPU objects: new pixels, a new filter or wrap, or both.</summary>
     /// <param name="Id">The texture's id.</param>
     /// <param name="Rgba">Four bytes per pixel, rows from the top, or <c>null</c> when only the filter changed.</param>
     /// <param name="Width">Width in pixels.</param>
@@ -49,11 +64,12 @@ public sealed class TextureStore
     /// already uploaded without them, they are made from what is on the GPU.
     /// </param>
     /// <param name="DepthOf">The render target whose depth the texture samples, or 0 when it is not one's depth.</param>
+    /// <param name="Wrap">What the texture shows past its edges.</param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
-        int DepthOf = 0);
+        int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat);
 
     private readonly object _gate = new();
-    private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps)> _live = [];
+    private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
 
     // The textures with a pixel neither clear nor solid, which a blended material draws with
     // what is behind it. A texture that is only clear or solid cuts out as it is.
@@ -76,7 +92,7 @@ public sealed class TextureStore
         lock (_gate)
         {
             var id = _next++;
-            _live[id] = (width, height, filter, mipmaps);
+            _live[id] = (width, height, filter, mipmaps, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             return id;
@@ -97,7 +113,7 @@ public sealed class TextureStore
             // Pixels still waiting to go up are sent with mip levels instead of being copied twice.
             var pending = _uploads.FindLastIndex(u => u.Id == id && u.Rgba is not null);
             if (pending >= 0) _uploads[pending] = _uploads[pending] with { Mipmaps = true };
-            else _uploads.Add(new Upload(id, null, texture.Width, texture.Height, texture.Filter, Mipmaps: true));
+            else _uploads.Add(new Upload(id, null, texture.Width, texture.Height, texture.Filter, Mipmaps: true, Wrap: texture.Wrap));
             return true;
         }
     }
@@ -115,7 +131,7 @@ public sealed class TextureStore
         lock (_gate)
         {
             var id = _next++;
-            _live[id] = (width, height, filter, false);
+            _live[id] = (width, height, filter, false, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
             return id;
         }
@@ -129,7 +145,7 @@ public sealed class TextureStore
         {
             if (!_live.TryGetValue(target, out var color)) throw new ArgumentException("No render target has that id.", nameof(target));
             var id = _next++;
-            _live[id] = (color.Width, color.Height, TextureFilter.Point, false);
+            _live[id] = (color.Width, color.Height, TextureFilter.Point, false, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, null, color.Width, color.Height, TextureFilter.Point, DepthOf: target));
             return id;
         }
@@ -143,7 +159,7 @@ public sealed class TextureStore
         {
             if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4)
                 return false;
-            _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps));
+            _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
             return true;
@@ -158,7 +174,20 @@ public sealed class TextureStore
         {
             if (!_live.TryGetValue(id, out var texture)) return false;
             _live[id] = texture with { Filter = filter };
-            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, filter, Mipmaps: texture.Mipmaps));
+            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
+            return true;
+        }
+    }
+
+    /// <summary>Changes what a loaded texture shows past its edges. The pixels are kept.</summary>
+    /// <returns>Whether the texture is loaded.</returns>
+    public bool SetWrap(int id, TextureWrap wrap)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var texture)) return false;
+            _live[id] = texture with { Wrap = wrap };
+            _uploads.Add(new Upload(id, null, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: wrap));
             return true;
         }
     }

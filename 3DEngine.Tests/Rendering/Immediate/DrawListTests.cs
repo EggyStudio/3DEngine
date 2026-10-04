@@ -89,6 +89,23 @@ public class DrawListTests
     }
 
     [Fact]
+    public void A_Blend_Mode_Or_Scissor_Opens_A_Batch_And_Clear_Resets_Both()
+    {
+        var list = new DrawList();
+        list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
+        list.SetBlend(BlendMode.Additive);
+        list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
+        list.SetScissor(new ScissorRect(1, 2, 3, 4));
+        list.Triangle(Vector3.Zero, Vector3.UnitX, Vector3.UnitY, Color.Red);
+
+        list.Batches.Select(b => (b.Blend, b.Scissor)).Should().Equal(
+            (BlendMode.Alpha, null), (BlendMode.Additive, null), (BlendMode.Additive, new ScissorRect(1, 2, 3, 4)));
+
+        list.Clear();
+        (list.Blend, list.Scissor).Should().Be((BlendMode.Alpha, (ScissorRect?)null));
+    }
+
+    [Fact]
     public void Shapes_For_A_Render_Target_Are_Batched_Apart_And_Its_Clear_Is_Kept()
     {
         var list = new DrawList();
