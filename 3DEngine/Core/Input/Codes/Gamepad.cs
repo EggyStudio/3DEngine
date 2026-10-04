@@ -63,6 +63,7 @@ public sealed class GamepadState
     private readonly HashSet<GamepadButton> _pressed = [];
     private readonly HashSet<GamepadButton> _released = [];
     private readonly float[] _axes = new float[6];
+    private readonly SortedDictionary<int, System.Numerics.Vector2> _touches = [];
 
     internal GamepadState(uint id, string name, nint handle)
     {
@@ -91,6 +92,24 @@ public sealed class GamepadState
 
     /// <summary>An axis, from -1 to 1 for sticks and 0 to 1 for triggers.</summary>
     public float Axis(GamepadAxis axis) => (uint)axis < (uint)_axes.Length ? _axes[(int)axis] : 0f;
+
+    /// <summary>Whether the pad reports its motion, which the gyro and accelerometer read.</summary>
+    public bool HasMotion { get; internal set; }
+
+    /// <summary>How fast the pad turns about each of its axes, in radians a second, as SDL reports it.</summary>
+    public System.Numerics.Vector3 Gyro { get; internal set; }
+
+    /// <summary>The pad's acceleration along each of its axes, in meters a second squared, gravity included.</summary>
+    public System.Numerics.Vector3 Accelerometer { get; internal set; }
+
+    /// <summary>The fingers on the pad's touchpad, by finger, each from 0 to 1 across and down it.</summary>
+    public IReadOnlyCollection<System.Numerics.Vector2> Touches => _touches.Values;
+
+    internal void SetTouch(int finger, System.Numerics.Vector2? position)
+    {
+        if (position is { } at) _touches[finger] = at;
+        else _touches.Remove(finger);
+    }
 
     internal void SetButton(GamepadButton button, bool isDown)
     {

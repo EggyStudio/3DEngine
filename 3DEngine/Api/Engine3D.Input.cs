@@ -185,6 +185,31 @@ public static partial class Engine3D
     /// <summary>How many axes a gamepad has, which is six for every pad SDL maps.</summary>
     public static int GetGamepadAxisCount(int gamepad) => IsGamepadAvailable(gamepad) ? 6 : 0;
 
+    /// <summary>Whether a gamepad reports its motion, through a gyro and an accelerometer, as a DualSense and a Switch Pro Controller do.</summary>
+    public static bool IsGamepadMotionAvailable(int gamepad) => Input.Gamepad(gamepad)?.HasMotion ?? false;
+
+    /// <summary>
+    /// How fast a gamepad turns about its own axes, in radians a second: x across it, y up out of
+    /// it and z toward the player, as SDL reports it, or zero for a pad without a gyro.
+    /// </summary>
+    public static Vector3 GetGamepadGyro(int gamepad) => Input.Gamepad(gamepad)?.Gyro ?? Vector3.Zero;
+
+    /// <summary>A gamepad's acceleration along its own axes, in meters a second squared with gravity in it, or zero for a pad without one.</summary>
+    public static Vector3 GetGamepadAccelerometer(int gamepad) => Input.Gamepad(gamepad)?.Accelerometer ?? Vector3.Zero;
+
+    /// <summary>How many fingers are on a gamepad's touchpad.</summary>
+    public static int GetGamepadTouchCount(int gamepad) => Input.Gamepad(gamepad)?.Touches.Count ?? 0;
+
+    /// <summary>Where a finger is on a gamepad's touchpad, from 0 to 1 across and down it, by its index among the fingers on it, or zero for none.</summary>
+    public static Vector2 GetGamepadTouchPosition(int gamepad, int index) =>
+        Input.Gamepad(gamepad)?.Touches.ElementAtOrDefault(index) ?? Vector2.Zero;
+
+    /// <summary>Sets the color of a gamepad's light, as a DualSense's bar, which a pad without one leaves as it is.</summary>
+    public static void SetGamepadLight(int gamepad, Color color)
+    {
+        if (Input.Gamepad(gamepad) is { Handle: not 0 } pad) SDL.SetGamepadLED(pad.Handle, color.R, color.G, color.B);
+    }
+
     /// <summary>Rumbles a gamepad, each motor from 0 to 1, for <paramref name="seconds"/>.</summary>
     public static void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds)
     {

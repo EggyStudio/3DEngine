@@ -163,7 +163,8 @@ the input method's composition window at its cursor, which is checked against wh
 not with an input method running, and text a game reads itself (`GetCharPressed`) has no place to
 give one. Typing from a real keyboard has only been checked through injected text. Fingers are read
 as touch points (`GetTouchPosition`) and recognized as raylib's gestures (taps, holds, drags, swipes
-and pinches), and a gamepad's sensors (gyro, touchpad) and lights are not reached.
+and pinches), and a gamepad's gyro, accelerometer, touchpad and light are read and set through SDL,
+which has been checked against the state it fills and not with a pad that has them.
 
 ## Project
 

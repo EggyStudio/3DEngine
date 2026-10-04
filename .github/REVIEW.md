@@ -66,4 +66,4 @@ None open.
 - **Shared:** a joint is described in a scene file as an entity of its own with a `Joint`, which
   names the two bodies' entities and, by its own place and up direction, the point and the axis,
   so a level hangs a door where it stands. It is made once both bodies are, destroyed with its
-  entity, and one that cannot be made is marked and not tried again. The commit follows `3ed48152`.
+  entity, and one that cannot be made is marked and not tried again (`e46058fc`).

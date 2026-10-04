@@ -96,7 +96,11 @@ public sealed class AppWindowPlugin : IPlugin
                     {
                         var handle = SDL.OpenGamepad(e.GDevice.Which);
                         var name = handle == 0 ? "Gamepad" : SDL.GetGamepadName(handle) ?? "Gamepad";
-                        input.ConnectGamepad(e.GDevice.Which, name, handle);
+                        var pad = input.ConnectGamepad(e.GDevice.Which, name, handle);
+                        // The motion sensors report only once switched on, which a pad without them refuses.
+                        if (handle != 0)
+                            pad.HasMotion = SDL.SetGamepadSensorEnabled(handle, SDL.SensorType.Gyro, true)
+                                            & SDL.SetGamepadSensorEnabled(handle, SDL.SensorType.Accel, true);
                     }
                     break;
                 case SDL.EventType.GamepadRemoved:
@@ -117,6 +121,21 @@ public sealed class AppWindowPlugin : IPlugin
                         var value = Math.Clamp(e.GAxis.Value / 32767f, -1f, 1f);
                         input.GamepadById(e.GAxis.Which)?.SetAxis((GamepadAxis)e.GAxis.Axis, value);
                     }
+                    break;
+                case SDL.EventType.GamepadSensorUpdate:
+                    if (input.GamepadById(e.GSensor.Which) is { } moved)
+                    {
+                        System.Numerics.Vector3 data;
+                        unsafe { data = new System.Numerics.Vector3(e.GSensor.Data[0], e.GSensor.Data[1], e.GSensor.Data[2]); }
+                        if ((SDL.SensorType)e.GSensor.Sensor == SDL.SensorType.Gyro) moved.Gyro = data;
+                        else if ((SDL.SensorType)e.GSensor.Sensor == SDL.SensorType.Accel) moved.Accelerometer = data;
+                    }
+                    break;
+                case SDL.EventType.GamepadTouchpadDown:
+                case SDL.EventType.GamepadTouchpadMotion:
+                case SDL.EventType.GamepadTouchpadUp:
+                    input.GamepadById(e.GTouchpad.Which)?.SetTouch(e.GTouchpad.Finger,
+                        (SDL.EventType)e.Type == SDL.EventType.GamepadTouchpadUp ? null : new System.Numerics.Vector2(e.GTouchpad.X, e.GTouchpad.Y));
                     break;
                 case SDL.EventType.KeyDown:
                 case SDL.EventType.KeyUp:

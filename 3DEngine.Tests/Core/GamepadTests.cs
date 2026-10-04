@@ -55,4 +55,39 @@ public class GamepadTests
         pad.Axis(GamepadAxis.RightTrigger).Should().Be(0.5f);
         pad.Axis(GamepadAxis.LeftX).Should().Be(0f);
     }
+
+    [Fact]
+    public void A_Pads_Motion_And_Touchpad_Fingers_Are_Read_Through_The_Flat_Api()
+    {
+        var app = new App();
+        var input = new Input();
+        app.World.InsertResource(input);
+        Engine3D.UseApp(app);
+        try
+        {
+            var pad = input.ConnectGamepad(3, "Pad", 0);
+            Engine3D.IsGamepadMotionAvailable(0).Should().BeFalse("a pad that has not said otherwise has no sensors");
+            pad.HasMotion = true;
+            pad.Gyro = new System.Numerics.Vector3(0, 1.5f, 0);
+            pad.Accelerometer = new System.Numerics.Vector3(0, 9.81f, 0);
+            pad.SetTouch(1, new System.Numerics.Vector2(0.75f, 0.5f));
+            pad.SetTouch(0, new System.Numerics.Vector2(0.25f, 0.5f));
+
+            Engine3D.IsGamepadMotionAvailable(0).Should().BeTrue();
+            Engine3D.GetGamepadGyro(0).Y.Should().Be(1.5f);
+            Engine3D.GetGamepadAccelerometer(0).Y.Should().Be(9.81f);
+            Engine3D.GetGamepadTouchCount(0).Should().Be(2);
+            Engine3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.25f, "fingers are in the order of their numbers");
+
+            pad.SetTouch(0, null);
+            Engine3D.GetGamepadTouchCount(0).Should().Be(1, "a lifted finger is gone");
+            Engine3D.GetGamepadTouchPosition(0, 0).X.Should().Be(0.75f);
+            Engine3D.GetGamepadGyro(1).Should().Be(System.Numerics.Vector3.Zero, "a pad that is not connected reads zero");
+            Engine3D.SetGamepadLight(0, Color.Red);
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
+    }
 }

@@ -149,6 +149,12 @@ bool IsGamepadButtonUp(int gamepad, GamepadButton button);             // Button
 float GetGamepadAxisMovement(int gamepad, GamepadAxis axis);           // Stick -1 to 1, trigger 0 to 1
 int GetGamepadAxisCount(int gamepad);                                  // Six for a connected pad
 void SetGamepadVibration(int gamepad, float left, float right, float seconds); // Rumble
+bool IsGamepadMotionAvailable(int gamepad);                            // Whether it has a gyro and an accelerometer
+Vector3 GetGamepadGyro(int gamepad);                                   // Turning, radians a second about its axes
+Vector3 GetGamepadAccelerometer(int gamepad);                          // Acceleration, gravity in it
+int GetGamepadTouchCount(int gamepad);                                 // Fingers on its touchpad
+Vector2 GetGamepadTouchPosition(int gamepad, int index);               // Where one is, 0 to 1 across and down
+void SetGamepadLight(int gamepad, Color color);                        // Color its light bar
 ```
 
 Pads are indexed in the order they connected. Buttons are named by position (`South`, `East`,
