@@ -152,6 +152,58 @@ public static partial class Engine3D
         return new Image(data, w, h);
     }
 
+    /// <summary>An image encoded as a file's bytes, of <paramref name="fileType"/>, which is <c>".png"</c>.</summary>
+    /// <returns>The bytes, or none for an empty image or another type, with the reason in the log.</returns>
+    public static byte[] ExportImageToMemory(Image image, string fileType)
+    {
+        if (!image.IsValid) return [];
+        if (!fileType.TrimStart('.').Equals("png", StringComparison.OrdinalIgnoreCase))
+        {
+            ApiLogger.Warn($"ExportImageToMemory: '{fileType}' is not a type the engine writes, which is PNG.");
+            return [];
+        }
+        using var memory = new MemoryStream();
+        PngWriter.Write(memory, image.Data, image.Width, image.Height);
+        return memory.ToArray();
+    }
+
+    /// <summary>
+    /// Reads every frame of an animated GIF into one image, the frames stacked from the top, each
+    /// as tall as the GIF, and says how many there are, as raylib's does.
+    /// </summary>
+    /// <returns>The frames, or an empty image when the file cannot be read, with the reason in the log.</returns>
+    public static Image LoadImageAnim(string fileName, out int frames)
+    {
+        frames = 0;
+        var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadImageAnim: '{fileName}' was not found beside the program or in the working directory.");
+            return default;
+        }
+        try
+        {
+            using var stream = File.OpenRead(path);
+            var all = new List<byte[]>();
+            int width = 0, height = 0;
+            foreach (var frame in StbImageSharp.ImageResult.AnimatedGifFramesFromStream(stream, StbImageSharp.ColorComponents.RedGreenBlueAlpha))
+            {
+                (width, height) = (frame.Width, frame.Height);
+                all.Add([.. frame.Data]);
+            }
+            if (all.Count == 0) return default;
+            frames = all.Count;
+            var data = new byte[width * height * 4 * all.Count];
+            for (int f = 0; f < all.Count; f++) all[f].AsSpan(0, width * height * 4).CopyTo(data.AsSpan(f * width * height * 4));
+            return new Image(data, width, height * all.Count);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        {
+            ApiLogger.Warn($"LoadImageAnim: '{fileName}' could not be decoded: {ex.Message}");
+            return default;
+        }
+    }
+
     /// <summary>Writes an image to a PNG file.</summary>
     /// <returns>Whether it was written. The reason it was not is in the log.</returns>
     public static bool ExportImage(Image image, string fileName)

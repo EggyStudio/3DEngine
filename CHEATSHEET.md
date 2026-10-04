@@ -288,6 +288,8 @@ Image ImageCopy(Image image);                                                   
 Image ImageFromImage(Image image, Rectangle rec);                                      // A new image of part of one
 Color GetImageColor(Image image, int x, int y);                                        // One pixel's color
 Color[] LoadImageColors(Image image);                                                  // Every pixel's color, row by row
+Image LoadImageAnim(string fileName, out int frames);                                  // Every frame of an animated GIF, stacked from the top
+byte[] ExportImageToMemory(Image image, string fileType);                              // An image as a PNG file's bytes
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file
 void UnloadImage(Image image);                                                         // Nothing (images are managed memory)
 
@@ -721,6 +723,10 @@ string GetApplicationDirectory();                        // The folder the progr
 bool FileExists(string fileName);                        // Whether a file is beside the program or in the working directory
 string? LoadFileText(string fileName);                   // A text file's contents, null when there is none
 bool SaveFileText(string fileName, string text);         // Write text to a file, beside the program for a relative name
+byte[]? LoadFileData(string fileName);                   // A file's bytes, null when there is none
+bool SaveFileData(string fileName, ReadOnlySpan<byte> data); // Write bytes to a file, beside the program for a relative name
+void OpenURL(string url);                                // Open an http or https address in the browser
+void WaitTime(double seconds);                           // Hold the program for some seconds
 bool IsFileDropped();                                    // Whether files were dropped on the window since they were last unloaded
 string[] LoadDroppedFiles();                             // Their paths, in the order they arrived
 void UnloadDroppedFiles();                               // Forget them, for the next drop

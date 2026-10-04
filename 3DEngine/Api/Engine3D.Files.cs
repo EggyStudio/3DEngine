@@ -47,6 +47,61 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>A file's bytes, found beside the program or in the working directory, or null when there is none.</summary>
+    public static byte[]? LoadFileData(string fileName)
+    {
+        var path = ResolveFile(fileName);
+        try
+        {
+            return path is null ? null : File.ReadAllBytes(path);
+        }
+        catch (IOException ex)
+        {
+            ApiLogger.Warn($"LoadFileData: '{fileName}' could not be read: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Writes bytes to a file, replacing what it held, making its folder when it has none. A
+    /// relative name is beside the program, where <see cref="LoadFileData"/> finds it again.
+    /// </summary>
+    /// <returns>Whether it was written, with the reason in the log when not.</returns>
+    public static bool SaveFileData(string fileName, ReadOnlySpan<byte> data)
+    {
+        var path = Path.IsPathRooted(fileName) ? fileName : Path.Combine(AppContext.BaseDirectory, fileName);
+        try
+        {
+            if (Path.GetDirectoryName(path) is { Length: > 0 } folder) Directory.CreateDirectory(folder);
+            using var file = File.Create(path);
+            file.Write(data);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"SaveFileData: '{fileName}' could not be written: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Opens a web address in the desktop's browser, as a credits screen's link does.</summary>
+    /// <remarks>Only <c>http</c> and <c>https</c> addresses are opened, so a string from a save or a server cannot start a program.</remarks>
+    public static void OpenURL(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+        {
+            ApiLogger.Warn($"OpenURL: '{url}' is not an http or https address, so it is not opened.");
+            return;
+        }
+        if (!SDL3.SDL.OpenURL(uri.AbsoluteUri)) ApiLogger.Warn($"OpenURL: '{url}' could not be opened: {SDL3.SDL.GetError()}");
+    }
+
+    /// <summary>Holds the program for a number of seconds, as a loading screen's pause does.</summary>
+    public static void WaitTime(double seconds)
+    {
+        if (seconds > 0) Thread.Sleep(TimeSpan.FromSeconds(seconds));
+    }
+
     /// <summary>Whether files have been dropped on the window since the program last unloaded them.</summary>
     public static bool IsFileDropped() => TryRes<Input>(out var input) && input.DroppedFiles.Count > 0;
 

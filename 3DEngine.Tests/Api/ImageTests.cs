@@ -209,4 +209,42 @@ public class ImageTests
         grays.Count(p => p[0] == 0).Should().BeGreaterThanOrEqualTo(16, "each of the 16 squares has its point at distance 0");
         grays.Max(p => p[0]).Should().BeGreaterThan(64, "far from every point is lighter");
     }
+
+    // Two frames of 4 by 2, red then blue, as Pillow writes an animated GIF.
+    private static readonly byte[] TwoFrames =
+    [
+        71, 73, 70, 56, 57, 97, 4, 0, 2, 0, 129, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 255, 11, 78, 69, 84, 83,
+        67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0, 33, 249, 4, 4, 10, 0, 0, 0, 44, 0, 0, 0, 0, 4, 0, 2, 0, 0, 8, 7, 0, 1,
+        8, 28, 40, 48, 32, 0, 33, 249, 4, 5, 10, 0, 1, 0, 44, 0, 0, 0, 0, 4, 0, 2, 0, 129, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 8, 7, 0, 1, 8, 28, 40, 48, 32, 0, 59,
+    ];
+
+    [Fact]
+    public void An_Animated_Gif_Loads_As_Its_Frames_Stacked_From_The_Top()
+    {
+        var file = Path.Combine(Directory.CreateTempSubdirectory("engine-gif-").FullName, "two.gif");
+        File.WriteAllBytes(file, TwoFrames);
+
+        var image = LoadImageAnim(file, out var frames);
+
+        frames.Should().Be(2);
+        (image.Width, image.Height).Should().Be((4, 4));
+        GetImageColor(image, 1, 0).Should().Be(Red);
+        GetImageColor(image, 1, 3).Should().Be(Blue, "the second frame is below the first");
+    }
+
+    [Fact]
+    public void An_Image_Exported_To_Memory_Reads_Back_The_Same_And_Files_Keep_Their_Bytes()
+    {
+        var image = Numbered();
+        var png = ExportImageToMemory(image, ".png");
+        var back = StbImageSharp.ImageResult.FromMemory(png, StbImageSharp.ColorComponents.RedGreenBlueAlpha);
+        back.Data.Should().Equal(image.Data);
+        ExportImageToMemory(image, ".bmp").Should().BeEmpty("PNG is the type written");
+
+        var file = Path.Combine(Directory.CreateTempSubdirectory("engine-data-").FullName, "save.bin");
+        SaveFileData(file, png).Should().BeTrue();
+        LoadFileData(file).Should().Equal(png);
+        LoadFileData(file + ".missing").Should().BeNull();
+    }
 }

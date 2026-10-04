@@ -21,6 +21,16 @@ public static class PngWriter
         if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
         using var file = File.Create(path);
+        Write(file, rgba, width, height);
+    }
+
+    /// <summary>Writes <paramref name="rgba"/> (four bytes per pixel, rows from the top) as a PNG to <paramref name="file"/>.</summary>
+    /// <exception cref="ArgumentException">The pixels do not match the size.</exception>
+    public static void Write(Stream file, ReadOnlySpan<byte> rgba, int width, int height)
+    {
+        if (width <= 0 || height <= 0 || rgba.Length != width * height * 4)
+            throw new ArgumentException($"Expected {width} by {height} pixels of four bytes, and got {rgba.Length} bytes.", nameof(rgba));
+
         file.Write([0x89, (byte)'P', (byte)'N', (byte)'G', 0x0D, 0x0A, 0x1A, 0x0A]);
 
         Span<byte> header = stackalloc byte[13];
