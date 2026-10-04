@@ -45,6 +45,7 @@ public static partial class Engine3D
 
         var drawing = Stopwatch.GetElapsedTime(_drawingStart);
         GetApp().EndFrame();
+        FeedAudioStreams();
         _inFrame = false;
         _eventsPumped = false;
         var waiting = Stopwatch.GetTimestamp();

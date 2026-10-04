@@ -139,6 +139,59 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void An_Audio_Stream_Plays_What_It_Is_Given_And_Asks_For_More_Once_It_Runs_Low()
+    {
+        var stream = LoadAudioStream(8000, 32, 2);
+
+        IsAudioStreamProcessed(stream).Should().BeTrue("an empty stream takes samples");
+        UpdateAudioStream(stream, new float[5000 * 2]);
+        IsAudioStreamPlaying(stream).Should().BeFalse("given samples, it waits to be played");
+        var voice = _backend.Streams.Keys.Single();
+        _backend.Paused.Should().Contain(voice);
+        IsAudioStreamProcessed(stream).Should().BeFalse("5000 frames is past the 4096 it keeps");
+
+        PlayAudioStream(stream);
+        IsAudioStreamPlaying(stream).Should().BeTrue();
+        _backend.Paused.Should().NotContain(voice);
+        _backend.Play(voice, 2000);
+        IsAudioStreamProcessed(stream).Should().BeTrue("3000 frames left is under what it keeps");
+
+        UpdateAudioStream(stream, new short[] { 16384, -16384 });
+        _backend.Streams[voice][^2..].Should().Equal(0.5f, -0.5f);
+
+        StopAudioStream(stream);
+        IsAudioStreamPlaying(stream).Should().BeFalse();
+        UnloadAudioStream(stream);
+        IsAudioStreamValid(stream).Should().BeFalse();
+    }
+
+    [Fact]
+    public void A_Stream_With_A_Callback_Is_Topped_Up_At_The_End_Of_A_Frame()
+    {
+        var stream = LoadAudioStream(8000, 32, 1);
+        var calls = 0;
+        SetAudioStreamCallback(stream, samples =>
+        {
+            calls++;
+            samples.Fill(0.25f);
+        });
+
+        FeedAudioStreams();
+        calls.Should().Be(0, "a stream not playing is not fed");
+
+        PlayAudioStream(stream);
+        FeedAudioStreams();
+        var voice = _backend.Streams.Keys.Single();
+        _backend.QueuedVoiceFrames(voice).Should().Be(4096, "one buffer's worth tops it up");
+        _backend.Streams[voice].Should().OnlyContain(s => s == 0.25f);
+
+        _backend.Play(voice, 100);
+        FeedAudioStreams();
+        calls.Should().Be(2);
+        UnloadAudioStream(stream);
+    }
+
+    [Fact]
     public void Stop_Pause_And_Resume_Reach_The_Voice()
     {
         var sound = LoadSound(WriteWav());

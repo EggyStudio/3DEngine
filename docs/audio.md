@@ -108,6 +108,38 @@ DrawRectangle(20, 140, (int)(400 * GetMusicTimePlayed(drone) / GetMusicTimeLengt
 
 `SeekMusicStream` moves to a time, and music takes a volume, a pitch and a pan as a sound does.
 
+## Sound the program makes
+
+An `AudioStream` plays samples the program makes as it runs, as a synthesizer, a radio's static or
+an engine whose note follows its speed. The program either gives it samples whenever
+`IsAudioStreamProcessed` says it has played enough to take more, or hands it a callback, which the
+end of each frame calls for as many samples as keep it fed. The `audio_raw_stream` example plays a
+sine wave whose pitch follows the mouse:
+
+```csharp
+// A sine wave made as it plays, its pitch following the mouse across the window.
+const int SampleRate = 44100;
+var stream = LoadAudioStream(SampleRate, 32, 1);
+var frequency = 440f;
+var phase = 0.0;
+// ...
+SetAudioStreamCallback(stream, samples =>
+{
+    for (int i = 0; i < samples.Length; i++)
+    {
+        samples[i] = 0.3f * MathF.Sin((float)phase);
+        phase = (phase + 2 * Math.PI * frequency / SampleRate) % (2 * Math.PI);
+    }
+    // ...
+});
+PlayAudioStream(stream);
+```
+
+Samples are interleaved, a frame of one for each channel, from -1 to 1. The callback runs on the
+program's own thread, so it reads the game's state as any code in the loop does, and a stream keeps
+4096 frames queued, about a tenth of a second, which `SetAudioStreamBufferSizeDefault` changes for
+the streams made after it.
+
 ## Sound in a 3D world
 
 A game built on the ECS can place a sound in the world, so it is louder near the listener and
@@ -127,7 +159,8 @@ The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and 
 
 ## See also
 
-- Examples: [`audio_sound`](../3DEngine.Examples/Audio/AudioSound.cs)
+- Examples: [`audio_sound`](../3DEngine.Examples/Audio/AudioSound.cs),
+  [`audio_raw_stream`](../3DEngine.Examples/Audio/AudioRawStream.cs)
 - The cheatsheet's [Audio](../CHEATSHEET.md#audio)
 - Previous: [Shaders and compute](shaders-and-compute.md)
 - Next: [Input](input.md)

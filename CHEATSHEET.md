@@ -656,6 +656,22 @@ void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is a
 void SetMusicPan(Music music, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
 float GetMusicTimeLength(Music music);                    // Length in seconds
 float GetMusicTimePlayed(Music music);                    // How far into it the music heard is, in seconds
+
+AudioStream LoadAudioStream(int sampleRate, int sampleSize, int channels); // A voice the program feeds samples of its own
+bool IsAudioStreamValid(AudioStream stream);              // Whether it can play
+void UnloadAudioStream(AudioStream stream);               // Stop it and let its voice go
+void UpdateAudioStream(AudioStream stream, ReadOnlySpan<float> samples); // Queue samples, interleaved, -1 to 1 (or 16-bit shorts)
+bool IsAudioStreamProcessed(AudioStream stream);          // Whether it has played enough to take more
+void PlayAudioStream(AudioStream stream);                 // Play it
+void PauseAudioStream(AudioStream stream);                // Pause, keeping what is queued
+void ResumeAudioStream(AudioStream stream);               // Resume
+void StopAudioStream(AudioStream stream);                 // Stop, dropping what is queued
+bool IsAudioStreamPlaying(AudioStream stream);            // Whether it is playing
+void SetAudioStreamVolume(AudioStream stream, float volume); // Volume (0 to 1)
+void SetAudioStreamPitch(AudioStream stream, float pitch);   // Speed, where 1 is its sample rate
+void SetAudioStreamPan(AudioStream stream, float pan);       // Balance, 0 left, 0.5 middle, 1 right
+void SetAudioStreamBufferSizeDefault(int size);           // Frames a new stream keeps queued before asking for more (4096)
+void SetAudioStreamCallback(AudioStream stream, AudioCallback? callback); // Feed it from a callback at each frame's end
 ```
 
 A sound is decoded whole when it loads. Music is read from its file half a second ahead of what

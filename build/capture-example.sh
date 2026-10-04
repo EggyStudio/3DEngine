@@ -36,6 +36,11 @@ case "$example" in
       ./e3d command input.drop "/home/player/game/$file" --quiet
     done
     ;;
+  audio_raw_stream)
+    # The pitch dragged up from 440 Hz, so the wave drawn is the one the stream was given.
+    ./e3d command input.move 600 200 --quiet
+    ./e3d command input.drag Left 10 0 3 --quiet
+    ;;
   core_2d_camera)
     # Zoomed out, so the rooftops and the spline through them are in the picture.
     ./e3d command input.wheel -7 --quiet
