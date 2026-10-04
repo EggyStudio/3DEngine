@@ -75,6 +75,7 @@ internal static class Help
 
               e3d status                     what is serving
               e3d open <example> [flags]     start an example serving, and wait until it answers
+              e3d open <program> [flags]     the same for a program of your own, by its path
                                              flags: --headless, --offscreen, --hidden, --frames <n>
               e3d list                       the commands the app answers
               e3d command <name> [args]      run one (alias: cmd)

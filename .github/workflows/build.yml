@@ -64,6 +64,24 @@ jobs:
           done
           exit $failed
 
+      # The game under games/, built from the package as a user's is, then played offscreen. It
+      # opens on the menu, Enter starts it, the player walks toward the goal, and the frame is
+      # captured, its log checked as the examples' are.
+      - name: Build and play the game from the package
+        run: |
+          build/pack.sh
+          dotnet restore games/Pusher --force-evaluate
+          dotnet build games/Pusher --no-restore
+          ./e3d open games/Pusher/bin/Debug/net10.0/Pusher --offscreen --quiet
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command input.key W 90 --quiet
+          ./e3d shot captures/pusher.png --quiet
+          ./e3d stop --quiet
+          if grep -F '[Vulkan.Validation]' build/sessions/Pusher.log | grep -F 'Validation Error'; then
+            echo "::error::Pusher: the validation layer reported an error"
+            exit 1
+          fi
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

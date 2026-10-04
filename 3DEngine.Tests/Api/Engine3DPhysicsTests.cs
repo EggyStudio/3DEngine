@@ -119,4 +119,21 @@ public sealed class Engine3DPhysicsTests : IDisposable
         ecs.AnyChanged<Transform>().Should().BeFalse("nothing in the scene moved, so no system wrote a transform");
         ecs.AnyChanged<GlobalTransform>().Should().BeFalse("and propagation recomputed no chain");
     }
+
+    [Fact]
+    public void A_Paused_Simulation_Holds_Every_Body_Still()
+    {
+        var box = CreatePhysicsBox(new Vector3(0, 5, 0), Vector3.One);
+        SetPhysicsPaused(true);
+        for (int frame = 0; frame < 20; frame++)
+        {
+            BeginDrawing();
+            EndDrawing();
+        }
+
+        IsPhysicsPaused().Should().BeTrue();
+        GetPhysicsBodyPosition(box).Y.Should().Be(5, "no step ran while paused");
+        SetPhysicsPaused(false);
+        RunUntil(() => GetPhysicsBodyPosition(box).Y < 4.9f).Should().BeTrue("it falls once the simulation runs again");
+    }
 }

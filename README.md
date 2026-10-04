@@ -67,7 +67,12 @@ dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_window_flags.png" width="400"/><br>`core_window_flags` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_physics.png" width="400"/><br>`ecs_physics` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_terrain.png" width="400"/><br>`models_terrain` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_model.png" width="400"/><br>`shaders_model` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/scenes_level.png" width="400"/><br>`scenes_level` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_animation.png" width="400"/><br>`models_animation` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/physics_boxes.png" width="400"/><br>`physics_boxes` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/physics_boxes.png" width="400"/><br>`physics_boxes` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/pusher.png" width="400"/><br>`games/Pusher` |
+
+`games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
+as a game of your own would be. It has a level from a scene file, an animated player pushing
+crates into a goal with physics and contacts, a light with a shadow, a sky, a sound, text, an ImGui
+panel, and a menu, play and pause. BUILDING.md says how it is built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

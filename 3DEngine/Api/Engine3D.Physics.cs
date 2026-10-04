@@ -67,6 +67,12 @@ public static partial class Engine3D
     /// <summary>Pushes a body at its center, changing its velocity by the impulse over its mass.</summary>
     public static void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse) => Physics.ApplyImpulse(body, impulse, Vector3.Zero);
 
+    /// <summary>Holds the simulation still, as a pause menu does, or lets it run again. Bodies keep their velocities across a pause.</summary>
+    public static void SetPhysicsPaused(bool paused) => World.Resource<PhysicsSettings>().Paused = paused;
+
+    /// <summary>Whether the simulation is held still.</summary>
+    public static bool IsPhysicsPaused() => World.Resource<PhysicsSettings>().Paused;
+
     /// <summary>Sets the acceleration every dynamic body falls by, (0, -9.81, 0) to begin with.</summary>
     public static void SetPhysicsGravity(Vector3 gravity) => Physics.Gravity = gravity;
 

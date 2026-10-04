@@ -34,6 +34,7 @@ public static partial class Engine3D
     /// <remarks>Textures still loaded are freed with the window, and the log says how many there were.</remarks>
     public static void CloseWindow()
     {
+        if (_app is not null) ForgetDefaultFonts();
         if (_app?.World.TryGetResource<TextureStore>(out var textures) == true && textures.Count > 0)
             Log.Category("Engine.Api").Warn($"CloseWindow: {textures.Count} texture(s) were still loaded.");
         _app?.Shutdown();

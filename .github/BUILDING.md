@@ -67,6 +67,12 @@ A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or
 compiles the same way with `e3d shaders <folder> <cache>`. The package is not published anywhere,
 and a game outside this repository points a `nuget.config` at the folder.
 
+Each pack is a version of its own, `0.1.0-preview.` and the time, since NuGet reads a version once
+and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
+`dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
+the version it chose before. `games/Pusher` is such a game, built this way in CI, and
+`./e3d open games/Pusher/bin/Debug/net10.0/Pusher` drives it as it does the examples.
+
 ## The generator
 
 `3DEngine.Generator` targets netstandard2.0 and references Roslyn 4.14, because the compiler refuses

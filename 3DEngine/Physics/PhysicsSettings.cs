@@ -5,6 +5,9 @@ namespace Engine;
 /// <summary>Tunable physics simulation parameters. Insert as a resource before adding the physics plugin to override defaults.</summary>
 public sealed class PhysicsSettings
 {
+    /// <summary>Whether the simulation is held still, running no step, so bodies keep their poses and velocities until it resumes.</summary>
+    public bool Paused { get; set; }
+
     /// <summary>Gravity vector (m/s²). Default: (0, -9.81, 0).</summary>
     public Vector3 Gravity { get; set; } = new(0f, -9.81f, 0f);
 

@@ -32,17 +32,34 @@ internal static class Repo
 
 internal static class Launch
 {
-    /// <summary>Starts an example serving, detached, and answers once it reports ready.</summary>
+    /// <summary>
+    /// Starts an example serving, detached, and answers once it reports ready. Given the path of a
+    /// program instead of an example's name, as a game built on the engine, it starts that.
+    /// </summary>
     public static int Open(Options options, string[] arguments)
     {
-        if (Repo.Root is null)
-            return Output.Refuse(options, "open", "NO_CHECKOUT", "This is not inside a 3DEngine checkout. Run a program with --serve yourself, then use 'e3d status'.");
-        if (Repo.Examples is not { } binary)
-            return Output.Refuse(options, "open", "NOT_BUILT", "The examples are not built. Run 'dotnet build 3DEngine.slnx' first.");
-
         var example = arguments.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? "core_3d_camera_free";
         var flags = arguments.Where(a => a != example).ToList();
         if (!flags.Contains("--serve")) flags.Add("--serve");
+
+        // A program of the user's own is started as it is, with its log named after it.
+        string binary;
+        List<string> launch;
+        if (File.Exists(example))
+        {
+            binary = Path.GetFullPath(example);
+            example = Path.GetFileNameWithoutExtension(example);
+            launch = flags;
+        }
+        else
+        {
+            if (Repo.Root is null)
+                return Output.Refuse(options, "open", "NO_CHECKOUT", "This is not inside a 3DEngine checkout. Give 'e3d open' the path of a program, or run one with --serve yourself.");
+            if (Repo.Examples is not { } examples)
+                return Output.Refuse(options, "open", "NOT_BUILT", "The examples are not built. Run 'dotnet build 3DEngine.slnx' first.");
+            binary = examples;
+            launch = [example, .. flags];
+        }
 
         var log = Repo.LogFor(example);
         Directory.CreateDirectory(Path.GetDirectoryName(log)!);
@@ -50,7 +67,7 @@ internal static class Launch
         int pid;
         try
         {
-            pid = Start(binary, [example, .. flags], log);
+            pid = Start(binary, launch, log);
         }
         catch (Exception error) when (error is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
         {
@@ -102,7 +119,8 @@ internal static class Launch
 
     private static int Start(string binary, IReadOnlyList<string> arguments, string log)
     {
-        var start = new ProcessStartInfo { WorkingDirectory = Repo.Root!, UseShellExecute = false };
+        // The checkout, as the examples expect, or outside one the program's own folder.
+        var start = new ProcessStartInfo { WorkingDirectory = Repo.Root ?? Path.GetDirectoryName(binary)!, UseShellExecute = false };
         if (OperatingSystem.IsWindows())
         {
             start.FileName = "cmd.exe";

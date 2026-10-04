@@ -317,6 +317,17 @@ as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `Emissiv
 `OcclusionMap` with its `OcclusionStrength`. Models are lit by one fixed light from above, unless
 the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
 
+## Scenes
+
+```csharp
+IReadOnlyList<int> LoadScene(string fileName);                       // Spawn a scene file's entities into the ECS, found beside the program
+void SaveScene(string fileName, IEnumerable<int>? entities = null);  // Write the ECS's entities, or some, to a scene file
+```
+
+A scene file is JSON of entities and their components by name. The engine's components are saved,
+and a program's own are when marked `[SceneComponent]`, as `[SceneComponent] public struct Wall {
+public Vector3 Size; }`. ARCHITECTURE.md describes the format.
+
 ## Physics
 
 ```csharp
@@ -334,6 +345,8 @@ Vector3 GetPhysicsBodyVelocity(PhysicsBody body);                               
 void SetPhysicsBodyVelocity(PhysicsBody body, Vector3 velocity);                 // Set that, waking it
 void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse);                     // Push it at its center
 void SetPhysicsGravity(Vector3 gravity);                                         // What every body falls by
+void SetPhysicsPaused(bool paused);                                              // Hold the simulation still, or let it run
+bool IsPhysicsPaused();                                                          // Whether it is held still
 
 bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame

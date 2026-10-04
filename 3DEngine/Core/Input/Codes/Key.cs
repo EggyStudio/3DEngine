@@ -44,6 +44,8 @@ public enum Key
     Alpha9 = 38,
     Alpha0 = 39,
     Return = 40,
+    /// <summary>The Return key by raylib's name for it.</summary>
+    Enter = Return,
     Escape = 41,
     Backspace = 42,
     Tab = 43,

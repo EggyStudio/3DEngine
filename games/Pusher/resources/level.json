@@ -1,0 +1,172 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "e1",
+      "name": "Floor",
+      "components": {
+        "Transform": {
+          "Position": [0, -0.5, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Wall": {
+          "Size": [12, 1, 12]
+        }
+      }
+    },
+    {
+      "id": "e2",
+      "name": "North wall",
+      "components": {
+        "Transform": {
+          "Position": [0, 1, -6.25],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Wall": {
+          "Size": [12.5, 2, 0.5]
+        }
+      }
+    },
+    {
+      "id": "e3",
+      "name": "South wall",
+      "components": {
+        "Transform": {
+          "Position": [0, 1, 6.25],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Wall": {
+          "Size": [12.5, 2, 0.5]
+        }
+      }
+    },
+    {
+      "id": "e4",
+      "name": "West wall",
+      "components": {
+        "Transform": {
+          "Position": [-6.25, 1, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Wall": {
+          "Size": [0.5, 2, 12]
+        }
+      }
+    },
+    {
+      "id": "e5",
+      "name": "East wall",
+      "components": {
+        "Transform": {
+          "Position": [6.25, 1, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Wall": {
+          "Size": [0.5, 2, 12]
+        }
+      }
+    },
+    {
+      "id": "e6",
+      "name": "Goal",
+      "components": {
+        "Transform": {
+          "Position": [0, 0.05, -4.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Goal": {
+          "Size": [3, 0.1, 2]
+        }
+      }
+    },
+    {
+      "id": "e7",
+      "name": "Crate 1",
+      "components": {
+        "Transform": {
+          "Position": [-3, 0.5, 1],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Crate": {
+          "Size": 1
+        }
+      }
+    },
+    {
+      "id": "e8",
+      "name": "Crate 2",
+      "components": {
+        "Transform": {
+          "Position": [0, 0.5, 0.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Crate": {
+          "Size": 1
+        }
+      }
+    },
+    {
+      "id": "e9",
+      "name": "Crate 3",
+      "components": {
+        "Transform": {
+          "Position": [3, 0.5, 1],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Crate": {
+          "Size": 1
+        }
+      }
+    },
+    {
+      "id": "e10",
+      "name": "Crate 4",
+      "components": {
+        "Transform": {
+          "Position": [-1.5, 0.5, 3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Crate": {
+          "Size": 1
+        }
+      }
+    },
+    {
+      "id": "e11",
+      "name": "Crate 5",
+      "components": {
+        "Transform": {
+          "Position": [1.5, 0.5, 3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "Crate": {
+          "Size": 1
+        }
+      }
+    },
+    {
+      "id": "e12",
+      "name": "Player start",
+      "components": {
+        "Transform": {
+          "Position": [0, 0, 4.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        },
+        "PlayerStart": {}
+      }
+    }
+  ]
+}

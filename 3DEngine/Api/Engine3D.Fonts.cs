@@ -43,6 +43,17 @@ public static partial class Engine3D
     // -- Fonts. Atlases are baked by Dear ImGui's font builder, which rasterizes TrueType through
     // stb_truetype and embeds a default font (ProggyClean), so fonts need no library of their own.
 
+    // Frees the default font's atlases, which the engine baked for itself, so CloseWindow counts
+    // only the textures the program left loaded.
+    private static void ForgetDefaultFonts()
+    {
+        foreach (var font in DefaultFontSizes.Values)
+            if (IsTextureValid(font.Texture)) UnloadTexture(font.Texture);
+        DefaultFontSizes.Clear();
+        if (_defaultFont is { } fallback && IsTextureValid(fallback.Texture)) UnloadTexture(fallback.Texture);
+        _defaultFont = null;
+    }
+
     /// <summary>The engine's default font: ProggyClean at 13 pixels, point filtered so it scales as pixels.</summary>
     public static Font GetFontDefault()
     {

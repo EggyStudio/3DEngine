@@ -58,7 +58,7 @@ public sealed class PhysicsPlugin : IPlugin
 
         app.AddSystem(Stage.FixedUpdate, new SystemDescriptor(static w =>
             {
-                if (!w.TryGetResource<FixedTime>(out var fixedTime)) return;
+                if (!w.TryGetResource<FixedTime>(out var fixedTime) || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
                 phys.StepOnce((float)fixedTime.StepSeconds);
                 SendContacts(w, phys);
@@ -71,7 +71,7 @@ public sealed class PhysicsPlugin : IPlugin
 
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(static w =>
             {
-                if (w.ContainsResource<FixedTime>()) return;
+                if (w.ContainsResource<FixedTime>() || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
                 var time = w.Resource<Time>();
                 phys.Step((float)time.DeltaSeconds);
