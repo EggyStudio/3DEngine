@@ -148,4 +148,35 @@ public class QueryFilterTests
         foreach (var row in ecs.QueryRef<Velocity>().Changed<Mass>()) changed.Add(row.Entity);
         changed.Should().Equal(falling);
     }
+
+    [Fact]
+    public void A_Copying_Query_Takes_The_Same_Filters_And_Allocates_Nothing_To_Walk()
+    {
+        var (ecs, falling, landed, _) = World();
+        ecs.Add(falling, new Mass { Kg = 2 });
+        ecs.Add(landed, new Mass { Kg = 3 });
+
+        ecs.Query<Velocity>().With<Falls>().Without<Grounded>().Select(r => r.Entity).Should().Equal(falling);
+        ecs.Query<Velocity, Mass>().Without<Grounded>().Single().C2.Kg.Should().Be(2);
+        ecs.Query<Velocity, Falls, Mass>().With<Grounded>().Single().Entity.Should().Be(landed);
+
+        // Warmed once, so the JIT's own allocations are behind it.
+        int seen = 0;
+        foreach (var _ in ecs.Query<Velocity, Mass>().Without<Grounded>()) seen++;
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        foreach (var _ in ecs.Query<Velocity, Mass>().Without<Grounded>()) seen++;
+        GC.GetAllocatedBytesForCurrentThread().Should().Be(before, "the query and its enumerator are structs");
+        seen.Should().Be(2);
+    }
+
+    [Fact]
+    public void A_Copying_Query_Made_Before_Its_First_Component_Still_Finds_It()
+    {
+        var ecs = new EcsWorld();
+        var query = ecs.Query<Mass>();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Mass { Kg = 1 });
+
+        query.Should().ContainSingle().Which.Entity.Should().Be(entity);
+    }
 }

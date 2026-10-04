@@ -84,7 +84,8 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
 (`ecs.Handle(id)`) carries the generation, so a reference kept across frames can tell, through
 `TryResolve` or `IsAlive`, that its entity is gone even when a new one has its id.
 
-- `Query<T1, T2, T3>()` walks the smallest set and looks the others up, yielding copies.
+- `Query<T1, T2, T3>()` walks the smallest set and looks the others up, yielding copies through a
+  struct enumerator, and takes the same filters as `QueryRef`.
   `QueryRef` of one, two or three components yields references and marks what it visits as changed,
   and narrows with `.With<U>()`, `.Without<U>()` and `.Changed<U>()` without allocating.
   `BulkProcess<T>` hands a span of the dense array to a delegate.

@@ -365,92 +365,27 @@ public sealed partial class EcsWorld
         return store.AsSpan();
     }
 
-    /// <summary>Enumerates all (entity, component) pairs of type <typeparamref name="T"/>.</summary>
-    /// <typeparam name="T">The component type.</typeparam>
-    /// <returns>An enumerable of (entity ID, component value) tuples.</returns>
+    /// <summary>Every entity with a <typeparamref name="T"/>, with a copy of it, narrowed by <c>.With</c>, <c>.Without</c> and <c>.Changed</c>.</summary>
+    /// <remarks>A struct, so <c>foreach</c> over it allocates nothing.</remarks>
     /// <example>
     /// <code>
-    /// foreach (var (entity, pos) in ecs.Query&lt;Position&gt;())
+    /// foreach (var (entity, pos) in ecs.Query&lt;Position&gt;().Without&lt;Frozen&gt;())
     ///     Console.WriteLine($"Entity {entity} at ({pos.X}, {pos.Y})");
     /// </code>
     /// </example>
-    public IEnumerable<(int Entity, T Component)> Query<T>()
-    {
-        var store = GetStore<T>(create: false);
-        if (store == null) yield break;
-        foreach (var item in store.Enumerate())
-            yield return item;
-    }
+    public CopyQuery<T> Query<T>() => new(this);
 
-    /// <summary>Enumerates entities that have both <typeparamref name="T1"/> and <typeparamref name="T2"/>, iterating the smaller store first.</summary>
-    /// <typeparam name="T1">The first component type.</typeparam>
-    /// <typeparam name="T2">The second component type.</typeparam>
-    /// <returns>An enumerable of (entity ID, C1, C2) tuples.</returns>
+    /// <summary>Every entity with both a <typeparamref name="T1"/> and a <typeparamref name="T2"/>, with a copy of each, walking the smaller store.</summary>
     /// <example>
     /// <code>
     /// foreach (var (entity, pos, vel) in ecs.Query&lt;Position, Velocity&gt;())
     ///     ecs.Update(entity, new Position(pos.X + vel.X * dt, pos.Y + vel.Y * dt));
     /// </code>
     /// </example>
-    public IEnumerable<(int Entity, T1 C1, T2 C2)> Query<T1, T2>()
-    {
-        var s1 = GetStore<T1>(create: false);
-        var s2 = GetStore<T2>(create: false);
-        if (s1 == null || s2 == null) yield break;
-        if (s1.Count <= s2.Count)
-        {
-            foreach (var (e, c1) in s1.Enumerate())
-                if (s2.TryGet(e, out var c2))
-                    yield return (e, c1, c2);
-        }
-        else
-        {
-            foreach (var (e, c2) in s2.Enumerate())
-                if (s1.TryGet(e, out var c1))
-                    yield return (e, c1, c2);
-        }
-    }
+    public CopyQuery<T1, T2> Query<T1, T2>() => new(this);
 
-    /// <summary>Enumerates entities that have <typeparamref name="T1"/>, <typeparamref name="T2"/>, and <typeparamref name="T3"/>.</summary>
-    /// <typeparam name="T1">The first component type.</typeparam>
-    /// <typeparam name="T2">The second component type.</typeparam>
-    /// <typeparam name="T3">The third component type.</typeparam>
-    /// <returns>An enumerable of (entity ID, C1, C2, C3) tuples.</returns>
-    public IEnumerable<(int Entity, T1 C1, T2 C2, T3 C3)> Query<T1, T2, T3>()
-    {
-        var s1 = GetStore<T1>(create: false);
-        var s2 = GetStore<T2>(create: false);
-        var s3 = GetStore<T3>(create: false);
-        if (s1 == null || s2 == null || s3 == null) yield break;
-        var c1 = s1.Count;
-        var c2 = s2.Count;
-        var c3 = s3.Count;
-        int smallestCase = (c1 <= c2 && c1 <= c3) ? 1 : (c2 <= c1 && c2 <= c3) ? 2 : 3;
-        if (smallestCase == 1)
-        {
-            foreach (var (e, comp1) in s1.Enumerate())
-            {
-                if (!s2.TryGet(e, out var comp2) || !s3.TryGet(e, out var comp3)) continue;
-                yield return (e, comp1, comp2, comp3);
-            }
-        }
-        else if (smallestCase == 2)
-        {
-            foreach (var (e, comp2) in s2.Enumerate())
-            {
-                if (!s1.TryGet(e, out var comp1) || !s3.TryGet(e, out var comp3)) continue;
-                yield return (e, comp1, comp2, comp3);
-            }
-        }
-        else
-        {
-            foreach (var (e, comp3) in s3.Enumerate())
-            {
-                if (!s1.TryGet(e, out var comp1) || !s2.TryGet(e, out var comp2)) continue;
-                yield return (e, comp1, comp2, comp3);
-            }
-        }
-    }
+    /// <summary>Every entity with a <typeparamref name="T1"/>, a <typeparamref name="T2"/> and a <typeparamref name="T3"/>, with a copy of each, walking the smallest store.</summary>
+    public CopyQuery<T1, T2, T3> Query<T1, T2, T3>() => new(this);
 
     /// <summary>Enumerates components of type <typeparamref name="T"/> that match a predicate.</summary>
     /// <typeparam name="T">The component type.</typeparam>
