@@ -84,6 +84,12 @@ public sealed class SystemDescriptor
         return $"{type}.{method.Name}";
     }
 
+    /// <summary>
+    /// The <see cref="ChangeTicks"/> tick this system last ran at, 0 before its first run, after
+    /// which a write counts as changed to it.
+    /// </summary>
+    public long LastRunTick { get; internal set; }
+
     /// <summary>Marks this system as main-thread-only, preventing it from running in parallel batches.</summary>
     /// <returns>This descriptor for fluent chaining.</returns>
     /// <seealso cref="ThreadAffinity.MainThread"/>

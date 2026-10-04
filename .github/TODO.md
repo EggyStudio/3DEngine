@@ -21,11 +21,12 @@ removed from this file, and an item that is partly done is rewritten around what
   reads answering as if the component were missing and writes throwing. Queries, `ctx.EntityId`,
   physics contacts' `EntityId` and the flat API's scene functions still hand out the bare `int`,
   which nothing stops code from keeping across frames.
-- **Change bits last one frame.** `GetRef`, `Update` and the by-reference queries mark what they
-  hand out, and a behavior method marks its own component unless it is `readonly`. The bits are
-  cleared when a frame begins, with no ticks behind them, so a system cannot ask what changed
-  since it last ran, and transform propagation remembers writes made after it at `Stage.Last` to
-  make up for it. A write through a span of a store's array is not seen.
+- **Change detection has no added filter and misses spans.** `GetRef`, `Update` and the
+  by-reference queries stamp what they hand out with the tick of the running system, and a
+  `Changed` filter sees what was stamped since that system last ran (`ChangeTicks`). A component
+  added with `Add` is not stamped, so nothing tells a system what appeared since it ran, as
+  Bevy's `Added` does, and a write through a span of a store's array is not seen. A system that
+  has never run sees every stamp made before it.
 
 ### Behaviors
 
@@ -46,7 +47,7 @@ removed from this file, and an item that is partly done is rewritten around what
   `models_stress`). Mesh entities are instanced, and a frame holds about 34,000, where
   `MeshEntityDraws` takes 6.4 ms building a `ModelDraw` for each entity every frame and the two
   passes 9 ms gathering and writing instances. Writing an entity's instance straight from its
-  components, kept from frame to frame while its change bits are clear, would remove most of both.
+  components, kept from frame to frame while nothing marks it changed, would remove most of both.
   Each `DrawTexture` costs about 55 nanoseconds, of which the draw list's lock and the two vertices
   a quad repeats without an index buffer are most, and the GPU draws 186,000 sprites in 5.1 ms. An
   index buffer for quads would cut the vertices a third.

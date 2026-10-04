@@ -32,17 +32,7 @@ public sealed partial class Schedule
                 continue;
             }
 
-            var sw = Stopwatch.StartNew();
-            try
-            {
-                desc.System(world);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"System '{desc.Name}' threw in stage {stage}", ex);
-            }
-            sw.Stop();
-            Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);
+            Invoke(stage, desc, world);
         }
     }
 
@@ -183,6 +173,14 @@ public sealed partial class Schedule
             return;
         }
 
+        Invoke(stage, desc, world);
+    }
+
+    // Runs one system on this thread, timed, with the change tick it runs at, so a Changed filter
+    // in it sees what was written since it last ran however often that is (ChangeTicks).
+    private void Invoke(Stage stage, SystemDescriptor desc, World world)
+    {
+        var outer = ChangeTicks.Enter(desc.LastRunTick, out var tick);
         var sw = Stopwatch.StartNew();
         try
         {
@@ -191,6 +189,11 @@ public sealed partial class Schedule
         catch (Exception ex)
         {
             Logger.Error($"System '{desc.Name}' threw in stage {stage}", ex);
+        }
+        finally
+        {
+            ChangeTicks.Leave(outer);
+            desc.LastRunTick = tick;
         }
         sw.Stop();
         Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);

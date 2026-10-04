@@ -13,7 +13,7 @@ ImGui for interfaces and Slang for shaders. It runs on Linux, Windows and macOS 
 
 - **One project.** The engine is `3DEngine/`, compiled into `3DEngine.dll` under the `Engine`
   namespace, with the source generator as a separate analyzer assembly.
-- **A sparse-set ECS** (`EcsWorld`) with deferred commands, change bits and queries over up to three
+- **A sparse-set ECS** (`EcsWorld`) with deferred commands, change ticks and queries over up to three
   components, and a resource map (`World`) beside it.
 - **A staged schedule** (`Startup`, `First`, `PreUpdate`, `FixedUpdate`, `Update`, `PostUpdate`,
   `Render`, `Last`, `Cleanup`) that runs systems in parallel batches by their declared reads and

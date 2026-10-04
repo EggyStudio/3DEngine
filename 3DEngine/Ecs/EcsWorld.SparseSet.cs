@@ -12,9 +12,9 @@ namespace Engine;
 /// keeping components packed for cache-friendly sequential iteration.
 /// </para>
 /// <para>
-/// Change tracking uses a bitfield (<c>_changedBits</c>) indexed by dense position.
-/// Bits are set when a component is updated via <see cref="Update"/> and cleared each frame
-/// via <see cref="ClearChangedTicks"/>.
+/// Change tracking keeps a tick per dense position (<c>_changedTicks</c>), the
+/// <see cref="ChangeTicks"/> tick of the last write marked there, 0 for none, and the largest
+/// of them, so whether anything changed after a tick is one comparison.
 /// </para>
 /// </remarks>
 /// <typeparam name="T">The component type stored in the dense array.</typeparam>
@@ -23,46 +23,49 @@ internal sealed class SparseSet<T>
 {
     private int[] _denseEntities = Array.Empty<int>();
     private T[] _denseComponents = Array.Empty<T>();
-    private long[] _changedBits = Array.Empty<long>();
+    private long[] _changedTicks = Array.Empty<long>();
+    private long _latestChange;
     private int[] _sparse = Array.Empty<int>();
     private int _count;
 
     /// <summary>Number of components currently stored in the dense array.</summary>
     public int Count => _count;
 
-    /// <summary>Ensures the change-tracking bitfield has enough words for the given dense capacity.</summary>
+    /// <summary>Ensures the change ticks have room for the given dense capacity.</summary>
     /// <param name="denseCapacity">The minimum dense array capacity to support.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void EnsureBitCapacity(int denseCapacity)
+    private void EnsureTickCapacity(int denseCapacity)
     {
-        int words = (denseCapacity + 63) >> 6;
-        if (_changedBits.Length < words)
-            Array.Resize(ref _changedBits, words);
+        if (_changedTicks.Length < denseCapacity)
+            Array.Resize(ref _changedTicks, denseCapacity);
     }
 
-    /// <summary>Sets the change-tracking bit for the component at dense <paramref name="index"/>.</summary>
+    /// <summary>Stamps the component at dense <paramref name="index"/> with the tick of the write.</summary>
     /// <param name="index">Dense array index.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetBit(int index)
+    private void Stamp(int index)
     {
-        _changedBits[index >> 6] |= 1L << (index & 63);
+        var tick = ChangeTicks.ForWrite;
+        _changedTicks[index] = tick;
+        // The largest, raised atomically since systems in parallel mark the same store.
+        long latest;
+        while (tick > (latest = Volatile.Read(ref _latestChange))
+               && Interlocked.CompareExchange(ref _latestChange, tick, latest) != latest) { }
     }
 
-    /// <summary>Clears the change-tracking bit for the component at dense <paramref name="index"/>.</summary>
+    /// <summary>Forgets the change at dense <paramref name="index"/>.</summary>
     /// <param name="index">Dense array index.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ClearBit(int index)
+    private void Unstamp(int index)
     {
-        _changedBits[index >> 6] &= ~(1L << (index & 63));
+        _changedTicks[index] = 0;
     }
 
-    /// <summary>Returns whether the change-tracking bit is set for dense <paramref name="index"/>.</summary>
-    /// <param name="index">Dense array index.</param>
-    /// <returns><c>true</c> if the bit is set; otherwise <c>false</c>.</returns>
+    /// <summary>Whether the component at dense <paramref name="index"/> changed after <paramref name="since"/>.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool GetBit(int index)
+    private bool ChangedAfter(int index, long since)
     {
-        return ((_changedBits[index >> 6] >> (index & 63)) & 1L) != 0;
+        return _changedTicks[index] > since;
     }
 
     /// <summary>Ensures the sparse array can map <paramref name="entity"/>. Grows and fills new slots with <c>-1</c>.</summary>
@@ -86,7 +89,7 @@ internal sealed class SparseSet<T>
         int newCap = _count == 0 ? 128 : _count * 2;
         Array.Resize(ref _denseEntities, newCap);
         Array.Resize(ref _denseComponents, newCap);
-        EnsureBitCapacity(newCap);
+        EnsureTickCapacity(newCap);
     }
 
     /// <summary>Pre-allocates capacity in both dense and sparse arrays to minimize resizing during bulk inserts.</summary>
@@ -98,7 +101,7 @@ internal sealed class SparseSet<T>
         {
             Array.Resize(ref _denseEntities, componentCapacity);
             Array.Resize(ref _denseComponents, componentCapacity);
-            EnsureBitCapacity(componentCapacity);
+            EnsureTickCapacity(componentCapacity);
         }
 
         if (maxEntityIdHint > _sparse.Length)
@@ -126,7 +129,7 @@ internal sealed class SparseSet<T>
         idx = _count++;
         _denseEntities[idx] = entity;
         _denseComponents[idx] = component!;
-        ClearBit(idx);
+        Unstamp(idx);
         _sparse[entity] = idx;
     }
 
@@ -140,7 +143,7 @@ internal sealed class SparseSet<T>
         if (idx >= 0)
         {
             _denseComponents[idx] = component!;
-            SetBit(idx);
+            Stamp(idx);
             return;
         }
 
@@ -148,7 +151,7 @@ internal sealed class SparseSet<T>
         idx = _count++;
         _denseEntities[idx] = entity;
         _denseComponents[idx] = component!;
-        SetBit(idx);
+        Stamp(idx);
         _sparse[entity] = idx;
     }
 
@@ -177,10 +180,10 @@ internal sealed class SparseSet<T>
         return false;
     }
 
-    /// <summary>Returns <c>true</c> if the component for <paramref name="entity"/> was marked changed this frame.</summary>
+    /// <summary>Whether the component for <paramref name="entity"/> was marked changed after tick <paramref name="since"/>.</summary>
     /// <param name="entity">The entity ID.</param>
-    /// <returns><c>true</c> if the changed bit is set; otherwise <c>false</c>.</returns>
-    public bool ChangedThisFrame(int entity) => entity < _sparse.Length && _sparse[entity] >= 0 && GetBit(_sparse[entity]);
+    /// <param name="since">The tick a change has to come after.</param>
+    public bool ChangedSince(int entity, long since) => entity < _sparse.Length && _sparse[entity] >= 0 && ChangedAfter(_sparse[entity], since);
 
     /// <summary>Zero-allocation enumerable over all (entity, component) pairs in the sparse set.</summary>
     public readonly struct ComponentEnumerable
@@ -240,32 +243,21 @@ internal sealed class SparseSet<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T ComponentRefByDenseIndex(int denseIndex) => ref _denseComponents[denseIndex];
 
-    /// <summary>Sets the change-tracking bit for the component at <paramref name="denseIndex"/>.</summary>
+    /// <summary>Stamps the component at <paramref name="denseIndex"/> as changed, with the writer's tick.</summary>
     /// <param name="denseIndex">Zero-based index into the dense array.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void MarkChangedByDenseIndex(int denseIndex) => SetBit(denseIndex);
+    public void MarkChangedByDenseIndex(int denseIndex) => Stamp(denseIndex);
 
-    /// <summary>Whether any component changed this frame, a scan of one word per 64 components.</summary>
-    public bool AnyChanged()
-    {
-        int words = (_count + 63) >> 6;
-        for (int i = 0; i < words && i < _changedBits.Length; i++)
-            if (_changedBits[i] != 0) return true;
-        return false;
-    }
+    /// <summary>Whether any component was marked changed after tick <paramref name="since"/>.</summary>
+    /// <remarks>A removed component's change still counts, which can only cause a needless look.</remarks>
+    public bool AnyChangedSince(long since) => Volatile.Read(ref _latestChange) > since;
 
     /// <summary>
-    /// Thread-safe version of <see cref="MarkChangedByDenseIndex"/>.
-    /// Uses <see cref="Interlocked.Or(ref long, long)"/> for atomic bit-set operations,
-    /// suitable for use inside <c>Parallel.For</c> loops.
+    /// <see cref="MarkChangedByDenseIndex"/> for use inside <c>Parallel.For</c> loops. A tick is
+    /// written whole, and the largest is raised atomically, so the two are the same.
     /// </summary>
     /// <param name="denseIndex">Zero-based index into the dense array.</param>
-    public void MarkChangedByDenseIndexThreadSafe(int denseIndex)
-    {
-        int word = denseIndex >> 6;
-        int bit = denseIndex & 63;
-        Interlocked.Or(ref _changedBits[word], 1L << bit);
-    }
+    public void MarkChangedByDenseIndexThreadSafe(int denseIndex) => Stamp(denseIndex);
 
     /// <summary>Returns parallel entity and component spans over the packed dense arrays.</summary>
     /// <param name="entities">A read-only span of entity IDs.</param>
@@ -297,8 +289,8 @@ internal sealed class SparseSet<T>
         {
             _denseComponents[idx] = _denseComponents[lastIdx];
             _denseEntities[idx] = _denseEntities[lastIdx];
-            if (GetBit(lastIdx)) SetBit(idx); else ClearBit(idx);
-            ClearBit(lastIdx);
+            _changedTicks[idx] = _changedTicks[lastIdx];
+            Unstamp(lastIdx);
             _sparse[_denseEntities[idx]] = idx;
         }
 
@@ -323,8 +315,8 @@ internal sealed class SparseSet<T>
         {
             _denseComponents[idx] = _denseComponents[lastIdx];
             _denseEntities[idx] = _denseEntities[lastIdx];
-            if (GetBit(lastIdx)) SetBit(idx); else ClearBit(idx);
-            ClearBit(lastIdx);
+            _changedTicks[idx] = _changedTicks[lastIdx];
+            Unstamp(lastIdx);
             _sparse[_denseEntities[idx]] = idx;
         }
 
@@ -332,9 +324,6 @@ internal sealed class SparseSet<T>
         _count--;
         return true;
     }
-
-    /// <summary>Clears all per-frame change-tracking bits, resetting every component to "unchanged".</summary>
-    public void ClearChangedTicks() => _changedBits.AsSpan().Clear();
 
     /// <summary>Returns the dense array index for <paramref name="entity"/>, or <c>-1</c> if not present.</summary>
     /// <param name="entity">The entity ID.</param>

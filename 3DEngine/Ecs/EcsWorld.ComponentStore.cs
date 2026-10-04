@@ -12,6 +12,14 @@ public sealed partial class EcsWorld
     public sealed class ComponentStore<T> : IComponentStore
     {
         private readonly SparseSet<T> _set = new();
+        private readonly FrameClock? _frame;
+
+        /// <summary>A store whose readers outside a system count changes from the start of <paramref name="frame"/>.</summary>
+        internal ComponentStore(FrameClock? frame = null) => _frame = frame;
+
+        // The tick after which a write counts as changed to the reader. It is the tick the running
+        // system last ran at, or outside a system the start of the world's frame.
+        private long Since => ChangeTicks.Since(_frame?.Start ?? 0);
 
         /// <summary>Number of components currently stored.</summary>
         public int Count => _set.Count;
@@ -54,16 +62,14 @@ public sealed partial class EcsWorld
             return true;
         }
 
-        /// <summary>Returns <c>true</c> if the component on <paramref name="entity"/> was modified this frame.</summary>
-        /// <param name="entity">The entity ID.</param>
-        /// <param name="currentTick">The current frame tick (reserved for future use).</param>
-        /// <returns><c>true</c> if changed; otherwise <c>false</c>.</returns>
-        public bool ChangedThisFrame(int entity, int currentTick) => _set.ChangedThisFrame(entity);
+        /// <summary>
+        /// Whether the component on <paramref name="entity"/> changed since the running system last
+        /// ran, or outside a system, since the frame began.
+        /// </summary>
+        public bool Changed(int entity) => _set.ChangedSince(entity, Since);
 
-        public bool Changed(int entity) => _set.ChangedThisFrame(entity);
-
-        /// <summary>Whether any component in the store changed this frame.</summary>
-        public bool AnyChanged() => _set.AnyChanged();
+        /// <summary>Whether any component in the store changed since the running system last ran, or outside a system, since the frame began.</summary>
+        public bool AnyChanged() => _set.AnyChangedSince(Since);
 
         /// <summary>Returns a zero-allocation enumerable over all (entity, component) pairs.</summary>
         /// <returns>A <see cref="ComponentEnumerable"/> for <c>foreach</c> iteration.</returns>
@@ -126,7 +132,7 @@ public sealed partial class EcsWorld
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T ComponentRefByDenseIndex(int denseIndex) => ref _set.ComponentRefByDenseIndex(denseIndex);
 
-        /// <summary>Marks the component at <paramref name="denseIndex"/> as changed for this frame.</summary>
+        /// <summary>Marks the component at <paramref name="denseIndex"/> as changed, with the writer's tick.</summary>
         /// <param name="denseIndex">Zero-based index into the dense array.</param>
         /// <param name="tick">The current frame tick (reserved for future use).</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,9 +157,6 @@ public sealed partial class EcsWorld
         /// <param name="entity">The entity ID.</param>
         /// <returns><c>true</c> if the component was removed; <c>false</c> if not present.</returns>
         public bool Remove(int entity) => _set.Remove(entity);
-
-        /// <inheritdoc />
-        public void ClearChangedTicks() => _set.ClearChangedTicks();
 
         /// <summary>Returns the dense array index for <paramref name="entity"/>, or <c>-1</c> if not present.</summary>
         /// <param name="entity">The entity ID.</param>

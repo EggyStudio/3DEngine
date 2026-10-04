@@ -64,15 +64,13 @@ public sealed partial class EcsWorld
         /// <param name="disposable">Set to the component's <see cref="IDisposable"/> implementation, or <c>null</c>.</param>
         /// <returns><c>true</c> if the component was removed.</returns>
         bool TryRemove(int entity, out IDisposable? disposable);
-        /// <summary>Clears all per-frame change-tracking bits.</summary>
-        void ClearChangedTicks();
         /// <summary>Whether <paramref name="entity"/> has a component in this store.</summary>
         bool Has(int entity);
         /// <summary>The component of <paramref name="entity"/>, boxed, or <c>null</c>.</summary>
         object? GetBoxed(int entity);
         /// <summary>Replaces the component of <paramref name="entity"/> with a boxed value, marking it changed.</summary>
         bool SetBoxed(int entity, object value);
-        /// <summary>Whether <paramref name="entity"/>'s component in this store changed this frame.</summary>
+        /// <summary>Whether <paramref name="entity"/>'s component in this store changed since the reader last looked (<see cref="ChangeTicks"/>).</summary>
         bool Changed(int entity);
     }
 }

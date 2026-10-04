@@ -33,7 +33,7 @@ A frame is nine stages:
 | stage | runs |
 |---|---|
 | `Startup` | once, before the first frame |
-| `First` | time advances, change bits clear, the draw list clears |
+| `First` | time advances, the ECS's frame begins, the draw list clears |
 | `PreUpdate` | ImGui's frame starts, finished asset loads land, scenes spawn, then queued state moves apply |
 | `FixedUpdate` | zero or more times, once per whole step of `FixedTime` (60 Hz by default), physics steps and sends its contacts as events |
 | `Update` | the game |
@@ -78,7 +78,7 @@ A move to the value already held does nothing. Sub-states and computed states ar
 ## The ECS
 
 `EcsWorld` is a resource. Each component type has a sparse set: an array from entity to dense
-index, and dense arrays of entities, components and change bits, so iterating one component is a
+index, and dense arrays of entities, components and change ticks, so iterating one component is a
 walk over a contiguous array and adding or removing is constant time. Entities are `int` ids,
 reused from a free list, each with a generation that a despawn bumps. An `Entity` handle
 (`ecs.Handle(id)`) carries the generation, so a reference kept across frames can tell, through
@@ -92,11 +92,17 @@ reused from a free list, each with a generation that a despawn bumps. An `Entity
 - Every component operation takes an `int` id or an `Entity` handle. The handle carries a
   generation, so one kept to an entity since despawned is refused rather than reaching the entity
   that reused the id.
-- `Changed<T>(entity)` reads the change bit, which `Update<T>`, `GetRef<T>` and `QueryRef` set and
-  `First` clears. `GetReadOnly<T>` and `QueryReadOnly` of one, two or three components read by
-  reference without marking, and physics writes a body's `Transform` only when its pose moved. A behavior method marks its component
-  unless it is `readonly`. Transform propagation in `Render` recomputes only the chains whose
-  transforms or parents changed, and `Last` remembers writes made after it for the next frame.
+- `Changed<T>(entity)` compares the component's change tick, which `Update<T>`, `GetRef<T>` and
+  `QueryRef` stamp, with the tick the running system last ran at (`ChangeTicks`). Each system run
+  takes the next tick, and a write is stamped with the tick of the system making it, so a system
+  sees each change once whether it runs less often than once a frame, as one in `FixedUpdate` at
+  a high frame rate, or more often. Code outside a system, as a program's own between
+  `BeginDrawing` and `EndDrawing`, sees what changed since the ECS's frame began in `First`.
+  `GetReadOnly<T>` and `QueryReadOnly` of one, two or three components read by reference without
+  marking, and physics writes a body's `Transform` only when its pose moved. A behavior method
+  marks its component unless it is `readonly`. Transform propagation in `Render` recomputes only
+  the chains whose transforms or parents changed since it last ran, which counts writes made after
+  it in the frame before.
 - `Name` and `Parent` components give entities names and a hierarchy (`SetName`, `SetParent`,
   `ChildrenOf`, `DespawnRecursive`). The parent is a handle. A child's `Transform` is relative to
   its parent, and `TransformPropagation` writes the composed world matrix into its

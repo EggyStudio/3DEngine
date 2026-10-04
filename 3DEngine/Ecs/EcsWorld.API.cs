@@ -124,15 +124,26 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>
-    /// Advances the frame tick counter and clears all per-frame change-tracking bits.
-    /// Called once at the start of each frame.
+    /// Starts a frame, from which code outside a system counts changes. Called once at the start
+    /// of each frame. A system counts changes from its own last run instead (<see cref="ChangeTicks"/>).
     /// </summary>
     public void BeginFrame()
     {
         _currentTick++;
-        var list = _storeList;
-        for (int i = 0; i < list.Count; i++)
-            list[i].ClearChangedTicks();
+        _frame.Start = ChangeTicks.Advance();
+    }
+
+    /// <summary>The <see cref="ChangeTicks"/> tick the current frame began at.</summary>
+    public long FrameStart => _frame.Start;
+
+    // The frame's start, shared with the stores rather than the world itself, since the static
+    // store cache keeps the stores reachable and a store holding the world would keep it alive.
+    private readonly FrameClock _frame = new();
+
+    /// <summary>Where a world's frame began, which its stores read.</summary>
+    internal sealed class FrameClock
+    {
+        public long Start;
     }
 
     /// <summary>Returns the number of entities that currently have component <typeparamref name="T"/>.</summary>
@@ -140,7 +151,10 @@ public sealed partial class EcsWorld
     /// <returns>The count of entities with this component type.</returns>
     public int Count<T>() => GetStore<T>(create: false)?.Count ?? 0;
 
-    /// <summary>Whether any <typeparamref name="T"/> was added, updated or handed out by <see cref="GetRef{T}"/> this frame.</summary>
+    /// <summary>
+    /// Whether any <typeparamref name="T"/> was updated or handed out by <see cref="GetRef{T}"/>
+    /// since the running system last ran, or outside a system, since the frame began.
+    /// </summary>
     public bool AnyChanged<T>() => GetStore<T>(create: false)?.AnyChanged() ?? false;
 
     /// <summary>Removes component <typeparamref name="T"/> from an entity if present.</summary>
@@ -209,14 +223,16 @@ public sealed partial class EcsWorld
         return store != null && store.Has(entity);
     }
 
-    /// <summary>Checks whether component <typeparamref name="T"/> on <paramref name="entity"/> was modified this frame.</summary>
+    /// <summary>
+    /// Whether component <typeparamref name="T"/> on <paramref name="entity"/> was modified since
+    /// the running system last ran, or outside a system, since the frame began.
+    /// </summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
-    /// <returns><c>true</c> if the component was modified this frame; otherwise <c>false</c>.</returns>
     public bool Changed<T>(int entity)
     {
         var store = GetStore<T>(create: false);
-        return store != null && store.ChangedThisFrame(entity, _currentTick);
+        return store != null && store.Changed(entity);
     }
 
     /// <summary>Attempts to read component <typeparamref name="T"/> from an entity.</summary>

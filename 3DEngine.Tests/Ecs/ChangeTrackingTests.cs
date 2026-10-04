@@ -29,7 +29,7 @@ public class ChangeTrackingTests
         ecs.Query<Transform>().Changed<Transform>().Select(r => r.Entity).Should().Equal(moved);
         ecs.AnyChanged<Transform>().Should().BeTrue();
         ecs.BeginFrame();
-        ecs.AnyChanged<Transform>().Should().BeFalse("a frame begins with nothing changed");
+        ecs.AnyChanged<Transform>().Should().BeFalse("outside a system, a frame begins with nothing changed");
     }
 
     // A root at x 10 with a child a unit along x, propagated once and then a frame begun.
@@ -72,14 +72,71 @@ public class ChangeTrackingTests
     public void A_Write_After_Propagation_Reaches_The_Child_The_Next_Frame()
     {
         var (world, ecs, root, child) = Hierarchy();
+        long lastRun = 0;
+        // Propagation as the schedule runs it, a system with a change tick of its own.
+        void Propagate()
+        {
+            var outer = ChangeTicks.Enter(lastRun, out var tick);
+            try { TransformPropagation.Run(world); }
+            finally { ChangeTicks.Leave(outer); lastRun = tick; }
+        }
 
-        TransformPropagation.Run(world);
+        Propagate();
         ecs.GetRef<Transform>(root).Position = new Vector3(30, 0, 0);
-        TransformPropagation.Remember(world);
         ecs.BeginFrame();
-        TransformPropagation.Run(world);
+        Propagate();
 
         ecs.GetReadOnly<GlobalTransform>(child).Matrix.Translation.Should().Be(new Vector3(31, 0, 0));
+    }
+
+    private struct Health { public int Value; }
+
+    // How many fixed steps see one change written in Update on the third frame, over twelve frames
+    // of the given length, with a fixed step of a sixtieth of a second.
+    private static int FixedStepsSeeingOneChange(double frameSeconds)
+    {
+        var app = new App();
+        var ecs = new EcsWorld();
+        app.World.InsertResource(ecs);
+        var fixedTime = new FixedTime { Hz = 60, MaxStepsPerFrame = 10 };
+        app.World.InsertResource(fixedTime);
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Health());
+
+        var frame = 0;
+        var seen = 0;
+        // Each frame begins as EcsPlugin begins it.
+        app.AddSystem(Stage.First, new SystemDescriptor(_ => ecs.BeginFrame(), "Begin").MainThreadOnly());
+        app.AddSystem(Stage.Update, new SystemDescriptor(_ =>
+        {
+            if (frame == 3) ecs.GetRef<Health>(entity).Value++;
+        }, "Write").MainThreadOnly());
+        app.AddSystem(Stage.FixedUpdate, new SystemDescriptor(_ =>
+        {
+            foreach (var row in ecs.Query<Health>().Changed<Health>()) seen++;
+        }, "Watch").MainThreadOnly());
+
+        for (frame = 1; frame <= 12; frame++)
+        {
+            fixedTime.Accumulate(frameSeconds);
+            app.BeginFrame();
+            app.EndFrame();
+        }
+        return seen;
+    }
+
+    [Fact]
+    public void A_Fixed_Step_Sees_A_Change_Once_At_A_High_Frame_Rate()
+    {
+        // Four frames to a step, so the change is written in a frame with no step of its own.
+        FixedStepsSeeingOneChange(1.0 / 240).Should().Be(1);
+    }
+
+    [Fact]
+    public void A_Fixed_Step_Sees_A_Change_Once_At_A_Low_Frame_Rate()
+    {
+        // Two and a half steps to a frame, so the frame after the change runs two or three.
+        FixedStepsSeeingOneChange(2.5 / 60).Should().Be(1);
     }
 
     [Fact]

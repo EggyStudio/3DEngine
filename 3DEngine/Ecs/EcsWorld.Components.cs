@@ -104,7 +104,7 @@ public sealed partial class EcsWorld : IDisposable
                 SetStoreCache(typed);
                 return typed;
             }
-            var created = new ComponentStore<T>();
+            var created = new ComponentStore<T>(_frame);
             _stores[typeof(T)] = created;
             _storeList.Add(created);
             lock (_cacheReleases) _cacheReleases.Add(StoreCache<T>.Release);
