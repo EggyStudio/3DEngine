@@ -384,10 +384,17 @@ are made the first frame bloom is on and again when the window's size changes, a
 replace are destroyed four frames later, as are all of them the first frame bloom is off. At 800
 by 450 on the RTX 4070 the chain takes 0.26 ms and the composite 0.17 ms.
 
+The same frame carries the effects of `FrameEffects`, which turn it on when any is away from its
+default: `SetExposure`, `SetTonemap` (the engine's curve, Reinhard's, Narkowicz's fit of ACES, or a
+cut at 1), `SetColorGrading` (saturation and a tint in linear light after the curve, contrast about
+the middle once encoded) and `SetVignette`, all in the composite's push constants. With `SetFxaa`
+the composite draws into an eight-bit target the window's size instead, and `main_pass` draws that
+through FXAA (`fxaa.slang`, the console form of Lottes's, over the encoded colors) before the
+interface. `FrameEffectsTests` reads each from a frame.
+
 Render targets drawn with `BeginTextureMode` and the probes' captures stay eight bits and
 tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
-HDR frame as it is, so its sRGB colors are read as linear there. Anti-aliasing past the samples
-(FXAA) is not written.
+HDR frame as it is, so its sRGB colors are read as linear there.
 
 ## 6. What a frame costs
 
@@ -641,4 +648,4 @@ run to run, with the runtime's compiler and collector in the frame.
 4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
    model pass, done for the HDR frame with bloom on (§5).
 5. Shadow cascades, then point and spot shadows.
-6. Bloom, done, and FXAA.
+6. Bloom and FXAA, done.

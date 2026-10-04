@@ -48,7 +48,7 @@ public sealed class LightingUboPrepare : IPrepareSystem
         }
         // With bloom on the window's view is drawn into the HDR frame and leaves its light linear.
         var windowUbo = ubo;
-        if (renderWorld.TryGet<BloomSettings>() is { On: true }) windowUbo.Output.X = 1;
+        if (BloomRenderer.IsOn(renderWorld)) windowUbo.Output.X = 1;
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
 

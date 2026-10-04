@@ -226,8 +226,9 @@ AOT. What is missing:
 
 - **Some of raylib is not carried**, as VR stereo and the audio processors, which TODO.md names
   with the reasons.
-- **Bloom is the renderer's only effect over the frame**, with no FXAA or depth of field, past
-  what a program draws through a render texture and a shader of its own.
+- **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette and
+  FXAA**, with no depth of field or motion blur, past what a program draws through a render
+  texture and a shader of its own.
 - **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
   need no GPU in CI, and macOS builds from the same packages and is not covered.
 

@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Engine;
@@ -55,12 +56,22 @@ public sealed class BloomRenderer : IDisposable
         public float TexelX, TexelY, Threshold, Mode;
     }
 
-    private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv;
-    private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment;
+    // As composite.slang reads it.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct CompositePush
+    {
+        public Vector4 Bloom, Grade, Tint;
+    }
+
+    private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv,
+        _fxaaVertexSpv, _fxaaFragmentSpv;
+    private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment, _fxaaVertex, _fxaaFragment;
     private IDescriptorSetLayout? _oneTexture, _twoTextures;
     private ISampler? _sampler;
-    private IPipeline? _down, _up, _composite;
-    private IRenderPass? _compositePass;
+    private IPipeline? _down, _up;
+    // The composite's and FXAA's pipelines by the pass they draw in, the window's or the 8-bit
+    // target the composite draws into ahead of FXAA.
+    private readonly Dictionary<IRenderPass, IPipeline> _composites = [], _fxaas = [];
     private Sized? _sized;
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
     private long _frame;
@@ -70,6 +81,10 @@ public sealed class BloomRenderer : IDisposable
     private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet[] down, IDescriptorSet[] up,
         IDescriptorSet composite) : IDisposable
     {
+        // The 8-bit frame the composite draws into for FXAA to read, made the first frame FXAA is on.
+        public RenderTarget? Shown { get; set; }
+        public IDescriptorSet? ShownSet { get; set; }
+
         public Extent2D Extent { get; } = extent;
         public RenderTarget Scene { get; } = scene;
         public RenderTarget[] Levels { get; } = levels;
@@ -82,20 +97,29 @@ public sealed class BloomRenderer : IDisposable
             foreach (var set in Down) set.Dispose();
             foreach (var set in Up) set.Dispose();
             Composite.Dispose();
+            ShownSet?.Dispose();
+            Shown?.Dispose();
             foreach (var level in Levels) level.Dispose();
             Scene.Dispose();
         }
     }
 
-    /// <summary>Creates the renderer from the compiled stages of <c>bloom.slang</c> and <c>composite.slang</c>.</summary>
+    /// <summary>Creates the renderer from the compiled stages of <c>bloom.slang</c>, <c>composite.slang</c> and <c>fxaa.slang</c>.</summary>
     public BloomRenderer(ReadOnlyMemory<byte> bloomVertex, ReadOnlyMemory<byte> bloomFragment,
-        ReadOnlyMemory<byte> compositeVertex, ReadOnlyMemory<byte> compositeFragment)
+        ReadOnlyMemory<byte> compositeVertex, ReadOnlyMemory<byte> compositeFragment,
+        ReadOnlyMemory<byte> fxaaVertex, ReadOnlyMemory<byte> fxaaFragment)
     {
         _bloomVertexSpv = bloomVertex;
         _bloomFragmentSpv = bloomFragment;
         _compositeVertexSpv = compositeVertex;
         _compositeFragmentSpv = compositeFragment;
+        _fxaaVertexSpv = fxaaVertex;
+        _fxaaFragmentSpv = fxaaFragment;
     }
+
+    /// <summary>Whether the frame is drawn through the HDR target, with bloom or any effect over it on.</summary>
+    public static bool IsOn(RenderWorld renderWorld) =>
+        renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<FrameEffects>() is { Active: true };
 
     /// <summary>
     /// Draws the window's models, and its draw list's batches before <paramref name="split"/>, into
@@ -140,24 +164,66 @@ public sealed class BloomRenderer : IDisposable
         }
     }
 
-    /// <summary>Draws the HDR target with <paramref name="intensity"/> of the bloom added, tonemapped and encoded, over the whole of <paramref name="pass"/>, the window's.</summary>
-    public void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, float intensity)
+    /// <summary>
+    /// Draws the HDR target into the whole of <paramref name="pass"/>, with the bloom added, scaled
+    /// by the exposure, brought under 1 by the curve, graded, encoded and vignetted as
+    /// <paramref name="bloom"/> and <paramref name="effects"/> say.
+    /// </summary>
+    public void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
     {
         if (_sized is not { } sized) return;
-        var gfx = renderContext.Device;
-        if (_composite is null || !Equals(_compositePass, renderPass))
-        {
-            if (_composite is not null) _retired.Add((_frame, _composite));
-            _composite = Pipeline(gfx, renderPass, _compositeVertex!, _compositeFragment!, _twoTextures!, additive: false);
-            _compositePass = renderPass;
-        }
+        if (!_composites.TryGetValue(renderPass, out var pipeline))
+            _composites[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _compositeVertex!, _compositeFragment!, _twoTextures!,
+                additive: false, Marshal.SizeOf<CompositePush>());
         var first = sized.Levels[0].Extent;
-        var push = new Push { TexelX = 1f / first.Width, TexelY = 1f / first.Height, Threshold = intensity / sized.Levels.Length };
-        pass.SetPipeline(_composite);
-        pass.SetBindGroup(_composite, sized.Composite);
-        pass.PushConstants(_composite, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        effects ??= new FrameEffects();
+        var tint = Linear(effects.Tint);
+        var push = new CompositePush
+        {
+            Bloom = new Vector4(1f / first.Width, 1f / first.Height, bloom is { On: true } ? bloom.Intensity / sized.Levels.Length : 0, effects.Exposure),
+            Grade = new Vector4(effects.Contrast, effects.Saturation, (float)effects.Tonemap, effects.Vignette),
+            Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
+        };
+        pass.SetPipeline(pipeline);
+        pass.SetBindGroup(pipeline, sized.Composite);
+        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
+
+    /// <summary>Composites into the 8-bit frame FXAA reads, made the first time it is asked for.</summary>
+    public void CompositeForFxaa(RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
+    {
+        if (_sized is not { } sized || renderContext.Device is not GraphicsDevice device) return;
+        if (sized.Shown is null)
+        {
+            sized.Shown = device.CreateRenderTarget(sized.Extent.Width, sized.Extent.Height, ImageFormat.Undefined, depth: false, multisampled: false);
+            sized.ShownSet = device.CreateDescriptorSet(_oneTexture!);
+            device.UpdateDescriptorSet(sized.ShownSet, null, new CombinedImageSamplerBinding(sized.Shown.ColorView, _sampler!, 0));
+        }
+        var target = sized.Shown;
+        using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+            target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
+        pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
+        pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
+        Composite(pass, target.RenderPass, renderContext, bloom, effects);
+    }
+
+    /// <summary>Draws the composited frame through FXAA over the whole of <paramref name="pass"/>, the window's.</summary>
+    public void Fxaa(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext)
+    {
+        if (_sized is not { Shown: { } shown, ShownSet: { } set }) return;
+        _fxaaVertex ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _fxaaVertexSpv));
+        _fxaaFragment ??= renderContext.Device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fxaaFragmentSpv));
+        if (!_fxaas.TryGetValue(renderPass, out var pipeline))
+            _fxaas[renderPass] = pipeline = Pipeline(renderContext.Device, renderPass, _fxaaVertex, _fxaaFragment, _oneTexture!, additive: false);
+        var push = new Push { TexelX = 1f / shown.Extent.Width, TexelY = 1f / shown.Extent.Height };
+        pass.SetPipeline(pipeline);
+        pass.SetBindGroup(pipeline, set);
+        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        pass.Draw(3);
+    }
+
+    private static Vector3 Linear(Color color) => new(SrgbToLinear(color.R / 255f), SrgbToLinear(color.G / 255f), SrgbToLinear(color.B / 255f));
 
     /// <summary>Lets the target and the levels go, once no frame in flight reads them, on a frame bloom is off.</summary>
     public void Release()
@@ -226,12 +292,12 @@ public sealed class BloomRenderer : IDisposable
     }
 
     private static IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, IShader vertex, IShader fragment,
-        IDescriptorSetLayout layout, bool additive) =>
+        IDescriptorSetLayout layout, bool additive, int pushSize = 16) =>
         gfx.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             renderPass, vertex, fragment,
             BlendEnabled: additive,
             CullBackFace: false,
-            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)Marshal.SizeOf<Push>())],
+            PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)pushSize)],
             DescriptorSetLayouts: [layout],
             Blend: BlendMode.AddColors));
 
@@ -258,7 +324,9 @@ public sealed class BloomRenderer : IDisposable
         _sized?.Dispose();
         _down?.Dispose();
         _up?.Dispose();
-        _composite?.Dispose();
+        foreach (var pipeline in _composites.Values.Concat(_fxaas.Values)) pipeline.Dispose();
+        _fxaaVertex?.Dispose();
+        _fxaaFragment?.Dispose();
         _bloomVertex?.Dispose();
         _bloomFragment?.Dispose();
         _compositeVertex?.Dispose();
@@ -287,7 +355,7 @@ public sealed class HdrSceneNode : INode
         renderWorld.Remove<BloomFrame>();
         var bloom = renderWorld.TryGet<BloomRenderer>();
         if (bloom is null) return;
-        if (renderWorld.TryGet<BloomSettings>() is not { On: true } || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain)
+        if (!BloomRenderer.IsOn(renderWorld) || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain)
         {
             bloom.Release();
             return;
@@ -315,7 +383,10 @@ public sealed class BloomNode : INode
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
-        if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomSettings>() is not { } settings) return;
-        renderWorld.TryGet<BloomRenderer>()?.DrawChain(renderContext, settings.Threshold);
+        if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomRenderer>() is not { } renderer) return;
+        var bloom = renderWorld.TryGet<BloomSettings>();
+        if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom.Threshold);
+        // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
+        if (renderWorld.TryGet<FrameEffects>() is { Fxaa: true } effects) renderer.CompositeForFxaa(renderContext, bloom, effects);
     }
 }

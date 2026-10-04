@@ -89,11 +89,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   light near the camera casts none, and each render target that draws meshes draws the map again
   for its own camera, with the point and spot lights chosen for the window's.
 
-- **Bloom is the only effect over the frame.** With `SetBloom` the window's scene is drawn into a
-  half-float target, spread by a bloom chain and tonemapped once over the frame (RENDERING.md §5).
-  With bloom off the tonemap still runs at the end of the model pass, render targets and probe
-  captures stay eight bits, a shader of the program's own inside `BeginMode3D` is read as linear in
-  the HDR frame, and there is no FXAA or exposure that adapts to the scene.
+- **Effects over the frame are bloom, exposure, a curve, grading, a vignette and FXAA.** Any of
+  them draws the window's scene into a half-float target and brings it into the window in one pass
+  (RENDERING.md §5). With all of them off the tonemap still runs at the end of the model pass,
+  render targets and probe captures stay eight bits, a shader of the program's own inside
+  `BeginMode3D` is read as linear in the HDR frame, and there is no exposure that adapts to the
+  scene, depth of field or motion blur.
 
 ### The device
 

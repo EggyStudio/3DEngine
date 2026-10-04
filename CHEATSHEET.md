@@ -644,6 +644,11 @@ void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Tu
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
 void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
 void SetBloom(float intensity, float threshold = 1);                      // Light past the threshold glows into its surroundings, 0 for off
+void SetExposure(float exposure);                                          // Scale the scene's light before its curve (1)
+void SetTonemap(Tonemap curve);                                            // The curve light past 1 is brought under it by: Engine, Reinhard, Aces or Clamp
+void SetColorGrading(float contrast, float saturation, Color tint);        // Grade the scene's color, 1, 1 and white for as it is
+void SetVignette(float intensity, float radius = 0.5f);                    // Darken toward the corners, 0 for none
+void SetFxaa(bool enabled);                                                // Smooth the edges multisampling leaves
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky

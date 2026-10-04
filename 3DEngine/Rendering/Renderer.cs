@@ -68,7 +68,8 @@ public sealed class Renderer : IDisposable
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment, server.LoadSync<ShaderProgram>("shaders/immediate_linear.slang").Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
         var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");
-        RenderWorld.Set(new BloomRenderer(bloom.Vertex, bloom.Fragment, composite.Vertex, composite.Fragment));
+        var fxaa = server.LoadSync<ShaderProgram>("shaders/fxaa.slang");
+        RenderWorld.Set(new BloomRenderer(bloom.Vertex, bloom.Fragment, composite.Vertex, composite.Fragment, fxaa.Vertex, fxaa.Fragment));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then render targets, each drawing the

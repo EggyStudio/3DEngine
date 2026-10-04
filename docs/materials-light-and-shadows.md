@@ -82,6 +82,26 @@ A material's `AlphaMode` says what the alpha of its color and texture does:
 
 `DoubleSided` is true unless set, so a leaf or a flag shows from behind, and a glTF file sets both.
 
+## Effects over the frame
+
+Besides bloom, five effects change how the scene is shown, each set by one call and each off until
+set. Any of them draws the scene through the frame that holds light past white, as bloom does, and
+what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result untouched.
+
+| Call | What it does |
+|---|---|
+| `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
+| `SetTonemap(Tonemap.Aces)` | The curve that brings light past white under it: the engine's own, which leaves colors under 0.9 as they are, `Reinhard`, `Aces` or `Clamp` |
+| `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
+| `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
+| `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
+
+```csharp
+SetBloom(0.6f);
+SetTonemap(Tonemap.Aces);
+SetVignette(0.3f);
+```
+
 ## Lights
 
 A world with no lights is lit by one fixed light from above, so a model shows as soon as it is

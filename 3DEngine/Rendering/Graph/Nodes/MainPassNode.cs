@@ -31,8 +31,12 @@ public sealed class MainPassNode : INode
         pass.SetScissor(0, 0, extent.Width, extent.Height);
 
         // With bloom on, the HDR frame and its bloom cover the window before the rest is drawn over it.
-        if (renderWorld.TryGet<BloomFrame>() is not null && renderWorld.TryGet<BloomSettings>() is { } bloom)
-            renderWorld.TryGet<BloomRenderer>()?.Composite(pass, swapchainTarget.RenderPass, renderContext, bloom.Intensity);
+        if (renderWorld.TryGet<BloomFrame>() is not null && renderWorld.TryGet<BloomRenderer>() is { } renderer)
+        {
+            var effects = renderWorld.TryGet<FrameEffects>();
+            if (effects is { Fxaa: true }) renderer.Fxaa(pass, swapchainTarget.RenderPass, renderContext);
+            else renderer.Composite(pass, swapchainTarget.RenderPass, renderContext, renderWorld.TryGet<BloomSettings>(), effects);
+        }
 
         renderWorld.Set(new ActiveSwapchainPass(pass, extent));
     }
