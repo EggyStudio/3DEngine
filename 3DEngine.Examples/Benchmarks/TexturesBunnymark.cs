@@ -15,7 +15,7 @@ public static class TexturesBunnymark
         InitWindow(800, 450, "[textures] bunnymark");
         SetTargetFPS(0);
 
-        var image = LoadImage("resources/symbol.png");
+        var image = LoadImage("resources/logo.png");
         ImageResize(ref image, 32, 32);
         var bunny = LoadTextureFromImage(image);
 

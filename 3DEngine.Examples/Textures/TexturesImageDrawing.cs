@@ -19,11 +19,11 @@ public static class TexturesImageDrawing
             ImageDrawLine(ref image, 20, 20 + i * 12, 220, 120 - i * 8, Color.Lime);
 
         // Another image, made smaller, turned and tinted, drawn into the first with its alpha.
-        var symbol = LoadImage("resources/symbol.png");
-        ImageResize(ref symbol, 96, 96);
-        ImageRotateCW(ref symbol);
-        ImageColorTint(ref symbol, Color.RayWhite.Fade(0.85f));
-        ImageDraw(ref image, symbol, new Rectangle(0, 0, symbol.Width, symbol.Height), new Rectangle(230, 170, 120, 120), Color.White);
+        var logo = LoadImage("resources/logo.png");
+        ImageResize(ref logo, 96, 96);
+        ImageRotateCW(ref logo);
+        ImageColorTint(ref logo, Color.RayWhite.Fade(0.85f));
+        ImageDraw(ref image, logo, new Rectangle(0, 0, logo.Width, logo.Height), new Rectangle(230, 170, 120, 120), Color.White);
 
         // The same picture, cropped, mirrored and adjusted, beside it.
         var detail = ImageFromImage(image, new Rectangle(200, 20, 200, 160));

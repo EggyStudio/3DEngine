@@ -19,7 +19,7 @@
     <PropertyGroup>
         <Authors>EggyStudio</Authors>
         <Company>3DEngine</Company>
-        <PackageIcon>symbol.png</PackageIcon>
+        <PackageIcon>logo.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/EggyStudio/3DEngine</RepositoryUrl>
         <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>

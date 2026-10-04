@@ -9,7 +9,7 @@ public static class TexturesBasic
     {
         InitWindow(800, 450, "[textures] basic");
 
-        var logo = LoadTexture("resources/symbol.png");
+        var logo = LoadTexture("resources/logo.png");
         var checker = LoadTextureFromImage(GenImageChecked(64, 64, 8, 8, Color.DarkGray, Color.LightGray));
         SetTextureFilter(checker, TextureFilter.Point);
 
