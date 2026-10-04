@@ -50,3 +50,20 @@ None open.
   and the coefficient is scaled by the contact count, after which a friction of 1 stops a slide at
   the weight times 1. Two bodies a joint holds no longer collide, as most engines have it
   (`ed0f3aa6`).
+
+- **The build with warnings as errors failed from `987b96cc` to `f2ab42ae`.** The FLAC reader
+  or-ed a sign-extended value (CS0675), which a build without `-warnaserror` passes, and the
+  run before each commit was read as passing. `abaf9b48` fixes it, and each batch is now
+  committed only after that build reports no errors.
+- **The two Entities items in TODO.md are design choices rather than faults, and are asked
+  about here before any work.** Bare ids from queries are the frame's own by DESIGN.md's choice,
+  and handing handles out instead changes every query and system. Change detection that misses a
+  write through a store's raw array is the cost of the array being public for generated code, a
+  system's first run seeing every earlier stamp is Bevy's rule, and removals kept 60 frames bound
+  the memory. Each could be closed as decided, or be given a form to take, such as query rows that
+  carry a handle beside the id.
+
+- **Shared:** a joint is described in a scene file as an entity of its own with a `Joint`, which
+  names the two bodies' entities and, by its own place and up direction, the point and the axis,
+  so a level hangs a door where it stands. It is made once both bodies are, destroyed with its
+  entity, and one that cannot be made is marked and not tried again. The commit follows `3ed48152`.

@@ -139,4 +139,72 @@ public class PhysicsBodiesTests
         hit.Point.Y.Should().BeApproximately(2, 1e-3f, "the child's mesh is where the child places it");
         world.Resource<PhysicsWorld>().Dispose();
     }
+
+    [Fact]
+    public void A_Scene_Files_Hinge_Hangs_Its_Door_Where_The_Joint_Entity_Stands_And_Keeps_Its_Limits()
+    {
+        var authoring = new EcsWorld();
+        var post = authoring.Spawn();
+        authoring.Add(post, new Transform(Vector3.Zero));
+        authoring.Add(post, Collider.Box(new Vector3(0.1f, 2, 0.1f)));
+        authoring.Add(post, RigidBody.Kinematic);
+        var door = authoring.Spawn();
+        authoring.Add(door, new Transform(new Vector3(0.6f, 0, 0)));
+        authoring.Add(door, Collider.Box(new Vector3(1, 2, 0.1f)));
+        authoring.Add(door, RigidBody.Dynamic());
+        var hinge = authoring.Spawn();
+        authoring.Add(hinge, new Transform(new Vector3(0.05f, 0, 0)));
+        authoring.Add(hinge, new Joint { Kind = JointKind.Hinge, A = authoring.Handle(post), B = authoring.Handle(door), MinAngle = -45, MaxAngle = 45 });
+        var json = SceneFile.Write(authoring);
+
+        var world = new World();
+        world.InsertResource(new EcsWorld());
+        using var physics = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = 1f / 60, Gravity = Vector3.Zero });
+        world.InsertResource(physics);
+        var spawned = SceneFile.Read(world, json);
+        PhysicsBodies.Run(world);
+        var ecs = world.Resource<EcsWorld>();
+
+        var made = ecs.GetReadOnly<PhysicsJoint>(spawned[2]);
+        physics.JointExists(made).Should().BeTrue("the joint is made once both bodies are");
+        var doorBody = ecs.GetReadOnly<PhysicsBody>(spawned[1]);
+        physics.ApplyImpulse(doorBody, new Vector3(0, 0, 6), new Vector3(0.5f, 0, 0));
+        var widest = 0f;
+        for (int i = 0; i < 120; i++)
+        {
+            physics.StepOnce(1f / 60);
+            var at = physics.GetPosition(doorBody) - new Vector3(0.05f, 0, 0);
+            widest = MathF.Max(widest, MathF.Abs(float.RadiansToDegrees(MathF.Atan2(-at.Z, at.X))));
+            at.Y.Should().BeApproximately(0, 0.05f, "it turns about the hinge's up axis, not along it");
+        }
+        widest.Should().BeInRange(30, 55, "pushed, it swings to its limit of 45, past it by what one step of the soft limit allows, and no further");
+
+        ecs.Despawn(spawned[2]);
+        PhysicsBodies.Run(world);
+        physics.JointExists(made).Should().BeFalse("the joint goes with its entity");
+    }
+
+    [Fact]
+    public void A_Joint_That_Cannot_Be_Made_Is_Refused_Once()
+    {
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var floor = ecs.Spawn();
+        ecs.Add(floor, new Transform(Vector3.Zero));
+        ecs.Add(floor, Collider.Box(Vector3.One));
+        ecs.Add(floor, RigidBody.Static);
+        var ball = ecs.Spawn();
+        ecs.Add(ball, new Transform(new Vector3(0, 2, 0)));
+        ecs.Add(ball, Collider.Sphere(0.5f));
+        ecs.Add(ball, RigidBody.Dynamic());
+        var joint = ecs.Spawn();
+        ecs.Add(joint, new Transform(Vector3.Zero));
+        ecs.Add(joint, new Joint { Kind = JointKind.Ball, A = ecs.Handle(floor), B = ecs.Handle(ball) });
+
+        PhysicsBodies.Run(world);
+        PhysicsBodies.Run(world);
+
+        ecs.GetReadOnly<PhysicsJoint>(joint).IsValid.Should().BeFalse("a static body cannot be joined, and the joint is marked so it is not tried again");
+        world.Resource<PhysicsWorld>().Dispose();
+    }
 }

@@ -194,17 +194,18 @@ A level is a JSON scene file that `SceneFile` writes from the ECS and reads back
 component type is saved when it is marked `[SceneComponent]` or is a `[Behavior]`, and
 `SceneComponentGenerator` writes the code that saves its public fields (numbers, strings, enums,
 vectors, colors, entity references by id, asset handles by path) and registers it from a module
-initializer, so loading runs no reflection. A component is keyed by its type's name, or by its
-full name when two registered types share the name, and a name two of a program's types share
-loads neither. A name one of the engine's own types has always means that type, in writing and in
-reading, and a program's type of the same name takes its full name, so a file reads the same
-whatever the program registers after it was saved. A physics body is described by a `Collider`
-and a `RigidBody`, which `PhysicsBodies` turns into a `PhysicsBody` in `PreUpdate`, and
-`LoadScene` at once. A model is named with a `ModelRef`, which
-`ModelRefSystem` spawns under its entity, and the entities a model spawns are not saved, since the
-file brings them back. Another scene file is placed the same way with a `SceneRef`, a prefab,
-which `SceneRefSystem` spawns under its entity in the frame it appears, without the file's ids so
-copies of one file stay apart, and down to eight references deep. The console's `scene.save` and `scene.load` do the same from `./e3d`.
+initializer, so loading runs no reflection. A component is keyed by its type's name, or by its full
+name when two registered types share the name, and a name two of a program's types share loads
+neither. A name one of the engine's own types has always means that type, in writing and in reading,
+and a program's type of the same name takes its full name, so a file reads the same whatever the
+program registers after it was saved. A physics body is described by a `Collider` and a `RigidBody`,
+which `PhysicsBodies` turns into a `PhysicsBody` in `PreUpdate`, and `LoadScene` at once, with the
+joints `Joint` components describe, each on an entity of its own whose place is the joint's point
+and whose up is its axis. A model is named with a `ModelRef`, which `ModelRefSystem` spawns under
+its entity, and the entities a model spawns are not saved, since the file brings them back. Another
+scene file is placed the same way with a `SceneRef`, a prefab, which `SceneRefSystem` spawns under
+its entity in the frame it appears, without the file's ids so copies of one file stay apart, and
+down to eight references deep. The console's `scene.save` and `scene.load` do the same from `./e3d`.
 
 ## The renderer
 

@@ -79,6 +79,62 @@ public struct RigidBody
     public static RigidBody Kinematic => new() { Kind = BodyKind.Kinematic };
 }
 
+/// <summary>The kind of a <see cref="Joint"/>.</summary>
+public enum JointKind
+{
+    /// <summary>Free to turn about the point, as a ball in a socket.</summary>
+    Ball,
+    /// <summary>Turning only about the axis, as a door.</summary>
+    Hinge,
+    /// <summary>Rigid, as the two bodies are placed.</summary>
+    Weld,
+    /// <summary>Kept between two distances, as a rope or a rod.</summary>
+    Distance,
+}
+
+/// <summary>
+/// A joint between two entities' bodies, on an entity of its own, which a scene file holds, so a
+/// level hangs a door or a lamp as it places it.
+/// </summary>
+/// <remarks>
+/// <para>
+/// The joint entity's place in the world is the point the bodies are joined at, and its up
+/// direction a hinge's axis and the middle of a ball joint's cone. <see cref="PhysicsBodies"/>
+/// makes it once both bodies are made, adds its <see cref="PhysicsJoint"/> to the entity, and
+/// destroys it when the entity goes. A joint that cannot be made, as one to a static body, is
+/// given <see cref="PhysicsJoint.None"/> with the reason in the log.
+/// </para>
+/// <para>
+/// A distance joint keeps the joint's point on the first body between <see cref="MinDistance"/>
+/// and <see cref="MaxDistance"/> from the second body's middle, the two as far apart as they are
+/// when it is made where <see cref="MaxDistance"/> is 0.
+/// </para>
+/// </remarks>
+[SceneComponent]
+public struct Joint
+{
+    /// <summary>Which kind it is.</summary>
+    public JointKind Kind;
+
+    /// <summary>The first body's entity.</summary>
+    public Entity A;
+
+    /// <summary>The second body's entity.</summary>
+    public Entity B;
+
+    /// <summary>A hinge's limits, in degrees from where it is made, none where both are 0.</summary>
+    public float MinAngle, MaxAngle;
+
+    /// <summary>A hinge's motor, in degrees a second, with no more than <see cref="MotorTorque"/>, none where the torque is 0.</summary>
+    public float MotorSpeed, MotorTorque;
+
+    /// <summary>A ball joint's cone, how far it swings and twists in degrees, none where both are 0.</summary>
+    public float Swing, Twist;
+
+    /// <summary>A distance joint's range.</summary>
+    public float MinDistance, MaxDistance;
+}
+
 /// <summary>
 /// Makes the body of every entity with a <see cref="Collider"/> and a <see cref="RigidBody"/> that
 /// has none, and destroys the bodies it made whose entities are gone or no longer have one.
@@ -96,13 +152,16 @@ public static class PhysicsBodies
     internal sealed class Made
     {
         public Dictionary<PhysicsBody, Entity> Bodies { get; } = [];
+        public Dictionary<PhysicsJoint, Entity> Joints { get; } = [];
     }
 
     /// <summary>Makes the bodies entities describe and destroys those whose entities are gone.</summary>
     public static void Run(World world)
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs) || !world.TryGetResource<PhysicsWorld>(out var physics)) return;
-        var made = world.GetOrInsertResource(() => new Made()).Bodies;
+        var all = world.GetOrInsertResource(() => new Made());
+        var made = all.Bodies;
+        Joints(ecs, physics, all.Joints);
 
         if (made.Count > 0)
             foreach (var (body, entity) in made.ToArray())
@@ -136,6 +195,70 @@ public static class PhysicsBodies
             ecs.Add(entity, body);
             made[body] = ecs.Handle(entity);
         }
+        Joints(ecs, physics, all.Joints);
+    }
+
+    // Destroys the joints whose entities are gone, and makes those whose bodies are both made.
+    private static void Joints(EcsWorld ecs, PhysicsWorld physics, Dictionary<PhysicsJoint, Entity> made)
+    {
+        if (made.Count > 0)
+            foreach (var (joint, entity) in made.ToArray())
+                if (!ecs.TryResolve(entity, out var id) || !ecs.Has<PhysicsJoint>(id))
+                {
+                    physics.DestroyJoint(joint);
+                    made.Remove(joint);
+                }
+
+        if (ecs.Count<Joint>() == 0) return;
+        var wanted = new List<(int Entity, Joint Joint)>();
+        foreach (var (entity, joint) in ecs.Query<Joint>().Without<PhysicsJoint>()) wanted.Add((entity, joint));
+        foreach (var (entity, joint) in wanted)
+        {
+            if (!ecs.TryGet<PhysicsBody>(joint.A, out var a) || !ecs.TryGet<PhysicsBody>(joint.B, out var b))
+            {
+                // A body not made yet, which a later frame makes, or an entity that has none.
+                if (ecs.TryResolve(joint.A, out var idA) && ecs.TryResolve(joint.B, out var idB)
+                    && ecs.Has<Collider>(idA) && ecs.Has<Collider>(idB)) continue;
+                Log.Category("Engine.Physics").Warn($"Joint: entity {entity} joins an entity that has no body, so it is not made.");
+                ecs.Add(entity, PhysicsJoint.None);
+                continue;
+            }
+            var placed = TransformPropagation.ComposedWorldMatrix(ecs, entity);
+            var point = placed.Translation;
+            var up = Vector3.TransformNormal(Vector3.UnitY, placed);
+            up = up.LengthSquared() > 1e-8f ? Vector3.Normalize(up) : Vector3.UnitY;
+            try
+            {
+                var made1 = joint.Kind switch
+                {
+                    JointKind.Hinge => physics.CreateHingeJoint(a, b, point, up),
+                    JointKind.Weld => physics.CreateWeldJoint(a, b),
+                    JointKind.Distance => Distance(physics, a, b, point, joint),
+                    _ => physics.CreateBallJoint(a, b, point),
+                };
+                if (joint.Kind == JointKind.Hinge && (joint.MinAngle != 0 || joint.MaxAngle != 0))
+                    physics.SetHingeLimit(made1, float.DegreesToRadians(joint.MinAngle), float.DegreesToRadians(joint.MaxAngle));
+                if (joint.Kind == JointKind.Hinge && joint.MotorTorque > 0)
+                    physics.SetHingeMotor(made1, float.DegreesToRadians(joint.MotorSpeed), joint.MotorTorque);
+                if (joint.Kind == JointKind.Ball && (joint.Swing > 0 || joint.Twist > 0))
+                    physics.SetBallJointLimit(made1, up, float.DegreesToRadians(joint.Swing > 0 ? joint.Swing : 180),
+                        float.DegreesToRadians(joint.Twist > 0 ? joint.Twist : 180));
+                ecs.Add(entity, made1);
+                made[made1] = ecs.Handle(entity);
+            }
+            catch (ArgumentException ex)
+            {
+                Log.Category("Engine.Physics").Warn($"Joint: entity {entity} cannot be made: {ex.Message}");
+                ecs.Add(entity, PhysicsJoint.None);
+            }
+        }
+    }
+
+    private static PhysicsJoint Distance(PhysicsWorld physics, PhysicsBody a, PhysicsBody b, Vector3 point, Joint joint)
+    {
+        var other = physics.GetPosition(b);
+        var maximum = joint.MaxDistance > 0 ? joint.MaxDistance : Vector3.Distance(point, other);
+        return physics.CreateDistanceJoint(a, b, point, other, MathF.Min(MathF.Max(0, joint.MinDistance), maximum), maximum);
     }
 
     // The triangles of the meshes of an entity and its descendants, turned and scaled into the world

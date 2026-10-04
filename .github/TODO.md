@@ -141,11 +141,12 @@ and loads it back (ARCHITECTURE.md, Scene files). Arrays are not saved, so a mes
 code comes back without its mesh, and a level shows meshes through `ModelRef`. A body is described
 by a `Collider` (box, sphere, capsule, or the meshes of the entity and those under it) and a
 `RigidBody` (static, dynamic with a mass, or kinematic), which a file holds, and `PhysicsBodies`
-makes it when the entity appears, a character when a `CharacterController` is beside a capsule.
-Joints are not described, and a `PhysicsMaterial` beside a `Collider` gives its body a friction and
-a bounce. A scene file placed in another with `SceneRef` is spawned once, when the reference first
-appears, and a change to the placed file reaches a running level only when it is loaded again. An
-older file is read by keeping the fields it has, with no migration.
+makes it when the entity appears, a character when a `CharacterController` is beside a capsule. A
+`Joint` on an entity of its own joins two entities' bodies at its place, and a `PhysicsMaterial`
+beside a `Collider` gives its body a friction and a bounce. A scene file placed in another with
+`SceneRef` is spawned once, when the reference first appears, and a change to the placed file
+reaches a running level only when it is loaded again. An older file is read by keeping the fields it
+has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter
