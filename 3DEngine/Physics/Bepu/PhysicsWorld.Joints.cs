@@ -19,7 +19,8 @@ public readonly record struct PhysicsJoint(int Handle)
 /// <remarks>
 /// A joint holds bodies that move, dynamic or kinematic, since the solver moves what it joins. A
 /// body held to the world is joined to a kinematic one, which nothing pushes. Destroying a body
-/// destroys its joints with it.
+/// destroys its joints with it. Two bodies a joint holds do not collide with each other, since the
+/// joint decides how they move, and an axle inside its wheel would otherwise rub against it.
 /// </remarks>
 public sealed partial class PhysicsWorld
 {

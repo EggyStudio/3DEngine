@@ -59,12 +59,18 @@ table also answers whether the two agree.
 | The entities that lost a component since a system last ran | to take | has (`Removed`, `ab052859`) |
 | A read that does not mark its component changed, beside one that does | has, from Bevy | has (`GetReadOnly`, `QueryReadOnly`) |
 
+### Animation
+
+| Idea | BevyCSharp | 3DEngine |
+|---|---|---|
+| An entity plays a model file's clips by name, blending from one to the next | has (`f79472b`) | has (`AnimatedModel`, `fa229ef4`) |
+
 ### States
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | Sub-states and computed states, declared on the enum | has (`16c4c1e`) | has (`eca05448`) |
-| A system run on a move from one value to a particular other | to take | has (`OnTransition`, `3ca94c66`) |
+| A system run on a move from one value to a particular other | taken at `66a5b4d` | has (`OnTransition`, `3ca94c66`) |
 | An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | taken at `8a96917c` |
 | A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`) | to take |
 
@@ -75,6 +81,9 @@ table also answers whether the two agree.
 | A body and a collider are components a scene file holds | has (`99ec076`) | has (`606cb3bf`) |
 | A character that walls stop, that slides, steps and holds slopes | taken at `f2ac0cd` | has (`b9f280b2`) |
 | Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
+| A character crouches and stands from its component's height, and its step height is set there | to take | has (`52579d98`) |
+| A collider that is the shape of the meshes an entity and those under it show, made once they are loaded | to take, where triangles are given by hand | has (`Collider.Mesh`, `454e9276`) |
+| Friction and bounce for each body, mixed for a pair | has | has (`9aa94324`) |
 | A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
 | A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
@@ -83,6 +92,7 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
+| A scene file placed inside another, its entities left out of the outer file's save | has (`SceneInstances`) | has (`SceneRef`, `0502362d`) |
 | A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
 | A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
@@ -94,7 +104,7 @@ table also answers whether the two agree.
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
 | Gamepads | to take, as the owner decided on 2026-10-04 | has |
-| A pointer dragged a step a frame by one command, so a swipe or a window drag registers | to take | has (`input.drag`, `048c072c`) |
+| A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | C# typed at a running app | has in the editor (`eval`) | to consider |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |

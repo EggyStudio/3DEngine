@@ -129,10 +129,11 @@ under the parent by velocity, so a platform a moving parent carries carries what
 character walking relative to it and a crate by friction. A contact carries the speed its pair
 closed at as they met, read while they approach since the solver slows them before they touch, and
 not the impulse the solver gave them. A hinge has limits and a motor, a ball joint a cone it swings
-and twists within, and a distance joint a range that can change, and no other joint has a motor. The
-character controller is a dynamic capsule walked toward a velocity before each step, which slides
-along walls, climbs steps up to its step height (its radius unless set), holds slopes up to its
-limit, rides what moves under it, crouches and stands where there is room, and reports ground.
+and twists within, and a distance joint a range that can change, and no other joint has a motor. Two
+bodies a joint holds do not collide with each other. The character controller is a dynamic capsule
+walked toward a velocity before each step, which slides along walls, climbs steps up to its step
+height (its radius unless set), holds slopes up to its limit, rides what moves under it, crouches
+and stands where there is room, and reports ground.
 
 ### Scenes
 
@@ -142,10 +143,10 @@ code comes back without its mesh, and a level shows meshes through `ModelRef`. A
 by a `Collider` (box, sphere, capsule, or the meshes of the entity and those under it) and a
 `RigidBody` (static, dynamic with a mass, or kinematic), which a file holds, and `PhysicsBodies`
 makes it when the entity appears, a character when a `CharacterController` is beside a capsule.
-Joints and physics materials are not described. A scene file placed in another with `SceneRef` is
-spawned once, when the reference first appears, and a change to the placed file reaches a running
-level only when it is loaded again. An older file is read by keeping the fields it has, with no
-migration.
+Joints are not described, and a `PhysicsMaterial` beside a `Collider` gives its body a friction and
+a bounce. A scene file placed in another with `SceneRef` is spawned once, when the reference first
+appears, and a change to the placed file reaches a running level only when it is loaded again. An
+older file is read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter

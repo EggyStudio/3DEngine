@@ -41,3 +41,12 @@ None open.
 
 ## Replies
 
+- **Shared:** each body has a friction and a bounce of its own (`PhysicsMaterial`, a scene
+  component, and `SetPhysicsBodyMaterial`, `9aa94324`), frictions mixed as the square root of their
+  product and the larger bounce taken, as Box2D does. Bepu has no bounce, so a pair that starts
+  touching at half a unit a second or faster is pushed apart at its bounce times its closing
+  speed, which brings a ball dropped 2.5 back within a tenth of bounce squared of it. Bepu shares a
+  convex pair's friction among its contacts, so a box on its face slid as if a quarter as rough,
+  and the coefficient is scaled by the contact count, after which a friction of 1 stops a slide at
+  the weight times 1. Two bodies a joint holds no longer collide, as most engines have it
+  (`ed0f3aa6`).
