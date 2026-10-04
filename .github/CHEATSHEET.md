@@ -191,6 +191,20 @@ bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec);      
 bool CheckCollisionPointRec(Vector2 point, Rectangle rec);                          // A point is inside a rectangle
 bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius);        // A point is inside a circle
 Rectangle GetCollisionRec(Rectangle a, Rectangle b);                                // The rectangle two share, empty when they do not overlap
+bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3); // A point is inside a triangle
+bool CheckCollisionPointLine(Vector2 point, Vector2 p1, Vector2 p2, int threshold); // A point is near a segment
+bool CheckCollisionPointPoly(Vector2 point, ReadOnlySpan<Vector2> points);           // A point is inside a polygon
+bool CheckCollisionLines(Vector2 startPos1, Vector2 endPos1, Vector2 startPos2, Vector2 endPos2, out Vector2 collisionPoint); // Two segments cross, and where
+bool CheckCollisionCircleLine(Vector2 center, float radius, Vector2 p1, Vector2 p2); // A circle touches a segment
+bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2); // Two spheres overlap
+bool CheckCollisionBoxes(BoundingBox box1, BoundingBox box2);                       // Two boxes overlap
+bool CheckCollisionBoxSphere(BoundingBox box, Vector3 center, float radius);        // A box and a sphere overlap
+RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius);          // Where a ray meets a sphere
+RayCollision GetRayCollisionBox(Ray ray, BoundingBox box);                          // Where a ray meets a box
+RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3);  // Where a ray meets a triangle
+RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4); // Where a ray meets a quad
+RayCollision GetRayCollisionMesh(Ray ray, ModelMesh mesh, Matrix4x4 transform);     // Where a ray first meets a placed mesh
+BoundingBox GetMeshBoundingBox(ModelMesh mesh);                                     // The box around a mesh
 ```
 
 ## 3D shapes
@@ -207,6 +221,16 @@ void DrawSphereEx(Vector3 center, float radius, int rings, int slices, Color col
 void DrawSphereWires(Vector3 center, float radius, int rings, int slices, Color color);         // Sphere as lines
 void DrawPlane(Vector3 center, Vector2 size, Color color);                                      // Rectangle on the XZ plane
 void DrawGrid(int slices, float spacing);                                                       // Grid on the XZ plane
+void DrawPoint3D(Vector3 position, Color color);                                                // A point, as a small cross
+void DrawRay(Ray ray, Color color);                                                             // A ray, a hundred units of it
+void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color); // A circle turned about an axis
+void DrawTriangleStrip3D(ReadOnlySpan<Vector3> points, Color color);                            // A strip of triangles
+void DrawCylinder(Vector3 position, float radiusTop, float radiusBottom, float height, int slices, Color color); // Upright cylinder or cone
+void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color); // From one point to another
+void DrawCylinderWires(Vector3 position, float radiusTop, float radiusBottom, float height, int slices, Color color); // Its edges
+void DrawCylinderWiresEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color); // Its edges
+void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color); // Capsule between two points
+void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color); // Its edges
 ```
 
 ## Images and textures

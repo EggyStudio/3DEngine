@@ -97,6 +97,25 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Cylinders_And_Capsules_Draw_Between_Their_Ends()
+    {
+        Open(64, 32);
+        var camera = new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY, 45);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCylinderEx(new Vector3(-3, -1.5f, 0), new Vector3(-3, 1.5f, 0), 0.8f, 0.8f, 16, new Color(255, 0, 0));
+            DrawCapsule(new Vector3(2, -1, 0), new Vector3(4, 1, 0), 0.6f, 12, 6, new Color(0, 255, 0));
+            EndMode3D();
+        });
+
+        GetImageColor(image, 20, 16).Should().Be(new Color(255, 0, 0), "the cylinder stands three units left of the middle");
+        GetImageColor(image, 45, 16).Should().Be(new Color(0, 255, 0), "the capsule leans three units right of it");
+        GetImageColor(image, 32, 16).Should().Be(Color.Black, "with nothing between");
+    }
+
+    [NeedsVulkanFact]
     public void A_Cube_Is_Lit_Through_The_Camera_And_The_Background_Is_Cleared()
     {
         Open(64, 64);
