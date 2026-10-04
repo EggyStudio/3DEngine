@@ -103,6 +103,24 @@ internal sealed class OggMusicDecoder(string path) : IMusicDecoder
     public void Dispose() => _reader.Dispose();
 }
 
+/// <summary>Decodes FLAC from its file through <see cref="FlacReader"/> as it is read.</summary>
+internal sealed class FlacMusicDecoder(string path) : IMusicDecoder
+{
+    private readonly FlacReader _reader = new(File.OpenRead(path));
+
+    public int Channels => _reader.Channels;
+
+    public int SampleRate => _reader.SampleRate;
+
+    public long TotalFrames => _reader.TotalFrames;
+
+    public int Read(Span<float> buffer) => _reader.Read(buffer);
+
+    public void Seek(long frame) => _reader.Seek(Math.Clamp(frame, 0, TotalFrames));
+
+    public void Dispose() => _reader.Dispose();
+}
+
 /// <summary>Decodes MP3 from its file through NLayer as it is read.</summary>
 /// <remarks>NLayer measures its stream in bytes of 32-bit samples, which a frame holds one of for each channel.</remarks>
 internal sealed class Mp3MusicDecoder : IMusicDecoder
@@ -211,7 +229,7 @@ public static partial class Engine3D
 
     // -- Sounds
 
-    /// <summary>Loads a WAV, Ogg Vorbis or MP3 file, decoded into memory.</summary>
+    /// <summary>Loads a WAV, Ogg Vorbis, MP3 or FLAC file, decoded into memory.</summary>
     /// <returns>The sound, or an empty one when the file cannot be read, with the reason in the log.</returns>
     public static Sound LoadSound(string fileName)
     {
@@ -230,7 +248,8 @@ public static partial class Engine3D
                 ".wav" or ".wave" => WavSoundDecoder.Decode(bytes, fileName),
                 ".ogg" => OggSoundDecoder.Decode(bytes, fileName),
                 ".mp3" => Mp3SoundDecoder.Decode(bytes, fileName),
-                var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis, MP3)."),
+                ".flac" => FlacSoundDecoder.Decode(bytes, fileName),
+                var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
             };
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException)
@@ -317,7 +336,7 @@ public static partial class Engine3D
     private const float MusicBufferSeconds = 0.5f;
     private const int MusicChunkFrames = 4096;
 
-    /// <summary>Opens a WAV, Ogg Vorbis or MP3 file as music, which streams from the file as it plays.</summary>
+    /// <summary>Opens a WAV, Ogg Vorbis, MP3 or FLAC file as music, which streams from the file as it plays.</summary>
     /// <returns>The music, or an empty one when the file cannot be read, with the reason in the log.</returns>
     public static Music LoadMusicStream(string fileName)
     {
@@ -335,7 +354,8 @@ public static partial class Engine3D
                 ".ogg" => new Music(new OggMusicDecoder(path), fileName),
                 ".wav" or ".wave" => new Music(new WavMusicDecoder(path), fileName),
                 ".mp3" => new Music(new Mp3MusicDecoder(path), fileName),
-                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3)."),
+                ".flac" => new Music(new FlacMusicDecoder(path), fileName),
+                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
             };
             World.GetOrInsertResource(() => new LoadedMusic()).Add(music);
             return music;

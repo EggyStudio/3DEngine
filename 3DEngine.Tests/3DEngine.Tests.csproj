@@ -38,6 +38,8 @@
              excludes and would pick up the copy in bin and nest it one level deeper each build. -->
         <None Include="Platform\Audio\*.ogg" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Platform\Audio\*.mp3" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Platform\Audio\*.flac" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Platform\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" />
         <!-- The skinned arm the examples animate, which the animation tests pose. -->
         <None Include="..\3DEngine.Examples\resources\arm.gltf" Link="resources\arm.gltf" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>

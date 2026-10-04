@@ -11,9 +11,10 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// <b>Coverage:</b> uncompressed PCM (<c>WAVE_FORMAT_PCM</c>, code 0x0001) at 8/16/24/32
-/// bits-per-sample, plus IEEE 32-bit float (<c>WAVE_FORMAT_IEEE_FLOAT</c>, code 0x0003).
-/// Compressed formats inside a WAV (ADPCM, MP3) are not read. Ogg Vorbis files go through
-/// <see cref="OggSoundDecoder"/>.
+/// bits-per-sample, plus IEEE 32-bit float (<c>WAVE_FORMAT_IEEE_FLOAT</c>, code 0x0003), either
+/// of them also inside <c>WAVE_FORMAT_EXTENSIBLE</c> (0xFFFE), as encoders write files of more
+/// than 16 bits. Compressed formats inside a WAV (ADPCM, MP3) are not read. Ogg Vorbis files go
+/// through <see cref="OggSoundDecoder"/>.
 /// </para>
 /// <para>
 /// <b>Channel order:</b> samples are interleaved per the canonical WAV layout
@@ -80,6 +81,10 @@ public sealed class WavSoundDecoder : ISoundDecoder
                 channels      = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(body + 2, 2));
                 sampleRate    = BinaryPrimitives.ReadInt32LittleEndian( bytes.AsSpan(body + 4, 4));
                 bitsPerSample = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(body + 14, 2));
+                // WAVE_FORMAT_EXTENSIBLE, which encoders write for more than 16 bits or two
+                // channels, names the real format in the first two bytes of its sub-format.
+                if (audioFormat == 0xFFFE && size >= 26)
+                    audioFormat = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(body + 24, 2));
             }
             else if (id[0] == 'd' && id[1] == 'a' && id[2] == 't' && id[3] == 'a')
             {
@@ -190,18 +195,20 @@ internal sealed class WavMusicDecoder : IMusicDecoder
 
             // Every chunk's header is read, and the bodies of all but the format chunk skipped.
             Span<byte> chunk = stackalloc byte[8];
-            Span<byte> fmt = stackalloc byte[16];
+            Span<byte> fmt = stackalloc byte[26];
             long dataStart = -1, dataLength = 0;
             while (_file.Read(chunk) == 8)
             {
                 var size = BinaryPrimitives.ReadUInt32LittleEndian(chunk[4..]);
                 var body = _file.Position;
-                if (chunk[..4].SequenceEqual("fmt "u8) && size >= 16 && _file.Read(fmt) == 16)
+                if (chunk[..4].SequenceEqual("fmt "u8) && size >= 16 && _file.Read(fmt[..(int)Math.Min(size, 26)]) >= 16)
                 {
                     _format = BinaryPrimitives.ReadUInt16LittleEndian(fmt);
                     Channels = BinaryPrimitives.ReadUInt16LittleEndian(fmt[2..]);
                     SampleRate = BinaryPrimitives.ReadInt32LittleEndian(fmt[4..]);
                     _bitsPerSample = BinaryPrimitives.ReadUInt16LittleEndian(fmt[14..]);
+                    // WAVE_FORMAT_EXTENSIBLE names the real format in its sub-format, as above.
+                    if (_format == 0xFFFE && size >= 26) _format = BinaryPrimitives.ReadUInt16LittleEndian(fmt[24..]);
                 }
                 else if (chunk[..4].SequenceEqual("data"u8))
                 {

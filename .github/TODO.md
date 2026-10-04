@@ -51,8 +51,6 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio and text files
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Audio reads no FLAC.** WAV, Ogg Vorbis (NVorbis) and MP3 (NLayer) are read, in managed code.
-  FLAC has no managed decoder of the same standing, so a FLAC file is refused with the reason.
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in a
   run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, so its wires
