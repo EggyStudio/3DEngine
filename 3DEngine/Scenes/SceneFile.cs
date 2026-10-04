@@ -72,6 +72,112 @@ public static class ModelRefSystem
 /// <summary>Marks a <see cref="ModelRef"/> whose model has been asked for.</summary>
 public struct ModelRefSpawned;
 
+/// <summary>
+/// A scene file an entity holds a copy of, spawned under the entity so its <see cref="Transform"/>
+/// places it, as a prefab: a door, a lamp post or a room made once and placed many times.
+/// </summary>
+/// <remarks>
+/// <para>
+/// <see cref="SceneRefSystem"/> spawns the file the first frame it sees the component. The spawned
+/// entities carry a <see cref="SceneInstance"/>, so a level saved with the reference in it is saved
+/// without them, since the file brings them back, and they drop the file's own ids, so two copies
+/// of one file name no entity twice. A file whose entities hold a <see cref="SceneRef"/> of their
+/// own spawns those too, eight deep at most, so a file that names itself stops.
+/// </para>
+/// <para>
+/// The path is a file beside the program, in its <c>source</c> folder, or from the working
+/// directory, as the flat API's <c>Load</c> functions find files.
+/// </para>
+/// </remarks>
+[SceneComponent]
+public struct SceneRef
+{
+    /// <summary>The scene file to spawn under the entity.</summary>
+    public string Path;
+}
+
+/// <summary>Marks a <see cref="SceneRef"/> whose file has been spawned, or tried.</summary>
+public struct SceneRefSpawned;
+
+/// <summary>Spawns the scene file of every <see cref="SceneRef"/> that has not been, under its entity.</summary>
+public static class SceneRefSystem
+{
+    private static readonly ILogger Logger = Log.Category("Engine.Scenes");
+
+    /// <summary>How many references deep a file may spawn files of its own.</summary>
+    public const int MaxDepth = 8;
+
+    /// <summary>The system, for <see cref="Stage.PreUpdate"/>.</summary>
+    public static void Run(World world)
+    {
+        if (!world.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<SceneRef>() == 0) return;
+        // Repeated, so the references a spawned file holds spawn in the same frame.
+        for (int pass = 0; pass <= MaxDepth; pass++)
+        {
+            List<(int Entity, string Path)>? pending = null;
+            foreach (var (entity, reference) in ecs.Query<SceneRef>())
+                if (!ecs.Has<SceneRefSpawned>(entity))
+                    (pending ??= []).Add((entity, reference.Path ?? ""));
+            if (pending is null) return;
+            foreach (var (entity, path) in pending) Spawn(world, ecs, entity, path);
+        }
+    }
+
+    private static void Spawn(World world, EcsWorld ecs, int entity, string path)
+    {
+        ecs.Add(entity, new SceneRefSpawned());
+        if (path.Length == 0) return;
+        if (Depth(ecs, entity) >= MaxDepth)
+        {
+            Logger.Warn($"SceneRef: '{path}' is {MaxDepth} references deep, which a file naming itself reaches, so it is not spawned.");
+            return;
+        }
+        if (Resolve(path) is not { } file)
+        {
+            Logger.Warn($"SceneRef: '{path}' was not found beside the program, in its source folder or in the working directory.");
+            return;
+        }
+
+        List<int> spawned;
+        try
+        {
+            spawned = SceneFile.Read(world, File.ReadAllText(file));
+        }
+        catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
+        {
+            Logger.Warn($"SceneRef: '{path}' cannot be read: {ex.Message}");
+            return;
+        }
+
+        foreach (var child in spawned)
+        {
+            ecs.Remove<SceneId>(child);
+            ecs.Add(child, new SceneInstance { SourcePath = path });
+            if (ecs.ParentOf(child) == 0) ecs.SetParent(child, entity);
+        }
+    }
+
+    // How many of the entity and its ancestors were spawned by a reference of their own.
+    private static int Depth(EcsWorld ecs, int entity)
+    {
+        var depth = 0;
+        for (var at = entity; at != 0; at = ecs.ParentOf(at))
+            if (ecs.Has<SceneInstance>(at) && ecs.Has<SceneRef>(at)) depth++;
+        return depth;
+    }
+
+    private static string? Resolve(string path)
+    {
+        if (File.Exists(path)) return path;
+        foreach (var root in new[] { AppContext.BaseDirectory, System.IO.Path.Combine(AppContext.BaseDirectory, "source") })
+        {
+            var candidate = System.IO.Path.Combine(root, path);
+            if (File.Exists(candidate)) return candidate;
+        }
+        return null;
+    }
+}
+
 /// <summary>Saves a component of one type into a scene file's entry and loads it back.</summary>
 public interface ISceneCodec
 {
@@ -308,9 +414,9 @@ public static class SceneJson
 /// </summary>
 /// <remarks>
 /// <para>
-/// A level, as a game keeps one. Entities spawned from a model file (those with a
-/// <see cref="SceneInstance"/>) are not saved, since the <see cref="ModelRef"/> that spawned them
-/// brings them back, and neither are components no codec is registered for. An entity is given a
+/// A level, as a game keeps one. Entities spawned from a model file or another scene file (those
+/// with a <see cref="SceneInstance"/>) are not saved, since the <see cref="ModelRef"/> or
+/// <see cref="SceneRef"/> that spawned them brings them back, and neither are components no codec is registered for. An entity is given a
 /// <see cref="SceneId"/> when it is first saved, which other entities' fields and parents refer to
 /// it by, and which survives a rename.
 /// </para>

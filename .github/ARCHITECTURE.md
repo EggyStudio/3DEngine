@@ -202,7 +202,9 @@ whatever the program registers after it was saved. A physics body is described b
 and a `RigidBody`, which `PhysicsBodies` turns into a `PhysicsBody` in `PreUpdate`, and
 `LoadScene` at once. A model is named with a `ModelRef`, which
 `ModelRefSystem` spawns under its entity, and the entities a model spawns are not saved, since the
-file brings them back. The console's `scene.save` and `scene.load` do the same from `./e3d`.
+file brings them back. Another scene file is placed the same way with a `SceneRef`, a prefab,
+which `SceneRefSystem` spawns under its entity in the frame it appears, without the file's ids so
+copies of one file stay apart, and down to eight references deep. The console's `scene.save` and `scene.load` do the same from `./e3d`.
 
 ## The renderer
 

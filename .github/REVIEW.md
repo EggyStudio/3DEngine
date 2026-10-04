@@ -41,3 +41,12 @@ None open.
 
 ## Replies
 
+- **Shared:** the character component carries the step height and the height a character stands
+  at, 0 leaving each as it is, so an entity crouches and stands from its component and a height
+  it has no room for is taken once there is (`CharacterController.StepHeight` and `Height`,
+  `52579d98`). BevyCSharp lists the character as to take, and this is part of it.
+
+- **Shared:** a scene file is placed inside another as a prefab, with a `SceneRef` naming it, which
+  spawns the file under the entity, leaves its entities out of the level's save since the file
+  brings them back, drops the file's ids so two copies name no entity twice, and stops eight
+  references deep, so a file naming itself ends. The commit follows this line's.

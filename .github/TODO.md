@@ -142,8 +142,9 @@ code comes back without its mesh, and a level shows meshes through `ModelRef`. A
 by a `Collider` (box, sphere or capsule) and a `RigidBody` (static, dynamic with a mass, or
 kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
 when a `CharacterController` is beside a capsule. Joints, physics materials and mesh colliders are
-not described. There are no prefabs (a scene file spawned as part of another), and an older file is
-read by keeping the fields it has, with no migration.
+not described. A scene file placed in another with `SceneRef` is spawned once, when the reference
+first appears, and a change to the placed file reaches a running level only when it is loaded
+again. An older file is read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter

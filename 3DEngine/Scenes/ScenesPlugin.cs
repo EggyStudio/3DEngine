@@ -46,6 +46,8 @@ public sealed class ScenesPlugin : IPlugin
         // the underlying SceneAsset finishes loading. Runs in PreUpdate so spawned
         // entities are visible to gameplay systems in the same frame.
         // Model references first, so a scene file's models are asked for in the frame it loads.
+        // Scene files a level places first, so the models they name are asked for in the same frame.
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneRefSystem.Run, "SceneRefSystem").MainThreadOnly());
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(ModelRefSystem.Run, "ModelRefSystem").MainThreadOnly());
         // Both spawn and despawn entities, which the main thread does.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneSpawnSystem.Run, "SceneSpawnSystem").MainThreadOnly());
