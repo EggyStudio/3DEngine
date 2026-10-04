@@ -2,6 +2,12 @@ using SDL3;
 
 namespace Engine;
 
+/// <summary>A size and refresh rate a monitor can be driven at in fullscreen.</summary>
+/// <param name="Width">The width in pixels.</param>
+/// <param name="Height">The height in pixels.</param>
+/// <param name="RefreshRate">The refresh rate in hertz, rounded, or 0 when it is not known.</param>
+public readonly record struct MonitorMode(int Width, int Height, int RefreshRate);
+
 public static partial class Engine3D
 {
     // -- Window state. With no window (a headless or offscreen run) these do nothing and the
@@ -33,6 +39,10 @@ public static partial class Engine3D
     public static bool IsWindowHidden() => WindowHandle == 0 || HasWindowFlag(SDL.WindowFlags.Hidden);
 
     /// <summary>Switches the window between fullscreen on its monitor and a window.</summary>
+    /// <remarks>
+    /// Fullscreen keeps the monitor's desktop mode, unless <see cref="SetWindowFullscreenMode"/>
+    /// has set one of its own.
+    /// </remarks>
     public static void ToggleFullscreen()
     {
         if (WindowHandle is not 0 and var w) SDL.SetWindowFullscreen(w, !IsWindowFullscreen());
@@ -106,6 +116,61 @@ public static partial class Engine3D
     /// <summary>A monitor's name, or an empty string when there is no such monitor.</summary>
     public static string GetMonitorName(int monitor) =>
         Displays() is var displays && monitor >= 0 && monitor < displays.Length ? SDL.GetDisplayName(displays[monitor]) ?? "" : "";
+
+    /// <summary>The modes a monitor can be set to in fullscreen, largest first, or none when there is no such monitor.</summary>
+    /// <remarks>Modes that differ only in pixel format or density are listed once.</remarks>
+    public static MonitorMode[] GetMonitorModes(int monitor)
+    {
+        var displays = Displays();
+        if (monitor < 0 || monitor >= displays.Length) return [];
+        var modes = SDL.GetFullscreenDisplayModes(displays[monitor], out _);
+        return modes is null ? [] : DistinctModes(modes.Select(m => (m.W, m.H, m.RefreshRate)));
+    }
+
+    /// <summary>Modes rounded to whole hertz, once each, in the order given.</summary>
+    internal static MonitorMode[] DistinctModes(IEnumerable<(int Width, int Height, float RefreshRate)> modes) =>
+        modes.Select(m => new MonitorMode(m.Width, m.Height, (int)MathF.Round(m.RefreshRate))).Distinct().ToArray();
+
+    /// <summary>
+    /// Makes the window fullscreen on its monitor in the mode closest to <paramref name="mode"/>,
+    /// changing the monitor's resolution, or at the desktop's mode when it is the default.
+    /// </summary>
+    /// <remarks>
+    /// The frames after it are drawn at the mode's size. A mode is kept for later calls to
+    /// <see cref="ToggleFullscreen"/>, and the default one returns them to the desktop's mode.
+    /// </remarks>
+    public static void SetWindowFullscreenMode(MonitorMode mode)
+    {
+        if (WindowHandle is not (not 0 and var w)) return;
+        if (mode == default)
+        {
+            SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
+        }
+        else
+        {
+            var display = SDL.GetDisplayForWindow(w);
+            if (!SDL.GetClosestFullscreenDisplayMode(display, mode.Width, mode.Height, mode.RefreshRate, false, out var closest))
+            {
+                ApiLogger.Warn($"SetWindowFullscreenMode: the monitor has no mode near {mode.Width}x{mode.Height}: {SDL.GetError()}");
+                return;
+            }
+            SDL.SetWindowFullscreenMode(w, closest);
+        }
+        SDL.SetWindowFullscreen(w, true);
+    }
+
+    /// <summary>Moves the window to a monitor, centered on it.</summary>
+    /// <remarks>
+    /// A window fullscreen at the desktop's mode goes fullscreen on the other monitor. One in a mode
+    /// of its own stays, since SDL ties that mode to its monitor.
+    /// </remarks>
+    public static void SetWindowMonitor(int monitor)
+    {
+        var displays = Displays();
+        if (WindowHandle is not (not 0 and var w) || monitor < 0 || monitor >= displays.Length) return;
+        var centered = (int)(SDL.WindowPosCenteredMask | displays[monitor]);
+        SDL.SetWindowPosition(w, centered, centered);
+    }
 
     private static uint[] Displays() => SDL.WasInit(SDL.InitFlags.Video) != 0 ? SDL.GetDisplays(out _) ?? [] : [];
 

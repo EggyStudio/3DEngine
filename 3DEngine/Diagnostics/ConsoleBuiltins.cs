@@ -13,6 +13,18 @@ internal static class ConsoleBuiltins
         return "closing";
     }
 
+    [Command("monitors", "Each monitor, its current mode, and the modes it can be set to in fullscreen")]
+    internal static string Monitors()
+    {
+        var text = new StringBuilder();
+        for (int i = 0; i < Engine3D.GetMonitorCount(); i++)
+        {
+            text.AppendLine($"{i} {Engine3D.GetMonitorName(i)}: {Engine3D.GetMonitorWidth(i)}x{Engine3D.GetMonitorHeight(i)} at {Engine3D.GetMonitorRefreshRate(i)} Hz");
+            text.AppendLine("  " + string.Join(", ", Engine3D.GetMonitorModes(i).Select(m => $"{m.Width}x{m.Height}@{m.RefreshRate}")));
+        }
+        return text.Length == 0 ? "no monitors" : text.ToString().TrimEnd();
+    }
+
     [Command("frames.wait", "Answers once this many more frames have run: frames.wait <count>")]
     internal static string Wait(int count)
     {

@@ -79,9 +79,6 @@ physics, text and fonts, audio and text files
   one loaded as `FontType.Sdf` stays sharp. A font has Latin-1 or the characters it was asked for,
   and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names characters
   in 16 bits.
-- **Monitor modes** cannot be listed or switched. Window state and monitors are queried and
-  changed, and the window and render targets are multisampled at `Config.Samples` (4 by default,
-  `SetConfigSamples` before the window opens).
 
 ### Meshes, materials and light
 

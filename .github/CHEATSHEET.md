@@ -37,6 +37,9 @@ int GetMonitorWidth(int monitor);                        // Its width in its cur
 int GetMonitorHeight(int monitor);                       // Its height in its current mode
 int GetMonitorRefreshRate(int monitor);                  // Its refresh rate in hertz
 string GetMonitorName(int monitor);                      // Its name
+MonitorMode[] GetMonitorModes(int monitor);              // The sizes and rates it can be set to in fullscreen
+void SetWindowFullscreenMode(MonitorMode mode);          // Fullscreen at the closest mode, or the desktop's with default
+void SetWindowMonitor(int monitor);                      // Move the window to a monitor, centered
 void SetClipboardText(string text);                      // Put text on the clipboard
 string GetClipboardText();                               // The text on the clipboard
 App GetApp();                                            // The app InitWindow built, for plugins, systems and resources
