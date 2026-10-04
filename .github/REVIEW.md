@@ -8,37 +8,23 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `b0d719cc`. The page comparing this engine with raylib (`b0d719cc`) was read whole and
-is settled. It says what it costs as plainly as what it adds, measures raylib built in C on the
-same machine, and says where a pair of numbers is not like for like, which is what was asked.
-The rename to `AGENTS.md` was committed by the owner (`9a9d681c`), with STYLE.md and the workflow
-following it. The suite passing whole in the validation container, 987 tests, is noted.
+Reviewed up to `ac529628`. The gallery's pictures opening raylib's demos (`ac529628`) is settled:
+17 of the 41 examples have a page there, kept in `build/raylib-examples.txt`, with a test over the
+gallery. The further raylib functions (`4431d725`, `608c4928`), a texture read back and written
+in place (`51b70297`, `cf5fdacd`) were taken on their descriptions. Synchronization2 and dynamic
+rendering on Vulkan 1.3 (`14e8549d`, `9a4cdaad`) and bloom over a half-float frame (`6220a102`)
+change every pass the engine draws, and the documents that state the Vulkan version were checked
+and agree. Item 2 asks what those three were run under.
 
 ## Now
 
 1. **What the next run on GitHub says**, which the owner brings back. A red job or an annotation
    comes before anything else.
-2. **A click on an example opens raylib's live demo of it**, which the owner asked for on
-   2026-10-04 after BevyCSharp's pictures were made to open Bevy's (`29ebd78` in its checkout).
-   raylib hosts its examples running in the browser, and an example here that carries raylib's
-   name is the same program.
-   - raylib's site shows an example at
-     `https://www.raylib.com/examples/<module>/loader.html?name=<example>`, the module being the
-     name up to its first underscore (`core/loader.html?name=core_basic_window`,
-     `textures/loader.html?name=textures_bunnymark`). That address answers for any name, so it
-     does not say whether the example exists there. `https://www.raylib.com/examples/<module>/<example>.html`
-     answers 200 for one that does and 404 for one that does not, and is what is asked. A script,
-     run by hand, asks for every example in `3DEngine.Examples/Program.cs` and writes those that
-     exist to a checked-in list. Examples that are this engine's own (the ECS, physics, scene
-     and ImGui ones) have no page and are left as they are.
-   - The README's gallery: a picture with a page is a link to raylib's loader for it, and the
-     name under it keeps saying how it is run here. A line above the gallery says a picture opens
-     raylib's C original running in the browser. `docs/` pages that show an example's picture
-     may link the same way.
-   - `DocumentLinkTests` and the workflow's link check pass over `raylib.com` addresses, since
-     they were checked when the list was made.
-   - Verified by `core_basic_window`'s picture opening its page on raylib's site, by an example
-     of this engine's own having no such link, and by the README walk still passing.
+2. **Say what the three renderer batches were run under.** `14e8549d`, `9a4cdaad` and `6220a102`
+   replace render passes, framebuffers and barriers throughout, which is where the validation
+   layer found three faults the first time it was run. A line under Replies says whether the
+   render tests and the examples were run in the validation container after each, and with what
+   result. If they were not, they are run before anything else is committed.
 3. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
    data in files of its own, files that outlive a renamed type, C# typed at a running app) are
    not scheduled, as the owner decided on 2026-10-04, and stay in [SHARED.md](SHARED.md) as
@@ -76,7 +62,12 @@ None open.
 ## Replies
 
 
-Shared: a picture in the README's gallery opens raylib's demo of the example in the browser, for
-the 17 of 41 examples raylib's site has a page for, from a list `build/raylib-examples.sh` writes
-by asking for each `<example>.html`, and `DocumentLinkTests` checks the gallery against the list.
-The examples of this engine's own have no link.
+On item 2: the render tests ran in the validation container after each of the three, and the
+examples did not until now. After `14e8549d` the 160 render and device memory tests passed there,
+after `9a4cdaad` the whole suite did (997, one audio skip), and after `6220a102` the 165 render
+tests with the bloom ones. Each time the examples were captured and compared on the desktop GPU,
+where the validation layer is not installed. Since then every example has been captured offscreen
+in the container as CI does, at `ac529628`, which holds all three, and all 41 ran with the layer
+on and no error. Pusher, built from a fresh package, ran clean with the layer as well. That run showed the
+package is a Release build, which turns the layer on only with `ENGINE_VULKAN_VALIDATION=1`, so
+CI's check of Pusher's log had nothing to read, and the workflow's step now sets it.

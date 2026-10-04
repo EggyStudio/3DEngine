@@ -65,8 +65,11 @@ jobs:
 
       # The game under games/, built from the package as a user's is, then played offscreen. It
       # opens on the menu, Enter starts it, the player walks toward the goal, and the frame is
-      # captured, its log checked as the examples' are.
+      # captured, its log checked as the examples' are. The package is a Release build, which turns
+      # the validation layer on only when asked, so the check has the layer to read.
       - name: Build and play the game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
         run: |
           build/pack.sh
           dotnet restore games/Pusher --force-evaluate
