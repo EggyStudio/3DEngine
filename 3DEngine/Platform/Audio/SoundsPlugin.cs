@@ -85,8 +85,12 @@ public sealed class SoundsPlugin : IPlugin
         }
 
         // Per-frame systems.
-        app.AddSystem(Stage.PreUpdate, AudioListenerSystem.Run);
-        app.AddSystem(Stage.PostUpdate, AudioUpdateSystem.Run);
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(AudioListenerSystem.Run, "AudioListenerSystem.Run")
+            .Read<EcsWorld>()
+            .Write<AudioServer>());
+        app.AddSystem(Stage.PostUpdate, new SystemDescriptor(AudioUpdateSystem.Run, "AudioUpdateSystem.Run")
+            .Read<Assets<Sound>>()
+            .Write<AudioServer>());
 
         Logger.Info("SoundsPlugin: Audio pipeline ready.");
     }
