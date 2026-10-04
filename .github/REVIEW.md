@@ -66,3 +66,5 @@ None open.
   session commits locally, and CLAUDE.md and COMMITS.md say so.
 - **Decision 3.** The owner admitted NLayer on 2026-10-04. MP3 sounds and music are read through
   it, DESIGN.md §8 lists it, and FLAC stays unread, as TODO.md says.
+- **Now 3.** Asked in the working session on 2026-10-04, the owner chose `5.0`, so
+  `build/version.txt` holds it and the next package is `5.0.0`, past 4.0.1 on nuget.org.
