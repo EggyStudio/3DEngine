@@ -397,7 +397,8 @@ void SetState<TState>(TState value);                    // Move it there at the 
 bool IsState<TState>(TState value);                     // Whether it is there, false for one with no value
 ```
 
-Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]` and `[InState(...)]`.
+Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)]`,
+`[OnTransition(Screen.Pause, Screen.Play)]` and `[InState(...)]`.
 
 ## Scenes
 

@@ -16,8 +16,9 @@ namespace Engine;
 /// <para>
 /// Each stage method is a system of its own, named after the behavior, the stage and the method,
 /// so a behavior may have any number of methods on one stage, each with its own <c>[RunIf]</c>
-/// and <c>[ToggleKey]</c>. <c>[OnEnter]</c> and <c>[OnExit]</c> stand in for a stage and register
-/// the method on a state transition, and <c>[InState]</c> adds a run condition. A method the
+/// and <c>[ToggleKey]</c>. <c>[OnEnter]</c>, <c>[OnExit]</c> and <c>[OnTransition]</c> stand in
+/// for a stage and register the method on a state transition, and <c>[InState]</c> adds a run
+/// condition. A method the
 /// generator cannot call is reported (E3D001 to E3D005) and
 /// left out, so the error is on the method rather than in generated code. A field holding a
 /// reference other than a string is warned of (E3D006), since every copy of the behavior shares it.
@@ -47,6 +48,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         ("Engine.OnCleanupAttribute", Stage.Cleanup),
         ("Engine.OnEnterAttribute", Stage.OnEnter),
         ("Engine.OnExitAttribute", Stage.OnExit),
+        ("Engine.OnTransitionAttribute", Stage.OnTransition),
     ];
 
     private const string With = "Engine.WithAttribute";
@@ -167,7 +169,18 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
             }
 
             string? transition = null;
-            if (stages[0] is Stage.OnEnter or Stage.OnExit)
+            if (stages[0] is Stage.OnTransition)
+            {
+                var from = GetStateValue(method, "Engine.OnTransitionAttribute", 0, out var fromType);
+                var to = GetStateValue(method, "Engine.OnTransitionAttribute", 1, out var toType);
+                if (from is null || to is null || !SymbolEqualityComparer.Default.Equals(fromType, toType))
+                {
+                    spc.ReportDiagnostic(Diagnostic.Create(BadState, location, "OnTransition", method.Name));
+                    continue;
+                }
+                transition = $"{from}, {to}";
+            }
+            else if (stages[0] is Stage.OnEnter or Stage.OnExit)
             {
                 var attributeName = stages[0] == Stage.OnEnter ? "OnEnter" : "OnExit";
                 transition = GetStateValue(method, $"Engine.{attributeName}Attribute");
@@ -275,13 +288,19 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     /// where a number or a string is caught. A value with no member of its own, such as a cast
     /// number, is written as a cast.
     /// </remarks>
-    private static string? GetStateValue(IMethodSymbol m, string attributeName)
-    {
-        var a = m.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == attributeName);
-        if (a is null || a.ConstructorArguments.Length != 1) return null;
+    private static string? GetStateValue(IMethodSymbol m, string attributeName) => GetStateValue(m, attributeName, 0, out _);
 
-        var arg = a.ConstructorArguments[0];
+    // The attribute's argument at index as an enum value in source, with its enum type, or null
+    // when it is not an enum value.
+    private static string? GetStateValue(IMethodSymbol m, string attributeName, int index, out INamedTypeSymbol? type)
+    {
+        type = null;
+        var a = m.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == attributeName);
+        if (a is null || a.ConstructorArguments.Length <= index) return null;
+
+        var arg = a.ConstructorArguments[index];
         if (arg.Kind != TypedConstantKind.Enum || arg.Type is not INamedTypeSymbol enumType || arg.Value is null) return null;
+        type = enumType;
 
         var fqn = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
@@ -390,6 +409,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         {
             Stage.OnEnter => $"        app.OnEnter({m.Transition}, {BuildDescriptor(b, m)});\n",
             Stage.OnExit => $"        app.OnExit({m.Transition}, {BuildDescriptor(b, m)});\n",
+            Stage.OnTransition => $"        app.OnTransition({m.Transition}, {BuildDescriptor(b, m)});\n",
             _ => $"        app.AddSystem(Engine.Stage.{m.Stage}, {BuildDescriptor(b, m)});\n",
         }));
 
@@ -600,6 +620,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         // Not stages of the engine. A method carrying one runs on a state transition instead.
         OnEnter,
         OnExit,
+        OnTransition,
     }
 
     /// <summary>Component filter configuration extracted from [With], [Without], [Changed] and [Added] attributes.</summary>
@@ -627,7 +648,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         public (string Name, MemberKind Kind)? RunIf { get; init; }
         public (int Key, int Modifier, bool DefaultEnabled)? ToggleKey { get; init; }
 
-        /// <summary>For an OnEnter or OnExit method, the enum value as source.</summary>
+        /// <summary>For an OnEnter or OnExit method, the enum value as source, and for an OnTransition one the two.</summary>
         public string? Transition { get; init; }
 
         /// <summary>The enum value an [InState] names, as source.</summary>

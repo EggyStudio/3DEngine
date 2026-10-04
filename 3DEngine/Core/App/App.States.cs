@@ -128,6 +128,23 @@ public sealed partial class App
         return this;
     }
 
+    /// <summary>
+    /// Registers a system that runs once each time <typeparamref name="TState"/> moves from
+    /// <paramref name="from"/> to <paramref name="to"/>, after the exit systems of the one and
+    /// before the enter systems of the other.
+    /// </summary>
+    /// <returns>This <see cref="App"/> for chaining.</returns>
+    public App OnTransition<TState>(TState from, TState to, SystemFn system) where TState : struct, Enum =>
+        OnTransition(from, to, new SystemDescriptor(system));
+
+    /// <inheritdoc cref="OnTransition{TState}(TState, TState, SystemFn)"/>
+    /// <remarks>A run condition on the descriptor is asked when the transition runs.</remarks>
+    public App OnTransition<TState>(TState from, TState to, SystemDescriptor system) where TState : struct, Enum
+    {
+        Transitions().Machine<TState>().OnTransition(from, to, system);
+        return this;
+    }
+
     /// <summary>Registers a system that runs once each time <typeparamref name="TState"/> leaves <paramref name="state"/>.</summary>
     /// <returns>This <see cref="App"/> for chaining.</returns>
     public App OnExit<TState>(TState state, SystemFn system) where TState : struct, Enum =>

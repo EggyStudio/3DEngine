@@ -154,6 +154,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
 
     private readonly List<(TState Value, SystemDescriptor System)> _enter = [];
     private readonly List<(TState Value, SystemDescriptor System)> _exit = [];
+    private readonly List<(TState From, TState To, SystemDescriptor System)> _transition = [];
     // Told after every move, with the value entered or null when the state went away, as the
     // computed states worked out from this one are.
     private readonly List<Action<World, TState?>> _moved = [];
@@ -182,6 +183,8 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
     public void OnEnter(TState value, SystemDescriptor system) => _enter.Add((value, system));
 
     public void OnExit(TState value, SystemDescriptor system) => _exit.Add((value, system));
+
+    public void OnTransition(TState from, TState to, SystemDescriptor system) => _transition.Add((from, to, system));
 
     /// <summary>Registers an exit system ahead of those already registered, as a sub-state's removal is, which leaves before its parent.</summary>
     public void OnExitFirst(TState value, SystemDescriptor system) => _exit.Insert(0, (value, system));
@@ -247,6 +250,9 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         state.Previous = from;
         state.Current = target;
         Logger.Info($"State {typeof(TState).Name}: {from} -> {target}");
+        foreach (var (key, to, desc) in _transition)
+            if (Same.Equals(key, from) && Same.Equals(to, target))
+                RunOne(desc, world, from);
         Run(_enter, target, world);
         Moved(world, from, target);
         return true;
@@ -257,18 +263,20 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
     private static void Run(List<(TState Value, SystemDescriptor System)> systems, TState value, World world)
     {
         foreach (var (key, desc) in systems)
-        {
-            if (!Same.Equals(key, value)) continue;
-            if (desc.RunCondition is { } cond && !cond(world)) continue;
+            if (Same.Equals(key, value))
+                RunOne(desc, world, value);
+    }
 
-            try
-            {
-                desc.System(world);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Transition system '{desc.Name}' threw entering or leaving {typeof(TState).Name}.{value}", ex);
-            }
+    private static void RunOne(SystemDescriptor desc, World world, TState value)
+    {
+        if (desc.RunCondition is { } cond && !cond(world)) return;
+        try
+        {
+            desc.System(world);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Transition system '{desc.Name}' threw entering or leaving {typeof(TState).Name}.{value}", ex);
         }
     }
 }

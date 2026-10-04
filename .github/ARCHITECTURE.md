@@ -75,9 +75,11 @@ in the order they were added, and there is no before or after ordering.
 A state is an enum the game moves between, added with `app.AddState(Screen.Title)`, which inserts
 `State<Screen>` (the value it is in) and `NextState<Screen>` (a move waiting to happen).
 `app.OnEnter(value, system)` and `app.OnExit(value, system)` register systems that run once on a
-transition, and `BehaviorConditions.InState(value)` is a run condition. Moves are queued and
+transition, `app.OnTransition(from, to, system)` one that runs on a move from one value to a
+particular other, and `BehaviorConditions.InState(value)` is a run condition. Moves are queued and
 applied once a frame, after `PreUpdate`, by `StateTransitions`: the old value's exit systems run,
-then the new value's enter systems, in the order they were added, and the commands they queued
+then the systems of that particular move, then the new value's enter systems, in the order they
+were added, and the commands they queued
 apply at once so `Update` sees what they spawned. The first value is entered on the first frame.
 A move to the value already held does nothing. Each move is sent as a
 `StateTransition<Screen>(From, To)` event, readable until the next frame begins.
@@ -142,8 +144,8 @@ emits a system per method, so a behavior may have several methods on one stage:
 `[With]`, `[Without]`, `[Changed]` and `[Added]` filter the entities, `[RunIf(nameof(member))]` gates a method
 on a static bool, `[InState(Screen.Playing)]` gates it on a state, and `[ToggleKey]` lets a key
 switch it on and off, and when a method has several of these it runs only when all pass.
-`[OnEnter(value)]` and `[OnExit(value)]` take the place of a stage and register the method on a
-state transition. A method with the wrong signature, two stage attributes, a `[RunIf]` naming
+`[OnEnter(value)]`, `[OnExit(value)]` and `[OnTransition(from, to)]` take the place of a stage and
+register the method on a state transition. A method with the wrong signature, two stage attributes, a `[RunIf]` naming
 nothing usable, a state attribute whose argument is not an enum value or a filter naming a type no
 entity can have (an interface, a static class, an open generic) is reported on the method (E3D001
 to E3D005) and left out of what is generated. A field holding a reference other than a string is

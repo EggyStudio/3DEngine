@@ -32,10 +32,10 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Behaviors
 
-- **States lack attributes of their own.** `App.AddState`, `AddSubState`, `AddComputedState`,
-  `[OnEnter]`, `[OnExit]` and `[InState]` work, and each move is a `StateTransition` event. A
-  behavior cannot declare a sub-state or computed state by attribute, so they are added in code,
-  and a transition from one value to a particular other (`OnTransition`) has no system of its own.
+- **Sub-states and computed states are added in code.** `App.AddState`, `AddSubState`,
+  `AddComputedState`, `OnTransition`, `[OnEnter]`, `[OnExit]`, `[OnTransition]` and `[InState]`
+  work, and each move is a `StateTransition` event. An enum cannot declare by attribute that it is
+  a sub-state of a value or computed from another state, so those are added in code.
 - **Diagnostics have no fixes.** The generator reports a wrong signature, two stage attributes, a
   bad `[RunIf]`, a state attribute without an enum value, a filter on a type no entity can have
   (E3D001 to E3D005) and warns of a field holding a reference (E3D006). None comes with a code fix

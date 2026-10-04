@@ -158,6 +158,7 @@ public class BehaviorGeneratorTests
     [InlineData("public bool NotStatic; [OnUpdate, RunIf(nameof(NotStatic))] public static void Wrong(BehaviorContext ctx) { }", "E3D003")]
     [InlineData("[OnEnter(3)] public static void Wrong(BehaviorContext ctx) { }", "E3D004")]
     [InlineData("[OnUpdate, InState(\"Playing\")] public static void Wrong(BehaviorContext ctx) { }", "E3D004")]
+    [InlineData("public enum A { X } public enum B { Y } [OnTransition(A.X, B.Y)] public static void Wrong(BehaviorContext ctx) { }", "E3D004")]
     public void A_Method_That_Cannot_Run_Is_Reported_On_The_Method(string member, string id)
     {
         var (result, _) = Generate($$"""

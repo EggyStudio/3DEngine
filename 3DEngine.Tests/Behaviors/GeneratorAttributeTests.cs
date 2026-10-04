@@ -62,6 +62,7 @@ public class GeneratorAttributeTests
             [OnCleanup] public static void Cleanup(BehaviorContext ctx) => Probe.Ran(ctx, "Cleanup");
             [OnEnter(Mode.B)] public static void Enter(BehaviorContext ctx) => Probe.Ran(ctx, "Enter");
             [OnExit(Mode.B)] public static void Exit(BehaviorContext ctx) => Probe.Ran(ctx, "Exit");
+            [OnTransition(Mode.A, Mode.B)] public static void AToB(BehaviorContext ctx) => Probe.Ran(ctx, "Transition");
             [OnUpdate, InState(Mode.B)] public static void InB(BehaviorContext ctx) => Probe.Ran(ctx, "InState");
             [OnUpdate, RunIf(nameof(Allow))] public static void Allowed(BehaviorContext ctx) => Probe.Ran(ctx, "RunIf");
             [OnUpdate, ToggleKey(Key.T)] public static void Toggled(BehaviorContext ctx) => Probe.Ran(ctx, "ToggleKey");
@@ -102,6 +103,7 @@ public class GeneratorAttributeTests
         ["Engine.OnCleanupAttribute"] = "Cleanup",
         ["Engine.OnEnterAttribute"] = "Enter",
         ["Engine.OnExitAttribute"] = "Exit",
+        ["Engine.OnTransitionAttribute"] = "Transition",
         ["Engine.InStateAttribute"] = "InState",
         ["Engine.WithAttribute"] = "With",
         ["Engine.WithoutAttribute"] = "Without",
@@ -198,6 +200,7 @@ public class GeneratorAttributeTests
 
         Runs("RunIf").Should().Be(1, "[RunIf] runs once its condition holds");
         Runs("Enter").Should().Be(1, "[OnEnter] runs on entering its state");
+        Runs("Transition").Should().Be(1, "[OnTransition] runs on the move from A to B");
         Runs("InState").Should().Be(1, "[InState] runs in its state");
         Runs("ToggleKey").Should().Be(1, "pressing the key turned it off");
         Runs("Changed").Should().Be(1, "[Changed] sees the health updated since it last ran");
@@ -207,6 +210,7 @@ public class GeneratorAttributeTests
         next.GetType().GetMethod("Set")!.Invoke(next, [Enum.ToObject(mode, 0)]);
         Frame();
         Runs("Exit").Should().Be(1, "[OnExit] runs on leaving its state");
+        Runs("Transition").Should().Be(1, "the move back from B to A is another transition");
         Runs("InState").Should().Be(1, "[InState] stops outside its state");
         Runs("ToggleKey").Should().Be(1, "it stays off until the key is pressed again");
         Runs("Changed").Should().Be(1, "nothing changed again");
