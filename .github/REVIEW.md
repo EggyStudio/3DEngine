@@ -8,33 +8,36 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `2d610f1c`. The vertex ring (`a10259a6`) is settled by its numbers. Instanced draws
-(`2d610f1c`) were read, are settled as to speed, and raised the verdict below.
+Reviewed up to `79387328`. The getters and the sprite path (`73ab12bb`), translucent draws kept in
+order (`bf6f689e`) and `MeshEntityDraws` (`79387328`) are settled, on the numbers, the pixel test
+that fails on `2d610f1c` and the container run reported.
 
 ## Now
 
-In this order.
+Speed is past what the two games need, so caching instances across frames waits until a
+program asks for it. The order turns to what keeps the engine true to what it says. In this
+order.
 
-1. **The verdict below**, since a program that drew correctly before it draws wrongly after it.
-2. **The flat API's getters do not look a resource up each call**, which the batch in progress
-   has begun, with `DrawTexture`'s cost a sprite looked at beside it.
-3. **`MeshEntityDraws`**, which RENDERING.md §6 names as the largest cost left at the new count.
+1. **A test holds the cheatsheet to the API.** CLAUDE.md says every public function of the flat
+   API has its line in CHEATSHEET.md, and nothing checks it across the many functions the last
+   batches added. A test lists the public static methods of `Engine3D` by reflection, in the
+   test project only, and fails naming each one the cheatsheet lacks and each line the
+   cheatsheet has for a function that is gone.
+2. **The README followed by a stranger.** In the Ubuntu container, with no checkout mounted
+   beyond the packed package: a new console project, the package added, and the README's first
+   program typed as written, then built and run offscreen. Each step the README leaves out or
+   gets wrong is fixed in the README or BUILDING.md, and CI repeats the walk so it stays true.
+3. **Changes seen by a system that does not run every frame** (TODO.md, Core, the entry on
+   change bits lasting one frame). A `Changed` filter in `FixedUpdate` misses a change made in a
+   frame with no fixed step and sees one twice in a frame with two. Ticks in place of bits, each
+   system remembering the tick it last ran at, fix that for every schedule, and are what the
+   cached instances in TODO.md's cost entry would be built on later. Verified by a test of a
+   fixed-step system that sees each change once at low and at high frame rates.
 4. **TODO.md's order** from there.
 
 ## Verdicts
 
-1. **Batching draws a translucent model out of the order it was submitted in** (`2d610f1c`).
-   The model pipeline blends by alpha and writes depth (`ModelNode.cs`, `BlendEnabled: true`),
-   and `Gather` puts each draw into the batch its mesh and set first opened. A program that draws
-   its walls and then a glass cube of the same mesh as an earlier crate, as raylib programs do
-   with a tint whose alpha is below 255, has the glass drawn with the crates, before the walls
-   behind it, which the glass's depth then hides. Before this commit the order was the
-   program's. Draws whose color has alpha below 1 are to stay out of the opaque batches and be
-   drawn after them, in the order submitted for the flat API and from far to near for mesh
-   entities, batched only while consecutive draws share a mesh and set. Verified by a pixel test
-   of a half-clear quad submitted last, in front of a quad of another mesh and sharing its mesh
-   with an earlier opaque draw, showing the blend of the two. TODO.md's entry on the alpha mode
-   a file gives its material says what is left.
+None open.
 
 ## Decisions
 

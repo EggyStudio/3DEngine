@@ -63,6 +63,7 @@ void BeginMode2D(Camera2D camera);                       // Draw the following 2
 void EndMode2D();                                        // Return to screen pixels
 Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world point appears on the screen
 Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // The world point under a screen point
+Matrix4x4 GetCameraMatrix2D(Camera2D camera);            // The camera's world to screen transform
 
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
@@ -318,6 +319,7 @@ void UnloadEnvironmentMap();                                               // Ba
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
 void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
 bool IsModelAnimationValid(Model model, ModelAnimation anim);              // Whether a clip moves the bones a model has
+void UnloadModelAnimation(ModelAnimation animation);                       // Let a clip go
 void UnloadModelAnimations(ModelAnimation[] animations);                   // Let clips go
 
 void DrawModel(Model model, Vector3 position, float scale, Color tint);                                               // A model
@@ -407,6 +409,7 @@ IReadOnlyList<ContactStarted> GetPhysicsContacts();                             
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size
+Ray GetMouseRay(Vector2 mousePosition, Camera3D camera);                         // GetScreenToWorldRay by raylib's older name
 ```
 
 Bodies are BepuPhysics's, stepped at the fixed rate inside `BeginDrawing`, so a box is drawn by
