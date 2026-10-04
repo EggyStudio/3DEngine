@@ -454,6 +454,7 @@ void SeekMusicStream(Music music, float position);        // Move to a time in s
 bool IsMusicStreamPlaying(Music music);                   // Whether it is playing
 void SetMusicVolume(Music music, float volume);           // Volume (0 to 1)
 void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is as recorded
+void SetMusicPan(Music music, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
 float GetMusicTimeLength(Music music);                    // Length in seconds
 float GetMusicTimePlayed(Music music);                    // How far into it the music heard is, in seconds
 ```

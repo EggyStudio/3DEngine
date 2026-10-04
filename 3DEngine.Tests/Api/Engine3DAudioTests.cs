@@ -222,4 +222,20 @@ public sealed class Engine3DAudioTests : IDisposable
         SetSoundPan(sound, 0.75f);
         _backend.Pans[voice].Should().Be(0.5f, "0.75 is halfway from the middle to the right");
     }
+
+    [Fact]
+    public void Music_Pans_As_A_Sound_Does()
+    {
+        var music = LoadMusicStream(WriteWav());
+        SetMusicPan(music, 1);
+        PlayMusicStream(music);
+
+        var voice = _backend.Voices.Keys.Single();
+        _backend.Voices[voice].Pannable.Should().BeTrue();
+        _backend.Voices[voice].Pan.Should().Be(1, "1 is full right");
+
+        SetMusicPan(music, 0.25f);
+        _backend.Pans[voice].Should().Be(-0.5f);
+        UnloadMusicStream(music);
+    }
 }

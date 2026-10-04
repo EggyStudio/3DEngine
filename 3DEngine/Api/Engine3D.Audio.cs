@@ -24,6 +24,8 @@ public sealed class Music
 
     internal float Pitch { get; set; } = 1f;
 
+    internal float Pan { get; set; } = 0.5f;
+
     internal bool Paused { get; set; }
 
     // Where in the piece the voice started, how many frames have been queued since, and whether
@@ -81,32 +83,6 @@ internal sealed class OggMusicDecoder(string path) : IMusicDecoder
     public void Seek(long frame) => _reader.SamplePosition = Math.Clamp(frame, 0, TotalFrames);
 
     public void Dispose() => _reader.Dispose();
-}
-
-/// <summary>Plays a sound decoded whole, for WAV files.</summary>
-internal sealed class SoundMusicDecoder(Sound sound) : IMusicDecoder
-{
-    private long _frame;
-
-    public int Channels => sound.Channels;
-
-    public int SampleRate => sound.SampleRate;
-
-    public long TotalFrames => sound.Channels > 0 ? sound.Samples.Length / sound.Channels : 0;
-
-    public int Read(Span<float> buffer)
-    {
-        var start = (int)(_frame * Channels);
-        var count = Math.Min(buffer.Length / Channels * Channels, sound.Samples.Length - start);
-        if (count <= 0) return 0;
-        sound.Samples.AsSpan(start, count).CopyTo(buffer);
-        _frame += count / Channels;
-        return count;
-    }
-
-    public void Seek(long frame) => _frame = Math.Clamp(frame, 0, TotalFrames);
-
-    public void Dispose() { }
 }
 
 public static partial class Engine3D
@@ -277,11 +253,11 @@ public static partial class Engine3D
             return Path.GetExtension(path).ToLowerInvariant() switch
             {
                 ".ogg" => new Music(new OggMusicDecoder(path)),
-                ".wav" or ".wave" => new Music(new SoundMusicDecoder(WavSoundDecoder.Decode(File.ReadAllBytes(path), fileName))),
+                ".wav" or ".wave" => new Music(new WavMusicDecoder(path)),
                 var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis)."),
             };
         }
-        catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException)
+        catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)
         {
             ApiLogger.Warn($"LoadMusicStream: '{fileName}' could not be opened: {ex.Message}");
             return new Music(null);
@@ -382,6 +358,13 @@ public static partial class Engine3D
         music.Voice.SetPlaybackRate(music.Pitch);
     }
 
+    /// <summary>Sets a piece of music's balance, as raylib's 0 (left) to 1 (right) with 0.5 in the middle.</summary>
+    public static void SetMusicPan(Music music, float pan)
+    {
+        music.Pan = Math.Clamp(pan, 0f, 1f);
+        music.Voice.SetPan(music.Pan * 2 - 1);
+    }
+
     /// <summary>A piece of music's length in seconds.</summary>
     public static float GetMusicTimeLength(Music music) =>
         music.Decoder is { SampleRate: > 0 } decoder ? (float)decoder.TotalFrames / decoder.SampleRate : 0f;
@@ -402,7 +385,13 @@ public static partial class Engine3D
         music.Voice.Stop();
         frame = Math.Clamp(frame, 0, decoder.TotalFrames - 1);
         decoder.Seek(frame);
-        music.Voice = audio.PlayStream(decoder.Channels, decoder.SampleRate, new AudioVoiceParams { Volume = Math.Max(music.Volume, 1e-6f), PlaybackRate = music.Pitch });
+        music.Voice = audio.PlayStream(decoder.Channels, decoder.SampleRate, new AudioVoiceParams
+        {
+            Volume = Math.Max(music.Volume, 1e-6f),
+            PlaybackRate = music.Pitch,
+            Pannable = true,
+            Pan = music.Pan * 2 - 1,
+        });
         (music.StartFrame, music.FramesQueued, music.Paused, music.Ended) = (frame, 0, false, false);
         UpdateMusicStream(music);
     }

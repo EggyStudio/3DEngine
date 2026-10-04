@@ -67,8 +67,8 @@ physics, text and fonts, audio and text files
   name, and an immediate one the four `float4` slots as well, but no shader can bind a texture
   beyond the one it draws. Each draw with a shader's own uniforms takes a descriptor set from a pool
   of 4096 shared with textures, kept for four frames, so a frame has room for about a thousand.
-- **Audio is partial.** Sounds pan, but music does not, MP3 and FLAC are not read, and a WAV file
-  played as music is read whole rather than streamed.
+- **Audio reads WAV and Ogg Vorbis only.** MP3 and FLAC need a decoder the dependency policy
+  (DESIGN.md §8) has not admitted.
 - **Models are partial.** The flat API has no lights of its own, so models are lit by one fixed
   light, which shows their color, texture and normal map but not how metallic or rough they are,
   unless the ECS holds light entities. `UpdateModelAnimation` poses skinned meshes on the CPU, as raylib does by default,

@@ -231,31 +231,61 @@ public sealed class SdlAudioBackend : IAudioBackend
     {
         if (!_initialized || channels <= 0 || sampleRate <= 0) return 0;
         var srcSpec = new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = channels, Freq = sampleRate };
+        // A pannable voice is two streams fed the same samples, one to each channel, as a
+        // positional voice is.
+        var dstSpec = parameters.Pannable
+            ? new SDL.AudioSpec { Format = SDL.AudioFormat.AudioF32LE, Channels = 2, Freq = _deviceSpec.Freq }
+            : _deviceSpec;
         lock (_lock)
         {
-            var stream = SDL.CreateAudioStream(in srcSpec, in _deviceSpec);
-            if (stream == IntPtr.Zero)
+            var stream = CreateBoundStream(in srcSpec, in dstSpec);
+            if (stream == IntPtr.Zero) return 0;
+            var streamR = IntPtr.Zero;
+            if (parameters.Pannable)
             {
-                Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for a stream voice: {SDL.GetError()}");
-                return 0;
-            }
-            if (!SDL.BindAudioStream(_device, stream))
-            {
-                Logger.Warn($"SdlAudioBackend: BindAudioStream failed for a stream voice: {SDL.GetError()}");
-                SDL.DestroyAudioStream(stream);
-                return 0;
+                streamR = CreateBoundStream(in srcSpec, in dstSpec);
+                if (streamR == IntPtr.Zero)
+                {
+                    SDL.DestroyAudioStream(stream);
+                    return 0;
+                }
+                SDL.SetAudioStreamOutputChannelMap(stream, LeftOnlyMap, LeftOnlyMap.Length);
+                SDL.SetAudioStreamOutputChannelMap(streamR, RightOnlyMap, RightOnlyMap.Length);
             }
 
             var volume = parameters.Volume;
-            SDL.SetAudioStreamGain(stream, volume);
+            var pan = parameters.Pannable ? Math.Clamp(parameters.Pan, -1f, 1f) : 0f;
+            ApplyGainAndPan(stream, streamR, volume, pan);
             if (parameters.PlaybackRate > 0f && Math.Abs(parameters.PlaybackRate - 1f) > 1e-6f)
+            {
                 ApplyPlaybackRate(stream, parameters.PlaybackRate);
-            if (parameters.Paused) SDL.UnbindAudioStream(stream);
+                if (streamR != IntPtr.Zero) ApplyPlaybackRate(streamR, parameters.PlaybackRate);
+            }
 
             int id = _nextVoiceId++;
-            _voices[id] = new VoiceRecord(stream, IntPtr.Zero, null, Looping: false, parameters.Paused, volume, 0f, Channels: channels);
+            var rec = new VoiceRecord(stream, streamR, null, Looping: false, parameters.Paused, volume, pan, Channels: channels);
+            _voices[id] = rec;
+            if (parameters.Paused) SetBound(rec, bound: false);
             return id;
         }
+    }
+
+    // A stream from a source to a destination format, bound to the device, or 0 with the reason logged.
+    private IntPtr CreateBoundStream(in SDL.AudioSpec source, in SDL.AudioSpec destination)
+    {
+        var stream = SDL.CreateAudioStream(in source, in destination);
+        if (stream == IntPtr.Zero)
+        {
+            Logger.Warn($"SdlAudioBackend: CreateAudioStream failed for a stream voice: {SDL.GetError()}");
+            return IntPtr.Zero;
+        }
+        if (!SDL.BindAudioStream(_device, stream))
+        {
+            Logger.Warn($"SdlAudioBackend: BindAudioStream failed for a stream voice: {SDL.GetError()}");
+            SDL.DestroyAudioStream(stream);
+            return IntPtr.Zero;
+        }
+        return stream;
     }
 
     /// <inheritdoc />
@@ -266,7 +296,10 @@ public sealed class SdlAudioBackend : IAudioBackend
         {
             if (!_voices.TryGetValue(voiceId, out var rec) || rec.Channels == 0) return;
             fixed (float* data = samples)
+            {
                 SDL.PutAudioStreamData(rec.StreamL, (IntPtr)data, samples.Length * sizeof(float));
+                if (rec.StreamR != IntPtr.Zero) SDL.PutAudioStreamData(rec.StreamR, (IntPtr)data, samples.Length * sizeof(float));
+            }
         }
     }
 
