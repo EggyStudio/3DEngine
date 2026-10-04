@@ -8,27 +8,28 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `58924752`. The spot light's shadow (`51cac7a1`) and the `Added` filter with the
-generator's repair (`58924752`) are settled, on the tests reported.
+Reviewed up to `03d66fa2`. The generators' attribute tables with the test over them (`9bfd44e3`)
+and the masked shadow (`03d66fa2`) are settled, on the tests reported.
 
 ## Now
 
-`58924752` found that a behavior using `[Changed]` had not compiled since `e612ac63`, and the
-suite passed throughout because nothing in the repository used the attribute. In this order.
+In this order.
 
-1. **Every attribute the generators accept is compiled and run by a test.** One test project
-   input, or one theory, a case for each stage attribute, each filter (`[With]`, `[Without]`,
-   `[Changed]`, `[Added]`), `[RunIf]`, the state attributes, toggle keys, `[Command]` and
-   `[SceneComponent]`, each compiled through the generator and run for a frame with an assertion
-   that it ran when it should and not when it should not. The list of attributes is taken from
-   the generator's own table where it has one, so a new attribute without a case fails the test.
-2. **A masked surface casts the shadow of its cutout**, by a fragment stage in the shadow pass
-   that discards below the cutoff for masked draws only.
-3. **TODO.md's order** from there.
+1. **The verdict below.**
+2. **TODO.md's order** from there.
 
 ## Verdicts
 
-None open.
+1. **Two apps with ImGui in one process crash natively** (found by `9bfd44e3`, which moved its
+   test into the `"Engine3D"` collection to avoid it). Dear ImGui's current context is one
+   pointer for the process, `SdlImGuiPlugin` creates a context for each app, and a second app
+   built beside the first, as xUnit builds test classes, ends in a native crash with no managed
+   message. Putting each such test in a collection holds only until somebody writes one that is
+   not. The plugin is to make this impossible or loud: each app keeps its own context and sets
+   it current before every ImGui call it makes, under a lock where two threads could meet, or a
+   second context in a process is refused with an exception that says so. Whichever is chosen,
+   a test builds two apps with the default plugins at once and gets a working pair or the
+   exception, and ARCHITECTURE.md says which.
 
 ## Decisions
 

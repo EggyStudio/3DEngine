@@ -19,14 +19,36 @@ namespace Engine;
 /// In Vulkan mode, no <see cref="SdlImGuiRenderer"/> is created - the font atlas is built
 /// but not uploaded to an SDL texture; the Vulkan ImGui render node handles GPU upload.
 /// </para>
+/// <para>
+/// Dear ImGui keeps its current context in one variable for the whole process, and a program calls
+/// it directly between <c>BeginDrawing</c> and <c>EndDrawing</c>, so two apps using it at once would
+/// each draw into whichever context was made last, and two threads building fonts at once crash
+/// in native code. One app holds ImGui at a time. Building this plugin for a second app while the
+/// first is alive throws, and the first lets go when it shuts down (<see cref="App.Shutdown"/> or
+/// <c>CloseWindow</c>).
+/// </para>
 /// </remarks>
 /// <seealso cref="SdlImGuiRenderer"/>
 /// <seealso cref="SdlImGuiInput"/>
 public sealed class SdlImGuiPlugin : IPlugin
 {
+    // The app whose context ImGui holds, or null.
+    private static App? _holder;
+    private static readonly Lock HolderGate = new();
+
     /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Another app that has not shut down holds ImGui.</exception>
     public void Build(App app)
     {
+        lock (HolderGate)
+        {
+            if (_holder is not null && !ReferenceEquals(_holder, app))
+                throw new InvalidOperationException(
+                    "Dear ImGui has one context for the whole process, and another app that has not shut down holds it. " +
+                    "Shut that app down (App.Shutdown or CloseWindow) before building another with SdlImGuiPlugin or DefaultPlugins.");
+            _holder = app;
+        }
+
         var logger = Log.Category("Engine.ImGui");
         logger.Info("SdlImGuiPlugin: Creating ImGui context...");
         ImGui.CreateContext();
@@ -145,6 +167,7 @@ public sealed class SdlImGuiPlugin : IPlugin
                 }
             
                 ImGui.DestroyContext();
+                Release(app);
             }, "SdlImGuiPlugin.Cleanup")
             .MainThreadOnly()
             .Write<AppWindow>()
@@ -172,6 +195,17 @@ public sealed class SdlImGuiPlugin : IPlugin
             .Read<Time>());
 
         app.AddSystem(Stage.Last, new SystemDescriptor(_ => ImGui.EndFrame(), "SdlImGuiPlugin.EndFrame").MainThreadOnly());
-        app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => ImGui.DestroyContext(), "SdlImGuiPlugin.Cleanup").MainThreadOnly());
+        app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ =>
+        {
+            ImGui.DestroyContext();
+            Release(app);
+        }, "SdlImGuiPlugin.Cleanup").MainThreadOnly());
+    }
+
+    // Lets another app hold ImGui once this one's context is gone.
+    private static void Release(App app)
+    {
+        lock (HolderGate)
+            if (ReferenceEquals(_holder, app)) _holder = null;
     }
 }

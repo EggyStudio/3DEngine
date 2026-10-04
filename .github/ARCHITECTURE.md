@@ -47,6 +47,12 @@ drives the same app itself. `BeginDrawing` calls `App.BeginFrame()` (`First` to 
 `EndDrawing` calls `App.EndFrame()` (`PostUpdate` to `Last`), so the program's own drawing and
 ImGui calls happen between the game's update and the render.
 
+Dear ImGui has one current context for the whole process, and a program calls it directly, so
+one app holds it at a time. Building `SdlImGuiPlugin`, which `DefaultPlugins` does, for a second
+app while another that has not shut down holds it throws an `InvalidOperationException` that says
+so, and the holder lets go in `Cleanup`, when `App.Shutdown` or `CloseWindow` runs. Tests that
+build such apps share the `Engine3D` collection, so they run one after another.
+
 ## The schedule
 
 A system is a `SystemFn(World)` in a `SystemDescriptor`, which declares the resources it reads and
