@@ -2,6 +2,7 @@ using FluentAssertions;
 
 namespace Engine.Tests.Api;
 
+[Collection("Engine3D")]
 [Trait("Category", "Unit")]
 public class FontTests
 {
@@ -33,6 +34,40 @@ public class FontTests
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "3DEngine.slnx"))) directory = directory.Parent;
         return Path.Combine(directory!.FullName, "3DEngine.Examples", "resources", "fonts", "Lato-Regular.ttf");
+    }
+
+    [Fact]
+    public void A_Font_Drawn_Well_Past_Its_Size_Is_Baked_Again_At_That_Size_And_Measured_In_It()
+    {
+        var app = new App();
+        app.World.InitResource<TextureStore>();
+        app.World.InitResource<DrawList>();
+        Engine3D.UseApp(app);
+        try
+        {
+            var font = Engine3D.LoadFontEx(Lato(), 16);
+            var store = app.World.Resource<TextureStore>();
+            var before = store.Count;
+
+            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 18, 0, Color.White);
+            store.Count.Should().Be(before, "a size within a quarter of the bake is drawn from it");
+            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 62, 0, Color.White);
+            store.Count.Should().Be(before + 1, "62 pixels is baked again at 64");
+            Engine3D.DrawTextEx(font, "A", System.Numerics.Vector2.Zero, 63, 0, Color.White);
+            store.Count.Should().Be(before + 1, "and that bake serves the next size that rounds to it");
+
+            var drawn = app.World.Resource<DrawList>().Batches.Last().Texture;
+            drawn.Should().NotBe(font.Texture.Id, "large text is drawn from the larger bake");
+            var size = Engine3D.MeasureTextEx(font, "AAAA", 63, 0);
+            size.X.Should().BeApproximately(4 * font.ForSize(63).Glyphs['A'].Advance * 63 / 64, 0.01f, "it is measured in the bake it is drawn from");
+
+            Engine3D.UnloadFont(font);
+            store.Count.Should().Be(before - 1, "unloading the font frees its larger bakes too");
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
     }
 
     [Fact]

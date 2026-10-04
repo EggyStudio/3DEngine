@@ -294,11 +294,16 @@ public sealed class OffscreenRenderTests : IDisposable
             return (Count(image, 0, 0, 96, 128, c => c.R is > 30 and < 225), ink);
         }
 
-        var blurred = Strokes(plain);
+        // The coverage bake as it is, which a font loaded from a file is not drawn from this large,
+        // since it is baked again at the size.
+        var scaled = new Font(plain.Texture, plain.BaseSize, plain.LineHeight, plain.Glyphs.ToDictionary(), plain.Atlas);
+        var blurred = Strokes(scaled);
         var sharp = Strokes(sdf);
+        var rebaked = Strokes(plain);
         sharp.Ink.Should().BeGreaterThan(400, "the stroke is drawn");
         sharp.Ink.Should().BeApproximately(blurred.Ink, blurred.Ink * 0.3, "both draw the same stroke");
         sharp.Edge.Should().BeLessThan(blurred.Edge / 2, $"the distance field smooths over a pixel where a coverage bake scaled eight times smooths over eight, {sharp.Edge} against {blurred.Edge}");
+        rebaked.Edge.Should().BeLessThan(blurred.Edge / 2, "the coverage font baked again at 128 pixels is as sharp");
         UnloadFont(plain);
         UnloadFont(sdf);
     }

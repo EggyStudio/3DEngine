@@ -25,7 +25,9 @@ public enum FontType
 /// <summary>A font baked into a texture of glyphs at one size.</summary>
 /// <remarks>
 /// Drawing it at another size scales the glyphs, which blurs a bilinear atlas and blocks a
-/// point-filtered one, unless the font was loaded as <see cref="FontType.Sdf"/>.
+/// point-filtered one, unless the font was loaded as <see cref="FontType.Sdf"/>. A font loaded
+/// from a file is baked again at a larger size it is drawn at, a quarter or more past its own, so
+/// large text stays sharp, and that bake is kept for the next time.
 /// </remarks>
 public sealed class Font
 {
@@ -64,6 +66,37 @@ public sealed class Font
 
     /// <summary>Whether the font has an atlas to draw from.</summary>
     public bool IsValid => Texture.IsValid && Glyphs.Count > 0;
+
+    // Bakes the font's file again at a size, for a font loaded from one, and the bakes made, by size.
+    internal Func<int, Font?>? Rebake { get; private set; }
+
+    // The same font, able to bake itself again at larger sizes.
+    internal Font WithRebake(Func<int, Font?> rebake)
+    {
+        Rebake = rebake;
+        return this;
+    }
+    private readonly Dictionary<int, Font> _larger = [];
+
+    // At most this many larger bakes are kept, past which the largest serves bigger text.
+    private const int MaxBakes = 8;
+
+    /// <summary>The bakes made at larger sizes, which unloading the font frees with it.</summary>
+    internal IEnumerable<Font> Bakes => _larger.Values;
+
+    /// <summary>
+    /// The bake text <paramref name="fontSize"/> pixels high is drawn from: this font, or one baked
+    /// from its file at the size, rounded up to four pixels, when that is a quarter or more past
+    /// this one's.
+    /// </summary>
+    internal Font ForSize(float fontSize)
+    {
+        if (Rebake is null || Type == FontType.Sdf || fontSize < BaseSize * 1.25f) return this;
+        var size = Math.Min(256, (int)MathF.Ceiling(fontSize / 4) * 4);
+        if (_larger.TryGetValue(size, out var known)) return known;
+        if (_larger.Count >= MaxBakes) return _larger.Values.MaxBy(f => f.BaseSize)!;
+        return Rebake(size) is { IsValid: true } baked ? _larger[size] = baked : this;
+    }
 }
 
 public static partial class Engine3D
@@ -134,8 +167,8 @@ public static partial class Engine3D
             return GetFontDefault();
         }
 
-        return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, fontSize), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear)
-               ?? GetFontDefault();
+        Font? BakeAt(int size) => Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear);
+        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
     }
 
     /// <summary>
@@ -166,12 +199,15 @@ public static partial class Engine3D
 
         // The atlas reads the ranges when it builds, after AddFontFromFileTTF returns, so they stay
         // pinned until the bake is done.
-        fixed (ushort* pinned = ranges)
+        Font? BakeAt(int size)
         {
-            var address = (IntPtr)pinned;
-            return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, fontSize), null, address), TextureFilter.Bilinear)
-                   ?? GetFontDefault();
+            fixed (ushort* pinned = ranges)
+            {
+                var address = (IntPtr)pinned;
+                return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, address), TextureFilter.Bilinear);
+            }
         }
+        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
     }
 
     /// <summary>
@@ -320,10 +356,12 @@ public static partial class Engine3D
         return [.. ranges];
     }
 
-    /// <summary>Frees a font's atlas. The default fonts are kept.</summary>
+    /// <summary>Frees a font's atlas, and those it was baked into at larger sizes. The default fonts are kept.</summary>
     public static void UnloadFont(Font font)
     {
-        if (!ReferenceEquals(font, _defaultFont) && !DefaultFontSizes.ContainsValue(font)) UnloadTexture(font.Texture);
+        if (ReferenceEquals(font, _defaultFont) || DefaultFontSizes.ContainsValue(font)) return;
+        UnloadTexture(font.Texture);
+        foreach (var bake in font.Bakes) UnloadTexture(bake.Texture);
     }
 
     /// <summary>Draws text with a font at <paramref name="position"/>, its top left corner, <paramref name="fontSize"/> pixels high, with <paramref name="spacing"/> pixels between characters.</summary>
@@ -339,6 +377,7 @@ public static partial class Engine3D
     public static void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint)
     {
         if (!font.IsValid || string.IsNullOrEmpty(text)) return;
+        font = font.ForSize(fontSize);
 
         // A distance field font is drawn through the engine's shader unless the program has one
         // of its own in place.
@@ -404,6 +443,7 @@ public static partial class Engine3D
     public static void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
     {
         if (!font.IsValid || !font.Atlas.IsValid || string.IsNullOrEmpty(text)) return;
+        font = font.ForSize(fontSize);
 
         var scale = fontSize / font.BaseSize;
         var pen = position;
@@ -430,6 +470,8 @@ public static partial class Engine3D
     public static Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing)
     {
         if (!font.IsValid || string.IsNullOrEmpty(text)) return Vector2.Zero;
+        // Measured in the bake it is drawn from, whose glyphs advance by their own whole pixels.
+        font = font.ForSize(fontSize);
         var scale = fontSize / font.BaseSize;
         float width = 0, line = 0;
         var lines = 1;

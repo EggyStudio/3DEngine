@@ -60,10 +60,11 @@ physics, text and fonts, audio and text files
   `ModelRef` stands at rest. A material the program makes draws both sides of each face unless
   `DoubleSided` is cleared, so `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's
   does.
-- **Fonts bake at one size each**, and a coverage font drawn far larger than its bake blurs, where
-  one loaded as `FontType.Sdf` stays sharp. A font has Latin-1 or the characters it was asked for,
-  and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names characters
-  in 16 bits.
+- **Fonts reach the Basic Multilingual Plane only.** A coverage font loaded from a file is baked
+  again at a size it is drawn at a quarter or more past its own, eight sizes at most, and one
+  loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the characters it was
+  asked for, and characters above U+FFFF (most emoji) cannot be baked, because ImGui's atlas names
+  characters in 16 bits.
 
 ### Meshes, materials and light
 
