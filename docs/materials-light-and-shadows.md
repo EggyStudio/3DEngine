@@ -175,8 +175,8 @@ sky and a rough one takes its colors. The
 ## Rooms that reflect themselves
 
 Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces
-reflect what is around its middle instead, captured from what the window draws a frame or two
-after it is made. The `models_reflection_probe` example puts one in a room of three colored walls:
+reflect what is around its middle instead, captured from the meshes the window draws, or a render
+texture's when the window draws none, a frame or two after it is made. The `models_reflection_probe` example puts one in a room of three colored walls:
 
 ```csharp
 var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));

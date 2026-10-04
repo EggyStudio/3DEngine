@@ -292,16 +292,15 @@ left out of the shadow map (`ModelDraw.CastsShadow`).
 
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
-and before its passes, captures the first probe out of date, one a frame: the window's batches
-are drawn through six views of a right angle from the probe's middle into render targets of 64
-texels (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the
-window's lighting buffer at a quarter exposure (`environment.w`, which `toDisplay` scales by, so
-light up to four times the tonemap's knee survives the eight bits), cleared to the window's clear
-color, and read back at the end of the frame (`GraphicsDevice.RequestReadback`,
-a stall a capture can take). A worker thread maps each direction to the face looking most nearly
-along it, through that face's own view-projection, decodes the color, undoes the tonemap and the
-exposure, and
-prefilters the result as an environment map of faces 32 texels wide with its irradiance
+and before its passes, captures the first probe out of date, one a frame. The window's batches,
+or the first render target's when the window draws no meshes, are drawn through six views of a
+right angle from the probe's middle into half-float render targets of 64 texels
+(`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the window's
+lighting buffer with its output flag set, so the light stays linear and as bright as it was drawn,
+cleared to the window's clear color in linear light, and read back at the end of the frame
+(`GraphicsDevice.RequestReadback`, a stall a capture can take). A worker thread maps each direction
+to the face looking most nearly along it, through that face's own view-projection, and prefilters
+the result as an environment map of faces 32 texels wide with its irradiance
 (`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
 so the metal in its room reflects the room in the capture rather than the sky. Four probes with a
 capture, those whose boxes come nearest the camera, are bound at set 1's bindings 5 to 8, and the

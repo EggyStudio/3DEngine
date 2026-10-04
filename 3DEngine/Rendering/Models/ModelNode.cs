@@ -1124,7 +1124,8 @@ public sealed class ModelRenderer : IDisposable
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
-            || (frame.LightCount == 0 && !frame.HasEnvironment && !frame.Linear && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
+            || (frame.LightCount == 0 && !frame.HasEnvironment && !frame.Linear && target != ProbeCaptureLights
+                && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
         {
             if (_noLights is null)
             {
@@ -1237,27 +1238,32 @@ public sealed class ModelRenderer : IDisposable
 
     /// <summary>
     /// Captures the first probe whose capture is out of date, drawing the window's meshes from its
-    /// position into six faces, which are read back at the end of the frame and prefiltered on a
-    /// worker thread. One a frame, and none while nothing is drawn into the window. A probe is
-    /// captured twice, the second time with the first bound, so the metal in its room reflects the
-    /// room in the capture rather than the sky.
+    /// position into six faces, or the first render target's when the window draws none, which are
+    /// read back at the end of the frame and prefiltered on a worker thread. One a frame, and none
+    /// while no meshes are drawn. A probe is captured twice, the second time with the first bound,
+    /// so the metal in its room reflects the room in the capture rather than the sky.
     /// </summary>
     public void CaptureProbes(RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<ReflectionProbes>() is not { } probes || renderContext.Device is not GraphicsDevice device) return;
-        if (renderWorld.TryGet<ModelDrawList>() is not { WindowViewProjection: not null }) return;
+        if (renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } draws) return;
+        var source = draws.WindowViewProjection is not null ? 0 : draws.Targets() is [var first, ..] ? first : (int?)null;
+        if (source is null) return;
         var probe = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
         if (probe is null) return;
 
         if (_probeFaces is null)
         {
-            _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize))];
+            // Half floats, so a lamp or a sunlit wall comes back as bright as it was drawn.
+            _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float))];
             for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
         }
         var wanted = probe.Wanted;
         var eye = wanted.Position;
-        // Cleared as the window is, so an opening shows what the window shows past the room.
-        var clear = renderWorld.TryGet<ClearColor>() is { } windowClear ? windowClear with { A = 1 } : ClearColor.Black;
+        // Cleared as the window is, in linear light, so an opening shows what the window shows past the room.
+        var clear = renderWorld.TryGet<ClearColor>() is { } windowClear
+            ? new ClearColor(BloomRenderer.SrgbToLinear(windowClear.R), BloomRenderer.SrgbToLinear(windowClear.G), BloomRenderer.SrgbToLinear(windowClear.B), 1)
+            : ClearColor.Black;
         var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
         projection.M22 = -projection.M22;
         var viewProjections = new Matrix4x4[6];
@@ -1273,7 +1279,7 @@ public sealed class ModelRenderer : IDisposable
                 target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
             pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
             pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-            Draw(pass, target.RenderPass, renderContext, renderWorld, 0, viewProjections[f], ProbeCaptureLights);
+            Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, viewProjections[f], ProbeCaptureLights);
             pass.EndRenderPass();
 
             var face = f;
@@ -1283,7 +1289,7 @@ public sealed class ModelRenderer : IDisposable
                 if (++arrived < 6) return;
                 Task.Run(() =>
                 {
-                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye, exposure: ReflectionProbes.CaptureExposure);
+                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye);
                     probe.Done = new ReflectionProbes.Capture(map, wanted);
                 });
             });

@@ -70,15 +70,17 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### Meshes, materials and light
 
-- **Probes capture what the window draws.** The model pass reflects up to 16 light
+- **Probes capture once and on the CPU.** The model pass reflects up to 16 light
   entities and an environment map by the material's metallic-roughness model, its diffuse light
   from nine spherical harmonics of irradiance (RENDERING.md §3 and §4), and inside a reflection
   probe's box the probe's capture in place of the map. The map is made on the CPU in a few
-  hundred milliseconds. A probe is captured into eight-bit targets at a quarter exposure, so light
-  past about 3.6 comes back dimmer than it was, and it captures what the window draws, so a probe
-  in a room the window does not show waits until it does. A mesh entity and an `AnimatedModel` are
-  drawn into the window through the first camera entity without a render texture, and into each
-  camera entity's render texture, each with its shadow fitted to its own camera.
+  hundred milliseconds. A probe is captured in half floats from the meshes the window draws, or the
+  first render target's when it draws none, and its room is read back and prefiltered on a worker
+  thread, so a probe is captured again only when it moves or `UpdateReflectionProbe` asks, and a
+  door opening in its room or a lamp going out is not seen until then. A mesh entity and an
+  `AnimatedModel` are drawn into the window through the first camera entity without a render
+  texture, and into each camera entity's render texture, each with its shadow fitted to its own
+  camera.
 - **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
   which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
   pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex

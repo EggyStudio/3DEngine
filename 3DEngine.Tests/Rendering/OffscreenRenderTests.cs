@@ -1357,14 +1357,47 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
-    public void A_Probe_Keeps_Light_Brighter_Than_The_Tonemap_Lets_A_Frame_Show()
+    public void A_Probe_Captures_A_Room_Drawn_Only_Into_A_Render_Texture()
     {
         Open(64, 64);
-        // A dark room whose wall at +X gives off three times white light, past what a byte after
-        // the tonemap can hold at an exposure of 1.
+        CreatePointLight(new Vector3(0, 1, 0), Color.White, 6);
+        var room = LoadModelFromMesh(GenMeshCube(6, 6, 6));
+        room.Materials[0] = new ModelMaterial(new Color(220, 40, 40)) { DoubleSided = true };
+        var target = LoadRenderTexture(32, 32);
+        var camera = new Camera3D(new Vector3(0, 0, 2), Vector3.Zero, Vector3.UnitY, 60);
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(6, 6, 6));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++)
+        {
+            BeginDrawing();
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(room, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            EndTextureMode();
+            ClearBackground(Color.Black);
+            EndDrawing();
+            Thread.Sleep(5);
+        }
+        IsReflectionProbeReady(probe).Should().BeTrue("a probe captures the meshes a render texture draws when the window draws none");
+
+        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
+        var texel = (map.Size * map.Size / 2 + map.Size / 2) * 4;
+        ((float)map.Texels[texel]).Should().BeGreaterThan(2 * (float)map.Texels[texel + 2], "the capture holds the red room");
+        UnloadReflectionProbe(probe);
+        UnloadRenderTexture(target);
+        UnloadModel(room);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Probe_Keeps_Light_Many_Times_Brighter_Than_A_Frame_Shows()
+    {
+        Open(64, 64);
+        // A dark room whose wall at +X gives off twelve times white light, far past what a byte
+        // after the tonemap holds.
         CreatePointLight(new Vector3(0, 0, 0), Color.White, 0.1f);
         var wall = LoadModelFromMesh(GenMeshCube(0.2f, 6, 6));
-        wall.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveIntensity = 3 };
+        wall.Materials[0] = new ModelMaterial(Color.Black) { Emissive = Color.White, EmissiveIntensity = 12 };
         var room = LoadModelFromMesh(GenMeshCube(6, 6, 6));
         var camera = new Camera3D(new Vector3(0, 0, 2), new Vector3(1, 0, 0), Vector3.UnitY, 60);
         void Draw()
@@ -1389,7 +1422,7 @@ public sealed class OffscreenRenderTests : IDisposable
         var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
         // The first mip's +X face, a mirror's view of the glowing wall.
         var bright = (float)map.Texels[(map.Size * map.Size / 2 + map.Size / 2) * 4];
-        bright.Should().BeGreaterThan(2.5f, "light past the tonemap's knee comes back from a capture drawn at a quarter exposure");
+        bright.Should().BeGreaterThan(8, "a capture in half floats holds the light as it was drawn, where eight bits at a quarter exposure held 6.4 at most");
         UnloadReflectionProbe(probe);
         UnloadModel(wall);
         UnloadModel(room);

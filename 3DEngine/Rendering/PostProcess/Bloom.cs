@@ -309,7 +309,7 @@ public sealed class BloomRenderer : IDisposable
         }
     }
 
-    private static float SrgbToLinear(float c) =>
+    internal static float SrgbToLinear(float c) =>
         c <= 0.04045f ? c / 12.92f : MathF.Pow((Math.Max(c, 0) + 0.055f) / 1.055f, 2.4f);
 
     /// <inheritdoc />

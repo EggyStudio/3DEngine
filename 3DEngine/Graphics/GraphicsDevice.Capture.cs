@@ -88,8 +88,8 @@ public sealed unsafe partial class GraphicsDevice
 
     /// <summary>
     /// Asks for a render target's color image as the frame being recorded leaves it, as four bytes
-    /// a pixel (red, green, blue, alpha), rows from the top, handed to <paramref name="done"/> on
-    /// the thread that submits the frame.
+    /// a pixel (red, green, blue, alpha), or four half floats for a half-float target, rows from
+    /// the top, handed to <paramref name="done"/> on the thread that submits the frame.
     /// </summary>
     /// <remarks>
     /// The submit waits for the copy, as a capture's does, so a readback costs the frame a stall,
@@ -106,7 +106,8 @@ public sealed unsafe partial class GraphicsDevice
         foreach (var (image, done) in _readbacks)
         {
             var extent = image.Description.Extent;
-            var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+            var bytes = image.Description.Format == ImageFormat.R16G16B16A16_Float ? 8 : 4;
+            var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * bytes), BufferUsage.TransferDst, CpuAccessMode.Read));
             PipelineBarrier(cmd, ImageBarrier(image.Image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
                 VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ColorAttachmentWrite,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
@@ -129,12 +130,12 @@ public sealed unsafe partial class GraphicsDevice
     {
         _deviceApi.vkWaitForFences(fence, true, ulong.MaxValue).CheckResult();
         var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
-        foreach (var (buffer, _, done) in readbacks)
+        foreach (var (buffer, image, done) in readbacks)
         {
             try
             {
                 var pixels = Map(buffer).ToArray();
-                if (bgra)
+                if (bgra && image.Description.Format != ImageFormat.R16G16B16A16_Float)
                     for (int i = 0; i < pixels.Length; i += 4)
                         (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
                 done(pixels);
