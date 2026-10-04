@@ -495,6 +495,9 @@ public enum Pause { Running, Paused }
 public static InGame? FromScreen(Screen screen) => screen is Screen.Playing ? InGame.Yes : null;
 ```
 
+An entity tied to a value with `ecs.DespawnOnExit(entity, Screen.Playing)` is despawned, with what is
+below it, when the state leaves that value, so a level goes with the state that built it.
+
 ## Scenes
 
 ```csharp

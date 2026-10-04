@@ -211,7 +211,11 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
     {
         if (!world.TryGetResource<State<TState>>(out var state)) return;
         var from = state.Current;
-        if (_entered) Run(_exit, from, world);
+        if (_entered)
+        {
+            Run(_exit, from, world);
+            DespawnTied(world, from);
+        }
         world.RemoveResource<State<TState>>();
         world.RemoveResource<NextState<TState>>();
         _entered = false;
@@ -247,6 +251,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
 
         var from = state.Current;
         Run(_exit, from, world);
+        DespawnTied(world, from);
         state.Previous = from;
         state.Current = target;
         Logger.Info($"State {typeof(TState).Name}: {from} -> {target}");
@@ -256,6 +261,12 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         Run(_enter, target, world);
         Moved(world, from, target);
         return true;
+    }
+
+    // The entities tied to the value left, despawned once its exit systems have run.
+    private static void DespawnTied(World world, TState value)
+    {
+        if (world.TryGetResource<EcsWorld>(out var ecs)) ecs.DespawnTiedTo(value);
     }
 
     // Runs one after another in the order registered, because a transition is a sequence (save,

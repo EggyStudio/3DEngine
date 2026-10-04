@@ -95,6 +95,12 @@ it a sub-state entered at its first member or at `Initial`, and `[ComputedState]
 from the source enum to the computed one, nullable, makes the method its `compute`. The generated
 registration adds them before the behaviors.
 
+`ecs.DespawnOnExit(entity, Screen.Playing)` gives an entity a `DespawnOnExit<Screen>` component, and
+when the state leaves that value, by a move or by a sub-state ending with its parent's value, the
+entity and every entity below it are despawned, after the value's exit systems, which can still
+read them. A game's level or menu goes with the state that made it, with no list of its own to
+clear.
+
 ## The ECS
 
 `EcsWorld` is a resource. Each component type has a sparse set: an array from entity to dense

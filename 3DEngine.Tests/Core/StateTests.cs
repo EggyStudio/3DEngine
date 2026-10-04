@@ -232,4 +232,55 @@ public class StateTests
         log.Should().Equal("enter Menu", "exit InGame");
         app.World.ContainsResource<State<InGame>>().Should().BeFalse();
     }
+
+    [Fact]
+    public void An_Entity_Tied_To_A_Value_Goes_With_Its_Children_When_The_State_Leaves_It()
+    {
+        var (app, log) = Machine();
+        new EcsPlugin().Build(app);
+        var ecs = app.World.Resource<EcsWorld>();
+        var seenOnExit = false;
+        int level = 0, child = 0;
+        app.OnEnter(Screen.Playing, _ =>
+        {
+            level = ecs.Spawn();
+            ecs.DespawnOnExit(level, Screen.Playing);
+            child = ecs.Spawn();
+            ecs.Add(child, new Parent(ecs.Handle(level)));
+        });
+        app.OnExit(Screen.Playing, _ => seenOnExit = ecs.IsAlive(level));
+        app.Frame();
+        // By its handle, since the level spawned on entering play may take the menu entity's id.
+        var menu = ecs.Handle(ecs.Spawn());
+        ecs.DespawnOnExit(menu, Screen.Menu);
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        ecs.IsAlive(menu).Should().BeFalse("the menu's entity went when the state left the menu");
+        (ecs.IsAlive(level), ecs.IsAlive(child)).Should().Be((true, true), "the level lives while the state is in Playing");
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Paused);
+        app.Frame();
+        seenOnExit.Should().BeTrue("the exit systems run before the despawn and can still read the entity");
+        (ecs.IsAlive(level), ecs.IsAlive(child)).Should().Be((false, false), "leaving Playing takes the level and what is below it");
+    }
+
+    [Fact]
+    public void An_Entity_Tied_To_A_Sub_State_Goes_When_Its_Parent_Leaves_Its_Value()
+    {
+        var (app, _) = Machine();
+        new EcsPlugin().Build(app);
+        app.AddSubState(Screen.Playing, Pause.Running);
+        var ecs = app.World.Resource<EcsWorld>();
+        app.Frame();
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+
+        var hint = ecs.Spawn();
+        ecs.DespawnOnExit(hint, Pause.Running);
+        app.World.Resource<NextState<Screen>>().Set(Screen.Menu);
+        app.Frame();
+
+        ecs.IsAlive(hint).Should().BeFalse("the pause ended with play, and the entity with it");
+    }
 }
