@@ -316,7 +316,11 @@ public sealed unsafe partial class GraphicsDevice
         BindDescriptorSet(commandBuffer, pipeline, descriptorSet, 0);
 
     /// <inheritdoc />
-    public void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
+    public void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index) =>
+        BindDescriptorSet(commandBuffer, pipeline, descriptorSet, index, []);
+
+    /// <inheritdoc />
+    public void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd)
             throw new ArgumentException("Command buffer was not created by this device.", nameof(commandBuffer));
@@ -328,7 +332,9 @@ public sealed unsafe partial class GraphicsDevice
         VkDescriptorSet* sets = stackalloc VkDescriptorSet[1];
         sets[0] = vkSet.Handle;
 
-        _deviceApi.vkCmdBindDescriptorSets(vkCmd.Handle, VkPipelineBindPoint.Graphics, vkPipeline.Layout, index, 1, sets, 0, null);
+        fixed (uint* offsets = dynamicOffsets)
+            _deviceApi.vkCmdBindDescriptorSets(vkCmd.Handle, VkPipelineBindPoint.Graphics, vkPipeline.Layout, index, 1, sets,
+                (uint)dynamicOffsets.Length, offsets);
     }
 
     /// <inheritdoc />

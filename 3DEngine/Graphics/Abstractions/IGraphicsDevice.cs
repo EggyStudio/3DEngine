@@ -141,6 +141,10 @@ public interface IGraphicsDevice : IDisposable
     /// <summary>Binds a descriptor set at set index <paramref name="index"/> of the pipeline's layout.</summary>
     void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index);
 
+    /// <summary>Binds a descriptor set with an offset for each of its dynamic uniform buffers, in binding order.</summary>
+    void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets) =>
+        BindDescriptorSet(commandBuffer, pipeline, descriptorSet, index);
+
     /// <summary>Issues a non-indexed draw call.</summary>
     /// <param name="commandBuffer">The active command buffer.</param>
     /// <param name="vertexCount">Number of vertices to draw.</param>

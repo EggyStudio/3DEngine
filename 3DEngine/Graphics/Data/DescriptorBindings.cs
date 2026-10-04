@@ -6,7 +6,12 @@ public enum DescriptorType
     /// <summary>Uniform buffer (UBO).</summary>
     UniformBuffer,
     /// <summary>Combined image sampler (texture + sampler).</summary>
-    CombinedImageSampler
+    CombinedImageSampler,
+    /// <summary>
+    /// Uniform buffer whose offset is given when the set is bound, so one set serves every draw
+    /// that reads its own slice of one buffer.
+    /// </summary>
+    UniformBufferDynamic,
 }
 
 /// <summary>Describes a single binding within a descriptor set layout.</summary>
@@ -21,7 +26,8 @@ public readonly record struct DescriptorSetLayoutBinding(uint Binding, Descripto
 /// <param name="Binding">Shader binding slot index.</param>
 /// <param name="Offset">Byte offset into the buffer.</param>
 /// <param name="Size">Byte size of the bound range.</param>
-public readonly record struct UniformBufferBinding(IBuffer Buffer, uint Binding, ulong Offset, ulong Size);
+/// <param name="Dynamic">Whether the binding is a <see cref="DescriptorType.UniformBufferDynamic"/>, whose bind adds an offset to <paramref name="Offset"/>.</param>
+public readonly record struct UniformBufferBinding(IBuffer Buffer, uint Binding, ulong Offset, ulong Size, bool Dynamic = false);
 
 /// <summary>Binding descriptor for a combined image sampler within a descriptor set.</summary>
 /// <param name="ImageView">The image view providing the texture data.</param>

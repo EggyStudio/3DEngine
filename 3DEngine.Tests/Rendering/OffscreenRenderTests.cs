@@ -618,4 +618,35 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(plane);
         UnloadEnvironmentMap();
     }
+
+    [NeedsVulkanFact]
+    public void Draws_Differing_Only_In_Color_Share_One_Set_And_Keep_Their_Colors()
+    {
+        Open(64, 32);
+        var camera = new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY, 45);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+
+        // A row of cubes, each a shade of its own, and the two ends red and blue.
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            for (int i = 0; i < 300; i++)
+            {
+                var color = i == 0 ? new Color(255, 0, 0) : i == 299 ? new Color(0, 0, 255) : new Color((byte)i, (byte)(i / 2), 0);
+                // The ends 10 units away, 3 either side of the middle, and the rest far behind.
+                var at = i == 0 ? new Vector3(-3, 0, 0) : i == 299 ? new Vector3(3, 0, 0) : new Vector3(0, 0, -20 - i);
+                DrawModel(cube, at, 1, color);
+            }
+            EndMode3D();
+        });
+
+        GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>().MaterialSetCount
+            .Should().Be(1, "every cube has the same maps, and its factors reach it by an offset");
+        var left = GetImageColor(image, 20, 16);
+        var right = GetImageColor(image, 44, 16);
+        (left.R > 100 && left.B < 20).Should().BeTrue($"the leftmost cube is red, not {left}");
+        (right.B > 100 && right.R < 20).Should().BeTrue($"the rightmost cube is blue, not {right}");
+        UnloadModel(cube);
+    }
 }

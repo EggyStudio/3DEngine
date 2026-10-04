@@ -70,16 +70,18 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateDescriptorSetLayout(&layoutInfo, null, out _cameraSetLayout).CheckResult();
         Logger.Debug("Descriptor set layout created.");
 
-        Logger.Debug("Creating descriptor pool (4096 UBOs + 4096 samplers, maxSets=4096)...");
-        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[2];
+        Logger.Debug("Creating descriptor pool (4096 UBOs, 4096 dynamic UBOs and 16384 samplers, maxSets=4096)...");
+        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[3];
         poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
-        poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 4096);
+        // A model pass set holds five maps, so samplers run out first.
+        poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 16384);
+        poolSizes[2] = new VkDescriptorPoolSize(VkDescriptorType.UniformBufferDynamic, 4096);
 
         VkDescriptorPoolCreateInfo poolInfo = new()
         {
             flags = VkDescriptorPoolCreateFlags.FreeDescriptorSet,
             maxSets = 4096,
-            poolSizeCount = 2,
+            poolSizeCount = 3,
             pPoolSizes = poolSizes
         };
 
@@ -162,6 +164,7 @@ public sealed unsafe partial class GraphicsDevice
                 {
                     DescriptorType.UniformBuffer => VkDescriptorType.UniformBuffer,
                     DescriptorType.CombinedImageSampler => VkDescriptorType.CombinedImageSampler,
+                    DescriptorType.UniformBufferDynamic => VkDescriptorType.UniformBufferDynamic,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 descriptorCount = bindings[i].Count,
@@ -242,7 +245,7 @@ public sealed unsafe partial class GraphicsDevice
                 dstSet = vkSet.Handle,
                 dstBinding = ub.Binding,
                 descriptorCount = 1,
-                descriptorType = VkDescriptorType.UniformBuffer,
+                descriptorType = ub.Dynamic ? VkDescriptorType.UniformBufferDynamic : VkDescriptorType.UniformBuffer,
                 pBufferInfo = &bufferInfos[0]
             };
         }

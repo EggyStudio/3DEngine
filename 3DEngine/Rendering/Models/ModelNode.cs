@@ -75,14 +75,29 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSetLayout? _materialLayout;
     private IBuffer? _noUniforms;
 
-    // Sets of the model pass's own draws, one per material, which is its five maps (a base color
-    // texture, a normal map, a metallic-roughness map, an emissive map and an occlusion map) by
-    // their views and its factors, with a buffer of the factors written once, since the key fixes
-    // them, and the frame the set was last bound in. A set unbound for RetireFrames frames is freed
-    // with its buffer, since no frame in flight can read it, so the views of unloaded textures and
-    // the materials of past frames do not hold sets forever.
-    private readonly Dictionary<((IImageView, IImageView, IImageView, IImageView, IImageView) Maps, MaterialFactors Factors),
-        (IDescriptorSet Set, IBuffer Factors, long Used)> _materialSets = [];
+    // Sets of the model pass's own draws, one per combination of five maps (a base color texture, a
+    // normal map, a metallic-roughness map, an emissive map and an occlusion map) by their views,
+    // with the frame each was last bound in. The factors are not in the key. Each set points at the
+    // ring of factors below through a dynamic uniform buffer, and a draw binds it at the offset of
+    // its own factors, so a thousand entities differing only in color share one set. A set unbound
+    // for RetireFrames frames is freed, since no frame in flight can read it, so the views of
+    // unloaded textures do not hold sets forever.
+    private readonly Dictionary<(IImageView, IImageView, IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
+
+    // The factors of the model pass's own draws, a region per frame slot of 256-byte steps, the
+    // largest uniform offset alignment devices ask for. Each frame writes its draws' factors into
+    // its own region, which the GPU finished reading RetireFrames frames ago.
+    private const int FactorStride = 256;
+    private IBuffer? _factorRing;
+    private int _ringCapacity;
+    private int _ringSlot;
+    private int _ringCursor;
+    private readonly List<(uint Offset, MaterialFactors Factors)> _pending = [];
+    private readonly List<(long Frame, IBuffer Buffer)> _retiredBuffers = [];
+    private readonly List<(long Frame, IDescriptorSet Set)> _retiredSets = [];
+
+    /// <summary>How many sets the model pass's own draws hold, one per combination of maps in use.</summary>
+    internal int MaterialSetCount => _materialSets.Count;
     private long _frames;
     private readonly List<IDescriptorSet> _lightSets = [];
     private int _lightSet;
@@ -127,6 +142,8 @@ public sealed class ModelRenderer : IDisposable
         var store = renderWorld.TryGet<ShaderStore>();
         BeginFrameOfSets(renderContext);
         RetireUnloadedShaders(store);
+        EnsureFactorRoom(gfx, draws.Draws.Count);
+        _pending.Clear();
 
         foreach (var draw in draws.Draws)
         {
@@ -145,9 +162,15 @@ public sealed class ModelRenderer : IDisposable
                 pass.SetBindGroup(pipeline, LightsSet(gfx, renderWorld, textures), index: 1);
             }
 
-            pass.SetBindGroup(pipeline, program is null
-                ? MaterialSet(gfx, textures, draw)
-                : DrawSet(gfx, renderContext, textures, draw, program));
+            if (program is null)
+            {
+                // The factors go in this frame's region of the ring, at the offset the set is
+                // bound with, and are written there once the loop has them all.
+                var offset = (uint)((_ringSlot * _ringCapacity + _ringCursor++) * FactorStride);
+                _pending.Add((offset, MaterialFactors.Of(draw)));
+                pass.SetBindGroup(pipeline, MaterialSet(gfx, textures, draw), 0, [offset]);
+            }
+            else pass.SetBindGroup(pipeline, DrawSet(gfx, renderContext, textures, draw, program), 0, [0]);
             pass.SetVertexBuffer(0, [mesh.Vertices], [0]);
             pass.SetIndexBuffer(mesh.Indices, 0, IndexType.UInt32);
 
@@ -162,6 +185,31 @@ public sealed class ModelRenderer : IDisposable
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed(mesh.IndexCount);
         }
+
+        if (_pending.Count > 0 && _factorRing is not null)
+        {
+            var ring = gfx.Map(_factorRing);
+            foreach (var (offset, factors) in _pending)
+                MemoryMarshal.Write(ring[(int)offset..], in factors);
+            gfx.Unmap(_factorRing);
+        }
+    }
+
+    // The ring of factors, with room for a region per frame slot of at least this call's draws
+    // past those the frame has bound already. A ring outgrown is replaced by one twice the size,
+    // and the sets pointing at the old one with it, both kept until no frame in flight reads them.
+    private void EnsureFactorRoom(IGraphicsDevice gfx, int draws)
+    {
+        if (_factorRing is not null && _ringCursor + draws <= _ringCapacity) return;
+
+        if (_factorRing is not null)
+        {
+            _retiredBuffers.Add((_frames, _factorRing));
+            foreach (var set in _materialSets.Values) _retiredSets.Add((_frames, set.Set));
+            _materialSets.Clear();
+        }
+        _ringCapacity = Math.Max(Math.Max(256, _ringCapacity * 2), _ringCursor + draws);
+        _factorRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * FactorStride), BufferUsage.Uniform, CpuAccessMode.Write));
     }
 
     /// <summary>Draws the window's meshes into the shadow map, as <paramref name="shadow"/>'s light sees them.</summary>
@@ -240,6 +288,20 @@ public sealed class ModelRenderer : IDisposable
         _drawSetNext = 0;
 
         _frames++;
+        _ringSlot = (int)(_frames % SetRingFrames);
+        _ringCursor = 0;
+        for (int i = _retiredBuffers.Count - 1; i >= 0; i--)
+            if (_frames - _retiredBuffers[i].Frame > SetRingFrames)
+            {
+                _retiredBuffers[i].Buffer.Dispose();
+                _retiredBuffers.RemoveAt(i);
+            }
+        for (int i = _retiredSets.Count - 1; i >= 0; i--)
+            if (_frames - _retiredSets[i].Frame > SetRingFrames)
+            {
+                _retiredSets[i].Set.Dispose();
+                _retiredSets.RemoveAt(i);
+            }
         for (int i = _retiredCubes.Count - 1; i >= 0; i--)
             if (_frames - _retiredCubes[i].Frame > SetRingFrames)
             {
@@ -247,34 +309,28 @@ public sealed class ModelRenderer : IDisposable
                 _retiredCubes.RemoveAt(i);
             }
         if (_materialSets.Count == 0) return;
-        foreach (var (key, (set, factors, used)) in _materialSets.ToArray())
+        foreach (var (key, (set, used)) in _materialSets.ToArray())
             if (_frames - used > SetRingFrames)
             {
                 set.Dispose();
-                factors.Dispose();
                 _materialSets.Remove(key);
             }
     }
 
-    // The set of a draw with the model pass's own shader, made once per material.
+    // The set of a draw with the model pass's own shader, made once per combination of maps.
     private IDescriptorSet MaterialSet(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
         var maps = Maps(gfx, textures, draw);
-        var factors = MaterialFactors.Of(draw);
-        var key = ((maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View), factors);
+        var key = (maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View);
         if (_materialSets.TryGetValue(key, out var known))
         {
             _materialSets[key] = known with { Used = _frames };
             return known.Set;
         }
 
-        var buffer = gfx.CreateBuffer(new BufferDesc(MaterialFactors.Size, BufferUsage.Uniform, CpuAccessMode.Write));
-        MemoryMarshal.Write(gfx.Map(buffer), in factors);
-        gfx.Unmap(buffer);
-
         var set = gfx.CreateDescriptorSet(MaterialLayout(gfx));
-        WriteMaterial(gfx, set, NoUniforms(gfx), new UniformBufferBinding(buffer, 6, 0, MaterialFactors.Size), maps);
-        _materialSets[key] = (set, buffer, _frames);
+        WriteMaterial(gfx, set, NoUniforms(gfx), new UniformBufferBinding(_factorRing!, 6, 0, MaterialFactors.Size, Dynamic: true), maps);
+        _materialSets[key] = (set, _frames);
         return set;
     }
 
@@ -335,7 +391,7 @@ public sealed class ModelRenderer : IDisposable
         allocator.Unmap(block);
 
         WriteMaterial(gfx, set, new UniformBufferBinding(allocation.Buffer, 0, allocation.Offset, size),
-            new UniformBufferBinding(block.Buffer, 6, block.Offset, MaterialFactors.Size), Maps(gfx, textures, draw));
+            new UniformBufferBinding(block.Buffer, 6, block.Offset, MaterialFactors.Size, Dynamic: true), Maps(gfx, textures, draw));
         return set;
     }
 
@@ -416,7 +472,7 @@ public sealed class ModelRenderer : IDisposable
         new DescriptorSetLayoutBinding(3, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(4, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
         new DescriptorSetLayoutBinding(5, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment),
-        new DescriptorSetLayoutBinding(6, DescriptorType.UniformBuffer, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
+        new DescriptorSetLayoutBinding(6, DescriptorType.UniformBufferDynamic, ShaderStageFlags.Vertex | ShaderStageFlags.Fragment),
     ]);
 
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(
@@ -454,11 +510,10 @@ public sealed class ModelRenderer : IDisposable
             vertex.Dispose();
             fragment.Dispose();
         }
-        foreach (var (set, factors, _) in _materialSets.Values)
-        {
-            set.Dispose();
-            factors.Dispose();
-        }
+        foreach (var (set, _) in _materialSets.Values) set.Dispose();
+        foreach (var (_, set) in _retiredSets) set.Dispose();
+        foreach (var (_, buffer) in _retiredBuffers) buffer.Dispose();
+        _factorRing?.Dispose();
         _materialSets.Clear();
         _noUniforms?.Dispose();
         _materialLayout?.Dispose();
