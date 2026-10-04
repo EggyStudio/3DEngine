@@ -28,9 +28,9 @@ public sealed class OffscreenRenderTests : IDisposable
         Directory.Delete(_directory, recursive: true);
     }
 
-    private static void Open(int width, int height)
+    private static void Open(int width, int height, int samples = 4)
     {
-        var config = Config.Default.WithWindow("offscreen test", width, height) with { Headless = true, Offscreen = true };
+        var config = Config.Default.WithWindow("offscreen test", width, height) with { Headless = true, Offscreen = true, Samples = samples };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         RunMode.HasRenderer(GetApp().World).Should().BeTrue("the probe started a Vulkan device, so the app's renderer starts too");
     }
@@ -678,5 +678,42 @@ public sealed class OffscreenRenderTests : IDisposable
         Linear(GetImageColor(bright, 32, 32).R).Should().BeGreaterThan(0.6f, "a sky eight times white gives eight tenths, which no eight-bit sky can");
         UnloadModel(plane);
         UnloadEnvironmentMap();
+    }
+
+    // How many pixels along a white triangle's diagonal edge on black are neither black nor white,
+    // drawn into the window and into a render target drawn beside it.
+    private (int Window, int Target) EdgeShades(int samples)
+    {
+        Open(128, 32, samples);
+        var target = LoadRenderTexture(64, 32);
+        var image = Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            DrawTriangle(new Vector2(0, 0), new Vector2(0, 32), new Vector2(64, 32), Color.White);
+            EndTextureMode();
+
+            ClearBackground(Color.Black);
+            DrawTriangle(new Vector2(0, 0), new Vector2(0, 32), new Vector2(64, 32), Color.White);
+            DrawTexture(target.Texture, 64, 0, Color.White);
+        }, $"edges-{samples}");
+        UnloadRenderTexture(target);
+        CloseWindow();
+        UseApp(null);
+
+        bool Between(Color c) => c.R is > 30 and < 225;
+        return (Count(image, 0, 0, 64, 32, Between), Count(image, 64, 0, 128, 32, Between));
+    }
+
+    [NeedsVulkanFact]
+    public void Multisampling_Shades_The_Pixels_An_Edge_Crosses_In_The_Window_And_A_Target()
+    {
+        var single = EdgeShades(1);
+        var four = EdgeShades(4);
+
+        single.Window.Should().Be(0, "with one sample a pixel is in the triangle or not");
+        single.Target.Should().Be(0);
+        four.Window.Should().BeGreaterThan(20, "with four a pixel the edge crosses is partly covered");
+        four.Target.Should().BeGreaterThan(20, "and a render target is multisampled as the window is");
     }
 }

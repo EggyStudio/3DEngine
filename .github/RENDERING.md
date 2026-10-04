@@ -198,6 +198,13 @@ shadows as an atlas.
 
 ## 4. Render targets and post processing
 
+The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,
+rounded down to what the device can multisample color and depth at. Their passes share one
+builder (`GraphicsDevice.CreateColorDepthPass`), so they stay compatible. With more than one
+sample a pass draws into a multisampled color image and depth image and resolves the color into
+the frame image or the target's sampled image at the end of the subpass. A pipeline rasterizes at
+the samples of the pass it is made for, and the shadow map's depth-only pass stays at one.
+
 `BeginTextureMode(target)` redirects the calls that follow into an offscreen image, which a later
 draw can sample. A target is a color image in the swapchain's format and a depth image in its
 depth format (`GraphicsDevice.CreateRenderTarget`), so its render pass is compatible with the

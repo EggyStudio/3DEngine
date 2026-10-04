@@ -59,65 +59,26 @@ public sealed unsafe partial class GraphicsDevice
             VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc, VkImageCreateFlags.MutableFormat);
         var colorView = TargetView(color, _swapchainFormat, VkImageAspectFlags.Color);
         var srgbView = TargetView(color, SrgbOf(_swapchainFormat), VkImageAspectFlags.Color);
-        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment);
+        // Drawn at the window's samples, into a multisampled color image resolved into the one
+        // sampled, so the window's pipelines draw here too.
+        bool msaa = _samples != VkSampleCountFlags.Count1;
+        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment, samples: _samples);
         var depthView = TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth);
+        var (msaaColor, msaaMemory) = msaa
+            ? TargetImage(_swapchainFormat, width, height, VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransientAttachment, samples: _samples)
+            : default;
+        var msaaView = msaa ? TargetView(msaaColor, _swapchainFormat, VkImageAspectFlags.Color) : default;
 
-        var attachments = stackalloc VkAttachmentDescription[2];
-        attachments[0] = new VkAttachmentDescription
-        {
-            format = _swapchainFormat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Clear,
-            storeOp = VkAttachmentStoreOp.Store,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.Undefined,
-            finalLayout = VkImageLayout.ShaderReadOnlyOptimal,
-        };
-        attachments[1] = new VkAttachmentDescription
-        {
-            format = VkFormat.D32Sfloat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Clear,
-            storeOp = VkAttachmentStoreOp.DontCare,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.Undefined,
-            finalLayout = VkImageLayout.DepthStencilAttachmentOptimal,
-        };
+        var renderPass = CreateColorDepthPass(_swapchainFormat, _samples, load: false, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal);
 
-        var colorRef = new VkAttachmentReference { attachment = 0, layout = VkImageLayout.ColorAttachmentOptimal };
-        var depthRef = new VkAttachmentReference { attachment = 1, layout = VkImageLayout.DepthStencilAttachmentOptimal };
-        var subpass = new VkSubpassDescription
-        {
-            pipelineBindPoint = VkPipelineBindPoint.Graphics,
-            colorAttachmentCount = 1,
-            pColorAttachments = &colorRef,
-            pDepthStencilAttachment = &depthRef,
-        };
-
-        // The window's pair, so the window's pipelines draw into the target (ColorDepthDependencies).
-        var dependencies = stackalloc VkSubpassDependency[2];
-        ColorDepthDependencies(dependencies);
-
-        var passInfo = new VkRenderPassCreateInfo
-        {
-            attachmentCount = 2,
-            pAttachments = attachments,
-            subpassCount = 1,
-            pSubpasses = &subpass,
-            dependencyCount = 2,
-            pDependencies = dependencies,
-        };
-        _deviceApi.vkCreateRenderPass(&passInfo, null, out VkRenderPass renderPass).CheckResult();
-
-        var views = stackalloc VkImageView[2];
-        views[0] = colorView;
+        var views = stackalloc VkImageView[3];
+        views[0] = msaa ? msaaView : colorView;
         views[1] = depthView;
+        views[2] = colorView;
         var framebufferInfo = new VkFramebufferCreateInfo
         {
             renderPass = renderPass,
-            attachmentCount = 2,
+            attachmentCount = msaa ? 3u : 2u,
             pAttachments = views,
             width = width,
             height = height,
@@ -129,7 +90,7 @@ public sealed unsafe partial class GraphicsDevice
             new ImageDesc(new Extent2D(width, height), ImageFormat.B8G8R8A8_UNorm, ImageUsage.ColorAttachment | ImageUsage.Sampled));
 
         return new RenderTarget(
-            new VulkanRenderPass(renderPass),
+            new VulkanRenderPass(renderPass, samples: _samples),
             new VulkanFramebuffer(framebuffer),
             new VulkanImageView(this, colorImage, colorView),
             new VulkanImageView(this, colorImage, srgbView),
@@ -140,6 +101,12 @@ public sealed unsafe partial class GraphicsDevice
                 _deviceApi.vkDestroyFramebuffer(framebuffer);
                 _deviceApi.vkDestroyRenderPass(renderPass);
                 _deviceApi.vkDestroyImageView(depthView);
+                if (msaa)
+                {
+                    _deviceApi.vkDestroyImageView(msaaView);
+                    _deviceApi.vkDestroyImage(msaaColor);
+                    _deviceApi.vkFreeMemory(msaaMemory);
+                }
                 _deviceApi.vkDestroyImage(depth);
                 _deviceApi.vkFreeMemory(depthMemory);
                 _deviceApi.vkDestroyImageView(colorView);
@@ -156,7 +123,7 @@ public sealed unsafe partial class GraphicsDevice
     };
 
     private (VkImage Image, VkDeviceMemory Memory) TargetImage(VkFormat format, uint width, uint height, VkImageUsageFlags usage,
-        VkImageCreateFlags flags = 0)
+        VkImageCreateFlags flags = 0, VkSampleCountFlags samples = VkSampleCountFlags.Count1)
     {
         var info = new VkImageCreateInfo
         {
@@ -166,7 +133,7 @@ public sealed unsafe partial class GraphicsDevice
             extent = new VkExtent3D(width, height, 1),
             mipLevels = 1,
             arrayLayers = 1,
-            samples = VkSampleCountFlags.Count1,
+            samples = samples,
             tiling = VkImageTiling.Optimal,
             usage = usage,
             sharingMode = VkSharingMode.Exclusive,

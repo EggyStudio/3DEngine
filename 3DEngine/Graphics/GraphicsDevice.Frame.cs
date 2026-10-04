@@ -199,11 +199,14 @@ public sealed unsafe partial class GraphicsDevice
         internal VkRenderPass Handle { get; }
         /// <summary>Whether the pass has a depth attachment and no color one, as a shadow map's has.</summary>
         internal bool DepthOnly { get; }
+        /// <summary>The samples its attachments have, which a pipeline drawing in it rasterizes at.</summary>
+        internal VkSampleCountFlags Samples { get; }
         /// <summary>Creates a wrapper around the given Vulkan render pass handle.</summary>
-        public VulkanRenderPass(VkRenderPass handle, bool depthOnly = false)
+        public VulkanRenderPass(VkRenderPass handle, bool depthOnly = false, VkSampleCountFlags samples = VkSampleCountFlags.Count1)
         {
             Handle = handle;
             DepthOnly = depthOnly;
+            Samples = samples;
         }
     }
 

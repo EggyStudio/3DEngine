@@ -70,6 +70,13 @@ public sealed record Config
     /// </summary>
     public ulong Frames { get; init; }
 
+    /// <summary>
+    /// How many samples a pixel of the window and of a render target is drawn with, to smooth the
+    /// stair steps along triangle edges: 1 for none, or 2, 4 or 8, rounded down to what the device
+    /// can do. Defaults to 4, which every desktop device supports.
+    /// </summary>
+    public int Samples { get; init; } = 4;
+
     /// <summary>Frames per second a headless app runs at, so it does not spin a core. Defaults to 60.</summary>
     public double HeadlessFps { get; init; } = 60;
 

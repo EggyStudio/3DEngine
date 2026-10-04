@@ -116,6 +116,12 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkDestroyImage(_depthImage);
         if (_depthImageMemory.Handle != 0)
             _deviceApi.vkFreeMemory(_depthImageMemory);
+        if (_msaaColorView.Handle != 0)
+            _deviceApi.vkDestroyImageView(_msaaColorView);
+        if (_msaaColorImage.Handle != 0)
+            _deviceApi.vkDestroyImage(_msaaColorImage);
+        if (_msaaColorMemory.Handle != 0)
+            _deviceApi.vkFreeMemory(_msaaColorMemory);
         if (_renderPass.Handle != 0)
             _deviceApi.vkDestroyRenderPass(_renderPass);
         if (_loadRenderPass.Handle != 0)
@@ -144,6 +150,20 @@ public sealed unsafe partial class GraphicsDevice
         _depthImage = default;
         _depthImageMemory = default;
         _depthImageView = default;
+        _msaaColorImage = default;
+        _msaaColorMemory = default;
+        _msaaColorView = default;
+    }
+
+    /// <summary>The samples a frame is drawn with: <see cref="RequestedSamples"/> rounded down to what the device can multisample color and depth at.</summary>
+    private VkSampleCountFlags ChooseSamples(int requested)
+    {
+        _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var props);
+        var supported = props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts;
+        foreach (var count in new[] { 8, 4, 2 })
+            if (requested >= count && (supported & (VkSampleCountFlags)count) != 0)
+                return (VkSampleCountFlags)count;
+        return VkSampleCountFlags.Count1;
     }
 
     /// <summary>
@@ -238,9 +258,20 @@ public sealed unsafe partial class GraphicsDevice
         };
     }
 
-    /// <summary>Creates the depth buffer image, memory, and image view (<c>D32_SFLOAT</c>).</summary>
+    /// <summary>
+    /// Creates the depth buffer (<c>D32_SFLOAT</c>), and with multisampling the color image the
+    /// passes draw into before it is resolved into the frame image, both at the frame's samples.
+    /// </summary>
     private void CreateDepthResources()
     {
+        _samples = ChooseSamples(RequestedSamples);
+        if (_samples != VkSampleCountFlags.Count1)
+        {
+            (_msaaColorImage, _msaaColorMemory) = TargetImage(_swapchainFormat, _swapchainExtent.width, _swapchainExtent.height,
+                VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransientAttachment, samples: _samples);
+            _msaaColorView = TargetView(_msaaColorImage, _swapchainFormat, VkImageAspectFlags.Color);
+        }
+
         // For now always use a 32-bit float depth buffer.
         VkFormat depthFormat = VkFormat.D32Sfloat;
 
@@ -251,7 +282,7 @@ public sealed unsafe partial class GraphicsDevice
             extent = new VkExtent3D(_swapchainExtent.width, _swapchainExtent.height, 1),
             mipLevels = 1,
             arrayLayers = 1,
-            samples = VkSampleCountFlags.Count1,
+            samples = _samples,
             tiling = VkImageTiling.Optimal,
             usage = VkImageUsageFlags.DepthStencilAttachment,
             sharingMode = VkSharingMode.Exclusive,
@@ -299,62 +330,80 @@ public sealed unsafe partial class GraphicsDevice
         }
     }
 
-    /// <summary>Creates the render pass with color and depth attachments.</summary>
-    private void CreateRenderPass()
+    /// <summary>Creates the window's render pass, which clears its attachments.</summary>
+    private void CreateRenderPass() =>
+        _renderPass = CreateColorDepthPass(_swapchainFormat, _samples, load: false, VkImageLayout.Undefined, _finalLayout);
+
+    /// <summary>
+    /// Creates the color and depth pass every window and render target pass is, so a pipeline made
+    /// for one draws in the others. With more than one sample the color and depth are multisampled
+    /// images and the subpass resolves the color into a third attachment, the image that is shown
+    /// or sampled, which is laid out from <paramref name="initialLayout"/> to <paramref name="finalLayout"/>.
+    /// </summary>
+    internal VkRenderPass CreateColorDepthPass(VkFormat format, VkSampleCountFlags samples, bool load, VkImageLayout initialLayout, VkImageLayout finalLayout)
     {
-        var colorAttachment = new VkAttachmentDescription
+        bool msaa = samples != VkSampleCountFlags.Count1;
+        var attachments = stackalloc VkAttachmentDescription[3];
+        attachments[0] = new VkAttachmentDescription
         {
-            format = _swapchainFormat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Clear,
+            format = format,
+            samples = samples,
+            loadOp = load ? VkAttachmentLoadOp.Load : VkAttachmentLoadOp.Clear,
             storeOp = VkAttachmentStoreOp.Store,
             stencilLoadOp = VkAttachmentLoadOp.DontCare,
             stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.Undefined,
-            finalLayout = _finalLayout
+            initialLayout = msaa ? (load ? VkImageLayout.ColorAttachmentOptimal : VkImageLayout.Undefined) : initialLayout,
+            finalLayout = msaa ? VkImageLayout.ColorAttachmentOptimal : finalLayout,
         };
-
-        var depthAttachment = new VkAttachmentDescription
+        attachments[1] = new VkAttachmentDescription
         {
             format = VkFormat.D32Sfloat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Clear,
+            samples = samples,
+            loadOp = load ? VkAttachmentLoadOp.Load : VkAttachmentLoadOp.Clear,
             storeOp = VkAttachmentStoreOp.DontCare,
             stencilLoadOp = VkAttachmentLoadOp.DontCare,
             stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.Undefined,
-            finalLayout = VkImageLayout.DepthStencilAttachmentOptimal
+            initialLayout = load ? VkImageLayout.DepthStencilAttachmentOptimal : VkImageLayout.Undefined,
+            finalLayout = VkImageLayout.DepthStencilAttachmentOptimal,
+        };
+        attachments[2] = new VkAttachmentDescription
+        {
+            format = format,
+            samples = VkSampleCountFlags.Count1,
+            loadOp = VkAttachmentLoadOp.DontCare,
+            storeOp = VkAttachmentStoreOp.Store,
+            stencilLoadOp = VkAttachmentLoadOp.DontCare,
+            stencilStoreOp = VkAttachmentStoreOp.DontCare,
+            initialLayout = initialLayout,
+            finalLayout = finalLayout,
         };
 
-        VkAttachmentDescription* attachments = stackalloc VkAttachmentDescription[2];
-        attachments[0] = colorAttachment;
-        attachments[1] = depthAttachment;
-
-        var colorAttachmentRef = new VkAttachmentReference { attachment = 0, layout = VkImageLayout.ColorAttachmentOptimal };
-        var depthAttachmentRef = new VkAttachmentReference { attachment = 1, layout = VkImageLayout.DepthStencilAttachmentOptimal };
-
+        var colorRef = new VkAttachmentReference { attachment = 0, layout = VkImageLayout.ColorAttachmentOptimal };
+        var depthRef = new VkAttachmentReference { attachment = 1, layout = VkImageLayout.DepthStencilAttachmentOptimal };
+        var resolveRef = new VkAttachmentReference { attachment = 2, layout = VkImageLayout.ColorAttachmentOptimal };
         var subpass = new VkSubpassDescription
         {
             pipelineBindPoint = VkPipelineBindPoint.Graphics,
             colorAttachmentCount = 1,
-            pColorAttachments = &colorAttachmentRef,
-            pDepthStencilAttachment = &depthAttachmentRef
+            pColorAttachments = &colorRef,
+            pResolveAttachments = msaa ? &resolveRef : null,
+            pDepthStencilAttachment = &depthRef,
         };
 
         var dependencies = stackalloc VkSubpassDependency[2];
         ColorDepthDependencies(dependencies);
 
-        VkRenderPassCreateInfo renderPassInfo = new()
+        var info = new VkRenderPassCreateInfo
         {
-            attachmentCount = 2,
+            attachmentCount = msaa ? 3u : 2u,
             pAttachments = attachments,
             subpassCount = 1,
             pSubpasses = &subpass,
             dependencyCount = 2,
-            pDependencies = dependencies
+            pDependencies = dependencies,
         };
-
-        _deviceApi.vkCreateRenderPass(&renderPassInfo, null, out _renderPass).CheckResult();
+        _deviceApi.vkCreateRenderPass(&info, null, out VkRenderPass pass).CheckResult();
+        return pass;
     }
 
     /// <summary>
@@ -393,79 +442,27 @@ public sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Creates a second render pass with <c>loadOp = Load</c> for subsequent passes that preserve existing content.</summary>
-    private void CreateLoadRenderPass()
-    {
-        var colorAttachment = new VkAttachmentDescription
-        {
-            format = _swapchainFormat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Load,
-            storeOp = VkAttachmentStoreOp.Store,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            // Where the pass before left it. Offscreen that is TransferSrcOptimal, and naming
-            // PresentSrcKHR there names a layout of an extension the device has not enabled.
-            initialLayout = _finalLayout,
-            finalLayout = _finalLayout
-        };
-
-        var depthAttachment = new VkAttachmentDescription
-        {
-            format = VkFormat.D32Sfloat,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.Load,
-            storeOp = VkAttachmentStoreOp.DontCare,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = VkImageLayout.DepthStencilAttachmentOptimal,
-            finalLayout = VkImageLayout.DepthStencilAttachmentOptimal
-        };
-
-        VkAttachmentDescription* attachments = stackalloc VkAttachmentDescription[2];
-        attachments[0] = colorAttachment;
-        attachments[1] = depthAttachment;
-
-        var colorAttachmentRef = new VkAttachmentReference { attachment = 0, layout = VkImageLayout.ColorAttachmentOptimal };
-        var depthAttachmentRef = new VkAttachmentReference { attachment = 1, layout = VkImageLayout.DepthStencilAttachmentOptimal };
-
-        var subpass = new VkSubpassDescription
-        {
-            pipelineBindPoint = VkPipelineBindPoint.Graphics,
-            colorAttachmentCount = 1,
-            pColorAttachments = &colorAttachmentRef,
-            pDepthStencilAttachment = &depthAttachmentRef
-        };
-
-        var dependencies = stackalloc VkSubpassDependency[2];
-        ColorDepthDependencies(dependencies);
-
-        VkRenderPassCreateInfo renderPassInfo = new()
-        {
-            attachmentCount = 2,
-            pAttachments = attachments,
-            subpassCount = 1,
-            pSubpasses = &subpass,
-            dependencyCount = 2,
-            pDependencies = dependencies
-        };
-
-        _deviceApi.vkCreateRenderPass(&renderPassInfo, null, out _loadRenderPass).CheckResult();
-    }
+    /// <remarks>The color starts where the window's pass left it, which offscreen is TransferSrcOptimal.</remarks>
+    private void CreateLoadRenderPass() =>
+        _loadRenderPass = CreateColorDepthPass(_swapchainFormat, _samples, load: true, _finalLayout, _finalLayout);
 
     /// <summary>Creates one framebuffer per swapchain image, attaching color and depth views.</summary>
     private void CreateFramebuffers()
     {
         _framebuffers = new VkFramebuffer[_swapchainImageViews.Length];
-        VkImageView* attachments = stackalloc VkImageView[2];
+        bool msaa = _samples != VkSampleCountFlags.Count1;
+        VkImageView* attachments = stackalloc VkImageView[3];
         for (int i = 0; i < _swapchainImageViews.Length; i++)
         {
-            attachments[0] = _swapchainImageViews[i];
+            // Multisampled, the frame image is the resolve target after the shared color and depth.
+            attachments[0] = msaa ? _msaaColorView : _swapchainImageViews[i];
             attachments[1] = _depthImageView;
+            attachments[2] = _swapchainImageViews[i];
 
             VkFramebufferCreateInfo framebufferInfo = new()
             {
                 renderPass = _renderPass,
-                attachmentCount = 2,
+                attachmentCount = msaa ? 3u : 2u,
                 pAttachments = attachments,
                 width = _swapchainExtent.width,
                 height = _swapchainExtent.height,

@@ -56,10 +56,10 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     public int FramesInFlight => MaxFramesInFlight;
 
     /// <inheritdoc />
-    public IRenderPass SwapchainRenderPass => new VulkanRenderPass(_renderPass);
+    public IRenderPass SwapchainRenderPass => new VulkanRenderPass(_renderPass, samples: _samples);
 
     /// <inheritdoc />
-    public IRenderPass SwapchainLoadRenderPass => new VulkanRenderPass(_loadRenderPass);
+    public IRenderPass SwapchainLoadRenderPass => new VulkanRenderPass(_loadRenderPass, samples: _samples);
 
     /// <inheritdoc />
     public IFramebuffer GetSwapchainFramebuffer(uint imageIndex) => new VulkanFramebuffer(_framebuffers[imageIndex]);
@@ -233,6 +233,21 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     private bool _suboptimalLogged;
     private VkDebugUtilsMessengerEXT _debugMessenger;
     private bool _validationEnabled;
+
+    // The frame's samples, and with more than one the shared color image the passes draw into.
+    private VkSampleCountFlags _samples = VkSampleCountFlags.Count1;
+    private VkImage _msaaColorImage;
+    private VkDeviceMemory _msaaColorMemory;
+    private VkImageView _msaaColorView;
+
+    /// <summary>
+    /// How many samples a pixel is drawn with, set before <see cref="Initialize"/>: 1 for none, or 2,
+    /// 4 or 8 to smooth the edges of triangles, rounded down to what the device can do.
+    /// </summary>
+    public int RequestedSamples { get; set; } = 1;
+
+    /// <summary>The samples frames and render targets are drawn with, once the swapchain exists.</summary>
+    public int Samples => (int)_samples;
     private GraphicsAdapterInfo _adapterInfo = GraphicsAdapterInfo.Unknown;
     private VkImage _depthImage;
     private VkDeviceMemory _depthImageMemory;

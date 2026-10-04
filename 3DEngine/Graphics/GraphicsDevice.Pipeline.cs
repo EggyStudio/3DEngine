@@ -192,9 +192,10 @@ public sealed unsafe partial class GraphicsDevice
             lineWidth = 1.0f
         };
 
+        // At the samples of the pass it draws in, which a multisampled window's and targets' are.
         VkPipelineMultisampleStateCreateInfo multisample = new()
         {
-            rasterizationSamples = VkSampleCountFlags.Count1
+            rasterizationSamples = desc.RenderPass is VulkanRenderPass { Samples: var samples } ? samples : VkSampleCountFlags.Count1
         };
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment = new()

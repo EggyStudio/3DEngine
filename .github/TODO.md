@@ -66,10 +66,10 @@ images and textures, models and meshes, shaders, text and fonts, and audio
 - **Fonts bake at one size each**, with no signed distance fields, so text far larger than its
   bake blurs. A font has Latin-1 or the characters it was asked for, and characters above U+FFFF
   (most emoji) cannot be baked, because ImGui's atlas names characters in 16 bits.
-- **Render targets** have no multisampling and no depth to sample, and the window has no
-  multisampling either. Window state and monitors are queried and changed, but a monitor's
-  modes cannot be listed or switched, and there is no `SetConfigFlags` for choosing these before
-  the window opens.
+- **Render targets** have no depth to sample. The window and targets are multisampled at
+  `Config.Samples` (4 by default), which the flat API cannot choose, since there is no
+  `SetConfigFlags` before the window opens. Window state and monitors are queried and changed, but
+  a monitor's modes cannot be listed or switched.
 
 ### Meshes, materials and light
 

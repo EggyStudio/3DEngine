@@ -114,7 +114,7 @@ public sealed class RenderPlugin : IPlugin
             Logger.Info("RenderPlugin: Vulkan backend selected - initializing graphics context against SDL window...");
             // Grab the ISurfaceSource that AppWindowPlugin inserted
             var surface = app.World.Resource<ISurfaceSource>();
-            renderer.Context.Initialize(surface, cfg.WindowData.Title);
+            renderer.Context.Initialize(surface, cfg.WindowData.Title, cfg.Samples);
 
             // Seed RenderSurfaceInfo with current window size
             var surfaceInfo = new RenderSurfaceInfo { Width = window.Sdl.Width, Height = window.Sdl.Height };
@@ -190,7 +190,7 @@ public sealed class RenderPlugin : IPlugin
         var (width, height) = ((uint)Math.Max(1, cfg.WindowData.Width), (uint)Math.Max(1, cfg.WindowData.Height));
         try
         {
-            renderer.Context.Initialize(new OffscreenSurface(width, height), cfg.WindowData.Title);
+            renderer.Context.Initialize(new OffscreenSurface(width, height), cfg.WindowData.Title, cfg.Samples);
             renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = (int)width, Height = (int)height });
             Logger.Info($"RenderPlugin: Offscreen run - rendering {width}x{height} frames with no window.");
         }
