@@ -28,17 +28,35 @@ while (!WindowShouldClose())
 CloseWindow();
 ```
 
+```csharp
+[Behavior]
+public struct Ball
+{
+    public Vector3 Position;
+    public Vector3 Velocity;
+
+    [OnUpdate]
+    public void Move(BehaviorContext ctx)
+    {
+        var dt = (float)ctx.Time.DeltaSeconds;
+        Velocity.Y -= 9.81f * dt;
+        Position += Velocity * dt;
+    }
+}
+```
+
 A program opens a window, draws each frame with static calls and closes the window, and every
 call it can make is on one [cheatsheet](.github/CHEATSHEET.md). Dear ImGui works between
 `BeginDrawing` and `EndDrawing` with no setup. Under the flat API is an ECS whose behaviors are
-`[Behavior]` structs a source generator turns into systems, and it runs inside the same frames, so a
-program uses as much of it as it needs.
+`[Behavior]` structs like `Ball`, whose fields are each entity's state and whose methods a source
+generator turns into systems. It runs inside the same frames, so a program uses as much of it as it
+needs. [DESIGN.md](.github/DESIGN.md#5-the-ecs-underneath) shows the rest of it, and
+[ARCHITECTURE.md](.github/ARCHITECTURE.md) how it is built.
 
 ## Contents
 
 - [A program of your own](#a-program-of-your-own)
 - [Examples](#examples)
-- [The ECS underneath](#the-ecs-underneath)
 - [Driving a running app](#driving-a-running-app)
 - [Building](#building)
 - [Status](#status)
@@ -122,55 +140,6 @@ while (!WindowShouldClose())
     EndDrawing();
 }
 ```
-
-## The ECS underneath
-
-`InitWindow` builds an `App` with the default plugins, and `BeginDrawing` and `EndDrawing` run its
-stages. Anything registered on `GetApp()` runs inside those frames. A behavior is a struct whose
-fields are per-entity state and whose methods are systems:
-
-```csharp
-[Behavior]
-public struct Ball
-{
-    public Vector3 Position;
-    public Vector3 Velocity;
-
-    [OnUpdate]
-    public void Move(BehaviorContext ctx)
-    {
-        var dt = (float)ctx.Time.DeltaSeconds;
-        Velocity.Y -= 9.81f * dt;
-        Position += Velocity * dt;
-    }
-}
-```
-
-A method takes the entity's other components after its context, `ref` to write one and `in` to read
-one, and runs only for the entities that have them:
-
-```csharp
-[OnUpdate]
-public readonly void Follow(BehaviorContext ctx, ref Transform transform, in Velocity velocity) =>
-    transform.Position += velocity.Value * (float)ctx.Time.DeltaSeconds;
-```
-
-One written through `ref` is marked changed, so a `[Changed]` filter or query sees it, and one read
-through `in` is not.
-
-The loop draws what the world holds with the same flat calls:
-
-```csharp
-foreach (var (_, ball) in GetApp().World.Resource<EcsWorld>().Query<Ball>())
-    DrawSphere(ball.Position, 0.3f, Color.Red);
-```
-
-Hand-written systems query the same world: `ecs.QueryRef<Velocity>().With<Falls>().Without<Grounded>()`
-yields each matching component by reference.
-
-The ECS keeps components in sparse sets, runs systems in parallel batches by the components they
-read and write, defers structural changes through `EcsCommands`, and compiles behaviors from
-source files while an app runs. [ARCHITECTURE.md](.github/ARCHITECTURE.md) describes how.
 
 ## Driving a running app
 
