@@ -353,8 +353,8 @@ Behaviors follow the same machines, with `[OnEnter(Screen.Play)]`, `[OnExit(...)
 ## Scenes
 
 ```csharp
-IReadOnlyList<int> LoadScene(string fileName);                       // Spawn a scene file's entities into the ECS, found beside the program
-void SaveScene(string fileName, IEnumerable<int>? entities = null);  // Write the ECS's entities, or some, to a scene file
+IReadOnlyList<Entity> LoadScene(string fileName);                    // Spawn a scene file's entities into the ECS, found beside the program
+void SaveScene(string fileName, IEnumerable<Entity>? entities = null); // Write the ECS's entities, or some, to a scene file
 ```
 
 A scene file is JSON of entities and their components by name. The engine's components are saved,

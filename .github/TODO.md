@@ -16,11 +16,12 @@ removed from this file, and an item that is partly done is rewritten around what
 
 ### Entities
 
-- **Bare ids are still the common path.** `Has`, `TryGet`, `GetRef`, `GetReadOnly`, `Add`,
-  `Update`, `Remove` and `Despawn` take an `Entity` handle too, whose generation refuses a stale one,
-  reads answering as if the component were missing and writes throwing. Queries, `ctx.EntityId`,
-  physics contacts' `EntityId` and the flat API's scene functions still hand out the bare `int`,
-  which nothing stops code from keeping across frames.
+- **Queries hand out bare ids.** `Has`, `TryGet`, `GetRef`, `GetReadOnly`, `Add`, `Update`,
+  `Remove` and `Despawn` take an `Entity` handle too, whose generation refuses a stale one, reads
+  answering as if the component were missing and writes throwing. Contacts, `ctx.Entity` and the
+  flat API's scene functions hand out handles. Queries and `ctx.EntityId` still give the bare
+  `int`, which is right for the frame it is used in and which nothing stops code from keeping
+  across frames.
 - **Change detection has no added filter and misses spans.** `GetRef`, `Update` and the
   by-reference queries stamp what they hand out with the tick of the running system, and a
   `Changed` filter sees what was stamped since that system last ran (`ChangeTicks`). A component

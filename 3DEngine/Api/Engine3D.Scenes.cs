@@ -8,10 +8,12 @@ public static partial class Engine3D
     /// </summary>
     /// <remarks>
     /// A scene file is JSON of entities and their components by name (ARCHITECTURE.md). A program's
-    /// own component types are written and read when they are marked <c>[SceneComponent]</c>.
+    /// own component types are written and read when they are marked <c>[SceneComponent]</c>. The
+    /// entities come back as handles, since a level is kept for as long as it is played, and a
+    /// handle to an entity despawned since is refused rather than reaching one that reused its id.
     /// </remarks>
     /// <returns>The entities, or none when the file is missing or not a scene file, with the reason in the log.</returns>
-    public static IReadOnlyList<int> LoadScene(string fileName)
+    public static IReadOnlyList<Entity> LoadScene(string fileName)
     {
         var path = ResolveFile(fileName);
         if (path is null)
@@ -25,7 +27,8 @@ public static partial class Engine3D
             var spawned = SceneFile.Load(World, path);
             // The bodies its Colliders and RigidBodies describe, at once rather than next frame.
             PhysicsBodies.Run(World);
-            return spawned;
+            var ecs = Res<EcsWorld>();
+            return spawned.Select(ecs.Handle).ToArray();
         }
         catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
         {
@@ -35,6 +38,10 @@ public static partial class Engine3D
     }
 
     /// <summary>Saves every entity of the ECS that a scene did not spawn, or only <paramref name="entities"/>, to a scene file.</summary>
-    public static void SaveScene(string fileName, IEnumerable<int>? entities = null) =>
-        SceneFile.Save(Res<EcsWorld>(), fileName, entities);
+    /// <remarks>A handle to an entity despawned since it was taken is left out.</remarks>
+    public static void SaveScene(string fileName, IEnumerable<Entity>? entities = null)
+    {
+        var ecs = Res<EcsWorld>();
+        SceneFile.Save(ecs, fileName, entities?.Select(e => ecs.TryResolve(e, out var id) ? id : 0).Where(id => id != 0));
+    }
 }
