@@ -107,7 +107,7 @@ public class MeshEntityDrawsTests
         Frame();
         Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(0, 255, 0, 255), "a new entity on the old id draws with its own material");
 
-        // Replaced by Add, which marks no change, the material still reaches the draw.
+        // Replaced by Add, which marks it changed, the material reaches the draw.
         ecs.Add(again, new Material(new Vector4(1, 1, 1, 1)));
         Frame();
         Drawn(world).Should().ContainSingle().Which.Color.Should().Be(new Color(255, 255, 255, 255));
@@ -164,6 +164,40 @@ public class MeshEntityDrawsTests
         draws.Draws.Select(d => Vector3.DistanceSquared(d.World.Translation, new Vector3(0, 0, 5))).Should().BeInDescendingOrder("translucent draws go from far to near");
         drawn.Where(d => d.World.Translation.X is >= 10_000 and < 10_100).Should().OnlyContain(d => d.Color == new Color(137, 188, 225, 255));
         world.Resource<MeshEntityDraws>().MeshCount.Should().Be(3);
+    }
+
+    [Fact]
+    public void Entities_Standing_Still_Are_Drawn_From_What_Was_Gathered_The_Frame_Before()
+    {
+        var (world, ecs) = Scene();
+        var still = SpawnMesh(ecs, Triangle, new Vector3(1, 0, 0), new Vector4(1, 0, 0, 1));
+        var mover = SpawnMesh(ecs, Triangle, new Vector3(2, 0, 0), new Vector4(0, 1, 0, 1));
+        var draws = world.Resource<ModelDrawList>();
+        var self = world.GetOrInsertResource(static () => new MeshEntityDraws());
+        void Frame()
+        {
+            draws.Clear();
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+        Vector3[] Placed() => [.. Drawn(world).Select(d => d.World.Translation).Order(Comparer<Vector3>.Create((a, b) => a.X.CompareTo(b.X)))];
+
+        Frame();
+        self.ChunksKept.Should().Be(0, "the first frame gathers everything, leaving the mesh's upload to the main thread");
+        Frame();
+        self.ChunksKept.Should().Be(0, "a chunk that left entities for after is gathered again, this time whole");
+        Frame();
+        self.ChunksKept.Should().Be(1, "nothing moved, so the chunk keeps what it gathered");
+        Placed().Should().Equal(new Vector3(1, 0, 0), new Vector3(2, 0, 0));
+
+        ecs.GetRef<Transform>(mover).Position = new Vector3(5, 0, 0);
+        Frame();
+        self.ChunksKept.Should().Be(0, "an entity in the chunk moved");
+        Placed().Should().Equal(new Vector3(1, 0, 0), new Vector3(5, 0, 0));
+
+        ecs.Despawn(still);
+        Frame();
+        Placed().Should().Equal([new Vector3(5, 0, 0)], "a despawned entity is gone at once");
     }
 
     [Fact]

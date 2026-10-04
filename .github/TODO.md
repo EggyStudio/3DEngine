@@ -21,9 +21,10 @@ removed from this file, and an item that is partly done is rewritten around what
   groups the pass copies into its ring on several threads, and each view draws the blocks of 64
   instances it sees. A frame holds about 410,000, of which `MeshEntityDraws` takes 5.6 ms and the
   program's loop turning them most of the rest, while the GPU takes 5.1 ms for the model pass. A
-  culled block is still written into the ring, and an entity whose transform has not changed is
-  written again each frame, though its instance, which holds nothing of the camera, would be the
-  same. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
+  chunk of 4096 entities none of which changed keeps the instances it gathered the frame before,
+  so 400,000 standing still take 2.4 ms in place of 6.0, but every instance is still copied into
+  the ring each frame and a culled block with them, and one entity moving gathers its whole chunk
+  again. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
   example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
   three.
 

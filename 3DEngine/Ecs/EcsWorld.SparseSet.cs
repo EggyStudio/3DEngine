@@ -119,7 +119,11 @@ internal sealed class SparseSet<T>
         }
     }
 
-    /// <summary>Adds or overwrites a component without marking it changed.</summary>
+    /// <summary>
+    /// Adds a component, which marks it added and not changed, or overwrites one the entity has,
+    /// which marks it changed, as Bevy's insert does, so a system reading changes sees a value
+    /// replaced this way.
+    /// </summary>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The component value to store.</param>
     public void Add(int entity, T component)
@@ -129,6 +133,7 @@ internal sealed class SparseSet<T>
         if (idx >= 0)
         {
             _denseComponents[idx] = component!;
+            Stamp(idx);
             return;
         }
 

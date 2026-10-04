@@ -201,7 +201,7 @@ public sealed partial class EcsWorld
         store.Reserve(componentCapacity, maxEntityIdHint);
     }
 
-    /// <summary>Adds a component to an entity (overwrites if already present) without marking it as changed.</summary>
+    /// <summary>Adds a component to an entity, marking it added, or overwrites the one it has, marking it changed, as Bevy's insert does.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
     /// <param name="component">The component value.</param>

@@ -17,6 +17,13 @@ namespace Engine;
 /// API that loads a scene sees its models. With neither, mesh entities are not drawn.
 /// </para>
 /// <para>
+/// Entities are gathered in chunks of 4096, a thread each, and a chunk none of whose entities' mesh,
+/// material or transforms changed since the last frame keeps what it gathered then, so a level
+/// standing still costs a check of each entity's change ticks rather than its instance written
+/// again. A write the change detection does not see, through a store's raw array, leaves an
+/// entity where it was drawn until something marks it.
+/// </para>
+/// <para>
 /// A mesh's arrays are uploaded to <see cref="MeshStore"/> the first time they are drawn and freed
 /// on the first frame no entity draws them. A material's base color texture is copied from the
 /// asset store into <see cref="TextureStore"/> once it has loaded, and copied again when the asset
@@ -123,6 +130,16 @@ public sealed class MeshEntityDraws
         public int LastMesh;
         public Writer[] Writers = [];
 
+        // What the chunk was recorded from, which a later frame keeps it by when none of its
+        // entities changed. That is its range of dense indices, the entity at each, the generation
+        // of the looks it used, and whether it could be kept at all, which it cannot when it left
+        // an entity to the pass after it or drew one whose look waited on a texture.
+        public int Start = -1, End = -1;
+        public int[] Entities = [];
+        public long Generation = -1;
+        public bool Keepable;
+        public bool Waiting;
+
         // Padded to a cache line, since the chunks' arrays of writers are allocated one after
         // another and every entity counts into one.
         public struct Writer
@@ -158,6 +175,8 @@ public sealed class MeshEntityDraws
             Translucent.Clear();
             Deferred.Clear();
             LastPositions = null;
+            Waiting = false;
+            Keepable = false;
         }
     }
 
@@ -201,8 +220,14 @@ public sealed class MeshEntityDraws
 
             // The entities are gathered once, since an instance holds nothing of the camera, and each
             // camera draws the same instances.
+            // Chunks are kept from the last frame only while no entity was added, removed or given or
+            // relieved of a material or transform, which the stores' counts would show, and a write
+            // counts from this system's last run, which the chunks' threads cannot ask for themselves.
+            var counts = (count, ecs.Count<Material>(), ecs.Count<GlobalTransform>(), ecs.Count<Transform>());
+            var keep = counts == _lastCounts;
+            _lastCounts = counts;
             var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
-                ecs.GetStorePublic<Transform>(), meshes, assets, textures);
+                ecs.GetStorePublic<Transform>(), meshes, assets, textures, ChangeTicks.Since(ecs.FrameStart), keep);
             Gather(frame, count);
             for (int index = 0; index < cameras.Count; index++)
                 DrawThrough(index, cameras[index].ViewProjection, cameras[index].Eye, cameras[index].Target, draws);
@@ -238,18 +263,30 @@ public sealed class MeshEntityDraws
     // How many chunks the frame's entities were gathered in, the deferred ones' after them.
     private int _chunkCount;
 
+    // How many chunks kept what they gathered the frame before, this frame.
+    private int _chunksKept;
+
+    /// <summary>How many chunks of entities kept what they gathered the frame before, in the last frame, since none of their entities changed.</summary>
+    internal int ChunksKept => _chunksKept;
+
+    // The mesh, material, global and local transform stores' counts last frame.
+    private (int, int, int, int) _lastCounts = (-1, -1, -1, -1);
+
     // Every entity's instance or translucent draw, written into the chunks.
     private void Gather(in Frame frame, int count)
     {
         // A chunk of entities a thread, each written into a segment of its own of each group,
         // and one segment more for the entities a chunk defers, written after.
         var chunks = _chunkCount = Math.Max(1, (count + ChunkSize - 1) / ChunkSize);
+        _chunksKept = 0;
         if (_chunks.Length < chunks + 1) Array.Resize(ref _chunks, chunks + 1);
-        for (int c = 0; c <= chunks; c++)
-        {
-            (_chunks[c] ??= new Chunk()).Clear();
-            _chunks[c].Begin(_groups.Count);
-        }
+        for (int c = 0; c <= chunks; c++) _chunks[c] ??= new Chunk();
+        // The chunks clear themselves unless they keep what they gathered, and the one the
+        // deferred entities are placed in always does.
+        _chunks[chunks].Clear();
+        _chunks[chunks].Begin(_groups.Count);
+        _chunks[chunks].Keepable = false;
+        _chunks[chunks].Start = -1;
 
         var local = frame;
         if (chunks == 1) RecordChunk(0, count, local);
@@ -296,17 +333,54 @@ public sealed class MeshEntityDraws
 
     // What a frame's entities are recorded from, the stores read once rather than looked up by
     // type for each entity.
+    // Since is the tick after which a write counts as changed, the system's last run, taken on the
+    // main thread for the chunks' threads, and Keep whether a chunk may be kept from the last frame.
     private readonly record struct Frame(EcsWorld.ComponentStore<Mesh> Meshes, EcsWorld.ComponentStore<Material> Materials,
         EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals,
-        MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures);
+        MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures, long Since = 0, bool Keep = false);
 
-    // The entities of a chunk, from its first dense index in the mesh store up to end.
+    // The entities of a chunk, from its first dense index in the mesh store up to end, or what it
+    // gathered the frame before when none of them changed, as in a level standing still.
     private void RecordChunk(int chunk, int end, in Frame frame)
     {
         var state = _chunks[chunk];
-        for (int dense = chunk * ChunkSize; dense < end; dense++)
+        var start = chunk * ChunkSize;
+        if (frame.Keep && Unchanged(state, start, end, frame))
+        {
+            Interlocked.Increment(ref _chunksKept);
+            return;
+        }
+
+        state.Clear();
+        state.Begin(_groups.Count);
+        for (int dense = start; dense < end; dense++)
             if (!Place(dense, state, canBuild: false, frame))
                 state.Deferred.Add(dense);
+
+        if (state.Entities.Length < end - start) state.Entities = new int[ChunkSize];
+        for (int dense = start; dense < end; dense++) state.Entities[dense - start] = frame.Meshes.EntityByDenseIndex(dense);
+        (state.Start, state.End, state.Generation) = (start, end, _generation);
+        state.Keepable = state.Deferred.Count == 0 && !state.Waiting;
+    }
+
+    // Whether an entity's component was written or given to it after a tick.
+    private static bool Touched<T>(EcsWorld.ComponentStore<T> store, int entity, long since) =>
+        store.ChangedAfter(entity, since) || store.AddedAfter(entity, since);
+
+    // Whether a chunk's entities are the ones it gathered last frame, at the same dense indices,
+    // with nothing they are drawn by changed since, so what it gathered is what it would again.
+    private bool Unchanged(Chunk state, int start, int end, in Frame frame)
+    {
+        if (!state.Keepable || state.Start != start || state.End != end || state.Generation != _generation) return false;
+        for (int dense = start; dense < end; dense++)
+        {
+            var entity = frame.Meshes.EntityByDenseIndex(dense);
+            if (entity != state.Entities[dense - start]
+                || Touched(frame.Meshes, entity, frame.Since) || Touched(frame.Materials, entity, frame.Since)
+                || Touched(frame.Globals, entity, frame.Since) || Touched(frame.Locals, entity, frame.Since))
+                return false;
+        }
+        return true;
     }
 
     // Writes one entity's instance into its group's segment, or its draw among the translucent
@@ -349,6 +423,9 @@ public sealed class MeshEntityDraws
             if (!canBuild) return false;
             look = Build(id, look.Material, frame.Assets, frame.Textures);
         }
+        // A look waiting on a texture is built again each frame until it has it, which may change
+        // its group, so its chunk is gathered again too.
+        if (look.Pending) state.Waiting = true;
 
         var placed = frame.Globals.TryGet(entity, out var global) ? global.Matrix
             : frame.Locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)

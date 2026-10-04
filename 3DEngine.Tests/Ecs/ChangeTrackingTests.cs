@@ -200,6 +200,21 @@ public class ChangeTrackingTests
     }
 
     [Fact]
+    public void Overwriting_A_Component_With_Add_Marks_It_Changed_As_Bevy_Does()
+    {
+        var ecs = new EcsWorld();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Transform(Vector3.Zero));
+        ecs.BeginFrame();
+        ecs.Changed<Transform>(entity).Should().BeFalse();
+
+        ecs.Add(entity, new Transform(Vector3.One));
+
+        ecs.Changed<Transform>(entity).Should().BeTrue("a value replaced this way is a change a system reading changes sees");
+        ecs.Added<Transform>(entity).Should().BeFalse("the entity had the component already");
+    }
+
+    [Fact]
     public void Every_Query_Kind_Filters_By_Added()
     {
         var ecs = new EcsWorld();

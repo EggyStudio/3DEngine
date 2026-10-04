@@ -31,7 +31,7 @@ public sealed partial class EcsWorld
         public void Reserve(int componentCapacity, int maxEntityIdHint)
             => _set.Reserve(componentCapacity, maxEntityIdHint);
 
-        /// <summary>Adds or overwrites a component on <paramref name="entity"/> without marking it as changed.</summary>
+        /// <summary>Adds a component to <paramref name="entity"/>, marking it added, or overwrites the one it has, marking it changed.</summary>
         /// <param name="entity">The entity ID.</param>
         /// <param name="component">The component value to store.</param>
         public void Add(int entity, T component) => _set.Add(entity, component);
@@ -67,6 +67,16 @@ public sealed partial class EcsWorld
         /// ran, or outside a system, since the frame began.
         /// </summary>
         public bool Changed(int entity) => _set.ChangedSince(entity, Since);
+
+        /// <summary>
+        /// Whether the component on <paramref name="entity"/> changed after <paramref name="since"/>,
+        /// a tick the caller took, as a system handing work to other threads, whose own runs are not
+        /// systems, takes its <see cref="ChangeTicks.Since"/> before it does.
+        /// </summary>
+        internal bool ChangedAfter(int entity, long since) => _set.ChangedSince(entity, since);
+
+        /// <summary>Whether <paramref name="entity"/> got the component after <paramref name="since"/>, as <see cref="ChangedAfter"/> asks of a change.</summary>
+        internal bool AddedAfter(int entity, long since) => _set.AddedSince(entity, since);
 
         /// <summary>
         /// Whether <paramref name="entity"/> got this component since the running system last

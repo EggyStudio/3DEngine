@@ -159,8 +159,11 @@ where it matters and costs nothing where it does not. Query rows carrying a hand
 were considered and left out, since every query would pay for what few keep.
 
 Change detection sees what `GetRef`, `Update`, the by-reference queries and a writable span hand
-out, and a component's first arrival. A write through a store's raw array (`ComponentsArray`) is
-not seen, which is the price of generated code reaching the array. A system's first run sees every
+out, and a component's first arrival, and an `Add` that overwrites a component marks it changed,
+as Bevy's insert does. A write through a store's raw array (`ComponentsArray`) is not seen, which
+is the price of generated code reaching the array, and a mesh entity moved that way keeps its
+place on screen until something marks it, since the renderer keeps what it gathered for entities
+nothing changed. A system's first run sees every
 stamp made before it, as Bevy's does, so the two engines agree, and removals are kept for 60
 frames, which bounds the memory they hold.
 
