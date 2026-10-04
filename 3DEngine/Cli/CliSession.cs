@@ -108,10 +108,19 @@ public static class CliSessionFile
     }
 
     /// <summary>Every session file that can be read, newest first.</summary>
+    /// <remarks>
+    /// An app replaces its file around each command it answers, and a listing of the directory made
+    /// while the new file is moved over the old can leave the name out, which reported a serving
+    /// app as gone about once in a hundred commands. The names of two listings are taken together,
+    /// with a file still being written counted under the name it is moved to.
+    /// </remarks>
     public static IReadOnlyList<CliSession> All()
     {
         if (!System.IO.Directory.Exists(Directory)) return [];
-        var found = System.IO.Directory.GetFiles(Directory, "*.json").Select(Read).OfType<CliSession>().ToList();
+        static IEnumerable<string> Names() => System.IO.Directory.GetFiles(Directory, "*.json*")
+            .Select(name => name.EndsWith(".json.tmp", StringComparison.Ordinal) ? name[..^".tmp".Length] : name)
+            .Where(name => name.EndsWith(".json", StringComparison.Ordinal));
+        var found = Names().Union(Names()).Select(Read).OfType<CliSession>().ToList();
         found.Sort((left, right) => right.Started.CompareTo(left.Started));
         return found;
     }

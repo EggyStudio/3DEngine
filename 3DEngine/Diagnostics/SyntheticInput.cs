@@ -24,9 +24,10 @@ namespace Engine;
 /// </remarks>
 public sealed class SyntheticInput
 {
+    // Changes due at a later frame: releases, and the steps of a drag.
     private readonly List<(ulong Frame, Action<Input> Release)> _releases = [];
 
-    /// <summary>Releases what is due by <paramref name="frame"/>.</summary>
+    /// <summary>Releases, and makes the other changes, due by <paramref name="frame"/>.</summary>
     public void Update(Input input, ulong frame)
     {
         for (int i = _releases.Count - 1; i >= 0; i--)
@@ -76,6 +77,38 @@ public sealed class SyntheticInput
             i.SetMousePosition(x, y);
         });
         if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMousePosEvent(x, y);
+    }
+
+    /// <summary>
+    /// Holds a mouse button for <paramref name="frames"/> frames while the pointer moves by
+    /// (<paramref name="dx"/>, <paramref name="dy"/>) from where it is, in even steps, one a frame,
+    /// reaching the end in the last frame the button is held.
+    /// </summary>
+    /// <remarks>
+    /// The press comes where the pointer starts, as a hand's does, so what reads the movement
+    /// while the button is down (an ImGui window dragged, a swipe) sees it.
+    /// </remarks>
+    public void Drag(Input input, MouseButton button, int dx, int dy, ulong frame, int frames)
+    {
+        frames = Math.Max(1, frames);
+        var (fromX, fromY) = (input.MouseX, input.MouseY);
+        Button(input, button, frame, frames);
+        if (frames == 1)
+        {
+            Move(input, fromX + dx, fromY + dy);
+            return;
+        }
+        for (int step = 1; step < frames; step++)
+        {
+            var x = fromX + dx * step / (frames - 1);
+            var y = fromY + dy * step / (frames - 1);
+            _releases.Add((frame + (ulong)step, i =>
+            {
+                i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
+                i.SetMousePosition(x, y);
+                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMousePosEvent(x, y);
+            }));
+        }
     }
 
     /// <summary>Holds a mouse button for <paramref name="frames"/> frames at the pointer's position.</summary>
@@ -162,7 +195,7 @@ internal static class InputCommands
         return $"clicked {x}, {y}";
     }
 
-    [Command("input.drag", "Holds a mouse button for some frames while moving the pointer: input.drag <button> <dx> <dy> <frames>")]
+    [Command("input.drag", "Holds a mouse button for some frames while moving the pointer a step a frame: input.drag <button> <dx> <dy> <frames>")]
     internal static string Drag(string button, int dx, int dy, int frames)
     {
         if (!Enum.TryParse<MouseButton>(button, ignoreCase: true, out var which))
@@ -172,8 +205,7 @@ internal static class InputCommands
         }
 
         var (input, synthetic, frame) = Parts();
-        synthetic.Button(input, which, frame, frames);
-        SyntheticInput.Move(input, input.MouseX + dx, input.MouseY + dy);
+        synthetic.Drag(input, which, dx, dy, frame, frames);
         ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 2);
         return $"dragged {which} by {dx}, {dy}";
     }

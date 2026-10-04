@@ -43,6 +43,12 @@ Every program built on the engine reads these flags, or the variables beside the
 `./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
 `.claude/skills/e3d-cli/SKILL.md` covers driving it.
 
+`build/capture-example.sh <example> <png> [--hidden|--offscreen]` captures an example as the README
+shows it: it gives the examples that wait for input their input (a gamepad, Enter, typed text,
+taps and swipes), runs it until its scene has settled and its frame rate is measured, and captures
+it. CI captures every example with it, and a new or changed example's capture in
+`.github/assets/examples` is taken with it.
+
 `--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
 one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. The render tests in
 `3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and are skipped where there is

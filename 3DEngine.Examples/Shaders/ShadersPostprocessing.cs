@@ -11,6 +11,8 @@ public static class ShadersPostprocessing
 
         var wave = LoadShader("resources/shaders/wave.slang");
         var grayscale = LoadShader("resources/shaders/grayscale.slang");
+        // All the way to gray, which holds for every frame after.
+        SetShaderValue(grayscale, 0, 1f);
         var scene = LoadRenderTexture(380, 300);
 
         var camera = new Camera3D(new Vector3(6, 4, 6), Vector3.Zero, Vector3.UnitY, 45);
@@ -41,7 +43,6 @@ public static class ShadersPostprocessing
             DrawTexture(scene.Texture, 10, 60, Color.White);
             EndShaderMode();
 
-            SetShaderValue(grayscale, 0, 0.5f + 0.5f * MathF.Sin(time));
             BeginShaderMode(grayscale);
             DrawTexture(scene.Texture, 410, 60, Color.White);
             EndShaderMode();
