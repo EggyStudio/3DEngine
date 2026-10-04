@@ -37,8 +37,9 @@ Not shared:
 
 ## The ledger
 
-One row an idea. The state of the engine that lacks it is `to take`, `taken at` a commit, `does
-not apply` with the reason, or `waits on the owner`. A row stays once both have it, since the
+One row an idea. The state of the engine that lacks it is `to take`, `taken at` a commit, `to
+consider` for an idea that is not scheduled and is taken only if it comes to suit that engine,
+`does not apply` with the reason, or `waits on the owner`. A row stays once both have it, since the
 table also answers whether the two agree.
 
 ### Behaviors and generators
@@ -80,20 +81,20 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to take |
-| A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to take |
-| Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to take |
-| A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to take, with saves |
+| A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
+| A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to consider |
+| Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
+| A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to consider, with saves |
 
 ### Input and the command line
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
-| Gamepads | waits on the owner | has |
+| Gamepads | to take, as the owner decided on 2026-10-04 | has |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | to take | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
-| C# typed at a running app | has in the editor (`eval`) | to take |
+| C# typed at a running app | has in the editor (`eval`) | to consider |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
 
 ### Tests, CI and packaging

@@ -94,6 +94,7 @@ public sealed class SdlImGuiPlugin : IPlugin
 
         var appWindow = app.World.Resource<AppWindow>();
         appWindow.SDLEvent += SdlImGuiInput.ProcessEvent;
+        SdlImGuiIme.Install(sdlWindow.Window);
 
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
             {

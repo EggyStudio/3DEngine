@@ -42,4 +42,42 @@ public class ImGuiHolderTests
         next.EndFrame();
         next.Shutdown();
     }
+
+    [Fact]
+    public void A_Focused_Text_Field_Says_Where_The_Input_Method_Composes_And_Leaving_It_Clears_That()
+    {
+        var app = Build();
+        try
+        {
+            SdlImGuiIme.Install(0);
+            var text = "";
+            void Frame(bool field, bool focus)
+            {
+                app.BeginFrame();
+                ImGuiNET.ImGui.SetNextWindowPos(new System.Numerics.Vector2(100, 50));
+                ImGuiNET.ImGui.Begin("ime");
+                if (focus) ImGuiNET.ImGui.SetKeyboardFocusHere();
+                if (field) ImGuiNET.ImGui.InputText("name", ref text, 64);
+                ImGuiNET.ImGui.End();
+                app.EndFrame();
+            }
+
+            Frame(field: true, focus: true);
+            Frame(field: true, focus: false);
+            Frame(field: true, focus: false);
+            SdlImGuiIme.LastArea.Should().NotBeNull("a focused field has the input method placed beside it");
+            var (position, lineHeight) = SdlImGuiIme.LastArea!.Value;
+            position.X.Should().BeInRange(100, 300, "the cursor is in the field, in the window placed at 100, 50");
+            position.Y.Should().BeInRange(50, 120);
+            lineHeight.Should().BePositive();
+
+            Frame(field: false, focus: false);
+            Frame(field: false, focus: false);
+            SdlImGuiIme.LastArea.Should().BeNull("with no field typed into, the area is cleared");
+        }
+        finally
+        {
+            app.Shutdown();
+        }
+    }
 }
