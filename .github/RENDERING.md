@@ -270,37 +270,37 @@ left out of the shadow map (`ModelDraw.CastsShadow`).
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
 `ShadowFit` cuts the window camera's view out to 150 units into slices ending at 12, 45 and 150
 units, or out to the distance `SetShadowDistance` puts in `ShadowSettings` in the same proportions,
-and fits a 2048 texel tile of a 4096 texel depth map to the sphere around each, so the near slice
-spends its texels on a few units and the far one on many. Each is moved in whole texels so the edges
-of shadows hold still as the camera moves, and reaches four radii further toward the light for
-casters above the view. The first four spot lights with `CastsShadows` set draw into the fourth
-tile, the whole of it for one and a quarter each for more, through a perspective projection from the
-light as wide as its outer cone and as deep as its range, or the shadow distance for a light with
-none. A shadowed spot light carries its slot, counted from one, in its cone's third component, as a
-point light does, and its projection and texel width ride in the lighting buffer. `ShadowNode`
-clears the map once and draws the window's meshes into each tile in use, before any other pass, with
-`shadow.slang`'s vertex stage and no fragment stage, through a depth-only render pass
-(`GraphicsDevice.CreateShadowMap`). It draws the window's batches and instances, which the model
-pass draws after it, reading each instance's world matrix, color and cutoff, and each tile and face
-pushes its light's view-projection, so the frame's instances are written once for both passes. A
-batch is gathered by the kind of shadow its draws cast as well, none, solid or masked, and a masked
-one is drawn with `shadow.slang`'s fragment stage and its maps, which cuts it out below its cutoff
-as the model pass does, so its shadow has its holes. A blended draw that is clear anywhere is drawn
-the masked way too, its fragment stage keeping a texel where its alpha passes a threshold that
-interleaved gradient noise spreads over the texels, so the nine samples the model pass averages give
-a shadow as dark as the surface is opaque. The map is bound at binding 1 of the lights' set, beside
-the cascades' matrices and texel widths in the lighting buffer, and the white texture takes its
-place in a frame with no shadow. The shader takes the nearest cascade whose tile holds the point, a
-little inside its edge, moves the point off its surface by a texel and a half of that cascade along
-its normal, and averages nine comparisons around it. Across the outer fifth of a tile the next
-cascade is read as well and blended in, so the shadow's softness changes over a band where one
-cascade gives way to the next, and past the last cascade's band the shadow fades out rather than
-ending at a line. A spot light's texels widen with distance from it, so its offset grows with that
-distance. A model shader with a vertex stage of its own casts the shadow of its mesh as it was
-before that stage moved it.
+and fits a tile of a depth map two tiles on a side, 2048 texels a tile unless `SetShadowMapSize`
+puts another size in `ShadowSettings`, to the sphere around each, so the near slice spends its
+texels on a few units and the far one on many. Each is moved in whole texels so the edges of shadows
+hold still as the camera moves, and reaches four radii further toward the light for casters above
+the view. The first four spot lights with `CastsShadows` set draw into the fourth tile, the whole of
+it for one and a quarter each for more, through a perspective projection from the light as wide as
+its outer cone and as deep as its range, or the shadow distance for a light with none. A shadowed
+spot light carries its slot, counted from one, in its cone's third component, as a point light does,
+and its projection and texel width ride in the lighting buffer. `ShadowNode` clears the map once and
+draws the window's meshes into each tile in use, before any other pass, with `shadow.slang`'s vertex
+stage and no fragment stage, through a depth-only render pass (`GraphicsDevice.CreateShadowMap`). It
+draws the window's batches and instances, which the model pass draws after it, reading each
+instance's world matrix, color and cutoff, and each tile and face pushes its light's
+view-projection, so the frame's instances are written once for both passes. A batch is gathered by
+the kind of shadow its draws cast as well, none, solid or masked, and a masked one is drawn with
+`shadow.slang`'s fragment stage and its maps, which cuts it out below its cutoff as the model pass
+does, so its shadow has its holes. A blended draw that is clear anywhere is drawn the masked way
+too, its fragment stage keeping a texel where its alpha passes a threshold that interleaved gradient
+noise spreads over the texels, so the nine samples the model pass averages give a shadow as dark as
+the surface is opaque. The map is bound at binding 1 of the lights' set, beside the cascades'
+matrices and texel widths in the lighting buffer, and the white texture takes its place in a frame
+with no shadow. The shader takes the nearest cascade whose tile holds the point, a little inside its
+edge, moves the point off its surface by a texel and a half of that cascade along its normal, and
+averages nine comparisons around it. Across the outer fifth of a tile the next cascade is read as
+well and blended in, so the shadow's softness changes over a band where one cascade gives way to the
+next, and past the last cascade's band the shadow fades out rather than ending at a line. A spot
+light's texels widen with distance from it, so its offset grows with that distance. A model shader
+with a vertex stage of its own casts the shadow of its mesh as it was before that stage moved it.
 
 The first four point lights with `CastsShadows` set shadow everything around them, each in six
-faces of 512 texels, a little wider than a right angle so the nine comparisons near a face's edge
+faces of a quarter of a tile, 512 texels by default, a little wider than a right angle so the nine comparisons near a face's edge
 stay on it. The faces are layers of a second depth image, drawn one layer at a time with the
 shadow pipelines and sampled as an array at the lights' set's binding 4, and their views and
 projections ride in the lighting buffer after the lights, in the order +X, -X, +Y, -Y, +Z, -Z. A

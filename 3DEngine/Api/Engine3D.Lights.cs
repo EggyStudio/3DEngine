@@ -76,6 +76,19 @@ public static partial class Engine3D
     public static void SetShadowDistance(float distance) =>
         World.GetOrInsertResource(() => new ShadowSettings()).Distance = Math.Max(1, distance);
 
+    /// <summary>
+    /// Sets how many texels wide each tile of the shadow map is, the sun's cascades and the spot
+    /// lights each having one, rounded to a power of two from 256 to 4096 (2048 by default). A point
+    /// light's faces are a quarter of it.
+    /// </summary>
+    /// <remarks>
+    /// A game's shadow quality setting: 4096 sharpens shadows at four times the memory and drawing
+    /// of 2048, and 1024 is cheaper and softer. The map is made again at the new size the next frame.
+    /// </remarks>
+    public static void SetShadowMapSize(int size) =>
+        World.GetOrInsertResource(() => new ShadowSettings()).TileSize =
+            (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Clamp(size, 256, 4096));
+
     /// <summary>Removes a light.</summary>
     public static void UnloadLight(LightHandle light)
     {

@@ -594,6 +594,7 @@ void SetLightDirection(LightHandle light, Vector3 direction);              // Tu
 void SetLightColor(LightHandle light, Color color, float intensity = 1);   // Recolor it
 void SetLightCastsShadows(LightHandle light, bool castsShadows);           // Turn its shadows on or off
 void SetShadowDistance(float distance);                                    // How far the sun's shadows reach (150), sharper when nearer
+void SetShadowMapSize(int size);                                           // Texels a shadow tile is wide (2048), a game's shadow quality
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 ```

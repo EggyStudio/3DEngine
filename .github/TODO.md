@@ -73,8 +73,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   with `CastsShadows` set shadows what the window's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones
   in the map's last tile, and the first four such point lights shadow all around them, six faces of
-  512 texels each (RENDERING.md §4). The tile and face sizes are constants, a fifth spot or point
-  light casts none, and render targets sample the window camera's map.
+  a quarter of a tile each (RENDERING.md §4). `SetShadowMapSize` sets the tile from 256 to 4096
+  texels (2048 by default). A fifth spot or point light casts none, and render targets sample the
+  window camera's map.
 
 ### The device
 

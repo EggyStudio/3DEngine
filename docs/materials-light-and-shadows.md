@@ -113,6 +113,10 @@ out to 150 units from the camera and sharpest near it. `SetShadowDistance` bring
 small scene, which sharpens it, or out for a wide one. The first four spot lights and the first four
 point lights that cast shadows cast theirs too, a point light's all around it.
 
+`SetShadowMapSize` sets how many texels wide each tile of the shadow map is, 2048 unless set, which
+is the shadow quality a game's settings offer: 4096 sharpens every shadow at four times the memory,
+and 1024 softens them for a slower machine.
+
 Shapes drawn with `DrawCube` and the others cast no shadow, and models do. The shadow map example
 draws its lamp as a shape for that reason, since a model around the lamp would shadow everything
 from it:

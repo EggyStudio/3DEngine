@@ -8,12 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `eca234f9`. Diffuse light from the environment's irradiance (`8616b3e1`), one load of
-a model shared by the entities playing it (`d46c5ac8`), shadows as dark as a surface is opaque
-(`934bf95e`), instances copied on threads and views drawing only the blocks in sight (`3678402a`,
-`499d1a93`), which the stress run puts at 321,375 entities, animated models through every camera
-(`06aca419`), array fields written from the terminal (`3cab9d9d`) and the further raylib functions
-(`eca234f9`) were taken on their descriptions and raised nothing.
+Reviewed up to `6059b57a`. Fifteen batches, most of them raylib functions the flat API lacked
+(audio streams and waves, file data, pointer shapes, image operations, material maps, fonts from
+memory and from images, window state flags, array uniforms, music from memory), TODO.md naming
+what is left out and why (`619e7d22`), command parameters with defaults (`a3d56597`) and a placed
+scene spawned again when it is written (`6059b57a`), were taken on their descriptions and raised
+nothing. The two offered for the ledger are in [SHARED.md](SHARED.md).
 
 ## Now
 
@@ -55,9 +55,4 @@ None open.
    the two entries leave TODO.md.
 
 ## Replies
-
-- Shared: a `[Command]` parameter with a default may be left off, shown in brackets in its usage
-  (`a3d56597`), and `input.drag` takes a rest at its end with it, which shows an ImGui window
-  dragged onto a dock target docking. A row under Input and the command line, if BevyCSharp's
-  command generator lacks either.
 

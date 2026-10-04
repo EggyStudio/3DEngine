@@ -1002,6 +1002,30 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Shadow_Falls_The_Same_With_A_Smaller_Or_Larger_Map_Made_Between_Frames()
+    {
+        Open(64, 64);
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        SpawnWallAndCamera(ecs);
+        var square = ecs.Spawn();
+        ecs.Add(square, new Mesh([new(0.25f, -0.5f, 1), new(1.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, -0.5f, 1), new(1.25f, 0.5f, 1), new(0.25f, 0.5f, 1)]));
+        ecs.Add(square, new Material(Vector4.One));
+        ecs.Add(square, new Transform(Vector3.Zero));
+        var sun = ecs.Spawn();
+        ecs.Add(sun, Light.Directional(Vector3.One, 1f) with { CastsShadows = true });
+        ecs.Add(sun, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4), Vector3.One));
+
+        foreach (var size in new[] { 512, 4096, 1000 })
+        {
+            SetShadowMapSize(size);
+            var image = Capture(() => ClearBackground(Color.Black), $"map{size}");
+            GetImageColor(image, 27, 32).R.Should().BeLessThan(10, $"the square shadows the wall with tiles {size} wide");
+            GetImageColor(image, 27, 9).R.Should().BeGreaterThan(120);
+        }
+        GetApp().World.Resource<ShadowSettings>().TileSize.Should().Be(1024, "a size is rounded up to a power of two");
+    }
+
+    [NeedsVulkanFact]
     public void A_Shadow_Fades_Out_Toward_The_Shadow_Distance_Rather_Than_Stopping_At_A_Line()
     {
         Open(64, 256);

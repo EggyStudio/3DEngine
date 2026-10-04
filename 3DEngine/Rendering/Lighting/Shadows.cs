@@ -18,9 +18,12 @@ namespace Engine;
 /// The shadowed point lights, by their index in the lighting buffer, each with the view and
 /// projection of the six faces around it, in the order +X, -X, +Y, -Y, +Z, -Z.
 /// </param>
+/// <param name="TileSize">The width in texels of a cascade's tile, half the map's.</param>
+/// <param name="PointFaceSize">The width in texels of each face of a point light.</param>
 public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
     IReadOnlyList<(int Light, Matrix4x4 ViewProjection, float TexelPerUnit)>? SpotLights = null,
-    IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null);
+    IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null,
+    int TileSize = ShadowFit.TileSize, int PointFaceSize = ShadowFit.PointFaceSize);
 
 /// <summary>How far shadows reach, a world resource the renderer reads each frame.</summary>
 public sealed class ShadowSettings
@@ -31,6 +34,12 @@ public sealed class ShadowSettings
     /// the default's proportions, so a shorter distance gives sharper shadows over less ground.
     /// </summary>
     public float Distance { get; set; } = ShadowFit.Distance;
+
+    /// <summary>
+    /// The width in texels of each tile of the map, a cascade's or the spot lights', the map being
+    /// two tiles on a side, 2048 unless set. A point light's faces are a quarter of it.
+    /// </summary>
+    public int TileSize { get; set; } = ShadowFit.TileSize;
 }
 
 /// <summary>Fits a directional light's shadow cascades to what a camera sees.</summary>
@@ -51,10 +60,10 @@ public sealed class ShadowSettings
 /// </remarks>
 public static class ShadowFit
 {
-    /// <summary>A cascade's width and height in texels.</summary>
+    /// <summary>A cascade's width and height in texels, unless <see cref="ShadowSettings.TileSize"/> says otherwise.</summary>
     public const int TileSize = 2048;
 
-    /// <summary>The map the cascades are tiles of, two tiles on a side, with one left for a spot light.</summary>
+    /// <summary>The map the cascades are tiles of, two tiles on a side, with one left for a spot light, at the default tile size.</summary>
     public const int AtlasSize = 2 * TileSize;
 
     /// <summary>How far past the camera's near plane, in world units, shadows are drawn unless <see cref="ShadowSettings"/> says otherwise.</summary>
@@ -73,7 +82,7 @@ public static class ShadowFit
     /// cannot be inverted.
     /// </summary>
     public static bool TryFit(Matrix4x4 cameraViewProjection, Vector3 direction, float from, float to,
-        out Matrix4x4 viewProjection, out float texel)
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize)
     {
         viewProjection = Matrix4x4.Identity;
         texel = 0;
@@ -110,7 +119,7 @@ public static class ShadowFit
         var view = Matrix4x4.CreateLookAt(Vector3.Zero, direction, up);
 
         // The middle of the cascade in the light's view, moved to a whole texel.
-        texel = 2 * radius / TileSize;
+        texel = 2 * radius / tileSize;
         var middle = Vector3.Transform(center, view);
         middle.X = MathF.Floor(middle.X / texel) * texel;
         middle.Y = MathF.Floor(middle.Y / texel) * texel;
@@ -127,14 +136,15 @@ public static class ShadowFit
     /// Every cascade of a light pointing along <paramref name="direction"/> over what the camera
     /// sees out to <paramref name="distance"/>, nearest first, or none when it cannot be fitted.
     /// </summary>
-    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction, float distance = Distance)
+    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction, float distance = Distance,
+        int tileSize = TileSize)
     {
         var splits = SplitsFor(distance);
         var cascades = new (Matrix4x4, float)[splits.Length];
         float from = 0;
         for (int i = 0; i < splits.Length; i++)
         {
-            if (!TryFit(cameraViewProjection, direction, from, splits[i], out var viewProjection, out var texel)) return [];
+            if (!TryFit(cameraViewProjection, direction, from, splits[i], out var viewProjection, out var texel, tileSize)) return [];
             cascades[i] = (viewProjection, texel);
             from = splits[i];
         }
@@ -152,11 +162,11 @@ public static class ShadowFit
     /// <paramref name="count"/> shadowed spot lights: the whole tile for one, and a quarter each
     /// for more, so a lone spot light keeps every texel.
     /// </summary>
-    public static (int X, int Y, int Size) SpotTileArea(int slot, int count)
+    public static (int X, int Y, int Size) SpotTileArea(int slot, int count, int tileSize = TileSize)
     {
-        var (x, y) = TileOrigin(SpotTile);
-        if (count <= 1) return (x, y, TileSize);
-        var size = TileSize / 2;
+        var (x, y) = TileOrigin(SpotTile, tileSize);
+        if (count <= 1) return (x, y, tileSize);
+        var size = tileSize / 2;
         return (x + slot % 2 * size, y + slot / 2 * size, size);
     }
 
@@ -187,8 +197,8 @@ public static class ShadowFit
     /// <summary>How many point lights cast shadows at once, the first ones with <c>CastsShadows</c> set.</summary>
     public const int MaxPointLights = 4;
 
-    /// <summary>The width and height in texels of each of a point light's six faces.</summary>
-    public const int PointFaceSize = 512;
+    /// <summary>The width and height in texels of each of a point light's six faces, a quarter of the default tile.</summary>
+    public const int PointFaceSize = TileSize / 4;
 
     /// <summary>
     /// How much wider than a right angle each face of a point light is, so the nine depths compared
@@ -217,7 +227,7 @@ public static class ShadowFit
     }
 
     /// <summary>The texel at which cascade or tile <paramref name="tile"/> starts in the map, across and down.</summary>
-    public static (int X, int Y) TileOrigin(int tile) => (tile % 2 * TileSize, tile / 2 * TileSize);
+    public static (int X, int Y) TileOrigin(int tile, int tileSize = TileSize) => (tile % 2 * tileSize, tile / 2 * tileSize);
 
     private static Vector3 Unproject(in Matrix4x4 inverse, float x, float y, float z)
     {

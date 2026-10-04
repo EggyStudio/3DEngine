@@ -221,6 +221,9 @@ public sealed class ModelRenderer : IDisposable
     private IBuffer? _noLightsBuffer;
     private ShadowMap? _shadowMap;
     private ShadowMap? _pointShadowMap;
+
+    // Maps replaced by ones of another size, kept until no frame in flight reads them.
+    private readonly List<(long Frame, ShadowMap Map)> _retiredMaps = [];
     private ShadowMap? _noPointShadowMap;
     private CubeMap? _environment;
     private EnvironmentMap? _environmentSource;
@@ -686,7 +689,7 @@ public sealed class ModelRenderer : IDisposable
         var textures = renderWorld.TryGet<GpuTextures>();
         if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
 
-        var map = _shadowMap ??= device.CreateShadowMap(ShadowFit.AtlasSize);
+        var map = ShadowMapFor(device, shadow.TileSize);
         if (_shadowVertexSpv.IsEmpty) return;
         if (_shadowPipeline is null)
         {
@@ -718,15 +721,15 @@ public sealed class ModelRenderer : IDisposable
         // The cascades in the first tiles, and the spot lights in the last, sharing it when there are several.
         for (int t = 0; t < shadow.Cascades.Count; t++)
         {
-            var (x, y) = ShadowFit.TileOrigin(t);
-            pass.SetViewport(x, y, ShadowFit.TileSize, ShadowFit.TileSize, 0, 1);
-            pass.SetScissor(x, y, ShadowFit.TileSize, ShadowFit.TileSize);
+            var (x, y) = ShadowFit.TileOrigin(t, shadow.TileSize);
+            pass.SetViewport(x, y, shadow.TileSize, shadow.TileSize, 0, 1);
+            pass.SetScissor(x, y, (uint)shadow.TileSize, (uint)shadow.TileSize);
             DrawShadowBatches(pass, ring, offset, shadow.Cascades[t].ViewProjection);
         }
         var spots = shadow.SpotLights ?? [];
         for (int s = 0; s < spots.Count; s++)
         {
-            var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count);
+            var (x, y, size) = ShadowFit.SpotTileArea(s, spots.Count, shadow.TileSize);
             pass.SetViewport(x, y, size, size, 0, 1);
             pass.SetScissor(x, y, (uint)size, (uint)size);
             DrawShadowBatches(pass, ring, offset, spots[s].ViewProjection);
@@ -736,14 +739,14 @@ public sealed class ModelRenderer : IDisposable
         // Each shadowed point light's six faces, a layer of the point map each.
         var points = shadow.PointLights ?? [];
         if (points.Count == 0) return;
-        var pointMap = PointShadowMap(device);
+        var pointMap = PointShadowMap(device, shadow.PointFaceSize);
         for (int p = 0; p < points.Count; p++)
             for (int f = 0; f < 6; f++)
             {
                 var facePass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
                     pointMap.RenderPass, pointMap.Framebuffers[p * 6 + f], pointMap.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
-                facePass.SetViewport(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize, 0, 1);
-                facePass.SetScissor(0, 0, ShadowFit.PointFaceSize, ShadowFit.PointFaceSize);
+                facePass.SetViewport(0, 0, shadow.PointFaceSize, shadow.PointFaceSize, 0, 1);
+                facePass.SetScissor(0, 0, (uint)shadow.PointFaceSize, (uint)shadow.PointFaceSize);
                 DrawShadowBatches(facePass, ring, offset, points[p].Faces[f]);
                 facePass.EndRenderPass();
             }
@@ -776,8 +779,20 @@ public sealed class ModelRenderer : IDisposable
 
     // The point lights' faces, six layers a light, made when a point light first casts a shadow,
     // or a stand-in of two texels for the lights' set to bind before then.
-    private ShadowMap PointShadowMap(GraphicsDevice device) =>
-        _pointShadowMap ??= device.CreateShadowMap(ShadowFit.PointFaceSize, ShadowFit.MaxPointLights * 6);
+    private ShadowMap PointShadowMap(GraphicsDevice device, int faceSize)
+    {
+        if (_pointShadowMap is { } made && made.Extent.Width == faceSize) return made;
+        if (_pointShadowMap is { } old) _retiredMaps.Add((_frames, old));
+        return _pointShadowMap = device.CreateShadowMap((uint)faceSize, ShadowFit.MaxPointLights * 6);
+    }
+
+    // The map of the cascades and spot lights, two tiles on a side, made again when the tile size changes.
+    private ShadowMap ShadowMapFor(GraphicsDevice device, int tileSize)
+    {
+        if (_shadowMap is { } made && made.Extent.Width == 2 * tileSize) return made;
+        if (_shadowMap is { } old) _retiredMaps.Add((_frames, old));
+        return _shadowMap = device.CreateShadowMap((uint)(2 * tileSize));
+    }
 
     private ShadowMap NoPointShadowMap(GraphicsDevice device) => _noPointShadowMap ??= device.CreateShadowMap(1, 2);
 
@@ -840,6 +855,12 @@ public sealed class ModelRenderer : IDisposable
             {
                 _retiredBuffers[i].Buffer.Dispose();
                 _retiredBuffers.RemoveAt(i);
+            }
+        for (int i = _retiredMaps.Count - 1; i >= 0; i--)
+            if (_frames - _retiredMaps[i].Frame > SetRingFrames)
+            {
+                _retiredMaps[i].Map.Dispose();
+                _retiredMaps.RemoveAt(i);
             }
         for (int i = _retiredShaderSets.Count - 1; i >= 0; i--)
             if (_frames - _retiredShaderSets[i].Frame > SetRingFrames)
@@ -1082,7 +1103,8 @@ public sealed class ModelRenderer : IDisposable
             }
             if (gfx is GraphicsDevice device)
             {
-                var points = renderWorld.TryGet<FrameShadow>()?.PointLights is { Count: > 0 } ? PointShadowMap(device) : NoPointShadowMap(device);
+                var points = renderWorld.TryGet<FrameShadow>() is { PointLights.Count: > 0 } frameShadow
+                    ? PointShadowMap(device, frameShadow.PointFaceSize) : NoPointShadowMap(device);
                 gfx.UpdateDescriptorSet(_lightSets[_lightSet], null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
             }
         }
@@ -1140,6 +1162,7 @@ public sealed class ModelRenderer : IDisposable
         }
         foreach (var (set, _) in _materialSets.Values) set.Dispose();
         foreach (var (_, buffer) in _retiredBuffers) buffer.Dispose();
+        foreach (var (_, map) in _retiredMaps) map.Dispose();
         _instanceRing?.Dispose();
         _materialSets.Clear();
         _noUniforms?.Dispose();
