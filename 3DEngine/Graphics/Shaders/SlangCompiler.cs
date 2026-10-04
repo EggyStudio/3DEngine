@@ -93,7 +93,7 @@ public static partial class SlangCompiler
         if (cached is not null && File.Exists(cached))
         {
             var described = File.Exists(uniformsFile) ? File.ReadAllText(uniformsFile) : "";
-            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described));
+            return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described));
         }
 
         if (compiler is null)
@@ -105,17 +105,18 @@ public static partial class SlangCompiler
         var uniforms = UniformsOf(reflection);
         var textures = TexturesOf(reflection);
         var buffers = BuffersOf(reflection);
+        var images = ImagesOf(reflection);
 
         if (cached is not null)
         {
             Directory.CreateDirectory(cacheDirectory!);
             // Written beside and moved into place, so a reader never sees half an entry. The
             // uniforms go first, so an entry whose SPIR-V is there has them too.
-            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers)));
+            WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers) + WriteImages(images)));
             WriteAtomically(cached, bytecode);
         }
 
-        return new SlangStage(bytecode, uniforms, textures, buffers);
+        return new SlangStage(bytecode, uniforms, textures, buffers, images);
     }
 
     private static void WriteAtomically(string path, byte[] bytes)
@@ -151,15 +152,21 @@ public static partial class SlangCompiler
     /// <summary>The textures a shader samples in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
     /// <remarks>Its engine module's own are among them, and each pass tells them from the shader's own by binding.</remarks>
     internal static IReadOnlyList<ShaderTexture> TexturesOf(string? reflectionJson) =>
-        ResourcesOf(reflectionJson, buffers: false);
+        ResourcesOf(reflectionJson, Resource.Texture);
 
     /// <summary>The storage buffers a compute shader reads and writes in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
     internal static IReadOnlyList<ShaderTexture> BuffersOf(string? reflectionJson) =>
-        ResourcesOf(reflectionJson, buffers: true);
+        ResourcesOf(reflectionJson, Resource.Buffer);
 
-    // The resources of the first descriptor set, textures or structured buffers, which the
-    // reflection tells apart by their shape.
-    private static IReadOnlyList<ShaderTexture> ResourcesOf(string? reflectionJson, bool buffers)
+    /// <summary>The images a compute shader writes, its <c>RWTexture2D</c>s, in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
+    internal static IReadOnlyList<ShaderTexture> ImagesOf(string? reflectionJson) =>
+        ResourcesOf(reflectionJson, Resource.Image);
+
+    private enum Resource { Texture, Buffer, Image }
+
+    // The resources of the first descriptor set of one kind, which the reflection tells apart by
+    // their shape, a structured buffer's or a texture's, and a texture's access, written or sampled.
+    private static IReadOnlyList<ShaderTexture> ResourcesOf(string? reflectionJson, Resource kind)
     {
         if (string.IsNullOrEmpty(reflectionJson)) return [];
         using var document = System.Text.Json.JsonDocument.Parse(reflectionJson);
@@ -173,7 +180,9 @@ public static partial class SlangCompiler
                 !parameter.TryGetProperty("type", out var type) || type.GetProperty("kind").GetString() != "resource")
                 continue;
             var shape = type.TryGetProperty("baseShape", out var baseShape) ? baseShape.GetString() : null;
-            if ((shape is "structuredBuffer" or "byteAddressBuffer") != buffers) continue;
+            var written = type.TryGetProperty("access", out var access) && access.GetString() is "readWrite" or "write";
+            var found = shape is "structuredBuffer" or "byteAddressBuffer" ? Resource.Buffer : written ? Resource.Image : Resource.Texture;
+            if (found != kind) continue;
             textures.Add(new ShaderTexture(parameter.GetProperty("name").GetString()!, binding.GetProperty("index").GetInt32()));
         }
         return textures;
@@ -194,19 +203,29 @@ public static partial class SlangCompiler
 
     private static IReadOnlyList<ShaderTexture> ReadBuffers(string text) => ReadResources(text, "buffer");
 
+    private static string WriteImages(IReadOnlyList<ShaderTexture> images) =>
+        string.Concat(images.Select(i => $"image {i.Name} {i.Binding}\n"));
+
+    private static IReadOnlyList<ShaderTexture> ReadImages(string text) => ReadResources(text, "image");
+
     private static IReadOnlyList<ShaderTexture> ReadResources(string text, string kind) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
-            .Where(parts => parts.Length == 3 && parts[0] == kind)
+            .Where(parts => parts.Length == 3 && parts[0] == kind && !IsNumber(parts[1]))
             .Select(parts => new ShaderTexture(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
             .ToArray();
 
+    // A uniform's line is its name and two numbers, and a resource's its kind, its name and a
+    // number, so a uniform named as a kind is told from a resource by its second word, which a
+    // name never is.
     private static IReadOnlyList<ShaderUniform> ReadUniforms(string text) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
-            .Where(parts => parts[0] is not ("texture" or "buffer"))
+            .Where(parts => parts.Length == 3 && IsNumber(parts[1]))
             .Select(parts => new ShaderUniform(parts[0], int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
             .ToArray();
+
+    private static bool IsNumber(string word) => int.TryParse(word, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out _);
 
     private static (byte[] Spirv, string? Reflection) Run(string compiler, string source, string fileName, string entryPoint, ShaderStage stage,
         string? importDirectory)
@@ -384,7 +403,7 @@ public static partial class SlangCompiler
 
 /// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V and its top-level uniforms.</summary>
 public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null,
-    IReadOnlyList<ShaderTexture>? Buffers = null);
+    IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null);
 
 /// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
 public readonly record struct ShaderUniform(string Name, int Offset, int Size);

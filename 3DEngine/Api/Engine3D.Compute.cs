@@ -186,9 +186,40 @@ public static partial class Engine3D
             buffers.Add((program.Buffers[i].Binding, gpu));
         }
 
+        // The textures it writes and samples, as the renderer holds them.
+        var gpuTextures = Res<Renderer>().RenderWorld.TryGet<GpuTextures>();
+        var images = new List<(int, IImage, IImageView)>(program.Images.Count);
+        if (program.Images.Count > 0)
+        {
+            if (!device.CanWriteImages || gpuTextures is null)
+            {
+                ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' writes a texture, which this GPU cannot do without its format named.");
+                return;
+            }
+            var imageIds = ImageValues.GetValueOrDefault(shader.Id) ?? new int[program.Images.Count];
+            for (int i = 0; i < program.Images.Count; i++)
+            {
+                if (gpuTextures.StorageFor(imageIds[i]) is not { } storage)
+                {
+                    ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' has no texture on the GPU for '{program.Images[i].Name}'. "
+                                   + "A texture reaches the GPU in the frame after it is loaded, and a render texture cannot be written.");
+                    return;
+                }
+                images.Add((program.Images[i].Binding, storage.Image, storage.View));
+            }
+        }
+        var textures = new List<(int, IImageView, ISampler)>(program.Textures.Count);
+        var textureIds = TextureValues.GetValueOrDefault(shader.Id);
+        for (int i = 0; i < program.Textures.Count && gpuTextures is not null; i++)
+        {
+            var (view, sampler) = gpuTextures.ViewFor(device, textureIds is { } ids && i < ids.Length ? ids[i] : 0);
+            textures.Add((program.Textures[i].Binding, view, sampler));
+        }
+
         if (!ComputePipelines.TryGetValue(shader.Id, out var pipeline))
-            ComputePipelines[shader.Id] = pipeline = device.CreateComputePipeline(spirv, program.UniformSize, [.. program.Buffers.Select(b => b.Binding)]);
-        device.Dispatch(pipeline, UniformValues.GetValueOrDefault(shader.Id) ?? [], buffers, (uint)groupsX, (uint)groupsY, (uint)groupsZ);
+            ComputePipelines[shader.Id] = pipeline = device.CreateComputePipeline(spirv, program.UniformSize, [.. program.Buffers.Select(b => b.Binding)],
+                [.. program.Images.Select(i => i.Binding)], [.. program.Textures.Select(t => t.Binding)]);
+        device.Dispatch(pipeline, UniformValues.GetValueOrDefault(shader.Id) ?? [], buffers, (uint)groupsX, (uint)groupsY, (uint)groupsZ, images, textures);
     }
 
     // A compute shader's pipeline goes with it.

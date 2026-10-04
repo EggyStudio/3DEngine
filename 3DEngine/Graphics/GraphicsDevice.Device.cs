@@ -6,6 +6,9 @@ namespace Engine;
 
 public sealed unsafe partial class GraphicsDevice
 {
+    /// <summary>Whether a compute shader can write a texture, which needs images read and written with no format named.</summary>
+    public bool CanWriteImages { get; private set; }
+
     /// <summary>Required Vulkan device extensions (currently just <c>VK_KHR_swapchain</c>).</summary>
     private static readonly string[] DeviceExtensions =
     {
@@ -36,9 +39,15 @@ public sealed unsafe partial class GraphicsDevice
         Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
         using var deviceExts = new VkStringArray(extensionNames);
 
+        // A compute shader's RWTexture2D carries no format of its own, as Slang writes it, which
+        // these let it read and write, on every desktop driver that has them.
+        _instanceApi.vkGetPhysicalDeviceFeatures(_physicalDevice, out var supported);
+        CanWriteImages = supported.shaderStorageImageReadWithoutFormat && supported.shaderStorageImageWriteWithoutFormat;
         VkPhysicalDeviceFeatures features = new()
         {
-            samplerAnisotropy = true
+            samplerAnisotropy = true,
+            shaderStorageImageReadWithoutFormat = CanWriteImages,
+            shaderStorageImageWriteWithoutFormat = CanWriteImages,
         };
 
         VkDeviceCreateInfo createInfo = new()

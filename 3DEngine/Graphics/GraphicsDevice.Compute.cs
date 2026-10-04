@@ -2,14 +2,16 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-/// <summary>A compute shader's pipeline, with the descriptor layout of its uniforms and storage buffers.</summary>
+/// <summary>A compute shader's pipeline, with the descriptor layout of its uniforms, storage buffers, images and textures.</summary>
 public sealed class ComputePipeline : IDisposable
 {
     private readonly Action _dispose;
 
     internal ComputePipeline(VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout setLayout, int uniformSize,
-        IReadOnlyList<int> bufferBindings, Action dispose)
+        IReadOnlyList<int> bufferBindings, Action dispose, IReadOnlyList<int>? imageBindings = null, IReadOnlyList<int>? textureBindings = null)
     {
+        ImageBindings = imageBindings ?? [];
+        TextureBindings = textureBindings ?? [];
         Pipeline = pipeline;
         Layout = layout;
         SetLayout = setLayout;
@@ -28,6 +30,12 @@ public sealed class ComputePipeline : IDisposable
     /// <summary>The bindings of the storage buffers the shader uses.</summary>
     public IReadOnlyList<int> BufferBindings { get; }
 
+    /// <summary>The bindings of the images the shader writes.</summary>
+    public IReadOnlyList<int> ImageBindings { get; }
+
+    /// <summary>The bindings of the textures the shader samples.</summary>
+    public IReadOnlyList<int> TextureBindings { get; }
+
     /// <inheritdoc />
     public void Dispose() => _dispose();
 }
@@ -44,18 +52,27 @@ public sealed unsafe partial class GraphicsDevice
     /// <param name="spirv">The compute stage.</param>
     /// <param name="uniformSize">The size of its uniform buffer at binding 0, or 0 when it has none.</param>
     /// <param name="bufferBindings">The bindings of its storage buffers.</param>
+    /// <param name="imageBindings">The bindings of the images it writes.</param>
+    /// <param name="textureBindings">The bindings of the textures it samples.</param>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
-    public ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings)
+    public ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings,
+        IReadOnlyList<int>? imageBindings = null, IReadOnlyList<int>? textureBindings = null)
     {
         if (!IsInitialized) throw new InvalidOperationException("Graphics device not initialized");
+        imageBindings ??= [];
+        textureBindings ??= [];
 
-        var count = bufferBindings.Count + (uniformSize > 0 ? 1 : 0);
+        var count = bufferBindings.Count + imageBindings.Count + textureBindings.Count + (uniformSize > 0 ? 1 : 0);
         var bindings = stackalloc VkDescriptorSetLayoutBinding[Math.Max(1, count)];
         int b = 0;
         if (uniformSize > 0)
             bindings[b++] = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = VkDescriptorType.UniformBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         foreach (var binding in bufferBindings)
             bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.StorageBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        foreach (var binding in imageBindings)
+            bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.StorageImage, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        foreach (var binding in textureBindings)
+            bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = (uint)count, pBindings = bindings };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out VkDescriptorSetLayout createdSetLayout).CheckResult();
         var setLayout = createdSetLayout;
@@ -86,7 +103,7 @@ public sealed unsafe partial class GraphicsDevice
         _deviceApi.vkDestroyShaderModule(module);
 
         ComputePipeline? created = null;
-        created = new ComputePipeline(pipeline, layout, setLayout, uniformSize, [.. bufferBindings], () =>
+        created = new ComputePipeline(pipeline, layout, setLayout, uniformSize, [.. bufferBindings], imageBindings: [.. imageBindings], textureBindings: [.. textureBindings], dispose: () =>
         {
             lock (_computeGate)
             {
@@ -113,14 +130,15 @@ public sealed unsafe partial class GraphicsDevice
     /// <summary>
     /// Runs <paramref name="pipeline"/> over <paramref name="groupsX"/> by <paramref name="groupsY"/>
     /// by <paramref name="groupsZ"/> groups of threads, with <paramref name="uniforms"/> at binding
-    /// 0 and each storage buffer at its binding.
+    /// 0, each storage buffer, image and texture at its binding.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Submitted at once to the queue the frames go to, without waiting, so it runs before the
     /// frame being recorded and after the ones before it. Barriers on both sides order it against
     /// them on the GPU: what earlier work wrote is seen, and what it writes is seen by later work and
-    /// by the CPU once <see cref="WaitForCompute"/> returns.
+    /// by the CPU once <see cref="WaitForCompute"/> returns. An image it writes is moved to the
+    /// general layout for it, from the one textures are sampled in, and back after.
     /// </para>
     /// <para>
     /// Callable from the systems of a stage that run in parallel, which a lock keeps to one
@@ -128,8 +146,11 @@ public sealed unsafe partial class GraphicsDevice
     /// </para>
     /// </remarks>
     public void Dispatch(ComputePipeline pipeline, ReadOnlySpan<byte> uniforms, IReadOnlyList<(int Binding, IBuffer Buffer)> buffers,
-        uint groupsX, uint groupsY, uint groupsZ)
+        uint groupsX, uint groupsY, uint groupsZ, IReadOnlyList<(int Binding, IImage Image, IImageView View)>? images = null,
+        IReadOnlyList<(int Binding, IImageView View, ISampler Sampler)>? textures = null)
     {
+        images ??= [];
+        textures ??= [];
         lock (_computeGate)
         {
             Retire(wait: false);
@@ -141,10 +162,12 @@ public sealed unsafe partial class GraphicsDevice
 
             // A pool of one set for each dispatch, freed with it, since dispatches come and go
             // at the program's pace rather than the frame's.
-            var sizes = stackalloc VkDescriptorPoolSize[2];
+            var sizes = stackalloc VkDescriptorPoolSize[4];
             sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)Math.Max(1, buffers.Count) };
             sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
-            var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 2, pPoolSizes = sizes };
+            sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = (uint)Math.Max(1, images.Count) };
+            sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
+            var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 4, pPoolSizes = sizes };
             _deviceApi.vkCreateDescriptorPool(&descriptorPoolInfo, null, out VkDescriptorPool pool).CheckResult();
             var setLayout = pipeline.SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
@@ -152,9 +175,10 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
 
             IBuffer? uniformBuffer = null;
-            var writes = stackalloc VkWriteDescriptorSet[buffers.Count + 1];
+            var writes = stackalloc VkWriteDescriptorSet[buffers.Count + images.Count + textures.Count + 1];
             var infos = stackalloc VkDescriptorBufferInfo[buffers.Count + 1];
-            int w = 0;
+            var imageInfos = stackalloc VkDescriptorImageInfo[images.Count + textures.Count + 1];
+            int w = 0, wi = 0;
             if (pipeline.UniformSize > 0)
             {
                 uniformBuffer = CreateBuffer(new BufferDesc((ulong)pipeline.UniformSize, BufferUsage.Uniform, CpuAccessMode.Write));
@@ -172,6 +196,16 @@ public sealed unsafe partial class GraphicsDevice
                 writes[w] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.StorageBuffer, pBufferInfo = &infos[w] };
                 w++;
             }
+            foreach (var (binding, _, view) in images)
+            {
+                imageInfos[wi] = new VkDescriptorImageInfo { imageView = ((VulkanImageView)view).View, imageLayout = VkImageLayout.General };
+                writes[w++] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.StorageImage, pImageInfo = &imageInfos[wi++] };
+            }
+            foreach (var (binding, view, sampler) in textures)
+            {
+                imageInfos[wi] = new VkDescriptorImageInfo { imageView = ((VulkanImageView)view).View, sampler = ((VulkanSampler)sampler).Sampler, imageLayout = VkImageLayout.ShaderReadOnlyOptimal };
+                writes[w++] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfos[wi++] };
+            }
             _deviceApi.vkUpdateDescriptorSets((uint)w, writes, 0, null);
 
             var commandInfo = new VkCommandBufferAllocateInfo { commandPool = _computePool, level = VkCommandBufferLevel.Primary, commandBufferCount = 1 };
@@ -187,7 +221,12 @@ public sealed unsafe partial class GraphicsDevice
                 srcAccessMask = VkAccessFlags.MemoryWrite,
                 dstAccessMask = VkAccessFlags.ShaderRead | VkAccessFlags.ShaderWrite,
             };
-            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.ComputeShader, 0, 1, &before, 0, null, 0, null);
+            var toGeneral = stackalloc VkImageMemoryBarrier[Math.Max(1, images.Count)];
+            for (int i = 0; i < images.Count; i++)
+                toGeneral[i] = ImageLayoutBarrier(images[i].Image, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
+                    VkAccessFlags.ShaderRead, VkAccessFlags.ShaderRead | VkAccessFlags.ShaderWrite);
+            _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.ComputeShader, 0, 1, &before, 0, null,
+                (uint)images.Count, toGeneral);
 
             _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline.Pipeline);
             _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, pipeline.Layout, 0, 1, &set, 0, null);
@@ -199,8 +238,12 @@ public sealed unsafe partial class GraphicsDevice
                 srcAccessMask = VkAccessFlags.ShaderWrite,
                 dstAccessMask = VkAccessFlags.MemoryRead | VkAccessFlags.MemoryWrite | VkAccessFlags.HostRead,
             };
+            var toSampled = stackalloc VkImageMemoryBarrier[Math.Max(1, images.Count)];
+            for (int i = 0; i < images.Count; i++)
+                toSampled[i] = ImageLayoutBarrier(images[i].Image, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+                    VkAccessFlags.ShaderWrite, VkAccessFlags.ShaderRead | VkAccessFlags.MemoryRead);
             _deviceApi.vkCmdPipelineBarrier(cmd, VkPipelineStageFlags.ComputeShader, VkPipelineStageFlags.AllCommands | VkPipelineStageFlags.Host,
-                0, 1, &after, 0, null, 0, null);
+                0, 1, &after, 0, null, (uint)images.Count, toSampled);
             _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
 
             var fenceInfo = new VkFenceCreateInfo();
@@ -210,6 +253,19 @@ public sealed unsafe partial class GraphicsDevice
             _computeInFlight.Add((fence, cmd, pool, uniformBuffer));
         }
     }
+
+    // A barrier moving every level of a color image from one layout to another.
+    private static VkImageMemoryBarrier ImageLayoutBarrier(IImage image, VkImageLayout from, VkImageLayout to, VkAccessFlags before, VkAccessFlags after) => new()
+    {
+        srcAccessMask = before,
+        dstAccessMask = after,
+        oldLayout = from,
+        newLayout = to,
+        srcQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+        dstQueueFamilyIndex = Vulkan.VK_QUEUE_FAMILY_IGNORED,
+        image = ((VulkanImage)image).Image,
+        subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, Math.Max(1, image.Description.MipLevels), 0, 1),
+    };
 
     /// <summary>Waits for every dispatch submitted so far to finish, so the CPU can read or overwrite the buffers they used.</summary>
     public void WaitForCompute()

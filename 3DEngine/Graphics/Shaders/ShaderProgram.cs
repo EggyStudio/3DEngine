@@ -15,10 +15,12 @@ public sealed class ShaderProgram
     /// <param name="uniforms">The uniforms its stages declare at the top level, by name.</param>
     /// <param name="textures">The textures its stages sample in the first descriptor set, by name and binding.</param>
     /// <param name="buffers">The storage buffers its compute stage uses in the first descriptor set, by name and binding.</param>
+    /// <param name="images">The images its compute stage writes in the first descriptor set, by name and binding.</param>
     public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null,
-        IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null)
+        IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null)
     {
         Buffers = buffers ?? [];
+        Images = images ?? [];
         Name = name;
         Stages = stages;
         Uniforms = uniforms ?? [];
@@ -31,6 +33,9 @@ public sealed class ShaderProgram
 
     /// <summary>The storage buffers a compute program reads and writes, by binding.</summary>
     public IReadOnlyList<ShaderTexture> Buffers { get; }
+
+    /// <summary>The images a compute program writes, its <c>RWTexture2D</c>s, by binding.</summary>
+    public IReadOnlyList<ShaderTexture> Images { get; }
 
     /// <summary>The textures the program samples in its first descriptor set, its engine module's among them, by binding.</summary>
     public IReadOnlyList<ShaderTexture> Textures { get; }

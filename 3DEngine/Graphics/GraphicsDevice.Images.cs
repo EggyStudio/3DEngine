@@ -181,8 +181,13 @@ public sealed unsafe partial class GraphicsDevice
             _                             => VkImageAspectFlags.Color
         };
 
+        // An sRGB view of an image a compute shader writes is for sampling only, since an sRGB
+        // format cannot be written as storage, which the view would otherwise inherit.
+        var samplingOnly = new VkImageViewUsageCreateInfo { usage = VkImageUsageFlags.Sampled };
+        var restrict = vkImage.Description.Usage.HasFlag(ImageUsage.Storage) && format != vkImage.Description.Format;
         VkImageViewCreateInfo viewInfo = new()
         {
+            pNext = restrict ? &samplingOnly : null,
             image = vkImage.Image,
             viewType = VkImageViewType.Image2D,
             format = ToVkFormat(format),
@@ -261,6 +266,7 @@ public sealed unsafe partial class GraphicsDevice
         VkImageUsageFlags flags = 0;
         if (usage.HasFlag(ImageUsage.ColorAttachment)) flags |= VkImageUsageFlags.ColorAttachment;
         if (usage.HasFlag(ImageUsage.DepthStencilAttachment)) flags |= VkImageUsageFlags.DepthStencilAttachment;
+        if (usage.HasFlag(ImageUsage.Storage)) flags |= VkImageUsageFlags.Storage;
         if (usage.HasFlag(ImageUsage.Sampled)) flags |= VkImageUsageFlags.Sampled;
         if (usage.HasFlag(ImageUsage.TransferSrc)) flags |= VkImageUsageFlags.TransferSrc;
         if (usage.HasFlag(ImageUsage.TransferDst)) flags |= VkImageUsageFlags.TransferDst;

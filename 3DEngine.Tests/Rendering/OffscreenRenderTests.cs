@@ -629,6 +629,64 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Compute_Shader_Writes_A_Texture_That_Is_Then_Drawn_And_Samples_One()
+    {
+        Open(32, 32);
+        var texture = LoadTextureFromImage(GenImageColor(4, 4, Color.Black));
+        SetTextureFilter(texture, TextureFilter.Point);
+        Capture(() => ClearBackground(Color.Black), "upload");
+
+        var paint = LoadComputeShaderFromMemory("""
+            RWTexture2D<float4> image;
+
+            [shader("compute")]
+            [numthreads(4, 4, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                image[id.xy] = float4(id.x / 3.0, id.y / 3.0, 0, 1);
+            }
+            """, "paint.slang");
+        SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), texture);
+        ComputeShaderDispatch(paint, 1, 1, 1);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawTextureEx(texture, Vector2.Zero, 0, 8, Color.White);
+        }, "painted");
+        GetImageColor(image, 4, 4).Should().Be(new Color(0, 0, 0, 255), "the corner the dispatch's first thread wrote");
+        GetImageColor(image, 28, 4).Should().Be(new Color(255, 0, 0, 255));
+        GetImageColor(image, 4, 28).Should().Be(new Color(0, 255, 0, 255));
+        GetImageColor(image, 28, 28).Should().Be(new Color(255, 255, 0, 255));
+
+        var read = LoadComputeShaderFromMemory("""
+            Sampler2D source;
+            RWStructuredBuffer<float4> result;
+
+            [shader("compute")]
+            [numthreads(1, 1, 1)]
+            void computeMain(uint3 id : SV_DispatchThreadID)
+            {
+                result[0] = source.SampleLevel(float2(0.9, 0.1), 0);
+            }
+            """, "read.slang");
+        var result = LoadShaderBuffer(16);
+        SetShaderValueTexture(read, GetShaderLocation(read, "source"), texture);
+        SetShaderValueBuffer(read, GetShaderLocation(read, "result"), result);
+        ComputeShaderDispatch(read, 1, 1, 1);
+        var color = new Vector4[1];
+        ReadShaderBuffer<Vector4>(result, color);
+        color[0].X.Should().BeApproximately(1, 1e-3f, "it sampled the right edge the first dispatch wrote");
+        color[0].Y.Should().BeApproximately(0, 1e-3f);
+
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadShaderBuffer(result);
+        UnloadShader(read);
+        UnloadShader(paint);
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
     {
         Open(32, 32);

@@ -21,9 +21,12 @@ public static partial class Engine3D
     // SetShaderValue serves both, and those of textures further on.
     private const int NamedLocationBase = 16;
     private const int TextureLocationBase = 1 << 20;
+    private const int ImageLocationBase = 1 << 22;
 
     // The texture each of a shader's textures is set to, by its index in ShaderProgram.Textures, 0 for none.
     private static readonly Dictionary<int, int[]> TextureValues = [];
+    // The texture each of a compute shader's images is set to, by its index in ShaderProgram.Images.
+    private static readonly Dictionary<int, int[]> ImageValues = [];
     private static Shader _shader;
 
     // -- Custom shaders. A shader is a Slang file that imports the engine's module and defines
@@ -75,6 +78,7 @@ public static partial class Engine3D
         ShaderValues.Remove(shader.Id);
         UniformValues.Remove(shader.Id);
         TextureValues.Remove(shader.Id);
+        ImageValues.Remove(shader.Id);
         ForgetComputeShader(shader.Id);
     }
 
@@ -120,6 +124,8 @@ public static partial class Engine3D
             if (program.Textures[i].Name == uniformName) return TextureLocationBase + i;
         for (int i = 0; i < program.Buffers.Count; i++)
             if (program.Buffers[i].Name == uniformName) return BufferLocationBase + i;
+        for (int i = 0; i < program.Images.Count; i++)
+            if (program.Images[i].Name == uniformName) return ImageLocationBase + i;
         return -1;
     }
 
@@ -130,10 +136,20 @@ public static partial class Engine3D
     /// <remarks>
     /// A texture the shader declares at the top level, as <c>Sampler2D detail;</c>, is one of its
     /// own. The pass's own texture (<c>boundTexture</c> and a model's maps) is set by what is drawn.
+    /// A compute shader writes a texture it declares as <c>RWTexture2D&lt;float4&gt; image;</c>,
+    /// set the same way.
     /// </remarks>
     public static void SetShaderValueTexture(Shader shader, int location, Texture2D texture)
     {
         if (!shader.IsValid || Res<ShaderStore>().Get(shader.Id) is not { } program) return;
+        if (location >= ImageLocationBase)
+        {
+            var image = location - ImageLocationBase;
+            if (image >= program.Images.Count) return;
+            if (!ImageValues.TryGetValue(shader.Id, out var images)) ImageValues[shader.Id] = images = new int[program.Images.Count];
+            images[image] = texture.IsValid ? texture.Id : 0;
+            return;
+        }
         var index = location - TextureLocationBase;
         if (index < 0 || index >= program.Textures.Count) return;
         if (!TextureValues.TryGetValue(shader.Id, out var values)) TextureValues[shader.Id] = values = new int[program.Textures.Count];

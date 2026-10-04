@@ -37,7 +37,9 @@ public enum ImageUsage
     /// <summary>Image can be used as a transfer source.</summary>
     TransferSrc   = 1 << 3,
     /// <summary>Image can be used as a transfer destination.</summary>
-    TransferDst   = 1 << 4
+    TransferDst   = 1 << 4,
+    /// <summary>Image can be written by a compute shader, as a <c>RWTexture2D</c>.</summary>
+    Storage       = 1 << 5
 }
 
 /// <summary>Descriptor for creating a GPU image.</summary>

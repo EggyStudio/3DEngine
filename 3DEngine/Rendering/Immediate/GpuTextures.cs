@@ -54,6 +54,15 @@ public sealed class GpuTextures : IDisposable
         return (srgb ? entry.SrgbView : entry.View, entry.Sampler);
     }
 
+    /// <summary>
+    /// The image of texture <paramref name="id"/> and its view as stored, for a compute shader to
+    /// write, or null for one not on the GPU yet, or a render target's, which is drawn into instead.
+    /// </summary>
+    internal (IImage Image, IImageView View)? StorageFor(int id) =>
+        id != 0 && _entries.TryGetValue(id, out var entry) && entry.Image is { } image && image.Description.Usage.HasFlag(ImageUsage.Storage)
+            ? (image, entry.View)
+            : null;
+
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
     public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
 
@@ -151,7 +160,7 @@ public sealed class GpuTextures : IDisposable
         // A copy source too, so mip levels can be made from it later.
         var image = gfx.CreateImage(mipmaps
             ? MipmappedDesc((uint)width, (uint)height)
-            : new ImageDesc(new Extent2D((uint)width, (uint)height), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc));
+            : new ImageDesc(new Extent2D((uint)width, (uint)height), ImageFormat.R8G8B8A8_UNorm, Usage));
         gfx.UploadTexture2D(image, rgba, (uint)width, (uint)height, 4);
         var view = gfx.CreateImageView(image);
         var sampler = CreateSampler(gfx, filter, wrap);
@@ -161,8 +170,12 @@ public sealed class GpuTextures : IDisposable
     private static ImageDesc MipmappedDesc(uint width, uint height) => new(
         new Extent2D(width, height),
         ImageFormat.R8G8B8A8_UNorm,
-        ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc,
+        Usage,
         ImageDesc.FullMipChain(width, height));
+
+    // A texture is sampled, filled from the CPU, copied into its mip levels, and written by a
+    // compute shader the program gives it to.
+    private const ImageUsage Usage = ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc | ImageUsage.Storage;
 
     private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter, TextureWrap wrap) => gfx.CreateSampler(SamplerFor(filter, wrap));
 

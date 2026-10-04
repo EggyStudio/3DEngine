@@ -72,6 +72,15 @@ the frames already submitted and before the one being recorded, which is submitt
 wait for the dispatches in flight and copy through the mapping. `UpdateShaderBuffer` does not wait
 for the frames in flight, so one still drawing from a buffer may see the write.
 
+A compute shader writes a texture it declares as `RWTexture2D`, which the reflection tells from a
+sampled one by its access, and samples a `Sampler2D`, both set with `SetShaderValueTexture`.
+Textures are made with storage usage, and their sRGB views for sampling only, since an sRGB format
+cannot be storage. The image a dispatch writes is moved to the general layout in its command buffer
+and back to the one textures are sampled in after it, and the shader's image carries no format,
+which the device's `shaderStorageImageWriteWithoutFormat` feature, enabled where it is supported,
+allows. A texture reaches the GPU in the frame after it is loaded, so a dispatch before then is
+skipped with the reason in the log.
+
 A shader that draws reads storage buffers too, declared as `StructuredBuffer`, at the bindings
 Slang gives them in its first set. The buffers set on it travel with each draw after the
 textures in the draw's snapshot of its own textures, and the immediate and model passes bind them

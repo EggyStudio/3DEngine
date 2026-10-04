@@ -73,10 +73,11 @@ physics, text and fonts, audio and text files
   hundred milliseconds, and there are no reflection
   probes for the inside of a room. A mesh entity is drawn through the first camera entity only,
   into the window only.
-- **A compute shader cannot write a texture.** A dispatch runs a compute shader over storage
-  buffers, which the CPU reads back and drawing shaders read (RENDERING.md §1), but no image is
-  bound to one. Descriptor layouts and vertex inputs are still written by hand beside each pipeline
-  rather than read from the reflection.
+- **Layouts are written by hand.** A dispatch runs a compute shader over storage buffers, which
+  the CPU reads back and drawing shaders read, and textures it writes and samples (RENDERING.md
+  §1), but descriptor layouts and vertex inputs are still written by hand beside each pipeline
+  rather than read from the reflection. A texture a dispatch writes keeps its other mip levels as
+  they were, and a render texture cannot be written.
 - **One directional, four spot and four point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what the window's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, the first four such spot lights shadow their cones
