@@ -5,9 +5,9 @@ How work is committed in this repository, by hand or by an agent working through
 ## When
 
 Each logical batch of work is committed on its own once it is finished, its tests pass and its
-documentation says what it does. Commits are made on `main` and pushed to `origin/main` once made,
-which the owner allowed on 2026-10-03. Only `main` is pushed, never with force, so the local
-`legacy-modules` branch stays local and a push that would rewrite the remote stops for the owner.
+documentation says what it does. Commits are made on `main` and kept local. The owner pushes
+`main` from their own tools, as they confirmed on 2026-10-04, so a session never pushes, and the
+local `legacy-modules` branch stays local.
 
 A batch is one thing somebody would want to read, revert or cherry-pick alone, such as a fix, a
 feature with its tests and its docs, or a refactor. Work that is still half done stays uncommitted

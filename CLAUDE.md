@@ -104,9 +104,9 @@ pushed.
   section being changed to say why.
 - Prose in this repository follows `.github/STYLE.md`, which governs comments, XML documentation,
   messages and Markdown. Read it before writing any of them.
-- Each finished batch of work is committed on `main` and pushed to `origin/main`, never with force,
-  with a message whose subject is three invisible marks and whose description is one plain
-  sentence. Before each commit,
+- Each finished batch of work is committed on `main` locally and never pushed, since the owner
+  pushes `main` from their own tools, with a message whose subject is three invisible marks and
+  whose description is one plain sentence. Before each commit,
   `.github/STYLE.md` is read and applied to what is staged, the message included.
   `.github/COMMITS.md` has the exact form, that pass, and how to split a batch that shares a file
   with another.
