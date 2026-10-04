@@ -3,14 +3,13 @@ using Xunit;
 
 namespace Engine.Tests.Entities;
 
+// The apps it was called for, kept apart since the list is the process's and other tests build
+// the plugin at the same time.
 public static class DummyRegistration
 {
-    public static int Calls;
+    public static readonly System.Collections.Concurrent.ConcurrentBag<App> Apps = [];
 
-    public static void Register(App app)
-    {
-        Calls++;
-    }
+    public static void Register(App app) => Apps.Add(app);
 }
 
 [Trait("Category", "Unit")]
@@ -21,11 +20,10 @@ public class BehaviorRegistrationTests
     {
         GeneratedBehaviors.Add(DummyRegistration.Register);
         using var app = new App();
-        var callsBefore = DummyRegistration.Calls;
 
         new BehaviorsPlugin { ScriptsDirectory = null }.Build(app);
 
-        DummyRegistration.Calls.Should().Be(callsBefore + 1);
+        DummyRegistration.Apps.Count(a => ReferenceEquals(a, app)).Should().Be(1);
     }
 
     [Fact]
