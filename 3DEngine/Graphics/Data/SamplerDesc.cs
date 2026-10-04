@@ -26,9 +26,11 @@ public enum SamplerAddressMode
 /// <param name="AddressU">Addressing mode for the U (horizontal) texture coordinate.</param>
 /// <param name="AddressV">Addressing mode for the V (vertical) texture coordinate.</param>
 /// <param name="AddressW">Addressing mode for the W (depth) texture coordinate.</param>
+/// <param name="MaxAnisotropy">The most samples taken along a slanted texture's squashed direction, 1 for none, limited to what the device allows.</param>
 public readonly record struct SamplerDesc(
     SamplerFilter MinFilter,
     SamplerFilter MagFilter,
     SamplerAddressMode AddressU,
     SamplerAddressMode AddressV,
-    SamplerAddressMode AddressW);
+    SamplerAddressMode AddressW,
+    float MaxAnisotropy = 1);

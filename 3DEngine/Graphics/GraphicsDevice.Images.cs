@@ -194,11 +194,21 @@ public sealed unsafe partial class GraphicsDevice
         return new VulkanImageView(this, image, view);
     }
 
+    private float _maxAnisotropy;
+
     /// <summary>Creates a Vulkan texture sampler with the specified filtering and addressing modes.</summary>
     /// <param name="desc">Sampler creation descriptor.</param>
     /// <returns>A new <see cref="ISampler"/> handle.</returns>
     public ISampler CreateSampler(SamplerDesc desc)
     {
+        // The device's own limit, asked once. The feature is enabled when the device is made.
+        if (_maxAnisotropy == 0)
+        {
+            _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var properties);
+            _maxAnisotropy = Math.Max(1, properties.limits.maxSamplerAnisotropy);
+        }
+        var anisotropy = Math.Clamp(desc.MaxAnisotropy, 1, _maxAnisotropy);
+
         VkSamplerCreateInfo info = new()
         {
             magFilter = desc.MagFilter == SamplerFilter.Linear ? VkFilter.Linear : VkFilter.Nearest,
@@ -206,7 +216,8 @@ public sealed unsafe partial class GraphicsDevice
             addressModeU = ToVkAddressMode(desc.AddressU),
             addressModeV = ToVkAddressMode(desc.AddressV),
             addressModeW = ToVkAddressMode(desc.AddressW),
-            anisotropyEnable = false,
+            anisotropyEnable = anisotropy > 1,
+            maxAnisotropy = anisotropy,
             borderColor = VkBorderColor.IntOpaqueBlack,
             unnormalizedCoordinates = false,
             compareEnable = false,

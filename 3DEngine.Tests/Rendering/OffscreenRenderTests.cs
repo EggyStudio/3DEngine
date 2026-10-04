@@ -1012,6 +1012,43 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Anisotropic_Filtering_Keeps_A_Slanted_Checkerboard_Sharper_Than_Bilinear()
+    {
+        Open(64, 64);
+        var checker = LoadTextureFromImage(GenImageChecked(256, 256, 8, 8, Color.Black, Color.White));
+        GenTextureMipmaps(ref checker);
+        var floor = LoadModelFromMesh(GenMeshPlane(40, 40, 1, 1));
+        floor.Materials[0] = new ModelMaterial(Color.White, checker);
+        // Low over the floor, looking along it, so the far squares are squashed many times over.
+        var camera = new Camera3D(new Vector3(0, 0.6f, 10), new Vector3(0, 0, -20), Vector3.UnitY, 45);
+
+        // How much the far rows of the floor still vary, from a gray smear to sharp squares.
+        double Contrast(TextureFilter filter)
+        {
+            SetTextureFilter(checker, filter);
+            var image = Capture(() =>
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(floor, Vector3.Zero, 1, Color.White);
+                EndMode3D();
+            }, $"slant {filter}");
+            var values = new List<double>();
+            for (int y = 30; y < 34; y++)
+                for (int x = 8; x < 56; x++)
+                    values.Add(GetImageColor(image, x, y).R);
+            var mean = values.Average();
+            return Math.Sqrt(values.Average(v => (v - mean) * (v - mean)));
+        }
+
+        var bilinear = Contrast(TextureFilter.Bilinear);
+        var anisotropic = Contrast(TextureFilter.Anisotropic16x);
+        anisotropic.Should().BeGreaterThan(bilinear * 1.2, $"16 samples along the slant keep the squares apart, {anisotropic:0.0} against {bilinear:0.0}");
+        UnloadModel(floor);
+        UnloadTexture(checker);
+    }
+
+    [NeedsVulkanFact]
     public void A_Metal_Reflects_An_HDR_Sky_Brighter_Than_White_Could_Be()
     {
         Open(64, 64);

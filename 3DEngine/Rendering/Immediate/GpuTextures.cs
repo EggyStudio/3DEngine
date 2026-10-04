@@ -142,11 +142,20 @@ public sealed class GpuTextures : IDisposable
         ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc,
         ImageDesc.FullMipChain(width, height));
 
-    private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter)
+    private static ISampler CreateSampler(IGraphicsDevice gfx, TextureFilter filter) => gfx.CreateSampler(SamplerFor(filter));
+
+    /// <summary>The sampler a texture filtered by <paramref name="filter"/> is read through, repeating.</summary>
+    internal static SamplerDesc SamplerFor(TextureFilter filter)
     {
         var f = filter == TextureFilter.Point ? SamplerFilter.Nearest : SamplerFilter.Linear;
-        return gfx.CreateSampler(new SamplerDesc(f, f,
-            SamplerAddressMode.Repeat, SamplerAddressMode.Repeat, SamplerAddressMode.Repeat));
+        var anisotropy = filter switch
+        {
+            TextureFilter.Anisotropic4x => 4f,
+            TextureFilter.Anisotropic8x => 8f,
+            TextureFilter.Anisotropic16x => 16f,
+            _ => 1f,
+        };
+        return new SamplerDesc(f, f, SamplerAddressMode.Repeat, SamplerAddressMode.Repeat, SamplerAddressMode.Repeat, anisotropy);
     }
 
     private static IDescriptorSet CreateSet(IGraphicsDevice gfx, IImageView view, ISampler sampler)

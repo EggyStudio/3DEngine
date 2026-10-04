@@ -134,4 +134,12 @@ public class TextureStoreTests
         ImageDesc.FullMipChain(256, 256).Should().Be(9);
         ImageDesc.FullMipChain(300, 20).Should().Be(9);
     }
+
+    [Fact]
+    public void An_Anisotropic_Filter_Asks_The_Sampler_For_Its_Samples()
+    {
+        GpuTextures.SamplerFor(TextureFilter.Point).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Nearest && d.MaxAnisotropy == 1);
+        GpuTextures.SamplerFor(TextureFilter.Bilinear).MaxAnisotropy.Should().Be(1);
+        GpuTextures.SamplerFor(TextureFilter.Anisotropic8x).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MaxAnisotropy == 8);
+    }
 }

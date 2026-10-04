@@ -122,12 +122,18 @@ public sealed class ModelRenderer : IDisposable
     private IBuffer? _noUniforms;
 
     // Sets of the model pass's own draws, one per combination of five maps (a base color texture, a
-    // normal map, a metallic-roughness map, an emissive map and an occlusion map) by their views,
+    // normal map, a metallic-roughness map, an emissive map and an occlusion map) by their views and samplers,
     // with the frame each was last bound in. The factors are in each draw's instance, so a thousand
     // entities differing only in color share one set and one draw. A set unbound for RetireFrames
     // frames is freed, since no frame in flight can read it, so the views of unloaded textures do
     // not hold sets forever.
-    private readonly Dictionary<(IImageView, IImageView, IImageView, IImageView, IImageView), (IDescriptorSet Set, long Used)> _materialSets = [];
+    // The samplers are in the key as well as the views, since a texture's filter changes its sampler
+    // and not its view.
+    private readonly Dictionary<MapsKey, (IDescriptorSet Set, long Used)> _materialSets = [];
+
+    private readonly record struct MapsKey(
+        IImageView V0, ISampler S0, IImageView V1, ISampler S1, IImageView V2, ISampler S2,
+        IImageView V3, ISampler S3, IImageView V4, ISampler S4);
 
     // Every draw's instance, a region per frame slot, kept mapped. Each frame writes its instances
     // into its own region, which the GPU finished reading RetireFrames frames ago, the shadow pass's
@@ -550,7 +556,8 @@ public sealed class ModelRenderer : IDisposable
     private IDescriptorSet MaterialSetByViews(IGraphicsDevice gfx, GpuTextures textures, ModelDraw draw)
     {
         var maps = Maps(gfx, textures, draw);
-        var key = (maps[0].View, maps[1].View, maps[2].View, maps[3].View, maps[4].View);
+        var key = new MapsKey(maps[0].View, maps[0].Sampler, maps[1].View, maps[1].Sampler, maps[2].View, maps[2].Sampler,
+            maps[3].View, maps[3].Sampler, maps[4].View, maps[4].Sampler);
         if (_materialSets.TryGetValue(key, out var known))
         {
             _materialSets[key] = known with { Used = _frames };

@@ -6,8 +6,17 @@ public enum TextureFilter
     /// <summary>The nearest pixel, so pixel art stays sharp.</summary>
     Point,
 
-    /// <summary>A blend of the four nearest pixels.</summary>
+    /// <summary>A blend of the four nearest pixels, and of the two nearest mip levels where there are mip levels.</summary>
     Bilinear,
+
+    /// <summary>Bilinear, with up to 4 samples along the direction a slanted texture is squashed in, so it stays sharp at a glancing angle.</summary>
+    Anisotropic4x,
+
+    /// <summary>Bilinear, with up to 8 samples along the squashed direction.</summary>
+    Anisotropic8x,
+
+    /// <summary>Bilinear, with up to 16 samples along the squashed direction, or as many as the device allows.</summary>
+    Anisotropic16x,
 }
 
 /// <summary>
