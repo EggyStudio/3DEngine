@@ -73,7 +73,8 @@ public sealed class CommandGenerator : IIncrementalGenerator
         });
     }
 
-    private sealed record ParameterModel(string Name, string Kind);
+    // A parameter, and for one with a default the C# literal it takes when the words leave it off.
+    private sealed record ParameterModel(string Name, string Kind, string? Default = null);
 
     private sealed record CommandModel(
         string Name, string Help, string Usage, string Call, ParameterModel[] Parameters,
@@ -103,17 +104,30 @@ public sealed class CommandGenerator : IIncrementalGenerator
         {
             if (Reader(parameter.Type) is not { } reader)
                 return Refused(name, Diagnostic.Create(WrongParameter, location, method.Name, parameter.Type.ToDisplayString()));
-            parameters.Add(new ParameterModel(parameter.Name, reader));
+            parameters.Add(new ParameterModel(parameter.Name, reader,
+                parameter.HasExplicitDefaultValue ? Literal(parameter.ExplicitDefaultValue) : null));
         }
 
         return new CommandModel(
             name, help,
-            string.Join(" ", method.Parameters.Select(p => "<" + p.Name + ">")),
+            string.Join(" ", parameters.Select(p => p.Default is null ? "<" + p.Name + ">" : "[" + p.Name + "]")),
             method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + "." + method.Name,
             parameters.ToArray(),
             returnsText,
             TakesLine: parameters.Count == 1 && parameters[0].Kind == "text");
     }
+
+    // A default value as C# source, in the invariant culture, so a command reads the same everywhere.
+    private static string Literal(object? value) => value switch
+    {
+        null => "default",
+        string text => Quote(text),
+        bool flag => flag ? "true" : "false",
+        float single => single.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "f",
+        double number => number.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "d",
+        long whole => whole.ToString(System.Globalization.CultureInfo.InvariantCulture) + "L",
+        _ => Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture)!,
+    };
 
     private static CommandModel Refused(string name, Diagnostic diagnostic) =>
         new(name, "", "", "", [], false, false, diagnostic);
@@ -176,15 +190,25 @@ public sealed class CommandGenerator : IIncrementalGenerator
             return;
         }
 
-        if (parameters.Length > 0)
-            source.Append("            if (words.Length < ").Append(parameters.Length).Append(") return \"needs ")
-                .Append(parameters.Length).Append(parameters.Length == 1 ? " argument: " : " arguments: ")
-                .Append(Escape(string.Join(" ", parameters.Select(p => "<" + p.Name + ">")))).Append("\";\n");
+        var required = parameters.Count(p => p.Default is null);
+        if (required > 0)
+            source.Append("            if (words.Length < ").Append(required).Append(") return \"needs ")
+                .Append(required).Append(required == 1 ? " argument: " : " arguments: ")
+                .Append(Escape(model.Usage)).Append("\";\n");
 
+        // A parameter with a default takes it when the words stop before it.
         for (var i = 0; i < parameters.Length; i++)
-            source.Append("            if (!Read").Append(Title(parameters[i].Kind)).Append("(words[").Append(i)
-                .Append("], out var argument").Append(i).Append(")) return $\"not a ").Append(parameters[i].Kind)
-                .Append(": {words[").Append(i).Append("]}\";\n");
+        {
+            var read = "!Read" + Title(parameters[i].Kind) + "(words[" + i + "], out var argument" + i + ")";
+            if (parameters[i].Default is { } fallback)
+                source.Append("            var argument").Append(i).Append(" = ").Append(fallback).Append(";\n")
+                    .Append("            if (words.Length > ").Append(i).Append(" && !Read").Append(Title(parameters[i].Kind))
+                    .Append("(words[").Append(i).Append("], out argument").Append(i).Append(")) return $\"not a ")
+                    .Append(parameters[i].Kind).Append(": {words[").Append(i).Append("]}\";\n");
+            else
+                source.Append("            if (").Append(read).Append(") return $\"not a ").Append(parameters[i].Kind)
+                    .Append(": {words[").Append(i).Append("]}\";\n");
+        }
 
         source.Append("            ");
         if (model.ReturnsText) source.Append("return ");

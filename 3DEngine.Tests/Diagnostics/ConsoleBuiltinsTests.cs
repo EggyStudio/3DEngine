@@ -44,6 +44,19 @@ public class ConsoleBuiltinsTests
     }
 
     [Fact]
+    public void A_Parameter_With_A_Default_May_Be_Left_Off()
+    {
+        var (world, app) = Setup();
+        world.InitResource<Input>();
+
+        ConsoleCommands.Find("input.drag")!.Usage.Should().Be("<button> <dx> <dy> <frames> [rest]");
+        Run(world, app, "input.drag Left 10 0").Should().Be("needs 4 arguments: <button> <dx> <dy> <frames> [rest]");
+        Run(world, app, "input.drag Left 10 0 3").Should().StartWith("dragged");
+        Run(world, app, "input.drag Left 10 0 3 5").Should().StartWith("dragged");
+        Run(world, app, "input.drag Left 10 0 3 soon").Should().Be("not a whole: soon");
+    }
+
+    [Fact]
     public void Entities_Are_Counted_Listed_And_Read()
     {
         var (world, app) = Setup();

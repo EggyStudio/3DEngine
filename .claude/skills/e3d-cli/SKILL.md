@@ -61,7 +61,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |
 | `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
-| `input.drag <button> <dx> <dy> <frames>` | holds a button while moving the pointer, as a camera drag |
+| `input.drag <button> <dx> <dy> <frames> [rest]` | holds a button while moving the pointer, as a camera drag, and holds it `rest` frames more at the end, as a window held over a docking target |
 | `input.touch <id> <x> <y> <frames>` | holds a finger at a window position, which `GetTouchPosition` and `input.state` see |
 | `input.wheel <amount>` | turns the wheel |
 | `input.text <text>` | types text into the game's text input and the focused ImGui field |

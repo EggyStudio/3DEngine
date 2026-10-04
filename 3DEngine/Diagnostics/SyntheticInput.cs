@@ -82,17 +82,19 @@ public sealed class SyntheticInput
     /// <summary>
     /// Holds a mouse button for <paramref name="frames"/> frames while the pointer moves by
     /// (<paramref name="dx"/>, <paramref name="dy"/>) from where it is, in even steps, one a frame,
-    /// reaching the end in the last frame the button is held.
+    /// reaching the end in the last frame of the movement.
     /// </summary>
     /// <remarks>
     /// The press comes where the pointer starts, as a hand's does, so what reads the movement
-    /// while the button is down (an ImGui window dragged, a swipe) sees it.
+    /// while the button is down (an ImGui window dragged, a swipe) sees it. With
+    /// <paramref name="rest"/> the button stays down that many frames more at the end, as a
+    /// person holds a window over a docking target until its preview shows before letting go.
     /// </remarks>
-    public void Drag(Input input, MouseButton button, int dx, int dy, ulong frame, int frames)
+    public void Drag(Input input, MouseButton button, int dx, int dy, ulong frame, int frames, int rest = 0)
     {
         frames = Math.Max(1, frames);
         var (fromX, fromY) = (input.MouseX, input.MouseY);
-        Button(input, button, frame, frames);
+        Button(input, button, frame, frames + rest);
         if (frames == 1)
         {
             Move(input, fromX + dx, fromY + dy);
@@ -195,8 +197,8 @@ internal static class InputCommands
         return $"clicked {x}, {y}";
     }
 
-    [Command("input.drag", "Holds a mouse button for some frames while moving the pointer a step a frame: input.drag <button> <dx> <dy> <frames>")]
-    internal static string Drag(string button, int dx, int dy, int frames)
+    [Command("input.drag", "Holds a mouse button for some frames while moving the pointer a step a frame, and rests at the end before letting go: input.drag <button> <dx> <dy> <frames> [rest]")]
+    internal static string Drag(string button, int dx, int dy, int frames, int rest = 0)
     {
         if (!Enum.TryParse<MouseButton>(button, ignoreCase: true, out var which))
         {
@@ -205,8 +207,8 @@ internal static class InputCommands
         }
 
         var (input, synthetic, frame) = Parts();
-        synthetic.Drag(input, which, dx, dy, frame, frames);
-        ConsoleHost.Hold(frame + (ulong)Math.Max(1, frames) + 2);
+        synthetic.Drag(input, which, dx, dy, frame, frames, Math.Max(0, rest));
+        ConsoleHost.Hold(frame + (ulong)(Math.Max(1, frames) + Math.Max(0, rest)) + 2);
         return $"dragged {which} by {dx}, {dy}";
     }
 
