@@ -199,16 +199,17 @@ dotnet test 3DEngine.Tests
 
 ## Status
 
-Early. The window, input, the frame, cameras, 2D and 3D shapes, images and textures, models
-through Assimp, sounds and music, text in fonts, render targets, Slang shaders, gamepads and ImGui work through the flat API, and the ECS, the
-scheduler and behaviors are tested. What is missing:
+Early, and used for small games. The flat API carries most of raylib's: the window and input,
+2D and 3D shapes, images and textures, models through Assimp with skeletal animation, sounds, music,
+audio streams, text in fonts, render targets, Slang shaders for shapes and models, compute shaders,
+lights with shadows, physics, states and scenes, with ImGui in the same frame. The ECS, the
+scheduler and behaviors run underneath, and a game ships as one native executable through native
+AOT. What is missing:
 
-- **Custom shaders reach shapes, textures and text**, not models, which keep the engine's model
-  shader.
-- **Music is decoded whole** rather than streamed, so a long piece costs its length in memory.
-- **The flat API has no lights of its own.** Its models are shaded by one fixed light, shapes are
-  unlit as raylib's are, and light entities in the ECS light models and meshes alike by their
-  metallic-roughness materials, with shadows from one directional light.
+- **Some of raylib is not carried**, as VR stereo and the audio processors, which TODO.md names
+  with the reasons.
+- **The renderer has no post processing**, as tonemapping over the frame, bloom or FXAA, and no
+  reflection probes for the inside of a room.
 - **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
   need no GPU in CI, and macOS builds from the same packages and is not covered.
 
