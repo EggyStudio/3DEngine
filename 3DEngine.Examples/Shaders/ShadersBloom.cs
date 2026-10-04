@@ -10,9 +10,11 @@ public static class ShadersBloom
         InitWindow(800, 450, "[shaders] bloom");
 
         // Glowing orbs brighter than white over a dim floor, which bloom spreads into the dark
-        // around them, and a white cube lit by a lamp, which stays sharp. B turns bloom off and on.
+        // around them, and a white cube lit by a lamp, which stays sharp. B turns bloom off and on,
+        // and the other effects over the frame have a key each.
         SetBloom(0.8f);
         var bloom = true;
+        var (curve, vignette, graded, fxaa, bright) = (Tonemap.Engine, false, false, false, false);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.5f)), new Color(110, 120, 150), 0.4f);
         CreatePointLight(new Vector3(0, 2.5f, 1.5f), new Color(255, 210, 160), 6, range: 12);
 
@@ -29,6 +31,11 @@ public static class ShadersBloom
         {
             t += GetFrameTime();
             if (IsKeyPressed(Key.B)) SetBloom((bloom = !bloom) ? 0.8f : 0);
+            if (IsKeyPressed(Key.T)) SetTonemap(curve = (Tonemap)(((int)curve + 1) % 4));
+            if (IsKeyPressed(Key.V)) SetVignette((vignette = !vignette) ? 0.6f : 0);
+            if (IsKeyPressed(Key.G)) SetColorGrading(1, (graded = !graded) ? 0.3f : 1, graded ? new Color(255, 225, 190) : Color.White);
+            if (IsKeyPressed(Key.F)) SetFxaa(fxaa = !fxaa);
+            if (IsKeyPressed(Key.E)) SetExposure((bright = !bright) ? 1.8f : 1);
 
             BeginDrawing();
             ClearBackground(new Color(12, 12, 18));
@@ -45,6 +52,8 @@ public static class ShadersBloom
             EndMode3D();
 
             DrawText(bloom ? "Bloom on: light past white glows. B turns it off." : "Bloom off. B turns it on.", 10, 10, 20, Color.RayWhite);
+            DrawText($"T curve {curve}, V vignette {(vignette ? "on" : "off")}, G grading {(graded ? "on" : "off")}, " +
+                     $"F FXAA {(fxaa ? "on" : "off")}, E exposure {(bright ? 1.8f : 1)}", 10, 36, 16, Color.LightGray);
             DrawFPS(10, 420);
             EndDrawing();
         }

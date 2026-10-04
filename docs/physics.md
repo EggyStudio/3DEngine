@@ -128,7 +128,15 @@ SetPhysicsHingeLimits(hinge, -90, 90);
 ```
 
 `SetPhysicsHingeMotor` drives a hinge at a speed, as a wheel or a fan, and `DestroyPhysicsJoint`
-breaks a joint, as a rope that is cut.
+breaks a joint, as a rope that is cut. `games/Summit` hangs a bridge from a beam on two ropes,
+distance joints a little slack, so it sways as it is crossed:
+
+```csharp
+var beam = CreatePhysicsKinematicBox(new Vector3(5, 9, -27), new Vector3(6, 0.4f, 0.4f));
+var bridge = CreatePhysicsBox(new Vector3(5, 3, -27), new Vector3(6, 0.3f, 1.4f), mass: 120);
+CreatePhysicsDistanceJoint(beam, bridge, new Vector3(2.5f, 9, -27), new Vector3(2.5f, 3, -27), 5.9f, 6);
+CreatePhysicsDistanceJoint(beam, bridge, new Vector3(7.5f, 9, -27), new Vector3(7.5f, 3, -27), 5.9f, 6);
+```
 
 ## A character
 
@@ -177,7 +185,9 @@ beside its body.
 ## See also
 
 - Examples: [`physics_boxes`](../3DEngine.Examples/Physics/PhysicsBoxes.cs),
-  [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs)
+  [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs), and the game
+  [`games/Summit`](../games/Summit/Program.cs), a character on the controller over joints, a lift
+  and triggers
 - The cheatsheet's [Physics](../CHEATSHEET.md#physics)
 - Previous: [Input](input.md)
 - Next: [Behaviors and the ECS](behaviors-and-the-ecs.md)

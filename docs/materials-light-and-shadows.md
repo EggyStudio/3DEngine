@@ -96,10 +96,14 @@ what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result un
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
 
+The `shaders_bloom` example gives each a key:
+
 ```csharp
-SetBloom(0.6f);
-SetTonemap(Tonemap.Aces);
-SetVignette(0.3f);
+if (IsKeyPressed(Key.T)) SetTonemap(curve = (Tonemap)(((int)curve + 1) % 4));
+if (IsKeyPressed(Key.V)) SetVignette((vignette = !vignette) ? 0.6f : 0);
+if (IsKeyPressed(Key.G)) SetColorGrading(1, (graded = !graded) ? 0.3f : 1, graded ? new Color(255, 225, 190) : Color.White);
+if (IsKeyPressed(Key.F)) SetFxaa(fxaa = !fxaa);
+if (IsKeyPressed(Key.E)) SetExposure((bright = !bright) ? 1.8f : 1);
 ```
 
 ## Lights
@@ -203,6 +207,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
 - Examples: [`models_skybox`](../3DEngine.Examples/Models/ModelsSkybox.cs),
   [`models_reflection_probe`](../3DEngine.Examples/Models/ModelsReflectionProbe.cs),
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
+  [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and

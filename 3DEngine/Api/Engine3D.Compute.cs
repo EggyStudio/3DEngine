@@ -191,9 +191,16 @@ public static partial class Engine3D
         var images = new List<(int, IImage, IImageView)>(program.Images.Count);
         if (program.Images.Count > 0)
         {
-            if (!device.CanWriteImages || gpuTextures is null)
+            if (!device.CanWriteImages)
             {
                 ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' writes a texture, which this GPU cannot do without its format named.");
+                return;
+            }
+            // Before the first frame no texture has reached the GPU, so the dispatch waits for a
+            // frame, as one writing a texture loaded this frame does.
+            if (gpuTextures is null)
+            {
+                ApiLogger.Warn($"ComputeShaderDispatch: '{program.Name}' writes a texture, and no texture reaches the GPU before the first frame.");
                 return;
             }
             var imageIds = ImageValues.GetValueOrDefault(shader.Id) ?? new int[program.Images.Count];

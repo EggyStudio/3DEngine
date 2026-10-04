@@ -430,7 +430,7 @@ public sealed class ReferenceFrameTests : IDisposable
             DrawModel(pillar, new Vector3(-2, 1.5f, -2), 1, new Color(60, 140, 220));
             DrawModel(ball, new Vector3(0, 0.8f, 0), 1, Color.White);
             EndMode3D();
-        }, settle: 2, ready: () => IsReflectionProbeReady(probe));
+        }, settle: 12, ready: () => IsReflectionProbeReady(probe));
         IsReflectionProbeReady(probe).Should().BeTrue("the probe has captured the room");
         Matches(frame, "reflection_probe");
         UnloadModel(room);

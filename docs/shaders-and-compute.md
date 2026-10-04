@@ -240,19 +240,38 @@ EndShaderMode();
 ```
 
 A model shader drawn with `DrawMeshInstanced` reads a buffer the same way, each copy picking its
-values by `SV_InstanceID`, so particles moved by a compute shader are drawn as meshes. A compute
-shader also writes a texture it declares as `RWTexture2D<float4>`, set with
-`SetShaderValueTexture`, once the texture has reached the GPU in the frame after it is loaded, and
-a render texture's color the same way, on a GPU that can store to the window's format, as most
-desktop GPUs can. The shader writes a mipmapped texture's first level, and the dispatch makes the
-smaller levels again from it.
+values by `SV_InstanceID`, so particles moved by a compute shader are drawn as meshes.
+
+## Writing a texture
+
+A compute shader also writes a texture it declares as `RWTexture2D<float4>`, set with
+`SetShaderValueTexture`, once the texture has reached the GPU in the frame after it is loaded. The
+`shaders_compute_texture` example paints a moving plasma into one, a thread a texel
+(`plasma.slang`), and draws it as any texture:
+
+```csharp
+var texture = LoadTextureFromImage(GenImageColor(256, 256, Color.Black));
+var plasma = LoadComputeShader("resources/shaders/plasma.slang");
+var timeAt = GetShaderLocation(plasma, "time");
+SetShaderValueTexture(plasma, GetShaderLocation(plasma, "image"), texture);
+// ...
+// Painted after each frame for the next, which the dispatch runs on the GPU ahead of,
+// since a texture reaches the GPU in the frame after it is loaded.
+SetShaderValue(plasma, timeAt, (float)GetTime());
+ComputeShaderDispatch(plasma, 256 / 8, 256 / 8, 1);
+```
+
+A render texture's color is written the same way, on a GPU that can store to the window's format,
+as most desktop GPUs can. The shader writes a mipmapped texture's first level, and the dispatch
+makes the smaller levels again from it.
 
 ## See also
 
 - Examples: [`shaders_postprocessing`](../3DEngine.Examples/Shaders/ShadersPostprocessing.cs),
   [`shaders_model`](../3DEngine.Examples/Shaders/ShadersModel.cs),
   [`shaders_mesh_instancing`](../3DEngine.Examples/Shaders/ShadersMeshInstancing.cs),
-  [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs), and the shaders
+  [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs),
+  [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs), and the shaders
   they load in [`resources/shaders`](../3DEngine.Examples/resources/shaders)
 - The cheatsheet's [Shaders](../CHEATSHEET.md#shaders) and [Compute](../CHEATSHEET.md#compute)
 - Previous: [Materials, light and shadows](materials-light-and-shadows.md)

@@ -167,7 +167,28 @@ from the working directory, so a level names its models and its prefabs alike, a
 ## Scenes inside scenes
 
 A `SceneRef` places another scene file under an entity, as a `ModelRef` places a model, so a tree,
-a house or an enemy is one file, placed many times in a level. Each copy gets fresh ids, so copies
+a house or an enemy is one file, placed many times in a level. `games/Summit` builds its prefabs,
+each one entity naming a model and solid as it is drawn, and places them in its level:
+
+```csharp
+// A prefab is one entity naming a model, solid as the model is drawn, found beside the
+// program as the prefabs themselves are.
+foreach (var name in new[] { "island", "block", "steps", "house" })
+{
+    var piece = ecs.Spawn();
+    ecs.SetName(piece, name);
+    ecs.Add(piece, new ModelRef { Path = $"resources/models/{name}.obj" });
+    ecs.Add(piece, new Transform(Vector3.Zero));
+    ecs.Add(piece, Collider.Mesh);
+    ecs.Add(piece, RigidBody.Static);
+    SaveScene(Path.Combine(folder, "prefabs", name + ".json"), [ecs.Handle(piece)]);
+    ecs.Despawn(piece);
+}
+// ...
+Place("Block A", "block", new Vector3(0, 2, -15.5f));
+```
+
+`Place` spawns an entity with a `SceneRef` naming the prefab's file and a `Transform` where it goes. Each copy gets fresh ids, so copies
 of one file stay apart. A placed file saved again while the level runs, from another tool or with
 `scene.save`, is spawned again in place of every copy within half a second, so a prefab is edited
 while the game shows it.
@@ -180,7 +201,8 @@ a running game is kept.
 
 ## See also
 
-- Examples: [`scenes_level`](../3DEngine.Examples/Scenes/ScenesLevel.cs)
+- Examples: [`scenes_level`](../3DEngine.Examples/Scenes/ScenesLevel.cs), and the game
+  [`games/Summit`](../games/Summit/Program.cs), whose level is prefabs placed in a scene
 - The cheatsheet's [Scenes](../CHEATSHEET.md#scenes)
 - [ARCHITECTURE.md](../.github/ARCHITECTURE.md#scene-files), on the format
 - Previous: [States](states.md)

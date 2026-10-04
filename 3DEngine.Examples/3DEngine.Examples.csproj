@@ -9,6 +9,8 @@
     <!-- Files the examples load, found beside the program as resources/<name>. -->
     <ItemGroup>
         <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Summit's hero, which the layered clips example plays, kept once in the game's art. -->
+        <Content Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

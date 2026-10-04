@@ -128,3 +128,4 @@ the program's user can read.
 - [BUILDING.md](../.github/BUILDING.md), on the flags and building the command line
 - [`build/capture-example.sh`](../build/capture-example.sh), a script that drives every example
 - Previous: [Scenes](scenes.md)
+- Next: [Shipping a game](shipping-a-game.md)

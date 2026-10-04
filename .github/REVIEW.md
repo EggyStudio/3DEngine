@@ -8,12 +8,10 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `f3cf3f53`. Summit, the third game from the package (`2f158acb`), is settled, played
-in CI with the validation layer on. What it turned up was fixed in its batches: a scene's models
-drawn through the camera of `BeginMode3D`, a model of several materials spawning every mesh
-(`485bc987`), a `ModelRef` finding its file beside the program (`7a1f67a9`) and a material that
-casts no shadow (`d3c88d8d`). Exposure, a tonemap curve, grading, a vignette and FXAA over the
-frame (`f3cf3f53`) are settled on their description. TODO.md's diff was read.
+Reviewed up to `59188bd9`. Ten spot and twelve point lights casting shadows (`d075678e`), descriptor
+layouts read from each shader's reflection (`9fe41073`), a clip on part of a skeleton and morph
+targets (`3ea5b22f`) and seven more scenes compared with references (`59188bd9`) were taken on
+their descriptions and settle the four items they answer.
 
 ## Now
 
@@ -23,23 +21,13 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **More lights that cast shadows** (TODO.md, the entry on one directional, four spot and four
-   point lights), by tiles given to the lights that matter most to the picture, so a level with
-   a dozen lamps is not lit flat.
-3. **A compute or drawing shader's layout from its reflection** (TODO.md, Layouts are written
-   by hand), so a program declares a buffer in Slang and sets it by name with no layout typed
-   twice.
-4. **What a model still lacks** (TODO.md, Models are partial), in the order a loaded file shows
-   it: morph targets, more than one animation playing on parts of a skeleton, and what else the
-   entry names.
-5. **More scenes compared whole with references** (TODO.md, Testing), one for each pass and
-   effect added since the eight, a frame of Summit among them.
-6. **The guide kept true.** Each page under `docs/` is read against what its area gained since
-   it was written (probes, bloom and the other effects over the frame, instancing, compute into textures, joints, prefabs, native
+2. **The guide kept true.** Each page under `docs/` is read against what its area gained since
+   it was written (probes, bloom and the other effects over the frame, the shadowed lights, morph targets and
+   layered clips, instancing, compute into textures, joints, prefabs, native
    builds), with a snippet from an example that runs for each addition.
-7. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
+3. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
     draws.
-8. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
+4. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
     kind not yet made, since each one has found what nothing else did.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
