@@ -661,6 +661,33 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Translucent_Draw_Blends_With_What_Was_Drawn_Before_It_Though_Its_Mesh_Came_First()
+    {
+        Open(64, 64);
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var small = LoadModelFromMesh(GenMeshCube(1, 1, 0.1f));
+        var wall = LoadModelFromMesh(GenMeshCube(4, 4, 0.1f));
+
+        // An opaque quad of the small mesh off to the side, then a red wall behind, then a half
+        // clear blue quad of the small mesh in front of the wall's middle.
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(small, new Vector3(1.5f, 1.5f, 0), 1, Color.White);
+            DrawModel(wall, new Vector3(0, 0, -1), 1, new Color(255, 0, 0));
+            DrawModel(small, new Vector3(0, 0, 0.5f), 1, new Color(0, 0, 255, 128));
+            EndMode3D();
+        });
+
+        var middle = GetImageColor(image, 32, 32);
+        middle.R.Should().BeGreaterThan(40, $"the red wall shows through the glass, not {middle}");
+        middle.B.Should().BeGreaterThan(40, $"and the glass tints it blue, not {middle}");
+        UnloadModel(wall);
+        UnloadModel(small);
+    }
+
+    [NeedsVulkanFact]
     public void A_Metal_Reflects_An_HDR_Sky_Brighter_Than_White_Could_Be()
     {
         Open(64, 64);

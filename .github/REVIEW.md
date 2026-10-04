@@ -8,35 +8,33 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `fffc5060`. The frame profile, the two stress examples and RENDERING.md §6
-(`fffc5060`) were read and are settled. The numbers are what the items below are ordered by.
+Reviewed up to `2d610f1c`. The vertex ring (`a10259a6`) is settled by its numbers. Instanced draws
+(`2d610f1c`) were read, are settled as to speed, and raised the verdict below.
 
 ## Now
 
-In this order, each ending with the same run repeated and RENDERING.md §6 holding the numbers
-before and after.
+In this order.
 
-1. **An animated mesh keeps its vertex buffer.** A buffer made, allocated and mapped each frame
-   costs about 2 ms a mesh, so eight arms take the whole frame. Each animated mesh keeps one
-   buffer a frame in flight, mapped for its life, and a frame writes into the one the GPU is not
-   reading. Skinning on the GPU, with the bone matrices in a buffer and the weights in the
-   vertex, removes the upload as well and goes into TODO.md as the step after, to be taken when
-   the numbers after this fix say the CPU skinning is what is left.
-2. **Mesh entities that share a mesh and its maps are one instanced draw.** Recording a draw each
-   costs 10.3 ms for 8,004 cubes that the GPU draws in 1.8 ms. `MeshEntityDraws` groups by mesh
-   and the five map views, writes each group's transforms and factors into a buffer the vertex
-   stage reads by instance, and the model pass and the shadow pass each draw a group once. A
-   custom shader's draws stay as they are. Verified by the stress count rising severalfold, the
-   material pixel tests not moving, and the validation container.
-3. **The flat API's getters do not look a resource up each call.** `GetScreenWidth` and its
-   kind are called per sprite in ordinary raylib code, so they read a value the frame cached.
-   `DrawTexture`'s 77 nanoseconds a sprite is looked at in the same batch, for what it spends
-   outside writing its four vertices.
+1. **The verdict below**, since a program that drew correctly before it draws wrongly after it.
+2. **The flat API's getters do not look a resource up each call**, which the batch in progress
+   has begun, with `DrawTexture`'s cost a sprite looked at beside it.
+3. **`MeshEntityDraws`**, which RENDERING.md §6 names as the largest cost left at the new count.
 4. **TODO.md's order** from there.
 
 ## Verdicts
 
-None open.
+1. **Batching draws a translucent model out of the order it was submitted in** (`2d610f1c`).
+   The model pipeline blends by alpha and writes depth (`ModelNode.cs`, `BlendEnabled: true`),
+   and `Gather` puts each draw into the batch its mesh and set first opened. A program that draws
+   its walls and then a glass cube of the same mesh as an earlier crate, as raylib programs do
+   with a tint whose alpha is below 255, has the glass drawn with the crates, before the walls
+   behind it, which the glass's depth then hides. Before this commit the order was the
+   program's. Draws whose color has alpha below 1 are to stay out of the opaque batches and be
+   drawn after them, in the order submitted for the flat API and from far to near for mesh
+   entities, batched only while consecutive draws share a mesh and set. Verified by a pixel test
+   of a half-clear quad submitted last, in front of a quad of another mesh and sharing its mesh
+   with an earlier opaque draw, showing the blend of the two. TODO.md's entry on the alpha mode
+   a file gives its material says what is left.
 
 ## Decisions
 

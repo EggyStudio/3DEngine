@@ -125,4 +125,18 @@ public class MeshEntityDrawsTests
         var vp = world.Resource<ModelDrawList>().Draws[0].ViewProjection;
         (MathF.Abs(vp.M22) / MathF.Abs(vp.M11)).Should().BeApproximately(2f, 1e-4f, "an 800 by 400 frame is twice as wide as it is tall");
     }
+
+    [Fact]
+    public void Translucent_Entities_Are_Recorded_After_The_Opaque_Ones_From_Far_To_Near()
+    {
+        var (world, ecs) = Scene();
+        // The camera is at z 5, so z -3 is farther than z 2.
+        SpawnMesh(ecs, Triangle, new Vector3(0, 0, 2), new Vector4(1, 0, 0, 0.5f));
+        SpawnMesh(ecs, Triangle, new Vector3(0, 0, 0), Vector4.One);
+        SpawnMesh(ecs, Triangle, new Vector3(0, 0, -3), new Vector4(0, 0, 1, 0.5f));
+
+        MeshEntityDraws.Run(world);
+
+        world.Resource<ModelDrawList>().Draws.Select(d => d.World.Translation.Z).Should().Equal(0, -3, 2);
+    }
 }

@@ -18,12 +18,17 @@ namespace Engine;
 /// asset store into <see cref="TextureStore"/> once it has loaded, and copied again when the asset
 /// is reloaded. Only the first mip level of an RGBA8 texture is copied, and the GPU makes the rest.
 /// </para>
+/// <para>
+/// An entity whose albedo has alpha below 1 blends with what is behind it, so it is recorded after
+/// the opaque ones, from the farthest from the camera to the nearest, which the model pass keeps.
+/// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
 {
     private readonly Dictionary<Vector3[], int> _meshes = new(ReferenceEqualityComparer.Instance);
     private readonly HashSet<Vector3[]> _seen = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<AssetId, int> _textures = [];
+    private readonly List<(float Distance, ModelDraw Draw)> _translucent = [];
 
     /// <summary>How many meshes are uploaded for entities.</summary>
     public int MeshCount => _meshes.Count;
@@ -47,8 +52,10 @@ public sealed class MeshEntityDraws
         ForgetReloadedTextures(world, textures);
 
         _seen.Clear();
-        if (ecs.Count<Mesh>() > 0 && FirstCamera(world, ecs) is { } viewProjection)
+        _translucent.Clear();
+        if (ecs.Count<Mesh>() > 0 && FirstCamera(world, ecs) is { } camera)
         {
+            var (viewProjection, eye) = camera;
             foreach (var (entity, mesh) in ecs.Query<Mesh>())
             {
                 if (mesh.Positions is not { Length: >= 3 } || !ecs.TryGet(entity, out Material material)) continue;
@@ -60,9 +67,10 @@ public sealed class MeshEntityDraws
                 // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
                 var color = Vector4.Clamp(material.Albedo, Vector4.Zero, Vector4.One);
                 color = new Vector4(LinearToSrgb(color.X), LinearToSrgb(color.Y), LinearToSrgb(color.Z), color.W) * 255 + new Vector4(0.5f);
-                draws.Add(new ModelDraw(
+                var placed = TransformPropagation.WorldMatrix(ecs, entity);
+                var draw = new ModelDraw(
                     id,
-                    TransformPropagation.WorldMatrix(ecs, entity),
+                    placed,
                     viewProjection,
                     new Color((byte)color.X, (byte)color.Y, (byte)color.Z, (byte)color.W),
                     TextureFor(material.BaseColorTexture, assets, textures),
@@ -74,8 +82,13 @@ public sealed class MeshEntityDraws
                     Emission: material.EmissiveFactor,
                     EmissiveMap: TextureFor(material.EmissiveTexture, assets, textures),
                     OcclusionMap: TextureFor(material.OcclusionTexture, assets, textures),
-                    OcclusionStrength: material.OcclusionStrength));
+                    OcclusionStrength: material.OcclusionStrength);
+                if (draw.Color.A < 255) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
+                else draws.Add(draw);
             }
+
+            _translucent.Sort(static (a, b) => b.Distance.CompareTo(a.Distance));
+            foreach (var (_, draw) in _translucent) draws.Add(draw);
         }
 
         // A mesh no entity drew this frame was despawned or replaced.
@@ -90,8 +103,8 @@ public sealed class MeshEntityDraws
     private static float LinearToSrgb(float c) =>
         c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
 
-    /// <summary>World to clip space through the first camera entity, as <see cref="CameraExtract"/> builds it.</summary>
-    private static Matrix4x4? FirstCamera(World world, EcsWorld ecs)
+    /// <summary>World to clip space through the first camera entity, as <see cref="CameraExtract"/> builds it, and where that camera is.</summary>
+    private static (Matrix4x4 ViewProjection, Vector3 Eye)? FirstCamera(World world, EcsWorld ecs)
     {
         foreach (var (entity, camera) in ecs.Query<Camera>())
         {
@@ -103,7 +116,7 @@ public sealed class MeshEntityDraws
                 : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
             var aspect = height > 0 ? (float)width / height : 1f;
             var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
-            return view * projection;
+            return (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
         }
         return null;
     }

@@ -124,6 +124,12 @@ and each target's one after another, and a ring outgrown is replaced by one twic
 model pass's own draws share one set per combination of maps, so draws differing only in their
 factors share a set and a draw call. A set no frame in flight binds is freed. A draw with a shader
 of its own is a batch of one, with a set of its own holding its uniforms.
+
+The pipeline blends by alpha and writes depth, so a draw that lets what is behind it show must
+come after that. A draw whose color has alpha below 255 stays out of the opaque batches and is
+drawn after all of them, in the order the program recorded it, batched only with the draws beside
+it that share its mesh and set. `MeshEntityDraws` records its translucent entities after the
+opaque ones, from the farthest from the camera to the nearest.
 A normal map's tangent frame is worked out per pixel from the derivatives of the position and the
 texture coordinates (Christian Schüler's cotangent frame), so a mesh needs no tangents, and up in
 the map is toward the top of the image, as glTF has it.

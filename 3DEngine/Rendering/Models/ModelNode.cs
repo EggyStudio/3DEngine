@@ -13,7 +13,10 @@ namespace Engine;
 /// draw. Each draw is an <see cref="Instance"/> in a vertex buffer stepped per instance, holding
 /// its transform, its world matrix as a 3x4 and its material's factors, written into this frame's
 /// region of a ring, and the batch binds its mesh's buffers from <see cref="GpuMeshes"/> and its
-/// maps from <see cref="GpuTextures"/> once. Batches are drawn in the order each first appears.
+/// maps from <see cref="GpuTextures"/> once. Opaque batches are drawn in the order each first
+/// appears. A draw whose color has alpha below 255 blends with what is behind it, so it stays out
+/// of them and is drawn after, in the order it was recorded, batched only with the draws next to
+/// it that share its mesh and set.
 /// The frame's lights, packed by <see cref="LightingUboPrepare"/>, are bound once per pass as a
 /// second descriptor set.
 /// </para>
@@ -127,6 +130,7 @@ public sealed class ModelRenderer : IDisposable
     private readonly List<int> _drawBatch = [];
     private readonly List<uint> _filled = [];
     private readonly Dictionary<(int Mesh, IDescriptorSet? Set), int> _batchOf = [];
+    private readonly List<(Kind Kind, IDescriptorSet? Set)> _classified = [];
 
     // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can
     // change between frames when its texture is reloaded.
@@ -186,7 +190,7 @@ public sealed class ModelRenderer : IDisposable
         Gather(draws.Draws, meshes, draw =>
             draw.Target != target ? (Kind.Skip, null)
             : draw.Shader != 0 && store?.Get(draw.Shader) is not null ? (Kind.Alone, null)
-            : (Kind.Batched, MaterialSet(gfx, textures, draw)));
+            : (Kind.Batched, MaterialSet(gfx, textures, draw)), keepOrderOfTranslucent: true);
         var ring = WriteInstances(gfx, draws.Draws, static draw => Instance.Of(draw, draw.ViewProjection));
 
         IPipeline? pipeline = null;
@@ -217,38 +221,83 @@ public sealed class ModelRenderer : IDisposable
     // that share its mesh and set.
     private enum Kind { Skip, Alone, Batched }
 
-    // Sorts this call's draws into batches, in the order each batch first appears.
-    private void Gather(IReadOnlyList<ModelDraw> draws, GpuMeshes meshes, Func<ModelDraw, (Kind Kind, IDescriptorSet? Set)> classify)
+    // Sorts this call's draws into batches, in the order each batch first appears. With
+    // keepOrderOfTranslucent, a draw whose color has alpha below 255 waits until the opaque
+    // batches are made and goes after them in its recorded place, joining the batch before it
+    // only when that batch is translucent and shares its mesh and set. The depth pass of a shadow
+    // reads no color and keeps no order.
+    private void Gather(IReadOnlyList<ModelDraw> draws, GpuMeshes meshes, Func<ModelDraw, (Kind Kind, IDescriptorSet? Set)> classify,
+        bool keepOrderOfTranslucent)
     {
         _batches.Clear();
         _drawBatch.Clear();
         _batchOf.Clear();
+        _classified.Clear();
         for (int i = 0; i < draws.Count; i++)
         {
             var draw = draws[i];
             var (kind, set) = classify(draw);
+            _classified.Add((kind, set));
             // A mesh unloaded after its draw was recorded is skipped.
             if (kind == Kind.Skip || meshes.Get(draw.Mesh) is not { } mesh)
             {
                 _drawBatch.Add(-1);
                 continue;
             }
-            if (kind == Kind.Alone)
+            if (keepOrderOfTranslucent && draw.Color.A < 255)
             {
-                _drawBatch.Add(_batches.Count);
-                _batches.Add(new Batch { Mesh = mesh, Custom = i, Count = 1 });
+                _drawBatch.Add(Translucent);
                 continue;
             }
-            if (!_batchOf.TryGetValue((draw.Mesh, set), out var index))
-            {
-                _batchOf[(draw.Mesh, set)] = index = _batches.Count;
-                _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = -1 });
-            }
-            var batch = _batches[index];
-            batch.Count++;
-            _batches[index] = batch;
-            _drawBatch.Add(index);
+            _drawBatch.Add(kind == Kind.Alone ? AddBatch(mesh, null, i) : Join(mesh, (draw.Mesh, set)));
         }
+
+        var last = (Mesh: -1, Set: (IDescriptorSet?)null);
+        var lastBatch = -1;
+        for (int i = 0; i < draws.Count; i++)
+        {
+            if (_drawBatch[i] != Translucent) continue;
+            var draw = draws[i];
+            var (kind, set) = _classified[i];
+            var mesh = meshes.Get(draw.Mesh)!;
+            if (kind == Kind.Alone)
+            {
+                _drawBatch[i] = AddBatch(mesh, null, i);
+                lastBatch = -1;
+                continue;
+            }
+            if (lastBatch < 0 || last != (draw.Mesh, set))
+            {
+                lastBatch = AddBatch(mesh, set, -1);
+                last = (draw.Mesh, set);
+            }
+            Grow(lastBatch);
+            _drawBatch[i] = lastBatch;
+        }
+    }
+
+    // Marks a translucent draw until the opaque batches are made.
+    private const int Translucent = -2;
+
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom)
+    {
+        _batches.Add(new Batch { Mesh = mesh, Set = set, Custom = custom, Count = custom >= 0 ? 1u : 0u });
+        return _batches.Count - 1;
+    }
+
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set) key)
+    {
+        if (!_batchOf.TryGetValue(key, out var index))
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1);
+        Grow(index);
+        return index;
+    }
+
+    private void Grow(int index)
+    {
+        var batch = _batches[index];
+        batch.Count++;
+        _batches[index] = batch;
     }
 
     // Writes each batched draw's instance into this frame's region of the ring, a batch's
@@ -311,7 +360,7 @@ public sealed class ModelRenderer : IDisposable
 
         // The window's draws gather by mesh alone, since the shadow reads no material.
         BeginFrameOfSets(renderContext);
-        Gather(draws.Draws, meshes, static draw => (draw.Target == 0 ? Kind.Batched : Kind.Skip, null));
+        Gather(draws.Draws, meshes, static draw => (draw.Target == 0 ? Kind.Batched : Kind.Skip, null), keepOrderOfTranslucent: false);
         // The depth pass reads the transform alone.
         var lightViewProjection = shadow.ViewProjection;
         var ring = WriteInstances(device, draws.Draws, draw => new Instance { Transform = draw.World * lightViewProjection });
