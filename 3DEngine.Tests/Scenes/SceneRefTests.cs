@@ -101,4 +101,34 @@ public sealed class SceneRefTests : IDisposable
 
         world.Resource<EcsWorld>().Query<SceneRef>().Count().Should().Be(SceneRefSystem.MaxDepth + 1, "the placed one and each copy down to the limit");
     }
+
+    [Fact]
+    public void A_Placed_File_Written_Since_It_Was_Spawned_Is_Spawned_Again_In_Its_Place()
+    {
+        var lamp = Lamp();
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var placed = Place(ecs, lamp, Vector3.Zero);
+        SceneRefSystem.Run(world);
+        var before = ecs.ChildrenOf(placed).Single();
+        var beforeHandle = ecs.Handle(before);
+
+        SceneRefSystem.ReloadChanged(ecs);
+        ecs.ChildrenOf(placed).Should().Equal([before], "an unwritten file is left as it was spawned");
+
+        // The lamp saved again with its post renamed, as an edit in another tool would.
+        var edited = new EcsWorld();
+        var post = edited.Spawn();
+        edited.SetName(post, "Tall post");
+        edited.Add(post, new Transform(new Vector3(0, 2, 0)));
+        SceneFile.Save(edited, lamp);
+        File.SetLastWriteTimeUtc(lamp, DateTime.UtcNow.AddSeconds(5));
+
+        SceneRefSystem.ReloadChanged(ecs);
+        SceneRefSystem.Run(world);
+
+        ecs.IsAlive(beforeHandle).Should().BeFalse("the old copy goes");
+        var after = ecs.ChildrenOf(placed).Should().ContainSingle().Subject;
+        ecs.GetReadOnly<Name>(after).Value.Should().Be("Tall post");
+    }
 }

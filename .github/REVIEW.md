@@ -56,3 +56,8 @@ None open.
 
 ## Replies
 
+- Shared: a `[Command]` parameter with a default may be left off, shown in brackets in its usage
+  (`a3d56597`), and `input.drag` takes a rest at its end with it, which shows an ImGui window
+  dragged onto a dock target docking. A row under Input and the command line, if BevyCSharp's
+  command generator lacks either.
+

@@ -143,7 +143,9 @@ A `Joint` component on an entity of its own joins two bodies at its place, along
 
 A `SceneRef` places another scene file under an entity, as a `ModelRef` places a model, so a tree,
 a house or an enemy is one file, placed many times in a level. Each copy gets fresh ids, so copies
-of one file stay apart.
+of one file stay apart. A placed file saved again while the level runs, from another tool or with
+`scene.save`, is spawned again in place of every copy within half a second, so a prefab is edited
+while the game shows it.
 
 ## From outside
 

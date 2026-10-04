@@ -96,8 +96,15 @@ public struct SceneRef
     public string Path;
 }
 
-/// <summary>Marks a <see cref="SceneRef"/> whose file has been spawned, or tried.</summary>
-public struct SceneRefSpawned;
+/// <summary>Marks a <see cref="SceneRef"/> whose file has been spawned, or tried, with the file and when it was written.</summary>
+public struct SceneRefSpawned
+{
+    /// <summary>The file spawned, as it was found, or null when none was.</summary>
+    public string? File;
+
+    /// <summary>When the file was last written as it was spawned, which a later write differs from.</summary>
+    public DateTime Written;
+}
 
 /// <summary>Spawns the scene file of every <see cref="SceneRef"/> that has not been, under its entity.</summary>
 public static class SceneRefSystem
@@ -107,10 +114,24 @@ public static class SceneRefSystem
     /// <summary>How many references deep a file may spawn files of its own.</summary>
     public const int MaxDepth = 8;
 
+    // When the files were last looked at, so a level of many references asks the file system twice
+    // a second rather than every frame.
+    private static long _lastCheck;
+
     /// <summary>The system, for <see cref="Stage.PreUpdate"/>.</summary>
+    /// <remarks>
+    /// A file written since it was spawned, as one saved in another tool or by <c>scene.save</c>, is
+    /// spawned again in place of what it spawned before, so a level shows an edited prefab as it
+    /// runs. What the program changed of the old copy is lost with it.
+    /// </remarks>
     public static void Run(World world)
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<SceneRef>() == 0) return;
+        if (System.Diagnostics.Stopwatch.GetElapsedTime(_lastCheck).TotalSeconds >= 0.5)
+        {
+            _lastCheck = System.Diagnostics.Stopwatch.GetTimestamp();
+            ReloadChanged(ecs);
+        }
         // Repeated, so the references a spawned file holds spawn in the same frame.
         for (int pass = 0; pass <= MaxDepth; pass++)
         {
@@ -120,6 +141,27 @@ public static class SceneRefSystem
                     (pending ??= []).Add((entity, reference.Path ?? ""));
             if (pending is null) return;
             foreach (var (entity, path) in pending) Spawn(world, ecs, entity, path);
+        }
+    }
+
+    // Despawns what each reference whose file was written since spawned, and marks it to be
+    // spawned again by the pass after.
+    internal static void ReloadChanged(EcsWorld ecs)
+    {
+        List<int>? changed = null;
+        foreach (var (entity, spawned) in ecs.Query<SceneRefSpawned>())
+            if (spawned.File is { } file && System.IO.File.Exists(file) && System.IO.File.GetLastWriteTimeUtc(file) != spawned.Written)
+                (changed ??= []).Add(entity);
+        if (changed is null) return;
+
+        foreach (var entity in changed)
+        {
+            var path = ecs.GetReadOnly<SceneRef>(entity).Path;
+            foreach (var child in ecs.ChildrenOf(entity).ToArray())
+                if (ecs.TryGet<SceneInstance>(child, out var instance) && instance.SourcePath == path)
+                    ecs.DespawnRecursive(child);
+            ecs.Remove<SceneRefSpawned>(entity);
+            Logger.Info($"SceneRef: '{path}' was written since it was spawned, so it is spawned again.");
         }
     }
 
@@ -141,6 +183,7 @@ public static class SceneRefSystem
         List<int> spawned;
         try
         {
+            ecs.GetRef<SceneRefSpawned>(entity) = new SceneRefSpawned { File = file, Written = File.GetLastWriteTimeUtc(file) };
             spawned = SceneFile.Read(world, File.ReadAllText(file));
         }
         catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)

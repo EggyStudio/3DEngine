@@ -205,7 +205,8 @@ whose place is the joint's point and whose up is its axis. A model is named with
 `ModelRefSystem` spawns under its entity, and the entities a model spawns are not saved, since the
 file brings them back. Another scene file is placed the same way with a `SceneRef`, a prefab, which
 `SceneRefSystem` spawns under its entity in the frame it appears, without the file's ids so copies
-of one file stay apart, and down to eight references deep. The console's `scene.save` and
+of one file stay apart, and down to eight references deep, and spawns again when the file is written
+while the level runs, looking at the files twice a second. The console's `scene.save` and
 `scene.load` do the same from `./e3d`.
 
 ## The renderer

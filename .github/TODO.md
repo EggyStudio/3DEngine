@@ -133,9 +133,9 @@ meshes of the entity and those under it) and a `RigidBody` (static, dynamic with
 kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
 when a `CharacterController` is beside a capsule. A `Joint` on an entity of its own joins two
 entities' bodies at its place, and a `PhysicsMaterial` beside a `Collider` gives its body a friction
-and a bounce. A scene file placed in another with `SceneRef` is spawned once, when the reference
-first appears, and a change to the placed file reaches a running level only when it is loaded again.
-An older file is read by keeping the fields it has, with no migration.
+and a bounce. A scene file placed in another with `SceneRef` is spawned when the reference first
+appears, and again in place of that copy when the file is written while the level runs. An older
+file is read by keeping the fields it has, with no migration.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`.
