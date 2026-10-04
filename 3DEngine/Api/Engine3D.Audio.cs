@@ -85,6 +85,42 @@ internal sealed class OggMusicDecoder(string path) : IMusicDecoder
     public void Dispose() => _reader.Dispose();
 }
 
+/// <summary>Decodes MP3 from its file through NLayer as it is read.</summary>
+/// <remarks>NLayer measures its stream in bytes of 32-bit samples, which a frame holds one of for each channel.</remarks>
+internal sealed class Mp3MusicDecoder : IMusicDecoder
+{
+    private readonly NLayer.MpegFile _file;
+    private float[] _scratch = [];
+
+    public Mp3MusicDecoder(string path)
+    {
+        _file = new NLayer.MpegFile(path);
+        if (_file.SampleRate <= 0 || _file.Channels <= 0)
+        {
+            _file.Dispose();
+            throw new InvalidDataException("no MPEG audio frames were found");
+        }
+    }
+
+    public int Channels => _file.Channels;
+
+    public int SampleRate => _file.SampleRate;
+
+    public long TotalFrames => _file.Length / (sizeof(float) * _file.Channels);
+
+    public int Read(Span<float> buffer)
+    {
+        if (_scratch.Length < buffer.Length) _scratch = new float[buffer.Length];
+        var read = _file.ReadSamples(_scratch, 0, buffer.Length);
+        _scratch.AsSpan(0, read).CopyTo(buffer);
+        return read;
+    }
+
+    public void Seek(long frame) => _file.Position = Math.Clamp(frame, 0, TotalFrames) * sizeof(float) * _file.Channels;
+
+    public void Dispose() => _file.Dispose();
+}
+
 public static partial class Engine3D
 {
     // The voice each sound last started, with the volume and pitch set on it, so PlaySound can
@@ -132,7 +168,7 @@ public static partial class Engine3D
 
     // -- Sounds
 
-    /// <summary>Loads a WAV or Ogg Vorbis file, decoded into memory.</summary>
+    /// <summary>Loads a WAV, Ogg Vorbis or MP3 file, decoded into memory.</summary>
     /// <returns>The sound, or an empty one when the file cannot be read, with the reason in the log.</returns>
     public static Sound LoadSound(string fileName)
     {
@@ -150,7 +186,8 @@ public static partial class Engine3D
             {
                 ".wav" or ".wave" => WavSoundDecoder.Decode(bytes, fileName),
                 ".ogg" => OggSoundDecoder.Decode(bytes, fileName),
-                var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis)."),
+                ".mp3" => Mp3SoundDecoder.Decode(bytes, fileName),
+                var other => throw new InvalidDataException($"'{other}' is not a sound format the engine reads (WAV, Ogg Vorbis, MP3)."),
             };
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException)
@@ -237,7 +274,7 @@ public static partial class Engine3D
     private const float MusicBufferSeconds = 0.5f;
     private const int MusicChunkFrames = 4096;
 
-    /// <summary>Opens a WAV or Ogg Vorbis file as music, which streams from the file as it plays.</summary>
+    /// <summary>Opens a WAV, Ogg Vorbis or MP3 file as music, which streams from the file as it plays.</summary>
     /// <returns>The music, or an empty one when the file cannot be read, with the reason in the log.</returns>
     public static Music LoadMusicStream(string fileName)
     {
@@ -254,7 +291,8 @@ public static partial class Engine3D
             {
                 ".ogg" => new Music(new OggMusicDecoder(path)),
                 ".wav" or ".wave" => new Music(new WavMusicDecoder(path)),
-                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis)."),
+                ".mp3" => new Music(new Mp3MusicDecoder(path)),
+                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3)."),
             };
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)

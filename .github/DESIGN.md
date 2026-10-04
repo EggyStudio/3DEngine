@@ -184,6 +184,7 @@ that is added. The set is:
 | StbImageSharp | decoding images |
 | AssimpNetter | reading models (glTF, FBX, OBJ and the rest) with their materials and textures |
 | NVorbis | decoding Ogg Vorbis, in managed code |
+| NLayer | decoding MP3, in managed code, which raylib reads and the owner admitted on 2026-10-04 |
 | BepuPhysics | rigid bodies |
 | Microsoft.CodeAnalysis | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |

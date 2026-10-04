@@ -51,6 +51,7 @@ public sealed class SoundsPlugin : IPlugin
         var registry = new SoundDecoderRegistry();
         registry.RegisterDecoder(new WavSoundDecoder());
         registry.RegisterDecoder(new OggSoundDecoder());
+        registry.RegisterDecoder(new Mp3SoundDecoder());
         app.World.InsertResource(registry);
 
         // Pre-create Assets<Sound> so handle-based PlaySound calls don't race the first

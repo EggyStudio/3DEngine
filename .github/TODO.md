@@ -50,8 +50,8 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio and text files
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Audio reads WAV and Ogg Vorbis only.** MP3 and FLAC need a decoder the dependency policy
-  (DESIGN.md §8) has not admitted.
+- **Audio reads no FLAC.** WAV, Ogg Vorbis (NVorbis) and MP3 (NLayer) are read, in managed code.
+  FLAC has no managed decoder of the same standing, so a FLAC file is refused with the reason.
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`) or between two clips (`UpdateModelAnimationBlend`), and on the CPU in
   a run with no renderer. A mesh posed on the GPU keeps its vertices at rest on the CPU, so its
@@ -139,9 +139,9 @@ when a `CharacterController` is beside a capsule. Joints, physics materials and 
 not described. There are no prefabs (a scene file spawned as part of another), and an older file is
 read by keeping the fields it has, with no migration.
 
-`SceneLightPayload` and `Light` hold what the model pass reads. Of `SceneMaterialPayload`'s fields
-the model pass reads all but the double-sided flag. A blended surface casts the shadow of a
-solid, with no lighter shadow where it is clearer.
+`SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
+field of `SceneMaterialPayload`. A blended surface casts the shadow of a solid, with no lighter
+shadow where it is clearer.
 
 ## Platform
 

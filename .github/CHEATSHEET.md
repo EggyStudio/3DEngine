@@ -497,7 +497,7 @@ bool IsAudioDeviceReady();                                // Whether the device 
 void SetMasterVolume(float volume);                       // Volume every sound is multiplied by (0 to 1)
 float GetMasterVolume();                                  // That volume
 
-Sound LoadSound(string fileName);                         // Read a WAV or Ogg Vorbis file into memory
+Sound LoadSound(string fileName);                         // Read a WAV, Ogg Vorbis or MP3 file into memory
 bool IsSoundValid(Sound sound);                           // Whether a sound has samples
 void UnloadSound(Sound sound);                            // Stop a sound
 void PlaySound(Sound sound);                              // Play from the start, restarting it if it was playing
@@ -509,7 +509,7 @@ void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), no
 void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
 void SetSoundPan(Sound sound, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
 
-Music LoadMusicStream(string fileName);                   // Open a WAV or Ogg Vorbis file as music, streamed as it plays
+Music LoadMusicStream(string fileName);                   // Open a WAV, Ogg Vorbis or MP3 file as music, streamed as it plays
 void UnloadMusicStream(Music music);                      // Stop music and close its file
 bool IsMusicValid(Music music);                           // Whether music has samples
 void PlayMusicStream(Music music);                        // Play from the start, looping unless music.Looping is false

@@ -46,3 +46,5 @@ None open.
   the local pack with its source mapping is the route for a build from a checkout.
 - **Decision 1.** The owner confirmed in the working session that they push `main` and the
   session commits locally, and CLAUDE.md and COMMITS.md say so.
+- **Decision 3.** The owner admitted NLayer on 2026-10-04. MP3 sounds and music are read through
+  it, DESIGN.md §8 lists it, and FLAC stays unread, as TODO.md says.
