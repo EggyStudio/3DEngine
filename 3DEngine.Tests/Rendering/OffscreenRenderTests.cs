@@ -424,6 +424,47 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Frame_Draws_More_Models_With_Their_Own_Uniforms_Than_One_Descriptor_Pool_Holds()
+    {
+        Open(32, 32);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            uniform float4 tint;
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return tint;
+            }
+            """, "tinted.slang");
+        var tint = GetShaderLocation(shader, "tint");
+        var cube = LoadModelFromMesh(GenMeshCube(0.01f, 0.01f, 0.01f));
+        cube.Materials[0] = new ModelMaterial(Color.White) { Shader = shader };
+        var big = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        big.Materials[0] = new ModelMaterial(Color.White) { Shader = shader };
+
+        // Each draw with uniforms of its own takes a set, and a pool holds 4096.
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45));
+            for (int i = 0; i < 5000; i++)
+            {
+                SetShaderValue(shader, tint, new Vector4(i / 5000f, 0, 0, 1));
+                DrawModel(cube, new Vector3(10, 0, -i), 1, Color.White);
+            }
+            SetShaderValue(shader, tint, new Vector4(0, 1, 0, 1));
+            DrawModel(big, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+        }, "many sets");
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0, 255), "the last draw, past the first pool's sets, has its own uniforms");
+        UnloadModel(cube);
+        UnloadModel(big);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Mixes_Its_Own_Texture_With_The_Base_Color()
     {
         Open(32, 32);

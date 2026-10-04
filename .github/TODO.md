@@ -54,10 +54,6 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio and text files
 ([CHEATSHEET.md](CHEATSHEET.md)). What is missing:
 
-- **Custom shaders share one descriptor pool.** Model and immediate shaders read uniforms and
-  textures of their own by name, and an immediate one the four `float4` slots as well. Each draw
-  with a shader's own uniforms or textures takes a descriptor set from a pool of 4096 shared with
-  textures, kept for four frames, so a frame has room for about a thousand.
 - **Audio reads WAV and Ogg Vorbis only.** MP3 and FLAC need a decoder the dependency policy
   (DESIGN.md §8) has not admitted.
 - **Models are partial.** Skinned meshes are posed on the CPU, as raylib does by default, at a
