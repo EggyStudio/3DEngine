@@ -710,6 +710,7 @@ public sealed class ModelRenderer : IDisposable
         if (_instanceRing is not null) _retiredBuffers.Add((_frames, _instanceRing));
         _ringCapacity = Math.Max(Math.Max(1024, _ringCapacity * 2), _ringCursor + instances);
         _instanceRing = gfx.CreateBuffer(new BufferDesc((ulong)(SetRingFrames * _ringCapacity * Instance.Size), BufferUsage.Vertex, CpuAccessMode.Write));
+        (gfx as GraphicsDevice)?.Name(_instanceRing, "Model instances");
     }
 
     /// <summary>
@@ -824,7 +825,9 @@ public sealed class ModelRenderer : IDisposable
     {
         if (_pointShadowMap is { } made && made.Extent.Width == faceSize) return made;
         if (_pointShadowMap is { } old) _retiredMaps.Add((_frames, old));
-        return _pointShadowMap = device.CreateShadowMap((uint)faceSize, ShadowFit.MaxPointLights * 6);
+        _pointShadowMap = device.CreateShadowMap((uint)faceSize, ShadowFit.MaxPointLights * 6);
+        device.Name(_pointShadowMap.DepthView.Image, "Point light shadow faces");
+        return _pointShadowMap;
     }
 
     // The map of the cascades and spot lights, two tiles on a side, made again when the tile size changes.
@@ -832,7 +835,9 @@ public sealed class ModelRenderer : IDisposable
     {
         if (_shadowMap is { } made && made.Extent.Width == 2 * tileSize) return made;
         if (_shadowMap is { } old) _retiredMaps.Add((_frames, old));
-        return _shadowMap = device.CreateShadowMap((uint)(2 * tileSize));
+        _shadowMap = device.CreateShadowMap((uint)(2 * tileSize));
+        device.Name(_shadowMap.DepthView.Image, "Shadow map");
+        return _shadowMap;
     }
 
     private ShadowMap NoPointShadowMap(GraphicsDevice device) => _noPointShadowMap ??= device.CreateShadowMap(1, 2);
@@ -1204,6 +1209,8 @@ public sealed class ModelRenderer : IDisposable
             if (_sky is not null) _retiredCubes.Add((_frames, _sky));
             _environment = device.CreateCubeMap((uint)environment.Size, (uint)environment.MipLevels, environment.Texels);
             _sky = device.CreateCubeMap((uint)environment.SkySize, 1, environment.SkyTexels);
+            device.Name(_environment.View.Image, "Environment map");
+            device.Name(_sky.View.Image, "Sky");
             _environmentSource = environment;
         }
         return _environment;
@@ -1237,7 +1244,11 @@ public sealed class ModelRenderer : IDisposable
         var probe = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
         if (probe is null) return;
 
-        _probeFaces ??= [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize))];
+        if (_probeFaces is null)
+        {
+            _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize))];
+            for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
+        }
         var wanted = probe.Wanted;
         var eye = wanted.Position;
         // Cleared as the window is, so an opening shows what the window shows past the room.
@@ -1283,6 +1294,7 @@ public sealed class ModelRenderer : IDisposable
         if (_probeCubes.TryGetValue(probe, out var made) && ReferenceEquals(made.Map, map)) return made.Cube;
         if (made.Cube is not null) _retiredCubes.Add((_frames, made.Cube));
         var cube = device.CreateCubeMap((uint)map.Size, (uint)map.MipLevels, map.Texels);
+        device.Name(cube.View.Image, "Reflection probe");
         _probeCubes[probe] = (map, cube);
         return cube;
     }

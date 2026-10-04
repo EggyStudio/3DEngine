@@ -586,9 +586,11 @@ The largest costs as they were measured, in order, each with what changed:
 
 ### Debugging
 
-- **Object names** for images and buffers through `VK_EXT_debug_utils`, so a capture shows the
-  shadow map by name. Each render graph node's commands are a labeled region already, by the node's
-  name, wherever the instance has the extension, with validation or under RenderDoc.
+- **Object names** through `VK_EXT_debug_utils` (`GraphicsDevice.Name`), done for the shadow
+  maps, the environment map and sky, reflection probes and their faces, the model instance ring,
+  textures and render textures by their id, so a capture shows them by name. Each render graph
+  node's commands are a labeled region, by the node's name, wherever the instance has the
+  extension, with validation or under RenderDoc. Mesh buffers and pipelines have no names.
 
 ## Order of work
 

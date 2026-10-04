@@ -184,9 +184,29 @@ public sealed unsafe partial class GraphicsDevice
         }
     }
 
-    /// <summary>Thin wrapper around a native <c>VkCommandBuffer</c> handle.</summary>
-    /// <seealso cref="ICommandBuffer"/>
     private bool _debugUtils;
+
+    /// <summary>
+    /// Names a buffer or image for a capture tool such as RenderDoc, which shows it by the name,
+    /// where the instance has <c>VK_EXT_debug_utils</c>.
+    /// </summary>
+    internal void Name(object resource, string name)
+    {
+        if (!_debugUtils) return;
+        var (type, handle) = resource switch
+        {
+            VulkanImage image => (VkObjectType.Image, image.Image.Handle),
+            VulkanBuffer buffer => (VkObjectType.Buffer, buffer.Buffer.Handle),
+            _ => (VkObjectType.Unknown, 0UL),
+        };
+        if (handle == 0) return;
+        var bytes = System.Text.Encoding.UTF8.GetBytes(name + "\0");
+        fixed (byte* text = bytes)
+        {
+            var info = new VkDebugUtilsObjectNameInfoEXT { objectType = type, objectHandle = handle, pObjectName = text };
+            _instanceApi.vkSetDebugUtilsObjectNameEXT(_device, &info);
+        }
+    }
 
     /// <summary>
     /// Opens a labeled region of <paramref name="commands"/>, which a capture tool such as RenderDoc
@@ -209,6 +229,8 @@ public sealed unsafe partial class GraphicsDevice
         if (_debugUtils && commands is VulkanCommandBuffer vk) _instanceApi.vkCmdEndDebugUtilsLabelEXT(vk.Handle);
     }
 
+    /// <summary>Thin wrapper around a native <c>VkCommandBuffer</c> handle.</summary>
+    /// <seealso cref="ICommandBuffer"/>
     private sealed class VulkanCommandBuffer : ICommandBuffer
     {
         /// <summary>The underlying Vulkan command buffer handle.</summary>

@@ -111,6 +111,7 @@ public sealed class GpuTextures : IDisposable
                     var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
                     var targetSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
+                    device.Name(target.ColorView.Image, $"Render texture {upload.Id}");
                     if (existing is not null) Retire(existing.Owned);
                     continue;
                 }
@@ -149,6 +150,7 @@ public sealed class GpuTextures : IDisposable
                 }
 
                 _entries[upload.Id] = Create(gfx, upload.Rgba, upload.Width, upload.Height, upload.Filter, upload.Mipmaps, upload.Wrap);
+                (gfx as GraphicsDevice)?.Name(_entries[upload.Id].Image!, $"Texture {upload.Id}");
                 if (existing is not null)
                     Retire(existing.Owned);
             }
