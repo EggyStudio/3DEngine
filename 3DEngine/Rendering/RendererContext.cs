@@ -188,7 +188,6 @@ public sealed class RendererContext : IDisposable
 
         var swapchainTarget = new SwapchainTarget(
             _graphics.SwapchainRenderPass,
-            _graphics.SwapchainLoadRenderPass,
             _graphics.GetSwapchainFramebuffer(imageIndex),
             frame.Extent);
         world.Set(swapchainTarget);

@@ -239,35 +239,6 @@ public sealed unsafe partial class GraphicsDevice
         public VulkanCommandBuffer(VkCommandBuffer handle) => Handle = handle;
     }
 
-    /// <summary>Thin wrapper around a native <c>VkRenderPass</c> handle.</summary>
-    /// <seealso cref="IRenderPass"/>
-    private sealed class VulkanRenderPass : IRenderPass
-    {
-        /// <summary>The underlying Vulkan render pass handle.</summary>
-        internal VkRenderPass Handle { get; }
-        /// <summary>Whether the pass has a depth attachment and no color one, as a shadow map's has.</summary>
-        internal bool DepthOnly { get; }
-        /// <summary>The samples its attachments have, which a pipeline drawing in it rasterizes at.</summary>
-        internal VkSampleCountFlags Samples { get; }
-        /// <summary>Creates a wrapper around the given Vulkan render pass handle.</summary>
-        public VulkanRenderPass(VkRenderPass handle, bool depthOnly = false, VkSampleCountFlags samples = VkSampleCountFlags.Count1)
-        {
-            Handle = handle;
-            DepthOnly = depthOnly;
-            Samples = samples;
-        }
-    }
-
-    /// <summary>Thin wrapper around a native <c>VkFramebuffer</c> handle.</summary>
-    /// <seealso cref="IFramebuffer"/>
-    private sealed class VulkanFramebuffer : IFramebuffer
-    {
-        /// <summary>The underlying Vulkan framebuffer handle.</summary>
-        internal VkFramebuffer Handle { get; }
-        /// <summary>Creates a wrapper around the given Vulkan framebuffer handle.</summary>
-        public VulkanFramebuffer(VkFramebuffer handle) => Handle = handle;
-    }
-
     /// <summary>Adapter that exposes the device's swapchain state through the <see cref="ISwapchain"/> interface.</summary>
     /// <seealso cref="ISwapchain"/>
     private sealed class VulkanSwapchain : ISwapchain

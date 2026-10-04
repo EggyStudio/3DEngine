@@ -1,4 +1,4 @@
 namespace Engine;
 
-/// <summary>Handle to a GPU framebuffer (collection of attachments for a render pass).</summary>
+/// <summary>The images a pass draws into, its color and depth and what they resolve into.</summary>
 public interface IFramebuffer { }

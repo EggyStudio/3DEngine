@@ -43,7 +43,7 @@ public sealed class NullGraphicsDevice : IGraphicsDevice
     /// <summary>No-op command buffer stub.</summary>
     private sealed class NullCommandBuffer : ICommandBuffer { }
     /// <summary>No-op render pass stub.</summary>
-    private sealed class NullRenderPass : IRenderPass { }
+    private sealed record NullRenderPass : IRenderPass;
     /// <summary>No-op framebuffer stub.</summary>
     private sealed class NullFramebuffer : IFramebuffer { }
 
@@ -68,8 +68,6 @@ public sealed class NullGraphicsDevice : IGraphicsDevice
     public GraphicsAdapterInfo AdapterInfo => GraphicsAdapterInfo.Unknown;
     /// <inheritdoc />
     public IRenderPass SwapchainRenderPass => new NullRenderPass();
-    /// <inheritdoc />
-    public IRenderPass SwapchainLoadRenderPass => new NullRenderPass();
     /// <inheritdoc />
     public IFramebuffer GetSwapchainFramebuffer(uint imageIndex) => new NullFramebuffer();
 
@@ -136,12 +134,6 @@ public sealed class NullGraphicsDevice : IGraphicsDevice
     /// <inheritdoc />
     public void FlushDeferredStagingBuffers(int inFlightIndex) { }
 
-    /// <inheritdoc />
-    public IRenderPass CreateRenderPass(RenderPassDesc desc)
-        => throw new NotSupportedException("NullGraphicsDevice does not support offscreen rendering.");
-    /// <inheritdoc />
-    public IFramebuffer CreateFramebuffer(FramebufferDesc desc)
-        => throw new NotSupportedException("NullGraphicsDevice does not support offscreen rendering.");
     /// <inheritdoc />
     public ICommandBuffer BeginCommands()
         => throw new NotSupportedException("NullGraphicsDevice does not support command buffers.");

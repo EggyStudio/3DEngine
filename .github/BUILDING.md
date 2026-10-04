@@ -2,7 +2,7 @@
 
 How to build the engine, run its tests and run the examples.
 
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/download), a Vulkan driver, and `slangc`,
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download), a Vulkan 1.3 driver, and `slangc`,
 which `build/fetch-slang.sh` downloads. The SDL3,
 Assimp and Dear ImGui native libraries arrive with their NuGet packages, so nothing else is
 installed by hand. macOS draws through MoltenVK, which the Vulkan SDK provides.

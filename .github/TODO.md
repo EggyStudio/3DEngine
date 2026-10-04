@@ -91,8 +91,7 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### The device
 
-Every pass is a `VkRenderPass` with framebuffers, and barriers are synchronization1. Dynamic
-rendering and synchronization2 replace them (RENDERING.md, What the engine needs). Buffers and
+Passes are drawn by dynamic rendering and barriers are synchronization2's, on Vulkan 1.3. Buffers and
 textures are carved out of blocks of 64 MiB a memory type, ten thousand buffers and three thousand
 textures in a handful of allocations, and render targets, cube maps and the frame's images keep an
 allocation each.

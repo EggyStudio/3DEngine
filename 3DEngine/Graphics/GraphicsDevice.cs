@@ -21,7 +21,7 @@ namespace Engine;
 ///   <item><description><c>GraphicsDevice.Surface.cs</c> platform window surface binding via <c>VkSurfaceKHR</c>.</description></item>
 ///   <item><description><c>GraphicsDevice.PhysicalDevice.cs</c> GPU enumeration, capability scoring, and adapter selection.</description></item>
 ///   <item><description><c>GraphicsDevice.Device.cs</c> logical device and queue creation (graphics + present).</description></item>
-///   <item><description><c>GraphicsDevice.Swapchain.cs</c> swapchain, image views, depth buffer, render pass, framebuffers, and command pool.</description></item>
+///   <item><description><c>GraphicsDevice.Swapchain.cs</c> swapchain, image views, depth buffer, the frame images' attachments, and command pool.</description></item>
 ///   <item><description><c>GraphicsDevice.Sync.cs</c> semaphores and fences for frame-in-flight synchronization.</description></item>
 ///   <item><description><c>GraphicsDevice.Frame.cs</c> frame acquisition (<see cref="BeginFrame"/>) and presentation (<see cref="EndFrame"/>).</description></item>
 ///   <item><description><c>GraphicsDevice.Buffers.cs</c> GPU buffer creation, memory allocation, and staging uploads.</description></item>
@@ -56,13 +56,10 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     public int FramesInFlight => MaxFramesInFlight;
 
     /// <inheritdoc />
-    public IRenderPass SwapchainRenderPass => new VulkanRenderPass(_renderPass, samples: _samples);
+    public IRenderPass SwapchainRenderPass => WindowPass;
 
     /// <inheritdoc />
-    public IRenderPass SwapchainLoadRenderPass => new VulkanRenderPass(_loadRenderPass, samples: _samples);
-
-    /// <inheritdoc />
-    public IFramebuffer GetSwapchainFramebuffer(uint imageIndex) => new VulkanFramebuffer(_framebuffers[imageIndex]);
+    public IFramebuffer GetSwapchainFramebuffer(uint imageIndex) => _framebuffers[imageIndex];
 
     /// <summary>Creates a new uninitialized Vulkan graphics device. Call <see cref="Initialize"/> before use.</summary>
     public GraphicsDevice() => _swapchainWrapper = new VulkanSwapchain(this);
@@ -98,7 +95,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         CreateLogicalDevice();
         Logger.Info($"Step 4/6: Logical device created in {sw.ElapsedMilliseconds}ms (graphicsQueue={_graphicsQueueFamily}, presentQueue={_presentQueueFamily})");
 
-        Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer, render pass, framebuffers and command pool)...");
+        Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer and command pool)...");
         sw.Restart();
         CreateSwapchainResources();
         Logger.Info($"Step 5/6: Swapchain resources created in {sw.ElapsedMilliseconds}ms ({_swapchainImages.Length} images, {_swapchainExtent.width}x{_swapchainExtent.height}, format={_swapchainFormat})");
@@ -181,7 +178,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
 
         Logger.Debug("Destroying sync objects (semaphores, fences)...");
         DestroySyncObjects();
-        Logger.Debug("Destroying swapchain resources (framebuffers, image views, render pass, command pool)...");
+        Logger.Debug("Destroying swapchain resources (image views, depth buffer, command pool)...");
         DestroySwapchainResources();
         DestroyCompute();
         DestroySkinning();
@@ -209,9 +206,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     private VkExtent2D _swapchainExtent;
     private VkImage[] _swapchainImages = Array.Empty<VkImage>();
     private VkImageView[] _swapchainImageViews = Array.Empty<VkImageView>();
-    private VkFramebuffer[] _framebuffers = Array.Empty<VkFramebuffer>();
-    private VkRenderPass _renderPass;
-    private VkRenderPass _loadRenderPass;
+    private VulkanFramebuffer[] _framebuffers = [];
     private uint _graphicsQueueFamily;
     private uint _presentQueueFamily;
     private VkQueue _graphicsQueue;
@@ -293,10 +288,10 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     /// <summary>Destroys the Vulkan logical device.</summary>
     private partial void DestroyLogicalDevice();
 
-    /// <summary>Creates the swapchain, image views, depth buffer, render pass, framebuffers, and command pool.</summary>
+    /// <summary>Creates the swapchain, image views, depth buffer, the frame images' attachments, and command pool.</summary>
     private partial void CreateSwapchainResources();
 
-    /// <summary>Destroys all swapchain-related resources including framebuffers, image views, depth buffer, render pass, and command pool.</summary>
+    /// <summary>Destroys all swapchain-related resources including image views, depth buffer, and command pool.</summary>
     private partial void DestroySwapchainResources();
 
     /// <summary>Creates semaphores and pre-signaled fences for each frame-in-flight.</summary>

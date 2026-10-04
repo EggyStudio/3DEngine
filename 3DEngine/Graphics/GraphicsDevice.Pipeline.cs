@@ -97,18 +97,12 @@ public sealed unsafe partial class GraphicsDevice
     /// <inheritdoc />
     public IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc)
     {
-        VkRenderPass rpHandle;
-        if (desc.RenderPass is VulkanRenderPass rpWrapper)
-            rpHandle = rpWrapper.Handle;
-        else if (desc.RenderPass is VulkanOffscreenRenderPass offscreenRp)
-            rpHandle = offscreenRp.Handle;
-        else
+        if (desc.RenderPass is not VulkanRenderPass pass)
             throw new ArgumentException("RenderPass must originate from this GraphicsDevice.", nameof(desc));
-
 
         var vs = (VulkanShader)desc.VertexShader;
         var fs = (VulkanShader?)desc.FragmentShader;
-        bool depthOnly = desc.RenderPass is VulkanRenderPass { DepthOnly: true };
+        bool depthOnly = pass.DepthOnly;
 
         VkUtf8ReadOnlyString entryName = Encoding.UTF8.GetBytes(desc.VertexShader.Description.EntryPoint);
 
@@ -195,7 +189,7 @@ public sealed unsafe partial class GraphicsDevice
         // At the samples of the pass it draws in, which a multisampled window's and targets' are.
         VkPipelineMultisampleStateCreateInfo multisample = new()
         {
-            rasterizationSamples = desc.RenderPass is VulkanRenderPass { Samples: var samples } ? samples : VkSampleCountFlags.Count1
+            rasterizationSamples = pass.Samples
         };
 
         // The color's factors by the blend mode, raylib's, and alpha laid over in every mode.
@@ -289,8 +283,18 @@ public sealed unsafe partial class GraphicsDevice
         };
         _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out VkPipelineLayout layout).CheckResult();
 
+        // Drawn by dynamic rendering, so the pipeline names the formats it writes rather than a
+        // render pass.
+        var colorFormat = pass.ColorFormat;
+        var rendering = new VkPipelineRenderingCreateInfo
+        {
+            colorAttachmentCount = depthOnly ? 0u : 1u,
+            pColorAttachmentFormats = depthOnly ? null : &colorFormat,
+            depthAttachmentFormat = pass.DepthFormat,
+        };
         VkGraphicsPipelineCreateInfo pipelineInfo = new()
         {
+            pNext = &rendering,
             stageCount = fs is null ? 1u : 2u,
             pStages = stages,
             pVertexInputState = &vertexInput,
@@ -301,9 +305,7 @@ public sealed unsafe partial class GraphicsDevice
             pDepthStencilState = &depthStencil,
             pColorBlendState = &colorBlend,
             pDynamicState = &dynamicState,
-            layout = layout,
-            renderPass = rpHandle,
-            subpass = 0
+            layout = layout
         };
 
         VkPipeline pipeline;

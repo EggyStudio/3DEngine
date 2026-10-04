@@ -7,13 +7,17 @@ needs an offline toolchain beyond `slangc`.
 
 ## What exists
 
-- **A Vulkan device** (`GraphicsDevice`, over Vortice.Vulkan) targeting Vulkan 1.2 with
+- **A Vulkan device** (`GraphicsDevice`, over Vortice.Vulkan) targeting Vulkan 1.3 with
   `VK_KHR_swapchain`, three frames in flight, mailbox presentation where the surface offers it, a
-  depth image of its own, and optional validation layers. Memory comes from `vkAllocateMemory`
-  directly. `IGraphicsDevice` is the interface the rest of the engine draws through, and
-  `NullGraphicsDevice` stands in for it in tests.
-- **Classic render passes.** Every pass is a `VkRenderPass` with framebuffers. Dynamic rendering and
-  synchronization2 are not used.
+  depth image of its own, and optional validation layers. Buffers and textures are carved out of
+  blocks (`GraphicsDevice.Memory`). `IGraphicsDevice` is the interface the rest of the engine draws
+  through, and `NullGraphicsDevice` stands in for it in tests.
+- **Dynamic rendering and synchronization2.** A pass is begun on the images it draws into
+  (`GraphicsDevice.Rendering`), with no render pass object or framebuffer made ahead, and moves
+  them into their attachment layouts and out to the layout they are read in by barriers of its
+  own. A pass (`IRenderPass`) is only the formats and samples it draws at, compared by value, which
+  is all a pipeline is made for, so the caches of pipelines key on it. Every barrier is
+  synchronization2's (`GraphicsDevice.Barriers`).
 - **A frame in three steps**, each a list of systems in `Renderer`:
   1. **Extract** copies what the frame needs out of the game's `World` into a separate `RenderWorld`
      (`CameraExtract`, `LightExtract`, the draw lists), so the game can change its world while
@@ -304,7 +308,7 @@ its outer cone and as deep as its range, or the shadow distance for a light with
 spot light carries its slot, counted from one, in its cone's third component, as a point light does,
 and its projection and texel width ride in the lighting buffer. `ShadowNode` clears the map once and
 draws the window's meshes into each tile in use, before the window's passes, with `shadow.slang`'s
-vertex stage and no fragment stage, through a depth-only render pass (`GraphicsDevice.CreateShadowMap`).
+vertex stage and no fragment stage, through a depth-only pass (`GraphicsDevice.CreateShadowMap`).
 A render target that draws meshes has cascades fitted to its own camera and a lighting buffer of its
 own (`TargetShadows`), and `TargetsNode` draws the map for it before its pass, so a split screen
 drawn into two textures shadows each view. The window's map is drawn after every target, and the
@@ -341,15 +345,14 @@ a point light casts a shadow a stand-in of two texels is bound in its place.
 ## 5. Render targets and post processing
 
 The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,
-rounded down to what the device can multisample color and depth at. Their passes share one
-builder (`GraphicsDevice.CreateColorDepthPass`), so they stay compatible. With more than one
-sample a pass draws into a multisampled color image and depth image and resolves the color into
-the frame image or the target's sampled image at the end of the subpass, and a target's depth too. A pipeline rasterizes at
-the samples of the pass it is made for, and the shadow map's depth-only pass stays at one.
+rounded down to what the device can multisample color and depth at. With more than one sample a
+pass draws into a multisampled color image and depth image and resolves the color into the frame
+image or the target's sampled image when it ends, and a target's depth too. A pipeline rasterizes
+at the samples of the pass it is made for, and the shadow map's depth-only pass stays at one.
 
 `BeginTextureMode(target)` redirects the calls that follow into an offscreen image, which a later
 draw can sample. A target is a color image in the swapchain's format and a depth image in its
-depth format (`GraphicsDevice.CreateRenderTarget`), so its render pass is compatible with the
+depth format at the window's samples (`GraphicsDevice.CreateRenderTarget`), so its pass is the
 window's and the same pipelines draw into both. Draw list batches and model draws carry the
 target they were recorded for, and `TargetsNode` draws each target used in the frame, before the
 window's pass, clearing it first and leaving its color image ready to sample. The color image is
@@ -357,13 +360,10 @@ registered in `GpuTextures` under the target's texture id, so `DrawTexture` samp
 loaded texture.
 
 A target's depth is kept to sample as well, under a texture id of its own (`RenderTexture2D.Depth`).
-With one sample the depth image drawn into is stored and sampled. With more, the subpass resolves
-the multisampled depth into a single-sampled image by each pixel's first sample, which only
-`vkCreateRenderPass2` describes, so a target's pass is made by `CreateTargetPass` rather than the
-shared builder, with the same attachments, subpass and dependencies besides. Vulkan leaves resolve
-attachments out of compatibility for a pass of one subpass, so the window's pipelines still draw
-into it. The multisampled depth is stored even so, because NVIDIA's driver resolves nothing from a
-depth that is not.
+With one sample the depth image drawn into is stored and sampled. With more, the pass resolves the
+multisampled depth into a single-sampled image by each pixel's first sample, the one depth resolve
+every device has. The multisampled depth is stored even so, because NVIDIA's driver resolves
+nothing from a depth that is not.
 
 Post processing is a chain of full-screen Slang passes over the main color target
 before it is copied to the swapchain: tonemapping first, then bloom and anti-aliasing (FXAA).
@@ -592,10 +592,10 @@ run to run, with the runtime's compiler and collector in the frame.
 
 ### The device
 
-- **Dynamic rendering** (Vulkan 1.3 core), so a pass is a call rather than a render pass object with
-  framebuffers to keep in step with the swapchain. Every desktop driver in use exposes it, and it
-  removes most of the code in `GraphicsDevice.Swapchain` and `GraphicsDevice.Offscreen`.
-- **Synchronization2**, so barriers name their stages and accesses in one structure.
+- **Dynamic rendering** (Vulkan 1.3 core), done, so a pass is a call rather than a render pass
+  object with framebuffers to keep in step with the swapchain. A device without it, or without
+  synchronization2, fails to start with a message saying so.
+- **Synchronization2**, done, so barriers name their stages and accesses in one structure.
 - **Buffers and textures carved out of blocks** (`GraphicsDevice.Memory`), done, since drivers
   limit the number of allocations, often to 4,096. Each memory type has blocks of 64 MiB, buffers
   and images in blocks of their own so Vulkan's granularity between them never applies, a block

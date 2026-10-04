@@ -135,8 +135,9 @@ public sealed class ModelRenderer : IDisposable
     private IPipeline? _shadowMaskPipeline;
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
-    private IPipeline? _pipeline;
-    private IPipeline? _culledPipeline;
+    // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
+    // can differ in format.
+    private readonly Dictionary<(IRenderPass Pass, bool Culled), IPipeline> _pipelines = [];
     private IDescriptorSetLayout? _defaultLayout;
     private IDescriptorSetLayout? _materialLayout;
     private IBuffer? _noUniforms;
@@ -272,8 +273,10 @@ public sealed class ModelRenderer : IDisposable
         }
     }
 
-    // Pipelines of the program's own shaders, by ShaderStore id, with the modules they were made from.
-    private readonly Dictionary<int, (IShader Vertex, IShader Fragment, IPipeline Pipeline)> _custom = [];
+    // The modules of the program's own shaders, by ShaderStore id, and their pipelines by the pass
+    // they draw in.
+    private readonly Dictionary<int, (IShader Vertex, IShader Fragment)> _custom = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -845,25 +848,23 @@ public sealed class ModelRenderer : IDisposable
     // The model pass's own pipeline, drawing both sides of each face or leaving the back ones out.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, bool culled = false)
     {
-        if ((culled ? _culledPipeline : _pipeline) is { } made) return made;
+        if (_pipelines.TryGetValue((renderPass, culled), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
-        var pipeline = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader, culled);
-        return culled ? _culledPipeline = pipeline : _pipeline = pipeline;
+        return _pipelines[(renderPass, culled)] = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader, culled);
     }
 
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program)
     {
-        if (_custom.TryGetValue(id, out var made)) return made.Pipeline;
+        if (_customPipelines.TryGetValue((id, renderPass), out var made)) return made;
 
-        var vertex = gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex,
-            program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv));
-        var fragment = gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment));
-        var pipeline = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment,
+        if (!_custom.TryGetValue(id, out var modules))
+            _custom[id] = modules = (
+                gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv)),
+                gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment)));
+        return _customPipelines[(id, renderPass)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null);
-        _custom[id] = (vertex, fragment, pipeline);
-        return pipeline;
     }
 
     // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
@@ -876,6 +877,7 @@ public sealed class ModelRenderer : IDisposable
             _custom[id].Vertex.Dispose();
             _custom[id].Fragment.Dispose();
             _custom.Remove(id);
+            foreach (var key in _customPipelines.Keys.Where(k => k.Shader == id).ToArray()) _customPipelines.Remove(key);
             // Its sets may still be read by a frame in flight.
             if (_shaderSets.Remove(id, out var sets)) _retiredShaderSets.Add((_frames, sets));
         }
@@ -1323,7 +1325,7 @@ public sealed class ModelRenderer : IDisposable
         foreach (var set in _lightSets.SelectMany(s => s)) set.Dispose();
         foreach (var sets in _drawSets)
             foreach (var set in sets) set.Dispose();
-        foreach (var (vertex, fragment, _) in _custom.Values)
+        foreach (var (vertex, fragment) in _custom.Values)
         {
             vertex.Dispose();
             fragment.Dispose();

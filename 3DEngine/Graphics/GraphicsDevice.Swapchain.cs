@@ -5,7 +5,7 @@ namespace Engine;
 
 public sealed unsafe partial class GraphicsDevice
 {
-    /// <summary>Creates the swapchain, image views, depth buffer, render pass, framebuffers, and command pool.</summary>
+    /// <summary>Creates the swapchain, image views, depth buffer, the frame images' attachments, and command pool.</summary>
     private partial void CreateSwapchainResources()
     {
         Logger.Debug("Querying drawable size from surface source...");
@@ -83,31 +83,24 @@ public sealed unsafe partial class GraphicsDevice
         CreateFrameResources();
     }
 
-    // What every frame image needs, from a swapchain or not: views, depth, the passes, the
-    // framebuffers and the command buffers.
+    // What every frame image needs, from a swapchain or not: views, depth, the attachments a pass
+    // draws into, and the command buffers.
     private void CreateFrameResources()
     {
         Logger.Debug("Creating image views for swapchain images...");
         CreateImageViews();
         Logger.Debug("Creating depth buffer resources (D32_Sfloat)...");
         CreateDepthResources();
-        Logger.Debug("Creating render pass (color + depth attachments)...");
-        CreateRenderPass();
-        Logger.Debug("Creating load render pass (loadOp=Load variant)...");
-        CreateLoadRenderPass();
-        Logger.Debug("Creating framebuffers (one per swapchain image)...");
         CreateFramebuffers();
         Logger.Debug("Creating command pool and allocating command buffers...");
         CreateCommandPoolAndBuffers();
         Logger.Debug("Swapchain resource creation complete.");
     }
 
-    /// <summary>Destroys all swapchain-related resources including framebuffers, image views, depth buffer, render pass, and command pool.</summary>
+    /// <summary>Destroys all swapchain-related resources including image views, depth buffer, and command pool.</summary>
     private partial void DestroySwapchainResources()
     {
-        Logger.Debug($"Destroying swapchain resources, {_framebuffers.Length} framebuffers, {_swapchainImageViews.Length} image views...");
-        foreach (var fb in _framebuffers)
-            if (fb.Handle != 0) _deviceApi.vkDestroyFramebuffer(fb);
+        Logger.Debug($"Destroying swapchain resources, {_swapchainImageViews.Length} image views...");
         foreach (var iv in _swapchainImageViews)
             if (iv.Handle != 0) _deviceApi.vkDestroyImageView(iv);
         if (_depthImageView.Handle != 0)
@@ -122,10 +115,6 @@ public sealed unsafe partial class GraphicsDevice
             _deviceApi.vkDestroyImage(_msaaColorImage);
         if (_msaaColorMemory.Handle != 0)
             _deviceApi.vkFreeMemory(_msaaColorMemory);
-        if (_renderPass.Handle != 0)
-            _deviceApi.vkDestroyRenderPass(_renderPass);
-        if (_loadRenderPass.Handle != 0)
-            _deviceApi.vkDestroyRenderPass(_loadRenderPass);
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
         if (_offscreen)
@@ -139,12 +128,10 @@ public sealed unsafe partial class GraphicsDevice
         if (_commandPool.Handle != 0)
             _deviceApi.vkDestroyCommandPool(_commandPool);
 
-        _framebuffers = Array.Empty<VkFramebuffer>();
+        _framebuffers = [];
         _swapchainImageViews = Array.Empty<VkImageView>();
         _swapchainImages = Array.Empty<VkImage>();
         _commandBuffers = Array.Empty<VkCommandBuffer>();
-        _renderPass = default;
-        _loadRenderPass = default;
         _swapchain = default;
         _commandPool = default;
         _depthImage = default;
@@ -329,152 +316,6 @@ public sealed unsafe partial class GraphicsDevice
                 subresourceRange = new VkImageSubresourceRange(VkImageAspectFlags.Color, 0, 1, 0, 1)
             };
             _deviceApi.vkCreateImageView(&viewInfo, null, out _swapchainImageViews[i]).CheckResult();
-        }
-    }
-
-    /// <summary>Creates the window's render pass, which clears its attachments.</summary>
-    private void CreateRenderPass() =>
-        _renderPass = CreateColorDepthPass(_swapchainFormat, _samples, load: false, VkImageLayout.Undefined, _finalLayout);
-
-    /// <summary>
-    /// Creates the color and depth pass every window and render target pass is, so a pipeline made
-    /// for one draws in the others. With more than one sample the color and depth are multisampled
-    /// images and the subpass resolves the color into a third attachment, the image that is shown
-    /// or sampled, which is laid out from <paramref name="initialLayout"/> to <paramref name="finalLayout"/>.
-    /// </summary>
-    internal VkRenderPass CreateColorDepthPass(VkFormat format, VkSampleCountFlags samples, bool load, VkImageLayout initialLayout, VkImageLayout finalLayout)
-    {
-        bool msaa = samples != VkSampleCountFlags.Count1;
-        var attachments = stackalloc VkAttachmentDescription[3];
-        attachments[0] = new VkAttachmentDescription
-        {
-            format = format,
-            samples = samples,
-            loadOp = load ? VkAttachmentLoadOp.Load : VkAttachmentLoadOp.Clear,
-            storeOp = VkAttachmentStoreOp.Store,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = msaa ? (load ? VkImageLayout.ColorAttachmentOptimal : VkImageLayout.Undefined) : initialLayout,
-            finalLayout = msaa ? VkImageLayout.ColorAttachmentOptimal : finalLayout,
-        };
-        attachments[1] = new VkAttachmentDescription
-        {
-            format = VkFormat.D32Sfloat,
-            samples = samples,
-            loadOp = load ? VkAttachmentLoadOp.Load : VkAttachmentLoadOp.Clear,
-            storeOp = VkAttachmentStoreOp.DontCare,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = load ? VkImageLayout.DepthStencilAttachmentOptimal : VkImageLayout.Undefined,
-            finalLayout = VkImageLayout.DepthStencilAttachmentOptimal,
-        };
-        attachments[2] = new VkAttachmentDescription
-        {
-            format = format,
-            samples = VkSampleCountFlags.Count1,
-            loadOp = VkAttachmentLoadOp.DontCare,
-            storeOp = VkAttachmentStoreOp.Store,
-            stencilLoadOp = VkAttachmentLoadOp.DontCare,
-            stencilStoreOp = VkAttachmentStoreOp.DontCare,
-            initialLayout = initialLayout,
-            finalLayout = finalLayout,
-        };
-
-        var colorRef = new VkAttachmentReference { attachment = 0, layout = VkImageLayout.ColorAttachmentOptimal };
-        var depthRef = new VkAttachmentReference { attachment = 1, layout = VkImageLayout.DepthStencilAttachmentOptimal };
-        var resolveRef = new VkAttachmentReference { attachment = 2, layout = VkImageLayout.ColorAttachmentOptimal };
-        var subpass = new VkSubpassDescription
-        {
-            pipelineBindPoint = VkPipelineBindPoint.Graphics,
-            colorAttachmentCount = 1,
-            pColorAttachments = &colorRef,
-            pResolveAttachments = msaa ? &resolveRef : null,
-            pDepthStencilAttachment = &depthRef,
-        };
-
-        var dependencies = stackalloc VkSubpassDependency[2];
-        ColorDepthDependencies(dependencies);
-
-        var info = new VkRenderPassCreateInfo
-        {
-            attachmentCount = msaa ? 3u : 2u,
-            pAttachments = attachments,
-            subpassCount = 1,
-            pSubpasses = &subpass,
-            dependencyCount = 2,
-            pDependencies = dependencies,
-        };
-        _deviceApi.vkCreateRenderPass(&info, null, out VkRenderPass pass).CheckResult();
-        return pass;
-    }
-
-    /// <summary>
-    /// Writes the two subpass dependencies every color and depth pass has, which are the window's,
-    /// its load pass's and a render target's.
-    /// </summary>
-    /// <remarks>
-    /// One pair for all three, because a pipeline made for one render pass is used inside the others,
-    /// and Vulkan counts render passes compatible only when their dependencies are identical. Before
-    /// the pass, earlier attachment writes and fragment shader reads of the images have finished, which
-    /// covers the swapchain image's acquire and the last frame's sampling of a render target. After it,
-    /// the color and depth writes are visible to the fragment shaders of later passes that sample a
-    /// target.
-    /// </remarks>
-    internal static void ColorDepthDependencies(VkSubpassDependency* dependencies)
-    {
-        dependencies[0] = new VkSubpassDependency
-        {
-            srcSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
-            dstSubpass = 0,
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests |
-                           VkPipelineStageFlags.LateFragmentTests | VkPipelineStageFlags.FragmentShader,
-            dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.EarlyFragmentTests,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite,
-            dstAccessMask = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite |
-                            VkAccessFlags.DepthStencilAttachmentRead | VkAccessFlags.DepthStencilAttachmentWrite,
-        };
-        dependencies[1] = new VkSubpassDependency
-        {
-            srcSubpass = 0,
-            dstSubpass = Vulkan.VK_SUBPASS_EXTERNAL,
-            // A render target's depth is sampled too, stored at the late tests or resolved with
-            // its color.
-            srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput | VkPipelineStageFlags.LateFragmentTests,
-            dstStageMask = VkPipelineStageFlags.FragmentShader,
-            srcAccessMask = VkAccessFlags.ColorAttachmentWrite | VkAccessFlags.DepthStencilAttachmentWrite,
-            dstAccessMask = VkAccessFlags.ShaderRead,
-        };
-    }
-
-    /// <summary>Creates a second render pass with <c>loadOp = Load</c> for subsequent passes that preserve existing content.</summary>
-    /// <remarks>The color starts where the window's pass left it, which offscreen is TransferSrcOptimal.</remarks>
-    private void CreateLoadRenderPass() =>
-        _loadRenderPass = CreateColorDepthPass(_swapchainFormat, _samples, load: true, _finalLayout, _finalLayout);
-
-    /// <summary>Creates one framebuffer per swapchain image, attaching color and depth views.</summary>
-    private void CreateFramebuffers()
-    {
-        _framebuffers = new VkFramebuffer[_swapchainImageViews.Length];
-        bool msaa = _samples != VkSampleCountFlags.Count1;
-        VkImageView* attachments = stackalloc VkImageView[3];
-        for (int i = 0; i < _swapchainImageViews.Length; i++)
-        {
-            // Multisampled, the frame image is the resolve target after the shared color and depth.
-            attachments[0] = msaa ? _msaaColorView : _swapchainImageViews[i];
-            attachments[1] = _depthImageView;
-            attachments[2] = _swapchainImageViews[i];
-
-            VkFramebufferCreateInfo framebufferInfo = new()
-            {
-                renderPass = _renderPass,
-                attachmentCount = msaa ? 3u : 2u,
-                pAttachments = attachments,
-                width = _swapchainExtent.width,
-                height = _swapchainExtent.height,
-                layers = 1
-            };
-
-            _deviceApi.vkCreateFramebuffer(&framebufferInfo, null, out _framebuffers[i]).CheckResult();
         }
     }
 

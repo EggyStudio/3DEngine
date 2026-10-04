@@ -42,12 +42,8 @@ public interface IGraphicsDevice : IDisposable
 
     // -- Swapchain Resources
 
-    /// <summary>The swapchain-compatible render pass. Nodes use this to begin their own render passes targeting the swapchain.</summary>
+    /// <summary>The window's pass, by the formats and samples it draws at. Nodes use this to begin their own passes targeting the swapchain.</summary>
     IRenderPass SwapchainRenderPass { get; }
-
-    /// <summary>The swapchain-compatible render pass with <c>loadOp = Load</c>.
-    /// Nodes that render after the initial clear pass use this to preserve existing framebuffer content.</summary>
-    IRenderPass SwapchainLoadRenderPass { get; }
 
     /// <summary>Gets the swapchain framebuffer for the given image index (from <see cref="IFrameContext.FrameIndex"/>).</summary>
     /// <param name="imageIndex">The swapchain image index.</param>
@@ -239,16 +235,6 @@ public interface IGraphicsDevice : IDisposable
     void FlushDeferredStagingBuffers(int inFlightIndex);
 
     // -- Offscreen Rendering
-
-    /// <summary>Creates an offscreen render pass with a single color attachment.</summary>
-    /// <param name="desc">Render pass creation descriptor.</param>
-    /// <returns>A new <see cref="IRenderPass"/> handle.</returns>
-    IRenderPass CreateRenderPass(RenderPassDesc desc);
-
-    /// <summary>Creates a framebuffer wrapping an image view for use with an offscreen render pass.</summary>
-    /// <param name="desc">Framebuffer creation descriptor.</param>
-    /// <returns>A new <see cref="IFramebuffer"/> handle.</returns>
-    IFramebuffer CreateFramebuffer(FramebufferDesc desc);
 
     /// <summary>Allocates and begins a single-use command buffer for immediate GPU work.</summary>
     /// <returns>An <see cref="ICommandBuffer"/> ready for recording commands.</returns>

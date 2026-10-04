@@ -9,11 +9,8 @@ namespace Engine;
 /// <seealso cref="TrackedRenderPass"/>
 public sealed class SwapchainTarget
 {
-    /// <summary>The swapchain-compatible render pass (loadOp=Clear). Used by the first node to clear the framebuffer.</summary>
+    /// <summary>The window's pass, which the pipelines drawing into the swapchain are made for.</summary>
     public IRenderPass RenderPass { get; }
-
-    /// <summary>The swapchain-compatible render pass (loadOp=Load). Used by subsequent nodes to preserve existing content.</summary>
-    public IRenderPass LoadRenderPass { get; }
 
     /// <summary>The framebuffer for the current swapchain image.</summary>
     public IFramebuffer Framebuffer { get; }
@@ -22,14 +19,12 @@ public sealed class SwapchainTarget
     public Extent2D Extent { get; }
 
     /// <summary>Creates a new swapchain target for the current frame.</summary>
-    /// <param name="renderPass">The swapchain render pass (loadOp=Clear).</param>
-    /// <param name="loadRenderPass">The swapchain render pass (loadOp=Load).</param>
+    /// <param name="renderPass">The window's pass.</param>
     /// <param name="framebuffer">The framebuffer for the acquired swapchain image.</param>
     /// <param name="extent">The swapchain extent.</param>
-    public SwapchainTarget(IRenderPass renderPass, IRenderPass loadRenderPass, IFramebuffer framebuffer, Extent2D extent)
+    public SwapchainTarget(IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent)
     {
         RenderPass = renderPass;
-        LoadRenderPass = loadRenderPass;
         Framebuffer = framebuffer;
         Extent = extent;
     }

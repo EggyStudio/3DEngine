@@ -193,7 +193,7 @@ Programs take `--serve`, `--hidden`, `--offscreen`, `--headless` and `--frames N
 
 ## Building
 
-You need the .NET 10 SDK and a Vulkan driver. SDL3, Assimp and Dear ImGui come with their NuGet
+You need the .NET 10 SDK and a Vulkan 1.3 driver. SDL3, Assimp and Dear ImGui come with their NuGet
 packages, and `build/fetch-slang.sh` downloads the Slang compiler into `build/tools`.
 
 ```bash

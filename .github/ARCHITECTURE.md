@@ -243,7 +243,7 @@ meshes the flat API loads, and two prepare systems (`GpuTexturesPrepare`, `GpuMe
 upload them before the graph runs, keep their GPU objects for both passes, and destroy an unloaded
 one only after the frames in flight that might read it have finished.
 
-`GraphicsDevice` is Vulkan 1.2 over Vortice.Vulkan with classic render passes, three frames in
+`GraphicsDevice` is Vulkan 1.3 over Vortice.Vulkan with dynamic rendering, three frames in
 flight and a depth buffer. `NullGraphicsDevice` stands in for it in tests. Shaders are Slang,
 compiled per stage by `slangc` and cached (see [RENDERING.md](RENDERING.md) §1).
 
