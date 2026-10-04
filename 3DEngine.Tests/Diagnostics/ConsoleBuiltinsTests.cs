@@ -12,6 +12,7 @@ public class ConsoleBuiltinsTests
         // Written only by entity.set, through the console's field setter, which the compiler cannot see.
 #pragma warning disable CS0649
         public System.Numerics.Vector3 Spot;
+        public System.Numerics.Vector3[] Path;
 #pragma warning restore CS0649
     }
     private struct Tag;
@@ -85,6 +86,19 @@ public class ConsoleBuiltinsTests
         health.Value.Should().Be(42);
         health.Spot.Should().Be(new System.Numerics.Vector3(1, 2.5f, -3));
         ecs.Changed<Health>(1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void An_Array_Field_Is_Set_From_Its_Items_Split_By_Semicolons()
+    {
+        var (world, app) = Setup();
+        var ecs = world.Resource<EcsWorld>();
+
+        Run(world, app, "entity.set 1 Health.Path 0,1,0;-1,-1,0;1,-1,0").Should().NotContain("not a");
+        ecs.TryGet<Health>(1, out var health).Should().BeTrue();
+        health.Path.Should().Equal(new System.Numerics.Vector3(0, 1, 0), new System.Numerics.Vector3(-1, -1, 0), new System.Numerics.Vector3(1, -1, 0));
+
+        Run(world, app, "entity.set 1 Health.Path 0,1,0;oops").Should().Contain("not a Vector3[]");
     }
 
     [Fact]

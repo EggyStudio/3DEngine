@@ -47,8 +47,10 @@ engine's own, which read and change the ECS:
 ./e3d command scene.save level.json                 # the world, as a scene file
 ```
 
-`entity.set` writes vectors, quaternions and colors as numbers joined by commas, and enums by
-name. `component.list`, `resource.list` and `schedule.list` say what the world holds and what runs
+`entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
+and an array as its items split by semicolons, so
+`./e3d command entity.set 2 Mesh.Positions "0,1,0;-1,-1,0;1,-1,0"` gives a mesh entity a new
+triangle. `component.list`, `resource.list` and `schedule.list` say what the world holds and what runs
 in each stage.
 
 ## Input and captures

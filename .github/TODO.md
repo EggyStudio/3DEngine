@@ -173,6 +173,5 @@ guide when it is next changed, and the checks at the end of STYLE.md report what
   before packing. Nothing draws on Windows, and macOS has no job.
 - **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
   text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
-  adds components and writes their fields, and a game adds commands with `[Command]`, but C#
-  cannot be typed at a running app, and a field holding an array (a `Mesh`'s positions) cannot be
-  written from it.
+  adds components and writes their fields, arrays among them, and a game adds commands with
+  `[Command]`, but C# cannot be typed at a running app.

@@ -277,7 +277,7 @@ internal static class ConsoleBuiltins
         return Activator.CreateInstance(type)!;
     }
 
-    [Command("entity.set", "Sets one field of an entity's component: entity.set <id> <Component.Field> <value>, with vectors and colors as 1,2,3")]
+    [Command("entity.set", "Sets one field of an entity's component: entity.set <id> <Component.Field> <value>, with vectors and colors as 1,2,3 and an array's items split by ; as 0,1,0;1,0,0")]
     internal static string EntitySet(int id, string path, string value)
     {
         var ecs = ConsoleHost.Ecs;
@@ -317,10 +317,28 @@ internal static class ConsoleBuiltins
         return $"{type.Name} {Describe(boxed)}";
     }
 
-    // Reads a word as the field's type: numbers, flags, text, enums by name, and vectors, quaternions
-    // and colors as comma-separated numbers.
+    // Reads a word as the field's type: numbers, flags, text, enums by name, vectors, quaternions
+    // and colors as comma-separated numbers, and an array as its items split by semicolons, each
+    // read as the element type, so a mesh's positions are 0,1,0;-1,-1,0;1,-1,0.
     private static bool TryParse(string word, Type type, out object? value)
     {
+        if (type.IsArray && type.GetElementType() is { } element)
+        {
+            var items = word.Length == 0 ? [] : word.Split(';', StringSplitOptions.TrimEntries);
+            var array = Array.CreateInstance(element, items.Length);
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (!TryParse(items[i], element, out var item))
+                {
+                    value = null;
+                    return false;
+                }
+                array.SetValue(item, i);
+            }
+            value = array;
+            return true;
+        }
+
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
         var numbers = word.Split(',', StringSplitOptions.TrimEntries)
             .Select(n => float.TryParse(n, System.Globalization.NumberStyles.Float, invariant, out var f) ? f : float.NaN).ToArray();

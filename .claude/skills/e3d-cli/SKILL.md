@@ -53,7 +53,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |
 | `entity.find <name>` | the id of the first entity with that name |
-| `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`, enums by name), marking it changed |
+| `entity.set <id> <Component.Field> <value>` | writes one field (vectors, quaternions and colors as `1,2,3`, enums by name, an array's items split by `;`), marking it changed |
 | `entity.spawn <name>`, `entity.despawn <id>` | makes a named entity and answers its id, or removes one with its children |
 | `scene.save <path>`, `scene.load <path>` | writes the level (every entity not spawned from a model) to a JSON scene file, or spawns one's entities |
 | `entity.add <id> <Component>` | adds a component at sensible defaults (a unit `Transform`, a white `Material`), which `entity.set` then changes |
