@@ -65,7 +65,10 @@ public sealed class LightingUboPrepare : IPrepareSystem
 
         var environment = renderWorld.TryGet<EnvironmentMap>();
         if (environment is not null)
+        {
             ubo.Environment = new System.Numerics.Vector4(environment.Intensity, environment.MipLevels - 1, 1, 0);
+            for (int i = 0; i < 9; i++) ubo.EnvironmentIrradiance[i] = new System.Numerics.Vector4(environment.Irradiance[i], 0);
+        }
 
         var sizeBytes = (ulong)LightingUboPacker.SizeBytes;
 

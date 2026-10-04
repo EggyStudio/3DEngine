@@ -71,6 +71,20 @@ public struct LightingUbo
 
     /// <summary>World space to each shadowed spot light's clip space, by slot.</summary>
     public SpotShadowArray SpotShadows;
+
+    /// <summary>
+    /// The environment map's <see cref="EnvironmentMap.Irradiance"/> in xyz, nine coefficients,
+    /// zero with no map. Last, so the fields before it keep their offsets.
+    /// </summary>
+    public IrradianceArray EnvironmentIrradiance;
+}
+
+/// <summary>Fixed-size storage for the environment's nine irradiance coefficients.</summary>
+[InlineArray(9)]
+public struct IrradianceArray
+{
+    /// <summary>The first coefficient.</summary>
+    public Vector4 _element0;
 }
 
 /// <summary>Fixed-size storage for the shadowed spot lights' projections.</summary>

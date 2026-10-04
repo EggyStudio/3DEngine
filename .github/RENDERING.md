@@ -248,14 +248,17 @@ post processing chain, and the model pass writes linear light.
 
 An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
 lights a frame from all around. A Radiance `.hdr` file is read as linear floats, so a sun keeps its
-brightness past white, and an eight-bit image is decoded from sRGB. It is prefiltered on the CPU into a half-float cube map with faces
-64 texels wide, mip 0 for a mirror and each mip after for a roughness of `mip / (mips - 1)`, by
-GGX importance sampling with the eye along the normal (Karis's split sum), each sample reading the
-image blurred to its solid angle. The model pass looks the mirror direction up at the mip for the
-surface's roughness, weighted by Karis's fit, and takes the roughest mip around the normal for the
-diffuse share, both darkened by occlusion. The cube is set 1's binding 2, a black cube when there
-is none, and the lighting buffer carries its intensity and last mip. With a map set the fixed
-light is not used, whether or not there are light entities.
+brightness past white, and an eight-bit image is decoded from sRGB. It is prefiltered on the CPU
+into a half-float cube map with faces 64 texels wide, mip 0 for a mirror and each mip after for a
+roughness of `mip / (mips - 1)`, by GGX importance sampling with the eye along the normal (Karis's
+split sum), each sample reading the image blurred to its solid angle. The model pass looks the
+mirror direction up at the mip for the surface's roughness, weighted by Karis's fit, and lights the
+diffuse share by the image's irradiance, both darkened by occlusion. The irradiance is the image
+projected onto the nine spherical harmonics of bands 0 to 2 on the CPU, each band scaled by its
+share of a cosine lobe (Ramamoorthi and Hanrahan), so a surface takes the light of the whole half of
+the sky it faces. The cube is set 1's binding 2, a black cube when there is none, and the lighting
+buffer carries its intensity, its last mip and the nine coefficients, which come last so no other
+field moves. With a map set the fixed light is not used, whether or not there are light entities.
 
 The map keeps a second cube for the sky, at a quarter of the image's width a face up to 512
 texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw

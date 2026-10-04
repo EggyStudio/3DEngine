@@ -58,7 +58,9 @@ public class LightingUniformPackingTests
         var afterPoints = afterLights + 16 + ShadowFit.MaxPointLights * 6 * 64;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.SpotShadowTexels)).Should().Be(afterPoints);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.SpotShadows)).Should().Be(afterPoints + 16);
-        LightingUboPacker.SizeBytes.Should().Be(afterPoints + 16 + ShadowFit.MaxSpotLights * 64);
+        var afterSpots = afterPoints + 16 + ShadowFit.MaxSpotLights * 64;
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.EnvironmentIrradiance)).Should().Be(afterSpots);
+        LightingUboPacker.SizeBytes.Should().Be(afterSpots + 9 * 16);
     }
 
     [Fact]

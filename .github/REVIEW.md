@@ -8,43 +8,25 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `695b5ca6`. The cheatsheet at the root (`695b5ca6`) is settled. The guide's first
-pages (`07c15314` and after) were read in part: `docs/window-and-frame.md` is the shape asked for,
-an opening, steps each with a snippet from an example that runs, and links to the examples, the
-cheatsheet and the next page, with a test over the links.
+Reviewed up to `75aa1c06`. The guide is whole, fifteen pages under `docs/` with the README listing
+them by full address (`d4d14637` to `df8f633e`), which settles the item. DESIGN.md holds the
+decision on the Entities entries (`82d86b24`), arrays in scene files (`8567bea6`) are in the
+ledger, and the old code brought under STYLE.md (`ceeb4edc`, `1320840f`, `75aa1c06`) was taken on
+its descriptions.
 
 ## Now
 
 1. **What the next run on GitHub says**, which the owner brings back. A red job or an annotation
    comes before anything else.
-2. **A guide is written under `docs/`**, which the owner asked
-   for on 2026-10-04. The README reads well as it is and has a cheatsheet, and nothing walks a
-   user through an area step by step.
-   The shape is the same in both engines and is recorded in [SHARED.md](SHARED.md). Who a
-   document is for decides where it lives. `README.md` is for somebody deciding whether to use
-   the engine, about 200 lines. `docs/` at the repository's root is for somebody using it, one
-   page an area. `CHEATSHEET.md` sits at the root beside the README. `.github/` is for somebody
-   working on it.
-   - **The guide, a few pages a batch between other work**, each built on examples that already
-     run: `docs/window-and-frame.md`, `docs/drawing-2d.md`, `docs/drawing-3d-and-cameras.md`,
-     `docs/textures-and-images.md`, `docs/text-and-fonts.md`, `docs/models-and-animation.md`,
-     `docs/materials-light-and-shadows.md`, `docs/shaders-and-compute.md`, `docs/audio.md`,
-     `docs/input.md`, `docs/physics.md`, `docs/behaviors-and-the-ecs.md`, `docs/states.md`,
-     `docs/scenes.md` and `docs/driving-with-e3d.md`.
-   A page covers one area in 100 to 300 lines: what the area is for in two or three sentences,
-   then step by step with a snippet each, then links to the example that shows it, the
-   cheatsheet's section and the next page. A page past 400 lines is split. Where an example
-   exists the snippet is the example's own code, so the two cannot drift apart. Links from the
-   README are full GitHub URLs, since the README is also the package's page on nuget.org, where
-   a relative link goes nowhere, and a check in the workflow follows every link in the README
-   and `docs/`.
-   - Verified by `CheatsheetTests` passing at the new path, the README walk still passing, and
-     the link check.
-3. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
+2. **TODO.md's order** otherwise. The larger things BevyCSharp has and this engine lacks (saves,
    data in files of its own, files that outlive a renamed type, C# typed at a running app) are
-   not scheduled. The owner decided on 2026-10-04 that they stay in [SHARED.md](SHARED.md) as
-   `to consider`, taken only if one comes to suit this engine, and that the work here continues
-   as it is.
+   not scheduled, as the owner decided on 2026-10-04, and stay in [SHARED.md](SHARED.md) as
+   `to consider`.
+3. **To consider, not asked for:** BevyCSharp writes its cheatsheet with a tool from each call's
+   XML documentation (`build/cheatsheet` in its checkout), so a line cannot say other than the
+   documentation does. Here the cheatsheet is written by hand in raylib's wording and checked
+   by name and parameter count, which is a choice with its own merit. If the hand-kept lines
+   come to drift from the summaries, that is the way to take.
 
 ## Verdicts
 
@@ -72,8 +54,4 @@ None open.
    the two entries leave TODO.md.
 
 ## Replies
-
-- Shared: a scene file holds arrays of every field type it already held (`8567bea6`), written
-  by the generated codec with no reflection, so a `Mesh` made in code is saved with its level. A
-  row under Scenes, saves and files, if BevyCSharp's scene format lacks it.
 

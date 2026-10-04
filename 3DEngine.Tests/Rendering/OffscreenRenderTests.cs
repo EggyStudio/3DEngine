@@ -1370,7 +1370,7 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
-    public void A_Smooth_Metal_Reflects_The_Environment_Where_A_Rough_Surface_Scatters_It()
+    public void A_Smooth_Metal_Reflects_The_Environment_And_A_Rough_Surface_Is_Lit_By_The_Half_It_Faces()
     {
         Open(64, 64);
         // A sky red above the horizon and blue below, and no light entities.
@@ -1398,7 +1398,8 @@ public sealed class OffscreenRenderTests : IDisposable
         Linear(m.R).Should().BeGreaterThan(0.6f, "a mirror facing up shows the red sky above it");
         Linear(m.B).Should().BeLessThan(0.05f, "and none of the blue below the horizon");
         var c = GetImageColor(chalk, 32, 32);
-        c.B.Should().BeGreaterThan(20, "a rough white surface gathers light from both halves");
+        Linear(c.R).Should().BeGreaterThan(0.3f, "a rough white surface facing up is lit by the red half of the sky");
+        c.B.Should().BeLessThan(20, "and the blue half below the horizon is behind it, where the cosine gives it nothing");
         UnloadModel(plane);
         UnloadEnvironmentMap();
     }

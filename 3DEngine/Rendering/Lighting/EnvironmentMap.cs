@@ -17,9 +17,12 @@ namespace Engine;
 /// texel come out smooth.
 /// </para>
 /// <para>
-/// The roughest mip stands in for the diffuse light too, which a cosine lobe would give more
-/// exactly. Making one takes a few hundred milliseconds for a 64 texel face, so it is meant for a
-/// level's start rather than every frame.
+/// The light the diffuse share scatters is the image's irradiance, every direction's light
+/// weighted by its cosine to the normal, held as nine spherical harmonic coefficients
+/// (<see cref="Irradiance"/>), as Ramamoorthi and Hanrahan give it. A diffuse surface is lit by
+/// the whole sky that way, where a blurred lookup lights it by the part near its normal. Making a
+/// map takes a few hundred milliseconds for a 64 texel face, so it is meant for a level's start
+/// rather than every frame.
 /// </para>
 /// </remarks>
 public sealed class EnvironmentMap
@@ -29,8 +32,9 @@ public sealed class EnvironmentMap
     // The sky cube's largest face, past which a face costs more memory than a backdrop shows.
     private const int MaxSkySize = 512;
 
-    private EnvironmentMap(int size, int mipLevels, Half[] texels, float intensity, int skySize, Half[] skyTexels)
+    private EnvironmentMap(int size, int mipLevels, Half[] texels, float intensity, int skySize, Half[] skyTexels, Vector3[] irradiance)
     {
+        Irradiance = irradiance;
         SkySize = skySize;
         SkyTexels = skyTexels;
         Size = size;
@@ -56,6 +60,14 @@ public sealed class EnvironmentMap
     /// from the image with no prefiltering, at about the image's own resolution.
     /// </summary>
     public Half[] SkyTexels { get; }
+
+    /// <summary>
+    /// The image's irradiance divided by pi, the light a white diffuse surface returns, as nine
+    /// spherical harmonic coefficients of bands 0 to 2 in the order the model pass evaluates them
+    /// (Y00, Y1-1, Y10, Y11, Y2-2, Y2-1, Y20, Y21, Y22), each already multiplied by its band's
+    /// share of a cosine lobe.
+    /// </summary>
+    public Vector3[] Irradiance { get; }
 
     /// <summary>What the map's light is multiplied by.</summary>
     public float Intensity { get; set; }
@@ -144,7 +156,31 @@ public sealed class EnvironmentMap
 
         // A face spans a quarter of the image's width, so that many texels keep its detail.
         var skySize = (int)Math.Clamp(BitOperations.RoundUpToPowerOf2((uint)Math.Max(1, width / 4)), (uint)faceSize, (uint)Math.Max(faceSize, MaxSkySize));
-        return new EnvironmentMap(faceSize, mips, texels, intensity, skySize, Resampled(source, skySize));
+        return new EnvironmentMap(faceSize, mips, texels, intensity, skySize, Resampled(source, skySize), source.Irradiance());
+    }
+
+    /// <summary>The nine real spherical harmonics of bands 0 to 2 in a direction, in <see cref="Irradiance"/>'s order.</summary>
+    internal static void Harmonics(Vector3 d, Span<float> y)
+    {
+        y[0] = 0.282095f;
+        y[1] = 0.488603f * d.Y;
+        y[2] = 0.488603f * d.Z;
+        y[3] = 0.488603f * d.X;
+        y[4] = 1.092548f * d.X * d.Y;
+        y[5] = 1.092548f * d.Y * d.Z;
+        y[6] = 0.315392f * (3 * d.Z * d.Z - 1);
+        y[7] = 1.092548f * d.X * d.Z;
+        y[8] = 0.546274f * (d.X * d.X - d.Y * d.Y);
+    }
+
+    /// <summary>The light <see cref="Irradiance"/> gives a diffuse surface facing <paramref name="normal"/>, before intensity.</summary>
+    public Vector3 IrradianceAt(Vector3 normal)
+    {
+        Span<float> y = stackalloc float[9];
+        Harmonics(Vector3.Normalize(normal), y);
+        var sum = Vector3.Zero;
+        for (int i = 0; i < 9; i++) sum += Irradiance[i] * y[i];
+        return Vector3.Max(sum, Vector3.Zero);
     }
 
     // The image resampled into a cube of faces size texels wide, each texel reading the image
@@ -270,6 +306,34 @@ public sealed class EnvironmentMap
                 pyramid._levels.Add((half, w2, h2));
             }
             return pyramid;
+        }
+
+        // The image projected onto the harmonics, each pixel weighted by the solid angle it
+        // covers, then each band scaled by its share of a cosine lobe over pi (1, 2/3 and 1/4),
+        // so the sum in a direction is the light a white diffuse surface facing it returns. A
+        // level of about 128 pixels across is fine enough, since the bands hold no finer detail.
+        public Vector3[] Irradiance()
+        {
+            var (pixels, w, h) = _levels.FirstOrDefault(l => l.Width <= 128, _levels[^1]);
+            var coefficients = new Vector3[9];
+            Span<float> y = stackalloc float[9];
+            float pixelAngle = 2 * MathF.PI / w * (MathF.PI / h);
+            for (int row = 0; row < h; row++)
+            {
+                float theta = (row + 0.5f) / h * MathF.PI;
+                float sinTheta = MathF.Sin(theta), cosTheta = MathF.Cos(theta);
+                for (int x = 0; x < w; x++)
+                {
+                    // The inverse of Sample's mapping, u across from the back and v down from the top.
+                    float phi = ((x + 0.5f) / w - 0.5f) * 2 * MathF.PI;
+                    var d = new Vector3(sinTheta * MathF.Sin(phi), cosTheta, -sinTheta * MathF.Cos(phi));
+                    Harmonics(d, y);
+                    var light = pixels[row * w + x] * (pixelAngle * sinTheta);
+                    for (int i = 0; i < 9; i++) coefficients[i] += light * y[i];
+                }
+            }
+            for (int i = 0; i < 9; i++) coefficients[i] *= i == 0 ? 1f : i < 4 ? 2f / 3 : 0.25f;
+            return coefficients;
         }
 
         public Vector3 Sample(Vector3 direction, float level)

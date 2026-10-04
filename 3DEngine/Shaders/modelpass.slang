@@ -135,6 +135,8 @@ public struct Lighting
     public float4 spotShadowTexels;
     // World space to each shadowed spot light's clip space, by slot.
     public float4x4 spotShadows[4];
+    // The environment's irradiance over pi as nine spherical harmonic coefficients, in xyz.
+    public float4 environmentIrradiance[9];
 };
 
 [[vk::binding(0, 1)]]
@@ -458,6 +460,22 @@ float3 specularReflected(float3 n, float3 v, float3 l, float3 f0, float alpha, o
     return distribution * visibility * fresnel * PI;
 }
 
+// The light a white diffuse surface facing n returns from the environment, from the nine
+// spherical harmonic coefficients EnvironmentMap.Irradiance holds, in the same order.
+float3 environmentIrradiance(float3 n)
+{
+    float3 sum = lighting.environmentIrradiance[0].xyz * 0.282095
+        + lighting.environmentIrradiance[1].xyz * (0.488603 * n.y)
+        + lighting.environmentIrradiance[2].xyz * (0.488603 * n.z)
+        + lighting.environmentIrradiance[3].xyz * (0.488603 * n.x)
+        + lighting.environmentIrradiance[4].xyz * (1.092548 * n.x * n.y)
+        + lighting.environmentIrradiance[5].xyz * (1.092548 * n.y * n.z)
+        + lighting.environmentIrradiance[6].xyz * (0.315392 * (3.0 * n.z * n.z - 1.0))
+        + lighting.environmentIrradiance[7].xyz * (1.092548 * n.x * n.z)
+        + lighting.environmentIrradiance[8].xyz * (0.546274 * (n.x * n.x - n.y * n.y));
+    return max(sum, float3(0.0));
+}
+
 // The share of light from all around that a surface reflects, with no environment to reflect,
 // as Brian Karis fitted it for mobile, so a smooth or metal surface under an ambient light is not
 // black.
@@ -505,13 +523,12 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
 
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
-    // ambient light's reflection, and the roughest mip around the normal stands in for the light
-    // the diffuse share scatters.
+    // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
     if (environment)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;
-        float3 around = environmentMap.SampleLevel(n, lastMip).rgb;
+        float3 around = environmentIrradiance(n);
         color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
     }
 

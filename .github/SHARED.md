@@ -95,6 +95,7 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A scene file placed inside another, its entities left out of the outer file's save | has (`SceneInstances`) | has (`SceneRef`, `0502362d`) |
+| A scene file holds arrays, so a mesh made in code is saved with its level | has | has (`8567bea6`) |
 | A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
 | A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
@@ -105,8 +106,8 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
-| Gamepads | to take, as the owner decided on 2026-10-04 | has |
-| A gamepad's gyro, accelerometer, touchpad and light | to take, with gamepads | has (`73ce6326`) |
+| Gamepads | taken at `7f87a47`, with a pretended pad a script drives | has |
+| A gamepad's gyro, accelerometer, touchpad and light | to take | has (`73ce6326`) |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | C# typed at a running app | has in the editor (`eval`) | to consider |
@@ -128,7 +129,8 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, the cheatsheet at the root beside the README, `.github/` for somebody working on it | to take | to take, the README being the model |
-| The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | to take | to take |
-| A cheatsheet of the whole public surface, a line a call, held to the API by a test | to take | has (`a2336d0e`), at the root since `695b5ca6` |
-| Every link in the README and the guide followed by a check in the workflow | to take | has (`DocumentLinkTests`, `07c15314`) |
+| The cheatsheet written by a tool from each call's documentation, so the two cannot differ | has (`build/cheatsheet`, `4de242d`) | to consider, where it is written by hand and checked by name |
+| Documents in three places by reader: a README of about 200 lines for somebody deciding, `docs/` with a page an area for somebody using the engine, the cheatsheet at the root beside the README, `.github/` for somebody working on it | taken at `a0b1fa3`, 24 pages | has (`df8f633e`, 15 pages), the README being the model |
+| The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | taken at `a0b1fa3` | has (`c8cce1ce`) |
+| A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
+| Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |

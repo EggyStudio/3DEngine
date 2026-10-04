@@ -55,6 +55,30 @@ public class EnvironmentMapTests
     }
 
     [Fact]
+    public void A_Uniform_Sky_Lights_A_Diffuse_Surface_Its_Own_Color_Whichever_Way_It_Faces()
+    {
+        var map = EnvironmentMap.FromEquirectangular(GenImageColor(64, 32, new Color(0, 188, 0)), faceSize: 16);
+
+        foreach (var normal in new[] { Vector3.UnitY, -Vector3.UnitY, Vector3.UnitX, Vector3.Normalize(new Vector3(1, 1, -1)) })
+            map.IrradianceAt(normal).Y.Should().BeApproximately(0.5f, 0.01f, "the whole sky's light, weighted by the cosine and divided by pi, is the sky's own");
+    }
+
+    [Fact]
+    public void A_Sky_Lit_From_Above_Lights_What_Faces_Up_And_Half_Lights_What_Faces_Sideways()
+    {
+        // White above the horizon and black below, so a surface facing up sees all of the light,
+        // one facing sideways half of it and one facing down none, which three bands come close to.
+        var data = new byte[64 * 32 * 4];
+        for (int i = 0; i < 64 * 16; i++) { data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = 255; }
+        for (int i = 0; i < 64 * 32; i++) data[i * 4 + 3] = 255;
+        var map = EnvironmentMap.FromEquirectangular(new Image(data, 64, 32), faceSize: 16);
+
+        map.IrradianceAt(Vector3.UnitY).X.Should().BeApproximately(1f, 0.1f);
+        map.IrradianceAt(Vector3.UnitZ).X.Should().BeApproximately(0.5f, 0.05f);
+        map.IrradianceAt(-Vector3.UnitY).X.Should().BeApproximately(0f, 0.1f);
+    }
+
+    [Fact]
     public void The_Top_Of_The_Image_Is_Up_And_Roughness_Blurs_Toward_The_Horizon()
     {
         var map = EnvironmentMap.FromEquirectangular(Sky(), faceSize: 32);
