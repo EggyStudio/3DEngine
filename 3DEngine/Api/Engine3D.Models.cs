@@ -524,7 +524,7 @@ public static partial class Engine3D
 
     // A model's meshes recorded at a world matrix through a camera, into the window, for the systems
     // that draw what entities hold rather than through BeginMode3D.
-    internal static void RecordModel(Model model, Matrix4x4 world, Matrix4x4 viewProjection)
+    internal static void RecordModel(Model model, Matrix4x4 world, Matrix4x4 viewProjection, int target = 0)
     {
         var placed = model.Transform * world;
         var draws = Res<ModelDrawList>();
@@ -533,7 +533,7 @@ public static partial class Engine3D
             if (!model.Meshes[i].IsValid) continue;
             var material = model.Materials.Length == 0 ? new ModelMaterial(Color.White)
                 : model.Materials[Math.Clamp(model.MeshMaterial.ElementAtOrDefault(i), 0, model.Materials.Length - 1)];
-            draws.Add(MeshDraw(model.Meshes[i], material, placed) with { ViewProjection = viewProjection, Target = 0 });
+            draws.Add(MeshDraw(model.Meshes[i], material, placed) with { ViewProjection = viewProjection, Target = target });
         }
     }
 

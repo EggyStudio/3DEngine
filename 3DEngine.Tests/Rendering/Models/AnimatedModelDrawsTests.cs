@@ -105,6 +105,21 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     }
 
     [Fact]
+    public void A_Camera_Drawing_Into_A_Render_Texture_Draws_The_Posed_Model_There_Too()
+    {
+        var screen = _ecs.Spawn();
+        _ecs.Add(screen, new Camera(60f) { Target = new RenderTexture2D(new Texture2D(7, 64, 64)) });
+        _ecs.Add(screen, new Transform(new Vector3(0, 1, -6)));
+        Spawn(new AnimatedModel(Arm), new Vector3(1, 0, 0));
+
+        Frame();
+
+        var draws = _app.World.Resource<ModelDrawList>().Draws;
+        draws.Should().Contain(d => d.Target == 0, "the window's camera draws it");
+        draws.Should().Contain(d => d.Target == 7, "and so does the camera drawing into the render texture");
+    }
+
+    [Fact]
     public void A_Change_Of_Clip_Blends_From_The_One_Before_Over_Its_Blend_Time()
     {
         var file = TwoClips();

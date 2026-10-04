@@ -85,7 +85,9 @@ public sealed class AnimatedModelDraws
             }
 
             var dt = world.TryGetResource<Time>(out var time) ? (float)time.DeltaSeconds : 0f;
-            var camera = MeshEntityDraws.FirstCamera(world, ecs);
+            // Through each camera mesh entities are drawn through, the window's and those drawing
+            // into a render texture, so a posed model shows in a security camera's screen too.
+            var cameras = MeshEntityDraws.Cameras(world, ecs);
             foreach (var (entity, animated) in ecs.Query<AnimatedModel>())
             {
                 _seen.Add(entity);
@@ -94,7 +96,8 @@ public sealed class AnimatedModelDraws
 
                 ref var component = ref ecs.GetRef<AnimatedModel>(entity);
                 Play(model, playing, ref component, dt);
-                if (camera is { } view) Engine3D.RecordModel(model, TransformPropagation.WorldMatrix(ecs, entity), view.ViewProjection);
+                var placed = TransformPropagation.WorldMatrix(ecs, entity);
+                foreach (var (viewProjection, _, target) in cameras) Engine3D.RecordModel(model, placed, viewProjection, target);
             }
         }
 

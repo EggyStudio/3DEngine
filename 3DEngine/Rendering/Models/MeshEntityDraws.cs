@@ -459,10 +459,6 @@ public sealed class MeshEntityDraws
     private static float LinearToSrgb(float c) =>
         c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1 / 2.4f) - 0.055f;
 
-    /// <summary>World to clip space through the first camera entity drawing into the window, as <see cref="CameraExtract"/> builds it, and where that camera is.</summary>
-    internal static (Matrix4x4 ViewProjection, Vector3 Eye)? FirstCamera(World world, EcsWorld ecs) =>
-        Cameras(world, ecs) is { Count: > 0 } cameras && cameras[0].Target == 0 ? (cameras[0].ViewProjection, cameras[0].Eye) : null;
-
     // The cameras mesh entities are drawn through: the first without a render texture, into the
     // window, then each with one, into it, whose target is cleared to its background unless the
     // program clears it itself.
