@@ -67,6 +67,29 @@ public class PhysicsContactTests
     }
 
     [Fact]
+    public void A_Contact_Says_How_Fast_The_Bodies_Closed_As_They_Met()
+    {
+        using var world = NewWorld();
+        world.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(5, 0.5f, 5));
+        // Half a unit above the floor, it lands at the square root of twice gravity times that.
+        world.CreateSphere(new Vector3(0, 1, 0), 0.5f);
+        var resting = world.CreateSphere(new Vector3(3, 0.5f, 0), 0.5f);
+
+        var (started, _) = Run(world, 60);
+
+        started.Should().HaveCount(2);
+        started.Single(c => c.BodyA == resting || c.BodyB == resting).Speed.Should().BeLessThan(0.3f, "a body placed on the floor meets it at rest");
+        started.Single(c => c.BodyA != resting && c.BodyB != resting).Speed.Should().BeApproximately(MathF.Sqrt(2 * 9.81f * 0.5f), 0.35f);
+
+        using var space = NewWorld(Vector3.Zero);
+        var a = space.CreateSphere(new Vector3(-2, 0, 0), 0.5f);
+        var b = space.CreateSphere(new Vector3(2, 0, 0), 0.5f);
+        a.SetLinearVelocity(new Vector3(3, 0, 0));
+        b.SetLinearVelocity(new Vector3(-3, 0, 0));
+        Run(space, 40).Started.Should().ContainSingle().Which.Speed.Should().BeApproximately(6, 0.01f, "each closes at 3 toward the other");
+    }
+
+    [Fact]
     public void A_Trigger_Reports_What_Passes_Through_It_And_Stops_Nothing()
     {
         using var world = NewWorld();

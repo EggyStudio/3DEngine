@@ -41,17 +41,75 @@ public sealed partial class PhysicsWorld
 
     private readonly Dictionary<int, HingeParts> _hinges = [];
 
+    // What a ball joint needs to be limited: its bodies and the limits set on it.
+    private sealed class BallParts
+    {
+        public required BodyHandle A;
+        public required BodyHandle B;
+        public ConstraintHandle? Swing;
+        public ConstraintHandle? Twist;
+    }
+
+    private readonly Dictionary<int, BallParts> _balls = [];
+
     /// <summary>Joins two bodies at a point in the world, about which each may turn freely, as a ball in a socket.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
     public PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
     {
         var (ra, rb) = Bodies(a, b);
-        return Add(ra, rb, new BallSocket
+        var joint = Add(ra, rb, new BallSocket
         {
             LocalOffsetA = Local(ra, point),
             LocalOffsetB = Local(rb, point),
             SpringSettings = JointSpring,
         });
+        _balls[joint.Handle] = new BallParts { A = ra.Handle, B = rb.Handle };
+        return joint;
+    }
+
+    /// <summary>
+    /// Keeps a ball joint within a cone, the second body's <paramref name="axis"/> turned no more
+    /// than <paramref name="maximumSwing"/> radians from the first's, and twisted about it no more
+    /// than <paramref name="maximumTwist"/> radians either way, replacing limits set before, as a
+    /// shoulder or a link of a chain. The axis is in the world, and the bodies' turn as they are
+    /// when the limit is set is the middle of the cone and the twist. An angle of π or more leaves
+    /// that part free.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a ball joint, or an angle is below 0.</exception>
+    public void SetBallJointLimit(PhysicsJoint ball, Vector3 axis, float maximumSwing, float maximumTwist)
+    {
+        if (!IsJointOf(ball, BallSocket.ConstraintTypeId) || !_balls.TryGetValue(ball.Handle, out var parts))
+            throw new ArgumentException("The joint is not a ball joint that exists.", nameof(ball));
+        if (maximumSwing < 0 || maximumTwist < 0) throw new ArgumentException("A ball joint's limits are angles of at least 0.");
+        Remove(ref parts.Swing);
+        Remove(ref parts.Twist);
+
+        var (a, b) = (Simulation.Bodies[parts.A], Simulation.Bodies[parts.B]);
+        axis = Vector3.Normalize(axis);
+        var localAxisA = LocalDirection(a, axis);
+        if (maximumSwing < MathF.PI)
+            parts.Swing = Simulation.Solver.Add(parts.A, parts.B, new SwingLimit
+            {
+                AxisLocalA = localAxisA,
+                AxisLocalB = LocalDirection(b, axis),
+                MaximumSwingAngle = maximumSwing,
+                SpringSettings = JointSpring,
+            });
+        if (maximumTwist < MathF.PI)
+        {
+            // Frames with their Z along the axis, the same in the world as the bodies are, as a hinge's.
+            var basisA = FromTo(Vector3.UnitZ, localAxisA);
+            parts.Twist = Simulation.Solver.Add(parts.A, parts.B, new TwistLimit
+            {
+                LocalBasisA = basisA,
+                LocalBasisB = Quaternion.Normalize(Quaternion.Conjugate(b.Pose.Orientation) * a.Pose.Orientation * basisA),
+                MinimumAngle = -maximumTwist,
+                MaximumAngle = maximumTwist,
+                SpringSettings = JointSpring,
+            });
+        }
+        a.Awake = true;
+        b.Awake = true;
     }
 
     /// <summary>Joins two bodies at a point in the world, about which they turn only around <paramref name="axis"/>, as a door on its hinge.</summary>
@@ -136,7 +194,7 @@ public sealed partial class PhysicsWorld
     }
 
     private HingeParts HingeOf(PhysicsJoint hinge) =>
-        JointExists(hinge) && _hinges.TryGetValue(hinge.Handle, out var parts)
+        IsJointOf(hinge, Hinge.ConstraintTypeId) && _hinges.TryGetValue(hinge.Handle, out var parts)
             ? parts
             : throw new ArgumentException("The joint is not a hinge that exists.", nameof(hinge));
 
@@ -186,13 +244,37 @@ public sealed partial class PhysicsWorld
         return Add(ra, rb, new DistanceLimit(Local(ra, pointA), Local(rb, pointB), minimum, maximum, JointSpring));
     }
 
-    /// <summary>Removes a joint, with a hinge's limit and motor. One already gone with a destroyed body is passed over.</summary>
+    /// <summary>
+    /// Changes how far apart a distance joint keeps its points, as a winch reeling a rope in does
+    /// when it is set a little shorter each frame.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a distance joint that exists, or the distances are out of order.</exception>
+    public void SetDistanceJointRange(PhysicsJoint joint, float minimum, float maximum)
+    {
+        if (minimum < 0 || maximum < minimum) throw new ArgumentException("A distance joint's minimum is at least 0 and at most its maximum.");
+        var handle = new ConstraintHandle(joint.Handle);
+        if (!IsJointOf(joint, DistanceLimit.ConstraintTypeId))
+            throw new ArgumentException("The joint is not a distance joint that exists.", nameof(joint));
+        Simulation.Solver.GetDescription(handle, out DistanceLimit limit);
+        limit.MinimumDistance = minimum;
+        limit.MaximumDistance = maximum;
+        Simulation.Solver.ApplyDescription(handle, limit);
+        // A sleeping pair is woken, so it obeys the new range.
+        Simulation.Awakener.AwakenConstraint(handle);
+    }
+
+    /// <summary>Removes a joint, with a hinge's limit and motor and a ball joint's limits. One already gone with a destroyed body is passed over.</summary>
     public void DestroyJoint(PhysicsJoint joint)
     {
         if (_hinges.Remove(joint.Handle, out var parts))
         {
             Remove(ref parts.Limit);
             Remove(ref parts.Motor);
+        }
+        if (_balls.Remove(joint.Handle, out var ball))
+        {
+            Remove(ref ball.Swing);
+            Remove(ref ball.Twist);
         }
         if (joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle)))
             Simulation.Solver.Remove(new ConstraintHandle(joint.Handle));
@@ -207,8 +289,18 @@ public sealed partial class PhysicsWorld
         // A joined pair is woken, so a sleeping body starts obeying its new joint.
         a.Awake = true;
         b.Awake = true;
-        return new PhysicsJoint(Simulation.Solver.Add(a.Handle, b.Handle, constraint).Value);
+        var handle = Simulation.Solver.Add(a.Handle, b.Handle, constraint).Value;
+        // A handle is given out again once its joint went with a destroyed body, whose parts are
+        // forgotten here, before the new joint's are kept.
+        _hinges.Remove(handle);
+        _balls.Remove(handle);
+        return new PhysicsJoint(handle);
     }
+
+    // Whether a joint exists and is of a kind, since a handle a destroyed body's joint left may
+    // since name a joint of another kind, or a hinge's limit.
+    private bool IsJointOf(PhysicsJoint joint, int typeId) =>
+        JointExists(joint) && Simulation.Solver.GetConstraintReference(new ConstraintHandle(joint.Handle)).TypeBatch.TypeId == typeId;
 
     private (BodyReference A, BodyReference B) Bodies(PhysicsBody a, PhysicsBody b)
     {

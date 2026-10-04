@@ -103,6 +103,21 @@ public static partial class Engine3D
     public static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque) =>
         Physics.SetHingeMotor(hinge, float.DegreesToRadians(degreesPerSecond), maximumTorque);
 
+    /// <summary>
+    /// Keeps a ball joint within a cone around <paramref name="axis"/>, in the world, swung no more
+    /// than <paramref name="swingDegrees"/> and twisted no more than <paramref name="twistDegrees"/>
+    /// either way from how the bodies are turned now, as a shoulder or a link of a chain. 180
+    /// degrees or more leaves that part free.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a ball joint, or an angle is below 0.</exception>
+    public static void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees) =>
+        Physics.SetBallJointLimit(ball, axis, float.DegreesToRadians(swingDegrees), float.DegreesToRadians(twistDegrees));
+
+    /// <summary>Changes how far apart a distance joint keeps its points, as a winch reeling a rope in does a little each frame.</summary>
+    /// <exception cref="ArgumentException">The joint is not a distance joint, or the distances are out of order.</exception>
+    public static void SetPhysicsDistanceJointRange(PhysicsJoint joint, float minimum, float maximum) =>
+        Physics.SetDistanceJointRange(joint, minimum, maximum);
+
     /// <summary>The highest step a character climbs onto as it walks into it, its radius to begin with.</summary>
     public static void SetPhysicsCharacterStepHeight(PhysicsBody body, float height) => Physics.SetCharacterStepHeight(body, height);
 

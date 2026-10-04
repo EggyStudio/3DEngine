@@ -561,6 +561,8 @@ PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b);              
 PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum); // A rope or a rod
 void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees); // Keep a hinge between two angles
 void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque); // Drive a hinge at a speed
+void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees); // Keep a ball joint in a cone
+void SetPhysicsDistanceJointRange(PhysicsJoint joint, float minimum, float maximum); // Lengthen or shorten a rope
 void DestroyPhysicsJoint(PhysicsJoint joint);                                   // Remove a joint
 void SetPhysicsCharacterStepHeight(PhysicsBody body, float height);             // The highest step a character climbs (its radius)
 bool SetPhysicsCharacterHeight(PhysicsBody body, float height);                 // Crouch or stand, false when a ceiling is in the way
@@ -584,7 +586,7 @@ void SetPhysicsPaused(bool paused);                                             
 bool IsPhysicsPaused();                                                          // Whether it is held still
 
 bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets
-IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where and which way
+IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size

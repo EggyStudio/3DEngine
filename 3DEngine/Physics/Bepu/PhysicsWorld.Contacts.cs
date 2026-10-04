@@ -17,6 +17,11 @@ public sealed partial class PhysicsWorld
     private readonly List<PhysicsContact> _handedStarted = [];
     private readonly List<PhysicsContact> _handedEnded = [];
 
+    // The fastest each pair near but not yet touching has closed at, which its contact reports
+    // when it starts, forgotten once it starts or leaves.
+    private readonly Dictionary<ulong, float> _approaching = [];
+    private readonly HashSet<ulong> _near = [];
+
     /// <summary>
     /// Hands over the contacts that started and ended in the steps since the last call, in the
     /// order they happened, and forgets them.
@@ -51,15 +56,25 @@ public sealed partial class PhysicsWorld
     private void UpdateContacts()
     {
         _seen.Clear();
-        foreach (var (a, b, point, normal) in _contacts.Take())
+        _near.Clear();
+        foreach (var (a, b, point, normal, speed, touching) in _contacts.Take())
         {
             ulong key = Key(a, b);
+            if (!touching)
+            {
+                _near.Add(key);
+                _approaching[key] = MathF.Max(speed, _approaching.GetValueOrDefault(key));
+                continue;
+            }
             if (!_seen.Add(key) || _touching.ContainsKey(key)) continue;
 
-            var contact = new PhysicsContact(BodyOf(a), BodyOf(b), HandleOf(EntityOf(a)), HandleOf(EntityOf(b)), point, normal);
+            _approaching.Remove(key, out var approached);
+            var contact = new PhysicsContact(BodyOf(a), BodyOf(b), HandleOf(EntityOf(a)), HandleOf(EntityOf(b)), point, normal, MathF.Max(speed, approached));
             _touching[key] = contact;
             _started.Add(contact);
         }
+        if (_approaching.Count > _near.Count)
+            foreach (var key in _approaching.Keys.Where(key => !_near.Contains(key)).ToArray()) _approaching.Remove(key);
 
         _gone.Clear();
         foreach (var (key, contact) in _touching)

@@ -14,17 +14,20 @@ namespace Engine;
 /// </summary>
 internal sealed class ContactCollector
 {
-    private readonly List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal)>[] _byWorker;
+    private readonly List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)>[] _byWorker;
 
     public ContactCollector(int workers) =>
-        _byWorker = Enumerable.Range(0, Math.Max(1, workers)).Select(_ => new List<(CollidableReference, CollidableReference, Vector3, Vector3)>()).ToArray();
+        _byWorker = Enumerable.Range(0, Math.Max(1, workers)).Select(_ => new List<(CollidableReference, CollidableReference, Vector3, Vector3, float, bool)>()).ToArray();
 
-    /// <summary>Records a pair touching at a point in the world, with the normal from B toward A.</summary>
-    public void Record(int workerIndex, CollidableReference a, CollidableReference b, Vector3 point, Vector3 normal) =>
-        _byWorker[workerIndex].Add((a, b, point, normal));
+    /// <summary>
+    /// Records a pair at a point in the world, with the normal from B toward A, the speed they close
+    /// at along it, and whether they touch or only come near enough to meet within the step.
+    /// </summary>
+    public void Record(int workerIndex, CollidableReference a, CollidableReference b, Vector3 point, Vector3 normal, float speed, bool touching) =>
+        _byWorker[workerIndex].Add((a, b, point, normal, speed, touching));
 
     /// <summary>Every pair recorded since the last call, which it forgets.</summary>
-    public IEnumerable<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal)> Take()
+    public IEnumerable<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)> Take()
     {
         foreach (var list in _byWorker)
         {
@@ -74,7 +77,7 @@ internal sealed class CharacterFlags
 /// <summary>
 /// Per-pair material accept/configure callbacks. Filters out static-static and
 /// kinematic-static pairs, applies a single global friction/restitution, and records every pair
-/// whose manifold has a contact at or past touching into <see cref="Contacts"/>.
+/// whose manifold has a contact into <see cref="Contacts"/>, with whether it touches.
 /// </summary>
 internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
@@ -121,22 +124,19 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         // A speculative contact has a negative depth, for shapes close enough to meet within the
         // step. Shapes a hundredth of a unit apart or closer count as touching, since the solver
         // leaves a resting pair hovering about a depth of zero, which a strict test would see start
-        // and end over and over. The deepest contact gives the pair's point and normal.
-        if (Contacts is not null)
+        // and end over and over. The deepest contact gives the pair's point and normal. A pair
+        // only near is recorded too, since the solver slows a pair in the steps before it touches,
+        // so the speed it closed at is read while it approaches.
+        if (Contacts is not null && manifold.Count > 0)
         {
-            int deepest = -1;
-            float depth = -TouchingGap;
-            for (int i = 0; i < manifold.Count; i++)
-                if (manifold.GetDepth(i) >= depth)
-                {
-                    depth = manifold.GetDepth(i);
-                    deepest = i;
-                }
-            if (deepest >= 0)
-            {
-                manifold.GetContact(deepest, out var offset, out var normal, out _, out _);
-                Contacts.Record(workerIndex, pair.A, pair.B, PositionOf(pair.A) + offset, normal);
-            }
+            int deepest = 0;
+            for (int i = 1; i < manifold.Count; i++)
+                if (manifold.GetDepth(i) > manifold.GetDepth(deepest)) deepest = i;
+            manifold.GetContact(deepest, out var offset, out var normal, out var depth, out _);
+            var point = PositionOf(pair.A) + offset;
+            // The narrow phase runs before the solver, so these are the velocities of the step before.
+            var closing = Vector3.Dot(VelocityAt(pair.B, point) - VelocityAt(pair.A, point), normal);
+            Contacts.Record(workerIndex, pair.A, pair.B, point, normal, MathF.Max(0, closing), depth >= -TouchingGap);
         }
 
         // A trigger reports what it touches and holds nothing back.
@@ -149,6 +149,16 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         _simulation is null ? Vector3.Zero
         : collidable.Mobility == CollidableMobility.Static ? _simulation.Statics[collidable.StaticHandle].Pose.Position
         : _simulation.Bodies[collidable.BodyHandle].Pose.Position;
+
+    // How fast the collidable's surface moves at a point in the world, turning included. A static
+    // never moves.
+    private readonly Vector3 VelocityAt(CollidableReference collidable, Vector3 point)
+    {
+        if (_simulation is null || collidable.Mobility == CollidableMobility.Static) return Vector3.Zero;
+        var body = _simulation.Bodies[collidable.BodyHandle];
+        var velocity = body.Velocity;
+        return velocity.Linear + Vector3.Cross(velocity.Angular, point - body.Pose.Position);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB,

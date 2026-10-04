@@ -133,6 +133,73 @@ public class PhysicsJointTests
     }
 
     [Fact]
+    public void A_Limited_Ball_Joint_Swings_And_Twists_No_Further_Than_Its_Limits()
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = Vector3.Zero });
+        var anchor = world.CreateKinematicBox(new Vector3(0, 5, 0), new Vector3(0.1f));
+        // A rod hanging from the joint, its middle one unit down.
+        var rod = world.CreateBox(new Vector3(0, 4, 0), new Vector3(0.1f, 0.9f, 0.1f));
+        var joint = world.CreateBallJoint(anchor, rod, new Vector3(0, 5, 0));
+        world.SetBallJointLimit(joint, -Vector3.UnitY, float.DegreesToRadians(30), float.DegreesToRadians(20));
+
+        world.ApplyImpulse(rod, new Vector3(20, 0, 0), new Vector3(0, 3.5f, 0));
+        world.ApplyAngularImpulse(rod, new Vector3(0, 5, 0));
+        var widest = 0f;
+        for (int i = 0; i < 120; i++)
+        {
+            world.StepOnce(Step);
+            var down = Vector3.Transform(-Vector3.UnitY, world.GetRotation(rod));
+            widest = MathF.Max(widest, float.RadiansToDegrees(MathF.Acos(Math.Clamp(-down.Y, -1, 1))));
+        }
+
+        widest.Should().BeInRange(25, 33, "pushed hard, it swings out to its cone and no further");
+        var side = Vector3.Transform(Vector3.UnitX, world.GetRotation(rod));
+        var twist = float.RadiansToDegrees(MathF.Atan2(-side.Z, side.X));
+        MathF.Abs(twist).Should().BeLessThan(23, "turned about its length, it twists no more than its limit");
+    }
+
+    [Fact]
+    public void A_Distance_Joints_Range_Changes_Where_It_Holds_A_Body()
+    {
+        using var world = NewWorld();
+        var hook = world.CreateKinematicBox(new Vector3(0, 10, 0), new Vector3(0.1f));
+        var weight = world.CreateSphere(new Vector3(0, 9, 0), 0.25f);
+        var rope = world.CreateDistanceJoint(hook, weight, new Vector3(0, 10, 0), new Vector3(0, 9, 0), 0, 3);
+        Run(world, 120);
+
+        // Reeled in a little each step, as a winch does.
+        for (var length = 3f; length > 1; length -= 0.02f)
+        {
+            world.SetDistanceJointRange(rope, 0, MathF.Max(1, length));
+            world.StepOnce(Step);
+        }
+        world.SetDistanceJointRange(rope, 0, 1);
+        Run(world, 60);
+
+        world.GetPosition(weight).Y.Should().BeApproximately(9, 0.05f, "reeled in, it hangs a unit under the hook");
+        var wrong = () => world.SetDistanceJointRange(world.CreateBallJoint(hook, weight, new Vector3(0, 10, 0)), 0, 1);
+        wrong.Should().Throw<ArgumentException>("a ball joint has no range");
+        var reversed = () => world.SetDistanceJointRange(rope, 2, 1);
+        reversed.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void A_Joint_Of_Another_Kind_On_A_Handle_Given_Out_Again_Is_Not_Taken_For_The_Old_One()
+    {
+        using var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = Vector3.Zero });
+        var post = world.CreateKinematicBox(Vector3.Zero, new Vector3(0.1f));
+        var first = world.CreateBox(new Vector3(1, 0, 0), new Vector3(0.2f));
+        var ball = world.CreateBallJoint(post, first, Vector3.Zero);
+        world.Destroy(first);
+
+        var second = world.CreateBox(new Vector3(1, 0, 0), new Vector3(0.2f));
+        var weld = world.CreateWeldJoint(post, second);
+        weld.Handle.Should().Be(ball.Handle, "the solver gives the handle out again");
+        var limit = () => world.SetBallJointLimit(weld, Vector3.UnitX, 0.5f, 0.5f);
+        limit.Should().Throw<ArgumentException>("the handle names a weld now");
+    }
+
+    [Fact]
     public void A_Joint_Holds_Only_Bodies_That_Move()
     {
         using var world = NewWorld();
