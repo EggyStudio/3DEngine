@@ -31,7 +31,7 @@ namespace Engine;
 /// <seealso cref="SceneMaterialPayload"/>
 /// <seealso cref="Texture"/>
 [SceneComponent]
-public struct Material
+public struct Material : IEquatable<Material>
 {
     /// <summary>
     /// Base albedo / base-color factor (linear RGBA, 0..1). Multiplied with
@@ -133,4 +133,29 @@ public struct Material
         AlphaCutoff = 0.5f;
         DoubleSided = true;
     }
+
+    /// <summary>Whether every field is the same, compared field by field rather than through reflection.</summary>
+    /// <remarks>
+    /// The renderer keeps each mesh entity's draw while its material compares equal, so a material
+    /// replaced by <c>Add</c>, which marks no change, still reaches the screen.
+    /// </remarks>
+    public readonly bool Equals(Material other) =>
+        Albedo == other.Albedo && MetallicFactor == other.MetallicFactor && RoughnessFactor == other.RoughnessFactor
+        && EmissiveFactor == other.EmissiveFactor && NormalScale == other.NormalScale && OcclusionStrength == other.OcclusionStrength
+        && BaseColorTexture.Equals(other.BaseColorTexture) && MetallicRoughnessTexture.Equals(other.MetallicRoughnessTexture)
+        && NormalTexture.Equals(other.NormalTexture) && EmissiveTexture.Equals(other.EmissiveTexture)
+        && OcclusionTexture.Equals(other.OcclusionTexture) && Handle.Equals(other.Handle)
+        && AlphaMode == other.AlphaMode && AlphaCutoff == other.AlphaCutoff && DoubleSided == other.DoubleSided;
+
+    /// <inheritdoc />
+    public override readonly bool Equals(object? obj) => obj is Material other && Equals(other);
+
+    /// <inheritdoc />
+    public override readonly int GetHashCode() => HashCode.Combine(Albedo, BaseColorTexture, Handle, AlphaMode);
+
+    /// <summary>Whether two materials are the same in every field.</summary>
+    public static bool operator ==(Material left, Material right) => left.Equals(right);
+
+    /// <summary>Whether two materials differ in a field.</summary>
+    public static bool operator !=(Material left, Material right) => !left.Equals(right);
 }

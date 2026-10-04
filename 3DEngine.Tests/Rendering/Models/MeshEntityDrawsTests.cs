@@ -51,6 +51,42 @@ public class MeshEntityDrawsTests
     }
 
     [Fact]
+    public void A_Kept_Draw_Follows_A_Changed_Material_A_Moved_Entity_And_A_Reused_Id()
+    {
+        var (world, ecs) = Scene();
+        var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, new Vector4(1, 0, 0, 1));
+        var draws = world.Resource<ModelDrawList>();
+        void Frame()
+        {
+            draws.Clear();
+            TransformPropagation.Run(world);
+            MeshEntityDraws.Run(world);
+            ecs.BeginFrame();
+        }
+        Frame();
+
+        ecs.Update(entity, new Material(new Vector4(0, 0, 1, 1)));
+        ecs.GetRef<Transform>(entity).Position = new Vector3(3, 0, 0);
+        Frame();
+        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the material changed");
+        draws.Draws[0].World.Translation.Should().Be(new Vector3(3, 0, 0), "the world matrix is the frame's");
+
+        Frame();
+        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 0, 255, 255), "the kept draw holds the new material");
+
+        ecs.Despawn(entity);
+        var again = SpawnMesh(ecs, Triangle, Vector3.Zero, new Vector4(0, 1, 0, 1));
+        again.Should().Be(entity, "the id is given out again");
+        Frame();
+        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(0, 255, 0, 255), "a new entity on the old id draws with its own material");
+
+        // Replaced by Add, which marks no change, the material still reaches the draw.
+        ecs.Add(again, new Material(new Vector4(1, 1, 1, 1)));
+        Frame();
+        draws.Draws.Should().ContainSingle().Which.Color.Should().Be(new Color(255, 255, 255, 255));
+    }
+
+    [Fact]
     public void Nothing_Is_Drawn_Without_A_Camera_Entity()
     {
         var (world, ecs) = Scene(camera: false);

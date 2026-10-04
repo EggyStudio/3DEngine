@@ -24,6 +24,13 @@ namespace Engine;
 /// what is behind it, so it is recorded after the opaque ones, from the farthest from the camera
 /// to the nearest, which the model pass keeps.
 /// </para>
+/// <para>
+/// Each entity's draw is kept from frame to frame and built again only when its mesh or material
+/// differs from what it was built from, a texture it names was still loading, or a texture or
+/// mesh was replaced. A frame
+/// otherwise takes the kept draw with the entity's world matrix and the camera, which halves what
+/// a frame of tens of thousands of entities costs (RENDERING.md section 6).
+/// </para>
 /// </remarks>
 public sealed class MeshEntityDraws
 {
@@ -38,6 +45,22 @@ public sealed class MeshEntityDraws
     // Each albedo's sRGB bytes, since entities share a few materials and three powers an entity
     // cost a measurable part of the frame (RENDERING.md section 6). Forgotten past a few thousand.
     private readonly Dictionary<Vector4, Color> _colors = [];
+
+    // Each entity's draw as last built, by entity id, with the world matrix and camera left to the
+    // frame. A kept draw of an older generation was built before a texture or mesh was replaced.
+    private Kept[] _kept = [];
+    private int _generation = 1;
+
+    private struct Kept
+    {
+        public ModelDraw Draw;
+        // The material the draw was built from, compared rather than relying on change marks,
+        // since a material replaced by Add marks none.
+        public Material Material;
+        public int Generation;
+        // A texture it names was still loading, so the next frame builds it again.
+        public bool Pending;
+    }
 
     /// <summary>How many meshes are uploaded for entities.</summary>
     public int MeshCount => _meshes.Count;
@@ -71,9 +94,14 @@ public sealed class MeshEntityDraws
             // entity before is checked first.
             Vector3[]? lastPositions = null;
             var id = 0;
-            foreach (var (entity, mesh) in ecs.Query<Mesh>())
+            // The stores once, rather than a lookup by type for each entity.
+            var globals = ecs.GetStorePublic<GlobalTransform>();
+            var locals = ecs.GetStorePublic<Transform>();
+            foreach (var row in ecs.QueryReadOnly<Mesh, Material>())
             {
-                if (mesh.Positions is not { Length: >= 3 } || !ecs.TryGet(entity, out Material material)) continue;
+                var entity = row.Entity;
+                ref readonly var mesh = ref row.C1;
+                if (mesh.Positions is not { Length: >= 3 }) continue;
 
                 if (!ReferenceEquals(mesh.Positions, lastPositions))
                 {
@@ -83,27 +111,15 @@ public sealed class MeshEntityDraws
                         _meshes[mesh.Positions] = id = meshes.Add(Vertices(mesh), Sequence(mesh.Positions.Length / 3 * 3));
                 }
 
-                var placed = TransformPropagation.WorldMatrix(ecs, entity);
-                var baseColor = TextureFor(material.BaseColorTexture, assets, textures);
-                var draw = new ModelDraw(
-                    id,
-                    placed,
-                    viewProjection,
-                    Encoded(material.Albedo),
-                    baseColor,
-                    Metallic: material.MetallicFactor,
-                    Roughness: material.RoughnessFactor,
-                    NormalMap: TextureFor(material.NormalTexture, assets, textures),
-                    NormalScale: material.NormalScale,
-                    MetallicRoughnessMap: TextureFor(material.MetallicRoughnessTexture, assets, textures),
-                    Emission: material.EmissiveFactor,
-                    EmissiveMap: TextureFor(material.EmissiveTexture, assets, textures),
-                    OcclusionMap: TextureFor(material.OcclusionTexture, assets, textures),
-                    OcclusionStrength: material.OcclusionStrength,
-                    AlphaMode: material.AlphaMode,
-                    AlphaCutoff: material.AlphaCutoff,
-                    TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
-                    DoubleSided: material.DoubleSided);
+                if (entity >= _kept.Length) Array.Resize(ref _kept, Math.Max(entity + 1, _kept.Length * 2));
+                ref var kept = ref _kept[entity];
+                if (kept.Generation != _generation || kept.Pending || kept.Draw.Mesh != id || !kept.Material.Equals(row.C2))
+                    kept = Build(id, row.C2, assets, textures);
+
+                var placed = globals.TryGet(entity, out var global) ? global.Matrix
+                    : locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
+                    : Matrix4x4.Identity;
+                var draw = kept.Draw with { World = placed, ViewProjection = viewProjection };
                 if (draw.IsTranslucent) _translucent.Add((Vector3.DistanceSquared(placed.Translation, eye), draw));
                 else _opaque.Add(draw);
             }
@@ -113,13 +129,50 @@ public sealed class MeshEntityDraws
             draws.AddRange(CollectionsMarshal.AsSpan(_opaque));
         }
 
-        // A mesh no entity drew this frame was despawned or replaced.
+        // A mesh no entity drew this frame was despawned or replaced, and its id may be given out again.
         if (_meshes.Count > _seen.Count)
+        {
             foreach (var positions in _meshes.Keys.Where(p => !_seen.Contains(p)).ToArray())
             {
                 meshes.Remove(_meshes[positions]);
                 _meshes.Remove(positions);
             }
+            _generation++;
+        }
+    }
+
+    // An entity's draw from its material, with the world matrix and camera left for the frame.
+    private Kept Build(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
+    {
+        var pending = false;
+        int Texture(Handle<Texture> handle)
+        {
+            var id = TextureFor(handle, assets, textures);
+            pending |= handle.IsValid && !_textures.ContainsKey(handle.Id);
+            return id;
+        }
+
+        var baseColor = Texture(material.BaseColorTexture);
+        var draw = new ModelDraw(
+            mesh,
+            Matrix4x4.Identity,
+            Matrix4x4.Identity,
+            Encoded(material.Albedo),
+            baseColor,
+            Metallic: material.MetallicFactor,
+            Roughness: material.RoughnessFactor,
+            NormalMap: Texture(material.NormalTexture),
+            NormalScale: material.NormalScale,
+            MetallicRoughnessMap: Texture(material.MetallicRoughnessTexture),
+            Emission: material.EmissiveFactor,
+            EmissiveMap: Texture(material.EmissiveTexture),
+            OcclusionMap: Texture(material.OcclusionTexture),
+            OcclusionStrength: material.OcclusionStrength,
+            AlphaMode: material.AlphaMode,
+            AlphaCutoff: material.AlphaCutoff,
+            TextureTranslucent: baseColor != 0 && textures.IsTranslucent(baseColor),
+            DoubleSided: material.DoubleSided);
+        return new Kept { Draw = draw, Material = material, Generation = _generation, Pending = pending };
     }
 
     // Albedo is linear, and a draw's color is sRGB-encoded bytes, as the flat API's are.
@@ -177,6 +230,7 @@ public sealed class MeshEntityDraws
             if (events[i].Kind is not (AssetEventKind.Modified or AssetEventKind.Removed)) continue;
             if (!_textures.Remove(events[i].Id, out var id)) continue;
             if (id != 0) textures.Remove(id);
+            _generation++;
         }
     }
 

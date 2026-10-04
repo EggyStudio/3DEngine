@@ -390,7 +390,11 @@ The three largest costs as first measured, in order, each with what changed:
    draws under one lock, and checks an entity's mesh against the one before it. The same run held
    34,217 entities in place of 27,614, at about 190 nanoseconds an entity. What it spends is reading
    the mesh, material and global transform of each entity and copying a `ModelDraw` of about 200
-   bytes twice, into its own list and into the draw list.
+   bytes twice, into its own list and into the draw list. **Changed after.** Each entity's draw is
+   kept from frame to frame and built again only when its material compares unequal to the one it
+   was built from, its mesh changed, or a texture was still loading. Timed alone over 34,000
+   entities pinned to one core, the system took 7.4 ms in place of 11.2 ms. A comparison of the
+   material stands in for change marks, which an `Add` replacing the material would not set.
 3. **Each sprite costs about 77 nanoseconds in `DrawTexture`** (9.4 ms for 121,613), then 1.4 ms to
    upload and 4.0 ms on the GPU. The example's own movement loop takes 5.4 ms, much of it in
    `GetScreenWidth` and `GetScreenHeight`, which it calls for each sprite as raylib's does and
