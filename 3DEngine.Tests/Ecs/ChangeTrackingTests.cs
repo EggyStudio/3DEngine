@@ -81,4 +81,40 @@ public class ChangeTrackingTests
 
         ecs.GetReadOnly<GlobalTransform>(child).Matrix.Translation.Should().Be(new Vector3(31, 0, 0));
     }
+
+    [Fact]
+    public void A_Read_Only_Query_Reads_By_Reference_And_Marks_Nothing()
+    {
+        var ecs = new EcsWorld();
+        var a = ecs.Spawn();
+        ecs.Add(a, new Transform(new Vector3(1, 2, 3)));
+        ecs.Add(a, new Parent(default));
+        ecs.BeginFrame();
+
+        var sum = Vector3.Zero;
+        foreach (var row in ecs.QueryReadOnly<Transform>()) sum += row.Component.Position;
+        foreach (var row in ecs.QueryReadOnly<Transform, Parent>()) sum += row.C1.Position;
+
+        sum.Should().Be(new Vector3(2, 4, 6));
+        ecs.AnyChanged<Transform>().Should().BeFalse("reading marks nothing, where QueryRef would have");
+        foreach (var _ in ecs.QueryRef<Transform>()) { }
+        ecs.AnyChanged<Transform>().Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_Body_At_Rest_Leaves_Its_Transform_Unmarked()
+    {
+        using var physics = new PhysicsWorld(new PhysicsSettings { Gravity = Vector3.Zero });
+        var ecs = new EcsWorld();
+        var entity = ecs.Spawn();
+        ecs.Add(entity, new Transform(Vector3.Zero));
+        physics.CreateSphere(new Vector3(0, 1, 0), 0.5f, entityId: entity);
+
+        physics.SyncTransforms(ecs);
+        ecs.Changed<Transform>(entity).Should().BeTrue("the first sync moves it to the body");
+        ecs.BeginFrame();
+        physics.StepOnce(1 / 60f);
+        physics.SyncTransforms(ecs);
+        ecs.Changed<Transform>(entity).Should().BeFalse("a body that did not move writes nothing");
+    }
 }

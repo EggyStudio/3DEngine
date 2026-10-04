@@ -73,7 +73,9 @@ public sealed partial class PhysicsWorld
             if (loc.SetIndex < 0) continue;
             var br = bodies.GetBodyReference(new BodyHandle(handleValue));
             if (!ecs.Has<Transform>(entity)) continue;
-            ref var t = ref ecs.GetRef<Transform>(entity);
+            // Read without marking, since a body at rest leaves its transform as it was, and a
+            // transform marked every frame would have propagation recompute its chain each frame.
+            ref readonly var t = ref ecs.GetReadOnly<Transform>(entity);
             Vector3 position;
             Quaternion rotation;
             if (alpha < 1f && _previousPoses.TryGetValue(handleValue, out var before))
@@ -98,8 +100,10 @@ public sealed partial class PhysicsWorld
                 }
             }
 
-            t.Position = position;
-            t.Rotation = rotation;
+            if (position == t.Position && rotation == t.Rotation) continue;
+            ref var written = ref ecs.GetRef<Transform>(entity);
+            written.Position = position;
+            written.Rotation = rotation;
         }
     }
 
