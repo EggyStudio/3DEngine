@@ -150,7 +150,7 @@ if (ctx.Input.KeyPressed(Key.Space)) Spawn(ctx, 100);
 `./e3d command input.key W 30` holds W for thirty frames in a running program, and the other
 `input.*` commands click, drag, type, touch and press gamepad buttons, which is how a program is
 tested without a person at it. The `core_input_gamepad` example is captured that way, with a pad
-that is not there. The `./e3d` page of this guide covers it.
+that is not there. The [Driving a program with e3d](driving-with-e3d.md) page covers it.
 
 ## See also
 

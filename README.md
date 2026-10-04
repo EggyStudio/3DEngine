@@ -145,8 +145,8 @@ while (!WindowShouldClose())
 
 ## Guide
 
-The guide in [`docs/`](https://github.com/EggyStudio/3DEngine/blob/main/docs) is for somebody using the engine, a page an area, each built on an
-example that runs. Its pages are being written, and this list grows with them.
+The guide in [`docs/`](https://github.com/EggyStudio/3DEngine/blob/main/docs) is for somebody
+using the engine, a page an area, each built on an example that runs, read in order or by area.
 
 | | |
 |---|---|
@@ -164,6 +164,7 @@ example that runs. Its pages are being written, and this list grows with them.
 | [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
 | [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
 | [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
+| [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log and commands of its own |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app
