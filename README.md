@@ -54,44 +54,10 @@ dotnet new console -n Hello && cd Hello
 dotnet add package 3DEngine
 ```
 
-A program can use a package built from a checkout of this repository instead, which needs what
-[Building](#building) lists:
-
-```bash
-build/pack.sh                                    # in the checkout, into build/package
-dotnet new console -n Hello && cd Hello          # wherever the program is to live
-```
-
-A `nuget.config` beside the new project sends `3DEngine` to that folder, rather than to the
-version on nuget.org, and everything else to nuget.org, with the folder's path in place of the
-one shown:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <add key="engine" value="path/to/3DEngine/build/package" />
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-  </packageSources>
-  <packageSourceMapping>
-    <packageSource key="engine">
-      <package pattern="3DEngine" />
-    </packageSource>
-    <packageSource key="nuget.org">
-      <package pattern="*" />
-    </packageSource>
-  </packageSourceMapping>
-</configuration>
-```
-
-```bash
-dotnet add package 3DEngine --version "0.1.0-*"
-```
-
 The program at the top of this page goes into `Program.cs`, and `dotnet run` opens its window.
 Where there is no display, `dotnet run -- --offscreen --frames 30` draws thirty frames with no
-window and exits. `build/readme-walk.sh` follows these steps from this page in a new folder, and CI
-runs it.
+window and exits. A program can use a package built from a checkout of this repository instead,
+as [BUILDING.md](.github/BUILDING.md#a-program-on-a-local-package) shows.
 
 ## Examples
 

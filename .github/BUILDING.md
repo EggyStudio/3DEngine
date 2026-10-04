@@ -72,7 +72,7 @@ The package lands in `build/package` and carries:
 A game's own shaders still need `slangc` (through `ENGINE_SLANGC` or `PATH`), or a cache it
 compiles the same way with `e3d shaders <folder> <cache>`. A game outside this repository built
 from a local pack points a `nuget.config` at the folder, which maps `3DEngine` to the folder alone
-(`packageSourceMapping`), as the README's and the games' do, so the version on nuget.org is not
+(`packageSourceMapping`), as the one below and the games' do, so the version on nuget.org is not
 taken in its place, and `dotnet add package` is given the version, since without one it takes the
 newest version nuget.org lists before the mapping applies.
 
@@ -84,13 +84,48 @@ secret. The version
 is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `5.0` to `5.1` starts it again at `5.1.0`.
-`build/readme-walk.sh <package folder>` follows the README's steps in a new folder, and CI runs it.
 
 A pack made locally without a version is a version of its own, `0.1.0-preview.` and the time,
 since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps
 the version it chose before. `games/Pusher` is such a game, built this way in CI, and
 `./e3d open games/Pusher/bin/Debug/net10.0/Pusher` drives it as it does the examples.
+
+### A program on a local package
+
+```bash
+build/pack.sh                                    # in the checkout, into build/package
+dotnet new console -n Hello && cd Hello          # wherever the program is to live
+```
+
+A `nuget.config` beside the new project sends `3DEngine` to that folder, rather than to the
+version on nuget.org, and everything else to nuget.org, with the folder's path in place of the
+one shown:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="engine" value="path/to/3DEngine/build/package" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+  <packageSourceMapping>
+    <packageSource key="engine">
+      <package pattern="3DEngine" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>
+```
+
+```bash
+dotnet add package 3DEngine --version "0.1.0-*"
+```
+
+The program at the top of the README then goes into `Program.cs`. `build/readme-walk.sh <package
+folder>` follows these steps with that program in a new folder, and CI runs it.
 
 ## The generator
 

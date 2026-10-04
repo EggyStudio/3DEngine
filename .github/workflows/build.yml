@@ -95,9 +95,9 @@ jobs:
             exit 1
           fi
 
-      # The README's steps in a new folder, from the same package, as someone holding only the
-      # package would follow them. Its nuget.config, its add-package line and its first program are
-      # built and run offscreen.
+      # The documents' steps in a new folder, from the same package, as someone holding only the
+      # package would follow them. BUILDING.md's nuget.config and add-package line and the README's
+      # first program are built and run offscreen.
       - name: Follow the README in a new project
         run: build/readme-walk.sh build/package "$RUNNER_TEMP/readme"
 
