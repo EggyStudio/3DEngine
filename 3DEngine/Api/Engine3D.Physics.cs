@@ -27,6 +27,26 @@ public static partial class Engine3D
     public static PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size) =>
         Physics.CreateKinematicBox(position, size / 2);
 
+    /// <summary>
+    /// A character controller's body with its feet at <paramref name="feet"/>, an upright capsule
+    /// walked by <see cref="MovePhysicsCharacter"/> that walls stop, that slides along them, rides
+    /// over a low edge and holds still on a slope (PhysicsWorld.CreateCharacter says how).
+    /// </summary>
+    public static PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80) =>
+        Physics.CreateCharacter(feet, radius, height, mass);
+
+    /// <summary>The velocity a character walks at along the ground, until it is given another.</summary>
+    public static void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity) => Physics.MoveCharacter(body, velocity);
+
+    /// <summary>Makes a character on the ground jump, leaving it upward at <paramref name="speed"/>.</summary>
+    public static void JumpPhysicsCharacter(PhysicsBody body, float speed) => Physics.JumpCharacter(body, speed);
+
+    /// <summary>Whether a character stands on ground it can walk on.</summary>
+    public static bool IsPhysicsCharacterGrounded(PhysicsBody body) => Physics.IsCharacterGrounded(body);
+
+    /// <summary>The steepest ground, in degrees, a character walks on, 45 to begin with.</summary>
+    public static void SetPhysicsCharacterMaxSlope(PhysicsBody body, float degrees) => Physics.SetCharacterMaxSlope(body, degrees);
+
     /// <summary>Removes a body from the simulation.</summary>
     public static void DestroyPhysicsBody(PhysicsBody body)
     {

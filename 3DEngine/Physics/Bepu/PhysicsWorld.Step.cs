@@ -16,6 +16,7 @@ public sealed partial class PhysicsWorld
             int steps = 0;
             while (_accumulator >= _settings.FixedTimeStep && steps < _settings.MaxStepsPerFrame)
             {
+                UpdateCharacters(_settings.FixedTimeStep);
                 Simulation.Timestep(_settings.FixedTimeStep, Dispatcher);
                 UpdateContacts();
                 _accumulator -= _settings.FixedTimeStep;
@@ -27,6 +28,7 @@ public sealed partial class PhysicsWorld
         }
         else
         {
+            UpdateCharacters(deltaSeconds);
             Simulation.Timestep(deltaSeconds, Dispatcher);
             UpdateContacts();
         }
@@ -39,6 +41,7 @@ public sealed partial class PhysicsWorld
     {
         if (seconds <= 0f) return;
         RememberPoses();
+        UpdateCharacters(seconds);
         Simulation.Timestep(seconds, Dispatcher);
         UpdateContacts();
     }

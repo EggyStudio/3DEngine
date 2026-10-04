@@ -29,6 +29,7 @@ public sealed partial class PhysicsWorld
             Simulation.Bodies.Remove(new BodyHandle(body.Handle));
             _bodyToEntity.Remove(body.Handle);
             _previousPoses.Remove(body.Handle);
+            ForgetCharacter(body.Handle);
         }
     }
 

@@ -60,7 +60,9 @@ public sealed class PhysicsPlugin : IPlugin
             {
                 if (!w.TryGetResource<FixedTime>(out var fixedTime) || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
+                DriveCharacters(w, phys);
                 phys.StepOnce((float)fixedTime.StepSeconds);
+                ReportCharacters(w, phys);
                 SendContacts(w, phys);
             }, "Physics.FixedStep")
             .Read<FixedTime>()
@@ -74,7 +76,9 @@ public sealed class PhysicsPlugin : IPlugin
                 if (w.ContainsResource<FixedTime>() || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
                 var time = w.Resource<Time>();
+                DriveCharacters(w, phys);
                 phys.Step((float)time.DeltaSeconds);
+                ReportCharacters(w, phys);
                 SendContacts(w, phys);
             }, "Physics.Step")
             .Read<Time>()
@@ -96,6 +100,34 @@ public sealed class PhysicsPlugin : IPlugin
             .Write<EcsWorld>());
 
         Logger.Info("PhysicsPlugin: physics systems registered (FixedUpdate=Step, PostUpdate=SyncTransforms).");
+    }
+
+    // Each CharacterController's wanted walk, slope and jump, handed to its body before the step.
+    private static void DriveCharacters(World w, PhysicsWorld phys)
+    {
+        if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<CharacterController>() == 0) return;
+        foreach (var row in ecs.QueryReadOnly<CharacterController, PhysicsBody>())
+        {
+            ref readonly var controller = ref row.C1;
+            phys.MoveCharacter(row.C2, controller.Velocity);
+            phys.SetCharacterMaxSlope(row.C2, controller.MaxSlope);
+            if (controller.Jump > 0)
+            {
+                phys.JumpCharacter(row.C2, controller.Jump);
+                ecs.GetRef<CharacterController>(row.Entity).Jump = 0;
+            }
+        }
+    }
+
+    // Whether each controller's body stood on ground, written only when it changed.
+    private static void ReportCharacters(World w, PhysicsWorld phys)
+    {
+        if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<CharacterController>() == 0) return;
+        foreach (var row in ecs.QueryReadOnly<CharacterController, PhysicsBody>())
+        {
+            var grounded = phys.IsCharacterGrounded(row.C2);
+            if (grounded != row.C1.Grounded) ecs.GetRef<CharacterController>(row.Entity).Grounded = grounded;
+        }
     }
 
     // The physics world, able to name the entities of the contacts its next step finds.

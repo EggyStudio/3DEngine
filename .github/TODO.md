@@ -129,9 +129,10 @@ The flat API creates boxes, spheres and static and kinematic boxes, reads their 
 pushes them, casts rays and reads the frame's contacts (CHEATSHEET.md, Physics). What is missing is
 capsules, meshes and joints in the flat API, contact points, normals and impulses on the events,
 triggers that report overlap without colliding, and a body whose parent moves it, as a platform
-carries what stands on it, which needs a kinematic body driven from the parent's pose. There is no
-character controller. `games/Pusher` moves its player as a kinematic box, which pushes crates and
-walks through walls, since a kinematic body meets nothing that does not move.
+carries what stands on it, which needs a kinematic body driven from the parent's pose. The character
+controller is a dynamic capsule walked toward a velocity before each step, which slides along walls,
+rides edges lower than about half its radius, holds slopes up to its limit and reports ground. It
+does not climb a taller step, ride a moving platform, or crouch.
 
 ### Scenes
 

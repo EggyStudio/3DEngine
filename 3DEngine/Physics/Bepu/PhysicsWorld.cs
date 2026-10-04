@@ -63,6 +63,7 @@ public sealed partial class PhysicsWorld : IDisposable
         _contacts = new ContactCollector(Dispatcher.ThreadCount);
         var narrowCallbacks = BepuNarrowPhaseCallbacks.Default();
         narrowCallbacks.Contacts = _contacts;
+        narrowCallbacks.Characters = _characterFlags;
         var integrator = new BepuPoseIntegratorCallbacks
         {
             Gravity = settings.Gravity,

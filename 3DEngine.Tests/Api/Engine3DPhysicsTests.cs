@@ -136,4 +136,33 @@ public sealed class Engine3DPhysicsTests : IDisposable
         SetPhysicsPaused(false);
         RunUntil(() => GetPhysicsBodyPosition(box).Y < 4.9f).Should().BeTrue("it falls once the simulation runs again");
     }
+
+    [Fact]
+    public void A_Character_Walked_Through_The_Flat_API_Stops_At_A_Wall_And_Stands()
+    {
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
+        CreatePhysicsStaticBox(new Vector3(2, 1, 0), new Vector3(0.5f, 2, 10));
+        var player = CreatePhysicsCharacter(Vector3.Zero, 0.4f, 1.8f);
+
+        MovePhysicsCharacter(player, new Vector3(5, 0, 0));
+        RunUntil(() => false);
+
+        IsPhysicsCharacterGrounded(player).Should().BeTrue();
+        GetPhysicsBodyPosition(player).X.Should().BeInRange(1.2f, 1.4f, "the wall's face is at 1.75 and the capsule 0.4 wide");
+    }
+
+    [Fact]
+    public void A_Character_Controller_Component_Walks_Its_Body_And_Reports_Ground()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var physics = GetApp().World.Resource<PhysicsWorld>();
+        physics.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 0.5f, 20));
+        var player = ecs.Spawn();
+        ecs.Add(player, physics.CreateCharacter(new Vector3(0, 0.5f, 0), 0.4f, 1.8f, entityId: player));
+        ecs.Add(player, new Transform(Vector3.Zero));
+        ecs.Add(player, CharacterController.Default with { Velocity = new Vector3(0, 0, -2) });
+
+        RunUntil(() => ecs.GetReadOnly<Transform>(player).Position.Z < -1).Should().BeTrue("the controller walks it along -Z");
+        ecs.GetReadOnly<CharacterController>(player).Grounded.Should().BeTrue("and it stands on the floor");
+    }
 }

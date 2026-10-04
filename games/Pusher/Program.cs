@@ -29,8 +29,8 @@ foreach (var entity in level)
     if (ecs.Has<PlayerStart>(entity)) start = at;
 }
 
-// The player is a kinematic box, which pushes crates and is moved only by the keys.
-var player = CreatePhysicsKinematicBox(start + new Vector3(0, 1, 0), new Vector3(0.8f, 2, 0.8f));
+// The player is a character, which walls stop and which pushes the lighter crates.
+var player = CreatePhysicsCharacter(start, 0.4f, 1.8f);
 var facing = 0f;
 
 // -- Light, sky, models and sound
@@ -76,7 +76,7 @@ while (!WindowShouldClose())
         facing = MathF.Atan2(move.X, move.Z);
         UpdateModelAnimation(arm, bend, bendFrame++);
     }
-    SetPhysicsBodyVelocity(player, move * 4);
+    MovePhysicsCharacter(player, move * 4);
     SetPhysicsPaused(screen != Screen.Play);
 
     // A crate that reaches the goal scores, chimes, and goes back where it began.
@@ -112,7 +112,8 @@ while (!WindowShouldClose())
         cube.Transform = GetPhysicsBodyTransform(body);
         DrawModel(cube, Vector3.Zero, 1, new Color(190, 120, 60));
     }
-    arm.Transform = Matrix4x4.CreateRotationY(facing) * Matrix4x4.CreateTranslation(playerAt - new Vector3(0, 1, 0));
+    // The arm stands on the character's feet, half its 1.8 below its middle.
+    arm.Transform = Matrix4x4.CreateRotationY(facing) * Matrix4x4.CreateTranslation(playerAt - new Vector3(0, 0.9f, 0));
     DrawModel(arm, Vector3.Zero, 1, new Color(230, 200, 90));
     EndMode3D();
 

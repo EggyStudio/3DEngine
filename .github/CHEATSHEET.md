@@ -335,6 +335,11 @@ PhysicsBody CreatePhysicsBox(Vector3 position, Vector3 size, float mass = 1);   
 PhysicsBody CreatePhysicsSphere(Vector3 position, float radius, float mass = 1); // A ball
 PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size);              // A box that never moves, for floors and walls
 PhysicsBody CreatePhysicsKinematicBox(Vector3 position, Vector3 size);           // A box only the program moves, which pushes what it meets
+PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80); // A character controller, an upright capsule that walls stop and that slides along them
+void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity);                   // Walk it along the ground until given another, leaving its fall to gravity
+void JumpPhysicsCharacter(PhysicsBody body, float speed);                        // Jump, when it stands on ground
+bool IsPhysicsCharacterGrounded(PhysicsBody body);                               // Whether it stands on ground it can walk on
+void SetPhysicsCharacterMaxSlope(PhysicsBody body, float degrees);               // The steepest ground it walks on, 45 to begin with
 void DestroyPhysicsBody(PhysicsBody body);                                       // Remove a body
 bool IsPhysicsBodyValid(PhysicsBody body);                                       // Whether a body exists
 
@@ -357,7 +362,8 @@ Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int heig
 
 Bodies are BepuPhysics's, stepped at the fixed rate inside `BeginDrawing`, so a box is drawn by
 setting a model's `Transform` to `GetPhysicsBodyTransform(body)` before `DrawModel`. The ECS reaches
-the same world as `PhysicsWorld`, with contacts as `ContactStarted` and `ContactEnded` events.
+the same world as `PhysicsWorld`, with contacts as `ContactStarted` and `ContactEnded` events, and
+walks a character through a `CharacterController` component beside its `PhysicsBody`.
 
 ## Audio
 

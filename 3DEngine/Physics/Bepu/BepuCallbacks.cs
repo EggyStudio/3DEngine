@@ -33,6 +33,21 @@ internal sealed class ContactCollector
     }
 }
 
+/// <summary>Which body handles are characters, whose contacts the narrow phase gives no friction.</summary>
+internal sealed class CharacterFlags
+{
+    private bool[] _byHandle = [];
+
+    public void Set(int handle, bool character)
+    {
+        if (_byHandle.Length <= handle) Array.Resize(ref _byHandle, Math.Max(handle + 1, _byHandle.Length * 2));
+        _byHandle[handle] = character;
+    }
+
+    public bool Is(CollidableReference collidable) =>
+        collidable.Mobility != CollidableMobility.Static && collidable.BodyHandle.Value < _byHandle.Length && _byHandle[collidable.BodyHandle.Value];
+}
+
 /// <summary>
 /// Per-pair material accept/configure callbacks. Filters out static-static and
 /// kinematic-static pairs, applies a single global friction/restitution, and records every pair
@@ -45,6 +60,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public float Restitution;
     public float MaximumRecoveryVelocity;
     public ContactCollector? Contacts;
+    public CharacterFlags? Characters;
 
     /// <summary>The gap in world units below which a contact counts as touching.</summary>
     public const float TouchingGap = 0.01f;
@@ -72,7 +88,8 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
         out PairMaterialProperties pairMaterial)
         where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = Friction;
+        // A character slides along what it meets, and its controller decides how it walks.
+        pairMaterial.FrictionCoefficient = Characters is not null && (Characters.Is(pair.A) || Characters.Is(pair.B)) ? 0 : Friction;
         pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
         pairMaterial.SpringSettings = ContactSpringiness;
 

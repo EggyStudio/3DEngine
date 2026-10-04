@@ -11,9 +11,20 @@ namespace Engine;
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />
-    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit)
+    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit) =>
+        Raycast(origin, direction, maxDistance, default, out hit);
+
+    /// <summary>The closest hit along a ray that is not <paramref name="ignore"/>, as a body looking past itself.</summary>
+    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
     {
         var handler = new ClosestRayHitHandler();
+        if (ignore.World == this)
+        {
+            handler.Skips = true;
+            handler.Skip = ignore.Kind == BodyKind.Static
+                ? new CollidableReference(new StaticHandle(ignore.Handle))
+                : new CollidableReference(ignore.Kind == BodyKind.Kinematic ? CollidableMobility.Kinematic : CollidableMobility.Dynamic, new BodyHandle(ignore.Handle));
+        }
         Simulation.RayCast(origin, direction, maxDistance, BufferPool, ref handler);
         if (!handler.Found)
         {
@@ -33,7 +44,7 @@ public sealed partial class PhysicsWorld
         {
             Body = new PhysicsBody(this, rawHandle, kind),
             Distance = handler.T,
-            Normal = handler.Normal,
+            Normal = handler.Normal == Vector3.Zero ? Vector3.Zero : Vector3.Normalize(handler.Normal),
             Point = origin + Vector3.Normalize(direction) * handler.T,
             EntityId = entityId,
         };
@@ -47,9 +58,11 @@ public sealed partial class PhysicsWorld
         public float T;
         public Vector3 Normal;
         public CollidableReference Collidable;
+        public bool Skips;
+        public CollidableReference Skip;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AllowTest(CollidableReference collidable) => true;
+        public bool AllowTest(CollidableReference collidable) => !Skips || collidable.Packed != Skip.Packed;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AllowTest(CollidableReference collidable, int childIndex) => true;
