@@ -111,15 +111,30 @@ public sealed class GamepadState
         else _touches.Remove(finger);
     }
 
+    /// <summary>The button pressed last on this pad while it is held, null once it comes up.</summary>
+    internal GamepadButton? LastPressed { get; private set; }
+
+    /// <summary>When the button last pressed on this pad went down, in the order of presses on every pad, kept once it is up.</summary>
+    internal long LastPressedOrder { get; private set; }
+
+    // Presses on every pad counted in one order, so the last of them is found across pads as
+    // raylib keeps one last button for all of them.
+    private static long _pressOrder;
+
     internal void SetButton(GamepadButton button, bool isDown)
     {
         if (isDown)
         {
-            if (_down.Add(button)) _pressed.Add(button);
+            if (_down.Add(button))
+            {
+                _pressed.Add(button);
+                (LastPressed, LastPressedOrder) = (button, ++_pressOrder);
+            }
         }
         else if (_down.Remove(button))
         {
             _released.Add(button);
+            if (LastPressed == button) LastPressed = null;
         }
     }
 

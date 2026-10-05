@@ -211,3 +211,4 @@ audio_sound_positioning	can
 audio_spectrum_visualizer	can
 audio_stream_callback	can
 audio_amp_envelope	can	with ImGui in raygui's place
+core_input_gamepad	can	drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is

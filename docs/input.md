@@ -140,9 +140,9 @@ touchpad or a light bar has calls for each, which the cheatsheet lists.
 ## Bindings a player changes
 
 A game that lets its player choose their keys keeps each action's key and button in a table of
-its own and asks it rather than naming keys in its loop. `GetKeyPressed` and
-`GetGamepadButtonPressed` give the next key or button pressed, so a settings screen waiting for
-one binds whatever comes, and `SaveFileText` and `LoadFileText` keep the table beside the program
+its own and asks it rather than naming keys in its loop. `GetKeyPressed` gives
+the next key pressed and `GetGamepadButtonPressed` the button pressed last while it is held, so a
+settings screen waiting for one binds whatever comes, and `SaveFileText` and `LoadFileText` keep the table beside the program
 between runs. `games/Manor` does this, from its `Settings` class:
 
 ```csharp

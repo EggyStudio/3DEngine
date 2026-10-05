@@ -11,6 +11,8 @@
         <Content Include="resources\**\*" CopyToOutputDirectory="PreserveNewest" />
         <!-- Summit's hero, which the layered clips example plays, kept once in the game's art. -->
         <Content Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
+        <!-- raylib's own, fetched by build/fetch-raylib-resources.sh, at the paths its examples load. -->
+        <Content Include="raylib-resources\**\*" Link="resources\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

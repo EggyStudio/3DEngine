@@ -72,3 +72,5 @@ imgui.ini
 
 # The raylib build/examples-table.py and build/raylib-bench/run.sh read, cloned at its pinned commit.
 /build/raylib-bench/work/
+# raylib's own resources, which build/fetch-raylib-resources.sh downloads for the examples.
+/3DEngine.Examples/raylib-resources/

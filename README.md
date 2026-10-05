@@ -105,6 +105,7 @@ Each example is a short program in `3DEngine.Examples`, run by name:
 
 ```bash
 build/fetch-slang.sh                                          # once, for the shader compiler
+build/fetch-raylib-resources.sh                               # once, for the files raylib's examples load
 dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 ```
 

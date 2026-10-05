@@ -1,0 +1,5 @@
+# The files of raylib's examples that the examples here load, by their path under raylib's
+# examples/ folder, which build/fetch-raylib-resources.sh downloads at the pinned commit into
+# raylib-resources/, from where the build copies them beside the program under resources/.
+core/resources/ps3.png
+core/resources/xbox.png

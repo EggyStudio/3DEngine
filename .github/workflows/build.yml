@@ -40,6 +40,9 @@ jobs:
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
         run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp clang zlib1g-dev
 
+      # The files of raylib's own that its examples load, at the commit run.sh pins.
+      - run: build/fetch-raylib-resources.sh
+
       - run: dotnet build 3DEngine.slnx
 
       # Every one of raylib's examples is a row of .github/EXAMPLES.md, which the script writes from

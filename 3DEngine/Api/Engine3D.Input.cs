@@ -247,13 +247,24 @@ public static partial class Engine3D
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>
     public static bool IsGamepadButtonPressed(int gamepad, GamepadButton button) => Input.Gamepad(gamepad)?.ButtonPressed(button) ?? false;
 
-    /// <summary>A button that went down this frame on any gamepad, as a "press any button" screen asks, or null for none.</summary>
+    /// <summary>
+    /// The button pressed last on any gamepad, while it is held, as a "press any button" screen or a
+    /// binding waiting for a button asks, or null for none.
+    /// </summary>
+    /// <remarks>
+    /// It is raylib's last button pressed, which stays until that button comes up, rather than a
+    /// press in this frame alone, so a screen reading it a frame late still sees it, and another
+    /// button held from before does not stand in for it once it is up.
+    /// </remarks>
     public static GamepadButton? GetGamepadButtonPressed()
     {
+        // The latest press on any pad, which is none once that button is up, as raylib keeps one.
+        GamepadButton? last = null;
+        long order = 0;
         foreach (var pad in Input.Gamepads)
-            foreach (var button in Enum.GetValues<GamepadButton>())
-                if (pad.ButtonPressed(button)) return button;
-        return null;
+            if (pad.LastPressedOrder > order)
+                (last, order) = (pad.LastPressed, pad.LastPressedOrder);
+        return last;
     }
 
     /// <summary>Whether <paramref name="button"/> is held.</summary>

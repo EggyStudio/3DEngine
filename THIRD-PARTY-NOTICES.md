@@ -23,3 +23,9 @@ with their licenses, so a game shipped on the engine can say what it carries.
 The shaders in the package were compiled with Slang (Apache 2.0 with LLVM exceptions,
 https://github.com/shader-slang/slang), which the package does not carry. The Vulkan loader is
 the system's, or MoltenVK's on macOS, and is not carried either.
+
+The examples in `3DEngine.Examples` that carry raylib's names are raylib's examples
+(https://github.com/raysan5/raylib/tree/master/examples, zlib) written again for the flat API, each
+naming its authors at its head, and are not in the package. The files of raylib's they load are
+fetched by `build/fetch-raylib-resources.sh` under the licenses its examples' `resources/LICENSE.md`
+files give, and are not kept in this repository.

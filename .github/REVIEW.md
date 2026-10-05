@@ -125,3 +125,22 @@ culling, which do not apply. Twenty use raygui and are noted as written with ImG
 Five were read over for what the functions do not say: the M3D, VOX, XM and BMFont files no reader
 here takes, and `core_window_web`, which is about a browser's loop. The 17 written ones are read
 against raylib's screenshots next, before the first new one.
+
+**Now 1, the first port and the fault it found.** raylib's examples load raylib's own files, its
+pads, pictures, models and fonts, and as BevyCSharp fetches Bevy's assets these are fetched, not
+kept. `3DEngine.Examples/raylib-resources.txt` names each file a port loads by its path under
+raylib's `examples/`, `build/fetch-raylib-resources.sh` downloads it at the pinned commit into a
+folder git ignores, and the examples' build copies it under `resources/`, so a port loads
+raylib's own path unchanged. `build.yml` fetches before it builds, and THIRD-PARTY-NOTICES.md says
+whose they are. Each port begins with raylib's example's name, its copyright line and its zlib
+license.
+
+`core_input_gamepad` is raylib's again, read from its C, and its picture differs from raylib's for
+a known reason, the console's pad being named neither Xbox nor PlayStation, which its row says. It
+found that `GetGamepadButtonPressed` answered a press in this frame alone, where raylib's is the
+last button pressed, until that button comes up, one for every pad. It is raylib's now, and the
+test that called itself raylib's reading and held the old one finds the button held a frame later,
+the newer press on another pad, and none once that press is up while an older button is held.
+raylib's triggers run from -1 at rest and the flat API's from 0, which the port turns into
+raylib's range where it reads them, and it prints the button's name where raylib prints its
+number in an enumeration of another order.

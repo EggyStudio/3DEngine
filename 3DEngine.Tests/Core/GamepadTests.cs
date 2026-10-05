@@ -33,14 +33,19 @@ public class GamepadTests
         try
         {
             var input = app.World.Resource<Input>();
-            input.ConnectGamepad(1, "First", 0);
+            var first = input.ConnectGamepad(1, "First", 0);
             var second = input.ConnectGamepad(2, "Second", 0);
 
             Engine3D.GetGamepadButtonPressed().Should().BeNull();
             second.SetButton(GamepadButton.Start, true);
             Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.Start);
             input.BeginFrame();
-            Engine3D.GetGamepadButtonPressed().Should().BeNull("only the frame it went down");
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.Start, "it is the last pressed while it is held, as raylib's is");
+            first.SetButton(GamepadButton.South, true);
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.South, "the last pressed on any pad");
+            first.SetButton(GamepadButton.South, false);
+            Engine3D.GetGamepadButtonPressed().Should().BeNull("once the last one is up, as raylib clears it, though Start is held");
+            second.SetButton(GamepadButton.Start, false);
 
             input.AddWheel(2, -1);
             Engine3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));

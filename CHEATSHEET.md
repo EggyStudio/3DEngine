@@ -167,7 +167,7 @@ float GetGesturePinchAngle();                            // Its angle in degrees
 bool IsGamepadAvailable(int gamepad);                                  // Whether a pad is connected at that index
 string GetGamepadName(int gamepad);                                    // Its name
 bool IsGamepadButtonPressed(int gamepad, GamepadButton button);        // Button went down this frame
-GamepadButton? GetGamepadButtonPressed();                              // A button any pad pressed this frame, null for none
+GamepadButton? GetGamepadButtonPressed();                              // The button pressed last on any pad while held, null for none
 int SetGamepadMappings(string mappings);                               // Add SDL_GameControllerDB lines, how many were added
 bool IsGamepadButtonDown(int gamepad, GamepadButton button);           // Button is held
 bool IsGamepadButtonReleased(int gamepad, GamepadButton button);       // Button came up this frame
