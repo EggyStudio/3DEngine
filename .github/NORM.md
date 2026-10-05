@@ -151,6 +151,12 @@ commit's description.** A tolerance widened to pass hides the fault the test fou
 **N 3.6 A number in a document names the command that measured it.** A number nobody can measure
 again is not kept true. By review.
 
+**N 3.7 A test in which the engine logs an error fails, unless the test says it expects that
+error.** A system that throws is logged and the app goes on, so an error logged in every frame
+of every headless test stood for thirteen hours in 3DEngine with the suite passing over it. The
+test project hears the engine's log and fails the test, with a list of the tests that log an
+error on the day the rule is taken.
+
 ## 4 Documents
 
 **N 4.1 Prose follows STYLE.md, in comments, messages, documentation and Markdown.** Many
@@ -218,6 +224,29 @@ what a package is built from ask that their notices go with a copy, a compiled o
 `THIRD-PARTY-NOTICES.md` is in the package, written by a script where the dependencies are many,
 and a test holds it to them.
 
+**N 6.6 A script that more than one system runs uses only what each system's tools read.**
+macOS has BSD's tools and bash 3.2, and a script written on Linux fails there on a form only
+GNU's tools read, as 3DEngine's pack did on `sed -i` until `d42a5c95`. A test reads the scripts
+the jobs on Windows and macOS run, and those they call, for such forms.
+
+**N 6.7 A run that fails says what failed in a page, on each system.** A log of 60,000 lines
+names nothing, an annotation saying that a process ended with code 1 names nothing, and such a
+log pasted into a session on 2026-10-05 ended the session. The page is at most 200 lines. It
+has the failures by cause, each with its message, its first frames and some of its tests, and
+the lines the output repeated most. It ends the step's log and is the job's summary and its
+annotations, and the step's log is a line for each process and the page, with what the tests
+print kept in a file. One script runs the tests and writes the page, in the workflow and for a
+working session, and its own tests hold the page to its limits.
+
+**N 6.8 A test process is held to a time and a memory, and one that is lost is found by running
+the suite again in parts.** A process that takes the runner's memory takes the runner, which
+left three of 3DEngine's runs on Linux with no results. A test that hangs runs for the six
+hours a job is given, and a crash ends every test after it. The suite runs whole, since tests
+of different areas in one process find faults neither finds alone, as 3DEngine's `c06ec659`
+did, and in parts, each a process of its own, only after a process is lost. The workflow's jobs
+have a time limit, and the script's tests run it against a process that hangs, one that grows
+and one that dies.
+
 ## 7 Working
 
 **N 7.1 Commits stay local, and the owner pushes.** The owner decides what is published and when.
@@ -246,7 +275,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | listed 116, `NormTests` | listed 347, `NormTests` |
 | N 1.3 | listed 6, `NormTests` | listed 32, `NormTests`, 18 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 6 left out | listed 113, `NormTests`, 20 left out |
+| N 1.4 | checked, `NormTests`, 7 left out | listed 113, `NormTests`, 20 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
@@ -257,13 +286,14 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
 | N 2.8 | checked, `NormTests` | to take |
 | N 2.9 | checked, `FileHandleTests` | to take |
-| N 2.10 | to take | to take |
+| N 2.10 | checked, `NormTests` | to take |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
 | N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 4 left out |
 | N 3.4 | checked, `NormTests` | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
+| N 3.7 | to take | to take |
 | N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
@@ -278,8 +308,11 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, by the test of N 6.4, which holds the notices to the lock |
+| N 6.6 | checked, `ScriptTests` | to take |
+| N 6.7 | to take | to take |
+| N 6.8 | to take | to take |
 | N 7.1 | by review | by review |
-| N 7.2 | checked, `NormTests` | checked, `NormTests` |
+| N 7.2 | checked, `NormTests`, 1 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |

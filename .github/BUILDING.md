@@ -11,12 +11,22 @@ installed by hand. macOS draws through MoltenVK, which the Vulkan SDK provides.
 build/fetch-slang.sh                       # slangc, into build/tools/slang (once)
 dotnet build 3DEngine.slnx                 # the engine, the generator, the tests and the examples
 dotnet test 3DEngine.Tests                 # the suite
+python3 build/test.py                      # the suite as the workflow runs it, ending in a page of what failed
 dotnet run --project 3DEngine.Examples     # a window
 ```
 
 The suite needs no GPU or display, because the tests that touch rendering use
 `NullGraphicsDevice`. The examples need both. Without `slangc` the shader tests report as skipped,
 and so do the render tests without a Vulkan device, each with its reason in the run's output.
+
+`build/test.py` runs the suite as one process held to 40 minutes and 4 GB, with what it prints in
+`3DEngine.Tests/TestResults/output.txt`, and ends with a page of at most 200 lines, also written to
+`TestResults/digest.md`: the counts, the failures by cause, the most frequent first, each with its
+message, its first frames and some of its tests, and the lines the output repeated most. A process
+that is lost, by a crash, a hang, its time or its memory, is said first on the page, with the tests
+it was in and its last lines, and the suite runs again in parts, a process for each area of thirty
+tests or more and one for the rest, so a part that is lost costs only its own tests.
+`python3 build/test.py Rendering` runs one part, and `--parts` all of them.
 
 ```
 build/               fetch-slang.sh, and the compiler it downloads under tools/
@@ -250,7 +260,11 @@ macOS draws on its GPU through MoltenVK, with the loader and the layer from Home
 render tests and the reference frames run under the validation layer, `E3D_REQUIRE_VULKAN` and
 `E3D_REQUIRE_VALIDATION` failing them where the device or the layer does not start rather than
 letting them skip, and `build/play-game.sh Pusher` builds a game from the package and draws 300
-frames of it offscreen, failing on an error the layer reports. Each builds with `-warnaserror`, so
+frames of it offscreen, failing on an error the layer reports. Each job runs its tests through
+`build/test.py`, whose page ends the step's log and is the job's summary, with each cause an error
+annotation, so a red run says what failed to whoever opens it, and a last job, `digest`, puts the
+three pages into one, each cause with the systems it was seen on. Each job has a time limit.
+Each builds with `-warnaserror`, so
 a warning fails the commit that wrote it, and a warning that is right to keep is turned off where
 it arises, with its reason. A Vulkan instance asks for portability devices where the loader offers
 them, and a device of the portability subset, as MoltenVK is, has the subset enabled.

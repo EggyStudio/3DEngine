@@ -146,7 +146,7 @@ table also answers whether the two agree.
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
 | A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | to take | has (`build/soak.sh`, `044d2396`) |
-| An app made and closed a hundred times in one test holds no more than it held after ten, the rule a soak keeps for a game kept for an app's whole life | to check | to take, where each app a render test makes leaves about 20 MB and the Linux job ends at the runner's 16 GB (REVIEW.md, Verdict 12) |
+| An app made and closed a hundred times in one test holds no more than it held after ten, read before any collection, the rule a soak keeps for a game kept for an app's whole life | to check, with `ScriptHost.References()` reading every loaded assembly at each compilation, the growth 3DEngine found | taken at `c06ec659`, `AppLeakTests`, the growth being the script compiler's references read at every app's start |
 | Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |
 | A window resized, minimized and moved by commands while it draws, as a storm the workflow runs | to consider, the window being Bevy's | has (`build/storm.sh`, `b0d835c4`) |
 | The public surface listed in a checked-in file a tool writes from the built assembly, a test failing when they differ | to take | has (`PublicApi.txt`, `fc5aef49`) |
@@ -166,6 +166,12 @@ table also answers whether the two agree.
 | The followed engine's own files that its examples load are fetched at a pinned commit and not kept in the repository | has (`bevy-assets.txt`) | taken at `7b9b2f2e` (`raylib-resources.txt`, `build/fetch-raylib-resources.sh`) |
 | An example written from the followed engine's says so at its head, with that engine's copyright line and license | taken at `00c3db9`, all 218 written | has (`7b9b2f2e`), each port naming raylib's example, its authors and the zlib license |
 | The package carries the notices of everything in it that is another's, and a test holds the notices to the dependencies | taken at `00c3db9`, every crate of the bridge's lock named, 569 of them, by a script the pack workflow checks | has (`THIRD-PARTY-NOTICES.md` in the package, `PackageContentsTests`) |
+| A script that more than one system runs is read by a test for the forms only GNU's tools or a later bash read | to take, one line found | has (`ScriptTests`, `fd7b17f3`) |
+| Every method native code calls catches every exception, a test finding one that does not by how it is handed over | to take | has (`NormTests.N_2_10`, `48fbb663`), six of twelve mended |
+| A run that fails writes a page of at most 200 lines, the failures by cause with message, frames and tests, as the end of the log, the job's summary and its annotations, one script running the tests in the workflow and for a working session | to take, from 3DEngine's script | to take (REVIEW.md, Verdict 15) |
+| A test process held to a time and a memory, the suite run again in parts when one is lost, so a crash, a hang or a leak is named and the runner stays up to say so | to take, from 3DEngine's script | to take (REVIEW.md, Verdict 15) |
+| A test in which the engine logs an error fails unless it says it expects that error | to take | to take (REVIEW.md, item 2) |
+| A system that throws in every frame is logged in full once and counted after | to check | to take (REVIEW.md, Verdict 14) |
 
 ### Documents
 

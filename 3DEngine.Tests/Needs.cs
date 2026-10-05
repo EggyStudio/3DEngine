@@ -116,6 +116,26 @@ internal static class Probes
         }
     });
 
+    // The name Python runs by, python3 where it is, as on Linux and macOS, and python on Windows.
+    public static readonly Lazy<string?> Python = new(() =>
+    {
+        foreach (var name in new[] { "python3", "python" })
+        {
+            try
+            {
+                using var python = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(name, "--version") { RedirectStandardOutput = true, RedirectStandardError = true });
+                if (python is null) continue;
+                python.WaitForExit(10_000);
+                if (python.HasExited && python.ExitCode == 0) return name;
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // Not on PATH.
+            }
+        }
+        return null;
+    });
+
     public static readonly Lazy<bool> Audio = new(() =>
     {
         using var backend = new SdlAudioBackend();
@@ -132,5 +152,23 @@ public sealed class NeedsPackageFactAttribute : FactAttribute
         // The pack workflow sets it after build/pack.sh, so a package that was not made fails there.
         if (Package.PackageContentsTests.Newest() is null && Environment.GetEnvironmentVariable("E3D_REQUIRE_PACKAGE") != "1")
             Skip = "build/package holds no 3DEngine package. build/pack.sh makes one.";
+    }
+}
+
+/// <summary>Skipped where neither <c>python3</c> nor <c>python</c> runs, which the workflow's runners all have.</summary>
+public sealed class NeedsPythonFactAttribute : FactAttribute
+{
+    public NeedsPythonFactAttribute()
+    {
+        if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
+    }
+}
+
+/// <summary>Skipped where neither <c>python3</c> nor <c>python</c> runs.</summary>
+public sealed class NeedsPythonTheoryAttribute : TheoryAttribute
+{
+    public NeedsPythonTheoryAttribute()
+    {
+        if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
     }
 }

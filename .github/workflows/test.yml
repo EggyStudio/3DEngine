@@ -19,6 +19,7 @@ jobs:
     # image's packages, and the label moving to a new release would change them under the tests
     # with no commit to show for it. Moving to the next release is a commit of its own.
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -39,14 +40,27 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      # Each test named as it ends, so a run cut short says which were running. glibc is held to two
-      # arenas, since each device lavapipe opens starts threads that glibc gives arenas of their own,
-      # and what is freed in an arena stays the test host's, some hundred MB over the drawing tests.
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
+      # build/test.py runs the suite held to a time and a memory, runs it again in parts where a
+      # process is lost, and ends the log with a page of what failed, which is the job's summary and
+      # its annotations. glibc is held to two arenas, since each device lavapipe opens starts threads
+      # that glibc gives arenas of their own, and what is freed in an arena stays the test host's,
+      # some hundred MB over the drawing tests.
+      - run: python3 build/test.py --no-build
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
           MALLOC_ARENA_MAX: '2'
+
+
+      # The page, from every run, for the digest job below.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-digest-linux
+          path: |
+            3DEngine.Tests/TestResults/digest.md
+            3DEngine.Tests/TestResults/digest.json
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
         # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
@@ -57,6 +71,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    timeout-minutes: 75
     defaults:
       run:
         shell: bash
@@ -99,14 +114,25 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      # Each test named as it ends, so a run cut short says which were running.
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
+      # The suite through build/test.py, as on Linux.
+      - run: python build/test.py --no-build
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
 
+
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
+
+      # The page, from every run, for the digest job below.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-digest-windows
+          path: |
+            3DEngine.Tests/TestResults/digest.md
+            3DEngine.Tests/TestResults/digest.json
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
         # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
@@ -120,6 +146,7 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -147,14 +174,25 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      # Each test named as it ends, so a run cut short says which were running.
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
+      # The suite through build/test.py, as on Linux.
+      - run: python3 build/test.py --no-build
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
 
+
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
+
+      # The page, from every run, for the digest job below.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-digest-macos
+          path: |
+            3DEngine.Tests/TestResults/digest.md
+            3DEngine.Tests/TestResults/digest.json
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
         # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
@@ -164,3 +202,20 @@ jobs:
           path: |
             3DEngine.Tests/TestResults/
             captures/
+
+  digest:
+    # One page for the commit from the three systems' pages, a line for each system and each cause
+    # with the systems it was seen on, the one place that says where a commit fails.
+    needs: [linux, windows, macos]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: test-digest-*
+          path: digests
+
+      - run: python3 build/test.py --digest digests/*
