@@ -193,7 +193,9 @@ of one file stay apart. A file is read and parsed once for every copy of it, and
 meshes, one upload drawn as instances, so `games/Swarm` places hundreds of creatures from two
 prefabs, each copy taking a small part of a millisecond. A placed file saved again while the level runs, from another tool or with
 `scene.save`, is spawned again in place of every copy within half a second, so a prefab is edited
-while the game shows it.
+while the game shows it. A model a `ModelRef` placed, its file written again where the asset server
+watches its files, is spawned again under the entity that placed it, and the textures the old copy
+held are given back once it is gone, so a level edited over and over while it runs does not grow.
 
 ## A level streamed in
 

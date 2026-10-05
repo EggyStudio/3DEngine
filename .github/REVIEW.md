@@ -123,3 +123,13 @@ pushed and twisted on the way and staying on its line unturned, then back to its
 scene file's slider turned to run along X reaches its limit there. With it the entry on motors
 goes, since a hinge and a slider are the joints a game drives. `PublicApi.txt` gains four
 functions and an enum member.
+
+**A scene spawned again by hot reload.** The copy `SceneHotReloadSystem` spawns in place of a model
+written while it runs now loads its textures through the spawn that collects them, and
+`AssetRelease` holds them by its entities, as the first copy's were held, so the old copy's are
+given back after the grace and a level edited over and over no longer grows. Writing the test
+found a second fault behind it: the new copy was spawned with no parent, so it lost the place of
+the entity that put the model there and outlived that entity. It is hung under the old copy's
+owner now. The test reports the model modified, sees the copy spawned again under its owner, and
+finds the texture let go once the owner is despawned, which fails without the change. What is left
+of the entry is a program's own `SceneSpawner.Spawn` with an asset server, which TODO.md says.

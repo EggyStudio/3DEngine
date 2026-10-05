@@ -99,6 +99,31 @@ public sealed class AssetReleaseTests : IDisposable
     }
 
     [Fact]
+    public void A_Model_Spawned_Again_By_Hot_Reload_Lets_Its_Texture_Go_With_It()
+    {
+        var entity = Place();
+        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
+        Textured(out var texture).Should().BeTrue();
+        var materials = Ecs.Query<Material>().Count();
+
+        // The model reported written while it runs, as the server's watcher reports a file, which
+        // spawns it again in place of the first copy.
+        var spawnedBefore = Ecs.Query<Material>().Select(m => Ecs.Handle(m.Entity)).ToHashSet();
+        var model = _app.World.Resource<Assets<SceneAsset>>().Ids.Single();
+        _app.World.Resource<Events<AssetEvent<SceneAsset>>>().Send(AssetEvent<SceneAsset>.Modified(new Handle<SceneAsset>(model, default, strong: false)));
+        Frames(2);
+        Ecs.Query<Material>().Select(m => Ecs.Handle(m.Entity)).ToHashSet().SetEquals(spawnedBefore).Should().BeFalse("the model is spawned again");
+        Ecs.Query<Material>().Count().Should().Be(materials);
+        Frames(3);
+        Loaded<TextureAsset>(texture).Should().BeTrue("the new copy holds the texture the old one gave back");
+        Ecs.Query<Material>().All(m => Ecs.ParentOf(m.Entity) != 0).Should().BeTrue("the new copy hangs under the entity that placed the model, as the first did");
+
+        Ecs.DespawnRecursive(entity);
+        Frames(3);
+        Loaded<TextureAsset>(texture).Should().BeFalse("the copy hot reload spawned gives its texture back too");
+    }
+
+    [Fact]
     public void A_Texture_The_Program_Loaded_Itself_Stays_When_The_Level_Lets_It_Go()
     {
         var entity = Place();

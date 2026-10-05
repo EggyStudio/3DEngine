@@ -41,6 +41,7 @@ internal static class SceneHotReloadSystem
         if (!world.TryGetResource<SpawnedScenes>(out var tracking)) return;
         world.TryGetResource<AssetServer>(out var assetServer);
         world.TryGetResource<MaterialLibrary>(out var materialLibrary);
+        world.TryGetResource<AssetRelease>(out var release);
 
         // Read rather than drained, since other systems may read these events too, and
         // AssetPlugin clears them in Stage.Last.
@@ -57,6 +58,11 @@ internal static class SceneHotReloadSystem
                 continue;
             }
 
+            // The entity the old copy hangs under, as SceneSpawnSystem hangs a scene under the
+            // entity that asked for it, which the new copy is hung under in its place.
+            var old = record.Entities.ToHashSet();
+            var owner = record.Entities.Where(ecs.IsAlive).Select(ecs.ParentOf).FirstOrDefault(p => p != 0 && !old.Contains(p));
+
             // Despawn old entities. EcsWorld.Despawn is safe on already-despawned ids
             // (id reuse since the original spawn is unlikely within a single frame, but
             // tolerated either way).
@@ -67,10 +73,19 @@ internal static class SceneHotReloadSystem
             // initial spawn (basis change, default albedo, marker policy, ...).
             try
             {
-                var fresh = SceneSpawner.Spawn(
+                // The textures the new copy's materials load are held by its entities, as the
+                // first spawn's were by the entities despawned above, which give theirs back after
+                // AssetRelease's grace, so a level written over and over while it runs does not
+                // grow by its textures each time.
+                var textures = new List<AssetId>();
+                var fresh = SceneSpawner.SpawnTaking(
                     ecs, asset.Scene, record.Settings, evt.Id.Value,
-                    assetServer, asset.SourcePath, materialLibrary);
+                    assetServer, asset.SourcePath, materialLibrary, textures);
                 tracking.Track(evt.Id, fresh, record.Settings);
+                release?.HoldTextures(fresh.Select(ecs.Handle).ToArray(), textures);
+                if (owner != 0 && ecs.IsAlive(owner))
+                    foreach (var spawned in fresh)
+                        if (ecs.ParentOf(spawned) == 0) ecs.SetParent(spawned, owner);
                 Logger.Info($"SceneHotReloadSystem: re-spawned '{asset.SourcePath}' ({record.Entities.Length} -> {fresh.Count} entities).");
             }
             catch (Exception ex)

@@ -218,9 +218,10 @@ let go some seconds after no entity uses them (`AssetRelease`), so a level strea
 player nears holds what is near. `SceneLightPayload` and `Light` hold what the model pass reads,
 and the model pass reads every field of `SceneMaterialPayload`. What is missing:
 
-- **A scene spawned again keeps its textures until the program ends.** One spawned again by hot
-  reload, or by a program calling `SceneSpawner.Spawn` itself, holds its textures outside
-  `AssetRelease`, so a level written over and over while it runs grows by its textures each time.
+- **A program's own spawn keeps its textures until the program ends.** A program calling
+  `SceneSpawner.Spawn` itself with an asset server loads its materials' textures outside
+  `AssetRelease`, which holds a level's and a hot reload's by their entities, so they stay loaded
+  after the entities go.
 - **An older file is read by keeping the fields it has, with no migration.** A field renamed or a
   component split leaves the old file's value behind. BevyCSharp has files that outlive a renamed
   type, which SHARED.md keeps to consider, as the owner decided.
