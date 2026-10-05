@@ -174,8 +174,9 @@ internal sealed class FrameProfilePlugin : IPlugin
             profile.Add("render.graph", t.GraphMs);
             profile.Add("render.endframe", t.EndFrameMs);
             // The three waits a frame can make on the device and the display, which begin and end
-            // frame hold between them.
-            if (renderer.Context.Graphics is GraphicsDevice device)
+            // frame hold between them. A headless app has a renderer and no device, whose Graphics
+            // throws, so it is asked only once the device is up.
+            if (renderer.Context.IsInitialized && renderer.Context.Graphics is GraphicsDevice device)
             {
                 profile.Add("render.fence", device.FenceWaitMs);
                 profile.Add("render.acquire", device.AcquireMs);

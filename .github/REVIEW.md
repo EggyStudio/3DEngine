@@ -276,3 +276,9 @@ test that crashed the host and one that hung were each named. The suite through 
 is 1,188 passed and 1 skipped in 1 m 55 s at 1,439 MB, and its page's most repeated lines are
 Verdict 14, 5,802 times each. AGENTS.md still names `dotnet test 3DEngine.Tests`, and changes on
 the owner's word.
+
+**Verdict 14, the profile of a headless app.** `FrameProfile` asks for the device's waits only
+once the renderer's context is initialized, so a headless app's profile ends each frame and logs
+nothing. `FrameProfileHeadlessTests` runs one for five frames and finds them in its profile and no
+error of the profile logged, and without the mend found none of the five. Before it, the run of the
+whole suite through `build/test.py` repeated the error and its exception 5,802 times each.
