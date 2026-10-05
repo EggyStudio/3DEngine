@@ -35,7 +35,7 @@ namespace Engine;
 /// gold.SetRoughness(0.15f);
 /// </code>
 /// </example>
-public sealed class MaterialLibrary
+internal sealed class MaterialLibrary
 {
     private static readonly ILogger Logger = Log.Category("Engine.Materials");
 

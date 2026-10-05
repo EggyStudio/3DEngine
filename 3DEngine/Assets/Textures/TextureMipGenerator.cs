@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Generates a complete mip chain for a base-level <see cref="Texture"/> using a 2x2 box
+/// Generates a complete mip chain for a base-level <see cref="TextureAsset"/> using a 2x2 box
 /// filter, which is cheap and deterministic. A finer filter (Kaiser, separable Lanczos) would
 /// fit behind the same entry point.
 /// </summary>
@@ -22,10 +22,10 @@ namespace Engine;
 /// averaged in non-linear space, which suits diffuse textures and is what most engines do
 /// by default.
 /// HDR floats filter naturally in linear space. A future linear-aware path can branch
-/// on <see cref="Texture.ColorSpace"/> if banding becomes visible.
+/// on <see cref="TextureAsset.ColorSpace"/> if banding becomes visible.
 /// </para>
 /// </remarks>
-/// <seealso cref="Texture"/>
+/// <seealso cref="TextureAsset"/>
 internal static class TextureMipGenerator
 {
     private static readonly ILogger Logger = Log.Category("Engine.Textures");
@@ -35,7 +35,7 @@ internal static class TextureMipGenerator
     /// appended. When <paramref name="source"/> already has more than one level, it is
     /// returned unchanged.
     /// </summary>
-    public static Texture WithMipChain(Texture source)
+    public static TextureAsset WithMipChain(TextureAsset source)
     {
         ArgumentNullException.ThrowIfNull(source);
         if (source.MipCount > 1) return source;
@@ -74,7 +74,7 @@ internal static class TextureMipGenerator
             $"TextureMipGenerator: '{source.SourcePath}' {w}x{h} {source.Format}, " +
             $"generated {mipCount} mip(s), {totalBytes} bytes total.");
 
-        return new Texture
+        return new TextureAsset
         {
             Pixels = dst,
             Width = w,

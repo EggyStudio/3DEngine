@@ -15,7 +15,7 @@ namespace Engine;
 /// (E3D100 to E3D103) and left out.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
-public sealed class CommandGenerator : IIncrementalGenerator
+internal sealed class CommandGenerator : IIncrementalGenerator
 {
     private const string Category = "Commands";
 

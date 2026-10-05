@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Convenience helpers that collapse the standard "load a <see cref="Texture"/> through
+/// Convenience helpers that collapse the standard "load a <see cref="TextureAsset"/> through
 /// the <see cref="AssetServer"/>" boilerplate into single calls. Mirrors
 /// <see cref="SceneSpawnExtensions"/>: the lower-level building blocks remain available
 /// for callers who need fine-grained control.
@@ -28,50 +28,50 @@ namespace Engine;
 /// Handle&lt;Texture&gt; normal = ctx.LoadTextureLinear("textures/wood_normal.png");
 /// </code>
 /// </example>
-/// <seealso cref="Texture"/>
+/// <seealso cref="TextureAsset"/>
 /// <seealso cref="TextureAssetLoader"/>
 /// <seealso cref="SceneSpawnExtensions"/>
 internal static class TextureLoadExtensions
 {
-    /// <summary>Loads a <see cref="Texture"/> via the <see cref="AssetServer"/> with no overrides.</summary>
-    public static Handle<Texture> LoadTexture(this AssetServer server, string path) =>
-        server.Load<Texture>(path);
+    /// <summary>Loads a <see cref="TextureAsset"/> via the <see cref="AssetServer"/> with no overrides.</summary>
+    public static Handle<TextureAsset> LoadTexture(this AssetServer server, string path) =>
+        server.Load<TextureAsset>(path);
 
-    /// <summary>Loads a <see cref="Texture"/> through the world's <see cref="AssetServer"/>.</summary>
-    public static Handle<Texture> LoadTexture(this World world, string path) =>
-        world.Resource<AssetServer>().Load<Texture>(path);
+    /// <summary>Loads a <see cref="TextureAsset"/> through the world's <see cref="AssetServer"/>.</summary>
+    public static Handle<TextureAsset> LoadTexture(this World world, string path) =>
+        world.Resource<AssetServer>().Load<TextureAsset>(path);
 
-    /// <summary>Loads a <see cref="Texture"/> through the behavior context's world.</summary>
-    public static Handle<Texture> LoadTexture(this BehaviorContext ctx, string path) =>
-        ctx.World.Resource<AssetServer>().Load<Texture>(path);
+    /// <summary>Loads a <see cref="TextureAsset"/> through the behavior context's world.</summary>
+    public static Handle<TextureAsset> LoadTexture(this BehaviorContext ctx, string path) =>
+        ctx.World.Resource<AssetServer>().Load<TextureAsset>(path);
 
     // -- sRGB convenience (BaseColor / Emissive)
 
     /// <summary>Loads as sRGB-encoded; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
-    public static Handle<Texture> LoadTextureSrgb(this AssetServer server, string path, bool generateMips = false) =>
-        server.Load<Texture>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureSrgb(this AssetServer server, string path, bool generateMips = false) =>
+        server.Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureSrgb(AssetServer, string, bool)"/>
-    public static Handle<Texture> LoadTextureSrgb(this World world, string path, bool generateMips = false) =>
-        world.Resource<AssetServer>().Load<Texture>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureSrgb(this World world, string path, bool generateMips = false) =>
+        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureSrgb(AssetServer, string, bool)"/>
-    public static Handle<Texture> LoadTextureSrgb(this BehaviorContext ctx, string path, bool generateMips = false) =>
-        ctx.World.Resource<AssetServer>().Load<Texture>(BuildLabelledPath(path, srgb: true, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureSrgb(this BehaviorContext ctx, string path, bool generateMips = false) =>
+        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: true, mips: generateMips));
 
     // -- Linear convenience (Normal / MR / Occlusion / data)
 
     /// <summary>Loads as linear; pass <paramref name="generateMips"/> = <c>true</c> for a full chain.</summary>
-    public static Handle<Texture> LoadTextureLinear(this AssetServer server, string path, bool generateMips = false) =>
-        server.Load<Texture>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureLinear(this AssetServer server, string path, bool generateMips = false) =>
+        server.Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureLinear(AssetServer, string, bool)"/>
-    public static Handle<Texture> LoadTextureLinear(this World world, string path, bool generateMips = false) =>
-        world.Resource<AssetServer>().Load<Texture>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureLinear(this World world, string path, bool generateMips = false) =>
+        world.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
 
     /// <inheritdoc cref="LoadTextureLinear(AssetServer, string, bool)"/>
-    public static Handle<Texture> LoadTextureLinear(this BehaviorContext ctx, string path, bool generateMips = false) =>
-        ctx.World.Resource<AssetServer>().Load<Texture>(BuildLabelledPath(path, srgb: false, mips: generateMips));
+    public static Handle<TextureAsset> LoadTextureLinear(this BehaviorContext ctx, string path, bool generateMips = false) =>
+        ctx.World.Resource<AssetServer>().Load<TextureAsset>(BuildLabelledPath(path, srgb: false, mips: generateMips));
 
     private static string BuildLabelledPath(string path, bool srgb, bool mips)
     {

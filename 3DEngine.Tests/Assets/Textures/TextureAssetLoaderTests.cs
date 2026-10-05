@@ -17,11 +17,11 @@ public class TextureAssetLoaderTests
         public string FormatId => "fake";
         public TextureLoadSettings? LastSettings;
 
-        public Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
+        public Task<TextureAsset> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
         {
             LastSettings = settings;
             // Build a 2x2 RGBA so MipGenerator can run if asked.
-            var t = new Texture
+            var t = new TextureAsset
             {
                 Pixels = new byte[2 * 2 * 4],
                 Width = 2,

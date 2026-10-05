@@ -28,7 +28,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="MaterialHandle"/>
 /// <seealso cref="MaterialLibrary"/>
-public sealed class MaterialDescription
+internal sealed class MaterialDescription
 {
     /// <summary>Display name (typically the source material's leaf name).</summary>
     public string Name { get; set; } = "Material";

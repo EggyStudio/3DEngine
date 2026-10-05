@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// Backend-agnostic textures plugin. Registers the <see cref="Texture"/> asset type, the
+/// Backend-agnostic textures plugin. Registers the <see cref="TextureAsset"/> asset type, the
 /// <see cref="TextureDecoderRegistry"/> resource, and a single shared
 /// <see cref="TextureAssetLoader"/> with the <see cref="AssetServer"/>. Concrete backends
 /// (e.g. <see cref="StbTexturesPlugin"/>) attach themselves to the registry during their
@@ -13,7 +13,7 @@ namespace Engine;
 /// </para>
 /// <list type="bullet">
 ///   <item><description>
-///     This plugin holds the <see cref="Texture"/> asset, <see cref="ITextureDecoder"/>, the
+///     This plugin holds the <see cref="TextureAsset"/> asset, <see cref="ITextureDecoder"/>, the
 ///     registry and the loader, none of them native.
 ///   </description></item>
 ///   <item><description>

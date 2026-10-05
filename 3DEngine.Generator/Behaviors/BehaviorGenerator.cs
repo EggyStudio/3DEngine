@@ -28,7 +28,7 @@ namespace Engine;
 /// </para>
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
-public sealed class BehaviorGenerator : IIncrementalGenerator
+internal sealed class BehaviorGenerator : IIncrementalGenerator
 {
     // The attributes this generator reads, by full name. The code below matches against these
     // tables, and the tests run a case for every name in Attributes, so an attribute added here

@@ -50,7 +50,7 @@ public enum TextureWrap
 /// the node uses 0 for the white texture untextured shapes sample.
 /// </para>
 /// </remarks>
-public sealed class TextureStore
+internal sealed class TextureStore
 {
     /// <summary>A change waiting to reach a texture's GPU objects: new pixels, a new filter or wrap, or both.</summary>
     /// <param name="Id">The texture's id.</param>

@@ -33,8 +33,8 @@ public struct PhysicsMaterial
     };
 }
 
-/// <summary>Result of an <see cref="PhysicsWorld.Raycast(Vector3,Vector3,float,out RaycastHit)"/>.</summary>
-public struct RaycastHit
+/// <summary>Where a ray cast through the physics world met a body, as raylib's <c>RayCollision</c> is where a ray met a shape it was given, with the body.</summary>
+public struct PhysicsRayCollision
 {
     /// <summary>Whether the ray met a body, as raylib's <c>RayCollision</c> says, the rest left at their defaults when it did not.</summary>
     public bool Hit;

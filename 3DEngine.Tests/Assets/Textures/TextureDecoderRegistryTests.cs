@@ -19,7 +19,7 @@ public class TextureDecoderRegistryTests
             FormatId = formatId;
             Extensions = extensions;
         }
-        public Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct) =>
+        public Task<TextureAsset> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct) =>
             throw new NotImplementedException();
     }
 

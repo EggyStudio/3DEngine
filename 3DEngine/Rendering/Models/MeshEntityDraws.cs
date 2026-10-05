@@ -202,7 +202,7 @@ internal sealed class MeshEntityDraws
     {
         var meshes = world.Resource<MeshStore>();
         var textures = world.Resource<TextureStore>();
-        world.TryGetResource<Assets<Texture>>(out var assets);
+        world.TryGetResource<Assets<TextureAsset>>(out var assets);
         ForgetReloadedTextures(world, textures);
 
         _frame++;
@@ -337,7 +337,7 @@ internal sealed class MeshEntityDraws
     // main thread for the chunks' threads, and Keep whether a chunk may be kept from the last frame.
     private readonly record struct Frame(EcsWorld.ComponentStore<Mesh> Meshes, EcsWorld.ComponentStore<Material> Materials,
         EcsWorld.ComponentStore<GlobalTransform> Globals, EcsWorld.ComponentStore<Transform> Locals,
-        MeshStore MeshStore, Assets<Texture>? Assets, TextureStore Textures, long Since = 0, bool Keep = false);
+        MeshStore MeshStore, Assets<TextureAsset>? Assets, TextureStore Textures, long Since = 0, bool Keep = false);
 
     // The entities of a chunk, from its first dense index in the mesh store up to end, or what it
     // gathered the frame before when none of them changed, as in a level standing still.
@@ -462,7 +462,7 @@ internal sealed class MeshEntityDraws
     }
 
     // The look of a mesh and material, built the first time an entity is drawn with them.
-    private int LookFor(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
+    private int LookFor(int mesh, in Material material, Assets<TextureAsset>? assets, TextureStore textures)
     {
         if (_lookOf.TryGetValue((mesh, material), out var index)) return index;
         if (_lookCount == _looks.Length) Array.Resize(ref _looks, _looks.Length * 2);
@@ -471,10 +471,10 @@ internal sealed class MeshEntityDraws
     }
 
     // A look from a material, its draw with the world matrix and camera left for the frame.
-    private Look Build(int mesh, in Material material, Assets<Texture>? assets, TextureStore textures)
+    private Look Build(int mesh, in Material material, Assets<TextureAsset>? assets, TextureStore textures)
     {
         var pending = false;
-        int Texture(Handle<Texture> handle)
+        int Texture(Handle<TextureAsset> handle)
         {
             var id = TextureFor(handle, assets, textures);
             pending |= handle.IsValid && !_textures.ContainsKey(handle.Id);
@@ -591,7 +591,7 @@ internal sealed class MeshEntityDraws
         return world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } viewProjection ? (viewProjection, flat.Eye) : null;
     }
 
-    private int TextureFor(Handle<Texture> handle, Assets<Texture>? assets, TextureStore textures)
+    private int TextureFor(Handle<TextureAsset> handle, Assets<TextureAsset>? assets, TextureStore textures)
     {
         if (!handle.IsValid) return 0;
         if (_textures.TryGetValue(handle.Id, out var id)) return id;
@@ -610,7 +610,7 @@ internal sealed class MeshEntityDraws
     private void ForgetReloadedTextures(World world, TextureStore textures)
     {
         if (_textures.Count == 0) return;
-        var events = world.ReadAssetEvents<Texture>();
+        var events = world.ReadAssetEvents<TextureAsset>();
         for (int i = 0; i < events.Count; i++)
         {
             if (events[i].Kind is not (AssetEventKind.Modified or AssetEventKind.Removed)) continue;

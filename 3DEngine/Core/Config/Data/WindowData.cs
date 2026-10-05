@@ -4,7 +4,7 @@ namespace Engine;
 /// Immutable window properties with input validation.
 /// Title defaults to "3D Engine" if blank; dimensions are clamped to a minimum of 1.
 /// </summary>
-public readonly record struct WindowData
+internal readonly record struct WindowData
 {
     /// <summary>Window title bar text.</summary>
     public string Title { get; }

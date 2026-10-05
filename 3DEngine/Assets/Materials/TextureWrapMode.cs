@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Texture-coordinate wrap mode (matches glTF / <c>UsdUVTexture</c> semantics).</summary>
-public enum TextureWrapMode : byte
+internal enum TextureWrapMode : byte
 {
     /// <summary>Coordinates outside [0,1] wrap around (default).</summary>
     Repeat,

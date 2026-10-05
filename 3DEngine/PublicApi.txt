@@ -191,10 +191,6 @@ sealed class Engine.BehaviorContext
   float FixedDelta { get; }
   int EntityId { get; set; }
   void SetState<TState>(TState value) where TState : struct, Enum
-sealed class Engine.BehaviorGenerator : IIncrementalGenerator
-  BehaviorGenerator()
-  static IReadOnlyList<string> Attributes { get; }
-  void Initialize(IncrementalGeneratorInitializationContext ctx)
 static class Engine.BehaviorRegistration
   static void Register(App app)
 enum Engine.BlendMode : int
@@ -343,10 +339,6 @@ sealed class Engine.CommandAttribute : Attribute
   CommandAttribute(string name = "", string help = "")
   string Help { get; }
   string Name { get; }
-sealed class Engine.CommandGenerator : IIncrementalGenerator
-  CommandGenerator()
-  static IReadOnlyList<string> Attributes { get; }
-  void Initialize(IncrementalGeneratorInitializationContext context)
 readonly struct Engine.CommandParameter : IEquatable<CommandParameter>
   CommandParameter(string Name, string Kind, bool TakesLine = false)
   bool Equals(CommandParameter other)
@@ -362,14 +354,10 @@ readonly struct Engine.CommandParameter : IEquatable<CommandParameter>
 sealed class Engine.ComputedStateAttribute : Attribute
   ComputedStateAttribute()
 sealed class Engine.Config : IEquatable<Config>
-  Config WithCommand(WindowCommand command)
   Config WithGraphics(GraphicsBackend backend)
-  Config WithWindow(WindowData windowData)
   Config WithWindow(string title, int width, int height)
   Config()
   GraphicsBackend Graphics { get; init; }
-  WindowCommand WindowCommand { get; init; }
-  WindowData WindowData { get; init; }
   bool Equals(Config? other)
   bool Fullscreen { get; init; }
   bool Headless { get; init; }
@@ -776,6 +764,8 @@ static class Engine.Engine3D
   static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
   static PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
   static PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b)
+  static PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance)
+  static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)
   static Quaternion GetPhysicsBodyRotation(PhysicsBody body)
   static Ray GetMouseRay(Vector2 mousePosition, Camera3D camera)
   static Ray GetScreenToWorldRay(Vector2 position, Camera3D camera)
@@ -785,8 +775,6 @@ static class Engine.Engine3D
   static RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
   static RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius)
   static RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3)
-  static RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance)
-  static RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)
   static Rectangle GetCollisionRec(Rectangle a, Rectangle b)
   static Rectangle GetGlyphAtlasRec(Font font, int codepoint)
   static Rectangle GetImageAlphaBorder(Image image, float threshold)
@@ -1868,11 +1856,11 @@ sealed class Engine.LoggerFactory
 sealed class Engine.MainThreadAttribute : Attribute
   MainThreadAttribute()
 struct Engine.Material : IEquatable<Material>
-  Handle<Texture> BaseColorTexture
-  Handle<Texture> EmissiveTexture
-  Handle<Texture> MetallicRoughnessTexture
-  Handle<Texture> NormalTexture
-  Handle<Texture> OcclusionTexture
+  Handle<TextureAsset> BaseColorTexture
+  Handle<TextureAsset> EmissiveTexture
+  Handle<TextureAsset> MetallicRoughnessTexture
+  Handle<TextureAsset> NormalTexture
+  Handle<TextureAsset> OcclusionTexture
   Material(Color color)
   Material(Vector4 albedo)
   MaterialAlphaMode AlphaMode
@@ -1895,53 +1883,20 @@ enum Engine.MaterialAlphaMode : byte
   Blend = 2
   Mask = 1
   Opaque = 0
-sealed class Engine.MaterialDescription
-  MaterialAlphaMode AlphaMode { get; set; }
-  MaterialDescription Clone()
-  MaterialDescription()
-  MaterialTextureRef? BaseColorTexture { get; set; }
-  MaterialTextureRef? EmissiveTexture { get; set; }
-  MaterialTextureRef? MetallicRoughnessTexture { get; set; }
-  MaterialTextureRef? NormalTexture { get; set; }
-  MaterialTextureRef? OcclusionTexture { get; set; }
-  Vector3 EmissiveFactor { get; set; }
-  Vector4 BaseColorFactor { get; set; }
-  bool DoubleSided { get; set; }
-  float AlphaCutoff { get; set; }
-  float MetallicFactor { get; set; }
-  float NormalScale { get; set; }
-  float OcclusionStrength { get; set; }
-  float RoughnessFactor { get; set; }
-  string Name { get; set; }
-  string? SourcePath { get; set; }
 readonly struct Engine.MaterialHandle : IEquatable<MaterialHandle>
-  MaterialDescription GetDescription()
-  MaterialHandle(MaterialLibrary library, int id)
   bool Equals(MaterialHandle other)
   bool IsValid { get; }
   override bool Equals(object? obj)
   override int GetHashCode()
-  readonly MaterialLibrary? Library
   readonly int Id
   static bool op_Equality(MaterialHandle a, MaterialHandle b)
   static bool op_Inequality(MaterialHandle a, MaterialHandle b)
   string Name { get; }
   void Destroy()
   void SetBaseColor(Vector4 color)
-  void SetDescription(MaterialDescription description)
   void SetEmissive(Vector3 emissive)
   void SetMetallic(float metallic)
   void SetRoughness(float roughness)
-sealed class Engine.MaterialLibrary
-  IEnumerable<MaterialHandle> Handles { get; }
-  MaterialHandle Create(MaterialDescription description)
-  MaterialLibrary()
-  MaterialLibrary(MaterialSettings settings)
-  MaterialSettings Settings { get; }
-  bool Exists(MaterialHandle handle)
-  int Count { get; }
-  void Clear()
-  void Update(MaterialHandle handle, MaterialDescription description)
 enum Engine.MaterialMapIndex : int
   Albedo = 0
   Brdf = 10
@@ -1954,65 +1909,11 @@ enum Engine.MaterialMapIndex : int
   Occlusion = 4
   Prefilter = 9
   Roughness = 3
-sealed class Engine.MaterialSettings
-  MaterialAlphaMode DefaultAlphaMode { get; set; }
-  MaterialSettings()
-  TextureWrapMode DefaultWrapS { get; set; }
-  TextureWrapMode DefaultWrapT { get; set; }
-  bool DeduplicateBySourcePath { get; set; }
-  bool DefaultDoubleSided { get; set; }
-sealed class Engine.MaterialTextureRef : IEquatable<MaterialTextureRef>
-  MaterialTextureRef(string AssetPath, int UvSet = 0, TextureWrapMode WrapS = TextureWrapMode.Repeat, TextureWrapMode WrapT = TextureWrapMode.Repeat)
-  TextureWrapMode WrapS { get; init; }
-  TextureWrapMode WrapT { get; init; }
-  bool Equals(MaterialTextureRef? other)
-  int UvSet { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(MaterialTextureRef? left, MaterialTextureRef? right)
-  static bool op_Inequality(MaterialTextureRef? left, MaterialTextureRef? right)
-  string AssetPath { get; init; }
-  void Deconstruct(out string AssetPath, out int UvSet, out TextureWrapMode WrapS, out TextureWrapMode WrapT)
 struct Engine.Mesh
   Mesh(Vector3[] positions, Vector3[]? normals = null, Vector2[]? uvs = null)
   Vector2[]? Uvs
   Vector3[] Positions
   Vector3[]? Normals
-sealed class Engine.MeshStore
-  MeshStore()
-  bool Contains(int id)
-  bool Remove(int id)
-  int Add(ModelVertex[] vertices, uint[] indices)
-  int Count { get; }
-sealed class Engine.MeshStore.Skin : IEquatable<MeshStore.Skin>
-  Skin(ushort[] Joints, float[] Weights, int JointCount, Vector4[]? Morphs = null, int MorphCount = 0)
-  Vector4[]? Morphs { get; init; }
-  bool Equals(MeshStore.Skin? other)
-  float[] Weights { get; init; }
-  int JointCount { get; init; }
-  int MorphCount { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(MeshStore.Skin? left, MeshStore.Skin? right)
-  static bool op_Inequality(MeshStore.Skin? left, MeshStore.Skin? right)
-  ushort[] Joints { get; init; }
-  void Deconstruct(out ushort[] Joints, out float[] Weights, out int JointCount, out Vector4[]? Morphs, out int MorphCount)
-sealed class Engine.MeshStore.Upload : IEquatable<MeshStore.Upload>
-  MeshStore.Skin? Skin { get; init; }
-  ModelVertex[] Vertices { get; init; }
-  Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, MeshStore.Skin? Skin = null)
-  bool Equals(MeshStore.Upload? other)
-  bool VerticesOnly { get; init; }
-  int Id { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(MeshStore.Upload? left, MeshStore.Upload? right)
-  static bool op_Inequality(MeshStore.Upload? left, MeshStore.Upload? right)
-  uint[] Indices { get; init; }
-  void Deconstruct(out int Id, out ModelVertex[] Vertices, out uint[] Indices, out bool VerticesOnly, out MeshStore.Skin? Skin)
 sealed class Engine.Model
   BoneInfo[] Bones { get; init; }
   Matrix4x4 Transform { get; set; }
@@ -2271,6 +2172,13 @@ struct Engine.PhysicsMaterial
   float LinearDamping
   float Restitution
   static PhysicsMaterial Default { get; }
+struct Engine.PhysicsRayCollision
+  PhysicsBody Body
+  Vector3 Normal
+  Vector3 Point
+  bool Hit
+  float Distance
+  int EntityId
 sealed class Engine.PhysicsSettings
   PhysicsSettings()
   Vector3 Gravity { get; set; }
@@ -2325,13 +2233,6 @@ readonly struct Engine.RayCollision : IEquatable<RayCollision>
   static bool op_Equality(RayCollision left, RayCollision right)
   static bool op_Inequality(RayCollision left, RayCollision right)
   void Deconstruct(out bool Hit, out float Distance, out Vector3 Point, out Vector3 Normal)
-struct Engine.RaycastHit
-  PhysicsBody Body
-  Vector3 Normal
-  Vector3 Point
-  bool Hit
-  float Distance
-  int EntityId
 readonly struct Engine.Rectangle : IEquatable<Rectangle>
   Rectangle(float X, float Y, float Width, float Height)
   bool Equals(Rectangle other)
@@ -2407,10 +2308,6 @@ delegate T? Engine.SceneCodec<T>.Reader(JsonElement element, SceneReadContext co
 delegate void Engine.SceneCodec<T>.Writer(Utf8JsonWriter writer, in T? value, SceneWriteContext context)
 sealed class Engine.SceneComponentAttribute : Attribute
   SceneComponentAttribute()
-sealed class Engine.SceneComponentGenerator : IIncrementalGenerator
-  SceneComponentGenerator()
-  static IReadOnlyList<string> Attributes { get; }
-  void Initialize(IncrementalGeneratorInitializationContext context)
 static class Engine.SceneComponents
   static IReadOnlyList<ISceneCodec> All { get; }
   static ISceneCodec? Find(string key)
@@ -2502,13 +2399,6 @@ sealed class Engine.Schedule
   Schedule()
   int TotalSystemCount { get; }
   void Run(World world)
-sealed class Engine.ScheduleDiagnostics
-  IReadOnlyDictionary<(Stage, string), TimeSpan> SystemDurations { get; }
-  IReadOnlyDictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> StageBatchNotes { get; }
-  IReadOnlyDictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> StageBatches { get; }
-  IReadOnlyDictionary<Stage, TimeSpan> StageDurations { get; }
-  ScheduleDiagnostics()
-  void Reset()
 readonly struct Engine.Shader : IEquatable<Shader>
   Shader(int Id)
   bool Equals(Shader other)
@@ -2614,16 +2504,6 @@ sealed class Engine.SystemDescriptor
   string Name { get; }
   string? Source { get; set; }
 delegate void Engine.SystemFn(World world)
-sealed class Engine.Texture
-  Texture()
-  TextureColorSpace ColorSpace { get; init; }
-  TextureFormat Format { get; init; }
-  byte[] Pixels { get; init; }
-  int Height { get; init; }
-  int MipCount { get; init; }
-  int Width { get; init; }
-  string SourceFormat { get; init; }
-  string SourcePath { get; init; }
 readonly struct Engine.Texture2D : IEquatable<Texture2D>
   Texture2D(int Id, int Width, int Height)
   bool Equals(Texture2D other)
@@ -2638,6 +2518,16 @@ readonly struct Engine.Texture2D : IEquatable<Texture2D>
   static bool op_Equality(Texture2D left, Texture2D right)
   static bool op_Inequality(Texture2D left, Texture2D right)
   void Deconstruct(out int Id, out int Width, out int Height)
+sealed class Engine.TextureAsset
+  TextureAsset()
+  TextureColorSpace ColorSpace { get; init; }
+  TextureFormat Format { get; init; }
+  byte[] Pixels { get; init; }
+  int Height { get; init; }
+  int MipCount { get; init; }
+  int Width { get; init; }
+  string SourceFormat { get; init; }
+  string SourcePath { get; init; }
 enum Engine.TextureColorSpace : int
   Linear = 0
   Srgb = 1
@@ -2659,40 +2549,9 @@ enum Engine.TextureFormat : int
   Rgba16F = 3
   Rgba32F = 4
   Rgba8 = 2
-sealed class Engine.TextureStore
-  TextureStore()
-  bool Contains(int id)
-  bool Remove(int id)
-  bool Update(int id, byte[] rgba)
-  int Add(byte[] rgba, int width, int height, TextureFilter filter = TextureFilter.Bilinear, bool mipmaps = false)
-  int Count { get; }
-sealed class Engine.TextureStore.Upload : IEquatable<TextureStore.Upload>
-  (int, int)? Offset { get; init; }
-  TextureFilter Filter { get; init; }
-  TextureWrap Wrap { get; init; }
-  Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false, int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int, int)? Offset = null)
-  bool Equals(TextureStore.Upload? other)
-  bool Mipmaps { get; init; }
-  bool Target { get; init; }
-  byte[]? Rgba { get; init; }
-  int DepthOf { get; init; }
-  int Height { get; init; }
-  int Id { get; init; }
-  int Width { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(TextureStore.Upload? left, TextureStore.Upload? right)
-  static bool op_Inequality(TextureStore.Upload? left, TextureStore.Upload? right)
-  void Deconstruct(out int Id, out byte[]? Rgba, out int Width, out int Height, out TextureFilter Filter, out bool Target, out bool Mipmaps, out int DepthOf, out TextureWrap Wrap, out (int, int)? Offset)
 enum Engine.TextureWrap : int
   Clamp = 1
   MirrorRepeat = 2
-  Repeat = 0
-enum Engine.TextureWrapMode : byte
-  Black = 3
-  Clamp = 2
-  Mirror = 1
   Repeat = 0
 enum Engine.ThreadAffinity : int
   Any = 0
@@ -2781,24 +2640,6 @@ sealed class Engine.Wave
   int Channels { get; init; }
   int FrameCount { get; }
   int SampleRate { get; init; }
-enum Engine.WindowCommand : int
-  Hide = 0
-  Maximize = 3
-  Minimize = 2
-  Normal = 1
-  Restore = 5
-  Show = 4
-readonly struct Engine.WindowData : IEquatable<WindowData>
-  WindowData(string title, int width, int height)
-  bool Equals(WindowData other)
-  int Height { get; }
-  int Width { get; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(WindowData left, WindowData right)
-  static bool op_Inequality(WindowData left, WindowData right)
-  string Title { get; }
 sealed class Engine.WithAttribute : Attribute
   Type[] Types { get; }
   WithAttribute(params Type[] types)

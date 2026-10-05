@@ -79,7 +79,7 @@ public sealed class BadFileTests : IDisposable
     // The readers under the ECS, each by the asset type a file of its extension loads as.
     private static readonly (string Name, string Extension, string Good, Func<AssetServer, string, Func<LoadState>> Load)[] Readers =
     [
-        ("texture", ".png", "3DEngine.Examples/resources/checker.png", (server, path) => { var h = server.Load<Texture>(path); return () => server.GetLoadState(h); }),
+        ("texture", ".png", "3DEngine.Examples/resources/checker.png", (server, path) => { var h = server.Load<TextureAsset>(path); return () => server.GetLoadState(h); }),
         ("model OBJ", ".obj", "3DEngine.Examples/resources/torus.obj", (server, path) => { var h = server.Load<SceneAsset>(path); return () => server.GetLoadState(h); }),
         ("model glTF", ".gltf", "3DEngine.Examples/resources/arm.gltf", (server, path) => { var h = server.Load<SceneAsset>(path); return () => server.GetLoadState(h); }),
         // Sounds load through the same decoders LoadSound does, whose row above covers them, and

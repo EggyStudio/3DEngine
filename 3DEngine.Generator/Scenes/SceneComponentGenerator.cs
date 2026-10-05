@@ -21,7 +21,7 @@ namespace Engine;
 /// older file keeps a sensible value.
 /// </remarks>
 [Generator(LanguageNames.CSharp)]
-public sealed class SceneComponentGenerator : IIncrementalGenerator
+internal sealed class SceneComponentGenerator : IIncrementalGenerator
 {
     private const string SceneComponent = "Engine.SceneComponentAttribute";
     private const string Behavior = "Engine.BehaviorAttribute";

@@ -35,7 +35,7 @@ public sealed class Sound
     /// <summary>Source asset path the loader resolved this from. Diagnostic only.</summary>
     public string SourcePath { get; init; } = string.Empty;
 
-    /// <summary>Decoder backend identifier (e.g. <c>"wav-builtin"</c>). Mirrors <see cref="Texture.SourceFormat"/>.</summary>
+    /// <summary>Decoder backend identifier (e.g. <c>"wav-builtin"</c>). Mirrors <see cref="TextureAsset.SourceFormat"/>.</summary>
     public string SourceFormat { get; init; } = string.Empty;
 
     /// <summary>Total duration in seconds, derived from sample count, rate, and channels.</summary>

@@ -55,7 +55,7 @@ public sealed class AssetReleaseTests : IDisposable
     private bool Textured(out AssetId texture)
     {
         texture = default;
-        _app.World.TryGetResource<Assets<Texture>>(out var textures);
+        _app.World.TryGetResource<Assets<TextureAsset>>(out var textures);
         foreach (var (_, material) in Ecs.Query<Material>())
             if (material.BaseColorTexture.IsValid && textures is not null && textures.Contains(material.BaseColorTexture.Id))
             {
@@ -81,13 +81,13 @@ public sealed class AssetReleaseTests : IDisposable
         Ecs.DespawnRecursive(first);
         Frames(3);
         Loaded<SceneAsset>(model).Should().BeTrue("the second copy still names the model");
-        Loaded<Texture>(texture).Should().BeTrue("and its material the texture");
+        Loaded<TextureAsset>(texture).Should().BeTrue("and its material the texture");
 
         // The last gone, both are let go.
         Ecs.DespawnRecursive(second);
         Frames(3);
         Loaded<SceneAsset>(model).Should().BeFalse("no entity names the model");
-        Loaded<Texture>(texture).Should().BeFalse("no material names the texture");
+        Loaded<TextureAsset>(texture).Should().BeFalse("no material names the texture");
         release.Released.Should().Be(2);
         _app.World.Resource<AssetServer>().GetLoadState(model).Should().Be(LoadState.NotLoaded, "the server forgot it, and reads it again when asked");
 
@@ -112,7 +112,7 @@ public sealed class AssetReleaseTests : IDisposable
 
         Ecs.DespawnRecursive(entity);
         Frames(3);
-        Loaded<Texture>(texture).Should().BeTrue("the program's own load holds it");
+        Loaded<TextureAsset>(texture).Should().BeTrue("the program's own load holds it");
     }
 
     [Fact]

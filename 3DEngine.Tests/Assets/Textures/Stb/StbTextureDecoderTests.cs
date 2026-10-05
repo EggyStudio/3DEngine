@@ -5,7 +5,7 @@ namespace Engine.Tests.Textures.Stb;
 
 /// <summary>
 /// Integration tests for <see cref="StbTextureDecoder"/>: verifies the decoder
-/// produces the expected <see cref="Texture"/> shape from in-memory image bytes
+/// produces the expected <see cref="TextureAsset"/> shape from in-memory image bytes
 /// generated on the fly (no on-disk fixtures required).
 /// </summary>
 [Trait("Category", "Integration")]

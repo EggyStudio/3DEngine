@@ -8,11 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `979b7587`. The physics step on four workers past 500 awake bodies, repeating to the
-bit (`319832dc`), a raycast vehicle with Rally's car made one (`ee641437`) and a probe captured a
-face a frame (`979b7587`) are settled on the replies, which were read. Turning threads on only
-where the measurement showed a gain, and finding that contacts had to be sorted for a run to
-repeat, is the way to do it. The guide's items are settled.
+Reviewed up to `abd09df5`. Windows and macOS drawing in the workflow (`d82c3a1e`, `04c00e4c`) is settled as
+written, and neither job has run, so its first result comes through the owner. The public
+surface from 536 types to 244 (`82b1feb4`, `a3428422`, `abd09df5`) was read in `PublicApi.txt`
+by its type names and is right in the large, and the verdict below is what is left of it. The
+surface made smaller breaks a program built on an earlier 5.0 package, which decision 5 answers.
 
 ## Now
 
@@ -22,32 +22,15 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **The engine draws on Windows and macOS in the workflow.** DESIGN.md says it runs on Linux,
-   Windows and macOS, the workflow's Windows job runs only the tests that need no device, and
-   nothing has drawn a frame on either system. A software Vulkan for the Windows runner (Mesa's
-   lavapipe is built for Windows) so the render tests, the reference comparisons and one game
-   run there with the validation layer, and a macOS job through MoltenVK doing the same as far
-   as the runner's GPU allows. Each fault found is fixed, and what cannot be made to run is said
-   in BUILDING.md with the reason, since a platform nothing has drawn on is a claim.
-3. **The public surface is read whole and made smaller and even.** `3DEngine/PublicApi.txt`
-   lists 536 public types, far more than a program on the flat API or the ECS needs, and every
-   one is a promise from 5.0 on. Read against these: a type or member no program outside the
-   engine has reason to call becomes internal (render graph nodes, device wrappers, stores,
-   packers, the generator's support types that only generated code calls being marked as such);
-   the flat API's names and parameter orders agree with raylib's where raylib has the function
-   and with each other where it has not (`Get`, `Set`, `Is`, `Load`, `Unload`, `Begin`, `End`);
-   one concept has one name across the flat API, the components and the console commands; and
-   nothing is public twice under two spellings. The listing's diff is the record, the games and
-   examples still build from the package, and TODO.md says what was left public on purpose
-   and why.
-4. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
+2. **The verdict below**, while the listing is fresh.
+3. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
    from above: units picked and ordered with the mouse through rays, paths found round
    obstacles on a grid, many units selected and listed in ImGui panels, fog over what is not
    seen, a match saved to a file and taken up again with whatever the engine offers for that,
    and an opponent that plays. From the package, with what it turns up fixed when small and
    entered in TODO.md when not, played, soaked and stormed by CI.
-5. **What that game turned up**, in the order it hurt.
-6. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
+4. **What that game turned up**, in the order it hurt.
+5. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
    another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -57,7 +40,21 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-None open.
+1. **The surface still says some things twice.** Reading the 244 type names left in
+   `3DEngine/PublicApi.txt`, these pairs and groups look like one thing under more than one
+   name, which the item asked to be gone. Each is either made one, or kept with a sentence in
+   DESIGN.md §11 saying what tells them apart.
+   - `TextureWrap` and `TextureWrapMode`.
+   - `Texture` and `Texture2D`.
+   - `RaycastHit` and `RayCollision`, after `a3428422` gave the physics rays raylib's shape.
+   - `Material`, `ModelMaterial`, `MaterialDescription` and `MaterialSettings`, four types for
+     what a surface looks like.
+   - `PhysicsBody` and `RigidBody`, and `PhysicsJoint` and `Joint`, where one of each pair is
+     the flat API's handle and the other the component, which the names do not say.
+   And these look like the engine's own workings still public: `MeshStore` and
+   `TextureStore` with their `Upload` types, `MaterialLibrary`, `ScheduleDiagnostics`,
+   `WindowCommand` and `WindowData`, and the three generator classes, which are public only if
+   the compiler has to find them.
 
 ## Decisions
 
@@ -79,46 +76,24 @@ None open.
    seeing every earlier stamp is Bevy's rule and is kept so the two engines agree, and removals
    kept 60 frames bound the memory. DESIGN.md says each of these where it describes the ECS, and
    the two entries leave TODO.md.
+5. **A commit that takes something out of the public surface is the owner's to number.** The
+   patch counts commits and says nothing of what broke. When `PublicApi.txt` loses or reshapes a
+   line, the working session says so under Replies, and the owner raises the minor or the major
+   in `build/version.txt` before the next package. After `82b1feb4` and `abd09df5` that is due.
 
 ## Replies
 
 
-**Now 2, drawing on Windows and macOS.** `test.yml` has a macOS job and its Windows job draws now.
-Windows takes the loader from LunarG's runtime, the validation layer from the SDK and lavapipe
-from Mesa's Windows build, pointed at by the loader's variables, and macOS takes MoltenVK, the
-loader and the layer from Homebrew. Each runs the whole suite, render tests and reference frames
-among them, with `E3D_REQUIRE_VALIDATION` and a new `E3D_REQUIRE_VULKAN`, which makes a device
-that does not start fail the render tests rather than skip them to a green run, and
-`build/play-game.sh Pusher` builds the game from the package and draws 300 frames offscreen,
-failing on a layer error. The engine asks for portability devices where the loader offers them
-and enables the portability subset where a device has it, which MoltenVK needs to be listed at all.
-The script passes on lavapipe in the container with the layer, and the render tests with both
-variables set, but neither new job has run, so the first run on GitHub (Now 1) will be what says
-whether the installs are right.
-
-**Now 3, the public surface, first pass.** Every public type no example, game, guide, the
-cheatsheet or the generators' code reaches, directly or through the signature of something that is
-reached, is internal now: the renderer, its nodes and pipelines, the device and its abstractions,
-the platform's backends, the loaders and decoders, the plugins beside `DefaultPlugins`, the CLI's
-server and the diagnostics' internals. A few no program names are kept as the ECS's own
-(`DefaultPlugins`, events, `FixedTime`, `GlobalTransform`, asset events, `SceneAsset` and its spawn
-request). 536 public types are 244, the listing 2,200 lines shorter, every example and game builds
-from the package, Swarm's script still compiles as it runs, and the tests and `e3d` see the rest
-through `InternalsVisibleTo`. DESIGN.md §11 says the rule. Names and parameter orders against
-raylib's and each other follow next.
-
-**Now 3, names.** The flat API's parameter names were read by type across all 634 functions, and
-agree but for two places. `ImageDraw`, `ImageDrawText` and `ImageDrawTextEx` named their image
-`destination` where raylib and the other image functions say `dst`, `src`, `srcRec` and `dstRec`,
-and the physics raycasts answered a flag with the hit in an out parameter where raylib's
-`GetRayCollision` functions give back the collision, so they return a `RaycastHit` whose new `Hit`
-says whether it met a body.
-
-**Now 3, members.** On the engine's service classes, `PhysicsWorld`, `EcsWorld`, `Input`, `App`,
-`World`, `Schedule`, the asset and audio servers, the texture, mesh and material stores and a few
-more, every public member whose name no example, game, guide or generator writes is internal, 227
-in all, those implementing an interface kept public. The flat API is untouched, as are the
-components' fields and the settings records a program fills in. The listing now holds 244 types and
-2,575 members, from 536 types and about 5,000 lines this morning. What is left public that no
-program calls is mostly in records set through initializers, which the name search cannot tell from
-unused, and is the next pass if it is wanted.
+**Verdict on names said twice and workings left public.** `MeshStore`, `TextureStore` and their
+upload records, `MaterialLibrary`, `MaterialDescription`, `MaterialSettings`, `MaterialTextureRef`,
+`TextureWrapMode`, `ScheduleDiagnostics`, `WindowCommand`, `WindowData` and the three generator
+classes are internal, `MaterialHandle` kept public as the opaque handle a `Material` holds, and
+`Config`'s window members that took them internal beside them. The asset is `TextureAsset` now,
+beside `SceneAsset`, so `Texture2D` is the one thing called a texture, and the physics raycast's
+result is `PhysicsRayCollision`, beside `RayCollision`. `RigidBody`, `Joint` and `Collider` keep
+their names, since scene files write them, and DESIGN.md §11 says what tells each pair apart:
+`Physics` for a handle or result of the world and the plain noun for a component, `Texture2D` and
+`TextureAsset`, `RayCollision` and `PhysicsRayCollision`, `Material` and `ModelMaterial`. 228
+public types are left. Taken out of the surface by this commit and the three before it: 308 types
+(`82b1feb4`, this one), 227 members (`abd09df5`), and the raycast's and the asset's names
+(`a3428422`, this one), which by Decision 5 is the owner's to raise the version for.

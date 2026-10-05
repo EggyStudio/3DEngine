@@ -18,13 +18,13 @@ namespace Engine;
 public readonly struct MaterialHandle : IEquatable<MaterialHandle>
 {
     /// <summary>The library that owns this material. <c>null</c> for the default/uninitialised handle.</summary>
-    public readonly MaterialLibrary? Library;
+    internal readonly MaterialLibrary? Library;
 
     /// <summary>Backend-agnostic numeric id assigned by the owning library at creation.</summary>
     public readonly int Id;
 
     /// <summary>Constructs a material handle. Use <see cref="MaterialLibrary"/> creation methods instead of calling this directly.</summary>
-    public MaterialHandle(MaterialLibrary library, int id)
+    internal MaterialHandle(MaterialLibrary library, int id)
     {
         Library = library;
         Id = id;
@@ -37,10 +37,10 @@ public readonly struct MaterialHandle : IEquatable<MaterialHandle>
     public string Name => Library!.GetName(this);
 
     /// <summary>Returns a snapshot of the underlying <see cref="MaterialDescription"/> (callers may mutate the clone freely).</summary>
-    public MaterialDescription GetDescription() => Library!.GetDescription(this);
+    internal MaterialDescription GetDescription() => Library!.GetDescription(this);
 
     /// <summary>Replaces the underlying description in-place. The handle id is preserved.</summary>
-    public void SetDescription(MaterialDescription description) => Library!.Update(this, description);
+    internal void SetDescription(MaterialDescription description) => Library!.Update(this, description);
 
     // -- convenience factor setters
 

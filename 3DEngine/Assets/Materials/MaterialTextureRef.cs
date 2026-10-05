@@ -13,7 +13,7 @@ namespace Engine;
 /// </param>
 /// <param name="WrapS">Texture-coordinate wrap mode along the S axis.</param>
 /// <param name="WrapT">Texture-coordinate wrap mode along the T axis.</param>
-public sealed record MaterialTextureRef(
+internal sealed record MaterialTextureRef(
     string AssetPath,
     int UvSet = 0,
     TextureWrapMode WrapS = TextureWrapMode.Repeat,

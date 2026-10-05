@@ -121,7 +121,7 @@ public sealed class AssetRelease
                 var released = kind switch
                 {
                     Kind.Model => server?.Unload<SceneAsset>(world, id) ?? false,
-                    _ => server?.Unload<Texture>(world, id) ?? false,
+                    _ => server?.Unload<TextureAsset>(world, id) ?? false,
                 };
                 if (released) Released++;
             }

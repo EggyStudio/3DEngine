@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Window action applied on application startup.</summary>
-public enum WindowCommand
+internal enum WindowCommand
 {
     /// <summary>Window starts hidden.</summary>
     Hide = 0,

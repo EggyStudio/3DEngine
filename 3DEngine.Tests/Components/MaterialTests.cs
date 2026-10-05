@@ -45,7 +45,7 @@ public class MaterialTests
     [Fact]
     public void Texture_Slots_Are_Independently_Assignable()
     {
-        var a = default(Handle<Texture>);
+        var a = default(Handle<TextureAsset>);
         var m = new Material(Vector4.One)
         {
             BaseColorTexture = a,

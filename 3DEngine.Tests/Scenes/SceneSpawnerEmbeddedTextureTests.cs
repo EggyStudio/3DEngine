@@ -40,7 +40,7 @@ public class SceneSpawnerEmbeddedTextureTests
 
         ecs.TryGet(spawned[0], out Material material).Should().BeTrue();
         material.BaseColorTexture.Path.Path.Should().StartWith("__embedded__/models/crate.glb/0.png");
-        var texture = server.LoadSync<Texture>(material.BaseColorTexture.Path.ToString());
+        var texture = server.LoadSync<TextureAsset>(material.BaseColorTexture.Path.ToString());
         (texture.Width, texture.Height).Should().Be((2, 1));
         texture.Pixels.Take(4).Should().Equal(255, 0, 0, 255);
     }

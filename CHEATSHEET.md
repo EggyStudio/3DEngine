@@ -738,8 +738,8 @@ void SetPhysicsGravity(Vector3 gravity);                                        
 void SetPhysicsPaused(bool paused);                                              // Hold the simulation still, or let it run
 bool IsPhysicsPaused();                                                          // Whether it is held still
 
-RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance);                  // The first body a ray meets, past triggers, and whether it met one
-RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore); // The same past one body, as a ray from inside a car
+PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance);         // The first body a ray meets, past triggers, and whether it met one
+PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore); // The same past one body, as a ray from inside a car
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 IReadOnlyList<ContactEnded> GetPhysicsContactsEnded();                           // Pairs that stopped touching this frame, as a body leaving a trigger
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame

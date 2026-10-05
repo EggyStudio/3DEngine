@@ -22,7 +22,7 @@ public readonly record struct Texture2D(int Id, int Width, int Height)
     public int Mipmaps { get; init; } = 1;
 }
 
-/// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="Texture"/>.</summary>
+/// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="TextureAsset"/>.</summary>
 /// <param name="Texture">The color drawn.</param>
 /// <param name="Depth">
 /// The depth drawn, in red, from 0 at the camera's near plane to 1 at its far one, and 1 where

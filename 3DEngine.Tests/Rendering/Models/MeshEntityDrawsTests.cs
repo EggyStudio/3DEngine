@@ -274,12 +274,12 @@ public class MeshEntityDrawsTests
     public void A_Loaded_Base_Color_Texture_Is_Copied_Once_At_Its_First_Mip()
     {
         var (world, ecs) = Scene();
-        var assets = new Assets<Texture>();
+        var assets = new Assets<TextureAsset>();
         world.InsertResource(assets);
-        var handle = new Handle<Texture>(AssetId.Next(), new AssetPath("wood.png"), strong: false);
+        var handle = new Handle<TextureAsset>(AssetId.Next(), new AssetPath("wood.png"), strong: false);
         var pixels = new byte[2 * 2 * 4 + 4]; // a 2x2 level and a 1x1 mip
         pixels[0] = 9;
-        assets.Set(handle.Id, new Texture { Pixels = pixels, Width = 2, Height = 2, MipCount = 2, Format = TextureFormat.Rgba8 });
+        assets.Set(handle.Id, new TextureAsset { Pixels = pixels, Width = 2, Height = 2, MipCount = 2, Format = TextureFormat.Rgba8 });
         var entity = SpawnMesh(ecs, Triangle, Vector3.Zero, Vector4.One);
         ecs.GetRef<Material>(entity).BaseColorTexture = handle;
 

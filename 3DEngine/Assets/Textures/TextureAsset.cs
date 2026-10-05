@@ -25,7 +25,7 @@ namespace Engine;
 /// <seealso cref="ITextureDecoder"/>
 /// <seealso cref="TextureAssetLoader"/>
 /// <seealso cref="TexturesPlugin"/>
-public sealed class Texture
+public sealed class TextureAsset
 {
     /// <summary>Tightly packed pixel bytes (top-left origin, row-major, no padding).</summary>
     public required byte[] Pixels { get; init; }

@@ -17,7 +17,7 @@ public readonly record struct ModelVertex(Vector3 Position, Vector3 Normal, Vect
 /// indices stay here while it is loaded, as raylib keeps a mesh's arrays beside its buffers, so a
 /// mesh can be read back and drawn as wires.
 /// </remarks>
-public sealed class MeshStore
+internal sealed class MeshStore
 {
     /// <summary>A mesh waiting to be uploaded, or only its vertices when <paramref name="VerticesOnly"/> is set.</summary>
     /// <param name="Id">The mesh's id.</param>

@@ -245,6 +245,17 @@ engine's own and internal, since each public type is a promise a game may come t
 5.0 on. `3DEngine/PublicApi.txt` lists what is public, the tests and the `e3d` client see the rest
 through `InternalsVisibleTo`, and a type made public again is a change to that file read as one.
 
+Where two public names are near, the name says which is which. A type beginning `Physics` names a
+handle the physics world gives or takes, or a result of it (`PhysicsBody`, `PhysicsJoint`,
+`PhysicsRayCollision`, `PhysicsMaterial`), and a component is the plain noun a scene file writes
+(`RigidBody`, `Joint`, `Collider`), named so in files that outlive a rename. A `Texture2D` is a
+texture on the GPU that the flat API loads and draws, and a `TextureAsset` an image the asset
+server reads for the ECS's materials. A `RayCollision` is where a ray meets a shape the program
+names, and a `PhysicsRayCollision` where it meets the first body of the world. A `Material` is an
+entity's component and a `ModelMaterial` one of a flat API model's, each drawn the same way. One
+enum says how a texture wraps (`TextureWrap`), and the descriptions and settings the renderer keeps
+its materials by are its own.
+
 ## Order
 
 1. Materials beyond a base color (metallic, roughness, normal maps), through the model pass and

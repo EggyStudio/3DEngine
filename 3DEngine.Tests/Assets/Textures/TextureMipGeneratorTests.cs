@@ -31,7 +31,7 @@ public class TextureMipGeneratorTests
     [Fact]
     public void WithMipChain_Returns_Source_When_Already_Has_Mips()
     {
-        var src = new Texture
+        var src = new TextureAsset
         {
             Pixels = new byte[16],
             Width = 2,
@@ -47,7 +47,7 @@ public class TextureMipGeneratorTests
     [Fact]
     public void WithMipChain_Returns_Source_When_Already_OneByOne()
     {
-        var src = new Texture
+        var src = new TextureAsset
         {
             Pixels = new byte[4],
             Width = 1,
@@ -62,7 +62,7 @@ public class TextureMipGeneratorTests
     [Fact]
     public void WithMipChain_Throws_For_Block_Compressed_Format()
     {
-        var src = new Texture
+        var src = new TextureAsset
         {
             Pixels = new byte[16],
             Width = 4,
@@ -79,7 +79,7 @@ public class TextureMipGeneratorTests
     {
         // 2x2 RGBA: four pixels of R=(0,64,128,192), G=B=A=255 ->
         // mip 1 (1x1) box filter averages R = round((0+64+128+192+2)/4) = (384+2)>>2 = 96.
-        var src = new Texture
+        var src = new TextureAsset
         {
             Pixels = new byte[]
             {
@@ -114,7 +114,7 @@ public class TextureMipGeneratorTests
     [Fact]
     public void WithMipChain_Preserves_ColorSpace_And_SourcePath()
     {
-        var src = new Texture
+        var src = new TextureAsset
         {
             Pixels = new byte[16],
             Width = 2,

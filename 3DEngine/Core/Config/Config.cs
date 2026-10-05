@@ -30,10 +30,10 @@ public sealed record Config
     public static Config Default { get; } = new();
 
     /// <summary>Initial window properties (title, size).</summary>
-    public WindowData WindowData { get; init; } = new("3D Engine", 600, 400);
+    internal WindowData WindowData { get; init; } = new("3D Engine", 600, 400);
 
     /// <summary>Window action applied on startup.</summary>
-    public WindowCommand WindowCommand { get; init; } = WindowCommand.Show;
+    internal WindowCommand WindowCommand { get; init; } = WindowCommand.Show;
 
     /// <summary>Desired graphics backend for the application window.</summary>
     public GraphicsBackend Graphics { get; init; } = GraphicsBackend.Vulkan;
@@ -109,13 +109,13 @@ public sealed record Config
     /// <summary>Returns a copy with the provided window data.</summary>
     /// <param name="windowData">The window properties to apply.</param>
     /// <returns>A new <see cref="Config"/> with the updated window data.</returns>
-    public Config WithWindow(WindowData windowData) => 
+    internal Config WithWindow(WindowData windowData) => 
         this with { WindowData = windowData };
 
     /// <summary>Returns a copy with a different startup window command.</summary>
     /// <param name="command">The <see cref="WindowCommand"/> to apply on startup.</param>
     /// <returns>A new <see cref="Config"/> with the updated command.</returns>
-    public Config WithCommand(WindowCommand command) => 
+    internal Config WithCommand(WindowCommand command) => 
         this with { WindowCommand = command };
 
     /// <summary>Returns a copy with a different graphics backend.</summary>

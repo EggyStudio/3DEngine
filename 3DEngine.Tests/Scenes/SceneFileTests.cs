@@ -128,7 +128,7 @@ public class SceneFileTests
             {
                 public bool Flag; public int Count; public float Speed; public double Exact; public string Label;
                 public Mood Mood; public Vector2 V2; public Vector3 V3; public Vector4 V4; public Quaternion Q;
-                public Matrix4x4 M; public Color Tint; public Entity Target; public Handle<Texture> Skin;
+                public Matrix4x4 M; public Color Tint; public Entity Target; public Handle<TextureAsset> Skin;
                 public float? Maybe; public Vector3? Somewhere; public int[] Counts; public Vector3[] Points;
                 public Entity[] Targets; public int[][] Skipped; public readonly int Fixed;
             }
@@ -148,7 +148,7 @@ public class SceneFileTests
         output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
         var generated = output.SyntaxTrees.Last(t => t.ToString().Contains("SceneComponentRegistration")).ToString();
         generated.Should().Contain("\"Everything\"").And.Contain("\"Wanderer\"").And.Contain("ctx.IdOf(v.Target)")
-            .And.Contain("ctx.Load<global::Engine.Texture>").And.Contain("Enum.Parse<global::Game.Mood>")
+            .And.Contain("ctx.Load<global::Engine.TextureAsset>").And.Contain("Enum.Parse<global::Game.Mood>")
             .And.Contain("\"Counts\"").And.Contain("\"Points\"").And.Contain("w.WriteStringValue(ctx.IdOf(item))")
             .And.NotContain("Skipped").And.NotContain("Fixed");
     }

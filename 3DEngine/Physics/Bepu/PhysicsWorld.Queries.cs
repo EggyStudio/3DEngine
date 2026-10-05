@@ -11,16 +11,16 @@ namespace Engine;
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />
-    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit) =>
+    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out PhysicsRayCollision hit) =>
         Raycast(origin, direction, maxDistance, default, out hit);
 
     /// <summary>The closest hit along a ray that is not <paramref name="ignore"/>, as a body looking past itself.</summary>
-    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit) =>
+    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out PhysicsRayCollision hit) =>
         Raycast(origin, direction, maxDistance, ignore, BufferPool, out hit);
 
     // The same through a pool of the caller's, so rays cast on several threads at once each take
     // their scratch memory from a pool of their own.
-    private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out RaycastHit hit)
+    private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out PhysicsRayCollision hit)
     {
         var handler = new ClosestRayHitHandler { Triggers = _triggerFlags };
         if (ignore.World == this)
@@ -45,7 +45,7 @@ public sealed partial class PhysicsWorld
         int entityId = kind == BodyKind.Static
             ? (_staticToEntity.TryGetValue(rawHandle, out var se) ? se : 0)
             : (_bodyToEntity.TryGetValue(rawHandle, out var be) ? be : 0);
-        hit = new RaycastHit
+        hit = new PhysicsRayCollision
         {
             Hit = true,
             Body = new PhysicsBody(this, rawHandle, kind),

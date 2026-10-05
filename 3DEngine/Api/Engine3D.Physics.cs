@@ -310,12 +310,12 @@ public static partial class Engine3D
     /// The first body a ray meets other than <paramref name="ignore"/>, as a ray cast from inside a
     /// car's body down to the ground under a wheel needs.
     /// </summary>
-    public static RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore) =>
+    public static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore) =>
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out var hit) ? hit : default;
 
-    /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face, its <see cref="RaycastHit.Hit"/> false for none.</summary>
+    /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face, its <see cref="PhysicsRayCollision.Hit"/> false for none.</summary>
     /// <remarks>A ray goes through a trigger, which stops nothing, as a body does. It answers as raylib's <c>GetRayCollision</c> functions do, with the collision rather than a flag beside it.</remarks>
-    public static RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance) =>
+    public static PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance) =>
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, out var hit) ? hit : default;
 
     /// <summary>The pairs of bodies that started touching in this frame's steps.</summary>

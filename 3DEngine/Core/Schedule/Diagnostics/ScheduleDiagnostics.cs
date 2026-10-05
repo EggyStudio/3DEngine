@@ -9,7 +9,7 @@ namespace Engine;
 /// This class is thread-safe for concurrent reads and writes.
 /// </remarks>
 /// <seealso cref="Schedule"/>
-public sealed class ScheduleDiagnostics
+internal sealed class ScheduleDiagnostics
 {
     private readonly Lock _lock = new();
     private readonly Dictionary<Stage, TimeSpan> _stageTimes = new();

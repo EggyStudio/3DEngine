@@ -11,7 +11,7 @@ namespace Engine;
 /// app.AddPlugin(new MaterialPlugin());
 /// </code>
 /// </example>
-public sealed class MaterialSettings
+internal sealed class MaterialSettings
 {
     /// <summary>Default value of <see cref="MaterialDescription.DoubleSided"/> for newly created materials.</summary>
     public bool DefaultDoubleSided { get; set; }

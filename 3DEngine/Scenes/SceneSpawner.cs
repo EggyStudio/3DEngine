@@ -396,11 +396,11 @@ internal static class SceneSpawner
         ? null
         : new MaterialTextureRef(r.AssetPath, r.UvSet, (TextureWrapMode)(byte)r.WrapS, (TextureWrapMode)(byte)r.WrapT);
 
-    private static Handle<Texture> LoadTexture(SpawnContext ctx, SceneTextureRef? texRef, bool srgb)
+    private static Handle<TextureAsset> LoadTexture(SpawnContext ctx, SceneTextureRef? texRef, bool srgb)
     {
-        if (texRef is null || ctx.Server is null) return Handle<Texture>.Invalid;
+        if (texRef is null || ctx.Server is null) return Handle<TextureAsset>.Invalid;
         var resolved = EmbeddedTexturePath(ctx, texRef.AssetPath) ?? ResolveTexturePath(ctx.SceneDirectory, texRef.AssetPath);
-        if (string.IsNullOrEmpty(resolved)) return Handle<Texture>.Invalid;
+        if (string.IsNullOrEmpty(resolved)) return Handle<TextureAsset>.Invalid;
 
         var handle = srgb
             ? ctx.Server.LoadTextureSrgb(resolved, generateMips: true)

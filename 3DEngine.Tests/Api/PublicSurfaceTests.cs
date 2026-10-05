@@ -39,7 +39,7 @@ public sealed class PublicSurfaceTests
         var listing = PublicSurface.Write(typeof(Engine3D).Assembly);
         listing.Should().Contain("static class Engine.Engine3D\n");
         listing.Should().Contain("  static void DrawCube(Vector3 position, float width, float height, float length, Color color)\n");
-        listing.Should().Contain("  static RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)\n");
+        listing.Should().Contain("  static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)\n");
         listing.Should().Contain("  static void SetBloom(float intensity, float threshold = 1f)\n");
         listing.Should().NotContain("<Clone>", "nothing the compiler names for itself is listed");
         listing.Should().NotContain(" internal ", "nor anything a game cannot reach");

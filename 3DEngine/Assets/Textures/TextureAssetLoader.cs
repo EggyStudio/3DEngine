@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>
-/// <see cref="IAssetLoader{T}"/> for <see cref="Texture"/>. Single shared entry point for
+/// <see cref="IAssetLoader{T}"/> for <see cref="TextureAsset"/>. Single shared entry point for
 /// every backend; dispatches to a concrete <see cref="ITextureDecoder"/> registered with
 /// the <see cref="TextureDecoderRegistry"/> based on the file extension.
 /// </summary>
@@ -24,7 +24,7 @@ namespace Engine;
 /// decides (usually <see cref="TextureColorSpace.Linear"/>).
 /// </para>
 /// </remarks>
-internal sealed class TextureAssetLoader : IAssetLoader<Texture>
+internal sealed class TextureAssetLoader : IAssetLoader<TextureAsset>
 {
     private readonly TextureDecoderRegistry _registry;
     private string[] _extensions;
@@ -47,14 +47,14 @@ internal sealed class TextureAssetLoader : IAssetLoader<Texture>
     public string[] Extensions => _extensions;
 
     /// <inheritdoc />
-    public async Task<AssetLoadResult<Texture>> LoadAsync(AssetLoadContext context, CancellationToken ct)
+    public async Task<AssetLoadResult<TextureAsset>> LoadAsync(AssetLoadContext context, CancellationToken ct)
     {
         try
         {
             var ext = context.Path.Extension;
             var decoder = _registry.FindDecoderByExtension(ext);
             if (decoder is null)
-                return AssetLoadResult<Texture>.Fail(
+                return AssetLoadResult<TextureAsset>.Fail(
                     $"TextureAssetLoader: no ITextureDecoder registered for extension '{ext}' (path: {context.Path}).");
 
             var settings = ResolveSettings(context.Path.Label);
@@ -64,11 +64,11 @@ internal sealed class TextureAssetLoader : IAssetLoader<Texture>
             {
                 texture = TextureMipGenerator.WithMipChain(texture);
             }
-            return AssetLoadResult<Texture>.Ok(texture);
+            return AssetLoadResult<TextureAsset>.Ok(texture);
         }
         catch (Exception ex)
         {
-            return AssetLoadResult<Texture>.Fail(
+            return AssetLoadResult<TextureAsset>.Fail(
                 $"TextureAssetLoader: decode failed for '{context.Path}': {ex.Message}");
         }
     }

@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>
 /// Backend-agnostic decoder interface that converts a raw image stream into a
-/// <see cref="Texture"/>, as <see cref="StbTextureDecoder"/> does for the formats StbImageSharp
+/// <see cref="TextureAsset"/>, as <see cref="StbTextureDecoder"/> does for the formats StbImageSharp
 /// reads.
 /// </summary>
 /// <remarks>
@@ -12,7 +12,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Color space:</b> decoders never apply color-space conversion to pixel data.
-/// They may set <see cref="Texture.ColorSpace"/> from a hint passed in via
+/// They may set <see cref="TextureAsset.ColorSpace"/> from a hint passed in via
 /// <see cref="TextureLoadSettings.ColorSpace"/> or
 /// from the format's own metadata (a PNG's sRGB chunk). The caller, usually
 /// <c>SceneSpawner</c> making a <see cref="SceneMaterialPayload"/>'s textures, decides
@@ -29,13 +29,13 @@ internal interface ITextureDecoder
     /// </summary>
     string[] Extensions { get; }
 
-    /// <summary>Identifier used by <see cref="Texture.SourceFormat"/> (e.g. <c>"stb"</c>).</summary>
+    /// <summary>Identifier used by <see cref="TextureAsset.SourceFormat"/> (e.g. <c>"stb"</c>).</summary>
     string FormatId { get; }
 
     /// <summary>
     /// Decodes a texture from <paramref name="context"/>. Called on a background thread.
     /// </summary>
-    Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct);
+    Task<TextureAsset> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct);
 }
 
 /// <summary>
@@ -48,7 +48,7 @@ internal interface ITextureDecoder
 internal sealed class TextureLoadSettings
 {
     /// <summary>
-    /// Override the decoded texture's <see cref="Texture.ColorSpace"/>. <c>null</c> lets
+    /// Override the decoded texture's <see cref="TextureAsset.ColorSpace"/>. <c>null</c> lets
     /// the decoder pick (defaults to <see cref="TextureColorSpace.Linear"/> when no
     /// format-native hint is present).
     /// </summary>

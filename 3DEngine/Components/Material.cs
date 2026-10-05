@@ -15,7 +15,7 @@ namespace Engine;
 /// <see cref="OcclusionTexture"/>) are <see cref="Handle{T}"/>s that may be
 /// <see cref="Handle{T}.Invalid"/> when no texture is bound. Use
 /// <c>handle.IsValid</c> to test before sampling. The renderer is responsible for
-/// uploading the underlying <see cref="Texture"/> assets and binding them; the
+/// uploading the underlying <see cref="TextureAsset"/> assets and binding them; the
 /// component itself is GPU-agnostic.
 /// </para>
 /// <para>
@@ -29,7 +29,7 @@ namespace Engine;
 /// <seealso cref="Mesh"/>
 /// <seealso cref="Transform"/>
 /// <seealso cref="SceneMaterialPayload"/>
-/// <seealso cref="Texture"/>
+/// <seealso cref="TextureAsset"/>
 [SceneComponent]
 public struct Material : IEquatable<Material>
 {
@@ -55,19 +55,19 @@ public struct Material : IEquatable<Material>
     public float OcclusionStrength;
 
     /// <summary>sRGB base-color texture; <see cref="Handle{T}.Invalid"/> when unbound.</summary>
-    public Handle<Texture> BaseColorTexture;
+    public Handle<TextureAsset> BaseColorTexture;
 
     /// <summary>Linear metallic-roughness texture (glTF packing: B = metallic, G = roughness).</summary>
-    public Handle<Texture> MetallicRoughnessTexture;
+    public Handle<TextureAsset> MetallicRoughnessTexture;
 
     /// <summary>Linear tangent-space normal map.</summary>
-    public Handle<Texture> NormalTexture;
+    public Handle<TextureAsset> NormalTexture;
 
     /// <summary>sRGB emissive texture.</summary>
-    public Handle<Texture> EmissiveTexture;
+    public Handle<TextureAsset> EmissiveTexture;
 
     /// <summary>Linear ambient-occlusion texture (single channel sampled from R).</summary>
-    public Handle<Texture> OcclusionTexture;
+    public Handle<TextureAsset> OcclusionTexture;
 
     /// <summary>
     /// Stable handle to the authoring <see cref="MaterialDescription"/> in the world's

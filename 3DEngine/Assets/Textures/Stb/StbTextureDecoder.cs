@@ -54,7 +54,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
     public string FormatId => "stb";
 
     /// <inheritdoc />
-    public Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
+    public Task<TextureAsset> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(context);
@@ -73,7 +73,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
         return false;
     }
 
-    private static Texture DecodeLdr(AssetLoadContext context, TextureLoadSettings settings)
+    private static TextureAsset DecodeLdr(AssetLoadContext context, TextureLoadSettings settings)
     {
         var stream = context.GetStream();
         if (stream.CanSeek) stream.Position = 0;
@@ -86,7 +86,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
             $"StbTextureDecoder(LDR): '{context.Path}' decoded, {image.Width}x{image.Height}, " +
             $"src comps={image.SourceComp}, out=Rgba8 ({image.Data.Length} bytes).");
 
-        return new Texture
+        return new TextureAsset
         {
             Pixels = image.Data,
             Width = image.Width,
@@ -99,7 +99,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
         };
     }
 
-    private static Texture DecodeHdr(AssetLoadContext context, TextureLoadSettings settings)
+    private static TextureAsset DecodeHdr(AssetLoadContext context, TextureLoadSettings settings)
     {
         var stream = context.GetStream();
         if (stream.CanSeek) stream.Position = 0;
@@ -117,7 +117,7 @@ internal sealed class StbTextureDecoder : ITextureDecoder
             $"StbTextureDecoder(HDR): '{context.Path}' decoded, {image.Width}x{image.Height}, " +
             $"src comps={image.SourceComp}, out=Rgba32F ({bytes.Length} bytes).");
 
-        return new Texture
+        return new TextureAsset
         {
             Pixels = bytes,
             Width = image.Width,
