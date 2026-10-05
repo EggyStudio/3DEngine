@@ -60,6 +60,7 @@ public sealed unsafe partial class GraphicsDevice
             _device = device;
             Pipeline = pipeline;
             Layout = layout;
+            Interlocked.Increment(ref device._livePipelines);
         }
 
         /// <inheritdoc />
@@ -69,6 +70,7 @@ public sealed unsafe partial class GraphicsDevice
             {
                 _device._deviceApi.vkDestroyPipeline(Pipeline);
                 Pipeline = default;
+                Interlocked.Decrement(ref _device._livePipelines);
             }
             if (Layout.Handle != 0)
             {

@@ -88,3 +88,14 @@ the thing and the depth of what is behind. Motion blur reprojects each pixel thr
 camera and takes the fastest movement around it, so an edge smears outward too. It knows the camera's
 movement alone, which TODO.md says. `FrameEffectsTests` reads both from pixels, and `shaders_bloom`
 gives each a key.
+
+**Now 3, a game left running.** `memory` and `memory.collect` answer with the managed heap, the
+device's live buffers, images, descriptor sets, pipelines and carved memory, and the entities with
+the range of their ids, counted where the device's wrappers are made and destroyed, which takes in
+what rings and retired lists hold. `build/soak.sh` plays a game through `./e3d`, restarting its level
+(Pusher and Hopper gained R to restart for it), spawning and clearing waves and starting sounds, and
+reads them every ten seconds, and `build/soak-check.py` fails a value whose most in the second half
+of a run passes its most in the first by more than a slack. Ten minutes of each of the four games
+held every count level, and the heap level within a few hundred kilobytes. Summit's heap rises by
+about a kilobyte a reading while the console's log ring of 2000 lines fills, which bounds it. CI
+plays the four for two minutes at once.

@@ -36,6 +36,7 @@ public sealed unsafe partial class GraphicsDevice
             _device = device;
             _pool = pool;
             Handle = handle;
+            Interlocked.Increment(ref device._liveDescriptorSets);
         }
 
         /// <inheritdoc />
@@ -47,6 +48,7 @@ public sealed unsafe partial class GraphicsDevice
                 var set = Handle;
                 _device._deviceApi.vkFreeDescriptorSets(_pool, 1, &set);
             }
+            if (Handle.Handle != 0) Interlocked.Decrement(ref _device._liveDescriptorSets);
             Handle = default;
         }
     }

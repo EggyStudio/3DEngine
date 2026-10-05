@@ -14,20 +14,31 @@ var ecs = world.Resource<EcsWorld>();
 
 // -- The level, from a scene file whose colliders and bodies say what is solid
 
-var level = LoadScene("resources/level.json");
+IReadOnlyList<Entity> level = [];
 var walls = new List<(PhysicsBody Body, Vector3 Size)>();
 var crates = new List<(PhysicsBody Body, Vector3 Start)>();
 PhysicsBody goal = default, player = default;
 var goalSize = Vector3.One;
-foreach (var entity in level)
+
+// Loads the level, in place of the one before when it is loaded again to restart.
+void LoadLevel()
 {
-    var body = ecs.GetReadOnly<PhysicsBody>(entity);
-    var size = ecs.GetReadOnly<Collider>(entity).Size;
-    if (ecs.Has<Crate>(entity)) crates.Add((body, ecs.GetReadOnly<Transform>(entity).Position));
-    else if (ecs.Has<Goal>(entity)) (goal, goalSize) = (body, size);
-    else if (ecs.Has<Player>(entity)) player = body;
-    else walls.Add((body, size));
+    foreach (var entity in level)
+        if (ecs.TryResolve(entity, out var id)) ecs.DespawnRecursive(id);
+    level = LoadScene("resources/level.json");
+    walls.Clear();
+    crates.Clear();
+    foreach (var entity in level)
+    {
+        var body = ecs.GetReadOnly<PhysicsBody>(entity);
+        var size = ecs.GetReadOnly<Collider>(entity).Size;
+        if (ecs.Has<Crate>(entity)) crates.Add((body, ecs.GetReadOnly<Transform>(entity).Position));
+        else if (ecs.Has<Goal>(entity)) (goal, goalSize) = (body, size);
+        else if (ecs.Has<Player>(entity)) player = body;
+        else walls.Add((body, size));
+    }
 }
+LoadLevel();
 var facing = 0f;
 
 // -- Light, sky, models and sound
@@ -54,6 +65,7 @@ while (!WindowShouldClose())
     if (screen == Screen.Menu && IsKeyPressed(Key.Enter)) SetState(Screen.Play);
     if (screen == Screen.Play && IsKeyPressed(Key.P)) SetState(Screen.Pause);
     if (screen == Screen.Pause && IsKeyPressed(Key.P)) SetState(Screen.Play);
+    if (screen == Screen.Play && IsKeyPressed(Key.R)) LoadLevel();
 
     // Moving the player, and with it the arm's bend, only while playing.
     var move = Vector3.Zero;
@@ -112,7 +124,7 @@ while (!WindowShouldClose())
     EndMode3D();
 
     DrawText($"Score {score}", 16, 12, 30, Color.White);
-    if (screen == Screen.Menu) DrawText("Push the crates into the green goal. Enter starts, P pauses.", 160, 250, 20, Color.White);
+    if (screen == Screen.Menu) DrawText("Push the crates into the green goal. Enter starts, P pauses, R restarts.", 120, 250, 20, Color.White);
     if (screen == Screen.Pause) DrawText("Paused", 420, 250, 40, Color.White);
 
     ImGui.SetNextWindowPos(new Vector2(760, 12), ImGuiCond.FirstUseEver);

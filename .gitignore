@@ -64,3 +64,4 @@ desktop.ini
 
 # Dear ImGui's own window layout file, written beside whatever ran it.
 imgui.ini
+/build/soak/

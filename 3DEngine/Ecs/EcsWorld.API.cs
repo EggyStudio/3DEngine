@@ -535,6 +535,12 @@ public sealed partial class EcsWorld
     /// <summary>How many entities are alive.</summary>
     public int EntityCount => _entities.AliveCount;
 
+    /// <summary>
+    /// One past the highest id any entity has had, which grows only when no despawned entity's id
+    /// is free to give again, so a world that spawns and despawns as many keeps it level.
+    /// </summary>
+    public int EntityIdRange => _entities.NextEntityId;
+
     /// <summary>Every alive entity, in id order, including those with no component.</summary>
     public IEnumerable<int> AllEntities()
     {

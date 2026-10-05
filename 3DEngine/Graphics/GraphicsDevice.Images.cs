@@ -38,6 +38,7 @@ public sealed unsafe partial class GraphicsDevice
             Memory = memory;
             Description = desc;
             Layout = VkImageLayout.Undefined;
+            if (image.Handle != 0) Interlocked.Increment(ref device._liveImages);
         }
 
         /// <inheritdoc />
@@ -47,6 +48,7 @@ public sealed unsafe partial class GraphicsDevice
             {
                 _device._deviceApi.vkDestroyImage(Image);
                 Image = default;
+                Interlocked.Decrement(ref _device._liveImages);
             }
             if (Memory.Handle != 0)
             {

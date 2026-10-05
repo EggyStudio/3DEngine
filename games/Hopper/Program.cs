@@ -69,6 +69,7 @@ SetTextureFilter(view.Texture, TextureFilter.Point);
 var highScore = int.TryParse(LoadFileText("highscore.txt"), out var saved) ? saved : 0;
 
 var player = new Rectangle(start.X + 3, start.Y, 10, 16);
+var allCoins = coins.ToArray();
 var velocity = Vector2.Zero;
 var grounded = false;
 var facingLeft = false;
@@ -86,6 +87,13 @@ while (!WindowShouldClose())
     if (IsKeyDown(Key.Left) || IsKeyDown(Key.A)) run -= 1;
     if (IsKeyDown(Key.Right) || IsKeyDown(Key.D)) run += 1;
     var jump = IsKeyPressed(Key.Space) || IsKeyPressed(Key.Up) || IsKeyPressed(Key.W);
+    // R starts again, at the start with every coin back.
+    if (IsKeyPressed(Key.R))
+    {
+        coins.Clear();
+        coins.AddRange(allCoins);
+        player = player with { X = start.X + 3, Y = start.Y };
+    }
     if (IsGamepadAvailable(0))
     {
         var stick = GetGamepadAxisMovement(0, GamepadAxis.LeftX);

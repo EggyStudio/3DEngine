@@ -138,6 +138,34 @@ internal static class ConsoleBuiltins
         }
     }
 
+    [Command("memory", "What the program holds, as name and number pairs: managed memory, the GPU's buffers, images, descriptor sets, pipelines and memory, and entities")]
+    internal static string Memory()
+    {
+        // Read as the program left them, without a collection, so a climb shows as it happens and
+        // a reader can force one with its own spacing between reads.
+        var managed = GC.GetTotalMemory(forceFullCollection: false);
+        var heap = GC.GetGCMemoryInfo().HeapSizeBytes;
+        var line = $"managed {managed} heap {heap} gen2 {GC.CollectionCount(2)}";
+        if (ConsoleHost.World?.TryGetResource<EcsWorld>(out var ecs) == true)
+            line += $" entities {ecs.EntityCount} entityIds {ecs.EntityIdRange}";
+        if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) == true && renderer.Context.Graphics is GraphicsDevice device)
+        {
+            var usage = device.Usage;
+            line += $" buffers {usage.Buffers} images {usage.Images} descriptorSets {usage.DescriptorSets} pipelines {usage.Pipelines}"
+                    + $" memoryBlocks {usage.MemoryBlocks} blockBytes {usage.BlockBytes} usedBytes {usage.UsedBytes}";
+        }
+        return line;
+    }
+
+    [Command("memory.collect", "The same as memory, read after a full garbage collection, so what is held shows apart from what is waiting to be collected")]
+    internal static string MemoryCollected()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        return Memory();
+    }
+
     [Command("entity.count", "How many entities are alive")]
     internal static string EntityCount() => ConsoleHost.Ecs.EntityCount.ToString();
 

@@ -44,6 +44,23 @@ public class ConsoleBuiltinsTests
     }
 
     [Fact]
+    public void Memory_Reads_What_The_Program_Holds_As_Name_And_Number_Pairs()
+    {
+        var (world, app) = Setup();
+        var ecs = world.Resource<EcsWorld>();
+        var gone = ecs.Spawn();
+        ecs.Despawn(gone);
+
+        var words = Run(world, app, "memory.collect").Split(' ');
+        var values = Enumerable.Range(0, words.Length / 2).ToDictionary(i => words[2 * i], i => long.Parse(words[2 * i + 1]));
+
+        values["entities"].Should().Be(2);
+        values["entityIds"].Should().Be(4, "three ids were given out, the despawned one free to be given again");
+        values["heap"].Should().BePositive();
+        values.Should().NotContainKey("buffers", "with no renderer there is no device to read");
+    }
+
+    [Fact]
     public void A_Parameter_With_A_Default_May_Be_Left_Off()
     {
         var (world, app) = Setup();

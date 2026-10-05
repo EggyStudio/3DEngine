@@ -157,6 +157,23 @@ jobs:
             exit 1
           fi
 
+      # Each game played for two minutes at once, restarting and spawning as it goes, while what
+      # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
+      # leveling off (build/soak-check.py), as a leak does.
+      - name: Play each game a while and check nothing it holds grows
+        run: |
+          pids=()
+          for game in Pusher Hopper Summit Swarm; do
+            build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
+            pids+=($!)
+          done
+          failed=0
+          for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
+          cat captures/soak-*.log
+          cp build/soak/*.csv captures/
+          python3 build/soak-check.py build/soak/*.csv || failed=1
+          if [ "$failed" = 1 ]; then echo "::error::a game grew, or could not be played, over two minutes"; exit 1; fi
+
       # The documents' steps in a new folder, from the same package, as someone holding only the
       # package would follow them. BUILDING.md's nuget.config and add-package line and the README's
       # first program are built and run offscreen.

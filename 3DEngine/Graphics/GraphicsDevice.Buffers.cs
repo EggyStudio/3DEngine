@@ -41,6 +41,7 @@ public sealed unsafe partial class GraphicsDevice
             Description = desc;
             IsHostVisible = hostVisible;
             MappedPtr = hostVisible ? memory.Mapped : nint.Zero;
+            Interlocked.Increment(ref device._liveBuffers);
         }
 
         /// <inheritdoc />
@@ -50,6 +51,7 @@ public sealed unsafe partial class GraphicsDevice
             {
                 _device._deviceApi.vkDestroyBuffer(Buffer);
                 Buffer = default;
+                Interlocked.Decrement(ref _device._liveBuffers);
             }
 
             if (Memory is { } memory)

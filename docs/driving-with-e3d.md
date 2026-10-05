@@ -45,7 +45,13 @@ engine's own, which read and change the ECS:
 ./e3d command entity.set 42 Transform.Position 0,5,0
 ./e3d command state.set Screen Playing              # move a state, answering once it has moved
 ./e3d command scene.save level.json                 # the world, as a scene file
+./e3d command memory.collect                        # what it holds, after a full collection
 ```
+
+`memory` answers with what the program holds, as name and number pairs: the managed heap, the GPU's
+buffers, images, descriptor sets, pipelines and memory, and the entities with the range of their
+ids. Read at intervals while a game is played, as `build/soak.sh` does, a value that keeps
+climbing is a leak.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

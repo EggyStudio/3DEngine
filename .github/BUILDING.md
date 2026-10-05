@@ -52,6 +52,13 @@ is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at q
 3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
 `webp` package. The render tests' references stay PNG, since they compare pixels.
 
+`build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left at
+it would, restarting its level and spawning and clearing what it spawns, and reads `memory.collect`
+every ten seconds into `build/soak/<game>.csv`, and `build/soak-check.py` fails when anything it holds
+(the managed heap, the GPU's buffers, images, descriptor sets, pipelines and memory, the entities and
+their ids) climbs past what it reached earlier in the run by more than a little. CI plays the four
+games for two minutes at once this way, and a ten-minute run of each holds level on the desktop.
+
 `build/raylib-examples.sh` asks raylib's site which examples it runs in the browser and writes their
 names to `build/raylib-examples.txt`, whose pictures in the README's gallery open raylib's demo. It
 is run by hand when an example is added, since the suite runs with no network, and
