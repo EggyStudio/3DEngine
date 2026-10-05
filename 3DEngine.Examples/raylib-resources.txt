@@ -55,3 +55,9 @@ audio/resources/country.mp3
 shaders/resources/space.png
 shaders/resources/plasma.png
 shaders/resources/mask.png
+shaders/resources/raysan.png
+shaders/resources/mandrill.png
+shaders/resources/models/barracks.obj
+shaders/resources/models/barracks_diffuse.png
+shaders/resources/models/watermill.obj
+shaders/resources/models/watermill_diffuse.png

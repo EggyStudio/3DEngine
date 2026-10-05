@@ -186,6 +186,32 @@ public class SlangCompilerTests : IDisposable
             .UniformSize.Should().Be(32);
     }
 
+    [NeedsSlangFact]
+    public void Each_Element_And_Field_Of_A_Uniform_Has_GLSLs_Name_As_Raylibs_Lights_Are_Found()
+    {
+        const string withSpots = """
+            struct Spot { float2 pos; float inner; float radius; };
+            uniform Spot spots[3];
+            uniform int3 palette[2];
+
+            [shader("fragment")]
+            float4 fragmentMain() : SV_Target
+            {
+                return float4(spots[1].pos, spots[2].inner, palette[1].x);
+            }
+            """;
+
+        var compiled = SlangCompiler.CompileStage(withSpots, "spots.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path);
+        var cached = SlangCompiler.CompileStage(withSpots, "spots.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path, null, compiler: null);
+
+        compiled.Uniforms.Should().Contain(new ShaderUniform("spots", 0, 48), "the whole array is set at once by SetShaderValueV");
+        compiled.Uniforms.Should().Contain(new ShaderUniform("spots[1]", 16, 16));
+        compiled.Uniforms.Should().Contain(new ShaderUniform("spots[1].pos", 16, 8));
+        compiled.Uniforms.Should().Contain(new ShaderUniform("spots[2].inner", 40, 4));
+        compiled.Uniforms.Should().Contain(new ShaderUniform("palette[1]", 64, 12), "each element sixteen bytes on, holding its twelve");
+        cached.Uniforms.Should().Equal(compiled.Uniforms, "and the cache keeps every name");
+    }
+
     [Fact]
     public void An_Include_Is_Found_Beside_The_File_That_Names_It_Before_The_Import_Folder()
     {

@@ -10,15 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1e47d1af`. Five more of raylib's models examples are written and three faults
+Reviewed up to `fc8c3f9c`. Six of raylib's audio examples (`141eb8eb`) and nine of its shaders
+examples (`fc8c3f9c`) are written, each shader's GLSL rewritten in Slang, and `GenMeshTorus` and
+`GenMeshKnot` take raylib's numbers and planes, as par_shapes makes them, the callers here
+keeping their shapes and the reference frame passing unchanged. Two differences are kept on the
+comparison: `LoadShader` takes one Slang file, and a model drawn when the program has made no
+light is shaded by a fixed light where raylib's is unlit. The table stands at 154 written, 1 in
+part, 28 that can be and 38 missing, and the suite through the script at 1,224 passing. No
+verdict is open.
+
+Before them, five more of raylib's models examples were written (`1e47d1af`) and three faults
 mended: a bone named as a mesh is found as the bone and not the mesh's node, a joint that weighs
 no vertex is kept, as raylib keeps it, and `UpdateModelAnimation` takes its frame as a float, a
 fraction posing between two frames, which reshapes a line of `PublicApi.txt` within 5.1. The
 first and the third have their tests in `Engine3DAnimationTests`, and the joint kept has none
 of its own yet (N 3.1), which the next batch that touches the reader gives it. `models_loading_iqm`
-is missing, Assimp's importer taking the mesh alone. The table stands at 139 written, 1 in
-part, 43 that can be and 38 missing, and the suite through the script at 1,224 passing. No
-verdict is open.
+is missing, Assimp's importer taking the mesh alone.
 
 Before it, twelve of raylib's models examples were written (`dc13ca69`), `shapes_basic_3d` is
 raylib's `models_geometric_shapes` under its name (N 5.1), and the mazes found three faults:
@@ -206,29 +213,20 @@ None open.
 
 ## Replies
 
-**Now 2, six of raylib's audio examples.** `audio_sound_loading`, `audio_sound_multi`,
-`audio_sound_positioning`, `audio_music_stream`, `audio_stream_callback` and `audio_amp_envelope`
-are raylib's, written again from its source, their sounds fetched from raylib's examples, the
-envelope's sliders ImGui's in raygui's place. raylib's audio callback writes samples through a
-pointer, which here is a `Span<float>`. The positioning example plays the engine's own `coin.wav`,
-which has raylib's name and place. The callback example's waveform reads one sample past its
-buffer in raylib's C, which C allows, and here that last index is held to the buffer's end. The
-spectrum visualizer waits for the shaders, being one. The table stands at 145 written, 1 in part,
-37 that can be, 38 missing and 1 that does not apply.
-
-**Now 2, nine of raylib's shaders examples.** `shaders_shapes_textures`,
-`shaders_texture_outline`, `shaders_texture_waves`, `shaders_texture_rendering`,
-`shaders_texture_tiling`, `shaders_multi_sample2d`, `shaders_simple_mask`,
-`shaders_palette_switch` and `shaders_eratosthenes_sieve` are raylib's, each GLSL file written again
-in Slang under `resources/shaders/slang/`, as raylib keeps its shaders under a folder of their
-language. raylib's `fragTexCoord`, `fragColor` and `texture0` are the vertex output's `uv` and
-`color` and `boundTexture`, and its `colDiffuse`, white in 2D, falls away. A model shader that
-draws unlit, as raylib's default does, encodes its color with `linearToSrgb`, since the model pass
-samples its texture as linear light. `LoadShader` taking one Slang file where raylib takes a pair
-of GLSL files is a line on the comparison now, as is a model drawn with no light made, shaded by
-the fixed light where raylib's is unlit. The mask found a fault. `GenMeshTorus` and `GenMeshKnot`
-took their numbers otherwise than raylib's: raylib's torus is a ring of `size` / 2 standing on the
-XY plane, its tube `radius` of that thick, and its knot is par_shapes' trefoil scaled by `size`.
-Both are raylib's now, the engine's own examples, docs and cheatsheet given numbers that keep their
-shapes, and the reference frame's torus laid flat by `DrawModelEx`, which keeps its picture. The
-table stands at 154 written, 1 in part, 28 that can be, 38 missing and 1 that does not apply.
+**Now 2, ten more of raylib's shaders examples, and N 5.1.** `shaders_julia_set`,
+`shaders_mandelbrot_set`, `shaders_raymarching_rendering`, `shaders_ascii_rendering`,
+`shaders_color_correction`, `shaders_spotlight_rendering`, `shaders_rounded_rectangle`,
+`shaders_hot_reloading`, `shaders_custom_uniform` and `shaders_model_shader` are raylib's, their
+GLSL written again in Slang. GLSL's `gl_FragCoord` counts from the bottom, so a shader that reads
+it turns `SV_Position`'s row by the screen's height, which the spotlight and rounded rectangle
+programs set as one value raylib's have no need of. A shader drawn over a target raylib turns has
+its coordinates turned in the Slang instead, the swirl and the ASCII cells among them, so the C#
+stays raylib's. GLSL's `mod` floors and its matrices fill by columns, which the raymarching
+shader writes out. One call was brought to raylib's: `GetShaderLocation` finds each element of
+an array and each field of a struct by GLSL's name, as `spots[0].pos`, which the spotlight finds
+its spots by and raylib's `rlights.h` finds its lights by. The reflection lists them beside the
+whole uniform, and the shader cache's entries are versioned again so older ones compile anew.
+`SlangCompilerTests` holds the offsets. `models_mesh_generation` was the engine's own program
+under raylib's name, every generator shown at once, and is raylib's now, one model at a time
+with its own triangle, the docs following. The table stands at 164 written, 1 in part, 18 that
+can be, 38 missing and 1 that does not apply.

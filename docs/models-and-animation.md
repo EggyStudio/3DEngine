@@ -40,32 +40,42 @@ lit by one fixed light from above until the program makes lights of its own, whi
 ## Meshes the program makes
 
 The `GenMesh` functions make the common solids, each as a `ModelMesh` that `LoadModelFromMesh`
-turns into a model with a white material. The `models_mesh_generation` example makes every one,
-sharing one checkered texture:
+turns into a model with a white material. The `models_mesh_generation` example, raylib's, makes
+every one and a triangle of its own, shown one at a time:
 
 ```csharp
-// Every generator, each as a model sharing one checkered texture.
-var checker = LoadTextureFromImage(GenImageChecked(64, 64, 8, 8, Color.White, Color.Gray));
-(string Name, Model Model)[] models =
+Model[] models =
 [
-    ("plane", LoadModelFromMesh(GenMeshPlane(1.6f, 1.6f, 4, 4))),
-    ("cube", LoadModelFromMesh(GenMeshCube(1.2f, 1.2f, 1.2f))),
-    ("sphere", LoadModelFromMesh(GenMeshSphere(0.7f, 16, 32))),
-    ("hemisphere", LoadModelFromMesh(GenMeshHemiSphere(0.8f, 8, 32))),
-    ("cylinder", LoadModelFromMesh(GenMeshCylinder(0.6f, 1.4f, 32))),
-    ("torus", LoadModelFromMesh(GenMeshTorus(0.36f, 1.1f, 48, 16))),
-    ("knot", LoadModelFromMesh(GenMeshKnot(1.2f, 1.0f, 128, 12))),
-    ("poly", LoadModelFromMesh(GenMeshPoly(6, 0.8f))),
-    ("cone", LoadModelFromMesh(GenMeshCone(0.7f, 1.4f, 32))),
+    LoadModelFromMesh(GenMeshPlane(2, 2, 4, 3)),
+    LoadModelFromMesh(GenMeshCube(2.0f, 1.0f, 2.0f)),
+    LoadModelFromMesh(GenMeshSphere(2, 32, 32)),
+    LoadModelFromMesh(GenMeshHemiSphere(2, 16, 16)),
+    LoadModelFromMesh(GenMeshCylinder(1, 2, 16)),
+    LoadModelFromMesh(GenMeshTorus(0.25f, 4.0f, 16, 32)),
+    LoadModelFromMesh(GenMeshKnot(1.0f, 2.0f, 16, 128)),
+    LoadModelFromMesh(GenMeshPoly(5, 2.0f)),
+    LoadModelFromMesh(GenMeshCustom()),
 ];
-foreach (var (_, model) in models) model.Materials[0].Texture = checker;
 ```
 
 A mesh of the program's own triangles is made by `UploadMesh` from an array of `ModelVertex`
-values and the indices of each triangle's three corners, and `UpdateMeshVertices` moves its
-vertices later, keeping the triangles, as water or cloth needs. `ExportMesh` writes a mesh as a
-Wavefront OBJ file, its shape without its material, which `LoadModel` reads back and any modeling
-program opens.
+values and the indices of each triangle's three corners, as the example's `GenMeshCustom` makes
+its triangle:
+
+```csharp
+ModelVertex[] vertices =
+[
+    new(new Vector3(0, 0, 0), Vector3.UnitY, new Vector2(0, 0)),
+    new(new Vector3(1, 0, 2), Vector3.UnitY, new Vector2(0.5f, 1.0f)),
+    new(new Vector3(2, 0, 0), Vector3.UnitY, new Vector2(1, 0)),
+];
+
+return UploadMesh(vertices, [0, 1, 2]);
+```
+
+`UpdateMeshVertices` moves a mesh's vertices later, keeping the triangles, as water or cloth
+needs. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its material, which
+`LoadModel` reads back and any modeling program opens.
 
 ## Terrain and mazes from images
 

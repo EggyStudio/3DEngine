@@ -129,10 +129,16 @@ internal static partial class SlangCompiler
         File.Move(partial, path, overwrite: true);
     }
 
-    /// <summary>The uniforms declared at the top level of a shader, from slangc's reflection JSON.</summary>
+    /// <summary>
+    /// The uniforms declared at the top level of a shader, from slangc's reflection JSON, with each
+    /// element of an array and each field of a struct under the name GLSL gives it, as
+    /// <c>spots[0].pos</c>.
+    /// </summary>
     /// <remarks>
     /// Slang gathers them into one constant buffer at binding 0 of set 0, with each field's offset
-    /// and size in it, which is all a program needs to set one by name.
+    /// and size in it, which is all a program needs to set one by name. raylib's programs find an
+    /// element or a field by name, as its lights are found, so each is a uniform of its own beside
+    /// the whole.
     /// </remarks>
     internal static IReadOnlyList<ShaderUniform> UniformsOf(string? reflectionJson)
     {
@@ -144,12 +150,49 @@ internal static partial class SlangCompiler
         {
             if (!parameter.TryGetProperty("binding", out var binding) ||
                 binding.GetProperty("kind").GetString() != "uniform") continue;
-            uniforms.Add(new ShaderUniform(
-                parameter.GetProperty("name").GetString()!,
-                binding.GetProperty("offset").GetInt32(),
-                binding.GetProperty("size").GetInt32()));
+            var name = parameter.GetProperty("name").GetString()!;
+            var offset = binding.GetProperty("offset").GetInt32();
+            uniforms.Add(new ShaderUniform(name, offset, binding.GetProperty("size").GetInt32()));
+            if (parameter.TryGetProperty("type", out var type)) AddParts(uniforms, name, offset, type);
         }
         return uniforms;
+    }
+
+    // The elements of an array and the fields of a struct, each at its own offset, and theirs in turn.
+    private static void AddParts(List<ShaderUniform> uniforms, string name, int offset, System.Text.Json.JsonElement type)
+    {
+        switch (type.GetProperty("kind").GetString())
+        {
+            case "array" when type.TryGetProperty("uniformStride", out var stride) && type.TryGetProperty("elementCount", out var count):
+                var element = type.GetProperty("elementType");
+                var size = UniformSize(element) ?? stride.GetInt32();
+                for (int i = 0; i < count.GetInt32(); i++)
+                {
+                    var at = offset + i * stride.GetInt32();
+                    uniforms.Add(new ShaderUniform($"{name}[{i}]", at, size));
+                    AddParts(uniforms, $"{name}[{i}]", at, element);
+                }
+                break;
+            case "struct" when type.TryGetProperty("fields", out var fields):
+                foreach (var field in fields.EnumerateArray())
+                {
+                    if (!field.TryGetProperty("binding", out var binding) || binding.GetProperty("kind").GetString() != "uniform") continue;
+                    var fieldName = $"{name}.{field.GetProperty("name").GetString()}";
+                    var at = offset + binding.GetProperty("offset").GetInt32();
+                    uniforms.Add(new ShaderUniform(fieldName, at, binding.GetProperty("size").GetInt32()));
+                    AddParts(uniforms, fieldName, at, field.GetProperty("type"));
+                }
+                break;
+        }
+    }
+
+    // A type's size in a uniform buffer, as its reflection gives it.
+    private static int? UniformSize(System.Text.Json.JsonElement type)
+    {
+        if (!type.TryGetProperty("sizes", out var sizes)) return null;
+        foreach (var size in sizes.EnumerateArray())
+            if (size.GetProperty("kind").GetString() == "uniform") return size.GetProperty("value").GetInt32();
+        return null;
     }
 
     /// <summary>The textures a shader samples in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
@@ -340,9 +383,9 @@ internal static partial class SlangCompiler
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         // The version names what an entry holds, so entries from before uniforms, then textures,
-        // then every binding were cached beside the SPIR-V are compiled again rather than read
-        // without them.
-        hash.AppendData(Encoding.UTF8.GetBytes($"entries 4\n{Arguments}\n{entryPoint}\n{stage}\n"));
+        // then every binding, then each element and field of a uniform were cached beside the
+        // SPIR-V are compiled again rather than read without them.
+        hash.AppendData(Encoding.UTF8.GetBytes($"entries 5\n{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
