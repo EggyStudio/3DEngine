@@ -7,9 +7,12 @@ set -eu
 
 root=$(cd "$(dirname "$0")" && pwd)
 binary="$root/3DEngine.Cli/bin/Debug/net10.0/e3d"
+# Windows builds it with the extension, which a shell there, such as Git Bash, runs as well.
+[ -f "$binary.exe" ] && binary="$binary.exe"
 
 if [ ! -x "$binary" ]; then
     dotnet build "$root/3DEngine.Cli/3DEngine.Cli.csproj" -v q --nologo >&2
+    [ -f "$binary.exe" ] && binary="$binary.exe"
 fi
 
 exec "$binary" "$@"

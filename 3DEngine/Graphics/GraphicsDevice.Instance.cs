@@ -50,6 +50,12 @@ public sealed unsafe partial class GraphicsDevice
         if (_debugUtils && !requiredExtensions.Contains(debugUtils))
             requiredExtensions.Add(debugUtils);
 
+        // MoltenVK on macOS is a device that implements Vulkan over Metal with a few things left out,
+        // which the loader lists only to an instance that asks for such devices.
+        var portability = Utf8(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        var portable = IsInstanceExtensionAvailable(portability);
+        if (portable && !requiredExtensions.Contains(portability)) requiredExtensions.Add(portability);
+
         foreach (var ext in requiredExtensions)
             Logger.Debug($"  Required extension: {ext}");
 
@@ -58,7 +64,8 @@ public sealed unsafe partial class GraphicsDevice
         {
             pApplicationInfo = &appInfo,
             enabledExtensionCount = extensions.Length,
-            ppEnabledExtensionNames = extensions
+            ppEnabledExtensionNames = extensions,
+            flags = portable ? VkInstanceCreateFlags.EnumeratePortabilityKHR : VkInstanceCreateFlags.None,
         };
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = default;

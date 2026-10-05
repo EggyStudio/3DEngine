@@ -91,6 +91,8 @@ table also answers whether the two agree.
 | A joint described in a scene file as an entity naming its two bodies, at its own place and axis | to take | has (`Joint`, `e46058fc`) |
 | Two bodies a joint holds do not collide with each other | has (`1f10323`) | has (`ed0f3aa6`) |
 | A ray passes through a trigger, so a sensor never holds up a wheel or a character's ground check | to check | has (`b5eb3642`) |
+| A raycast vehicle made by one call beside the character controller, tuned by one record | to consider | has (`CreatePhysicsVehicle`, `ee641437`) |
+| The physics step on several workers past a count of awake bodies, repeating to the bit on every machine | to check | has (`319832dc`) |
 | A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
 | A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |

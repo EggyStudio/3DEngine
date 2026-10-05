@@ -116,8 +116,8 @@ taken in its place, and `dotnet add package` is given the version, since without
 newest version nuget.org lists before the mapping applies.
 
 A release is made by the `pack` workflow, run from the Actions tab on GitHub. It runs the tests on
-Linux and Windows through `test.yml`, the same workflow `build.yml` runs on each push, and only
-once both pass packs with `build/pack.sh <version>` and keeps the package as the run's artifact.
+Linux, Windows and macOS through `test.yml`, the same workflow `build.yml` runs on each push, and only
+once all three pass packs with `build/pack.sh <version>` and keeps the package as the run's artifact.
 With its "publish" box ticked it pushes the package to nuget.org through the `NUGET_API_KEY`
 secret. The version
 is `build/version.sh`'s: the major and minor written in `build/version.txt`, and as the patch the
@@ -230,9 +230,14 @@ run from anywhere in the checkout finds it.
 | macOS | SDL3 | Vulkan through MoltenVK |
 
 Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
-`build.yml` runs for every push, builds and tests it on Ubuntu 24.04, named rather than the newest
-so lavapipe and the validation layer change only in a commit, drawing on lavapipe. Its Windows
-job builds it and runs the tests that need no device, since the runner has no Vulkan device. Both
-build with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is
-right to keep is turned off where it arises, with its reason. macOS builds from the same packages
-and is not covered by CI.
+`build.yml` runs for every push, builds and tests it on all three. Ubuntu 24.04, named rather than
+the newest so lavapipe and the validation layer change only in a commit, draws on lavapipe. Windows
+draws on lavapipe too, from Mesa's Windows build, with LunarG's loader and validation layer, and
+macOS draws on its GPU through MoltenVK, with the loader and the layer from Homebrew. On each the
+render tests and the reference frames run under the validation layer, `E3D_REQUIRE_VULKAN` and
+`E3D_REQUIRE_VALIDATION` failing them where the device or the layer does not start rather than
+letting them skip, and `build/play-game.sh Pusher` builds a game from the package and draws 300
+frames of it offscreen, failing on an error the layer reports. Each builds with `-warnaserror`, so
+a warning fails the commit that wrote it, and a warning that is right to keep is turned off where
+it arises, with its reason. A Vulkan instance asks for portability devices where the loader offers
+them, and a device of the portability subset, as MoltenVK is, has the subset enabled.

@@ -15,6 +15,18 @@ public sealed unsafe partial class GraphicsDevice
         Utf8(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
     };
 
+    private bool HasDeviceExtension(string name)
+    {
+        _instanceApi.vkEnumerateDeviceExtensionProperties(_physicalDevice, out uint count).CheckResult();
+        if (count == 0) return false;
+        var properties = new VkExtensionProperties[(int)count];
+        _instanceApi.vkEnumerateDeviceExtensionProperties(_physicalDevice, properties).CheckResult();
+        for (int i = 0; i < (int)count; i++)
+            fixed (byte* namePtr = properties[i].extensionName)
+                if (System.Runtime.InteropServices.Marshal.PtrToStringUTF8((nint)namePtr) == name) return true;
+        return false;
+    }
+
     /// <summary>Creates the Vulkan logical device and retrieves the graphics and present queues.</summary>
     private partial void CreateLogicalDevice()
     {
@@ -34,8 +46,11 @@ public sealed unsafe partial class GraphicsDevice
             };
         }
 
-        // Drawing offscreen presents nothing, so it needs no swapchain extension.
-        var extensionNames = _offscreen ? [] : DeviceExtensions;
+        // Drawing offscreen presents nothing, so it needs no swapchain extension. A device of the
+        // portability subset, as MoltenVK is, must have the subset enabled to be used at all.
+        var extensionNames = (_offscreen ? [] : DeviceExtensions).ToList();
+        var subset = Utf8(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+        if (HasDeviceExtension(subset)) extensionNames.Add(subset);
         Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
         using var deviceExts = new VkStringArray(extensionNames);
 

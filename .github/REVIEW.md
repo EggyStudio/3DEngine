@@ -8,10 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `0e49419d`. Ground loaded for the first time is settled, on the reply, which was read:
-four causes found by `profile.slowest` and each moved off the frame (`a9088b66` to `3c98a36c`),
-the walk's worst frame from 47 ms to 22 ms, with the render tests, Manor and a storm passing on
-lavapipe under validation. What is left is in TODO.md under Cost.
+Reviewed up to `979b7587`. The physics step on four workers past 500 awake bodies, repeating to the
+bit (`319832dc`), a raycast vehicle with Rally's car made one (`ee641437`) and a probe captured a
+face a frame (`979b7587`) are settled on the replies, which were read. Turning threads on only
+where the measurement showed a gain, and finding that contacts had to be sorted for a run to
+repeat, is the way to do it. The guide's items are settled.
 
 ## Now
 
@@ -21,11 +22,33 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
-3. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
-   of field, motion blur and exposure, the memory and window commands, hull and mesh colliders,
-   morph targets and layered clips.
-4. **TODO.md's order** for everything else, a vehicle controller among it, and another game when it runs short.
+2. **The engine draws on Windows and macOS in the workflow.** DESIGN.md says it runs on Linux,
+   Windows and macOS, the workflow's Windows job runs only the tests that need no device, and
+   nothing has drawn a frame on either system. A software Vulkan for the Windows runner (Mesa's
+   lavapipe is built for Windows) so the render tests, the reference comparisons and one game
+   run there with the validation layer, and a macOS job through MoltenVK doing the same as far
+   as the runner's GPU allows. Each fault found is fixed, and what cannot be made to run is said
+   in BUILDING.md with the reason, since a platform nothing has drawn on is a claim.
+3. **The public surface is read whole and made smaller and even.** `3DEngine/PublicApi.txt`
+   lists 536 public types, far more than a program on the flat API or the ECS needs, and every
+   one is a promise from 5.0 on. Read against these: a type or member no program outside the
+   engine has reason to call becomes internal (render graph nodes, device wrappers, stores,
+   packers, the generator's support types that only generated code calls being marked as such);
+   the flat API's names and parameter orders agree with raylib's where raylib has the function
+   and with each other where it has not (`Get`, `Set`, `Is`, `Load`, `Unload`, `Begin`, `End`);
+   one concept has one name across the flat API, the components and the console commands; and
+   nothing is public twice under two spellings. The listing's diff is the record, the games and
+   examples still build from the package, and TODO.md says what was left public on purpose
+   and why.
+4. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
+   from above: units picked and ordered with the mouse through rays, paths found round
+   obstacles on a grid, many units selected and listed in ImGui panels, fog over what is not
+   seen, a match saved to a file and taken up again with whatever the engine offers for that,
+   and an opponent that plays. From the package, with what it turns up fixed when small and
+   entered in TODO.md when not, played, soaked and stormed by CI.
+5. **What that game turned up**, in the order it hurt.
+6. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
+   another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -60,23 +83,15 @@ None open.
 ## Replies
 
 
-**Now 4, Bepu across threads.** Measured with warm-up and interleaved runs, four workers step 2000
-boxes in 1.4 ms where one takes 2.6, and 2000 characters in 5.0 where one takes 6.0, while 290 of
-either take the same, and Swarm's 180 creatures took longer on four (2.1 ms against 1.5 to 1.8).
-So the step runs on four workers once 500 bodies are awake (`PhysicsSettings.ThreadedAbove`), on
-the calling thread below. The count is four on every machine rather than one from the processors,
-Bepu's deterministic mode is on, and the contacts are sorted by pair before they are worked
-through and reported, which a test found the step needs to repeat to the bit run after run on
-several workers (bounces summed in the order workers met them). A crowd's cost is mostly its
-controllers now, 1.9 ms of rays at 2000, entered in TODO.md under Cost.
-
-**Now 5 and 6.** The guide and the cheatsheet had what the last batches added, layered clips and
-morph targets in models-and-animation.md, the effects in materials-light-and-shadows.md, and the
-memory and window commands in driving-with-e3d.md, and `db942962` added what was missing (an
-emitter changed after it is made, joint limits and rope lengths, a probe's readiness, bindings in
-a file). From TODO.md the vehicle came first: `CreatePhysicsVehicle` makes a box on raycast wheels
-as springs, with grip, drive, brakes, steering that eases off with speed, drag, downforce and
-roll damped, worked out on the fixed step and tuned by a `Vehicle` record, and Rally's car is now
-one, its laps the same as before (29.1, 27.8, 27.8 s on the autopilot).
-
-Shared: a raycast vehicle as a flat call beside the character controller, tuned by one record.
+**Now 2, drawing on Windows and macOS.** `test.yml` has a macOS job and its Windows job draws now.
+Windows takes the loader from LunarG's runtime, the validation layer from the SDK and lavapipe
+from Mesa's Windows build, pointed at by the loader's variables, and macOS takes MoltenVK, the
+loader and the layer from Homebrew. Each runs the whole suite, render tests and reference frames
+among them, with `E3D_REQUIRE_VALIDATION` and a new `E3D_REQUIRE_VULKAN`, which makes a device
+that does not start fail the render tests rather than skip them to a green run, and
+`build/play-game.sh Pusher` builds the game from the package and draws 300 frames offscreen,
+failing on a layer error. The engine asks for portability devices where the loader offers them
+and enables the portability subset where a device has it, which MoltenVK needs to be listed at all.
+The script passes on lavapipe in the container with the layer, and the render tests with both
+variables set, but neither new job has run, so the first run on GitHub (Now 1) will be what says
+whether the installs are right.

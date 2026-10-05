@@ -245,11 +245,12 @@ AOT. What is missing:
 
 - **Some of raylib is not carried**, as VR stereo and the audio processors, which TODO.md names
   with the reasons.
-- **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette and
-  FXAA**, with no depth of field or motion blur, past what a program draws through a render
-  texture and a shader of its own.
-- **Linux is the tested platform**, in CI on every push. Windows builds and runs the tests that
-  need no GPU in CI, and macOS builds from the same packages and is not covered.
+- **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette,
+  FXAA, depth of field and motion blur**, with no ambient occlusion, past what a program draws
+  through a render texture and a shader of its own.
+- **CI draws on Linux and Windows through lavapipe and on macOS through MoltenVK**, under the
+  validation layer, on every push, and the development is on Linux, where every example and game
+  is played and captured.
 
 [TODO.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/TODO.md) lists the rest, in the order it blocks making a game.
 

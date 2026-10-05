@@ -1,13 +1,13 @@
-# Builds the solution and runs the tests on Linux and Windows, for the workflows that call it:
-# build.yml on every push, and pack.yml before it packs, so a package is made only from a commit
-# that passes on both.
+# Builds the solution and runs the tests on Linux, Windows and macOS, for the workflows that call
+# it: build.yml on every push, and pack.yml before it packs, so a package is made only from a commit
+# that passes on all three.
 #
-# Linux draws for real: Mesa's lavapipe is a Vulkan device that runs on the CPU, and slangc is
-# fetched so the shaders compile instead of the tests that need them being skipped. The Khronos
-# validation layer runs, since a Debug build enables it when it is installed, and an error it
-# reports fails the render test that caused it. A Windows runner has no Vulkan device, so there the
-# render and capture tests skip themselves with the reason, and the job finds path separators,
-# line endings, file locking and native library names in everything else.
+# Each draws for real, with the Khronos validation layer, whose errors fail the render test that
+# caused them, and E3D_REQUIRE_VALIDATION makes a missing layer a failure rather than a skip. Linux
+# and Windows draw on Mesa's lavapipe, a Vulkan device that runs on the CPU, from the image's
+# packages and from Mesa's Windows build, and macOS on the runner's GPU through MoltenVK. Each then
+# builds a game from the package and draws 300 frames of it under the validation layer, and slangc
+# is fetched so the shaders compile instead of the tests that need them being skipped.
 name: test
 
 on:
@@ -42,6 +42,7 @@ jobs:
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
         env:
           E3D_REQUIRE_VALIDATION: '1'
+          E3D_REQUIRE_VULKAN: '1'
 
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -51,6 +52,9 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
 
@@ -66,12 +70,88 @@ jobs:
       - run: build/fetch-slang.ps1
         shell: pwsh
 
+      # The Vulkan loader from LunarG's runtime, the validation layer from its SDK, and lavapipe
+      # from Mesa's Windows build, pointed at by the loader's variables rather than installed.
+      - name: Install the Vulkan loader, the validation layer and lavapipe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/vulkan"
+          cd "$RUNNER_TEMP/vulkan"
+          curl -sSL -o runtime.zip "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip"
+          7z x -y runtime.zip > /dev/null
+          loader=$(find "$PWD" -path '*x64*' -name vulkan-1.dll | head -1)
+          cp "$loader" "$GITHUB_WORKSPACE/"
+          curl -sSL -o sdk.exe "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe"
+          ./sdk.exe --root "C:\VulkanSDK" --accept-licenses --default-answer --confirm-command install
+          gh release download --repo pal1000/mesa-dist-win --pattern '*release-msvc.7z' --output mesa.7z
+          7z x -y mesa.7z -omesa > /dev/null
+          icd=$(cygpath -w "$(find "$PWD/mesa/x64" -name 'lvp_icd*.json' | head -1)")
+          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ADD_LAYER_PATH=C:\VulkanSDK\Bin" >> "$GITHUB_ENV"
+          echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
+
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+        env:
+          E3D_REQUIRE_VALIDATION: '1'
+          E3D_REQUIRE_VULKAN: '1'
+
+      - name: Build a game from the package and draw it under the validation layer
+        run: build/play-game.sh Pusher
 
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-windows
-          path: 3DEngine.Tests/TestResults/
+          path: |
+            3DEngine.Tests/TestResults/
+            captures/
+
+  macos:
+    # Apple silicon, whose GPU MoltenVK draws on through Metal.
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/cache@v6
+        with:
+          path: build/tools/slang
+          key: slang-${{ runner.os }}-${{ hashFiles('build/fetch-slang.sh') }}
+
+      - run: build/fetch-slang.sh
+
+      # MoltenVK, the loader and the validation layer from Homebrew, the loader found by the dynamic
+      # linker's fallback path, where .NET looks for it, and MoltenVK and the layer named to it.
+      - name: Install MoltenVK, the Vulkan loader and the validation layer
+        run: |
+          brew install molten-vk vulkan-loader vulkan-validationlayers
+          prefix=$(brew --prefix)
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+          echo "VK_DRIVER_FILES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+          echo "VK_ADD_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+
+      - run: dotnet build 3DEngine.slnx -warnaserror
+
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+        env:
+          E3D_REQUIRE_VALIDATION: '1'
+          E3D_REQUIRE_VULKAN: '1'
+
+      - name: Build a game from the package and draw it under the validation layer
+        run: build/play-game.sh Pusher
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: test-results-macos
+          path: |
+            3DEngine.Tests/TestResults/
+            captures/

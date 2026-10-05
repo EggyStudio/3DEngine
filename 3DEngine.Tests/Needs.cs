@@ -19,7 +19,10 @@ public sealed class NeedsVulkanFactAttribute : FactAttribute
     public NeedsVulkanFactAttribute()
     {
         if (!SlangCompiler.Available) Skip = "slangc was not found. Run build/fetch-slang.sh or set ENGINE_SLANGC.";
-        else if (!Probes.Vulkan.Value) Skip = "No Vulkan device starts offscreen here. A software one, such as lavapipe, is enough.";
+        // CI sets E3D_REQUIRE_VULKAN where it installs a device, so a device that does not start
+        // there fails the render tests rather than skipping them all to a green run.
+        else if (!Probes.Vulkan.Value && Environment.GetEnvironmentVariable("E3D_REQUIRE_VULKAN") != "1")
+            Skip = "No Vulkan device starts offscreen here. A software one, such as lavapipe, is enough.";
     }
 }
 
