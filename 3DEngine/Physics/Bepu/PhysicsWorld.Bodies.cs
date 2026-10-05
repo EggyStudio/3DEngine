@@ -24,6 +24,7 @@ public sealed partial class PhysicsWorld
         // unless asked.
         _triggerFlags.Set(body, false);
         _layers.Set(body, 0);
+        ForgetImpulses(body);
         if (body.Kind == BodyKind.Static)
         {
             Simulation.Statics.Remove(new StaticHandle(body.Handle));

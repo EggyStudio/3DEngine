@@ -367,6 +367,32 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Resting_Box_Presses_Its_Floor_By_Its_Weight_Times_The_Step()
+    {
+        var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(40, 1, 40));
+        var light = CreatePhysicsBox(new Vector3(-3, 0.5f, 0), Vector3.One, mass: 1);
+        var heavy = CreatePhysicsBox(new Vector3(3, 0.5f, 0), Vector3.One, mass: 10);
+        var away = CreatePhysicsBox(new Vector3(0, 5, 20), Vector3.One);
+        // Asked about every frame while they settle and fall asleep, as a pressure plate is, each
+        // pair goes on being answered with what it pressed when it slept.
+        var settled = Stopwatch.StartNew();
+        RunUntil(() =>
+        {
+            GetPhysicsContactImpulse(light, floor);
+            GetPhysicsContactImpulse(floor, heavy);
+            return settled.Elapsed.TotalSeconds > 1.5;
+        });
+        var physics = GetApp().World.Resource<PhysicsWorld>();
+        physics.Simulation.Bodies[new BepuPhysics.BodyHandle(light.Handle)].Awake.Should().BeFalse("a second and a half at rest puts it to sleep");
+
+        // At rest each is held up by its weight over a step of a sixtieth, 9.81 / 60 a unit of mass.
+        GetPhysicsContactImpulse(light, floor).Should().BeApproximately(9.81f / 60, 0.03f);
+        GetPhysicsContactImpulse(floor, heavy).Should().BeApproximately(98.1f / 60, 0.3f, "either order, ten times the mass ten times the push");
+        GetPhysicsContactImpulse(light, heavy).Should().Be(0, "a pair not touching");
+        GetPhysicsContactImpulse(away, floor).Should().Be(0);
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);

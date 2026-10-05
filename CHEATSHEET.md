@@ -757,6 +757,7 @@ PhysicsBody[] GetPhysicsBodiesInSphere(Vector3 center, float radius);           
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 IReadOnlyList<ContactEnded> GetPhysicsContactsEnded();                           // Pairs that stopped touching this frame, as a body leaving a trigger
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
+float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b);                    // How hard two touching bodies press, 0 when apart
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size
 Ray GetMouseRay(Vector2 mousePosition, Camera3D camera);                         // GetScreenToWorldRay by raylib's older name

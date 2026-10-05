@@ -143,6 +143,15 @@ foreach (var contact in GetPhysicsContacts())
     if (contact.Speed > 2) PlaySound(thud);
 ```
 
+`GetPhysicsContactImpulse` says how hard two touching bodies press, the impulse the last step gave
+them, which a contact's speed does not once they rest, as a pressure plate that opens a door under
+a crate heavy enough. A resting body presses what holds it by its weight times the step, 9.81
+times its mass over 60, and a pair asked about goes on being answered with that once it sleeps:
+
+```csharp
+var pressed = GetPhysicsContactImpulse(plate, crate) / GetFrameTime() > 200;   // more than about 20 kg
+```
+
 ## Triggers
 
 `CreatePhysicsTrigger` makes a box that stops nothing and reports what enters it, as a goal, a

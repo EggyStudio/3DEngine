@@ -177,6 +177,79 @@ public sealed partial class PhysicsWorld
             && Simulation.Bodies.HandleToLocation[body.Handle].SetIndex > 0;
     }
 
+    /// <summary>
+    /// The impulse the last step's solver gave two touching bodies, in mass times units a second,
+    /// the push between them and the friction along them together, or 0 for a pair not touching.
+    /// </summary>
+    /// <remarks>
+    /// It says how hard a pair presses as well as how hard it met, as a stack's weight on what holds
+    /// it, where a contact's speed says only how fast they closed. Divided by the step it is the
+    /// force between them. A sleeping pair's contact is kept with its island rather than in the
+    /// narrow phase's map, and nothing between them changes while it sleeps, so a pair asked about
+    /// before it slept is answered with what it was then. One asked about first while asleep is
+    /// woken by the question and answered from its next step.
+    /// </remarks>
+    internal float GetContactImpulse(PhysicsBody a, PhysicsBody b)
+    {
+        if (!Exists(a) || !Exists(b)) return 0;
+        var (ra, rb) = (CollidableOf(a), CollidableOf(b));
+        var key = ra.Packed < rb.Packed ? ((ulong)ra.Packed << 32) | rb.Packed : ((ulong)rb.Packed << 32) | ra.Packed;
+        ref var mapping = ref Simulation.NarrowPhase.PairCache.Mapping;
+        var pair = new BepuPhysics.CollisionDetection.CollidablePair(ra, rb);
+        var found = mapping.TryGetValue(ref pair, out var cache);
+        if (!found)
+        {
+            pair = new BepuPhysics.CollisionDetection.CollidablePair(rb, ra);
+            found = mapping.TryGetValue(ref pair, out cache);
+        }
+        if (found && Simulation.Solver.ConstraintExists(cache.ConstraintHandle))
+        {
+            // The sum of each contact's push and each friction's part, where Bepu's magnitude is
+            // their vector's length, which gave a box resting on four corners half its weight.
+            var sum = new ImpulseSum();
+            Simulation.Solver.EnumerateAccumulatedImpulses(cache.ConstraintHandle, ref sum);
+            return _impulses[key] = sum.Total;
+        }
+
+        var sleeping = false;
+        foreach (var body in new[] { a, b })
+            sleeping |= body.Kind != BodyKind.Static && !Simulation.Bodies[new BodyHandle(body.Handle)].Awake;
+        if (!sleeping)
+        {
+            _impulses.Remove(key);
+            return 0;
+        }
+        if (_impulses.TryGetValue(key, out var rested)) return rested;
+        foreach (var body in new[] { a, b })
+            if (body.Kind != BodyKind.Static) Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+        return 0;
+    }
+
+    // The last impulse of each pair asked about, by its two collidables, which a pair asleep since
+    // is answered with, and forgotten for a body that goes, whose handle is given out again.
+    private readonly Dictionary<ulong, float> _impulses = [];
+
+    private void ForgetImpulses(PhysicsBody body)
+    {
+        if (_impulses.Count == 0) return;
+        var packed = (ulong)CollidableOf(body).Packed;
+        foreach (var key in _impulses.Keys.Where(k => k >> 32 == packed || (k & 0xFFFFFFFF) == packed).ToArray()) _impulses.Remove(key);
+    }
+
+    private static CollidableReference CollidableOf(PhysicsBody body) => body.Kind switch
+    {
+        BodyKind.Static => new CollidableReference(new StaticHandle(body.Handle)),
+        BodyKind.Kinematic => new CollidableReference(CollidableMobility.Kinematic, new BodyHandle(body.Handle)),
+        _ => new CollidableReference(CollidableMobility.Dynamic, new BodyHandle(body.Handle)),
+    };
+
+    private struct ImpulseSum : BepuUtilities.IForEach<float>
+    {
+        public float Total;
+
+        public void LoopBody(float impulse) => Total += MathF.Abs(impulse);
+    }
+
     private PhysicsBody BodyOf(CollidableReference collidable) => collidable.Mobility switch
     {
         CollidableMobility.Static => new PhysicsBody(this, collidable.StaticHandle.Value, BodyKind.Static),

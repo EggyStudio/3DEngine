@@ -96,6 +96,9 @@ table also answers whether the two agree.
 | A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
 | A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
+| What rests on a kinematic body that a transform moves keeps the mover's pace at any frame rate, the body moving at the mover's speed through every step and not a frame's distance in one | to take, measured first, where a body gets a frame's distance over one step and a turn gives it no spin | to take, where a body under a parent covers a frame's distance in one step (REVIEW.md, Verdict 2) |
+| A frame's time and the fixed steps that spend it under one clamp, so what a program moved by frame time and what was simulated agree | has, as Bevy's clock and fixed schedule do | to take, where the frame is clamped at 0.25 s and the steps at five (REVIEW.md, Verdict 3) |
+| Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow | to take | has (`8520dbe1`) |
 
 ### Scenes, saves and files
 
@@ -151,6 +154,8 @@ table also answers whether the two agree.
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
 | A package made by a workflow run by hand, after tests on Linux and Windows | taken at `88954d5` | has (`22c766be`) |
 | Graphics run under a validation layer in CI, an error failing the run | does not apply, since wgpu validates for Bevy | has (`a2e19d7c`) |
+| A clock stepped by a set amount a frame, for a test and for a run with no window, so motion is measured in frames and is the same on every machine | to take, through Bevy's `TimeUpdateStrategy::ManualDuration` | to take (REVIEW.md, Verdict 1) |
+| A loader lets go of its file when a load returns, checked on Linux as well as Windows, and a test's folder that cannot be removed says which process holds it | to check | to take (REVIEW.md, Verdict 4) |
 
 ### Documents
 
@@ -163,5 +168,6 @@ table also answers whether the two agree.
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
-| A picture of an example opens the live demo of it on the site of the engine it follows | taken at `29ebd78`, 276 of Bevy's examples | taken at `ac529628`, the 17 examples raylib's site has |
+| A picture of an example opens that example's source in the repository, the owner's choice on 2026-10-05 over the live demo on the followed engine's site, so nothing is cached from another project | to take, where 150 pictures open bevy.org (`29ebd78`) | to take, where 17 pictures open raylib.com (`ac529628`) |
+| A first game told from an empty folder a step at a time, each step a whole program the workflow builds and runs and the page is held to | to take, where `docs/making-a-game.md` describes a finished one | has (`docs/first-game.md`, `d5d2578d`) |
 | Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | taken at `e673197a`, at raylib's 800 by 450 |

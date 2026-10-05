@@ -183,8 +183,9 @@ layers whose pairs collide or not, joins bodies with ball, hinge, weld, distance
 a hinge or a slider limited between two angles or distances or driven by a motor, reads their blended poses, turns and how fast a
 point of them moves, pushes them at their center or at a point, casts rays and balls along them,
 which go through triggers and may look past one body and the layers it does not collide with,
-finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where
-each pair met (CHEATSHEET.md, Physics). A `Collider` marked `IsTrigger` makes a trigger from a
+finds the bodies a sphere reaches, reads the frame's contacts with the point and normal where
+each pair met and the speed they closed at, and how hard a touching pair presses (CHEATSHEET.md,
+Physics). A `Collider` marked `IsTrigger` makes a trigger from a
 scene, and its `Layer` puts the body on a layer. A body a game knows is fast is swept over each
 step (`SetPhysicsBodyContinuous`, a `RigidBody`'s `Continuous`), which stops it at a wall of any
 thickness up to 50 units a second and at thicker ones faster, the contact's spring at the stiffest
@@ -198,9 +199,6 @@ set), holds slopes up to its limit, rides what moves under it, crouches and stan
 room, and reports ground. A vehicle is a box held up by raycast wheels as springs, gripping,
 driving, braking and steering on the fixed step. What is missing, in the order a game meets it:
 
-- **A contact carries how fast its pair closed, and not how hard they pushed.** The speed is read
-  as they approach, which says how hard a crate landed but not how hard a stack presses, so a
-  sound or damage scaled by a push needs the impulse the solver gave the pair.
 
 ### Scenes
 

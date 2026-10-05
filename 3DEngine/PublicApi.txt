@@ -921,6 +921,7 @@ static class Engine.Engine3D
   static float GetMouseWheelMove()
   static float GetMusicTimeLength(Music music)
   static float GetMusicTimePlayed(Music music)
+  static float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b)
   static float GetPhysicsSliderPosition(PhysicsJoint slider)
   static float[] LoadWaveSamples(Wave wave)
   static int ColorToInt(Color color)
