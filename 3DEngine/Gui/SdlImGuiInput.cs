@@ -108,6 +108,15 @@ public static class SdlImGuiInput
             return;
         }
         io.BackendFlags |= ImGuiBackendFlags.HasGamepad;
+        // ImGui hides its cursor until a key or button moves it, and a first press of the button that
+        // picks only shows it, so a menu opened with the pad in hand took two presses to choose its
+        // first item. A pad's press shows the cursor before ImGui reads it, so that press acts.
+        foreach (var (button, _) in PadButtons)
+            if (pad.ButtonPressed(button))
+            {
+                ImGuiNative.igSetNavCursorVisible(1);
+                break;
+            }
         foreach (var (button, key) in PadButtons) io.AddKeyEvent(key, pad.ButtonDown(button));
         Analog(io, ImGuiKey.GamepadL2, pad.Axis(GamepadAxis.LeftTrigger), 0.1f);
         Analog(io, ImGuiKey.GamepadR2, pad.Axis(GamepadAxis.RightTrigger), 0.1f);

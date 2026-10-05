@@ -8,54 +8,67 @@ namespace Engine.Tests.Gui;
 [Trait("Category", "Integration")]
 public class ImGuiGamepadTests
 {
+    // A menu of three buttons in a window that takes the focus, the items picked collected.
+    private sealed class Menu : IDisposable
+    {
+        public readonly App App = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
+        public readonly List<string> Picked = [];
+
+        public void Frame()
+        {
+            App.BeginFrame();
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(20, 20));
+            ImGui.SetNextWindowFocus();
+            ImGui.Begin("menu");
+            foreach (var item in new[] { "Play", "Settings", "Quit" })
+                if (ImGui.Button(item)) Picked.Add(item);
+            ImGui.End();
+            App.EndFrame();
+        }
+
+        public void Press(GamepadState pad, GamepadButton button)
+        {
+            pad.SetButton(button, true);
+            Frame();
+            pad.SetButton(button, false);
+            Frame();
+        }
+
+        public void Dispose() => App.Shutdown();
+    }
+
     [Fact]
     public void The_Pads_Dpad_Moves_Through_A_Menu_And_Its_Bottom_Button_Picks_An_Item()
     {
-        var app = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
-        try
-        {
-            var input = app.World.Resource<Input>();
-            var picked = new List<string>();
-            void Frame()
-            {
-                app.BeginFrame();
-                ImGui.SetNextWindowPos(new System.Numerics.Vector2(20, 20));
-                ImGui.SetNextWindowFocus();
-                ImGui.Begin("menu");
-                foreach (var item in new[] { "Play", "Settings", "Quit" })
-                    if (ImGui.Button(item)) picked.Add(item);
-                ImGui.End();
-                app.EndFrame();
-            }
-            void Press(GamepadState pad, GamepadButton button)
-            {
-                pad.SetButton(button, true);
-                Frame();
-                pad.SetButton(button, false);
-                Frame();
-            }
+        using var menu = new Menu();
+        menu.Frame();
+        ImGui.GetIO().BackendFlags.HasFlag(ImGuiBackendFlags.HasGamepad).Should().BeFalse("no pad is connected yet");
 
-            Frame();
-            ImGui.GetIO().BackendFlags.HasFlag(ImGuiBackendFlags.HasGamepad).Should().BeFalse("no pad is connected yet");
+        var pad = menu.App.World.Resource<Input>().ConnectGamepad(1, "test pad", 0);
+        menu.Frame();
+        ImGui.GetIO().BackendFlags.HasFlag(ImGuiBackendFlags.HasGamepad).Should().BeTrue();
 
-            var pad = input.ConnectGamepad(1, "test pad", 0);
-            Frame();
-            ImGui.GetIO().BackendFlags.HasFlag(ImGuiBackendFlags.HasGamepad).Should().BeTrue();
+        // Navigation starts on the focused window's first item, so down twice is the third.
+        menu.Press(pad, GamepadButton.DpadDown);
+        menu.Press(pad, GamepadButton.DpadDown);
+        menu.Press(pad, GamepadButton.South);
+        menu.Picked.Should().Equal(["Quit"], "the pad moved down two items and picked that one");
 
-            // Navigation starts on the focused window's first item, so down twice is the third.
-            Press(pad, GamepadButton.DpadDown);
-            Press(pad, GamepadButton.DpadDown);
-            Press(pad, GamepadButton.South);
-            picked.Should().Equal(["Quit"], "the pad moved down two items and picked that one");
+        // Up one and picked again.
+        menu.Press(pad, GamepadButton.DpadUp);
+        menu.Press(pad, GamepadButton.South);
+        menu.Picked.Should().Equal(["Quit", "Settings"]);
+    }
 
-            // Up one and picked again.
-            Press(pad, GamepadButton.DpadUp);
-            Press(pad, GamepadButton.South);
-            picked.Should().Equal(["Quit", "Settings"]);
-        }
-        finally
-        {
-            app.Shutdown();
-        }
+    [Fact]
+    public void The_First_Press_Of_The_Pad_On_A_Menu_Picks_Its_First_Item()
+    {
+        using var menu = new Menu();
+        var pad = menu.App.World.Resource<Input>().ConnectGamepad(1, "test pad", 0);
+        menu.Frame();
+        menu.Frame();
+
+        menu.Press(pad, GamepadButton.South);
+        menu.Picked.Should().Equal(["Play"], "the press picks, where ImGui alone only shows its cursor on the first");
     }
 }
