@@ -149,8 +149,10 @@ DrawTextureEx(target.Texture, new Vector2(360, 60), 0, 0.5f, Color.White);
 ```
 
 Inside texture mode `ClearBackground` clears the texture, and 2D drawing is in its pixels. A
-camera entity in the ECS draws the scene's mesh entities into a texture the same way when its
-`Target` is set.
+texture that nothing clears in a frame keeps what it held, as raylib's does, so a trail or a
+painting drawn into it a stroke a frame builds up, as `shapes_double_pendulum`'s trail does, and a
+new one starts transparent black. A camera entity in the ECS draws the scene's mesh entities into a
+texture the same way when its `Target` is set.
 
 ## Particles
 

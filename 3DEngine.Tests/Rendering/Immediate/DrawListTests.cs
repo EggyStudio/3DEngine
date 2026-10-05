@@ -120,7 +120,10 @@ public class DrawListTests
         list.Line(Vector3.Zero, Vector3.UnitX, Color.Red);
 
         list.Batches.Select(b => b.Target).Should().Equal(0, 5, 0);
-        list.TargetClears.Should().ContainSingle().Which.Should().Be(new KeyValuePair<int, Color>(5, Color.Blue));
+        list.TargetClears.Should().ContainSingle().Which.Should().Be(new KeyValuePair<int, Color?>(5, Color.Blue));
+        list.SetTarget(6);
+        list.TargetClears[6].Should().BeNull("a target nothing clears keeps what it held");
+        list.SetTarget(0);
 
         list.Clear();
         list.TargetClears.Should().BeEmpty();

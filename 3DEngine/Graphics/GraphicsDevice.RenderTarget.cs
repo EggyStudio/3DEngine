@@ -52,6 +52,12 @@ internal sealed class RenderTarget : IDisposable
     /// <summary>The target's size in pixels.</summary>
     public Extent2D Extent { get; }
 
+    /// <summary>
+    /// Whether a pass has drawn into the target, before which its images hold nothing to keep, so
+    /// its first pass clears it whatever was asked.
+    /// </summary>
+    public bool Drawn { get; set; }
+
     /// <inheritdoc />
     public void Dispose() => _dispose();
 }
@@ -99,8 +105,10 @@ internal sealed unsafe partial class GraphicsDevice
             ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: samples)
             : default;
         var depthView = depth ? TargetView(depthImage, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
+        // The multisampled color is kept from pass to pass, as the depth is, since a target that
+        // nothing clears in a frame keeps what was drawn into it, as raylib's does.
         var (msaaColor, msaaMemory) = msaa
-            ? TargetImage(vkFormat, width, height, VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransientAttachment, samples: samples)
+            ? TargetImage(vkFormat, width, height, VkImageUsageFlags.ColorAttachment, samples: samples)
             : default;
         var msaaView = msaa ? TargetView(msaaColor, vkFormat, VkImageAspectFlags.Color) : default;
         var (resolvedDepth, resolvedDepthMemory) = msaa && depth
@@ -113,7 +121,7 @@ internal sealed unsafe partial class GraphicsDevice
         var sampled = VkImageLayout.ShaderReadOnlyOptimal;
         var framebuffer = msaa
             ? new VulkanFramebuffer(
-                new Attachment(msaaColor, msaaView, VkImageAspectFlags.Color, 0, VkImageLayout.ColorAttachmentOptimal, Store: false),
+                new Attachment(msaaColor, msaaView, VkImageAspectFlags.Color, 0, VkImageLayout.ColorAttachmentOptimal),
                 new Attachment(color, colorView, VkImageAspectFlags.Color, 0, sampled),
                 new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, VkImageLayout.DepthStencilAttachmentOptimal),
                 new Attachment(resolvedDepth, resolvedDepthView, VkImageAspectFlags.Depth, 0, sampled))

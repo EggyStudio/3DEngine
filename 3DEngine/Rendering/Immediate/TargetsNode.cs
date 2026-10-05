@@ -5,8 +5,10 @@ namespace Engine;
 /// the window can sample what was drawn into them.
 /// </summary>
 /// <remarks>
-/// A target is drawn only in a frame that sends something to it. It is cleared first, to the color
-/// <c>ClearBackground</c> set inside its <c>BeginTextureMode</c> or to transparent black, then its
+/// A target is drawn only in a frame that sends something to it. It is cleared first to the color
+/// <c>ClearBackground</c> set inside its <c>BeginTextureMode</c>, and where nothing cleared it, it
+/// keeps what it held, as raylib's does, the first pass of a new target clearing it to transparent
+/// black. Then its
 /// models, the particles through the camera its models were drawn with, and its immediate shapes
 /// are drawn, in that order, as the window's are. A target that
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
@@ -31,9 +33,11 @@ internal sealed class TargetsNode : INode
                 && shadows.ByTarget.TryGetValue(id, out var own) && own.Shadow is { } shadow)
                 models.DrawShadow(renderContext, renderWorld, shadow, id);
 
-            var c = clear.ToVector4();
+            var keep = clear is null && target.Drawn;
+            var c = (clear ?? Color.Blank).ToVector4();
             var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
-                target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(c.X, c.Y, c.Z, c.W)));
+                target.RenderPass, target.Framebuffer, target.Extent, keep ? LoadOp.Load : LoadOp.Clear, StoreOp.Store, new ClearColor(c.X, c.Y, c.Z, c.W)));
+            target.Drawn = true;
             pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
             pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
 

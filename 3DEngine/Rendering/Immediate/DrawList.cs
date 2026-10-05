@@ -154,10 +154,13 @@ internal sealed class DrawList
         }
     }
 
-    private readonly Dictionary<int, Color> _targetClears = [];
+    private readonly Dictionary<int, Color?> _targetClears = [];
 
-    /// <summary>The color each render target drawn this frame is cleared to.</summary>
-    public IReadOnlyDictionary<int, Color> TargetClears => _targetClears;
+    /// <summary>
+    /// The color each render target drawn this frame is cleared to, or null for one that keeps what
+    /// it held, which nothing cleared this frame.
+    /// </summary>
+    public IReadOnlyDictionary<int, Color?> TargetClears => _targetClears;
 
     /// <summary>Sends the following shapes to render target <paramref name="target"/>, or 0 for the window.</summary>
     public void SetTarget(int target)
@@ -166,7 +169,7 @@ internal sealed class DrawList
         {
             Target = target;
             Close();
-            if (target != 0) _targetClears.TryAdd(target, Color.Blank);
+            if (target != 0) _targetClears.TryAdd(target, null);
         }
     }
 

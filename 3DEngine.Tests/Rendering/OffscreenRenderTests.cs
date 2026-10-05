@@ -812,6 +812,41 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Render_Texture_Nothing_Clears_Keeps_What_It_Held_From_Frame_To_Frame()
+    {
+        // raylib's trails and paintings draw into a render texture a little each frame and clear it
+        // never, which a target cleared in every frame drew as the last frame's stroke alone.
+        Open(32, 32);
+        var target = LoadRenderTexture(8, 4);
+        void Frame(Action intoTarget)
+        {
+            BeginDrawing();
+            BeginTextureMode(target);
+            intoTarget();
+            EndTextureMode();
+            ClearBackground(Color.Black);
+            EndDrawing();
+        }
+
+        Frame(() => DrawRectangle(0, 0, 4, 4, Color.Red));
+        var first = LoadImageFromTexture(target.Texture);
+        GetImageColor(first, 1, 1).Should().Be(Color.Red);
+        GetImageColor(first, 6, 2).Should().Be(Color.Blank, "a new render texture starts transparent black");
+
+        Frame(() => DrawRectangle(4, 0, 4, 4, Color.Blue));
+        var second = LoadImageFromTexture(target.Texture);
+        GetImageColor(second, 1, 1).Should().Be(Color.Red, "nothing cleared it, so the frame before stays");
+        GetImageColor(second, 6, 2).Should().Be(Color.Blue);
+
+        Frame(() => ClearBackground(Color.White));
+        var cleared = LoadImageFromTexture(target.Texture);
+        GetImageColor(cleared, 1, 1).Should().Be(Color.White, "ClearBackground inside its texture mode clears it");
+        GetImageColor(cleared, 6, 2).Should().Be(Color.White);
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void A_Compute_Shader_Writes_A_Render_Texture_That_Is_Then_Drawn()
     {
         Open(32, 32);

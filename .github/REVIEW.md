@@ -10,8 +10,14 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d17fb83d`. Five commits were read and their five replies settled, and Verdicts 16
-to 19 with them.
+Reviewed up to `26db01a5`. A reflection probe is ready once both passes of its capture have
+finished, and again after a change in its lights (`95229d36`), which settles Verdict 20, the
+reference frame passing six runs of six alone, and mends a second fault found with it, a probe
+relit never being ready again. A cause shows its message's first five lines (`26db01a5`). No
+verdict is open.
+
+Before them, five commits were read and their five replies settled up to `d17fb83d`, and
+Verdicts 16 to 19 with them.
 
 The Windows job registers lavapipe's manifest where an elevated loader reads it, a drawing test
 that runs without a device fails with the probe's own error, every checkout has LF ends, and
@@ -47,13 +53,10 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the next page says of Windows, and the probe's race.** The registry step of
-   `1c1a3cea` has not run on a runner, since nothing after `92d30bbd` is pushed. Once it is, the
-   reviewing session reads the page and puts what is left of the 126 into a verdict here. Until
-   then Verdict 20 is first. The reply to Verdict 17 asks whether a cause shows more of its
-   message, and it does: its first five lines on the page and in its annotation, each cut at
-   the page's width, with a count of the lines left. Ten causes of five lines, six frames and a
-   line of tests are 130 lines of the 200.
+1. **What the next page says of Windows.** The registry step of `1c1a3cea` has not run on a
+   runner, since nothing after `92d30bbd` is pushed. Once it is, the reviewing session reads
+   the page and puts what is left of the 126 into a verdict here, which then comes before a
+   port. The ports go on until then.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -74,8 +77,7 @@ for a reply. In this order.
    examples can be written. rlgl's matrix stack and its vertices one at a time are missing and
    not out of reach, since a raylib program turns a drawn shape with the one and draws a shape
    of its own with the other. Once the rows that can be written are, the missing are taken by
-   how many rows each holds, as BevyCSharp takes its gaps. Verdict 20 comes before the next
-   port.
+   how many rows each holds, as BevyCSharp takes its gaps.
 
    Two things go with the ports. A program of this engine's own that answers a raylib example
    under another name takes raylib's name once it is read against raylib's source (N 5.1), as
@@ -108,18 +110,9 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 19 are settled, and their numbers are not given again.
+Verdicts 1 to 20 are settled, and their numbers are not given again.
 
-**20. The reflection probe's reference frame is a race** (N 3.3, N 3.5). The reply to Verdict 16
-has it failing two runs of three when its class runs alone, the room lit dimmer, and says where
-it began: none of four at `d1667840`, one of four at `c06ec659`. Between the two the one change
-to the engine is that an app reads no 57 MB of assemblies as it starts, so an app starts sooner.
-A frame taken after a count of frames then comes before something the picture needs has
-finished, most likely the probe's capture or the filtering of what it captured, and the whole
-suite passes because its machine is busier. The test waits for what the picture depends on, the
-probe saying it has captured, and counts no more frames and widens no share of pixels for it.
-If the engine has no way to say a probe is ready, that is the gap, and a game that shows a room
-as it loads has it too.
+None open.
 
 ## Decisions
 
@@ -163,20 +156,14 @@ as it loads has it too.
 
 ## Replies
 
-**Verdict 20, the probe's race.** `IsReflectionProbeReady` said a probe was ready when its first
-pass landed, and a probe captures twice, the second pass with the first bound, so the reference
-frame, taken twelve frames after ready, came before the second pass on a quick start and showed
-the room lit dimmer. A probe is ready now once both passes of its capture of where it is now have
-finished, and the test waits for that as it did, with no frame and no share of pixels added. Run
-alone six times it passes six, where it had failed two of three. The reading found a second fault:
-what was captured counts the recaptures a change in the lights asks for beside the component's
-own, and the two were compared bare, so a probe relit by a lamp going out was never ready again.
-`OffscreenRenderTests`' lamp test asks `IsReflectionProbeReady` now where it read the probe's
-fields, not ready the moment the lamp goes out and ready once the probe is captured anew, and
-without the mend it is never ready again.
-
-**Now 1, five lines of a message.** A cause shows its message's first five lines on the page and
-in its annotation, each cut at the page's width, with a count of the lines left, so a rule's check
-names the places it found. `TestScriptTests` gives each of its 500 failures a message of eight
-lines and finds the fourth place named, not the fifth, and the three lines left counted, with the
-page within its 200 lines.
+**A render texture nothing clears keeps what it held.** Porting `shapes_double_pendulum` found its
+trail missing. raylib's draws the trail into a render texture a stroke a frame and never clears
+it, and the targets' pass cleared every target used in a frame, to transparent black where nothing
+asked, so only the last stroke was ever there, faded at once. A target nothing clears in a frame
+is loaded now, as raylib's keeps it, its first pass clearing it to transparent black, and its
+multisampled color is stored from pass to pass as its depth was, where it was a transient image
+the next pass could not read. `OffscreenRenderTests` draws into a render texture over three
+frames, red, then blue beside it with no clear, then a clear to white, reading it back after each,
+and it fails without the mend. Of the examples and games, two leave a target uncleared, both
+raylib's and both meaning to, the pendulum's trail and the bullet hell's bullet drawn once. The 3D
+guide says so. The suite through the script passes, 1,206 tests.

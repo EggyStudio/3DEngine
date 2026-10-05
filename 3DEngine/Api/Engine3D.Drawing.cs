@@ -62,7 +62,11 @@ public static partial class Engine3D
     }
 
     /// <summary>Sets the color the frame, or the render target inside <see cref="BeginTextureMode"/>, is cleared to.</summary>
-    /// <remarks>The whole frame or target is cleared before anything is drawn into it, wherever in the frame this is called.</remarks>
+    /// <remarks>
+    /// The whole frame or target is cleared before anything is drawn into it, wherever in the frame
+    /// this is called. A render target not cleared in a frame keeps what it held, as raylib's does,
+    /// so a trail or a painting drawn into it a little each frame builds up.
+    /// </remarks>
     public static void ClearBackground(Color color)
     {
         if (_target.IsValid)
