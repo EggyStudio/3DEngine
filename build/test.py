@@ -393,6 +393,24 @@ def head(d):
             + (f", {d['peak_mb']:,} MB at most" if d["peak_mb"] else ""))
 
 
+def entry(cause):
+    """A cause's message, its frames and its tests with a count of the rest, a line each."""
+    shown = cause["tests"][:TESTS_SHOWN]
+    more = len(cause["tests"]) - len(shown)
+    return ([cause["message"]] + [f"at {frame}" for frame in cause.get("frames", [])]
+            + [", ".join(f"`{t}`" for t in shown) + (f" and {more:,} more" if more > 0 else "")])
+
+
+def lost_entry(p):
+    """A lost process's account, its tests and its last lines, a line each."""
+    lines = [p["summary"]]
+    if p["running"]:
+        lines.append("In " + ", ".join(f"`{t}`" for t in p["running"]))
+    elif p.get("after"):
+        lines.append(f"After `{p['after']}`, the last test to end")
+    return lines + p["last_lines"]
+
+
 def page(d):
     lines = [f"## {head(d)}", ""]
     for p in d["processes"]:
@@ -417,11 +435,7 @@ def page(d):
         lines.append(f"### {d['failed']:,} failed, of {len(causes)} cause{'s' if len(causes) != 1 else ''}" + (f", the first {CAUSES_SHOWN} here" if len(causes) > CAUSES_SHOWN else ""))
         for cause in causes[:CAUSES_SHOWN]:
             lines.append(f"**{cause['count']:,} × {cause['type']}**" + (f" at `{cause['frame']}`" if cause["frame"] else ""))
-            lines.append(f"    {cause['message']}")
-            lines += [f"    at {frame}" for frame in cause["frames"]]
-            shown = cause["tests"][:TESTS_SHOWN]
-            more = cause["count"] - len(shown)
-            lines.append("    " + ", ".join(f"`{t}`" for t in shown) + (f" and {more:,} more" if more > 0 else ""))
+            lines += ["    " + line for line in entry(cause)]
             lines.append("")
 
     if d["repeated"]:
@@ -446,9 +460,7 @@ def merged_page(digests):
         lines += ["", f"### Causes, the first {CAUSES_SHOWN} of {len(ordered)}" if len(ordered) > CAUSES_SHOWN else "### Causes"]
         for cause in ordered[:CAUSES_SHOWN]:
             lines.append(f"**{cause['count']:,} × {cause['type']}** on {', '.join(cause['systems'])}" + (f" at `{cause['frame']}`" if cause["frame"] else ""))
-            lines.append(f"    {cause['message']}")
-            shown = cause["tests"][:TESTS_SHOWN]
-            lines.append("    " + ", ".join(f"`{t}`" for t in shown) + (f" and {len(cause['tests']) - len(shown):,} more" if len(cause["tests"]) > len(shown) else ""))
+            lines += ["    " + line for line in entry(cause)]
     return fit(lines), ordered
 
 
@@ -459,15 +471,21 @@ def fit(lines):
     return lines
 
 
-def annotations(lost, causes):
-    """The error annotations, a lost process first and then the causes, ten at most."""
-    out = [(f"Lost: {p['label']}", p["summary"]) for p in lost]
-    out += [(f"{c['count']:,} × {c['type']}" + (f" on {', '.join(c['systems'])}" if c.get("systems") else ""),
-             c["message"] + (f" at {c['frame']}" if c["frame"] else "")) for c in causes]
-    return out[:ANNOTATIONS]
+def annotations(lost, causes, head_line, repeated):
+    """
+    The annotations, which anyone can read where a run's log and summary need signing in: an error
+    for each lost process and each cause, ten at most, each with its whole entry of the page, and
+    a notice with the page's head and the lines the output repeated most.
+    """
+    errors = [(f"Lost: {p['label']}", lost_entry(p)) for p in lost]
+    errors += [(f"{c['count']:,} × {c['type']}" + (f" on {', '.join(c['systems'])}" if c.get("systems") else "")
+                + (f" at {c['frame']}" if c["frame"] else ""), entry(c)) for c in causes]
+    notice = [head_line] + [f"{count:,} × {line}" for line, count in repeated]
+    return errors[:ANNOTATIONS], notice
 
 
 def publish(lines, notes, results_dir=None, d=None):
+    errors, notice = notes
     print(BEGIN)
     print("\n".join(lines))
     print(END)
@@ -477,8 +495,9 @@ def publish(lines, notes, results_dir=None, d=None):
         with open(os.path.join(results_dir, "digest.json"), "w", encoding="utf-8") as f:
             json.dump(d, f, indent=1)
     if os.environ.get("GITHUB_ACTIONS") == "true":
-        for title, message in notes:
-            print(f"::error title={escape(title, True)}::{escape(message)}")
+        for title, message in errors:
+            print(f"::error title={escape(title, True)}::{escape(chr(10).join(message))}")
+        print(f"::notice title=The tests::{escape(chr(10).join(notice))}")
         summary = os.environ.get("GITHUB_STEP_SUMMARY")
         if summary:
             with open(summary, "a", encoding="utf-8") as f:
@@ -535,12 +554,13 @@ def main():
                 print(f"no digest at {path}")
         lines, causes = merged_page(digests)
         lost = [dict(p, label=f"{p['label']} on {d['system']}") for d in digests for p in d["processes"] if p["lost"]]
-        publish(lines, annotations(lost, causes))
+        repeated = [r for d in digests for r in d["repeated"]][:REPEATED_SHOWN]
+        publish(lines, annotations(lost, causes, "; ".join(head(d) for d in digests) or lines[-1], repeated))
         return 0
 
     if args.read:
         d = digest(args.read, [], [], 0)
-        publish(page(d), annotations([], d["causes"]), args.read, d)
+        publish(page(d), annotations([], d["causes"], head(d), d["repeated"]), args.read, d)
         return 0 if d["failed"] == 0 else 1
 
     results = os.path.abspath(args.results)
@@ -572,7 +592,7 @@ def main():
             print(process.summary(), flush=True)
 
     d = digest(results, done, listed, time.monotonic() - started)
-    publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"]), results, d)
+    publish(page(d), annotations([p for p in d["processes"] if p["lost"]], d["causes"], head(d), d["repeated"]), results, d)
     return 0 if d["failed"] == 0 and d["no_result"] == 0 and not any(p.lost for p in done) else 1
 
 

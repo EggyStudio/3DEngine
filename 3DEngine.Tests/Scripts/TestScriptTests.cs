@@ -60,6 +60,17 @@ public sealed class TestScriptTests : IDisposable
         text.Should().Contain("**100 × System.InvalidOperationException** at `Engine.AlphaSystem.Run`", "a cause counts the tests it failed, with the engine's first frame");
         text.Should().Contain("60,000 ×", "a line the output repeats with its numbers changing is one line with its count");
         File.Exists(_folder.File("digest.json")).Should().BeTrue();
+
+        // As a run on GitHub gives them, where the annotations are all a reader who is not signed
+        // in sees: ten errors, each a cause whole, and a notice with the head and the repeated lines.
+        var (_, annotated) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") }, "--read", _folder.Path);
+        var lines = annotated.Split('\n');
+        var errors = lines.Where(line => line.StartsWith("::error ", StringComparison.Ordinal)).ToList();
+        errors.Should().HaveCount(10);
+        errors.Should().OnlyContain(line => line.Contains("%0Aat Engine.", StringComparison.Ordinal) && line.Contains("`Engine.Tests.Area.Class", StringComparison.Ordinal),
+            "each carries its cause's frames and tests");
+        lines.Should().ContainSingle(line => line.StartsWith("::notice ", StringComparison.Ordinal) && line.Contains("500 failed") && line.Contains("60,000 ×"));
+        File.ReadAllText(_folder.File("summary.md")).Should().Contain("500 failed, of 12 causes", "the page is the job's summary");
     }
 
     [NeedsPythonTheory]
@@ -83,7 +94,9 @@ public sealed class TestScriptTests : IDisposable
 
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it
     // is not an option, and returns its exit code and what it printed.
-    private static (int Exit, string Log) Script(params string[] arguments)
+    private static (int Exit, string Log) Script(params string[] arguments) => Script(new Dictionary<string, string>(), arguments);
+
+    private static (int Exit, string Log) Script(Dictionary<string, string> environment, params string[] arguments)
     {
         var start = new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Root, RedirectStandardOutput = true, RedirectStandardError = true };
         start.ArgumentList.Add(Path.Combine("build", "test.py"));
@@ -95,6 +108,8 @@ public sealed class TestScriptTests : IDisposable
         }
         foreach (var argument in rest) start.ArgumentList.Add(argument);
         start.Environment.Remove("GITHUB_ACTIONS");
+        start.Environment.Remove("GITHUB_STEP_SUMMARY");
+        foreach (var (name, value) in environment) start.Environment[name] = value;
 
         using var script = Process.Start(start)!;
         var log = script.StandardOutput.ReadToEndAsync();

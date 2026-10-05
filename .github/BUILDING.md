@@ -261,8 +261,10 @@ render tests and the reference frames run under the validation layer, `E3D_REQUI
 `E3D_REQUIRE_VALIDATION` failing them where the device or the layer does not start rather than
 letting them skip, and `build/play-game.sh Pusher` builds a game from the package and draws 300
 frames of it offscreen, failing on an error the layer reports. Each job runs its tests through
-`build/test.py`, whose page ends the step's log and is the job's summary, with each cause an error
-annotation, so a red run says what failed to whoever opens it, and a last job, `digest`, puts the
+`build/test.py`, whose page ends the step's log and is the job's summary. Each cause is also an
+error annotation with its whole entry, and a notice has the page's head and the lines repeated
+most, since a reader who is not signed in to GitHub reads a run's annotations and nothing else,
+so a red run says what failed to whoever opens it. A last job, `digest`, puts the
 three pages into one, each cause with the systems it was seen on. Each job has a time limit.
 Each builds with `-warnaserror`, so
 a warning fails the commit that wrote it, and a warning that is right to keep is turned off where

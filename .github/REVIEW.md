@@ -245,3 +245,11 @@ The reflection probe's reference frame fails here now and then when its class ru
 of its pixels off with the room lit dimmer, in two runs of three at `5107f9a5`, one in four at
 `c06ec659` and `71224507`, and none in four at `d1667840`. It has passed in every run of the
 whole suite. It is taken up after Verdicts 17 to 19.
+
+**Verdict 17, the annotations.** Each cause's annotation carries its whole entry of the page, the
+message, the frames and the tests with the count of the rest, a line each, and a lost process's
+carries its account, its tests and its last lines. One notice carries the page's head and the
+lines the output repeated most, and the digest job's carries each system's head. The page and
+the annotations build a cause's entry the one way. `TestScriptTests` reads what the script prints
+for its 500 failures as a run on GitHub would, ten errors each with a frame and a test's name and
+one notice with the head and the 60,000 repeated lines, and finds the page in the summary file.
