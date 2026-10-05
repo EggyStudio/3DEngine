@@ -49,4 +49,15 @@ public sealed class ImageTextTests : IDisposable
         colors.Should().Contain(c => c.A == 0, "and around them it is clear");
         colors[image.Width + 1].Should().Be(GetImageColor(image, 1, 1), "the colors are row by row");
     }
+
+    [Fact]
+    public void Default_Text_Below_Ten_Pixels_Is_Ten_High_As_In_Raylib()
+    {
+        MeasureText("Sine 0.50", 6).Should().Be(MeasureText("Sine 0.50", 10), "raylib raises a smaller size to 10");
+        MeasureText("Sine 0.50", 12).Should().BeGreaterThan(MeasureText("Sine 0.50", 10), "and leaves a larger one");
+
+        var small = ImageText("Sine", 6, Color.Red);
+        var ten = ImageText("Sine", 10, Color.Red);
+        (small.Width, small.Height).Should().Be((ten.Width, ten.Height), "ImageText raises it as well");
+    }
 }

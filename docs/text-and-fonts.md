@@ -21,9 +21,10 @@ for (int size = 10; size <= 30; size += 5)
 ```
 
 The default font is ProggyClean, which Dear ImGui carries. It is baked again at each size it is
-drawn at and kept, so small text stays sharp rather than a large bake scaled down. A newline in
-the string starts a new line below the first. `DrawFPS(x, y)` draws the frame rate in it, at 20
-pixels in lime.
+drawn at and kept, so small text stays sharp rather than a large bake scaled down. A size
+below 10 is drawn at 10, as raylib's is, since a raylib program that asks for 6 is read at 10.
+A newline in the string starts a new line below the first. `DrawFPS(x, y)` draws the frame rate
+in it, at 20 pixels in lime, orange below 30 frames a second and red below 15, as raylib's does.
 
 ## Fonts from files
 

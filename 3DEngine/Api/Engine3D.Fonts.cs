@@ -682,8 +682,12 @@ public static partial class Engine3D
     }
 
     /// <summary>A new image holding text in the default font, as large as the text, clear around it.</summary>
-    public static Image ImageText(string text, int fontSize, Color color) =>
-        ImageTextEx(GetFontDefault(fontSize), text, fontSize, 0, color);
+    /// <remarks>A size below 10 is drawn at 10, as <see cref="DrawText"/> draws it.</remarks>
+    public static Image ImageText(string text, int fontSize, Color color)
+    {
+        fontSize = DefaultTextSize(fontSize);
+        return ImageTextEx(GetFontDefault(fontSize), text, fontSize, 0, color);
+    }
 
     /// <summary>A new image holding text in a font, as large as the text, clear around it.</summary>
     public static Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color tint)

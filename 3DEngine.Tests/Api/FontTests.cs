@@ -29,6 +29,16 @@ public class FontTests
         Engine3D.LoadCodepoints("aba€").Should().Equal('a', 'b', 0x20AC);
     }
 
+    [Fact]
+    public void The_Frame_Rate_Is_Lime_Then_Orange_Below_30_And_Red_Below_15_As_In_Raylib()
+    {
+        Engine3D.FpsColor(60).Should().Be(Color.Lime);
+        Engine3D.FpsColor(30).Should().Be(Color.Lime);
+        Engine3D.FpsColor(29).Should().Be(Color.Orange);
+        Engine3D.FpsColor(15).Should().Be(Color.Orange);
+        Engine3D.FpsColor(14).Should().Be(Color.Red);
+    }
+
     internal static string Lato()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

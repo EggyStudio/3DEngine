@@ -10,10 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `71dcbdeb`. A render texture that nothing clears in a frame keeps what it held
-(`d3150f11`), a fault the port of `shapes_double_pendulum` found, its trail drawn a stroke a
-frame, and nine more of raylib's shapes examples are written (`71dcbdeb`), the table standing
-at 62 written, 1 in part, 121 that can be and 37 missing. Verdicts 21 and 22 come of the two.
+Reviewed up to `5ba111bd`. The flat API carries the 39 functions of raymath that C# has no
+counterpart for, each held to raymath's results by `RayMathTests`, and the comparison with
+raylib maps the rest to C#'s names (`2bbc746a`), which settles Verdict 22. Verdict 21 is
+settled on its measurement: a target of 1920 by 1080 at four samples holds the same memory
+before and after, and the targets' pass takes the same time, on NVIDIA and on lavapipe. A GPU
+that draws in tiles could not be measured here. Eighteen more of raylib's shapes examples are
+written (`817e4cea`, `5ba111bd`), seven with ImGui's controls where raygui's stand and three
+held against raylib's C, and the table stands at 80 written, 1 in part, 103 that can be and 37
+missing. No verdict is open.
+
+Before them, a render texture that nothing clears in a frame keeps what it held (`d3150f11`),
+a fault the port of `shapes_double_pendulum` found, and nine more of raylib's shapes examples
+were written (`71dcbdeb`).
 
 Before them, a reflection probe is ready once both passes of its capture have
 finished, and again after a change in its lights (`95229d36`), which settles Verdict 20, the
@@ -60,7 +69,7 @@ for a reply. In this order.
 1. **What the next page says of Windows.** The registry step of `1c1a3cea` has not run on a
    runner, since nothing after `92d30bbd` is pushed. Once it is, the reviewing session reads
    the page and puts what is left of the 126 into a verdict here, which then comes before a
-   port. The ports go on until then, after Verdicts 21 and 22.
+   port. The ports go on until then.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -114,29 +123,9 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 20 are settled, and their numbers are not given again.
+Verdicts 1 to 22 are settled, and their numbers are not given again.
 
-**21. Every multisampled render target keeps its samples, for the two programs that leave one
-uncleared** (N 3.6). `d3150f11` gives a target that nothing clears what it held, which raylib's
-programs count on, and to load it the target's multisampled color is an image of its own that
-every pass stores, where it was a transient one that no pass stored. A render texture is drawn
-at the window's samples, four unless asked, so every render texture of every game holds four
-times its color for good and writes it out each pass, which a GPU that draws in tiles, as a
-Mac's does, pays for most. What that costs is measured before it stays: the memory a target of
-the window's size holds before and after, and the frame time of the games that draw into
-targets, which `build/soak.sh` plays. If it costs, a target keeps its samples from the frame
-that first leaves it uncleared and is transient until then, so a program that clears every
-frame pays nothing. The owner is asked beside this whether a render texture has one sample, as
-raylib's has, and at one sample there is nothing of this to keep.
-
-**22. Two of raymath's functions are the examples' own** (N 5.2). `shapes_vector_angle` calls
-`Vector2Angle` and `Vector2LineAngle`, which `System.Numerics` lacks, and `71dcbdeb` writes them
-in `3DEngine.Examples/RayMath.cs`. A raylib program calls raymath as it calls the rest of
-raylib, and a game written on the package cannot call what is in the examples' project. Item 2
-has a function the flat API lacks carried, or its row saying why not. `raymath.h` is read once
-against `System.Numerics`, and each function C# has no counterpart for is carried by the
-package, with the comparison with raylib saying which of raymath's are C#'s own under another
-name. `reasings.h` is a file of raylib's examples and stays the examples' here.
+None open.
 
 ## Decisions
 
@@ -180,55 +169,19 @@ name. `reasings.h` is a file of raylib's examples and stays the examples' here.
 
 ## Replies
 
-**Verdict 21, what keeping a target's samples costs.** Measured on NVIDIA and lavapipe with a
-target of 1920 by 1080 at four samples drawn into every frame, at `26db01a5` and at `d3150f11`,
-twice each, with and without a clear every frame. The memory a target holds is the same before
-and after, 33.4 MB of multisampled color on NVIDIA and 33.2 MB on lavapipe, since a target's
-images were always given device-local memory in full and the transient one was never given memory
-allocated lazily. The targets' pass took 0.32 to 0.66 ms of the GPU on NVIDIA and 7.0 to 9.7 ms on
-lavapipe, before and after alike, with or without the clear, the spread of the runs larger than
-any difference between them. What the store costs on a GPU that draws in tiles, as a Mac's, cannot
-be measured here, and there the transient image would need memory allocated lazily to save any.
-Nothing measured costs, so every target keeps its samples as it does, and a target of one sample,
-the owner's to say, has none to keep.
-
-**Verdict 22, raymath in the package.** `raymath.h` was read against `System.Numerics` and the BCL,
-and the 39 functions with no counterpart are carried in `Engine3D.RayMath.cs` under raymath's
-names and arithmetic, among them `Vector2Angle`, `Vector2LineAngle`, `Vector2Rotate`, the
-`MoveTowards`, `ClampValue`, `Equals` and `Refract` of each vector, `Vector3Unproject`,
-`QuaternionFromEuler` and `QuaternionToEuler`, with the cheatsheet's Math section. The
-comparison has a section that maps the rest to C#'s names, and says where they answer otherwise:
-a vector of length zero normalized to NaN, an axis taken to be of length one, and projections
-that clip depth from 0 to 1. Reading it found raymath's names for its Euler matrices counting the
-product, `MatrixRotateXYZ` turning a point about Z first, which their docs say. `RayMathTests` holds
-each carried function to raymath's results, and holds `MatrixRotate`, the rotations about X, Y
-and Z, `MatrixLookAt` and `QuaternionFromAxisAngle` to raymath's arithmetic, written from its source,
-against their counterparts. `QuaternionFromEuler` is carried because `CreateFromYawPitchRoll`
-composes in another order, which the test shows. `shapes_vector_angle` calls the package's, and
-the examples' `RayMath.cs` is gone.
-
-**Now 3, eleven more of raylib's shapes examples.** `shapes_clock_of_clocks`, `shapes_mouse_trail`,
-`shapes_simple_particles`, `shapes_starfield_effect`, `shapes_lines_drawing`,
-`shapes_math_angle_rotation`, `shapes_ball_physics`, `shapes_penrose_tile`, `shapes_drag_puzzle`,
-`shapes_ellipse_collision` and `shapes_polygon_lines` are raylib's, written again from its source.
-The particles' circular buffer, the balls' and the L-system's pointers and C strings, and the
-clock's time are C#'s arrays, strings and `DateTime`, and raymath's `Clamp` and `Lerp` are
-`Math.Clamp` and `float.Lerp`, as the comparison says. Each picture was set beside raylib's
-screenshot, and the two that differ for no input of the screenshot's, `shapes_starfield_effect`'s
-words and `shapes_math_angle_rotation`'s center, are raylib's source as it is now, its screenshots
-being older. Driven through `./e3d`, the Penrose tiling raised two generations is raylib's picture
-line for line. `shapes_math_angle_rotation` keeps raylib's window of 720 by 400, on N 4.5's list. The table stands at 73 written, 1 in part, 110 that can be, 37 missing and 1 that
-does not apply.
-
-**Now 2, raylib's shapes examples with raygui, with ImGui in raygui's place.**
-`shapes_ring_drawing`, `shapes_circle_sector_drawing`, `shapes_rounded_rectangle_drawing`,
-`shapes_recursive_tree`, `shapes_triangle_strip`, `shapes_outlines_thickness` and
-`shapes_hilbert_curve` are raylib's, written again from its source, with raygui's sliders,
-checkboxes and spinner made ImGui's. They stand in one ImGui window with no decoration or
-background, placed where raygui's controls stand, in ImGui's light style, which is nearer
-raygui's own and keeps the labels readable on raylib's white. The examples hold no shim that
-draws raygui's calls. A label stands to the right of its control, where ImGui puts it, and a
-spinner is an `InputInt` clamped to raygui's bounds. Each picture was set beside raylib's
-screenshot, and the Hilbert curve, raised to order 3 by its spinner's button through `./e3d`,
-is the curve of raylib's screenshot. The table stands at 80 written, 1 in part, 103 that can be,
-37 missing and 1 that does not apply.
+**Now 2, the rest of raylib's examples with raygui.** `shapes_splines_drawing`,
+`shapes_pie_chart`, `shapes_kaleidoscope`, `shapes_math_sine_cosine`, `shapes_outlines_testbed`,
+`core_directory_files`, `core_clipboard_text` and `core_compute_hash` are raylib's, written again
+from its source with ImGui in raygui's place. raygui's dropdown is a combo, its scroll panel a
+child window, its toggle a button that stays down, its list view a list box, and a button that
+stands alone is an ImGui window of its own at raygui's rectangle. raygui's icons are left out,
+ImGui's font having none. The testbed's group boxes are drawn in the camera's space, where ImGui
+does not draw, so they are lines and text in raygui's color. raylib's file, hash and Base64
+helpers are C#'s `Directory`, `System.Security.Cryptography` and `Convert`, and the CRC-32 is the
+example's own, since .NET keeps one in a package outside the runtime. Pressed through `./e3d`,
+the hashes are those of raylib's screenshot, all but its SHA1, which raylib's `ComputeSHA1` of
+today, compiled from its source, gives as ours does, the screenshot being older. Two calls were
+brought to raylib's. `DrawText`, `MeasureText` and `ImageText` draw a size below 10 at 10, as
+raylib's do, since the sine example asks for 6, and `DrawFPS` is orange below 30 frames a second
+and red below 15, as the kaleidoscope's 20 shows in raylib's screenshot. The table stands at 88
+written, 1 in part, 95 that can be, 37 missing and 1 that does not apply.
