@@ -192,6 +192,25 @@ the layer of the body it looks past collides with, so a shot's ray cast past the
 it passes the player's friends as the shot does. In a scene file a `Collider`'s `Layer` puts its
 body on a layer.
 
+## Fast bodies
+
+A body meets what is within a tenth of a unit of it as a step starts, so a ball thrown at 20 units
+a second crosses a wall a fifth of a unit thick within a step and is never seen inside it.
+`SetPhysicsBodyContinuous` sweeps a body over each step to find what it would meet, for the few a
+game knows are fast:
+
+```csharp
+var ball = CreatePhysicsSphere(hand, 0.1f, 0.4f);
+SetPhysicsBodyContinuous(ball, true);
+SetPhysicsBodyVelocity(ball, aim * 60);
+```
+
+A swept body stops at a wall of any thickness at 50 units a second, at one a fifth of a unit thick
+at 100 and half a unit at 300, since a contact stops a body over a step rather than at once. A
+bullet is faster than that and is better as a ray or a ball cast each frame from where it was to
+where it is, `GetSphereCastPhysics` above, than as a body. In a scene file a `RigidBody`'s
+`Continuous` sweeps its body.
+
 ## Joints
 
 A joint holds two bodies together, and two bodies joined do not collide with each other. A ball

@@ -1,5 +1,6 @@
 using System.Numerics;
 using BepuPhysics;
+using BepuPhysics.Collidables;
 
 namespace Engine;
 
@@ -154,6 +155,27 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
+    /// <summary>
+    /// Sweeps a body over each step to find what it would meet within it, for a body fast enough to
+    /// cross a thin wall in one step, as a shot or a ball struck hard is, or stops sweeping it.
+    /// </summary>
+    /// <remarks>
+    /// A body otherwise meets what is within a tenth of a unit of it at the start of a step, so a
+    /// ball of 20 units a second crossed a wall a fifth of a unit thick. A swept body's contacts
+    /// reach as far as it moves, which costs a sweep test for each pair it nears, so it is for the
+    /// few bodies a game knows are fast. A contact stops a body over a step rather than at once,
+    /// its spring the stiffest a step of a sixtieth of a second solves, so one at 100 units a
+    /// second needs a wall a fifth of a unit thick and one at 300 half a unit, measured with a ball
+    /// of a tenth of a unit across.
+    /// </remarks>
+    internal void SetContinuous(PhysicsBody body, bool continuous)
+    {
+        if (body.Kind == BodyKind.Static || !Exists(body)) return;
+        var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        reference.Collidable.Continuity = continuous ? ContinuousDetection.Continuous(1e-3f, 1e-3f) : ContinuousDetection.Passive;
+        reference.Collidable.MaximumSpeculativeMargin = continuous ? float.MaxValue : SpeculativeMargin;
+    }
+
     internal void SetAngularVelocity(PhysicsBody body, Vector3 velocity)
     {
         if (body.Kind == BodyKind.Static) return;

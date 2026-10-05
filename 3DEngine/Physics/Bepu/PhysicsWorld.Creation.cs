@@ -10,8 +10,12 @@ namespace Engine;
 public sealed partial class PhysicsWorld
 {
     /// <summary>Wraps a shape index in a <see cref="CollidableDescription"/> with the engine's default speculative margin.</summary>
-    private static CollidableDescription Coll(TypedIndex shape) => 
-        new(shape, 0.1f);
+    // How far from a body, in units, contacts are made ahead of its meeting what it nears, unless
+    // it is swept (SetContinuous).
+    internal const float SpeculativeMargin = 0.1f;
+
+    private static CollidableDescription Coll(TypedIndex shape) =>
+        new(shape, SpeculativeMargin);
 
     /// <summary>Registers a convex shape and adds a dynamic body for it, returning the engine handle.</summary>
     private PhysicsBody RegisterDynamic<TShape>(in TShape shape, Vector3 position, float mass, PhysicsMaterial? material, int entityId)

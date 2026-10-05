@@ -69,6 +69,28 @@ public class PhysicsBodiesTests
     }
 
     [Fact]
+    public void A_Rigid_Bodys_Continuous_Goes_Through_A_Scene_File_Onto_Its_Body()
+    {
+        var authoring = NewWorld();
+        var ecs = authoring.Resource<EcsWorld>();
+        var ball = ecs.Spawn();
+        ecs.Add(ball, new Transform(Vector3.Zero));
+        ecs.Add(ball, Collider.Sphere(0.1f));
+        ecs.Add(ball, RigidBody.Dynamic() with { Continuous = true });
+        var json = SceneFile.Write(ecs);
+        authoring.Resource<PhysicsWorld>().Dispose();
+
+        var loaded = NewWorld();
+        var spawned = SceneFile.Read(loaded, json);
+        PhysicsBodies.Run(loaded);
+        var physics = loaded.Resource<PhysicsWorld>();
+        var body = loaded.Resource<EcsWorld>().GetReadOnly<PhysicsBody>(spawned.Single());
+        physics.Simulation.Bodies[new BepuPhysics.BodyHandle(body.Handle)].Collidable.Continuity.Mode
+            .Should().Be(BepuPhysics.Collidables.ContinuousDetectionMode.Continuous);
+        physics.Dispose();
+    }
+
+    [Fact]
     public void A_Body_Made_For_An_Entity_Is_Destroyed_With_It()
     {
         var world = NewWorld();

@@ -103,3 +103,13 @@ collides with. Tests find balls and a box passing through what their layers do n
 and reporting no contact, a trigger reporting only the player's layer, a character falling through
 a platform to the floor, and a layer through a scene file, with a section in docs/physics.md.
 `PublicApi.txt` gains three functions and a field. The other entries follow in order.
+
+**A fast body through a thin wall.** Measured first: every body's contacts reached a tenth of a
+unit ahead, so a ball of 20 units a second crossed a wall a fifth of a unit thick.
+`SetPhysicsBodyContinuous`, and a `RigidBody`'s `Continuous` in scene files, sweep a body with
+Bepu's continuous mode and its margin unbounded, which stops it at a wall of any thickness at 50
+units a second, a fifth of a unit's at 100 and half a unit's at 300. Past that a 30 Hz contact
+spring, the stiffest a sixtieth's step solves, stops it over a step rather than at once, which the
+documents say, pointing a bullet at a ball cast. It stays a choice per body rather than every
+body's, since it costs a sweep test a pair, and the games' bodies keep what they were tuned with.
+A test finds a ball at 40 crossing a thin wall plain and stopping swept.

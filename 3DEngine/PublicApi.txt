@@ -1210,6 +1210,7 @@ static class Engine.Engine3D
   static void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position)
   static void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees)
   static void SetPhysicsBodyAngularVelocity(PhysicsBody body, Vector3 velocity)
+  static void SetPhysicsBodyContinuous(PhysicsBody body, bool continuous)
   static void SetPhysicsBodyLayer(PhysicsBody body, int layer)
   static void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce)
   static void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position)
@@ -2286,6 +2287,7 @@ readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
   void Deconstruct(out Texture2D Texture, out Texture2D Depth)
 struct Engine.RigidBody
   BodyKind Kind
+  bool Continuous
   float Mass
   static RigidBody Dynamic(float mass = 1f)
   static RigidBody Kinematic { get; }

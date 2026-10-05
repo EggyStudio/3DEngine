@@ -84,6 +84,13 @@ public struct RigidBody
     /// <summary>A dynamic body's mass.</summary>
     public float Mass;
 
+    /// <summary>
+    /// Whether a dynamic body is swept over each step, as a ball struck hard is, so it meets a thin
+    /// wall it would otherwise cross within a step. <c>SetPhysicsBodyContinuous</c> says what it
+    /// costs and how fast it holds.
+    /// </summary>
+    public bool Continuous;
+
     /// <summary>A body that falls and is pushed.</summary>
     public static RigidBody Dynamic(float mass = 1) => new() { Kind = BodyKind.Dynamic, Mass = mass };
 
@@ -228,6 +235,7 @@ internal static class PhysicsBodies
             if (ecs.TryGet<PhysicsMaterial>(entity, out var material)) physics.SetMaterial(body, material);
             if (collider.IsTrigger) physics.SetTrigger(body, true);
             if (collider.Layer != 0) physics.SetLayer(body, collider.Layer);
+            if (rigid.Continuous) physics.SetContinuous(body, true);
             if (rotation != Quaternion.Identity && collider.Shape != ColliderShape.Capsule) physics.SetRotation(body, rotation);
             ecs.Add(entity, body);
             made[body] = ecs.Handle(entity);

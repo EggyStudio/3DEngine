@@ -701,6 +701,7 @@ void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     
 void SetPhysicsBodyLayer(PhysicsBody body, int layer);                          // Put it on one of 32 layers, 0 to begin with
 int GetPhysicsBodyLayer(PhysicsBody body);                                      // The layer it is on
 void SetPhysicsLayersCollide(int a, int b, bool collide);                       // Whether two layers' bodies collide, all do to begin with
+void SetPhysicsBodyContinuous(PhysicsBody body, bool continuous);               // Sweep a fast body over each step, so it does not cross a thin wall
 PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1); // Level geometry shaped as a model's triangles
 PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1); // Falls and is pushed, shaped as the hull of the model
 PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point); // Join two bodies at a point, free to turn

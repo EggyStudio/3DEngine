@@ -328,6 +328,21 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Fast_Ball_Crosses_A_Thin_Wall_Unless_It_Is_Swept()
+    {
+        SetPhysicsGravity(Vector3.Zero);
+        CreatePhysicsStaticBox(new Vector3(0, 0, -5), new Vector3(10, 10, 0.1f));
+        var plain = CreatePhysicsSphere(new Vector3(-2, 0, 0), 0.05f, 0.01f);
+        var swept = CreatePhysicsSphere(new Vector3(2, 0, 0), 0.05f, 0.01f);
+        SetPhysicsBodyContinuous(swept, true);
+        SetPhysicsBodyVelocity(plain, new Vector3(0, 0, -40));
+        SetPhysicsBodyVelocity(swept, new Vector3(0, 0, -40));
+
+        RunUntil(() => GetPhysicsBodyPosition(plain).Z < -8).Should().BeTrue("at 40 units a second the plain ball crosses the wall within a step");
+        GetPhysicsBodyPosition(swept).Z.Should().BeGreaterThan(-5, "the swept one meets it");
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);

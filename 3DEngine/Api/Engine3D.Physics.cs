@@ -354,6 +354,19 @@ public static partial class Engine3D
     /// </remarks>
     public static void SetPhysicsBodyLayer(PhysicsBody body, int layer) => Physics.SetLayer(body, layer);
 
+    /// <summary>
+    /// Sweeps a body over each step to find what it would meet within it, as a ball struck hard or a
+    /// thrown crate needs, so it does not cross a thin wall within one step, or stops sweeping it.
+    /// </summary>
+    /// <remarks>
+    /// Without it a ball of 20 units a second crossed a wall a fifth of a unit thick. With it a body
+    /// stops at a wall of any thickness at 50 units a second, at a fifth of a unit's at 100 and at
+    /// half a unit's at 300, since a contact stops a body over a step rather than at once. A shot
+    /// faster than that is a ray or a ball cast each frame, as <see cref="GetSphereCastPhysics"/>
+    /// makes, rather than a body. A swept body costs a sweep test for each body it nears.
+    /// </remarks>
+    public static void SetPhysicsBodyContinuous(PhysicsBody body, bool continuous) => Physics.SetContinuous(body, continuous);
+
     /// <summary>The layer a body is on.</summary>
     public static int GetPhysicsBodyLayer(PhysicsBody body) => Physics.GetLayer(body);
 

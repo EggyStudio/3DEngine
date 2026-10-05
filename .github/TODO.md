@@ -185,7 +185,10 @@ point of them moves, pushes them at their center or at a point, casts rays and b
 which go through triggers and may look past one body and the layers it does not collide with,
 finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where
 each pair met (CHEATSHEET.md, Physics). A `Collider` marked `IsTrigger` makes a trigger from a
-scene, and its `Layer` puts the body on a layer. A kinematic body under a `Parent` follows its
+scene, and its `Layer` puts the body on a layer. A body a game knows is fast is swept over each
+step (`SetPhysicsBodyContinuous`, a `RigidBody`'s `Continuous`), which stops it at a wall of any
+thickness up to 50 units a second and at thicker ones faster, the contact's spring at the stiffest
+a step of a sixtieth solves. A kinematic body under a `Parent` follows its
 place under the parent by velocity, so a platform a moving parent carries carries what stands on
 it, a character walking relative to it and a crate by friction. A ball joint swings and twists
 within a cone, and a distance joint keeps a range that can change. Two bodies a joint holds do not
@@ -195,10 +198,6 @@ set), holds slopes up to its limit, rides what moves under it, crouches and stan
 room, and reports ground. A vehicle is a box held up by raycast wheels as springs, gripping,
 driving, braking and steering on the fixed step. What is missing, in the order a game meets it:
 
-- **A fast body passes through a thin wall.** A body moves by its velocity times the step, and one
-  that crosses a wall within a step, as a shot or a ball struck hard, is never seen inside it.
-  Bepu's continuous collision detection, which sweeps such a body over the step, needs turning on
-  per body, for the bodies a game says are fast.
 - **Only a hinge has a motor, and nothing slides.** A sliding door, a lift or a piston needs a joint
   along an axis with limits and a motor, which Bepu's point-on-line and linear axis constraints
   make, and a scene's `Joint` a kind for it.
