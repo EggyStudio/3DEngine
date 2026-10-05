@@ -45,10 +45,9 @@ removed from this file, and an item that is partly done is rewritten around what
   frames in flight (20 ms for a cell's textures), and a probe's readback waiting for its whole frame
   (8 to 24 ms). The worst frame of a walk is now 22 ms, and 19 to 25 ms in a native build. What is
   left is the first frames' compiling of code a JIT build has not run yet, the physics step's
-  shapes and joints most of it (up to 15 ms after a warm-up on a worker), a probe's six faces
-  recorded in one frame (3 to 5 ms), images made for a cell's textures (5 ms), and the first
-  shadow pass (17 ms once). Recording a probe's faces over six frames and making images under a
-  budget a frame are the next steps.
+  shapes and joints most of it (up to 15 ms after a warm-up on a worker), images made for a cell's
+  textures (5 ms), and the first shadow pass (17 ms once). A probe's faces are recorded one a frame.
+  Making images under a budget a frame is the next step.
 
 ### The flat API
 

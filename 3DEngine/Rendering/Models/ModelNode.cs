@@ -1246,19 +1246,35 @@ public sealed class ModelRenderer : IDisposable
 
     /// <summary>
     /// Captures the first probe whose capture is out of date, drawing the window's meshes from its
-    /// position into six faces, or the first render target's when the window draws none, which are
-    /// read back at the end of the frame and prefiltered on a worker thread. One a frame, and none
-    /// while no meshes are drawn. A probe is captured twice, the second time with the first bound,
-    /// so the metal in its room reflects the room in the capture rather than the sky.
+    /// position into six faces, one face a frame, or the first render target's when the window draws
+    /// none, which are read back as their frames finish and prefiltered on a worker thread. One
+    /// probe at a time, and none while no meshes are drawn. A probe is captured twice, the second
+    /// time with the first bound, so the metal in its room reflects the room in the capture rather
+    /// than the sky.
     /// </summary>
+    /// <remarks>
+    /// All six faces in one frame cost it 3 to 5 ms while a level streamed rooms in, each bringing
+    /// a probe to capture twice, and a face a frame costs a sixth of that.
+    /// </remarks>
     public void CaptureProbes(RenderContext renderContext, RenderWorld renderWorld)
     {
         if (renderWorld.TryGet<ReflectionProbes>() is not { } probes || renderContext.Device is not GraphicsDevice device) return;
         if (renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } draws) return;
         var source = draws.WindowViewProjection is not null ? 0 : draws.Targets() is [var first, ..] ? first : (int?)null;
         if (source is null) return;
-        var probe = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
-        if (probe is null) return;
+        if (_capture is null)
+        {
+            var next = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
+            if (next is null) return;
+            next.Capturing = true;
+            var wanted = next.Wanted;
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
+            projection.M22 = -projection.M22;
+            var viewProjections = new Matrix4x4[6];
+            for (int f = 0; f < 6; f++)
+                viewProjections[f] = Matrix4x4.CreateLookAt(wanted.Position, wanted.Position + ProbeFaceAxes[f].Forward, ProbeFaceAxes[f].Up) * projection;
+            _capture = new ProbeCapture(next, wanted, viewProjections);
+        }
 
         if (_probeFaces is null)
         {
@@ -1266,43 +1282,46 @@ public sealed class ModelRenderer : IDisposable
             _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float))];
             for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
         }
-        var wanted = probe.Wanted;
-        var eye = wanted.Position;
         // Cleared as the window is, in linear light, so an opening shows what the window shows past the room.
         var clear = renderWorld.TryGet<ClearColor>() is { } windowClear
             ? new ClearColor(BloomRenderer.SrgbToLinear(windowClear.R), BloomRenderer.SrgbToLinear(windowClear.G), BloomRenderer.SrgbToLinear(windowClear.B), 1)
             : ClearColor.Black;
-        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2, 1, 0.05f, 1000);
-        projection.M22 = -projection.M22;
-        var viewProjections = new Matrix4x4[6];
-        var faces = new byte[6][];
-        var arrived = 0;
-        probe.Capturing = true;
-        for (int f = 0; f < 6; f++)
-        {
-            var (forward, up) = ProbeFaceAxes[f];
-            viewProjections[f] = Matrix4x4.CreateLookAt(eye, eye + forward, up) * projection;
-            var target = _probeFaces[f];
-            var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
-                target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
-            pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
-            pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
-            Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, viewProjections[f], ProbeCaptureLights);
-            pass.EndRenderPass();
 
-            var face = f;
-            device.RequestReadback(target.ColorView.Image, pixels =>
+        var capture = _capture;
+        var face = capture.Next++;
+        var target = _probeFaces[face];
+        var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+            target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, clear));
+        pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
+        pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
+        Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, capture.ViewProjections[face], ProbeCaptureLights);
+        pass.EndRenderPass();
+        device.RequestReadback(target.ColorView.Image, pixels =>
+        {
+            capture.Faces[face] = pixels;
+            if (++capture.Arrived < 6) return;
+            Task.Run(() =>
             {
-                faces[face] = pixels;
-                if (++arrived < 6) return;
-                Task.Run(() =>
-                {
-                    var map = EnvironmentMap.FromCapture(faces, ProbeFaceSize, viewProjections, eye);
-                    probe.Done = new ReflectionProbes.Capture(map, wanted);
-                });
+                var map = EnvironmentMap.FromCapture(capture.Faces, ProbeFaceSize, capture.ViewProjections, capture.Wanted.Position);
+                capture.Probe.Done = new ReflectionProbes.Capture(map, capture.Wanted);
             });
-        }
+        });
+        // The next probe waits for the next frame once this one's faces are all drawn.
+        if (capture.Next == 6) _capture = null;
     }
+
+    // A probe's capture under way: its faces drawn so far, a face a frame, and those read back.
+    private sealed class ProbeCapture(ReflectionProbes.Probe probe, (Vector3 Position, Vector3 Size, int Capture) wanted, Matrix4x4[] viewProjections)
+    {
+        public ReflectionProbes.Probe Probe { get; } = probe;
+        public (Vector3 Position, Vector3 Size, int Capture) Wanted { get; } = wanted;
+        public Matrix4x4[] ViewProjections { get; } = viewProjections;
+        public byte[][] Faces { get; } = new byte[6][];
+        public int Next;
+        public int Arrived;
+    }
+
+    private ProbeCapture? _capture;
 
     // Each probe's cube, uploaded when its capture is new, kept by the capture it was made from.
     private readonly Dictionary<ReflectionProbes.Probe, (EnvironmentMap Map, CubeMap Cube)> _probeCubes = [];

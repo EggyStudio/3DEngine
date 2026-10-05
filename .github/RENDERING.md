@@ -311,7 +311,7 @@ left out of the shadow map (`ModelDraw.CastsShadow`).
 
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
-and before its passes, captures the first probe out of date, one a frame. The window's batches,
+and before its passes, captures the first probe out of date, one face a frame. The window's batches,
 or the first render target's when the window draws no meshes, are drawn through six views of a
 right angle from the probe's middle into half-float render targets of 64 texels
 (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the window's
