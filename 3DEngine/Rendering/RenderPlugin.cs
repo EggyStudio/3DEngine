@@ -107,7 +107,7 @@ public sealed class RenderPlugin : IPlugin
 
         // The resize the window or an offscreen run asks for, carried out by the render system
         // once none has come for a moment.
-        var resize = new SurfaceResize(renderer);
+        var resize = new SurfaceResize(renderer, cfg.Vsync);
         app.World.InsertResource(resize);
 
         if (window is null)
@@ -161,6 +161,11 @@ public sealed class RenderPlugin : IPlugin
                 if (resize.Pending && (Environment.TickCount64 - resize.Tick) >= ResizeDebounceMs)
                 {
                     resize.Pending = false;
+                    if (resize.VsyncChanged)
+                    {
+                        resize.VsyncChanged = false;
+                        r.Context.SetVsync(resize.Vsync);
+                    }
                     Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
                     r.Context.OnResize();
                 }
@@ -219,10 +224,20 @@ public sealed class SurfaceResize
 {
     private readonly Renderer _renderer;
 
-    internal SurfaceResize(Renderer renderer) => _renderer = renderer;
+    internal SurfaceResize(Renderer renderer, bool vsync)
+    {
+        _renderer = renderer;
+        Vsync = vsync;
+    }
 
     /// <summary>Whether a resize waits to be carried out.</summary>
     internal bool Pending { get; set; }
+
+    /// <summary>Whether frames wait for the display's refresh, as asked for last, which the next rebuild carries out.</summary>
+    public bool Vsync { get; private set; }
+
+    // A change of vsync not yet carried out.
+    internal bool VsyncChanged { get; set; }
 
     /// <summary>When the last resize was asked for, in <see cref="Environment.TickCount64"/>.</summary>
     internal long Tick { get; private set; }
@@ -237,5 +252,19 @@ public sealed class SurfaceResize
         if (width <= 0 || height <= 0) return;
         Pending = true;
         Tick = Environment.TickCount64;
+    }
+
+    /// <summary>
+    /// Asks for frames to wait for the display's refresh or not, which rebuilds the swapchain with
+    /// the present mode for it on the next frame, as a game's settings screen changes it.
+    /// </summary>
+    public void RequestVsync(bool vsync)
+    {
+        if (vsync == Vsync) return;
+        Vsync = vsync;
+        VsyncChanged = true;
+        Pending = true;
+        // Carried out on the next frame, as nothing is being dragged that more requests follow.
+        Tick = 0;
     }
 }

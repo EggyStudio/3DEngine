@@ -69,7 +69,9 @@ while (!WindowShouldClose())
 | `GetFPS()` | Frames a second, smoothed |
 | `SetTargetFPS(fps)` | Caps the frame rate, 0 for none |
 
-`SetConfigFlags(ConfigFlags.VsyncHint)` before `InitWindow` waits for the display instead.
+`SetConfigFlags(ConfigFlags.VsyncHint)` before `InitWindow` waits for the display instead, and
+`SetWindowState(ConfigFlags.VsyncHint)` or `ClearWindowState` changes it while the window is open,
+from the next frame, as a settings screen does.
 
 ## The window's state
 
@@ -105,7 +107,9 @@ while (!WindowShouldClose())
 ```
 
 `SetWindowState` and `ClearWindowState` turn the same flags on and off for the open window, and
-`IsWindowState` asks whether it has them, except vsync and MSAA, which are chosen as it opens.
+`IsWindowState` asks whether it has them, except MSAA, which is chosen as it opens. Vsync changes
+as well, making the swapchain again with the next frame. `SetWindowSize` resizes the window, or in
+an offscreen run the images it draws into, which is how a settings screen's resolution is applied.
 `SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
 and `ToggleBorderlessWindowed` covers the monitor with no border and no change of display mode,
 which most games offer as their fullscreen.

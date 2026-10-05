@@ -63,14 +63,18 @@ public static partial class Engine3D
         };
     }
 
-    /// <summary>Turns flags on for the open window: fullscreen, resizable, undecorated, hidden, minimized, maximized or topmost.</summary>
-    /// <remarks>Vsync and MSAA are chosen as the window opens and are left as they are, which the log says.</remarks>
+    /// <summary>Turns flags on for the open window: fullscreen, resizable, undecorated, hidden, minimized, maximized, topmost or vsync.</summary>
+    /// <remarks>
+    /// Vsync changes with the next frame, which makes the swapchain again with the present mode for
+    /// it, as a settings screen needs. MSAA is chosen as the window opens and is left as it is, which
+    /// the log says.
+    /// </remarks>
     public static void SetWindowState(ConfigFlags flags) => ChangeWindowState(flags, on: true);
 
     /// <summary>Turns flags off for the open window, as <see cref="SetWindowState"/> turns them on.</summary>
     public static void ClearWindowState(ConfigFlags flags) => ChangeWindowState(flags, on: false);
 
-    /// <summary>Whether the open window has every one of the flags, its vsync and MSAA as it opened with them.</summary>
+    /// <summary>Whether the open window has every one of the flags, its vsync as last set and its MSAA as it opened with.</summary>
     public static bool IsWindowState(ConfigFlags flags)
     {
         if (WindowHandle is not (not 0 and var w)) return false;
@@ -85,7 +89,7 @@ public static partial class Engine3D
             ConfigFlags.WindowMinimized => (sdl & SDL.WindowFlags.Minimized) != 0,
             ConfigFlags.WindowMaximized => (sdl & SDL.WindowFlags.Maximized) != 0,
             ConfigFlags.WindowTopmost => (sdl & SDL.WindowFlags.AlwaysOnTop) != 0,
-            ConfigFlags.VsyncHint => config?.Vsync == true,
+            ConfigFlags.VsyncHint => TryRes<SurfaceResize>(out var surface) ? surface.Vsync : config?.Vsync == true,
             ConfigFlags.Msaa4xHint => config?.Samples > 1,
             _ => false,
         };
@@ -96,6 +100,8 @@ public static partial class Engine3D
 
     private static void ChangeWindowState(ConfigFlags flags, bool on)
     {
+        // An offscreen run makes its images again too, with no window to change.
+        if (flags.HasFlag(ConfigFlags.VsyncHint) && TryRes<SurfaceResize>(out var surface)) surface.RequestVsync(on);
         if (WindowHandle is not (not 0 and var w)) return;
         if (flags.HasFlag(ConfigFlags.FullscreenMode)) SDL.SetWindowFullscreen(w, on);
         if (flags.HasFlag(ConfigFlags.WindowResizable)) SDL.SetWindowResizable(w, on);
@@ -116,8 +122,8 @@ public static partial class Engine3D
             if (on) SDL.MaximizeWindow(w);
             else SDL.RestoreWindow(w);
         }
-        if ((flags & (ConfigFlags.VsyncHint | ConfigFlags.Msaa4xHint)) != 0)
-            ApiLogger.Warn("Vsync and MSAA are chosen as the window opens, and SetWindowState and ClearWindowState leave them as they are.");
+        if (flags.HasFlag(ConfigFlags.Msaa4xHint))
+            ApiLogger.Warn("MSAA is chosen as the window opens, and SetWindowState and ClearWindowState leave it as it is.");
     }
 
     private static void ForgetConfigFlags()

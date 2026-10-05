@@ -25,6 +25,14 @@ internal static class WindowCommands
         return $"resizing to {width}x{height}";
     }
 
+    [Command("window.vsync", "Turns vsync on or off, which makes the swapchain again on the next frame: window.vsync <on>")]
+    internal static string Vsync(bool on)
+    {
+        if (!ConsoleHost.World!.TryGetResource<SurfaceResize>(out var resize)) return Refuse("window.vsync");
+        resize.RequestVsync(on);
+        return on ? "vsync on" : "vsync off";
+    }
+
     [Command("window.minimize", "Minimizes the window, or makes an offscreen run zero across, so no frame is drawn until window.restore")]
     internal static string Minimize()
     {

@@ -216,6 +216,12 @@ public sealed class RendererContext : IDisposable
         frameContext.Dispose();
     }
 
+    /// <summary>Sets whether frames wait for the display's refresh, which the next <see cref="OnResize"/> carries out.</summary>
+    public void SetVsync(bool vsync)
+    {
+        if (_graphics is GraphicsDevice device) device.Vsync = vsync;
+    }
+
     /// <summary>Handles a resize event by recreating the swapchain, dynamic allocator, and camera resources.</summary>
     public void OnResize()
     {

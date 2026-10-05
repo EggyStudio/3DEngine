@@ -91,4 +91,28 @@ public sealed class WindowResizeTests : IDisposable
 
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty("the validation layer, where it runs, reports nothing wrong through the storm");
     }
+
+    [NeedsVulkanFact]
+    public void A_Settings_Screen_Changes_Vsync_And_The_Size_While_Frames_Are_Drawn()
+    {
+        Open();
+        Capture();
+
+        // Vsync on and off again, each making the images again on the next frame.
+        SetWindowState(ConfigFlags.VsyncHint);
+        Frame();
+        GetApp().World.Resource<SurfaceResize>().Vsync.Should().BeTrue("the request is kept as the state asked for");
+        ClearWindowState(ConfigFlags.VsyncHint);
+        Frame();
+        GetApp().World.Resource<SurfaceResize>().Vsync.Should().BeFalse();
+        Command("window.vsync true").Should().Be("vsync on");
+
+        // A resolution picked from a list, as the flat call does it in an offscreen run too.
+        SetWindowSize(240, 135);
+        var resized = Capture();
+        (resized.Width, resized.Height).Should().Be((240, 135));
+        GetScreenWidth().Should().Be(240);
+
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+    }
 }

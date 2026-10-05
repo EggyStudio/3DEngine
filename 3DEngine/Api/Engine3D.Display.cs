@@ -66,10 +66,15 @@ public static partial class Engine3D
         if (WindowHandle is not 0 and var w) SDL.RestoreWindow(w);
     }
 
-    /// <summary>Resizes the window. The frames after it are drawn at the new size.</summary>
+    /// <summary>Resizes the window, or the images an offscreen run draws into. The frames after it are drawn at the new size.</summary>
     public static void SetWindowSize(int width, int height)
     {
         if (WindowHandle is not 0 and var w) SDL.SetWindowSize(w, Math.Max(1, width), Math.Max(1, height));
+        else if (TryRes<OffscreenSurface>(out var surface))
+        {
+            surface.Size = ((uint)Math.Max(1, width), (uint)Math.Max(1, height));
+            if (TryRes<SurfaceResize>(out var resize)) resize.Request(Math.Max(1, width), Math.Max(1, height));
+        }
     }
 
     /// <summary>Sets the smallest size the window can be resized to.</summary>
