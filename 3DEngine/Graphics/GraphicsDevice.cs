@@ -124,7 +124,9 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
     /// <inheritdoc />
     public void WaitIdle()
     {
-        if (IsInitialized) _deviceApi.vkDeviceWaitIdle();
+        if (!IsInitialized) return;
+        _deviceApi.vkDeviceWaitIdle();
+        RetireUploads(all: true);
     }
 
     /// <inheritdoc />
@@ -133,6 +135,8 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         if (!IsInitialized) return;
         Logger.Info("Swapchain resize requested, waiting for the device to idle before recreating it...");
         _deviceApi.vkDeviceWaitIdle().CheckResult();
+        // Uploads' command buffers come from the pool the swapchain's resources go with.
+        RetireUploads(all: true);
         Logger.Debug("Device idle, destroying the old swapchain resources...");
         DestroySwapchainResources();
         Logger.Debug("Old swapchain resources destroyed, creating new ones...");
@@ -170,6 +174,8 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         if (!IsInitialized) return;
         Logger.Info("Disposing graphics device, waiting for the device to idle...");
         _deviceApi.vkDeviceWaitIdle();
+        RetireUploads(all: true);
+        for (int slot = 0; slot < MaxFramesInFlight; slot++) FinishReadbacks(slot, drop: true);
         DestroyTimestamps();
 
         // Flush all deferred staging buffers

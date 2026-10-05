@@ -125,10 +125,34 @@ public sealed unsafe partial class GraphicsDevice
         return recorded;
     }
 
-    // Waits for the frame that carried the copies and hands each image's pixels on in RGBA order.
-    private void FinishReadbacks(List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)> readbacks, VkFence fence)
+    // The copies each frame slot carried, handed on once the slot's fence has been waited for at
+    // the start of its next frame. Waited for as the frame was submitted, they held the CPU until
+    // the GPU had drawn the whole frame, 8 to 24 ms a frame while a level's probes were captured.
+    private readonly List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)>?[] _pendingReadbacks = new List<(VulkanBuffer, VulkanImage, Action<byte[]>)>?[MaxFramesInFlight];
+
+    private void QueueReadbacks(List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)> readbacks)
     {
-        _deviceApi.vkWaitForFences(fence, true, ulong.MaxValue).CheckResult();
+        if (_pendingReadbacks[_currentFrame] is { } earlier) earlier.AddRange(readbacks);
+        else _pendingReadbacks[_currentFrame] = readbacks;
+    }
+
+    // Hands on the copies of a slot whose fence has signalled, or drops every slot's when the
+    // device is going away.
+    private void FinishReadbacks(int slot, bool drop = false)
+    {
+        if (_pendingReadbacks[slot] is not { } readbacks) return;
+        _pendingReadbacks[slot] = null;
+        if (drop)
+        {
+            foreach (var (buffer, _, _) in readbacks) buffer.Dispose();
+            return;
+        }
+        FinishReadbacks(readbacks);
+    }
+
+    // Hands each image's pixels on in RGBA order, from a frame the GPU has finished.
+    private void FinishReadbacks(List<(VulkanBuffer Buffer, VulkanImage Image, Action<byte[]> Done)> readbacks)
+    {
         var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
         foreach (var (buffer, image, done) in readbacks)
         {

@@ -19,6 +19,8 @@ public sealed unsafe partial class GraphicsDevice
         // After the fence signals, the GPU has finished reading staging buffers from this slot's
         // previous frame, so they are disposed now.
         FlushDeferredStagingBuffers(_currentFrame);
+        RetireUploads();
+        FinishReadbacks(_currentFrame);
 
         uint imageIndex;
         var result = VkResult.Success;
@@ -87,7 +89,7 @@ public sealed unsafe partial class GraphicsDevice
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
         if (readbacks is not null)
-            FinishReadbacks(readbacks, _inFlightFences[_currentFrame]);
+            QueueReadbacks(readbacks);
 
         if (_offscreen)
         {

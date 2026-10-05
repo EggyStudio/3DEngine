@@ -332,7 +332,7 @@ public sealed unsafe partial class GraphicsDevice
 
         // Create staging buffer
         var stagingDesc = new BufferDesc(expectedSize, BufferUsage.TransferSrc, CpuAccessMode.Write);
-        var staging = (VulkanBuffer)CreateBuffer(stagingDesc);
+        VulkanBuffer? staging = (VulkanBuffer)CreateBuffer(stagingDesc);
         try
         {
             var stagingSpan = Map(staging);
@@ -363,29 +363,51 @@ public sealed unsafe partial class GraphicsDevice
             // Fill the smaller levels from the first, which leaves every level ready to sample
             RecordMipChain(cmd, vkImage);
 
-            _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
-
-            VkSubmitInfo submitInfo = new()
-            {
-                commandBufferCount = 1,
-                pCommandBuffers = &cmd
-            };
-
-            VkFence fence;
-            VkFenceCreateInfo fenceInfo = new();
-            _deviceApi.vkCreateFence(&fenceInfo, null, out fence).CheckResult();
-
-            _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence).CheckResult();
-            _deviceApi.vkWaitForFences(1, &fence, true, ulong.MaxValue).CheckResult();
-
-            _deviceApi.vkDestroyFence(fence);
-            _deviceApi.vkFreeCommandBuffers(_commandPool, 1, &cmd);
-
+            SubmitUpload(cmd, staging);
+            staging = null;
             vkImage.Layout = VkImageLayout.ShaderReadOnlyOptimal;
         }
         finally
         {
+            staging?.Dispose();
+        }
+    }
+
+    // Uploads submitted and not yet known to be finished, with what each holds until it is.
+    private readonly List<(VkFence Fence, VkCommandBuffer Commands, IBuffer Staging)> _uploads = [];
+
+    // Submits an upload's commands without waiting for them. The queue runs them before the frames
+    // submitted after, whose draws the upload's barriers order after it, so nothing on the CPU need
+    // wait. Each upload waited for its fence once, which waited for the frames in flight too, and a
+    // level's textures arriving together cost a frame of 20 ms.
+    private void SubmitUpload(VkCommandBuffer cmd, IBuffer staging)
+    {
+        _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
+        VkSubmitInfo submitInfo = new()
+        {
+            commandBufferCount = 1,
+            pCommandBuffers = &cmd
+        };
+        VkFenceCreateInfo fenceInfo = new();
+        _deviceApi.vkCreateFence(&fenceInfo, null, out var fence).CheckResult();
+        _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence).CheckResult();
+        _uploads.Add((fence, cmd, staging));
+    }
+
+    /// <summary>
+    /// Frees the command buffers and staging buffers of uploads the GPU has finished, or of every
+    /// upload once <paramref name="all"/> says the device is idle.
+    /// </summary>
+    private void RetireUploads(bool all = false)
+    {
+        for (int i = _uploads.Count - 1; i >= 0; i--)
+        {
+            var (fence, cmd, staging) = _uploads[i];
+            if (!all && _deviceApi.vkGetFenceStatus(fence) != VkResult.Success) continue;
+            _deviceApi.vkDestroyFence(fence);
+            _deviceApi.vkFreeCommandBuffers(_commandPool, 1, &cmd);
             staging.Dispose();
+            _uploads.RemoveAt(i);
         }
     }
 
