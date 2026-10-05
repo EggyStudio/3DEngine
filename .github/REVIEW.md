@@ -197,6 +197,10 @@ and used again as `_wanted` is.
    patch counts commits and says nothing of what broke. When `PublicApi.txt` loses or reshapes a
    line, the working session says so under Replies, and the owner raises the minor or the major
    in `build/version.txt` before the next package. After `82b1feb4` and `abd09df5` that is due.
+6. **AGENTS.md's bullet and table row on NORM.md are the owner's, with the exception N 7.4
+   makes.** They approved both on 2026-10-05 in the reviewing session, with the plan for the
+   norm. A working session that commits a change to its instruction file only on the owner's
+   word in its own session is right to, and waits for that word.
 
 ## Replies
 
@@ -217,3 +221,13 @@ glTF, a model through the asset server, a texture, an image, a wave from WAV and
 once unloaded, a font, a scene and a shader, and finds none of their files under `/proc/self/fd`
 or, on Windows, refused to a writer that shares nothing. A test of the check first finds a file it
 left open held. macOS can tell neither, so those tests skip there and say why.
+
+**Verdict 5, a body asleep when a layer changes.** The trigger had the same fault, as the verdict
+thought. A crate resting on a floor stayed in the air in all five ways the theory changes it, the
+crate's layer, the floor's, which layers collide, the floor made a trigger and the crate made one,
+and falls through in each now. A body whose layer or trigger changes is woken, and a static wakes
+the bodies the broad phase finds within its bounds, which for a sleeping body are kept in its tree
+of statics. A change to which layers collide wakes every sleeping body on the two layers, gathered
+from the sleeping sets before any is woken. A setter given what a body already has changes and
+wakes nothing, so a scene's collider setting its layer each time it is read costs nothing. The
+flat functions' remarks say a change wakes.

@@ -143,21 +143,95 @@ public sealed partial class PhysicsWorld
     private readonly CollisionLayers _layers = new();
 
     /// <summary>Puts a body on one of the 32 layers, which decides what it collides with, 0 to begin with.</summary>
-    internal void SetLayer(PhysicsBody body, int layer) => _layers.Set(body, Math.Clamp(layer, 0, CollisionLayers.Count - 1));
+    /// <remarks>
+    /// A pair that sleeps is not tested again until something wakes it, so a body whose layer
+    /// changes is woken, and a static wakes the bodies resting within its bounds.
+    /// </remarks>
+    internal void SetLayer(PhysicsBody body, int layer)
+    {
+        layer = Math.Clamp(layer, 0, CollisionLayers.Count - 1);
+        if (_layers.Of(body) == layer) return;
+        _layers.Set(body, layer);
+        WakeAround(body);
+    }
 
     /// <summary>The layer a body is on.</summary>
     internal int GetLayer(PhysicsBody body) => _layers.Of(body);
 
     /// <summary>Whether bodies on two layers collide, which every pair does to begin with.</summary>
-    internal void SetLayersCollide(int a, int b, bool collide) =>
-        _layers.SetCollide(Math.Clamp(a, 0, CollisionLayers.Count - 1), Math.Clamp(b, 0, CollisionLayers.Count - 1), collide);
+    /// <remarks>The bodies asleep on either layer are woken by a change, so their sleeping pairs are tested again.</remarks>
+    internal void SetLayersCollide(int a, int b, bool collide)
+    {
+        a = Math.Clamp(a, 0, CollisionLayers.Count - 1);
+        b = Math.Clamp(b, 0, CollisionLayers.Count - 1);
+        if (_layers.Collide(a, b) == collide) return;
+        _layers.SetCollide(a, b, collide);
+
+        // Every pair the change touches has a body on one of the two layers, a static never
+        // sleeping, so waking those bodies is enough.
+        _woken.Clear();
+        for (int set = 1; set < Simulation.Bodies.Sets.Length; set++)
+        {
+            ref var sleeping = ref Simulation.Bodies.Sets[set];
+            if (!sleeping.Allocated) continue;
+            for (int i = 0; i < sleeping.Count; i++)
+            {
+                var handle = sleeping.IndexToHandle[i];
+                var layer = _layers.Of(new CollidableReference(CollidableMobility.Dynamic, handle));
+                if (layer == a || layer == b) _woken.Add(handle);
+            }
+        }
+        foreach (var handle in _woken) Simulation.Awakener.AwakenBody(handle);
+    }
 
     /// <summary>
     /// Makes a body a trigger, which reports what it touches as contacts that start and end and
     /// pushes nothing, or a solid body again.
     /// </summary>
-    /// <remarks>A trigger reports the dynamic bodies that meet it, as a static or kinematic body sees no other.</remarks>
-    internal void SetTrigger(PhysicsBody body, bool trigger) => _triggerFlags.Set(body, trigger);
+    /// <remarks>
+    /// A trigger reports the dynamic bodies that meet it, as a static or kinematic body sees no
+    /// other. A change wakes the body, or what rests within a static's bounds, as a layer's does.
+    /// </remarks>
+    internal void SetTrigger(PhysicsBody body, bool trigger)
+    {
+        if (_triggerFlags.Is(CollidableOf(body)) == trigger) return;
+        _triggerFlags.Set(body, trigger);
+        WakeAround(body);
+    }
+
+    // The sleeping bodies a layer set by SetLayersCollide wakes, gathered before any is woken,
+    // since waking one moves the sets being read.
+    private readonly List<BodyHandle> _woken = [];
+
+    // Wakes a body, or for a static the bodies whose bounds meet its own. A sleeping body's bounds
+    // are kept in the broad phase's tree of statics, which is where they are looked for.
+    private void WakeAround(PhysicsBody body)
+    {
+        if (!Exists(body)) return;
+        if (body.Kind != BodyKind.Static)
+        {
+            Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+            return;
+        }
+
+        var bounds = Simulation.Statics.GetStaticReference(new StaticHandle(body.Handle)).BoundingBox;
+        var sleepers = new SleepingBodies { Found = _woken };
+        _woken.Clear();
+        Simulation.BroadPhase.GetOverlaps(bounds.Min, bounds.Max, BufferPool, ref sleepers);
+        foreach (var handle in _woken)
+            if (Simulation.Bodies.BodyExists(handle)) Simulation.Awakener.AwakenBody(handle);
+    }
+
+    private struct SleepingBodies : BepuUtilities.IBreakableForEach<CollidableReference>
+    {
+        public List<BodyHandle> Found;
+
+        public bool LoopBody(CollidableReference collidable)
+        {
+            if (collidable.Mobility != CollidableMobility.Static) Found.Add(collidable.BodyHandle);
+            return true;
+        }
+    }
 
     // The same key whichever way round the narrow phase handed the pair over.
     private static ulong Key(CollidableReference a, CollidableReference b)

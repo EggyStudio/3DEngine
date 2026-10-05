@@ -431,6 +431,48 @@ public sealed class Engine3DPhysicsTests : IDisposable
         seen.Should().Contain(player, "the player's layer collides with the trigger's").And.NotContain(crate, "the crate's does not");
     }
 
+    [Theory]
+    [InlineData("the crate's layer")]
+    [InlineData("the floor's layer")]
+    [InlineData("which layers collide")]
+    [InlineData("the floor a trigger")]
+    [InlineData("the crate a trigger")]
+    public void A_Crate_Asleep_On_A_Floor_Falls_Once_A_Change_Lets_It_Through(string change)
+    {
+        var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10));
+        var crate = CreatePhysicsBox(new Vector3(0, 0.5f, 0), Vector3.One);
+        SetPhysicsLayersCollide(1, 2, false);
+        RunUntil(() => !crate.IsAwake, 600).Should().BeTrue("a crate at rest on a floor goes to sleep");
+
+        // A pair that sleeps is tested again only once something wakes it, which the change does.
+        switch (change)
+        {
+            case "the crate's layer":
+                SetPhysicsBodyLayer(floor, 1);
+                RunUntil(() => !crate.IsAwake, 600).Should().BeTrue("the floor moving to a layer the crate still collides with leaves it resting");
+                SetPhysicsBodyLayer(crate, 2);
+                break;
+            case "the floor's layer":
+                SetPhysicsBodyLayer(crate, 1);
+                RunUntil(() => !crate.IsAwake, 600).Should().BeTrue();
+                SetPhysicsBodyLayer(floor, 2);
+                break;
+            case "which layers collide":
+                SetPhysicsBodyLayer(crate, 3);
+                RunUntil(() => !crate.IsAwake, 600).Should().BeTrue();
+                SetPhysicsLayersCollide(3, 0, false);
+                break;
+            case "the floor a trigger":
+                SetPhysicsBodyTrigger(floor, true);
+                break;
+            case "the crate a trigger":
+                SetPhysicsBodyTrigger(crate, true);
+                break;
+        }
+
+        RunUntil(() => GetPhysicsBodyPosition(crate).Y < -1).Should().BeTrue("the crate falls through a floor it no longer meets when {0} changes", change);
+    }
+
     [Fact]
     public void A_Character_Falls_Through_A_Platform_Its_Layer_Does_Not_Collide_With()
     {

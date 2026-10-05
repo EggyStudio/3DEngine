@@ -196,6 +196,7 @@ public static partial class Engine3D
         Physics.SetMaterial(body, PhysicsMaterial.Default with { Friction = friction, Restitution = bounce });
 
     /// <summary>Makes a body a trigger, which reports what it touches and stops nothing, or a solid body again.</summary>
+    /// <remarks>A change wakes the body, or what rests on it when it is static, as a change of layer does.</remarks>
     public static void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger) => Physics.SetTrigger(body, trigger);
 
     /// <summary>A box moved only by the program, through <see cref="SetPhysicsBodyPosition"/> or <see cref="SetPhysicsBodyVelocity"/>, which pushes what it meets.</summary>
@@ -377,7 +378,9 @@ public static partial class Engine3D
     /// Bodies on layers that do not collide pass through each other and report no contact, a
     /// trigger included, so a trigger on a layer only the player's collides with reports the player
     /// alone. A character stands only on what its layer collides with, and a ray cast past a body
-    /// with <see cref="GetRayCollisionPhysicsEx"/> sees what that body's layer collides with.
+    /// with <see cref="GetRayCollisionPhysicsEx"/> sees what that body's layer collides with. A
+    /// change wakes the body, or what rests on it when it is static, so a crate asleep on a floor
+    /// falls once the floor's layer stops colliding with its own.
     /// </remarks>
     public static void SetPhysicsBodyLayer(PhysicsBody body, int layer) => Physics.SetLayer(body, layer);
 
@@ -402,6 +405,7 @@ public static partial class Engine3D
     /// both ways, as the player's shots pass through the player and the enemies through each other.
     /// Every layer collides with every other to begin with.
     /// </summary>
+    /// <remarks>A change wakes the bodies asleep on either layer, whose resting contacts are then tested again.</remarks>
     public static void SetPhysicsLayersCollide(int a, int b, bool collide) => Physics.SetLayersCollide(a, b, collide);
 
     /// <summary>
