@@ -67,6 +67,9 @@ internal sealed class AssimpModelReader : ISceneReader
         using var _ = files;
         using var importer = new A.AssimpContext();
         importer.SetIOSystem(files);
+        // A joint that weighs no vertex, as a socket a sword hangs from, is kept among the bones,
+        // as raylib keeps every joint of a glTF skin, where Assimp would leave it out.
+        importer.SetConfig(new A.Configs.RemoveEmptyBonesConfig(false));
 
         const A.PostProcessSteps Steps =
             A.PostProcessSteps.Triangulate

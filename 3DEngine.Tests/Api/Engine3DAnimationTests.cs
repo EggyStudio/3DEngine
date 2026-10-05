@@ -156,6 +156,45 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void A_Bone_Named_As_A_Mesh_Node_Before_It_Is_Found_As_The_Bone()
+    {
+        // As raylib's robot has it: a mesh and a bone each named Head, the mesh first.
+        var mesh = new SceneNode { Name = "Head" };
+        mesh.Components.Add(new SceneMeshPayload { Positions = [], Indices = [] });
+        var bone = new SceneNode { Name = "Head" };
+        var neck = new SceneNode { Name = "Neck" };
+        neck.Children.Add(bone);
+        var armature = new SceneNode { Name = "Armature" };
+        armature.Children.Add(mesh);
+        armature.Children.Add(neck);
+        var scene = new Scene();
+        scene.Roots.Add(armature);
+
+        var nodes = ModelSkeleton.NodesByName(scene);
+
+        nodes["Head"].Node.Should().BeSameAs(bone, "the bone is the node without a mesh");
+        nodes["Head"].Parent.Should().BeSameAs(neck);
+    }
+
+    [Fact]
+    public void A_Frame_Between_Two_Is_A_Blend_Of_Them_As_In_Raylib()
+    {
+        var model = LoadModel(Arm);
+        var clip = LoadModelAnimations(Arm)[0];
+
+        UpdateModelAnimationAt(model, clip, 30.5f / AnimationFps);
+        var sampled = Positions(model);
+        UpdateModelAnimation(model, clip, 30.5f);
+        Positions(model).Should().BeEquivalentTo(sampled, o => o.Using<float>(c => c.Subject.Should().BeApproximately(c.Expectation, 1e-4f)).WhenTypeIs<float>(),
+            "half a frame poses halfway, as the clip sampled at that time does");
+
+        UpdateModelAnimation(model, clip, 30);
+        var whole = Positions(model);
+        UpdateModelAnimation(model, clip, 31);
+        Positions(model).Should().NotBeEquivalentTo(whole, "and the frames either side differ");
+    }
+
+    [Fact]
     public void A_Clip_Of_Other_Bones_Leaves_The_Model_As_It_Is()
     {
         var model = LoadModel(Arm);

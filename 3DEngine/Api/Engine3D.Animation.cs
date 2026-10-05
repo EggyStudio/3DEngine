@@ -89,7 +89,9 @@ public static partial class Engine3D
 
     /// <summary>
     /// Poses <paramref name="model"/> as <paramref name="animation"/> has it at <paramref name="frame"/>,
-    /// counted round the clip's length, by moving each skinned mesh's vertices from their rest.
+    /// counted round the clip's length, by moving each skinned mesh's vertices from their rest. A
+    /// frame between two is a blend of them, as raylib's is, so a clip played at half speed moves
+    /// smoothly.
     /// </summary>
     /// <remarks>
     /// The GPU poses the vertices, handed only the joints' matrices, in the frame drawn next, and
@@ -98,12 +100,19 @@ public static partial class Engine3D
     /// no bones, or a clip whose bones are not the model's (<see cref="IsModelAnimationValid"/>),
     /// is left as it is.
     /// </remarks>
-    public static void UpdateModelAnimation(Model model, ModelAnimation animation, int frame)
+    public static void UpdateModelAnimation(Model model, ModelAnimation animation, float frame)
     {
         if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
-        frame = ((frame % animation.FrameCount) + animation.FrameCount) % animation.FrameCount;
-        ApplyMorphs(model, animation, animation.FrameMorphWeights.Length > frame ? animation.FrameMorphWeights[frame] : null, 1);
-        Pose(model, animation.FramePoses[frame]);
+        if (frame != MathF.Floor(frame))
+        {
+            // Between two frames, which the clip is sampled at AnimationFps apart
+            UpdateModelAnimationAt(model, animation, frame / AnimationFps);
+            return;
+        }
+        var whole = (int)frame;
+        whole = ((whole % animation.FrameCount) + animation.FrameCount) % animation.FrameCount;
+        ApplyMorphs(model, animation, animation.FrameMorphWeights.Length > whole ? animation.FrameMorphWeights[whole] : null, 1);
+        Pose(model, animation.FramePoses[whole]);
     }
 
     /// <summary>
@@ -397,13 +406,24 @@ internal static class ModelSkeleton
         }
     }
 
-    /// <summary>Each node by name, the first of a repeated name, with its parent node.</summary>
+    /// <summary>
+    /// Each node by name, with its parent node. Of a repeated name the first node without a mesh
+    /// is taken, or the first node when each has one.
+    /// </summary>
+    /// <remarks>
+    /// Bones are known by name alone, and Blender's exports give a part's mesh its bone's name, as
+    /// raylib's robot names a mesh and a bone each <c>Head</c>. The bone is the node without a mesh,
+    /// wherever the two come in the file.
+    /// </remarks>
     public static Dictionary<string, (SceneNode Node, SceneNode? Parent)> NodesByName(Scene scene)
     {
-        var nodes = new Dictionary<string, (SceneNode, SceneNode?)>(StringComparer.Ordinal);
+        static bool HasMesh(SceneNode node) => node.Components.OfType<SceneMeshPayload>().Any();
+
+        var nodes = new Dictionary<string, (SceneNode Node, SceneNode? Parent)>(StringComparer.Ordinal);
         void Visit(SceneNode node, SceneNode? parent)
         {
-            nodes.TryAdd(node.Name, (node, parent));
+            if (!nodes.TryGetValue(node.Name, out var known) || (HasMesh(known.Node) && !HasMesh(node)))
+                nodes[node.Name] = (node, parent);
             foreach (var child in node.Children) Visit(child, node);
         }
         foreach (var root in scene.Roots) Visit(root, null);

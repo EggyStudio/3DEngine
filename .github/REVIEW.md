@@ -10,13 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7ba078c8`. The 25 of raylib's textures examples the flat API can carry are
+Reviewed up to `dc13ca69`. Twelve of raylib's models examples are written, `shapes_basic_3d` is
+raylib's `models_geometric_shapes` under its name (N 5.1), and the mazes found three faults:
+`GenMeshCubicmap` gave every face the whole texture, stood each block half a cell off its pixel
+and had no roof, and is raylib's face for face; a `ModelMaterial` is single-sided unless set, as
+raylib draws a face and as the ECS material's `MaterialDescription` was; and `GenMeshSphere` was
+wound inside out, every sphere drawn by its far side, which `Engine3DModelTests` holds with the
+cube and the plane. Every example that draws a model was captured again and only the two mazes
+differ for more than time. The table stands at 134 written, 1 in part, 49 that can be and 37
+missing. No verdict is open.
+
+Before it, the 25 of raylib's textures examples the flat API can carry were
 written, two of them held against raylib's C, and `LoadImageFromTexture` reads a texture loaded
 since the last frame from its queued pixels, as raylib's reads one at once, which
 `TextureStoreTests` holds. Two differences are kept on the comparison, `LoadImageAnim`'s image
-as tall as all its frames, and an image from a file without alpha being RGBA. The table
-stands at 122 written, 1 in part, 61 that can be and 37 missing, and the suite through the
-script at 1,219 passing. No verdict is open.
+as tall as all its frames, and an image from a file without alpha being RGBA.
 
 Before it, nine of raylib's text examples were written (`4c7b3f06`), and four calls answer as
 raylib's do: a character a font lacks draws as its `?`, `LoadCodepoints` keeps a character that
@@ -189,20 +197,17 @@ None open.
 
 ## Replies
 
-**Now 2, twelve of raylib's models examples, and N 5.1.** `models_geometric_shapes`,
-`models_box_collisions`, `models_waving_cubes`, `models_orthographic_projection`,
-`models_billboard_rendering`, `models_cubicmap_rendering`, `models_first_person_maze`,
-`models_heightmap_rendering`, `models_rotating_cube`, `models_directional_billboard`,
-`models_yaw_pitch_roll` and `models_loading_gltf` are raylib's, written again from its source.
-`shapes_basic_3d` was raylib's `models_geometric_shapes` cut down, so it is that program now, under
-its name, with the docs, the README, the skill and the capture following. The mazes found three
-faults. `GenMeshCubicmap` gave every face the whole texture, stood each block at a corner of its
-pixel rather than on it, and left the roof out, so the first person maze had no ceiling and its
-walls stood half a cell from where its collisions were. It is raylib's now, face for face. The
-roof needs raylib's culling, so a `ModelMaterial` is single-sided unless set, as raylib draws a
-face, where it was double-sided. That showed `GenMeshSphere` wound inside out, every sphere having
-been drawn by its far side, which `Engine3DModelTests` now holds with the cube and the plane
-among the generators that face outward. Every example that draws a model was captured again and
-set beside its capture, and only the two that draw a maze differ for more than time. The
-reference frames pass unchanged. The table stands at 134 written, 1 in part, 49 that can be, 37
+**Now 2, five more of raylib's models examples.** `models_animation_timing`,
+`models_tesseract_view`, `models_basic_voxel`, `models_bone_socket` and `models_mesh_picking` are
+raylib's, written again from its source, the timing example with ImGui in raygui's place. Three
+faults were found and mended. raylib's robot, which `models_loading_gltf` and the timing example
+play, came apart, its head tipped back and its limbs away from it. Its file names a mesh and a
+bone each `Head`, as Blender's exports do, and the skeleton took a bone by the first node of its
+name, the mesh. A repeated name is now the node without a mesh, which `Engine3DAnimationTests`
+holds. The bone socket found no sockets, since Assimp leaves out a joint that weighs no vertex,
+which raylib keeps, and the reader now asks Assimp to keep them. `UpdateModelAnimation` takes a
+frame as a float, as raylib's does, a fraction posing between the two frames either side, so the
+timing example plays at half speed smoothly. `models_loading_iqm` is missing rather than written,
+its row saying why: Assimp's IQM importer takes the mesh alone, without its skeleton or clips,
+which raylib's loader reads. The table stands at 139 written, 1 in part, 43 that can be, 38
 missing and 1 that does not apply.

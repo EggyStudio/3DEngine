@@ -43,3 +43,9 @@ models/resources/skillbot.png
 models/resources/models/obj/plane.obj
 models/resources/models/obj/plane_diffuse.png
 models/resources/models/gltf/robot.glb
+models/resources/models/gltf/greenman.glb
+models/resources/models/gltf/greenman_hat.glb
+models/resources/models/gltf/greenman_sword.glb
+models/resources/models/gltf/greenman_shield.glb
+models/resources/models/obj/turret.obj
+models/resources/models/obj/turret_diffuse.png

@@ -570,7 +570,7 @@ void DrawSkybox();                                                         // Dr
 void DrawSkybox(Color tint);                                               // The same, tinted
 
 ModelAnimation[] LoadModelAnimations(string fileName);                     // Every clip of a model file, sampled at AnimationFps (60) frames a second
-void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);    // Pose a model's skinned meshes at a frame of a clip
+void UpdateModelAnimation(Model model, ModelAnimation anim, float frame);  // Pose a model's skinned meshes at a frame of a clip, a fraction blending two
 void UpdateModelAnimationAt(Model model, ModelAnimation anim, float seconds); // Pose a model between frames, at a time
 void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight); // Between two clips
 void UpdateModelAnimationEx(Model model, ModelAnimation animA, float frameA, ModelAnimation animB, float frameB, float blend); // The same by frame
