@@ -44,6 +44,11 @@ public sealed class AssimpModelLoader : IAssetLoader<SceneAsset>
         try
         {
             var scene = await _reader.ReadAsync(context, SceneImportSettings.Default, ct);
+            // A file of the right name and the wrong bytes can read as a scene with nothing in it,
+            // as Assimp reads random bytes named .obj, which is refused rather than placed as nothing.
+            static bool Holds(SceneNode node) => node.Components.Count > 0 || node.Children.Any(Holds);
+            if (!scene.Roots.Any(Holds))
+                return AssetLoadResult<SceneAsset>.Fail($"'{context.Path}' holds no meshes, lights or cameras");
             var asset = new SceneAsset
             {
                 Scene = scene,

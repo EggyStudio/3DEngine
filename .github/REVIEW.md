@@ -107,3 +107,21 @@ program through odd sizes a frame apart, minimizes and restores it twice and mov
 monitor, then captures at the size last asked for. The four games and five examples came through
 it on lavapipe under the validation layer with nothing reported, CI runs the same, and
 `WindowResizeTests` does it on an offscreen run with bloom and a shadow.
+
+**Now 5, bad files.** DESIGN.md §6 now says what a failed load does, which it did not before: a
+warning naming the file, a resource `Is...Valid` answers false for (the default font for a font,
+null for a file's bytes), and no exception. `BadFileTests` gives 21 flat loaders and the asset
+server's texture, model and shader readers, `SceneRef` and `ModelRef` a missing, an empty, a cut
+short and a random file each. What it found:
+
+- a font file shorter than 100 bytes, cut short or random stopped the whole process in ImGui's
+  native atlas builder, and a font's bytes are now looked over first (signature, table directory,
+  every table inside the file, the tables an outline font has);
+- `LoadImageAnim` threw on any file not a GIF, a good PNG among them, and loads one as a single
+  frame as raylib does;
+- image, sound and music decoders throw plain exceptions on bytes not their format, which the
+  loaders' narrow catches let through, and now catch;
+- a cut short Ogg decoded to nothing with no word, and a model of random bytes named .obj loaded as
+  an empty scene, and both are refused with a reason;
+- `LoadFileText` and `LoadFileData` returned null for a missing file silently, and warn as raylib's
+  do, with Hopper asking `FileExists` before reading a high score not yet saved.

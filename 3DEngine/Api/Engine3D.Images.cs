@@ -183,11 +183,22 @@ public static partial class Engine3D
         }
         try
         {
+            // An image that is not a GIF is one frame, as raylib loads it.
             using var stream = File.OpenRead(path);
+            Span<byte> signature = stackalloc byte[4];
+            if (stream.ReadAtLeast(signature, 4, throwOnEndOfStream: false) < 4 || !signature.SequenceEqual("GIF8"u8))
+            {
+                var still = LoadImage(fileName);
+                frames = IsImageValid(still) ? 1 : 0;
+                return still;
+            }
+            stream.Position = 0;
             return GifFrames(stream, out frames);
         }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        // StbImageSharp throws a plain Exception for bytes that are not a GIF, so any is caught.
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            frames = 0;
             ApiLogger.Warn($"LoadImageAnim: '{fileName}' could not be decoded: {ex.Message}");
             return default;
         }
@@ -201,7 +212,7 @@ public static partial class Engine3D
         {
             return GifFrames(new MemoryStream(fileData), out frames);
         }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             ApiLogger.Warn($"LoadImageAnimFromMemory: the {fileType} data could not be decoded: {ex.Message}");
             return default;
@@ -217,7 +228,7 @@ public static partial class Engine3D
             var result = StbImageSharp.ImageResult.FromMemory(fileData, StbImageSharp.ColorComponents.RedGreenBlueAlpha);
             return new Image(result.Data, result.Width, result.Height);
         }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             ApiLogger.Warn($"LoadImageFromMemory: the {fileType} data could not be decoded: {ex.Message}");
             return default;

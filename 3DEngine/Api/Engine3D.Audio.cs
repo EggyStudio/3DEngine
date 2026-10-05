@@ -242,9 +242,13 @@ public static partial class Engine3D
 
         try
         {
-            return DecodeSound(File.ReadAllBytes(path), Path.GetExtension(path), fileName);
+            var sound = DecodeSound(File.ReadAllBytes(path), Path.GetExtension(path), fileName);
+            if (!IsSoundValid(sound)) ApiLogger.Warn($"LoadSound: '{fileName}' decoded to no samples.");
+            return sound;
         }
-        catch (Exception ex) when (ex is InvalidDataException or IOException)
+        // A decoder given bytes that are not its format throws what it meets, which a file of the
+        // right name and the wrong bytes reaches, so any is caught and the frame goes on.
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             ApiLogger.Warn($"LoadSound: '{fileName}' could not be decoded: {ex.Message}");
             return EmptySound(fileName);
@@ -370,10 +374,15 @@ public static partial class Engine3D
         try
         {
             var music = new Music(MusicDecoder(Path.GetExtension(path), new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16), fileName), fileName);
+            if (!music.IsValid)
+            {
+                ApiLogger.Warn($"LoadMusicStream: '{fileName}' holds no sound to stream.");
+                return music;
+            }
             World.GetOrInsertResource(() => new LoadedMusic()).Add(music);
             return music;
         }
-        catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             ApiLogger.Warn($"LoadMusicStream: '{fileName}' could not be opened: {ex.Message}");
             return new Music(null);

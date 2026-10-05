@@ -11,15 +11,20 @@ public static partial class Engine3D
     /// <summary>Whether a file exists, beside the program or in the working directory.</summary>
     public static bool FileExists(string fileName) => ResolveFile(fileName) is not null;
 
-    /// <summary>A text file's contents, found beside the program or in the working directory, or null when there is none.</summary>
+    /// <summary>A text file's contents, found beside the program or in the working directory, or null with a warning when there is none, as for a save not yet written, which <see cref="FileExists"/> asks first.</summary>
     public static string? LoadFileText(string fileName)
     {
         var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadFileText: '{fileName}' was not found beside the program or in the working directory.");
+            return null;
+        }
         try
         {
-            return path is null ? null : File.ReadAllText(path);
+            return File.ReadAllText(path);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             ApiLogger.Warn($"LoadFileText: '{fileName}' could not be read: {ex.Message}");
             return null;
@@ -47,15 +52,20 @@ public static partial class Engine3D
         }
     }
 
-    /// <summary>A file's bytes, found beside the program or in the working directory, or null when there is none.</summary>
+    /// <summary>A file's bytes, found beside the program or in the working directory, or null with a warning when there is none.</summary>
     public static byte[]? LoadFileData(string fileName)
     {
         var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadFileData: '{fileName}' was not found beside the program or in the working directory.");
+            return null;
+        }
         try
         {
-            return path is null ? null : File.ReadAllBytes(path);
+            return File.ReadAllBytes(path);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             ApiLogger.Warn($"LoadFileData: '{fileName}' could not be read: {ex.Message}");
             return null;

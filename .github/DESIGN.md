@@ -181,6 +181,15 @@ experience is that a pair of calls is understood by everyone and leaks are found
 reports what was still loaded at `CloseWindow`. The asset server under the ECS keeps its own
 handles with hot reload for the systems that use it.
 
+A load that fails does not stop the program. A `Load` given a file that is missing, empty, cut
+short or not of its kind logs a warning naming the file and returns a resource its `Is...Valid`
+answers false for, or the default font for a font, or null for a file's text or bytes, and the
+frame goes on. The asset server marks such a load failed with the reason in the log, and a scene
+or model a level places is left out with its reason. No exception escapes, since a decoder given
+bytes that are not its format throws what it meets, which the loader catches, and a font is looked
+over before ImGui's native atlas builder reads it, since that stops the whole process on a bad
+file. `BadFileTests` holds every loader as a row and gives each the four bad files.
+
 ## 7. No editor
 
 There is no editor application. A program is code, as it is with raylib, and a scene is built by

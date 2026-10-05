@@ -66,7 +66,7 @@ SetTextureFilter(view.Texture, TextureFilter.Point);
 
 // -- The high score, kept in a file beside the program
 
-var highScore = int.TryParse(LoadFileText("highscore.txt"), out var saved) ? saved : 0;
+var highScore = FileExists("highscore.txt") && int.TryParse(LoadFileText("highscore.txt"), out var saved) ? saved : 0;
 
 var player = new Rectangle(start.X + 3, start.Y, 10, 16);
 var allCoins = coins.ToArray();

@@ -219,16 +219,78 @@ public static partial class Engine3D
         return new Font(texture, height, height, glyphs, atlas);
     }
 
-    /// <summary>Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with the Latin-1 characters.</summary>
-    /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
-    public static Font LoadFontEx(string fileName, int fontSize)
+    // The path of a font file that is there and holds a font the atlas builder reads, or null with
+    // the reason logged. The builder is native code that stops the whole process on a file that is
+    // too short or whose tables run past its end, so a file is looked over before it is handed on.
+    private static string? FontFile(string fileName, string caller)
     {
         var path = ResolveFile(fileName);
         if (path is null)
         {
-            ApiLogger.Warn($"LoadFontEx: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
-            return GetFontDefault();
+            ApiLogger.Warn($"{caller}: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
+            return null;
         }
+        byte[] data;
+        try
+        {
+            data = File.ReadAllBytes(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"{caller}: '{fileName}' could not be read, {ex.Message}. Using the default font.");
+            return null;
+        }
+        if (FontProblem(data) is { } problem)
+        {
+            ApiLogger.Warn($"{caller}: '{fileName}' is not a font the engine reads, {problem}. Using the default font.");
+            return null;
+        }
+        return path;
+    }
+
+    /// <summary>
+    /// Why bytes are not a TrueType or OpenType font the atlas builder can read safely, or null when
+    /// they are: a signature it knows, a table directory and every table inside the bytes, and the
+    /// tables an outline font has.
+    /// </summary>
+    internal static string? FontProblem(ReadOnlySpan<byte> data)
+    {
+        static uint U32(ReadOnlySpan<byte> d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(d[at..]);
+        static ushort U16(ReadOnlySpan<byte> d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(d[at..]);
+        if (data.Length < 100) return $"only {data.Length} bytes long";
+        var start = 0;
+        // A collection names its fonts' offsets, and the first is the one read.
+        if (U32(data, 0) == 0x74746366)
+        {
+            if (data.Length < 16 || U32(data, 8) == 0) return "a collection with no fonts";
+            start = (int)Math.Min(U32(data, 12), int.MaxValue);
+            if (start > data.Length - 12) return "a collection whose first font is past its end";
+        }
+        var version = U32(data, start);
+        if (version is not (0x00010000 or 0x74727565 or 0x4F54544F)) return "no TrueType or OpenType signature at its start";
+        int count = U16(data, start + 4);
+        if (count == 0 || start + 12 + count * 16 > data.Length) return "a table directory that runs past its end";
+        var tables = new HashSet<string>();
+        for (int i = 0; i < count; i++)
+        {
+            int record = start + 12 + i * 16;
+            var (offset, length) = (U32(data, record + 8), U32(data, record + 12));
+            var tag = System.Text.Encoding.ASCII.GetString(data.Slice(record, 4));
+            if ((ulong)offset + length > (ulong)data.Length) return $"its '{tag.TrimEnd()}' table running past its end";
+            tables.Add(tag);
+        }
+        foreach (var needed in new[] { "cmap", "head", "hhea", "hmtx", "maxp" })
+            if (!tables.Contains(needed)) return $"no '{needed}' table";
+        if (!(tables.Contains("glyf") && tables.Contains("loca")) && !tables.Contains("CFF ") && !tables.Contains("CFF2"))
+            return "no outlines, neither 'glyf' nor 'CFF '";
+        return null;
+    }
+
+    /// <summary>Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with the Latin-1 characters.</summary>
+    /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
+    public static Font LoadFontEx(string fileName, int fontSize)
+    {
+        if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
 
         Font? BakeAt(int size) => Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear);
         return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
@@ -250,12 +312,7 @@ public static partial class Engine3D
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
     public static unsafe Font LoadFontEx(string fileName, int fontSize, int[] codepoints)
     {
-        var path = ResolveFile(fileName);
-        if (path is null)
-        {
-            ApiLogger.Warn($"LoadFontEx: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
-            return GetFontDefault();
-        }
+        if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
 
         // Characters past U+FFFF, which the atlas builder cannot name, are drawn by the engine's own
         // TrueType reader into the same atlas. The builder bakes at least a space, so the font has
@@ -309,12 +366,7 @@ public static partial class Engine3D
         if (type != FontType.Sdf)
             return codepoints is null ? LoadFontEx(fileName, fontSize) : LoadFontEx(fileName, fontSize, codepoints);
 
-        var path = ResolveFile(fileName);
-        if (path is null)
-        {
-            ApiLogger.Warn($"LoadFontEx: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
-            return GetFontDefault();
-        }
+        if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
 
         var ranges = codepoints is null ? null : GlyphRanges(codepoints);
         if (ranges is { Length: 1 })
@@ -589,6 +641,11 @@ public static partial class Engine3D
         if (!fileType.TrimStart('.').ToLowerInvariant().Equals("ttf") && !fileType.TrimStart('.').ToLowerInvariant().Equals("otf"))
         {
             ApiLogger.Warn($"LoadFontFromMemory: '{fileType}' is not a font type the engine reads (TTF, OTF). Using the default font.");
+            return GetFontDefault();
+        }
+        if (FontProblem(fileData) is { } problem)
+        {
+            ApiLogger.Warn($"LoadFontFromMemory: the {fileData.Length} bytes are not a font the engine reads, {problem}. Using the default font.");
             return GetFontDefault();
         }
         var ranges = codepoints is null ? null : GlyphRanges(codepoints);
