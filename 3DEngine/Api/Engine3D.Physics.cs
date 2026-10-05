@@ -310,20 +310,13 @@ public static partial class Engine3D
     /// The first body a ray meets other than <paramref name="ignore"/>, as a ray cast from inside a
     /// car's body down to the ground under a wheel needs.
     /// </summary>
-    public static bool GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
-    {
-        hit = default;
-        return ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out hit);
-    }
+    public static RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore) =>
+        ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out var hit) ? hit : default;
 
-    /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face.</summary>
-    /// <returns>Whether the ray met a body.</returns>
-    /// <remarks>A ray goes through a trigger, which stops nothing, as a body does.</remarks>
-    public static bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit)
-    {
-        hit = default;
-        return ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, out hit);
-    }
+    /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face, its <see cref="RaycastHit.Hit"/> false for none.</summary>
+    /// <remarks>A ray goes through a trigger, which stops nothing, as a body does. It answers as raylib's <c>GetRayCollision</c> functions do, with the collision rather than a flag beside it.</remarks>
+    public static RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance) =>
+        ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, out var hit) ? hit : default;
 
     /// <summary>The pairs of bodies that started touching in this frame's steps.</summary>
     public static IReadOnlyList<ContactStarted> GetPhysicsContacts() => World.ReadEvents<ContactStarted>();

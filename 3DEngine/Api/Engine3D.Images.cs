@@ -521,18 +521,18 @@ public static partial class Engine3D
     /// Draws part of one image into a rectangle of another, scaled to fit by the nearest pixel,
     /// multiplied by <paramref name="tint"/> and blended over what is there by its alpha.
     /// </summary>
-    public static void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint)
+    public static void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint)
     {
-        if (!source.IsValid || sourceRec.Width <= 0 || sourceRec.Height <= 0) return;
-        var (x, y, w, h) = Clip(destination, destinationRec);
+        if (!src.IsValid || srcRec.Width <= 0 || srcRec.Height <= 0) return;
+        var (x, y, w, h) = Clip(dst, dstRec);
         for (int row = y; row < y + h; row++)
         for (int column = x; column < x + w; column++)
         {
-            var u = (int)(sourceRec.X + (column - destinationRec.X + 0.5f) * sourceRec.Width / destinationRec.Width);
-            var v = (int)(sourceRec.Y + (row - destinationRec.Y + 0.5f) * sourceRec.Height / destinationRec.Height);
-            if (u < 0 || v < 0 || u >= source.Width || v >= source.Height) continue;
-            var over = Multiply(GetImageColor(source, u, v), tint);
-            SetPixel(destination, column, row, Blend(GetImageColor(destination, column, row), over));
+            var u = (int)(srcRec.X + (column - dstRec.X + 0.5f) * srcRec.Width / dstRec.Width);
+            var v = (int)(srcRec.Y + (row - dstRec.Y + 0.5f) * srcRec.Height / dstRec.Height);
+            if (u < 0 || v < 0 || u >= src.Width || v >= src.Height) continue;
+            var over = Multiply(GetImageColor(src, u, v), tint);
+            SetPixel(dst, column, row, Blend(GetImageColor(dst, column, row), over));
         }
     }
 

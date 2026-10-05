@@ -384,13 +384,13 @@ void ImageDrawRectangleLinesEx(ref Image dst, Rectangle rec, int thick, Color co
 void ImageDrawRectangleGradientEx(ref Image dst, Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight); // A color at each corner
 void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
 void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline
-void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint); // Part of an image into another, blended
+void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint); // Part of an image into another, blended
 void ImageDrawImage(ref Image dst, Image src, int posX, int posY, Color tint);         // A whole image at a pixel
 void ImageDrawImageRec(ref Image dst, Image src, Rectangle srcRec, Vector2 position, Color tint); // Part of one at a position
 void ImageDrawImageEx(ref Image dst, Image src, Vector2 position, float rotation, float scale, Color tint); // Scaled and turned
 void ImageDrawImagePro(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Vector2 origin, float rotation, Color tint); // Part, into a rectangle, turned
-void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color); // Text in the default font
-void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
+void ImageDrawText(ref Image dst, string text, int x, int y, int fontSize, Color color); // Text in the default font
+void ImageDrawTextEx(ref Image dst, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
 void ImageDrawTextPro(ref Image dst, Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Turned
 Image ImageText(string text, int fontSize, Color color);                               // A new image of text in the default font, as large as the text
 Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color tint);  // The same in a font
@@ -738,8 +738,8 @@ void SetPhysicsGravity(Vector3 gravity);                                        
 void SetPhysicsPaused(bool paused);                                              // Hold the simulation still, or let it run
 bool IsPhysicsPaused();                                                          // Whether it is held still
 
-bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets, past triggers
-bool GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore, out RaycastHit hit); // The same past one body, as a ray from inside a car
+RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance);                  // The first body a ray meets, past triggers, and whether it met one
+RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore); // The same past one body, as a ray from inside a car
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 IReadOnlyList<ContactEnded> GetPhysicsContactsEnded();                           // Pairs that stopped touching this frame, as a body leaving a trigger
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame

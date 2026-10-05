@@ -58,15 +58,18 @@ public sealed class Engine3DPhysicsTests : IDisposable
         // A ray from inside the box meets the box, and looking past it meets the floor below.
         var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
         var down = new Ray(new Vector3(0, 5, 0), -Vector3.UnitY);
-        GetRayCollisionPhysicsEx(down, 20, box, out var hit).Should().BeTrue();
+        var hit = GetRayCollisionPhysicsEx(down, 20, box);
+        hit.Hit.Should().BeTrue();
         hit.Body.Should().Be(floor, "the box the ray starts in is looked past");
         hit.Point.Y.Should().BeApproximately(0, 1e-3f);
 
         // A trigger over the floor stops nothing, a ray included, from inside it or from above.
         CreatePhysicsTrigger(new Vector3(0, 2, 0), new Vector3(6, 4, 6));
-        GetRayCollisionPhysicsEx(new Ray(new Vector3(0, 1, 0), -Vector3.UnitY), 5, box, out hit).Should().BeTrue();
+        hit = GetRayCollisionPhysicsEx(new Ray(new Vector3(0, 1, 0), -Vector3.UnitY), 5, box);
+        hit.Hit.Should().BeTrue();
         hit.Body.Should().Be(floor, "a wheel's ray inside a gate's sensor reaches the ground");
-        GetRayCollisionPhysics(new Ray(new Vector3(3, 10, 3), -Vector3.UnitY), 20, out hit).Should().BeTrue();
+        hit = GetRayCollisionPhysics(new Ray(new Vector3(3, 10, 3), -Vector3.UnitY), 20);
+        hit.Hit.Should().BeTrue();
         hit.Body.Should().Be(floor, "and from above, the floor is what the ray meets");
     }
 
@@ -197,10 +200,11 @@ public sealed class Engine3DPhysicsTests : IDisposable
         BeginDrawing();
         EndDrawing();
 
-        GetRayCollisionPhysics(new Ray(Vector3.Zero, -Vector3.UnitZ), 100, out var hit).Should().BeTrue();
+        var hit = GetRayCollisionPhysics(new Ray(Vector3.Zero, -Vector3.UnitZ), 100);
+        hit.Hit.Should().BeTrue();
         hit.Body.Should().Be(box);
         hit.Distance.Should().BeApproximately(4.5f, 0.01f, "the box's near face is half a unit before its center");
-        GetRayCollisionPhysics(new Ray(Vector3.Zero, Vector3.UnitZ), 100, out _).Should().BeFalse("nothing is behind");
+        GetRayCollisionPhysics(new Ray(Vector3.Zero, Vector3.UnitZ), 100).Hit.Should().BeFalse("nothing is behind");
     }
 
     [Fact]

@@ -36,6 +36,9 @@ public struct PhysicsMaterial
 /// <summary>Result of an <see cref="PhysicsWorld.Raycast(Vector3,Vector3,float,out RaycastHit)"/>.</summary>
 public struct RaycastHit
 {
+    /// <summary>Whether the ray met a body, as raylib's <c>RayCollision</c> says, the rest left at their defaults when it did not.</summary>
+    public bool Hit;
+
     /// <summary>The body that was hit.</summary>
     public PhysicsBody Body;
 

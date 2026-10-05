@@ -106,3 +106,10 @@ request). 536 public types are 244, the listing 2,200 lines shorter, every examp
 from the package, Swarm's script still compiles as it runs, and the tests and `e3d` see the rest
 through `InternalsVisibleTo`. DESIGN.md §11 says the rule. Names and parameter orders against
 raylib's and each other follow next.
+
+**Now 3, names.** The flat API's parameter names were read by type across all 634 functions, and
+agree but for two places. `ImageDraw`, `ImageDrawText` and `ImageDrawTextEx` named their image
+`destination` where raylib and the other image functions say `dst`, `src`, `srcRec` and `dstRec`,
+and the physics raycasts answered a flag with the hit in an out parameter where raylib's
+`GetRayCollision` functions give back the collision, so they return a `RaycastHit` whose new `Hit`
+says whether it met a body.

@@ -46,7 +46,7 @@ public static class PhysicsBoxes
 
             // A click pushes the box under the pointer away from the camera and up.
             if (IsMouseButtonPressed(MouseButton.Left) &&
-                GetRayCollisionPhysics(GetScreenToWorldRay(GetMousePosition(), camera), 100, out var hit) &&
+                GetRayCollisionPhysics(GetScreenToWorldRay(GetMousePosition(), camera), 100) is { Hit: true } hit &&
                 hit.Body.Kind == BodyKind.Dynamic)
                 ApplyPhysicsImpulse(hit.Body, Vector3.Normalize(hit.Point - camera.Position) * 6 + Vector3.UnitY * 3);
 

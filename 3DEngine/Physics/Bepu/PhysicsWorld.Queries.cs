@@ -47,6 +47,7 @@ public sealed partial class PhysicsWorld
             : (_bodyToEntity.TryGetValue(rawHandle, out var be) ? be : 0);
         hit = new RaycastHit
         {
+            Hit = true,
             Body = new PhysicsBody(this, rawHandle, kind),
             Distance = handler.T,
             Normal = handler.Normal == Vector3.Zero ? Vector3.Zero : Vector3.Normalize(handler.Normal),

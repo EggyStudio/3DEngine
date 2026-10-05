@@ -215,7 +215,7 @@ while (!WindowShouldClose())
     var head = at + Vector3.UnitY;
     var back = Vector3.Normalize(-forward * 7 + new Vector3(0, 2.2f, 0));
     var distance = 7.3f;
-    if (GetRayCollisionPhysics(new Ray(head + back * 0.5f, back), distance, out var blocked)
+    if (GetRayCollisionPhysics(new Ray(head + back * 0.5f, back), distance) is { Hit: true } blocked
         && blocked.Body != exit && !orbs.Exists(o => o.Body == blocked.Body))
         distance = MathF.Max(1, Vector3.Distance(head, blocked.Point) - 0.3f);
     var camera = new Camera3D(head + back * distance, head, Vector3.UnitY, 55);

@@ -864,6 +864,8 @@ static class Engine.Engine3D
   static RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
   static RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius)
   static RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3)
+  static RaycastHit GetRayCollisionPhysics(Ray ray, float maxDistance)
+  static RaycastHit GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)
   static Rectangle GetCollisionRec(Rectangle a, Rectangle b)
   static Rectangle GetGlyphAtlasRec(Font font, int codepoint)
   static Rectangle GetImageAlphaBorder(Image image, float threshold)
@@ -934,8 +936,6 @@ static class Engine.Engine3D
   static bool ExportMesh(ModelMesh mesh, string fileName)
   static bool ExportWave(Wave wave, string fileName)
   static bool FileExists(string fileName)
-  static bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit)
-  static bool GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
   static bool IsAudioDeviceReady()
   static bool IsAudioStreamPlaying(AudioStream stream)
   static bool IsAudioStreamProcessed(AudioStream stream)
@@ -1195,7 +1195,7 @@ static class Engine.Engine3D
   static void ImageColorTint(ref Image image, Color color)
   static void ImageCrop(ref Image image, Rectangle rec)
   static void ImageDither(ref Image image, int rBpp, int gBpp, int bBpp, int aBpp)
-  static void ImageDraw(ref Image destination, Image source, Rectangle sourceRec, Rectangle destinationRec, Color tint)
+  static void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint)
   static void ImageDrawCircle(ref Image image, int centerX, int centerY, int radius, Color color)
   static void ImageDrawCircleGradient(ref Image dst, Vector2 center, float radius, Color inner, Color outer)
   static void ImageDrawCircleLines(ref Image image, int centerX, int centerY, int radius, Color color)
@@ -1218,8 +1218,8 @@ static class Engine.Engine3D
   static void ImageDrawRectanglePro(ref Image dst, Rectangle rec, Vector2 origin, float rotation, Color color)
   static void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color)
   static void ImageDrawRectangleV(ref Image dst, Vector2 position, Vector2 size, Color color)
-  static void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color)
-  static void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
+  static void ImageDrawText(ref Image dst, string text, int x, int y, int fontSize, Color color)
+  static void ImageDrawTextEx(ref Image dst, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
   static void ImageDrawTextPro(ref Image dst, Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint)
   static void ImageDrawTriangle(ref Image dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color)
   static void ImageDrawTriangleFan(ref Image dst, Vector2[] points, Color color)
@@ -2528,6 +2528,7 @@ struct Engine.RaycastHit
   PhysicsBody Body
   Vector3 Normal
   Vector3 Point
+  bool Hit
   float Distance
   int EntityId
 readonly struct Engine.Rectangle : IEquatable<Rectangle>

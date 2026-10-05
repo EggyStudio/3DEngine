@@ -561,14 +561,14 @@ public static partial class Engine3D
     }
 
     /// <summary>Draws text into an image in the default font, as <see cref="DrawText"/> draws it on the screen.</summary>
-    public static void ImageDrawText(ref Image destination, string text, int x, int y, int fontSize, Color color) =>
-        ImageDrawTextEx(ref destination, GetFontDefault(fontSize), text, new Vector2(x, y), fontSize, 0, color);
+    public static void ImageDrawText(ref Image dst, string text, int x, int y, int fontSize, Color color) =>
+        ImageDrawTextEx(ref dst, GetFontDefault(fontSize), text, new Vector2(x, y), fontSize, 0, color);
 
     /// <summary>
     /// Draws text into an image in a font, as <see cref="DrawTextEx"/> draws it on the screen, each
     /// glyph scaled from its bake by the nearest pixel and blended by its coverage.
     /// </summary>
-    public static void ImageDrawTextEx(ref Image destination, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
+    public static void ImageDrawTextEx(ref Image dst, Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
     {
         if (!font.IsValid || !font.Atlas.IsValid || string.IsNullOrEmpty(text)) return;
         font = font.ForSize(fontSize);
@@ -588,7 +588,7 @@ public static partial class Engine3D
                 var source = new Rectangle(g.U0 * font.Atlas.Width, g.V0 * font.Atlas.Height,
                     (g.U1 - g.U0) * font.Atlas.Width, (g.V1 - g.V0) * font.Atlas.Height);
                 var target = new Rectangle(pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, (g.X1 - g.X0) * scale, (g.Y1 - g.Y0) * scale);
-                ImageDraw(ref destination, font.Atlas, source, target, tint);
+                ImageDraw(ref dst, font.Atlas, source, target, tint);
             }
             pen.X += g.Advance * scale + spacing;
         }

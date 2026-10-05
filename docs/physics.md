@@ -95,14 +95,15 @@ turned, and `GetPhysicsBodyAngularVelocity` and `SetPhysicsBodyAngularVelocity` 
 
 ## Rays and contacts
 
-`GetRayCollisionPhysics` finds the first body along a ray, with the point, the surface's normal
-and the distance. With the ray under the mouse it picks a body with a click, as `physics_boxes`
+`GetRayCollisionPhysics` finds the first body along a ray and gives back the collision, as raylib's
+`GetRayCollision` functions do, with `Hit` saying whether it met one, the body, the point, the
+surface's normal and the distance. With the ray under the mouse it picks a body with a click, as `physics_boxes`
 does to push the box clicked:
 
 ```csharp
 // A click pushes the box under the pointer away from the camera and up.
 if (IsMouseButtonPressed(MouseButton.Left) &&
-    GetRayCollisionPhysics(GetScreenToWorldRay(GetMousePosition(), camera), 100, out var hit) &&
+    GetRayCollisionPhysics(GetScreenToWorldRay(GetMousePosition(), camera), 100) is { Hit: true } hit &&
     hit.Body.Kind == BodyKind.Dynamic)
     ApplyPhysicsImpulse(hit.Body, Vector3.Normalize(hit.Point - camera.Position) * 6 + Vector3.UnitY * 3);
 ```
