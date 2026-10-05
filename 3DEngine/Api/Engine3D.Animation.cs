@@ -360,22 +360,6 @@ public static partial class Engine3D
     public static void UnloadModelAnimations(ModelAnimation[] animations) { }
 
     // A model file as Assimp reads it, or null with the reason logged.
-    // Whether a model file found beside the program has clips to play, read once a path, which a
-    // ModelRef of it plays through an AnimatedModel. A file not found says no, without a warning,
-    // since the asset server may still find it.
-    internal static bool HasAnimations(string fileName)
-    {
-        lock (AnimatedFiles)
-        {
-            if (AnimatedFiles.TryGetValue(fileName, out var known)) return known;
-            var animated = ResolveFile(fileName) is not null && ReadModelScene(fileName, "ModelRef") is { } scene
-                && ModelSkeleton.Walk(scene).Any(node => node.Components.OfType<SceneAnimationPayload>().Any());
-            return AnimatedFiles[fileName] = animated;
-        }
-    }
-
-    private static readonly Dictionary<string, bool> AnimatedFiles = [];
-
     private static Scene? ReadModelScene(string fileName, string caller)
     {
         var path = ResolveFile(fileName);

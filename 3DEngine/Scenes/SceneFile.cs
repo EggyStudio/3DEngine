@@ -62,19 +62,8 @@ public static class ModelRefSystem
         {
             ecs.Add(entity, new ModelRefSpawned());
 
-            // A file with clips plays its first through an AnimatedModel on a child, where its
-            // meshes spawned as entities would stand at rest. The child carries a SceneInstance,
-            // so a level saved with the reference is saved without it, as spawned meshes are.
-            if (Engine3D.Holds(world) && Engine3D.HasAnimations(path))
-            {
-                var child = ecs.Spawn();
-                ecs.Add(child, new AnimatedModel(path));
-                ecs.Add(child, new Transform(Vector3.Zero));
-                ecs.Add(child, new SceneInstance { SourcePath = path });
-                ecs.SetParent(child, entity);
-                continue;
-            }
-
+            // The model is read on the asset server's workers, and whether it has clips to play is
+            // decided once it has arrived (SceneSpawnSystem), so no file is read on the frame.
             if (server is null) continue;
             try
             {

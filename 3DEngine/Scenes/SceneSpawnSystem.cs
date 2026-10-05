@@ -61,6 +61,21 @@ public static class SceneSpawnSystem
                 continue; // still loading (or load failed - hot-reload may revive it)
             (spawnedUnder ??= []).Add(Root(ecs, entity));
 
+            // A model a ModelRef names that has clips plays its first through an AnimatedModel on
+            // a child, where its meshes spawned as entities would stand at rest. The child carries
+            // a SceneInstance, so a level saved with the reference is saved without it.
+            if (ecs.TryGet<ModelRef>(entity, out var reference) && Engine3D.Holds(world) && Animated(asset.Scene))
+            {
+                var path = ModelRefSystem.AssetPath(reference.Path);
+                var child = ecs.Spawn();
+                ecs.Add(child, new AnimatedModel(path));
+                ecs.Add(child, new Transform(System.Numerics.Vector3.Zero));
+                ecs.Add(child, new SceneInstance { SourcePath = path });
+                ecs.SetParent(child, entity);
+                ecs.Remove<SpawnSceneRequest>(entity);
+                continue;
+            }
+
             try
             {
                 var settings = request.Settings ?? SceneSpawnSettings.Default;
@@ -107,6 +122,8 @@ public static class SceneSpawnSystem
         if (probes is null) return;
         foreach (var probe in probes) ecs.GetRef<ReflectionProbe>(probe).Capture++;
     }
+
+    private static bool Animated(Scene scene) => ModelSkeleton.Walk(scene).Any(node => node.Components.OfType<SceneAnimationPayload>().Any());
 
     private static int Root(EcsWorld ecs, int entity)
     {

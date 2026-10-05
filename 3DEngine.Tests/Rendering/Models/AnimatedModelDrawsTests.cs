@@ -206,7 +206,15 @@ public sealed class AnimatedModelDrawsTests : IDisposable
         _ecs.Add(placed, new ModelRef { Path = Arm });
 
         ModelRefSystem.Run(_app.World);
+        // The model as the asset server hands it over, read on its workers, which is when its clips
+        // are found and the child that plays them is made.
+        var id = AssetId.Next();
+        var assets = _app.World.GetOrInsertResource(() => new Assets<SceneAsset>());
+        assets.Set(id, new SceneAsset { Scene = new AssimpModelReader().ReadFile(Arm, new SceneImportSettings()), SourcePath = Arm });
+        _ecs.Add(placed, new SpawnSceneRequest { Handle = new Handle<SceneAsset>(id, AssetPath.Parse(Arm), strong: false) });
+        SceneSpawnSystem.Run(_app.World);
 
+        _ecs.Has<SpawnSceneRequest>(placed).Should().BeFalse("the request is answered");
         var child = _ecs.Query<AnimatedModel>().Should().ContainSingle().Subject.Entity;
         _ecs.GetRef<AnimatedModel>(child).Path.Should().Be(Arm);
         _ecs.ParentOf(child).Should().Be(placed, "the child is placed by the reference's entity");
