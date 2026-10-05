@@ -346,6 +346,15 @@ because the window's pipelines draw into it as they are. Which default follows r
 owner's to say. Pixel art drawn small and scaled up, as this example teaches, keeps
 hard edges here only with `SetConfigSamples(1)`.
 
+**Now 2, `core_input_gestures_testbed` and `core_input_virtual_controls`.** Both are raylib's,
+written again from its source. The testbed's log is read before its first gesture at an index one
+past its end, which raylib's C reads past its array for an empty line and the port wraps, for the
+same empty line, after it ended the program at its first frame. Driven through `./e3d`, a click
+lights the tap, and a drag to the right logs a hold, a drag and a swipe right, the protractor at
+the drag's angle, 5.07 degrees, as raylib's gestures read it in fractions of the window. Holding
+the virtual pad's right button for a second and a half moves the player 114 pixels, at raylib's
+75 a second.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an

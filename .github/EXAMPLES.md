@@ -4,18 +4,18 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**44 written, 0 written in part, 143 can be written, 34 missing and 1 does not apply.** Of the 221 that apply, 187 can be written with what the flat API carries.
+**46 written, 0 written in part, 141 can be written, 34 missing and 1 does not apply.** Of the 221 that apply, 187 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
-| [Core](#core) | 35 | 0 | 7 | 6 | 1 |
+| [Core](#core) | 37 | 0 | 5 | 6 | 1 |
 | [Shapes](#shapes) | 0 | 0 | 41 | 4 | 0 |
 | [Textures](#textures) | 2 | 0 | 25 | 6 | 0 |
 | [Text](#text) | 2 | 0 | 9 | 5 | 0 |
 | [Models](#models) | 2 | 0 | 25 | 5 | 0 |
 | [Shaders](#shaders) | 2 | 0 | 29 | 5 | 0 |
 | [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **44** | **0** | **143** | **34** | **1** |
+| **All** | **46** | **0** | **141** | **34** | **1** |
 
 ## Core
 
@@ -29,8 +29,8 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`core_input_gamepad`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gamepad.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gamepad.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gamepad.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputGamepad.cs), drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is |
 | [`core_input_multitouch`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_multitouch.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_multitouch.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_multitouch.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputMultitouch.cs) |
 | [`core_input_gestures`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gestures.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputGestures.cs) |
-| [`core_input_gestures_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures_testbed.c) |  |  | can be written |
-| [`core_input_virtual_controls`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_virtual_controls.c) |  |  | can be written |
+| [`core_input_gestures_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures_testbed.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures_testbed.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gestures_testbed.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputGesturesTestbed.cs) |
+| [`core_input_virtual_controls`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_virtual_controls.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_virtual_controls.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_virtual_controls.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputVirtualControls.cs) |
 | [`core_2d_camera`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core2DCamera.cs) |
 | [`core_2d_camera_mouse_zoom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_mouse_zoom.c) |  |  | missing, rlPopMatrix, rlPushMatrix, rlRotatef, rlTranslatef |
 | [`core_2d_camera_platformer`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_platformer.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_platformer.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera_platformer.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core2DCameraPlatformer.cs) |
