@@ -34,13 +34,13 @@ core_custom_frame_control	missing	PollInputEvents, SwapScreenBuffer
 core_smooth_pixelperfect	can
 core_random_sequence	can
 core_automation_events	missing	ExportAutomationEventList, LoadAutomationEventList, PlayAutomationEvent, SetAutomationEventBaseFrame, SetAutomationEventList, StartAutomationEventRecording, StopAutomationEventRecording, UnloadAutomationEventList
-core_highdpi_demo	can
+core_highdpi_demo	missing	FLAG_WINDOW_HIGHDPI, a back buffer at the display's pixel density, which ConfigFlags lacks
 core_render_texture	can
 core_undo_redo	can
 core_viewport_scaling	can
 core_input_actions	can
 core_directory_files	can	with ImGui in raygui's place
-core_highdpi_testbed	can
+core_highdpi_testbed	missing	FLAG_WINDOW_HIGHDPI, a back buffer at the display's pixel density, which ConfigFlags lacks
 core_screen_recording	missing	LoadImageFromScreen
 core_clipboard_text	can	with ImGui in raygui's place
 core_text_file_loading	can
@@ -212,3 +212,4 @@ audio_spectrum_visualizer	can
 audio_stream_callback	can
 audio_amp_envelope	can	with ImGui in raygui's place
 core_input_gamepad	can	drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is
+core_window_flags	missing	FLAG_WINDOW_HIGHDPI, FLAG_WINDOW_ALWAYS_RUN, FLAG_WINDOW_TRANSPARENT, FLAG_WINDOW_UNFOCUSED and FLAG_BORDERLESS_WINDOWED_MODE, which ConfigFlags lacks

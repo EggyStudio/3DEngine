@@ -76,13 +76,13 @@ from the next frame, as a settings screen does.
 ## The window's state
 
 The window can be resized, made fullscreen, moved and asked about. `SetConfigFlags` asks the next
-window for what it is opened with, and the rest work on the open one. The `core_window_flags`
+window for what it is opened with, and the rest work on the open one. The `core_window_toggles`
 example reads and changes most of it:
 
 ```csharp
 // Asked of the window before it opens, as raylib's flags are.
 SetConfigFlags(ConfigFlags.WindowResizable | ConfigFlags.VsyncHint | ConfigFlags.Msaa4xHint);
-InitWindow(800, 450, "[core] window flags");
+InitWindow(800, 450, "[core] window toggles");
 SetWindowMinSize(320, 240);
 var resizes = 0;
 SetTargetFPS(60);
@@ -169,7 +169,7 @@ it over, for the ECS, plugins and resources, which run inside the same frames as
 ## See also
 
 - Examples: [`core_basic_window`](../3DEngine.Examples/Core/CoreBasicWindow.cs),
-  [`core_window_flags`](../3DEngine.Examples/Core/CoreWindowFlags.cs),
+  [`core_window_toggles`](../3DEngine.Examples/Core/CoreWindowToggles.cs),
   [`gui_imgui_window`](../3DEngine.Examples/Gui/GuiImGuiWindow.cs)
 - The cheatsheet's [Window and timing](../CHEATSHEET.md#window-and-timing) and
   [Frame and cameras](../CHEATSHEET.md#frame-and-cameras)

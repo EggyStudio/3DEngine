@@ -2,13 +2,13 @@ using static Engine.Engine3D;
 
 namespace Engine.Examples;
 
-public static class CoreWindowFlags
+public static class CoreWindowToggles
 {
     public static void Run()
     {
         // Asked of the window before it opens, as raylib's flags are.
         SetConfigFlags(ConfigFlags.WindowResizable | ConfigFlags.VsyncHint | ConfigFlags.Msaa4xHint);
-        InitWindow(800, 450, "[core] window flags");
+        InitWindow(800, 450, "[core] window toggles");
         SetWindowMinSize(320, 240);
         var resizes = 0;
         SetTargetFPS(60);

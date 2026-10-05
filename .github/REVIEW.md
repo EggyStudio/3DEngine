@@ -313,3 +313,15 @@ ImGui's second context. Nine were a fault, `PhysicsWorld` throwing from Bepu whe
 second time, which a program does where it disposes a world it also put in the app's. It is
 disposed once now, and without the mend the hook fails all nine with the error's text. The suite
 through the script passes, 1,193 tests.
+
+**Now 3, `core_window_flags` was a program of this engine's own** (N 5.1). Read against raylib's
+source it is not raylib's, which turns each of fourteen flags on and off by a key, and this one
+asks for three and moves the window. It is `core_window_toggles` now, its picture and the links to
+it in the README and the window's guide with it, and raylib's row is missing, as are both of the
+high-DPI examples, which the first reading called able to be written by the functions they call.
+`ConfigFlags` lacks `FLAG_WINDOW_HIGHDPI`, `FLAG_WINDOW_ALWAYS_RUN`, `FLAG_WINDOW_TRANSPARENT`,
+`FLAG_WINDOW_UNFOCUSED` and `FLAG_BORDERLESS_WINDOWED_MODE`, and the window is made without
+SDL3's high pixel density. The display here is at a scale of one, and neither nested compositor
+installed gives a window a scale, so a back buffer at the display's density would go in unseen,
+and it waits for a way to see it. The table stands at 45 written, 139 that can be, 37 missing
+and 1 that does not apply.
