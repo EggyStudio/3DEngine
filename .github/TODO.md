@@ -102,8 +102,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   probe's box the probe's capture in place of the map. The map is made on the CPU in a few
   hundred milliseconds. A probe is captured in half floats from the meshes the window draws, or the
   first render target's when it draws none, and its room is read back and prefiltered on a worker
-  thread, so a probe is captured again only when it moves or `UpdateReflectionProbe` asks, and a
-  door opening in its room or a lamp going out is not seen until then. A mesh entity and an
+  thread, so a probe is captured again only when it moves, when a light reaching its box is added,
+  removed or changed past a threshold, or when `UpdateReflectionProbe` asks, and a door opening in
+  its room is not seen until then. A mesh entity and an
   `AnimatedModel` are drawn into the window through the first camera entity without a render
   texture, and into each camera entity's render texture, each with its shadow fitted to its own
   camera.

@@ -1357,6 +1357,60 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Probe_Captures_Again_When_A_Lamp_In_Its_Room_Goes_Out_And_Not_When_It_Flickers()
+    {
+        Open(64, 64);
+        // The red room around a mirror ball, lit by a lamp inside it, and a dim sun, so the scene
+        // has a light left when the lamp goes out rather than the fixed light of none.
+        var lamp = CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
+        CreateDirectionalLight(-Vector3.UnitY, Color.White, 0.05f);
+        var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));
+        var ball = LoadModelFromMesh(GenMeshSphere(1, 32, 32));
+        ball.Materials[0] = new ModelMaterial(Color.White) { Metallic = 1, Roughness = 0.05f };
+        var camera = new Camera3D(new Vector3(0, -1.5f, 3), new Vector3(0, -1.5f, 0), Vector3.UnitY, 60);
+        void Draw()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawModel(room, Vector3.Zero, 1, new Color(220, 40, 40));
+            DrawModel(ball, new Vector3(0, -1.5f, 0), 1, Color.White);
+            EndMode3D();
+        }
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                Draw();
+                EndDrawing();
+                Thread.Sleep(5);
+            }
+        }
+
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(8, 6, 8));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++) Frames(1);
+        Frames(30);
+        var lit = GetImageColor(Capture(Draw, "the lamp on"), 32, 32);
+        var probes = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single();
+
+        // A tenth dimmer is within a flicker.
+        SetLightColor(lamp, Color.White, 18);
+        Frames(10);
+        probes.Relit.Should().Be(0, "a lamp a tenth dimmer is within a flicker");
+
+        SetLightColor(lamp, Color.White, 0);
+        Frames(3);
+        probes.Relit.Should().Be(1, "the lamp going out asks for the probe once");
+        for (int frame = 0; frame < 240 && (probes.Captured != probes.Wanted || probes.Passes < ReflectionProbes.Passes); frame++) Frames(1);
+        probes.Captured.Should().Be(probes.Wanted, "the probe is captured again with the lamp out");
+        var dark = GetImageColor(Capture(Draw, "the lamp out"), 32, 32);
+        ((int)dark.R).Should().BeLessThan(lit.R - 60, $"the ball no longer mirrors a lit room, {lit} before and {dark} after");
+        UnloadReflectionProbe(probe);
+        UnloadModel(room);
+        UnloadModel(ball);
+    }
+
+    [NeedsVulkanFact]
     public void A_Probe_Captures_A_Room_Drawn_Only_Into_A_Render_Texture()
     {
         Open(64, 64);

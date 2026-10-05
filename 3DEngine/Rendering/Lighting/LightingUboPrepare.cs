@@ -54,9 +54,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
 
-        // The window's light left linear, as a reflection probe's half-float faces hold it.
+        // The window's light left linear, as a reflection probe's half-float faces hold it. A probe
+        // whose map is of an earlier placement or of lights since changed gives no light to a
+        // capture, so a lamp switched off does not go on lighting its room through the room's own
+        // reflection, and a probe's second pass bounces the light of its first.
         var capture = ubo;
         capture.Output.X = 1;
+        if (renderWorld.TryGet<BoundProbes>() is { } boundForCapture)
+            for (int i = 0; i < boundForCapture.Slots.Count; i++)
+                if (boundForCapture.Slots[i].Captured != boundForCapture.Slots[i].Wanted) capture.Probes[i].CenterAndIntensity.W = 0;
         renderWorld.TryGet<BoundProbes>()!.CaptureBinding = Upload(allocator, in capture);
 
         // A render target drawing meshes through a camera of its own has its cascades fitted to

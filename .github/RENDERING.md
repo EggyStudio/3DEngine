@@ -333,7 +333,13 @@ no frame waits for it. A worker thread maps each direction
 to the face looking most nearly along it, through that face's own view-projection, and prefilters
 the result as an environment map of faces 32 texels wide with its irradiance
 (`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
-so the metal in its room reflects the room in the capture rather than the sky. Four probes with a
+so the metal in its room reflects the room in the capture rather than the sky. A probe whose map
+is of an earlier placement or of lights since changed gives a capture no light, its intensity 0
+in the capture's lighting buffer, so its first pass sees only the lights and its second bounces
+that. `ReflectionProbes.Sync` keeps the lights that reached each box when it was last asked for,
+and asks again when one is added or removed, grows or dims by a quarter, turns color, or moves a
+quarter of a unit or turns past eleven degrees, so a lamp switched off is seen and a flickering
+one is not. Four probes with a
 capture, those whose boxes come nearest the camera, are bound at set 1's bindings 5 to 8, and the
 lighting buffer carries each one's middle, intensity, half size, last mip and nine coefficients
 after the environment's. A surface in a box takes its reflection and diffuse light from the
