@@ -4371,8 +4371,8 @@ sealed class Engine.Schedule
   Schedule SetSingleThreaded(Stage stage, bool singleThreaded = true)
   Schedule()
   ScheduleDiagnostics Diagnostics { get; }
-  int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
   const double SequentialBatchMilliseconds = 0.5d
+  int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
   int RemoveSystemsBySource(string source)
   int SystemCount(Stage stage)
   int TotalSystemCount { get; }
