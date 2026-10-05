@@ -206,3 +206,16 @@ and Z, `MatrixLookAt` and `QuaternionFromAxisAngle` to raymath's arithmetic, wri
 against their counterparts. `QuaternionFromEuler` is carried because `CreateFromYawPitchRoll`
 composes in another order, which the test shows. `shapes_vector_angle` calls the package's, and
 the examples' `RayMath.cs` is gone.
+
+**Now 3, eleven more of raylib's shapes examples.** `shapes_clock_of_clocks`, `shapes_mouse_trail`,
+`shapes_simple_particles`, `shapes_starfield_effect`, `shapes_lines_drawing`,
+`shapes_math_angle_rotation`, `shapes_ball_physics`, `shapes_penrose_tile`, `shapes_drag_puzzle`,
+`shapes_ellipse_collision` and `shapes_polygon_lines` are raylib's, written again from its source.
+The particles' circular buffer, the balls' and the L-system's pointers and C strings, and the
+clock's time are C#'s arrays, strings and `DateTime`, and raymath's `Clamp` and `Lerp` are
+`Math.Clamp` and `float.Lerp`, as the comparison says. Each picture was set beside raylib's
+screenshot, and the two that differ for no input of the screenshot's, `shapes_starfield_effect`'s
+words and `shapes_math_angle_rotation`'s center, are raylib's source as it is now, its screenshots
+being older. Driven through `./e3d`, the Penrose tiling raised two generations is raylib's picture
+line for line. `shapes_math_angle_rotation` keeps raylib's window of 720 by 400, on N 4.5's list. The table stands at 73 written, 1 in part, 110 that can be, 37 missing and 1 that
+does not apply.
