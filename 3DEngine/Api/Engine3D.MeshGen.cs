@@ -63,44 +63,60 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// Makes a torus lying on the XZ plane: a tube of radius <paramref name="size"/> around a ring
-    /// of radius <paramref name="radius"/>.
+    /// Makes a torus standing on the XY plane, as raylib's does: a ring of radius
+    /// <paramref name="size"/> / 2 and a tube <paramref name="radius"/> of that thick, so 0.25
+    /// makes a tube a quarter of the ring's radius.
     /// </summary>
+    /// <remarks>
+    /// The radius is held from 0.1 to 1, and fewer than three segments or sides make no mesh, as
+    /// raylib's. Its surface is par_shapes' torus, which raylib draws, a ring of 1 scaled by half
+    /// the size.
+    /// </remarks>
     public static ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides)
     {
+        if (sides < 3 || radSeg < 3) return default;
+        radius = Math.Clamp(radius, 0.1f, 1.0f);
+
+        var scale = size / 2;
         var mesh = new MeshBuilder();
         mesh.Tube(t =>
         {
             var (sin, cos) = MathF.SinCos(t);
-            var outward = new Vector3(cos, 0, sin);
-            return (outward * radius, outward, Vector3.UnitY);
-        }, size, radSeg, sides);
+            var outward = new Vector3(cos, sin, 0);
+            return (outward * scale, outward, Vector3.UnitZ);
+        }, radius * scale, radSeg, sides);
         return mesh.Upload();
     }
 
     /// <summary>
-    /// Makes a trefoil knot about <paramref name="radius"/> across from its center, as a tube of
-    /// radius <paramref name="size"/>.
+    /// Makes a trefoil knot as raylib's does: par_shapes' knot, about 0.8 across from its center
+    /// and a tube of <paramref name="radius"/> / 10, scaled by <paramref name="size"/>.
     /// </summary>
+    /// <remarks>The radius is held from 0.5 to 3, and fewer than three segments or sides make no mesh, as raylib's.</remarks>
     public static ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides)
     {
-        // The trefoil reaches three units from its center, so it is scaled to the radius asked for.
-        var scale = radius / 3;
-        static Vector3 Curve(float t) =>
-            new(MathF.Sin(t) + 2 * MathF.Sin(2 * t), MathF.Cos(t) - 2 * MathF.Cos(2 * t), -MathF.Sin(3 * t));
+        if (sides < 3 || radSeg < 3) return default;
+        radius = Math.Clamp(radius, 0.5f, 3.0f);
 
+        // par_shapes' trefoil, its curve and the frame its tube is swept in, over two turns
+        const float a = 0.5f, b = 0.3f, c = 0.5f;
         var mesh = new MeshBuilder();
         mesh.Tube(t =>
         {
-            // The Frenet frame, from the curve's first two derivatives. It closes on itself
-            // around the knot, so the tube has no twisted seam where it meets its start.
-            const float h = 1e-3f;
-            var (back, here, ahead) = (Curve(t - h), Curve(t), Curve(t + h));
-            var tangent = Vector3.Normalize(ahead - back);
-            var bend = ahead - 2 * here + back;
-            var normal = Vector3.Normalize(bend - Vector3.Dot(bend, tangent) * tangent);
-            return (here * scale, normal, Vector3.Cross(tangent, normal));
-        }, size, radSeg, sides);
+            var u = 2 * t;
+            var (sinU, cosU) = MathF.SinCos(u);
+            var (sin15, cos15) = MathF.SinCos(1.5f * u);
+            var r = a + b * cos15;
+            var point = new Vector3(r * cosU, r * sinU, c * sin15);
+
+            var tangent = Vector3.Normalize(new Vector3(
+                -1.5f * b * sin15 * cosU - r * sinU,
+                -1.5f * b * sin15 * sinU + r * cosU,
+                1.5f * c * cos15));
+            var across = Vector3.Normalize(new Vector3(tangent.Y, -tangent.X, 0));
+            var up = Vector3.Cross(tangent, across);
+            return (point * size, across, up);
+        }, radius * 0.1f * size, radSeg, sides);
         return mesh.Upload();
     }
 

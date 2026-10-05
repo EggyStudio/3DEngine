@@ -20,8 +20,8 @@ public static class ModelsMeshGeneration
             ("sphere", LoadModelFromMesh(GenMeshSphere(0.7f, 16, 32))),
             ("hemisphere", LoadModelFromMesh(GenMeshHemiSphere(0.8f, 8, 32))),
             ("cylinder", LoadModelFromMesh(GenMeshCylinder(0.6f, 1.4f, 32))),
-            ("torus", LoadModelFromMesh(GenMeshTorus(0.55f, 0.2f, 48, 16))),
-            ("knot", LoadModelFromMesh(GenMeshKnot(0.8f, 0.12f, 128, 12))),
+            ("torus", LoadModelFromMesh(GenMeshTorus(0.36f, 1.1f, 48, 16))),
+            ("knot", LoadModelFromMesh(GenMeshKnot(1.2f, 1.0f, 128, 12))),
             ("poly", LoadModelFromMesh(GenMeshPoly(6, 0.8f))),
             ("cone", LoadModelFromMesh(GenMeshCone(0.7f, 1.4f, 32))),
         ];

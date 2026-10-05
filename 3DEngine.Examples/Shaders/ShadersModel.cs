@@ -17,9 +17,9 @@ public static class ShadersModel
         var rimColor = GetShaderLocation(toon, "rimColor");
         var viewer = GetShaderLocation(toon, "viewer");
 
-        var knot = LoadModelFromMesh(GenMeshKnot(1.1f, 0.25f, 160, 24));
+        var knot = LoadModelFromMesh(GenMeshKnot(1.8f, 1.4f, 160, 24));
         knot.Materials[0].Shader = toon;
-        var plain = LoadModelFromMesh(GenMeshKnot(1.1f, 0.25f, 160, 24));
+        var plain = LoadModelFromMesh(GenMeshKnot(1.8f, 1.4f, 160, 24));
 
         var levels = 3;
         var angle = 0f;

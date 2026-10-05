@@ -244,7 +244,8 @@ public sealed class ReferenceFrameTests : IDisposable
         var cube = LoadModelFromMesh(GenMeshCube(1.4f, 1.4f, 1.4f));
         var plane = LoadModelFromMesh(GenMeshPlane(6, 6, 1, 1));
         var sphere = LoadModelFromMesh(GenMeshSphere(0.8f, 32, 32));
-        var shaded = LoadModelFromMesh(GenMeshTorus(0.7f, 0.25f, 24, 32));
+        // A ring of 0.7 and a tube of 0.25, standing as raylib's does, laid flat as it is drawn.
+        var shaded = LoadModelFromMesh(GenMeshTorus(0.25f / 0.7f, 1.4f, 24, 32));
         plane.Materials[0] = new ModelMaterial(Color.White, checker) { NormalMap = bumps };
         cube.Materials[0] = new ModelMaterial(Color.White, checker) { EmissiveMap = glow, Emissive = Color.White };
         sphere.Materials[0] = new ModelMaterial(new Color(220, 180, 120)) { Metallic = 1, Roughness = 1, MetallicRoughnessMap = roughness };
@@ -258,7 +259,7 @@ public sealed class ReferenceFrameTests : IDisposable
             DrawModel(plane, Vector3.Zero, 1, Color.White);
             DrawModel(cube, new Vector3(-1.8f, 0.7f, 0), 1, Color.White);
             DrawModel(sphere, new Vector3(0, 0.8f, 0.6f), 1, Color.White);
-            DrawModel(shaded, new Vector3(1.9f, 0.6f, 0), 1, Color.White);
+            DrawModelEx(shaded, new Vector3(1.9f, 0.6f, 0), Vector3.UnitX, 90, Vector3.One, Color.White);
             EndMode3D();
         });
         Matches(frame, "materials_and_shader");

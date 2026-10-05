@@ -553,8 +553,8 @@ ModelMesh GenMeshPoly(int sides, float radius);                            // A 
 ModelMesh GenMeshHemiSphere(float radius, int rings, int slices);          // The upper half of a sphere, closed
 ModelMesh GenMeshCylinder(float radius, float height, int slices);         // A closed cylinder standing on y 0
 ModelMesh GenMeshCone(float radius, float height, int slices);             // A cone standing on y 0
-ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of radius, a tube of size, lying flat
-ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot as a tube of size
+ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of size / 2, standing, its tube radius of that thick
+ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot scaled by size, its tube radius / 10
 ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
 ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
 bool ExportMesh(ModelMesh mesh, string fileName);                          // Write a Wavefront OBJ file of its shape

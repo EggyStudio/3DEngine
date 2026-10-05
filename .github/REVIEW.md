@@ -215,3 +215,20 @@ which has raylib's name and place. The callback example's waveform reads one sam
 buffer in raylib's C, which C allows, and here that last index is held to the buffer's end. The
 spectrum visualizer waits for the shaders, being one. The table stands at 145 written, 1 in part,
 37 that can be, 38 missing and 1 that does not apply.
+
+**Now 2, nine of raylib's shaders examples.** `shaders_shapes_textures`,
+`shaders_texture_outline`, `shaders_texture_waves`, `shaders_texture_rendering`,
+`shaders_texture_tiling`, `shaders_multi_sample2d`, `shaders_simple_mask`,
+`shaders_palette_switch` and `shaders_eratosthenes_sieve` are raylib's, each GLSL file written again
+in Slang under `resources/shaders/slang/`, as raylib keeps its shaders under a folder of their
+language. raylib's `fragTexCoord`, `fragColor` and `texture0` are the vertex output's `uv` and
+`color` and `boundTexture`, and its `colDiffuse`, white in 2D, falls away. A model shader that
+draws unlit, as raylib's default does, encodes its color with `linearToSrgb`, since the model pass
+samples its texture as linear light. `LoadShader` taking one Slang file where raylib takes a pair
+of GLSL files is a line on the comparison now, as is a model drawn with no light made, shaded by
+the fixed light where raylib's is unlit. The mask found a fault. `GenMeshTorus` and `GenMeshKnot`
+took their numbers otherwise than raylib's: raylib's torus is a ring of `size` / 2 standing on the
+XY plane, its tube `radius` of that thick, and its knot is par_shapes' trefoil scaled by `size`.
+Both are raylib's now, the engine's own examples, docs and cheatsheet given numbers that keep their
+shapes, and the reference frame's torus laid flat by `DrawModelEx`, which keeps its picture. The
+table stands at 154 written, 1 in part, 28 that can be, 38 missing and 1 that does not apply.

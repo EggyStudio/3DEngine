@@ -79,6 +79,8 @@ here, with the reason.
 | A render texture's samples | One, so what is drawn into it has hard edges | The window's, resolved into the texture, so its edges are smoothed as the window's are | The window's pipelines, made for one count of samples, draw into it as they are |
 | `LoadImageAnim` | One frame tall, the other frames after it in memory | As tall as every frame, stacked from the top | An image's pixels are always its size here, so every image call reads all of it, and a frame is a rectangle of it |
 | An image from a file without alpha, as a PNG of RGB | Kept as three bytes a pixel, so the corners `ImageRotate` adds are black | Four bytes a pixel, so they are clear | Every image is RGBA, the one format drawing and the GPU take as it is |
+| A model drawn when the program has made no light | Unlit, its texture and color as they are | Shaded by a fixed light from above, from about a third in its shadow to full | A shape reads as solid with no light made, and the first light made takes over |
+| `LoadShader` | A vertex and a fragment file of GLSL, either null for the default | One Slang file, its fragment stage drawing with the engine's vertex stage when it has no vertex stage of its own | Slang compiles to the SPIR-V that Vulkan reads, and one file holds both stages |
 | A texture's filter before `SetTextureFilter` | `TEXTURE_FILTER_POINT`, every texel a sharp square | `TextureFilter.Bilinear`, blended between texels | A model's textures and a scaled image are smooth without a call, and pixel art sets `Point` |
 
 ## raymath

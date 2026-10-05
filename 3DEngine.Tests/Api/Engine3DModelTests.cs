@@ -114,7 +114,7 @@ public sealed class Engine3DModelTests : IDisposable
         { "cylinder", new(-1, 0, -1), new(1, 2, 1) },
         { "cone", new(-1, 0, -1), new(1, 2, 1) },
         { "hemisphere", new(-1, 0, -1), new(1, 1, 1) },
-        { "torus", new(-1.25f, -0.25f, -1.25f), new(1.25f, 0.25f, 1.25f) },
+        { "torus", new(-1.25f, -1.25f, -0.25f), new(1.25f, 1.25f, 0.25f) },
         { "heightmap", new(0, 0, 0), new(4, 2, 4) },
         { "cubicmap", new(-0.5f, 0, -0.5f), new(2.5f, 1, 2.5f) },
         { "sphere", new(-1, -1, -1), new(1, 1, 1) },
@@ -128,13 +128,13 @@ public sealed class Engine3DModelTests : IDisposable
         "cylinder" => GenMeshCylinder(1, 2, 64),
         "cone" => GenMeshCone(1, 2, 64),
         "hemisphere" => GenMeshHemiSphere(1, 16, 64),
-        "torus" => GenMeshTorus(1, 0.25f, 64, 32),
+        "torus" => GenMeshTorus(0.25f, 2, 64, 32),
         "heightmap" => GenMeshHeightmap(GenImageGradientLinear(8, 8, 90, Color.Black, Color.White), new Vector3(4, 2, 4)),
         "cubicmap" => GenMeshCubicmap(Maze(), Vector3.One),
         "sphere" => GenMeshSphere(1, 16, 32),
         "cube" => GenMeshCube(2, 2, 2),
         "plane" => GenMeshPlane(2, 2, 4, 4),
-        _ => GenMeshKnot(3, 0.3f, 128, 16),
+        _ => GenMeshKnot(1, 2, 128, 16),
     };
 
     [Theory]
