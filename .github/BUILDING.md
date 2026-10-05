@@ -59,6 +59,11 @@ every ten seconds into `build/soak/<game>.csv`, and `build/soak-check.py` fails 
 their ids) climbs past what it reached earlier in the run by more than a little. CI plays the four
 games for two minutes at once this way, and a ten-minute run of each holds level on the desktop.
 
+`build/storm.sh <program> <png>` resizes a program a frame apart through odd sizes, minimizes and
+restores it and moves it to each monitor there is, under the validation layer, then captures a
+frame and fails unless it is drawn at the size last asked for with nothing reported. CI puts each
+game and five examples through one.
+
 `build/raylib-examples.sh` asks raylib's site which examples it runs in the browser and writes their
 names to `build/raylib-examples.txt`, whose pictures in the README's gallery open raylib's demo. It
 is run by hand when an example is added, since the suite runs with no network, and

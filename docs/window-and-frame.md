@@ -113,7 +113,9 @@ which most games offer as their fullscreen.
 `GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
 rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels the
 content is drawn at `GetRenderWidth` by `GetRenderHeight`, twice as many, which
-`GetWindowScaleDPI` says.
+`GetWindowScaleDPI` says. A minimized window draws nothing, and the program's loop goes on as
+it was, so a game paused by the player's minimizing it pauses itself by `IsWindowMinimized`. When
+the window comes back its frames are drawn at the size it comes back at.
 
 A tool that changes only when it is used, as a level editor drawn in ImGui, calls
 `EnableEventWaiting`, after which `WindowShouldClose` waits for input or a window event before the

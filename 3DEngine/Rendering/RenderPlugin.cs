@@ -105,10 +105,10 @@ public sealed class RenderPlugin : IPlugin
             return;
         }
 
-        // -- Debounce state for the expensive higher-level resize
-        // Captured by both the ResizeEvent lambda and the per-frame system lambda.
-        bool pendingRendererResize = false;
-        long lastResizeTick = 0;
+        // The resize the window or an offscreen run asks for, carried out by the render system
+        // once none has come for a moment.
+        var resize = new SurfaceResize(renderer);
+        app.World.InsertResource(resize);
 
         if (window is null)
         {
@@ -130,13 +130,9 @@ public sealed class RenderPlugin : IPlugin
             // but only *flag* the expensive swapchain rebuild for later.
             window.ResizeEvent += (w, h) =>
             {
-                if (w > 0 && h > 0)
-                {
-                    Logger.Debug($"Window resized to {w}x{h}, updating the render surface (rebuild deferred).");
-                    renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = w, Height = h });
-                    pendingRendererResize = true;
-                    lastResizeTick = Environment.TickCount64;
-                }
+                if (w <= 0 || h <= 0) return;
+                Logger.Debug($"Window resized to {w}x{h}, updating the render surface (rebuild deferred).");
+                resize.Request(w, h);
             };
         }
         else
@@ -156,10 +152,15 @@ public sealed class RenderPlugin : IPlugin
                 if (!world.TryGetResource<Renderer>(out var r) || !r.Context.IsInitialized)
                     return;
             
+                // A minimized window, or an offscreen run made zero across, has nothing to draw
+                // into, so the frame's GPU work is skipped until it has a size again.
+                if (world.TryGetResource<AppWindow>(out var shown) && shown.Minimized) return;
+                if (resize.Empty) return;
+
                 // -- Resolve debounced resize
-                if (pendingRendererResize && (Environment.TickCount64 - lastResizeTick) >= ResizeDebounceMs)
+                if (resize.Pending && (Environment.TickCount64 - resize.Tick) >= ResizeDebounceMs)
                 {
-                    pendingRendererResize = false;
+                    resize.Pending = false;
                     Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
                     r.Context.OnResize();
                 }
@@ -195,7 +196,10 @@ public sealed class RenderPlugin : IPlugin
         var (width, height) = ((uint)Math.Max(1, cfg.WindowData.Width), (uint)Math.Max(1, cfg.WindowData.Height));
         try
         {
-            renderer.Context.Initialize(new OffscreenSurface(width, height), cfg.WindowData.Title, cfg.Samples, cfg.Vsync);
+            var surface = new OffscreenSurface(width, height);
+            renderer.Context.Initialize(surface, cfg.WindowData.Title, cfg.Samples, cfg.Vsync);
+            // Kept where window.size and window.minimize find it, to resize as a window would be.
+            app.World.InsertResource(surface);
             renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = (int)width, Height = (int)height });
             Logger.Info($"RenderPlugin: Offscreen run, rendering {width}x{height} frames with no window.");
         }
@@ -203,5 +207,35 @@ public sealed class RenderPlugin : IPlugin
         {
             Logger.Warn($"RenderPlugin: Offscreen rendering could not start, so nothing is drawn: {ex.Message}");
         }
+    }
+}
+
+/// <summary>
+/// A resize of what the renderer draws into, asked for by the window or by an offscreen run, and
+/// carried out by the render system once none has come for a moment, so a window dragged larger
+/// rebuilds its swapchain once rather than every frame.
+/// </summary>
+public sealed class SurfaceResize
+{
+    private readonly Renderer _renderer;
+
+    internal SurfaceResize(Renderer renderer) => _renderer = renderer;
+
+    /// <summary>Whether a resize waits to be carried out.</summary>
+    internal bool Pending { get; set; }
+
+    /// <summary>When the last resize was asked for, in <see cref="Environment.TickCount64"/>.</summary>
+    internal long Tick { get; private set; }
+
+    /// <summary>Whether the surface is zero across or zero high, so nothing is drawn.</summary>
+    public bool Empty => _renderer.RenderWorld.TryGet<RenderSurfaceInfo>() is { } info && (info.Width <= 0 || info.Height <= 0);
+
+    /// <summary>Asks for frames to be drawn at <paramref name="width"/> by <paramref name="height"/>, none at all while either is zero.</summary>
+    public void Request(int width, int height)
+    {
+        _renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = Math.Max(0, width), Height = Math.Max(0, height) });
+        if (width <= 0 || height <= 0) return;
+        Pending = true;
+        Tick = Environment.TickCount64;
     }
 }

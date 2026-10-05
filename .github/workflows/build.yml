@@ -174,6 +174,18 @@ jobs:
           python3 build/soak-check.py build/soak/*.csv || failed=1
           if [ "$failed" = 1 ]; then echo "::error::a game grew, or could not be played, over two minutes"; exit 1; fi
 
+      # Each game and a handful of examples resized, minimized and restored while they draw, under
+      # the validation layer, then captured at the size last asked for (build/storm.sh).
+      - name: Resize each game and some examples while they draw
+        run: |
+          failed=0
+          for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
+                         games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
+                         shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
+            build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
+          done
+          exit $failed
+
       # The documents' steps in a new folder, from the same package, as someone holding only the
       # package would follow them. BUILDING.md's nuget.config and add-package line and the README's
       # first program are built and run offscreen.

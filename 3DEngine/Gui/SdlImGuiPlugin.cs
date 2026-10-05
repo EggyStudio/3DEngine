@@ -128,6 +128,11 @@ public sealed class SdlImGuiPlugin : IPlugin
             .Read<Time>()
             .Write<SdlImGuiRenderer>());
 
+        // A frame the renderer skips, as one while the window is minimized, leaves ImGui's frame
+        // open, which is ended here after the render node would have, and is left alone when it has.
+        if (isVulkan)
+            app.AddSystem(Stage.Last, new SystemDescriptor(_ => ImGui.EndFrame(), "SdlImGuiPlugin.EndSkippedFrame").MainThreadOnly());
+
         app.AddSystem(Stage.Render, new SystemDescriptor(world =>
             {
                 // Vulkan mode: ImGuiRenderNode (Stage.Last) closes the frame; doing it
@@ -190,6 +195,9 @@ public sealed class SdlImGuiPlugin : IPlugin
             {
                 var time = world.Resource<Time>();
                 ImGui.GetIO().DeltaTime = time.DeltaSeconds > 0 ? (float)time.DeltaSeconds : 1f / 60f;
+                // An offscreen run follows the size its images are drawn at, which window.size changes.
+                if (world.TryGetResource<OffscreenSurface>(out var surface) && surface.Size.Width > 0 && surface.Size.Height > 0)
+                    ImGui.GetIO().DisplaySize = new Vector2(surface.Size.Width, surface.Size.Height);
                 ImGui.NewFrame();
             }, "SdlImGuiPlugin.PreUpdate")
             .MainThreadOnly()

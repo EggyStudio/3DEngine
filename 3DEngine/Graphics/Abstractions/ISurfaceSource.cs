@@ -35,6 +35,13 @@ public interface ISurfaceSource
 /// <param name="height">The height drawn at.</param>
 public sealed class OffscreenSurface(uint width, uint height) : ISurfaceSource
 {
+    /// <summary>
+    /// The size of the images drawn into, which <c>window.size</c> changes as a window's is
+    /// resized, and which is zero across while <c>window.minimize</c> has it hidden, when no frame
+    /// is drawn.
+    /// </summary>
+    public (uint Width, uint Height) Size { get; set; } = (width, height);
+
     /// <inheritdoc />
     public IReadOnlyList<string> GetRequiredInstanceExtensions() => [];
 
@@ -43,7 +50,7 @@ public sealed class OffscreenSurface(uint width, uint height) : ISurfaceSource
         throw new NotSupportedException("An offscreen surface has no window to make a VkSurfaceKHR from.");
 
     /// <inheritdoc />
-    public (uint Width, uint Height) GetDrawableSize() => (Math.Max(1, width), Math.Max(1, height));
+    public (uint Width, uint Height) GetDrawableSize() => (Math.Max(1, Size.Width), Math.Max(1, Size.Height));
 
     /// <inheritdoc />
     public bool IsOffscreen => true;

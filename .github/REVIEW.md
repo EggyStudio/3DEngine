@@ -8,11 +8,9 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `8aeb778b`. A crowd of characters at a third of its cost (`bb7b1624`) and particle
-emitters stepped in compute and lit by the model pass (`8aeb778b`) are settled on their
-descriptions and the replies, which were read. The contact pairs' key hashing thousands of pairs
-alike was in `81b520d5`, which this review read and passed, and the profile found what reading
-did not.
+Reviewed up to `2a74282e`. Depth of field and motion blur over the HDR frame (`2a74282e`) are settled
+on their description and the reply, which was read. The ten-minute runs of the four games, with
+every count level, are in the working tree and are settled when committed.
 
 ## Now
 
@@ -22,8 +20,7 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **Depth of field and motion blur**, the two effects over the frame TODO.md names as left.
-3. **A game left running does not grow.** Every test and capture here runs a few hundred
+2. **A game left running does not grow.** Every test and capture here runs a few hundred
    frames, and nothing has run for long. Each of the four games is played by a script for ten
    minutes offscreen, with levels restarted, waves spawned and despawned, prefabs placed and
    removed, and sounds started throughout, while managed memory, the GPU memory the device has
@@ -31,17 +28,17 @@ for a reply. In this order.
    at intervals through an `e3d` command. Anything that climbs without leveling off is a leak
    and is found and fixed. A shorter form of the run joins the workflow, failing on growth past
    a bound.
-4. **A window resized, minimized and moved between monitors while it draws.** The swapchain,
+3. **A window resized, minimized and moved between monitors while it draws.** The swapchain,
    the HDR frame, the shadow maps, render textures and probes are made again on a resize, and
    that path is the least run. `e3d` gains what it needs to resize and minimize a hidden window,
    each game and a handful of examples are put through a storm of them under the validation
    layer, and a frame of zero size draws nothing and comes back.
-5. **Every loader refuses a bad file gracefully.** A missing file, an empty one, one cut short
+4. **Every loader refuses a bad file gracefully.** A missing file, an empty one, one cut short
    and one of random bytes are given to each `Load` function of the flat API and to the scene,
    model, font, image, sound and shader readers, and each answers as DESIGN.md says a failed
    load does, with a message naming the file and no exception escaping a frame. The cases are a
    table in one test, so a loader added later is a row.
-6. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
+5. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
    when TODO.md runs short, a fifth game of a kind not yet made, since each one has found what
    nothing else did.
 
@@ -99,3 +96,14 @@ of a run passes its most in the first by more than a slack. Ten minutes of each 
 held every count level, and the heap level within a few hundred kilobytes. Summit's heap rises by
 about a kilobyte a reading while the console's log ring of 2000 lines fills, which bounds it. CI
 plays the four for two minutes at once.
+
+**Now 4, a window resized while it draws.** `window.size`, `window.minimize`, `window.restore`,
+`window.position` and `window.monitor` drive a window, and an offscreen run resizes the images it
+draws into, which a resize makes again as a window's swapchain is, so CI storms with no desktop.
+The window's resizes and an offscreen run's go through one debounced `SurfaceResize`, a minimized
+window or an empty surface skips the frame's GPU work and ImGui's frame is closed for it, and an
+offscreen run's screen size, camera aspect and ImGui follow its images. `build/storm.sh` resizes a
+program through odd sizes a frame apart, minimizes and restores it twice and moves it to each
+monitor, then captures at the size last asked for. The four games and five examples came through
+it on lavapipe under the validation layer with nothing reported, CI runs the same, and
+`WindowResizeTests` does it on an offscreen run with bloom and a shadow.

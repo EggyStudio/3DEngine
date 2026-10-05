@@ -85,11 +85,13 @@ public static partial class Engine3D
 
     /// <summary>The window's width, in the units mouse positions and 2D drawing use. In a headless run, the width asked for.</summary>
     public static int GetScreenWidth() =>
-        TryRes<AppWindow>(out var window) ? window.Sdl.Width : Res<Config>().WindowData.Width;
+        TryRes<AppWindow>(out var window) ? window.Sdl.Width
+        : TryRes<OffscreenSurface>(out var surface) ? (int)surface.Size.Width : Res<Config>().WindowData.Width;
 
     /// <summary>The window's height, in the units mouse positions and 2D drawing use. In a headless run, the height asked for.</summary>
     public static int GetScreenHeight() =>
-        TryRes<AppWindow>(out var window) ? window.Sdl.Height : Res<Config>().WindowData.Height;
+        TryRes<AppWindow>(out var window) ? window.Sdl.Height
+        : TryRes<OffscreenSurface>(out var surface) ? (int)surface.Size.Height : Res<Config>().WindowData.Height;
 
     /// <summary>Writes the frame being drawn to a PNG file, once it is presented at <see cref="EndDrawing"/>.</summary>
     /// <remarks>A headless run draws nothing, so it logs why and writes nothing.</remarks>

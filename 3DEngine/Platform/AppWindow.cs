@@ -48,6 +48,12 @@ public sealed class AppWindow
     /// <param name="windowData">Window title and size.</param>
     public AppWindow(WindowData windowData) : this(windowData, GraphicsBackend.Sdl) {}
 
+    /// <summary>
+    /// Whether the window is minimized, so its surface has no size to draw into and the renderer
+    /// skips its frames until the window is restored.
+    /// </summary>
+    public bool Minimized { get; private set; }
+
     /// <summary>Returns true if this window has keyboard focus.</summary>
     public bool IsFocused()
     {
@@ -138,6 +144,17 @@ public sealed class AppWindow
             {
                 QuitEvent?.Invoke();
                 running = false;
+            }
+            // A minimized window draws nothing, and one restored is resized, which builds its
+            // swapchain again at the size it comes back at.
+            if (evtType == SDL.EventType.WindowMinimized && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
+                Minimized = true;
+            if (evtType is SDL.EventType.WindowRestored or SDL.EventType.WindowMaximized && e.Window.WindowID == SDL.GetWindowID(Sdl.Window)
+                && Minimized)
+            {
+                Minimized = false;
+                SDL.GetWindowSize(Sdl.Window, out coalescedW, out coalescedH);
+                resizedThisBatch = true;
             }
             if (evtType == SDL.EventType.WindowResized
                 && e.Window.WindowID == SDL.GetWindowID(Sdl.Window))
