@@ -1,0 +1,8 @@
+# N 1.4, a test file outside the folder of the area it tests, the test project's root among them.
+3DEngine.Tests/Docs/DocumentLinkTests.cs
+3DEngine.Tests/Docs/FirstGameTests.cs
+3DEngine.Tests/Fonts/TrueTypeFontTests.cs
+3DEngine.Tests/Needs.cs	shared by the tests, at the root as N 1.4 has it
+3DEngine.Tests/NormTests.cs
+3DEngine.Tests/Package/PackageContentsTests.cs
+3DEngine.Tests/TestFolder.cs	shared by the tests, at the root as N 1.4 has it

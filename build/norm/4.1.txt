@@ -1,0 +1,3 @@
+# N 4.1, a file with a dash STYLE.md forbids.
+.github/COMMITS.md	names the dashes in the search it gives
+.github/STYLE.md	names the dashes it forbids

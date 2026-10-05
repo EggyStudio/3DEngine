@@ -39,11 +39,16 @@ test. Where a build setting or a step of the workflow is the check, the rule nam
 Code that does not keep a rule on the day the rule is written goes on the rule's list, a place a
 line, with a few words of why where that helps. The test fails for a place that is not listed and
 for a line whose place keeps the rule or is gone, so a list only gets shorter. A place on a list
-is mended when a batch next touches it.
+is mended when a batch next touches it, and a mending that only moves code is a commit of its
+own, apart from the batch whose work touched the file.
 
-One test holds this file and the tests to each other. Every rule the table under Conformance calls
-`checked` or `listed` for the engine has its test or the setting it names, and every test in
-`NormTests` is named for a rule that is here.
+A rule may leave a kind of place out, and says which. Those places are on its list too, each with
+its reason after a tab, and they stay there. A line with no reason is a place to mend.
+
+One test holds this file and the tests to each other. It reads its engine's column of the table
+under Conformance. A cell that begins `listed`, or begins `checked` and names `NormTests`, has its
+test there, every test in `NormTests` is named for a rule that is here, and every list is the list
+of a test.
 
 A rule no machine can check says by review, and the reviewing session holds it when it reads a
 commit.
@@ -64,9 +69,9 @@ it is changed, by a person or by a session, and COMMITS.md has a section for the
 meet in a large one. A test counts the lines of the library, the tests, the examples and, in
 BevyCSharp, the bridge, with a list.
 
-**N 1.4 A test is in the folder of the area it tests, the test project laid out as the library
-is.** A test is found from the code it holds, and the code from its test. A test compares the two
-trees, with a list.
+**N 1.4 A test class is in the folder of the area it tests, the test project laid out as the
+library is, and what the tests share is at its root.** A test is found from the code it holds, and
+the code from its test. A test compares the two trees, with a list.
 
 **N 1.5 Every project and every top folder of the library has its row in the table of areas in
 AGENTS.md.** A session reads that table to find where a thing belongs, and a folder it does not
@@ -134,7 +139,8 @@ again is not kept true. By review.
 
 **N 4.1 Prose follows STYLE.md, in comments, messages, documentation and Markdown.** Many
 sessions write these files, and they read as one. A test counts the dashes STYLE.md forbids, which
-is the part a machine can count, and the rest is by review with STYLE.md's own searches.
+is the part a machine can count, and the rest is by review with STYLE.md's own searches. A file
+that names those dashes, or carries the followed engine's own words, is left out.
 
 **N 4.2 A document is in the place of its reader.** The README is for somebody deciding and has at
 most 320 lines, `docs/` has a page an area for somebody using the engine, each listed in the
@@ -152,8 +158,9 @@ first program in a new project, and a page of steps is held to programs the work
 
 **N 4.5 A capture is a WebP file at the size of the followed engine's window, and a picture of an
 example in the README opens that example's source.** One size down the gallery, small files, and
-a picture that leads to the code that drew it. A test reads each capture's size and each
-picture's link.
+a picture that leads to the code that drew it. An example that asks for a window of its own, as
+the followed engine's example does, is left out of the size. A test reads each capture's size and
+each picture's link.
 
 **N 4.6 A rule is stated once, here, and a document that needs it cites its number.** A rule
 written in two places comes to say two things. By review.
@@ -207,17 +214,17 @@ asks for.** It is what every session reads first. By review.
 
 ## Conformance
 
-`checked` names what checks the rule. `listed` is checked with that many places on the rule's
-list. `to take` has no check yet, whether or not the code keeps the rule. `by review` is held by
-the reviewing session.
+`checked` names what checks the rule. `listed` is checked with that many places to mend on the
+rule's list, what the rule leaves out being counted apart. `to take` has no check yet, whether or
+not the code keeps the rule. `by review` is held by the reviewing session.
 
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
-| N 1.1 | to take | to take |
-| N 1.2 | to take | to take |
-| N 1.3 | to take | to take |
-| N 1.4 | to take | to take |
-| N 1.5 | to take | to take |
+| N 1.1 | to take | checked, `NormTests` |
+| N 1.2 | to take | listed 348, `NormTests` |
+| N 1.3 | to take | listed 32, `NormTests`, 18 of them in the bridge |
+| N 1.4 | to take | listed 133, `NormTests` |
+| N 1.5 | to take | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
@@ -228,15 +235,15 @@ the reviewing session.
 | N 2.8 | to take | to take |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
-| N 3.3 | to take | to take |
-| N 3.4 | to take | to take |
+| N 3.3 | to take | checked, `NormTests`, 4 left out |
+| N 3.4 | to take | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
-| N 4.1 | to take | to take |
-| N 4.2 | to take | to take |
+| N 4.1 | to take | checked, `NormTests`, 3 left out |
+| N 4.2 | to take | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | to take | to take |
+| N 4.5 | to take | checked, `NormTests`, 5 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | to take | to take |
@@ -244,14 +251,14 @@ the reviewing session.
 | N 6.1 | checked, `-warnaserror` in the workflow | to take |
 | N 6.2 | checked, `test.yml` | checked, `package.yml` |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
-| N 6.4 | checked, `PackageContentsTests` | to take |
+| N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 7.1 | by review | by review |
-| N 7.2 | to take | to take |
+| N 7.2 | to take | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
-| B 3 | | to take |
+| B 3 | | checked, `NormTests`, 17 left out |
 | B 4 | | by review |
 
 ## How the norm changes
@@ -298,7 +305,8 @@ out. By review, the workflow testing the headless and the render profile.
 
 **B 3 No panic crosses the C ABI.** A panic that unwinds into managed code ends the process with
 no message. Every entry point runs under the guard in `interop.rs`, and a test finds an
-`extern "C"` function that does not.
+`extern "C"` function that does not. One that only answers a constant, a flag or a count is left
+out.
 
 **B 4 An example keeps on an entity what Bevy's example keeps on an entity, in a behavior.** The
 README's first program is a behavior, and a picture opens an example as the way to do a thing. A

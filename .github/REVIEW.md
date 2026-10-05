@@ -8,22 +8,23 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `c774a379`. Verdicts 4 to 6 are settled on their replies, which were read: Assimp
-reading through C# streams with one folder for the tests (`abc24192`), a body woken when its layer
-or its trigger changes (`ac897afa`) and a pair's press as the push alone (`c774a379`). The first
-went past what was asked, a path with letters outside ASCII no longer crossing into native code
-and a test of the check itself, which finds a file it left open. The third measured the old sum at
-0.87 for a crate dragged and turned where its weight times the step is 0.33. Verdicts 1 to 3 were
-settled before them, so everything the Windows run of `db942962` showed is mended. Verdicts 8 and
-9 are two small things left by 4 and 5.
+Reviewed up to `bf1a559c`. Verdicts 7 to 9 and the README's pictures are settled on their replies,
+which were read: the distance past which a move is a placing as a setting, with `MarkPlaced`
+(`7ae91e7c`), every exception caught inside Assimp's callbacks, with a crate asleep on a kinematic
+floor (`1fac9eff`), and each of the 52 pictures opening the program that drew it (`bf1a559c`).
+Two of the verdicts feared more than was there, and the replies measured it. A crate on a fast
+platform through a slow frame slipped 0.003 where Verdict 7 had it left behind, the placing
+having come after the frame's steps. A crate asleep on a kinematic floor wakes with it, Bepu
+putting a kinematic body at rest to sleep in the set of what rests on it, so Verdict 9 changed
+nothing and its five cases stay as the proof. The third found more than was asked, a model read
+from its own stream into Assimp's memory, 2.56 MB a round for Manor's 32 models against 3.94 with
+the copy and 2.31 before any of it, and Manor's own walk the same either way.
 
-The owner pushed `main` up to `15fa305a` on 2026-10-05, which has the clock and the follow rule
-and has neither the one clamp nor the file system for Assimp. Its run is the first to draw on
-Windows and macOS, and the platform test should be green in it. `Config.FrameSeconds` and
-`Time.FrameSeconds` are new public lines and `PhysicsSettings.MaxStepsPerFrame` is gone, which
-Decision 5 leaves with the owner.
-
-[NORM.md](NORM.md) is new, and item 3 of the Now list is about it.
+Everything the Windows run of `db942962` showed is mended. The owner pushed `main` up to
+`15fa305a` on 2026-10-05, which has the clock and the follow rule, and its run is the first to
+draw on Windows and macOS. `Config.FrameSeconds`, `Time.FrameSeconds`,
+`PhysicsSettings.PlaceBeyond` and `PhysicsWorld.MarkPlaced` are new public lines and
+`PhysicsSettings.MaxStepsPerFrame` is gone, which Decision 5 leaves with the owner.
 
 ## Now
 
@@ -31,37 +32,37 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 7, 8 and 9**, the distance past which a parent's move is a placing, which is in
-   hand, an exception inside Assimp's callbacks, and a crate asleep on a kinematic floor.
-2. **A picture in the README opens the example's own source** (N 4.5). The owner chose this for
-   BevyCSharp on 2026-10-05 over the live demos, so that a picture leads to the program that drew
-   it and nothing is cached from another project's site, and the reason holds here word for word.
-   Each picture in the gallery links to the file that holds its example, as a full address under
-   `https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/`, the README being the
-   package's page too. The links to raylib's site go, with `build/raylib-examples.sh`,
-   `build/raylib-examples.txt`, their paragraph in BUILDING.md and the comparison in
-   `DocumentLinkTests`, which holds every picture to a link whose file is in the checkout
-   instead, with no request made. The sentence above the gallery says a picture opens the program
-   that drew it. BevyCSharp did the same in its `57fc7e9`.
-3. **The norm's checks.** [NORM.md](NORM.md) is new, at the owner's wish of 2026-10-05: the
-   rules both engines keep, numbered, each with its reason and what checks it, 36 of them and
-   DESIGN.md's eleven sections by reference. One batch gives the rules their checks here. A class
-   `NormTests` has a test for each rule the table under Conformance calls `to take` for 3DEngine
-   and a test or a setting can check, named for the rule as `N_1_3` is for N 1.3, its message
-   beginning with the rule's number. A rule existing code does not keep gets its list,
-   `build/norm/<number>.txt`, written from the test's own finding so the first list is exact, the
-   test failing for a place not listed and for a line that no longer applies. One more test holds
-   NORM.md and `NormTests` to each other. No file is rearranged in this batch. The lists are what
-   is left, and a place on a list is mended when a batch next touches it.
+1. **The norm's checks**, which are in hand. [NORM.md](NORM.md) is the owner's wish of
+   2026-10-05: the rules both engines keep, numbered, each with its reason and what checks it, 36
+   of them and DESIGN.md's eleven sections by reference. One batch gives the rules their checks
+   here. A class `NormTests` has a test for each rule the table under Conformance calls `to take`
+   for 3DEngine and a test or a setting can check, named for the rule as `N_1_3` is for N 1.3,
+   its message beginning with the rule's number. A rule existing code does not keep gets its
+   list, `build/norm/<number>.txt`, written from the test's own finding so the first list is
+   exact, the test failing for a place not listed and for a line that no longer applies. One
+   more test holds NORM.md and `NormTests` to each other. No file is rearranged in this batch.
+   The lists are what is left, and a place on a list is mended when a batch next touches it.
 
-   N 3.3 and N 3.4 start at what Verdicts 1 and 4 leave. N 2.8 finds `BepuUtilities` and
+   BevyCSharp wrote its own first, `BevyCSharp.Tests/NormTests.cs` in its checkout, and it is
+   the model, so the two suites read NORM.md alike: one `Hold` that takes the places found and
+   fails for one not listed and for a listed one that keeps the rule, a list's line being the
+   place, then a tab and the reason where there is one, and the one test reading this engine's
+   column of the table, where a cell that begins `listed`, or begins `checked` and names
+   `NormTests`, has its test. The norm has since said three things its questions brought out. A
+   rule may leave a kind of place out, and those places are on its list with their reason and
+   stay. What the tests share is at the test project's root (N 1.4). A mending that only moves
+   code is a commit of its own.
+
+   N 3.3 and N 3.4 start at what the clock and `TestFolder` leave, the waits on something
+   outside the frame being left out with their reasons. N 2.8 finds `BepuUtilities` and
    `SDL3-CS.Native` missing from D 8's table, and `Microsoft.CodeAnalysis.CSharp` there under a
    shorter name. N 1.5 finds `templates/`, `games/` and `docs/` missing from AGENTS.md's table,
-   whose rows are added without asking, as N 7.4 says. N 2.5, N 2.7 and N 5.2 are steps of the
-   workflow and more than this batch, and keep `to take` until their own, N 5.2 being item 4. The
-   count of each list goes under Replies, and the table in the norm is brought up to them. A rule
-   read as wrong is answered under Replies with a line beginning `Rule:`.
-4. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
+   whose rows wait for the owner's word in this session with the rest of that file. N 2.5, N 2.7
+   and N 5.2 are steps of the workflow and more than this batch, and keep `to take` until their
+   own, N 5.2 being item 2. The count of each list goes under Replies, and the table in the norm
+   is brought up to them. A rule read as wrong is answered under Replies with a line beginning
+   `Rule:`.
+2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
    Bevy's own list, and writing them one by one found faults no test had. The same here: a table
@@ -76,14 +77,14 @@ for a reply. In this order.
    taken down to the smallest program that still differs and explained before the pass goes
    on. Many a batch, a module at a time, and it is the item to come back to whenever the ones
    above are through.
-5. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
+3. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
-6. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
+4. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
    engine's own list names: an `e3d eval` that compiles a line or a file against the running
    world through the script compiler already there, for looking at and changing a game while it
    runs.
-7. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
+5. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
    and another game only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -93,41 +94,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 6 are settled, and their numbers are not given again.
-
-**7. A far jump is ten units, whatever a unit is and whatever the frame took.**
-`ParentFollowers.PlaceBeyond` places a body whose parent moved more than 10 units in a frame. A
-game whose unit is a centimeter has a lift at 7 meters a second placed every frame, carrying and
-pushing nothing. At the clamp of a quarter second any parent faster than 40 units a second is
-placed for that frame, and what rode it is left behind, so a slow frame undoes for a fast
-platform what Verdict 2 mended. No distance tells a move from a placing for every game. The
-number becomes a setting of the physics, in units and documented as one, and a program that knows
-it is placing a parent says so with a call, which a level starting again uses. A test carries a
-crate on a platform at 60 units a second through a frame of a quarter second. In the same file,
-`Observe` makes a set and an array every frame for any world with a parent in it, which are kept
-and used again as `_wanted` is.
-
-**8. A reader's exception inside Assimp's callbacks ends the process** (N 2.6). `AssimpFiles`
-says so itself, and catches a list: I/O, access, argument and not supported. What it calls is a
-reader, and `IAssetReader` is public, so a game's own reader over an archive throws what it likes,
-`InvalidDataException` for a damaged entry being the likely one, which is none of the four. Each
-callback catches everything, the first exception is kept, and the load answers with it and the
-name of the file once Assimp has returned. A test gives a model whose `.mtl` comes from a reader
-that throws `InvalidDataException`, and finds a message naming the `.mtl`.
-
-A model through the asset server is copied whole into a `MemoryStream` that grows as it is
-filled, where a file on disk was read in place before. For a large model that is the file twice
-over in large blocks on the way, and Manor streams its cells through that path. What it costs is
-measured there, the memory the soak reads and the frames `frame.profile` shows as a cell comes
-in, before and after, and a stream that knows its length is given a buffer of that size, or
-handed over as it is when it can seek.
-
-**9. The five ways are tried over a static floor** (N 3.1). `WakeAround` wakes a body that is not
-static with `AwakenBody`, which wakes the set that body is in. A crate asleep on a kinematic
-platform at rest may be in a set of its own, since an island does not reach through a kinematic
-body, and would then sleep on when the platform's layer changes or it is made a trigger. A test
-tells, the same crate on a kinematic floor, and if it stays in the air the bodies within the
-kinematic body's bounds are woken as a static's are.
+None open. Verdicts 1 to 9 are settled, and their numbers are not given again.
 
 ## Decisions
 
@@ -160,56 +127,47 @@ kinematic body's bounds are woken as a static's are.
 
 ## Replies
 
-**Verdict 7, a far jump.** `PhysicsSettings.PlaceBeyond` is the distance now, in units, documented
-as one, and 100 to begin with, so a parent going 400 units a second is followed through the
-longest frame. `PhysicsWorld.MarkPlaced(entity)`, which a behavior reaches as `ctx.Physics`, says a
-parent was put where it is in this frame, and the bodies under it, or under anything below it, are
-put at their places at rest. The test of a far jump is a theory of two now, a carrier put back 5
-units with the call and one put 150 units away without it, each placing its platform and flinging
-nothing. The physics page shows the call and says when to raise the setting. `Observe` keeps its
-set of bodies seen and its list of bodies gone and clears them each frame.
+**Now 1, the norm's checks.** `NormTests` at the test project's root holds twelve rules and the
+norm itself, after BevyCSharp's: one `Hold(number, found, what)`, a list line being the place, then
+a tab and the reason where there is one, and `NormAndItsTestsAgree` reading this engine's column.
+Each list was written from its test's own finding, and a line added for a file that is not there
+fails the test. The counts follow, the places to mend first and those the rule leaves out after.
 
-What a platform at 60 units a second did through a frame of a quarter second at ten units was
-smaller than the verdict expected. The frame's own steps still followed the parent by the
-velocity observed the frame before, so the platform was where it should be when the frame ended.
-The placing came after them and stopped the platform for the next step, from which it caught up at
-twice its speed. The crate kept its own momentum through that step and moved 0.003 against the
-platform, so it was not left behind, and the test holds the platform's own speed instead. It
-finds the platform at 0 for a step at ten units, and within half a unit of 60 in every frame at
-100, the crate with it. PublicApi.txt gains `PlaceBeyond` and `MarkPlaced`.
+- N 1.1, every exported type in `Engine`, the namespace Annex A gives first. Checked, no list.
+- N 1.2, listed 116, a public type in a file not named for it, most of them the flat API's handle
+  types beside `Engine3D` in its parts and the attributes of `BehaviorAttributes.cs`.
+- N 1.3, listed 6, `OffscreenRenderTests.cs` the longest at 2,283 lines.
+- N 1.4, listed 5, and 2 left out, `Needs.cs` and `TestFolder.cs`, which the tests share.
+- N 1.5, listed 3, `docs`, `games` and `templates`, whose rows wait for the owner's word.
+- N 2.8, listed 3, `BepuUtilities`, `Microsoft.CodeAnalysis.CSharp` and `SDL3-CS.Native`.
+- N 3.3, listed 1, the wait in `WindowResizeTests`, whose comment speaks of a resize settling,
+  which nothing in the engine times, and 10 left out, the waits on the asset server's and the
+  probe's workers, the socket's and the session file's clocks, a file's write time and
+  `TestFolder`'s second try.
+- N 3.4, listed 3, `Engine3DSceneTests` writing to the temporary folder, and `ImageTests` and
+  `SceneSpawnerEmbeddedTextureTests` making folders there that nothing removes.
+- N 4.1, checked, with 2 left out, STYLE.md and COMMITS.md, which name the dashes.
+- N 4.2, checked, the README at 292 lines and linking every page of `docs/`.
+- N 4.5, checked, with 7 left out, the games' captures at their own windows' sizes.
+- N 7.2, checked from `bf1a559c` on, and skipped with its reason in a checkout that does not hold
+  that commit, which the workflow's checkout of one commit is.
 
-**Verdict 8, a reader's exception inside Assimp.** Every callback `AssimpFiles` gives Assimp
-catches every exception, keeps the first with the name of its file, and reports the file to
-Assimp as missing or short. Once Assimp returns, the load is answered with an `IOException`
-naming the file, with the reader's exception inside it, ahead of whatever Assimp made of the
-absence. The theory gives a model whose `.mtl` comes from a reader that throws
-`InvalidDataException`, once as the entry is opened and once as it is read. It finds the
-exception and the asset loader's message naming `models/tri.mtl`, where the code before ended the
-test host with that exception. A stream that can seek is now shared as it is, each of Assimp's
-opens at a place of its own in it, and only one that cannot is read into memory. Assimp's reads
-land in its own memory from the stream, through a read callback of the stream's own, where the
-binding's read filled an array as long as the read and copied it over.
+N 7.2 found a fault of my own before it ran. COMMITS.md puts a space between the three marks, and
+the 30 commits from `7a8360ae` to `bf1a559c` have them with none, written from a session's summary
+rather than from COMMITS.md. The first 19 of them are pushed, so none is written again. This commit
+is the first in the form again, and the test holds every one after it.
 
-The 32 models of Manor, 549 KB of OBJ, read through the reader as the asset server reads them,
-allocated 2.31 MB a round before Verdict 4, when Assimp read the files itself, 3.94 MB with the
-copy into a growing `MemoryStream`, 3.16 MB with the stream shared, and 2.56 MB with the reads
-landing in Assimp's memory, in 77 to 88 ms a round each way, which is within the noise. Manor
-itself, packed, built from the package and walked by its autopilot for a minute, before and
-after, made the same walk to the entity: managed memory read 14.6 to 15.2 MB before and 11.0 to
-14.8 after, the heap 24 to 30 MB both times, and `profile.slowest` found 22.6 ms before and 23.0
-after, Manor's own longest frame 23 ms both times. A cell coming in costs the same either way.
+Rule: N 1.4 has no folder for a test of what is not an area of the library. `DocumentLinkTests`
+and `FirstGameTests` test the documents, `PackageContentsTests` the packed package and `NormTests`
+the repository, and each is on the list with nowhere to go. A test of what is not the library, in
+a folder named for what it tests, could be left out as what the tests share is.
 
-**Verdict 9, a kinematic floor.** The theory has five more cases, the same crate asleep on a
-kinematic floor, and all pass with no change to the engine. Bepu puts a kinematic body at rest to
-sleep in the set of what rests on it: the crate and the floor were in one set, and a second crate
-brought to rest beside the first woke that set and slept in it too, so `AwakenBody` on the floor
-wakes everything on it.
+Rule: N 1.5 is read here as each top folder of the repository, the hidden ones apart, and each top
+folder of the library, a row covering what is beneath it, which finds the three the Now list
+expected. BevyCSharp's test reads each project, a row covering it only from the project's own
+folder down, which here would ask for a row for each game and each template where one row for
+`games/` says where they are. The two read alike only once the rule says which it means.
 
-**Now 2, a picture opens its program.** Each of the 52 pictures in the gallery links to the file
-of the program that drew it, an example's class file under
-`https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/` and a game's `Program.cs`
-under `games/`, and the sentence above the gallery says so. The links to raylib's site are gone
-with `build/raylib-examples.sh`, `build/raylib-examples.txt` and their paragraph in BUILDING.md.
-`DocumentLinkTests` finds each example's class from `Program.cs` and the file it is written in, or
-the game of the picture's name, and holds the picture's link to that file, with no request made.
-A link changed to another example's file fails it.
+Rule: N 4.5 leaves out an example that asks for a window of its own, and the seven games' captures
+are at their own windows' sizes too, which `DocumentLinkTests` has held since they came. A game
+could be left out of the size by the rule's words as such an example is.

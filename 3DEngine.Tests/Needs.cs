@@ -81,6 +81,25 @@ public sealed class NeedsOpenFilesFactAttribute : FactAttribute
             : "This system neither lists a process's open files under /proc/self/fd nor refuses an open file to one opened alone.";
 }
 
+/// <summary>
+/// Skipped where the checkout does not hold the commit N 7.2 reads the messages from, as a copy of
+/// the files alone or a checkout of the last commit only, which the workflow makes.
+/// </summary>
+public sealed class NeedsHistoryFactAttribute : FactAttribute
+{
+    public NeedsHistoryFactAttribute()
+    {
+        try
+        {
+            NormTests.Git("rev-parse", "--verify", "--quiet", NormTests.MessagesFrom + "^{commit}");
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            Skip = $"This checkout does not hold commit {NormTests.MessagesFrom}, from which N 7.2 reads the messages, or git is not on PATH.";
+        }
+    }
+}
+
 internal static class Probes
 {
     public static readonly Lazy<bool> Vulkan = new(() =>
