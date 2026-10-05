@@ -1,0 +1,17 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    { "components": { "Transform": { "Position": [3, 0.5, 0] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [-4, 0.5, 2] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [0, 0.5, -5] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [6, 0.5, -6] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [-7, 0.5, -3] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [-6, 0.5, 7] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [7, 0.5, 6] }, "Coin": {} } },
+    { "components": { "Transform": { "Position": [1.5, 0.75, -2] }, "Crate": { "Size": [1.5, 1.5, 1.5] } } },
+    { "components": { "Transform": { "Position": [-3, 0.5, -1] }, "Crate": { "Size": [1, 1, 4] } } },
+    { "components": { "Transform": { "Position": [4, 0.5, 3] }, "Crate": { "Size": [4, 1, 1] } } },
+    { "components": { "Transform": { "Position": [-4, 1, 5] }, "Crate": { "Size": [2, 2, 2] } } }
+  ]
+}

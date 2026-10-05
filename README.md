@@ -205,6 +205,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 
 | | |
 |---|---|
+| [A first game](https://github.com/EggyStudio/3DEngine/blob/main/docs/first-game.md) | From `dotnet new 3dengine` to a small finished game in twelve steps, each a few lines and a picture |
 | [The window and the frame](https://github.com/EggyStudio/3DEngine/blob/main/docs/window-and-frame.md) | Opening a window, the loop, time, the window's state and ImGui in the frame |
 | [Drawing in 2D](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-2d.md) | Shapes, colors, text, splines, a 2D camera and collision |
 | [Drawing in 3D and cameras](https://github.com/EggyStudio/3DEngine/blob/main/docs/drawing-3d-and-cameras.md) | 3D shapes, moving a camera, projections, picking and drawing into a texture |

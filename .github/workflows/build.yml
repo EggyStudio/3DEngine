@@ -338,6 +338,11 @@ jobs:
       - name: Follow the README in a new project
         run: build/readme-walk.sh build/package "$RUNNER_TEMP/readme"
 
+      # Every step of the game docs/first-game.md makes, each a whole program, built from the same
+      # package and run offscreen, so no step the page shows stops compiling.
+      - name: Build and run every step of the first game
+        run: build/first-game.sh
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:

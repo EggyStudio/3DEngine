@@ -8,10 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `b4ae280e`. Ambient occlusion (`b4ae280e`) is settled on the reply, which was read. It
-departs from the item, which asked for it from the HDR frame's depth, and is right to: that
-depth exists only once the scene is lit, so occlusion from it could darken direct light too. A
-depth of its own drawn before the model pass lets it darken ambient light alone.
+Reviewed up to `4afd2b63`. A probe captured again when a light that reaches it changes (`063c47d0`) and
+particles sorted within an emitter (`4afd2b63`) are settled on the replies, which were read. The
+probe's first test found a capture lit by the probe's own stale map, a lamp put out still
+lighting its room through its reflection, which is fixed. Sorting in blocks of shared memory at
+0.02 ms where a dispatch a step took 0.47 is the measurement doing its work again.
 
 ## Now
 
@@ -21,13 +22,23 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **A probe captured again when its light changes.** A lamp switched off leaves its glow in
-   every reflection near it, which is wrong and not a matter of taste. A probe captures again,
-   a face a frame, when a light that reaches its box is added, removed or changed past a
-   threshold, and on request.
-3. **Particles sorted within an emitter**, last of the three, since it shows only where one
-   emitter's own alpha particles overlap at different depths.
-4. **TODO.md's order** for everything else, and another game only when it is of a kind that
+2. **A first game, told from an empty folder.** The guide explains each area and nothing walks
+   a newcomer through making one thing whole. `docs/first-game.md`: from `dotnet new 3dengine`
+   to a small finished game in a dozen steps, each a few lines added and a picture of what the
+   window shows after them, a player that moves, something to collect, a score, a sound, a
+   level in a scene file, a win and a restart, ending with how it is published as one file. The
+   steps' code is a project under `games/` or the template's own, built by the workflow at each
+   step so no step can stop compiling, and the README's Guide lists it first.
+3. **TODO.md's Physics and Scenes sections**, entry by entry in the order a game meets them,
+   each with its test and its line in the guide.
+4. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
+   costs a frame's worth of GPU and no readback, which recapturing on a light's change made
+   worth having.
+5. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
+   engine's own list names: an `e3d eval` that compiles a line or a file against the running
+   world through the script compiler already there, for looking at and changing a game while it
+   runs.
+6. **TODO.md's order** for everything else, and another game only when it is of a kind that
    uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -67,26 +78,15 @@ None open.
 ## Replies
 
 
-**A probe captured again when its light changes.** `ReflectionProbes.Sync` keeps the lights that
-reached each probe's box when it was last asked for, a point or spot one within its range of the
-box, ten units where it has none, and a directional or ambient one always, and asks again, a face
-a frame as every capture is, when one is added or removed, grows or dims by a quarter, turns
-color, moves a quarter of a unit or turns past eleven degrees. It compares against the lights the
-capture was asked under rather than the frame before, so a lamp flickering about its light never
-asks and one switched off does. Its first test showed the lamp's light surviving the recapture:
-the capture was drawn with the probe's own old map bound, so the room went on lighting itself
-through its reflection. A probe whose map is out of date now gives a capture no light, so the first
-pass sees only the lights and the second bounces that. A test finds no recapture for a lamp a tenth
-dimmer, one for the lamp going out, and the mirror ball's room dark after it. Manor's lanterns,
-put out as they are found, now clear their rooms' reflections. `UpdateReflectionProbe` stays for a
-room whose meshes change.
-
-**Particles sorted within an emitter.** An emitter laid over by alpha is sorted far to near from
-the window's eye after its step, by Batcher's bitonic sort over keys kept in its own buffer after
-the particles, and the draw reads each instance's particle through them, so a puff of smoke in
-front covers one behind. The first form, a dispatch a step, cost 0.47 ms of the GPU for 400
-particles, so blocks of 512 keys are sorted in a workgroup's shared memory in one dispatch, and only
-the steps across blocks are dispatches of their own, which brings it to 0.02 ms. A theory streams
-300 and 2000 particles at the camera and finds the nearest in front, the 2000 case failing without
-the steps across blocks and both without the sort. A render texture's camera draws them in the
-window's order. That ends the three asked to be steered on, and TODO.md's order follows.
+**A first game, told from an empty folder.** `docs/first-game.md`, first in the README's Guide,
+makes Coins from `dotnet new 3dengine` in twelve steps: a field under a sun with a player, walking,
+a camera that follows, coins, taking them, the score, a chime made from its samples so the reader
+needs no file, the level in a scene file with `Coin` and `Crate` components the game declares,
+crates in the way, a win with R to start again, and a native publish. Each step is a whole program
+under `games/FirstGame/steps`, the last being `Program.cs`. `build/first-game.sh` builds each
+against the package and runs it offscreen, and with `--shots` walks it through `./e3d` and writes
+its picture into `.github/assets/first-game`. The workflow runs it after the README walk.
+`FirstGameTests` holds every block the page marks with a step to that step's program line for line,
+and the page's level to the game's file, and changing one number in the page fails it. The publish
+was tried, an 11 MB executable beside SDL3's, cimgui's and Assimp's libraries, the resources and the
+compiled shaders, which the step says rather than calling it one file.
