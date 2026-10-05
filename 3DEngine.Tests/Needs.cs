@@ -1,3 +1,7 @@
+using System.Reflection;
+
+[assembly: Engine.Tests.RequiredDeviceAttribute]
+
 namespace Engine.Tests;
 
 // Facts that need something of the machine report as skipped, with the reason, where it is
@@ -23,6 +27,27 @@ public sealed class NeedsVulkanFactAttribute : FactAttribute
         // there fails the render tests rather than skipping them all to a green run.
         else if (!Probes.Vulkan.Value && Environment.GetEnvironmentVariable("E3D_REQUIRE_VULKAN") != "1")
             Skip = "No Vulkan device starts offscreen here. A software one, such as lavapipe, is enough.";
+    }
+}
+
+/// <summary>
+/// Fails a drawing test with the probe's own error where <c>E3D_REQUIRE_VULKAN</c> asks for a
+/// device and none started, before the test runs.
+/// </summary>
+/// <remarks>
+/// Run without a device, each drawing test failed for what it then did not find, a renderer or a
+/// capture, and a Windows run had 117 failures that read as the app's where the cause was one, the
+/// driver's answer to the probe. They now fail with that answer, which a run's page gives as one
+/// cause.
+/// </remarks>
+[AttributeUsage(AttributeTargets.Assembly)]
+public sealed class RequiredDeviceAttribute : Xunit.Sdk.BeforeAfterTestAttribute
+{
+    public override void Before(MethodInfo methodUnderTest)
+    {
+        if (Environment.GetEnvironmentVariable("E3D_REQUIRE_VULKAN") != "1" || Probes.VulkanError.Value is not { } error) return;
+        if (methodUnderTest.IsDefined(typeof(NeedsVulkanFactAttribute)) || methodUnderTest.IsDefined(typeof(NeedsVulkanTheoryAttribute)))
+            throw new InvalidOperationException($"No Vulkan device started, which E3D_REQUIRE_VULKAN requires. The probe's error: {error.GetType().Name}: {error.Message}", error);
     }
 }
 
@@ -102,19 +127,22 @@ public sealed class NeedsHistoryFactAttribute : FactAttribute
 
 internal static class Probes
 {
-    public static readonly Lazy<bool> Vulkan = new(() =>
+    // Why no Vulkan device started, the probe's own exception, or null where one did.
+    public static readonly Lazy<Exception?> VulkanError = new(() =>
     {
         try
         {
             using var device = new GraphicsDevice();
             device.Initialize(new OffscreenSurface(1, 1), "probe");
-            return device.IsInitialized;
+            return device.IsInitialized ? null : new InvalidOperationException("The device did not initialize, and said nothing of why.");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return ex;
         }
     });
+
+    public static readonly Lazy<bool> Vulkan = new(() => VulkanError.Value is null);
 
     // The name Python runs by, python3 where it is, as on Linux and macOS, and python on Windows.
     public static readonly Lazy<string?> Python = new(() =>

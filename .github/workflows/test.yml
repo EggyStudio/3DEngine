@@ -112,6 +112,16 @@ jobs:
           echo "VK_ADD_LAYER_PATH=C:\VulkanSDK\Bin" >> "$GITHUB_ENV"
           echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
 
+      # The loader leaves VK_DRIVER_FILES and VK_ICD_FILENAMES unread in a process with an
+      # administrator's rights, which a hosted runner's job is, and reads the drivers the registry
+      # names instead, so lavapipe's manifest is named there too. The SDK's installer registers its
+      # validation layer the same way.
+      - name: Register lavapipe where an elevated loader reads it
+        shell: pwsh
+        run: |
+          New-Item -Path 'HKLM:\SOFTWARE\Khronos\Vulkan\Drivers' -Force | Out-Null
+          New-ItemProperty -Path 'HKLM:\SOFTWARE\Khronos\Vulkan\Drivers' -Name $env:VK_DRIVER_FILES -PropertyType DWord -Value 0 -Force | Out-Null
+
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       # The suite through build/test.py, as on Linux.

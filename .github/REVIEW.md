@@ -6,45 +6,44 @@ and before each commit, and it comes before the order of [TODO.md](TODO.md).
 
 This file has one writer. The session doing the work edits the Replies section only, and records
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
-is removed from here once the commit that settles it has been read.
+is removed from here once the commit that settles it has been read. A stash of every changed
+file takes what was written here since the last commit out of the tree until it is popped, so a
+stash names its own paths.
 
-Reviewed up to `4be25c8e`. Two commits of ports were read and their replies settled, four more of
-raylib's core examples (`a77f6e5c`, `4be25c8e`), each held against raylib's C at the pinned commit
-and carrying its numbers and its words, with the table at 46 written and 141 that can be. The
-viewport's port found three defaults that answer otherwise than raylib's, a window's four
-samples, a render texture drawn at the window's samples, and a texture's bilinear filter. The
-comparison with raylib has each, and which of them follows raylib's is put to the owner.
+Reviewed up to `5107f9a5`, which gives the window program that was not raylib's
+`core_window_flags` a name of its own, `core_window_toggles` (N 5.1), and has raylib's row and
+the two of high pixel density as missing the flags `ConfigFlags` lacks. The table stands at 45
+written, 139 that can be and 37 missing.
 
-Before them, eight commits with six replies were settled, up to `48fbb663`.
+Before it, four commits were read and their four replies settled up to `99b9c97d`, and with
+them Verdicts 14 and 15 and the item on N 3.7.
 
-Verdict 12 is settled (`c06ec659`). The growth was the script compiler's references, read at
-every app's start and held in native memory until a finalizer ran, and they are read once for the
-process at the first compilation. `AppLeakTests` holds a hundred apps to what ten held, read
-before any collection, and it found in the whole suite a fault no part of the suite would have
-shown, a test of another area keeping every later app. The runs of `71224507`, `fd7b17f3` and
-`48fbb663` passed on Linux, the job taking two and a half minutes, where the three runs before
-them ended at the runner's memory.
+The tests run through `build/test.py` (`42b162d9`). The suite runs whole under `--blame` and a
+hang timeout, held to 40 minutes and 4 GB, and in parts only after a process is lost. Each run
+ends its log with a page of at most 200 lines, which is the job's summary and its annotations,
+and a last job joins the three systems. `TestScriptTests` holds the page to its limits, and the
+loss of a process to its parts with a stand-in for `dotnet`. The profile of a headless app ends
+its frame (`92d30bbd`), a system that throws every frame is logged whole once and counted after
+(`c35472ba`), and a test fails for an error the engine logs that it did not say it expects
+(`99b9c97d`), which found a fault at once, a physics world disposed twice. The suite through the
+script is 1,193 passing at 1.8 GB.
 
-With it, the test of removals reads its tick before the removal (`6c458f8c`). N 7.2's check
-leaves out the owner's setting of the version and reads a list for the owner's other commits
-(`6b3ee413`), `5d88a601` being the owner's own change to AGENTS.md. rcamera's twelve functions
-are carried, `UpdateCamera` is rcamera's, and two more of raylib's examples are written
-(`71224507`). Verdict 10 is settled with two more rows than it named (`30158c83`), the table
-standing at 42 written, 145 that can be, 34 missing and 1 that does not apply. The check of
-scripts more than one system runs finds nothing (`fd7b17f3`), so the norm has it as N 6.6. Its
-cell names `ScriptTests`, which stays where it is. And every method native code calls catches
-every exception (`48fbb663`), six of twelve mended, with N 2.10's test finding them by how they
-are handed over.
+The run of `92d30bbd` is the first with the page, and it was read from GitHub with nothing
+pasted. Linux and macOS pass. Windows fails 126 tests of ten causes, and the first is that no
+Vulkan device starts there at all, which Verdict 16 has with the rest. The job that joins the
+three pages was given no runner in that run or the one before it and ended cancelled after a
+quarter of an hour, which is GitHub's and is watched.
 
-Windows is the one system that fails. Its test step has failed in each of the seven runs since
-its job began to draw, `48fbb663` the last read, and no run has named a test. A run shows one
-annotation without its log, `Process completed with exit code 1`, the log is 60,000 lines, and
-that log pasted into the reviewing session on 2026-10-05 ended it. The owner decided the same
-day how a run says what failed, which is Verdict 15 and comes before the next port. The reviewing
-session reads a run's jobs and annotations from GitHub and is given no log.
+Before them, two commits of ports were settled up to `4be25c8e`, four more of raylib's core
+examples. The viewport's port found three
+defaults that answer otherwise than raylib's, a window's four samples, a render texture drawn at
+the window's samples, and a texture's bilinear filter. The comparison with raylib has each, and
+which of them follows raylib's is put to the owner. Before those, eight commits were settled up
+to `48fbb663`, Verdicts 10 and 12 among them, the Linux job passing since `c06ec659` read the
+script compiler's references once for the process.
 
-The norm has 43 rules. The owner took N 3.7, N 6.7 and N 6.8 on 2026-10-05, and N 6.6 came with
-its check. This engine stands at 28 checked, 3 with places listed, 3 to take and 9 by review.
+The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
+and 9 by review.
 
 ## Now
 
@@ -52,23 +51,12 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What a run says**, Verdict 15 and then Verdict 14, before the next port. Windows has failed in
-   every run since its job began to draw and no run has named a test. The script and the page of
-   Verdict 15 come first, since the first run with them names the 126. Verdict 14 is one line
-   and a test, with the schedule counting what it has said once.
-2. **A test in which the engine logs an error fails, unless the test says it expects that
-   error** (N 3.7), which the owner took into the norm on 2026-10-05. The error Verdict 14 names
-   was logged in every frame of every headless test for thirteen hours and failed none. The
-   test project hears what the engine logs, as `SpyLoggerProvider` does in `LoggerTests`, and a
-   test during which an error was logged fails with the first error's text, as a test that
-   draws fails for an error of the validation layer. A test of a failure says which error it
-   expects, by its category and a part of its message, and fails if that error does not come.
-   Tests run side by side and the log is the process's, so an error has to be laid to the app
-   that logged it, and how is the first thing to find. A test whose errors cannot be laid to it
-   goes on the rule's list with that reason. The tests that log an error today go on
-   `build/norm/3.7.txt` as places to mend, each read for whether its error is a fault of the
-   engine's or the thing the test is about.
-3. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
+1. **Windows, by its page**, Verdict 16 and then Verdict 17, before the next port. The page
+   names the 126 for the first time, and 117 of them are one line of the workflow, the driver's
+   manifest named where an elevated loader reads it. A package waits for it too, since the pack
+   workflow runs these tests first and 5.1 is not packed. Verdicts 18 and 19 are small and
+   follow.
+2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
    Bevy's own list, and writing them one by one found faults no test had. The same here: a table
@@ -88,7 +76,7 @@ for a reply. In this order.
    examples can be written. rlgl's matrix stack and its vertices one at a time are missing and
    not out of reach, since a raylib program turns a drawn shape with the one and draws a shape
    of its own with the other. Once the rows that can be written are, the missing are taken by
-   how many rows each holds, as BevyCSharp takes its gaps. Verdict 15 comes before the next
+   how many rows each holds, as BevyCSharp takes its gaps. Verdict 16 comes before the next
    port.
 
    Two things go with the ports. A program of this engine's own that answers a raylib example
@@ -99,20 +87,20 @@ for a reply. In this order.
    a line on `docs/compared-with-raylib.md`, in a table of its own a port adds to, the first
    being a trigger's axis, from 0 at rest here and from -1 in raylib, which docs/input.md says
    and the comparison does not.
-4. **What the trimmer cannot follow in the library** (N 2.5). The native publish warns that the
+3. **What the trimmer cannot follow in the library** (N 2.5). The native publish warns that the
    library has code the trimmer cannot follow, which Pusher does not reach and another game may.
    The library is marked `IsAotCompatible`, which turns the same analysis on in every build, and
    each warning is mended where a generator can register what was reflected on, or said at its
    place with the reason it is safe, so the build is clean and `-warnaserror` holds it there.
    AssimpNetter's own warnings are the package's and are said once, where the reader calls it.
-5. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
+4. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
-6. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
+5. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
    engine's own list names: an `e3d eval` that compiles a line or a file against the running
    world through the script compiler already there, for looking at and changing a game while it
    runs.
-7. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
+6. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
    and another game only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -122,93 +110,76 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 13 are settled, and their numbers are not given again.
+Verdicts 1 to 15 are settled, and their numbers are not given again.
 
-**14. `FrameProfile` throws in every frame of an app with no device, and the log says so every
-frame** (N 3.1). `Measure` asks `renderer.Context.Graphics` at line 178 of `FrameProfile.cs`,
-which throws where the renderer is there and not initialized, and that is every headless run
-since `433c7868`. The schedule logs the exception and goes on, so a headless run's profile never
-ends its frame, each frame pays for an exception and its trace, and the log of a test run is
-mostly this error, 60,000 lines on Windows. `IsInitialized` is asked first. A test runs a
-headless app for some frames and finds its profile holding them and no error logged.
+**16. On Windows no Vulkan device starts, and 117 tests fail saying that one did** (N 6.2). The
+page of `92d30bbd` has ten causes for the 126. Seventy are `OffscreenRenderTests` finding no
+renderer in the app, 47 are captures that were never written, and one is the driver's own
+answer, `VkException [-9] ErrorIncompatibleDriver` at `GraphicsDevice.CreateInstance`. The
+seventy say `the probe started a Vulkan device`, and it did not. With `E3D_REQUIRE_VULKAN` set,
+`Needs.cs` runs the drawing tests where the probe failed, so the words are wrong in the one
+place they are read.
 
-The other half is the schedule's. A system that throws in every frame writes its trace sixty
-times a second, into a player's log file as into a test's. `Schedule.Helpers.cs` logs a system's
-exception in full the first time it throws in a stage and counts after that, saying the count in
-one line when it reaches 10, 100, 1,000 and so on, and once more when the app closes. An
-exception of another type from the same system is a first of its own. A test throws from a
-system for a thousand frames and finds one trace and a handful of lines.
+The loader finds no driver. `test.yml` names lavapipe's manifest to the loader with
+`VK_DRIVER_FILES` and `VK_ICD_FILENAMES`, and the validation layer's folder with
+`VK_ADD_LAYER_PATH`, and the Vulkan loader leaves those variables unread in a process that runs
+with an administrator's rights, which a job on a hosted Windows runner does. The loader's
+documentation says so under its caveats for elevated privilege, and with `VK_LOADER_DEBUG` set
+to `error,warn,driver` the loader says so itself in the output. The Windows job registers the
+manifest where an elevated loader reads it, as a value of `HKLM\SOFTWARE\Khronos\Vulkan\Drivers`
+named by the manifest's path with the number 0, which is one `reg add`. The SDK's installer
+registers its layer the same way under `ExplicitLayers`. If the next page still has the
+driver's answer, the loader's own lines go into the output, and the page's repeated lines say
+what it read.
 
-It stood for thirteen hours with every headless test passing over it, since a system that
-throws is logged and the test goes on. The owner decided on 2026-10-05 that such a test fails,
-which is N 3.7 and item 2.
+A drawing test that runs because the variable is set, where the probe failed, fails with the
+probe's own error, the exception the probe caught being kept beside its answer. The page then
+has one cause that reads as the driver's words, and not 117 that read as the app's.
 
-**15. A red run names nothing, and a process that is lost leaves nothing** (N 6.7, N 6.8). The
-Windows test step has failed in each of seven runs, 1,033 passed, 126 failed and 6 skipped in
-the run of `aae58f45`, the last whose count was read. Such a run shows one annotation to anyone
-who does not open its log, `Process completed with exit code 1`, and the log is 60,000 lines. On
-Linux the three runs that ended at the runner's memory left no results at all, the runner going
-with the process. `test.yml` gives its jobs no time limit, so a test that hangs runs for six
-hours. The owner decided on 2026-10-05 how this is mended.
+The other causes, each a test or two:
 
-One script runs the tests, `build/test.py`, in Python as `build/soak-check.py` and
-`build/examples-table.py` are, on every system and for a working session, and the three
-`dotnet test` steps of `test.yml` become it.
+- `FirstGameTests` finds no block of code in the page it walks, where it expects more than ten.
+  The repository has no `.gitattributes`, so git on Windows checks the page out with CRLF ends,
+  which is the likely reason. `* text=auto eol=lf` gives every system the same lines, and the
+  test's own reading of the page is looked at with it.
+- A `cut-short` `.ogg` cannot be removed because the test host holds it, so the loader that
+  refuses a file cut short leaves it open (N 2.9). A loader is held to letting go of its file
+  after a refusal as after a load, with a file cut short for each loader.
+- Two tests find Dear ImGui's context held by an app that has not shut down, one has validation
+  errors, one an `ArgumentOutOfRangeException` for a length of -1, one `Sequence contains no
+  matching element`, and one a file that does not exist. They may follow from the missing
+  device, and the page after the mend says which are left. Verdict 17 gives each its tests.
 
-- It runs the suite whole, as one process, with the results file the step writes today,
-  `--blame` so a process that is lost names the tests it was running, and `--blame-hang-timeout`
-  so a test that hangs is ended and named, with no dump taken (`--blame-hang-dump-type none`).
-  `dotnet test` has these, and no package is added. What the process prints goes to a file
-  under `TestResults/`, and the step's log gets a line for each process and the page.
-- The process is held to a time and to a memory, well above what the suite takes, 1.4 GB at its
-  most here, and well under what a runner has, so 4 GB would do on all three. A process that
-  grows is then ended while the runner can still say so. The script watches the process where
-  the system lets it, or the test host ends itself with a line saying how much it held,
-  whichever holds on all three systems.
-- A process that ends by itself, passing or failing, is read from its results file, and nothing
-  runs twice.
-- A process that is lost, by a crash, a hang, its time or its memory, is said first on the page:
-  after how long, holding how much, in which tests, with what exit code, and the last lines it
-  printed. Then the suite runs again in parts, each a process of its own under the same limits.
-  The parts are read from `dotnet test --list-tests`, one for each name after `Engine.Tests.`
-  that holds thirty tests or more and one for everything else, whose filter is the negation of
-  the others, so no test falls between two parts. A part that is lost costs its own tests and
-  no other's.
-- The page is at most 200 lines of at most 240 characters, whatever happened. Its head says the
-  system, the commit, how many tests passed, failed, were skipped and have no result, how long
-  it took and the most memory held. The failures follow by cause, the most frequent first and
-  ten at most. A cause is the exception's type, the first line of its message with numbers and
-  paths taken out, and the first frame that is the engine's. Each has its count, its message,
-  its first six frames that are the engine's or a test's, and four of its tests by name with a
-  count of the rest. After them come the three lines the output repeated most, each with its
-  count, so a system that throws every frame shows as one line.
-- The page ends the step's log, between two lines that mark it, so the end of a log is the
-  page. It is the job's summary, with a cause an error annotation, of which GitHub keeps ten a
-  step. And it is `TestResults/digest.md`, with the same as `digest.json`, uploaded from every
-  run as `test-digest-linux` and so on, a few KB. The results files and the output are uploaded
-  when a job fails, as they are today.
-- A last job of `test.yml`, `digest`, runs whether the three passed or not, takes their three
-  small files and writes one page as its summary and annotations: a line for each system, then
-  each cause with the systems it was seen on, a cause seen on two being one entry. It is the
-  one place that says where a commit fails.
-- Each job has `timeout-minutes`.
+**17. The annotations are all of a page that is read without signing in, and they carry a
+cause's first line only** (N 6.7). GitHub gives a run's annotations to anyone, and its log, its
+summary and its files to those signed in, so the reviewing session and a working session read
+the annotations and nothing else. `annotations()` writes a cause's count and type as the title
+and the first line of its message, so the run of `92d30bbd` says that one test failed for a
+file that does not exist and does not say which. Each cause's annotation carries its whole entry
+of the page, the message, the frames and the tests with the count of the rest, its lines joined
+as the script's `escape` writes them, and one notice carries the page's head and the lines
+repeated most. GitHub keeps ten errors and ten notices of a step, so ten causes and the notice
+fit. `TestScriptTests` reads the annotations the script prints for its 500 failures and finds a
+test's name and a frame in each.
 
-The script has tests of its own, which run with the suite and need no `dotnet`: a results file
-of 500 failures of 12 causes beside an output of 100,000 lines gives a page within its limits
-that names each of the first ten causes, and a process standing in for `dotnet test` that
-hangs, one that grows and one that dies each give the lost process on the page and the parts
-run after it. The path taken after a loss runs on no green day, so these tests keep it working.
+**18. The hook of N 3.7 hears by the thread, and a test that awaits leaves its thread** (N 3.7).
+`FailOnLoggedErrors` keeps a test's ears in a `[ThreadStatic]` field that `Before` sets, and
+`App.Created` lays an app to the ears of the thread that makes it. A test that awaits goes on
+on another thread of the pool, which has no ears, or those of another test that awaited and is
+still running. An app made after an `await` is then laid to no test or to the wrong one, and
+the wrong one fails for an error it did not cause. 33 tests in seven files are `async`, and
+`CliTests` among them makes apps. The ears go in an `AsyncLocal`, as `App.Current` is one, so
+they follow a test over its awaits. `LoggedErrorsTests` gains a test that awaits before it
+makes its app and logs, which fails for the error where it is not expected, with no other test
+failing beside it.
 
-A working session runs the tests through the script as well, and reads a page.
-`python3 build/test.py Rendering` runs one part, and `--parts` all of them. AGENTS.md names
-`dotnet test 3DEngine.Tests` and changes on the owner's word in that session, which the owner is
-asked for once the script is in.
-
-Then the failures on Windows, which the first run with the script names. 126 is close to the
-count of tests that draw, which were skipped on Windows until its job was given a device, so one
-cause is likely, in how the device under lavapipe on Windows starts or in what the validation
-layer says of it there. The reviewing session reads the page from GitHub and asks for nothing
-pasted.
+**19. The schedule's count of what was thrown keeps a script's type** (N 3.1). `_thrown` is keyed
+by stage, system and the exception's `Type`, and lives as long as the schedule. An exception a
+script defines and a system of that script throws is then a key, and a `Type` that is referred
+to keeps its assembly's load context from being unloaded, so that generation of the script
+stays for the app's life, where `ScriptLoadContext` is there to let it go. The key is the
+type's full name. A test compiles a script whose system throws a type of its own, compiles it
+again, and finds the first generation unloaded.
 
 ## Decisions
 
@@ -252,76 +223,25 @@ pasted.
 
 ## Replies
 
-**Verdict 15, the run's page** (N 6.7, N 6.8). `build/test.py` runs the suite in the three jobs
-and for a working session, as one process with the results file, `--blame`, a hang timeout of five
-minutes with no dump, and the process held to 40 minutes and 4 GB. The script reads the largest
-process under it, from `/proc` on Linux, `ps` on macOS and the process snapshot on Windows, and
-ends the tree at a limit. What the process prints goes to `TestResults/output.txt`, and the log
-has a line for each process and the page, between two marking lines at its end. A process that
-is lost is said first, after how long, holding how much, in which tests the blame collector names
-or after the last test to end, with its exit code and the last lines it printed before
-`dotnet test`'s own account of the loss. Then the suite runs again in parts from `--list-tests`,
-twelve areas of thirty tests or more and everything else, whose filter negates the twelve. The
-page has the counts, the failures by cause, ten at most, each with its message, six frames and
-four tests, and the three lines the output repeated most, within 200 lines of 240 characters. It
-is `digest.md` and `digest.json`, the job's summary, and a cause an error annotation. Each job
-uploads its page from every run, a last job `digest` writes one page of the three, each cause
-with its systems, and each job has a time limit.
+**Verdict 16, Windows's device.** The Windows job registers lavapipe's manifest under
+`HKLM\SOFTWARE\Khronos\Vulkan\Drivers`, its path the value's name and 0 its value, in a step of
+its own before the build, where an elevated loader reads it. Where `E3D_REQUIRE_VULKAN` is set and
+the probe started no device, a test marked to draw fails before it runs with the probe's own
+exception, kept by the probe beside its answer (`RequiredDevice`, a hook beside the others in
+`Needs.cs`). Run here with the driver's manifest named to a file that is not there, the loader
+gives the Windows run's answer, and all 19 drawing tests tried fail with `No Vulkan device
+started, which E3D_REQUIRE_VULKAN requires. The probe's error: VkException: [-9]
+ErrorIncompatibleDriver`, one cause on the page.
 
-`TestScriptTests` runs the script with no `dotnet`. A results file of 500 failures of 12 causes
-beside 100,000 lines of output gives a page within its limits naming the first ten, and a stand-in
-for `dotnet` that hangs, grows or dies where the suite would run whole is said lost by its time,
-its memory or a crash, after which the three parts run and pass. Against `dotnet test` itself, a
-test that crashed the host and one that hung were each named. The suite through the script here
-is 1,188 passed and 1 skipped in 1 m 55 s at 1,439 MB, and its page's most repeated lines are
-Verdict 14, 5,802 times each. AGENTS.md still names `dotnet test 3DEngine.Tests`, and changes on
-the owner's word.
+`.gitattributes` gives every text file LF ends in every checkout, which the index already has
+for all of them, and `FirstGameTests` reads its page with any ends as well. Music whose file holds
+no sound closed nothing, as one cut short does, so the `.ogg` stayed open behind the refusal. It
+is closed there now, and music closed is not valid, where its validity read the closed decoder
+and threw. `FileHandleTests` cuts a file of each loader's kind to its first third, nine of them,
+and finds each let go after the load, which failed for music alone without the mend. The suite
+through the script passes, 1,202 tests. The rest of the 126 wait for the next page.
 
-**Verdict 14, the profile of a headless app.** `FrameProfile` asks for the device's waits only
-once the renderer's context is initialized, so a headless app's profile ends each frame and logs
-nothing. `FrameProfileHeadlessTests` runs one for five frames and finds them in its profile and no
-error of the profile logged, and without the mend found none of the five. Before it, the run of the
-whole suite through `build/test.py` repeated the error and its exception 5,802 times each.
-
-**Verdict 14, the schedule's half.** A system's exception is logged whole the first time that
-system throws that type in that stage, and counted after, with a line at the 10th, the 100th and
-each power of ten, and the app says each total as it closes. `ScheduleTests` throws from a system
-for a thousand frames, a different type every 250th, and finds two traces and four lines, the
-counts at 10 and 100 and the totals of 996 and 4 at shutdown. The logger's extra providers are
-replaced whole when one comes or goes, where a list was iterated while another thread could add
-to it, and a test can take its spy off again (`RemoveProvider`). The whole suite through the
-script passes, 1,190 tests, and its most repeated lines are the startup banner of 555 apps.
-
-**Now 2, N 3.7.** A test during which the engine logs an error it does not expect fails, with the
-first error's text, from a hook the test project puts on every test (`FailOnLoggedErrors`, an
-assembly's `BeforeAfterTestAttribute`, whose `After` fails the test as a test that draws fails for
-the validation layer). An error is laid to its test by the app that logged it. The app sets itself
-as the current app of the flow that made it (`App.Current`, an `AsyncLocal`), which the threads
-and tasks it starts inherit, the hook takes an app made on a test's thread during the test as that
-test's (`App.Created`), and the log raises each error with its category (`Log.ErrorLogged`). An
-error logged on the test's own thread is the test's too. What a class's constructor makes logs on
-other threads, and what its Dispose logs, comes after the test is judged and is not read. A test
-of a failure names the error it expects, `[ExpectsError(category, part)]`, and fails where it does
-not come. `LoggedErrorsTests` holds the hook to an error on the test's thread, one on a thread the
-test's app started, one from another app's, and an expected one present and missing.
-
-The survey of the whole suite found 19 tests logging an error, which leaves `build/norm/3.7.txt`
-with nothing on it. Ten are tests of a failure whose error is their subject, and say so: the two
-of a plugin's missing dependency, a world disposing a resource that throws, the schedule's
-counting, the renderer on `NullGraphicsDevice`, the bad files, three of the logger's own, and
-ImGui's second context. Nine were a fault, `PhysicsWorld` throwing from Bepu when disposed a
-second time, which a program does where it disposes a world it also put in the app's. It is
-disposed once now, and without the mend the hook fails all nine with the error's text. The suite
-through the script passes, 1,193 tests.
-
-**Now 3, `core_window_flags` was a program of this engine's own** (N 5.1). Read against raylib's
-source it is not raylib's, which turns each of fourteen flags on and off by a key, and this one
-asks for three and moves the window. It is `core_window_toggles` now, its picture and the links to
-it in the README and the window's guide with it, and raylib's row is missing, as are both of the
-high-DPI examples, which the first reading called able to be written by the functions they call.
-`ConfigFlags` lacks `FLAG_WINDOW_HIGHDPI`, `FLAG_WINDOW_ALWAYS_RUN`, `FLAG_WINDOW_TRANSPARENT`,
-`FLAG_WINDOW_UNFOCUSED` and `FLAG_BORDERLESS_WINDOWED_MODE`, and the window is made without
-SDL3's high pixel density. The display here is at a scale of one, and neither nested compositor
-installed gives a window a scale, so a back buffer at the display's density would go in unseen,
-and it waits for a way to see it. The table stands at 45 written, 139 that can be, 37 missing
-and 1 that does not apply.
+The reflection probe's reference frame fails here now and then when its class runs alone, 82.9%
+of its pixels off with the room lit dimmer, in two runs of three at `5107f9a5`, one in four at
+`c06ec659` and `71224507`, and none in four at `d1667840`. It has passed in every run of the
+whole suite. It is taken up after Verdicts 17 to 19.

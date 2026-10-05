@@ -59,6 +59,40 @@ public sealed class FileHandleTests : IDisposable
         files.Where(Held).Should().BeEmpty("{0} read these and should have closed them", loader);
     }
 
+    // Each loader and a file of its kind it reads, which the test cuts to its first third.
+    public static TheoryData<string, string> CutShort => new()
+    {
+        { "image", "checker.png" }, { "texture", "logo.png" }, { "model", "torus.obj" }, { "model glTF", "arm.gltf" },
+        { "wave", "coin.wav" }, { "wave Ogg", "drone.ogg" }, { "sound Ogg", "drone.ogg" }, { "music", "drone.ogg" },
+        { "font", "fonts/Lato-Regular.ttf" },
+    };
+
+    [NeedsOpenFilesTheory]
+    [MemberData(nameof(CutShort))]
+    public void A_Loader_Lets_Go_Of_A_File_Cut_Short_As_Of_One_It_Loads(string loader, string name)
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(Api.CheatsheetTests.RepoRoot(), "3DEngine.Examples", "resources", name));
+        var file = _folder.File(Path.GetFileName(name));
+        File.WriteAllBytes(file, bytes[..(bytes.Length / 3)]);
+
+        switch (loader)
+        {
+            case "image": LoadImage(file); break;
+            case "texture": LoadTexture(file); break;
+            case "model" or "model glTF": LoadModel(file); break;
+            case "wave" or "wave Ogg": LoadWave(file); break;
+            case "sound Ogg": LoadSound(file); break;
+            // Music that reads its first part plays it and holds its file until it is unloaded.
+            case "music":
+                if (LoadMusicStream(file) is var music && IsMusicValid(music)) UnloadMusicStream(music);
+                break;
+            case "font": LoadFont(file); break;
+            default: throw new ArgumentOutOfRangeException(nameof(loader));
+        }
+
+        Held(file).Should().BeFalse("{0} refused or read what there was of the file, and let it go", loader);
+    }
+
     [NeedsOpenFilesFact(slang: true)]
     public void A_Shader_Holds_No_File_Open_Once_It_Is_Compiled()
     {

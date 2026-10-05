@@ -275,7 +275,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | listed 116, `NormTests` | listed 347, `NormTests` |
 | N 1.3 | listed 6, `NormTests` | listed 32, `NormTests`, 18 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 7 left out | listed 113, `NormTests`, 20 left out |
+| N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 20 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
@@ -293,7 +293,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.4 | checked, `NormTests` | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
-| N 3.7 | to take | to take |
+| N 3.7 | checked, `FailOnLoggedErrors` | to take |
 | N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
@@ -309,15 +309,15 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, by the test of N 6.4, which holds the notices to the lock |
 | N 6.6 | checked, `ScriptTests` | to take |
-| N 6.7 | to take | to take |
-| N 6.8 | to take | to take |
+| N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
+| N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
 | N 7.1 | by review | by review |
 | N 7.2 | checked, `NormTests`, 1 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
-| B 3 | | listed 2, `NormTests`, 15 left out |
+| B 3 | | listed 1, `NormTests`, 15 left out |
 | B 4 | | by review |
 
 ## How the norm changes

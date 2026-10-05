@@ -1,0 +1,3 @@
+# Every text file has LF line ends in every checkout, as the index has them, so a test that
+# reads a page or a script reads the same lines on Windows as on Linux and macOS.
+* text=auto eol=lf

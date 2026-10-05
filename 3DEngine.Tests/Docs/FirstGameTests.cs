@@ -19,7 +19,7 @@ public sealed partial class FirstGameTests
     private static partial Regex MarkedBlock();
 
     private static IEnumerable<(string Mark, string Code)> Blocks() =>
-        MarkedBlock().Matches(File.ReadAllText(Path.Combine(Root, "docs", "first-game.md")))
+        MarkedBlock().Matches(File.ReadAllText(Path.Combine(Root, "docs", "first-game.md")).Replace("\r\n", "\n"))
             .Select(m => (m.Groups["mark"].Value, m.Groups["code"].Value));
 
     private static string[] Lines(string text) => text.Replace("\r\n", "\n").Split('\n').Select(l => l.TrimEnd()).ToArray();

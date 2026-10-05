@@ -57,8 +57,8 @@ public sealed class Music
     /// <summary>Whether the music starts again from the beginning when it ends. Defaults to true.</summary>
     public bool Looping { get; set; } = true;
 
-    /// <summary>Whether the music has samples to play.</summary>
-    public bool IsValid => Decoder is { TotalFrames: > 0 };
+    /// <summary>Whether the music has samples to play and has not been unloaded.</summary>
+    public bool IsValid => !Closed && Decoder is { TotalFrames: > 0 };
 }
 
 /// <summary>Reads a piece of music a piece at a time, for <see cref="Music"/>.</summary>
@@ -376,6 +376,9 @@ public static partial class Engine3D
             var music = new Music(MusicDecoder(Path.GetExtension(path), new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16), fileName), fileName);
             if (!music.IsValid)
             {
+                // Its decoder opened the file, as one of a file cut short does, so it is closed
+                // here, where nothing will unload it.
+                music.Close();
                 ApiLogger.Warn($"LoadMusicStream: '{fileName}' holds no sound to stream.");
                 return music;
             }
