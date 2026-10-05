@@ -118,6 +118,9 @@ public class GeneratorAttributeTests
         public static class Commands
         {
             [Command("probe.ping", "Answers pong")] public static string Ping() => "pong";
+            // Defaults with no literal of their own, which the generated registration once printed as names.
+            [Command("probe.far", "Answers its numbers")]
+            public static string Far(float at = float.NaN, double to = double.PositiveInfinity, float from = float.NegativeInfinity) => $"{at} {to} {from}";
             public static string NotACommand() => "never";
         }
 

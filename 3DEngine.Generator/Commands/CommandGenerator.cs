@@ -123,6 +123,11 @@ public sealed class CommandGenerator : IIncrementalGenerator
         null => "default",
         string text => Quote(text),
         bool flag => flag ? "true" : "false",
+        // NaN and the infinities have no literal, and printed as numbers are names nothing declares.
+        float single when float.IsNaN(single) => "float.NaN",
+        float single when float.IsInfinity(single) => single > 0 ? "float.PositiveInfinity" : "float.NegativeInfinity",
+        double number when double.IsNaN(number) => "double.NaN",
+        double number when double.IsInfinity(number) => number > 0 ? "double.PositiveInfinity" : "double.NegativeInfinity",
         float single => single.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "f",
         double number => number.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "d",
         long whole => whole.ToString(System.Globalization.CultureInfo.InvariantCulture) + "L",
