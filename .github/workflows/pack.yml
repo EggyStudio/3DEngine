@@ -1,6 +1,6 @@
-# Tests the engine on Linux, Windows and macOS (test.yml), then packs it, when run from the Actions
-# tab ("Run workflow"), and pushes the package to nuget.org when asked to. Nothing is packed unless
-# every test job passes.
+# Tests the engine on Linux, Windows and macOS (test.yml), then packs it and its `dotnet new`
+# templates, when run from the Actions tab ("Run workflow"), and pushes both packages to nuget.org
+# when asked to. Nothing is packed unless every test job passes.
 #
 # The version is build/version.sh's: the major and minor in build/version.txt, and as the patch the
 # commits since that file last changed. The package and its symbols are kept as the run's artifact

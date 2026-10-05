@@ -25,6 +25,8 @@ msbuild.log
 /build/tools/
 /build/artifacts/
 /build/package/
+# The templates as build/pack.sh packs them, with the version written in.
+/build/templates/
 /build/shader-cache/
 # What an app launched by `e3d open` writes, so its output can be read after it is gone.
 /build/sessions/

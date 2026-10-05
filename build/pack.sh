@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Builds the engine in Release, compiles its shaders into a cache with `e3d shaders`, and packs
-# the library, the shaders and that cache into build/package. A game built from the package then
-# loads the built-in shaders with no slangc of its own.
+# the library, the shaders and that cache into build/package, with the `dotnet new` templates
+# beside it. A game built from the package then loads the built-in shaders with no slangc of its
+# own.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -23,4 +24,10 @@ if changed="$(git log -1 --format=%H -- build/version.txt 2>/dev/null)" && [ -n 
   git log --format=%b "$changed"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$notes" || true
 fi
 dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
-echo "packed 3DEngine $version into build/package, with $(wc -l < "$notes") lines of release notes"
+# The templates, of the same version, from a copy with that version written in as the one a new
+# project asks for, so a project made from them builds against the engine packed with them.
+rm -rf build/templates
+cp -r templates build/templates
+sed -i "s/PACKED_VERSION/$version/" build/templates/content/*/.template.config/template.json
+dotnet pack build/templates/3DEngine.Templates.csproj -c Release -o build/package -p:Version="$version"
+echo "packed 3DEngine and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"

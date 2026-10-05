@@ -148,14 +148,20 @@ the version it chose before. `games/Pusher` is such a game, built this way in CI
 
 ### A program on a local package
 
+`build/pack.sh` packs the engine into `build/package`, with the templates beside it of the same
+version. Installed from that file, the templates make a project that asks for that version and
+takes it from the folder, through a `nuget.config` they write when given the folder:
+
 ```bash
-build/pack.sh                                    # in the checkout, into build/package
-dotnet new console -n Hello && cd Hello          # wherever the program is to live
+build/pack.sh                                                    # in the checkout
+dotnet new install build/package/3DEngine.Templates.<version>.nupkg
+dotnet new 3dengine -o path/to/Hello --package-folder "$PWD/build/package"
 ```
 
-A `nuget.config` beside the new project sends `3DEngine` to that folder, rather than to the
-version on nuget.org, and everything else to nuget.org, with the folder's path in place of the
-one shown:
+Without the templates, a console project wherever the program is to live
+(`dotnet new console -n Hello`) gets a `nuget.config` that sends `3DEngine` to that folder, rather
+than to the version on nuget.org, and everything else to nuget.org, with the folder's path in
+place of the one shown:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -180,7 +186,8 @@ dotnet add package 3DEngine --version "0.1.0-*"
 ```
 
 The program at the top of the README then goes into `Program.cs`. `build/readme-walk.sh <package
-folder>` follows these steps with that program in a new folder, and CI runs it.
+folder>` follows the README's commands with both templates and these steps with that program, each
+in a new folder, and CI runs it.
 
 ### Shipping a game
 

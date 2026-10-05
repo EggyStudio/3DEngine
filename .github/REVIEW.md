@@ -89,3 +89,16 @@ generated code in a game's assembly reaches them, are hidden from completion wit
 `EditorBrowsable(Never)`, and the attribute's summary, which described something else, is
 corrected. STYLE.md has a Documentation section with the rule and the three kinds of gap. The
 package already carried `lib/net10.0/3DEngine.xml`, and Now 4's test will hold it to that.
+
+**A template that starts a game.** `templates/` is the `3DEngine.Templates` package, which
+`build/pack.sh` packs beside the engine at the same version and the pack workflow pushes with it.
+`dotnet new 3dengine` makes a project with a window, a loop and a cube, and `dotnet new
+3dengine-ecs` one whose cubes are behaviors turned at a speed a script in `source/behaviors` sets,
+each with `resources/`, `source/behaviors/` and a README of three lines. Each asks for the engine
+version packed with it, and `--package-folder` writes a `nuget.config` for a local package folder.
+The README's "A program of your own" is those three commands, with the hand steps after them, and
+BUILDING.md's local section starts with the template. `build/readme-walk.sh` follows the README's
+commands with both templates installed from the folder into a list of its own, then the hand
+steps, and passed here and in the Ubuntu 24.04 container on lavapipe. Two things are the owner's:
+whether `3DEngine.Templates` is free on nuget.org before the first push, and a `templates/` row
+in AGENTS.md's table of where things are, which this session leaves to them.

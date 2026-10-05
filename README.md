@@ -72,17 +72,32 @@ needs. [DESIGN.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/DESI
 
 ## A program of your own
 
-The engine is the `3DEngine` package on nuget.org:
+The engine is the `3DEngine` package on nuget.org, and `3DEngine.Templates` beside it makes a
+game from it in one command:
+
+```bash
+dotnet new install 3DEngine.Templates
+dotnet new 3dengine -n Hello && cd Hello
+dotnet run
+```
+
+The project has a window, a loop and a cube in `Program.cs`, a `resources` folder for what it
+loads, and a `source/behaviors` folder for scripts the running game compiles again when they are
+saved. `dotnet new 3dengine-ecs` makes one whose state is in behaviors instead, with a script in
+that folder setting how fast its cubes turn. Where there is no display,
+`dotnet run -- --offscreen --frames 30` draws thirty frames with no window and exits.
+
+Without the templates, a console project takes the package:
 
 ```bash
 dotnet new console -n Hello && cd Hello
 dotnet add package 3DEngine
 ```
 
-The program at the top of this page goes into `Program.cs`, and `dotnet run` opens its window.
-Where there is no display, `dotnet run -- --offscreen --frames 30` draws thirty frames with no
-window and exits. A program can use a package built from a checkout of this repository instead,
-as [BUILDING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md#a-program-on-a-local-package) shows.
+and the program at the top of this page goes into `Program.cs`. A program can use a package built
+from a checkout of this repository instead, as
+[BUILDING.md](https://github.com/EggyStudio/3DEngine/blob/main/.github/BUILDING.md#a-program-on-a-local-package)
+shows.
 
 ## Examples
 

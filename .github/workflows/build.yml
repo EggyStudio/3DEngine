@@ -325,9 +325,10 @@ jobs:
           done
           exit $failed
 
-      # The documents' steps in a new folder, from the same package, as someone holding only the
-      # package would follow them. BUILDING.md's nuget.config and add-package line and the README's
-      # first program are built and run offscreen.
+      # The documents' steps in new folders, from the same packages, as someone holding only the
+      # packages would follow them. The README's commands make a game from each template, and
+      # BUILDING.md's nuget.config and add-package line take the README's first program, and each
+      # is built and run offscreen.
       - name: Follow the README in a new project
         run: build/readme-walk.sh build/package "$RUNNER_TEMP/readme"
 

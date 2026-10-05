@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "EggyStudio",
+  "classifications": ["Game", "3DEngine"],
+  "identity": "EggyStudio.3DEngine.Game.Ecs",
+  "name": "3DEngine game with behaviors",
+  "description": "A game on 3DEngine whose state is in behaviors, with a script the running game compiles again when it is saved.",
+  "shortName": "3dengine-ecs",
+  "sourceName": "Hello",
+  "preferNameDirectory": true,
+  "tags": { "language": "C#", "type": "project" },
+  "symbols": {
+    "engineVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The version of the 3DEngine package the project asks for.",
+      "defaultValue": "PACKED_VERSION",
+      "replaces": "ENGINE_VERSION"
+    },
+    "packageFolder": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "A folder of packages built from a checkout, which a nuget.config written beside the project takes the engine from.",
+      "defaultValue": "",
+      "replaces": "PACKAGE_FOLDER"
+    },
+    "hasPackageFolder": {
+      "type": "computed",
+      "value": "(packageFolder != \"\")"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        { "condition": "(!hasPackageFolder)", "exclude": ["nuget.config"] }
+      ]
+    }
+  ]
+}

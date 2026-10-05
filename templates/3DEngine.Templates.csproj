@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The templates `dotnet new` makes a game from, packed beside the engine by build/pack.sh,
+         which writes the engine's version into each template.json as the version a new project
+         asks for. Nothing here is compiled. -->
+    <PropertyGroup>
+        <PackageType>Template</PackageType>
+        <PackageId>3DEngine.Templates</PackageId>
+        <Title>3DEngine templates</Title>
+        <Description>Templates for a game on 3DEngine: `dotnet new 3dengine` for a program of plain calls, and `dotnet new 3dengine-ecs` for one whose state is in behaviors.</Description>
+        <PackageTags>dotnet-new;templates;game-engine;raylib;vulkan;3DEngine</PackageTags>
+        <PackageProjectUrl>https://github.com/EggyStudio/3DEngine</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeSymbols>false</IncludeSymbols>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <EnableDefaultItems>false</EnableDefaultItems>
+        <!-- The templates' folders are kept by an empty .gitkeep each, which NuGet leaves out
+             unless told. -->
+        <NoDefaultExcludes>true</NoDefaultExcludes>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" Pack="true" PackagePath="content\%(RecursiveDir)%(Filename)%(Extension)" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <!-- Found from the repository's root, since build/pack.sh packs a copy from elsewhere. -->
+        <None Include="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), Directory.Build.props))/.github/assets/logo.png" Pack="true" PackagePath="\" Visible="false" />
+    </ItemGroup>
+
+</Project>
