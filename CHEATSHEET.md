@@ -899,4 +899,5 @@ Color ColorLerp(Color color1, Color color2, float factor); // Part of the way fr
 ## ImGui
 
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
-is drawn over everything else. F2 shows the engine's performance window.
+is drawn over everything else, and the keyboard and the first gamepad move through its widgets.
+F2 shows the engine's performance window.

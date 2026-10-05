@@ -117,6 +117,7 @@ public sealed class SdlImGuiPlugin : IPlugin
                     }
                 }
             
+                SdlImGuiInput.FeedGamepad(world.TryGetResource<Input>(out var input) ? input.Gamepad(0) : null);
                 ImGui.NewFrame();
                 if (world.TryGetResource<SdlImGuiRenderer>(out var imguiRenderer))
                 {
@@ -126,6 +127,7 @@ public sealed class SdlImGuiPlugin : IPlugin
             .MainThreadOnly()
             .Read<AppWindow>()
             .Read<Time>()
+            .Read<Input>()
             .Write<SdlImGuiRenderer>());
 
         // A frame the renderer skips, as one while the window is minimized, leaves ImGui's frame
@@ -198,10 +200,12 @@ public sealed class SdlImGuiPlugin : IPlugin
                 // An offscreen run follows the size its images are drawn at, which window.size changes.
                 if (world.TryGetResource<OffscreenSurface>(out var surface) && surface.Size.Width > 0 && surface.Size.Height > 0)
                     ImGui.GetIO().DisplaySize = new Vector2(surface.Size.Width, surface.Size.Height);
+                SdlImGuiInput.FeedGamepad(world.TryGetResource<Input>(out var input) ? input.Gamepad(0) : null);
                 ImGui.NewFrame();
             }, "SdlImGuiPlugin.PreUpdate")
             .MainThreadOnly()
-            .Read<Time>());
+            .Read<Time>()
+            .Read<Input>());
 
         app.AddSystem(Stage.Last, new SystemDescriptor(_ => ImGui.EndFrame(), "SdlImGuiPlugin.EndFrame").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ =>

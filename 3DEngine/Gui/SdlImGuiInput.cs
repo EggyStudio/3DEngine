@@ -77,4 +77,53 @@ public static class SdlImGuiInput
             _ => ImGuiKey.None
         };
     }
+
+    // Each button as ImGui names it, the face buttons by where they sit, so the bottom one
+    // activates and the right one goes back, as on every pad ImGui's navigation is made for.
+    private static readonly (GamepadButton Button, ImGuiKey Key)[] PadButtons =
+    [
+        (GamepadButton.South, ImGuiKey.GamepadFaceDown), (GamepadButton.East, ImGuiKey.GamepadFaceRight),
+        (GamepadButton.West, ImGuiKey.GamepadFaceLeft), (GamepadButton.North, ImGuiKey.GamepadFaceUp),
+        (GamepadButton.Back, ImGuiKey.GamepadBack), (GamepadButton.Start, ImGuiKey.GamepadStart),
+        (GamepadButton.LeftShoulder, ImGuiKey.GamepadL1), (GamepadButton.RightShoulder, ImGuiKey.GamepadR1),
+        (GamepadButton.LeftStick, ImGuiKey.GamepadL3), (GamepadButton.RightStick, ImGuiKey.GamepadR3),
+        (GamepadButton.DpadUp, ImGuiKey.GamepadDpadUp), (GamepadButton.DpadDown, ImGuiKey.GamepadDpadDown),
+        (GamepadButton.DpadLeft, ImGuiKey.GamepadDpadLeft), (GamepadButton.DpadRight, ImGuiKey.GamepadDpadRight),
+    ];
+
+    /// <summary>
+    /// Gives ImGui the first connected gamepad's buttons, sticks and triggers, so its navigation
+    /// moves through windows and widgets with the pad alone, or tells it there is no pad.
+    /// </summary>
+    /// <remarks>
+    /// A stick counts from a quarter of the way over, past where a pad at rest drifts, to the full
+    /// way, as ImGui's own SDL backend reads one.
+    /// </remarks>
+    public static void FeedGamepad(GamepadState? pad)
+    {
+        var io = ImGui.GetIO();
+        if (pad is null)
+        {
+            io.BackendFlags &= ~ImGuiBackendFlags.HasGamepad;
+            return;
+        }
+        io.BackendFlags |= ImGuiBackendFlags.HasGamepad;
+        foreach (var (button, key) in PadButtons) io.AddKeyEvent(key, pad.ButtonDown(button));
+        Analog(io, ImGuiKey.GamepadL2, pad.Axis(GamepadAxis.LeftTrigger), 0.1f);
+        Analog(io, ImGuiKey.GamepadR2, pad.Axis(GamepadAxis.RightTrigger), 0.1f);
+        Analog(io, ImGuiKey.GamepadLStickLeft, -pad.Axis(GamepadAxis.LeftX), 0.25f);
+        Analog(io, ImGuiKey.GamepadLStickRight, pad.Axis(GamepadAxis.LeftX), 0.25f);
+        Analog(io, ImGuiKey.GamepadLStickUp, -pad.Axis(GamepadAxis.LeftY), 0.25f);
+        Analog(io, ImGuiKey.GamepadLStickDown, pad.Axis(GamepadAxis.LeftY), 0.25f);
+        Analog(io, ImGuiKey.GamepadRStickLeft, -pad.Axis(GamepadAxis.RightX), 0.25f);
+        Analog(io, ImGuiKey.GamepadRStickRight, pad.Axis(GamepadAxis.RightX), 0.25f);
+        Analog(io, ImGuiKey.GamepadRStickUp, -pad.Axis(GamepadAxis.RightY), 0.25f);
+        Analog(io, ImGuiKey.GamepadRStickDown, pad.Axis(GamepadAxis.RightY), 0.25f);
+    }
+
+    private static void Analog(ImGuiIOPtr io, ImGuiKey key, float value, float deadZone)
+    {
+        var amount = Math.Clamp((value - deadZone) / (1 - deadZone), 0, 1);
+        io.AddKeyAnalogEvent(key, amount > 0.1f, amount);
+    }
 }

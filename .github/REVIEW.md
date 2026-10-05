@@ -8,13 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `a8134c89`. The three things nothing had tried are settled, on the replies, which
-were read. Ten minutes of each game held every count level (`044d2396`). The games and five
-examples came through a storm of resizes under the validation layer (`b0d835c4`). Bad files
-found a font that stopped the whole process in native code, a loader that threw on a good PNG
-and decoders whose exceptions escaped, all fixed with one table of cases (`3442e2cd`). Morph
-targets under a layered clip (`42b99058`) and a body shaped as a model's hull (`a8134c89`) were
-taken on their descriptions. The three are in [SHARED.md](SHARED.md).
+Reviewed up to `fc5aef49`. Rally, a fifth game (`b5eb3642`), is settled, with what it found: rays
+stopped at triggers, so a wheel inside a gate's sensor threw the car and a character's ground
+rays could meet the same. The public surface in `3DEngine/PublicApi.txt` with its test, and
+release notes from the commits (`fc5aef49`), are settled. Both are in
+[SHARED.md](SHARED.md).
 
 ## Now
 
@@ -24,27 +22,19 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **The public surface is written down, and a change to it is seen.** The package is numbered
-   5.0 and counts a patch a commit, and nothing says when a commit removes or reshapes something
-   a game calls. A listing of every public type and member of the engine, made by a tool from
-   the built assembly and checked in, with a test that fails when the two differ, so a change
-   to the surface is a change to that file in the same commit and is read as one. Beside it,
-   `build/pack.sh` writes the package's release notes from the commits since `build/version.txt`
-   last changed, each commit's sentence a line, since the messages are already written to be
-   read.
-3. **A fifth game, of a kind not yet made.** A first-person walk through a level larger than a
+2. **A sixth game, of a kind not yet made.** A first-person walk through a level larger than a
    room: many prefabs and textures loaded as the player nears and let go behind, doors on
    joints opened by triggers, lit rooms with probes and a sunlit yard with cascades, particles
    and the effects over the frame used as a game would, a settings screen that changes
    resolution, vertical sync, volume and key bindings and keeps them in a file, and the whole
    of it played with a gamepad alone, menus included. From the package, with what it turns up
    fixed when small and entered in TODO.md when not, played and soaked by CI.
-4. **What that game turned up**, in the order it hurt.
-5. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
-6. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
+3. **What that game turned up**, in the order it hurt.
+4. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
+5. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
    of field, motion blur and exposure, the memory and window commands, hull and mesh colliders,
    morph targets and layered clips.
-7. **TODO.md's order** for everything else, and another game when it runs short.
+6. **TODO.md's order** for everything else, a vehicle controller among it, and another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -78,26 +68,3 @@ None open.
 
 ## Replies
 
-
-**Rally.** A racing game was under way when the Now list was refilled, so it is the fifth game
-and the first-person walk of item 3 is the sixth, which comes next. `games/Rally` drives a car of
-one box on four rays as springs round a dirt road over a heightmap, through gates that are
-triggers, with a ghost of the best lap kept in a file, dust, motion blur by speed and an engine's
-note pitched by it, and CI races it a lap on its autopilot, soaks it and storms it. It needed a
-push at a point, a body's turn and turning speed, a point's speed and a ray that looks past one
-body, which are flat functions now. It found that a ray stopped at a trigger, so a wheel inside a
-gate's sensor stood on the air in it and threw the car up, and a character's ground, step and
-headroom rays went through the same handler. Rays go through triggers now. A vehicle built by hand is entered in
-TODO.md.
-
-**Now 2, the public surface.** `3DEngine/PublicApi.txt` lists the 536 public types and every
-member a game reaches on them, about 5,200 lines with each signature's nullability and default
-values, written from the built assembly by a writer in the test project. A test fails while the
-listing and the assembly differ and names the lines added and removed, and `build/api.sh` writes
-the file again. `build/pack.sh` writes the commits since `build/version.txt` last changed into the
-package's release notes, a sentence a line, 143 lines at present. BUILDING.md and COMMITS.md say
-both. The limit nuget.org puts on the length of release notes is not checked, and the first push
-will show it.
-
-Shared: the listing and its test are one file of reflection and one test, and would serve
-BevyCSharp's package as they do this one's.

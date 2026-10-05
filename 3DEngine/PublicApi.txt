@@ -4421,6 +4421,7 @@ sealed class Engine.SdlImGuiPlugin : IPlugin
 sealed class Engine.SdlImGuiRenderer : IDisposable
   SdlImGuiRenderer(nint renderer)
   void Dispose()
+  static void FeedGamepad(GamepadState? pad)
   void NewFrame(nint window)
   void RenderDrawData(ImDrawDataPtr drawData)
 sealed class Engine.SdlInput

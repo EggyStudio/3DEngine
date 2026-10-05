@@ -163,6 +163,12 @@ ImGui the same way, through `ImGuiNET`, before taking a click for the game:
 if (IsMouseButtonPressed(MouseButton.Left) && !ImGui.GetIO().WantCaptureMouse) Shoot();
 ```
 
+ImGui reads the first gamepad too, so a menu drawn in ImGui is played with the pad alone. The
+d-pad or the left stick moves between the focused window's widgets, starting on its first, the
+bottom face button presses the one it is on, and the right face button backs out of a field or a
+popup. `ImGui.SetNextWindowFocus()` before a menu's window gives it the pad. Arrow keys, Enter and
+Escape do the same from a keyboard.
+
 ## Input in the ECS
 
 A behavior reads the same input through its context, `ctx.Input`, as the `ecs_behaviors` example
