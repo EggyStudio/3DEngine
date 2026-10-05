@@ -153,8 +153,10 @@ public static partial class Engine3D
     /// </summary>
     /// <remarks>
     /// The bones below <paramref name="bone"/> take the second clip's pose relative to their parents,
-    /// so the arm waves from wherever the running body carries its shoulder. A bone the model does
-    /// not have poses the model by the first clip alone.
+    /// so the arm waves from wherever the running body carries its shoulder. The morph targets the
+    /// second clip moves are moved <paramref name="weight"/> of the way to its weights, as a face's
+    /// expression played over a walk, and the rest keep the first clip's. A bone the model does not
+    /// have poses the model by the first clip alone.
     /// </remarks>
     public static void UpdateModelAnimationLayer(Model model, ModelAnimation under, float underSeconds, ModelAnimation over, float overSeconds,
         string bone, float weight = 1)
@@ -163,6 +165,7 @@ public static partial class Engine3D
         var root = Array.FindIndex(under.Bones, b => b.Name == bone);
         var below = Sample(under, underSeconds);
         ApplyMorphs(model, under, SampleMorphs(under, underSeconds), 1);
+        if (root >= 0) ApplyMorphs(model, over, SampleMorphs(over, overSeconds), Math.Clamp(weight, 0f, 1f));
         Pose(model, root < 0 ? below : Layer(under.Bones, below, Sample(over, overSeconds), root, Math.Clamp(weight, 0f, 1f)));
     }
 

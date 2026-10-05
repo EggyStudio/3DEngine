@@ -157,6 +157,9 @@ var wave = layered ? 0.5f + 0.5f * MathF.Sin(time * 2) : 0;
 UpdateModelAnimationLayer(hero, run, time, jump, 0, "ArmL", wave);
 ```
 
+The morph targets the layered clip moves follow it too, by the same weight, so a face's
+expression played on the head bone changes the face while the body keeps the first clip's.
+
 ## Morph targets
 
 A mesh can carry morph targets, shapes its vertices are moved toward by a weight from 0 to 1, as

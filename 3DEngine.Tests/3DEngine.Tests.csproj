@@ -44,6 +44,7 @@
         <None Include="..\3DEngine.Examples\resources\arm.gltf" Link="resources\arm.gltf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\3DEngine.Examples\resources\morph.gltf" Link="resources\morph.gltf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Api\layered-morph.gltf" CopyToOutputDirectory="PreserveNewest" />
         <!-- Four glyphs, three past U+FFFF, which build/make-test-font.py writes. -->
         <None Include="Fonts\planes.ttf" CopyToOutputDirectory="PreserveNewest" />
         <!-- Summit's level, its prefabs and their models, which a reference frame of the game loads. -->

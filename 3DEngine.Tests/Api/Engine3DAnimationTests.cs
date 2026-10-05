@@ -91,6 +91,27 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void A_Clip_On_Part_Of_The_Skeleton_Moves_The_Morph_Targets_It_Plays()
+    {
+        // The strip of morph.gltf held by one bone, "Root", with a clip at a weight of 0 and one
+        // at 1, both keeping the bone still. build/make-morph-gltf.py.
+        var file = Path.Combine(AppContext.BaseDirectory, "Api", "layered-morph.gltf");
+        var model = LoadModel(file);
+        var clips = LoadModelAnimations(file);
+        var (rest, lift) = (clips.Single(c => c.Name == "rest"), clips.Single(c => c.Name == "lift"));
+        float Top() => Positions(model).Max(p => p.Y);
+
+        UpdateModelAnimationAt(model, rest, 0.5f);
+        Top().Should().BeApproximately(1, 1e-3f, "the first clip alone keeps the strip at rest");
+        UpdateModelAnimationLayer(model, rest, 0.5f, lift, 0.5f, "Root");
+        Top().Should().BeApproximately(2, 1e-3f, "the clip over it raises the top edge by its target");
+        UpdateModelAnimationLayer(model, rest, 0.5f, lift, 0.5f, "Root", weight: 0.5f);
+        Top().Should().BeApproximately(1.5f, 1e-3f, "half of the way at half weight");
+        UpdateModelAnimationLayer(model, rest, 0.5f, lift, 0.5f, "Nowhere");
+        Top().Should().BeApproximately(1, 1e-3f, "a bone the model does not have leaves the first clip alone");
+    }
+
+    [Fact]
     public void A_Skinned_Model_Loads_Its_Bones_At_Rest()
     {
         var model = LoadModel(Arm);
