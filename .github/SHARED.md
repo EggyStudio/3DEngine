@@ -142,6 +142,9 @@ table also answers whether the two agree.
 | Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |
 | A window resized, minimized and moved by commands while it draws, as a storm the workflow runs | to consider, the window being Bevy's | has (`build/storm.sh`, `b0d835c4`) |
 | The public surface listed in a checked-in file a tool writes from the built assembly, a test failing when they differ | to take | has (`PublicApi.txt`, `fc5aef49`) |
+| Every public member documented, an undocumented one failing the build, the documentation carried in the package | to check | has (`a4b2785c`) |
+| A template package, so `dotnet new` starts a game | to take | has (`3DEngine.Templates`, `ec7e6c3c`) |
+| A test that opens the packed package and finds everything it should hold, natives for each system among it | to take | has (`PackageContentsTests`, `760b8206`) |
 | The package's release notes written from the commits since the version was last set | to take | has (`fc5aef49`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |

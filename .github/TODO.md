@@ -31,11 +31,15 @@ removed from this file, and an item that is partly done is rewritten around what
 - **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
   500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the
   contacts sorted by pair, so a run repeats to the bit on every machine. Four workers step 2000
-  boxes in 1.4 ms where one takes 2.6, and 2000 characters in 5.0 where one takes 6.0, of which
-  the controllers' planning and rays are 1.9 ms on the thread pool, Bepu's step 2.2 and the
-  contacts 0.8, the sort among them. Under 500 bodies one worker is as fast or faster, and
-  `games/Swarm`'s 180 creatures take 1.5 to 1.8 ms. What is left is the controllers' rays, cast
-  for each character each step where most stand on the same ground as the step before.
+  boxes in 1.4 ms where one takes 2.6, and under 500 bodies one worker is as fast or faster, so
+  `games/Swarm`'s 180 creatures take 1.5 to 1.8 ms. A character on the flat top of an upright
+  static box, a floor or `CreateGroundPlane`, with nothing else near its foot but triggers and
+  characters clear of its rays, reads its ground from one query of the broad phase in place of
+  five rays down and one ahead, which gives the rays' answer to the bit. 2000 characters standing
+  take 0.4 ms to plan in place of 1.3, and the step 1.8 ms in place of 2.5. Walking in a crowd
+  that bumps, they take 1.4 ms in place of 1.8, since the ray ahead is still cast where another
+  character is near, and its ray onto the step after a hit. Ground of a mesh, a turned box or a
+  heightfield still takes the rays.
 
 - **Ground loaded for the first time costs a frame of up to 22 ms.** `games/Manor` streams its
   estate in as cells of prefabs, and its walk's worst frame offscreen was 47 ms, read with

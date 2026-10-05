@@ -1,5 +1,6 @@
 using System.Numerics;
 using BepuPhysics;
+using BepuPhysics.Collidables;
 
 namespace Engine;
 
@@ -223,30 +224,42 @@ public sealed partial class PhysicsWorld
             var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
             var center = reference.Pose.Position;
 
-            // Five rays down from inside the capsule, at its middle and around its foot, so an edge
-            // under one side of the foot still counts as ground. The highest ground found wins.
             character.Grounded = false;
             character.GroundNormal = Vector3.UnitY;
             var groundVelocity = Vector3.Zero;
             var reach = character.HalfHeight + 0.08f;
-            float nearest = float.MaxValue;
             var spread = character.Radius * 0.7f;
-            foreach (var around in ProbeDirections)
+            var alone = false;
+            var top = float.NaN;
+            var settled = !CastEveryRay && FlatGround(character, center, reach, pool, out top, out alone);
+            if (settled)
             {
-                var offset = around * spread;
-                var from = center + offset;
-                // A ray at the side starts lower, where the round of the foot is, so it reaches as far below it.
-                var length = reach - (character.Radius - MathF.Sqrt(MathF.Max(0, character.Radius * character.Radius - offset.LengthSquared())));
-                if (!Raycast(from, -Vector3.UnitY, length, body, pool, out var hit) || hit.Normal.Y < character.MaxSlopeCos) continue;
-                if (hit.Distance >= nearest) continue;
-                nearest = hit.Distance;
-                character.Grounded = true;
-                character.GroundNormal = hit.Normal;
-                groundVelocity = VelocityAt(hit.Body, hit.Point);
+                // Under the foot only the flat top of one upright static box, or nothing at all, so
+                // every ray below would meet that top or nothing.
+                character.Grounded = !float.IsNaN(top) && center.Y - top <= reach;
+            }
+            else
+            {
+                // Five rays down from inside the capsule, at its middle and around its foot, so an
+                // edge under one side of the foot still counts as ground. The highest ground found wins.
+                float nearest = float.MaxValue;
+                foreach (var around in ProbeDirections)
+                {
+                    var offset = around * spread;
+                    var from = center + offset;
+                    // A ray at the side starts lower, where the round of the foot is, so it reaches as far below it.
+                    var length = reach - (character.Radius - MathF.Sqrt(MathF.Max(0, character.Radius * character.Radius - offset.LengthSquared())));
+                    if (!Raycast(from, -Vector3.UnitY, length, body, pool, out var hit) || hit.Normal.Y < character.MaxSlopeCos) continue;
+                    if (hit.Distance >= nearest) continue;
+                    nearest = hit.Distance;
+                    character.Grounded = true;
+                    character.GroundNormal = hit.Normal;
+                    groundVelocity = VelocityAt(hit.Body, hit.Point);
+                }
             }
 
             var velocity = reference.Velocity.Linear;
-            if (character.Grounded) character.Lift = ClimbStep(character, center, pool);
+            if (character.Grounded && !alone) character.Lift = ClimbStep(character, center, pool);
             if (character.Grounded)
             {
                 // Along the ground, so a walk up or down a slope follows it, and with the pull along
@@ -276,6 +289,83 @@ public sealed partial class PhysicsWorld
             }
             character.JumpSpeed = 0;
             character.Planned = velocity;
+        }
+    }
+
+    // Most of a crowd stands on a floor: the flat top of a static box with no turn, as
+    // CreateGroundPlane makes. One query of the broad phase over the room the ground rays and the
+    // step ray take finds that in place of the rays. A ray tests only what the broad phase's bounds
+    // put along it, and every ray lies inside the room, so what the query does not find no ray
+    // meets. When it finds that box, triggers, which rays pass through, and other characters whose
+    // capsules stand clear of every ground ray, the ground rays would meet the box's top or
+    // nothing, and when it finds nothing they would meet nothing, which is the same answer they
+    // give. The step ray is still cast toward a character near, unless nothing but the box is.
+    // Whether the ground is settled so, the height of the top, NaN for nothing under the foot, and
+    // whether the step ray would meet nothing either.
+    // Every ground and step ray cast whatever the broad phase finds, for the test that holds the
+    // shortcut below to the rays' answer.
+    internal bool CastEveryRay;
+
+    private bool FlatGround(Character character, Vector3 center, float reach, BepuUtilities.Memory.BufferPool pool, out float top, out bool alone)
+    {
+        top = float.NaN;
+        alone = false;
+        var spread = character.Radius * 0.7f;
+        // Wide enough for the ground rays and the step ray ahead of the foot, and as deep as the longest ray.
+        var half = MathF.Max(spread, character.Radius + 0.15f) + 0.01f;
+        var min = new Vector3(center.X - half, center.Y - reach - 0.01f, center.Z - half);
+        var max = new Vector3(center.X + half, center.Y + 0.01f, center.Z + half);
+        var near = new NearFoot { Self = new CollidableReference(CollidableMobility.Dynamic, new BodyHandle(character.Body.Handle)) };
+        Simulation.BroadPhase.GetOverlaps(min, max, pool, ref near);
+        if (near.Count > NearFoot.Most) return false;
+
+        var others = false;
+        for (int i = 0; i < near.Count; i++)
+        {
+            var found = near.Found[i];
+            if (_triggerFlags.Is(found)) continue;
+            if (found.Mobility == CollidableMobility.Static && float.IsNaN(top))
+            {
+                var ground = Simulation.Statics[found.StaticHandle];
+                if (ground.Shape.Type != Box.Id || ground.Pose.Orientation != Quaternion.Identity) return false;
+                var box = Simulation.Shapes.GetShape<Box>(ground.Shape.Index);
+                var at = ground.Pose.Position;
+                // Every ray over its top, and the step ray at the foot above it.
+                if (min.X < at.X - box.HalfWidth || max.X > at.X + box.HalfWidth || min.Z < at.Z - box.HalfLength || max.Z > at.Z + box.HalfLength) return false;
+                top = at.Y + box.HalfHeight;
+                if (center.Y - character.HalfHeight + 0.02f <= top) return false;
+                continue;
+            }
+            // Another character, upright and never turned, whose capsule no ground ray reaches.
+            if (found.Mobility != CollidableMobility.Dynamic || !_characters.TryGetValue(found.BodyHandle.Value, out var other)) return false;
+            var axis = Simulation.Bodies[found.BodyHandle].Pose.Position;
+            var apart = new Vector2(axis.X - center.X, axis.Z - center.Z).Length();
+            if (apart < spread + other.Radius + 0.01f) return false;
+            others = true;
+        }
+        alone = !others;
+        return true;
+    }
+
+    // The broad phase's leaves in a room past the character's own, the first few of them and how many.
+    private struct NearFoot : BepuUtilities.IBreakableForEach<CollidableReference>
+    {
+        public const int Most = 6;
+        public CollidableReference Self;
+        public Leaves Found;
+        public int Count;
+
+        public bool LoopBody(CollidableReference collidable)
+        {
+            if (collidable.Packed == Self.Packed) return true;
+            if (Count < Most) Found[Count] = collidable;
+            return ++Count <= Most;
+        }
+
+        [System.Runtime.CompilerServices.InlineArray(Most)]
+        public struct Leaves
+        {
+            private CollidableReference _first;
         }
     }
 

@@ -204,4 +204,44 @@ public class PhysicsCharacterTests
         Run(world, 0.2f);
         world.GetPosition(body).Y.Should().BeGreaterThan(before + 0.5f, "a jump of 5 units a second rises past half a unit in a fifth of a second");
     }
+
+    [Fact]
+    public void A_Crowd_Ends_Where_It_Would_With_Every_Ground_Ray_Cast()
+    {
+        // A floor read from the broad phase must give the rays' answer to the bit, around steps, a
+        // turned ramp, a box pushed about, a trigger over the floor, jumps, and a crowd close enough
+        // to bump, where some of it is read each way.
+        Vector3[] Walk(bool everyRay)
+        {
+            using var world = NewWorld();
+            world.CastEveryRay = everyRay;
+            world.CreateStaticBox(new Vector3(4, 0.15f, 0), new Vector3(1, 0.15f, 3));
+            world.CreateStaticBox(new Vector3(5, 0.3f, 0), new Vector3(0.5f, 0.3f, 3));
+            var ramp = world.CreateStaticBox(new Vector3(-4, 0, 0), new Vector3(2, 0.2f, 3));
+            world.SetRotation(ramp, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0.25f));
+            world.CreateBox(new Vector3(0, 0.5f, 4), new Vector3(0.5f), 5);
+            var sensor = world.CreateStaticBox(new Vector3(0, 1, -3), new Vector3(2, 1, 1));
+            world.SetTrigger(sensor, true);
+            var crowd = new List<PhysicsBody>();
+            for (int i = 0; i < 40; i++)
+                crowd.Add(world.CreateCharacter(new Vector3(i % 8 * 0.9f - 3, 0, i / 8 * 0.9f - 2), Radius, Height));
+
+            var ends = new List<Vector3>();
+            for (int step = 0; step < 240; step++)
+            {
+                for (int i = 0; i < crowd.Count; i++)
+                {
+                    var angle = step * 0.02f + i * 0.7f;
+                    world.MoveCharacter(crowd[i], new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle)) * 3);
+                    if ((step + i * 7) % 90 == 0) world.JumpCharacter(crowd[i], 4);
+                }
+                world.StepOnce(Step);
+                world.TakePendingContacts();
+                ends.AddRange(crowd.Select(world.GetPosition));
+            }
+            return [.. ends];
+        }
+
+        Walk(everyRay: false).Should().Equal(Walk(everyRay: true), "the broad phase leaves the rays nothing else to meet when it settles the ground");
+    }
 }
