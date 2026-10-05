@@ -85,6 +85,12 @@ jobs:
             exit 1
           fi
 
+      # What the package build/pack.sh made holds, as the pack workflow checks before offering one.
+      - name: Check what the package holds
+        env:
+          E3D_REQUIRE_PACKAGE: '1'
+        run: dotnet test 3DEngine.Tests -c Release --filter "FullyQualifiedName~PackageContentsTests"
+
       # The 2D game from the same package, run right and jumped with the pad's south button.
       - name: Build and play the 2D game from the package
         env:

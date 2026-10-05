@@ -67,3 +67,14 @@ internal static class Probes
         return backend.IsInitialized;
     });
 }
+
+/// <summary>Skipped where build/package holds no engine package, unless <c>E3D_REQUIRE_PACKAGE</c> is set.</summary>
+public sealed class NeedsPackageFactAttribute : FactAttribute
+{
+    public NeedsPackageFactAttribute()
+    {
+        // The pack workflow sets it after build/pack.sh, so a package that was not made fails there.
+        if (Package.PackageContentsTests.Newest() is null && Environment.GetEnvironmentVariable("E3D_REQUIRE_PACKAGE") != "1")
+            Skip = "build/package holds no 3DEngine package. build/pack.sh makes one.";
+    }
+}

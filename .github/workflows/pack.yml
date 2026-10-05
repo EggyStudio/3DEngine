@@ -45,6 +45,14 @@ jobs:
 
       - run: build/pack.sh "${{ steps.version.outputs.version }}"
 
+      # What the package holds, read from the .nupkg before it is offered: the engine, its
+      # generator, documentation, compiled shaders, readme, license, notices and release notes,
+      # and its dependencies' native libraries for each system BUILDING.md claims.
+      - name: Check what the package holds
+        env:
+          E3D_REQUIRE_PACKAGE: '1'
+        run: dotnet test 3DEngine.Tests -c Release --filter "FullyQualifiedName~PackageContentsTests"
+
       - uses: actions/upload-artifact@v7
         with:
           name: 3DEngine-${{ steps.version.outputs.version }}

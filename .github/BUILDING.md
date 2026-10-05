@@ -236,6 +236,9 @@ run from anywhere in the checkout finds it.
 | Windows | SDL3 | Vulkan |
 | macOS | SDL3 | Vulkan through MoltenVK |
 
+Each is meant on x64 and arm64, for which the package's dependencies carry SDL3, Dear ImGui and
+Assimp natively, and `PackageContentsTests` fails a package where one of them is missing.
+
 Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
 `build.yml` runs for every push, builds and tests it on all three. Ubuntu 24.04, named rather than
 the newest so lavapipe and the validation layer change only in a commit, draws on lavapipe. Windows

@@ -16,12 +16,15 @@ rm -rf build/shader-cache
 version="${1:-0.1.0-preview.$(date -u +%Y%m%d%H%M%S)}"
 # The release notes are the commits since build/version.txt last changed, newest first, each
 # commit's sentence a line, as the history already says them to be read. A checkout without the
-# history has none, and nor does a version raised by the last commit.
+# history has none, and nor does a version raised by the last commit, which say so in their place.
 notes="$PWD/build/artifacts/release-notes.txt"
 mkdir -p build/artifacts
 : > "$notes"
 if changed="$(git log -1 --format=%H -- build/version.txt 2>/dev/null)" && [ -n "$changed" ]; then
   git log --format=%b "$changed"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$notes" || true
+fi
+if [ ! -s "$notes" ]; then
+  echo "The first package of $version, with no commits since its version was raised." > "$notes"
 fi
 dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
 # The templates, of the same version, from a copy with that version written in as the one a new

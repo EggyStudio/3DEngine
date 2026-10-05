@@ -102,3 +102,16 @@ commands with both templates installed from the folder into a list of its own, t
 steps, and passed here and in the Ubuntu 24.04 container on lavapipe. Two things are the owner's:
 whether `3DEngine.Templates` is free on nuget.org before the first push, and a `templates/` row
 in AGENTS.md's table of where things are, which this session leaves to them.
+
+**What is in the package is checked.** `PackageContentsTests` opens the newest engine package in
+`build/package` and finds the library, the generator and its fixes as analyzers, the
+documentation file with the flat API in it, a compiled `.spv` for every entry point of every
+built-in shader, the README, the license, the notices and release notes, and, for each system in
+BUILDING.md's table of platforms on x64 and arm64, SDL3, cimgui and Assimp in the dependencies the
+nuspec names at the versions it names. A package missing the license and one shader's entry
+point fails two of the four, naming both. The tests skip where no package was made, and the pack
+workflow sets `E3D_REQUIRE_PACKAGE` and runs them after `build/pack.sh` and before the package is
+uploaded or pushed, as `build.yml` does after its pack. `THIRD-PARTY-NOTICES.md` is new, naming
+every dependency with its license, which the test holds to the nuspec, and the package now
+carries it and `LICENSE`. Release notes are never empty, a version raised by the last commit saying it is the
+first package of that version.

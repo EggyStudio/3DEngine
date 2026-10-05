@@ -286,4 +286,7 @@ AOT. What is missing:
 
 ## License
 
-[Mozilla Public License 2.0](https://github.com/EggyStudio/3DEngine/blob/main/LICENSE).
+[Mozilla Public License 2.0](https://github.com/EggyStudio/3DEngine/blob/main/LICENSE). The
+libraries the engine depends on, and their licenses, are in
+[THIRD-PARTY-NOTICES.md](https://github.com/EggyStudio/3DEngine/blob/main/THIRD-PARTY-NOTICES.md),
+which the package carries beside the license.
