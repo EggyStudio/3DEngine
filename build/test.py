@@ -41,6 +41,7 @@ PAGE_LINES = 200
 LINE_WIDTH = 240
 CAUSES_SHOWN = 10
 FRAMES_SHOWN = 6
+MESSAGE_LINES = 5
 TESTS_SHOWN = 4
 REPEATED_SHOWN = 3
 PART_SIZE = 30
@@ -324,7 +325,7 @@ def cause_of(message, stack):
     plain = re.sub(r"0x[0-9A-Fa-f]+|\d+(?:\.\d+)?", "#", plain)
     frames = [frame_of(l) for l in stack.splitlines() if l.strip().startswith("at Engine.")]
     engine = next((f.split("(")[0] for f in frames if not f.startswith(PREFIX)), "")
-    return kind, plain[:200], engine, line, frames[:FRAMES_SHOWN]
+    return kind, plain[:200], engine, line, frames[:FRAMES_SHOWN], [l.strip() for l in message.splitlines() if l.strip()]
 
 
 def frame_of(line):
@@ -365,9 +366,11 @@ def digest(results_dir, processes, listed, seconds):
     for name, (outcome, message, stack) in sorted(results.items()):
         if outcome != "Failed":
             continue
-        kind, plain, engine, line, frames = cause_of(message, stack)
+        kind, plain, engine, line, frames, lines = cause_of(message, stack)
         key = f"{kind}|{plain}|{engine}"
-        cause = causes.setdefault(key, {"key": key, "type": kind, "message": line, "frame": engine, "frames": frames, "count": 0, "tests": []})
+        cause = causes.setdefault(key, {"key": key, "type": kind, "message": line, "lines": lines[:MESSAGE_LINES],
+                                        "more_lines": max(0, len(lines) - MESSAGE_LINES), "frame": engine, "frames": frames,
+                                        "count": 0, "tests": []})
         cause["count"] += 1
         cause["tests"].append(name)
     # A theory may be listed once by its method's name and report each case by its arguments, so a
@@ -397,7 +400,10 @@ def entry(cause):
     """A cause's message, its frames and its tests with a count of the rest, a line each."""
     shown = cause["tests"][:TESTS_SHOWN]
     more = len(cause["tests"]) - len(shown)
-    return ([cause["message"]] + [f"at {frame}" for frame in cause.get("frames", [])]
+    message = cause.get("lines") or [cause["message"]]
+    left = cause.get("more_lines", 0)
+    return (message + ([f"({left:,} line{'s' if left != 1 else ''} more)"] if left else [])
+            + [f"at {frame}" for frame in cause.get("frames", [])]
             + [", ".join(f"`{t}`" for t in shown) + (f" and {more:,} more" if more > 0 else "")])
 
 

@@ -35,7 +35,9 @@ public sealed class TestScriptTests : IDisposable
         for (int cause = 0; cause < Causes.Length; cause++)
             for (int i = 0; i < counts[cause]; i++, test++)
                 results.Append($"<UnitTestResult testName=\"Engine.Tests.Area.Class{test % 7}.Test_{test}\" outcome=\"Failed\"><Output><ErrorInfo>")
-                    .Append($"<Message>System.InvalidOperationException : the {Causes[cause]} system broke on frame {test} reading /tmp/run{test}/state.bin</Message>")
+                    .Append($"<Message>System.InvalidOperationException : the {Causes[cause]} system broke on frame {test} reading /tmp/run{test}/state.bin")
+                    .Append(string.Concat(Enumerable.Range(1, 7).Select(line => $"\n  a place it names, {line} of 7")))
+                    .Append("</Message>")
                     .Append($"<StackTrace>   at Engine.{char.ToUpperInvariant(Causes[cause][0])}{Causes[cause][1..]}System.Run(Int32 frame) in /src/Systems/Run.cs:line {test}\n")
                     .Append($"   at Engine.Tests.Area.Class{test % 7}.Test_{test}() in /src/Tests/Class.cs:line 12</StackTrace>")
                     .Append("</ErrorInfo></Output></UnitTestResult>");
@@ -59,6 +61,8 @@ public sealed class TestScriptTests : IDisposable
         text.Should().NotContain("the kilo system").And.NotContain("the lima system");
         text.Should().Contain("**100 × System.InvalidOperationException** at `Engine.AlphaSystem.Run`", "a cause counts the tests it failed, with the engine's first frame");
         text.Should().Contain("60,000 ×", "a line the output repeats with its numbers changing is one line with its count");
+        text.Should().Contain("a place it names, 4 of 7").And.NotContain("a place it names, 5 of 7").And.Contain("(3 lines more)",
+            "a cause shows the first five lines of its message and counts the rest");
         File.Exists(_folder.File("digest.json")).Should().BeTrue();
 
         // As a run on GitHub gives them, where the annotations are all a reader who is not signed

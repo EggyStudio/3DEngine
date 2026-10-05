@@ -174,3 +174,9 @@ own, and the two were compared bare, so a probe relit by a lamp going out was ne
 `OffscreenRenderTests`' lamp test asks `IsReflectionProbeReady` now where it read the probe's
 fields, not ready the moment the lamp goes out and ready once the probe is captured anew, and
 without the mend it is never ready again.
+
+**Now 1, five lines of a message.** A cause shows its message's first five lines on the page and
+in its annotation, each cut at the page's width, with a count of the lines left, so a rule's check
+names the places it found. `TestScriptTests` gives each of its 500 failures a message of eight
+lines and finds the fourth place named, not the fifth, and the three lines left counted, with the
+page within its 200 lines.
