@@ -66,7 +66,8 @@ public class LightingUniformPackingTests
         Marshal.SizeOf<ProbeUboEntry>().Should().Be(11 * 16, "a probe is its middle, its size and nine coefficients");
         var afterProbes = afterIrradiance + 16 + LightingUboPacker.MaxProbes * 11 * 16;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Output)).Should().Be(afterProbes);
-        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 16, "the output flag comes last");
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.AmbientOcclusion)).Should().Be(afterProbes + 16);
+        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 32, "the output flag and the occlusion flag come last");
     }
 
     [Fact]

@@ -98,8 +98,8 @@ public class SlangCompilerTests : IDisposable
         var program = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
 
         var lights = program.LayoutOf(1);
-        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 5 + LightingUboPacker.MaxProbes).Select(b => (uint)b),
-            "the lighting buffer, the shadow maps, the environment and sky, and the probes' cubes");
+        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 6 + LightingUboPacker.MaxProbes).Select(b => (uint)b),
+            "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes and the occlusion");
         lights[0].Type.Should().Be(DescriptorType.UniformBuffer);
         lights.Skip(1).Should().OnlyContain(b => b.Type == DescriptorType.CombinedImageSampler);
         lights.Should().OnlyContain(b => b.Stages.HasFlag(ShaderStageFlags.Fragment));

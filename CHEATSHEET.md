@@ -657,6 +657,7 @@ void SetDepthOfField(float focusDistance, float focusRange, float blur);   // Bl
 void SetMotionBlur(float amount);                                          // Blur along the camera's movement, 0.5 as a shutter, 0 for none
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
+void SetAmbientOcclusion(float intensity, float radius = 1);              // Darken that light where nearby surfaces close it off, 0 for off
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky
 void UpdateReflectionProbe(ReflectionProbeHandle probe);                   // Capture it again, after its room changed
 bool IsReflectionProbeReady(ReflectionProbeHandle probe);                  // Whether its capture is made, a face a frame and twice over

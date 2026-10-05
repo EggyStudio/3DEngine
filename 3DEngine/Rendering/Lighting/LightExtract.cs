@@ -24,6 +24,8 @@ internal sealed class LightExtract : IExtractSystem
         else renderWorld.Remove<ShadowSettings>();
         if (world.TryGetResource<BloomSettings>(out var bloom)) renderWorld.Set(bloom);
         else renderWorld.Remove<BloomSettings>();
+        if (world.TryGetResource<AmbientOcclusionSettings>(out var occlusion)) renderWorld.Set(occlusion);
+        else renderWorld.Remove<AmbientOcclusionSettings>();
         if (world.TryGetResource<FrameEffects>(out var effects)) renderWorld.Set(effects);
         else renderWorld.Remove<FrameEffects>();
 

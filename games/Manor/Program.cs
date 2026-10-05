@@ -42,6 +42,8 @@ ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(120, 140, 110), 
     new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
 SetEnvironmentMap(sky, intensity: 0.6f);
 SetBloom(0.45f);
+// The rooms' corners and what stands on their floors darken the light from all around.
+SetAmbientOcclusion(1);
 // Stepping in from the sun the eye opens to the rooms' lamps, and closes again going out.
 SetAutoExposure(true, 0.5f, 2.5f, 1.2f);
 SetVignette(0.25f);

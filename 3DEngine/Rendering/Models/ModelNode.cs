@@ -740,30 +740,8 @@ internal sealed class ModelRenderer : IDisposable
         if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
 
         var map = ShadowMapFor(device, shadow.TileSize);
-        if (_shadowVertexSpv.IsEmpty) return;
-        if (_shadowPipeline is null)
-        {
-            _shadowVertexShader = device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _shadowVertexSpv));
-            _shadowPipeline = MakePipeline(device, map.RenderPass, renderWorld, _shadowVertexShader, fragment: null, shadow: true);
-            if (!_shadowMaskSpv.IsEmpty)
-            {
-                _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
-                _shadowMaskPipeline = MakePipeline(device, map.RenderPass, renderWorld, _shadowVertexShader, _shadowMaskShader, shadow: true);
-            }
-        }
-
-        // The view's batches, which its model pass draws after, each drawn here as the kind of
-        // shadow its draws cast, a masked one through its maps, which its fragment stage cuts it out by.
-        BeginFrameOfSets(renderContext);
-        var view = ViewBatches(target, device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
-        _shadowBatches.Clear();
-        foreach (var batch in view.Batches)
-        {
-            if (batch.Shadow == ShadowKind.None) continue;
-            _shadowBatches.Add(batch.Shadow == ShadowKind.Masked && batch.Set is null
-                ? batch with { Set = MaterialSet(device, textures, draws.Span[batch.Custom]) }
-                : batch);
-        }
+        if (!EnsureShadowPipelines(device, map.RenderPass, renderWorld)) return;
+        var view = CastingBatches(renderContext, target, device, draws, meshes, textures, renderWorld);
 
         // One clear for the whole map, then each cascade drawn into its own tile.
         var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
@@ -812,6 +790,87 @@ internal sealed class ModelRenderer : IDisposable
                 DrawShadowBatches(facePass, view, face);
             }
             facePass.EndRenderPass();
+        }
+    }
+
+    // The shadow pass's pipelines, a solid one and one a material cuts out, made the first time a
+    // depth-only pass draws, for the depth-only passes every shadow map and depth target share.
+    private bool EnsureShadowPipelines(GraphicsDevice device, IRenderPass depthOnly, RenderWorld renderWorld)
+    {
+        if (_shadowVertexSpv.IsEmpty) return false;
+        if (_shadowPipeline is not null) return true;
+        _shadowVertexShader = device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _shadowVertexSpv));
+        _shadowPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, fragment: null, shadow: true);
+        if (!_shadowMaskSpv.IsEmpty)
+        {
+            _shadowMaskShader = device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _shadowMaskSpv));
+            _shadowMaskPipeline = MakePipeline(device, depthOnly, renderWorld, _shadowVertexShader, _shadowMaskShader, shadow: true);
+        }
+        return true;
+    }
+
+    // The view's batches, which its model pass draws after, those that cast a shadow gathered into
+    // _shadowBatches as the kind of shadow their draws cast, a masked one with its maps, which its
+    // fragment stage cuts it out by.
+    private View CastingBatches(RenderContext renderContext, int target, GraphicsDevice device, ModelDrawList draws, GpuMeshes meshes,
+        GpuTextures textures, RenderWorld renderWorld)
+    {
+        BeginFrameOfSets(renderContext);
+        var view = ViewBatches(target, device, draws, meshes, textures, renderWorld.TryGet<ShaderStore>());
+        _shadowBatches.Clear();
+        foreach (var batch in view.Batches)
+        {
+            if (batch.Shadow == ShadowKind.None) continue;
+            _shadowBatches.Add(batch.Shadow == ShadowKind.Masked && batch.Set is null
+                ? batch with { Set = MaterialSet(device, textures, draws.Span[batch.Custom]) }
+                : batch);
+        }
+        return view;
+    }
+
+    /// <summary>
+    /// Draws the depth of the window's meshes that cast a shadow into <paramref name="depth"/>,
+    /// through the cameras they were recorded with, ahead of the window's pass, for the ambient
+    /// occlusion worked out from it.
+    /// </summary>
+    /// <remarks>
+    /// It draws with the shadow pass's pipelines, whose depth-only pass is the same at any size, so a
+    /// mesh that casts no shadow is left out, and a blended one keeps texels as often as it is opaque.
+    /// </remarks>
+    internal void DrawDepth(RenderContext renderContext, RenderWorld renderWorld, ShadowMap depth)
+    {
+        var draws = renderWorld.TryGet<ModelDrawList>();
+        var meshes = renderWorld.TryGet<GpuMeshes>();
+        var textures = renderWorld.TryGet<GpuTextures>();
+        using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+            depth.RenderPass, depth.Framebuffers[0], depth.Extent, LoadOp.Clear, StoreOp.Store, new ClearColor(0, 0, 0, 0)));
+        if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
+        if (!EnsureShadowPipelines(device, depth.RenderPass, renderWorld)) return;
+        var view = CastingBatches(renderContext, 0, device, draws, meshes, textures, renderWorld);
+        pass.SetViewport(0, 0, depth.Extent.Width, depth.Extent.Height, 0, 1);
+        pass.SetScissor(0, 0, depth.Extent.Width, depth.Extent.Height);
+
+        var (ring, offset) = (view.Ring!, view.Offset);
+        IPipeline? bound = null;
+        Matrix4x4? pushed = null;
+        foreach (var batch in _shadowBatches)
+        {
+            var pipeline = batch.Shadow == ShadowKind.Masked ? _shadowMaskPipeline! : _shadowPipeline!;
+            if (!ReferenceEquals(pipeline, bound))
+            {
+                pass.SetPipeline(pipeline);
+                (bound, pushed) = (pipeline, null);
+            }
+            if (pushed != batch.ViewProjection)
+            {
+                var viewProjection = batch.ViewProjection;
+                pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
+                pushed = viewProjection;
+            }
+            if (batch.Shadow == ShadowKind.Masked) pass.SetBindGroup(pipeline, batch.Set!);
+            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring], [0, offset]);
+            pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
+            DrawCalls += DrawSeen(pass, batch, view.Blocks, batch.ViewProjection);
         }
     }
 
@@ -1136,6 +1195,7 @@ internal sealed class ModelRenderer : IDisposable
                 _noLights = gfx.CreateDescriptorSet(LightsLayout(gfx));
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     new CombinedImageSamplerBinding(white, whiteSampler, 1));
+                gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
                 if (EnvironmentCube(gfx, null) is { } black)
                     for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
                         if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, b));
@@ -1171,6 +1231,10 @@ internal sealed class ModelRenderer : IDisposable
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
             ? new CombinedImageSamplerBinding(map.DepthView, map.Sampler, 1)
             : new CombinedImageSamplerBinding(white, whiteSampler, 1));
+        // The window's occlusion for the window's view, which alone has its buffer say to read it.
+        gfx.UpdateDescriptorSet(set, null, target == 0 && renderWorld.TryGet<AmbientOcclusionImage>() is { } occlusion
+            ? new CombinedImageSamplerBinding(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
+            : new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
         if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
         {
             var sky = frame.HasEnvironment ? _sky ?? cube : cube;
@@ -1193,6 +1257,9 @@ internal sealed class ModelRenderer : IDisposable
         }
         return set;
     }
+
+    // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
+    private const uint AmbientOcclusionBinding = 9;
 
     private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(_materialBindings);
 

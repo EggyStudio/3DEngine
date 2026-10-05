@@ -56,13 +56,23 @@ internal sealed unsafe partial class GraphicsDevice
     /// time through <see cref="ShadowMap.Framebuffers"/> and sampled as one array, and every layer
     /// is ready to sample from the start, so one never drawn is still valid to bind.
     /// </remarks>
-    public ShadowMap CreateShadowMap(uint size, uint layers = 1)
+    public ShadowMap CreateShadowMap(uint size, uint layers = 1) => CreateDepthMap(size, size, layers);
+
+    /// <summary>
+    /// Creates a depth image of <paramref name="width"/> by <paramref name="height"/> texels drawn
+    /// and sampled as a shadow map is, as the depth of a view drawn ahead of its pass.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
+    public ShadowMap CreateDepthTarget(uint width, uint height) => CreateDepthMap(width, height, 1);
+
+    private ShadowMap CreateDepthMap(uint width, uint height, uint layers)
     {
         if (!IsInitialized) throw new InvalidOperationException("Graphics device not initialized");
-        size = Math.Max(1, size);
+        width = Math.Max(1, width);
+        height = Math.Max(1, height);
         layers = Math.Max(1, layers);
 
-        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, size, size,
+        var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height,
             VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled, layers: layers);
         var depthView = TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth, layers: layers);
         var layerViews = new VkImageView[layers];
@@ -76,7 +86,7 @@ internal sealed unsafe partial class GraphicsDevice
                 new Attachment(depth, layerViews[l], VkImageAspectFlags.Depth, l, VkImageLayout.ShaderReadOnlyOptimal), default);
 
         var depthImage = new VulkanImage(this, depth, depthMemory,
-            new ImageDesc(new Extent2D(size, size), ImageFormat.D32_Float, ImageUsage.DepthStencilAttachment | ImageUsage.Sampled));
+            new ImageDesc(new Extent2D(width, height), ImageFormat.D32_Float, ImageUsage.DepthStencilAttachment | ImageUsage.Sampled));
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
@@ -85,7 +95,7 @@ internal sealed unsafe partial class GraphicsDevice
             framebuffers,
             new VulkanImageView(this, depthImage, depthView),
             sampler,
-            new Extent2D(size, size),
+            new Extent2D(width, height),
             () =>
             {
                 sampler.Dispose();

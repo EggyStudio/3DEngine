@@ -76,6 +76,7 @@ internal sealed class Renderer : IDisposable
         var exposure = server.LoadSync<ShaderProgram>("shaders/exposure.slang");
         RenderWorld.Set(new BloomRenderer(bloom, composite, fxaa, exposure,
             server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang")));
+        RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then render targets, each drawing the
@@ -89,8 +90,12 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("particles", "targets");
         Graph.AddNode("shadows", new ShadowNode());
         Graph.AddNodeEdge("targets", "shadows");
+        // The window's ambient occlusion, from a depth of its own drawn ahead of every pass that
+        // lights the window's meshes.
+        Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
+        Graph.AddNodeEdge("shadows", "ambient_occlusion");
         Graph.AddNode("probes", new ProbeNode());
-        Graph.AddNodeEdge("shadows", "probes");
+        Graph.AddNodeEdge("ambient_occlusion", "probes");
         // With bloom on, the window's scene is drawn into the HDR target and spread before the
         // window's pass composites it.
         Graph.AddNode("hdr_scene", new HdrSceneNode());

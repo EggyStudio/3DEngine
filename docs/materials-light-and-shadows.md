@@ -193,6 +193,23 @@ DrawSphere(lampAt, 0.12f, new Color(255, 230, 190));
 sky and a rough one takes its colors. The
 [Models and animation](models-and-animation.md#a-sky-around-the-world) page loads one. With a map set the fixed light goes, whether or not there are lights.
 
+## Darker corners
+
+Light from all around, the ambient light, a sky's and a probe's, reaches a room's corner as well
+as its open wall, and the floor under a crate as well as the floor around it, so nothing seems to
+sit on anything. `SetAmbientOcclusion` darkens that light where the surfaces near a point close it
+off, and leaves the light of lights alone:
+
+```csharp
+SetAmbientOcclusion(1);           // or SetAmbientOcclusion(1, radius: 3) for a street of houses
+```
+
+The radius is how far, in world units, the surfaces that close a point off are looked for, about
+the size of what stands close together, and the intensity how dark it goes, 1 suiting most
+scenes. It is worked out for the window from a depth of its models drawn at half size each frame,
+about a tenth of a millisecond on a desktop GPU, so a model that casts no shadow darkens nothing
+around it, and a render texture is drawn without it. `games/Manor` turns it on for its rooms.
+
 ## Rooms that reflect themselves
 
 Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces

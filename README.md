@@ -266,8 +266,8 @@ AOT. What is missing:
 - **Some of raylib is not carried**, as VR stereo and the audio processors, which TODO.md names
   with the reasons.
 - **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette,
-  FXAA, depth of field and motion blur**, with no ambient occlusion, past what a program draws
-  through a render texture and a shader of its own.
+  FXAA, depth of field and motion blur**, with ambient occlusion beside them, past what a program
+  draws through a render texture and a shader of its own.
 - **CI draws on Linux and Windows through lavapipe and on macOS through MoltenVK**, under the
   validation layer, on every push, and the development is on Linux, where every example and game
   is played and captured.

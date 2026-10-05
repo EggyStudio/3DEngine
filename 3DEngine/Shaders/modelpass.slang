@@ -159,6 +159,8 @@ public struct Lighting
     public Probe probes[4];
     // 1 in x when the view is drawn into the HDR frame, whose light toDisplay leaves linear.
     public float4 output;
+    // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's alone.
+    public float4 ambientOcclusion;
 };
 
 [[vk::binding(0, 1)]]
@@ -190,6 +192,22 @@ public SamplerCube probeMap1;
 public SamplerCube probeMap2;
 [[vk::binding(8, 1)]]
 public SamplerCube probeMap3;
+
+// How much of the light from all around reaches each pixel of the window, at half its size, from
+// ao.slang, or a white texture where no occlusion is worked out.
+[[vk::binding(9, 1)]]
+public Sampler2D ambientOcclusionMap;
+
+// The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
+// has no occlusion. The map is half the window's size, so a pixel reads it at half its position.
+public float screenOcclusion(ModelVertexOutput input)
+{
+    if (lighting.ambientOcclusion.x <= 0.0)
+        return 1.0;
+    uint width, height;
+    ambientOcclusionMap.GetDimensions(width, height);
+    return ambientOcclusionMap.SampleLevel(input.position.xy * 0.5 / float2(width, height), 0).r;
+}
 
 public struct ModelVertexOutput
 {
@@ -608,7 +626,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     float roughness = clamp(materialRoughness(input) * packed.g, 0.045, 1.0);
     // Occlusion darkens the light from all around, which reaches into a crease less, and leaves
     // the direct light, which the shadow map takes care of.
-    float occlusion = lerp(1.0, occlusionMap.Sample(input.uv).r, saturate(materialOcclusionStrength(input)));
+    float occlusion = lerp(1.0, occlusionMap.Sample(input.uv).r, saturate(materialOcclusionStrength(input))) * screenOcclusion(input);
     float alpha = roughness * roughness;
     float3 f0 = lerp(float3(0.04), albedo, metallic);
     float3 diffuseColor = albedo * (1.0 - metallic);

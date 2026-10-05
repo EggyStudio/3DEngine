@@ -96,6 +96,33 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Darkens the light from all around where the surfaces near a point close it off, as where a
+    /// floor meets a wall or under a crate, by <paramref name="intensity"/>, looking for those
+    /// surfaces within <paramref name="radius"/> world units, or turns it off with an intensity of
+    /// 0, which it is by default.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// It darkens the ambient light, the environment map and a reflection probe's light, and not a
+    /// light's own, which reaches a corner as well as a wall. 1 suits most scenes, and a radius
+    /// about the size of the things that stand close together, a unit for a room's furniture and a
+    /// few for buildings.
+    /// </para>
+    /// <para>
+    /// It is worked out for the window's view each frame, from the depth of its models drawn at
+    /// half the window's size ahead of its pass, so a frame costs one more pass over the models
+    /// that cast a shadow, and a model that casts none darkens nothing around it. Render textures
+    /// and probe captures are drawn without it.
+    /// </para>
+    /// </remarks>
+    public static void SetAmbientOcclusion(float intensity, float radius = 1)
+    {
+        var occlusion = World.GetOrInsertResource(static () => new AmbientOcclusionSettings());
+        occlusion.Intensity = Math.Max(0, intensity);
+        occlusion.Radius = Math.Max(0, radius);
+    }
+
+    /// <summary>
     /// Sets the light from all around that keeps the side of a model away from every other light
     /// from going black, replacing the one set before, or removes it with an intensity of 0.
     /// </summary>

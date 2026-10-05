@@ -1167,6 +1167,7 @@ static class Engine.Engine3D
   static void SaveScene(string fileName, IEnumerable<Entity>? entities = null)
   static void SeekMusicStream(Music music, float position)
   static void SetAmbientLight(Color color, float intensity)
+  static void SetAmbientOcclusion(float intensity, float radius = 1f)
   static void SetAudioStreamBufferSizeDefault(int size)
   static void SetAudioStreamCallback(AudioStream stream, AudioCallback? callback)
   static void SetAudioStreamPan(AudioStream stream, float pan)

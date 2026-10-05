@@ -470,6 +470,20 @@ picture, taking the fastest of eight movements around it so a near thing's edge 
 background beside it. Only the camera's movement is known, so a thing moving across a still camera
 stays sharp, and a frame after others drawn without the HDR frame blurs nothing.
 
+`SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `shadows` and before every
+pass that lights the window's meshes, whether or not the frame goes through the HDR target
+(`AmbientOcclusionRenderer`). It draws the depth of the window's batches that cast a shadow into a
+depth target half the window's size, through the shadow pass's pipelines, whose depth-only pass is
+the same at any size, pushing each batch's own camera. `ao.slang` then puts each texel back in the
+world through the inverse view-projection, takes its normal from the nearer neighbor along each
+axis, and sums Alchemy's term over twelve taps on a spiral turned by interleaved gradient noise,
+within the radius held to three tenths of the picture, each fading out toward the radius. Two
+passes blur it across and down, nine taps each, weighed by how near each tap's distance from the
+eye is to the pixel's. The lights' set binds the result at binding 9 for the window's view, and the
+window's lighting buffer says to read it, so `lit` multiplies its material occlusion, which scales
+the ambient, environment and probe light alone, by the occlusion at half the fragment's position.
+In Manor's rooms it takes 0.08 ms of the GPU and 0.16 ms of the CPU.
+
 Render targets drawn with `BeginTextureMode` stay eight bits and tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
 HDR frame as it is, so its sRGB colors are read as linear there.
 

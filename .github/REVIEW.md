@@ -8,11 +8,10 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `3768b339`. A character's ground from one broad phase query (`8ef1af2f`), a frame's
-texture uploads in one submit (`5ceba2fa`), and particles with a texture, drag and a sheet of
-frames (`63b8d8b8`, `3768b339`) are settled on the replies, which were read. Each was measured or
-tested against the form it replaces, the ground query to the bit. `build/version.txt` holds 5.0
-and is the owner's to raise, as they have been told.
+Reviewed up to `bb03b6ca`. A ball swept along a ray and the bodies a sphere reaches (`4326c94c`), alpha
+emitters drawn far to near (`16eaccb5`) and particles in render textures (`7543dcbf`, `bb03b6ca`)
+are settled on their descriptions. A pipeline cache measured as not worth making, and said so,
+is the right outcome of looking.
 
 ## Now
 
@@ -22,8 +21,21 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **TODO.md's order** for everything else, with a crowd's controller rays among it. Another
-   game is written only when it is of a kind that uses what none of the seven has.
+2. **Ambient occlusion over the frame**, which the working session asked to be steered on. Of
+   the three it named it changes the picture most: without it a crate does not sit on its floor
+   and a room's corners are as bright as its walls, in every scene lit by an environment or an
+   ambient light. A pass over the HDR frame from its depth, at half size and blurred with
+   respect to edges, darkening ambient and environment light and leaving direct light alone,
+   turned on by one call beside the other effects, with a pixel test of a corner darker than
+   the open wall and a reference scene.
+3. **A probe captured again when its light changes.** A lamp switched off leaves its glow in
+   every reflection near it, which is wrong and not a matter of taste. A probe captures again,
+   a face a frame, when a light that reaches its box is added, removed or changed past a
+   threshold, and on request.
+4. **Particles sorted within an emitter**, last of the three, since it shows only where one
+   emitter's own alpha particles overlap at different depths.
+5. **TODO.md's order** for everything else, and another game only when it is of a kind that
+   uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -62,23 +74,15 @@ None open.
 ## Replies
 
 
-**Ball casts and the bodies in a sphere.** `GetSphereCastPhysics` and its `Ex` past one body move
-a ball along a ray through Bepu's sweep and give back the first body it meets, as a thick shot or
-a camera pulled in from a wall, and `GetPhysicsBodiesInSphere` gives back every body a sphere
-reaches by shape and not by bounds, each once, in the traversal's order, as what an explosion
-pushes. Both pass through triggers as rays do, and the ray's skip and collidable lookups are shared
-with them. Tests find a ball meeting an edge a ray beside it clears, its distance and normal at a
-face, a start inside a body, and a sphere leaving out a body whose bounds reach it and whose shape
-does not. `PublicApi.txt` gains three functions, with their CHEATSHEET lines.
-
-**Alpha emitters drawn far to near.** Emitters laid over by alpha are drawn after the additive ones
-from the farthest from the camera to the nearest, by where each emitter is, so where two clouds
-overlap the nearer covers the farther whichever was made first, which a test finds and which fails
-without the order. The particles within one emitter are still not sorted, which TODO.md says.
-
-**Particles in render textures.** `TargetsNode` draws the frame's particles into each render
-target after its meshes, through the camera those were drawn with and with that target's lights,
-emitters laid over by alpha ordered from that camera, so a scene drawn into a texture to be scaled
-or put through a shader of the program's keeps its smoke and sparks. A target with no mesh drawn
-into it has no camera, and draws none, which the documents say. A test finds a cloud in a texture
-drawn into a corner of the window, and fails without the change. Probe captures still have none.
+**Ambient occlusion.** `SetAmbientOcclusion(intensity, radius = 1)` beside `SetAmbientLight`,
+since what it darkens is that light, the environment's and the probes', and not a light's own. It
+departs from the item in one way, with the reason. The HDR frame's depth exists only after the
+model pass has lit the scene, so occlusion taken from it could darken only the finished color,
+direct light with it. The `ambient_occlusion` node, after `shadows`, draws a depth of its own of
+the window's shadow casters at half size through the shadow pipelines, works out Alchemy's
+occlusion over twelve taps, blurs it across and down by depth, and the model pass multiplies its
+material occlusion, which scales only the light from all around, by it. So it works with or
+without the HDR frame, which a test checks both ways, and a mesh that casts no shadow darkens
+nothing around it, which the documents say. A test finds the floor darker beside a cube and in a
+corner and unchanged out in the open, a new reference scene holds on lavapipe under the layer,
+and Manor's rooms use it at 0.08 ms of the GPU, with a new capture. Probe recapture is next.

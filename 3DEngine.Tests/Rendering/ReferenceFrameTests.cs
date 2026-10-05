@@ -380,6 +380,37 @@ public sealed class ReferenceFrameTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Ambient_Occlusion_Matches_Its_Reference()
+    {
+        Open(256, 160);
+        SetAmbientLight(new Color(200, 210, 230), 0.7f);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.5f, -1, -0.3f)), Color.White, 0.5f);
+        SetAmbientOcclusion(1);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var ball = LoadModelFromMesh(GenMeshSphere(0.5f, 24, 24));
+        var camera = new Camera3D(new Vector3(2, 3, 5), new Vector3(-1, 0.5f, -1), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(12, 12, 18));
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, new Color(180, 180, 175));
+            DrawModelEx(cube, new Vector3(-1.5f, 1, -1.5f), Vector3.UnitY, 0, new Vector3(5, 2, 0.2f), new Color(200, 190, 170));
+            DrawModelEx(cube, new Vector3(-3.9f, 1, 0.9f), Vector3.UnitY, 0, new Vector3(0.2f, 2, 5), new Color(200, 190, 170));
+            DrawModel(cube, new Vector3(0, 0.5f, 0), 1, new Color(170, 120, 90));
+            DrawModel(ball, new Vector3(-2.6f, 0.5f, -0.6f), 1, new Color(120, 160, 200));
+            DrawModelEx(cube, new Vector3(-1.2f, 0.4f, -1.05f), Vector3.UnitY, 20, new Vector3(0.8f), new Color(150, 170, 120));
+            EndMode3D();
+            DrawText("Ambient occlusion", 8, 8, 20, Color.RayWhite);
+        });
+        Matches(frame, "ambient_occlusion");
+        UnloadModel(ground);
+        UnloadModel(cube);
+        UnloadModel(ball);
+    }
+
+    [NeedsVulkanFact]
     public void The_Effects_Over_The_Frame_Match_Their_Reference()
     {
         Open(256, 160);
