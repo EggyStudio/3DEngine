@@ -53,8 +53,12 @@ public sealed partial class EcsWorld
         /// <returns><c>true</c> if found; otherwise <c>false</c>.</returns>
         public bool TryGet(int entity, out T value) => _set.TryGet(entity, out value!);
 
+        /// <summary>The component of <paramref name="entity"/>, boxed, or <c>null</c> when it has none.</summary>
+        /// <remarks>For the console and tools, which name a component's type at run time. A system reads <see cref="TryGet"/>, which does not box.</remarks>
         public object? GetBoxed(int entity) => _set.TryGet(entity, out var value) ? value : null;
 
+        /// <summary>Replaces the component of <paramref name="entity"/> with a boxed value, marking it changed.</summary>
+        /// <returns>Whether it was replaced, which it is not when the value is not a <typeparamref name="T"/> or the entity has none.</returns>
         public bool SetBoxed(int entity, object value)
         {
             if (value is not T typed || !_set.Has(entity)) return false;

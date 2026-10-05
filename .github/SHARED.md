@@ -136,6 +136,7 @@ table also answers whether the two agree.
 | Behaviors registered by a module initializer the generator writes, so a game published trimmed or as native AOT keeps them | has | has (`425ffc31`), with Pusher published native |
 | A game published as native AOT and run by CI | to take | has (`458cd909`) |
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
+| Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
 | A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | to take | has (`build/soak.sh`, `044d2396`) |
 | Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |

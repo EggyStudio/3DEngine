@@ -78,6 +78,28 @@ the surrounding code:
 Where a comment would be needed to explain what the code does, renaming is usually the better
 correction.
 
+## Documentation
+
+Every public type and member of the engine has a `<summary>`, because a game's editor shows it
+when the member is hovered or completed, and a member with none shows nothing there. The engine's
+project makes a missing one (CS1591) an error, so the build stops where it is missing. The tests,
+examples and tools are not held to it.
+
+A summary says what the member does or what the value means, in a sentence, and a `<remarks>`
+section holds the reasoning or the trap. The gaps the rule found were of three kinds, each with
+its answer.
+
+- An enum member whose name seems to say it all. The summary says what the name does not: a
+  `Key` is a place on the keyboard, so `Key.W` is "The key where a US layout has W", which types
+  Z on a French one.
+- A second constructor or overload. Its summary says what its extra parameter decides, rather
+  than repeating the first one's.
+- A member public only so another part of the engine can reach it, as a store's boxed accessors
+  are for the console. The summary says who it is for and what to use instead.
+
+What a generator writes into a game is internal where nothing in the game calls it, so it is no
+part of the game's surface and asks nothing of it.
+
 ## Tone
 
 Prose is factual and plain.

@@ -52,6 +52,7 @@ public sealed partial class PhysicsWorld : IDisposable
     /// <summary>Creates a physics world using default <see cref="PhysicsSettings"/>.</summary>
     public PhysicsWorld() : this(new PhysicsSettings()) { }
 
+    /// <summary>Creates a physics world with its gravity, step and threads from <paramref name="settings"/>.</summary>
     public PhysicsWorld(PhysicsSettings settings)
     {
         _settings = settings;

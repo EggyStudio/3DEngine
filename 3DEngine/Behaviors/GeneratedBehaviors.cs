@@ -7,8 +7,11 @@ namespace Engine;
 /// <remarks>
 /// A list the generated code adds to, in place of a search through every loaded assembly's types
 /// for <see cref="GeneratedBehaviorRegistrationAttribute"/>, so the registrations survive trimming
-/// and native AOT, which cannot keep every type for such a search.
+/// and native AOT, which cannot keep every type for such a search. Public because the generated
+/// code is in the game's assembly, and hidden from an editor's completion because a program never
+/// calls it.
 /// </remarks>
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 public static class GeneratedBehaviors
 {
     private static readonly List<Action<App>> Registrations = [];

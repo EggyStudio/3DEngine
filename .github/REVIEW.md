@@ -8,11 +8,10 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `432b97ee`. The names said twice and the workings left public (`432b97ee`) are settled
-on the reply, which was read: the stores, the material descriptions, the window's data and the
-generators internal, `TextureAsset` and `PhysicsRayCollision` named apart from `Texture2D` and
-`RayCollision`, and DESIGN.md §11 saying what tells each remaining pair apart. 228 public types
-are left of 536. The owner has been told the version is due to be raised.
+Reviewed up to `7a8360ae`. Tactics, the seventh game (`7a8360ae`), is settled, played, soaked and stormed
+by CI. It turned up nothing in the engine, every helper it needed being there, which says the
+games have found what games of this size find, and the list turns to what a stranger meets when
+they take the package.
 
 ## Now
 
@@ -22,15 +21,24 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
-   from above: units picked and ordered with the mouse through rays, paths found round
-   obstacles on a grid, many units selected and listed in ImGui panels, fog over what is not
-   seen, a match saved to a file and taken up again with whatever the engine offers for that,
-   and an opponent that plays. From the package, with what it turns up fixed when small and
-   entered in TODO.md when not, played, soaked and stormed by CI.
-3. **What that game turned up**, in the order it hurt.
-4. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
-   another game when it runs short.
+2. **Every public member says what it does.** 228 public types are what a program sees in its
+   editor, and a member with no summary shows nothing there. The compiler's warning for a public
+   member with no XML documentation (CS1591) becomes an error in the engine's project, each gap
+   is written to STYLE.md, and the package carries the documentation file so a game's editor
+   shows it. A generated member or one that only generated code calls is marked so and left out.
+3. **A template that starts a game.** `dotnet new` with a template package beside the engine's:
+   one command makes a project that references the package, with a window, a loop, a first
+   shape, a folder for resources and scripts, and a README of three lines, in a flat form and
+   an ECS form. `build/pack.sh` packs it, the README's "A program of your own" becomes that one
+   command with the hand steps after it, and the README walk follows it in the container.
+4. **What is in the package is checked.** A test opens the packed `.nupkg` and finds the
+   engine, the generator as an analyzer, the documentation file, the compiled shader cache, the
+   README, the license and the notices of the libraries it carries or depends on, the release
+   notes, and a native library for each system the package says it runs on. The pack workflow
+   runs it before the package is offered. A file of third-party notices is written if there is
+   none.
+5. **TODO.md's order** for everything else, with a crowd's controller rays among it. Another
+   game is written only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -69,14 +77,15 @@ None open.
 ## Replies
 
 
-**A seventh game.** `games/Tactics` is a turn-based board seen from above, built from the package:
-tiles and units picked by `GetScreenToWorldRay` and `GetRayCollisionBox`, several units picked by
-a box dragged round them or a shift click and listed in an ImGui panel, walks found by Dijkstra's
-search within a turn's moves and routes by A* across the board, fog over every tile no unit of
-the side sees, woods hiding what is past them, a match written with `SaveFileText` and taken up
-with `LoadFileText`, and an opponent that plays from what its own side sees. CI picks a unit and
-walks it with clicks, picks the side with `input.drag`, orders it across the board, checks the
-other side is hidden at the start, plays both sides to the end, and takes the saved match up
-again, and the game is soaked and stormed with the others. It turned up nothing in the engine,
-every ray helper it needed being there, so Now 3 is empty; the one trap was Escape closing the
-window by default, as in raylib, which `SetExitKey(Key.Unknown)` answers in the game.
+**Every public member says what it does.** CS1591 is an error in the engine's project and
+silenced still for the tests, examples and tools. It found 188 gaps: 183 members of `Key`, the
+store's two boxed accessors, `PhysicsWorld`'s second constructor, and the generated
+`BehaviorRegistration`. Each `Key` member says where its key is, since a scan code is a place on
+the keyboard, and the enum's remarks say `W` types Z on a French layout. The generator writes
+`BehaviorRegistration` internal now, since a program never calls it and a script's is found with
+non-public binding, so `PublicApi.txt` loses its two lines, which by Decision 5 is the owner's to
+number. `GeneratedBehaviors` and `GeneratedBehaviorRegistrationAttribute`, public only because
+generated code in a game's assembly reaches them, are hidden from completion with
+`EditorBrowsable(Never)`, and the attribute's summary, which described something else, is
+corrected. STYLE.md has a Documentation section with the rule and the three kinds of gap. The
+package already carried `lib/net10.0/3DEngine.xml`, and Now 4's test will hold it to that.

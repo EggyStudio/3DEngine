@@ -191,8 +191,6 @@ sealed class Engine.BehaviorContext
   float FixedDelta { get; }
   int EntityId { get; set; }
   void SetState<TState>(TState value) where TState : struct, Enum
-static class Engine.BehaviorRegistration
-  static void Register(App app)
 enum Engine.BlendMode : int
   AddColors = 3
   Additive = 1
