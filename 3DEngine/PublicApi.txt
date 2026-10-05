@@ -4371,6 +4371,7 @@ sealed class Engine.Schedule
   Schedule()
   ScheduleDiagnostics Diagnostics { get; }
   int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
+  const double SequentialBatchMilliseconds = 0.5d
   int RemoveSystemsBySource(string source)
   int SystemCount(Stage stage)
   int TotalSystemCount { get; }

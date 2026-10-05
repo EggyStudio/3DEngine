@@ -90,6 +90,10 @@ public sealed class SystemDescriptor
     /// </summary>
     public long LastRunTick { get; internal set; }
 
+    // How long the system took when it last ran, which decides whether its batch is worth
+    // handing to other threads.
+    internal double LastMilliseconds;
+
     /// <summary>Marks this system as main-thread-only, preventing it from running in parallel batches.</summary>
     /// <returns>This descriptor for fluent chaining.</returns>
     /// <seealso cref="ThreadAffinity.MainThread"/>

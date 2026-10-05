@@ -53,4 +53,35 @@ public class ScheduleTests
 
         order.IndexOf("B").Should().BeGreaterThan(order.IndexOf("M"), $"the main thread's system is where B's turn comes after, and they ran {string.Join(", ", order)}");
     }
+
+    [Fact]
+    public void A_Batch_Of_Systems_That_Took_Next_To_Nothing_Runs_On_The_Calling_Thread_And_A_Heavy_One_Is_Shared()
+    {
+        var world = new World();
+        var parallel = new ConcurrentDictionary<string, bool>();
+        var threads = new ConcurrentDictionary<string, int>();
+        // Each says the thread it ran on, and whether a batch was handed to other threads while it
+        // ran, which its own batch does whichever thread the pool gives each system.
+        SystemDescriptor Recording(string name) => new SystemDescriptor(_ =>
+        {
+            parallel[name] = Schedule.RunningInParallel;
+            threads[name] = Environment.CurrentManagedThreadId;
+        }, name).Read<First>();
+        var light = new[] { "a", "b", "c", "d" }.Select(Recording).ToArray();
+        var heavy = new[] { "w", "x", "y", "z" }.Select(Recording).ToArray();
+        var lightSchedule = new Schedule();
+        var heavySchedule = new Schedule();
+        foreach (var desc in light) lightSchedule.AddSystem(Stage.Update, desc);
+        foreach (var desc in heavy) heavySchedule.AddSystem(Stage.Update, desc);
+
+        // What each took when it last ran, set rather than measured, so the test does not hang on
+        // how busy the machine is.
+        foreach (var desc in light) desc.LastMilliseconds = 0.01;
+        foreach (var desc in heavy) desc.LastMilliseconds = 5;
+        lightSchedule.RunStage(Stage.Update, world);
+        heavySchedule.RunStage(Stage.Update, world);
+
+        light.Select(d => threads[d.Name]).Should().AllBeEquivalentTo(Environment.CurrentManagedThreadId, "four systems of microseconds are not worth the thread pool");
+        heavy.Select(d => parallel[d.Name]).Should().AllBeEquivalentTo(true, "systems of milliseconds each are shared among threads");
+    }
 }

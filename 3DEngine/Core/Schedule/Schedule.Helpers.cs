@@ -62,9 +62,9 @@ public sealed partial class Schedule
 
         foreach (var batch in batches)
         {
-            if (batch.Count == 1)
+            if (batch.Count == 1 || Light(batch))
             {
-                ExecuteSystem(stage, batch[0], world);
+                foreach (var desc in batch) ExecuteSystem(stage, desc, world);
                 continue;
             }
 
@@ -78,6 +78,22 @@ public sealed partial class Schedule
                 Interlocked.Decrement(ref _parallelBatches);
             }
         }
+    }
+
+    /// <summary>The longest a batch's systems may have taken together last time and still run on the calling thread.</summary>
+    /// <remarks>
+    /// Handing a batch to the thread pool costs tens of microseconds when the pool is idle, and the
+    /// calling thread waits for the tasks it queued even once it has run every system itself. While
+    /// a level's files load, those tasks queued behind the loads, and a batch of five systems taking
+    /// microseconds took 20 to 47 milliseconds.
+    /// </remarks>
+    public const double SequentialBatchMilliseconds = 0.5;
+
+    private static bool Light(List<SystemDescriptor> batch)
+    {
+        double total = 0;
+        foreach (var desc in batch) total += desc.LastMilliseconds;
+        return total < SequentialBatchMilliseconds;
     }
 
     /// <summary>
@@ -206,6 +222,7 @@ public sealed partial class Schedule
             desc.LastRunTick = tick;
         }
         sw.Stop();
+        desc.LastMilliseconds = sw.Elapsed.TotalMilliseconds;
         Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);
     }
 }
