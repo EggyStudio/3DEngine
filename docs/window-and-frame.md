@@ -155,6 +155,7 @@ Every program built on the engine takes the same flags, so one can run where not
 | `--offscreen` | Rendering with no window and no display, as on a server or in CI |
 | `--headless` | With no window and no GPU, the logic and the ECS only |
 | `--frames N` | For N frames, then closing |
+| `--frame-time S` | With each frame S seconds long, whatever the machine takes, so a run repeats frame for frame |
 
 `TakeScreenshot("frame.png")` writes the frame being drawn to a file once it is presented. The
 `e3d` tool in the repository drives a running program from the terminal, which is how the

@@ -8,15 +8,19 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `8520dbe1`. A first game told from an empty folder (`d5d2578d`) is settled on the
-reply, which was read. Each step being a whole program the workflow builds and runs, with the page
-held to those programs line for line, is what keeps a tutorial true after the API moves. Collision
-layers (`8520dbe1`) were read. The narrow phase, a character's ground and a ray cast past a body
-ask one table, and a handle given out again goes back to layer 0. Verdict 5 is about them.
+Reviewed up to `53cd565f`. Four commits are settled on their replies, which were read: a fast body
+swept over each step (`799a9d56`), a slider joint (`979c97be`), a model spawned again by hot
+reload (`5b2234d2`) and how hard a pair presses (`53cd565f`). The sweep says what was measured, at
+which speed a wall of which thickness holds, and the hot reload's test found the copy losing its
+parent behind the fault it was written for. Verdict 6 is about the number the last one returns.
+With them TODO.md's Physics section is through, so the Now list has a new long item in its place.
 
 The owner brought back the Windows run of `db942962`, in which 2 of 1077 tests failed. Neither was
 bad luck. One is a fault in the engine that a game running at 50 or at 144 frames a second has, and
-the other is a file handle that leaves the process. Verdicts 1 to 4 are about them.
+the other is a file handle that leaves the process. Verdicts 1 to 4 are about them. The owner
+pushed `main` up to `5b2234d2` on 2026-10-05, so a run is under way that draws on Windows and
+macOS for the first time and has none of the four mended, and the platform test is likely to be
+red in it again.
 
 ## Now
 
@@ -24,22 +28,35 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the Windows run says**, which is Verdicts 1 to 4 in that order, after the commit in
-   hand. The clock comes first because the other three are measured with it.
-2. **Verdict 5**, a body asleep when a layer changes.
+1. **What the Windows run says**, which is Verdicts 1 to 4 in that order. The clock comes first
+   because the other three are measured with it.
+2. **Verdicts 5 and 6**, a body asleep when a layer changes and the number a pair's press
+   returns, the second before a package carries the function.
 3. **A picture in the README opens the example's own source.** The owner chose this for
    BevyCSharp on 2026-10-05 over the live demos, so that a picture leads to the program that drew
    it and nothing is cached from another project's site, and the reason holds here word for word.
-   Each of the 26 pictures in the gallery links to the file that holds its example, as a full
-   address under `https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/`, the
-   README being the package's page too. The links to raylib's site go, with
-   `build/raylib-examples.sh`, `build/raylib-examples.txt`, their paragraph in BUILDING.md and the
-   comparison in `DocumentLinkTests`, which holds every picture to a link whose file is in the
-   checkout instead, with no request made. The sentence above the gallery says a picture opens
-   the program that drew it.
-4. **TODO.md's Physics and Scenes sections**, entry by entry in the order a game meets them,
-   each with its test and its line in the guide. A ray and an overlap asked for a layer by its
-   number belong with the layers, a ray learning its layer today only from a body it is cast past.
+   Each picture in the gallery links to the file that holds its example, as a full address under
+   `https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/`, the README being the
+   package's page too. The links to raylib's site go, with `build/raylib-examples.sh`,
+   `build/raylib-examples.txt`, their paragraph in BUILDING.md and the comparison in
+   `DocumentLinkTests`, which holds every picture to a link whose file is in the checkout
+   instead, with no request made. The sentence above the gallery says a picture opens the program
+   that drew it. BevyCSharp did the same in its `57fc7e9`.
+4. **raylib's own examples, one by one, as the measure.** `coverage.py` counts raylib's functions,
+   491 of 619 carried, and nothing counts its examples, of which 45 programs here carry a few.
+   BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from Bevy's own
+   list, and writing them one by one found faults no test had. The same here: a table of every
+   example in the `examples/` folder of the raylib checkout `build/raylib-bench/run.sh` pins,
+   made by a script, each row saying whether it is written, written in part, can be written
+   with what the flat API has, is missing something, or does not apply, with the count at its
+   head. An example written keeps raylib's name, its window of 800 by 450 and its scene, is
+   opened by name and captured as the others are, and its picture is set beside the screenshot
+   raylib keeps next to each example's source. A function it calls that the flat API lacks is
+   carried, or its row says why not, which is TODO.md's entry on the 128 functions taken from
+   the side a program meets them. A picture that differs from raylib's for no known reason is
+   taken down to the smallest program that still differs and explained before the pass goes
+   on. Many a batch, a module at a time, and it is the item to come back to whenever the ones
+   above are through.
 5. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
@@ -47,8 +64,8 @@ for a reply. In this order.
    engine's own list names: an `e3d eval` that compiles a line or a file against the running
    world through the script compiler already there, for looking at and changing a game while it
    runs.
-7. **TODO.md's order** for everything else, and another game only when it is of a kind that
-   uses what none of the seven has.
+7. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
+   and another game only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -184,6 +201,19 @@ changes the layer and finds the crate falling. A body whose layer or trigger cha
 the bodies within its bounds when it is a static, and a change to which layers collide wakes the
 bodies on the two.
 
+**6. `GetPhysicsContactImpulse` adds a twist and the friction to a push.** `ImpulseSum` adds the
+size of every number the solver keeps for the pair, which for two convex shapes are two of
+friction along the surface, one of twist about the normal and one of push for each contact. A
+twist is an impulse of turning, in other units, and the two of friction are parts of one vector,
+so the sum is the pair's weight times the step only while nothing slides or spins. The summary
+says the number over the step is the force between them, which then does not hold. The push
+alone is what a pressure plate and a thing that breaks read, the sum of each contact's
+penetration impulse, which Bepu hands over through `TryExtractSolverContactData` and
+`GetPenetrationImpulseForContact`. Friction, where a game asks for it, is a number of its own. A
+test drags a crate across a plate and finds it pressing by its weight times the step, as it does
+at rest. `PublicApi.txt` has the function since `53cd565f`, so it is changed before a package
+carries it.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -211,42 +241,17 @@ bodies on the two.
 
 ## Replies
 
-**A fast body through a thin wall.** Measured first: every body's contacts reached a tenth of a
-unit ahead, so a ball of 20 units a second crossed a wall a fifth of a unit thick.
-`SetPhysicsBodyContinuous`, and a `RigidBody`'s `Continuous` in scene files, sweep a body with
-Bepu's continuous mode and its margin unbounded, which stops it at a wall of any thickness at 50
-units a second, a fifth of a unit's at 100 and half a unit's at 300. Past that a 30 Hz contact
-spring, the stiffest a sixtieth's step solves, stops it over a step rather than at once, which the
-documents say, pointing a bullet at a ball cast. It stays a choice per body rather than every
-body's, since it costs a sweep test a pair, and the games' bodies keep what they were tuned with.
-A test finds a ball at 40 crossing a thin wall plain and stopping swept.
-
-**A slider.** `CreatePhysicsSliderJoint`, `SetPhysicsSliderLimits`, `SetPhysicsSliderMotor` and
-`GetPhysicsSliderPosition`, and a scene `Joint` of kind `Slider` along the joint entity's up with
-its limits and motor in the existing fields: Bepu's point-on-line servo keeps the second body on a
-line through where it started, an angular servo keeps it from turning, and a linear axis limit and
-motor are added and replaced as the hinge's are. A test drives a lift's car to its upper limit,
-pushed and twisted on the way and staying on its line unturned, then back to its lower limit, and a
-scene file's slider turned to run along X reaches its limit there. With it the entry on motors
-goes, since a hinge and a slider are the joints a game drives. `PublicApi.txt` gains four
-functions and an enum member.
-
-**A scene spawned again by hot reload.** The copy `SceneHotReloadSystem` spawns in place of a model
-written while it runs now loads its textures through the spawn that collects them, and
-`AssetRelease` holds them by its entities, as the first copy's were held, so the old copy's are
-given back after the grace and a level edited over and over no longer grows. Writing the test
-found a second fault behind it: the new copy was spawned with no parent, so it lost the place of
-the entity that put the model there and outlived that entity. It is hung under the old copy's
-owner now. The test reports the model modified, sees the copy spawned again under its owner, and
-finds the texture let go once the owner is despawned, which fails without the change. What is left
-of the entry is a program's own `SceneSpawner.Spawn` with an asset server, which TODO.md says.
-
-**How hard a pair presses.** `GetPhysicsContactImpulse(a, b)` is the impulse the last step gave a
-touching pair, read from Bepu's solver through the narrow phase's map of pairs to constraints, the
-sum of each contact's push and each friction's part. Bepu's own magnitude is their vector's
-length, which gave a box resting on four corners half its weight, which the test caught. A
-sleeping pair's contact is not in that map, so each pair asked about is remembered and a sleeping
-one answered with what it pressed when it slept. A pair first asked about while asleep is woken
-and answered from its next step, which the documents say. The test asks every frame while a 1 and
-a 10 kg box settle and sleep, then finds each pressing by its weight times the step. With it the
-Physics section's entries are done, and Scenes keeps a program's own spawn and migration.
+**Verdict 1, a clock a test steps.** `Time.FrameSeconds`, set from `Config.FrameSeconds`,
+`--frame-time S` or `E3D_FRAME_TIME`, makes each frame advance time by that many seconds and read
+no clock, the frame still paced by the clock so a window shows it at its rate. A test changes it
+for one frame to make a slow frame. `Engine3DPhysicsTests` run frames of a sixtieth, `RunUntil`
+being so many frames and the vehicle's `Steps` a frame a step, and finish in 3 seconds where they
+waited on the runner, and the particle sheet test makes its tenth-of-a-second frames with the clock
+where it slept. The waits that stay are on something outside the frame loop and say so: a probe's
+readback and prefilter on a worker (`OffscreenRenderTests`), files read on the asset server's
+worker (`BadFileTests`, `AssetReleaseTests`), the socket a request waits on (`CliTests`), the file
+watcher (`SceneRefTests`) and the window's resize settling (`WindowResizeTests`). Tests read the
+argument and the variable, and sixty frames of a sixtieth come to a second exactly with a tenth
+after it on purpose. `.claude/skills/e3d-cli/SKILL.md` lists the run flags too, and as an
+instruction file for agents it is left to the owner to add `--frame-time` to. `PublicApi.txt`
+gains `Config.FrameSeconds` and `Time.FrameSeconds`.

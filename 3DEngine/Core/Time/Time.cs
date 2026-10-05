@@ -39,6 +39,17 @@ public sealed class Time
     /// </summary>
     public double MaxDeltaSeconds { get; set; } = 0.25;
 
+    /// <summary>
+    /// Seconds each frame advances time by, when above 0, in place of the clock, as Bevy's manual
+    /// duration does. 0, unless <see cref="Config.FrameSeconds"/> sets it, reads the clock.
+    /// </summary>
+    /// <remarks>
+    /// A test sets it to count frames rather than wait on the machine, and sets it longer for one
+    /// frame to make a slow frame on purpose. The frame is still paced by the clock, so a window
+    /// shows it at its rate, and only what the frame says passed is set.
+    /// </remarks>
+    public double FrameSeconds { get; set; }
+
     /// <summary>Total wall-clock seconds since the app started.</summary>
     public double ElapsedSeconds { get; private set; }
 

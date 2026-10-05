@@ -118,4 +118,28 @@ public class TimeTests
         str.Should().Contain("Frame=1");
         str.Should().Contain("Elapsed=");
     }
+
+    [Fact]
+    public void A_Set_Frame_Time_Advances_Each_Frame_By_Itself_And_A_Slow_Frame_Can_Be_Made()
+    {
+        var app = new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 });
+        app.AddPlugin(new TimePlugin());
+        var time = app.World.Resource<Time>();
+        for (int i = 0; i < 60; i++)
+        {
+            app.BeginFrame();
+            app.EndFrame();
+        }
+        time.ElapsedSeconds.Should().BeApproximately(1, 1e-9, "sixty frames of a sixtieth, however long they took");
+        time.DeltaSeconds.Should().BeApproximately(1.0 / 60, 1e-12);
+        app.World.Resource<FixedTime>().Accumulator.Should().BeLessThan(1e-9, "a step's time a frame, stepped through each frame");
+
+        // One frame a tenth of a second long, on purpose.
+        time.FrameSeconds = 0.1;
+        app.BeginFrame();
+        app.EndFrame();
+        time.DeltaSeconds.Should().BeApproximately(0.1, 1e-12);
+        time.ElapsedSeconds.Should().BeApproximately(1.1, 1e-9);
+        app.Shutdown();
+    }
 }

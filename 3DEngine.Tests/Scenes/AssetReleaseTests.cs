@@ -39,6 +39,7 @@ public sealed class AssetReleaseTests : IDisposable
         {
             _app.BeginFrame();
             _app.EndFrame();
+            // Models and textures load on the asset server's worker, outside the frame loop.
             Thread.Sleep(2);
         }
     }

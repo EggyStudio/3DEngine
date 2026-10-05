@@ -8,7 +8,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// Registers a <see cref="Time"/> resource in the world and a system that measures
-/// elapsed wall-clock time using <see cref="System.Diagnostics.Stopwatch"/>.
+/// elapsed wall-clock time using <see cref="System.Diagnostics.Stopwatch"/>, or advances it by
+/// <see cref="Time.FrameSeconds"/> a frame where that is set, reading no clock.
 /// The system clamps large deltas (e.g., debugger pauses) via <see cref="Time.MaxDeltaSeconds"/>.
 /// </remarks>
 /// <example>
@@ -38,17 +39,21 @@ internal sealed class TimePlugin : IPlugin
         Logger.Info("TimePlugin: Registering Time resource and frame-timing system.");
         app.World.InitResource<Time>();
         app.World.InitResource<FixedTime>();
+        if (app.World.TryGetResource<Config>(out var config)) app.World.Resource<Time>().FrameSeconds = config.FrameSeconds;
 
         var watch = Stopwatch.StartNew();
-        double lastElapsed = 0.0;
+        double lastClock = 0.0;
+        double elapsed = 0.0;
 
         app.AddSystem(Stage.First, new SystemDescriptor(world =>
             {
-                double now = watch.Elapsed.TotalSeconds;
-                double rawDelta = now - lastElapsed;
-                lastElapsed = now;
-            
                 var time = world.Resource<Time>();
+                double clock = watch.Elapsed.TotalSeconds;
+                double rawDelta = time.FrameSeconds > 0 ? time.FrameSeconds : clock - lastClock;
+                lastClock = clock;
+                elapsed += rawDelta;
+                double now = elapsed;
+
                 time.Update(now, rawDelta);
                 world.Resource<FixedTime>().Accumulate(time.DeltaSeconds);
             }, "TimePlugin.Update")

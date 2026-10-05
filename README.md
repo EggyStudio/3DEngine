@@ -238,7 +238,8 @@ without opening a visible window:
 ./e3d stop
 ```
 
-Programs take `--serve`, `--hidden`, `--offscreen`, `--headless` and `--frames N`, and a game adds commands with
+Programs take `--serve`, `--hidden`, `--offscreen`, `--headless`, `--frames N` and
+`--frame-time S`, and a game adds commands with
 `[Command]` on a static method. [The skill](https://github.com/EggyStudio/3DEngine/blob/main/.claude/skills/e3d-cli/SKILL.md) lists the commands.
 
 ## Building

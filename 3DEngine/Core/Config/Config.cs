@@ -98,6 +98,14 @@ public sealed record Config
     /// <summary>Frames per second a headless app runs at, so it does not spin a core. Defaults to 60.</summary>
     public double HeadlessFps { get; init; } = 60;
 
+    /// <summary>
+    /// Seconds each frame advances time by, when above 0, in place of the clock, so a run steps the
+    /// same on every machine, frame for frame, as a test or a capture of something moving needs.
+    /// Also set by <c>--frame-time SECONDS</c> or <c>E3D_FRAME_TIME</c>. <see cref="Time.FrameSeconds"/>
+    /// changes it while the app runs.
+    /// </summary>
+    public double FrameSeconds { get; init; }
+
     /// <summary>Returns a copy with the provided window properties.</summary>
     /// <param name="title">Window title bar text.</param>
     /// <param name="width">Window width in pixels.</param>

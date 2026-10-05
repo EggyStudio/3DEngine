@@ -7,10 +7,10 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The flags are <c>--serve</c>, <c>--headless</c>, <c>--offscreen</c>, <c>--hidden</c> and
-/// <c>--frames N</c>, and the variables <c>E3D_SERVE</c>, <c>E3D_HEADLESS</c>,
-/// <c>E3D_OFFSCREEN</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>, <c>true</c>, <c>yes</c>, <c>on</c>)
-/// and <c>E3D_FRAMES</c>. A flag or variable only turns a mode on, so a
+/// The flags are <c>--serve</c>, <c>--headless</c>, <c>--offscreen</c>, <c>--hidden</c>,
+/// <c>--frames N</c> and <c>--frame-time SECONDS</c>, and the variables <c>E3D_SERVE</c>,
+/// <c>E3D_HEADLESS</c>, <c>E3D_OFFSCREEN</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>, <c>true</c>,
+/// <c>yes</c>, <c>on</c>), <c>E3D_FRAMES</c> and <c>E3D_FRAME_TIME</c>. A flag or variable only turns a mode on, so a
 /// program that sets <see cref="Config.Serve"/> itself stays served.
 /// </para>
 /// <para>
@@ -35,6 +35,12 @@ internal static class RunMode
         if (index >= 0 && index + 1 < arguments.Length && ulong.TryParse(arguments[index + 1], out var given)) frames = given;
         else if (ulong.TryParse(Variable("E3D_FRAMES"), out var variable)) frames = variable;
 
+        var frameSeconds = config.FrameSeconds;
+        var at = Array.IndexOf(arguments, "--frame-time");
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        if (at >= 0 && at + 1 < arguments.Length && double.TryParse(arguments[at + 1], invariant, out var seconds)) frameSeconds = seconds;
+        else if (double.TryParse(Variable("E3D_FRAME_TIME"), invariant, out var variableSeconds)) frameSeconds = variableSeconds;
+
         var offscreen = config.Offscreen || Asked(arguments, "--offscreen", "E3D_OFFSCREEN");
         return config with
         {
@@ -43,6 +49,7 @@ internal static class RunMode
             Offscreen = offscreen,
             Hidden = config.Hidden || Asked(arguments, "--hidden", "E3D_HIDDEN"),
             Frames = frames,
+            FrameSeconds = Math.Max(0, frameSeconds),
         };
     }
 

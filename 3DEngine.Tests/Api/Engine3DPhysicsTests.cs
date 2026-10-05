@@ -5,14 +5,17 @@ using static Engine.Engine3D;
 
 namespace Engine.Tests.Api;
 
-/// <summary>Physics through the flat API, in a headless app whose frames run the fixed steps.</summary>
+/// <summary>
+/// Physics through the flat API, in a headless app whose frames run the fixed steps, each frame a
+/// sixtieth of a second by the clock it is set to, so a test counts frames and not the machine's time.
+/// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Integration")]
 public sealed class Engine3DPhysicsTests : IDisposable
 {
     public Engine3DPhysicsTests()
     {
-        var config = Config.Default with { Headless = true, HeadlessFps = 240 };
+        var config = Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 1.0 / 60 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
@@ -22,11 +25,10 @@ public sealed class Engine3DPhysicsTests : IDisposable
         UseApp(null);
     }
 
-    // Runs frames until the condition holds or two seconds of real time pass.
-    private static bool RunUntil(Func<bool> condition)
+    // Runs frames, a sixtieth of a second each, until the condition holds or two seconds of them pass.
+    private static bool RunUntil(Func<bool> condition, int frames = 120)
     {
-        var clock = Stopwatch.StartNew();
-        while (clock.Elapsed < TimeSpan.FromSeconds(2))
+        for (int frame = 0; frame < frames; frame++)
         {
             BeginDrawing();
             var done = condition();
@@ -35,6 +37,9 @@ public sealed class Engine3DPhysicsTests : IDisposable
         }
         return false;
     }
+
+    // Runs frames, a sixtieth of a second each.
+    private static void Frames(int count) => RunUntil(() => false, count);
 
     [Fact]
     public void A_Push_At_A_Corner_Turns_A_Body_And_A_Ray_Can_Look_Past_It()
@@ -354,8 +359,7 @@ public sealed class Engine3DPhysicsTests : IDisposable
         ApplyPhysicsImpulseAt(car, new Vector3(30, 0, 10), new Vector3(0.5f, 1.5f, 0.5f));
 
         RunUntil(() => GetPhysicsSliderPosition(lift) > 2.95f).Should().BeTrue("a positive speed drives it toward the axis's tip, up to its upper limit");
-        var held = Stopwatch.StartNew();
-        RunUntil(() => held.Elapsed.TotalSeconds > 0.5);
+        Frames(30);
         GetPhysicsSliderPosition(lift).Should().BeApproximately(3, 0.05f, "the limit holds it against the motor");
         var at = GetPhysicsBodyPosition(car);
         new Vector2(at.X, at.Z).Length().Should().BeLessThan(0.02f, "pushed sideways it stays on its line");
@@ -375,12 +379,12 @@ public sealed class Engine3DPhysicsTests : IDisposable
         var away = CreatePhysicsBox(new Vector3(0, 5, 20), Vector3.One);
         // Asked about every frame while they settle and fall asleep, as a pressure plate is, each
         // pair goes on being answered with what it pressed when it slept.
-        var settled = Stopwatch.StartNew();
+        var settled = 0;
         RunUntil(() =>
         {
             GetPhysicsContactImpulse(light, floor);
             GetPhysicsContactImpulse(floor, heavy);
-            return settled.Elapsed.TotalSeconds > 1.5;
+            return ++settled > 90;
         });
         var physics = GetApp().World.Resource<PhysicsWorld>();
         physics.Simulation.Bodies[new BepuPhysics.BodyHandle(light.Handle)].Awake.Should().BeFalse("a second and a half at rest puts it to sleep");
@@ -552,17 +556,8 @@ public sealed class Engine3DPhysicsTests : IDisposable
     {
         CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(400, 1, 400));
         var car = CreatePhysicsVehicle(new Vector3(0, 1.2f, 0), new Vector3(1.8f, 0.6f, 3.8f));
-        // Frames for this many sixtieths of a second, since the physics steps by the time that passes.
-        void Steps(int sixtieths)
-        {
-            var clock = Stopwatch.StartNew();
-            while (clock.Elapsed.TotalSeconds < sixtieths / 60.0)
-            {
-                BeginDrawing();
-                EndDrawing();
-                Thread.Sleep(1);
-            }
-        }
+        // Frames of a sixtieth of a second, a step each.
+        void Steps(int sixtieths) => Frames(sixtieths);
 
         // At rest it hangs on its four springs, every wheel on the ground, level.
         Steps(120);

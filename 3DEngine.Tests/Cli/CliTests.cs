@@ -145,7 +145,14 @@ public sealed class CliTests : IDisposable
             config.Hidden.Should().BeTrue();
             config.Headless.Should().BeFalse();
             config.Frames.Should().Be(90UL);
+            config.FrameSeconds.Should().Be(0, "the clock is read unless asked otherwise");
             RunMode.Describe(config).Should().Be("hidden");
+
+            RunMode.Arguments = () => ["game", "--frame-time", "0.02"];
+            RunMode.Apply(Config.Default).FrameSeconds.Should().Be(0.02);
+            RunMode.Arguments = () => ["game"];
+            RunMode.Variable = name => name == "E3D_FRAME_TIME" ? "0.0125" : null;
+            RunMode.Apply(Config.Default).FrameSeconds.Should().Be(0.0125);
         }
         finally
         {

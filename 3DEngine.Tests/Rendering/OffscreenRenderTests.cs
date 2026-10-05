@@ -1341,6 +1341,7 @@ public sealed class OffscreenRenderTests : IDisposable
             BeginDrawing();
             Draw();
             EndDrawing();
+            // The capture is read back and prefiltered on a worker, outside the frame loop.
             Thread.Sleep(5);
         }
         IsReflectionProbeReady(probe).Should().BeTrue("the probe is captured, read back and prefiltered within a few frames");
@@ -1383,6 +1384,7 @@ public sealed class OffscreenRenderTests : IDisposable
                 BeginDrawing();
                 Draw();
                 EndDrawing();
+                // A capture is prefiltered on a worker, outside the frame loop.
                 Thread.Sleep(5);
             }
         }
@@ -1431,6 +1433,7 @@ public sealed class OffscreenRenderTests : IDisposable
             EndTextureMode();
             ClearBackground(Color.Black);
             EndDrawing();
+            // The capture is read back and prefiltered on a worker, outside the frame loop.
             Thread.Sleep(5);
         }
         IsReflectionProbeReady(probe).Should().BeTrue("a probe captures the meshes a render texture draws when the window draws none");
@@ -1469,6 +1472,7 @@ public sealed class OffscreenRenderTests : IDisposable
             BeginDrawing();
             Draw();
             EndDrawing();
+            // The capture is read back and prefiltered on a worker, outside the frame loop.
             Thread.Sleep(5);
         }
         IsReflectionProbeReady(probe).Should().BeTrue();

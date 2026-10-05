@@ -112,6 +112,7 @@ public sealed class BadFileTests : IDisposable
                         {
                             BeginDrawing();
                             EndDrawing();
+                            // The file is read on the asset server's worker, outside the frame loop.
                             Thread.Sleep(5);
                         }
                         if (state() == LoadState.Loaded && kind != "cut short") wrong.Add($"{name}, {kind} file: loaded");
@@ -142,6 +143,7 @@ public sealed class BadFileTests : IDisposable
                         {
                             BeginDrawing();
                             EndDrawing();
+                            // The file is read on the asset server's worker, outside the frame loop.
                             Thread.Sleep(5);
                         }
                         if (!Named(before, Path.GetFileName(path)) && kind != "cut short") wrong.Add($"{name}, {kind} file: no message naming the file");

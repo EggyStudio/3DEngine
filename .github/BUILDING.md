@@ -39,6 +39,7 @@ Every program built on the engine reads these flags, or the variables beside the
 | `--offscreen` | `E3D_OFFSCREEN=1` | no window and no display needed, rendering into images of the device's own, so captures work on CI and over SSH |
 | `--headless` | `E3D_HEADLESS=1` | no window and no renderer, frames paced at 60 per second |
 | `--frames N` | `E3D_FRAMES=N` | closes after N frames |
+| `--frame-time S` | `E3D_FRAME_TIME=S` | each frame advances time by S seconds and reads no clock, so a run steps alike on every machine |
 
 `./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
 `.claude/skills/e3d-cli/SKILL.md` covers driving it.

@@ -367,6 +367,7 @@ sealed class Engine.Config : IEquatable<Config>
   bool Topmost { get; init; }
   bool Undecorated { get; init; }
   bool Vsync { get; init; }
+  double FrameSeconds { get; init; }
   double HeadlessFps { get; init; }
   int Samples { get; init; }
   override bool Equals(object? obj)
@@ -2579,6 +2580,7 @@ sealed class Engine.Time
   double DeltaSeconds { get; }
   double ElapsedSeconds { get; }
   double Fps { get; }
+  double FrameSeconds { get; set; }
   double MaxDeltaSeconds { get; set; }
   double RawDeltaSeconds { get; }
   double SmoothedFps { get; }

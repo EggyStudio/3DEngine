@@ -27,6 +27,7 @@ a program given by its path, serving, and returns once it is ready:
 | `--offscreen` | `E3D_OFFSCREEN=1` | Renders with no window and no display, as on a build server or over SSH |
 | `--headless` | `E3D_HEADLESS=1` | Has no window and no renderer, frames paced at 60 a second |
 | `--frames N` | `E3D_FRAMES=N` | Closes after N frames |
+| `--frame-time S` | `E3D_FRAME_TIME=S` | Advances time by S seconds a frame and reads no clock, so a capture of something moving is the same on every machine |
 
 A hidden or offscreen run draws everything a visible one does, so captures show the game as a
 player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close

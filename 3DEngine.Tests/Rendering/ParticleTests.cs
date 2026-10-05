@@ -26,7 +26,8 @@ public sealed class ParticleTests : IDisposable
 
     private static void Open()
     {
-        var config = Config.Default.WithWindow("particle test", 160, 120) with { Headless = true, Offscreen = true, Samples = 4 };
+        // Each frame a sixtieth of a second, so particles age by the frames drawn and not the machine.
+        var config = Config.Default.WithWindow("particle test", 160, 120) with { Headless = true, Offscreen = true, Samples = 4, FrameSeconds = 1.0 / 60 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
@@ -204,12 +205,11 @@ public sealed class ParticleTests : IDisposable
             Texture = texture, TextureColumns = 2, TextureRows = 1,
         });
         EmitParticles(emitter, 1);
-        // Frames over a tenth of a second apart, which particles are stepped by a tenth at most, so
-        // each frame ages it by a tenth: about 0.3 seconds at the first capture, and 1.3 at the
-        // second, with room either side for the frames a capture waits.
-        void Pace() => Thread.Sleep(110);
-        var early = GetImageColor(Capture(3, Pace), 80, 60);
-        var late = GetImageColor(Capture(10, Pace), 80, 60);
+        // Frames a tenth of a second long, so it is about 0.3 seconds old at the first capture and
+        // 1.3 at the second, with room either side for the frames a capture waits.
+        GetApp().World.Resource<Time>().FrameSeconds = 0.1;
+        var early = GetImageColor(Capture(3), 80, 60);
+        var late = GetImageColor(Capture(10), 80, 60);
 
         ((int)early.R).Should().BeGreaterThan(early.B + 100, $"early in its life it shows the first frame, not {early}");
         ((int)late.B).Should().BeGreaterThan(late.R + 100, $"late in its life the second, not {late}");
