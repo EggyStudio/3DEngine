@@ -263,3 +263,17 @@ a hook of its own, and one through the hook on every test, which expects its err
 with the ears bound to a thread. Another test's app is made on a thread started with the flow
 suppressed, which inherits nothing. The whole suite passed beside them, but for N 3.3 finding
 `Task.Delay` in the two, which await `Task.Yield` now.
+
+**Verdict 19, a script's generation kept.** The schedule's count of what was thrown is keyed by
+the type's full name. `ScriptGenerationTests` compiles a script whose update system throws a type
+of the script's own for twenty frames, compiles it again, and finds the first generation's load
+context collected. That found a second holder, which held the generation with the key mended.
+The behavior generator's module initializer runs in a script's assembly too, as its types are
+first touched, and added the script's registration to the process's `GeneratedBehaviors`, where
+it stayed for the process, held its generation, and was invoked by the `BehaviorsPlugin` of every
+app made after, registering a stale script into an app that never compiled it. A registration
+from a collectible assembly is passed over there now, the compiler registering the script into
+its own app as before, and the test finds the list holding none. Each mend alone leaves the
+test failing. The hook of N 3.7 keeps an exception as its type's name and message, where it kept
+the exception, which held a script's type for the length of the test. The suite through the
+script passes, 1,205 tests.

@@ -34,7 +34,9 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
 {
     private sealed class Heard
     {
-        public readonly ConcurrentQueue<(string Category, string Message, Exception? Exception)> Errors = new();
+        // An exception kept as its type's name and its message, since a type a script defines would
+        // keep the script's load context from unloading for as long as the test runs.
+        public readonly ConcurrentQueue<(string Category, string Message, string? Exception, string? ExceptionMessage)> Errors = new();
         public volatile bool Closed;
     }
 
@@ -63,7 +65,7 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
         Log.ErrorLogged += (category, message, exception) =>
         {
             var heard = App.Current is { } app && Apps.TryGetValue(app, out var made) ? made : Ears.Value;
-            if (heard is { Closed: false }) heard.Errors.Enqueue((category, message, exception));
+            if (heard is { Closed: false }) heard.Errors.Enqueue((category, message, exception?.GetType().Name, exception?.Message));
         };
     }
 
@@ -79,8 +81,8 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
 
         var expected = methodUnderTest.GetCustomAttributes<ExpectsErrorAttribute>().ToList();
         var errors = heard.Errors.ToList();
-        var unexpected = errors.Where(error => !expected.Any(e => e.Matches(error.Category, error.Message, error.Exception))).ToList();
-        var missing = expected.Where(e => !errors.Any(error => e.Matches(error.Category, error.Message, error.Exception))).ToList();
+        var unexpected = errors.Where(error => !expected.Any(e => e.Matches(error.Category, error.Message, error.ExceptionMessage))).ToList();
+        var missing = expected.Where(e => !errors.Any(error => e.Matches(error.Category, error.Message, error.ExceptionMessage))).ToList();
         var name = $"{methodUnderTest.DeclaringType?.FullName}.{methodUnderTest.Name}";
 
         if (Survey is not null)
@@ -102,8 +104,8 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
             throw new XunitException($"N 3.7: the engine logged {unexpected.Count} error{(unexpected.Count == 1 ? "" : "s")} during this test, the first: {Text(unexpected[0])}");
     }
 
-    private static string Text((string Category, string Message, Exception? Exception) error) =>
-        $"[{error.Category}] {error.Message}" + (error.Exception is { } ex ? $": {ex.GetType().Name}: {ex.Message}" : "");
+    private static string Text((string Category, string Message, string? Exception, string? ExceptionMessage) error) =>
+        $"[{error.Category}] {error.Message}" + (error.Exception is { } type ? $": {type}: {error.ExceptionMessage}" : "");
 }
 
 /// <summary>
@@ -116,7 +118,7 @@ public sealed class ExpectsErrorAttribute(string category, string part) : Attrib
     public string Category { get; } = category;
     public string Part { get; } = part;
 
-    internal bool Matches(string category, string message, Exception? exception) =>
+    internal bool Matches(string category, string message, string? exceptionMessage) =>
         category.StartsWith(Category, StringComparison.Ordinal)
-        && (message.Contains(Part, StringComparison.Ordinal) || (exception?.Message.Contains(Part, StringComparison.Ordinal) ?? false));
+        && (message.Contains(Part, StringComparison.Ordinal) || (exceptionMessage?.Contains(Part, StringComparison.Ordinal) ?? false));
 }

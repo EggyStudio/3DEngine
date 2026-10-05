@@ -17,8 +17,15 @@ public static class GeneratedBehaviors
     private static readonly List<Action<App>> Registrations = [];
 
     /// <summary>Adds an assembly's registration. The generated module initializer calls this.</summary>
+    /// <remarks>
+    /// A script compiled while an app runs loads into a collectible context, and its compiler
+    /// registers its behaviors into that app alone. Its own module initializer calls this as well,
+    /// and kept here it would register the script in every app made after, and keep the script's
+    /// generation from unloading for the life of the process, so it is passed over.
+    /// </remarks>
     public static void Add(Action<App> register)
     {
+        if (register.Method.Module.Assembly.IsCollectible) return;
         lock (Registrations)
             if (!Registrations.Contains(register)) Registrations.Add(register);
     }

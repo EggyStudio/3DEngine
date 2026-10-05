@@ -228,8 +228,9 @@ public sealed partial class Schedule
 
     // How often each system has thrown each type of exception in each stage. A system that throws
     // in every frame wrote its trace sixty times a second, into a player's log file as into a
-    // test's, so the first of each is logged whole and the rest are counted.
-    private readonly Dictionary<(Stage Stage, string System, Type Exception), long> _thrown = [];
+    // test's, so the first of each is logged whole and the rest are counted. The type is held by its
+    // name, since a type a script defines would keep the script's load context from unloading.
+    private readonly Dictionary<(Stage Stage, string System, string Exception), long> _thrown = [];
 
     // Logs an exception a system threw: whole the first time that system throws that type in that
     // stage, and after that a line at the 10th, the 100th, the 1,000th and so on.
@@ -238,7 +239,7 @@ public sealed partial class Schedule
         long count;
         lock (_thrown)
         {
-            var key = (stage, system, ex.GetType());
+            var key = (stage, system, ex.GetType().FullName ?? ex.GetType().Name);
             _thrown.TryGetValue(key, out count);
             _thrown[key] = ++count;
         }
@@ -260,9 +261,9 @@ public sealed partial class Schedule
     /// </summary>
     internal void ReportThrownTotals()
     {
-        KeyValuePair<(Stage Stage, string System, Type Exception), long>[] thrown;
+        KeyValuePair<(Stage Stage, string System, string Exception), long>[] thrown;
         lock (_thrown) thrown = [.. _thrown.Where(entry => entry.Value > 1)];
         foreach (var ((stage, system, type), count) in thrown)
-            Logger.Error($"System '{system}' threw {type.Name} in stage {stage} {count:N0} times in all");
+            Logger.Error($"System '{system}' threw {type[(type.LastIndexOf('.') + 1)..]} in stage {stage} {count:N0} times in all");
     }
 }
