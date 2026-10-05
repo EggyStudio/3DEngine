@@ -78,6 +78,35 @@ here, with the reason.
 | A render texture's samples | One, so what is drawn into it has hard edges | The window's, resolved into the texture, so its edges are smoothed as the window's are | The window's pipelines, made for one count of samples, draw into it as they are |
 | A texture's filter before `SetTextureFilter` | `TEXTURE_FILTER_POINT`, every texel a sharp square | `TextureFilter.Bilinear`, blended between texels | A model's textures and a scaled image are smooth without a call, and pixel art sets `Point` |
 
+## raymath
+
+raymath's functions are C#'s own where `System.Numerics` has them, and the package carries the
+39 it has no counterpart for under raymath's names, which the cheatsheet's Math section lists. A
+raymath `Matrix` is a `Matrix4x4`, its field `m(4r + c)` being `M(r+1)(c+1)`, so a translation is
+in `M41` to `M43` in both and `MatrixMultiply(a, b)` is `a * b`. `RayMathTests` holds the rotations
+and `MatrixLookAt` below to raymath's own arithmetic.
+
+| raymath | C# | Where it answers otherwise |
+|---|---|---|
+| `Clamp`, `Lerp` | `Math.Clamp`, `float.Lerp` | |
+| `Vector2Zero`, `Vector2One`, and the same of `Vector3` and `Vector4` | `Vector2.Zero`, `Vector2.One` and so on | |
+| `Vector2Add`, `Subtract`, `Scale`, `Multiply`, `Divide` and `Negate`, and the same of the others | `+`, `-`, `*`, `/` and unary `-` | |
+| `Vector2AddValue`, `SubtractValue`, and the same of the others | `v + new Vector2(value)` and so on | |
+| `Vector2Length`, `LengthSqr`, `DotProduct`, `Distance` and `DistanceSqr`, and the same of the others | `v.Length()`, `v.LengthSquared()`, `Vector2.Dot`, `Vector2.Distance`, `Vector2.DistanceSquared` | |
+| `Vector2Normalize`, `Vector3Normalize`, `Vector4Normalize`, `QuaternionNormalize` | `Vector2.Normalize` and the others' | A vector of length zero gives NaN, where raymath gives it back as it is |
+| `Vector2Transform`, `Vector3Transform` | `Vector2.Transform`, `Vector3.Transform` | |
+| `Vector2Lerp`, `Reflect`, `Min`, `Max`, `Clamp`, `Invert`, and the same of the others | `Vector2.Lerp`, `Reflect`, `Min`, `Max`, `Clamp`, and `Vector2.One / v` | |
+| `Vector3CrossProduct`, `Vector3RotateByQuaternion` | `Vector3.Cross`, `Vector3.Transform(v, q)` | |
+| `Vector3ToFloatV`, `MatrixToFloatV` | The fields, `X` to `Z` and `M11` to `M44` | |
+| `MatrixDeterminant`, `Transpose`, `Invert`, `Identity`, `Add`, `Subtract`, `Multiply`, `MultiplyValue` | `m.GetDeterminant()`, `Matrix4x4.Transpose`, `Matrix4x4.Invert(m, out inverse)`, `Matrix4x4.Identity`, `+`, `-`, `*` | |
+| `MatrixTranslate`, `Scale`, `RotateX`, `RotateY`, `RotateZ`, `LookAt` | `Matrix4x4.CreateTranslation`, `CreateScale`, `CreateRotationX`, `CreateRotationY`, `CreateRotationZ`, `CreateLookAt` | |
+| `MatrixRotate`, `QuaternionFromAxisAngle` | `Matrix4x4.CreateFromAxisAngle`, `Quaternion.CreateFromAxisAngle` | The axis is to be of length one, which raymath makes it |
+| `MatrixPerspective`, `MatrixOrtho`, `MatrixFrustum` | `Matrix4x4.CreatePerspectiveFieldOfView`, `CreateOrthographicOffCenter`, `CreatePerspectiveOffCenter` | Depth clipped from 0 to 1, as Vulkan clips it, where raymath's is from -1 to 1, as OpenGL's |
+| `MatrixDecompose` | `Matrix4x4.Decompose(m, out scale, out rotation, out translation)` | |
+| `QuaternionIdentity`, `Length`, `Invert`, `Multiply` | `Quaternion.Identity`, `q.Length()`, `Quaternion.Inverse`, `*` | |
+| `QuaternionNlerp`, `QuaternionSlerp` | `Quaternion.Lerp`, `Quaternion.Slerp` | raymath's `QuaternionLerp`, not made of length one, is carried |
+| `QuaternionFromMatrix`, `QuaternionToMatrix` | `Quaternion.CreateFromRotationMatrix`, `Matrix4x4.CreateFromQuaternion` | |
+
 ## Measured
 
 Taken on 2026-10-04 on an Intel Core i9-14900HX with an NVIDIA GeForce RTX 4070 Laptop GPU (driver

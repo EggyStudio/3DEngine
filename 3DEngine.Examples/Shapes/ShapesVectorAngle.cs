@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using static Engine.Engine3D;
-using static Engine.Examples.RayMath;
 
 namespace Engine.Examples;
 

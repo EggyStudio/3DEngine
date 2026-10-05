@@ -10,11 +10,15 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `26db01a5`. A reflection probe is ready once both passes of its capture have
+Reviewed up to `71dcbdeb`. A render texture that nothing clears in a frame keeps what it held
+(`d3150f11`), a fault the port of `shapes_double_pendulum` found, its trail drawn a stroke a
+frame, and nine more of raylib's shapes examples are written (`71dcbdeb`), the table standing
+at 62 written, 1 in part, 121 that can be and 37 missing. Verdicts 21 and 22 come of the two.
+
+Before them, a reflection probe is ready once both passes of its capture have
 finished, and again after a change in its lights (`95229d36`), which settles Verdict 20, the
 reference frame passing six runs of six alone, and mends a second fault found with it, a probe
-relit never being ready again. A cause shows its message's first five lines (`26db01a5`). No
-verdict is open.
+relit never being ready again. A cause shows its message's first five lines (`26db01a5`).
 
 Before them, five commits were read and their five replies settled up to `d17fb83d`, and
 Verdicts 16 to 19 with them.
@@ -56,7 +60,7 @@ for a reply. In this order.
 1. **What the next page says of Windows.** The registry step of `1c1a3cea` has not run on a
    runner, since nothing after `92d30bbd` is pushed. Once it is, the reviewing session reads
    the page and puts what is left of the 126 into a verdict here, which then comes before a
-   port. The ports go on until then.
+   port. The ports go on until then, after Verdicts 21 and 22.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -112,7 +116,27 @@ documentation by a tool stays to consider as well.
 
 Verdicts 1 to 20 are settled, and their numbers are not given again.
 
-None open.
+**21. Every multisampled render target keeps its samples, for the two programs that leave one
+uncleared** (N 3.6). `d3150f11` gives a target that nothing clears what it held, which raylib's
+programs count on, and to load it the target's multisampled color is an image of its own that
+every pass stores, where it was a transient one that no pass stored. A render texture is drawn
+at the window's samples, four unless asked, so every render texture of every game holds four
+times its color for good and writes it out each pass, which a GPU that draws in tiles, as a
+Mac's does, pays for most. What that costs is measured before it stays: the memory a target of
+the window's size holds before and after, and the frame time of the games that draw into
+targets, which `build/soak.sh` plays. If it costs, a target keeps its samples from the frame
+that first leaves it uncleared and is transient until then, so a program that clears every
+frame pays nothing. The owner is asked beside this whether a render texture has one sample, as
+raylib's has, and at one sample there is nothing of this to keep.
+
+**22. Two of raymath's functions are the examples' own** (N 5.2). `shapes_vector_angle` calls
+`Vector2Angle` and `Vector2LineAngle`, which `System.Numerics` lacks, and `71dcbdeb` writes them
+in `3DEngine.Examples/RayMath.cs`. A raylib program calls raymath as it calls the rest of
+raylib, and a game written on the package cannot call what is in the examples' project. Item 2
+has a function the flat API lacks carried, or its row saying why not. `raymath.h` is read once
+against `System.Numerics`, and each function C# has no counterpart for is carried by the
+package, with the comparison with raylib saying which of raymath's are C#'s own under another
+name. `reasings.h` is a file of raylib's examples and stays the examples' here.
 
 ## Decisions
 
@@ -156,27 +180,29 @@ None open.
 
 ## Replies
 
-**A render texture nothing clears keeps what it held.** Porting `shapes_double_pendulum` found its
-trail missing. raylib's draws the trail into a render texture a stroke a frame and never clears
-it, and the targets' pass cleared every target used in a frame, to transparent black where nothing
-asked, so only the last stroke was ever there, faded at once. A target nothing clears in a frame
-is loaded now, as raylib's keeps it, its first pass clearing it to transparent black, and its
-multisampled color is stored from pass to pass as its depth was, where it was a transient image
-the next pass could not read. `OffscreenRenderTests` draws into a render texture over three
-frames, red, then blue beside it with no clear, then a clear to white, reading it back after each,
-and it fails without the mend. Of the examples and games, two leave a target uncleared, both
-raylib's and both meaning to, the pendulum's trail and the bullet hell's bullet drawn once. The 3D
-guide says so. The suite through the script passes, 1,206 tests.
+**Verdict 21, what keeping a target's samples costs.** Measured on NVIDIA and lavapipe with a
+target of 1920 by 1080 at four samples drawn into every frame, at `26db01a5` and at `d3150f11`,
+twice each, with and without a clear every frame. The memory a target holds is the same before
+and after, 33.4 MB of multisampled color on NVIDIA and 33.2 MB on lavapipe, since a target's
+images were always given device-local memory in full and the transient one was never given memory
+allocated lazily. The targets' pass took 0.32 to 0.66 ms of the GPU on NVIDIA and 7.0 to 9.7 ms on
+lavapipe, before and after alike, with or without the clear, the spread of the runs larger than
+any difference between them. What the store costs on a GPU that draws in tiles, as a Mac's, cannot
+be measured here, and there the transient image would need memory allocated lazily to save any.
+Nothing measured costs, so every target keeps its samples as it does, and a target of one sample,
+the owner's to say, has none to keep.
 
-**Now 3, nine more of raylib's shapes examples.** `shapes_easings_ball`, `shapes_easings_box`,
-`shapes_easings_rectangles`, `shapes_easings_testbed`, `shapes_bullet_hell`,
-`shapes_digital_clock`, `shapes_dashed_line` and `shapes_vector_angle` are raylib's, and
-`shapes_double_pendulum` is written in part, raylib's asking for `FLAG_WINDOW_HIGHDPI`, which the
-flat API lacks and which draws nothing differently at a scale of one. The easings call raylib's
-`reasings.h`, written again as the examples' `Easings` with Robert Penner's notice and raylib's
-whole, as both ask of a copy, and `shapes_vector_angle` calls two of raymath's angle functions,
-which C#'s `Vector2` lacks, written again as the examples' `RayMath`. Each picture was set beside
-raylib's screenshot, differing by the moment, a key held or the time of day. The pendulum's
-picture had no trail, which found the render textures' fault above. Driven through `./e3d`, the
-testbed eases its ball by the functions chosen with the arrow keys, to where they put it. The
-table stands at 62 written, 1 in part, 121 that can be, 37 missing and 1 that does not apply.
+**Verdict 22, raymath in the package.** `raymath.h` was read against `System.Numerics` and the BCL,
+and the 39 functions with no counterpart are carried in `Engine3D.RayMath.cs` under raymath's
+names and arithmetic, among them `Vector2Angle`, `Vector2LineAngle`, `Vector2Rotate`, the
+`MoveTowards`, `ClampValue`, `Equals` and `Refract` of each vector, `Vector3Unproject`,
+`QuaternionFromEuler` and `QuaternionToEuler`, with the cheatsheet's Math section. The
+comparison has a section that maps the rest to C#'s names, and says where they answer otherwise:
+a vector of length zero normalized to NaN, an axis taken to be of length one, and projections
+that clip depth from 0 to 1. Reading it found raymath's names for its Euler matrices counting the
+product, `MatrixRotateXYZ` turning a point about Z first, which their docs say. `RayMathTests` holds
+each carried function to raymath's results, and holds `MatrixRotate`, the rotations about X, Y
+and Z, `MatrixLookAt` and `QuaternionFromAxisAngle` to raymath's arithmetic, written from its source,
+against their counterparts. `QuaternionFromEuler` is carried because `CreateFromYawPitchRoll`
+composes in another order, which the test shows. `shapes_vector_angle` calls the package's, and
+the examples' `RayMath.cs` is gone.

@@ -929,6 +929,56 @@ Color ColorAlphaBlend(Color dst, Color src, Color tint); // The tinted source la
 Color ColorLerp(Color color1, Color color2, float factor); // Part of the way from one to the other
 ```
 
+## Math
+
+raymath's functions are C#'s own where `System.Numerics` has them, as `Vector2.Dot`, `Vector3.Cross`,
+`Matrix4x4.CreateRotationX` and `Quaternion.Slerp`, and the operators for adding, scaling and
+multiplying. A raymath `Matrix` is a `Matrix4x4`, composed in the same order. These are raymath's
+with no such counterpart, under raymath's names, and `docs/compared-with-raylib.md` says which
+name C# gives the rest.
+
+```csharp
+float Normalize(float value, float start, float end);    // Where a value lies from start (0) to end (1)
+float Remap(float value, float inputStart, float inputEnd, float outputStart, float outputEnd); // From one range to another
+float Wrap(float value, float min, float max);           // Wrapped into the range, as an angle into a turn
+bool FloatEquals(float x, float y);                      // Equal within a millionth
+float Vector2CrossProduct(Vector2 v1, Vector2 v2);       // The z of the 3D cross product
+float Vector2Angle(Vector2 v1, Vector2 v2);              // From one to the other, radians, clockwise on the screen
+float Vector2LineAngle(Vector2 start, Vector2 end);      // Of the line, radians, counterclockwise on the screen
+Vector2 Vector2Rotate(Vector2 v, float angle);           // Turned, radians, clockwise on the screen
+Vector2 Vector2MoveTowards(Vector2 v, Vector2 target, float maxDistance); // At most that far toward it
+Vector2 Vector2ClampValue(Vector2 v, float min, float max); // Its length held between the two
+bool Vector2Equals(Vector2 p, Vector2 q);                // Equal within a millionth
+Vector2 Vector2Refract(Vector2 v, Vector2 n, float r);   // A ray's direction through a surface
+Vector3 Vector3Perpendicular(Vector3 v);                 // A vector at right angles to it
+float Vector3Angle(Vector3 v1, Vector3 v2);              // Between the two, radians
+Vector3 Vector3Project(Vector3 v1, Vector3 v2);          // The part of v1 along v2
+Vector3 Vector3Reject(Vector3 v1, Vector3 v2);           // The part of v1 across v2
+void Vector3OrthoNormalize(ref Vector3 v1, ref Vector3 v2); // Both of length one and at right angles
+Vector3 Vector3RotateByAxisAngle(Vector3 v, Vector3 axis, float angle); // Turned about an axis, radians
+Vector3 Vector3MoveTowards(Vector3 v, Vector3 target, float maxDistance); // At most that far toward it
+Vector3 Vector3CubicHermite(Vector3 v1, Vector3 tangent1, Vector3 v2, Vector3 tangent2, float amount); // As glTF interpolates
+Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c); // A point's coordinates in a triangle
+Vector3 Vector3Unproject(Vector3 source, Matrix4x4 projection, Matrix4x4 view); // Back from clip space into the world
+Vector3 Vector3ClampValue(Vector3 v, float min, float max); // Its length held between the two
+bool Vector3Equals(Vector3 p, Vector3 q);                // Equal within a millionth
+Vector3 Vector3Refract(Vector3 v, Vector3 n, float r);   // A ray's direction through a surface
+Vector4 Vector4MoveTowards(Vector4 v, Vector4 target, float maxDistance); // At most that far toward it
+bool Vector4Equals(Vector4 p, Vector4 q);                // Equal within a millionth
+float MatrixTrace(Matrix4x4 mat);                        // The sum of its diagonal
+Matrix4x4 MatrixRotateXYZ(Vector3 angle);                // Turns a point about Z, then Y, then X, radians
+Matrix4x4 MatrixRotateZYX(Vector3 angle);                // Turns a point about X, then Y, then Z, radians
+Matrix4x4 MatrixCompose(Vector3 translation, Quaternion rotation, Vector3 scale); // Scaled, turned, then moved
+Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float amount); // Straight, not of length one
+Quaternion QuaternionCubicHermiteSpline(Quaternion q1, Quaternion outTangent1, Quaternion q2, Quaternion inTangent2, float t); // As glTF interpolates
+Quaternion QuaternionFromVector3ToVector3(Vector3 from, Vector3 to); // The shortest turn from one to the other
+void QuaternionToAxisAngle(Quaternion q, out Vector3 outAxis, out float outAngle); // Its axis and angle
+Quaternion QuaternionFromEuler(float pitch, float yaw, float roll); // About X, Y and Z, as raymath composes them
+Vector3 QuaternionToEuler(Quaternion q);                 // Its angles about X, Y and Z
+Quaternion QuaternionTransform(Quaternion q, Matrix4x4 mat); // Its components through a matrix
+bool QuaternionEquals(Quaternion p, Quaternion q);       // The same turn within a millionth
+```
+
 ## ImGui
 
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
