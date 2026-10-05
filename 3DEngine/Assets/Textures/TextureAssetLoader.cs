@@ -24,7 +24,7 @@ namespace Engine;
 /// decides (usually <see cref="TextureColorSpace.Linear"/>).
 /// </para>
 /// </remarks>
-public sealed class TextureAssetLoader : IAssetLoader<Texture>
+internal sealed class TextureAssetLoader : IAssetLoader<Texture>
 {
     private readonly TextureDecoderRegistry _registry;
     private string[] _extensions;

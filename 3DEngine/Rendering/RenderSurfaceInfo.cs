@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Describes the size of the primary presentation surface (e.g., swapchain/backbuffer).</summary>
 /// <seealso cref="Renderer"/>
-public sealed class RenderSurfaceInfo
+internal sealed class RenderSurfaceInfo
 {
     /// <summary>Current surface width in pixels (≥ 1).</summary>
     public int Width { get; set; }

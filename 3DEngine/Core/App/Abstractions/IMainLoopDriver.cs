@@ -13,7 +13,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="App"/>
 /// <seealso cref="Stage"/>
-public interface IMainLoopDriver
+internal interface IMainLoopDriver
 {
     /// <summary>
     /// Runs the application loop, invoking <paramref name="frameStep"/> once per frame

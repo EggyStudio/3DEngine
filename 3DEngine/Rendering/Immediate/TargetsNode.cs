@@ -11,7 +11,7 @@ namespace Engine;
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
 /// (<see cref="TargetShadows"/>), and the window's is drawn after every target.
 /// </remarks>
-public sealed class TargetsNode : INode
+internal sealed class TargetsNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

@@ -27,7 +27,7 @@ namespace Engine;
 /// for the same asset will retry. We never partially despawn-then-fail.
 /// </para>
 /// </remarks>
-public static class SceneHotReloadSystem
+internal static class SceneHotReloadSystem
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 

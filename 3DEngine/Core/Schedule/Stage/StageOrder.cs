@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Provides ordered stage sequences for iteration.</summary>
-public static class StageOrder
+internal static class StageOrder
 {
     private static readonly Stage[] All =
     [

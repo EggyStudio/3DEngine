@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="INode"/>
 /// <seealso cref="TrackedRenderPass"/>
-public sealed class RenderContext
+internal sealed class RenderContext
 {
     /// <summary>The low-level graphics device for resource creation and GPU commands.</summary>
     public IGraphicsDevice Device { get; }

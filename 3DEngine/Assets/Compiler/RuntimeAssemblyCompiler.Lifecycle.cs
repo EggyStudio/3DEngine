@@ -1,6 +1,6 @@
 namespace Engine.Files.Compiler;
 
-public abstract partial class RuntimeAssemblyCompiler<TResult>
+internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
     /// <summary>Performs the initial compilation and starts file watchers across configured directories.</summary>
     /// <returns>The result of the initial compilation.</returns>

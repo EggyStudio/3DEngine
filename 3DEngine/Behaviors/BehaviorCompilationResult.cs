@@ -5,7 +5,7 @@ namespace Engine;
 /// Adds <see cref="RegisteredCount"/> on top of the shared <see cref="Engine.Files.Compiler.RuntimeCompilationResult"/>
 /// so callers can report how many behavior systems were registered for the new generation.
 /// </remarks>
-public sealed class BehaviorCompilationResult : Engine.Files.Compiler.RuntimeCompilationResult
+internal sealed class BehaviorCompilationResult : Engine.Files.Compiler.RuntimeCompilationResult
 {
     /// <summary>Number of <c>[Behavior]</c>-derived systems registered into the <see cref="App"/> for this generation.</summary>
     public int RegisteredCount { get; set; }

@@ -13,7 +13,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="Input"/>
 /// <seealso cref="InputPlugin"/>
-public interface IInputBackend
+internal interface IInputBackend
 {
     /// <summary>Wires platform-specific input events to the engine's <see cref="Input"/> resource.</summary>
     /// <param name="app">The application instance, for accessing the world and other resources.</param>

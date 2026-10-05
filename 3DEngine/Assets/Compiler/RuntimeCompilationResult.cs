@@ -4,7 +4,7 @@ namespace Engine.Files.Compiler;
 /// <remarks>
 /// Subclassed by domain-specific result types (such as <c>BehaviorCompilationResult</c>) which can add post-load metadata.
 /// </remarks>
-public class RuntimeCompilationResult
+internal class RuntimeCompilationResult
 {
     /// <summary>Whether the compilation produced a loadable assembly without errors.</summary>
     public bool Success { get; set; }
@@ -23,7 +23,7 @@ public class RuntimeCompilationResult
 }
 
 /// <summary>A single Roslyn / build diagnostic with source location.</summary>
-public class RuntimeCompilationError
+internal class RuntimeCompilationError
 {
     /// <summary>Source file name (without path) where the error occurred.</summary>
     public string FileName { get; set; } = string.Empty;

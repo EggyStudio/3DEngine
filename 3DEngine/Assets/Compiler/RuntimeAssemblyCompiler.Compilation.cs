@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Engine.Files.Compiler;
 
-public abstract partial class RuntimeAssemblyCompiler<TResult>
+internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
     /// <summary>
     /// Full compilation cycle: enumerate sources -> compile with Roslyn -> load into a

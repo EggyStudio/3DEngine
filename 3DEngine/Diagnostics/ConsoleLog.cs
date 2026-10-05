@@ -8,7 +8,7 @@ namespace Engine;
 /// <param name="Level">Its level.</param>
 /// <param name="Text">What it says, with its category.</param>
 /// <param name="Count">How many times in a row it was written.</param>
-public readonly record struct LogLine(int Index, ulong Frame, LogLevel Level, string Text, int Count = 1);
+internal readonly record struct LogLine(int Index, ulong Frame, LogLevel Level, string Text, int Count = 1);
 
 /// <summary>
 /// The last <see cref="Depth"/> lines the engine logged at <see cref="LogLevel.Info"/> or above,
@@ -19,7 +19,7 @@ public readonly record struct LogLine(int Index, ulong Frame, LogLevel Level, st
 /// warning in something that runs every frame, and sixty copies a second would push out every
 /// other line.
 /// </remarks>
-public static class ConsoleLog
+internal static class ConsoleLog
 {
     /// <summary>How many lines are kept.</summary>
     public const int Depth = 2000;

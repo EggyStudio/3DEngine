@@ -26,7 +26,7 @@ namespace Engine;
 /// </para>
 /// </remarks>
 /// <seealso cref="Texture"/>
-public static class TextureMipGenerator
+internal static class TextureMipGenerator
 {
     private static readonly ILogger Logger = Log.Category("Engine.Textures");
 

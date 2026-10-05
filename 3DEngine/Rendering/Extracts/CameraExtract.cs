@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="ExtractedView"/>
 /// <seealso cref="CameraUniform"/>
-public sealed class CameraExtract : IExtractSystem
+internal sealed class CameraExtract : IExtractSystem
 {
     /// <inheritdoc />
     public void Run(World world, RenderWorld renderWorld)
@@ -65,4 +65,4 @@ public sealed class CameraExtract : IExtractSystem
 /// </summary>
 /// <param name="ViewProjection">Its view and projection, as the model pass takes them.</param>
 /// <param name="Eye">Where it is.</param>
-public sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, System.Numerics.Vector3 Eye);
+internal sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, System.Numerics.Vector3 Eye);

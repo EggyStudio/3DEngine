@@ -3,7 +3,7 @@ using Vortice.Vulkan;
 namespace Engine;
 
 /// <summary>A compute shader's pipeline, with the descriptor layout of its uniforms, storage buffers, images and textures.</summary>
-public sealed class ComputePipeline : IDisposable
+internal sealed class ComputePipeline : IDisposable
 {
     private readonly Action _dispose;
 
@@ -40,7 +40,7 @@ public sealed class ComputePipeline : IDisposable
     public void Dispose() => _dispose();
 }
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     // Dispatches submitted and not yet known to have finished, with what each holds until then.
     private readonly List<(VkFence Fence, VkCommandBuffer Commands, VkDescriptorPool Pool, IBuffer? Uniforms)> _computeInFlight = [];

@@ -32,7 +32,7 @@ public enum Tonemap
 /// applies it in the pass that brings that frame into the window. What is drawn after the scene, a
 /// game's interface and ImGui, is drawn over the result untouched.
 /// </remarks>
-public sealed class FrameEffects
+internal sealed class FrameEffects
 {
     /// <summary>What the scene's light is multiplied by before the curve, 1 unless set, and on top of the exposure that follows the scene when that is on.</summary>
     public float Exposure { get; set; } = 1;

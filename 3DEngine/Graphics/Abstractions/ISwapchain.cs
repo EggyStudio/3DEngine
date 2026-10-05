@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Swapchain abstraction providing image acquisition, extent queries, and resize support.</summary>
 /// <seealso cref="IGraphicsDevice"/>
-public interface ISwapchain : IDisposable
+internal interface ISwapchain : IDisposable
 {
     /// <summary>Current swapchain extent (width × height) in pixels.</summary>
     Extent2D Extent { get; }

@@ -19,7 +19,7 @@ namespace Engine;
 /// without the gameplay code having to hand-roll a polling <c>OnUpdate</c>.
 /// </para>
 /// </remarks>
-public static class SceneSpawnSystem
+internal static class SceneSpawnSystem
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 

@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Diagnostic snapshot summarizing adapter, surface, and frame metrics.</summary>
 /// <seealso cref="Renderer"/>
-public sealed class RendererDiagnostics
+internal sealed class RendererDiagnostics
 {
     /// <summary>Information about the current graphics adapter (GPU).</summary>
     public GraphicsAdapterInfo AdapterInfo { get; private set; } = GraphicsAdapterInfo.Unknown;

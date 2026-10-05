@@ -235,6 +235,16 @@ grouped by area, with a comment saying what it does, in the form of the raylib c
 function that is added, renamed or removed changes the cheatsheet in the same commit, so the sheet
 is always the API.
 
+## 11. What is public
+
+A type is public when a program reaches it: the flat API and what its functions take and give,
+the ECS's components, resources and attributes a behavior names, the scene and asset types a level
+or a loader is built from, and what the code the generators write into a game calls. The renderer,
+the device, the platform's backends, the loaders and the plugins inside `DefaultPlugins` are the
+engine's own and internal, since each public type is a promise a game may come to rely on from
+5.0 on. `3DEngine/PublicApi.txt` lists what is public, the tests and the `e3d` client see the rest
+through `InternalsVisibleTo`, and a type made public again is a change to that file read as one.
+
 ## Order
 
 1. Materials beyond a base color (metallic, roughness, normal maps), through the model pass and

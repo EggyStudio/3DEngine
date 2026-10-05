@@ -5,7 +5,7 @@ namespace Engine;
 
 /// <summary>How much light past a threshold spreads into the pixels around it, a world resource the renderer reads each frame.</summary>
 /// <seealso cref="Engine3D.SetBloom"/>
-public sealed class BloomSettings
+internal sealed class BloomSettings
 {
     /// <summary>How much of the spread light is added to the frame, 0 for none, which draws the frame with no HDR target at all.</summary>
     public float Intensity { get; set; }
@@ -25,7 +25,7 @@ public sealed class BloomSettings
 /// The index in the <see cref="DrawList"/> of the first batch drawn into the window after the
 /// composite rather than into the HDR target, the one after the window's last batch with depth.
 /// </param>
-public sealed record BloomFrame(int Split);
+internal sealed record BloomFrame(int Split);
 
 /// <summary>
 /// The HDR frame and its bloom: a half-float target the scene is drawn into, a chain of half-float
@@ -46,7 +46,7 @@ public sealed record BloomFrame(int Split);
 /// adds as much light as was past the threshold, spread.
 /// </para>
 /// </remarks>
-public sealed class BloomRenderer : IDisposable
+internal sealed class BloomRenderer : IDisposable
 {
     private const int MaxLevels = 5;
 
@@ -578,7 +578,7 @@ public sealed class BloomRenderer : IDisposable
 /// <see cref="ImmediateNode"/>, which draws it into the window over the composite, so it is never
 /// bloomed or tonemapped and keeps its exact colors.
 /// </remarks>
-public sealed class HdrSceneNode : INode
+internal sealed class HdrSceneNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
@@ -609,7 +609,7 @@ public sealed class HdrSceneNode : INode
 }
 
 /// <summary>Render graph node that spreads the HDR target's brightest light down and up the bloom chain, when <see cref="HdrSceneNode"/> drew it this frame.</summary>
-public sealed class BloomNode : INode
+internal sealed class BloomNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

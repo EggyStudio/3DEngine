@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Result of a swapchain image acquisition attempt.</summary>
-public enum AcquireResult
+internal enum AcquireResult
 {
     /// <summary>Image acquired successfully.</summary>
     Success,

@@ -149,15 +149,17 @@ public class ScenePayloadTests
     }
 
     [Theory]
-    [InlineData(SceneProjection.Orthographic, 50f)]
-    [InlineData(SceneProjection.Perspective, 0f)]
-    [InlineData(SceneProjection.Perspective, -10f)]
+    [InlineData((int)SceneProjection.Orthographic, 50f)]
+    [InlineData((int)SceneProjection.Perspective, 0f)]
+    [InlineData((int)SceneProjection.Perspective, -10f)]
+    // The projection as its number, since the payload's types are the engine's own and a test
+    // method's parameters are public.
     public void SceneCameraPayload_VerticalFovRadians_Returns_Zero_For_Degenerate_Cases(
-        SceneProjection projection, float focalLength)
+        int projection, float focalLength)
     {
         var cam = new SceneCameraPayload
         {
-            Projection = projection,
+            Projection = (SceneProjection)projection,
             VerticalAperture = 24f,
             FocalLength = focalLength,
         };

@@ -158,7 +158,7 @@ internal struct NoBody;
 /// made a character. The system runs in <see cref="Stage.PreUpdate"/>, after a scene's entities
 /// are spawned, and <c>LoadScene</c> runs it at once, so a level's bodies exist when it returns.
 /// </remarks>
-public static class PhysicsBodies
+internal static class PhysicsBodies
 {
     // The bodies made here, by handle, with the entity each belongs to.
     internal sealed class Made

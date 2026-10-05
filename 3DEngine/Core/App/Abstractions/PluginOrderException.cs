@@ -13,7 +13,7 @@ namespace Engine;
 /// <seealso cref="IPlugin.Dependencies"/>
 /// <seealso cref="App.AddPlugin"/>
 /// <seealso cref="App.RequireResource{T}"/>
-public sealed class PluginOrderException : InvalidOperationException
+internal sealed class PluginOrderException : InvalidOperationException
 {
     /// <summary>Name of the plugin whose build was attempted.</summary>
     public string RequiringPlugin { get; }

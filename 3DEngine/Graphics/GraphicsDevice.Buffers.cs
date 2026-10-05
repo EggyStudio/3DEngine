@@ -4,7 +4,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Vulkan implementation of <see cref="IBuffer"/> wrapping a <c>VkBuffer</c> and the range of device memory it is bound to.</summary>
     /// <seealso cref="IBuffer"/>

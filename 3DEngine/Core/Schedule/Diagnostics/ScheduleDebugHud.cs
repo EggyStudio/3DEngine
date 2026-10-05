@@ -12,7 +12,7 @@ namespace Engine;
 /// <seealso cref="ScheduleDiagnostics"/>
 /// <seealso cref="Schedule"/>
 [Behavior]
-public struct ScheduleDebugHud
+internal struct ScheduleDebugHud
 {
     private static readonly ILogger Logger = Log.Category("Engine.Schedule.DebugHud");
     private static string? _lastDumpPath;

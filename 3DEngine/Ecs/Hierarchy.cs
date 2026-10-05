@@ -108,7 +108,7 @@ public struct GlobalTransform
 /// <see cref="Stage.Render"/>, after physics has written its bodies' transforms and before the
 /// renderer reads them.
 /// </summary>
-public static class TransformPropagation
+internal static class TransformPropagation
 {
     /// <summary>A transform as a matrix: scale, then rotation, then translation.</summary>
     /// <remarks>

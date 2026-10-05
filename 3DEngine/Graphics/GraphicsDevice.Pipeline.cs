@@ -3,7 +3,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Wraps a Vulkan shader module with its creation descriptor.</summary>
     /// <seealso cref="IShader"/>

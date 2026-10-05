@@ -9,7 +9,7 @@ namespace Engine;
 /// a ring of buffers for the joints' matrices, and the vertex buffer the posed vertices are written
 /// into, which the model pass draws.
 /// </summary>
-public sealed class GpuSkin : IDisposable
+internal sealed class GpuSkin : IDisposable
 {
     private readonly Action _dispose;
 
@@ -50,7 +50,7 @@ public sealed class GpuSkin : IDisposable
 /// The vertex buffer is one, since the frames run on one queue. A barrier before each dispatch waits
 /// for earlier frames to finish reading it, and one after makes the new vertices visible to the draws.
 /// </remarks>
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     private const int SkinBindings = 6;
     private VkPipeline _skinPipeline;

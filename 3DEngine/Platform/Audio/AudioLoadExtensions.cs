@@ -27,7 +27,7 @@ namespace Engine;
 /// music.SetLooping(true);
 /// </code>
 /// </example>
-public static class AudioLoadExtensions
+internal static class AudioLoadExtensions
 {
     // -- Asset loading shortcuts (no playback)
 

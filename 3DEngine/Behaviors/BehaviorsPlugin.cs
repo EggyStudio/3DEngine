@@ -21,7 +21,7 @@ namespace Engine;
 /// <seealso cref="BehaviorAttribute"/>
 /// <seealso cref="GeneratedBehaviorRegistrationAttribute"/>
 /// <seealso cref="EcsPlugin"/>
-public sealed class BehaviorsPlugin : IPlugin
+internal sealed class BehaviorsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Behaviors");
 

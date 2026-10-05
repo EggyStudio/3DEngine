@@ -38,7 +38,7 @@ namespace Engine;
 /// <seealso cref="Assets{T}"/>
 /// <seealso cref="Handle{T}"/>
 /// <seealso cref="IAssetLoader{T}"/>
-public sealed class AssetPlugin : IPlugin
+internal sealed class AssetPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Assets");
 

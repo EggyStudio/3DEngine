@@ -33,7 +33,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="IGraphicsDevice"/>
 /// <seealso cref="NullGraphicsDevice"/>
-public sealed partial class GraphicsDevice : IGraphicsDevice
+internal sealed partial class GraphicsDevice : IGraphicsDevice
 {
     /// <summary>Maximum number of frames that can be in flight simultaneously (triple buffering).</summary>
     private const int MaxFramesInFlight = 3;

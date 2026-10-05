@@ -3,7 +3,7 @@ namespace Engine;
 /// <summary>Writes log messages to the console with elapsed time, level, and category. Flushes after every write for crash safety.</summary>
 /// <seealso cref="FileLoggerProvider"/>
 /// <seealso cref="LogConfig"/>
-public sealed class ConsoleLoggerProvider : ILoggerProvider
+internal sealed class ConsoleLoggerProvider : ILoggerProvider
 {
     /// <summary>Singleton instance of the console log provider.</summary>
     public static ConsoleLoggerProvider Instance { get; } = new();

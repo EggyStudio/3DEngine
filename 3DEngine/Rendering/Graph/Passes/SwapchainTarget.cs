@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="RendererContext"/>
 /// <seealso cref="TrackedRenderPass"/>
-public sealed class SwapchainTarget
+internal sealed class SwapchainTarget
 {
     /// <summary>The window's pass, which the pipelines drawing into the swapchain are made for.</summary>
     public IRenderPass RenderPass { get; }

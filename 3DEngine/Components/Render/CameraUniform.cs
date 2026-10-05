@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>GPU uniform buffer layout for camera data (view + projection matrices).</summary>
 /// <seealso cref="ExtractedView"/>
-public struct CameraUniform
+internal struct CameraUniform
 {
     /// <summary>The view (world-to-eye) matrix.</summary>
     public Matrix4x4 View;

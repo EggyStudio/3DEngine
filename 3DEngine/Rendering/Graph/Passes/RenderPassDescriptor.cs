@@ -7,7 +7,7 @@ namespace Engine;
 /// <param name="ColorLoadOp">Load operation for the color attachment (Clear, Load, or DontCare).</param>
 /// <param name="ColorStoreOp">Store operation for the color attachment (Store or DontCare).</param>
 /// <param name="ClearColor">Clear color when <paramref name="ColorLoadOp"/> is <see cref="LoadOp.Clear"/>.</param>
-public readonly record struct RenderPassDescriptor(
+internal readonly record struct RenderPassDescriptor(
     IRenderPass RenderPass,
     IFramebuffer Framebuffer,
     Extent2D Extent,

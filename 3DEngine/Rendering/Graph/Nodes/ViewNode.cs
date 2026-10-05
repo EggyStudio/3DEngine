@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="INode"/>
 /// <seealso cref="ExtractedView"/>
-public abstract class ViewNode : INode
+internal abstract class ViewNode : INode
 {
     /// <inheritdoc />
     public virtual SlotInfo[] Input() => Array.Empty<SlotInfo>();

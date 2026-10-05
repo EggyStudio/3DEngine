@@ -9,7 +9,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="GraphicsDevice"/>
 /// <seealso cref="NullGraphicsDevice"/>
-public interface IGraphicsDevice : IDisposable
+internal interface IGraphicsDevice : IDisposable
 {
     /// <summary>Whether the device has been successfully initialized.</summary>
     bool IsInitialized { get; }

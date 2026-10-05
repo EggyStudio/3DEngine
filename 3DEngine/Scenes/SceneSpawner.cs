@@ -35,7 +35,7 @@ namespace Engine;
 /// the payload for the future renderer-side upgrade.
 /// </para>
 /// </remarks>
-public static class SceneSpawner
+internal static class SceneSpawner
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 

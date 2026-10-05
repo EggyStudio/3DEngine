@@ -18,7 +18,7 @@ namespace Engine;
 /// <seealso cref="RenderWorld"/>
 /// <seealso cref="RenderGraph"/>
 /// <seealso cref="RendererContext"/>
-public sealed class Renderer : IDisposable
+internal sealed class Renderer : IDisposable
 {
     private static readonly ILogger Logger = Log.For<Renderer>();
 

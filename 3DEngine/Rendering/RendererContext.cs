@@ -10,7 +10,7 @@ namespace Engine;
 /// <seealso cref="Renderer"/>
 /// <seealso cref="IGraphicsDevice"/>
 /// <seealso cref="DynamicBufferAllocator"/>
-public sealed class RendererContext : IDisposable
+internal sealed class RendererContext : IDisposable
 {
     private static readonly ILogger Logger = Log.For<RendererContext>();
     private IGraphicsDevice? _graphics;

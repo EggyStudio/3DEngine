@@ -19,7 +19,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SceneSkeletonPayload"/>
 /// <seealso cref="SceneMeshPayload"/>
-public sealed class SceneSkinPayload
+internal sealed class SceneSkinPayload
 {
     /// <summary>
     /// Source path of the bound <see cref="SceneSkeletonPayload"/>, matched against

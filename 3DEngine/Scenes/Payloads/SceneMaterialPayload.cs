@@ -28,7 +28,7 @@ namespace Engine;
 /// <seealso cref="SceneMeshPayload"/>
 /// <seealso cref="SceneTextureRef"/>
 /// <seealso cref="SceneAlphaMode"/>
-public sealed class SceneMaterialPayload
+internal sealed class SceneMaterialPayload
 {
     /// <summary>Display name (typically the source material prim's leaf name).</summary>
     public string Name { get; init; } = "Material";
@@ -109,14 +109,14 @@ public sealed class SceneMaterialPayload
 /// </param>
 /// <param name="WrapS">Texture-coordinate wrap mode along the S axis.</param>
 /// <param name="WrapT">Texture-coordinate wrap mode along the T axis.</param>
-public sealed record SceneTextureRef(
+internal sealed record SceneTextureRef(
     string AssetPath,
     int UvSet = 0,
     SceneWrapMode WrapS = SceneWrapMode.Repeat,
     SceneWrapMode WrapT = SceneWrapMode.Repeat);
 
 /// <summary>How a material's alpha channel is interpreted at render time.</summary>
-public enum SceneAlphaMode
+internal enum SceneAlphaMode
 {
     /// <summary>Alpha is ignored; the surface is fully opaque.</summary>
     Opaque,
@@ -132,7 +132,7 @@ public enum SceneAlphaMode
 }
 
 /// <summary>Texture-coordinate wrap mode (matches <c>UsdUVTexture</c> + glTF semantics).</summary>
-public enum SceneWrapMode
+internal enum SceneWrapMode
 {
     /// <summary>Coordinates outside [0,1] wrap around (default for <c>UsdUVTexture</c>).</summary>
     Repeat,

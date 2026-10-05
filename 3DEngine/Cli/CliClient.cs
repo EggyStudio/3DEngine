@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace Engine;
 
 /// <summary>The client half of the CLI: one request to a serving app, one envelope back.</summary>
-public static class CliClient
+internal static class CliClient
 {
     /// <summary>Sends an operation to <paramref name="session"/> and returns its envelope.</summary>
     /// <remarks>A connection that fails is answered with a <c>SESSION_UNREACHABLE</c> envelope rather than an exception.</remarks>

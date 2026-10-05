@@ -95,3 +95,14 @@ and enables the portability subset where a device has it, which MoltenVK needs t
 The script passes on lavapipe in the container with the layer, and the render tests with both
 variables set, but neither new job has run, so the first run on GitHub (Now 1) will be what says
 whether the installs are right.
+
+**Now 3, the public surface, first pass.** Every public type no example, game, guide, the
+cheatsheet or the generators' code reaches, directly or through the signature of something that is
+reached, is internal now: the renderer, its nodes and pipelines, the device and its abstractions,
+the platform's backends, the loaders and decoders, the plugins beside `DefaultPlugins`, the CLI's
+server and the diagnostics' internals. A few no program names are kept as the ECS's own
+(`DefaultPlugins`, events, `FixedTime`, `GlobalTransform`, asset events, `SceneAsset` and its spawn
+request). 536 public types are 244, the listing 2,200 lines shorter, every example and game builds
+from the package, Swarm's script still compiles as it runs, and the tests and `e3d` see the rest
+through `InternalsVisibleTo`. DESIGN.md §11 says the rule. Names and parameter orders against
+raylib's and each other follow next.

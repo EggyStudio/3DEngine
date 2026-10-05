@@ -13,7 +13,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SdlImGuiPlugin"/>
 /// <seealso cref="SdlImGuiInput"/>
-public sealed class SdlImGuiRenderer : IDisposable
+internal sealed class SdlImGuiRenderer : IDisposable
 {
     private readonly nint _renderer;
     private nint _fontTexture;

@@ -25,7 +25,7 @@ namespace Engine;
 /// loader.RegisterDllImportResolver(typeof(MyNativeWrapper).Assembly);
 /// </code>
 /// </example>
-public sealed class NativeLibraryLoader
+internal sealed class NativeLibraryLoader
 {
     private readonly List<string> _searchPaths = [];
     private readonly Dictionary<string, string> _nameMap = new(StringComparer.OrdinalIgnoreCase);

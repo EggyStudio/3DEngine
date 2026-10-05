@@ -73,7 +73,7 @@ public sealed class NextState<TState> where TState : struct, Enum
 /// register their transition systems when they are discovered, which can be before the program has
 /// added its states. A machine that is never added has no value and never moves.
 /// </remarks>
-public sealed class StateTransitions
+internal sealed class StateTransitions
 {
     private readonly List<IStateMachine> _order = [];
     private readonly Dictionary<Type, IStateMachine> _byType = [];

@@ -11,10 +11,10 @@ namespace Engine;
 /// <param name="MemoryBlocks">Device memory allocations the carved blocks hold.</param>
 /// <param name="BlockBytes">The bytes of those blocks.</param>
 /// <param name="UsedBytes">The bytes of those blocks handed out to buffers and images.</param>
-public readonly record struct DeviceUsage(int Buffers, int Images, int DescriptorSets, int Pipelines,
+internal readonly record struct DeviceUsage(int Buffers, int Images, int DescriptorSets, int Pipelines,
     int MemoryBlocks, long BlockBytes, long UsedBytes);
 
-public sealed partial class GraphicsDevice
+internal sealed partial class GraphicsDevice
 {
     private int _liveBuffers, _liveImages, _liveDescriptorSets, _livePipelines;
 

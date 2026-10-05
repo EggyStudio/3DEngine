@@ -8,7 +8,7 @@ namespace Engine;
 /// One IDAT chunk, filter type 0 on every row and zlib at the fastest level, which is what a
 /// screenshot needs: correct, quick to write, and read by everything.
 /// </remarks>
-public static class PngWriter
+internal static class PngWriter
 {
     /// <summary>Writes <paramref name="rgba"/> (four bytes per pixel, rows from the top) to <paramref name="path"/>.</summary>
     /// <exception cref="ArgumentException">The pixels do not match the size.</exception>

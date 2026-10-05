@@ -28,7 +28,7 @@ namespace Engine;
 /// </example>
 /// <seealso cref="Time"/>
 /// <seealso cref="Stage.First"/>
-public sealed class TimePlugin : IPlugin
+internal sealed class TimePlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Time");
 

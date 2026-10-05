@@ -1,6 +1,6 @@
 namespace Engine.Files.Compiler;
 
-public abstract partial class RuntimeAssemblyCompiler<TResult>
+internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
     /// <summary>Forwards <see cref="FileSystemWatcher.Changed"/>/<see cref="FileSystemWatcher.Created"/>/
     /// <see cref="FileSystemWatcher.Deleted"/> to the debounce timer.</summary>

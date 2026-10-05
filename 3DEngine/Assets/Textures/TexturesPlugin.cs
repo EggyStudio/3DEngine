@@ -37,7 +37,7 @@ namespace Engine;
 /// <seealso cref="ITextureDecoder"/>
 /// <seealso cref="TextureDecoderRegistry"/>
 /// <seealso cref="StbTexturesPlugin"/>
-public sealed class TexturesPlugin : IPlugin
+internal sealed class TexturesPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Textures");
 

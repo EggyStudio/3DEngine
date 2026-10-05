@@ -11,7 +11,7 @@ namespace Engine;
 /// its format has onto them: Assimp's directional, point, spot and ambient lights map directly, and
 /// an area light becomes a point light, which is the nearest thing the model pass draws.
 /// </remarks>
-public sealed class SceneLightPayload
+internal sealed class SceneLightPayload
 {
     /// <summary>The light's name in its file, for messages.</summary>
     public string Name { get; init; } = "Light";

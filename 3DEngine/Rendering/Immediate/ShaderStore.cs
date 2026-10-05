@@ -3,7 +3,7 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>The four <c>float4</c> values a custom shader reads with <c>param(0)</c> to <c>param(3)</c>.</summary>
-public readonly record struct ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2, Vector4 P3)
+internal readonly record struct ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2, Vector4 P3)
 {
     /// <summary>The value in <paramref name="slot"/>.</summary>
     public Vector4 this[int slot] => slot switch { 0 => P0, 1 => P1, 2 => P2, 3 => P3, _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Slots are 0 to 3.") };
@@ -24,7 +24,7 @@ public readonly record struct ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2, V
 /// been unloaded, until <see cref="ImmediateRenderer"/> retires their pipelines.
 /// </summary>
 /// <remarks>Id 0 is never given out, so a default shader handle draws with the engine's own stages.</remarks>
-public sealed class ShaderStore
+internal sealed class ShaderStore
 {
     private readonly object _gate = new();
     private readonly Dictionary<int, ShaderProgram> _live = [];

@@ -11,7 +11,7 @@ namespace Engine;
 /// <seealso cref="IInputBackend"/>
 /// <seealso cref="Key"/>
 /// <seealso cref="MouseButton"/>
-public sealed class InputPlugin : IPlugin
+internal sealed class InputPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Input");
 

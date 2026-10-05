@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="CameraExtract"/>
 /// <seealso cref="MainPassNode"/>
-public struct ExtractedView
+internal struct ExtractedView
 {
     /// <summary>View (world-to-eye) matrix.</summary>
     public Matrix4x4 View;

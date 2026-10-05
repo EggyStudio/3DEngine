@@ -30,7 +30,7 @@ namespace Engine;
 /// → Linear).
 /// </para>
 /// </remarks>
-public sealed class StbTextureDecoder : ITextureDecoder
+internal sealed class StbTextureDecoder : ITextureDecoder
 {
     private static readonly ILogger Logger = Log.Category("Engine.Textures.Stb");
 

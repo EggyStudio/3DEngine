@@ -10,7 +10,7 @@ namespace Engine;
 /// <param name="Block">The block the range belongs to, which takes it back.</param>
 internal sealed record MemorySlice(VkDeviceMemory Memory, ulong Offset, ulong Size, nint Mapped, object Block);
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     // Buffers and images are carved out of blocks of device memory rather than given an allocation
     // each, since drivers limit how many allocations a device holds (4,096 on many Windows

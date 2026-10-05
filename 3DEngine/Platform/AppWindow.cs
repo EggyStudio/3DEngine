@@ -12,7 +12,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SdlWindow"/>
 /// <seealso cref="WindowData"/>
-public sealed class AppWindow
+internal sealed class AppWindow
 {
     /// <summary>The underlying SDL window/renderer pair wrapper.</summary>
     public SdlWindow Sdl { get; private set; }

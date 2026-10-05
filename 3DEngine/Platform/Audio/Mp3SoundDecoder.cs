@@ -9,7 +9,7 @@ namespace Engine;
 /// <c>Mp3MusicDecoder</c>. An encoder pads the start of a file with a few milliseconds of silence,
 /// which is kept, so a sound starts that much late.
 /// </remarks>
-public sealed class Mp3SoundDecoder : ISoundDecoder
+internal sealed class Mp3SoundDecoder : ISoundDecoder
 {
     /// <inheritdoc />
     public string[] Extensions => [".mp3"];

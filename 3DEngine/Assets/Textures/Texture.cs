@@ -109,7 +109,7 @@ public enum TextureColorSpace
 }
 
 /// <summary>Static helpers for <see cref="TextureFormat"/> metadata.</summary>
-public static class TextureFormatInfo
+internal static class TextureFormatInfo
 {
     /// <summary>
     /// Bytes per pixel for the uncompressed formats. Throws for block-compressed formats,

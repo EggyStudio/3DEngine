@@ -20,7 +20,7 @@ public enum KeyModifier
 /// </summary>
 /// <seealso cref="ToggleKeyAttribute"/>
 /// <seealso cref="BehaviorConditions"/>
-public sealed class SystemToggleRegistry
+internal sealed class SystemToggleRegistry
 {
     private readonly Dictionary<string, bool> _states = new();
 

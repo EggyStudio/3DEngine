@@ -7,7 +7,7 @@ namespace Engine;
 /// whatever the function is called in the source.
 /// </remarks>
 /// <seealso cref="SlangLoader"/>
-public sealed class ShaderProgram
+internal sealed class ShaderProgram
 {
     /// <summary>Creates a program from compiled stages.</summary>
     /// <param name="name">The file the program was compiled from, for messages.</param>

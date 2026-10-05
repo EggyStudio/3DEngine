@@ -22,7 +22,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="ScenesPlugin"/>
 /// <seealso cref="AssimpModelPlugin"/>
-public sealed class ModelsPlugin : IPlugin
+internal sealed class ModelsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Models");
 

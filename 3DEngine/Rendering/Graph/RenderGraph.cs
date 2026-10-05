@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="INode"/>
 /// <seealso cref="SlotInfo"/>
-public sealed class RenderGraph : IDisposable
+internal sealed class RenderGraph : IDisposable
 {
     private readonly Dictionary<string, INode> _nodes = new();
     private readonly List<string> _nodeOrder = new(); // insertion order for stable iteration

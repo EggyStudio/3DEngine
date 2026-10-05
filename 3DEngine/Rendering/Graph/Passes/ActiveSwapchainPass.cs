@@ -6,7 +6,7 @@ namespace Engine;
 /// to draw into the same render pass, eliminating per-overlay render pass begin/end overhead.
 /// The pass is ended by <see cref="Renderer"/> after all graph nodes have executed.
 /// </summary>
-public sealed class ActiveSwapchainPass : IDisposable
+internal sealed class ActiveSwapchainPass : IDisposable
 {
     /// <summary>The open tracked render pass for the current frame.</summary>
     public TrackedRenderPass Pass { get; }

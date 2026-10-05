@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Creates the <c>VkSurfaceKHR</c> from the platform surface source.</summary>
     private partial void CreateSurface()

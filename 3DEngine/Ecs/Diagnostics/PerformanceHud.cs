@@ -9,7 +9,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="Time"/>
 [Behavior]
-public struct PerformanceHud
+internal struct PerformanceHud
 {
     private static double _peakFps;
     private static double _peakWindowStart;

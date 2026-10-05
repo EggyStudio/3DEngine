@@ -23,7 +23,7 @@ namespace Engine;
 /// never compare theirs.
 /// </para>
 /// </remarks>
-public static class ChangeTicks
+internal static class ChangeTicks
 {
     private static long _latest;
 

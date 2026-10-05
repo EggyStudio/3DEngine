@@ -6,7 +6,7 @@ namespace Engine;
 
 /// <summary>One light as the model pass's uniform buffer holds it, four <c>float4</c>, 64 bytes.</summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct LightUboEntry
+internal struct LightUboEntry
 {
     /// <summary>xyz: world position. w: the <see cref="LightKind"/> as a number.</summary>
     public Vector4 PositionAndKind;
@@ -27,7 +27,7 @@ public struct LightUboEntry
 /// <see cref="LightUboEntry"/>.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct LightingUbo
+internal struct LightingUbo
 {
     /// <summary>Number of valid entries in <c>Lights</c> (<c>0..MaxLights</c>).</summary>
     public int LightCount;
@@ -90,7 +90,7 @@ public struct LightingUbo
 
 /// <summary>One reflection probe as the model pass reads it.</summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct ProbeUboEntry
+internal struct ProbeUboEntry
 {
     /// <summary>xyz: the middle of the box, where the probe was captured from. w: its intensity.</summary>
     public Vector4 CenterAndIntensity;
@@ -104,7 +104,7 @@ public struct ProbeUboEntry
 
 /// <summary>Fixed-size storage for the bound reflection probes.</summary>
 [InlineArray(LightingUboPacker.MaxProbes)]
-public struct ProbeUboArray
+internal struct ProbeUboArray
 {
     /// <summary>The first probe.</summary>
     public ProbeUboEntry _element0;
@@ -112,7 +112,7 @@ public struct ProbeUboArray
 
 /// <summary>Fixed-size storage for the environment's nine irradiance coefficients.</summary>
 [InlineArray(9)]
-public struct IrradianceArray
+internal struct IrradianceArray
 {
     /// <summary>The first coefficient.</summary>
     public Vector4 _element0;
@@ -120,7 +120,7 @@ public struct IrradianceArray
 
 /// <summary>Fixed-size storage for the shadowed spot lights' texel widths, four to an element.</summary>
 [InlineArray((ShadowFit.MaxSpotLights + 3) / 4)]
-public struct SpotTexelArray
+internal struct SpotTexelArray
 {
     /// <summary>The first four spot lights' widths.</summary>
     public Vector4 _element0;
@@ -128,7 +128,7 @@ public struct SpotTexelArray
 
 /// <summary>Fixed-size storage for the shadowed spot lights' projections.</summary>
 [InlineArray(ShadowFit.MaxSpotLights)]
-public struct SpotShadowArray
+internal struct SpotShadowArray
 {
     /// <summary>The first spot light's.</summary>
     public Matrix4x4 _element0;
@@ -136,7 +136,7 @@ public struct SpotShadowArray
 
 /// <summary>Fixed-size storage for the faces of the shadowed point lights.</summary>
 [InlineArray(ShadowFit.MaxPointLights * 6)]
-public struct PointShadowFaceArray
+internal struct PointShadowFaceArray
 {
     /// <summary>The first face.</summary>
     public Matrix4x4 _element0;
@@ -144,7 +144,7 @@ public struct PointShadowFaceArray
 
 /// <summary>Inline storage for <see cref="LightingUbo.ShadowCascades"/>, four matrices.</summary>
 [InlineArray(LightingUboPacker.MaxCascades)]
-public struct ShadowCascadeArray
+internal struct ShadowCascadeArray
 {
     /// <summary>First-element placeholder required by <see cref="InlineArrayAttribute"/>.</summary>
     public Matrix4x4 _element0;
@@ -152,7 +152,7 @@ public struct ShadowCascadeArray
 
 /// <summary>Inline fixed-length backing storage for the <see cref="LightingUbo.Lights"/> array.</summary>
 [InlineArray(LightingUboPacker.MaxLights)]
-public struct LightUboEntryArray
+internal struct LightUboEntryArray
 {
     /// <summary>First-element placeholder required by <see cref="InlineArrayAttribute"/>.</summary>
     public LightUboEntry _element0;
@@ -162,7 +162,7 @@ public struct LightUboEntryArray
 /// Packs a <see cref="RenderLights"/> snapshot into a <see cref="LightingUbo"/> ready
 /// for upload through <see cref="DynamicBufferAllocator"/>.
 /// </summary>
-public static class LightingUboPacker
+internal static class LightingUboPacker
 {
     /// <summary>
     /// Hard cap on the number of analytic lights the lighting UBO carries per frame.

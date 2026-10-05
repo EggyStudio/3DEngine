@@ -21,7 +21,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="TextureDecoderRegistry"/>
 /// <seealso cref="TextureAssetLoader"/>
-public interface ITextureDecoder
+internal interface ITextureDecoder
 {
     /// <summary>
     /// File extensions this decoder handles, including the leading dot (e.g.
@@ -45,7 +45,7 @@ public interface ITextureDecoder
 /// It carries the color-space override that scene material binding needs (base color and
 /// emissive maps are sRGB, and normal, metallic-roughness and occlusion maps linear).
 /// </remarks>
-public sealed class TextureLoadSettings
+internal sealed class TextureLoadSettings
 {
     /// <summary>
     /// Override the decoded texture's <see cref="Texture.ColorSpace"/>. <c>null</c> lets
@@ -76,7 +76,7 @@ public sealed class TextureLoadSettings
 /// (<see cref="StbTexturesPlugin"/>, future Ktx2 / Dds / Exr ones) call
 /// <see cref="RegisterDecoder"/> during <see cref="IPlugin.Build"/>.
 /// </remarks>
-public sealed class TextureDecoderRegistry
+internal sealed class TextureDecoderRegistry
 {
     private readonly Dictionary<string, ITextureDecoder> _byExtension = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ITextureDecoder> _byFormat = new(StringComparer.OrdinalIgnoreCase);

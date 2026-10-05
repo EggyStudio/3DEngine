@@ -18,7 +18,7 @@ namespace Engine;
 /// single-sampled one by taking each pixel's first sample, as the color is resolved.
 /// </para>
 /// </remarks>
-public sealed class RenderTarget : IDisposable
+internal sealed class RenderTarget : IDisposable
 {
     private readonly Action _dispose;
 
@@ -56,7 +56,7 @@ public sealed class RenderTarget : IDisposable
     public void Dispose() => _dispose();
 }
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Creates a target of <paramref name="width"/> by <paramref name="height"/> pixels in the window's format, with depth, at the window's samples.</summary>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>

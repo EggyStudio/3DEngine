@@ -192,7 +192,7 @@ public sealed class MeshStore
 /// frames in flight, and each update is written into the next. Creating a buffer for each update instead
 /// cost about 2 ms a mesh in allocation on an NVIDIA driver (RENDERING.md §6).
 /// </remarks>
-public sealed class GpuMeshes : IDisposable
+internal sealed class GpuMeshes : IDisposable
 {
     /// <summary>One mesh's buffers, with the ring its vertices move through once they are replaced.</summary>
     public sealed record Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount)
@@ -319,7 +319,7 @@ public sealed class GpuMeshes : IDisposable
 }
 
 /// <summary>Prepare system that brings <see cref="GpuMeshes"/> up to date and hands it to the render world.</summary>
-public sealed class GpuMeshesPrepare : IPrepareSystem, IDisposable
+internal sealed class GpuMeshesPrepare : IPrepareSystem, IDisposable
 {
     private readonly GpuMeshes _meshes = new();
 
@@ -338,7 +338,7 @@ public sealed class GpuMeshesPrepare : IPrepareSystem, IDisposable
 /// Render graph node that poses the frame's skinned meshes on the GPU, before anything that draws
 /// them, the shadow map first.
 /// </summary>
-public sealed class SkinningNode : INode
+internal sealed class SkinningNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

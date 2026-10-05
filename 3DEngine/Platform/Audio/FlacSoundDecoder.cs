@@ -5,7 +5,7 @@ namespace Engine;
 /// The whole file is decoded into memory, as <see cref="OggSoundDecoder"/> does. Music played
 /// through <c>LoadMusicStream</c> is decoded from its file as it plays instead.
 /// </remarks>
-public sealed class FlacSoundDecoder : ISoundDecoder
+internal sealed class FlacSoundDecoder : ISoundDecoder
 {
     /// <inheritdoc />
     public string[] Extensions => [".flac"];

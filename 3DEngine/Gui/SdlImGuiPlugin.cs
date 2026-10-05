@@ -30,7 +30,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SdlImGuiRenderer"/>
 /// <seealso cref="SdlImGuiInput"/>
-public sealed class SdlImGuiPlugin : IPlugin
+internal sealed class SdlImGuiPlugin : IPlugin
 {
     // The app whose context ImGui holds, or null.
     private static App? _holder;

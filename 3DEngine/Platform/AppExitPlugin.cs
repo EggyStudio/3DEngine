@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="AppExit"/>
 /// <seealso cref="AppWindow"/>
-public sealed class AppExitPlugin : IPlugin
+internal sealed class AppExitPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.AppExit");
 
@@ -61,7 +61,7 @@ public sealed class AppExitPlugin : IPlugin
 }
 
 /// <summary>Resource tracking whether an application exit was requested.</summary>
-public sealed class AppExit
+internal sealed class AppExit
 {
     /// <summary>True once a quit event was observed, which closes the app.</summary>
     public bool Requested;

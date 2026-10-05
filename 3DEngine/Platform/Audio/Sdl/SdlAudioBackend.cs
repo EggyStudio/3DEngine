@@ -41,7 +41,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SdlAudioPlugin"/>
 /// <seealso cref="IAudioBackend"/>
-public sealed class SdlAudioBackend : IAudioBackend
+internal sealed class SdlAudioBackend : IAudioBackend
 {
     private static readonly ILogger Logger = Log.Category("Engine.Sound.Sdl");
 

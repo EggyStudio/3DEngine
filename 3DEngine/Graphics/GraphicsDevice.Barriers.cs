@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     // Barriers are synchronization2's, each naming the stages and accesses on both of its sides in
     // one structure, where the first form split stages from accesses across the call and the struct.

@@ -7,7 +7,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="Renderer"/>
 /// <seealso cref="IExtractSystem"/>
-public interface IPrepareSystem
+internal interface IPrepareSystem
 {
     /// <summary>Uploads or updates GPU resources using data from the render world.</summary>
     /// <param name="renderWorld">The render world containing extracted data.</param>

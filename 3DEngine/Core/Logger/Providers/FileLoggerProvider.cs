@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="ConsoleLoggerProvider"/>
 /// <seealso cref="LogConfig"/>
-public sealed class FileLoggerProvider : ILoggerProvider, IDisposable
+internal sealed class FileLoggerProvider : ILoggerProvider, IDisposable
 {
     private static FileLoggerProvider? _instance;
 

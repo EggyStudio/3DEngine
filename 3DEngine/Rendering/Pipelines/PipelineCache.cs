@@ -20,7 +20,7 @@ namespace Engine;
 /// <seealso cref="GraphicsPipelineDesc"/>
 /// <seealso cref="IPipeline"/>
 /// <seealso cref="RenderWorld"/>
-public sealed class PipelineCache : IDisposable
+internal sealed class PipelineCache : IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.Renderer.PipelineCache");
 

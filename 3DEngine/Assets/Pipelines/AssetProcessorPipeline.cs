@@ -26,7 +26,7 @@ namespace Engine;
 /// </code>
 /// </example>
 /// <seealso cref="IAssetProcessor"/>
-public sealed class AssetProcessorPipeline
+internal sealed class AssetProcessorPipeline
 {
     private static readonly ILogger Logger = Log.Category("Engine.AssetProcessor");
 

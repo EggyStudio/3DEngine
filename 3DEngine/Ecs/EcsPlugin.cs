@@ -41,7 +41,7 @@ namespace Engine;
 /// <seealso cref="EcsWorld"/>
 /// <seealso cref="EcsCommands"/>
 /// <seealso cref="BehaviorsPlugin"/>
-public sealed class EcsPlugin : IPlugin
+internal sealed class EcsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.ECS");
 

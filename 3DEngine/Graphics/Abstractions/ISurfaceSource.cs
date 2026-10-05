@@ -5,7 +5,7 @@ namespace Engine;
 /// Implemented by window backends (e.g., SDL) to bridge the platform window into the Vulkan graphics pipeline.
 /// </summary>
 /// <seealso cref="IGraphicsDevice"/>
-public interface ISurfaceSource
+internal interface ISurfaceSource
 {
     /// <summary>Returns the Vulkan instance extensions required by the platform surface (e.g., <c>VK_KHR_surface</c>, <c>VK_KHR_xlib_surface</c>).</summary>
     /// <returns>A read-only list of extension name strings.</returns>
@@ -33,7 +33,7 @@ public interface ISurfaceSource
 /// </summary>
 /// <param name="width">The width drawn at.</param>
 /// <param name="height">The height drawn at.</param>
-public sealed class OffscreenSurface(uint width, uint height) : ISurfaceSource
+internal sealed class OffscreenSurface(uint width, uint height) : ISurfaceSource
 {
     /// <summary>
     /// The size of the images drawn into, which <c>window.size</c> changes as a window's is

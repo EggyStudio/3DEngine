@@ -7,7 +7,7 @@ namespace Engine;
 /// pass object or framebuffer made ahead, and moves those images into and out of their attachment
 /// layouts by barriers of its own.
 /// </summary>
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>What a pass draws into, by format and samples, which is all a pipeline drawing in it is made for.</summary>
     /// <remarks>

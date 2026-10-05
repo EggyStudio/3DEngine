@@ -18,7 +18,7 @@ namespace Engine;
 /// </para>
 /// <para>Read with <c>e3d command profile</c>, or <see cref="Report"/> in a program.</para>
 /// </remarks>
-public sealed class FrameProfile
+internal sealed class FrameProfile
 {
     // Each value's average, kept with a weight that halves a value's say after about 40 frames.
     private const double Weight = 1.0 / 60;
@@ -127,7 +127,7 @@ public sealed class FrameProfile
 }
 
 /// <summary>Measures every frame into the <see cref="FrameProfile"/> resource, at the start of the next.</summary>
-public sealed class FrameProfilePlugin : IPlugin
+internal sealed class FrameProfilePlugin : IPlugin
 {
     /// <inheritdoc />
     public void Build(App app)

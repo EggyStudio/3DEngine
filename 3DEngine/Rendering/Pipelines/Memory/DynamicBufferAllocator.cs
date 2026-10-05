@@ -16,7 +16,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="DynamicAllocation"/>
 /// <seealso cref="RendererContext"/>
-public sealed partial class DynamicBufferAllocator : IDisposable
+internal sealed partial class DynamicBufferAllocator : IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.DynamicAllocator");
 

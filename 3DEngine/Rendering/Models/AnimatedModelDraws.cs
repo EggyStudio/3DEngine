@@ -21,7 +21,7 @@ namespace Engine;
 /// blends from it to the new one over <see cref="AnimatedModel.BlendSeconds"/>.
 /// </para>
 /// </remarks>
-public sealed class AnimatedModelDraws
+internal sealed class AnimatedModelDraws
 {
     private static readonly ILogger Logger = Log.Category("Engine.Models");
 

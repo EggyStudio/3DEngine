@@ -5,7 +5,7 @@ using SDL3;
 namespace Engine;
 
 /// <summary>Translates SDL input events into ImGui IO events (keys, mouse, text, wheel).</summary>
-public static class SdlImGuiInput
+internal static class SdlImGuiInput
 {
     /// <summary>Processes an SDL event and updates the ImGui input state accordingly.</summary>
     /// <param name="e">The SDL event to process.</param>

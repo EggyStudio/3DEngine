@@ -3,7 +3,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Creates the swapchain, image views, depth buffer, the frame images' attachments, and command pool.</summary>
     private partial void CreateSwapchainResources()

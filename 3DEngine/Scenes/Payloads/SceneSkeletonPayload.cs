@@ -24,7 +24,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SceneSkinPayload"/>
 /// <seealso cref="SceneAnimationPayload"/>
-public sealed class SceneSkeletonPayload
+internal sealed class SceneSkeletonPayload
 {
     /// <summary>Display name (typically the source skeleton / armature node name).</summary>
     public string Name { get; init; } = "Skeleton";

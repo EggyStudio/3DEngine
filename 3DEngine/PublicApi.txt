@@ -1,13 +1,3 @@
-enum Engine.AcquireResult : int
-  Error = 3
-  OutOfDate = 1
-  Suboptimal = 2
-  Success = 0
-sealed class Engine.ActiveSwapchainPass : IDisposable
-  ActiveSwapchainPass(TrackedRenderPass pass, Extent2D extent)
-  Extent2D Extent { get; }
-  TrackedRenderPass Pass { get; }
-  void Dispose()
 sealed class Engine.AddedAttribute : Attribute
   AddedAttribute(params Type[] types)
   Type[] Types { get; }
@@ -18,11 +8,6 @@ struct Engine.AnimatedModel
   float Time
   string Clip
   string Path
-sealed class Engine.AnimatedModelDraws
-  AnimatedModelDraws()
-  int FileCount { get; }
-  int ModelCount { get; }
-  static void Run(World world)
 sealed class Engine.App : IDisposable
   App AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
   App AddPlugin(IPlugin plugin)
@@ -57,33 +42,6 @@ sealed class Engine.App : IDisposable
   void Run()
   void Shutdown()
   void Startup()
-sealed class Engine.AppExit
-  AppExit()
-  bool Requested
-sealed class Engine.AppExitPlugin : IPlugin
-  AppExitPlugin()
-  void Build(App app)
-sealed class Engine.AppWindow
-  AppWindow(WindowData windowData)
-  AppWindow(WindowData windowData, GraphicsBackend backend)
-  SdlWindow Sdl { get; }
-  bool IsFocused()
-  bool Minimized { get; }
-  bool PollEvents()
-  bool WaitForEvents { get; set; }
-  event Action<SDL.Event>? SDLEvent
-  event Action? EventsPolled
-  event Action? QuitEvent
-  event AppWindow.ResizeEventHandler? ResizeEvent
-  void Dispose(Action? onDispose)
-  void Looping(params Delegate[] onFrame)
-  void RequestClose()
-  void Show(WindowCommand command = WindowCommand.Normal)
-delegate void Engine.AppWindow.ResizeEventHandler(int width, int height)
-sealed class Engine.AppWindowPlugin : IPlugin
-  AppWindowPlugin()
-  int Order { get; }
-  void Build(App app)
 enum Engine.AssetEventKind : int
   Added = 0
   LoadedWithDependencies = 3
@@ -147,20 +105,6 @@ readonly struct Engine.AssetPath : IEquatable<AssetPath>
   string FileName { get; }
   string Path { get; }
   string? Label { get; }
-sealed class Engine.AssetPlugin : IPlugin
-  AssetPlugin()
-  bool RegisterBuiltInLoaders { get; init; }
-  bool WatchForChanges { get; init; }
-  int Order { get; }
-  int? WorkerThreads { get; init; }
-  string? AssetDirectory { get; init; }
-  void Build(App app)
-sealed class Engine.AssetProcessorPipeline
-  AssetProcessorPipeline Register(IAssetProcessor processor)
-  AssetProcessorPipeline(string sourceDirectory, string processedDirectory)
-  Task<bool> ProcessFileAsync(string relativePath, CancellationToken ct = default)
-  Task<int> ProcessAllAsync(CancellationToken ct = default)
-  void ClearCache()
 sealed class Engine.AssetRelease
   AssetRelease()
   double Grace { get; set; }
@@ -200,36 +144,10 @@ sealed class Engine.Assets<T> : IDisposable
   bool TryGet(Handle<T?> handle, out T? asset)
   int Count { get; }
   void Dispose()
-sealed class Engine.AssimpModelLoader : IAssetLoader<SceneAsset>
-  AssimpModelLoader(AssimpModelReader reader)
-  Task<AssetLoadResult<SceneAsset>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  string[] Extensions { get; }
-sealed class Engine.AssimpModelPlugin : IPlugin
-  AssimpModelPlugin()
-  void Build(App app)
-sealed class Engine.AssimpModelReader : ISceneReader
-  AssimpModelReader()
-  Task<Scene> ReadAsync(AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
-  string FormatId { get; }
-  string[] Extensions { get; }
 delegate void Engine.AudioCallback(Span<float> samples)
 struct Engine.AudioListener
   float MasterVolume
   static AudioListener Default { get; }
-static class Engine.AudioListenerSystem
-  static void Run(World world)
-static class Engine.AudioLoadExtensions
-  static AudioServer Audio(this BehaviorContext ctx)
-  static AudioServer Audio(this World world)
-  static AudioSource CreateSource(this AudioServer server, World world, string path, AudioVoiceParams parameters = default)
-  static AudioSource CreateSpatialSource(this AudioServer server, World world, string path, AudioVoiceParams parameters = default)
-  static AudioSource PlaySound(this BehaviorContext ctx, string path, AudioVoiceParams parameters = default)
-  static AudioSource PlaySound(this World world, string path, AudioVoiceParams parameters = default)
-  static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default)
-  static AudioSource PlaySpatialSound(this World world, string path, Vector3 position, AudioVoiceParams parameters = default)
-  static Handle<Sound> LoadSound(this AssetServer server, string path)
-  static Handle<Sound> LoadSound(this BehaviorContext ctx, string path)
-  static Handle<Sound> LoadSound(this World world, string path)
 sealed class Engine.AudioServer : IDisposable
   AudioServer()
   AudioSource Play(Handle<Sound> handle, Assets<Sound> assets, AudioVoiceParams parameters = default)
@@ -274,8 +192,6 @@ readonly struct Engine.AudioSource : IEquatable<AudioSource>
 sealed class Engine.AudioStream
   int Channels { get; }
   int SampleRate { get; }
-static class Engine.AudioUpdateSystem
-  static void Run(World world)
 readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
   Quaternion? Orientation { get; init; }
   Vector3? Position { get; init; }
@@ -296,9 +212,6 @@ readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
   static bool op_Inequality(AudioVoiceParams left, AudioVoiceParams right)
 sealed class Engine.BehaviorAttribute : Attribute
   BehaviorAttribute()
-sealed class Engine.BehaviorCompilationResult : RuntimeCompilationResult
-  BehaviorCompilationResult()
-  int RegisteredCount { get; set; }
 static class Engine.BehaviorConditions
   static Func<World, bool> AnyWithComponent<T>()
   static Func<World, bool> HasResource<T>()
@@ -327,11 +240,6 @@ sealed class Engine.BehaviorGenerator : IIncrementalGenerator
   void Initialize(IncrementalGeneratorInitializationContext ctx)
 static class Engine.BehaviorRegistration
   static void Register(App app)
-sealed class Engine.BehaviorsPlugin : IPlugin
-  BehaviorsPlugin()
-  string DynamicSourceTag { get; init; }
-  string? ScriptsDirectory { get; init; }
-  void Build(App app)
 enum Engine.BlendMode : int
   AddColors = 3
   Additive = 1
@@ -339,36 +247,6 @@ enum Engine.BlendMode : int
   AlphaPremultiply = 5
   Multiplied = 2
   SubtractColors = 4
-sealed class Engine.BloomFrame : IEquatable<BloomFrame>
-  BloomFrame(int Split)
-  bool Equals(BloomFrame? other)
-  int Split { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(BloomFrame? left, BloomFrame? right)
-  static bool op_Inequality(BloomFrame? left, BloomFrame? right)
-  void Deconstruct(out int Split)
-sealed class Engine.BloomNode : INode
-  BloomNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.BloomRenderer : IDisposable
-  BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa, ShaderProgram exposure, ShaderProgram dof, ShaderProgram motionBlur)
-  bool DrawScene(RenderContext renderContext, RenderWorld renderWorld, Extent2D extent, int split)
-  static bool IsOn(RenderWorld renderWorld)
-  void Adapt(RenderContext renderContext, FrameEffects effects)
-  void Composite(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
-  void CompositeForFxaa(RenderContext renderContext, BloomSettings? bloom, FrameEffects? effects)
-  void Dispose()
-  void DrawChain(RenderContext renderContext, float threshold)
-  void Fxaa(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext)
-  void Lens(RenderContext renderContext, FrameEffects effects, WindowView? view)
-  void Release()
-sealed class Engine.BloomSettings
-  BloomSettings()
-  bool On { get; }
-  float Intensity { get; set; }
-  float Threshold { get; set; }
 enum Engine.BodyKind : byte
   Dynamic = 0
   Kinematic = 1
@@ -396,31 +274,6 @@ readonly struct Engine.BoundingBox : IEquatable<BoundingBox>
   static bool op_Equality(BoundingBox left, BoundingBox right)
   static bool op_Inequality(BoundingBox left, BoundingBox right)
   void Deconstruct(out Vector3 Min, out Vector3 Max)
-readonly struct Engine.BufferDesc : IEquatable<BufferDesc>
-  BufferDesc(ulong Size, BufferUsage Usage, CpuAccessMode CpuAccess = CpuAccessMode.None)
-  BufferUsage Usage { get; init; }
-  CpuAccessMode CpuAccess { get; init; }
-  bool Equals(BufferDesc other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(BufferDesc left, BufferDesc right)
-  static bool op_Inequality(BufferDesc left, BufferDesc right)
-  ulong Size { get; init; }
-  void Deconstruct(out ulong Size, out BufferUsage Usage, out CpuAccessMode CpuAccess)
-enum Engine.BufferUsage : int
-  Index = 2
-  None = 0
-  Staging = 32
-  Storage = 64
-  TransferDst = 16
-  TransferSrc = 8
-  Uniform = 4
-  Vertex = 1
-sealed class Engine.ByteArrayLoader : IAssetLoader<byte[]>
-  ByteArrayLoader(params string[] extensions)
-  Task<AssetLoadResult<byte[]>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  string[] Extensions { get; }
 struct Engine.Camera
   Camera(float fovY = 60f, float near = 0.1f, float far = 1000f, RenderTexture2D target = default)
   Color Background
@@ -452,10 +305,6 @@ struct Engine.Camera3D
   Vector3 Target
   Vector3 Up
   float FovY
-sealed class Engine.CameraExtract : IExtractSystem
-  CameraExtract()
-  static (Matrix4x4, Matrix4x4) Matrices(EcsWorld ecs, int entity, in Camera cam, float aspect)
-  void Run(World world, RenderWorld renderWorld)
 enum Engine.CameraMode : int
   FirstPerson = 2
   Free = 0
@@ -464,16 +313,6 @@ enum Engine.CameraMode : int
 enum Engine.CameraProjection : int
   Orthographic = 1
   Perspective = 0
-struct Engine.CameraUniform
-  Matrix4x4 Projection
-  Matrix4x4 View
-static class Engine.ChangeTicks
-  static (long, long) Enter(long lastRun, out long tick)
-  static bool InSystem { get; }
-  static long ForWrite { get; }
-  static long Latest { get; }
-  static long Since(long frameStart)
-  static void Leave((long, long) outer)
 sealed class Engine.ChangedAttribute : Attribute
   ChangedAttribute(params Type[] types)
   Type[] Types { get; }
@@ -485,74 +324,6 @@ struct Engine.CharacterController
   float MaxSlope
   float StepHeight
   static CharacterController Default { get; }
-readonly struct Engine.ClearColor : IEquatable<ClearColor>
-  ClearColor(float R, float G, float B, float A)
-  bool Equals(ClearColor other)
-  float A { get; init; }
-  float B { get; init; }
-  float G { get; init; }
-  float R { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ClearColor left, ClearColor right)
-  static bool op_Inequality(ClearColor left, ClearColor right)
-  static readonly ClearColor Black
-  void Deconstruct(out float R, out float G, out float B, out float A)
-static class Engine.CliClient
-  static string Send(CliSession session, string operation, string? line = null, double seconds = 30d)
-readonly struct Engine.CliError : IEquatable<CliError>
-  CliError(string Code, string Message)
-  bool Equals(CliError other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(CliError left, CliError right)
-  static bool op_Inequality(CliError left, CliError right)
-  string Code { get; init; }
-  string Message { get; init; }
-  void Deconstruct(out string Code, out string Message)
-static class Engine.CliJson
-  static string Envelope(string command, bool success, Action<Utf8JsonWriter>? data = null, IReadOnlyList<CliError>? errors = null, IReadOnlyList<string>? warnings = null, string? id = null)
-  static string Fail(string command, string code, string message, string? id = null)
-  static string Ok(string command, Action<Utf8JsonWriter>? data = null, string? id = null)
-sealed class Engine.CliPlugin : IPlugin
-  CliPlugin()
-  int Order { get; }
-  void Build(App app)
-sealed class Engine.CliSession : IEquatable<CliSession>
-  CliSession(int Pid, int Port, string Token, string Project, string Name, string Title, string Mode, DateTimeOffset Started, bool Renderer, string State, ulong Frame, DateTimeOffset Heartbeat)
-  DateTimeOffset Heartbeat { get; init; }
-  DateTimeOffset Started { get; init; }
-  bool Equals(CliSession? other)
-  bool Renderer { get; init; }
-  bool Running { get; }
-  bool Stale { get; }
-  int Pid { get; init; }
-  int Port { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(CliSession? left, CliSession? right)
-  static bool op_Inequality(CliSession? left, CliSession? right)
-  static readonly TimeSpan Patience
-  string Mode { get; init; }
-  string Name { get; init; }
-  string Project { get; init; }
-  string Report { get; }
-  string State { get; init; }
-  string Title { get; init; }
-  string Token { get; init; }
-  ulong Frame { get; init; }
-  void Deconstruct(out int Pid, out int Port, out string Token, out string Project, out string Name, out string Title, out string Mode, out DateTimeOffset Started, out bool Renderer, out string State, out ulong Frame, out DateTimeOffset Heartbeat)
-static class Engine.CliSessionFile
-  static CliSession? Read(string path)
-  static IReadOnlyList<CliSession> All()
-  static int Prune()
-  static string Directory { get; set; }
-  static string PathFor(int pid)
-  static void Remove(int pid)
-  static void Write(CliSession session)
 struct Engine.Collider
   ColliderShape Shape
   Vector3 Size
@@ -611,18 +382,6 @@ readonly struct Engine.Color : IEquatable<Color>
   static readonly Color White
   static readonly Color Yellow
   void Deconstruct(out byte R, out byte G, out byte B, out byte A)
-readonly struct Engine.CombinedImageSamplerBinding : IEquatable<CombinedImageSamplerBinding>
-  CombinedImageSamplerBinding(IImageView ImageView, ISampler Sampler, uint Binding)
-  IImageView ImageView { get; init; }
-  ISampler Sampler { get; init; }
-  bool Equals(CombinedImageSamplerBinding other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(CombinedImageSamplerBinding left, CombinedImageSamplerBinding right)
-  static bool op_Inequality(CombinedImageSamplerBinding left, CombinedImageSamplerBinding right)
-  uint Binding { get; init; }
-  void Deconstruct(out IImageView ImageView, out ISampler Sampler, out uint Binding)
 sealed class Engine.CommandAttribute : Attribute
   CommandAttribute(string name = "", string help = "")
   string Help { get; }
@@ -643,21 +402,6 @@ readonly struct Engine.CommandParameter : IEquatable<CommandParameter>
   string Kind { get; init; }
   string Name { get; init; }
   void Deconstruct(out string Name, out string Kind, out bool TakesLine)
-enum Engine.CompareOp : int
-  Always = 7
-  Equal = 2
-  Greater = 4
-  GreaterOrEqual = 6
-  Less = 1
-  LessOrEqual = 3
-  Never = 0
-  NotEqual = 5
-sealed class Engine.ComputePipeline : IDisposable
-  IReadOnlyList<int> BufferBindings { get; }
-  IReadOnlyList<int> ImageBindings { get; }
-  IReadOnlyList<int> TextureBindings { get; }
-  int UniformSize { get; }
-  void Dispose()
 sealed class Engine.ComputedStateAttribute : Attribute
   ComputedStateAttribute()
 sealed class Engine.Config : IEquatable<Config>
@@ -722,29 +466,6 @@ static class Engine.ConsoleCommands
   static string[] Split(string line)
   static void Add(ConsoleCommand command)
   static void Add(string name, string help, Func<string[], string?> run)
-static class Engine.ConsoleHost
-  const ulong LaterFrames = 600UL
-  static App? App { get; }
-  static ConsoleHost.Scope Lend(World world, App? app = null)
-  static EcsWorld Ecs { get; }
-  static Time Time { get; }
-  static World? World { get; }
-  static void Fail(string code, string message)
-  static void Hold(ulong frame)
-  static void Later(Func<string?> poll)
-readonly struct Engine.ConsoleHost.Scope : IDisposable
-  void Dispose()
-static class Engine.ConsoleLog
-  const int Depth = 2000
-  static LogLine[] All()
-  static int Written { get; }
-  static ulong Frame { get; set; }
-  static void Clear()
-  static void TeeConsole()
-  static void Write(LogLevel level, string text)
-sealed class Engine.ConsoleLoggerProvider : ILoggerProvider
-  static ConsoleLoggerProvider Instance { get; }
-  void Log(LogLevel level, string category, string message, Exception? exception = null)
 readonly struct Engine.ContactEnded : IEquatable<ContactEnded>
   ContactEnded(Entity A, Entity B, PhysicsBody BodyA, PhysicsBody BodyB)
   Entity A { get; init; }
@@ -777,40 +498,10 @@ readonly struct Engine.ContactStarted : IEquatable<ContactStarted>
   static bool op_Equality(ContactStarted left, ContactStarted right)
   static bool op_Inequality(ContactStarted left, ContactStarted right)
   void Deconstruct(out Entity A, out Entity B, out PhysicsBody BodyA, out PhysicsBody BodyB, out Vector3 Point, out Vector3 Normal, out float Speed)
-enum Engine.CpuAccessMode : int
-  None = 0
-  Read = 1
-  ReadWrite = 3
-  Write = 2
-sealed class Engine.CubeMap : IDisposable
-  IImageView View { get; }
-  ISampler Sampler { get; }
-  uint MipLevels { get; }
-  uint Size { get; }
-  void Dispose()
 sealed class Engine.DefaultPlugins : IPlugin, IPluginGroup
   DefaultPlugins()
   IEnumerable<IPlugin> GetPlugins()
   void Build(App app)
-readonly struct Engine.DescriptorSetLayoutBinding : IEquatable<DescriptorSetLayoutBinding>
-  DescriptorSetLayoutBinding(uint Binding, DescriptorType Type, ShaderStageFlags Stages, uint Count = 1u)
-  DescriptorType Type { get; init; }
-  ShaderStageFlags Stages { get; init; }
-  bool Equals(DescriptorSetLayoutBinding other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(DescriptorSetLayoutBinding left, DescriptorSetLayoutBinding right)
-  static bool op_Inequality(DescriptorSetLayoutBinding left, DescriptorSetLayoutBinding right)
-  uint Binding { get; init; }
-  uint Count { get; init; }
-  void Deconstruct(out uint Binding, out DescriptorType Type, out ShaderStageFlags Stages, out uint Count)
-enum Engine.DescriptorType : int
-  CombinedImageSampler = 1
-  StorageBuffer = 3
-  StorageImage = 4
-  UniformBuffer = 0
-  UniformBufferDynamic = 2
 readonly struct Engine.DespawnOnExit<TState> : IEquatable<DespawnOnExit<TState>> where TState : struct, Enum
   DespawnOnExit(TState Value)
   TState Value { get; init; }
@@ -821,92 +512,6 @@ readonly struct Engine.DespawnOnExit<TState> : IEquatable<DespawnOnExit<TState>>
   static bool op_Equality(DespawnOnExit<TState> left, DespawnOnExit<TState> right)
   static bool op_Inequality(DespawnOnExit<TState> left, DespawnOnExit<TState> right)
   void Deconstruct(out TState Value)
-readonly struct Engine.DeviceUsage : IEquatable<DeviceUsage>
-  DeviceUsage(int Buffers, int Images, int DescriptorSets, int Pipelines, int MemoryBlocks, long BlockBytes, long UsedBytes)
-  bool Equals(DeviceUsage other)
-  int Buffers { get; init; }
-  int DescriptorSets { get; init; }
-  int Images { get; init; }
-  int MemoryBlocks { get; init; }
-  int Pipelines { get; init; }
-  long BlockBytes { get; init; }
-  long UsedBytes { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(DeviceUsage left, DeviceUsage right)
-  static bool op_Inequality(DeviceUsage left, DeviceUsage right)
-  void Deconstruct(out int Buffers, out int Images, out int DescriptorSets, out int Pipelines, out int MemoryBlocks, out long BlockBytes, out long UsedBytes)
-readonly struct Engine.DrawBatch : IEquatable<DrawBatch>
-  BlendMode Blend { get; init; }
-  DrawBatch(PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount, int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null, BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null)
-  Matrix4x4 Transform { get; init; }
-  PrimitiveTopology Topology { get; init; }
-  ScissorRect? Scissor { get; init; }
-  ShaderParams Params { get; init; }
-  bool DepthTest { get; init; }
-  bool Equals(DrawBatch other)
-  byte[]? Uniforms { get; init; }
-  int FirstIndex { get; init; }
-  int IndexCount { get; init; }
-  int Shader { get; init; }
-  int Target { get; init; }
-  int Texture { get; init; }
-  int[]? Textures { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(DrawBatch left, DrawBatch right)
-  static bool op_Inequality(DrawBatch left, DrawBatch right)
-  void Deconstruct(out PrimitiveTopology Topology, out Matrix4x4 Transform, out bool DepthTest, out int FirstIndex, out int IndexCount, out int Texture, out int Target, out int Shader, out ShaderParams Params, out byte[]? Uniforms, out int[]? Textures, out BlendMode Blend, out ScissorRect? Scissor)
-sealed class Engine.DrawList
-  BlendMode Blend { get; }
-  DrawList()
-  IReadOnlyDictionary<int, Color> TargetClears { get; }
-  IReadOnlyList<DrawBatch> Batches { get; }
-  Matrix4x4 Transform { get; }
-  ReadOnlySpan<ImmediateVertex> Vertices { get; }
-  ReadOnlySpan<uint> Indices { get; }
-  ScissorRect? Scissor { get; }
-  ShaderParams Params { get; }
-  bool DepthTest { get; }
-  byte[]? Uniforms { get; }
-  int Shader { get; }
-  int Target { get; }
-  int[]? Textures { get; }
-  void Clear()
-  void Line(Vector3 from, Vector3 to, Color color)
-  void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color color)
-  void SetBlend(BlendMode blend)
-  void SetScissor(ScissorRect? scissor)
-  void SetShader(int shader, ShaderParams parameters, byte[]? uniforms = null, int[]? textures = null)
-  void SetTarget(int target)
-  void SetTargetClear(Color color)
-  void SetTransform(Matrix4x4 transform, bool depthTest)
-  void TexturedQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD, Color tint, int texture)
-  void Triangle(Vector3 a, Color colorA, Vector3 b, Color colorB, Vector3 c, Color colorC)
-  void Triangle(Vector3 a, Vector3 b, Vector3 c, Color color)
-  void UseTarget(int target, Color clear)
-readonly struct Engine.DynamicAllocation : IEquatable<DynamicAllocation>
-  DynamicAllocation(IBuffer Buffer, ulong Offset, ulong Size)
-  IBuffer Buffer { get; init; }
-  bool Equals(DynamicAllocation other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(DynamicAllocation left, DynamicAllocation right)
-  static bool op_Inequality(DynamicAllocation left, DynamicAllocation right)
-  ulong Offset { get; init; }
-  ulong Size { get; init; }
-  void Deconstruct(out IBuffer Buffer, out ulong Offset, out ulong Size)
-sealed class Engine.DynamicBufferAllocator : IDisposable
-  DynamicAllocation Allocate(ulong size, BufferUsage usage)
-  DynamicBufferAllocator(IGraphicsDevice gfx)
-  Span<byte> Map(DynamicAllocation alloc)
-  void BeginFrame(int inFlightIndex)
-  void Dispose()
-  void Reset()
-  void Unmap(DynamicAllocation alloc)
 sealed class Engine.EcsCommands
   EcsCommands Add<T>(int entity, T? component)
   EcsCommands Despawn(int entity)
@@ -918,9 +523,6 @@ sealed class Engine.EcsCommands
   EcsCommands SpawnBatch<T>(int count, Func<int, T?> factory)
   EcsCommands()
   void Apply(EcsWorld world)
-sealed class Engine.EcsPlugin : IPlugin
-  EcsPlugin()
-  void Build(App app)
 sealed class Engine.EcsWorld : IDisposable
   EcsWorld()
   EcsWorld.ComponentSpan<T> GetSpan<T>()
@@ -1156,11 +758,6 @@ readonly struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>
 struct Engine.EcsWorld.RefEnumerable<T1, T2, T3>.RefEnumerator
   EcsWorld.RefComponents<T1, T2, T3> Current { get; }
   bool MoveNext()
-sealed class Engine.EmbeddedAssetReader : IAssetReader
-  EmbeddedAssetReader(Assembly assembly, string prefix)
-  IAssetWatcher? CreateWatcher()
-  Task<Stream> ReadAsync(AssetPath path, CancellationToken ct = default)
-  bool Exists(AssetPath path)
 static class Engine.Engine3D
   const int AnimationFps = 60
   static App GetApp()
@@ -1809,18 +1406,6 @@ readonly struct Engine.Entity : IEquatable<Entity>
   static bool op_Equality(Entity left, Entity right)
   static bool op_Inequality(Entity left, Entity right)
   void Deconstruct(out int Index, out int Generation)
-sealed class Engine.EnvironmentMap
-  Half[] SkyTexels { get; }
-  Half[] Texels { get; }
-  Vector3 IrradianceAt(Vector3 normal)
-  Vector3[] Irradiance { get; }
-  float Intensity { get; set; }
-  int MipLevels { get; }
-  int Size { get; }
-  int SkySize { get; }
-  static EnvironmentMap FromEquirectangular(Image image, float intensity = 1f, int faceSize = 64)
-  static EnvironmentMap FromHdrFile(byte[] file, float intensity = 1f, int faceSize = 64)
-  static EnvironmentMap FromLinear(Vector3[] pixels, int width, int height, float intensity = 1f, int faceSize = 64)
 readonly struct Engine.EventReader<T>
   EventReader(Events<T?> events)
   IReadOnlyList<T?> Drain()
@@ -1845,102 +1430,6 @@ sealed class Engine.Events<T>
   void Clear()
   void Send(T? evt)
   void SendBatch(ReadOnlySpan<T?> events)
-sealed class Engine.ExceptionHandlerInstalled
-  ExceptionHandlerInstalled()
-sealed class Engine.ExceptionsPlugin : IPlugin
-  ExceptionsPlugin()
-  void Build(App app)
-readonly struct Engine.Extent2D : IEquatable<Extent2D>
-  Extent2D(uint Width, uint Height)
-  bool Equals(Extent2D other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(Extent2D left, Extent2D right)
-  static bool op_Inequality(Extent2D left, Extent2D right)
-  uint Height { get; init; }
-  uint Width { get; init; }
-  void Deconstruct(out uint Width, out uint Height)
-struct Engine.ExtractedView
-  Matrix4x4 Projection
-  Matrix4x4 View
-  int Height
-  int Width
-sealed class Engine.FileAssetReader : IAssetReader
-  FileAssetReader(string? baseDirectory = null)
-  IAssetWatcher? CreateWatcher()
-  Task<Stream> ReadAsync(AssetPath path, CancellationToken ct = default)
-  bool Exists(AssetPath path)
-  string BaseDirectory { get; }
-  string ResolvePath(AssetPath path)
-readonly struct Engine.FileChangedEvent : IEquatable<FileChangedEvent>
-  FileChangedEvent(string FilePath, string RelativePath, WatcherChangeTypes ChangeType)
-  WatcherChangeTypes ChangeType { get; init; }
-  bool Equals(FileChangedEvent other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(FileChangedEvent left, FileChangedEvent right)
-  static bool op_Inequality(FileChangedEvent left, FileChangedEvent right)
-  string FilePath { get; init; }
-  string RelativePath { get; init; }
-  void Deconstruct(out string FilePath, out string RelativePath, out WatcherChangeTypes ChangeType)
-sealed class Engine.FileLoggerProvider : IDisposable, ILoggerProvider
-  static FileLoggerProvider? Instance { get; }
-  static void Initialize(string logFilePath)
-  void Dispose()
-  void Log(LogLevel level, string category, string message, Exception? exception = null)
-sealed class Engine.FileWatcher : IDisposable
-  FileWatcher WithDebounce(TimeSpan debounce)
-  FileWatcher WithExtensions(params string[] patterns)
-  FileWatcher WithRecursive(bool recursive)
-  FileWatcher(string directory)
-  bool IsWatching { get; }
-  event Action<FileChangedEvent[]>? Changed
-  string Directory { get; }
-  void Dispose()
-  void Start()
-  void Stop()
-abstract class Engine.Files.Compiler.RuntimeAssemblyCompiler<TResult> : IDisposable where TResult : RuntimeCompilationResult, new()
-  RuntimeAssemblyCompiler<TResult> AddReference(Assembly assembly)
-  RuntimeAssemblyCompiler<TResult> AddReference(MetadataReference reference)
-  RuntimeAssemblyCompiler<TResult> WatchDirectory(string path)
-  TResult Recompile()
-  TResult Start()
-  event Action<TResult>? CompilationCompleted
-  protected Assembly? CompileWithRoslyn(List<string> csFiles, TResult result)
-  protected RuntimeAssemblyCompiler()
-  protected RuntimeAssemblyCompiler<TResult>.ScriptLoadContext? _currentContext
-  protected TResult CompileAndLoad()
-  protected Timer? _debounceTimer
-  protected abstract void OnAssemblyLoaded(Assembly assembly, TResult result)
-  protected int _generation
-  protected readonly List<FileSystemWatcher> _watchers
-  protected readonly List<MetadataReference> _references
-  protected readonly List<string> _scriptDirectories
-  protected readonly List<string> _userAssemblyPaths
-  protected readonly Lock _compileLock
-  protected virtual CSharpCompilation RunGenerators(CSharpCompilation compilation, TResult result)
-  protected virtual string AssemblyNamePrefix { get; }
-  protected virtual string LoadContextPrefix { get; }
-  protected virtual string[] WatchedExtensions { get; }
-  protected virtual void OnDispose()
-  protected virtual void OnNoSourceFiles(TResult result)
-  protected void UnloadCurrent()
-  void Dispose()
-class Engine.Files.Compiler.RuntimeCompilationError
-  RuntimeCompilationError()
-  int Column { get; set; }
-  int Line { get; set; }
-  string FileName { get; set; }
-  string Message { get; set; }
-class Engine.Files.Compiler.RuntimeCompilationResult
-  List<RuntimeCompilationError> Errors { get; set; }
-  List<string> Warnings { get; set; }
-  RuntimeCompilationResult()
-  bool Success { get; set; }
-  string Message { get; set; }
-  string[] Files { get; set; }
 sealed class Engine.FixedTime
   FixedTime()
   bool TryStep()
@@ -1951,12 +1440,6 @@ sealed class Engine.FixedTime
   int MaxStepsPerFrame { get; set; }
   int StepsThisFrame { get; }
   void Accumulate(double deltaSeconds)
-sealed class Engine.FlacSoundDecoder : ISoundDecoder
-  FlacSoundDecoder()
-  Task<Sound> DecodeAsync(AssetLoadContext context, CancellationToken ct)
-  static Sound Decode(byte[] bytes, string sourcePath = "")
-  string FormatId { get; }
-  string[] Extensions { get; }
 sealed class Engine.Font
   FontType Type { get; }
   IReadOnlyDictionary<int, Glyph> Glyphs { get; }
@@ -1968,65 +1451,6 @@ enum Engine.FontType : int
   Bitmap = 1
   Default = 0
   Sdf = 2
-sealed class Engine.FrameEffects
-  Color Tint { get; set; }
-  FrameEffects()
-  Tonemap Tonemap { get; set; }
-  bool Active { get; }
-  bool AutoExposure { get; set; }
-  bool Fxaa { get; set; }
-  float AutoExposureMax { get; set; }
-  float AutoExposureMin { get; set; }
-  float AutoExposureSpeed { get; set; }
-  float Contrast { get; set; }
-  float Exposure { get; set; }
-  float FocusBlur { get; set; }
-  float FocusDistance { get; set; }
-  float FocusRange { get; set; }
-  float MotionBlur { get; set; }
-  float Saturation { get; set; }
-  float Vignette { get; set; }
-  float VignetteRadius { get; set; }
-sealed class Engine.FrameLightingBinding : IEquatable<FrameLightingBinding>
-  FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false, bool Linear = false)
-  UniformBufferBinding Binding { get; init; }
-  bool Equals(FrameLightingBinding? other)
-  bool HasEnvironment { get; init; }
-  bool Linear { get; init; }
-  int LightCount { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(FrameLightingBinding? left, FrameLightingBinding? right)
-  static bool op_Inequality(FrameLightingBinding? left, FrameLightingBinding? right)
-  void Deconstruct(out UniformBufferBinding Binding, out int LightCount, out bool HasEnvironment, out bool Linear)
-sealed class Engine.FrameProfile
-  (IReadOnlyList<(string, double)>, IReadOnlyList<(string, IReadOnlyList<(string, double)>)>) Snapshot()
-  FrameProfile()
-  double Average(string name)
-  long Frames { get; }
-  string Report()
-  string Slowest()
-  void Reset()
-  void Set(string name, double value)
-sealed class Engine.FrameProfilePlugin : IPlugin
-  FrameProfilePlugin()
-  void Build(App app)
-sealed class Engine.FrameShadow : IEquatable<FrameShadow>
-  FrameShadow(int Light, IReadOnlyList<(Matrix4x4, float)> Cascades, IReadOnlyList<(int, Matrix4x4, float)>? SpotLights = null, IReadOnlyList<(int, Matrix4x4[])>? PointLights = null, int TileSize = 2048, int PointFaceSize = 512)
-  IReadOnlyList<(Matrix4x4, float)> Cascades { get; init; }
-  IReadOnlyList<(int, Matrix4x4, float)>? SpotLights { get; init; }
-  IReadOnlyList<(int, Matrix4x4[])>? PointLights { get; init; }
-  bool Equals(FrameShadow? other)
-  int Light { get; init; }
-  int PointFaceSize { get; init; }
-  int TileSize { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(FrameShadow? left, FrameShadow? right)
-  static bool op_Inequality(FrameShadow? left, FrameShadow? right)
-  void Deconstruct(out int Light, out IReadOnlyList<(Matrix4x4, float)> Cascades, out IReadOnlyList<(int, Matrix4x4, float)>? SpotLights, out IReadOnlyList<(int, Matrix4x4[])>? PointLights, out int TileSize, out int PointFaceSize)
 enum Engine.GamepadAxis : int
   LeftTrigger = 4
   LeftX = 0
@@ -2108,182 +1532,9 @@ readonly struct Engine.Glyph : IEquatable<Glyph>
   static bool op_Equality(Glyph left, Glyph right)
   static bool op_Inequality(Glyph left, Glyph right)
   void Deconstruct(out float X0, out float Y0, out float X1, out float Y1, out float U0, out float V0, out float U1, out float V1, out float Advance)
-sealed class Engine.GpuMeshes : IDisposable
-  GpuMeshes()
-  GpuMeshes.Entry? Get(int id)
-  void Dispose()
-  void Update(IGraphicsDevice gfx, MeshStore? store)
-sealed class Engine.GpuMeshes.Entry : IEquatable<GpuMeshes.Entry>
-  Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount)
-  IBuffer Indices { get; init; }
-  IBuffer Vertices { get; init; }
-  bool Equals(GpuMeshes.Entry? other)
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(GpuMeshes.Entry? left, GpuMeshes.Entry? right)
-  static bool op_Inequality(GpuMeshes.Entry? left, GpuMeshes.Entry? right)
-  uint IndexCount { get; init; }
-  void Deconstruct(out IBuffer Vertices, out IBuffer Indices, out uint IndexCount)
-sealed class Engine.GpuMeshesPrepare : IDisposable, IPrepareSystem
-  GpuMeshesPrepare()
-  void Dispose()
-  void Run(RenderWorld renderWorld, RenderContext renderContext)
-sealed class Engine.GpuParticles : IDisposable
-  IBuffer Buffer { get; }
-  const int HeaderBytes = 64
-  const int ParticleBytes = 32
-  int Capacity { get; }
-  void Dispose()
-sealed class Engine.GpuSkin : IDisposable
-  IBuffer Output { get; }
-  int VertexCount { get; }
-  void Dispose()
-sealed class Engine.GpuTextures : IDisposable
-  (IImageView, ISampler) ViewFor(IGraphicsDevice gfx, int id, bool srgb = false)
-  GpuTextures()
-  IDescriptorSet SetFor(IGraphicsDevice gfx, int id)
-  RenderTarget? TargetFor(int id)
-  const int RetireFrames = 4
-  int Count { get; }
-  void Dispose()
-  void Update(IGraphicsDevice gfx, TextureStore? store)
-sealed class Engine.GpuTexturesPrepare : IDisposable, IPrepareSystem
-  GpuTexturesPrepare()
-  void Dispose()
-  void Run(RenderWorld renderWorld, RenderContext renderContext)
-readonly struct Engine.GraphicsAdapterInfo : IEquatable<GraphicsAdapterInfo>
-  GraphicsAdapterInfo(string Name, uint VendorId, uint DeviceId, GraphicsDeviceType DeviceType)
-  GraphicsDeviceType DeviceType { get; init; }
-  bool Equals(GraphicsAdapterInfo other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(GraphicsAdapterInfo left, GraphicsAdapterInfo right)
-  static bool op_Inequality(GraphicsAdapterInfo left, GraphicsAdapterInfo right)
-  static readonly GraphicsAdapterInfo Unknown
-  string Name { get; init; }
-  uint DeviceId { get; init; }
-  uint VendorId { get; init; }
-  void Deconstruct(out string Name, out uint VendorId, out uint DeviceId, out GraphicsDeviceType DeviceType)
 enum Engine.GraphicsBackend : int
   Sdl = 0
   Vulkan = 1
-sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
-  ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings, IReadOnlyList<int>? imageBindings = null, IReadOnlyList<int>? textureBindings = null)
-  CubeMap CreateCubeMap(uint size, uint mipLevels, ReadOnlySpan<Half> texels)
-  DeviceUsage Usage { get; }
-  GpuParticles CreateParticles(int capacity)
-  GpuSkin CreateSkin(ReadOnlySpan<ModelVertex> rest, ReadOnlySpan<ushort> joints, ReadOnlySpan<float> weights, int jointCount, int ring, ReadOnlySpan<Vector4> morphs = default, int morphCount = 0)
-  GraphicsAdapterInfo AdapterInfo { get; }
-  GraphicsDevice()
-  IBuffer CreateBuffer(BufferDesc desc)
-  IBuffer CreateStorageBuffer(int size)
-  ICommandBuffer BeginCommands()
-  IDescriptorSet CreateDescriptorSet()
-  IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
-  IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
-  IFrameContext BeginFrame(ClearColor? clearOverride = null)
-  IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
-  IImage CreateImage(ImageDesc desc)
-  IImageView CreateFirstLevelView(IImage image)
-  IImageView CreateImageView(IImage image)
-  IImageView CreateImageView(IImage image, ImageFormat format)
-  IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc)
-  IReadOnlyList<(string, double)> BeginTimestamps(ICommandBuffer commandBuffer, int slot)
-  IRenderPass SwapchainRenderPass { get; }
-  ISampler CreateSampler(SamplerDesc desc)
-  IShader CreateShader(ShaderDesc desc)
-  ISwapchain Swapchain { get; }
-  RenderTarget CreateRenderTarget(uint width, uint height)
-  RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true)
-  ShadowMap CreateShadowMap(uint size, uint layers = 1u)
-  Span<byte> Map(IBuffer buffer)
-  bool CanSkin { get; }
-  bool CanStepParticles { get; }
-  bool CanWriteImages { get; }
-  bool IsInitialized { get; }
-  bool TimestampsSupported { get; }
-  bool Vsync { get; set; }
-  double AcquireMs { get; }
-  double FenceWaitMs { get; }
-  double PresentMs { get; }
-  int FramesInFlight { get; }
-  int RequestedSamples { get; set; }
-  int Samples { get; }
-  static IReadOnlyList<string> ValidationErrors { get; }
-  static bool ValidationActive { get; }
-  void BeginDebugLabel(ICommandBuffer commands, string name)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
-  void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
-  void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
-  void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
-  void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
-  void CmdEndRenderPass(ICommandBuffer commandBuffer)
-  void CmdPipelineBarrier(ICommandBuffer commandBuffer, IImage image, ImageLayout oldLayout, ImageLayout newLayout)
-  void CopyWithMipmaps(IImage source, IImage destination)
-  void Dispatch(ComputePipeline pipeline, ReadOnlySpan<byte> uniforms, IReadOnlyList<(int, IBuffer)> buffers, uint groupsX, uint groupsY, uint groupsZ, IReadOnlyList<(int, IImage, IImageView)>? images = null, IReadOnlyList<(int, IImageView, ISampler)>? textures = null)
-  void Dispose()
-  void Draw(ICommandBuffer commandBuffer, uint vertexCount, uint instanceCount = 1u, uint firstVertex = 0u, uint firstInstance = 0u)
-  void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1u, uint firstIndex = 0u, int vertexOffset = 0, uint firstInstance = 0u)
-  void EndDebugLabel(ICommandBuffer commands)
-  void EndFrame(IFrameContext frameContext)
-  void FlushDeferredStagingBuffers(int inFlightIndex)
-  void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine")
-  void InitializeParticles(ReadOnlySpan<byte> spirv)
-  void InitializeSkinning(ReadOnlySpan<byte> spirv)
-  void OnResize()
-  void PushConstants(ICommandBuffer commandBuffer, IPipeline pipeline, ShaderStageFlags stageFlags, uint offset, ReadOnlySpan<byte> data)
-  void RecordParticles(ICommandBuffer commands, GpuParticles particles, in ParticleStep step)
-  void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints, ReadOnlySpan<float> morphWeights = default)
-  void RequestCapture(Action<byte[], int, int> onCaptured)
-  void SetScissor(ICommandBuffer commandBuffer, int x, int y, uint width, uint height)
-  void SetViewport(ICommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth)
-  void SubmitAndWait(ICommandBuffer commandBuffer)
-  void Timestamp(ICommandBuffer commandBuffer, int slot, string label)
-  void Unmap(IBuffer buffer)
-  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
-  void Upload<T>(IBuffer destination, ReadOnlySpan<T> data, ulong destinationOffsetBytes = 0UL) where T : unmanaged
-  void Upload<T>(IBuffer destination, T value, ulong destinationOffsetBytes = 0UL) where T : unmanaged
-  void Upload<T>(IBuffer destination, T[] data, ulong destinationOffsetBytes = 0UL) where T : unmanaged
-  void UploadBuffer(IBuffer destination, ReadOnlySpan<byte> data, ulong destinationOffset = 0UL)
-  void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-  void UploadTexture2DDeferred(ICommandBuffer commandBuffer, IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-  void WaitForCompute()
-  void WaitIdle()
-enum Engine.GraphicsDeviceType : int
-  Cpu = 4
-  DiscreteGpu = 2
-  IntegratedGpu = 1
-  Software = 5
-  Unknown = 0
-  VirtualGpu = 3
-readonly struct Engine.GraphicsPipelineDesc : IEquatable<GraphicsPipelineDesc>
-  BlendMode Blend { get; init; }
-  CompareOp DepthCompareOp { get; init; }
-  GraphicsPipelineDesc(IRenderPass RenderPass, IShader VertexShader, IShader? FragmentShader, bool BlendEnabled = false, bool CullBackFace = true, VertexInputBindingDesc[]? VertexBindings = null, VertexInputAttributeDesc[]? VertexAttributes = null, PushConstantRange[]? PushConstantRanges = null, IDescriptorSetLayout[]? DescriptorSetLayouts = null, bool PremultipliedAlpha = false, bool DepthTestEnabled = false, bool DepthWriteEnabled = false, CompareOp DepthCompareOp = CompareOp.Less, PrimitiveTopology Topology = PrimitiveTopology.TriangleList, BlendMode Blend = BlendMode.Alpha)
-  IDescriptorSetLayout[]? DescriptorSetLayouts { get; init; }
-  IRenderPass RenderPass { get; init; }
-  IShader VertexShader { get; init; }
-  IShader? FragmentShader { get; init; }
-  PrimitiveTopology Topology { get; init; }
-  PushConstantRange[]? PushConstantRanges { get; init; }
-  VertexInputAttributeDesc[]? VertexAttributes { get; init; }
-  VertexInputBindingDesc[]? VertexBindings { get; init; }
-  bool BlendEnabled { get; init; }
-  bool CullBackFace { get; init; }
-  bool DepthTestEnabled { get; init; }
-  bool DepthWriteEnabled { get; init; }
-  bool Equals(GraphicsPipelineDesc other)
-  bool PremultipliedAlpha { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(GraphicsPipelineDesc left, GraphicsPipelineDesc right)
-  static bool op_Inequality(GraphicsPipelineDesc left, GraphicsPipelineDesc right)
-  void Deconstruct(out IRenderPass RenderPass, out IShader VertexShader, out IShader? FragmentShader, out bool BlendEnabled, out bool CullBackFace, out VertexInputBindingDesc[]? VertexBindings, out VertexInputAttributeDesc[]? VertexAttributes, out PushConstantRange[]? PushConstantRanges, out IDescriptorSetLayout[]? DescriptorSetLayouts, out bool PremultipliedAlpha, out bool DepthTestEnabled, out bool DepthWriteEnabled, out CompareOp DepthCompareOp, out PrimitiveTopology Topology, out BlendMode Blend)
 readonly struct Engine.Handle<T> : IEquatable<Handle<T>>
   AssetId Id { get; }
   AssetPath Path { get; }
@@ -2299,20 +1550,8 @@ readonly struct Engine.Handle<T> : IEquatable<Handle<T>>
   static Handle<T?> Invalid { get; }
   static bool op_Equality(Handle<T?> left, Handle<T?> right)
   static bool op_Inequality(Handle<T?> left, Handle<T?> right)
-sealed class Engine.HdrSceneNode : INode
-  HdrSceneNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.HeadlessLoopDriver : IMainLoopDriver
-  HeadlessLoopDriver(World world, double fps)
-  bool PumpEvents()
-  void Pace()
-  void Run(Action frameStep)
 interface Engine.IAssetLoader<T>
   Task<AssetLoadResult<T?>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  string[] Extensions { get; }
-interface Engine.IAssetProcessor
-  Task<ProcessResult> ProcessAsync(ProcessContext context, CancellationToken ct)
-  string? OutputExtension { get; }
   string[] Extensions { get; }
 interface Engine.IAssetReader
   IAssetWatcher? CreateWatcher()
@@ -2340,71 +1579,6 @@ interface Engine.IAudioBackend : IDisposable
   void SetVoiceVolume(int voiceId, float volume)
   void StopVoice(int voiceId)
   void Update()
-interface Engine.IBuffer : IDisposable
-  BufferDesc Description { get; }
-interface Engine.ICommandBuffer
-interface Engine.IDescriptorSet : IDisposable
-interface Engine.IDescriptorSetLayout : IDisposable
-interface Engine.IExtractSystem
-  void Run(World world, RenderWorld renderWorld)
-interface Engine.IFrameContext : IDisposable
-  Extent2D Extent { get; }
-  ICommandBuffer CommandBuffer { get; }
-  int FramesInFlight { get; }
-  int InFlightIndex { get; }
-  uint FrameIndex { get; }
-interface Engine.IFramebuffer
-interface Engine.IGraphicsDevice : IDisposable
-  GraphicsAdapterInfo AdapterInfo { get; }
-  IBuffer CreateBuffer(BufferDesc desc)
-  ICommandBuffer BeginCommands()
-  IDescriptorSet CreateDescriptorSet()
-  IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
-  IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
-  IFrameContext BeginFrame(ClearColor? clearOverride = null)
-  IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
-  IImage CreateImage(ImageDesc desc)
-  IImageView CreateImageView(IImage image)
-  IImageView CreateImageView(IImage image, ImageFormat format)
-  IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc)
-  IRenderPass SwapchainRenderPass { get; }
-  ISampler CreateSampler(SamplerDesc desc)
-  IShader CreateShader(ShaderDesc desc)
-  ISwapchain Swapchain { get; }
-  Span<byte> Map(IBuffer buffer)
-  bool IsInitialized { get; }
-  int FramesInFlight { get; }
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
-  void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
-  void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
-  void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
-  void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
-  void CmdEndRenderPass(ICommandBuffer commandBuffer)
-  void CmdPipelineBarrier(ICommandBuffer commandBuffer, IImage image, ImageLayout oldLayout, ImageLayout newLayout)
-  void Draw(ICommandBuffer commandBuffer, uint vertexCount, uint instanceCount = 1u, uint firstVertex = 0u, uint firstInstance = 0u)
-  void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1u, uint firstIndex = 0u, int vertexOffset = 0, uint firstInstance = 0u)
-  void EndFrame(IFrameContext frameContext)
-  void FlushDeferredStagingBuffers(int inFlightIndex)
-  void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine")
-  void OnResize()
-  void PushConstants(ICommandBuffer commandBuffer, IPipeline pipeline, ShaderStageFlags stageFlags, uint offset, ReadOnlySpan<byte> data)
-  void SetScissor(ICommandBuffer commandBuffer, int x, int y, uint width, uint height)
-  void SetViewport(ICommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth)
-  void SubmitAndWait(ICommandBuffer commandBuffer)
-  void Unmap(IBuffer buffer)
-  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
-  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
-  void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-  void UploadTexture2DDeferred(ICommandBuffer commandBuffer, IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-  void WaitIdle()
-interface Engine.IImage : IDisposable
-  ImageDesc Description { get; }
-interface Engine.IImageView : IDisposable
-  IImage Image { get; }
-interface Engine.IInputBackend
-  void Initialize(App app, Input input)
 interface Engine.ILogger
   void Critical(string message, Exception? exception = null)
   void Debug(string message)
@@ -2416,64 +1590,22 @@ interface Engine.ILogger
   void Warn(string message)
 interface Engine.ILoggerProvider
   void Log(LogLevel level, string category, string message, Exception? exception = null)
-interface Engine.IMainLoopDriver
-  bool PumpEvents()
-  void Run(Action frameStep)
-  void Shutdown()
-interface Engine.INode
-  SlotInfo[] Input()
-  SlotInfo[] Output()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-  void Update(RenderWorld renderWorld)
-interface Engine.IPipeline : IDisposable
 interface Engine.IPlugin
   IReadOnlyCollection<Type> Dependencies { get; }
   int Order { get; }
   void Build(App app)
 interface Engine.IPluginGroup
   IEnumerable<IPlugin> GetPlugins()
-interface Engine.IPrepareSystem
-  void Run(RenderWorld renderWorld, RenderContext renderContext)
-interface Engine.IRenderPass
-interface Engine.ISampler : IDisposable
-  SamplerDesc Description { get; }
 interface Engine.ISceneCodec
   Type Type { get; }
   bool Has(EcsWorld ecs, int entity)
   string Name { get; }
   void Read(JsonElement element, EcsWorld ecs, int entity, SceneReadContext context)
   void Write(Utf8JsonWriter writer, EcsWorld ecs, int entity, SceneWriteContext context)
-interface Engine.ISceneReader
-  Task<Scene> ReadAsync(AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
-  string FormatId { get; }
-  string[] Extensions { get; }
-interface Engine.ISceneWriter
-  Task WriteAsync(Scene scene, string targetPath, SceneExportSettings settings, CancellationToken ct)
-  string FormatId { get; }
-interface Engine.IShader : IDisposable
-  ShaderDesc Description { get; }
-interface Engine.ISoundDecoder
-  Task<Sound> DecodeAsync(AssetLoadContext context, CancellationToken ct)
-  string FormatId { get; }
-  string[] Extensions { get; }
 interface Engine.ISpatialAudioProcessor : IDisposable
   SpatialResult Compute(int voiceId, Vector3 sourcePosition, Vector3 listenerPosition, in SpatialContext context)
   string ProcessorId { get; }
   void Initialize()
-interface Engine.ISurfaceSource
-  (uint, uint) GetDrawableSize()
-  IReadOnlyList<string> GetRequiredInstanceExtensions()
-  bool IsOffscreen { get; }
-  nint CreateSurfaceHandle(nint instanceHandle)
-interface Engine.ISwapchain : IDisposable
-  AcquireResult AcquireNextImage(out uint imageIndex)
-  Extent2D Extent { get; }
-  uint ImageCount { get; }
-  void Resize(Extent2D newExtent)
-interface Engine.ITextureDecoder
-  Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
-  string FormatId { get; }
-  string[] Extensions { get; }
 readonly struct Engine.Image : IEquatable<Image>
   Image(byte[] Data, int Width, int Height)
   bool Equals(Image other)
@@ -2487,81 +1619,9 @@ readonly struct Engine.Image : IEquatable<Image>
   static bool op_Equality(Image left, Image right)
   static bool op_Inequality(Image left, Image right)
   void Deconstruct(out byte[] Data, out int Width, out int Height)
-readonly struct Engine.ImageDesc : IEquatable<ImageDesc>
-  Extent2D Extent { get; init; }
-  ImageDesc(Extent2D Extent, ImageFormat Format, ImageUsage Usage, uint MipLevels = 1u)
-  ImageFormat Format { get; init; }
-  ImageUsage Usage { get; init; }
-  bool Equals(ImageDesc other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ImageDesc left, ImageDesc right)
-  static bool op_Inequality(ImageDesc left, ImageDesc right)
-  static uint FullMipChain(uint width, uint height)
-  uint MipLevels { get; init; }
-  void Deconstruct(out Extent2D Extent, out ImageFormat Format, out ImageUsage Usage, out uint MipLevels)
-enum Engine.ImageFormat : int
-  B8G8R8A8_Srgb = 6
-  B8G8R8A8_UNorm = 2
-  D24_UNorm_S8_UInt = 3
-  D32_Float = 4
-  R16G16B16A16_Float = 7
-  R8G8B8A8_Srgb = 5
-  R8G8B8A8_UNorm = 1
-  Undefined = 0
-enum Engine.ImageLayout : int
-  ColorAttachmentOptimal = 1
-  ShaderReadOnlyOptimal = 2
-  TransferDstOptimal = 3
-  Undefined = 0
-enum Engine.ImageUsage : int
-  ColorAttachment = 1
-  DepthStencilAttachment = 2
-  None = 0
-  Sampled = 4
-  Storage = 32
-  TransferDst = 16
-  TransferSrc = 8
-sealed class Engine.ImmediateNode : INode
-  ImmediateNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.ImmediateRenderer : IDisposable
-  ImmediateRenderer(ReadOnlyMemory<byte> vertexSpv, ReadOnlyMemory<byte> fragmentSpv, ReadOnlyMemory<byte> linearFragmentSpv = default)
-  void Dispose()
-  void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target, int first = 0, int end = 2147483647, bool linear = false)
-  void Upload(RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.ImmediateUploadPrepare : IPrepareSystem
-  ImmediateUploadPrepare()
-  void Run(RenderWorld renderWorld, RenderContext renderContext)
-readonly struct Engine.ImmediateVertex : IEquatable<ImmediateVertex>
-  Color Color { get; init; }
-  ImmediateVertex(Vector3 Position, Vector2 Uv, Color Color)
-  Vector2 Uv { get; init; }
-  Vector3 Position { get; init; }
-  bool Equals(ImmediateVertex other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ImmediateVertex left, ImmediateVertex right)
-  static bool op_Inequality(ImmediateVertex left, ImmediateVertex right)
-  void Deconstruct(out Vector3 Position, out Vector2 Uv, out Color Color)
-sealed class Engine.InMemoryAssetReader : IAssetReader
-  IAssetWatcher? CreateWatcher()
-  InMemoryAssetReader()
-  InMemoryAssetReader(ConcurrentDictionary<string, byte[]> store)
-  Task<Stream> ReadAsync(AssetPath path, CancellationToken ct = default)
-  bool Exists(AssetPath path)
-  int Count { get; }
-  static ConcurrentDictionary<string, byte[]> ProcessWideStore { get; }
-  static void Publish(AssetPath path, byte[] bytes)
-  void Set(AssetPath path, byte[] bytes)
 sealed class Engine.InStateAttribute : Attribute
   InStateAttribute(object state)
   object State { get; }
-enum Engine.IndexType : int
-  UInt16 = 0
-  UInt32 = 1
 sealed class Engine.Input
   (int, int) MouseDelta { get; }
   (int, int) MousePosition { get; }
@@ -2595,11 +1655,6 @@ sealed class Engine.Input
   int TakeChar()
   override string ToString()
   void ClearDroppedFiles()
-sealed class Engine.InputPlugin : IPlugin
-  InputPlugin()
-  void Build(App app)
-struct Engine.IrradianceArray
-  Vector4 _element0
 struct Engine.Joint
   Entity A
   Entity B
@@ -2886,11 +1941,6 @@ struct Engine.Light
   static Light Directional(Vector3 color, float intensity)
   static Light Point(Vector3 color, float intensity, float range = 0f)
   static Light Spot(Vector3 color, float intensity, float innerAngle, float outerAngle, float range = 0f)
-static class Engine.LightColor
-  static Vector3 FromKelvin(float kelvin)
-sealed class Engine.LightExtract : IExtractSystem
-  LightExtract()
-  void Run(World world, RenderWorld renderWorld)
 readonly struct Engine.LightHandle : IEquatable<LightHandle>
   Entity Entity { get; init; }
   LightHandle(Entity Entity)
@@ -2907,58 +1957,6 @@ enum Engine.LightKind : int
   Directional = 0
   Point = 1
   Spot = 2
-static class Engine.LightSpawnSystem
-  static Light ToLight(SceneLightPayload payload)
-  static void Run(World world)
-struct Engine.LightUboEntry
-  Vector4 ColorAndShadow
-  Vector4 Cone
-  Vector4 DirectionAndRange
-  Vector4 PositionAndKind
-struct Engine.LightUboEntryArray
-  LightUboEntry _element0
-sealed class Engine.LightingPlugin : IPlugin
-  LightingPlugin()
-  void Build(App app)
-struct Engine.LightingUbo
-  IrradianceArray EnvironmentIrradiance
-  LightUboEntryArray Lights
-  PointShadowFaceArray PointShadowFaces
-  ProbeUboArray Probes
-  ShadowCascadeArray ShadowCascades
-  SpotShadowArray SpotShadows
-  SpotTexelArray SpotShadowTexels
-  Vector4 Environment
-  Vector4 Output
-  Vector4 PointShadow
-  Vector4 ProbeCount
-  Vector4 ShadowTexels
-  int CascadeCount
-  int LightCount
-  int ShadowLight
-  int SpotShadowCount
-static class Engine.LightingUboPacker
-  const int MaxCascades = 4
-  const int MaxLights = 16
-  const int MaxProbes = 4
-  static LightingUbo Pack(IReadOnlyList<RenderLight> lights)
-  static int SizeBytes { get; }
-  static void WriteEntry(ref LightingUbo ubo, int index, in RenderLight light)
-sealed class Engine.LightingUboPrepare : IPrepareSystem
-  LightingUboPrepare()
-  void Run(RenderWorld renderWorld, RenderContext renderContext)
-enum Engine.LoadOp : int
-  Clear = 0
-  DontCare = 2
-  Load = 1
-enum Engine.LoadPayloads : int
-  All = 31
-  Cameras = 4
-  Instancing = 16
-  Lights = 8
-  Materials = 2
-  Meshes = 1
-  None = 0
 enum Engine.LoadState : int
   Failed = 3
   Loaded = 2
@@ -2969,14 +1967,6 @@ static class Engine.Log
   static ILogger For<T>()
   static LoggerFactory Factory { get; }
   static void PrintStartupBanner()
-static class Engine.LogConfig
-  static Action<LogLevel, string>? Callback { get; set; }
-  static LogLevel ConsoleMinimumLevel { get; set; }
-  static LogLevel MinimumLevel { get; set; }
-  static bool PerFrameLogging { get; set; }
-  static long MaxLogFileBytes { get; set; }
-  static string GetLogFilePath(string fileName)
-  static string LogsDirectory { get; }
 enum Engine.LogLevel : int
   Critical = 5
   Debug = 1
@@ -2984,20 +1974,6 @@ enum Engine.LogLevel : int
   Info = 2
   Trace = 0
   Warning = 3
-readonly struct Engine.LogLine : IEquatable<LogLine>
-  LogLevel Level { get; init; }
-  LogLine(int Index, ulong Frame, LogLevel Level, string Text, int Count = 1)
-  bool Equals(LogLine other)
-  int Count { get; init; }
-  int Index { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(LogLine left, LogLine right)
-  static bool op_Inequality(LogLine left, LogLine right)
-  string Text { get; init; }
-  ulong Frame { get; init; }
-  void Deconstruct(out int Index, out ulong Frame, out LogLevel Level, out string Text, out int Count)
 sealed class Engine.Logger : ILogger
   Logger UseProvider(ILoggerProvider provider)
   Logger(string category)
@@ -3012,9 +1988,6 @@ sealed class Engine.Logger : ILogger
 sealed class Engine.LoggerFactory
   Logger CreateLogger(string category)
   LoggerFactory()
-sealed class Engine.MainPassNode : INode
-  MainPassNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
 sealed class Engine.MainThreadAttribute : Attribute
   MainThreadAttribute()
 struct Engine.Material : IEquatable<Material>
@@ -3111,12 +2084,6 @@ enum Engine.MaterialMapIndex : int
   Occlusion = 4
   Prefilter = 9
   Roughness = 3
-enum Engine.MaterialNetworkResolution : int
-  None = 0
-  Pbr = 1
-sealed class Engine.MaterialPlugin : IPlugin
-  MaterialPlugin()
-  void Build(App app)
 sealed class Engine.MaterialSettings
   MaterialAlphaMode DefaultAlphaMode { get; set; }
   MaterialSettings()
@@ -3142,11 +2109,6 @@ struct Engine.Mesh
   Vector2[]? Uvs
   Vector3[] Positions
   Vector3[]? Normals
-sealed class Engine.MeshEntityDraws
-  MeshEntityDraws()
-  int MeshCount { get; }
-  int TextureCount { get; }
-  static void Run(World world)
 sealed class Engine.MeshStore
   MeshStore()
   bool Contains(int id)
@@ -3186,10 +2148,6 @@ sealed class Engine.MeshStore.Upload : IEquatable<MeshStore.Upload>
   static bool op_Inequality(MeshStore.Upload? left, MeshStore.Upload? right)
   uint[] Indices { get; init; }
   void Deconstruct(out int Id, out ModelVertex[] Vertices, out uint[] Indices, out bool VerticesOnly, out MeshStore.Skin? Skin)
-sealed class Engine.Mode3DCamera
-  Matrix4x4? ViewProjection { get; set; }
-  Mode3DCamera()
-  Vector3 Eye { get; set; }
 sealed class Engine.Model
   BoneInfo[] Bones { get; init; }
   Matrix4x4 Transform { get; set; }
@@ -3208,54 +2166,6 @@ sealed class Engine.ModelAnimation
   int BoneCount { get; }
   int FrameCount { get; }
   string Name { get; init; }
-readonly struct Engine.ModelDraw : IEquatable<ModelDraw>
-  Color Color { get; init; }
-  MaterialAlphaMode AlphaMode { get; init; }
-  Matrix4x4 ViewProjection { get; init; }
-  Matrix4x4 World { get; init; }
-  ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0, int Shader = 0, byte[]? Uniforms = null, float Metallic = 0f, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1f, int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1f, MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false, bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true)
-  Vector3 Emission { get; init; }
-  bool CastsShadow { get; init; }
-  bool DoubleSided { get; init; }
-  bool Equals(ModelDraw other)
-  bool IsTranslucent { get; }
-  bool TextureTranslucent { get; init; }
-  byte[]? Uniforms { get; init; }
-  float AlphaCutoff { get; init; }
-  float Metallic { get; init; }
-  float NormalScale { get; init; }
-  float OcclusionStrength { get; init; }
-  float Roughness { get; init; }
-  int EmissiveMap { get; init; }
-  int Mesh { get; init; }
-  int MetallicRoughnessMap { get; init; }
-  int NormalMap { get; init; }
-  int OcclusionMap { get; init; }
-  int Shader { get; init; }
-  int Target { get; init; }
-  int Texture { get; init; }
-  int[]? ShaderTextures { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ModelDraw left, ModelDraw right)
-  static bool op_Inequality(ModelDraw left, ModelDraw right)
-  void Deconstruct(out int Mesh, out Matrix4x4 World, out Matrix4x4 ViewProjection, out Color Color, out int Texture, out int Target, out int Shader, out byte[]? Uniforms, out float Metallic, out float Roughness, out int NormalMap, out float NormalScale, out int MetallicRoughnessMap, out Vector3 Emission, out int EmissiveMap, out int OcclusionMap, out float OcclusionStrength, out MaterialAlphaMode AlphaMode, out float AlphaCutoff, out bool TextureTranslucent, out bool DoubleSided, out int[]? ShaderTextures, out bool CastsShadow)
-sealed class Engine.ModelDrawList
-  IReadOnlyList<ModelDraw> Draws { get; }
-  ModelDrawList()
-  bool IsEmpty { get; }
-  void Add(in ModelDraw draw)
-  void AddRange(ReadOnlySpan<ModelDraw> draws)
-  void Clear()
-static class Engine.ModelLoadExtensions
-  static EcsCommands SpawnModel(this EcsCommands cmd, Handle<SceneAsset> handle, SceneSpawnSettings? settings = null)
-  static Handle<SceneAsset> LoadModel(this AssetServer server, string path)
-  static Handle<SceneAsset> LoadModel(this BehaviorContext ctx, string path)
-  static Handle<SceneAsset> LoadModel(this World world, string path)
-  static Handle<SceneAsset> SpawnModel(this BehaviorContext ctx, string path, SceneSpawnSettings? settings = null)
-  static Handle<SceneAsset> SpawnModel(this World world, EcsCommands cmd, string path, SceneSpawnSettings? settings = null)
-  static List<int> SpawnModel(this EcsWorld ecs, Scene scene, SceneSpawnSettings? settings = null, ulong sceneAssetId = 0UL)
 struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   Color Color { get; set; }
   Color Emissive { get; set; }
@@ -3296,25 +2206,8 @@ readonly struct Engine.ModelMesh : IEquatable<ModelMesh>
   static bool op_Equality(ModelMesh left, ModelMesh right)
   static bool op_Inequality(ModelMesh left, ModelMesh right)
   void Deconstruct(out int Id, out int VertexCount, out int TriangleCount, out BoundingBox Bounds)
-sealed class Engine.ModelNode : INode
-  ModelNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
 struct Engine.ModelRef
   string Path
-struct Engine.ModelRefSpawned
-static class Engine.ModelRefSystem
-  static void Run(World world)
-sealed class Engine.ModelRenderer : IDisposable
-  ModelRenderer(ShaderProgram model, ShaderProgram shadow)
-  void CaptureProbes(RenderContext renderContext, RenderWorld renderWorld)
-  void Dispose()
-  void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target, Matrix4x4? viewProjection = null, int? lights = null)
-  void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow, int target = 0)
-static class Engine.ModelSpawn
-  static SceneSpawnSettings At(Vector3 position)
-  static SceneSpawnSettings At(Vector3 position, Quaternion rotation)
-  static SceneSpawnSettings With(Matrix4x4 placement)
-  static SceneSpawnSettings WithPurposes(ScenePurposeMask purposes)
 readonly struct Engine.ModelVertex : IEquatable<ModelVertex>
   ModelVertex(Vector3 Position, Vector3 Normal, Vector2 Uv)
   Vector2 Uv { get; init; }
@@ -3327,9 +2220,6 @@ readonly struct Engine.ModelVertex : IEquatable<ModelVertex>
   static bool op_Equality(ModelVertex left, ModelVertex right)
   static bool op_Inequality(ModelVertex left, ModelVertex right)
   void Deconstruct(out Vector3 Position, out Vector3 Normal, out Vector2 Uv)
-sealed class Engine.ModelsPlugin : IPlugin
-  ModelsPlugin()
-  void Build(App app)
 readonly struct Engine.MonitorMode : IEquatable<MonitorMode>
   MonitorMode(int Width, int Height, int RefreshRate)
   bool Equals(MonitorMode other)
@@ -3360,12 +2250,6 @@ enum Engine.MouseCursor : int
   ResizeNESW = 8
   ResizeNS = 6
   ResizeNWSE = 7
-sealed class Engine.Mp3SoundDecoder : ISoundDecoder
-  Mp3SoundDecoder()
-  Task<Sound> DecodeAsync(AssetLoadContext context, CancellationToken ct)
-  static Sound Decode(byte[] bytes, string sourcePath = "")
-  string FormatId { get; }
-  string[] Extensions { get; }
 sealed class Engine.Music
   bool IsValid { get; }
   bool Looping { get; set; }
@@ -3392,109 +2276,11 @@ struct Engine.Name
   Name(string value)
   override string ToString()
   string Value
-sealed class Engine.NativeLibraryLoader
-  NativeLibraryLoader AddRuntimeNativePath(string? baseDirectory = null)
-  NativeLibraryLoader AddSearchPath(string directoryPath)
-  NativeLibraryLoader MapName(string dllImportName, string platformFileName)
-  NativeLibraryLoader MapNames(params (string, string?)[] mappings)
-  NativeLibraryLoader OnLog(Action<string> logAction)
-  NativeLibraryLoader OnWarn(Action<string> warnAction)
-  NativeLibraryLoader RegisterDllImportResolver(Assembly assembly)
-  NativeLibraryLoader RegisterGlobalFallback()
-  NativeLibraryLoader()
-  bool EnsureSymlink(string linkPath, params string[] candidates)
-  bool IsLoaded(string fileName)
-  int PreloadAll(params string[] fileNames)
-  int PreloadAllGlobal(params string[] fileNames)
-  nint GetHandle(string fileName)
-  nint Preload(string fileName)
-  nint PreloadFirstAvailable(string logicalName, params string[] candidates)
-  nint PreloadFrom(string absolutePath)
-  nint PreloadGlobal(string fileName)
-  static bool EnsureDirectory(string path)
-  static string ArchitectureName { get; }
-  static string NativeExtension { get; }
-  static string NativePrefix { get; }
-  static string PlatformName { get; }
-  static string RuntimeIdentifier { get; }
-  static string ToPlatformFileName(string baseName)
 sealed class Engine.NextState<TState> where TState : struct, Enum
   NextState()
   TState? Pending { get; }
   void Reset()
   void Set(TState value)
-sealed class Engine.NullAudioBackend : IAudioBackend, IDisposable
-  NullAudioBackend()
-  bool IsInitialized { get; }
-  bool IsVoicePlaying(int voiceId)
-  int CreateVoice(Sound sound, in AudioVoiceParams parameters)
-  string BackendId { get; }
-  void Dispose()
-  void Initialize()
-  void SetListenerPosition(Vector3 position)
-  void SetVoiceLooping(int voiceId, bool looping)
-  void SetVoicePaused(int voiceId, bool paused)
-  void SetVoicePosition(int voiceId, Vector3 position)
-  void SetVoiceVolume(int voiceId, float volume)
-  void StopVoice(int voiceId)
-  void Update()
-sealed class Engine.NullGraphicsDevice : IDisposable, IGraphicsDevice
-  GraphicsAdapterInfo AdapterInfo { get; }
-  IBuffer CreateBuffer(BufferDesc desc)
-  ICommandBuffer BeginCommands()
-  IDescriptorSet CreateDescriptorSet()
-  IDescriptorSet CreateDescriptorSet(IDescriptorSetLayout layout)
-  IDescriptorSetLayout CreateDescriptorSetLayout(DescriptorSetLayoutBinding[] bindings)
-  IFrameContext BeginFrame(ClearColor? clearOverride = null)
-  IFramebuffer GetSwapchainFramebuffer(uint imageIndex)
-  IImage CreateImage(ImageDesc desc)
-  IImageView CreateImageView(IImage image)
-  IPipeline CreateGraphicsPipeline(GraphicsPipelineDesc desc)
-  IRenderPass SwapchainRenderPass { get; }
-  ISampler CreateSampler(SamplerDesc desc)
-  IShader CreateShader(ShaderDesc desc)
-  ISwapchain Swapchain { get; }
-  NullGraphicsDevice()
-  Span<byte> Map(IBuffer buffer)
-  bool IsInitialized { get; }
-  int FramesInFlight { get; }
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet)
-  void BindDescriptorSet(ICommandBuffer commandBuffer, IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
-  void BindGraphicsPipeline(ICommandBuffer commandBuffer, IPipeline pipeline)
-  void BindIndexBuffer(ICommandBuffer commandBuffer, IBuffer buffer, ulong offset, IndexType indexType)
-  void BindVertexBuffers(ICommandBuffer commandBuffer, uint firstBinding, IBuffer[] buffers, ulong[] offsets)
-  void CmdBeginRenderPass(ICommandBuffer commandBuffer, IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent, ClearColor? clear = null)
-  void CmdEndRenderPass(ICommandBuffer commandBuffer)
-  void CmdPipelineBarrier(ICommandBuffer commandBuffer, IImage image, ImageLayout oldLayout, ImageLayout newLayout)
-  void Dispose()
-  void Draw(ICommandBuffer commandBuffer, uint vertexCount, uint instanceCount = 1u, uint firstVertex = 0u, uint firstInstance = 0u)
-  void DrawIndexed(ICommandBuffer commandBuffer, uint indexCount, uint instanceCount = 1u, uint firstIndex = 0u, int vertexOffset = 0, uint firstInstance = 0u)
-  void EndFrame(IFrameContext frameContext)
-  void FlushDeferredStagingBuffers(int inFlightIndex)
-  void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine")
-  void OnResize()
-  void PushConstants(ICommandBuffer commandBuffer, IPipeline pipeline, ShaderStageFlags stageFlags, uint offset, ReadOnlySpan<byte> data)
-  void SetScissor(ICommandBuffer commandBuffer, int x, int y, uint width, uint height)
-  void SetViewport(ICommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth)
-  void SubmitAndWait(ICommandBuffer commandBuffer)
-  void Unmap(IBuffer buffer)
-  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)
-  void UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
-  void UploadTexture2D(IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-  void UploadTexture2DDeferred(ICommandBuffer commandBuffer, IImage image, ReadOnlySpan<byte> data, uint width, uint height, int bytesPerPixel)
-sealed class Engine.OffscreenSurface : ISurfaceSource
-  (uint, uint) GetDrawableSize()
-  (uint, uint) Size { get; set; }
-  IReadOnlyList<string> GetRequiredInstanceExtensions()
-  OffscreenSurface(uint width, uint height)
-  bool IsOffscreen { get; }
-  nint CreateSurfaceHandle(nint instanceHandle)
-sealed class Engine.OggSoundDecoder : ISoundDecoder
-  OggSoundDecoder()
-  Task<Sound> DecodeAsync(AssetLoadContext context, CancellationToken ct)
-  static Sound Decode(byte[] bytes, string sourcePath = "")
-  string FormatId { get; }
-  string[] Extensions { get; }
 sealed class Engine.OnCleanupAttribute : Attribute
   OnCleanupAttribute()
 sealed class Engine.OnEnterAttribute : Attribute
@@ -3560,33 +2346,6 @@ readonly struct Engine.ParticleEmitterHandle : IEquatable<ParticleEmitterHandle>
   static bool op_Equality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   static bool op_Inequality(ParticleEmitterHandle left, ParticleEmitterHandle right)
   void Deconstruct(out Entity Entity)
-sealed class Engine.ParticleExtract : IExtractSystem
-  ParticleExtract()
-  void Run(World world, RenderWorld renderWorld)
-sealed class Engine.ParticleNode : INode
-  ParticleNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.ParticleRenderer : IDisposable
-  ParticleRenderer(ShaderProgram particles)
-  void Dispose()
-  void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld)
-  void Step(RenderContext renderContext, RenderWorld renderWorld)
-struct Engine.ParticleStep
-  Vector4 EndColor
-  Vector4 GravityAndLife
-  Vector4 Look
-  Vector4 OriginAndSeconds
-  Vector4 StartColor
-  Vector4 Variation
-  Vector4 VelocityAndSpread
-  uint Capacity
-  uint Count
-  uint First
-  uint Unused
-struct Engine.PerformanceHud
-  static void Draw(BehaviorContext ctx)
-static class Engine.PhysicsBodies
-  static void Run(World world)
 readonly struct Engine.PhysicsBody : IEquatable<PhysicsBody>
   PhysicsBody(PhysicsWorld world, int handle, BodyKind kind)
   Quaternion Rotation { get; set; }
@@ -3647,9 +2406,6 @@ struct Engine.PhysicsMaterial
   float LinearDamping
   float Restitution
   static PhysicsMaterial Default { get; }
-sealed class Engine.PhysicsPlugin : IPlugin
-  PhysicsPlugin()
-  void Build(App app)
 sealed class Engine.PhysicsSettings
   PhysicsSettings()
   Vector3 Gravity { get; set; }
@@ -3738,69 +2494,12 @@ sealed class Engine.PhysicsWorld : IDisposable
   void SyncTransforms(EcsWorld ecs, float alpha)
   void TakeContacts(List<PhysicsContact> started, List<PhysicsContact> ended)
   void Wake(PhysicsBody body)
-sealed class Engine.PipelineCache : IDisposable
-  IPipeline GetOrCreate(GraphicsPipelineDesc desc)
-  PipelineCache(IGraphicsDevice device)
-  bool Remove(GraphicsPipelineDesc desc)
-  int Count { get; }
-  void Clear()
-  void Dispose()
-sealed class Engine.PipelinesPlugin : IPlugin
-  PipelinesPlugin()
-  int Order { get; }
-  void Build(App app)
 static class Engine.PluginOrder
   const int Default = 0
   const int Earliest = -2000
   const int Foundation = -1000
   const int Late = 1000
   const int Latest = 2000
-sealed class Engine.PluginOrderException : InvalidOperationException, ISerializable
-  PluginOrderException(string requiringPlugin, string missingDependency, string? suggestedPlugin = null)
-  string MissingDependency { get; }
-  string RequiringPlugin { get; }
-  string? SuggestedPlugin { get; }
-static class Engine.PngWriter
-  static void Write(Stream file, ReadOnlySpan<byte> rgba, int width, int height)
-  static void Write(string path, ReadOnlySpan<byte> rgba, int width, int height)
-struct Engine.PointShadowFaceArray
-  Matrix4x4 _element0
-enum Engine.PrimitiveTopology : int
-  LineList = 1
-  TriangleList = 0
-sealed class Engine.ProbeNode : INode
-  ProbeNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-struct Engine.ProbeUboArray
-  ProbeUboEntry _element0
-struct Engine.ProbeUboEntry
-  IrradianceArray Irradiance
-  Vector4 CenterAndIntensity
-  Vector4 HalfSizeAndMip
-sealed class Engine.ProcessContext
-  AssetPath SourcePath { get; }
-  ReadOnlySpan<byte> AsSpan()
-  Stream AsStream()
-  byte[] SourceBytes { get; }
-sealed class Engine.ProcessResult
-  ProcessResult()
-  bool Success { get; init; }
-  byte[]? OutputBytes { get; init; }
-  static ProcessResult Fail(string error)
-  static ProcessResult Ok(byte[] output)
-  string? Error { get; init; }
-readonly struct Engine.PushConstantRange : IEquatable<PushConstantRange>
-  PushConstantRange(ShaderStageFlags StageFlags, uint Offset, uint Size)
-  ShaderStageFlags StageFlags { get; init; }
-  bool Equals(PushConstantRange other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(PushConstantRange left, PushConstantRange right)
-  static bool op_Inequality(PushConstantRange left, PushConstantRange right)
-  uint Offset { get; init; }
-  uint Size { get; init; }
-  void Deconstruct(out ShaderStageFlags StageFlags, out uint Offset, out uint Size)
 readonly struct Engine.Ray : IEquatable<Ray>
   Ray(Vector3 Position, Vector3 Direction)
   Vector3 Direction { get; init; }
@@ -3860,76 +2559,6 @@ readonly struct Engine.ReflectionProbeHandle : IEquatable<ReflectionProbeHandle>
   static bool op_Equality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   static bool op_Inequality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   void Deconstruct(out Entity Entity)
-sealed class Engine.RenderContext
-  DynamicBufferAllocator? DynamicAllocator { get; }
-  ICommandBuffer CommandBuffer { get; }
-  IGraphicsDevice Device { get; }
-  TrackedRenderPass BeginTrackedRenderPass(RenderPassDescriptor descriptor)
-sealed class Engine.RenderGraph : IDisposable
-  IReadOnlyList<(string, INode)> TopologicalOrder()
-  RenderGraph()
-  bool ContainsNode(string label)
-  void AddNode(string label, INode node)
-  void AddNodeEdge(string from, string to)
-  void AddSlotEdge(string outputNode, int outputSlot, string inputNode, int inputSlot)
-  void AddSubGraph(string name, RenderGraph subGraph)
-  void Dispose()
-sealed class Engine.RenderGraphContext
-  IBuffer GetInputBuffer(int index)
-  IImageView GetInputTexture(int index)
-  SlotValue GetInput(int index)
-  void RunSubGraph(string name, SlotValue[]? inputs = null)
-  void SetOutput(int index, SlotValue value)
-struct Engine.RenderLight
-  LightKind Kind
-  Vector3 Direction
-  Vector3 EmittedColor
-  Vector3 Position
-  bool CastsShadows
-  float CosInner
-  float CosOuter
-  float Range
-  int MainEntityId
-sealed class Engine.RenderLights
-  List<RenderLight> All { get; }
-  RenderLights()
-sealed class Engine.RenderParticles
-  List<(int, ParticleEmitter, Vector3, int)> Emitters { get; }
-  Matrix4x4? ViewProjection { get; set; }
-  RenderParticles()
-  float Seconds { get; set; }
-readonly struct Engine.RenderPassDescriptor : IEquatable<RenderPassDescriptor>
-  ClearColor? ClearColor { get; init; }
-  Extent2D Extent { get; init; }
-  IFramebuffer Framebuffer { get; init; }
-  IRenderPass RenderPass { get; init; }
-  LoadOp ColorLoadOp { get; init; }
-  RenderPassDescriptor(IRenderPass RenderPass, IFramebuffer Framebuffer, Extent2D Extent, LoadOp ColorLoadOp = LoadOp.Clear, StoreOp ColorStoreOp = StoreOp.Store, ClearColor? ClearColor = null)
-  StoreOp ColorStoreOp { get; init; }
-  bool Equals(RenderPassDescriptor other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(RenderPassDescriptor left, RenderPassDescriptor right)
-  static bool op_Inequality(RenderPassDescriptor left, RenderPassDescriptor right)
-  void Deconstruct(out IRenderPass RenderPass, out IFramebuffer Framebuffer, out Extent2D Extent, out LoadOp ColorLoadOp, out StoreOp ColorStoreOp, out ClearColor? ClearColor)
-sealed class Engine.RenderPlugin : IPlugin
-  RenderPlugin()
-  void Build(App app)
-sealed class Engine.RenderSurfaceInfo
-  RenderSurfaceInfo()
-  bool Apply(int width, int height)
-  int Height { get; set; }
-  int Width { get; set; }
-  ulong Revision { get; }
-sealed class Engine.RenderTarget : IDisposable
-  Extent2D Extent { get; }
-  IFramebuffer Framebuffer { get; }
-  IImageView ColorView { get; }
-  IImageView SrgbColorView { get; }
-  IImageView? DepthView { get; }
-  IRenderPass RenderPass { get; }
-  void Dispose()
 readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
   RenderTexture2D(Texture2D Texture, Texture2D Depth = default)
   Texture2D Depth { get; init; }
@@ -3942,58 +2571,6 @@ readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
   static bool op_Equality(RenderTexture2D left, RenderTexture2D right)
   static bool op_Inequality(RenderTexture2D left, RenderTexture2D right)
   void Deconstruct(out Texture2D Texture, out Texture2D Depth)
-sealed class Engine.RenderTimings
-  IReadOnlyList<(string, double)> NodeCpu { get; }
-  IReadOnlyList<(string, double)> NodeGpu { get; }
-  IReadOnlyList<(string, double)> PrepareCpu { get; }
-  RenderTimings()
-  double BeginFrameMs { get; }
-  double EndFrameMs { get; }
-  double ExtractMs { get; }
-  double GraphMs { get; }
-  double PrepareMs { get; }
-sealed class Engine.RenderWorld
-  EcsWorld Entities { get; }
-  RenderWorld()
-  T Get<T>()
-  T? TryGet<T>()
-  bool Contains<T>()
-  bool Remove<T>()
-  int Spawn()
-  void ClearEntities()
-  void Set<T>(T value)
-sealed class Engine.Renderer : IDisposable
-  RenderGraph Graph { get; }
-  RenderTimings Timings { get; }
-  RenderWorld RenderWorld { get; }
-  Renderer(RendererContext context)
-  RendererContext Context { get; }
-  RendererDiagnostics Diagnostics { get; }
-  void AddExtractSystem(IExtractSystem sys)
-  void AddPrepareSystem(IPrepareSystem sys)
-  void Dispose()
-  void Initialize(World world)
-  void RenderFrame(World world)
-sealed class Engine.RendererContext : IDisposable
-  (RenderContext, IFrameContext, uint) BeginFrame(RenderWorld world)
-  DynamicBufferAllocator? DynamicAllocator { get; }
-  GraphicsAdapterInfo AdapterInfo { get; }
-  IGraphicsDevice Graphics { get; }
-  RendererContext()
-  RendererContext(Func<IGraphicsDevice> graphicsFactory)
-  RendererContext(IGraphicsDevice graphics)
-  bool IsInitialized { get; }
-  void Dispose()
-  void EndFrame(IFrameContext frameContext, uint imageIndex)
-  void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1, bool vsync = false)
-  void OnResize()
-  void SetVsync(bool vsync)
-sealed class Engine.RendererDiagnostics
-  Extent2D SurfaceExtent { get; }
-  GraphicsAdapterInfo AdapterInfo { get; }
-  RendererDiagnostics()
-  ulong FramesRendered { get; }
-  ulong SurfaceRevision { get; }
 struct Engine.RigidBody
   BodyKind Kind
   float Mass
@@ -4003,42 +2580,6 @@ struct Engine.RigidBody
 sealed class Engine.RunIfAttribute : Attribute
   RunIfAttribute(string memberName)
   string MethodName { get; }
-static class Engine.RunMode
-  static Config Apply(Config config)
-  static bool HasRenderer(World world)
-  static string Describe(Config config)
-sealed class Engine.RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCompilationResult>, IDisposable
-  RuntimeBehaviorCompiler AddReference(Assembly assembly)
-  RuntimeBehaviorCompiler WatchDirectory(string path)
-  RuntimeBehaviorCompiler(App app, string sourceTag = "Dynamic.Behaviors")
-  protected override CSharpCompilation RunGenerators(CSharpCompilation compilation, BehaviorCompilationResult result)
-  protected override string AssemblyNamePrefix { get; }
-  protected override string LoadContextPrefix { get; }
-  protected override void OnAssemblyLoaded(Assembly assembly, BehaviorCompilationResult result)
-  protected override void OnNoSourceFiles(BehaviorCompilationResult result)
-  string SourceTag { get; }
-enum Engine.SamplerAddressMode : int
-  ClampToEdge = 0
-  MirrorRepeat = 2
-  Repeat = 1
-readonly struct Engine.SamplerDesc : IEquatable<SamplerDesc>
-  SamplerAddressMode AddressU { get; init; }
-  SamplerAddressMode AddressV { get; init; }
-  SamplerAddressMode AddressW { get; init; }
-  SamplerDesc(SamplerFilter MinFilter, SamplerFilter MagFilter, SamplerAddressMode AddressU, SamplerAddressMode AddressV, SamplerAddressMode AddressW, float MaxAnisotropy = 1f)
-  SamplerFilter MagFilter { get; init; }
-  SamplerFilter MinFilter { get; init; }
-  bool Equals(SamplerDesc other)
-  float MaxAnisotropy { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SamplerDesc left, SamplerDesc right)
-  static bool op_Inequality(SamplerDesc left, SamplerDesc right)
-  void Deconstruct(out SamplerFilter MinFilter, out SamplerFilter MagFilter, out SamplerAddressMode AddressU, out SamplerAddressMode AddressV, out SamplerAddressMode AddressW, out float MaxAnisotropy)
-enum Engine.SamplerFilter : int
-  Linear = 1
-  Nearest = 0
 sealed class Engine.Scene
   IEnumerable<SceneNode> Traverse()
   List<SceneEmbeddedTexture> EmbeddedTextures { get; }
@@ -4048,65 +2589,11 @@ sealed class Engine.Scene
   SceneEmbeddedTexture? FindEmbeddedTexture(string path)
   double SourceMetersPerUnit { get; init; }
   string Name { get; init; }
-enum Engine.SceneAlphaMode : int
-  Blend = 2
-  Mask = 1
-  Opaque = 0
-sealed class Engine.SceneAnimationChannel
-  SceneAnimationChannel()
-  SceneAnimationInterpolation Interpolation { get; init; }
-  SceneAnimationProperty Property { get; init; }
-  Vector4[] Values { get; init; }
-  float[] TimesSeconds { get; init; }
-  int MorphTarget { get; init; }
-  string TargetNodePath { get; init; }
-enum Engine.SceneAnimationInterpolation : int
-  CubicSpline = 2
-  Linear = 1
-  Step = 0
-sealed class Engine.SceneAnimationPayload
-  IReadOnlyList<SceneAnimationChannel> Channels { get; init; }
-  SceneAnimationPayload()
-  float DurationSeconds { get; init; }
-  string Name { get; init; }
-enum Engine.SceneAnimationProperty : int
-  MorphWeight = 3
-  Rotation = 1
-  Scale = 2
-  Translation = 0
 sealed class Engine.SceneAsset
   Scene Scene { get; init; }
   SceneAsset()
   string SourceFormat { get; init; }
   string? SourcePath { get; init; }
-readonly struct Engine.SceneBounds : IEquatable<SceneBounds>
-  SceneBounds(Vector3 Min, Vector3 Max)
-  Vector3 Center { get; }
-  Vector3 Max { get; init; }
-  Vector3 Min { get; init; }
-  Vector3 Size { get; }
-  bool Equals(SceneBounds other)
-  bool IsValid { get; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static SceneBounds Empty { get; }
-  static SceneBounds FromPositions(ReadOnlySpan<Vector3> positions)
-  static bool op_Equality(SceneBounds left, SceneBounds right)
-  static bool op_Inequality(SceneBounds left, SceneBounds right)
-  void Deconstruct(out Vector3 Min, out Vector3 Max)
-sealed class Engine.SceneCameraPayload
-  SceneCameraPayload()
-  SceneProjection Projection { get; init; }
-  float FarClip { get; init; }
-  float FocalLength { get; init; }
-  float HorizontalAperture { get; init; }
-  float NearClip { get; init; }
-  float VerticalAperture { get; init; }
-  float VerticalFovRadians { get; }
-  float? FStop { get; init; }
-  float? FocusDistance { get; init; }
-  string Name { get; init; }
 sealed class Engine.SceneCodec<T> : ISceneCodec
   SceneCodec(string name, SceneCodec<T?>.Writer write, SceneCodec<T?>.Reader read)
   Type Type { get; }
@@ -4145,12 +2632,6 @@ sealed class Engine.SceneEmbeddedTexture : IEquatable<SceneEmbeddedTexture>
   string FormatHint { get; init; }
   string? FileName { get; init; }
   void Deconstruct(out string? FileName, out byte[]? Encoded, out string FormatHint, out int Width, out int Height, out byte[]? Rgba)
-sealed class Engine.SceneExportSettings
-  SceneCoordinateSystem CoordinateSystem { get; init; }
-  SceneExportSettings()
-  bool EmbedTextures { get; init; }
-  double MetersPerUnit { get; init; }
-  static SceneExportSettings Default { get; }
 static class Engine.SceneFile
   const int Version = 1
   const string Format = "3dengine-scene"
@@ -4158,31 +2639,6 @@ static class Engine.SceneFile
   static List<int> Read(World world, string json)
   static string Write(EcsWorld ecs, IEnumerable<int>? entities = null)
   static void Save(EcsWorld ecs, string path, IEnumerable<int>? entities = null)
-static class Engine.SceneHotReloadSystem
-  static void Run(World world)
-struct Engine.SceneId
-  string Value
-sealed class Engine.SceneImportSettings
-  IReadOnlyList<string> AssetSearchPath { get; init; }
-  LoadPayloads LoadPayloads { get; init; }
-  MaterialNetworkResolution MaterialResolution { get; init; }
-  SceneCoordinateSystem TargetCoordinateSystem { get; init; }
-  SceneImportSettings()
-  ScenePurposeMask IncludePurposes { get; init; }
-  bool FlattenComposition { get; init; }
-  double TargetMetersPerUnit { get; init; }
-  double? TimeCode { get; init; }
-  static SceneImportSettings Default { get; }
-struct Engine.SceneInstance
-  string SourcePath
-  ulong SceneAssetId
-sealed class Engine.SceneInstancingPayload
-  Matrix4x4[] InstanceTransforms { get; init; }
-  SceneInstancingPayload()
-  int[] ProtoIndices { get; init; }
-  int[]? InstanceIds { get; init; }
-  string Name { get; init; }
-  string PrototypeRoot { get; init; }
 static class Engine.SceneJson
   static Color ReadColor(JsonElement e)
   static Matrix4x4 ReadMatrix4x4(JsonElement e)
@@ -4196,73 +2652,6 @@ static class Engine.SceneJson
   static void Write(Utf8JsonWriter writer, string? name, Vector2 v)
   static void Write(Utf8JsonWriter writer, string? name, Vector3 v)
   static void Write(Utf8JsonWriter writer, string? name, Vector4 v)
-sealed class Engine.SceneLightPayload
-  LightKind Kind { get; init; }
-  SceneLightPayload()
-  Vector3 Color { get; init; }
-  bool CastsShadows { get; init; }
-  float InnerAngle { get; init; }
-  float Intensity { get; init; }
-  float OuterAngle { get; init; }
-  float Range { get; init; }
-  string Name { get; init; }
-sealed class Engine.SceneMaterialPayload
-  SceneAlphaMode AlphaMode { get; init; }
-  SceneMaterialPayload()
-  SceneTextureRef? BaseColorTexture { get; init; }
-  SceneTextureRef? EmissiveTexture { get; init; }
-  SceneTextureRef? MetallicRoughnessTexture { get; init; }
-  SceneTextureRef? NormalTexture { get; init; }
-  SceneTextureRef? OcclusionTexture { get; init; }
-  Vector3 EmissiveFactor { get; init; }
-  Vector4 BaseColorFactor { get; init; }
-  bool DoubleSided { get; init; }
-  float AlphaCutoff { get; init; }
-  float MetallicFactor { get; init; }
-  float NormalScale { get; init; }
-  float OcclusionStrength { get; init; }
-  float RoughnessFactor { get; init; }
-  string Name { get; init; }
-  string SourcePath { get; init; }
-sealed class Engine.SceneMeshPayload
-  IReadOnlyList<SceneMeshSubset> Subsets { get; init; }
-  IReadOnlyList<SceneMorphTarget> Morphs { get; init; }
-  SceneBounds LocalBounds { get; init; }
-  SceneMeshPayload()
-  Vector2[]? Uv0 { get; init; }
-  Vector2[]? Uv1 { get; init; }
-  Vector3[] Positions { get; init; }
-  Vector3[]? Normals { get; init; }
-  Vector4[]? Colors { get; init; }
-  Vector4[]? Tangents { get; init; }
-  int[] Indices { get; init; }
-  string Name { get; init; }
-sealed class Engine.SceneMeshSubset : IEquatable<SceneMeshSubset>
-  SceneMeshSubset(string Name, int IndexStart, int IndexCount, string? MaterialPath)
-  bool Equals(SceneMeshSubset? other)
-  int IndexCount { get; init; }
-  int IndexStart { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SceneMeshSubset? left, SceneMeshSubset? right)
-  static bool op_Inequality(SceneMeshSubset? left, SceneMeshSubset? right)
-  string Name { get; init; }
-  string? MaterialPath { get; init; }
-  void Deconstruct(out string Name, out int IndexStart, out int IndexCount, out string? MaterialPath)
-sealed class Engine.SceneMorphTarget : IEquatable<SceneMorphTarget>
-  SceneMorphTarget(string Name, Vector3[] PositionDeltas, Vector3[]? NormalDeltas, float Weight)
-  Vector3[] PositionDeltas { get; init; }
-  Vector3[]? NormalDeltas { get; init; }
-  bool Equals(SceneMorphTarget? other)
-  float Weight { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SceneMorphTarget? left, SceneMorphTarget? right)
-  static bool op_Inequality(SceneMorphTarget? left, SceneMorphTarget? right)
-  string Name { get; init; }
-  void Deconstruct(out string Name, out Vector3[] PositionDeltas, out Vector3[]? NormalDeltas, out float Weight)
 sealed class Engine.SceneNode
   List<SceneNode> Children { get; }
   List<object> Components { get; }
@@ -4273,9 +2662,6 @@ sealed class Engine.SceneNode
   bool Enabled { get; set; }
   string Name { get; init; }
   string SourcePath { get; init; }
-enum Engine.SceneProjection : int
-  Orthographic = 1
-  Perspective = 0
 enum Engine.ScenePurpose : int
   Default = 0
   Guide = 3
@@ -4293,46 +2679,8 @@ enum Engine.ScenePurposeMask : int
 sealed class Engine.SceneReadContext
   Entity Resolve(string? id)
   Handle<TAsset> Load<TAsset>(string? path)
-sealed class Engine.SceneReaderRegistry
-  ISceneReader? FindReaderByExtension(string extension)
-  ISceneReader? FindReaderByFormat(string formatId)
-  ISceneWriter? FindWriterByFormat(string formatId)
-  SceneReaderRegistry()
-  void RegisterReader(ISceneReader reader)
-  void RegisterWriter(ISceneWriter writer)
 struct Engine.SceneRef
   string Path
-struct Engine.SceneRefSpawned
-  DateTime Written
-  string? File
-static class Engine.SceneRefSystem
-  const int MaxDepth = 8
-  static void Run(World world)
-sealed class Engine.SceneSkeletonPayload
-  Matrix4x4[] InverseBindMatrices { get; init; }
-  SceneSkeletonPayload()
-  Transform[] LocalBindTransforms { get; init; }
-  int[] ParentIndices { get; init; }
-  string Name { get; init; }
-  string[] JointNames { get; init; }
-sealed class Engine.SceneSkinPayload
-  SceneSkinPayload()
-  float[] JointWeights { get; init; }
-  string SkeletonPath { get; init; }
-  ushort[] JointIndices { get; init; }
-static class Engine.SceneSpawn
-  static SceneSpawnSettings At(Vector3 position)
-  static SceneSpawnSettings At(Vector3 position, Quaternion rotation)
-  static SceneSpawnSettings With(Matrix4x4 placement)
-  static SceneSpawnSettings WithPurposes(ScenePurposeMask purposes)
-static class Engine.SceneSpawnExtensions
-  static EcsCommands SpawnScene(this EcsCommands cmd, Handle<SceneAsset> handle, SceneSpawnSettings? settings = null)
-  static Handle<SceneAsset> LoadScene(this AssetServer server, string path)
-  static Handle<SceneAsset> LoadScene(this BehaviorContext ctx, string path)
-  static Handle<SceneAsset> LoadScene(this World world, string path)
-  static Handle<SceneAsset> SpawnScene(this BehaviorContext ctx, string path, SceneSpawnSettings? settings = null)
-  static Handle<SceneAsset> SpawnScene(this World world, EcsCommands cmd, string path, SceneSpawnSettings? settings = null)
-  static List<int> SpawnScene(this EcsWorld ecs, Scene scene, SceneSpawnSettings? settings = null, ulong sceneAssetId = 0UL)
 sealed class Engine.SceneSpawnSettings
   Matrix4x4 Placement { get; init; }
   SceneCoordinateSystem TargetCoordinateSystem { get; init; }
@@ -4342,37 +2690,9 @@ sealed class Engine.SceneSpawnSettings
   bool AttachSceneInstanceMarker { get; init; }
   double TargetMetersPerUnit { get; init; }
   static SceneSpawnSettings Default { get; }
-static class Engine.SceneSpawnSystem
-  static void Run(World world)
-static class Engine.SceneSpawner
-  static List<int> Spawn(EcsWorld ecs, Scene scene, SceneSpawnSettings? settings = null, ulong sceneAssetId = 0UL, AssetServer? assetServer = null, string? sceneSourcePath = null, MaterialLibrary? materialLibrary = null)
-  static Matrix4x4 ComputeRootMatrix(Scene scene, SceneSpawnSettings settings)
-  static string ResolveTexturePath(string? sceneDirectory, string texturePath)
-sealed class Engine.SceneTextureRef : IEquatable<SceneTextureRef>
-  SceneTextureRef(string AssetPath, int UvSet = 0, SceneWrapMode WrapS = SceneWrapMode.Repeat, SceneWrapMode WrapT = SceneWrapMode.Repeat)
-  SceneWrapMode WrapS { get; init; }
-  SceneWrapMode WrapT { get; init; }
-  bool Equals(SceneTextureRef? other)
-  int UvSet { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SceneTextureRef? left, SceneTextureRef? right)
-  static bool op_Inequality(SceneTextureRef? left, SceneTextureRef? right)
-  string AssetPath { get; init; }
-  void Deconstruct(out string AssetPath, out int UvSet, out SceneWrapMode WrapS, out SceneWrapMode WrapT)
-enum Engine.SceneWrapMode : int
-  Black = 3
-  Clamp = 2
-  Mirror = 1
-  Repeat = 0
 sealed class Engine.SceneWriteContext
   string? IdOf(Entity entity)
   string? PathOf<TAsset>(Handle<TAsset> handle)
-sealed class Engine.ScenesPlugin : IPlugin
-  ScenesPlugin()
-  int Order { get; }
-  void Build(App app)
 sealed class Engine.Schedule
   IReadOnlyList<string> SystemNames(Stage stage)
   Schedule AddSystem(Stage stage, SystemDescriptor descriptor)
@@ -4389,8 +2709,6 @@ sealed class Engine.Schedule
   int TotalSystemCount { get; }
   void Run(World world)
   void RunStage(Stage stage, World world)
-struct Engine.ScheduleDebugHud
-  static void Draw(BehaviorContext ctx)
 sealed class Engine.ScheduleDiagnostics
   IReadOnlyDictionary<(Stage, string), TimeSpan> SystemDurations { get; }
   IReadOnlyDictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> StageBatchNotes { get; }
@@ -4400,79 +2718,6 @@ sealed class Engine.ScheduleDiagnostics
   TimeSpan GetStageDuration(Stage stage)
   TimeSpan GetSystemDuration(Stage stage, string systemName)
   void Reset()
-readonly struct Engine.ScissorRect : IEquatable<ScissorRect>
-  ScissorRect(int X, int Y, int Width, int Height)
-  bool Equals(ScissorRect other)
-  int Height { get; init; }
-  int Width { get; init; }
-  int X { get; init; }
-  int Y { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ScissorRect left, ScissorRect right)
-  static bool op_Inequality(ScissorRect left, ScissorRect right)
-  void Deconstruct(out int X, out int Y, out int Width, out int Height)
-static class Engine.Screenshots
-  static string? Request(World world, string path, Action<string?>? done = null)
-sealed class Engine.SdlAudioBackend : IAudioBackend, IDisposable
-  SdlAudioBackend()
-  bool IsInitialized { get; }
-  bool IsVoicePlaying(int voiceId)
-  int CreateStreamVoice(int channels, int sampleRate, in AudioVoiceParams parameters)
-  int CreateVoice(Sound sound, in AudioVoiceParams parameters)
-  long QueuedVoiceFrames(int voiceId)
-  string BackendId { get; }
-  void Dispose()
-  void Initialize()
-  void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples)
-  void SetListenerPosition(Vector3 position)
-  void SetVoiceLooping(int voiceId, bool looping)
-  void SetVoicePan(int voiceId, float pan)
-  void SetVoicePaused(int voiceId, bool paused)
-  void SetVoicePlaybackRate(int voiceId, float rate)
-  void SetVoicePosition(int voiceId, Vector3 position)
-  void SetVoiceVolume(int voiceId, float volume)
-  void StopVoice(int voiceId)
-  void Update()
-sealed class Engine.SdlAudioPlugin : IPlugin
-  SdlAudioPlugin()
-  void Build(App app)
-static class Engine.SdlImGuiInput
-  static void FeedGamepad(GamepadState? pad)
-  static void ProcessEvent(SDL.Event e)
-sealed class Engine.SdlImGuiPlugin : IPlugin
-  SdlImGuiPlugin()
-  void Build(App app)
-sealed class Engine.SdlImGuiRenderer : IDisposable
-  SdlImGuiRenderer(nint renderer)
-  void Dispose()
-  void NewFrame(nint window)
-  void RenderDrawData(ImDrawDataPtr drawData)
-sealed class Engine.SdlInput
-  SDL.MouseButtonFlags MouseButtons { get; }
-  SdlInput()
-  bool KeyDown(Key code)
-  bool KeyPressed(Key code)
-  bool KeyReleased(Key code)
-  int MouseDeltaX { get; }
-  int MouseDeltaY { get; }
-  int MouseX { get; }
-  int MouseY { get; }
-  void BeginFrame()
-  void EndFrame()
-  void Process(SDL.Event evt)
-sealed class Engine.SdlWindow
-  (int, int) Size { get; }
-  SdlWindow(string title, int width, int height, bool useVulkan = false)
-  bool NeedsManualHiDpiScaling { get; }
-  float DisplayScale { get; }
-  int Height { get; }
-  int Width { get; }
-  nint Renderer { get; }
-  nint Window { get; }
-  string Title { get; }
-  void Destroy()
 readonly struct Engine.Shader : IEquatable<Shader>
   Shader(int Id)
   bool Equals(Shader other)
@@ -4484,19 +2729,6 @@ readonly struct Engine.Shader : IEquatable<Shader>
   static bool op_Equality(Shader left, Shader right)
   static bool op_Inequality(Shader left, Shader right)
   void Deconstruct(out int Id)
-readonly struct Engine.ShaderBinding : IEquatable<ShaderBinding>
-  DescriptorType Type { get; init; }
-  ShaderBinding(string Name, int Set, int Binding, DescriptorType Type)
-  bool Equals(ShaderBinding other)
-  int Binding { get; init; }
-  int Set { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ShaderBinding left, ShaderBinding right)
-  static bool op_Inequality(ShaderBinding left, ShaderBinding right)
-  string Name { get; init; }
-  void Deconstruct(out string Name, out int Set, out int Binding, out DescriptorType Type)
 readonly struct Engine.ShaderBuffer : IEquatable<ShaderBuffer>
   ShaderBuffer(int Id, int Size)
   bool Equals(ShaderBuffer other)
@@ -4509,193 +2741,6 @@ readonly struct Engine.ShaderBuffer : IEquatable<ShaderBuffer>
   static bool op_Equality(ShaderBuffer left, ShaderBuffer right)
   static bool op_Inequality(ShaderBuffer left, ShaderBuffer right)
   void Deconstruct(out int Id, out int Size)
-sealed class Engine.ShaderBufferStore
-  IBuffer? Get(int id)
-  IBuffer[] TakeAll()
-  ShaderBufferStore()
-  bool Remove(int id, out IBuffer? buffer)
-  int Add(IBuffer buffer)
-readonly struct Engine.ShaderDesc : IEquatable<ShaderDesc>
-  ReadOnlyMemory<byte> Bytecode { get; init; }
-  ShaderDesc(ShaderStage Stage, ReadOnlyMemory<byte> Bytecode, string EntryPoint = "main")
-  ShaderStage Stage { get; init; }
-  bool Equals(ShaderDesc other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ShaderDesc left, ShaderDesc right)
-  static bool op_Inequality(ShaderDesc left, ShaderDesc right)
-  string EntryPoint { get; init; }
-  void Deconstruct(out ShaderStage Stage, out ReadOnlyMemory<byte> Bytecode, out string EntryPoint)
-readonly struct Engine.ShaderParams : IEquatable<ShaderParams>
-  ShaderParams With(int slot, Vector4 value)
-  ShaderParams(Vector4 P0, Vector4 P1, Vector4 P2, Vector4 P3)
-  Vector4 P0 { get; init; }
-  Vector4 P1 { get; init; }
-  Vector4 P2 { get; init; }
-  Vector4 P3 { get; init; }
-  Vector4 this[int slot] { get; }
-  bool Equals(ShaderParams other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ShaderParams left, ShaderParams right)
-  static bool op_Inequality(ShaderParams left, ShaderParams right)
-  void Deconstruct(out Vector4 P0, out Vector4 P1, out Vector4 P2, out Vector4 P3)
-sealed class Engine.ShaderProgram
-  DescriptorSetLayoutBinding[] LayoutOf(int set)
-  IReadOnlyDictionary<ShaderStage, byte[]> Stages { get; }
-  IReadOnlyList<(ShaderBinding, ShaderStageFlags)> Bindings { get; }
-  IReadOnlyList<ShaderTexture> Buffers { get; }
-  IReadOnlyList<ShaderTexture> Images { get; }
-  IReadOnlyList<ShaderTexture> OwnTextures(IReadOnlyCollection<string> passTextures)
-  IReadOnlyList<ShaderTexture> Textures { get; }
-  IReadOnlyList<ShaderUniform> Uniforms { get; }
-  ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null, IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null, IReadOnlyList<(ShaderBinding, ShaderStageFlags)>? bindings = null)
-  byte[] Compute { get; }
-  byte[] Fragment { get; }
-  byte[] Vertex { get; }
-  int UniformSize { get; }
-  static DescriptorSetLayoutBinding[] Merge(params IEnumerable<DescriptorSetLayoutBinding>[] layouts)
-  string Name { get; }
-enum Engine.ShaderStage : int
-  Compute = 2
-  Fragment = 1
-  Vertex = 0
-enum Engine.ShaderStageFlags : int
-  All = 3
-  Fragment = 2
-  Vertex = 1
-sealed class Engine.ShaderStore
-  ShaderProgram? Get(int id)
-  ShaderStore()
-  bool Remove(int id)
-  int Add(ShaderProgram program)
-readonly struct Engine.ShaderTexture : IEquatable<ShaderTexture>
-  ShaderTexture(string Name, int Binding)
-  bool Equals(ShaderTexture other)
-  int Binding { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ShaderTexture left, ShaderTexture right)
-  static bool op_Inequality(ShaderTexture left, ShaderTexture right)
-  string Name { get; init; }
-  void Deconstruct(out string Name, out int Binding)
-readonly struct Engine.ShaderUniform : IEquatable<ShaderUniform>
-  ShaderUniform(string Name, int Offset, int Size)
-  bool Equals(ShaderUniform other)
-  int Offset { get; init; }
-  int Size { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(ShaderUniform left, ShaderUniform right)
-  static bool op_Inequality(ShaderUniform left, ShaderUniform right)
-  string Name { get; init; }
-  void Deconstruct(out string Name, out int Offset, out int Size)
-struct Engine.ShadowCascadeArray
-  Matrix4x4 _element0
-static class Engine.ShadowFit
-  const float Distance = 150f
-  const float PointFaceSlack = 1.02f
-  const int AtlasSize = 4096
-  const int FullPointLights = 4
-  const int MaxPointLights = 12
-  const int MaxSpotLights = 10
-  const int PointFaceSize = 512
-  const int PointLayers = 36
-  const int SpotTile = 3
-  const int TileSize = 2048
-  static (Matrix4x4, float)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction, float distance = 150f, int tileSize = 2048)
-  static (int, int) TileOrigin(int tile, int tileSize = 2048)
-  static (int, int, int) SpotTileArea(int slot, int count, int tileSize = 2048)
-  static (int, int, int, int) PointFaceArea(int slot, int face, int faceSize = 512)
-  static Matrix4x4[] FitPoint(Vector3 position, float range, float distance = 150f)
-  static ReadOnlySpan<float> Splits { get; }
-  static bool TryFit(Matrix4x4 cameraViewProjection, Vector3 direction, float from, float to, out Matrix4x4 viewProjection, out float texel, int tileSize = 2048)
-  static bool TryFitSpot(Vector3 position, Vector3 direction, float cosOuter, float range, out Matrix4x4 viewProjection, out float texelPerUnit, float distance = 150f, int tileSize = 2048)
-  static float[] SplitsFor(float distance)
-sealed class Engine.ShadowMap : IDisposable
-  Extent2D Extent { get; }
-  IFramebuffer Framebuffer { get; }
-  IImageView DepthView { get; }
-  IReadOnlyList<IFramebuffer> Framebuffers { get; }
-  IRenderPass RenderPass { get; }
-  ISampler Sampler { get; }
-  void Dispose()
-sealed class Engine.ShadowNode : INode
-  ShadowNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.ShadowSettings
-  ShadowSettings()
-  float Distance { get; set; }
-  int TileSize { get; set; }
-static class Engine.SimdMath
-  static void Add(Span<float> data, float value)
-  static void AddSpans(Span<float> dst, ReadOnlySpan<float> src)
-  static void Clamp(Span<float> data, float min, float max)
-  static void Lerp(Span<float> a, ReadOnlySpan<float> b, float t)
-  static void Scale(Span<float> data, float scale)
-  static void ScaleAndOffset(Span<float> data, float scale, float offset)
-sealed class Engine.SkinningNode : INode
-  SkinningNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-static class Engine.SlangCompiler
-  static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage, string? cacheDirectory = null, string? importDirectory = null)
-  static bool Available { get; }
-  static byte[] Compile(string source, string fileName, string entryPoint, ShaderStage stage, string? cacheDirectory = null, string? importDirectory = null)
-  static string? CompilerPath { get; }
-sealed class Engine.SlangLoader : IAssetLoader<ShaderProgram>
-  ShaderProgram Compile(string source, string fileName)
-  SlangLoader(string? cacheDirectory = null, string? importDirectory = null)
-  Task<AssetLoadResult<ShaderProgram>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  static IReadOnlyList<string> Precompile(string shaderDirectory, string cacheDirectory)
-  string CacheDirectory { get; }
-  string ImportDirectory { get; }
-  string[] Extensions { get; }
-sealed class Engine.SlangStage : IEquatable<SlangStage>
-  IReadOnlyList<ShaderBinding>? Bindings { get; init; }
-  IReadOnlyList<ShaderTexture>? Buffers { get; init; }
-  IReadOnlyList<ShaderTexture>? Images { get; init; }
-  IReadOnlyList<ShaderTexture>? Textures { get; init; }
-  IReadOnlyList<ShaderUniform> Uniforms { get; init; }
-  SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null, IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null)
-  bool Equals(SlangStage? other)
-  byte[] Spirv { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SlangStage? left, SlangStage? right)
-  static bool op_Inequality(SlangStage? left, SlangStage? right)
-  void Deconstruct(out byte[] Spirv, out IReadOnlyList<ShaderUniform> Uniforms, out IReadOnlyList<ShaderTexture>? Textures, out IReadOnlyList<ShaderTexture>? Buffers, out IReadOnlyList<ShaderTexture>? Images, out IReadOnlyList<ShaderBinding>? Bindings)
-readonly struct Engine.SlotInfo : IEquatable<SlotInfo>
-  SlotInfo(string Name, SlotType Type)
-  SlotType Type { get; init; }
-  bool Equals(SlotInfo other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SlotInfo left, SlotInfo right)
-  static bool op_Inequality(SlotInfo left, SlotInfo right)
-  string Name { get; init; }
-  void Deconstruct(out string Name, out SlotType Type)
-enum Engine.SlotType : int
-  Buffer = 3
-  Entity = 4
-  None = 0
-  Sampler = 2
-  TextureView = 1
-readonly struct Engine.SlotValue
-  IBuffer AsBuffer()
-  IImageView AsTextureView()
-  ISampler AsSampler()
-  int AsEntity()
-  readonly SlotType Type
-  static SlotValue Buffer(IBuffer buffer)
-  static SlotValue Entity(int entity)
-  static SlotValue Sampler(ISampler sampler)
-  static SlotValue TextureView(IImageView view)
 sealed class Engine.Sound
   Sound()
   double DurationSeconds { get; }
@@ -4704,21 +2749,6 @@ sealed class Engine.Sound
   int SampleRate { get; init; }
   string SourceFormat { get; init; }
   string SourcePath { get; init; }
-sealed class Engine.SoundAssetLoader : IAssetLoader<Sound>
-  SoundAssetLoader(SoundDecoderRegistry registry)
-  Task<AssetLoadResult<Sound>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  string[] Extensions { get; }
-  void RefreshExtensions()
-sealed class Engine.SoundDecoderRegistry
-  IReadOnlyCollection<ISoundDecoder> Decoders { get; }
-  IReadOnlyCollection<string> Extensions { get; }
-  ISoundDecoder? FindDecoderByExtension(string extension)
-  ISoundDecoder? FindDecoderByFormat(string formatId)
-  SoundDecoderRegistry()
-  void RegisterDecoder(ISoundDecoder decoder)
-sealed class Engine.SoundsPlugin : IPlugin
-  SoundsPlugin()
-  void Build(App app)
 readonly struct Engine.SpatialContext : IEquatable<SpatialContext>
   Vector3 ListenerForward { get; init; }
   Vector3 ListenerUp { get; init; }
@@ -4748,29 +2778,6 @@ readonly struct Engine.SpatialResult : IEquatable<SpatialResult>
 struct Engine.SpawnSceneRequest
   Handle<SceneAsset> Handle
   SceneSpawnSettings? Settings
-sealed class Engine.SpawnedSceneRecord : IEquatable<SpawnedSceneRecord>
-  AssetId AssetId { get; init; }
-  SceneSpawnSettings Settings { get; init; }
-  SpawnedSceneRecord(AssetId AssetId, int[] Entities, SceneSpawnSettings Settings)
-  bool Equals(SpawnedSceneRecord? other)
-  int[] Entities { get; init; }
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(SpawnedSceneRecord? left, SpawnedSceneRecord? right)
-  static bool op_Inequality(SpawnedSceneRecord? left, SpawnedSceneRecord? right)
-  void Deconstruct(out AssetId AssetId, out int[] Entities, out SceneSpawnSettings Settings)
-sealed class Engine.SpawnedScenes
-  IReadOnlyList<SpawnedSceneRecord> Snapshot()
-  SpawnedScenes()
-  bool Remove(AssetId assetId, out SpawnedSceneRecord record)
-  bool TryGet(AssetId assetId, out SpawnedSceneRecord record)
-  int Count { get; }
-  void Track(AssetId assetId, IEnumerable<int> entities, SceneSpawnSettings settings)
-struct Engine.SpotShadowArray
-  Matrix4x4 _element0
-struct Engine.SpotTexelArray
-  Vector4 _element0
 enum Engine.Stage : int
   Cleanup = 7
   First = 1
@@ -4781,10 +2788,6 @@ enum Engine.Stage : int
   Render = 5
   Startup = 0
   Update = 3
-static class Engine.StageOrder
-  static ReadOnlySpan<Stage> AllInOrder()
-  static ReadOnlySpan<Stage> EndFrameStages()
-  static ReadOnlySpan<Stage> FrameStages()
 readonly struct Engine.StateTransition<TState> : IEquatable<StateTransition<TState>> where TState : struct, Enum
   StateTransition(TState? From, TState? To)
   TState? From { get; init; }
@@ -4796,69 +2799,14 @@ readonly struct Engine.StateTransition<TState> : IEquatable<StateTransition<TSta
   static bool op_Equality(StateTransition<TState> left, StateTransition<TState> right)
   static bool op_Inequality(StateTransition<TState> left, StateTransition<TState> right)
   void Deconstruct(out TState? From, out TState? To)
-sealed class Engine.StateTransitions
-  IEnumerable<(string, string?, string[])> Describe(World world)
-  IEnumerable<Type> StateTypes { get; }
-  StateTransitions()
-  bool Apply(World world)
-  string? TryQueue(World world, string state, string value)
 sealed class Engine.State<TState> where TState : struct, Enum
   TState Current { get; }
   TState? Previous { get; }
   override string ToString()
-sealed class Engine.StbTextureDecoder : ITextureDecoder
-  StbTextureDecoder()
-  Task<Texture> DecodeAsync(AssetLoadContext context, TextureLoadSettings settings, CancellationToken ct)
-  string FormatId { get; }
-  string[] Extensions { get; }
-sealed class Engine.StbTexturesPlugin : IPlugin
-  StbTexturesPlugin()
-  void Build(App app)
-readonly struct Engine.StorageBufferBinding : IEquatable<StorageBufferBinding>
-  IBuffer Buffer { get; init; }
-  StorageBufferBinding(IBuffer Buffer, uint Binding)
-  bool Equals(StorageBufferBinding other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(StorageBufferBinding left, StorageBufferBinding right)
-  static bool op_Inequality(StorageBufferBinding left, StorageBufferBinding right)
-  uint Binding { get; init; }
-  void Deconstruct(out IBuffer Buffer, out uint Binding)
-enum Engine.StoreOp : int
-  DontCare = 1
-  Store = 0
-sealed class Engine.StringLoader : IAssetLoader<string>
-  StringLoader(params string[] extensions)
-  Task<AssetLoadResult<string>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  string[] Extensions { get; }
 sealed class Engine.SubStateOfAttribute : Attribute
   SubStateOfAttribute(object whileIn)
   object WhileIn { get; }
   object? Initial { get; set; }
-sealed class Engine.SurfaceResize
-  bool Empty { get; }
-  bool Vsync { get; }
-  void Request(int width, int height)
-  void RequestVsync(bool vsync)
-sealed class Engine.SwapchainTarget
-  Extent2D Extent { get; }
-  IFramebuffer Framebuffer { get; }
-  IRenderPass RenderPass { get; }
-  SwapchainTarget(IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent)
-sealed class Engine.SyntheticInput
-  SyntheticInput()
-  const uint ConsolePadId = 12648430u
-  static GamepadState? Pad(Input input, int index)
-  static void Move(Input input, int x, int y)
-  static void Type(Input input, string text)
-  static void Wheel(Input input, float amount)
-  void Button(Input input, MouseButton button, ulong frame, int frames)
-  void Drag(Input input, MouseButton button, int dx, int dy, ulong frame, int frames, int rest = 0)
-  void Key(Input input, Key key, ulong frame, int frames)
-  void PadButton(Input input, GamepadState pad, GamepadButton button, ulong frame, int frames)
-  void Touch(Input input, long id, float x, float y, ulong frame, int frames)
-  void Update(Input input, ulong frame)
 sealed class Engine.SystemDescriptor
   Func<World, bool>? RunCondition { get; init; }
   IReadOnlyCollection<Type> Reads { get; }
@@ -4875,16 +2823,6 @@ sealed class Engine.SystemDescriptor
   string Name { get; }
   string? Source { get; set; }
 delegate void Engine.SystemFn(World world)
-readonly struct Engine.SystemRegistrationSourceScope : IDisposable
-  SystemRegistrationSourceScope(string? source)
-  void Dispose()
-sealed class Engine.SystemToggleRegistry
-  SystemToggleRegistry()
-  bool Get(string id, bool defaultEnabled = true)
-  void Flip(string id, bool defaultEnabled = true)
-sealed class Engine.TargetsNode : INode
-  TargetsNode()
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
 sealed class Engine.Texture
   Texture()
   TextureColorSpace ColorSpace { get; init; }
@@ -4909,21 +2847,9 @@ readonly struct Engine.Texture2D : IEquatable<Texture2D>
   static bool op_Equality(Texture2D left, Texture2D right)
   static bool op_Inequality(Texture2D left, Texture2D right)
   void Deconstruct(out int Id, out int Width, out int Height)
-sealed class Engine.TextureAssetLoader : IAssetLoader<Texture>
-  Task<AssetLoadResult<Texture>> LoadAsync(AssetLoadContext context, CancellationToken ct)
-  TextureAssetLoader(TextureDecoderRegistry registry)
-  string[] Extensions { get; }
-  void RefreshExtensions()
 enum Engine.TextureColorSpace : int
   Linear = 0
   Srgb = 1
-sealed class Engine.TextureDecoderRegistry
-  IReadOnlyCollection<ITextureDecoder> Decoders { get; }
-  IReadOnlyCollection<string> Extensions { get; }
-  ITextureDecoder? FindDecoderByExtension(string extension)
-  ITextureDecoder? FindDecoderByFormat(string formatId)
-  TextureDecoderRegistry()
-  void RegisterDecoder(ITextureDecoder decoder)
 enum Engine.TextureFilter : int
   Anisotropic16x = 4
   Anisotropic4x = 2
@@ -4942,29 +2868,6 @@ enum Engine.TextureFormat : int
   Rgba16F = 3
   Rgba32F = 4
   Rgba8 = 2
-static class Engine.TextureFormatInfo
-  static bool IsBlockCompressed(TextureFormat format)
-  static int BytesPerBlock(TextureFormat format)
-  static int BytesPerPixel(TextureFormat format)
-static class Engine.TextureLoadExtensions
-  static Handle<Texture> LoadTexture(this AssetServer server, string path)
-  static Handle<Texture> LoadTexture(this BehaviorContext ctx, string path)
-  static Handle<Texture> LoadTexture(this World world, string path)
-  static Handle<Texture> LoadTextureLinear(this AssetServer server, string path, bool generateMips = false)
-  static Handle<Texture> LoadTextureLinear(this BehaviorContext ctx, string path, bool generateMips = false)
-  static Handle<Texture> LoadTextureLinear(this World world, string path, bool generateMips = false)
-  static Handle<Texture> LoadTextureSrgb(this AssetServer server, string path, bool generateMips = false)
-  static Handle<Texture> LoadTextureSrgb(this BehaviorContext ctx, string path, bool generateMips = false)
-  static Handle<Texture> LoadTextureSrgb(this World world, string path, bool generateMips = false)
-sealed class Engine.TextureLoadSettings
-  TextureColorSpace? ColorSpace { get; init; }
-  TextureLoadSettings()
-  bool GenerateMips { get; init; }
-  static TextureLoadSettings Default { get; }
-static class Engine.TextureMipGenerator
-  static Texture WithMipChain(Texture source)
-  static int MipCount(int w, int h)
-  static int TotalBytes(int w, int h, int bytesPerPixel, int mipCount)
 sealed class Engine.TextureStore
   TextureStore()
   bool Contains(int id)
@@ -5008,10 +2911,6 @@ enum Engine.TextureWrapMode : byte
   Clamp = 2
   Mirror = 1
   Repeat = 0
-sealed class Engine.TexturesPlugin : IPlugin
-  TexturesPlugin()
-  int Order { get; }
-  void Build(App app)
 enum Engine.ThreadAffinity : int
   Any = 0
   MainThread = 1
@@ -5025,9 +2924,6 @@ sealed class Engine.Time
   double SmoothedFps { get; }
   override string ToString()
   ulong FrameCount { get; }
-sealed class Engine.TimePlugin : IPlugin
-  TimePlugin()
-  void Build(App app)
 sealed class Engine.ToggleKeyAttribute : Attribute
   Key Key { get; }
   KeyModifier Modifier { get; }
@@ -5049,21 +2945,6 @@ readonly struct Engine.TouchPoint : IEquatable<TouchPoint>
   static bool op_Equality(TouchPoint left, TouchPoint right)
   static bool op_Inequality(TouchPoint left, TouchPoint right)
   void Deconstruct(out long Id, out Vector2 Position)
-sealed class Engine.TrackedRenderPass : IDisposable
-  Extent2D Extent { get; }
-  void Dispose()
-  void Draw(uint vertexCount, uint instanceCount = 1u, uint firstVertex = 0u, uint firstInstance = 0u)
-  void DrawIndexed(uint indexCount, uint instanceCount = 1u, uint firstIndex = 0u, int vertexOffset = 0, uint firstInstance = 0u)
-  void EndRenderPass()
-  void PushConstants(IPipeline pipeline, ShaderStageFlags stages, uint offset, ReadOnlySpan<byte> data)
-  void SetBindGroup(IPipeline pipeline, IDescriptorSet descriptorSet)
-  void SetBindGroup(IPipeline pipeline, IDescriptorSet descriptorSet, uint index)
-  void SetBindGroup(IPipeline pipeline, IDescriptorSet descriptorSet, uint index, ReadOnlySpan<uint> dynamicOffsets)
-  void SetIndexBuffer(IBuffer buffer, ulong offset, IndexType indexType)
-  void SetPipeline(IPipeline pipeline)
-  void SetScissor(int x, int y, uint w, uint h)
-  void SetVertexBuffer(uint firstBinding, IBuffer[] buffers, ulong[] offsets)
-  void SetViewport(float x, float y, float w, float h, float minDepth = 0f, float maxDepth = 1f)
 struct Engine.Transform
   Quaternion Rotation
   Transform(Vector3 position)
@@ -5072,25 +2953,6 @@ struct Engine.Transform
   Vector3 Position
   Vector3 Scale
   static Transform Identity { get; }
-static class Engine.TransformPropagation
-  static Matrix4x4 ComposedWorldMatrix(EcsWorld ecs, int entity)
-  static Matrix4x4 ToMatrix(in Transform t)
-  static Matrix4x4 WorldMatrix(EcsWorld ecs, int entity)
-  static void Run(World world)
-readonly struct Engine.UniformBufferBinding : IEquatable<UniformBufferBinding>
-  IBuffer Buffer { get; init; }
-  UniformBufferBinding(IBuffer Buffer, uint Binding, ulong Offset, ulong Size, bool Dynamic = false)
-  bool Dynamic { get; init; }
-  bool Equals(UniformBufferBinding other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(UniformBufferBinding left, UniformBufferBinding right)
-  static bool op_Inequality(UniformBufferBinding left, UniformBufferBinding right)
-  uint Binding { get; init; }
-  ulong Offset { get; init; }
-  ulong Size { get; init; }
-  void Deconstruct(out IBuffer Buffer, out uint Binding, out ulong Offset, out ulong Size, out bool Dynamic)
 struct Engine.Vehicle : IEquatable<Vehicle>
   Vector3[]? Wheels { get; init; }
   Vehicle()
@@ -5130,52 +2992,6 @@ readonly struct Engine.VehicleWheel : IEquatable<VehicleWheel>
   static bool op_Equality(VehicleWheel left, VehicleWheel right)
   static bool op_Inequality(VehicleWheel left, VehicleWheel right)
   void Deconstruct(out Vector3 Center, out Vector3 Contact, out bool Grounded, out float Slip, out float Spin, out float Steer)
-enum Engine.VertexFormat : int
-  Float2 = 0
-  Float3 = 1
-  Float4 = 2
-  UNormR8G8B8A8 = 3
-readonly struct Engine.VertexInputAttributeDesc : IEquatable<VertexInputAttributeDesc>
-  VertexFormat Format { get; init; }
-  VertexInputAttributeDesc(uint Location, uint Binding, VertexFormat Format, uint Offset)
-  bool Equals(VertexInputAttributeDesc other)
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(VertexInputAttributeDesc left, VertexInputAttributeDesc right)
-  static bool op_Inequality(VertexInputAttributeDesc left, VertexInputAttributeDesc right)
-  uint Binding { get; init; }
-  uint Location { get; init; }
-  uint Offset { get; init; }
-  void Deconstruct(out uint Location, out uint Binding, out VertexFormat Format, out uint Offset)
-readonly struct Engine.VertexInputBindingDesc : IEquatable<VertexInputBindingDesc>
-  VertexInputBindingDesc(uint Binding, uint Stride, bool PerInstance = false)
-  bool Equals(VertexInputBindingDesc other)
-  bool PerInstance { get; init; }
-  override bool Equals(object obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(VertexInputBindingDesc left, VertexInputBindingDesc right)
-  static bool op_Inequality(VertexInputBindingDesc left, VertexInputBindingDesc right)
-  uint Binding { get; init; }
-  uint Stride { get; init; }
-  void Deconstruct(out uint Binding, out uint Stride, out bool PerInstance)
-abstract class Engine.ViewNode : INode
-  protected ViewNode()
-  protected abstract void Run(RenderGraphContext graphContext, RenderContext renderContext, ExtractedView view, RenderWorld renderWorld)
-  virtual SlotInfo[] Input()
-  virtual SlotInfo[] Output()
-  virtual void Update(RenderWorld renderWorld)
-  void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
-sealed class Engine.VulkanImGuiPlugin : IPlugin
-  VulkanImGuiPlugin()
-  void Build(App app)
-sealed class Engine.WavSoundDecoder : ISoundDecoder
-  Task<Sound> DecodeAsync(AssetLoadContext context, CancellationToken ct)
-  WavSoundDecoder()
-  static Sound Decode(byte[] bytes, string sourcePath = "")
-  string FormatId { get; }
-  string[] Extensions { get; }
 sealed class Engine.Wave
   Wave()
   float[] Samples { get; init; }
@@ -5200,17 +3016,6 @@ readonly struct Engine.WindowData : IEquatable<WindowData>
   static bool op_Equality(WindowData left, WindowData right)
   static bool op_Inequality(WindowData left, WindowData right)
   string Title { get; }
-sealed class Engine.WindowView : IEquatable<WindowView>
-  Matrix4x4 ViewProjection { get; init; }
-  Vector3 Eye { get; init; }
-  WindowView(Matrix4x4 ViewProjection, Vector3 Eye)
-  bool Equals(WindowView? other)
-  override bool Equals(object? obj)
-  override int GetHashCode()
-  override string ToString()
-  static bool op_Equality(WindowView? left, WindowView? right)
-  static bool op_Inequality(WindowView? left, WindowView? right)
-  void Deconstruct(out Matrix4x4 ViewProjection, out Vector3 Eye)
 sealed class Engine.WithAttribute : Attribute
   Type[] Types { get; }
   WithAttribute(params Type[] types)
@@ -5233,13 +3038,6 @@ sealed class Engine.World : IDisposable
   void Clear()
   void Dispose()
   void InsertResource<T>(T value)
-static class Engine.WorldAssetExtensions
-  static Handle<T?> LoadAsset<T>(this World world, string path)
-  static IReadOnlyList<AssetEvent<T?>> ReadAssetEvents<T>(this World world)
-  static LoadState GetAssetLoadState<T>(this World world, Handle<T?> handle)
-  static T? GetAsset<T>(this World world, Handle<T?> handle)
-  static bool IsAssetLoaded<T>(this World world, Handle<T?> handle)
-  static bool TryGetAsset<T>(this World world, Handle<T?> handle, out T? asset)
 static class Engine.WorldEventExtensions
   static IReadOnlyList<T?> DrainEvents<T>(this World world)
   static IReadOnlyList<T?> ReadEvents<T>(this World world)

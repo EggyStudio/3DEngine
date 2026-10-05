@@ -16,7 +16,7 @@ namespace Engine;
 /// <see cref="FStop"/>).
 /// </para>
 /// </remarks>
-public sealed class SceneCameraPayload
+internal sealed class SceneCameraPayload
 {
     /// <summary>Display name (typically the source camera prim's leaf name).</summary>
     public string Name { get; init; } = "Camera";
@@ -66,7 +66,7 @@ public sealed class SceneCameraPayload
 }
 
 /// <summary>Camera projection model.</summary>
-public enum SceneProjection
+internal enum SceneProjection
 {
     /// <summary>Standard perspective projection (the USD <c>perspective</c> token).</summary>
     Perspective,

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Engine;
 
 /// <summary>The frame's emitters as the renderer sees them, with the window's camera and the seconds the frame covers.</summary>
-public sealed class RenderParticles
+internal sealed class RenderParticles
 {
     /// <summary>Each emitter by its entity, with its settings, where it is, and the burst it gives off this frame.</summary>
     public List<(int Entity, ParticleEmitter Emitter, Vector3 Position, int Burst)> Emitters { get; } = [];
@@ -20,7 +20,7 @@ public sealed class RenderParticles
 /// Copies every <see cref="ParticleEmitter"/> into <see cref="RenderParticles"/>, placed by its
 /// entity's world matrix, and clears the burst each one asked for, which is given off once.
 /// </summary>
-public sealed class ParticleExtract : IExtractSystem
+internal sealed class ParticleExtract : IExtractSystem
 {
     /// <inheritdoc />
     public void Run(World world, RenderWorld renderWorld)
@@ -58,7 +58,7 @@ public sealed class ParticleExtract : IExtractSystem
 /// below the frame rate still gives off its particles, and its burst, in a run of slots after the
 /// last frame's, so the oldest particles are the ones replaced.
 /// </remarks>
-public sealed class ParticleRenderer : IDisposable
+internal sealed class ParticleRenderer : IDisposable
 {
     private sealed class State(GpuParticles gpu)
     {
@@ -228,7 +228,7 @@ public sealed class ParticleRenderer : IDisposable
 }
 
 /// <summary>Render graph node that steps the frame's particles on the GPU, before anything draws.</summary>
-public sealed class ParticleNode : INode
+internal sealed class ParticleNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>

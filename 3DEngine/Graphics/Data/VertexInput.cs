@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Vertex attribute data format for vertex input descriptions.</summary>
-public enum VertexFormat
+internal enum VertexFormat
 {
     /// <summary>Two 32-bit floats (VK_FORMAT_R32G32_SFLOAT).</summary>
     Float2,
@@ -14,7 +14,7 @@ public enum VertexFormat
 }
 
 /// <summary>Index buffer element type.</summary>
-public enum IndexType
+internal enum IndexType
 {
     /// <summary>16-bit unsigned integer indices.</summary>
     UInt16,
@@ -24,7 +24,7 @@ public enum IndexType
 
 /// <summary>Flags identifying shader stages for push constants and descriptor bindings.</summary>
 [Flags]
-public enum ShaderStageFlags
+internal enum ShaderStageFlags
 {
     /// <summary>Vertex shader stage.</summary>
     Vertex = 1,
@@ -38,17 +38,17 @@ public enum ShaderStageFlags
 /// <param name="Binding">Binding slot index.</param>
 /// <param name="Stride">Byte stride between consecutive vertices.</param>
 /// <param name="PerInstance">Whether the binding steps once per instance rather than once per vertex.</param>
-public readonly record struct VertexInputBindingDesc(uint Binding, uint Stride, bool PerInstance = false);
+internal readonly record struct VertexInputBindingDesc(uint Binding, uint Stride, bool PerInstance = false);
 
 /// <summary>Describes a single vertex attribute within a binding.</summary>
 /// <param name="Location">Shader attribute location.</param>
 /// <param name="Binding">Vertex buffer binding slot.</param>
 /// <param name="Format">Data format of the attribute.</param>
 /// <param name="Offset">Byte offset within the vertex.</param>
-public readonly record struct VertexInputAttributeDesc(uint Location, uint Binding, VertexFormat Format, uint Offset);
+internal readonly record struct VertexInputAttributeDesc(uint Location, uint Binding, VertexFormat Format, uint Offset);
 
 /// <summary>Describes a push constant range accessible from specified shader stages.</summary>
 /// <param name="StageFlags">Shader stages that can access this range.</param>
 /// <param name="Offset">Byte offset of the range.</param>
 /// <param name="Size">Byte size of the range.</param>
-public readonly record struct PushConstantRange(ShaderStageFlags StageFlags, uint Offset, uint Size);
+internal readonly record struct PushConstantRange(ShaderStageFlags StageFlags, uint Offset, uint Size);

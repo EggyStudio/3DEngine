@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Depth comparison function used when depth testing is enabled.</summary>
-public enum CompareOp
+internal enum CompareOp
 {
     /// <summary>Never passes.</summary>
     Never,
@@ -38,7 +38,7 @@ public enum CompareOp
 /// <param name="DepthCompareOp">The comparison function for depth testing. Defaults to <see cref="CompareOp.Less"/>.</param>
 /// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>
 /// <param name="Blend">How the colors combine when <paramref name="BlendEnabled"/> is <c>true</c>, raylib's blend modes.</param>
-public readonly record struct GraphicsPipelineDesc(
+internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
     IShader? FragmentShader,
@@ -56,7 +56,7 @@ public readonly record struct GraphicsPipelineDesc(
     BlendMode Blend = BlendMode.Alpha);
 
 /// <summary>How a pipeline assembles vertices into primitives.</summary>
-public enum PrimitiveTopology
+internal enum PrimitiveTopology
 {
     /// <summary>Every three vertices form a triangle.</summary>
     TriangleList,

@@ -9,7 +9,7 @@ namespace Engine;
 /// render world so downstream nodes can write it into the lighting descriptor set
 /// of the mesh pipeline.
 /// </summary>
-public sealed class LightingUboPrepare : IPrepareSystem
+internal sealed class LightingUboPrepare : IPrepareSystem
 {
     private static readonly ILogger Logger = Log.Category("Engine.Lighting");
 
@@ -285,5 +285,5 @@ internal sealed class TargetShadows
 /// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
 /// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
 /// <param name="Linear">Whether the window's view is drawn into the HDR frame, which a frame with no light still binds the buffer for, to read its output flag.</param>
-public sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false, bool Linear = false);
+internal sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false, bool Linear = false);
 

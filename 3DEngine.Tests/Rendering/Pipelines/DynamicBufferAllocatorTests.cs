@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering.Pipelines;
 [Trait("Category", "Unit")]
 public class DynamicBufferAllocatorTests
 {
-    public sealed class FakeBuffer(BufferDesc desc) : IBuffer
+    internal sealed class FakeBuffer(BufferDesc desc) : IBuffer
     {
         public BufferDesc Description { get; } = desc;
         public bool Disposed { get; private set; }
@@ -14,7 +14,7 @@ public class DynamicBufferAllocatorTests
     }
 
     // A device that makes buffers and does nothing else, which is all the allocator asks of one.
-    public class BufferOnlyDevice : DispatchProxy
+    internal class BufferOnlyDevice : DispatchProxy
     {
         public readonly List<FakeBuffer> Made = [];
 

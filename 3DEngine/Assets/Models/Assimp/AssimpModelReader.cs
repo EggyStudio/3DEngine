@@ -38,7 +38,7 @@ namespace Engine;
 /// translated to <see cref="SceneCameraPayload"/> / <see cref="SceneLightPayload"/>.
 /// </para>
 /// </remarks>
-public sealed class AssimpModelReader : ISceneReader
+internal sealed class AssimpModelReader : ISceneReader
 {
     private static readonly ILogger Logger = Log.Category("Engine.Models.Assimp");
 

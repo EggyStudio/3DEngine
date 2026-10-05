@@ -4,7 +4,7 @@ namespace Engine;
 
 /// <summary>A cube map of half-float linear color with a mip chain, sampled through a cube view.</summary>
 /// <remarks>Its mips hold whatever the caller made of them, as an environment prefiltered by roughness does.</remarks>
-public sealed class CubeMap : IDisposable
+internal sealed class CubeMap : IDisposable
 {
     private readonly Action _dispose;
 
@@ -33,7 +33,7 @@ public sealed class CubeMap : IDisposable
     public void Dispose() => _dispose();
 }
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>
     /// Creates a cube map of faces <paramref name="size"/> texels wide with <paramref name="mipLevels"/>

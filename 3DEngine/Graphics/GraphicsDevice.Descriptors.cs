@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>
     /// The pools descriptor sets are allocated from, the newest last. One that runs out is kept for

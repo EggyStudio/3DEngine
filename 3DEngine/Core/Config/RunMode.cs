@@ -18,7 +18,7 @@ namespace Engine;
 /// reach.
 /// </para>
 /// </remarks>
-public static class RunMode
+internal static class RunMode
 {
     /// <summary>The arguments read, which tests replace.</summary>
     internal static Func<string[]> Arguments { get; set; } = Environment.GetCommandLineArgs;

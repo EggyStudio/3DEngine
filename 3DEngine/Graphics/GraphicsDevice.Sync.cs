@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Creates semaphores and pre-signaled fences for each frame-in-flight.</summary>
     private partial void CreateSyncObjects()

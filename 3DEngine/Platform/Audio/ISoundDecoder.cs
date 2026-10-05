@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="SoundDecoderRegistry"/>
 /// <seealso cref="SoundAssetLoader"/>
-public interface ISoundDecoder
+internal interface ISoundDecoder
 {
     /// <summary>File extensions this decoder handles, including the leading dot (e.g. <c>".wav"</c>).</summary>
     string[] Extensions { get; }
@@ -32,7 +32,7 @@ public interface ISoundDecoder
 /// per extension so a more capable backend can override a generic one for shared
 /// extensions.
 /// </remarks>
-public sealed class SoundDecoderRegistry
+internal sealed class SoundDecoderRegistry
 {
     private readonly Dictionary<string, ISoundDecoder> _byExtension = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ISoundDecoder> _byFormat = new(StringComparer.OrdinalIgnoreCase);

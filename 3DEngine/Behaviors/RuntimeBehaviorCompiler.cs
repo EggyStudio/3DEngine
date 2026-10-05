@@ -33,7 +33,7 @@ namespace Engine;
 /// until a re-spawn.
 /// </para>
 /// </remarks>
-public sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCompilationResult>
+internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCompilationResult>
 {
     private static readonly ILogger Logger = Log.Category("Engine.Behaviors.HotReload");
 

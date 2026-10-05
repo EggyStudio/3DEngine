@@ -6,7 +6,7 @@ namespace Engine;
 /// Render pass lifecycle is managed by individual render graph nodes, not the frame context.
 /// </summary>
 /// <seealso cref="IGraphicsDevice"/>
-public interface IFrameContext : IDisposable
+internal interface IFrameContext : IDisposable
 {
     /// <summary>Absolute frame index (monotonically increasing).</summary>
     uint FrameIndex { get; }

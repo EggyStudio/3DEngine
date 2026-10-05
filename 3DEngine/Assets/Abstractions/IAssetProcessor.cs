@@ -31,7 +31,7 @@ namespace Engine;
 /// </code>
 /// </example>
 /// <seealso cref="AssetProcessorPipeline"/>
-public interface IAssetProcessor
+internal interface IAssetProcessor
 {
     /// <summary>Source file extensions this processor handles.</summary>
     string[] Extensions { get; }
@@ -51,7 +51,7 @@ public interface IAssetProcessor
 
 /// <summary>Context provided to <see cref="IAssetProcessor.ProcessAsync"/>.</summary>
 /// <seealso cref="IAssetProcessor"/>
-public sealed class ProcessContext
+internal sealed class ProcessContext
 {
     /// <summary>The source asset path (relative).</summary>
     public AssetPath SourcePath { get; }
@@ -75,7 +75,7 @@ public sealed class ProcessContext
 
 /// <summary>Result of an <see cref="IAssetProcessor.ProcessAsync"/> call.</summary>
 /// <seealso cref="IAssetProcessor"/>
-public sealed class ProcessResult
+internal sealed class ProcessResult
 {
     /// <summary>Whether processing succeeded.</summary>
     public bool Success { get; init; }

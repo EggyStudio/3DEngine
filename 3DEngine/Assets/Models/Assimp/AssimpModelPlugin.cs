@@ -20,7 +20,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="ModelsPlugin"/>
 /// <seealso cref="AssimpModelReader"/>
-public sealed class AssimpModelPlugin : IPlugin
+internal sealed class AssimpModelPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Models.Assimp");
 

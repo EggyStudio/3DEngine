@@ -10,7 +10,7 @@ namespace Engine;
 /// Registered by <see cref="SoundsPlugin"/> in <see cref="Stage.PostUpdate"/>, after
 /// gameplay systems have set positions on their <see cref="AudioSource"/> handles.
 /// </remarks>
-public static class AudioUpdateSystem
+internal static class AudioUpdateSystem
 {
     /// <summary>Runs the audio update for the current frame.</summary>
     public static void Run(World world)
@@ -32,7 +32,7 @@ public static class AudioUpdateSystem
 /// entity is present, the server's listener position is left as it was, which suits a
 /// headless run where audio is muted.
 /// </remarks>
-public static class AudioListenerSystem
+internal static class AudioListenerSystem
 {
     /// <summary>Pulls the listener position from ECS into the audio server.</summary>
     public static void Run(World world)

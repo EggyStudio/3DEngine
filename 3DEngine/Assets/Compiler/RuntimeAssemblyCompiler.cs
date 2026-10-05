@@ -35,7 +35,7 @@ namespace Engine.Files.Compiler;
 /// </list>
 /// </remarks>
 /// <typeparam name="TResult">Domain-specific result type derived from <see cref="RuntimeCompilationResult"/>.</typeparam>
-public abstract partial class RuntimeAssemblyCompiler<TResult> : IDisposable
+internal abstract partial class RuntimeAssemblyCompiler<TResult> : IDisposable
     where TResult : RuntimeCompilationResult, new()
 {
     /// <summary>Directories that contribute source files to every compilation cycle.</summary>

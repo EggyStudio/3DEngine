@@ -16,7 +16,7 @@ namespace Engine;
 /// <seealso cref="SceneAsset"/>
 /// <seealso cref="ISceneReader"/>
 /// <seealso cref="ISceneWriter"/>
-public sealed class ScenesPlugin : IPlugin
+internal sealed class ScenesPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 

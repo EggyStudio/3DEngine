@@ -5,7 +5,7 @@ using static Vortice.Vulkan.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Khronos validation layer names requested when validation is enabled.</summary>
     private static readonly string[] ValidationLayers =

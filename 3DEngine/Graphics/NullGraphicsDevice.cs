@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="IGraphicsDevice"/>
 /// <seealso cref="GraphicsDevice"/>
-public sealed class NullGraphicsDevice : IGraphicsDevice
+internal sealed class NullGraphicsDevice : IGraphicsDevice
 {
     /// <summary>Null swapchain that always reports a 1×1 extent.</summary>
     private sealed class NullSwapchain : ISwapchain

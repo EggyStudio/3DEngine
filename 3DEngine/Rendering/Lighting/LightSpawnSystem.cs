@@ -8,7 +8,7 @@ namespace Engine;
 /// Registered by <see cref="LightingPlugin"/> in <see cref="Stage.PreUpdate"/>, after
 /// <c>SceneSpawnSystem</c>, so a scene spawned in a frame is lit in that frame.
 /// </remarks>
-public static class LightSpawnSystem
+internal static class LightSpawnSystem
 {
     /// <summary>The system.</summary>
     public static void Run(World world)

@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Engine.Files.Compiler;
 
-public abstract partial class RuntimeAssemblyCompiler<TResult>
+internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
     /// <summary>Adds a directory to watch for source files. Created if it does not exist.</summary>
     public RuntimeAssemblyCompiler<TResult> WatchDirectory(string path)

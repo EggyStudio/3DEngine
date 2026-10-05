@@ -22,7 +22,7 @@ namespace Engine;
 /// </para>
 /// </remarks>
 /// <seealso cref="SceneSkeletonPayload"/>
-public sealed class SceneAnimationPayload
+internal sealed class SceneAnimationPayload
 {
     /// <summary>Display name of the clip (typically the source animation name).</summary>
     public string Name { get; init; } = "Animation";
@@ -35,7 +35,7 @@ public sealed class SceneAnimationPayload
 }
 
 /// <summary>A single animation channel targeting a specific property of a specific node.</summary>
-public sealed class SceneAnimationChannel
+internal sealed class SceneAnimationChannel
 {
     /// <summary>Source path of the target <see cref="SceneNode"/> / joint (e.g. <c>"/Armature/Hips"</c>).</summary>
     public required string TargetNodePath { get; init; }
@@ -62,7 +62,7 @@ public sealed class SceneAnimationChannel
 }
 
 /// <summary>Property targeted by a <see cref="SceneAnimationChannel"/>.</summary>
-public enum SceneAnimationProperty
+internal enum SceneAnimationProperty
 {
     /// <summary>Local-space translation (<see cref="Vector4"/>.xyz).</summary>
     Translation,
@@ -78,7 +78,7 @@ public enum SceneAnimationProperty
 }
 
 /// <summary>Interpolation between adjacent animation samples.</summary>
-public enum SceneAnimationInterpolation
+internal enum SceneAnimationInterpolation
 {
     /// <summary>Hold the previous sample value until the next key.</summary>
     Step,

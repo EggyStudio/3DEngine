@@ -13,7 +13,7 @@ namespace Engine;
 /// constants, what the draw reads of the emitter, then holds a particle in two float4 values
 /// each, its position and age, and its velocity and life, a particle with no life being dead.
 /// </remarks>
-public sealed class GpuParticles : IDisposable
+internal sealed class GpuParticles : IDisposable
 {
     private readonly Action _dispose;
 
@@ -45,7 +45,7 @@ public sealed class GpuParticles : IDisposable
 
 /// <summary>What a particle dispatch is handed, as <c>particle_step.slang</c> reads its push constants.</summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct ParticleStep
+internal struct ParticleStep
 {
     /// <summary>Where new particles start, in xyz, and the seconds the step covers, in w.</summary>
     public System.Numerics.Vector4 OriginAndSeconds;
@@ -65,7 +65,7 @@ public struct ParticleStep
     public uint First, Count, Capacity, Unused;
 }
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     private VkPipeline _particlePipeline;
     private VkPipelineLayout _particleLayout;

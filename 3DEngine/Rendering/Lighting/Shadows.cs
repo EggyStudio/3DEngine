@@ -20,13 +20,13 @@ namespace Engine;
 /// </param>
 /// <param name="TileSize">The width in texels of a cascade's tile, half the map's.</param>
 /// <param name="PointFaceSize">The width in texels of each face of a point light.</param>
-public sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
+internal sealed record FrameShadow(int Light, IReadOnlyList<(Matrix4x4 ViewProjection, float Texel)> Cascades,
     IReadOnlyList<(int Light, Matrix4x4 ViewProjection, float TexelPerUnit)>? SpotLights = null,
     IReadOnlyList<(int Light, Matrix4x4[] Faces)>? PointLights = null,
     int TileSize = ShadowFit.TileSize, int PointFaceSize = ShadowFit.PointFaceSize);
 
 /// <summary>How far shadows reach, a world resource the renderer reads each frame.</summary>
-public sealed class ShadowSettings
+internal sealed class ShadowSettings
 {
     /// <summary>
     /// How far past the camera's near plane, in world units, a directional light's shadows are
@@ -58,7 +58,7 @@ public sealed class ShadowSettings
 /// the view, such as a roof over a camera indoors, still shadows it.
 /// </para>
 /// </remarks>
-public static class ShadowFit
+internal static class ShadowFit
 {
     /// <summary>A cascade's width and height in texels, unless <see cref="ShadowSettings.TileSize"/> says otherwise.</summary>
     public const int TileSize = 2048;
@@ -263,7 +263,7 @@ public static class ShadowFit
 /// Render graph node that captures a reflection probe whose capture is out of date, after the
 /// window's shadow map is drawn, so the probe sees the room lit as the window does.
 /// </summary>
-public sealed class ProbeNode : INode
+internal sealed class ProbeNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld) =>
@@ -275,7 +275,7 @@ public sealed class ProbeNode : INode
 /// lights, after the render targets, which draw it for their own cameras, and before the window's
 /// passes read it.
 /// </summary>
-public sealed class ShadowNode : INode
+internal sealed class ShadowNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

@@ -15,7 +15,7 @@ namespace Engine;
 /// <seealso cref="Config"/>
 /// <seealso cref="IMainLoopDriver"/>
 /// <seealso cref="IInputBackend"/>
-public sealed class AppWindowPlugin : IPlugin
+internal sealed class AppWindowPlugin : IPlugin
 {
     /// <inheritdoc />
     /// <remarks>

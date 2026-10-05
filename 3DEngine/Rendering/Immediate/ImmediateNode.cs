@@ -27,7 +27,7 @@ namespace Engine;
 /// pipelines draw into both.
 /// </para>
 /// </remarks>
-public sealed class ImmediateRenderer : IDisposable
+internal sealed class ImmediateRenderer : IDisposable
 {
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
@@ -403,7 +403,7 @@ public sealed class ImmediateRenderer : IDisposable
 }
 
 /// <summary>Prepare system that uploads the frame's immediate vertices before the graph runs.</summary>
-public sealed class ImmediateUploadPrepare : IPrepareSystem
+internal sealed class ImmediateUploadPrepare : IPrepareSystem
 {
     /// <inheritdoc />
     public void Run(RenderWorld renderWorld, RenderContext renderContext) =>
@@ -414,7 +414,7 @@ public sealed class ImmediateUploadPrepare : IPrepareSystem
 /// Render graph node that draws the window's share of the <see cref="DrawList"/> into the swapchain
 /// pass <see cref="MainPassNode"/> opened, after the meshes and before ImGui.
 /// </summary>
-public sealed class ImmediateNode : INode
+internal sealed class ImmediateNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

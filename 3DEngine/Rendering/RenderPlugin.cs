@@ -8,7 +8,7 @@ namespace Engine;
 /// <seealso cref="Renderer"/>
 /// <seealso cref="RendererContext"/>
 /// <seealso cref="AppWindowPlugin"/>
-public sealed class RenderPlugin : IPlugin
+internal sealed class RenderPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Renderer");
 
@@ -220,7 +220,7 @@ public sealed class RenderPlugin : IPlugin
 /// carried out by the render system once none has come for a moment, so a window dragged larger
 /// rebuilds its swapchain once rather than every frame.
 /// </summary>
-public sealed class SurfaceResize
+internal sealed class SurfaceResize
 {
     private readonly Renderer _renderer;
 

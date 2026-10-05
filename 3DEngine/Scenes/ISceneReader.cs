@@ -20,7 +20,7 @@ namespace Engine;
 /// large stages.
 /// </para>
 /// </remarks>
-public interface ISceneReader
+internal interface ISceneReader
 {
     /// <summary>
     /// File extensions this reader handles, including the leading dot
@@ -41,7 +41,7 @@ public interface ISceneReader
 /// Backend-agnostic writer interface for serializing a <see cref="Scene"/> back to a source format.
 /// The engine has none, and a format that is written registers one.
 /// </summary>
-public interface ISceneWriter
+internal interface ISceneWriter
 {
     /// <summary>Identifier matching <see cref="SceneAsset.SourceFormat"/> .</summary>
     string FormatId { get; }
@@ -54,7 +54,7 @@ public interface ISceneWriter
 /// Settings forwarded to an <see cref="ISceneReader"/>. Defaults match the runtime spawn
 /// path (render purposes, all payloads, every material), and a load may override them.
 /// </summary>
-public sealed class SceneImportSettings
+internal sealed class SceneImportSettings
 {
     /// <summary>Engine canonical coordinate system. Recorded for downstream basis-change.</summary>
     public SceneCoordinateSystem TargetCoordinateSystem { get; init; } = SceneCoordinateSystem.YUp;
@@ -108,7 +108,7 @@ public sealed class SceneImportSettings
 }
 
 /// <summary>Settings forwarded to an <see cref="ISceneWriter"/>.</summary>
-public sealed class SceneExportSettings
+internal sealed class SceneExportSettings
 {
     /// <summary>Format-native coordinate system the writer should emit (defaults to engine canonical).</summary>
     public SceneCoordinateSystem CoordinateSystem { get; init; } = SceneCoordinateSystem.YUp;
@@ -138,7 +138,7 @@ public sealed class SceneExportSettings
 /// reader or writer, as <see cref="AssimpModelPlugin"/> has, calls <see cref="RegisterReader"/> or
 /// <see cref="RegisterWriter"/> during <see cref="IPlugin.Build"/>.
 /// </remarks>
-public sealed class SceneReaderRegistry
+internal sealed class SceneReaderRegistry
 {
     private readonly Dictionary<string, ISceneReader> _readersByExtension = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ISceneReader> _readersByFormat = new(StringComparer.OrdinalIgnoreCase);

@@ -12,7 +12,7 @@ namespace Engine;
 /// The render-side per-frame buckets are cleared by <see cref="RenderWorld.ClearEntities"/>
 /// before the extract runs; the singleton list is cleared here at the top of <see cref="Run"/>.
 /// </remarks>
-public sealed class LightExtract : IExtractSystem
+internal sealed class LightExtract : IExtractSystem
 {
     /// <inheritdoc />
     public void Run(World world, RenderWorld renderWorld)

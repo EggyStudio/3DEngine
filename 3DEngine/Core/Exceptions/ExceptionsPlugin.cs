@@ -23,7 +23,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="ExceptionHandlerInstalled"/>
 /// <seealso cref="LogConfig"/>
-public sealed class ExceptionsPlugin : IPlugin
+internal sealed class ExceptionsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Exceptions");
 

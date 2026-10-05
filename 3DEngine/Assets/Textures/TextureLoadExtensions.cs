@@ -31,7 +31,7 @@ namespace Engine;
 /// <seealso cref="Texture"/>
 /// <seealso cref="TextureAssetLoader"/>
 /// <seealso cref="SceneSpawnExtensions"/>
-public static class TextureLoadExtensions
+internal static class TextureLoadExtensions
 {
     /// <summary>Loads a <see cref="Texture"/> via the <see cref="AssetServer"/> with no overrides.</summary>
     public static Handle<Texture> LoadTexture(this AssetServer server, string path) =>

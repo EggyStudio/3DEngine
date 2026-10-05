@@ -12,7 +12,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="AppWindow"/>
 /// <seealso cref="SdlSurfaceSource"/>
-public sealed class SdlWindow
+internal sealed class SdlWindow
 {
     /// <summary>Window title.</summary>
     public string Title { get; private set; }

@@ -11,7 +11,7 @@ namespace Engine;
 /// A headless run has no events to process, so <see cref="PumpEvents"/> only reports whether the
 /// app has been asked to close.
 /// </remarks>
-public sealed class HeadlessLoopDriver(World world, double fps) : IMainLoopDriver
+internal sealed class HeadlessLoopDriver(World world, double fps) : IMainLoopDriver
 {
     private readonly long _frameTicks = fps > 0 ? (long)(Stopwatch.Frequency / fps) : 0;
     private long _last = Stopwatch.GetTimestamp();

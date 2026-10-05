@@ -31,7 +31,7 @@ namespace Engine;
 /// }
 /// </code>
 /// </example>
-public sealed class PhysicsPlugin : IPlugin
+internal sealed class PhysicsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Physics.Bepu");
 

@@ -34,7 +34,7 @@ namespace Engine;
 /// <seealso cref="SpawnSceneRequest"/>
 /// <seealso cref="SceneSpawner"/>
 /// <seealso cref="SceneSpawnSettings"/>
-public static class SceneSpawnExtensions
+internal static class SceneSpawnExtensions
 {
     // -- Loading shortcuts
 
@@ -114,7 +114,7 @@ public static class SceneSpawnExtensions
 /// ctx.SpawnScene("level.usda",  SceneSpawn.With(Matrix4x4.CreateRotationY(MathF.PI)));
 /// </code>
 /// </example>
-public static class SceneSpawn
+internal static class SceneSpawn
 {
     /// <summary>
     /// Settings that translate the spawned scene to <paramref name="position"/> in world

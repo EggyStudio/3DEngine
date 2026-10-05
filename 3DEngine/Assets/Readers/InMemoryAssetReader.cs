@@ -27,7 +27,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="FileAssetReader"/>
 /// <seealso cref="EmbeddedAssetReader"/>
-public sealed class InMemoryAssetReader : IAssetReader
+internal sealed class InMemoryAssetReader : IAssetReader
 {
     private static readonly ILogger Logger = Log.Category("Engine.Assets");
 

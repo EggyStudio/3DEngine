@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>GPU device type classification, matching Vulkan physical device types.</summary>
-public enum GraphicsDeviceType
+internal enum GraphicsDeviceType
 {
     /// <summary>Device type cannot be determined.</summary>
     Unknown,

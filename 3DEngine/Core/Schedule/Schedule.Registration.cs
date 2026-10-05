@@ -82,7 +82,7 @@ public sealed partial class Schedule
 /// Any <see cref="SystemDescriptor"/> registered through <see cref="Schedule"/> inside the scope
 /// is auto-tagged with the supplied source if it does not already declare a <see cref="SystemDescriptor.Source"/>.
 /// </summary>
-public readonly struct SystemRegistrationSourceScope : IDisposable
+internal readonly struct SystemRegistrationSourceScope : IDisposable
 {
     private readonly string? _previous;
 

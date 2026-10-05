@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace Engine;
 
 /// <summary>Global log configuration.</summary>
-public static class LogConfig
+internal static class LogConfig
 {
     /// <summary>Minimum severity written to the log file and any extra providers. Defaults to Trace, so every startup diagnostic reaches the file.</summary>
     public static LogLevel MinimumLevel { get; set; } = LogLevel.Trace;

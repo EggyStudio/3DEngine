@@ -1,6 +1,6 @@
 namespace Engine;
 
-public sealed partial class DynamicBufferAllocator
+internal sealed partial class DynamicBufferAllocator
 {
     /// <summary>Per-frame bump arena maintaining one backing buffer per <see cref="BufferUsage"/>.</summary>
     private sealed partial class FrameArena

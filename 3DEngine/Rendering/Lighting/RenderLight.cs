@@ -11,7 +11,7 @@ namespace Engine;
 /// <see cref="RenderWorld.ClearEntities"/>, and the frame's list is also kept in
 /// <see cref="RenderLights"/>.
 /// </remarks>
-public struct RenderLight
+internal struct RenderLight
 {
     /// <summary>The main-world entity the light came from.</summary>
     public int MainEntityId;
@@ -42,7 +42,7 @@ public struct RenderLight
 }
 
 /// <summary>The frame's lights, in the order they were extracted, kept on the <see cref="RenderWorld"/>.</summary>
-public sealed class RenderLights
+internal sealed class RenderLights
 {
     /// <summary>All lights extracted for the current frame, in extract iteration order.</summary>
     public List<RenderLight> All { get; } = new();

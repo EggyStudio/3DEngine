@@ -60,6 +60,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Engine.Tests" />
+        <InternalsVisibleTo Include="e3d" />
     </ItemGroup>
 
     <ItemGroup>

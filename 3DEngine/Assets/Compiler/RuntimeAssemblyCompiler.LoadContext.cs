@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Engine.Files.Compiler;
 
-public abstract partial class RuntimeAssemblyCompiler<TResult>
+internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
     /// <summary>Unloads the current script <see cref="AssemblyLoadContext"/>, allowing GC of its assembly.</summary>
     protected void UnloadCurrent()

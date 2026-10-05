@@ -8,7 +8,7 @@ namespace Engine;
 /// music costs its full length in samples. Music played through <c>LoadMusicStream</c> is
 /// decoded from its file as it plays instead, by <c>OggMusicDecoder</c>.
 /// </remarks>
-public sealed class OggSoundDecoder : ISoundDecoder
+internal sealed class OggSoundDecoder : ISoundDecoder
 {
     /// <inheritdoc />
     public string[] Extensions => [".ogg"];

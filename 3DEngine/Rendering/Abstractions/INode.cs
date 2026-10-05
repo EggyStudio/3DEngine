@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="ViewNode"/>
 /// <seealso cref="RenderGraph"/>
-public interface INode
+internal interface INode
 {
     /// <summary>Declares the node's input slots (data it consumes from upstream nodes).</summary>
     SlotInfo[] Input() => Array.Empty<SlotInfo>();

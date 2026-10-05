@@ -10,7 +10,7 @@ namespace Engine;
 /// the plugin is a no-op.
 /// </remarks>
 /// <seealso cref="ImGuiRenderNode"/>
-public sealed class VulkanImGuiPlugin : IPlugin
+internal sealed class VulkanImGuiPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.ImGui.Vulkan");
 

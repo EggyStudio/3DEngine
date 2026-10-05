@@ -68,7 +68,7 @@ public enum ScenePurposeMask
 /// the engine's metallic-roughness payload, which is the glTF model Assimp maps every format
 /// onto.
 /// </remarks>
-public enum MaterialNetworkResolution
+internal enum MaterialNetworkResolution
 {
     /// <summary>Skip materials entirely (geometry-only loads).</summary>
     None,
@@ -83,7 +83,7 @@ public enum MaterialNetworkResolution
 /// (e.g. a thumbnail importer can request meshes only).
 /// </summary>
 [Flags]
-public enum LoadPayloads
+internal enum LoadPayloads
 {
     /// <summary>Load no payloads (hierarchy + transforms only).</summary>
     None = 0,

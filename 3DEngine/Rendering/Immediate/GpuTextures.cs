@@ -11,7 +11,7 @@ namespace Engine;
 /// replaced texture gets new objects rather than having its image written over for the same
 /// reason. Id 0 is a white pixel, which untextured draws sample.
 /// </remarks>
-public sealed class GpuTextures : IDisposable
+internal sealed class GpuTextures : IDisposable
 {
     /// <summary>
     /// Frames a retired object is kept for: one more than the device's frames in flight, so a frame
@@ -249,7 +249,7 @@ public sealed class GpuTextures : IDisposable
 }
 
 /// <summary>Prepare system that brings <see cref="GpuTextures"/> up to date and hands it to the render world.</summary>
-public sealed class GpuTexturesPrepare : IPrepareSystem, IDisposable
+internal sealed class GpuTexturesPrepare : IPrepareSystem, IDisposable
 {
     private readonly GpuTextures _textures = new();
 

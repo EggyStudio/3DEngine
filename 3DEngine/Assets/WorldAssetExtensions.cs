@@ -23,7 +23,7 @@ namespace Engine;
 /// <seealso cref="AssetServer"/>
 /// <seealso cref="Assets{T}"/>
 /// <seealso cref="Handle{T}"/>
-public static class WorldAssetExtensions
+internal static class WorldAssetExtensions
 {
     /// <summary>
     /// Loads an asset through the <see cref="AssetServer"/>. Shorthand for

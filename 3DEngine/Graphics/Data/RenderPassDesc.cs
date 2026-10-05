@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Attachment load operation when a render pass begins.</summary>
-public enum LoadOp
+internal enum LoadOp
 {
     /// <summary>Clear the attachment to a specified value.</summary>
     Clear,
@@ -12,7 +12,7 @@ public enum LoadOp
 }
 
 /// <summary>Attachment store operation when a render pass ends.</summary>
-public enum StoreOp
+internal enum StoreOp
 {
     /// <summary>Store the attachment contents for later use.</summary>
     Store,

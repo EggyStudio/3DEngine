@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="INode"/>
 /// <seealso cref="SlotValue"/>
-public sealed class RenderGraphContext
+internal sealed class RenderGraphContext
 {
     private readonly SlotValue[] _inputs;
     private readonly SlotValue[] _outputs;

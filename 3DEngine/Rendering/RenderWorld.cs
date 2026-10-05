@@ -23,7 +23,7 @@ namespace Engine;
 /// <seealso cref="Renderer"/>
 /// <seealso cref="World"/>
 /// <seealso cref="ExtractedView"/>
-public sealed class RenderWorld
+internal sealed class RenderWorld
 {
     private readonly ConcurrentDictionary<Type, object> _resources = new();
 

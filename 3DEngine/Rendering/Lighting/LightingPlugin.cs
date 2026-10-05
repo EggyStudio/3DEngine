@@ -23,7 +23,7 @@ namespace Engine;
 /// <seealso cref="Light"/>
 /// <seealso cref="LightSpawnSystem"/>
 /// <seealso cref="LightExtract"/>
-public sealed class LightingPlugin : IPlugin
+internal sealed class LightingPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Lighting");
 

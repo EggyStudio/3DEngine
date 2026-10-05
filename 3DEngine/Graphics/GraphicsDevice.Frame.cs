@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Acquires the next swapchain image and begins a command buffer. Render pass lifecycle is managed by graph nodes.</summary>
     /// <param name="clearColor">The clear color (stored for SwapchainTarget consumers).</param>

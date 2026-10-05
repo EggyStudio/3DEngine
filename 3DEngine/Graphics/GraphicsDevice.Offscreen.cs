@@ -6,7 +6,7 @@ namespace Engine;
 /// Single-use command buffers, and the image layout transitions the render graph records between
 /// nodes.
 /// </summary>
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     // -- Single-use command buffer (public wrappers)
 

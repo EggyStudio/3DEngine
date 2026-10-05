@@ -3,7 +3,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Wraps a Vulkan image with its backing device memory and current layout.</summary>
     /// <seealso cref="IImage"/>

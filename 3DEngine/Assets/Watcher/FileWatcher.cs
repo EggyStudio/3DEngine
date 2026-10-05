@@ -9,7 +9,7 @@ namespace Engine;
 /// <param name="RelativePath">Path relative to the watched directory.</param>
 /// <param name="ChangeType">The kind of change (Created, Modified, Deleted, Renamed).</param>
 /// <seealso cref="FileWatcher"/>
-public readonly record struct FileChangedEvent(
+internal readonly record struct FileChangedEvent(
     string FilePath,
     string RelativePath,
     WatcherChangeTypes ChangeType);
@@ -45,7 +45,7 @@ public readonly record struct FileChangedEvent(
 /// </example>
 /// <seealso cref="FileAssetWatcher"/>
 /// <seealso cref="FileChangedEvent"/>
-public sealed class FileWatcher : IDisposable
+internal sealed class FileWatcher : IDisposable
 {
     private static readonly ILogger Logger = Log.Category("Engine.FileWatcher");
 

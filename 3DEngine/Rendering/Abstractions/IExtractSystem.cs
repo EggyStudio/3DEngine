@@ -6,7 +6,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="Renderer"/>
 /// <seealso cref="RenderWorld"/>
-public interface IExtractSystem
+internal interface IExtractSystem
 {
     /// <summary>Copies relevant game-world data into the render world for GPU processing.</summary>
     /// <param name="world">The game world to read from.</param>

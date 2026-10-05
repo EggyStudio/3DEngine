@@ -40,7 +40,7 @@ namespace Engine;
 /// <seealso cref="SceneMeshSubset"/>
 /// <seealso cref="SceneBounds"/>
 /// <seealso cref="SceneMaterialPayload"/>
-public sealed class SceneMeshPayload
+internal sealed class SceneMeshPayload
 {
     /// <summary>Display name (typically the source mesh prim's leaf name).</summary>
     public string Name { get; init; } = "Mesh";
@@ -111,7 +111,7 @@ public sealed class SceneMeshPayload
 /// <param name="PositionDeltas">How far each vertex moves at full weight, in the mesh's space.</param>
 /// <param name="NormalDeltas">How each vertex's normal turns at full weight, or null when the file gives none.</param>
 /// <param name="Weight">The weight the mesh rests at, 0 for most.</param>
-public sealed record SceneMorphTarget(string Name, Vector3[] PositionDeltas, Vector3[]? NormalDeltas, float Weight);
+internal sealed record SceneMorphTarget(string Name, Vector3[] PositionDeltas, Vector3[]? NormalDeltas, float Weight);
 
 /// <summary>
 /// A face-vertex index range within a <see cref="SceneMeshPayload"/> bound to a single
@@ -126,14 +126,14 @@ public sealed record SceneMorphTarget(string Name, Vector3[] PositionDeltas, Vec
 /// matched against <see cref="SceneMaterialPayload.SourcePath"/> at spawn time.
 /// May be <c>null</c> for "no material bound" subsets.
 /// </param>
-public sealed record SceneMeshSubset(string Name, int IndexStart, int IndexCount, string? MaterialPath);
+internal sealed record SceneMeshSubset(string Name, int IndexStart, int IndexCount, string? MaterialPath);
 
 /// <summary>
 /// Axis-aligned bounding box in the same space as the owning payload's vertex data.
 /// </summary>
 /// <param name="Min">Component-wise minimum corner.</param>
 /// <param name="Max">Component-wise maximum corner.</param>
-public readonly record struct SceneBounds(Vector3 Min, Vector3 Max)
+internal readonly record struct SceneBounds(Vector3 Min, Vector3 Max)
 {
     /// <summary>An empty / inverted bounds value, used as the default for empty meshes.</summary>
     public static SceneBounds Empty { get; } = new(

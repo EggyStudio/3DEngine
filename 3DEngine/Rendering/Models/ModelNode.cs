@@ -45,7 +45,7 @@ namespace Engine;
 /// either way, and the back of a double-sided face is lit by its normal turned toward the viewer.
 /// </para>
 /// </remarks>
-public sealed class ModelRenderer : IDisposable
+internal sealed class ModelRenderer : IDisposable
 {
     /// <summary>
     /// One drawn copy of a mesh as <c>modelpass.slang</c>'s <c>ModelInstance</c> reads it from a
@@ -1394,7 +1394,7 @@ public sealed class ModelRenderer : IDisposable
 /// Render graph node that draws the window's share of the <see cref="ModelDrawList"/> into the
 /// swapchain pass, after the ECS meshes and before the immediate shapes.
 /// </summary>
-public sealed class ModelNode : INode
+internal sealed class ModelNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

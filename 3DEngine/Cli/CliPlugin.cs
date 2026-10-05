@@ -18,7 +18,7 @@ namespace Engine;
 /// can be served with <c>--serve</c> and none pays for it otherwise.
 /// </para>
 /// </remarks>
-public sealed class CliPlugin : IPlugin
+internal sealed class CliPlugin : IPlugin
 {
     private const ulong Beat = 30;
     private static readonly DateTimeOffset Started = DateTimeOffset.UtcNow;

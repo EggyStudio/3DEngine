@@ -23,7 +23,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="SlangLoader"/>
 /// <seealso cref="AssetServer"/>
-public sealed class PipelinesPlugin : IPlugin
+internal sealed class PipelinesPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Pipelines");
 

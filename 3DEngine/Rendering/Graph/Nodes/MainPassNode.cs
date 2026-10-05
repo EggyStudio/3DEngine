@@ -10,7 +10,7 @@ namespace Engine;
 /// run. Mesh entities are drawn by the models node, through <see cref="MeshEntityDraws"/>.
 /// </remarks>
 /// <seealso cref="ActiveSwapchainPass"/>
-public sealed class MainPassNode : INode
+internal sealed class MainPassNode : INode
 {
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)

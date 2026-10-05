@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Pixel format for images and render targets.</summary>
-public enum ImageFormat
+internal enum ImageFormat
 {
     /// <summary>No defined format.</summary>
     Undefined,
@@ -26,7 +26,7 @@ public enum ImageFormat
 
 /// <summary>Flags describing how a GPU image will be used.</summary>
 [Flags]
-public enum ImageUsage
+internal enum ImageUsage
 {
     /// <summary>No usage flags set.</summary>
     None          = 0,
@@ -49,14 +49,14 @@ public enum ImageUsage
 /// <param name="Format">Pixel format.</param>
 /// <param name="Usage">Usage flags.</param>
 /// <param name="MipLevels">How many mip levels the image has, each half the size of the one before. One for none.</param>
-public readonly record struct ImageDesc(Extent2D Extent, ImageFormat Format, ImageUsage Usage, uint MipLevels = 1)
+internal readonly record struct ImageDesc(Extent2D Extent, ImageFormat Format, ImageUsage Usage, uint MipLevels = 1)
 {
     /// <summary>The levels down to one pixel for an image of the given size, the full mip chain.</summary>
     public static uint FullMipChain(uint width, uint height) => (uint)System.Numerics.BitOperations.Log2(Math.Max(1, Math.Max(width, height))) + 1;
 }
 
 /// <summary>Abstract image layout states used for pipeline barrier transitions.</summary>
-public enum ImageLayout
+internal enum ImageLayout
 {
     /// <summary>Undefined / don't-care initial layout.</summary>
     Undefined,

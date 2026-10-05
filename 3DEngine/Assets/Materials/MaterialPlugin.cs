@@ -21,7 +21,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="MaterialLibrary"/>
 /// <seealso cref="MaterialDescription"/>
-public sealed class MaterialPlugin : IPlugin
+internal sealed class MaterialPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Materials");
 

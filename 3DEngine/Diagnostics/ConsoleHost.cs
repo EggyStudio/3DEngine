@@ -9,7 +9,7 @@ namespace Engine;
 /// may read and change the world freely. Outside that, <see cref="World"/> is <c>null</c> and the
 /// accessors say why.
 /// </remarks>
-public static class ConsoleHost
+internal static class ConsoleHost
 {
     /// <summary>Frames a command answering later is given before it times out.</summary>
     public const ulong LaterFrames = 600;

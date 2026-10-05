@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace Engine;
 
 /// <summary>A serving app as its session file describes it.</summary>
-public sealed record CliSession(
+internal sealed record CliSession(
     int Pid, int Port, string Token, string Project, string Name, string Title, string Mode,
     DateTimeOffset Started, bool Renderer, string State, ulong Frame, DateTimeOffset Heartbeat)
 {
@@ -36,7 +36,7 @@ public sealed record CliSession(
 /// A file is written whole beside its final name and moved into place, so a reader never sees half
 /// of one, and is readable by its owner only, because it holds the token.
 /// </remarks>
-public static class CliSessionFile
+internal static class CliSessionFile
 {
     /// <summary>The directory session files live in.</summary>
     public static string Directory { get; set; } =

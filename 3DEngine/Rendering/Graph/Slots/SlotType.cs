@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Types of data that can flow through render graph slot edges.</summary>
-public enum SlotType
+internal enum SlotType
 {
     /// <summary>The default, when no value has been assigned to the slot.</summary>
     None = 0,

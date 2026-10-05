@@ -42,7 +42,7 @@ namespace Engine;
 /// <seealso cref="SceneSpawnExtensions"/>
 /// <seealso cref="ModelsPlugin"/>
 /// <seealso cref="TextureLoadExtensions"/>
-public static class ModelLoadExtensions
+internal static class ModelLoadExtensions
 {
     // -- Loading shortcuts (SceneAsset under the hood, "Model" naming for clarity)
 
@@ -117,7 +117,7 @@ public static class ModelLoadExtensions
 /// ctx.SpawnModel("level.gltf", ModelSpawn.WithPurposes(ScenePurposeMask.Render));
 /// </code>
 /// </example>
-public static class ModelSpawn
+internal static class ModelSpawn
 {
     /// <inheritdoc cref="SceneSpawn.At(Vector3)"/>
     public static SceneSpawnSettings At(Vector3 position) => SceneSpawn.At(position);

@@ -22,7 +22,7 @@ namespace Engine;
 /// </example>
 /// <seealso cref="SlangCompiler"/>
 /// <seealso cref="ShaderProgram"/>
-public sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
+internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
 {
     /// <summary>Creates a loader.</summary>
     /// <param name="cacheDirectory">Where compiled SPIR-V is kept. Defaults to <c>source/.slang-cache</c>.</param>

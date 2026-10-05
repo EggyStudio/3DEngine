@@ -8,7 +8,7 @@ namespace Engine;
 /// <see cref="BeginFrameMs"/> holds the wait for the frame in flight that last used the same
 /// slot, so a frame the GPU cannot keep up with shows there.
 /// </remarks>
-public sealed class RenderTimings
+internal sealed class RenderTimings
 {
     /// <summary>Copying the world into the render world.</summary>
     public double ExtractMs { get; internal set; }

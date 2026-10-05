@@ -27,7 +27,7 @@ namespace Engine;
 /// <param name="DoubleSided">Whether both sides of each face are drawn, or the back faces left out.</param>
 /// <param name="ShaderTextures">The textures the draw's shader samples, by their index in the program's textures, then the storage buffers it reads, by their index in its buffers, or null for none.</param>
 /// <param name="CastsShadow">Whether the mesh is drawn into the shadow map, which a sky around the camera is not.</param>
-public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
+internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
@@ -45,7 +45,7 @@ public readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 Vie
 /// <see cref="ModelNode"/> after the ECS meshes and before the immediate shapes, and cleared at
 /// <see cref="Stage.First"/>.
 /// </summary>
-public sealed class ModelDrawList
+internal sealed class ModelDrawList
 {
     private readonly object _gate = new();
     private readonly List<ModelDraw> _draws = [];

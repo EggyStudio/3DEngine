@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Texture filtering mode for minification and magnification.</summary>
-public enum SamplerFilter
+internal enum SamplerFilter
 {
     /// <summary>Nearest-neighbor (point) filtering, with no interpolation.</summary>
     Nearest,
@@ -10,7 +10,7 @@ public enum SamplerFilter
 }
 
 /// <summary>Texture coordinate addressing mode when UVs are outside [0, 1].</summary>
-public enum SamplerAddressMode
+internal enum SamplerAddressMode
 {
     /// <summary>Clamp to the edge texel color.</summary>
     ClampToEdge,
@@ -27,7 +27,7 @@ public enum SamplerAddressMode
 /// <param name="AddressV">Addressing mode for the V (vertical) texture coordinate.</param>
 /// <param name="AddressW">Addressing mode for the W (depth) texture coordinate.</param>
 /// <param name="MaxAnisotropy">The most samples taken along a slanted texture's squashed direction, 1 for none, limited to what the device allows.</param>
-public readonly record struct SamplerDesc(
+internal readonly record struct SamplerDesc(
     SamplerFilter MinFilter,
     SamplerFilter MagFilter,
     SamplerAddressMode AddressU,

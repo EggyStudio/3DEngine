@@ -17,7 +17,7 @@ namespace Engine;
 /// mirrors <see cref="SceneNode.SourcePath"/> for stable cross-format addressing.
 /// </para>
 /// </remarks>
-public struct SceneInstance
+internal struct SceneInstance
 {
     /// <summary>
     /// Identifier of the source <see cref="SceneAsset"/> (typically its

@@ -5,7 +5,7 @@ namespace Engine;
 
 /// <summary>One vertex of the immediate pass: a position, a texture coordinate and a color, 24 bytes.</summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Color Color);
+internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Color Color);
 
 /// <summary>A run of vertices in the <see cref="DrawList"/> drawn with one pipeline and one transform.</summary>
 /// <param name="Topology">Whether the vertices are lines or triangles.</param>
@@ -21,13 +21,13 @@ public readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Colo
 /// <param name="Params">The values the shader reads with <c>param</c>.</param>
 /// <param name="Blend">How the run is laid over what is there.</param>
 /// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
-public readonly record struct DrawBatch(
+internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
     BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null);
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
-public readonly record struct ScissorRect(int X, int Y, int Width, int Height);
+internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
 
 /// <summary>
 /// The lines and triangles recorded for the current frame by the flat API's <c>Draw</c> calls,
@@ -52,7 +52,7 @@ public readonly record struct ScissorRect(int X, int Y, int Width, int Height);
 /// as raylib's drawing is not.
 /// </para>
 /// </remarks>
-public sealed class DrawList
+internal sealed class DrawList
 {
     private readonly object _gate = new();
 

@@ -4,14 +4,14 @@ using System.Text.Json;
 namespace Engine;
 
 /// <summary>An error in a CLI envelope: a code a script can branch on, and a sentence a person can read.</summary>
-public readonly record struct CliError(string Code, string Message);
+internal readonly record struct CliError(string Code, string Message);
 
 /// <summary>
 /// Writes the one shape every CLI answer takes:
 /// <c>{"id"?, "success", "command", "data": {...} | null, "errors": [{"code", "message"}], "warnings": []}</c>.
 /// </summary>
 /// <remarks>Written by hand with <see cref="Utf8JsonWriter"/>, so no serializer reflects over types.</remarks>
-public static class CliJson
+internal static class CliJson
 {
     /// <summary>Builds an envelope.</summary>
     public static string Envelope(string command, bool success, Action<Utf8JsonWriter>? data = null,

@@ -11,7 +11,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="AppWindow"/>
 /// <seealso cref="IInputBackend"/>
-public sealed class SdlInput
+internal sealed class SdlInput
 {
     private readonly HashSet<SDL.Scancode> _down = new();
     private readonly HashSet<SDL.Scancode> _pressed = new();

@@ -27,7 +27,7 @@ namespace Engine;
 /// <seealso cref="ISoundDecoder"/>
 /// <seealso cref="SoundDecoderRegistry"/>
 /// <seealso cref="AudioServer"/>
-public sealed class SoundsPlugin : IPlugin
+internal sealed class SoundsPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Sound");
 

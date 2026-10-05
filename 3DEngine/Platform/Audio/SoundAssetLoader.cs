@@ -6,7 +6,7 @@ namespace Engine;
 /// the <see cref="SoundDecoderRegistry"/> based on the file extension. Mirrors
 /// <see cref="TextureAssetLoader"/>.
 /// </summary>
-public sealed class SoundAssetLoader : IAssetLoader<Sound>
+internal sealed class SoundAssetLoader : IAssetLoader<Sound>
 {
     private readonly SoundDecoderRegistry _registry;
     private string[] _extensions;

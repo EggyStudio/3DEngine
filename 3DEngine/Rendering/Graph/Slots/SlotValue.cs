@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Runtime value carried through a slot edge between render graph nodes.</summary>
-public readonly struct SlotValue
+internal readonly struct SlotValue
 {
     private readonly object? _value;
 

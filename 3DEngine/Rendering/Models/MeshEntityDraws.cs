@@ -50,7 +50,7 @@ namespace Engine;
 /// chunks read.
 /// </para>
 /// </remarks>
-public sealed class MeshEntityDraws
+internal sealed class MeshEntityDraws
 {
     private readonly Dictionary<Vector3[], int> _meshes = new(ReferenceEqualityComparer.Instance);
 
@@ -653,7 +653,7 @@ public sealed class MeshEntityDraws
 /// <see cref="MeshEntityDraws"/> draws mesh entities through when no <see cref="Camera"/> entity
 /// draws the window, cleared as each frame begins.
 /// </summary>
-public sealed class Mode3DCamera
+internal sealed class Mode3DCamera
 {
     /// <summary>The camera's view and projection, or null when no <c>BeginMode3D</c> has drawn into the window this frame.</summary>
     public Matrix4x4? ViewProjection { get; set; }

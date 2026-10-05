@@ -2,7 +2,7 @@ namespace Engine;
 
 /// <summary>Flags describing how a GPU buffer will be used.</summary>
 [Flags]
-public enum BufferUsage
+internal enum BufferUsage
 {
     /// <summary>No usage flags set.</summary>
     None = 0,
@@ -23,7 +23,7 @@ public enum BufferUsage
 }
 
 /// <summary>CPU access mode for buffer memory mapping.</summary>
-public enum CpuAccessMode
+internal enum CpuAccessMode
 {
     /// <summary>No CPU access (GPU-only memory).</summary>
     None,
@@ -39,4 +39,4 @@ public enum CpuAccessMode
 /// <param name="Size">Size in bytes.</param>
 /// <param name="Usage">Usage flags.</param>
 /// <param name="CpuAccess">CPU access mode for mapping.</param>
-public readonly record struct BufferDesc(ulong Size, BufferUsage Usage, CpuAccessMode CpuAccess = CpuAccessMode.None);
+internal readonly record struct BufferDesc(ulong Size, BufferUsage Usage, CpuAccessMode CpuAccess = CpuAccessMode.None);

@@ -15,7 +15,7 @@ namespace Engine;
 /// </remarks>
 /// <seealso cref="AssimpModelPlugin"/>
 /// <seealso cref="AssimpModelReader"/>
-public sealed class AssimpModelLoader : IAssetLoader<SceneAsset>
+internal sealed class AssimpModelLoader : IAssetLoader<SceneAsset>
 {
     private static readonly ILogger Logger = Log.Category("Engine.Models.Assimp");
 

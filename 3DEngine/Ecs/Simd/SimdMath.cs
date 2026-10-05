@@ -26,7 +26,7 @@ namespace Engine;
 /// SimdMath.Scale(floats, 0.99f); // damping
 /// </code>
 /// </example>
-public static class SimdMath
+internal static class SimdMath
 {
     /// <summary>Adds <paramref name="value"/> to every element: <c>data[i] += value</c>.</summary>
     /// <param name="data">The float span to modify in-place.</param>

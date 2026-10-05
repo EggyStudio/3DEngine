@@ -8,7 +8,7 @@ namespace Engine;
 /// </summary>
 /// <seealso cref="RenderContext"/>
 /// <seealso cref="RenderPassDescriptor"/>
-public sealed class TrackedRenderPass : IDisposable
+internal sealed class TrackedRenderPass : IDisposable
 {
     private readonly IGraphicsDevice _gfx;
     private readonly ICommandBuffer _cmd;

@@ -11,7 +11,7 @@ namespace Engine;
 /// to be sampled when it ends, and it waits for the shaders of earlier frames to finish reading it,
 /// so one map serves every frame in flight.
 /// </remarks>
-public sealed class ShadowMap : IDisposable
+internal sealed class ShadowMap : IDisposable
 {
     private readonly Action _dispose;
 
@@ -47,7 +47,7 @@ public sealed class ShadowMap : IDisposable
     public void Dispose() => _dispose();
 }
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Creates a square shadow map of <paramref name="size"/> texels on a side.</summary>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>

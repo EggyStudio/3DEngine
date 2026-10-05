@@ -1,7 +1,7 @@
 namespace Engine;
 
 /// <summary>Captures the next presented frame to a PNG file.</summary>
-public static class Screenshots
+internal static class Screenshots
 {
     /// <summary>
     /// Asks for the next frame the renderer presents to be written to <paramref name="path"/>, and

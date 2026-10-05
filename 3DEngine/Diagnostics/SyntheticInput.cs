@@ -22,7 +22,7 @@ namespace Engine;
 /// way after the last frame it was held for.
 /// </para>
 /// </remarks>
-public sealed class SyntheticInput
+internal sealed class SyntheticInput
 {
     // Changes due at a later frame: releases, and the steps of a drag.
     private readonly List<(ulong Frame, Action<Input> Release)> _releases = [];

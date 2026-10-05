@@ -21,7 +21,7 @@ namespace Engine;
 /// (frame = N channel samples back-to-back); we don't transcode to deinterleaved.
 /// </para>
 /// </remarks>
-public sealed class WavSoundDecoder : ISoundDecoder
+internal sealed class WavSoundDecoder : ISoundDecoder
 {
     private static readonly ILogger Logger = Log.Category("Engine.Sound");
 

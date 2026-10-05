@@ -22,7 +22,7 @@ public sealed class SceneComponentAttribute : Attribute;
 /// entities and other files can refer to it.
 /// </summary>
 /// <remarks>Given to an entity the first time it is saved, and read back with it.</remarks>
-public struct SceneId
+internal struct SceneId
 {
     /// <summary>The id, unique within a scene.</summary>
     public string Value;
@@ -45,7 +45,7 @@ public struct ModelRef
 }
 
 /// <summary>Spawns the model of every <see cref="ModelRef"/> that has not been, under its entity.</summary>
-public static class ModelRefSystem
+internal static class ModelRefSystem
 {
     /// <summary>The system, for <see cref="Stage.PreUpdate"/>.</summary>
     public static void Run(World world)
@@ -94,7 +94,7 @@ public static class ModelRefSystem
 }
 
 /// <summary>Marks a <see cref="ModelRef"/> whose model has been asked for.</summary>
-public struct ModelRefSpawned;
+internal struct ModelRefSpawned;
 
 /// <summary>
 /// A scene file an entity holds a copy of, spawned under the entity so its <see cref="Transform"/>
@@ -121,7 +121,7 @@ public struct SceneRef
 }
 
 /// <summary>Marks a <see cref="SceneRef"/> whose file has been spawned, or tried, with the file and when it was written.</summary>
-public struct SceneRefSpawned
+internal struct SceneRefSpawned
 {
     /// <summary>The file spawned, as it was found, or null when none was.</summary>
     public string? File;
@@ -131,7 +131,7 @@ public struct SceneRefSpawned
 }
 
 /// <summary>Spawns the scene file of every <see cref="SceneRef"/> that has not been, under its entity.</summary>
-public static class SceneRefSystem
+internal static class SceneRefSystem
 {
     private static readonly ILogger Logger = Log.Category("Engine.Scenes");
 

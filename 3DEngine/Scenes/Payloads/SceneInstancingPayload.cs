@@ -22,7 +22,7 @@ namespace Engine;
 /// ticket; carrying the data losslessly here keeps that work decoupled from the reader.
 /// </para>
 /// </remarks>
-public sealed class SceneInstancingPayload
+internal sealed class SceneInstancingPayload
 {
     /// <summary>Display name (typically the instancer prim's leaf name).</summary>
     public string Name { get; init; } = "PointInstancer";

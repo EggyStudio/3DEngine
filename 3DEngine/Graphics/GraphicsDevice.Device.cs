@@ -4,7 +4,7 @@ using static Vortice.Vulkan.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     /// <summary>Whether a compute shader can write a texture, which needs images read and written with no format named.</summary>
     public bool CanWriteImages { get; private set; }

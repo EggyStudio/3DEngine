@@ -12,7 +12,7 @@ namespace Engine;
 /// missing. The renderer logs and skips a frame, and this backend logs once and absorbs every
 /// call.
 /// </remarks>
-public sealed class NullAudioBackend : IAudioBackend
+internal sealed class NullAudioBackend : IAudioBackend
 {
     /// <inheritdoc />
     public bool IsInitialized => true;

@@ -26,7 +26,7 @@ namespace Engine;
 /// rather than every frame.
 /// </para>
 /// </remarks>
-public sealed class EnvironmentMap
+internal sealed class EnvironmentMap
 {
     private const int Samples = 64;
 

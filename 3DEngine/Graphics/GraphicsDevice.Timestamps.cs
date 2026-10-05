@@ -2,7 +2,7 @@ using Vortice.Vulkan;
 
 namespace Engine;
 
-public sealed unsafe partial class GraphicsDevice
+internal sealed unsafe partial class GraphicsDevice
 {
     // Up to this many marks a frame, each a timestamp the GPU writes when the commands before it
     // have finished, in a query pool with a range for each frame in flight.

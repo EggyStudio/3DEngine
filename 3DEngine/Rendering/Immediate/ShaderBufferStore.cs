@@ -9,7 +9,7 @@ namespace Engine;
 /// buffers its shader was given when it was recorded. A lock guards it, since systems on several
 /// threads may load and free buffers while the frame is recorded.
 /// </remarks>
-public sealed class ShaderBufferStore
+internal sealed class ShaderBufferStore
 {
     private readonly Lock _gate = new();
     private readonly Dictionary<int, IBuffer> _buffers = [];

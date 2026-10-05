@@ -12,7 +12,7 @@ namespace Engine;
 /// </example>
 /// <seealso cref="IAssetLoader{T}"/>
 /// <seealso cref="StringLoader"/>
-public sealed class ByteArrayLoader : IAssetLoader<byte[]>
+internal sealed class ByteArrayLoader : IAssetLoader<byte[]>
 {
     /// <inheritdoc />
     public string[] Extensions { get; }
@@ -49,7 +49,7 @@ public sealed class ByteArrayLoader : IAssetLoader<byte[]>
 /// </example>
 /// <seealso cref="IAssetLoader{T}"/>
 /// <seealso cref="ByteArrayLoader"/>
-public sealed class StringLoader : IAssetLoader<string>
+internal sealed class StringLoader : IAssetLoader<string>
 {
     /// <inheritdoc />
     public string[] Extensions { get; }

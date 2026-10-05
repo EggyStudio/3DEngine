@@ -3,7 +3,7 @@ using System.Numerics;
 namespace Engine;
 
 /// <summary>Colors for lights.</summary>
-public static class LightColor
+internal static class LightColor
 {
     /// <summary>
     /// The color of a black body at a temperature in Kelvin, as linear RGB from 0 to 1: about 1900 K

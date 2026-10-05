@@ -30,7 +30,7 @@ namespace Engine;
 /// another.
 /// </para>
 /// </remarks>
-public static partial class SlangCompiler
+internal static partial class SlangCompiler
 {
     private static readonly ILogger Logger = Log.Category("Engine.Slang");
 
@@ -454,14 +454,14 @@ public static partial class SlangCompiler
 }
 
 /// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V, its top-level uniforms and the descriptors it declares.</summary>
-public sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null,
+internal sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null,
     IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null);
 
 /// <summary>A descriptor a shader declares, by its name, its set, its binding in the set and its kind.</summary>
-public readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);
+internal readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);
 
 /// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
-public readonly record struct ShaderUniform(string Name, int Offset, int Size);
+internal readonly record struct ShaderUniform(string Name, int Offset, int Size);
 
 /// <summary>A texture a shader samples, or a storage buffer a compute shader uses, by its name and its binding in the first descriptor set.</summary>
-public readonly record struct ShaderTexture(string Name, int Binding);
+internal readonly record struct ShaderTexture(string Name, int Binding);
