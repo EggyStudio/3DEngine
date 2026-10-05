@@ -89,3 +89,15 @@ body, which are flat functions now. It found that a ray stopped at a trigger, so
 gate's sensor stood on the air in it and threw the car up, and a character's ground, step and
 headroom rays went through the same handler. Rays go through triggers now. A vehicle built by hand is entered in
 TODO.md.
+
+**Now 2, the public surface.** `3DEngine/PublicApi.txt` lists the 536 public types and every
+member a game reaches on them, about 5,200 lines with each signature's nullability and default
+values, written from the built assembly by a writer in the test project. A test fails while the
+listing and the assembly differ and names the lines added and removed, and `build/api.sh` writes
+the file again. `build/pack.sh` writes the commits since `build/version.txt` last changed into the
+package's release notes, a sentence a line, 143 lines at present. BUILDING.md and COMMITS.md say
+both. The limit nuget.org puts on the length of release notes is not checked, and the first push
+will show it.
+
+Shared: the listing and its test are one file of reflection and one test, and would serve
+BevyCSharp's package as they do this one's.

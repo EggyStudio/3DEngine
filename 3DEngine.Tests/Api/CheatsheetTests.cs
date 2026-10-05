@@ -75,7 +75,7 @@ public partial class CheatsheetTests
     [GeneratedRegex(@"^(?:\([^)]*\)|[\w.<>\[\]?, ]+?)\s+(?<name>[A-Z]\w*)(?:<[^>]*>)?\((?<parameters>.*)\);\s*(?://.*)?$")]
     private static partial Regex Declaration();
 
-    private static string RepoRoot()
+    internal static string RepoRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "3DEngine.slnx"))) directory = directory.Parent;

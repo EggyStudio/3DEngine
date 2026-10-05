@@ -41,7 +41,12 @@ Three lines, of which the first reads as nothing and the third says what the com
 
 The sentence has no colons, no headings, no lists, no prefixes such as `feat` or `fix`, and no
 trailers. It names no tool, model or assistant, and carries no `Co-Authored-By` line. It is short,
-and it follows [STYLE.md](STYLE.md) like the rest of the prose here.
+and it follows [STYLE.md](STYLE.md) like the rest of the prose here. The sentence is also the
+commit's line in the package's release notes, which `build/pack.sh` writes from the history, so
+it says what a game's author would notice.
+
+A commit that changes the engine's public surface carries `3DEngine/PublicApi.txt` written again by
+`build/api.sh`, which the suite holds it to, so the change is in the diff where it is read.
 
 Written from a shell, so the marks are exact rather than pasted:
 

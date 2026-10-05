@@ -105,6 +105,22 @@ is `build/version.sh`'s: the major and minor written in `build/version.txt`, and
 number of commits since that file last changed, so each commit counts the patch up by one and
 changing `5.0` to `5.1` starts it again at `5.1.0`.
 
+The package's release notes are those same commits, each one's sentence a line and the newest
+first, which `build/pack.sh` reads from the history into `build/artifacts/release-notes.txt` and
+the pack puts in the package. A version raised in `build/version.txt` starts them again.
+
+### The public surface
+
+`3DEngine/PublicApi.txt` lists every public type of the engine and every member a game can reach,
+a line each, read from the built assembly. The suite fails while the two differ, naming the lines
+added and removed, so a commit that adds, removes or reshapes anything a game calls carries the
+change to that file and is read as one, which the patch number alone does not say. Once a change
+to the surface is meant, `build/api.sh` writes the file again:
+
+```bash
+build/api.sh         # 3DEngine/PublicApi.txt from the built engine, and what changed in it
+```
+
 A pack made locally without a version is a version of its own, `0.1.0-preview.` and the time,
 since NuGet reads a version once and keeps it. A game asks for the newest with `Version="0.1.0-*"`, and after a pack restores with
 `dotnet restore --force-evaluate`, since a restore that sees nothing changed in the project keeps

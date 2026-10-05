@@ -13,5 +13,14 @@ rm -rf build/shader-cache
 # a version it sees and never reads it again, and a game asks for the newest with a floating
 # version such as 0.1.0-*.
 version="${1:-0.1.0-preview.$(date -u +%Y%m%d%H%M%S)}"
-dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version"
-echo "packed 3DEngine $version into build/package"
+# The release notes are the commits since build/version.txt last changed, newest first, each
+# commit's sentence a line, as the history already says them to be read. A checkout without the
+# history has none, and nor does a version raised by the last commit.
+notes="$PWD/build/artifacts/release-notes.txt"
+mkdir -p build/artifacts
+: > "$notes"
+if changed="$(git log -1 --format=%H -- build/version.txt 2>/dev/null)" && [ -n "$changed" ]; then
+  git log --format=%b "$changed"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$notes" || true
+fi
+dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:Version="$version" -p:ReleaseNotesFile="$notes"
+echo "packed 3DEngine $version into build/package, with $(wc -l < "$notes") lines of release notes"
