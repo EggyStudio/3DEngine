@@ -259,8 +259,10 @@ A lit particle goes through `lit` as a rough surface facing the camera and an un
 `toDisplay`, so both follow the HDR frame's output flag. Emitters laid over by alpha are drawn after
 the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is,
 and the particles within one are not sorted. `TargetsNode` draws them into each render target after
-its meshes, through the camera its meshes were drawn with and with its own lights, since the step
-runs before the targets. A target with no mesh has no camera for them, and probe captures have none.
+its meshes, with its own lights, since the step runs before the targets, through the camera of the
+target's first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn
+through for a camera entity's texture. A target drawn only in 2D has no camera for them, and probe
+captures have none.
 
 ## 4. Lights and shadows
 

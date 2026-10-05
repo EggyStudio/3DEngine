@@ -235,8 +235,7 @@ public sealed class ParticleTests : IDisposable
     {
         Open();
         var target = LoadRenderTexture(160, 120);
-        // A mesh drawn into the target, which gives it the camera the particles are drawn through.
-        var speck = LoadModelFromMesh(GenMeshCube(0.05f, 0.05f, 0.05f));
+        // Only a shape drawn into it in 3D, whose camera the particles are drawn through.
         var cloud = CreateParticleEmitter(Vector3.Zero, Cloud(new Color(255, 30, 30)) with { Radius = 0.3f });
         EmitParticles(cloud, 400);
 
@@ -247,7 +246,7 @@ public sealed class ParticleTests : IDisposable
             BeginTextureMode(target);
             ClearBackground(Color.Black);
             BeginMode3D(_camera);
-            DrawModel(speck, new Vector3(0, -2, 0), 1, Color.Gray);
+            DrawCube(new Vector3(0, -2, 0), 0.05f, 0.05f, 0.05f, Color.Gray);
             EndMode3D();
             EndTextureMode();
             // The target shown in the window's top left quarter, its middle at (40, 30).
@@ -260,7 +259,6 @@ public sealed class ParticleTests : IDisposable
         var middle = GetImageColor(LoadImage(path), 40, 30);
         ((int)middle.R).Should().BeGreaterThan(middle.G + 60, $"the red cloud is in the render texture, not {middle}");
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
-        UnloadModel(speck);
         UnloadRenderTexture(target);
     }
 }

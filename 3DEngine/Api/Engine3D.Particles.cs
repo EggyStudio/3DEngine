@@ -22,7 +22,7 @@ public static partial class Engine3D
     /// <remarks>
     /// The particles are simulated on the GPU and drawn into the window through the camera of the
     /// frame's <c>BeginMode3D</c>, or the camera entity, after the frame's models, and into each
-    /// render texture models are drawn into, through the camera those were drawn with. A program
+    /// render texture drawn into in 3D, through the camera of its first <c>BeginMode3D</c>. A program
     /// needs no drawing call for them, and they keep moving whether or not it draws in 3D that frame.
     /// </remarks>
     public static ParticleEmitterHandle CreateParticleEmitter(Vector3 position, ParticleEmitter? emitter = null)

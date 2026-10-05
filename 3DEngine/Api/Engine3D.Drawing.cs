@@ -28,7 +28,11 @@ public static partial class Engine3D
         _inFrame = true;
         _target = default;
         _shader = default;
-        if (TryRes<Mode3DCamera>(out var mode3D)) mode3D.ViewProjection = null;
+        if (TryRes<Mode3DCamera>(out var mode3D))
+        {
+            mode3D.ViewProjection = null;
+            mode3D.Targets.Clear();
+        }
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
         Profile("program.update", update);
         _drawingStart = Stopwatch.GetTimestamp();
@@ -165,11 +169,9 @@ public static partial class Engine3D
         var viewProjection = camera.View * camera.ProjectionMatrix(aspect);
         DrawList.SetTransform(viewProjection, depthTest: true);
         _camera3D = camera;
-        if (!_target.IsValid)
-        {
-            var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
-            if (mode3D.ViewProjection is null) (mode3D.ViewProjection, mode3D.Eye) = (viewProjection, camera.Position);
-        }
+        var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
+        if (_target.IsValid) mode3D.Targets.TryAdd(_target.Texture.Id, (viewProjection, camera.Position));
+        else if (mode3D.ViewProjection is null) (mode3D.ViewProjection, mode3D.Eye) = (viewProjection, camera.Position);
     }
 
     // The camera of the BeginMode3D in effect, which DrawSkybox centers its cube on.

@@ -31,9 +31,9 @@ public enum ParticleBlend
 /// An unlit particle gives off its color times <see cref="Intensity"/>, which blooms where it
 /// passes 1, and a lit one is lit by the scene's lights as a rough surface facing the camera.
 /// Particles are drawn after the window's meshes, with depth tested and not written, through the
-/// window's camera, and into a render texture after the meshes drawn into it, through the camera
-/// those were drawn with, so a render texture with no mesh drawn into it has none. A probe's
-/// capture has none. Emitters laid over by
+/// window's camera, and into a render texture after its meshes, through the camera of its first
+/// <c>BeginMode3D</c> or of the camera entity drawing it, so one drawn only in 2D has none. A
+/// probe's capture has none. Emitters laid over by
 /// alpha are drawn from the farthest from the camera to the nearest, so where two overlap the
 /// nearer is in front, and the particles within one are not sorted.
 /// </para>

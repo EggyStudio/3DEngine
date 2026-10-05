@@ -127,8 +127,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   shader steps, drawn as round dots or the program's texture facing the camera after the meshes,
   into the window and into each render texture meshes are drawn into, lit or giving off their own
   light, with a rate, a burst, a life, a velocity in a cone, gravity, drag, and a size and color
-  that change over each life (RENDERING.md §3). A render texture with no mesh drawn into it has no
-  camera to draw them through, those laid over by alpha are sorted by their emitters and not
+  that change over each life (RENDERING.md §3). A render texture drawn only in 2D has no camera
+  to draw them through, those laid over by alpha are sorted by their emitters and not
   within one, a sheet's frames are shown one at a time with no blend between them, and none
   collides with the world.
 

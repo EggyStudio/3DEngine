@@ -660,4 +660,10 @@ internal sealed class Mode3DCamera
 
     /// <summary>Where the camera is, which the mesh entities are sorted from.</summary>
     public Vector3 Eye { get; set; }
+
+    /// <summary>
+    /// The first camera each render target was drawn through in 3D this frame, by its texture id,
+    /// which particles are drawn into it through.
+    /// </summary>
+    public Dictionary<int, (Matrix4x4 ViewProjection, Vector3 Eye)> Targets { get; } = [];
 }

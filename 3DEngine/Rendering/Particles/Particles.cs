@@ -17,6 +17,9 @@ internal sealed class RenderParticles
 
     /// <summary>Where that camera is, which emitters laid over by alpha are drawn far to near from.</summary>
     public Vector3 Eye { get; set; }
+
+    /// <summary>The camera each render target was drawn through in <c>BeginMode3D</c>, by its texture id.</summary>
+    public Dictionary<int, (Matrix4x4 ViewProjection, Vector3 Eye)> Targets { get; } = [];
 }
 
 /// <summary>
@@ -41,6 +44,9 @@ internal sealed class ParticleExtract : IExtractSystem
         var camera = MeshEntityDraws.WindowCamera(world, ecs);
         particles.ViewProjection = camera?.ViewProjection;
         particles.Eye = camera?.Eye ?? Vector3.Zero;
+        particles.Targets.Clear();
+        if (world.TryGetResource<Mode3DCamera>(out var mode3D))
+            foreach (var (target, view) in mode3D.Targets) particles.Targets[target] = view;
         foreach (var (entity, emitter) in ecs.Query<ParticleEmitter>())
         {
             var position = TransformPropagation.WorldMatrix(ecs, entity).Translation;
@@ -173,22 +179,25 @@ internal sealed class ParticleRenderer : IDisposable
 
     /// <summary>
     /// Draws the particles stepped this frame into <paramref name="pass"/>, the window's through its
-    /// camera after its meshes, or a render target's through the camera its meshes were drawn
-    /// with, lit by that view's lights where they ask to be.
+    /// camera after its meshes, or a render target's through its own, lit by that view's lights
+    /// where they ask to be.
     /// </summary>
     /// <remarks>
     /// Emitters that add their light come first, in any order, and those laid over by alpha after
     /// them from the farthest from the camera to the nearest, so where two overlap the nearer is in
-    /// front. The particles within one emitter are not sorted. A target that draws no mesh has no
-    /// camera to face, and draws none.
+    /// front. The particles within one emitter are not sorted. A target is drawn through the camera
+    /// of its first <c>BeginMode3D</c>, or the one its meshes were drawn through, and one drawn only
+    /// in 2D has none.
     /// </remarks>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target = 0)
     {
         if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>() is not { } frame) return;
         if (renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
-        var (camera, eye) = target == 0
-            ? (frame.ViewProjection, frame.Eye)
-            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? (own, EyeOf(own)) : (null, Vector3.Zero);
+        // A target's camera is the one BeginMode3D drew into it through, or for a camera entity's
+        // texture the one its meshes were drawn through.
+        var (camera, eye) = target == 0 ? (frame.ViewProjection, frame.Eye)
+            : frame.Targets.TryGetValue(target, out var flat) ? (flat.ViewProjection, flat.Eye)
+            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? (own, EyeOf(own)) : ((Matrix4x4?)null, Vector3.Zero);
         if (camera is not { } viewProjection) return;
         var gfx = renderContext.Device;
         _vertex ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
