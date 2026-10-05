@@ -183,6 +183,16 @@ stream and are thrown out a hundred and twenty at a time:
 if (IsKeyPressed(Key.Space)) EmitParticles(sparks, 120);
 ```
 
+`SetParticleEmitterPosition` moves where its next particles start, as dust behind a running
+wheel, `SetParticleEmitterActive` starts and stops its stream, `GetParticleEmitter` and
+`SetParticleEmitter` read and change its settings with `with`, and `UnloadParticleEmitter`
+removes it and its particles:
+
+```csharp
+SetParticleEmitterPosition(dust, wheel);
+SetParticleEmitter(dust, GetParticleEmitter(dust) with { Rate = speed * 4 });
+```
+
 An emitter keeps room for `MaxParticles`, and once that many are alive the oldest are replaced.
 Particles laid over by alpha are not sorted from back to front, so where two emitters overlap the
 one drawn later is in front. In the ECS an emitter is a `ParticleEmitter` component placed by its

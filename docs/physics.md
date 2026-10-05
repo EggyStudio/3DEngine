@@ -167,9 +167,7 @@ leaves and comes back.
 
 A joint holds two bodies together, and two bodies joined do not collide with each other. A ball
 joint lets them turn freely about a point, a hinge about an axis, as a door, a weld holds them
-rigidly, and a distance joint keeps them within a range, as a rope or a rod:
-
-A joint holds bodies that move, so a body held to the world is joined to a kinematic one, and a
+rigidly, and a distance joint keeps them within a range, as a rope or a rod. A joint holds bodies that move, so a body held to the world is joined to a kinematic one, and a
 static body given to a joint throws:
 
 ```csharp
@@ -179,8 +177,12 @@ var hinge = CreatePhysicsHingeJoint(post, door, new Vector3(0.1f, 1, 0), Vector3
 SetPhysicsHingeLimits(hinge, -90, 90);
 ```
 
-`SetPhysicsHingeMotor` drives a hinge at a speed, as a wheel or a fan, and `DestroyPhysicsJoint`
-breaks a joint, as a rope that is cut. `games/Summit` hangs a bridge from a beam on two ropes,
+`SetPhysicsHingeMotor` drives a hinge at a speed, as a wheel or a fan, and `games/Manor` swings
+its doors by it, open while the player is in a door's sensor and back to shut after.
+`SetPhysicsBallJointLimits` keeps a ball joint within a cone it swings and twists in, as a
+shoulder, `SetPhysicsDistanceJointRange` lengthens or shortens a rope after it is made, as a winch,
+`DestroyPhysicsJoint` breaks a joint, as a rope that is cut, and `IsPhysicsJointValid` says whether
+it is still there. `games/Summit` hangs a bridge from a beam on two ropes,
 distance joints a little slack, so it sways as it is crossed:
 
 ```csharp

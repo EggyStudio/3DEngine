@@ -205,7 +205,8 @@ var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));
 
 A reflection is looked up where it leaves the box, so the room's walls hold still as the camera
 moves. Put the box's middle in the open, away from the room's objects, since what stands there
-fills the capture. `UpdateReflectionProbe` captures it again after the room changes, and four
+fills the capture. `UpdateReflectionProbe` captures it again after the room changes,
+`IsReflectionProbeReady` says whether its capture is made, `UnloadReflectionProbe` removes it, and four
 probes, the nearest the camera, reflect at once. In the ECS a probe is a `ReflectionProbe`
 component placed by its entity's `Transform`, and one in a prefab beside its room's models, as
 `games/Manor` streams its rooms in, captures again once those models have spawned, so it holds

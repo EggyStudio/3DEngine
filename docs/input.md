@@ -137,6 +137,27 @@ trigger from 0 to 1. A stick rests a little off its middle, so a game ignores sm
 `SetGamepadVibration` rumbles a pad for some seconds. A pad with a gyro, an accelerometer, a
 touchpad or a light bar has calls for each, which the cheatsheet lists.
 
+## Bindings a player changes
+
+A game that lets its player choose their keys keeps each action's key and button in a table of
+its own and asks it rather than naming keys in its loop. `GetKeyPressed` and
+`GetGamepadButtonPressed` give the next key or button pressed, so a settings screen waiting for
+one binds whatever comes, and `SaveFileText` and `LoadFileText` keep the table beside the program
+between runs. `games/Manor` does this, from its `Settings` class:
+
+```csharp
+if (waitingFor is { } action && GetKeyPressed() is var key && key != Key.Unknown)
+{
+    keys[action] = key;
+    SaveFileText("manor-settings.txt", string.Join("\n", keys.Select(k => $"key.{k.Key} = {k.Value}")));
+}
+// ...
+bool Down(Action action) => IsKeyDown(keys[action]) || IsGamepadButtonDown(0, buttons[action]);
+```
+
+`FileExists` before `LoadFileText` reads a file that may not be there yet, as on a first run,
+without the warning a missing file gives.
+
 ## Dropped files
 
 A file dragged from the desktop onto the window is kept by the engine until the program takes it,

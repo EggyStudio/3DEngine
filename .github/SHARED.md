@@ -103,6 +103,7 @@ table also answers whether the two agree.
 | A scene file holds arrays, so a mesh made in code is saved with its level | has | has (`8567bea6`) |
 | A placed scene file written while the level runs is spawned again in place of its copies | to check against `SceneInstances` | has (`6059b57a`) |
 | A model file with animation clips placed in a level plays, where its meshes would stand at rest | to check | has (`ba328b18`) |
+| What a level loaded through its references is let go once nothing uses it | has, Bevy counting its handles | has (`4e765797`) |
 | A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
 | A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
@@ -113,6 +114,7 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
+| Every menu played with a gamepad alone, settings and key bindings kept in a file | to check, with Courtyard | has (`games/Manor`, `4161a8c5`) |
 | Gamepads | taken at `7f87a47`, with a pretended pad a script drives | has |
 | A gamepad's gyro, accelerometer, touchpad and light | to take | has (`73ce6326`) |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
