@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Engine.Tests.Fonts;
+namespace Engine.Tests.Api;
 
 /// <summary>
 /// The engine's own TrueType reader on <c>planes.ttf</c>, whose 'A' is a triangle and whose
@@ -10,7 +10,7 @@ namespace Engine.Tests.Fonts;
 [Trait("Category", "Unit")]
 public class TrueTypeFontTests
 {
-    internal static readonly string Planes = Path.Combine(AppContext.BaseDirectory, "Fonts", "planes.ttf");
+    internal static readonly string Planes = Path.Combine(AppContext.BaseDirectory, "Api", "planes.ttf");
 
     [Fact]
     public void Characters_In_Every_Plane_Find_Their_Glyphs()

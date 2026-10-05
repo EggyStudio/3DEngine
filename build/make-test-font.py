@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes 3DEngine.Tests/Fonts/planes.ttf, a TrueType font of four glyphs the font tests load, so
+"""Writes 3DEngine.Tests/Api/planes.ttf, a TrueType font of four glyphs the font tests load, so
 their shapes are known. 'A' is a triangle. Past U+FFFF, U+10348 is a diamond, U+1F600 a square
 with a square hole, and U+1F7E0 a circle of quadratic curves. 1000 units to the em, ascender 800
 and descender -200, each glyph 1000 wide. The character maps are format 4 for the first plane and
@@ -71,6 +71,6 @@ for tag in sorted(tables):
     data = tables[tag]
     font += struct.pack(">4sIII", tag, 0, offset + len(body), len(data))
     body += data + b"\0" * (-len(data) % 4)
-out = os.path.join(os.path.dirname(__file__), "..", "3DEngine.Tests", "Fonts", "planes.ttf")
+out = os.path.join(os.path.dirname(__file__), "..", "3DEngine.Tests", "Api", "planes.ttf")
 with open(out, "wb") as f: f.write(font + body)
 print(out, len(font + body), "bytes")

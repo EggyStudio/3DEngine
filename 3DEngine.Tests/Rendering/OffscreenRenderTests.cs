@@ -2262,7 +2262,7 @@ public sealed class OffscreenRenderTests : IDisposable
     public void Characters_Past_U_FFFF_Are_Drawn_From_A_Font_File()
     {
         Open(160, 60);
-        var font = LoadFontEx(Engine.Tests.Fonts.TrueTypeFontTests.Planes, 40, ['A', 0x1F600, 0x1F7E0]);
+        var font = LoadFontEx(Engine.Tests.Api.TrueTypeFontTests.Planes, 40, ['A', 0x1F600, 0x1F7E0]);
         font.Glyphs.Keys.Should().Contain([0x1F600, 0x1F7E0], "both are baked past the atlas builder's plane");
         var text = "A" + char.ConvertFromUtf32(0x1F600) + char.ConvertFromUtf32(0x1F7E0);
         MeasureTextEx(font, text, 40, 0).X.Should().BeApproximately(120, 1, "three glyphs 40 pixels across each");
