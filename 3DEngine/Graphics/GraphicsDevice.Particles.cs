@@ -59,7 +59,7 @@ internal struct ParticleStep
     public System.Numerics.Vector4 StartColor;
     /// <summary>The color at death, linear, with its alpha.</summary>
     public System.Numerics.Vector4 EndColor;
-    /// <summary>The size at birth and at death, how bright an unlit one is, and 1 when it is lit plus 2 when it is textured.</summary>
+    /// <summary>The size at birth and at death, how bright an unlit one is, and flags of how it is drawn, which particles.slang unpacks.</summary>
     public System.Numerics.Vector4 Look;
     /// <summary>The first slot new particles are written into, how many, and how many slots there are.</summary>
     public uint First, Count, Capacity;

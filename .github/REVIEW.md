@@ -86,3 +86,10 @@ program's, so a scene file does not hold it, as a camera's render texture is not
 textured particle the right way up and square, and a stream with drag stopped short of where it
 rises without. `shaders_particles`' smoke is made of noisy puffs that slow as they rise, and its
 capture is new. `PublicApi.txt` gains two fields and loses nothing.
+
+**Particle sheets.** `TextureColumns` and `TextureRows` make an emitter's texture a sheet of
+frames each particle plays through over its life, as a flame drawn frame by frame. The push block
+is full, so the sheet's size rides with the lit and textured flags in the look's last value as an
+integer a float holds exactly. A test finds a particle on the first frame early in its life and on
+the second late, stepped by fixed tenths of a second so it does not depend on the clock.
+`PublicApi.txt` gains two fields.

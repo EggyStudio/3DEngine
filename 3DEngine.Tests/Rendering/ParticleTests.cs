@@ -189,4 +189,30 @@ public sealed class ParticleTests : IDisposable
         ((int)corner.B).Should().BeGreaterThan(100, $"the whole square is the image, where the dot would have faded its corner, not {corner}");
         UnloadTexture(texture);
     }
+
+    [NeedsVulkanFact]
+    public void A_Particle_Plays_Through_The_Frames_Of_A_Sheet_Over_Its_Life()
+    {
+        Open();
+        // Two frames side by side, red then blue, over a life of two seconds.
+        var image = GenImageColor(16, 8, Color.Blue);
+        ImageDrawRectangle(ref image, 0, 0, 8, 8, Color.Red);
+        var texture = LoadTextureFromImage(image);
+        var emitter = CreateParticleEmitter(Vector3.Zero, Cloud(Color.White) with
+        {
+            MaxParticles = 1, Radius = 0, StartSize = 2, EndSize = 2, Life = 2, LifeVariation = 0,
+            Texture = texture, TextureColumns = 2, TextureRows = 1,
+        });
+        EmitParticles(emitter, 1);
+        // Frames over a tenth of a second apart, which particles are stepped by a tenth at most, so
+        // each frame ages it by a tenth: about 0.3 seconds at the first capture, and 1.3 at the
+        // second, with room either side for the frames a capture waits.
+        void Pace() => Thread.Sleep(110);
+        var early = GetImageColor(Capture(3, Pace), 80, 60);
+        var late = GetImageColor(Capture(10, Pace), 80, 60);
+
+        ((int)early.R).Should().BeGreaterThan(early.B + 100, $"early in its life it shows the first frame, not {early}");
+        ((int)late.B).Should().BeGreaterThan(late.R + 100, $"late in its life the second, not {late}");
+        UnloadTexture(texture);
+    }
 }

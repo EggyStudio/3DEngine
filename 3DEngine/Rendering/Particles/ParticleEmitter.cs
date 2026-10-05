@@ -106,6 +106,15 @@ public struct ParticleEmitter
     /// </remarks>
     public Texture2D Texture;
 
+    /// <summary>
+    /// How many frames across <see cref="Texture"/> holds, as a sheet played through over each
+    /// particle's life, left to right and then down a row. 0 or 1 for an image drawn whole.
+    /// </summary>
+    public int TextureColumns;
+
+    /// <summary>How many rows of frames <see cref="Texture"/> holds, 0 or 1 for one.</summary>
+    public int TextureRows;
+
     /// <summary>Particles to give off at once in the next frame, beside the rate, which drawing them clears.</summary>
     public int Burst;
 

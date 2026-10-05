@@ -1,7 +1,8 @@
 // Draws one emitter's particles as squares that face the camera, six vertices to an instance and
 // an instance to a particle, from the buffer particle_step.slang writes. A particle grows or
 // shrinks and changes color from birth to death by the share of its life gone, and is round, with
-// an edge that fades out, or the emitter's texture, the material's base color, tinted. A lit one is lit as a rough surface facing the camera by the model
+// an edge that fades out, or the emitter's texture, the material's base color, tinted, whole or a
+// frame of a sheet played through over its life. A lit one is lit as a rough surface facing the camera by the model
 // pass's own lighting, and an unlit one gives off its color times the emitter's brightness, so it
 // glows through bloom where that is past 1. A dead particle's square is drawn at a point, which
 // covers no pixel.
@@ -15,6 +16,12 @@ StructuredBuffer<float4> slots;
 static const uint Header = 4;
 
 static const float2 corners[6] = { float2(-1, -1), float2(1, -1), float2(1, 1), float2(-1, -1), float2(1, 1), float2(-1, 1) };
+
+// How the emitter is drawn, which Particles.cs packs into the look's last value: bit 0 lit, bit 1
+// textured, then the texture's columns and rows of frames, less one, eight bits each.
+bool isLit(float4 look) { return (uint(look.w) & 1u) != 0u; }
+bool isTextured(float4 look) { return (uint(look.w) & 2u) != 0u; }
+uint2 sheet(float4 look) { return uint2(((uint(look.w) >> 2u) & 255u) + 1u, ((uint(look.w) >> 10u) & 255u) + 1u); }
 
 [shader("vertex")]
 ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_InstanceID)
@@ -44,8 +51,15 @@ ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Insta
     output.world = center + (right * corner.x + up * corner.y) * (size * 0.5);
     output.position = mul(viewProjection, float4(output.world, 1.0));
     output.normal = facing;
-    // A texture's first row is its top.
+    // A texture's first row is its top. On a sheet the frame is the share of the life gone, left
+    // to right and then down.
     output.uv = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);
+    if (isTextured(look))
+    {
+        uint2 frames = sheet(look);
+        uint frame = min(uint(t * float(frames.x * frames.y)), frames.x * frames.y - 1u);
+        output.uv = (float2(frame % frames.x, frame / frames.x) + output.uv) / float2(frames);
+    }
     output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
     output.color = lerp(slots[0], slots[1], t);
     // Not metallic, wholly rough, with no normal map or occlusion.
@@ -59,7 +73,7 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
     float4 look = slots[2];
     float3 color = input.color.rgb;
     float alpha = input.color.a;
-    if (look.w >= 1.5)
+    if (isTextured(look))
     {
         float4 texel = boundTexture.Sample(input.uv);
         color *= texel.rgb;
@@ -73,6 +87,6 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
             discard;
         alpha *= near * near;
     }
-    float3 shown = fmod(look.w, 2.0) > 0.5 ? lit(color, input) : toDisplay(color * look.z);
+    float3 shown = isLit(look) ? lit(color, input) : toDisplay(color * look.z);
     return float4(shown, alpha);
 }

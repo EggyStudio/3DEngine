@@ -26,7 +26,7 @@ struct StepPush
     float4 variation;
     float4 startColor;
     float4 endColor;
-    // x, y: the size at birth and at death. z: how bright an unlit one is. w: 1 when it is lit, plus 2 when it is textured.
+    // x, y: the size at birth and at death. z: how bright an unlit one is. w: how it is drawn, as particles.slang unpacks it.
     float4 look;
     // x: the first slot to start a particle in. y: how many. z: how many slots there are. w: the bits of the drag.
     uint4 counts;

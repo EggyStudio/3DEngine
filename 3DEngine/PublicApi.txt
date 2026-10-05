@@ -2100,6 +2100,8 @@ struct Engine.ParticleEmitter
   float StartSize
   int Burst
   int MaxParticles
+  int TextureColumns
+  int TextureRows
   static ParticleEmitter Default { get; }
 readonly struct Engine.ParticleEmitterHandle : IEquatable<ParticleEmitterHandle>
   Entity Entity { get; init; }
