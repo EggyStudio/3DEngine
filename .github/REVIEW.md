@@ -298,6 +298,18 @@ written, 145 that can be, 34 missing and 1 that does not apply. `build/examples-
 new example that sets OpenGL's state through rlgl as missing, to be read over for what it shows,
 where it gave it as not applying.
 
+**The check for scripts run on more than one system.** `ScriptTests` reads the jobs of `test.yml`
+that run on Windows or macOS for the shell scripts they name, and each of those for the scripts it
+names in turn, which today are `build/play-game.sh`, `build/pack.sh`, `build/fetch-slang.sh` and
+`./e3d`. It looks there for `sed -i`, `grep -P`, `readarray` and `mapfile`, `date -d`, `stat -c`,
+`sha256sum` and its kin, and `${x,,}` and `${x^^}`, comments left aside, and names the portable
+form beside each it finds. It finds nothing. A theory holds each pattern to a line with its form,
+the line `build/pack.sh` had before `d42a5c95` among them, and to portable lines it leaves alone.
+It is in `3DEngine.Tests/Scripts`, on N 1.4's list as the seventh left out, since it tests no area
+of the library, and not in `NormTests`, whose test named for a rule NORM.md does not have yet
+would fail `NormAndItsTestsAgree`. N 6.6's cell can name `ScriptTests`, or it moves into
+`NormTests` as `N_6_6` once the rule is written, whichever the norm prefers.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an

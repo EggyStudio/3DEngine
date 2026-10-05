@@ -4,4 +4,5 @@
 3DEngine.Tests/Needs.cs	shared by the tests, at the root as N 1.4 has it
 3DEngine.Tests/NormTests.cs	the norm's own class, at the root as N 1.4 has it
 3DEngine.Tests/Package/PackageContentsTests.cs	tests the packed package, which is no area of the library
+3DEngine.Tests/Scripts/ScriptTests.cs	tests the scripts the workflows run, which are no area of the library
 3DEngine.Tests/TestFolder.cs	shared by the tests, at the root as N 1.4 has it
