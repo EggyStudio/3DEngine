@@ -219,3 +219,16 @@ words and `shapes_math_angle_rotation`'s center, are raylib's source as it is no
 being older. Driven through `./e3d`, the Penrose tiling raised two generations is raylib's picture
 line for line. `shapes_math_angle_rotation` keeps raylib's window of 720 by 400, on N 4.5's list. The table stands at 73 written, 1 in part, 110 that can be, 37 missing and 1 that
 does not apply.
+
+**Now 2, raylib's shapes examples with raygui, with ImGui in raygui's place.**
+`shapes_ring_drawing`, `shapes_circle_sector_drawing`, `shapes_rounded_rectangle_drawing`,
+`shapes_recursive_tree`, `shapes_triangle_strip`, `shapes_outlines_thickness` and
+`shapes_hilbert_curve` are raylib's, written again from its source, with raygui's sliders,
+checkboxes and spinner made ImGui's. They stand in one ImGui window with no decoration or
+background, placed where raygui's controls stand, in ImGui's light style, which is nearer
+raygui's own and keeps the labels readable on raylib's white. The examples hold no shim that
+draws raygui's calls. A label stands to the right of its control, where ImGui puts it, and a
+spinner is an `InputInt` clamped to raygui's bounds. Each picture was set beside raylib's
+screenshot, and the Hilbert curve, raised to order 3 by its spinner's button through `./e3d`,
+is the curve of raylib's screenshot. The table stands at 80 written, 1 in part, 103 that can be,
+37 missing and 1 that does not apply.
