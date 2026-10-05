@@ -33,6 +33,7 @@ public sealed partial class PhysicsWorld
             _previousPoses.Remove(body.Handle);
             _origins.Remove(body.Handle);
             ForgetCharacter(body.Handle);
+            ForgetVehicle(body.Handle);
             _joined.RemoveBody(body.Handle);
         }
     }

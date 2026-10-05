@@ -167,6 +167,7 @@ while (!WindowShouldClose())
         }
     }
     car.Input = (Math.Clamp(throttle, -1, 1), Math.Clamp(steer, -1, 1), brake);
+    car.Update(dt);
     SetPhysicsPaused(screen is Screen.Menu or Screen.Finished);
     RallyCommands.Status = $"{screen} lap {race.Laps.Count + 1}/{Race.LapsToRun} gate {race.Next} speed {car.Speed * 3.6f:0} at {car.Position.X:0},{car.Position.Y:0},{car.Position.Z:0} " +
                            $"time {race.LapTime:0.00} best {best:0.00} laps [{string.Join(",", race.Laps.Select(l => l.ToString("0.00")))}]";
@@ -242,7 +243,7 @@ void DrawCar(Vector3 position, Quaternion rotation, Color color, Vector3[]? whee
     {
         var turn = i < 2 ? steerAngle : 0;
         wheel.Transform = Matrix4x4.CreateTranslation(0, -0.15f, 0) * Matrix4x4.CreateRotationZ(MathF.PI / 2)
-                          * Matrix4x4.CreateRotationX(car.Wheels[i].Roll) * Matrix4x4.CreateRotationY(turn)
+                          * Matrix4x4.CreateRotationX(car.Wheels[i].Spin) * Matrix4x4.CreateRotationY(turn)
                           * Matrix4x4.CreateFromQuaternion(rotation) * Matrix4x4.CreateTranslation(wheels[i]);
         DrawModel(wheel, Vector3.Zero, 1, new Color(30, 30, 30));
     }

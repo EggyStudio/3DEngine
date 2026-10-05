@@ -176,6 +176,28 @@ public static partial class Engine3D
         Physics.CreateKinematicBox(position, size / 2);
 
     /// <summary>
+    /// A vehicle: a box of <paramref name="size"/> facing -Z, held up on raycast wheels as springs
+    /// and driven by <see cref="SetPhysicsVehicleInput"/>, every step pushing it as
+    /// <paramref name="settings"/> says, a car of about 1000 kg unless set.
+    /// </summary>
+    /// <remarks>Its wheels are worked out on the physics' fixed steps, so a vehicle drives the same however fast frames come.</remarks>
+    public static PhysicsBody CreatePhysicsVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null) =>
+        Physics.CreateVehicle(position, size, mass, settings);
+
+    /// <summary>Drives a vehicle until told otherwise: throttle and steering from -1 to 1, reverse and right being negative.</summary>
+    public static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false) =>
+        Physics.SetVehicleInput(vehicle, throttle, steer, brake);
+
+    /// <summary>Changes how a vehicle rides and drives, as a tuning screen or a gear does.</summary>
+    public static void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings) => Physics.SetVehicle(vehicle, settings);
+
+    /// <summary>How a vehicle rides and drives, to change one value with <c>with</c>.</summary>
+    public static Vehicle GetPhysicsVehicle(PhysicsBody vehicle) => Physics.GetVehicle(vehicle);
+
+    /// <summary>A vehicle's wheels as its last step left them, front first, for drawing them and for a skid's sound.</summary>
+    public static VehicleWheel[] GetPhysicsVehicleWheels(PhysicsBody vehicle) => Physics.GetVehicleWheels(vehicle).ToArray();
+
+    /// <summary>
     /// A character controller's body with its feet at <paramref name="feet"/>, an upright capsule
     /// walked by <see cref="MovePhysicsCharacter"/> that walls stop, that slides along them, rides
     /// over a low edge and holds still on a slope (PhysicsWorld.CreateCharacter says how).

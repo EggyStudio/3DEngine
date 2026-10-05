@@ -184,13 +184,8 @@ and twists within, and a distance joint a range that can change, and no other jo
 bodies a joint holds do not collide with each other. The character controller is a dynamic capsule
 walked toward a velocity before each step, which slides along walls, climbs steps up to its step
 height (its radius unless set), holds slopes up to its limit, rides what moves under it, crouches
-and stands where there is room, and reports ground.
-
-- **A vehicle is built by hand.** `games/Rally` holds a box up on four rays as springs and grips
-  the ground with impulses at points, about 150 lines of tuning (spring, damper, grip, drag,
-  downforce, and roll damped so it does not flip at speed), which a second driving game would copy.
-  A raycast vehicle beside the character controller, with its wheels' pushes worked out on the
-  fixed step and the tuning as fields with sound defaults, is what a racing game needs.
+and stands where there is room, and reports ground. A vehicle is a box held up by raycast wheels
+as springs, gripping, driving, braking and steering on the fixed step.
 
 ### Scenes
 

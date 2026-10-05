@@ -92,21 +92,6 @@ push under one corner of a car lifts that corner. `GetPhysicsBodyPointVelocity` 
 point of a body moves, its turning included, which is how fast a spring at that corner is pressed
 or a tyre slides. `GetPhysicsBodyRotation` and `SetPhysicsBodyRotation` read and set how it is
 turned, and `GetPhysicsBodyAngularVelocity` and `SetPhysicsBodyAngularVelocity` how fast it turns.
-`games/Rally` builds its car from these and a ray per wheel, one box held up by four springs:
-
-```csharp
-var mount = center + Vector3.Transform(Mounts[i], rotation);
-if (GetRayCollisionPhysicsEx(new Ray(mount, -up), Rest + WheelRadius, Body, out var hit))
-{
-    var pressed = Rest + WheelRadius - hit.Distance;
-    var closing = -Vector3.Dot(GetPhysicsBodyPointVelocity(Body, mount), up);
-    var load = MathF.Max(0, Spring * pressed + Damper * closing);
-    ApplyPhysicsImpulseAt(Body, up * load * dt, mount);
-}
-```
-
-A car pushed by its own wheels is stepped where the physics steps, in an `[OnFixedUpdate]`
-behavior, so its springs are pressed once a step however fast frames come.
 
 ## Rays and contacts
 
@@ -191,6 +176,32 @@ var bridge = CreatePhysicsBox(new Vector3(5, 3, -27), new Vector3(6, 0.3f, 1.4f)
 CreatePhysicsDistanceJoint(beam, bridge, new Vector3(2.5f, 9, -27), new Vector3(2.5f, 3, -27), 5.9f, 6);
 CreatePhysicsDistanceJoint(beam, bridge, new Vector3(7.5f, 9, -27), new Vector3(7.5f, 3, -27), 5.9f, 6);
 ```
+
+## A vehicle
+
+`CreatePhysicsVehicle` makes a car: a box held up by four wheels, each a ray cast down from the
+body that pushes it up as a spring and a damper, grips the ground sideways up to what presses it,
+and drives or brakes along the way it points. `SetPhysicsVehicleInput` drives it from the keys or
+a pad, and the wheels are worked out on the physics' fixed steps, so it drives the same however
+fast frames come. `games/Rally` races one:
+
+```csharp
+var car = CreatePhysicsVehicle(start, new Vector3(1.8f, 0.6f, 3.8f));
+// ...each frame
+SetPhysicsVehicleInput(car, throttle, steer, brake);
+foreach (var wheel in GetPhysicsVehicleWheels(car))
+    DrawModelEx(tyre, wheel.Center, Vector3.UnitY, wheel.Steer * 180 / MathF.PI, Vector3.One, Color.DarkGray);
+```
+
+A `Vehicle` holds its wheels' mounts, their radius and springs, the engine's and the brakes'
+force, the grip, the steering's lock, which wheels drive, and the air's drag and downforce, the
+defaults a car of about 1000 kg. Steering turns less the faster it goes, rolling and pitching
+settle on the ground, and in the air it turns itself level a little, so a car thrown over a crest
+lands on its wheels. A wheel's `Slip` is how fast its tyre slides sideways, which a skid's sound
+and dust follow, and `Spin` how far it has turned about its axle, for drawing it.
+
+A vehicle of a program's own, as a boat or a hovercraft, is built from `ApplyPhysicsImpulseAt`,
+`GetPhysicsBodyPointVelocity` and `GetRayCollisionPhysicsEx`, above.
 
 ## A character
 

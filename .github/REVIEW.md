@@ -69,3 +69,14 @@ Bepu's deterministic mode is on, and the contacts are sorted by pair before they
 through and reported, which a test found the step needs to repeat to the bit run after run on
 several workers (bounces summed in the order workers met them). A crowd's cost is mostly its
 controllers now, 1.9 ms of rays at 2000, entered in TODO.md under Cost.
+
+**Now 5 and 6.** The guide and the cheatsheet had what the last batches added, layered clips and
+morph targets in models-and-animation.md, the effects in materials-light-and-shadows.md, and the
+memory and window commands in driving-with-e3d.md, and `db942962` added what was missing (an
+emitter changed after it is made, joint limits and rope lengths, a probe's readiness, bindings in
+a file). From TODO.md the vehicle came first: `CreatePhysicsVehicle` makes a box on raycast wheels
+as springs, with grip, drive, brakes, steering that eases off with speed, drag, downforce and
+roll damped, worked out on the fixed step and tuned by a `Vehicle` record, and Rally's car is now
+one, its laps the same as before (29.1, 27.8, 27.8 s on the autopilot).
+
+Shared: a raycast vehicle as a flat call beside the character controller, tuned by one record.

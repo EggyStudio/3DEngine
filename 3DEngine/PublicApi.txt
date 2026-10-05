@@ -1253,6 +1253,7 @@ static class Engine.Engine3D
   static PhysicsBody CreatePhysicsStaticBox(Vector3 position, Vector3 size)
   static PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1f)
   static PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size)
+  static PhysicsBody CreatePhysicsVehicle(Vector3 position, Vector3 size, float mass = 1000f, Vehicle? settings = null)
   static PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
   static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
   static PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
@@ -1313,6 +1314,8 @@ static class Engine.Engine3D
   static Vector3 GetPhysicsBodyPosition(PhysicsBody body)
   static Vector3 GetPhysicsBodyVelocity(PhysicsBody body)
   static Vector4 ColorNormalize(Color color)
+  static Vehicle GetPhysicsVehicle(PhysicsBody vehicle)
+  static VehicleWheel[] GetPhysicsVehicleWheels(PhysicsBody vehicle)
   static Wave LoadWave(string fileName)
   static Wave LoadWaveFromMemory(string fileType, byte[] fileData)
   static Wave WaveCopy(Wave wave)
@@ -1709,6 +1712,8 @@ static class Engine.Engine3D
   static void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees)
   static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque)
   static void SetPhysicsPaused(bool paused)
+  static void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings)
+  static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false)
   static void SetProfileValue(string name, double value)
   static void SetRandomSeed(uint seed)
   static void SetShaderValue(Shader shader, int location, int value)
@@ -3675,6 +3680,7 @@ sealed class Engine.PhysicsWorld : IDisposable
   PhysicsBody CreateStaticCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0)
   PhysicsBody CreateStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<int> indices, PhysicsMaterial? material = null, int entityId = 0)
   PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0)
+  PhysicsBody CreateVehicle(Vector3 position, Vector3 size, float mass = 1000f, Vehicle? settings = null, int entityId = 0)
   PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
   PhysicsJoint CreateDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
   PhysicsJoint CreateHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
@@ -3682,6 +3688,7 @@ sealed class Engine.PhysicsWorld : IDisposable
   PhysicsWorld()
   PhysicsWorld(PhysicsSettings settings)
   Quaternion GetRotation(PhysicsBody body)
+  ReadOnlySpan<VehicleWheel> GetVehicleWheels(PhysicsBody body)
   Simulation Simulation { get; }
   ThreadDispatcher Dispatcher { get; }
   Vector3 GetAngularVelocity(PhysicsBody body)
@@ -3690,6 +3697,7 @@ sealed class Engine.PhysicsWorld : IDisposable
   Vector3 GetPointVelocity(PhysicsBody body, Vector3 point)
   Vector3 GetPosition(PhysicsBody body)
   Vector3 Gravity { get; set; }
+  Vehicle GetVehicle(PhysicsBody body)
   bool Exists(PhysicsBody body)
   bool IsAwake(PhysicsBody body)
   bool IsCharacterGrounded(PhysicsBody body)
@@ -3721,6 +3729,8 @@ sealed class Engine.PhysicsWorld : IDisposable
   void SetPosition(PhysicsBody body, Vector3 position)
   void SetRotation(PhysicsBody body, Quaternion rotation)
   void SetTrigger(PhysicsBody body, bool trigger)
+  void SetVehicle(PhysicsBody body, Vehicle settings)
+  void SetVehicleInput(PhysicsBody body, float throttle, float steer, bool brake)
   void Sleep(PhysicsBody body)
   void Step(float deltaSeconds)
   void StepOnce(float seconds)
@@ -5081,6 +5091,45 @@ readonly struct Engine.UniformBufferBinding : IEquatable<UniformBufferBinding>
   ulong Offset { get; init; }
   ulong Size { get; init; }
   void Deconstruct(out IBuffer Buffer, out uint Binding, out ulong Offset, out ulong Size, out bool Dynamic)
+struct Engine.Vehicle : IEquatable<Vehicle>
+  Vector3[]? Wheels { get; init; }
+  Vehicle()
+  VehicleDrive Drive { get; init; }
+  bool Equals(Vehicle other)
+  float BrakeForce { get; init; }
+  float Damper { get; init; }
+  float Downforce { get; init; }
+  float Drag { get; init; }
+  float EngineForce { get; init; }
+  float Grip { get; init; }
+  float MaxSteer { get; init; }
+  float Spring { get; init; }
+  float SuspensionLength { get; init; }
+  float WheelRadius { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Vehicle left, Vehicle right)
+  static bool op_Inequality(Vehicle left, Vehicle right)
+enum Engine.VehicleDrive : int
+  All = 2
+  Front = 1
+  Rear = 0
+readonly struct Engine.VehicleWheel : IEquatable<VehicleWheel>
+  Vector3 Center { get; init; }
+  Vector3 Contact { get; init; }
+  VehicleWheel(Vector3 Center, Vector3 Contact, bool Grounded, float Slip, float Spin, float Steer)
+  bool Equals(VehicleWheel other)
+  bool Grounded { get; init; }
+  float Slip { get; init; }
+  float Spin { get; init; }
+  float Steer { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(VehicleWheel left, VehicleWheel right)
+  static bool op_Inequality(VehicleWheel left, VehicleWheel right)
+  void Deconstruct(out Vector3 Center, out Vector3 Contact, out bool Grounded, out float Slip, out float Spin, out float Steer)
 enum Engine.VertexFormat : int
   Float2 = 0
   Float3 = 1

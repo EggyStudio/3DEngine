@@ -709,6 +709,11 @@ void DestroyPhysicsJoint(PhysicsJoint joint);                                   
 void SetPhysicsCharacterStepHeight(PhysicsBody body, float height);             // The highest step a character climbs (its radius)
 bool SetPhysicsCharacterHeight(PhysicsBody body, float height);                 // Crouch or stand, false when a ceiling is in the way
 bool IsPhysicsJointValid(PhysicsJoint joint);                                   // Whether it still exists
+PhysicsBody CreatePhysicsVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null); // A box on raycast wheels as springs, facing -Z, a car unless set
+void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false); // Drive it, -1 to 1, a positive steer turning left
+void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings);                   // Its wheels, springs, engine, brakes, grip, steering, drag
+Vehicle GetPhysicsVehicle(PhysicsBody vehicle);                                  // Those, to change one with `with`
+VehicleWheel[] GetPhysicsVehicleWheels(PhysicsBody vehicle);                     // Where each wheel is, whether it touches ground, its slide and spin
 PhysicsBody CreatePhysicsCharacter(Vector3 feet, float radius, float height, float mass = 80); // A character controller, an upright capsule that walls stop and that slides along them
 void MovePhysicsCharacter(PhysicsBody body, Vector3 velocity);                   // Walk it along the ground until given another, leaving its fall to gravity
 void JumpPhysicsCharacter(PhysicsBody body, float speed);                        // Jump, when it stands on ground

@@ -357,4 +357,47 @@ public sealed class Engine3DPhysicsTests : IDisposable
         RunUntil(() => MathF.Abs(GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(low)).Y - 0.9f) < 0.02f)
             .Should().BeTrue("standing again, it is as tall as it was made");
     }
+
+    [Fact]
+    public void A_Vehicle_Settles_On_Its_Springs_Drives_Forward_Turns_Left_And_Brakes_To_A_Stop()
+    {
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(400, 1, 400));
+        var car = CreatePhysicsVehicle(new Vector3(0, 1.2f, 0), new Vector3(1.8f, 0.6f, 3.8f));
+        // Frames for this many sixtieths of a second, since the physics steps by the time that passes.
+        void Steps(int sixtieths)
+        {
+            var clock = Stopwatch.StartNew();
+            while (clock.Elapsed.TotalSeconds < sixtieths / 60.0)
+            {
+                BeginDrawing();
+                EndDrawing();
+                Thread.Sleep(1);
+            }
+        }
+
+        // At rest it hangs on its four springs, every wheel on the ground, level.
+        Steps(120);
+        GetPhysicsBodyVelocity(car).Length().Should().BeLessThan(0.05f, "the springs and dampers settle");
+        GetPhysicsVehicleWheels(car).Should().HaveCount(4).And.OnlyContain(w => w.Grounded);
+        var restY = GetPhysicsBodyPosition(car).Y;
+        restY.Should().BeInRange(0.6f, 1.2f, "held up by its wheels, not lying on the ground");
+        Vector3.Transform(Vector3.UnitY, GetPhysicsBodyRotation(car)).Y.Should().BeGreaterThan(0.999f);
+
+        // Throttle drives it the way it faces, -Z.
+        SetPhysicsVehicleInput(car, 1, 0);
+        Steps(120);
+        GetPhysicsBodyPosition(car).Z.Should().BeLessThan(-5, "it drove forward");
+        GetPhysicsBodyVelocity(car).Z.Should().BeLessThan(-5);
+
+        // Steering left turns its heading toward -X.
+        SetPhysicsVehicleInput(car, 0.5f, 1);
+        Steps(60);
+        Vector3.Transform(-Vector3.UnitZ, GetPhysicsBodyRotation(car)).X.Should().BeLessThan(-0.2f, "a positive steer turns left");
+
+        // The brakes bring it to a stop, upright.
+        SetPhysicsVehicleInput(car, 0, 0, brake: true);
+        Steps(240);
+        GetPhysicsBodyVelocity(car).Length().Should().BeLessThan(0.3f, "the brakes stop it");
+        Vector3.Transform(Vector3.UnitY, GetPhysicsBodyRotation(car)).Y.Should().BeGreaterThan(0.99f, "and it did not roll over");
+    }
 }
