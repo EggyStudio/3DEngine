@@ -144,6 +144,9 @@ internal sealed class ParticleRenderer : IDisposable
             };
             state.Next = (state.Next + born) % capacity;
             device.RecordParticles(renderContext.CommandBuffer, state.Gpu, in step);
+            // Laid over by alpha, they are sorted far to near from the window's camera, which the
+            // draw then reads them in, render textures' cameras included.
+            if (emitter.Blend == ParticleBlend.Alpha) device.RecordParticleSort(renderContext.CommandBuffer, state.Gpu, frame.Eye);
             _drawn.Add(state);
         }
 
@@ -185,7 +188,8 @@ internal sealed class ParticleRenderer : IDisposable
     /// <remarks>
     /// Emitters that add their light come first, in any order, and those laid over by alpha after
     /// them from the farthest from the camera to the nearest, so where two overlap the nearer is in
-    /// front. The particles within one emitter are not sorted. A target is drawn through the camera
+    /// front. The particles within one were sorted far to near from the window's camera after their
+    /// step, which a render target's camera draws them in too. A target is drawn through the camera
     /// of its first <c>BeginMode3D</c>, or the one its meshes were drawn through, and one drawn only
     /// in 2D has none.
     /// </remarks>

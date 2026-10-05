@@ -35,7 +35,8 @@ public enum ParticleBlend
 /// <c>BeginMode3D</c> or of the camera entity drawing it, so one drawn only in 2D has none. A
 /// probe's capture has none. Emitters laid over by
 /// alpha are drawn from the farthest from the camera to the nearest, so where two overlap the
-/// nearer is in front, and the particles within one are not sorted.
+/// nearer is in front, and the particles within one are sorted the same way on the GPU each frame,
+/// from the window's camera.
 /// </para>
 /// </remarks>
 [SceneComponent]

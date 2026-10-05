@@ -12,6 +12,8 @@ namespace Engine;
 /// The buffer starts with a header of four float4 values the dispatch writes from its push
 /// constants, what the draw reads of the emitter, then holds a particle in two float4 values
 /// each, its position and age, and its velocity and life, a particle with no life being dead.
+/// After the particles are <see cref="SortKeys"/> float4 values, the keys an emitter laid over by
+/// alpha is sorted by, far to near.
 /// </remarks>
 internal sealed class GpuParticles : IDisposable
 {
@@ -30,6 +32,9 @@ internal sealed class GpuParticles : IDisposable
 
     /// <summary>How many particles it holds at most.</summary>
     public int Capacity { get; }
+
+    /// <summary>The keys after the particles, the least power of two as many as they are, which the bitonic sort needs.</summary>
+    public int SortKeys => (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Capacity);
 
     internal VkDescriptorSet Set { get; }
 
@@ -72,6 +77,16 @@ internal sealed unsafe partial class GraphicsDevice
     private VkPipeline _particlePipeline;
     private VkPipelineLayout _particleLayout;
     private VkDescriptorSetLayout _particleSetLayout;
+    private VkPipeline _sortPipeline;
+    private VkPipelineLayout _sortLayout;
+
+    /// <summary>What a step of the particle sort is handed, as <c>particle_sort.slang</c> reads it.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SortStep
+    {
+        public uint J, K, Count, Mode;
+        public System.Numerics.Vector4 EyeAndCapacity;
+    }
 
     /// <summary>Whether the particle shader has been given, so emitters can be made.</summary>
     public bool CanStepParticles => _particlePipeline.Handle != 0;
@@ -86,9 +101,23 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _particleSetLayout = setLayout;
 
-        var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = (uint)sizeof(ParticleStep) };
+        (_particlePipeline, _particleLayout) = ParticleCompute(spirv, (uint)sizeof(ParticleStep));
+    }
+
+    /// <summary>Makes the pipeline that sorts an emitter's particles from <c>particle_sort.slang</c>'s compute stage, once.</summary>
+    public void InitializeParticleSort(ReadOnlySpan<byte> spirv)
+    {
+        if (!CanStepParticles || _sortPipeline.Handle != 0) return;
+        (_sortPipeline, _sortLayout) = ParticleCompute(spirv, (uint)sizeof(SortStep));
+    }
+
+    // A compute pipeline over an emitter's buffer, with push constants of a size.
+    private (VkPipeline Pipeline, VkPipelineLayout Layout) ParticleCompute(ReadOnlySpan<byte> spirv, uint pushSize)
+    {
+        var setLayout = _particleSetLayout;
+        var push = new VkPushConstantRange { stageFlags = VkShaderStageFlags.Compute, offset = 0, size = pushSize };
         var layoutInfo = new VkPipelineLayoutCreateInfo { setLayoutCount = 1, pSetLayouts = &setLayout, pushConstantRangeCount = 1, pPushConstantRanges = &push };
-        _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out _particleLayout).CheckResult();
+        _deviceApi.vkCreatePipelineLayout(&layoutInfo, null, out var pipelineLayout).CheckResult();
 
         VkShaderModule module;
         fixed (byte* code = spirv)
@@ -103,12 +132,12 @@ internal sealed unsafe partial class GraphicsDevice
             var info = new VkComputePipelineCreateInfo
             {
                 stage = new VkPipelineShaderStageCreateInfo { stage = VkShaderStageFlags.Compute, module = module, pName = name },
-                layout = _particleLayout,
+                layout = pipelineLayout,
             };
             _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
         }
-        _particlePipeline = pipeline;
         _deviceApi.vkDestroyShaderModule(module);
+        return (pipeline, pipelineLayout);
     }
 
     /// <summary>Makes the buffer of an emitter of <paramref name="capacity"/> particles, every one dead.</summary>
@@ -117,7 +146,8 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (!CanStepParticles) throw new InvalidOperationException("The particle shader has not been given.");
         capacity = Math.Max(1, capacity);
-        var bytes = (ulong)(GpuParticles.HeaderBytes + capacity * GpuParticles.ParticleBytes);
+        var keys = (int)System.Numerics.BitOperations.RoundUpToPowerOf2((uint)capacity);
+        var bytes = (ulong)(GpuParticles.HeaderBytes + capacity * GpuParticles.ParticleBytes + keys * 16);
         var buffer = CreateBuffer(new BufferDesc(bytes, BufferUsage.Storage, CpuAccessMode.Write));
         Map(buffer).Clear();
 
@@ -165,9 +195,57 @@ internal sealed unsafe partial class GraphicsDevice
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderStorageRead);
     }
 
+    /// <summary>
+    /// Records, after the step of <paramref name="particles"/>, the dispatches that sort them from
+    /// the farthest from <paramref name="eye"/> to the nearest, which the draw then reads them in.
+    /// </summary>
+    /// <remarks>
+    /// The keys are sorted in blocks of 512 in shared memory, so an emitter of up to 512 particles
+    /// takes two dispatches, the keys and the sort, and a larger one a dispatch for each step across
+    /// blocks and one for the steps within them after each, as <c>particle_sort.slang</c> says.
+    /// </remarks>
+    public void RecordParticleSort(ICommandBuffer commands, GpuParticles particles, System.Numerics.Vector3 eye)
+    {
+        if (commands is not VulkanCommandBuffer vkCommands || _sortPipeline.Handle == 0) return;
+        var cmd = vkCommands.Handle;
+        var set = particles.Set;
+        var count = (uint)particles.SortKeys;
+        _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, _sortPipeline);
+        _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, _sortLayout, 0, 1, &set, 0, null);
+
+        // As particle_sort.slang has them: a workgroup's threads, and the keys it sorts in shared memory.
+        const uint Threads = 256, Block = 512;
+        void Dispatch(uint j, uint k, uint mode, uint groups)
+        {
+            // Each reads what the dispatch before it wrote, the step's particles or the keys.
+            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderStorageRead | VkAccessFlags2.ShaderStorageWrite);
+            var step = new SortStep { J = j, K = k, Count = count, Mode = mode, EyeAndCapacity = new System.Numerics.Vector4(eye, particles.Capacity) };
+            _deviceApi.vkCmdPushConstants(cmd, _sortLayout, VkShaderStageFlags.Compute, 0, (uint)sizeof(SortStep), &step);
+            _deviceApi.vkCmdDispatch(cmd, groups, 1, 1);
+        }
+        var perKey = (count + Threads - 1) / Threads;
+        var blocks = Math.Max(1, count / Block);
+        Dispatch(0, 0, 0, perKey);
+        Dispatch(0, 0, 2, blocks);
+        for (uint k = Block * 2; k <= count; k <<= 1)
+        {
+            for (uint j = k >> 1; j >= Block; j >>= 1)
+                Dispatch(j, k, 1, perKey);
+            Dispatch(0, k, 3, blocks);
+        }
+
+        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+            VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader, VkAccessFlags2.ShaderStorageRead);
+    }
+
     // Runs before the device goes.
     private void DestroyParticles()
     {
+        if (_sortPipeline.Handle != 0) _deviceApi.vkDestroyPipeline(_sortPipeline);
+        if (_sortLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_sortLayout);
+        _sortPipeline = default;
+        _sortLayout = default;
         if (_particlePipeline.Handle != 0) _deviceApi.vkDestroyPipeline(_particlePipeline);
         if (_particleLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_particleLayout);
         if (_particleSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleSetLayout);

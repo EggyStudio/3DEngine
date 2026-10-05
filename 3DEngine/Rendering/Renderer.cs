@@ -66,6 +66,7 @@ internal sealed class Renderer : IDisposable
         {
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
             device.InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
+            device.InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow));

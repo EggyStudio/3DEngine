@@ -9,7 +9,8 @@
 import modelpass;
 
 // The header the step writes, then each particle in two float4 values, as particle_step.slang
-// lays them out.
+// lays them out, then the keys particle_sort.slang sorts an emitter laid over by alpha by, which
+// the header's last value marks in y.
 [[vk::binding(0, 2)]]
 StructuredBuffer<float4> slots;
 
@@ -27,7 +28,10 @@ uint2 sheet(float4 look) { return uint2(((uint(look.w) >> 2u) & 255u) + 1u, ((ui
 ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_InstanceID)
 {
     ModelVertexOutput output = (ModelVertexOutput)0;
-    uint at = Header + instance * 2;
+    // Sorted, the instance is the sorted key's particle, drawn far to near.
+    uint capacity = uint(slots[3].x);
+    uint particle = slots[3].y > 0.5 ? uint(slots[Header + capacity * 2 + instance].y) : instance;
+    uint at = Header + particle * 2;
     float4 positionAge = slots[at];
     float4 velocityLife = slots[at + 1];
     if (velocityLife.w <= 0.0)

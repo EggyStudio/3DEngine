@@ -80,3 +80,13 @@ pass sees only the lights and the second bounces that. A test finds no recapture
 dimmer, one for the lamp going out, and the mirror ball's room dark after it. Manor's lanterns,
 put out as they are found, now clear their rooms' reflections. `UpdateReflectionProbe` stays for a
 room whose meshes change.
+
+**Particles sorted within an emitter.** An emitter laid over by alpha is sorted far to near from
+the window's eye after its step, by Batcher's bitonic sort over keys kept in its own buffer after
+the particles, and the draw reads each instance's particle through them, so a puff of smoke in
+front covers one behind. The first form, a dispatch a step, cost 0.47 ms of the GPU for 400
+particles, so blocks of 512 keys are sorted in a workgroup's shared memory in one dispatch, and only
+the steps across blocks are dispatches of their own, which brings it to 0.02 ms. A theory streams
+300 and 2000 particles at the camera and finds the nearest in front, the 2000 case failing without
+the steps across blocks and both without the sort. A render texture's camera draws them in the
+window's order. That ends the three asked to be steered on, and TODO.md's order follows.

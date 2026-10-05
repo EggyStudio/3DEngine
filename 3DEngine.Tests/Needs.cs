@@ -26,6 +26,15 @@ public sealed class NeedsVulkanFactAttribute : FactAttribute
     }
 }
 
+/// <summary>A theory skipped as <see cref="NeedsVulkanFactAttribute"/> is, where no Vulkan device starts.</summary>
+public sealed class NeedsVulkanTheoryAttribute : TheoryAttribute
+{
+    public NeedsVulkanTheoryAttribute()
+    {
+        if (new NeedsVulkanFactAttribute().Skip is { } reason) Skip = reason;
+    }
+}
+
 /// <summary>Skipped where SDL finds no audio device to open.</summary>
 public sealed class NeedsAudioDeviceFactAttribute : FactAttribute
 {

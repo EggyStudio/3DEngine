@@ -257,8 +257,15 @@ The look's last value packs whether it is lit and textured and the sheet's colum
 an integer a float holds exactly, since the push block has no room left.
 A lit particle goes through `lit` as a rough surface facing the camera and an unlit one through
 `toDisplay`, so both follow the HDR frame's output flag. Emitters laid over by alpha are drawn after
-the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is,
-and the particles within one are not sorted. `TargetsNode` draws them into each render target after
+the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is.
+Within an emitter laid over by alpha, `particle_sort.slang` sorts after the step, in the emitter's
+buffer after its particles, a key a particle of its negative squared distance from the window's
+eye, a large one for the dead and infinity for the padding to a power of two, by Batcher's bitonic
+sort. Blocks of 512 keys are sorted in a workgroup's shared memory in one dispatch, and an emitter
+of more takes a dispatch for each step across blocks and one for the steps within them after it,
+so 400 particles cost 0.02 ms of the GPU where a dispatch a step took 0.47. The step clears and
+the sort sets a flag in the header, by which the draw reads each instance's particle through the
+sorted keys. `TargetsNode` draws them into each render target after
 its meshes, with its own lights, since the step runs before the targets, through the camera of the
 target's first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn
 through for a camera entity's texture. A target drawn only in 2D has no camera for them, and probe

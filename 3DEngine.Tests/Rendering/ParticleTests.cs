@@ -261,4 +261,34 @@ public sealed class ParticleTests : IDisposable
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
         UnloadRenderTexture(target);
     }
+
+    // A stream coming straight at the camera, blue as it is born far away and red as it ages near,
+    // every particle over the middle of the picture, so the nearest, red, is in front. 300 sorts in
+    // one block of shared memory, and 2000 across four, through the steps between blocks.
+    [NeedsVulkanTheory]
+    [InlineData(300)]
+    [InlineData(2000)]
+    public void The_Particles_Of_One_Cloud_Laid_Over_By_Alpha_Are_Drawn_Far_To_Near(int count)
+    {
+        Open();
+        CreateParticleEmitter(new Vector3(0, 0, -3), ParticleEmitter.Default with
+        {
+            Blend = ParticleBlend.Alpha,
+            MaxParticles = count,
+            Rate = count / 2f,
+            Life = 2,
+            LifeVariation = 0,
+            Velocity = new Vector3(0, 0, 2),
+            Spread = 0,
+            SpeedVariation = 0,
+            Gravity = Vector3.Zero,
+            StartSize = 0.6f,
+            EndSize = 0.6f,
+            StartColor = new Color(30, 30, 255),
+            EndColor = new Color(255, 30, 30),
+        });
+        var middle = GetImageColor(Capture(90), 80, 60);
+
+        ((int)middle.R).Should().BeGreaterThan(middle.B + 60, $"the nearest, oldest particles are drawn last, not {middle}");
+    }
 }
