@@ -98,7 +98,7 @@ public class ChangeTrackingTests
         var app = new App();
         var ecs = new EcsWorld();
         app.World.InsertResource(ecs);
-        var fixedTime = new FixedTime { Hz = 60, MaxStepsPerFrame = 10 };
+        var fixedTime = new FixedTime { Hz = 60 };
         app.World.InsertResource(fixedTime);
         var entity = ecs.Spawn();
         ecs.Add(entity, new Health());

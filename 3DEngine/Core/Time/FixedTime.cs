@@ -11,9 +11,12 @@ namespace Engine;
 /// accumulated, so a simulation advances by the same amount every step whatever the frame rate.
 /// </para>
 /// <para>
-/// At most <see cref="MaxStepsPerFrame"/> steps run in one frame, and time beyond them is
-/// dropped. Without the cap, a frame slow enough to need many steps makes the next frame slower
-/// still, and the backlog never drains.
+/// Every second a frame reports is stepped through, so what the program moved by the frame's time
+/// and what the simulation moved agree. The one clamp is <see cref="Time.MaxDeltaSeconds"/>, a
+/// quarter of a second, which holds a frame to fifteen steps of a sixtieth, so a slow frame cannot
+/// owe more, and below four frames a second the whole game slows together. A second cap here
+/// dropped what was past five steps, so a frame of 83 to 250 ms told the program a quarter of a
+/// second passed and simulated a twelfth.
 /// </para>
 /// </remarks>
 public sealed class FixedTime
@@ -35,39 +38,21 @@ public sealed class FixedTime
         set => StepSeconds = 1.0 / value;
     }
 
-    /// <summary>The most steps run in one frame. Defaults to 5.</summary>
-    internal int MaxStepsPerFrame { get; set; } = 5;
-
     /// <summary>Frame time not yet stepped through, in seconds.</summary>
     internal double Accumulator { get; private set; }
-
-    /// <summary>How many steps have run this frame.</summary>
-    internal int StepsThisFrame { get; private set; }
 
     /// <summary>How far between the last step and the next the frame is, from 0 to 1, for interpolating what is drawn.</summary>
     public double Alpha => Math.Clamp(Accumulator / StepSeconds, 0, 1);
 
-    /// <summary>Adds a frame's time and starts counting the frame's steps from zero.</summary>
-    internal void Accumulate(double deltaSeconds)
-    {
-        Accumulator += Math.Max(0, deltaSeconds);
-        StepsThisFrame = 0;
-    }
+    /// <summary>Adds a frame's time, already held to <see cref="Time.MaxDeltaSeconds"/>.</summary>
+    internal void Accumulate(double deltaSeconds) => Accumulator += Math.Max(0, deltaSeconds);
 
-    /// <summary>Takes one step's time out of the accumulator, if a whole step is there and the frame has steps left.</summary>
+    /// <summary>Takes one step's time out of the accumulator, if a whole step is there.</summary>
     /// <returns>Whether a step should run.</returns>
     internal bool TryStep()
     {
-        if (StepsThisFrame >= MaxStepsPerFrame)
-        {
-            Accumulator = Math.Min(Accumulator, StepSeconds);
-            return false;
-        }
-
         if (Accumulator < StepSeconds) return false;
-
         Accumulator -= StepSeconds;
-        StepsThisFrame++;
         return true;
     }
 }

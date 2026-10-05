@@ -17,7 +17,6 @@ public class PhysicsWorldTests
         {
             UseFixedTimestep = true,
             FixedTimeStep = 1f / 60f,
-            MaxStepsPerFrame = 64,
         };
         configure?.Invoke(s);
         return new PhysicsWorld(s);
@@ -179,20 +178,19 @@ public class PhysicsWorldTests
     }
 
     [Fact]
-    public void Fixed_Timestep_Caps_Substeps_Per_Frame()
+    public void Fixed_Timestep_Steps_Through_All_The_Time_Given()
     {
         using var w = NewWorld(s =>
         {
             s.UseFixedTimestep = true;
             s.FixedTimeStep = 1f / 60f;
-            s.MaxStepsPerFrame = 2;
         });
         var body = w.CreateSphere(new Vector3(0, 100, 0), 0.5f);
 
-        var act = () => w.Step(60f);
+        // A quarter of a second, the most a frame reports, is fifteen steps of falling.
+        w.Step(0.25f);
 
-        act.Should().NotThrow();
-        body.IsValid.Should().BeTrue();
+        w.GetLinearVelocity(body).Y.Should().BeApproximately(-9.81f * 0.25f, 0.01f, "every step of the quarter second fell");
     }
 }
 

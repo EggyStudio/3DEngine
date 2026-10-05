@@ -33,6 +33,13 @@ internal static class ConsoleBuiltins
         return $"waited {count} frame(s)";
     }
 
+    [Command("time.frame", "Makes each frame advance time by this many seconds and read no clock, 0 to read the clock again: time.frame <seconds>")]
+    internal static string FrameTime(double seconds)
+    {
+        ConsoleHost.Time.FrameSeconds = Math.Max(0, seconds);
+        return seconds > 0 ? $"each frame is {seconds} seconds" : "the clock is read again";
+    }
+
     [Command("profile", "Where a frame's time goes, averaged over about a second, with the program's own values")]
     internal static string Profile() =>
         ConsoleHost.World!.TryGetResource<FrameProfile>(out var profile) ? profile.Report() : "no profile";

@@ -23,9 +23,6 @@ public sealed class PhysicsSettings
     /// <summary>Whether to use a deterministic fixed-step accumulator. Default <c>true</c>.</summary>
     public bool UseFixedTimestep { get; set; } = true;
 
-    /// <summary>Maximum number of fixed steps consumed per frame to avoid the spiral of death. Default 8.</summary>
-    public int MaxStepsPerFrame { get; set; } = 8;
-
     /// <summary>Number of worker threads the simulation steps on, 4 to begin with, and <c>0</c> for one fewer than the processors.</summary>
     /// <remarks>
     /// The step is deterministic for a given number of workers, and the same number on every

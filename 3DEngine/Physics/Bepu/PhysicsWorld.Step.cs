@@ -12,20 +12,17 @@ public sealed partial class PhysicsWorld
         if (deltaSeconds <= 0f) return;
         if (_settings.UseFixedTimestep)
         {
+            // Every second given is stepped through. The app gives a frame's time held to
+            // Time.MaxDeltaSeconds, the one clamp, so a slow frame owes fifteen steps at most.
             _accumulator += deltaSeconds;
-            int steps = 0;
-            while (_accumulator >= _settings.FixedTimeStep && steps < _settings.MaxStepsPerFrame)
+            while (_accumulator >= _settings.FixedTimeStep)
             {
                 UpdateCharacters(_settings.FixedTimeStep);
                 UpdateVehicles(_settings.FixedTimeStep);
                 Simulation.Timestep(_settings.FixedTimeStep, Workers);
                 UpdateContacts();
                 _accumulator -= _settings.FixedTimeStep;
-                steps++;
             }
-
-            if (steps == _settings.MaxStepsPerFrame)
-                _accumulator = 0f; // avoid spiral of death
         }
         else
         {

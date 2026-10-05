@@ -9,7 +9,7 @@ public class PhysicsJointTests
     private const float Step = 1f / 60f;
 
     private static PhysicsWorld NewWorld() =>
-        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, MaxStepsPerFrame = 64, Gravity = new Vector3(0, -9.81f, 0) });
+        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = new Vector3(0, -9.81f, 0) });
 
     private static void Run(PhysicsWorld world, int steps)
     {

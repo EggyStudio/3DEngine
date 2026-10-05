@@ -17,7 +17,6 @@ public class PhysicsSettingsTests
         s.SubstepCount.Should().Be(1);
         s.VelocityIterations.Should().Be(8);
         s.UseFixedTimestep.Should().BeTrue();
-        s.MaxStepsPerFrame.Should().Be(8);
         s.WorkerThreads.Should().Be(4);
     }
 
@@ -31,7 +30,6 @@ public class PhysicsSettingsTests
             SubstepCount = 4,
             VelocityIterations = 16,
             UseFixedTimestep = false,
-            MaxStepsPerFrame = 4,
             WorkerThreads = 2,
         };
 

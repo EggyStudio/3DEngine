@@ -2204,7 +2204,6 @@ sealed class Engine.PhysicsSettings
   bool Paused { get; set; }
   bool UseFixedTimestep { get; set; }
   float FixedTimeStep { get; set; }
-  int MaxStepsPerFrame { get; set; }
   int SubstepCount { get; set; }
   int ThreadedAbove { get; set; }
   int VelocityIterations { get; set; }

@@ -13,7 +13,7 @@ public class PhysicsCharacterTests
 
     private static PhysicsWorld NewWorld()
     {
-        var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, MaxStepsPerFrame = 64 });
+        var world = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step });
         world.CreateStaticBox(new Vector3(0, -0.5f, 0), new Vector3(50, 0.5f, 50));
         return world;
     }

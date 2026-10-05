@@ -98,6 +98,17 @@ program can mix the two. `Startup` waits for the first frame, so plugins and beh
 `InitWindow` and the loop take part in it. `App.Run()` drives the same steps for a program that
 hands the loop to the engine.
 
+A frame's time is held to one clamp, `Time.MaxDeltaSeconds`, a quarter of a second, and
+`FixedUpdate` runs once for each whole step of it, at most fifteen of a sixtieth, dropping
+nothing, so what the program moves by `GetFrameTime` and what the simulation moves agree however
+slow a frame was. Two other caps dropped steps past five, and past eight in a physics world with
+no fixed time, so a frame of 83 to 250 ms told the program a quarter of a second passed and
+simulated a twelfth; they went, and the clock's clamp was kept because it also guards everything
+else that reads the frame's time, as a debugger's pause does. Fifteen steps after a slow frame cost
+Swarm about a millisecond of work. Below four frames a second the whole game slows together rather
+than the simulation alone. With `Config.FrameSeconds` (`--frame-time`) each frame is that long and
+no clock is read, so a test counts frames and a capture of something moving repeats.
+
 ## 3. Immediate drawing
 
 A `Draw` call records something into the frame's draw list and returns. Nothing it records

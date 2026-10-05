@@ -10,7 +10,7 @@ public class BodyMaterialTests
     private const float Step = 1f / 60f;
 
     private static PhysicsWorld NewWorld(Vector3? gravity = null) =>
-        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, MaxStepsPerFrame = 64, Gravity = gravity ?? new Vector3(0, -9.81f, 0) });
+        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = gravity ?? new Vector3(0, -9.81f, 0) });
 
     // How high a ball dropped with its bottom 2.5 above a floor comes back up after it first lands.
     private static float Rebound(float bounce)

@@ -34,13 +34,16 @@ public class FixedTimeTests
     }
 
     [Fact]
-    public void A_Long_Frame_Stops_At_The_Cap_And_Drops_The_Backlog()
+    public void A_Long_Frame_Is_Stepped_Through_Whole_Up_To_The_Clock_Clamp()
     {
-        var time = new FixedTime { Hz = 60, MaxStepsPerFrame = 5 };
-        time.Accumulate(1.0);
+        // A frame of a second, which Time holds to its quarter, is fifteen steps and drops nothing.
+        var clock = new Time();
+        clock.Update(1.0, 1.0);
+        var time = new FixedTime { Hz = 60 };
+        time.Accumulate(clock.DeltaSeconds);
 
-        Steps(time).Should().Be(5);
-        time.Accumulator.Should().BeLessThanOrEqualTo(time.StepSeconds);
+        Steps(time).Should().Be(15);
+        time.Accumulator.Should().BeLessThan(1e-9);
     }
 
     [Fact]

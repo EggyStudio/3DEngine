@@ -10,7 +10,7 @@ public class PhysicsContactTests
     private const float Step = 1f / 60f;
 
     private static PhysicsWorld NewWorld(Vector3? gravity = null) =>
-        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, MaxStepsPerFrame = 64, Gravity = gravity ?? new Vector3(0, -9.81f, 0) });
+        new(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = Step, Gravity = gravity ?? new Vector3(0, -9.81f, 0) });
 
     private static (List<PhysicsContact> Started, List<PhysicsContact> Ended) Run(PhysicsWorld world, int steps)
     {

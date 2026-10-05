@@ -277,3 +277,14 @@ by a fixed behavior, is aimed at as before; a test moves one a step's distance a
 at 30 frames a second and finds the platform never more than a step's travel from it. A parent put
 more than ten units away in a frame places its body at rest there, and the crate on it is not flung
 after it, which a test finds. The theory runs at 0.06 tolerance; the old test stays at a sixtieth.
+
+**Verdict 3, one clamp.** `Time.MaxDeltaSeconds`, a quarter of a second, is the one kept, since it
+also guards everything else that reads a frame's time. `FixedTime` steps through all of it, fifteen
+steps at most, and drops nothing, its five-step cap gone, and the physics world with no
+`FixedTime` steps through all it is given, `PhysicsSettings.MaxStepsPerFrame` gone with its eight.
+That property was public, so by Decision 5 `PublicApi.txt` loses `int MaxStepsPerFrame` and the
+version is the owner's to raise. A `time.frame <seconds>` command sets the stepped clock in a
+running program, with which Swarm in its second wave was given one frame of a quarter second: it
+ran fifteen steps in 1.8 ms of work against 0.85 for an ordinary frame. DESIGN.md §2 says which
+number was kept and why. The cap's tests now find a second's frame stepped fifteen times with
+nothing left, and a quarter second given to the world falling for all fifteen.
