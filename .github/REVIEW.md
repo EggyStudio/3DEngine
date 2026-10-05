@@ -138,3 +138,10 @@ after the pack, with clang and zlib's headers installed beside lavapipe for the 
 In the Ubuntu 24.04 container with lavapipe it drew its 300 frames with no error. The publish warns
 that the library and AssimpNetter have code the trimmer cannot follow, which is the rest of N 2.5,
 the reflection a generator could replace, and which this game does not reach.
+
+**N 2.7, the examples on the package alone.** `build/examples-on-package.sh` copies the examples
+project to a folder outside the repository, where `Directory.Build.props` does not reach, puts the
+package in place of the engine's project and its generator, and builds it with warnings as errors,
+the generator coming from the package's analyzers. Every example builds, the handful the item named
+and the rest, since building all of them costs no more than the copy. `build.yml` runs it after the
+pack, and it built with no warning here and in the Ubuntu container.

@@ -97,6 +97,11 @@ jobs:
       - name: Publish the game native from the package and draw it
         run: build/play-native.sh Pusher
 
+      # Every example built in a project of its own on the package alone, as a reader copying one
+      # into a game of their own builds it (NORM.md, N 2.7).
+      - name: Build the examples on the package alone
+        run: build/examples-on-package.sh
+
       # The 2D game from the same package, run right and jumped with the pad's south button.
       - name: Build and play the 2D game from the package
         env:
