@@ -231,8 +231,10 @@ public sealed class Engine3DPhysicsTests : IDisposable
         gap.Should().BeLessThan(2f / 60 + 1e-3f, "the platform is never more than a step's travel from its parent");
     }
 
-    [Fact]
-    public void A_Parent_Put_Far_Away_In_One_Frame_Places_Its_Platform_And_Flings_Nothing()
+    [Theory]
+    [InlineData(5f, true)]
+    [InlineData(150f, false)]
+    public void A_Parent_Said_To_Be_Placed_Or_Put_Past_The_Setting_Places_Its_Platform_And_Flings_Nothing(float away, bool said)
     {
         var ecs = GetApp().World.Resource<EcsWorld>();
         var carrier = ecs.Spawn();
@@ -248,13 +250,74 @@ public sealed class Engine3DPhysicsTests : IDisposable
         ecs.Add(crate, RigidBody.Dynamic());
         Frames(30);
 
-        // A level started again: the carrier put fifty units away at once.
-        ecs.GetRef<Transform>(carrier).Position = new Vector3(50, 0, 0);
+        // A level started again: the carrier put back a few units away, which the program says, or
+        // farther than PhysicsSettings.PlaceBeyond, which says it alone.
+        RunUntil(() =>
+        {
+            ecs.GetRef<Transform>(carrier).Position = new Vector3(away, 0, 0);
+            if (said) GetApp().World.Resource<PhysicsWorld>().MarkPlaced(ecs.Handle(carrier));
+            return true;
+        });
         Frames(3);
         var body = ecs.GetReadOnly<PhysicsBody>(platform);
-        GetPhysicsBodyPosition(body).X.Should().BeApproximately(50, 0.01f, "the platform is put at its parent's new place");
+        GetPhysicsBodyPosition(body).X.Should().BeApproximately(away, 0.01f, "the platform is put at its parent's new place");
         GetPhysicsBodyVelocity(body).Length().Should().BeLessThan(0.01f, "and is at rest there");
         GetPhysicsBodyVelocity(ecs.GetReadOnly<PhysicsBody>(crate)).Length().Should().BeLessThan(1, "the crate that stood on it is not flung after it");
+    }
+
+    [Fact]
+    public void A_Fast_Platform_Carries_Its_Crate_Through_A_Frame_Of_A_Quarter_Second()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var time = GetApp().World.Resource<Time>();
+        var carrier = ecs.Spawn();
+        ecs.Add(carrier, new Transform(Vector3.Zero));
+        var platform = ecs.Spawn();
+        ecs.Add(platform, new Transform(new Vector3(0, 0.25f, 0)));
+        ecs.Add(platform, Collider.Box(new Vector3(8, 0.5f, 8)));
+        ecs.Add(platform, RigidBody.Kinematic);
+        ecs.SetParent(platform, carrier);
+        var crate = ecs.Spawn();
+        ecs.Add(crate, new Transform(new Vector3(0, 1, 0)));
+        ecs.Add(crate, Collider.Box(Vector3.One));
+        ecs.Add(crate, RigidBody.Dynamic());
+        Frames(30);
+        var crateBody = ecs.GetReadOnly<PhysicsBody>(crate);
+        float Ahead() => GetPhysicsBodyPosition(crateBody).X - ecs.GetReadOnly<Transform>(carrier).Position.X;
+
+        // Brought up to 60 units a second slowly enough that the crate's friction keeps it with
+        // the platform, then held there.
+        var speed = 0f;
+        void Frame()
+        {
+            BeginDrawing();
+            speed = MathF.Min(60, speed + 4 * GetFrameTime());
+            ecs.GetRef<Transform>(carrier).Position.X += speed * GetFrameTime();
+            EndDrawing();
+        }
+        while (speed < 60) Frame();
+        for (int i = 0; i < 30; i++) Frame();
+        var before = Ahead();
+
+        // One frame of a quarter second, the most a frame counts for, in which the platform goes
+        // fifteen units.
+        time.FrameSeconds = 0.25;
+        Frame();
+        time.FrameSeconds = 1.0 / 60;
+        // Placed rather than followed, as at ten units, the platform stood still for the next
+        // step and then caught up at twice its speed.
+        var slowest = float.MaxValue;
+        var platformBody = ecs.GetReadOnly<PhysicsBody>(platform);
+        for (int i = 0; i < 30; i++)
+        {
+            slowest = MathF.Min(slowest, GetPhysicsBodyVelocity(platformBody).X);
+            Frame();
+        }
+
+        slowest.Should().BeApproximately(60, 0.5f, "the platform kept its parent's pace through the long frame and after it");
+
+        GetPhysicsBodyPosition(crateBody).Y.Should().BeGreaterThan(0.9f, "the crate is still on the platform");
+        Ahead().Should().BeApproximately(before, 0.25f, "the crate rode the platform through the long frame and was not left behind");
     }
 
     [Fact]

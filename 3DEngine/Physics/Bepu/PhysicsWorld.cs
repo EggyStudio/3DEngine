@@ -35,6 +35,31 @@ public sealed partial class PhysicsWorld : IDisposable
 
     private readonly PhysicsSettings _settings;
 
+    /// <summary>The settings the world was made with, some of which, as <see cref="PhysicsSettings.PlaceBeyond"/>, are read as it runs.</summary>
+    internal PhysicsSettings Settings => _settings;
+
+    /// <summary>
+    /// The entities a program said it placed this frame, by index, which <see cref="ParentFollowers"/>
+    /// reads and clears at the frame's end.
+    /// </summary>
+    internal HashSet<int> Placed { get; } = [];
+
+    /// <summary>
+    /// Says that <paramref name="entity"/> was put where it is in this frame rather than moved there,
+    /// as when a level starts again, so the kinematic bodies under it are put at their places, at
+    /// rest, rather than carried there through whatever is between.
+    /// </summary>
+    /// <remarks>
+    /// A parent's move in a frame is otherwise followed, whatever its length up to
+    /// <see cref="PhysicsSettings.PlaceBeyond"/>, so a platform put back to its start a few units
+    /// away would sweep through what lies on the way and push it. It is said in the frame the
+    /// entity is put, after or before putting it.
+    /// </remarks>
+    public void MarkPlaced(Entity entity)
+    {
+        if (!entity.IsNone) Placed.Add(entity.Index);
+    }
+
     /// <summary>Maps a Bepu <see cref="BodyHandle"/>.Value to the owning ECS entity (0 = none).</summary>
     private readonly Dictionary<int, int> _bodyToEntity = new();
 

@@ -23,16 +23,14 @@ namespace Engine;
 /// <para>
 /// A parent moved in the steps themselves, by an <c>[OnFixedUpdate]</c> behavior, has not moved
 /// since the last step when the frame ends, and is followed as before, each step aiming at its
-/// place, which such a parent moves a step's distance a step. A parent that jumps more than
-/// <see cref="PlaceBeyond"/> in a frame, as when a level starts again, is placing its body, which
-/// is put there rather than flung there through whatever is between.
+/// place, which such a parent moves a step's distance a step. A parent the program says it placed
+/// with <see cref="PhysicsWorld.MarkPlaced"/>, as when a level starts again, or one that jumps more
+/// than <see cref="PhysicsSettings.PlaceBeyond"/> in a frame, is placing its body, which is put
+/// there rather than flung there through whatever is between.
 /// </para>
 /// </remarks>
 internal sealed class ParentFollowers
 {
-    /// <summary>A parent's move in one frame past which its body is put at its new place rather than moved there.</summary>
-    public const float PlaceBeyond = 10;
-
     private sealed class Follower
     {
         public required Entity Entity;
@@ -52,6 +50,10 @@ internal sealed class ParentFollowers
     }
 
     private readonly Dictionary<int, Follower> _followers = [];
+
+    // The bodies observed in a frame, and those no longer there, kept and used again each frame.
+    private readonly HashSet<int> _seen = [];
+    private readonly List<int> _gone = [];
 
     // The pose under the parent each kinematic body under one is to have, as its own Transform puts it.
     private readonly List<(int Entity, PhysicsBody Body, Vector3 Place, Quaternion Turn)> _wanted = [];
@@ -107,13 +109,13 @@ internal sealed class ParentFollowers
     /// </summary>
     public void Observe(EcsWorld ecs, PhysicsWorld physics, double frameSeconds, double behind)
     {
-        var seen = new HashSet<int>();
+        _seen.Clear();
         foreach (var (entity, body, place, turn) in Wanted(ecs))
         {
-            seen.Add(entity);
+            _seen.Add(entity);
             var follower = For(ecs, entity, place, turn);
             var moved = place != follower.SteppedPlace || turn != follower.SteppedTurn;
-            if (moved && Vector3.Distance(place, follower.Place) > PlaceBeyond)
+            if (moved && (Vector3.Distance(place, follower.Place) > physics.Settings.PlaceBeyond || SaidPlaced(ecs, physics, entity)))
             {
                 // Placed, not moved, and at rest there.
                 physics.SetPosition(body, place);
@@ -141,6 +143,19 @@ internal sealed class ParentFollowers
             (follower.Place, follower.Turn, follower.Since) = (place, turn, -behind);
             (follower.SteppedPlace, follower.SteppedTurn) = (place, turn);
         }
-        foreach (var gone in _followers.Keys.Where(e => !seen.Contains(e)).ToArray()) _followers.Remove(gone);
+        _gone.Clear();
+        foreach (var entity in _followers.Keys)
+            if (!_seen.Contains(entity)) _gone.Add(entity);
+        foreach (var entity in _gone) _followers.Remove(entity);
+        physics.Placed.Clear();
+    }
+
+    // Whether the program said it placed the body or any entity above it in this frame.
+    private static bool SaidPlaced(EcsWorld ecs, PhysicsWorld physics, int entity)
+    {
+        if (physics.Placed.Count == 0) return false;
+        for (var at = entity; at != 0; at = ecs.ParentOf(at))
+            if (physics.Placed.Contains(at)) return true;
+        return false;
     }
 }

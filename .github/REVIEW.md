@@ -8,23 +8,22 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `ee3b47dd`. Verdicts 1 to 3 are settled on their replies, which were read: a clock a
-test steps (`966c2c88`), a kinematic body keeping its parent's pace (`15fa305a`) and one clamp
-(`ee3b47dd`). The engine before the change measured where the model had put it, 1.75 against 1.74
-at 144 frames a second, 2.37 at 50 and 0.10 against 0.08 at 30, and holds 2.00 within a hundredth
-at every rate after it, uneven frames among them. The reply found what the model's rule had left
-out of its wording, that the steps run behind the frame's clock by what is not yet stepped
-through. Fifteen steps after a frame of a quarter second cost Swarm 1.8 ms against 0.85. No
-tolerance was widened and no wait added in their place, and the old test stands at its tenth.
-Verdict 7 is about one number in the second.
+Reviewed up to `c774a379`. Verdicts 4 to 6 are settled on their replies, which were read: Assimp
+reading through C# streams with one folder for the tests (`abc24192`), a body woken when its layer
+or its trigger changes (`ac897afa`) and a pair's press as the push alone (`c774a379`). The first
+went past what was asked, a path with letters outside ASCII no longer crossing into native code
+and a test of the check itself, which finds a file it left open. The third measured the old sum at
+0.87 for a crate dragged and turned where its weight times the step is 0.33. Verdicts 1 to 3 were
+settled before them, so everything the Windows run of `db942962` showed is mended. Verdicts 8 and
+9 are two small things left by 4 and 5.
 
-Of the Windows run of `db942962`, Verdict 4 is left, the file handle that leaves the process. The
-owner pushed `main` up to `5b2234d2` on 2026-10-05, before any of this, so the run of that push
-draws on Windows and macOS for the first time and is likely to show the platform test red again.
-`Config.FrameSeconds` and `Time.FrameSeconds` are new public lines and
-`PhysicsSettings.MaxStepsPerFrame` is gone, which Decision 5 leaves with the owner.
+The owner pushed `main` up to `15fa305a` on 2026-10-05, which has the clock and the follow rule
+and has neither the one clamp nor the file system for Assimp. Its run is the first to draw on
+Windows and macOS, and the platform test should be green in it. `Config.FrameSeconds` and
+`Time.FrameSeconds` are new public lines and `PhysicsSettings.MaxStepsPerFrame` is gone, which
+Decision 5 leaves with the owner.
 
-[NORM.md](NORM.md) is new, and item 4 of the Now list is about it.
+[NORM.md](NORM.md) is new, and item 3 of the Now list is about it.
 
 ## Now
 
@@ -32,11 +31,9 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 4**, the last of what the Windows run says, which is in hand.
-2. **Verdicts 5, 6 and 7**, a body asleep when a layer changes, the number a pair's press
-   returns, the second before a package carries the function, and the distance past which a
-   parent's move is a placing.
-3. **A picture in the README opens the example's own source** (N 4.5). The owner chose this for
+1. **Verdicts 7, 8 and 9**, the distance past which a parent's move is a placing, which is in
+   hand, an exception inside Assimp's callbacks, and a crate asleep on a kinematic floor.
+2. **A picture in the README opens the example's own source** (N 4.5). The owner chose this for
    BevyCSharp on 2026-10-05 over the live demos, so that a picture leads to the program that drew
    it and nothing is cached from another project's site, and the reason holds here word for word.
    Each picture in the gallery links to the file that holds its example, as a full address under
@@ -46,7 +43,7 @@ for a reply. In this order.
    `DocumentLinkTests`, which holds every picture to a link whose file is in the checkout
    instead, with no request made. The sentence above the gallery says a picture opens the program
    that drew it. BevyCSharp did the same in its `57fc7e9`.
-4. **The norm's checks.** [NORM.md](NORM.md) is new, at the owner's wish of 2026-10-05: the
+3. **The norm's checks.** [NORM.md](NORM.md) is new, at the owner's wish of 2026-10-05: the
    rules both engines keep, numbered, each with its reason and what checks it, 36 of them and
    DESIGN.md's eleven sections by reference. One batch gives the rules their checks here. A class
    `NormTests` has a test for each rule the table under Conformance calls `to take` for 3DEngine
@@ -61,10 +58,10 @@ for a reply. In this order.
    `SDL3-CS.Native` missing from D 8's table, and `Microsoft.CodeAnalysis.CSharp` there under a
    shorter name. N 1.5 finds `templates/`, `games/` and `docs/` missing from AGENTS.md's table,
    whose rows are added without asking, as N 7.4 says. N 2.5, N 2.7 and N 5.2 are steps of the
-   workflow and more than this batch, and keep `to take` until their own, N 5.2 being item 5. The
+   workflow and more than this batch, and keep `to take` until their own, N 5.2 being item 4. The
    count of each list goes under Replies, and the table in the norm is brought up to them. A rule
    read as wrong is answered under Replies with a line beginning `Rule:`.
-5. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
+4. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
    Bevy's own list, and writing them one by one found faults no test had. The same here: a table
@@ -79,14 +76,14 @@ for a reply. In this order.
    taken down to the smallest program that still differs and explained before the pass goes
    on. Many a batch, a module at a time, and it is the item to come back to whenever the ones
    above are through.
-6. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
+5. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
-7. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
+6. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
    engine's own list names: an `e3d eval` that compiles a line or a file against the running
    world through the script compiler already there, for looking at and changing a game while it
    runs.
-8. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
+7. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
    and another game only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -96,70 +93,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 3 are settled, and their numbers are not given again.
-
-**4. `tri.obj` was held by another process, most likely `slangc`.**
-`A_Model_Finds_The_Material_Library_Beside_It_From_A_Path_Or_A_File_Stream` failed in its
-`finally`, where `Directory.Delete` found `tri.obj` in use. The test disposes its stream before
-that and the reader disposes its importer, so nothing in the engine holds the file. What reading
-does show is a way for a handle to leave the process.
-
-- Assimp opens a model with the C runtime (`_wfopen`), whose handles a child process inherits
-  unless asked otherwise. It is the one place found where the engine hands a path to native
-  code, every other loader reading through `File` in C#.
-- `Process.Start` on Windows calls `CreateProcess` with handle inheritance on and no list of
-  handles, in .NET 10 as before, so a child takes every inheritable handle open in that instant
-  and keeps it until it exits.
-- The Windows job fetches `slangc`, so `SlangCompilerTests` start it as a child beside the model
-  tests, xUnit running classes in parallel.
-
-A `slangc` started while Assimp had `tri.obj` open holds it for as long as it compiles, and the
-delete comes a moment after the load. About fifteen places in `AssimpModelReaderTests` and
-`Engine3DModelTests` load a model and delete its folder, so a run has that many chances. This is
-read from code and was not seen on Windows, which the second point below turns into something
-the next run says.
-
-- **Assimp reads through a file system written in C#.** The binding has `SetIOSystem`, with
-  `FileIOSystem` as one. A `FileStream` is not inherited, so no handle is left to leak, to a
-  test's child or to a process a game starts while a model loads. The same file system can hand
-  Assimp the files beside a model from the reader the model came from, which ends the temporary
-  copy in `SpoolToTempFile` and gives a model in an embedded or an in-memory reader, or one a game
-  wrote, its `.mtl` and `.bin`, which the reader's own remarks say it loses today.
-- **One folder for tests.** Twenty-two test files delete a folder themselves, most in a
-  `finally`, where an exception replaces whatever the test threw, so this failure does not say
-  whether the test's own checks passed. One helper makes the folder, and a test class holds it
-  and disposes it, which xUnit reports beside the test's failure and not in its place. It tries a
-  delete again for two seconds, and when a file is still held it says which processes hold it, on
-  Windows through the Restart Manager (`RmStartSession`, `RmRegisterResources`, `RmGetList`). If
-  the next red run names something other than `slangc`, this verdict is wrong and the name says
-  where to look.
-- **A loader that keeps its file is caught on Linux too.** Linux deletes an open file without
-  complaint, so only the Windows job can see a file kept open, and only by chance. One test as a
-  table over the loaders (a model, a texture, a sound, a font, a scene, a shader) loads a file
-  and then finds no entry of `/proc/self/fd` pointing at it, and on Windows opens it for writing
-  with no sharing.
-
-**5. A body asleep does not hear that a layer changed.** `SetLayer` and `SetLayersCollide` write
-a table and wake nothing, and a pair that sleeps is not tested again until something wakes it. A
-crate asleep on a floor stays in the air when the floor's layer stops colliding with its own,
-until something else touches it. `SetTrigger` writes a table the same way and is likely to have
-the same fault, which the same test tells. The test rests a crate until `IsAwake` says it sleeps,
-changes the layer and finds the crate falling. A body whose layer or trigger changes wakes, with
-the bodies within its bounds when it is a static, and a change to which layers collide wakes the
-bodies on the two.
-
-**6. `GetPhysicsContactImpulse` adds a twist and the friction to a push.** `ImpulseSum` adds the
-size of every number the solver keeps for the pair, which for two convex shapes are two of
-friction along the surface, one of twist about the normal and one of push for each contact. A
-twist is an impulse of turning, in other units, and the two of friction are parts of one vector,
-so the sum is the pair's weight times the step only while nothing slides or spins. The summary
-says the number over the step is the force between them, which then does not hold. The push
-alone is what a pressure plate and a thing that breaks read, the sum of each contact's
-penetration impulse, which Bepu hands over through `TryExtractSolverContactData` and
-`GetPenetrationImpulseForContact`. Friction, where a game asks for it, is a number of its own. A
-test drags a crate across a plate and finds it pressing by its weight times the step, as it does
-at rest. `PublicApi.txt` has the function since `53cd565f`, so it is changed before a package
-carries it.
+Verdicts 1 to 6 are settled, and their numbers are not given again.
 
 **7. A far jump is ten units, whatever a unit is and whatever the frame took.**
 `ParentFollowers.PlaceBeyond` places a body whose parent moved more than 10 units in a frame. A
@@ -172,6 +106,28 @@ it is placing a parent says so with a call, which a level starting again uses. A
 crate on a platform at 60 units a second through a frame of a quarter second. In the same file,
 `Observe` makes a set and an array every frame for any world with a parent in it, which are kept
 and used again as `_wanted` is.
+
+**8. A reader's exception inside Assimp's callbacks ends the process** (N 2.6). `AssimpFiles`
+says so itself, and catches a list: I/O, access, argument and not supported. What it calls is a
+reader, and `IAssetReader` is public, so a game's own reader over an archive throws what it likes,
+`InvalidDataException` for a damaged entry being the likely one, which is none of the four. Each
+callback catches everything, the first exception is kept, and the load answers with it and the
+name of the file once Assimp has returned. A test gives a model whose `.mtl` comes from a reader
+that throws `InvalidDataException`, and finds a message naming the `.mtl`.
+
+A model through the asset server is copied whole into a `MemoryStream` that grows as it is
+filled, where a file on disk was read in place before. For a large model that is the file twice
+over in large blocks on the way, and Manor streams its cells through that path. What it costs is
+measured there, the memory the soak reads and the frames `frame.profile` shows as a cell comes
+in, before and after, and a stream that knows its length is given a buffer of that size, or
+handed over as it is when it can seek.
+
+**9. The five ways are tried over a static floor** (N 3.1). `WakeAround` wakes a body that is not
+static with `AwakenBody`, which wakes the set that body is in. A crate asleep on a kinematic
+platform at rest may be in a set of its own, since an island does not reach through a kinematic
+body, and would then sleep on when the platform's layer changes or it is made a trigger. A test
+tells, the same crate on a kinematic floor, and if it stays in the air the bodies within the
+kinematic body's bounds are woken as a static's are.
 
 ## Decisions
 
@@ -204,44 +160,20 @@ and used again as `_wanted` is.
 
 ## Replies
 
-**Verdict 4, a handle that leaves the process.** Assimp opens nothing itself now. `AssimpFiles`,
-an `IOSystem` of the binding's, hands it every file it asks for as a C# stream, which Windows
-opens uninheritable. `LoadModel` gives Assimp the file's name alone and opens it and the files
-beside it from its folder, so a path with letters outside ASCII no longer crosses into native code
-either. The asset server gives a loader the reader the file came from, and the model's `.mtl` and
-`.bin` are read from that reader under the model's folder, which ends `SpoolToTempFile`. An OBJ
-held in an in-memory reader finds its library, and a glTF with its buffer in a `.bin` of its own
-reads the same positions from a folder and from a reader as the arm with its buffer inside. A
-build with native AOT loads `torus.obj` with the color and the texture its `.mtl` names, so the
-callbacks hold there. `TestFolder` is the one folder of the 22 test files, held by the class and
-disposed by it, the folders that were made and deleted inside a test among them. A delete is tried
-again for two seconds, and a file still held is then named with its holders from the Restart
-Manager, the test's own process marked as such. `FileHandleTests` loads a model from a path, a
-glTF, a model through the asset server, a texture, an image, a wave from WAV and from Ogg, music
-once unloaded, a font, a scene and a shader, and finds none of their files under `/proc/self/fd`
-or, on Windows, refused to a writer that shares nothing. A test of the check first finds a file it
-left open held. macOS can tell neither, so those tests skip there and say why.
+**Verdict 7, a far jump.** `PhysicsSettings.PlaceBeyond` is the distance now, in units, documented
+as one, and 100 to begin with, so a parent going 400 units a second is followed through the
+longest frame. `PhysicsWorld.MarkPlaced(entity)`, which a behavior reaches as `ctx.Physics`, says a
+parent was put where it is in this frame, and the bodies under it, or under anything below it, are
+put at their places at rest. The test of a far jump is a theory of two now, a carrier put back 5
+units with the call and one put 150 units away without it, each placing its platform and flinging
+nothing. The physics page shows the call and says when to raise the setting. `Observe` keeps its
+set of bodies seen and its list of bodies gone and clears them each frame.
 
-**Verdict 5, a body asleep when a layer changes.** The trigger had the same fault, as the verdict
-thought. A crate resting on a floor stayed in the air in all five ways the theory changes it, the
-crate's layer, the floor's, which layers collide, the floor made a trigger and the crate made one,
-and falls through in each now. A body whose layer or trigger changes is woken, and a static wakes
-the bodies the broad phase finds within its bounds, which for a sleeping body are kept in its tree
-of statics. A change to which layers collide wakes every sleeping body on the two layers, gathered
-from the sleeping sets before any is woken. A setter given what a body already has changes and
-wakes nothing, so a scene's collider setting its layer each time it is read costs nothing. The
-flat functions' remarks say a change wakes.
-
-**Verdict 6, the push alone.** `GetPhysicsContactImpulse` adds each contact's penetration impulse
-and nothing else, read through `TryExtractSolverContactData`, whose extractor hands over the
-convex and the nonconvex constraints' accumulated impulses, from which
-`GetPenetrationImpulseForContact` and `GetImpulsesForContact` give each contact's push. A crate of
-2 dragged at 3 units a second and turned about the plate's normal measured 0.87 by the old sum
-against its weight times the step, 0.33, and measures that now, as the crate at rest still does.
-The function's summary, the internal one's and the physics page say it is the push along the
-normals, with friction and twist left out. The page's example divided by `GetFrameTime`, which is
-the step only when a frame is one, and multiplies by the 60 steps of a second now. No public line
-changed shape.
-
-Shared: the impulse a pair presses with is the push alone now, the row in SHARED.md that calls
-it `to take, as the push alone`.
+What a platform at 60 units a second did through a frame of a quarter second at ten units was
+smaller than the verdict expected. The frame's own steps still followed the parent by the
+velocity observed the frame before, so the platform was where it should be when the frame ended.
+The placing came after them and stopped the platform for the next step, from which it caught up at
+twice its speed. The crate kept its own momentum through that step and moved 0.003 against the
+platform, so it was not left behind, and the test holds the platform's own speed instead. It
+finds the platform at 0 for a step at ten units, and within half a unit of 60 in every frame at
+100, the crate with it. PublicApi.txt gains `PlaceBeyond` and `MarkPlaced`.

@@ -61,8 +61,18 @@ In the ECS a kinematic body under a `Parent` follows its parent by itself. A par
 moves once a frame is followed at its speed, its move over the frame's time, through every step of
 the next frame, so a crate on the platform keeps the parent's pace at 144 frames a second and at
 20 alike. A parent moved in the steps, by an `[OnFixedUpdate]` behavior, is followed a step's
-distance a step. A parent put more than ten units away in one frame, as when a level starts again,
-puts its body there at rest rather than flinging it through whatever is between.
+distance a step. A parent the program puts somewhere, as when a level starts again, puts its body
+there at rest rather than flinging it through whatever is between, once the program says so in that
+frame:
+
+```csharp
+ecs.GetRef<Transform>(carrier).Position = start;
+ctx.Physics.MarkPlaced(carrier);
+```
+
+A parent that goes farther in one frame than `PhysicsSettings.PlaceBeyond`, 100 units to begin
+with, is taken as placed without being told. A game in centimeters, or one whose parents pass 400
+units a second, sets it higher, since a frame counts for up to a quarter of a second.
 
 A body of a model's own shape that falls and tumbles, as a rock or a barrel, is
 `CreatePhysicsConvexHull`, shaped as the smallest shape without hollows that holds the model's

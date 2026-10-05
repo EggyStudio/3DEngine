@@ -42,6 +42,21 @@ public sealed class PhysicsSettings
     public int ThreadedAbove { get; set; } = 500;
 
     /// <summary>
+    /// How far, in units, a parent can move in one frame and have the kinematic bodies under it
+    /// carried after it, past which they are put at their new places, at rest, rather than moved
+    /// there through whatever is between. 100 to begin with.
+    /// </summary>
+    /// <remarks>
+    /// No distance tells a move from a placing in every game, since a move's length depends on the
+    /// game's unit and on how long the frame took, which counts for a quarter of a second at most.
+    /// At 100 a parent going 400 units a second is followed through the longest frame. A game
+    /// whose parents go faster raises it, and one that puts a parent somewhere nearer, as a level
+    /// starting again does, says so with <see cref="PhysicsWorld.MarkPlaced"/>, for which this is
+    /// the fallback.
+    /// </remarks>
+    public float PlaceBeyond { get; set; } = 100;
+
+    /// <summary>
     /// Whether a body's <see cref="Transform"/> is blended between its pose before and after the
     /// last fixed step by <see cref="FixedTime.Alpha"/>, so it moves smoothly when frames come
     /// more often than steps. It is drawn up to one step behind the simulation. Default <c>true</c>.

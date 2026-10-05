@@ -98,10 +98,10 @@ table also answers whether the two agree.
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
 | What rests on a kinematic body that a transform moves keeps the mover's pace at any frame rate, the body moving at the mover's speed through every step and not a frame's distance in one | to take, measured first, where a body gets a frame's distance over one step and a turn gives it no spin | taken at `15fa305a`, a crate at 2.00 within a hundredth at seven frame rates and uneven frames |
 | A frame's time and the fixed steps that spend it under one clamp, so what a program moved by frame time and what was simulated agree | has, as Bevy's clock and fixed schedule do | taken at `ee3b47dd`, the frame's clamp of a quarter second the one kept |
-| Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow | to take | has (`8520dbe1`) |
+| Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow, a sleeping body woken when its layer or trigger changes | to take | has (`8520dbe1`, `ac897afa`) |
 | A body a game knows is fast swept over each step, so it does not cross a thin wall within one, chosen for each body | to take | has (`SetPhysicsBodyContinuous`, `799a9d56`) |
 | A slider joint, one body along an axis against another without turning, with limits, a motor and its position, from code and from a scene file | to take | has (`979c97be`) |
-| A game asks how hard two touching bodies press, answered while they sleep too | to take, as the push alone | has (`GetPhysicsContactImpulse`, `53cd565f`), a twist and the friction added in (REVIEW.md, Verdict 6) |
+| A game asks how hard two touching bodies press, answered while they sleep too | to take, as the push alone | has (`GetPhysicsContactImpulse`, `53cd565f`), the push alone since `c774a379` |
 
 ### Scenes, saves and files
 
@@ -110,6 +110,7 @@ table also answers whether the two agree.
 | A scene file placed inside another, its entities left out of the outer file's save | has (`SceneInstances`) | has (`SceneRef`, `0502362d`) |
 | A scene file holds arrays, so a mesh made in code is saved with its level | has | has (`8567bea6`) |
 | A placed scene file written while the level runs is spawned again in place of its copies, under the entity that placed it and giving back what the old copy held | to check against `SceneInstances` | has (`6059b57a`, `5b2234d2`) |
+| A model's sibling files, an OBJ's `.mtl` and a glTF's `.bin`, come from the reader the model came from, whatever reader that is, and no native code opens a file | has for glTF, the loader being Bevy's | has (`AssimpFiles`, `abc24192`) |
 | A model file with animation clips placed in a level plays, where its meshes would stand at rest | to check | has (`ba328b18`) |
 | What a level loaded through its references is let go once nothing uses it | has, Bevy counting its handles | has (`4e765797`) |
 | A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
@@ -158,7 +159,7 @@ table also answers whether the two agree.
 | A package made by a workflow run by hand, after tests on Linux and Windows | taken at `88954d5` | has (`22c766be`) |
 | Graphics run under a validation layer in CI, an error failing the run | does not apply, since wgpu validates for Bevy | has (`a2e19d7c`) |
 | A clock stepped by a set amount a frame, for a test and for a run with no window, so motion is measured in frames and is the same on every machine | to take, through Bevy's `TimeUpdateStrategy::ManualDuration` | taken at `966c2c88`, `Time.FrameSeconds` and `--frame-time` |
-| A loader lets go of its file when a load returns, checked on Linux as well as Windows, and a test's folder that cannot be removed says which process holds it | to check | to take (REVIEW.md, Verdict 4) |
+| A loader lets go of its file when a load returns, checked on Linux as well as Windows, and a test's folder that cannot be removed says which process holds it | to check | taken at `abc24192`, `FileHandleTests` over eleven loaders and `TestFolder` |
 | Every example of the engine it follows is a row of a table a script makes from that engine's own list, each written, written in part, able to be written, missing or not applying | has (`.github/EXAMPLES.md`, 222 written of the 363 that apply) | to take, against the examples in raylib's checkout (REVIEW.md, Now 4) |
 | An example compiles on the package alone, what the examples share to say a thing in one word being the package's own calls | to take, where 208 of 231 examples call helpers of the examples project | has, an example being one file on the flat API |
 

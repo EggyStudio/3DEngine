@@ -2204,6 +2204,7 @@ sealed class Engine.PhysicsSettings
   bool Paused { get; set; }
   bool UseFixedTimestep { get; set; }
   float FixedTimeStep { get; set; }
+  float PlaceBeyond { get; set; }
   int SubstepCount { get; set; }
   int ThreadedAbove { get; set; }
   int VelocityIterations { get; set; }
@@ -2218,6 +2219,7 @@ sealed class Engine.PhysicsWorld : IDisposable
   Vector3 Gravity { get; set; }
   bool Exists(PhysicsBody body)
   void Dispose()
+  void MarkPlaced(Entity entity)
   void SetLinearVelocity(PhysicsBody body, Vector3 velocity)
   void SetPosition(PhysicsBody body, Vector3 position)
 static class Engine.PluginOrder
