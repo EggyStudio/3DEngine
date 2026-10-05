@@ -7,7 +7,7 @@ namespace Engine;
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />
-    public void Step(float deltaSeconds)
+    internal void Step(float deltaSeconds)
     {
         if (deltaSeconds <= 0f) return;
         if (_settings.UseFixedTimestep)
@@ -39,7 +39,7 @@ public sealed partial class PhysicsWorld
     /// <inheritdoc />
     /// <summary>Advances the simulation by exactly one step of <paramref name="seconds"/>, with no accumulator.</summary>
     /// <remarks>What <see cref="Stage.FixedUpdate"/> calls, since the fixed stage has already done the accumulating.</remarks>
-    public void StepOnce(float seconds)
+    internal void StepOnce(float seconds)
     {
         if (seconds <= 0f) return;
         RememberPoses();
@@ -50,7 +50,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Writes every body's pose into its entity's <see cref="Transform"/>, as it is.</summary>
-    public void SyncTransforms(EcsWorld ecs) => SyncTransforms(ecs, alpha: 1f);
+    internal void SyncTransforms(EcsWorld ecs) => SyncTransforms(ecs, alpha: 1f);
 
     /// <summary>
     /// Writes every body's pose into its entity's <see cref="Transform"/>, blended from its pose
@@ -74,7 +74,7 @@ public sealed partial class PhysicsWorld
     /// what stands on it, and its transform is left as the program wrote it.
     /// </para>
     /// </remarks>
-    public void SyncTransforms(EcsWorld ecs, float alpha)
+    internal void SyncTransforms(EcsWorld ecs, float alpha)
     {
         var bodies = Simulation.Bodies;
         alpha = Math.Clamp(alpha, 0f, 1f);

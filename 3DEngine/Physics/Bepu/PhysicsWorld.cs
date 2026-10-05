@@ -25,13 +25,13 @@ public sealed partial class PhysicsWorld : IDisposable
     private static readonly ILogger Logger = Log.Category("Engine.Physics.Bepu");
 
     /// <summary>Underlying Bepu simulation owning bodies, statics, shapes, and the solver.</summary>
-    public Simulation Simulation { get; }
+    internal Simulation Simulation { get; }
 
     /// <summary>Buffer pool used by Bepu for all internal allocations.</summary>
-    public BufferPool BufferPool { get; }
+    internal BufferPool BufferPool { get; }
 
     /// <summary>Worker thread dispatcher driving Bepu's parallel solve / broadphase.</summary>
-    public ThreadDispatcher Dispatcher { get; }
+    internal ThreadDispatcher Dispatcher { get; }
 
     private readonly PhysicsSettings _settings;
 

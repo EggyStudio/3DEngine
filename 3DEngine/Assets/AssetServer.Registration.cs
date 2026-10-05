@@ -23,7 +23,7 @@ public sealed partial class AssetServer
     /// <typeparam name="T">The asset type the loader produces.</typeparam>
     /// <param name="loader">The loader implementation.</param>
     /// <returns>This instance for fluent chaining.</returns>
-    public AssetServer RegisterLoader<T>(IAssetLoader<T> loader)
+    internal AssetServer RegisterLoader<T>(IAssetLoader<T> loader)
     {
         var adapter = new AssetLoaderAdapter<T>(loader);
         foreach (string ext in loader.Extensions)

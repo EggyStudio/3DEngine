@@ -66,7 +66,7 @@ public sealed partial class AssetServer
     /// <param name="path">Relative asset path.</param>
     /// <returns>The loaded asset.</returns>
     /// <exception cref="InvalidOperationException">Load failed or no loader registered.</exception>
-    public T LoadSync<T>(string path)
+    internal T LoadSync<T>(string path)
     {
         var assetPath = AssetPath.Parse(path);
         string ext = assetPath.Extension;
@@ -120,19 +120,19 @@ public sealed partial class AssetServer
     /// <summary>Gets the current load state of an asset.</summary>
     /// <param name="id">The asset ID to query.</param>
     /// <returns>The current <see cref="LoadState"/>.</returns>
-    public LoadState GetLoadState(AssetId id) =>
+    internal LoadState GetLoadState(AssetId id) =>
         _states.GetValueOrDefault(id, LoadState.NotLoaded);
 
     /// <summary>Gets the current load state of a handle.</summary>
     /// <typeparam name="T">The asset type.</typeparam>
     /// <param name="handle">The handle to query.</param>
     /// <returns>The current <see cref="LoadState"/>.</returns>
-    public LoadState GetLoadState<T>(Handle<T> handle) => 
+    internal LoadState GetLoadState<T>(Handle<T> handle) => 
         GetLoadState(handle.Id);
 
     /// <summary>Returns <c>true</c> when the asset and all its dependencies are loaded.</summary>
     /// <param name="id">The asset ID.</param>
-    public bool IsLoadedWithDependencies(AssetId id)
+    internal bool IsLoadedWithDependencies(AssetId id)
     {
         if (GetLoadState(id) != LoadState.Loaded) return false;
         if (!_dependencies.TryGetValue(id, out var deps)) return true;

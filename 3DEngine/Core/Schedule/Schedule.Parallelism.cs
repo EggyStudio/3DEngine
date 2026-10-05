@@ -14,7 +14,7 @@ public sealed partial class Schedule
     /// <param name="stage">The <see cref="Stage"/> to configure.</param>
     /// <param name="parallel"><c>true</c> (default) for parallel execution; <c>false</c> for sequential.</param>
     /// <returns>This <see cref="Schedule"/> instance for fluent chaining.</returns>
-    public Schedule SetParallel(Stage stage, bool parallel = true)
+    internal Schedule SetParallel(Stage stage, bool parallel = true)
     {
         lock (_lock)
         {
@@ -30,6 +30,6 @@ public sealed partial class Schedule
     /// <param name="stage">The <see cref="Stage"/> to configure.</param>
     /// <param name="singleThreaded"><c>true</c> (default) for sequential execution; <c>false</c> for parallel.</param>
     /// <returns>This <see cref="Schedule"/> instance for fluent chaining.</returns>
-    public Schedule SetSingleThreaded(Stage stage, bool singleThreaded = true) => 
+    internal Schedule SetSingleThreaded(Stage stage, bool singleThreaded = true) => 
         SetParallel(stage, !singleThreaded);
 }

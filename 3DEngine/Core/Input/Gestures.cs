@@ -56,25 +56,25 @@ public sealed class Gestures
     private float _pinchDistance;
 
     /// <summary>Which gestures are recognized, all of them to begin with.</summary>
-    public Gesture Enabled { get; set; } = (Gesture)0x3FF;
+    internal Gesture Enabled { get; set; } = (Gesture)0x3FF;
 
     /// <summary>The gesture this frame, <see cref="Gesture.None"/> when there is none or it is not enabled.</summary>
     public Gesture Current { get; private set; }
 
     /// <summary>How long the current hold has lasted, in seconds.</summary>
-    public float HoldSeconds { get; private set; }
+    internal float HoldSeconds { get; private set; }
 
     /// <summary>How far, in fractions of the window, the current drag has gone since the finger came down.</summary>
-    public Vector2 DragVector { get; private set; }
+    internal Vector2 DragVector { get; private set; }
 
     /// <summary>The angle of the last drag, in degrees counterclockwise from right, as raylib measures it.</summary>
-    public float DragAngle { get; private set; }
+    internal float DragAngle { get; private set; }
 
     /// <summary>The vector between the two fingers of a pinch, in fractions of the window.</summary>
-    public Vector2 PinchVector { get; private set; }
+    internal Vector2 PinchVector { get; private set; }
 
     /// <summary>The angle of the vector between the two fingers of a pinch, in degrees.</summary>
-    public float PinchAngle { get; private set; }
+    internal float PinchAngle { get; private set; }
 
     /// <summary>Advances by one frame, with the fingers down in it, in fractions of the window, at <paramref name="time"/> seconds.</summary>
     public void Update(ReadOnlySpan<Vector2> points, double time)

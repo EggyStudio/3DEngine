@@ -87,7 +87,7 @@ public sealed partial class Schedule
     /// a level's files load, those tasks queued behind the loads, and a batch of five systems taking
     /// microseconds took 20 to 47 milliseconds.
     /// </remarks>
-    public const double SequentialBatchMilliseconds = 0.5;
+    internal const double SequentialBatchMilliseconds = 0.5;
 
     private static bool Light(List<SystemDescriptor> batch)
     {

@@ -3,7 +3,7 @@ namespace Engine;
 public sealed partial class AssetServer
 {
     /// <summary>Enables file watching for hot-reload on all filesystem sources.</summary>
-    public void EnableWatching()
+    internal void EnableWatching()
     {
         if (_watchEnabled) return;
         _watchEnabled = true;
@@ -21,7 +21,7 @@ public sealed partial class AssetServer
     }
 
     /// <summary>Disables file watching.</summary>
-    public void DisableWatching()
+    internal void DisableWatching()
     {
         _watchEnabled = false;
         foreach (var w in _watchers)

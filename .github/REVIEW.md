@@ -113,3 +113,12 @@ agree but for two places. `ImageDraw`, `ImageDrawText` and `ImageDrawTextEx` nam
 and the physics raycasts answered a flag with the hit in an out parameter where raylib's
 `GetRayCollision` functions give back the collision, so they return a `RaycastHit` whose new `Hit`
 says whether it met a body.
+
+**Now 3, members.** On the engine's service classes, `PhysicsWorld`, `EcsWorld`, `Input`, `App`,
+`World`, `Schedule`, the asset and audio servers, the texture, mesh and material stores and a few
+more, every public member whose name no example, game, guide or generator writes is internal, 227
+in all, those implementing an interface kept public. The flat API is untouched, as are the
+components' fields and the settings records a program fills in. The listing now holds 244 types and
+2,575 members, from 536 types and about 5,000 lines this morning. What is left public that no
+program calls is mostly in records set through initializers, which the name search cannot tell from
+unused, and is the next pass if it is wanted.

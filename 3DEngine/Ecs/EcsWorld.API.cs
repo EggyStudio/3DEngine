@@ -23,7 +23,7 @@ public sealed partial class EcsWorld
     /// This is significantly faster than calling <see cref="Spawn"/> in a loop because it
     /// pre-reserves entity pool and sparse-set capacity before the tight spawn loop.
     /// </remarks>
-    public void SpawnBatch(int count, Action<int, EcsWorld> builder)
+    internal void SpawnBatch(int count, Action<int, EcsWorld> builder)
     {
         if (count <= 0) return;
         int maxId = _entities.NextEntityId + count;
@@ -39,7 +39,7 @@ public sealed partial class EcsWorld
     /// <typeparam name="T">The component type to attach to each entity.</typeparam>
     /// <param name="count">The number of entities to spawn.</param>
     /// <param name="factory">A factory function receiving the entity ID and returning the component value.</param>
-    public void SpawnBatch<T>(int count, Func<int, T> factory)
+    internal void SpawnBatch<T>(int count, Func<int, T> factory)
     {
         if (count <= 0) return;
         int maxId = _entities.NextEntityId + count;
@@ -56,7 +56,7 @@ public sealed partial class EcsWorld
     /// <summary>Spawns <paramref name="count"/> entities in bulk with a single default-constructed component, fully pre-allocated.</summary>
     /// <typeparam name="T">The component type to attach to each entity. Must be <c>new()</c>-constructible.</typeparam>
     /// <param name="count">The number of entities to spawn.</param>
-    public void SpawnBatch<T>(int count) where T : new()
+    internal void SpawnBatch<T>(int count) where T : new()
     {
         if (count <= 0) return;
         int maxId = _entities.NextEntityId + count;
@@ -72,7 +72,7 @@ public sealed partial class EcsWorld
 
     /// <summary>Pre-reserves capacity in the entity pool for upcoming bulk spawns.</summary>
     /// <param name="additionalCount">The number of additional entities expected to be spawned.</param>
-    public void ReserveEntityCapacity(int additionalCount)
+    internal void ReserveEntityCapacity(int additionalCount)
     {
         if (additionalCount <= 0) return;
         _entities.ReserveCapacity(_entities.NextEntityId + additionalCount);
@@ -81,7 +81,7 @@ public sealed partial class EcsWorld
     /// <summary>Returns the current generation for an entity ID (0 if never allocated).</summary>
     /// <param name="entityId">The entity ID to query.</param>
     /// <returns>The generation counter, or <c>0</c> if the ID was never used.</returns>
-    public int GetGeneration(int entityId) => _entities.GetGeneration(entityId);
+    internal int GetGeneration(int entityId) => _entities.GetGeneration(entityId);
 
     /// <summary>Removes an entity and all of its components, disposing <see cref="IDisposable"/> components.</summary>
     /// <param name="entity">The entity ID to remove.</param>
@@ -106,10 +106,10 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>Whether <paramref name="entity"/> is alive.</summary>
-    public bool IsAlive(int entity) => _entities.IsAlive(entity);
+    internal bool IsAlive(int entity) => _entities.IsAlive(entity);
 
     /// <summary>Whether the entity <paramref name="entity"/> was taken from is still alive and has not been replaced.</summary>
-    public bool IsAlive(Entity entity) =>
+    internal bool IsAlive(Entity entity) =>
         !entity.IsNone && _entities.IsAlive(entity.Index) && _entities.GetGeneration(entity.Index) == entity.Generation;
 
     /// <summary>A handle to <paramref name="entity"/> that can be kept across frames, or <see cref="Entity.None"/> when it is not alive.</summary>
@@ -127,7 +127,7 @@ public sealed partial class EcsWorld
     /// Starts a frame, from which code outside a system counts changes. Called once at the start
     /// of each frame. A system counts changes from its own last run instead (<see cref="ChangeTicks"/>).
     /// </summary>
-    public void BeginFrame()
+    internal void BeginFrame()
     {
         _currentTick++;
         _frame.Start = ChangeTicks.Advance();
@@ -143,13 +143,13 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>How many frames a removal is kept for <see cref="Removed{T}"/>, a second at 60 frames a second.</summary>
-    public const int RemovalFrames = 60;
+    internal const int RemovalFrames = 60;
 
     private readonly long[] _frameStarts = new long[RemovalFrames];
     private int _frameStartNext;
 
     /// <summary>The <see cref="ChangeTicks"/> tick the current frame began at.</summary>
-    public long FrameStart => _frame.Start;
+    internal long FrameStart => _frame.Start;
 
     // The frame's start, shared with the stores rather than the world itself, since the static
     // store cache keeps the stores reachable and a store holding the world would keep it alive.
@@ -170,7 +170,7 @@ public sealed partial class EcsWorld
     /// Whether any <typeparamref name="T"/> was updated or handed out by <see cref="GetRef{T}(int)"/>
     /// since the running system last ran, or outside a system, since the frame began.
     /// </summary>
-    public bool AnyChanged<T>() => GetStore<T>(create: false)?.AnyChanged() ?? false;
+    internal bool AnyChanged<T>() => GetStore<T>(create: false)?.AnyChanged() ?? false;
 
     /// <summary>Removes component <typeparamref name="T"/> from an entity if present.</summary>
     /// <typeparam name="T">The component type to remove.</typeparam>
@@ -185,7 +185,7 @@ public sealed partial class EcsWorld
     /// <summary>Returns a span of entity IDs that currently have component <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The component type to query.</typeparam>
     /// <returns>A read-only span of entity IDs. Empty if no entities have this component.</returns>
-    public ReadOnlySpan<int> EntitiesWith<T>()
+    internal ReadOnlySpan<int> EntitiesWith<T>()
     {
         var store = GetStore<T>(create: false);
         return store == null ? ReadOnlySpan<int>.Empty : store.EntitiesSpan();
@@ -195,7 +195,7 @@ public sealed partial class EcsWorld
     /// <typeparam name="T">The component type to reserve storage for.</typeparam>
     /// <param name="componentCapacity">The number of component slots to pre-allocate in the dense array.</param>
     /// <param name="maxEntityIdHint">Optional hint for the maximum expected entity ID to size the sparse array.</param>
-    public void Reserve<T>(int componentCapacity, int maxEntityIdHint = 0)
+    internal void Reserve<T>(int componentCapacity, int maxEntityIdHint = 0)
     {
         var store = GetStore<T>();
         store.Reserve(componentCapacity, maxEntityIdHint);
@@ -217,7 +217,7 @@ public sealed partial class EcsWorld
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID.</param>
     /// <param name="mutate">A function that receives the current value and returns the updated value.</param>
-    public void Mutate<T>(int entity, Func<T, T> mutate)
+    internal void Mutate<T>(int entity, Func<T, T> mutate)
     {
         var store = GetStore<T>(create: false);
         if (store is null) return;
@@ -287,7 +287,7 @@ public sealed partial class EcsWorld
     ///     Console.WriteLine($"HP: {hp.Current}/{hp.Max}");
     /// </code>
     /// </example>
-    public bool TryGet<T>(int entity, out T? component)
+    internal bool TryGet<T>(int entity, out T? component)
     {
         var store = GetStore<T>(create: false);
         if (store != null && store.TryGet(entity, out var value))
@@ -345,7 +345,7 @@ public sealed partial class EcsWorld
     ///     vel with { Y = vel.Y - 9.81f * dt });
     /// </code>
     /// </example>
-    public void TransformEach<T>(Func<int, T, T> transform)
+    internal void TransformEach<T>(Func<int, T, T> transform)
     {
         var store = GetStore<T>(create: false);
         if (store == null) return;
@@ -361,7 +361,7 @@ public sealed partial class EcsWorld
     /// <summary>Parallel version of <see cref="TransformEach{T}"/>. Suitable for large component counts with no cross-entity dependencies.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="transform">A function receiving the entity ID and current value, returning the new value.</param>
-    public void ParallelTransformEach<T>(Func<int, T, T> transform)
+    internal void ParallelTransformEach<T>(Func<int, T, T> transform)
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return;
@@ -386,7 +386,7 @@ public sealed partial class EcsWorld
     ///     rc.Component.X += velocity * dt;
     /// </code>
     /// </example>
-    public RefEnumerable<T> QueryRef<T>()
+    internal RefEnumerable<T> QueryRef<T>()
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return RefEnumerable<T>.From(default);
@@ -413,7 +413,7 @@ public sealed partial class EcsWorld
     /// }
     /// </code>
     /// </example>
-    public RefEnumerable<T1, T2> QueryRef<T1, T2>()
+    internal RefEnumerable<T1, T2> QueryRef<T1, T2>()
     {
         var s1 = GetStore<T1>(create: false);
         var s2 = GetStore<T2>(create: false);
@@ -428,7 +428,7 @@ public sealed partial class EcsWorld
     ///     row.C1.Position += row.C2.Value / row.C3.Value * dt;
     /// </code>
     /// </example>
-    public RefEnumerable<T1, T2, T3> QueryRef<T1, T2, T3>()
+    internal RefEnumerable<T1, T2, T3> QueryRef<T1, T2, T3>()
     {
         var s1 = GetStore<T1>(create: false);
         var s2 = GetStore<T2>(create: false);
@@ -445,7 +445,7 @@ public sealed partial class EcsWorld
     /// through it, as <c>QueryRef</c> stamps each it visits. Code that only reads takes
     /// <see cref="GetReadOnlySpan{T}"/>, which stamps nothing.
     /// </remarks>
-    public ComponentSpan<T> GetSpan<T>()
+    internal ComponentSpan<T> GetSpan<T>()
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return default;
@@ -454,7 +454,7 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>A read-only span view of all components of type <typeparamref name="T"/>, which marks nothing changed.</summary>
-    public ReadOnlyComponentSpan<T> GetReadOnlySpan<T>()
+    internal ReadOnlyComponentSpan<T> GetReadOnlySpan<T>()
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return default;
@@ -488,7 +488,7 @@ public sealed partial class EcsWorld
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="predicate">A filter function that must return <c>true</c> for the entity to be included.</param>
     /// <returns>An enumerable of (entity ID, component value) tuples matching the predicate.</returns>
-    public IEnumerable<(int Entity, T Component)> QueryWhere<T>(Func<T, bool> predicate)
+    internal IEnumerable<(int Entity, T Component)> QueryWhere<T>(Func<T, bool> predicate)
     {
         foreach (var (entity, comp) in Query<T>())
             if (predicate(comp))
@@ -515,7 +515,7 @@ public sealed partial class EcsWorld
     /// </code>
     /// </example>
     /// <remarks>Every component is stamped as changed, since any may be written through the span.</remarks>
-    public void BulkProcess<T>(BulkProcessAction<T> processor)
+    internal void BulkProcess<T>(BulkProcessAction<T> processor)
     {
         var store = GetStore<T>(create: false);
         if (store == null || store.Count == 0) return;
@@ -539,7 +539,7 @@ public sealed partial class EcsWorld
     /// One past the highest id any entity has had, which grows only when no despawned entity's id
     /// is free to give again, so a world that spawns and despawns as many keeps it level.
     /// </summary>
-    public int EntityIdRange => _entities.NextEntityId;
+    internal int EntityIdRange => _entities.NextEntityId;
 
     /// <summary>Every alive entity, in id order, including those with no component.</summary>
     public IEnumerable<int> AllEntities()
@@ -557,7 +557,7 @@ public sealed partial class EcsWorld
 
     /// <summary>The types of every component <paramref name="entity"/> has, sorted by name.</summary>
     /// <remarks>Asks every store, so it costs one lookup per component type. Meant for tools, not for a system's loop.</remarks>
-    public IReadOnlyList<Type> ComponentTypesOf(int entity)
+    internal IReadOnlyList<Type> ComponentTypesOf(int entity)
     {
         lock (_stores)
             return _stores.Where(pair => pair.Value.Has(entity)).Select(pair => pair.Key).OrderBy(t => t.Name, StringComparer.Ordinal).ToArray();
@@ -565,7 +565,7 @@ public sealed partial class EcsWorld
 
     /// <summary>The component of <paramref name="type"/> that <paramref name="entity"/> has, boxed, or <c>null</c>.</summary>
     /// <remarks>Boxes the value, so it is for tools such as the console rather than a system's loop.</remarks>
-    public object? GetBoxed(int entity, Type type)
+    internal object? GetBoxed(int entity, Type type)
     {
         lock (_stores) return _stores.TryGetValue(type, out var store) ? store.GetBoxed(entity) : null;
     }
@@ -573,7 +573,7 @@ public sealed partial class EcsWorld
     /// <summary>Replaces <paramref name="entity"/>'s component of the value's type, and marks it changed.</summary>
     /// <returns>Whether the entity had a component of that type.</returns>
     /// <remarks>Boxes, so it is for tools such as the console rather than a system's loop.</remarks>
-    public bool SetBoxed(int entity, object value)
+    internal bool SetBoxed(int entity, object value)
     {
         lock (_stores) return _stores.TryGetValue(value.GetType(), out var store) && store.SetBoxed(entity, value);
     }
@@ -584,7 +584,7 @@ public sealed partial class EcsWorld
     /// <see cref="Add{T}(int, T)"/> is reached through reflection, once per call, so a system's loop uses
     /// that instead.
     /// </remarks>
-    public void AddBoxed(int entity, object value) =>
+    internal void AddBoxed(int entity, object value) =>
         typeof(EcsWorld).GetMethod(nameof(AddTyped), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .MakeGenericMethod(value.GetType())
             .Invoke(this, [entity, value]);
@@ -592,13 +592,13 @@ public sealed partial class EcsWorld
     private void AddTyped<T>(int entity, object value) => Add(entity, (T)value);
 
     /// <summary>How many entities have a component of <paramref name="type"/>.</summary>
-    public int CountOf(Type type)
+    internal int CountOf(Type type)
     {
         lock (_stores) return _stores.TryGetValue(type, out var store) ? store.Count : 0;
     }
 
     /// <summary>Every entity with a component of <paramref name="type"/>, in storage order.</summary>
-    public IReadOnlyList<int> EntitiesOf(Type type)
+    internal IReadOnlyList<int> EntitiesOf(Type type)
     {
         IComponentStore? store;
         lock (_stores) _stores.TryGetValue(type, out store);

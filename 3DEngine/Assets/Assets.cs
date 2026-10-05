@@ -54,7 +54,7 @@ public sealed class Assets<T> : IDisposable
     /// <param name="handle">The handle referencing the asset.</param>
     /// <returns>The loaded asset.</returns>
     /// <exception cref="KeyNotFoundException">The asset is not loaded or has been removed.</exception>
-    public T Get(Handle<T> handle)
+    internal T Get(Handle<T> handle)
     {
         if (_storage.TryGetValue(handle.Id, out var asset))
             return asset;
@@ -65,7 +65,7 @@ public sealed class Assets<T> : IDisposable
     /// <param name="id">The asset identifier.</param>
     /// <returns>The loaded asset.</returns>
     /// <exception cref="KeyNotFoundException">The asset is not loaded or has been removed.</exception>
-    public T Get(AssetId id)
+    internal T Get(AssetId id)
     {
         if (_storage.TryGetValue(id, out var asset))
             return asset;
@@ -76,14 +76,14 @@ public sealed class Assets<T> : IDisposable
     /// <param name="handle">The handle referencing the asset.</param>
     /// <param name="asset">The loaded asset, or <c>default</c> if not found.</param>
     /// <returns><c>true</c> if the asset was found; otherwise <c>false</c>.</returns>
-    public bool TryGet(Handle<T> handle, [MaybeNullWhen(false)] out T asset)
+    internal bool TryGet(Handle<T> handle, [MaybeNullWhen(false)] out T asset)
         => _storage.TryGetValue(handle.Id, out asset);
 
     /// <summary>Attempts to retrieve the asset by <paramref name="id"/>.</summary>
     /// <param name="id">The asset identifier.</param>
     /// <param name="asset">The loaded asset, or <c>default</c> if not found.</param>
     /// <returns><c>true</c> if the asset was found; otherwise <c>false</c>.</returns>
-    public bool TryGet(AssetId id, [MaybeNullWhen(false)] out T asset)
+    internal bool TryGet(AssetId id, [MaybeNullWhen(false)] out T asset)
         => _storage.TryGetValue(id, out asset);
 
     /// <summary>Adds or replaces an asset. Used internally by <see cref="AssetServer"/>.</summary>
@@ -104,14 +104,14 @@ public sealed class Assets<T> : IDisposable
     }
 
     /// <summary>Returns all loaded asset IDs of this type.</summary>
-    public ICollection<AssetId> Ids => _storage.Keys;
+    internal ICollection<AssetId> Ids => _storage.Keys;
 
     /// <summary>Returns all loaded assets of this type.</summary>
     public ICollection<T> Values => _storage.Values;
 
     /// <summary>Enumerates all (id, asset) pairs.</summary>
     /// <returns>An enumerator over all loaded assets and their IDs.</returns>
-    public IEnumerator<KeyValuePair<AssetId, T>> GetEnumerator() => _storage.GetEnumerator();
+    internal IEnumerator<KeyValuePair<AssetId, T>> GetEnumerator() => _storage.GetEnumerator();
 
     /// <summary>Disposes all stored assets that implement <see cref="IDisposable"/>, then clears the collection.</summary>
     public void Dispose()

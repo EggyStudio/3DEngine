@@ -10,8 +10,6 @@ struct Engine.AnimatedModel
   string Path
 sealed class Engine.App : IDisposable
   App AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
-  App AddPlugin(IPlugin plugin)
-  App AddPlugins(IPluginGroup group)
   App AddState<TState>(TState initial) where TState : struct, Enum
   App AddSubState<TSub, TParent>(TParent whileIn, TSub initial) where TSub : struct, Enum where TParent : struct, Enum
   App AddSystem(Stage stage, SystemDescriptor descriptor)
@@ -25,22 +23,10 @@ sealed class Engine.App : IDisposable
   App OnTransition<TState>(TState from, TState to, SystemDescriptor system) where TState : struct, Enum
   App OnTransition<TState>(TState from, TState to, SystemFn system) where TState : struct, Enum
   App(Config? config = null)
-  IReadOnlyCollection<Type> Plugins { get; }
-  Schedule Schedule { get; }
-  T GetOrInsertResource<T>(T value)
-  T InitResource<T>() where T : new()
-  T RequireResource<T>(string callerPlugin, string? providingPlugin = null)
   World World { get; }
-  bool HasPlugin<T>() where T : IPlugin
-  int PluginCount { get; }
-  int RemoveSystemsBySource(string source)
   ulong FrameCount { get; }
-  void BeginFrame()
   void Dispose()
-  void EndFrame()
-  void Frame()
   void Run()
-  void Shutdown()
   void Startup()
 enum Engine.AssetEventKind : int
   Added = 0
@@ -113,35 +99,15 @@ sealed class Engine.AssetRelease
   static void Run(World world)
 sealed class Engine.AssetServer : IDisposable
   AssetServer AddSource(IAssetReader reader, string? label = null)
-  AssetServer RegisterLoader<T>(IAssetLoader<T?> loader)
   AssetServer(int? workerCount = null)
   Handle<T> Load<T>(AssetPath path)
   Handle<T?> Load<T>(string path)
-  IReadOnlyDictionary<string, LoadState> GetAllStates()
-  LoadState GetLoadState(AssetId id)
-  LoadState GetLoadState<T>(Handle<T> handle)
-  T? LoadSync<T>(string path)
-  bool IsLoadedWithDependencies(AssetId id)
-  bool WatchForChanges { get; }
-  int LoaderCount { get; }
-  int SourceCount { get; }
-  int TrackedAssetCount { get; }
-  void ClearEvents(World world)
-  void DisableWatching()
   void Dispose()
-  void EnableWatching()
-  void ProcessCompleted(World world)
 sealed class Engine.Assets<T> : IDisposable
   Assets()
-  ICollection<AssetId> Ids { get; }
   ICollection<T?> Values { get; }
-  IEnumerator<KeyValuePair<AssetId, T?>> GetEnumerator()
-  T? Get(AssetId id)
-  T? Get(Handle<T?> handle)
   bool Contains(AssetId id)
   bool Contains(Handle<T?> handle)
-  bool TryGet(AssetId id, out T? asset)
-  bool TryGet(Handle<T?> handle, out T? asset)
   int Count { get; }
   void Dispose()
 delegate void Engine.AudioCallback(Span<float> samples)
@@ -152,22 +118,13 @@ sealed class Engine.AudioServer : IDisposable
   AudioServer()
   AudioSource Play(Handle<Sound> handle, Assets<Sound> assets, AudioVoiceParams parameters = default)
   AudioSource Play(Sound sound, AudioVoiceParams parameters = default)
-  AudioSource PlaySpatial(Handle<Sound> handle, Assets<Sound> assets, Vector3 position, AudioVoiceParams parameters = default)
-  AudioSource PlaySpatial(Sound sound, Vector3 position, AudioVoiceParams parameters = default)
-  AudioSource PlayStream(int channels, int sampleRate, AudioVoiceParams parameters = default)
   IAudioBackend Backend { get; }
   ISpatialAudioProcessor? Spatial { get; }
   Quaternion ListenerOrientation { get; set; }
   Vector3 ListenerPosition { get; set; }
   float MasterVolume { get; set; }
   int LiveSourceCount { get; }
-  long QueuedFrames(AudioSource source)
   void Dispose()
-  void QueueSamples(AudioSource source, ReadOnlySpan<float> samples)
-  void ResolvePending(Assets<Sound> assets)
-  void SetBackend(IAudioBackend backend)
-  void SetSpatialProcessor(ISpatialAudioProcessor? processor)
-  void Tick()
 readonly struct Engine.AudioSource : IEquatable<AudioSource>
   AudioServer? Server { get; }
   bool Equals(AudioSource other)
@@ -525,78 +482,42 @@ sealed class Engine.EcsCommands
   void Apply(EcsWorld world)
 sealed class Engine.EcsWorld : IDisposable
   EcsWorld()
-  EcsWorld.ComponentSpan<T> GetSpan<T>()
   EcsWorld.ComponentStore<T?> GetStorePublic<T>()
   EcsWorld.CopyQuery<T1, T2, T3> Query<T1, T2, T3>()
   EcsWorld.CopyQuery<T1, T2> Query<T1, T2>()
   EcsWorld.CopyQuery<T> Query<T>()
-  EcsWorld.ReadOnlyComponentSpan<T> GetReadOnlySpan<T>()
   EcsWorld.ReadOnlyEnumerable<T1, T2, T3> QueryReadOnly<T1, T2, T3>()
   EcsWorld.ReadOnlyEnumerable<T1, T2> QueryReadOnly<T1, T2>()
   EcsWorld.ReadOnlyEnumerable<T> QueryReadOnly<T>()
-  EcsWorld.RefEnumerable<T1, T2, T3> QueryRef<T1, T2, T3>()
-  EcsWorld.RefEnumerable<T1, T2> QueryRef<T1, T2>()
-  EcsWorld.RefEnumerable<T> QueryRef<T>()
   Entity Handle(int entity)
-  IEnumerable<(int, T?)> QueryWhere<T>(Func<T?, bool> predicate)
   IEnumerable<int> AllEntities()
   IReadOnlyList<Type> ComponentTypes { get; }
-  IReadOnlyList<Type> ComponentTypesOf(int entity)
-  IReadOnlyList<int> ChildrenOf(int parent)
-  IReadOnlyList<int> EntitiesOf(Type type)
   List<int> Removed<T>()
-  ReadOnlySpan<int> EntitiesWith<T>()
   bool Added<T>(int entity)
-  bool AnyChanged<T>()
   bool Changed<T>(int entity)
   bool Despawn(Entity entity)
   bool Has<T>(Entity entity)
   bool Has<T>(int entity)
-  bool IsAlive(Entity entity)
-  bool IsAlive(int entity)
   bool Remove<T>(Entity entity)
   bool Remove<T>(int entity)
-  bool SetBoxed(int entity, object value)
-  bool TryGet<T>(Entity entity, out T? component)
-  bool TryGet<T>(int entity, out T? component)
   bool TryResolve(Entity entity, out int id)
-  const int RemovalFrames = 60
   int Count<T>()
-  int CountOf(Type type)
   int EntityCount { get; }
-  int EntityIdRange { get; }
-  int FindByName(string name)
-  int GetGeneration(int entityId)
   int ParentOf(int child)
   int Spawn()
-  long FrameStart { get; }
-  object? GetBoxed(int entity, Type type)
   protected override void Finalize()
   ref T? GetRef<T>(Entity entity)
   ref T? GetRef<T>(int entity)
   ref readonly T? GetReadOnly<T>(Entity entity)
   ref readonly T? GetReadOnly<T>(int entity)
-  string? NameOf(int entity)
   void Add<T>(Entity entity, T? component)
   void Add<T>(int entity, T? component)
-  void AddBoxed(int entity, object value)
-  void BeginFrame()
-  void BulkProcess<T>(EcsWorld.BulkProcessAction<T?> processor)
   void Despawn(int entity)
   void DespawnOnExit<TState>(Entity entity, TState value) where TState : struct, Enum
   void DespawnOnExit<TState>(int entity, TState value) where TState : struct, Enum
   void DespawnRecursive(int entity)
   void Dispose()
-  void Mutate<T>(int entity, Func<T?, T?> mutate)
-  void ParallelTransformEach<T>(Func<int, T?, T?> transform)
-  void Reserve<T>(int componentCapacity, int maxEntityIdHint = 0)
-  void ReserveEntityCapacity(int additionalCount)
   void SetName(int entity, string name)
-  void SetParent(int child, int parent)
-  void SpawnBatch(int count, Action<int, EcsWorld> builder)
-  void SpawnBatch<T>(int count) where T : new()
-  void SpawnBatch<T>(int count, Func<int, T?> factory)
-  void TransformEach<T>(Func<int, T?, T?> transform)
   void Update<T>(Entity entity, T? component)
   void Update<T>(int entity, T? component)
 delegate void Engine.EcsWorld.BulkProcessAction<T>(Span<T?> components, ReadOnlySpan<int> entities)
@@ -1419,27 +1340,16 @@ readonly struct Engine.EventWriter<T>
   void Send(T? evt)
   void SendBatch(ReadOnlySpan<T?> events)
 static class Engine.Events
-  static Events<T?> Get<T>(World world)
 sealed class Engine.Events<T>
   Events()
-  IReadOnlyList<T?> Drain()
   IReadOnlyList<T?> Read()
-  ReadOnlySpan<T?> AsSpan()
-  bool IsEmpty { get; }
   int Count { get; }
   void Clear()
-  void Send(T? evt)
-  void SendBatch(ReadOnlySpan<T?> events)
 sealed class Engine.FixedTime
   FixedTime()
-  bool TryStep()
-  double Accumulator { get; }
   double Alpha { get; }
   double Hz { get; set; }
   double StepSeconds { get; set; }
-  int MaxStepsPerFrame { get; set; }
-  int StepsThisFrame { get; }
-  void Accumulate(double deltaSeconds)
 sealed class Engine.Font
   FontType Type { get; }
   IReadOnlyDictionary<int, Glyph> Glyphs { get; }
@@ -1504,13 +1414,7 @@ enum Engine.Gesture : int
   Tap = 1
 sealed class Engine.Gestures
   Gesture Current { get; }
-  Gesture Enabled { get; set; }
   Gestures()
-  Vector2 DragVector { get; }
-  Vector2 PinchVector { get; }
-  float DragAngle { get; }
-  float HoldSeconds { get; }
-  float PinchAngle { get; }
   void Update(ReadOnlySpan<Vector2> points, double time)
 struct Engine.GlobalTransform
   Matrix4x4 Matrix
@@ -1625,36 +1529,10 @@ sealed class Engine.InStateAttribute : Attribute
 sealed class Engine.Input
   (int, int) MouseDelta { get; }
   (int, int) MousePosition { get; }
-  GamepadState? Gamepad(int index)
-  IReadOnlyList<GamepadState> Gamepads { get; }
-  IReadOnlyList<TouchPoint> Touches { get; }
-  IReadOnlyList<string> DroppedFiles { get; }
   Input()
-  Key TakeKey()
-  ReadOnlySpan<char> TextInput { get; }
-  bool AnyKeyDown()
-  bool AnyKeyPressed()
-  bool AnyMouseDown()
-  bool AnyMousePressed()
   bool KeyDown(Key key)
   bool KeyPressed(Key key)
-  bool KeyPressedRepeat(Key key)
-  bool KeyReleased(Key key)
-  bool MouseDown(MouseButton button)
-  bool MouseDown(int button)
-  bool MousePressed(MouseButton button)
-  bool MousePressed(int button)
-  bool MouseReleased(MouseButton button)
-  bool MouseReleased(int button)
-  float WheelX { get; }
-  float WheelY { get; }
-  int MouseDeltaX { get; }
-  int MouseDeltaY { get; }
-  int MouseX { get; }
-  int MouseY { get; }
-  int TakeChar()
   override string ToString()
-  void ClearDroppedFiles()
 struct Engine.Joint
   Entity A
   Entity B
@@ -1975,7 +1853,6 @@ enum Engine.LogLevel : int
   Trace = 0
   Warning = 3
 sealed class Engine.Logger : ILogger
-  Logger UseProvider(ILoggerProvider provider)
   Logger(string category)
   void Critical(string message, Exception? exception = null)
   void Debug(string message)
@@ -2057,20 +1934,13 @@ readonly struct Engine.MaterialHandle : IEquatable<MaterialHandle>
   void SetRoughness(float roughness)
 sealed class Engine.MaterialLibrary
   IEnumerable<MaterialHandle> Handles { get; }
-  MaterialDescription GetDescription(MaterialHandle handle)
   MaterialHandle Create(MaterialDescription description)
-  MaterialHandle CreateOrGet(MaterialDescription description)
   MaterialLibrary()
   MaterialLibrary(MaterialSettings settings)
   MaterialSettings Settings { get; }
   bool Exists(MaterialHandle handle)
-  bool TryFindByName(string name, out MaterialHandle handle)
-  bool TryFindBySourcePath(string sourcePath, out MaterialHandle handle)
   int Count { get; }
-  string GetName(MaterialHandle handle)
   void Clear()
-  void Destroy(MaterialHandle handle)
-  void Mutate(MaterialHandle handle, Action<MaterialDescription> mutator)
   void Update(MaterialHandle handle, MaterialDescription description)
 enum Engine.MaterialMapIndex : int
   Albedo = 0
@@ -2112,14 +1982,9 @@ struct Engine.Mesh
 sealed class Engine.MeshStore
   MeshStore()
   bool Contains(int id)
-  bool IsSkinned(int id)
   bool Remove(int id)
-  bool SetSkin(int id, MeshStore.Skin skin)
-  bool TryGetData(int id, out ModelVertex[] vertices, out uint[] indices)
-  bool UpdateVertices(int id, ModelVertex[] vertices)
   int Add(ModelVertex[] vertices, uint[] indices)
   int Count { get; }
-  void PoseSkin(int id, Matrix4x4[] joints, float[]? morphWeights = null)
 sealed class Engine.MeshStore.Skin : IEquatable<MeshStore.Skin>
   Skin(ushort[] Joints, float[] Weights, int JointCount, Vector4[]? Morphs = null, int MorphCount = 0)
   Vector4[]? Morphs { get; init; }
@@ -2420,80 +2285,16 @@ sealed class Engine.PhysicsSettings
   int WorkerThreads { get; set; }
 sealed class Engine.PhysicsWorld : IDisposable
   (Vector3, Quaternion) GetPose(PhysicsBody body, float alpha)
-  BufferPool BufferPool { get; }
-  Func<int, Entity>? EntityHandle { get; set; }
   PhysicsBody CreateBox(Vector3 position, Vector3 halfExtents, float mass = 1f, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateCapsule(Vector3 position, float radius, float height, float mass = 1f, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateCharacter(Vector3 feet, float radius, float height, float mass = 80f, int entityId = 0)
-  PhysicsBody CreateConvexHull(Vector3 origin, ReadOnlySpan<Vector3> points, float mass = 1f, BodyKind kind = BodyKind.Dynamic, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateCylinder(Vector3 position, float radius, float height, float mass = 1f, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateGroundPlane(float y = 0f, float halfSize = 500f, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateKinematicBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateKinematicCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateKinematicSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateSphere(Vector3 position, float radius, float mass = 1f, PhysicsMaterial? material = null, int entityId = 0)
   PhysicsBody CreateStaticBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateStaticCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<int> indices, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0)
-  PhysicsBody CreateVehicle(Vector3 position, Vector3 size, float mass = 1000f, Vehicle? settings = null, int entityId = 0)
-  PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
-  PhysicsJoint CreateDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
-  PhysicsJoint CreateHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
-  PhysicsJoint CreateWeldJoint(PhysicsBody a, PhysicsBody b)
   PhysicsWorld()
   PhysicsWorld(PhysicsSettings settings)
-  Quaternion GetRotation(PhysicsBody body)
-  ReadOnlySpan<VehicleWheel> GetVehicleWheels(PhysicsBody body)
-  Simulation Simulation { get; }
-  ThreadDispatcher Dispatcher { get; }
-  Vector3 GetAngularVelocity(PhysicsBody body)
-  Vector3 GetCharacterGroundNormal(PhysicsBody body)
-  Vector3 GetLinearVelocity(PhysicsBody body)
-  Vector3 GetPointVelocity(PhysicsBody body, Vector3 point)
   Vector3 GetPosition(PhysicsBody body)
   Vector3 Gravity { get; set; }
-  Vehicle GetVehicle(PhysicsBody body)
   bool Exists(PhysicsBody body)
-  bool IsAwake(PhysicsBody body)
-  bool IsCharacterGrounded(PhysicsBody body)
-  bool JointExists(PhysicsJoint joint)
-  bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
-  bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit)
-  bool SetCharacterHeight(PhysicsBody body, float height)
-  const float BounceThreshold = 0.5f
-  static void WarmUp()
-  void ApplyAngularImpulse(PhysicsBody body, Vector3 impulse)
-  void ApplyImpulse(PhysicsBody body, Vector3 impulse, Vector3 offsetFromCenter)
-  void ApplyImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)
-  void ClearHingeLimitAndMotor(PhysicsJoint hinge)
-  void Destroy(PhysicsBody body)
-  void DestroyJoint(PhysicsJoint joint)
   void Dispose()
-  void FollowPose(PhysicsBody body, Vector3 position, Quaternion rotation, float seconds)
-  void JumpCharacter(PhysicsBody body, float speed)
-  void MoveCharacter(PhysicsBody body, Vector3 velocity)
-  void SetAngularVelocity(PhysicsBody body, Vector3 velocity)
-  void SetBallJointLimit(PhysicsJoint ball, Vector3 axis, float maximumSwing, float maximumTwist)
-  void SetCharacterMaxSlope(PhysicsBody body, float degrees)
-  void SetCharacterStepHeight(PhysicsBody body, float height)
-  void SetDistanceJointRange(PhysicsJoint joint, float minimum, float maximum)
-  void SetHingeLimit(PhysicsJoint hinge, float minimum, float maximum)
-  void SetHingeMotor(PhysicsJoint hinge, float speed, float maximumTorque)
   void SetLinearVelocity(PhysicsBody body, Vector3 velocity)
-  void SetMaterial(PhysicsBody body, PhysicsMaterial material)
   void SetPosition(PhysicsBody body, Vector3 position)
-  void SetRotation(PhysicsBody body, Quaternion rotation)
-  void SetTrigger(PhysicsBody body, bool trigger)
-  void SetVehicle(PhysicsBody body, Vehicle settings)
-  void SetVehicleInput(PhysicsBody body, float throttle, float steer, bool brake)
-  void Sleep(PhysicsBody body)
-  void Step(float deltaSeconds)
-  void StepOnce(float seconds)
-  void SyncTransforms(EcsWorld ecs)
-  void SyncTransforms(EcsWorld ecs, float alpha)
-  void TakeContacts(List<PhysicsContact> started, List<PhysicsContact> ended)
-  void Wake(PhysicsBody body)
 static class Engine.PluginOrder
   const int Default = 0
   const int Earliest = -2000
@@ -2695,29 +2496,18 @@ sealed class Engine.SceneWriteContext
   string? IdOf(Entity entity)
   string? PathOf<TAsset>(Handle<TAsset> handle)
 sealed class Engine.Schedule
-  IReadOnlyList<string> SystemNames(Stage stage)
   Schedule AddSystem(Stage stage, SystemDescriptor descriptor)
   Schedule AddSystem(Stage stage, SystemFn system)
   Schedule AddSystem(Stage stage, SystemFn system, Func<World, bool> runCondition)
-  Schedule SetParallel(Stage stage, bool parallel = true)
-  Schedule SetSingleThreaded(Stage stage, bool singleThreaded = true)
   Schedule()
-  ScheduleDiagnostics Diagnostics { get; }
-  const double SequentialBatchMilliseconds = 0.5d
-  int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
-  int RemoveSystemsBySource(string source)
-  int SystemCount(Stage stage)
   int TotalSystemCount { get; }
   void Run(World world)
-  void RunStage(Stage stage, World world)
 sealed class Engine.ScheduleDiagnostics
   IReadOnlyDictionary<(Stage, string), TimeSpan> SystemDurations { get; }
   IReadOnlyDictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> StageBatchNotes { get; }
   IReadOnlyDictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> StageBatches { get; }
   IReadOnlyDictionary<Stage, TimeSpan> StageDurations { get; }
   ScheduleDiagnostics()
-  TimeSpan GetStageDuration(Stage stage)
-  TimeSpan GetSystemDuration(Stage stage, string systemName)
   void Reset()
 readonly struct Engine.Shader : IEquatable<Shader>
   Shader(int Id)
@@ -2872,17 +2662,9 @@ enum Engine.TextureFormat : int
 sealed class Engine.TextureStore
   TextureStore()
   bool Contains(int id)
-  bool GenerateMipmaps(int id)
-  bool HasMipmaps(int id)
-  bool IsTranslucent(int id)
   bool Remove(int id)
-  bool SetFilter(int id, TextureFilter filter)
-  bool SetWrap(int id, TextureWrap wrap)
   bool Update(int id, byte[] rgba)
-  bool UpdateRegion(int id, byte[] rgba, int x, int y, int width, int height)
   int Add(byte[] rgba, int width, int height, TextureFilter filter = TextureFilter.Bilinear, bool mipmaps = false)
-  int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear)
-  int AddTargetDepth(int target)
   int Count { get; }
 sealed class Engine.TextureStore.Upload : IEquatable<TextureStore.Upload>
   (int, int)? Offset { get; init; }
@@ -3024,18 +2806,9 @@ sealed class Engine.WithoutAttribute : Attribute
   Type[] Types { get; }
   WithoutAttribute(params Type[] types)
 sealed class Engine.World : IDisposable
-  IReadOnlyCollection<Type> ResourceTypes { get; }
-  T GetOrInsertResource<T>(Func<T> factory)
-  T GetOrInsertResource<T>(T value)
-  T InitResource<T>() where T : new()
   T Resource<T>()
-  T? TryResource<T>()
   World()
-  bool ContainsResource<T>()
-  bool RemoveResource<T>()
   bool TryGetResource<T>(out T value)
-  int ResourceCount { get; }
-  int ResourceVersion { get; }
   void Clear()
   void Dispose()
   void InsertResource<T>(T value)

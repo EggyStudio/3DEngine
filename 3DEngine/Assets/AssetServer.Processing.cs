@@ -8,7 +8,7 @@ public sealed partial class AssetServer
     /// system in <see cref="Stage.PreUpdate"/>.
     /// </summary>
     /// <param name="world">The world containing asset and event resources.</param>
-    public void ProcessCompleted(World world)
+    internal void ProcessCompleted(World world)
     {
         int processed = 0;
         while (_completedLoads.TryDequeue(out var completed))
@@ -97,7 +97,7 @@ public sealed partial class AssetServer
     /// by the <see cref="AssetPlugin"/>.
     /// </summary>
     /// <param name="world">The world containing event resources.</param>
-    public void ClearEvents(World world)
+    internal void ClearEvents(World world)
     {
         // Clear events for all known asset types
         foreach (var kv in _pathToId.Values)

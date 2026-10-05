@@ -86,7 +86,7 @@ public sealed class MaterialLibrary
     /// <see cref="MaterialSettings.DeduplicateBySourcePath"/> is enabled). Otherwise
     /// returns the existing handle.
     /// </summary>
-    public MaterialHandle CreateOrGet(MaterialDescription description)
+    internal MaterialHandle CreateOrGet(MaterialDescription description)
     {
         ArgumentNullException.ThrowIfNull(description);
         if (_settings.DeduplicateBySourcePath
@@ -102,14 +102,14 @@ public sealed class MaterialLibrary
     public bool Exists(MaterialHandle handle) => _byId.ContainsKey(handle.Id);
 
     /// <summary>Returns the display name of the material referenced by <paramref name="handle"/>.</summary>
-    public string GetName(MaterialHandle handle) => Get(handle).Name;
+    internal string GetName(MaterialHandle handle) => Get(handle).Name;
 
     /// <summary>
     /// Returns a <i>cloned</i> <see cref="MaterialDescription"/> for <paramref name="handle"/>.
     /// Mutating the clone has no effect; call <see cref="Update"/> or <see cref="Mutate"/>
     /// to write back.
     /// </summary>
-    public MaterialDescription GetDescription(MaterialHandle handle) => Get(handle).Clone();
+    internal MaterialDescription GetDescription(MaterialHandle handle) => Get(handle).Clone();
 
     /// <summary>Replaces the description for <paramref name="handle"/> in-place. The handle id is preserved.</summary>
     public void Update(MaterialHandle handle, MaterialDescription description)
@@ -130,7 +130,7 @@ public sealed class MaterialLibrary
     }
 
     /// <summary>Applies <paramref name="mutator"/> to the in-place description for <paramref name="handle"/>.</summary>
-    public void Mutate(MaterialHandle handle, Action<MaterialDescription> mutator)
+    internal void Mutate(MaterialHandle handle, Action<MaterialDescription> mutator)
     {
         ArgumentNullException.ThrowIfNull(mutator);
         var d = Get(handle);
@@ -150,7 +150,7 @@ public sealed class MaterialLibrary
     }
 
     /// <summary>Removes the material referenced by <paramref name="handle"/>.</summary>
-    public void Destroy(MaterialHandle handle)
+    internal void Destroy(MaterialHandle handle)
     {
         if (!_byId.TryGetValue(handle.Id, out var d)) return;
         _byId.Remove(handle.Id);
@@ -163,7 +163,7 @@ public sealed class MaterialLibrary
     }
 
     /// <summary>Looks up a material by display <paramref name="name"/>.</summary>
-    public bool TryFindByName(string name, out MaterialHandle handle)
+    internal bool TryFindByName(string name, out MaterialHandle handle)
     {
         if (_byName.TryGetValue(name, out var id))
         {
@@ -175,7 +175,7 @@ public sealed class MaterialLibrary
     }
 
     /// <summary>Looks up a material by its <see cref="MaterialDescription.SourcePath"/>.</summary>
-    public bool TryFindBySourcePath(string sourcePath, out MaterialHandle handle)
+    internal bool TryFindBySourcePath(string sourcePath, out MaterialHandle handle)
     {
         if (_bySourcePath.TryGetValue(sourcePath, out var id))
         {

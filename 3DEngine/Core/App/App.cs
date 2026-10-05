@@ -43,7 +43,7 @@ public sealed partial class App : IDisposable
 
     /// <summary>Holds systems grouped by <see cref="Stage"/> and executes them on demand.</summary>
     /// <seealso cref="Schedule"/>
-    public Schedule Schedule { get; } = new();
+    internal Schedule Schedule { get; } = new();
 
     /// <summary>Total frames executed since <see cref="Run"/> was called.</summary>
     public ulong FrameCount => _frameCount;

@@ -10,7 +10,7 @@ public sealed partial class Schedule
     /// </summary>
     /// <param name="stage">The <see cref="Stage"/> to execute.</param>
     /// <param name="world">The <see cref="World"/> passed to each system delegate.</param>
-    public void RunStage(Stage stage, World world)
+    internal void RunStage(Stage stage, World world)
     {
         List<SystemDescriptor> list;
         bool isParallel;

@@ -15,7 +15,7 @@ public sealed partial class EcsWorld
     public bool Has<T>(Entity entity) => TryResolve(entity, out var id) && Has<T>(id);
 
     /// <summary>Reads the entity's <typeparamref name="T"/>, or answers false when it has none or is gone.</summary>
-    public bool TryGet<T>(Entity entity, out T? component)
+    internal bool TryGet<T>(Entity entity, out T? component)
     {
         if (TryResolve(entity, out var id)) return TryGet(id, out component);
         component = default;

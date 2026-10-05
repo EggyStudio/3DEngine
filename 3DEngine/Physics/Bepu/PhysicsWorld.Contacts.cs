@@ -42,7 +42,7 @@ public sealed partial class PhysicsWorld
     /// its bodies sleep stays touching, although a sleeping pair is not tested, and a pair whose
     /// body is destroyed ends with the next step.
     /// </remarks>
-    public void TakeContacts(List<PhysicsContact> started, List<PhysicsContact> ended)
+    internal void TakeContacts(List<PhysicsContact> started, List<PhysicsContact> ended)
     {
         if (_started.Count == 0 && _ended.Count == 0) return;
         started.AddRange(_started);
@@ -99,7 +99,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>The slowest a pair may close at and bounce, below which it settles, so a body at rest does not jitter.</summary>
-    public const float BounceThreshold = 0.5f;
+    internal const float BounceThreshold = 0.5f;
 
     // Sends a pair that met apart at their bounce times the speed they closed at, as the solver,
     // which has no bounce of its own, has stopped them at the surface. The push is shared by their
@@ -146,7 +146,7 @@ public sealed partial class PhysicsWorld
     /// pushes nothing, or a solid body again.
     /// </summary>
     /// <remarks>A trigger reports the dynamic bodies that meet it, as a static or kinematic body sees no other.</remarks>
-    public void SetTrigger(PhysicsBody body, bool trigger) => _triggerFlags.Set(body, trigger);
+    internal void SetTrigger(PhysicsBody body, bool trigger) => _triggerFlags.Set(body, trigger);
 
     // The same key whichever way round the narrow phase handed the pair over.
     private static ulong Key(CollidableReference a, CollidableReference b)
@@ -177,7 +177,7 @@ public sealed partial class PhysicsWorld
     /// Turns the entity id a body was made with into a handle, set by <see cref="PhysicsPlugin"/>
     /// from the <see cref="EcsWorld"/>. Without it a contact names no entity.
     /// </summary>
-    public Func<int, Entity>? EntityHandle { get; set; }
+    internal Func<int, Entity>? EntityHandle { get; set; }
 
     private Entity HandleOf(int id) => id != 0 && EntityHandle is { } handle ? handle(id) : Entity.None;
 

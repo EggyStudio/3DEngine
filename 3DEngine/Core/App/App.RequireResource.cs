@@ -31,7 +31,7 @@ public sealed partial class App
     /// </example>
     /// <seealso cref="PluginOrderException"/>
     /// <seealso cref="IPlugin.Dependencies"/>
-    public T RequireResource<T>(string callerPlugin, string? providingPlugin = null) where T : notnull
+    internal T RequireResource<T>(string callerPlugin, string? providingPlugin = null) where T : notnull
     {
         if (World.TryGetResource<T>(out var value))
             return value;

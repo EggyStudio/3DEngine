@@ -18,7 +18,7 @@ public sealed partial class PhysicsWorld
     /// compiles nothing as it runs. <see cref="PhysicsPlugin"/> runs this on a worker as the app is
     /// built, where it costs no frame.
     /// </remarks>
-    public static void WarmUp()
+    internal static void WarmUp()
     {
         if (Interlocked.Exchange(ref _warmed, 1) == 1) return;
         using var world = new PhysicsWorld(new PhysicsSettings());

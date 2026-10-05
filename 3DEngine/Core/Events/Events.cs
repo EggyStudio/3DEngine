@@ -12,7 +12,7 @@ public static class Events
     /// <typeparam name="T">The event payload type.</typeparam>
     /// <param name="world">The <see cref="World"/> to look up or create the queue in.</param>
     /// <returns>The existing or newly created <see cref="Events{T}"/> queue.</returns>
-    public static Events<T> Get<T>(World world)
+    internal static Events<T> Get<T>(World world)
         => world.GetOrInsertResource(() => new Events<T>());
 }
 
@@ -45,18 +45,18 @@ public sealed class Events<T>
     public int Count { get { lock (_lock) return _buffer.Count; } }
 
     /// <summary><c>true</c> when the buffer is empty; <c>false</c> otherwise.</summary>
-    public bool IsEmpty { get { lock (_lock) return _buffer.Count == 0; } }
+    internal bool IsEmpty { get { lock (_lock) return _buffer.Count == 0; } }
 
     /// <summary>Queues a single event into the buffer.</summary>
     /// <param name="evt">The event to enqueue.</param>
-    public void Send(T evt)
+    internal void Send(T evt)
     {
         lock (_lock) _buffer.Add(evt);
     }
 
     /// <summary>Queues multiple events at once.</summary>
     /// <param name="events">A span of events to enqueue.</param>
-    public void SendBatch(ReadOnlySpan<T> events)
+    internal void SendBatch(ReadOnlySpan<T> events)
     {
         lock (_lock)
         {
@@ -74,7 +74,7 @@ public sealed class Events<T>
     /// Use only from stages that do not overlap with writers (e.g., a single-threaded stage
     /// or when the queue is not being written to).
     /// </remarks>
-    public ReadOnlySpan<T> AsSpan() => CollectionsMarshal.AsSpan(_buffer);
+    internal ReadOnlySpan<T> AsSpan() => CollectionsMarshal.AsSpan(_buffer);
 
     /// <summary>Returns a thread-safe snapshot copy of all buffered events.</summary>
     /// <returns>An empty list if no events are buffered; otherwise a copy of all events.</returns>
@@ -86,7 +86,7 @@ public sealed class Events<T>
 
     /// <summary>Returns a snapshot copy of all events and clears the buffer atomically.</summary>
     /// <returns>An empty list if no events are buffered; otherwise a copy of the drained events.</returns>
-    public IReadOnlyList<T> Drain()
+    internal IReadOnlyList<T> Drain()
     {
         lock (_lock)
         {

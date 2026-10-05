@@ -47,7 +47,7 @@ public sealed partial class PhysicsWorld
     /// (<see cref="SetCharacterMaxSlope"/>, 45 degrees to begin with), and is never turned over or
     /// put to sleep. It is a dynamic body, so it pushes what is lighter and walls stop it.
     /// </summary>
-    public PhysicsBody CreateCharacter(Vector3 feet, float radius, float height, float mass = 80, int entityId = 0)
+    internal PhysicsBody CreateCharacter(Vector3 feet, float radius, float height, float mass = 80, int entityId = 0)
     {
         radius = MathF.Max(radius, 0.01f);
         height = MathF.Max(height, 2 * radius);
@@ -70,19 +70,19 @@ public sealed partial class PhysicsWorld
     /// The velocity a character walks at from the next step on, along the ground it stands on. Its
     /// vertical part is ignored, since gravity and the ground decide the character's fall.
     /// </summary>
-    public void MoveCharacter(PhysicsBody body, Vector3 velocity)
+    internal void MoveCharacter(PhysicsBody body, Vector3 velocity)
     {
         if (_characters.TryGetValue(body.Handle, out var character)) character.Wanted = velocity with { Y = 0 };
     }
 
     /// <summary>Makes a character on the ground leave it upward at <paramref name="speed"/> at the next step.</summary>
-    public void JumpCharacter(PhysicsBody body, float speed)
+    internal void JumpCharacter(PhysicsBody body, float speed)
     {
         if (_characters.TryGetValue(body.Handle, out var character) && character.Grounded) character.JumpSpeed = speed;
     }
 
     /// <summary>The steepest ground, in degrees, a character stands and walks on rather than sliding off.</summary>
-    public void SetCharacterMaxSlope(PhysicsBody body, float degrees)
+    internal void SetCharacterMaxSlope(PhysicsBody body, float degrees)
     {
         if (_characters.TryGetValue(body.Handle, out var character))
             character.MaxSlopeCos = MathF.Cos(float.DegreesToRadians(Math.Clamp(degrees, 0, 89)));
@@ -92,7 +92,7 @@ public sealed partial class PhysicsWorld
     /// The highest step, in units, a character walking into it climbs onto, its radius to begin
     /// with. 0 leaves it to the round of its foot, which rides an edge about half its radius high.
     /// </summary>
-    public void SetCharacterStepHeight(PhysicsBody body, float height)
+    internal void SetCharacterStepHeight(PhysicsBody body, float height)
     {
         if (_characters.TryGetValue(body.Handle, out var character)) character.StepHeight = MathF.Max(0, height);
     }
@@ -102,7 +102,7 @@ public sealed partial class PhysicsWorld
     /// where they are, as crouching and standing do. It does not grow into a ceiling.
     /// </summary>
     /// <returns>Whether it has the height, which it has not when something above is in the way.</returns>
-    public bool SetCharacterHeight(PhysicsBody body, float height)
+    internal bool SetCharacterHeight(PhysicsBody body, float height)
     {
         if (!_characters.TryGetValue(body.Handle, out var character) || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return false;
         height = MathF.Max(height, 2 * character.Radius);
@@ -132,10 +132,10 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Whether a character stood on ground no steeper than its steepest at the last step.</summary>
-    public bool IsCharacterGrounded(PhysicsBody body) => _characters.TryGetValue(body.Handle, out var character) && character.Grounded;
+    internal bool IsCharacterGrounded(PhysicsBody body) => _characters.TryGetValue(body.Handle, out var character) && character.Grounded;
 
     /// <summary>The way the ground under a character faces, up when it stands on nothing.</summary>
-    public Vector3 GetCharacterGroundNormal(PhysicsBody body) =>
+    internal Vector3 GetCharacterGroundNormal(PhysicsBody body) =>
         _characters.TryGetValue(body.Handle, out var character) ? character.GroundNormal : Vector3.UnitY;
 
     private void ForgetCharacter(int handle)

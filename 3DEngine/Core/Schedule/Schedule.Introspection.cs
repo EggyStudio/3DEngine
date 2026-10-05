@@ -3,7 +3,7 @@ namespace Engine;
 public sealed partial class Schedule
 {
     /// <summary>The names of the systems registered to <paramref name="stage"/>, in the order they run.</summary>
-    public IReadOnlyList<string> SystemNames(Stage stage)
+    internal IReadOnlyList<string> SystemNames(Stage stage)
     {
         lock (_lock)
             return _systemsByStage[stage].Select(system => system.Name).ToArray();
@@ -12,7 +12,7 @@ public sealed partial class Schedule
     /// <summary>Returns the number of systems registered to the given stage.</summary>
     /// <param name="stage">The <see cref="Stage"/> to query.</param>
     /// <returns>The count of systems in the specified stage.</returns>
-    public int SystemCount(Stage stage)
+    internal int SystemCount(Stage stage)
     {
         lock (_lock)
             return _systemsByStage[stage].Count;

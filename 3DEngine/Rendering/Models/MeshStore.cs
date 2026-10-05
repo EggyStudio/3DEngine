@@ -77,7 +77,7 @@ public sealed class MeshStore
     /// The renderer writes them into a new vertex buffer and destroys the old one once no frame in
     /// flight reads it, so a frame the GPU is still drawing keeps the vertices it was given.
     /// </remarks>
-    public bool UpdateVertices(int id, ModelVertex[] vertices)
+    internal bool UpdateVertices(int id, ModelVertex[] vertices)
     {
         lock (_gate)
         {
@@ -104,7 +104,7 @@ public sealed class MeshStore
 
     /// <summary>A loaded mesh's vertices and triangle indices, which the caller must not change.</summary>
     /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
-    public bool TryGetData(int id, out ModelVertex[] vertices, out uint[] indices)
+    internal bool TryGetData(int id, out ModelVertex[] vertices, out uint[] indices)
     {
         lock (_gate)
         {
@@ -133,7 +133,7 @@ public sealed class MeshStore
     /// again with them.
     /// </summary>
     /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
-    public bool SetSkin(int id, Skin skin)
+    internal bool SetSkin(int id, Skin skin)
     {
         lock (_gate)
         {
@@ -146,7 +146,7 @@ public sealed class MeshStore
     }
 
     /// <summary>Whether a mesh is posed on the GPU.</summary>
-    public bool IsSkinned(int id)
+    internal bool IsSkinned(int id)
     {
         lock (_gate) return _skins.ContainsKey(id);
     }
@@ -156,7 +156,7 @@ public sealed class MeshStore
     /// in the model's space, and its morph targets' weights when it has any. Its vertices here stay
     /// at rest, since the GPU moves them.
     /// </summary>
-    public void PoseSkin(int id, System.Numerics.Matrix4x4[] joints, float[]? morphWeights = null)
+    internal void PoseSkin(int id, System.Numerics.Matrix4x4[] joints, float[]? morphWeights = null)
     {
         lock (_gate)
             if (_skins.ContainsKey(id)) _poses[id] = (joints, morphWeights);

@@ -36,19 +36,19 @@ public sealed class FixedTime
     }
 
     /// <summary>The most steps run in one frame. Defaults to 5.</summary>
-    public int MaxStepsPerFrame { get; set; } = 5;
+    internal int MaxStepsPerFrame { get; set; } = 5;
 
     /// <summary>Frame time not yet stepped through, in seconds.</summary>
-    public double Accumulator { get; private set; }
+    internal double Accumulator { get; private set; }
 
     /// <summary>How many steps have run this frame.</summary>
-    public int StepsThisFrame { get; private set; }
+    internal int StepsThisFrame { get; private set; }
 
     /// <summary>How far between the last step and the next the frame is, from 0 to 1, for interpolating what is drawn.</summary>
     public double Alpha => Math.Clamp(Accumulator / StepSeconds, 0, 1);
 
     /// <summary>Adds a frame's time and starts counting the frame's steps from zero.</summary>
-    public void Accumulate(double deltaSeconds)
+    internal void Accumulate(double deltaSeconds)
     {
         Accumulator += Math.Max(0, deltaSeconds);
         StepsThisFrame = 0;
@@ -56,7 +56,7 @@ public sealed class FixedTime
 
     /// <summary>Takes one step's time out of the accumulator, if a whole step is there and the frame has steps left.</summary>
     /// <returns>Whether a step should run.</returns>
-    public bool TryStep()
+    internal bool TryStep()
     {
         if (StepsThisFrame >= MaxStepsPerFrame)
         {

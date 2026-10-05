@@ -56,7 +56,7 @@ public sealed partial class Schedule
     /// <param name="stage">The <see cref="Stage"/> to remove systems from.</param>
     /// <param name="predicate">A predicate selecting which systems to remove.</param>
     /// <returns>The number of systems removed.</returns>
-    public int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
+    internal int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
     {
         lock (_lock)
             return _systemsByStage[stage].RemoveAll(predicate);
@@ -65,7 +65,7 @@ public sealed partial class Schedule
     /// <summary>Removes systems tagged with the given <see cref="SystemDescriptor.Source"/> from every stage.</summary>
     /// <param name="source">The provenance tag to match (case-sensitive).</param>
     /// <returns>The total number of systems removed across all stages.</returns>
-    public int RemoveSystemsBySource(string source)
+    internal int RemoveSystemsBySource(string source)
     {
         int total = 0;
         lock (_lock)

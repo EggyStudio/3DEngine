@@ -58,7 +58,7 @@ public sealed partial class PhysicsWorld
 
     /// <summary>Joins two bodies at a point in the world, about which each may turn freely, as a ball in a socket.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
-    public PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
+    internal PhysicsJoint CreateBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
     {
         var (ra, rb) = Bodies(a, b);
         var joint = Add(ra, rb, new BallSocket
@@ -80,7 +80,7 @@ public sealed partial class PhysicsWorld
     /// that part free.
     /// </summary>
     /// <exception cref="ArgumentException">The joint is not a ball joint, or an angle is below 0.</exception>
-    public void SetBallJointLimit(PhysicsJoint ball, Vector3 axis, float maximumSwing, float maximumTwist)
+    internal void SetBallJointLimit(PhysicsJoint ball, Vector3 axis, float maximumSwing, float maximumTwist)
     {
         if (!IsJointOf(ball, BallSocket.ConstraintTypeId) || !_balls.TryGetValue(ball.Handle, out var parts))
             throw new ArgumentException("The joint is not a ball joint that exists.", nameof(ball));
@@ -118,7 +118,7 @@ public sealed partial class PhysicsWorld
 
     /// <summary>Joins two bodies at a point in the world, about which they turn only around <paramref name="axis"/>, as a door on its hinge.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
-    public PhysicsJoint CreateHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
+    internal PhysicsJoint CreateHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
     {
         var (ra, rb) = Bodies(a, b);
         axis = Vector3.Normalize(axis);
@@ -151,7 +151,7 @@ public sealed partial class PhysicsWorld
     /// radians from where it was made, replacing a limit set before, as a door that opens one way.
     /// </summary>
     /// <exception cref="ArgumentException">The joint is not a hinge, or the angles are out of order.</exception>
-    public void SetHingeLimit(PhysicsJoint hinge, float minimum, float maximum)
+    internal void SetHingeLimit(PhysicsJoint hinge, float minimum, float maximum)
     {
         var parts = HingeOf(hinge);
         if (maximum < minimum) throw new ArgumentException("A hinge's minimum angle is at most its maximum.");
@@ -173,7 +173,7 @@ public sealed partial class PhysicsWorld
     /// speed of 0 with a torque holds it still against what pushes it, up to that torque.
     /// </summary>
     /// <exception cref="ArgumentException">The joint is not a hinge.</exception>
-    public void SetHingeMotor(PhysicsJoint hinge, float speed, float maximumTorque)
+    internal void SetHingeMotor(PhysicsJoint hinge, float speed, float maximumTorque)
     {
         var parts = HingeOf(hinge);
         Remove(ref parts.Motor);
@@ -190,7 +190,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Takes a hinge's limit and motor away, leaving it free to turn.</summary>
-    public void ClearHingeLimitAndMotor(PhysicsJoint hinge)
+    internal void ClearHingeLimitAndMotor(PhysicsJoint hinge)
     {
         if (!_hinges.TryGetValue(hinge.Handle, out var parts)) return;
         Remove(ref parts.Limit);
@@ -224,7 +224,7 @@ public sealed partial class PhysicsWorld
 
     /// <summary>Joins two bodies rigidly, as they are placed when it is made, so they move as one.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
-    public PhysicsJoint CreateWeldJoint(PhysicsBody a, PhysicsBody b)
+    internal PhysicsJoint CreateWeldJoint(PhysicsBody a, PhysicsBody b)
     {
         var (ra, rb) = Bodies(a, b);
         var inverse = Quaternion.Conjugate(ra.Pose.Orientation);
@@ -241,7 +241,7 @@ public sealed partial class PhysicsWorld
     /// <paramref name="maximum"/> units apart, as a rope does with a minimum of 0.
     /// </summary>
     /// <exception cref="ArgumentException">A body is static, or the distances are out of order.</exception>
-    public PhysicsJoint CreateDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
+    internal PhysicsJoint CreateDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
     {
         if (minimum < 0 || maximum < minimum) throw new ArgumentException("A distance joint's minimum is at least 0 and at most its maximum.");
         var (ra, rb) = Bodies(a, b);
@@ -253,7 +253,7 @@ public sealed partial class PhysicsWorld
     /// when it is set a little shorter each frame.
     /// </summary>
     /// <exception cref="ArgumentException">The joint is not a distance joint that exists, or the distances are out of order.</exception>
-    public void SetDistanceJointRange(PhysicsJoint joint, float minimum, float maximum)
+    internal void SetDistanceJointRange(PhysicsJoint joint, float minimum, float maximum)
     {
         if (minimum < 0 || maximum < minimum) throw new ArgumentException("A distance joint's minimum is at least 0 and at most its maximum.");
         var handle = new ConstraintHandle(joint.Handle);
@@ -268,7 +268,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Removes a joint, with a hinge's limit and motor and a ball joint's limits. One already gone with a destroyed body is passed over.</summary>
-    public void DestroyJoint(PhysicsJoint joint)
+    internal void DestroyJoint(PhysicsJoint joint)
     {
         if (_hinges.Remove(joint.Handle, out var parts))
         {
@@ -286,7 +286,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Whether a joint exists, which it stops doing when it or one of its bodies is destroyed.</summary>
-    public bool JointExists(PhysicsJoint joint) =>
+    internal bool JointExists(PhysicsJoint joint) =>
         joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle));
 
     private PhysicsJoint Add<T>(BodyReference a, BodyReference b, T constraint) where T : unmanaged, ITwoBodyConstraintDescription<T>

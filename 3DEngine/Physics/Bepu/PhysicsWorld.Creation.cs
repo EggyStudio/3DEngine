@@ -68,7 +68,7 @@ public sealed partial class PhysicsWorld
     /// and loses a little to the step. The damping is folded into the world's, the largest any
     /// body was given, since the integrator damps every body alike.
     /// </remarks>
-    public void SetMaterial(PhysicsBody body, PhysicsMaterial material)
+    internal void SetMaterial(PhysicsBody body, PhysicsMaterial material)
     {
         _materials.Set(body, material);
         ref var cb = ref CallbacksRef;
@@ -79,7 +79,7 @@ public sealed partial class PhysicsWorld
     // -- Dynamic
 
     /// <inheritdoc />
-    public PhysicsBody CreateSphere(Vector3 position, float radius, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateSphere(Vector3 position, float radius, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterDynamic(new Sphere(radius), position, mass, material, entityId);
 
     /// <inheritdoc />
@@ -88,17 +88,17 @@ public sealed partial class PhysicsWorld
             entityId);
 
     /// <inheritdoc />
-    public PhysicsBody CreateCapsule(Vector3 position, float radius, float height, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateCapsule(Vector3 position, float radius, float height, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterDynamic(new Capsule(radius, height), position, mass, material, entityId);
 
     /// <inheritdoc />
-    public PhysicsBody CreateCylinder(Vector3 position, float radius, float height, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateCylinder(Vector3 position, float radius, float height, float mass = 1, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterDynamic(new Cylinder(radius, height), position, mass, material, entityId);
 
     // -- Static
 
     /// <inheritdoc />
-    public PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateStaticSphere(Vector3 position, float radius, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterStatic(new Sphere(radius), position, entityId, material);
 
     /// <inheritdoc />
@@ -106,11 +106,11 @@ public sealed partial class PhysicsWorld
         RegisterStatic(new BepuBox(halfExtents.X * 2, halfExtents.Y * 2, halfExtents.Z * 2), position, entityId, material);
 
     /// <inheritdoc />
-    public PhysicsBody CreateStaticCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateStaticCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterStatic(new Capsule(radius, height), position, entityId, material);
 
     /// <inheritdoc />
-    public PhysicsBody CreateGroundPlane(float y = 0, float halfSize = 500, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateGroundPlane(float y = 0, float halfSize = 500, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterStatic(new BepuBox(halfSize * 2, 1f, halfSize * 2), new Vector3(0, y - 0.5f, 0), entityId, material);
 
     /// <inheritdoc />
@@ -118,7 +118,7 @@ public sealed partial class PhysicsWorld
     /// A triangle collides only from its front, which is the side its corners go around clockwise
     /// seen from, the opposite of a model's winding, which <c>CreatePhysicsStaticModel</c> turns over.
     /// </remarks>
-    public PhysicsBody CreateStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<int> indices,
+    internal PhysicsBody CreateStaticMesh(Vector3 position, ReadOnlySpan<Vector3> vertices, ReadOnlySpan<int> indices,
         PhysicsMaterial? material = null, int entityId = 0)
     {
         if (indices.Length % 3 != 0)
@@ -154,7 +154,7 @@ public sealed partial class PhysicsWorld
     /// where the points' origin is, so a mesh drawn at it sits in its hull.
     /// </remarks>
     /// <exception cref="ArgumentException">The points lie in a plane or on a line, or are fewer than four.</exception>
-    public PhysicsBody CreateConvexHull(Vector3 origin, ReadOnlySpan<Vector3> points, float mass = 1, BodyKind kind = BodyKind.Dynamic,
+    internal PhysicsBody CreateConvexHull(Vector3 origin, ReadOnlySpan<Vector3> points, float mass = 1, BodyKind kind = BodyKind.Dynamic,
         PhysicsMaterial? material = null, int entityId = 0)
     {
         if (points.Length < 4) throw new ArgumentException("A convex hull needs at least four points.", nameof(points));
@@ -178,16 +178,16 @@ public sealed partial class PhysicsWorld
     // -- Kinematic
 
     /// <inheritdoc />
-    public PhysicsBody CreateKinematicSphere(Vector3 position, float radius, PhysicsMaterial? material = null,
+    internal PhysicsBody CreateKinematicSphere(Vector3 position, float radius, PhysicsMaterial? material = null,
         int entityId = 0) =>
         RegisterKinematic(new Sphere(radius), position, material, entityId);
 
     /// <inheritdoc />
-    public PhysicsBody CreateKinematicBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateKinematicBox(Vector3 position, Vector3 halfExtents, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterKinematic(new BepuBox(halfExtents.X * 2, halfExtents.Y * 2, halfExtents.Z * 2), position, material,
             entityId);
 
     /// <inheritdoc />
-    public PhysicsBody CreateKinematicCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0) =>
+    internal PhysicsBody CreateKinematicCapsule(Vector3 position, float radius, float height, PhysicsMaterial? material = null, int entityId = 0) =>
         RegisterKinematic(new Capsule(radius, height), position, material, entityId);
 }

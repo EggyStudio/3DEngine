@@ -76,16 +76,16 @@ public sealed partial class AssetServer : IDisposable
     private bool _disposed;
 
     /// <summary>Whether file watching (hot-reload) is enabled.</summary>
-    public bool WatchForChanges => _watchEnabled;
+    internal bool WatchForChanges => _watchEnabled;
 
     /// <summary>Number of registered asset sources.</summary>
-    public int SourceCount => _sources.Count;
+    internal int SourceCount => _sources.Count;
 
     /// <summary>Number of registered loaders.</summary>
-    public int LoaderCount => _loaders.Count;
+    internal int LoaderCount => _loaders.Count;
 
     /// <summary>Number of assets currently tracked (any state).</summary>
-    public int TrackedAssetCount => _pathToId.Count;
+    internal int TrackedAssetCount => _pathToId.Count;
 
     /// <summary>
     /// Creates a new <see cref="AssetServer"/> with the specified number of background worker threads.
@@ -112,7 +112,7 @@ public sealed partial class AssetServer : IDisposable
     }
 
     /// <summary>Returns a snapshot of all tracked asset paths and their load states.</summary>
-    public IReadOnlyDictionary<string, LoadState> GetAllStates()
+    internal IReadOnlyDictionary<string, LoadState> GetAllStates()
     {
         var result = new Dictionary<string, LoadState>();
         foreach (var kv in _pathToId)

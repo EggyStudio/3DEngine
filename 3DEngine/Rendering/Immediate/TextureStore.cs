@@ -105,7 +105,7 @@ public sealed class TextureStore
 
     /// <summary>Gives a loaded texture mip levels, made on the GPU from its pixels.</summary>
     /// <returns>Whether the texture is loaded and can have them. A render target cannot.</returns>
-    public bool GenerateMipmaps(int id)
+    internal bool GenerateMipmaps(int id)
     {
         lock (_gate)
         {
@@ -123,13 +123,13 @@ public sealed class TextureStore
     }
 
     /// <summary>Whether a loaded texture has mip levels.</summary>
-    public bool HasMipmaps(int id)
+    internal bool HasMipmaps(int id)
     {
         lock (_gate) return _live.TryGetValue(id, out var texture) && texture.Mipmaps;
     }
 
     /// <summary>Queues a render target of the given size and returns its id, which is also its texture's id.</summary>
-    public int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear)
+    internal int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear)
     {
         if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width), "A render target needs a size.");
         lock (_gate)
@@ -143,7 +143,7 @@ public sealed class TextureStore
 
     /// <summary>Queues a texture that samples the depth of render target <paramref name="target"/>, and returns its id.</summary>
     /// <remarks>It is point filtered, since a depth blended with the background's is a distance nothing is at.</remarks>
-    public int AddTargetDepth(int target)
+    internal int AddTargetDepth(int target)
     {
         lock (_gate)
         {
@@ -172,7 +172,7 @@ public sealed class TextureStore
 
     /// <summary>Queues new pixels for a rectangle of a loaded texture, the rest kept.</summary>
     /// <returns>Whether the texture is loaded and the rectangle lies inside it.</returns>
-    public bool UpdateRegion(int id, byte[] rgba, int x, int y, int width, int height)
+    internal bool UpdateRegion(int id, byte[] rgba, int x, int y, int width, int height)
     {
         lock (_gate)
         {
@@ -189,7 +189,7 @@ public sealed class TextureStore
 
     /// <summary>Changes how a loaded texture is sampled. The pixels are kept.</summary>
     /// <returns>Whether the texture is loaded.</returns>
-    public bool SetFilter(int id, TextureFilter filter)
+    internal bool SetFilter(int id, TextureFilter filter)
     {
         lock (_gate)
         {
@@ -202,7 +202,7 @@ public sealed class TextureStore
 
     /// <summary>Changes what a loaded texture shows past its edges. The pixels are kept.</summary>
     /// <returns>Whether the texture is loaded.</returns>
-    public bool SetWrap(int id, TextureWrap wrap)
+    internal bool SetWrap(int id, TextureWrap wrap)
     {
         lock (_gate)
         {
@@ -252,7 +252,7 @@ public sealed class TextureStore
     }
 
     /// <summary>Whether texture <paramref name="id"/> has a pixel neither clear nor solid.</summary>
-    public bool IsTranslucent(int id)
+    internal bool IsTranslucent(int id)
     {
         lock (_gate) return _translucent.Contains(id);
     }

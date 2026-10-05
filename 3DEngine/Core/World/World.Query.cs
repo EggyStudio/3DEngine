@@ -3,12 +3,12 @@ namespace Engine;
 public sealed partial class World
 {
     /// <summary>Number of resources currently stored in this world.</summary>
-    public int ResourceCount => _resources.Count;
+    internal int ResourceCount => _resources.Count;
 
     /// <summary>Checks whether a resource of type <typeparamref name="T"/> exists in this world.</summary>
     /// <typeparam name="T">The resource type to look for.</typeparam>
     /// <returns><c>true</c> if a resource of type <typeparamref name="T"/> is present; otherwise <c>false</c>.</returns>
-    public bool ContainsResource<T>() where T : notnull => 
+    internal bool ContainsResource<T>() where T : notnull => 
         _resources.ContainsKey(typeof(T));
 
     /// <summary>Gets a required resource of type <typeparamref name="T"/>, or throws if missing.</summary>
@@ -25,7 +25,7 @@ public sealed partial class World
     /// <summary>Returns the resource of type <typeparamref name="T"/>, or <c>null</c>/<c>default</c> if not present.</summary>
     /// <typeparam name="T">The resource type to retrieve.</typeparam>
     /// <returns>The resource instance, or <c>default</c> if not found.</returns>
-    public T? TryResource<T>() where T : notnull =>
+    internal T? TryResource<T>() where T : notnull =>
         _resources.TryGetValue(typeof(T), out var obj) ? (T?)obj : default;
 
     /// <summary>Tries to get a resource of type <typeparamref name="T"/>.</summary>
@@ -45,5 +45,5 @@ public sealed partial class World
 
     /// <summary>Returns a snapshot of all resource types currently stored in this world.</summary>
     /// <returns>A read-only collection of <see cref="Type"/> objects for each stored resource.</returns>
-    public IReadOnlyCollection<Type> ResourceTypes => _resources.Keys.ToArray();
+    internal IReadOnlyCollection<Type> ResourceTypes => _resources.Keys.ToArray();
 }

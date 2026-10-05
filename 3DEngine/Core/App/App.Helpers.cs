@@ -25,7 +25,7 @@ public sealed partial class App
     /// <typeparam name="T">The resource type to retrieve or insert.</typeparam>
     /// <param name="value">The fallback value to insert if the resource does not exist.</param>
     /// <returns>The existing or newly inserted resource instance.</returns>
-    public T GetOrInsertResource<T>(T value) where T : notnull
+    internal T GetOrInsertResource<T>(T value) where T : notnull
         => World.GetOrInsertResource(value);
 
     /// <summary>
@@ -34,6 +34,6 @@ public sealed partial class App
     /// </summary>
     /// <typeparam name="T">The resource type. Must have a public parameterless constructor.</typeparam>
     /// <returns>The existing or newly created resource instance.</returns>
-    public T InitResource<T>() where T : notnull, new()
+    internal T InitResource<T>() where T : notnull, new()
         => World.InitResource<T>();
 }

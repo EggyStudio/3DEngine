@@ -53,7 +53,7 @@ public sealed partial class Schedule
 
     /// <summary>Per-stage and per-system timing recorded during execution.</summary>
     /// <seealso cref="ScheduleDiagnostics"/>
-    public ScheduleDiagnostics Diagnostics { get; } = new();
+    internal ScheduleDiagnostics Diagnostics { get; } = new();
 
     /// <summary>
     /// Initializes a new <see cref="Schedule"/> with all stages pre-registered.

@@ -91,7 +91,7 @@ public sealed partial class PhysicsWorld
     /// A vehicle: a box of <paramref name="size"/> and <paramref name="mass"/> held up and driven by
     /// raycast wheels, facing -Z, which every step pushes as <paramref name="settings"/> says.
     /// </summary>
-    public PhysicsBody CreateVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null, int entityId = 0)
+    internal PhysicsBody CreateVehicle(Vector3 position, Vector3 size, float mass = 1000, Vehicle? settings = null, int entityId = 0)
     {
         var body = CreateBox(position, size / 2, mass, entityId: entityId);
         var tuning = settings ?? new Vehicle();
@@ -111,7 +111,7 @@ public sealed partial class PhysicsWorld
     ];
 
     /// <summary>Sets what drives a vehicle from the next step on: throttle and steering from -1 to 1, reverse and right being negative.</summary>
-    public void SetVehicleInput(PhysicsBody body, float throttle, float steer, bool brake)
+    internal void SetVehicleInput(PhysicsBody body, float throttle, float steer, bool brake)
     {
         if (!_vehicles.TryGetValue(body.Handle, out var vehicle)) return;
         vehicle.Throttle = Math.Clamp(throttle, -1, 1);
@@ -120,7 +120,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>Changes how a vehicle rides and drives, its wheels' mounts among it.</summary>
-    public void SetVehicle(PhysicsBody body, Vehicle settings)
+    internal void SetVehicle(PhysicsBody body, Vehicle settings)
     {
         if (!_vehicles.TryGetValue(body.Handle, out var vehicle)) return;
         vehicle.Settings = settings;
@@ -129,10 +129,10 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>How a vehicle rides and drives, or the defaults for a body that is not one.</summary>
-    public Vehicle GetVehicle(PhysicsBody body) => _vehicles.TryGetValue(body.Handle, out var vehicle) ? vehicle.Settings : new Vehicle();
+    internal Vehicle GetVehicle(PhysicsBody body) => _vehicles.TryGetValue(body.Handle, out var vehicle) ? vehicle.Settings : new Vehicle();
 
     /// <summary>A vehicle's wheels as its last step left them, empty for a body that is not one.</summary>
-    public ReadOnlySpan<VehicleWheel> GetVehicleWheels(PhysicsBody body) => _vehicles.TryGetValue(body.Handle, out var vehicle) ? vehicle.Wheels : [];
+    internal ReadOnlySpan<VehicleWheel> GetVehicleWheels(PhysicsBody body) => _vehicles.TryGetValue(body.Handle, out var vehicle) ? vehicle.Wheels : [];
 
     private void ForgetVehicle(int handle) => _vehicles.Remove(handle);
 

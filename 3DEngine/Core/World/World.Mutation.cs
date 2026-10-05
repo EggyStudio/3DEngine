@@ -18,7 +18,7 @@ public sealed partial class World
     /// <typeparam name="T">The resource type to retrieve or insert.</typeparam>
     /// <param name="value">The fallback value to insert if the resource does not exist.</param>
     /// <returns>The existing or newly inserted resource instance.</returns>
-    public T GetOrInsertResource<T>(T value) where T : notnull =>
+    internal T GetOrInsertResource<T>(T value) where T : notnull =>
         _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), value));
 
     /// <summary>
@@ -29,7 +29,7 @@ public sealed partial class World
     /// <typeparam name="T">The resource type to retrieve or create.</typeparam>
     /// <param name="factory">A delegate invoked to create the resource when it does not exist.</param>
     /// <returns>The existing or newly created resource instance.</returns>
-    public T GetOrInsertResource<T>(Func<T> factory) where T : notnull =>
+    internal T GetOrInsertResource<T>(Func<T> factory) where T : notnull =>
         _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), _ => factory()));
 
     /// <summary>
@@ -38,13 +38,13 @@ public sealed partial class World
     /// </summary>
     /// <typeparam name="T">The resource type. Must have a public parameterless constructor.</typeparam>
     /// <returns>The existing or newly created resource instance.</returns>
-    public T InitResource<T>() where T : notnull, new() =>
+    internal T InitResource<T>() where T : notnull, new() =>
         _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), _ => new T()));
 
     /// <summary>Removes the resource of type <typeparamref name="T"/> if present.</summary>
     /// <typeparam name="T">The resource type to remove.</typeparam>
     /// <returns><c>true</c> if a resource was removed; <c>false</c> if no resource of that type existed.</returns>
-    public bool RemoveResource<T>() where T : notnull
+    internal bool RemoveResource<T>() where T : notnull
     {
         Interlocked.Increment(ref _resourceVersion);
         return _resources.TryRemove(typeof(T), out _);
@@ -54,7 +54,7 @@ public sealed partial class World
     /// Changes whenever a resource is inserted, replaced or removed, so a caller that keeps a
     /// resource it looked up knows when to look again.
     /// </summary>
-    public int ResourceVersion => Volatile.Read(ref _resourceVersion);
+    internal int ResourceVersion => Volatile.Read(ref _resourceVersion);
 
     private int _resourceVersion;
 

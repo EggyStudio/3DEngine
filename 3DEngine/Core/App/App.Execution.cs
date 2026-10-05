@@ -43,7 +43,7 @@ public sealed partial class App
     }
 
     /// <summary>Runs one whole frame, <see cref="Stage.First"/> through <see cref="Stage.Last"/>.</summary>
-    public void Frame()
+    internal void Frame()
     {
         BeginFrame();
         EndFrame();
@@ -63,7 +63,7 @@ public sealed partial class App
     /// Whatever the caller does between this and <see cref="EndFrame"/> belongs to the frame, so
     /// draw calls made there are rendered by it and ImGui windows begun there are drawn with it.
     /// </remarks>
-    public void BeginFrame()
+    internal void BeginFrame()
     {
         Startup();
 
@@ -88,7 +88,7 @@ public sealed partial class App
     /// Runs the second half of a frame, <see cref="Stage.PostUpdate"/> through <see cref="Stage.Last"/>,
     /// which applies deferred commands, renders and presents.
     /// </summary>
-    public void EndFrame()
+    internal void EndFrame()
     {
         foreach (var stage in StageOrder.EndFrameStages())
             Schedule.RunStage(stage, World);
@@ -102,7 +102,7 @@ public sealed partial class App
     /// The driver is shut down after <see cref="Stage.Cleanup"/>, so GPU resources that depend on
     /// the window's surface are released before the window goes away.
     /// </remarks>
-    public void Shutdown()
+    internal void Shutdown()
     {
         if (_shutDown) return;
         _shutDown = true;

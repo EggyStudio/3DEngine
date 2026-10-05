@@ -59,7 +59,7 @@ public sealed class ScheduleDiagnostics
     /// <summary>Returns the last recorded duration for the specified stage.</summary>
     /// <param name="stage">The stage to query.</param>
     /// <returns>The duration of the last execution, or <see cref="TimeSpan.Zero"/> if never recorded.</returns>
-    public TimeSpan GetStageDuration(Stage stage)
+    internal TimeSpan GetStageDuration(Stage stage)
     {
         lock (_lock) return _stageTimes.GetValueOrDefault(stage);
     }
@@ -68,7 +68,7 @@ public sealed class ScheduleDiagnostics
     /// <param name="stage">The stage containing the system.</param>
     /// <param name="systemName">The human-readable name of the system.</param>
     /// <returns>The duration of the last execution, or <see cref="TimeSpan.Zero"/> if never recorded.</returns>
-    public TimeSpan GetSystemDuration(Stage stage, string systemName)
+    internal TimeSpan GetSystemDuration(Stage stage, string systemName)
     {
         lock (_lock) return _systemTimes.GetValueOrDefault((stage, systemName));
     }

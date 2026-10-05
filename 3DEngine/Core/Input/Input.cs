@@ -64,37 +64,37 @@ public sealed class Input
     private readonly List<TouchPoint> _touches = [];
 
     /// <summary>The fingers on the screen, in the order they touched it, in window pixels.</summary>
-    public IReadOnlyList<TouchPoint> Touches => _touches;
+    internal IReadOnlyList<TouchPoint> Touches => _touches;
     private readonly System.Collections.Concurrent.ConcurrentQueue<Action<Input>> _queued = new();
 
     /// <summary>Absolute X position of the mouse cursor in window pixels.</summary>
-    public int MouseX { get; private set; }
+    internal int MouseX { get; private set; }
 
     /// <summary>Absolute Y position of the mouse cursor in window pixels.</summary>
-    public int MouseY { get; private set; }
+    internal int MouseY { get; private set; }
 
     /// <summary>Absolute mouse cursor position as an (X, Y) tuple in window pixels.</summary>
     public (int X, int Y) MousePosition => (MouseX, MouseY);
 
     /// <summary>Relative mouse X motion accumulated this frame.</summary>
-    public int MouseDeltaX { get; private set; }
+    internal int MouseDeltaX { get; private set; }
 
     /// <summary>Relative mouse Y motion accumulated this frame.</summary>
-    public int MouseDeltaY { get; private set; }
+    internal int MouseDeltaY { get; private set; }
 
     /// <summary>Relative mouse motion accumulated this frame as an (X, Y) tuple.</summary>
     public (int X, int Y) MouseDelta => (MouseDeltaX, MouseDeltaY);
 
     /// <summary>Horizontal scroll wheel input accumulated this frame.</summary>
-    public float WheelX { get; private set; }
+    internal float WheelX { get; private set; }
 
     /// <summary>Vertical scroll wheel input accumulated this frame.</summary>
-    public float WheelY { get; private set; }
+    internal float WheelY { get; private set; }
 
     private readonly List<char> _textInput = [];
     
     /// <summary>Characters typed this frame via text input events.</summary>
-    public ReadOnlySpan<char> TextInput => CollectionsMarshal.AsSpan(_textInput);
+    internal ReadOnlySpan<char> TextInput => CollectionsMarshal.AsSpan(_textInput);
 
     // What raylib's GetCharPressed and GetKeyPressed hand out one at a time: the characters
     // typed and the keys pressed this frame, in order, each taken once.
@@ -105,19 +105,19 @@ public sealed class Input
     /// The paths of the files dropped on the window, in the order they arrived, kept from frame to
     /// frame until <see cref="ClearDroppedFiles"/>, as raylib keeps them until they are unloaded.
     /// </summary>
-    public IReadOnlyList<string> DroppedFiles => _dropped;
+    internal IReadOnlyList<string> DroppedFiles => _dropped;
 
     /// <summary>Forgets the dropped files, so the next drop starts a new list.</summary>
-    public void ClearDroppedFiles() => _dropped.Clear();
+    internal void ClearDroppedFiles() => _dropped.Clear();
 
     internal void AddDroppedFile(string path) => _dropped.Add(path);
     private readonly Queue<Key> _keyQueue = [];
 
     /// <summary>Takes the next character typed this frame, as a Unicode code point, or 0 when none is left.</summary>
-    public int TakeChar() => _charQueue.TryDequeue(out var c) ? c : 0;
+    internal int TakeChar() => _charQueue.TryDequeue(out var c) ? c : 0;
 
     /// <summary>Takes the next key pressed this frame, or <see cref="Key.Unknown"/> when none is left.</summary>
-    public Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Unknown;
+    internal Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Unknown;
 
     /// <summary>Returns <c>true</c> while the specified key is held down.</summary>
     /// <param name="key">The key to test.</param>
@@ -132,65 +132,65 @@ public sealed class Input
     /// <summary>Returns <c>true</c> during the frame the key was released.</summary>
     /// <param name="key">The key to test.</param>
     /// <returns><c>true</c> if the key transitioned to up this frame; otherwise <c>false</c>.</returns>
-    public bool KeyReleased(Key key) => _keysReleased.Contains(key);
+    internal bool KeyReleased(Key key) => _keysReleased.Contains(key);
 
     /// <summary>
     /// Whether the system repeated <paramref name="key"/> this frame while it was held, as it
     /// repeats a held key in a text field. The first press is not a repeat.
     /// </summary>
-    public bool KeyPressedRepeat(Key key) => _keysRepeated.Contains(key);
+    internal bool KeyPressedRepeat(Key key) => _keysRepeated.Contains(key);
 
     /// <summary>Returns <c>true</c> if any key is currently held down.</summary>
     /// <returns><c>true</c> if at least one key is held; otherwise <c>false</c>.</returns>
-    public bool AnyKeyDown() => _keysDown.Count > 0;
+    internal bool AnyKeyDown() => _keysDown.Count > 0;
 
     /// <summary>Returns <c>true</c> if any key was first pressed this frame.</summary>
     /// <returns><c>true</c> if at least one key transitioned to down; otherwise <c>false</c>.</returns>
-    public bool AnyKeyPressed() => _keysPressed.Count > 0;
+    internal bool AnyKeyPressed() => _keysPressed.Count > 0;
 
     /// <summary>Returns <c>true</c> while the specified mouse button is held down.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button is currently held; otherwise <c>false</c>.</returns>
-    public bool MouseDown(MouseButton button) => _mouseDown.Contains(button);
+    internal bool MouseDown(MouseButton button) => _mouseDown.Contains(button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button was first pressed.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button transitioned to down this frame; otherwise <c>false</c>.</returns>
-    public bool MousePressed(MouseButton button) => _mousePressed.Contains(button);
+    internal bool MousePressed(MouseButton button) => _mousePressed.Contains(button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button was released.</summary>
     /// <param name="button">The mouse button to test.</param>
     /// <returns><c>true</c> if the button transitioned to up this frame; otherwise <c>false</c>.</returns>
-    public bool MouseReleased(MouseButton button) => _mouseReleased.Contains(button);
+    internal bool MouseReleased(MouseButton button) => _mouseReleased.Contains(button);
 
     /// <summary>Returns <c>true</c> if any mouse button is currently held down.</summary>
     /// <returns><c>true</c> if at least one button is held; otherwise <c>false</c>.</returns>
-    public bool AnyMouseDown() => _mouseDown.Count > 0;
+    internal bool AnyMouseDown() => _mouseDown.Count > 0;
 
     /// <summary>Returns <c>true</c> if any mouse button was first pressed this frame.</summary>
     /// <returns><c>true</c> if at least one button transitioned to down; otherwise <c>false</c>.</returns>
-    public bool AnyMousePressed() => _mousePressed.Count > 0;
+    internal bool AnyMousePressed() => _mousePressed.Count > 0;
 
     /// <summary>Returns <c>true</c> while the specified mouse button (by 0-based index) is held down.</summary>
     /// <param name="button">Zero-based button index (0 = left, 1 = middle, 2 = right).</param>
     /// <returns><c>true</c> if the button is currently held; otherwise <c>false</c>.</returns>
-    public bool MouseDown(int button) => _mouseDown.Contains((MouseButton)button);
+    internal bool MouseDown(int button) => _mouseDown.Contains((MouseButton)button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button (by 0-based index) was first pressed.</summary>
     /// <param name="button">Zero-based button index.</param>
     /// <returns><c>true</c> if the button transitioned to down this frame; otherwise <c>false</c>.</returns>
-    public bool MousePressed(int button) => _mousePressed.Contains((MouseButton)button);
+    internal bool MousePressed(int button) => _mousePressed.Contains((MouseButton)button);
 
     /// <summary>Returns <c>true</c> during the frame the mouse button (by 0-based index) was released.</summary>
     /// <param name="button">Zero-based button index.</param>
     /// <returns><c>true</c> if the button transitioned to up this frame; otherwise <c>false</c>.</returns>
-    public bool MouseReleased(int button) => _mouseReleased.Contains((MouseButton)button);
+    internal bool MouseReleased(int button) => _mouseReleased.Contains((MouseButton)button);
 
     /// <summary>The connected gamepads, in the order they connected. Index 0 is the first.</summary>
-    public IReadOnlyList<GamepadState> Gamepads => _gamepads;
+    internal IReadOnlyList<GamepadState> Gamepads => _gamepads;
 
     /// <summary>The gamepad at <paramref name="index"/>, or <c>null</c> when fewer are connected.</summary>
-    public GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
+    internal GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
 
     // -- Mutation, internal, for the platform backends alone
 

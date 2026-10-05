@@ -98,7 +98,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>Replaces the active backend. Disposes the previous one.</summary>
-    public void SetBackend(IAudioBackend backend)
+    internal void SetBackend(IAudioBackend backend)
     {
         ArgumentNullException.ThrowIfNull(backend);
         IAudioBackend? previous;
@@ -114,7 +114,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>Installs (or replaces) the spatial post-processor.</summary>
-    public void SetSpatialProcessor(ISpatialAudioProcessor? processor)
+    internal void SetSpatialProcessor(ISpatialAudioProcessor? processor)
     {
         ISpatialAudioProcessor? previous;
         lock (_lock)
@@ -140,7 +140,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>Plays <paramref name="sound"/> as a 3D voice positioned at <paramref name="position"/>.</summary>
-    public AudioSource PlaySpatial(Sound sound, Vector3 position, AudioVoiceParams parameters = default)
+    internal AudioSource PlaySpatial(Sound sound, Vector3 position, AudioVoiceParams parameters = default)
     {
         ArgumentNullException.ThrowIfNull(sound);
         if (parameters.Volume == 0f) parameters = parameters with { Volume = 1f };
@@ -160,7 +160,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>Spatial variant of <see cref="Play(Handle{Sound}, Assets{Sound}, AudioVoiceParams)"/>.</summary>
-    public AudioSource PlaySpatial(Handle<Sound> handle, Assets<Sound> assets, Vector3 position, AudioVoiceParams parameters = default)
+    internal AudioSource PlaySpatial(Handle<Sound> handle, Assets<Sound> assets, Vector3 position, AudioVoiceParams parameters = default)
     {
         ArgumentNullException.ThrowIfNull(assets);
         return CreateFromHandle(handle, assets, parameters with { Position = position });
@@ -218,7 +218,7 @@ public sealed class AudioServer : IDisposable
     /// played this way.
     /// </summary>
     /// <returns>The voice, which is invalid when the backend cannot stream.</returns>
-    public AudioSource PlayStream(int channels, int sampleRate, AudioVoiceParams parameters = default)
+    internal AudioSource PlayStream(int channels, int sampleRate, AudioVoiceParams parameters = default)
     {
         if (parameters.Volume == 0f) parameters = parameters with { Volume = 1f };
         if (parameters.PlaybackRate <= 0f) parameters = parameters with { PlaybackRate = 1f };
@@ -235,7 +235,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>Appends interleaved samples to a voice from <see cref="PlayStream"/>.</summary>
-    public void QueueSamples(AudioSource source, ReadOnlySpan<float> samples)
+    internal void QueueSamples(AudioSource source, ReadOnlySpan<float> samples)
     {
         lock (_lock)
             if (_voices.TryGetValue(source.Id, out var rec) && rec.VoiceId != 0)
@@ -243,7 +243,7 @@ public sealed class AudioServer : IDisposable
     }
 
     /// <summary>How many frames a voice from <see cref="PlayStream"/> has queued and not yet played.</summary>
-    public long QueuedFrames(AudioSource source)
+    internal long QueuedFrames(AudioSource source)
     {
         lock (_lock)
             return _voices.TryGetValue(source.Id, out var rec) && rec.VoiceId != 0 ? _backend.QueuedVoiceFrames(rec.VoiceId) : 0;
@@ -261,7 +261,7 @@ public sealed class AudioServer : IDisposable
     /// the <see cref="AudioVoiceParams"/> from the live record so the backend voice
     /// starts with the *current* state, not the snapshot captured at <c>Play</c> time.
     /// </remarks>
-    public void ResolvePending(Assets<Sound> assets)
+    internal void ResolvePending(Assets<Sound> assets)
     {
         if (_pending.Count == 0) return;
         ArgumentNullException.ThrowIfNull(assets);
@@ -318,7 +318,7 @@ public sealed class AudioServer : IDisposable
     /// receive the master-volume multiplication so a single options-menu slider scales
     /// every voice in the mix.
     /// </summary>
-    public void Tick()
+    internal void Tick()
     {
         lock (_lock)
         {

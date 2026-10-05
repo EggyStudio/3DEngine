@@ -11,11 +11,11 @@ namespace Engine;
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />
-    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit) =>
+    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit) =>
         Raycast(origin, direction, maxDistance, default, out hit);
 
     /// <summary>The closest hit along a ray that is not <paramref name="ignore"/>, as a body looking past itself.</summary>
-    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit) =>
+    internal bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit) =>
         Raycast(origin, direction, maxDistance, ignore, BufferPool, out hit);
 
     // The same through a pool of the caller's, so rays cast on several threads at once each take

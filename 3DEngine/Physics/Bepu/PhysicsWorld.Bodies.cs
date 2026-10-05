@@ -17,7 +17,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
-    public void Destroy(PhysicsBody body)
+    internal void Destroy(PhysicsBody body)
     {
         // A handle is given out again, and the next body to have it is no trigger unless asked.
         _triggerFlags.Set(body, false);
@@ -75,7 +75,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
-    public Quaternion GetRotation(PhysicsBody body)
+    internal Quaternion GetRotation(PhysicsBody body)
     {
         if (body.Kind == BodyKind.Static)
             return Simulation.Statics.GetStaticReference(new StaticHandle(body.Handle)).Pose.Orientation;
@@ -105,7 +105,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
-    public void SetRotation(PhysicsBody body, Quaternion rotation)
+    internal void SetRotation(PhysicsBody body, Quaternion rotation)
     {
         if (body.Kind == BodyKind.Static)
         {
@@ -131,13 +131,13 @@ public sealed partial class PhysicsWorld
     // -- Velocities
 
     /// <inheritdoc />
-    public Vector3 GetLinearVelocity(PhysicsBody body)
+    internal Vector3 GetLinearVelocity(PhysicsBody body)
         => body.Kind == BodyKind.Static
             ? Vector3.Zero
             : Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Velocity.Linear;
 
     /// <inheritdoc />
-    public Vector3 GetAngularVelocity(PhysicsBody body)
+    internal Vector3 GetAngularVelocity(PhysicsBody body)
         => body.Kind == BodyKind.Static
             ? Vector3.Zero
             : Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Velocity.Angular;
@@ -152,7 +152,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
-    public void SetAngularVelocity(PhysicsBody body, Vector3 velocity)
+    internal void SetAngularVelocity(PhysicsBody body, Vector3 velocity)
     {
         if (body.Kind == BodyKind.Static) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -165,7 +165,7 @@ public sealed partial class PhysicsWorld
     /// <paramref name="rotation"/> over the next <paramref name="seconds"/>, so it reaches the pose
     /// by moving there, which carries what rests on it, rather than by being put there.
     /// </summary>
-    public void FollowPose(PhysicsBody body, Vector3 position, Quaternion rotation, float seconds)
+    internal void FollowPose(PhysicsBody body, Vector3 position, Quaternion rotation, float seconds)
     {
         if (body.Kind != BodyKind.Kinematic || seconds <= 0 || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return;
         var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -183,7 +183,7 @@ public sealed partial class PhysicsWorld
     // -- Forces / impulses
 
     /// <inheritdoc />
-    public void ApplyImpulse(PhysicsBody body, Vector3 impulse, Vector3 offsetFromCenter)
+    internal void ApplyImpulse(PhysicsBody body, Vector3 impulse, Vector3 offsetFromCenter)
     {
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -195,7 +195,7 @@ public sealed partial class PhysicsWorld
     /// Pushes a body at a point in the world, which turns it as well as moving it unless the point
     /// is its center of mass, as a wheel's grip or a hit on a corner does.
     /// </summary>
-    public void ApplyImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)
+    internal void ApplyImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)
     {
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -204,7 +204,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>How fast a point of a body moves, its own velocity and the turn about its center of mass at that point.</summary>
-    public Vector3 GetPointVelocity(PhysicsBody body, Vector3 point)
+    internal Vector3 GetPointVelocity(PhysicsBody body, Vector3 point)
     {
         if (body.Kind == BodyKind.Static) return Vector3.Zero;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -212,7 +212,7 @@ public sealed partial class PhysicsWorld
     }
 
     /// <inheritdoc />
-    public void ApplyAngularImpulse(PhysicsBody body, Vector3 impulse)
+    internal void ApplyAngularImpulse(PhysicsBody body, Vector3 impulse)
     {
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
@@ -223,18 +223,18 @@ public sealed partial class PhysicsWorld
     // -- Sleep state
 
     /// <inheritdoc />
-    public bool IsAwake(PhysicsBody body)
+    internal bool IsAwake(PhysicsBody body)
         => body.Kind != BodyKind.Static && Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Awake;
 
     /// <inheritdoc />
-    public void Wake(PhysicsBody body)
+    internal void Wake(PhysicsBody body)
     {
         if (body.Kind == BodyKind.Static) return;
         Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
     }
 
     /// <inheritdoc />
-    public void Sleep(PhysicsBody body)
+    internal void Sleep(PhysicsBody body)
     {
         if (body.Kind == BodyKind.Static) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));

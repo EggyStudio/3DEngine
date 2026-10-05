@@ -23,7 +23,7 @@ public sealed partial class App
     /// </example>
     /// <seealso cref="IPlugin"/>
     /// <seealso cref="HasPlugin{T}"/>
-    public App AddPlugin(IPlugin plugin)
+    internal App AddPlugin(IPlugin plugin)
     {
         var pluginType = plugin.GetType();
         var pluginName = pluginType.Name;
@@ -67,16 +67,16 @@ public sealed partial class App
     /// <summary>Checks whether a plugin of type <typeparamref name="T"/> has been registered.</summary>
     /// <typeparam name="T">The concrete plugin type to look up.</typeparam>
     /// <returns><c>true</c> if a plugin of type <typeparamref name="T"/> has been added; otherwise <c>false</c>.</returns>
-    public bool HasPlugin<T>() where T : IPlugin => 
+    internal bool HasPlugin<T>() where T : IPlugin => 
         _plugins.ContainsKey(typeof(T));
 
     /// <summary>Number of plugins currently registered.</summary>
     /// <returns>The count of registered plugins.</returns>
-    public int PluginCount => _plugins.Count;
+    internal int PluginCount => _plugins.Count;
 
     /// <summary>Snapshot of all registered plugin types at the time of the call.</summary>
     /// <returns>A read-only collection of <see cref="Type"/> objects representing each registered plugin.</returns>
-    public IReadOnlyCollection<Type> Plugins => _plugins.Keys.ToArray();
+    internal IReadOnlyCollection<Type> Plugins => _plugins.Keys.ToArray();
 
     /// <summary>
     /// Adds every plugin in the supplied <see cref="IPluginGroup"/>, sorted by
@@ -98,7 +98,7 @@ public sealed partial class App
     /// </example>
     /// <seealso cref="IPluginGroup"/>
     /// <seealso cref="IPlugin.Order"/>
-    public App AddPlugins(IPluginGroup group)
+    internal App AddPlugins(IPluginGroup group)
     {
         ArgumentNullException.ThrowIfNull(group);
 

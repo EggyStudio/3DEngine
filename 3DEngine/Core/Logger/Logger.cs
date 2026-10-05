@@ -25,7 +25,7 @@ public sealed class Logger : ILogger
     /// </summary>
     /// <param name="provider">The provider to add.</param>
     /// <returns>This <see cref="Logger"/> instance for fluent chaining.</returns>
-    public Logger UseProvider(ILoggerProvider provider)
+    internal Logger UseProvider(ILoggerProvider provider)
     {
         if (!_extraProviders.Contains(provider)
             && provider != ConsoleLoggerProvider.Instance

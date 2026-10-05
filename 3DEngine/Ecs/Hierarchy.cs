@@ -41,11 +41,11 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>The name of <paramref name="entity"/>, or <c>null</c>.</summary>
-    public string? NameOf(int entity) => TryGet<Name>(entity, out var name) ? name.Value : null;
+    internal string? NameOf(int entity) => TryGet<Name>(entity, out var name) ? name.Value : null;
 
     /// <summary>The first entity with the name <paramref name="name"/>, or 0.</summary>
     /// <remarks>A walk over every named entity, so it is for finding something once, not every frame.</remarks>
-    public int FindByName(string name)
+    internal int FindByName(string name)
     {
         foreach (var (entity, value) in Query<Name>())
             if (value.Value == name) return entity;
@@ -54,7 +54,7 @@ public sealed partial class EcsWorld
 
     /// <summary>Makes <paramref name="parent"/> the parent of <paramref name="child"/>, or removes the link when it is 0.</summary>
     /// <exception cref="InvalidOperationException">The link would make an entity its own ancestor.</exception>
-    public void SetParent(int child, int parent)
+    internal void SetParent(int child, int parent)
     {
         if (parent == 0)
         {
@@ -76,7 +76,7 @@ public sealed partial class EcsWorld
 
     /// <summary>The entities whose parent is <paramref name="parent"/>.</summary>
     /// <remarks>A walk over every entity with a parent, so it is for tools and for despawning, not every frame.</remarks>
-    public IReadOnlyList<int> ChildrenOf(int parent)
+    internal IReadOnlyList<int> ChildrenOf(int parent)
     {
         var children = new List<int>();
         foreach (var (entity, link) in Query<Parent>())
