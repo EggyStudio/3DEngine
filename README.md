@@ -124,6 +124,7 @@ those are.
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_morph_and_layers.webp" width="400"/><br>`models_morph_and_layers` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_texture.webp" width="400"/><br>`shaders_compute_texture` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.webp" width="400"/><br>`shaders_auto_exposure` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/swarm.webp" width="400"/><br>`games/Swarm` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="400"/><br>`shaders_particles` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/rally.webp" width="400"/><br>`games/Rally` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/><br>`games/Manor` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -142,8 +143,14 @@ ImGui, many short sounds overlap, and a script of the game's numbers is compiled
 is saved while the game runs. `games/Rally` races a car round a dirt road over hills from noise:
 a heightmap solid as it is drawn, a car of one box held up by four rays cast to the ground as
 springs, gates that are triggers counting the laps, a ghost of the best lap kept in a file, dust
-from the tyres, motion blur with speed, and an engine's note pitched by it. BUILDING.md says how
-they are built.
+from the tyres, motion blur with speed, and an engine's note pitched by it. `games/Manor` is a
+first-person walk through a house of six rooms and the grounds round it, looking for six lanterns:
+a grid of prefab cells streamed in as the player nears and let go behind, doors on hinges swung by
+motors when their sensors see the player, rooms lit by lamps and reflection probes and a yard by
+the sun's cascaded shadows, fire, steam, dust and a fountain's spray as particles, exposure that
+opens indoors, and a settings screen for the resolution, vertical sync, volumes and key and button
+bindings, kept in a file. All of it, menus included, is played with a gamepad alone. BUILDING.md
+says how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

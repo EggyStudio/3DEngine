@@ -1,0 +1,181 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "eb7b415383f8",
+      "name": "room-study",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/room-study.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "670e0d1b9eb2",
+      "name": "bookcase",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bookcase.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, -7.6],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "d39bfab95be0",
+      "name": "desk",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/desk.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, -4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "c0b2be700523",
+      "name": "chair",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/chair.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, -3.2],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "8d395d108e61",
+      "name": "sofa",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/sofa.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-5, 0, 3],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "54c2acaaa5ab",
+      "name": "rug",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/rug.obj"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "c17f188bfa58",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [1, 0.8392157, 0.627451],
+          "Intensity": 6,
+          "Range": 14,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": false
+        },
+        "Transform": {
+          "Position": [0, 3.4, -2],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "f781e83434c7",
+      "name": "probe",
+      "components": {
+        "ReflectionProbe": {
+          "Size": [15.4, 4.6, 15.4],
+          "Intensity": 0.8,
+          "Capture": 0
+        },
+        "Transform": {
+          "Position": [0, 2.3, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

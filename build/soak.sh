@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every interval into build/soak/<name>.csv. build/soak-check.py then fails
 # when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -euo pipefail
@@ -33,6 +33,7 @@ case "$name" in
   pusher|summit) key Enter 2 ;;
   swarm) cmd swarm.invulnerable true; key Enter 2 ;;
   rally) cmd rally.autopilot true; key Enter 2 ;;
+  manor) cmd input.button 0 South 2; cmd manor.autopilot true ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -59,6 +60,11 @@ turn() {
       wait_frames 120
       if (( i % 4 == 3 )); then cmd rally.reset; fi
       key Enter 2 ;;
+    manor)
+      # The autopilot walks the estate, its cells streamed in and let go, and the pad's bottom
+      # button, a jump on the way, picks Walk again once every lantern is found.
+      wait_frames 240
+      cmd input.button 0 South 2 ;;
   esac
 }
 

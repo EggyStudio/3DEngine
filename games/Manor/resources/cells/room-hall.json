@@ -1,0 +1,184 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "f55e2946953b",
+      "name": "room-hall",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/room-hall.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "e9c959ac93d1",
+      "name": "rug",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/rug.obj"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "ea913be3f15a",
+      "name": "table",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/table.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, -3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "4a37b804aa85",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-6.5, 0, -3],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "617fd6012a28",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-6.5, 0, 3],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "b9f8f361d2f7",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [-5, 2.3, -7.75],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "495a73d14ec6",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [5, 2.3, -7.75],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "8417422e5cfa",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [1, 0.8392157, 0.627451],
+          "Intensity": 8,
+          "Range": 16,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": true
+        },
+        "Transform": {
+          "Position": [0, 3.4, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "6c6e17a14288",
+      "name": "probe",
+      "components": {
+        "ReflectionProbe": {
+          "Size": [15.4, 4.6, 15.4],
+          "Intensity": 0.8,
+          "Capture": 0
+        },
+        "Transform": {
+          "Position": [0, 2.3, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

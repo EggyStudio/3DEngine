@@ -1,0 +1,4 @@
+# path-ns's materials, made by make-art.py.
+newmtl gravel
+Kd 1.000 1.000 1.000
+map_Kd textures/gravel.png

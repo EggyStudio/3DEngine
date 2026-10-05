@@ -1,0 +1,7 @@
+# pine's materials, made by make-art.py.
+newmtl bark
+Kd 1.000 1.000 1.000
+map_Kd textures/bark.png
+newmtl leaves
+Kd 1.000 1.000 1.000
+map_Kd textures/hedge.png

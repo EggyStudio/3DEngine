@@ -1,0 +1,70 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "92597775c05f",
+      "name": "path-cross",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/path-cross.obj"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "00fbe2374ebb",
+      "name": "lamppost",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/lamppost.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-3, 0, -3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "faa322347732",
+      "name": "lamppost",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/lamppost.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [3, 0, 3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "6d07746d80eb",
+      "name": "path-ew",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/path-ew.obj"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "2aa4c62f82f9",
+      "name": "lamppost",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/lamppost.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, -3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "733c5e7683cd",
+      "name": "lamppost",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/lamppost.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "e9b793930bed",
+      "name": "flowerbed",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/flowerbed.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-4, 0, -5.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "d7fe343c0ced",
+      "name": "flowerbed",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/flowerbed.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [4, 0, 5.5],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

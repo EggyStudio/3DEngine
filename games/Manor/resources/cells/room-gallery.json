@@ -1,0 +1,307 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "f013ef9a496c",
+      "name": "room-gallery",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/room-gallery.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "9a6b56219d68",
+      "name": "pedestal",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/pedestal.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-4, 0, -4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "9fd689176465",
+      "name": "pedestal",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/pedestal.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [4, 0, -4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "22e24af7608f",
+      "name": "pedestal",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/pedestal.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-4, 0, 4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "2ae60838679d",
+      "name": "pedestal",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/pedestal.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [4, 0, 4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "d17394afa033",
+      "name": "pedestal",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/pedestal.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "c1352188c90a",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [-5, 2.3, -7.75],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "f93d96f08f52",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [5, 2.3, -7.75],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "059e0970d5c8",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [-5, 2.3, 7.75],
+          "Rotation": [0, 1, 0, -4.371139E-08],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "28c5d1e58263",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [5, 2.3, 7.75],
+          "Rotation": [0, 1, 0, -4.371139E-08],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "cd4a263b5f9d",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [7.75, 2.3, -5],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "f20795f43f07",
+      "name": "painting",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/painting.obj"
+        },
+        "Transform": {
+          "Position": [7.75, 2.3, 5],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "7fee4af52f87",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [0.9411765, 0.9254902, 1],
+          "Intensity": 7,
+          "Range": 16,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": false
+        },
+        "Transform": {
+          "Position": [0, 3.4, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "52eae5a68efa",
+      "name": "dust",
+      "components": {
+        "ParticleEmitter": {
+          "MaxParticles": 300,
+          "Rate": 40,
+          "Emitting": true,
+          "Life": 7,
+          "LifeVariation": 0.5,
+          "Velocity": [0, 0.05, 0],
+          "Spread": 180,
+          "SpeedVariation": 1,
+          "Radius": 6,
+          "Gravity": [0, -0.01, 0],
+          "StartSize": 0.04,
+          "EndSize": 0.04,
+          "StartColor": [255, 250, 230, 200],
+          "EndColor": [255, 250, 230, 0],
+          "Intensity": 1,
+          "Lit": true,
+          "Blend": "Alpha",
+          "Burst": 0
+        },
+        "Transform": {
+          "Position": [0, 2.2, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "687f8c7d0469",
+      "name": "probe",
+      "components": {
+        "ReflectionProbe": {
+          "Size": [15.4, 4.6, 15.4],
+          "Intensity": 0.8,
+          "Capture": 0
+        },
+        "Transform": {
+          "Position": [0, 2.3, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

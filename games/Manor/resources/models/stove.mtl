@@ -1,0 +1,4 @@
+# stove's materials, made by make-art.py.
+newmtl iron
+Kd 1.000 1.000 1.000
+map_Kd textures/iron.png

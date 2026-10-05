@@ -1,0 +1,4 @@
+# sofa's materials, made by make-art.py.
+newmtl rug
+Kd 1.000 1.000 1.000
+map_Kd textures/rug.png

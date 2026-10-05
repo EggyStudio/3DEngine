@@ -1,0 +1,7 @@
+# bookcase's materials, made by make-art.py.
+newmtl wood
+Kd 1.000 1.000 1.000
+map_Kd textures/wood.png
+newmtl books
+Kd 1.000 1.000 1.000
+map_Kd textures/books.png

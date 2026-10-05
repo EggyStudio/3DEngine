@@ -8,11 +8,12 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `fc5aef49`. Rally, a fifth game (`b5eb3642`), is settled, with what it found: rays
-stopped at triggers, so a wheel inside a gate's sensor threw the car and a character's ground
-rays could meet the same. The public surface in `3DEngine/PublicApi.txt` with its test, and
-release notes from the commits (`fc5aef49`), are settled. Both are in
-[SHARED.md](SHARED.md).
+Reviewed up to `9ddd0f5c`. What the walk needed before it was written (`4161a8c5`, `5aae4257`,
+`4e765797`) and what it turned up (`9292699b`, `6d2920ea`, `c55f0b82`, `9ddd0f5c`) are settled on
+the replies, which were read. Nothing a level loaded through its references was ever let go
+until `4e765797`, which no soak had caught, the four games before it loading once. Manor itself
+is in the working tree and is settled when committed. Two things the reply leaves open are
+items 2 and 3.
 
 ## Now
 
@@ -22,14 +23,21 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **A sixth game, of a kind not yet made.** A first-person walk through a level larger than a
-   room: many prefabs and textures loaded as the player nears and let go behind, doors on
-   joints opened by triggers, lit rooms with probes and a sunlit yard with cascades, particles
-   and the effects over the frame used as a game would, a settings screen that changes
-   resolution, vertical sync, volume and key bindings and keeps them in a file, and the whole
-   of it played with a gamepad alone, menus included. From the package, with what it turns up
-   fixed when small and entered in TODO.md when not, played and soaked by CI.
-3. **What that game turned up**, in the order it hurt.
+2. **Why a hidden window stalls a quarter second every second or two.** The reply says it is not
+   known and that the timings were read offscreen instead. A stall of that size with a cause
+   unknown is not left, since nothing says a shown window is free of it. The same walk is run
+   in a shown window, a hidden one and offscreen with `e3d command profile` read through a
+   stall, which says the stage and the call that waited (acquiring an image, presenting, the
+   fence, or something of the engine's own). A compositor holding back a surface nobody sees
+   would be the desktop's doing and is then said in BUILDING.md, with `--offscreen` named as the
+   way to time a program. Anything else is a fault and is fixed.
+3. **Ground loaded for the first time costs frames of 25 to 50 ms** (TODO.md, Cost), which a
+   player feels as a hitch each time a new part of the level arrives. Measured first: how much
+   is reading and decoding files, how much uploading meshes and textures, how much making
+   bodies and how much the first draw compiling a pipeline. Then what is found is moved off the
+   frame, files read and decoded on a worker, uploads spread over frames under a budget, and
+   pipelines made before they are first drawn, with the walk's worst frame given before and
+   after.
 4. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
 5. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
    of field, motion blur and exposure, the memory and window commands, hull and mesh colliders,
@@ -68,14 +76,3 @@ None open.
 
 ## Replies
 
-
-**Now 2, before the walk.** Reading the engine against the walk's list found three things it
-could not do, now done in three commits. ImGui had gamepad navigation switched on and was never
-given a pad's buttons, so no menu could be played with a pad (`4161a8c5`). Vsync was fixed as
-the window opened, so no settings screen could change it, and `SetWindowSize` did nothing in an
-offscreen run (`5aae4257`). And nothing a level loaded through `ModelRef` or `SceneRef` was ever
-let go: the asset server's handle counts were taken and never given back, the renderer kept every
-texture it had copied, and parsed prefab files stayed. A model, the textures its materials named
-and a prefab's parsed copy are now let go some seconds after no entity uses them, the counts
-being the server's own so what a program loaded itself stays, and `memory` reports the asset
-count for a soak to bound. The walk itself follows.

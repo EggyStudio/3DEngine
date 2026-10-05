@@ -1,0 +1,198 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "714314e00d4c",
+      "name": "room-kitchen",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/room-kitchen.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "b61d5f8be368",
+      "name": "counter",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/counter.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [7.4, 0, -4.5],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "ff99c55966ba",
+      "name": "counter",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/counter.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [7.4, 0, 4.5],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "af06a666d9e2",
+      "name": "stove",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/stove.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-6, 0, -7.3],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "f37717cf0f89",
+      "name": "table",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/table.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 2],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3213bf7a36c8",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [1, 0.9254902, 0.8235294],
+          "Intensity": 7,
+          "Range": 16,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": false
+        },
+        "Transform": {
+          "Position": [0, 3.4, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "36a76b612f71",
+      "name": "steam",
+      "components": {
+        "ParticleEmitter": {
+          "MaxParticles": 128,
+          "Rate": 12,
+          "Emitting": true,
+          "Life": 2.5,
+          "LifeVariation": 0.3,
+          "Velocity": [0, 0.6, 0],
+          "Spread": 15,
+          "SpeedVariation": 0.2,
+          "Radius": 0.2,
+          "Gravity": [0, 0.15, 0],
+          "StartSize": 0.2,
+          "EndSize": 0.9,
+          "StartColor": [240, 240, 240, 110],
+          "EndColor": [240, 240, 240, 0],
+          "Intensity": 1,
+          "Lit": true,
+          "Blend": "Alpha",
+          "Burst": 0
+        },
+        "Transform": {
+          "Position": [-6, 1, -7],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "765c4e5cd4b1",
+      "name": "probe",
+      "components": {
+        "ReflectionProbe": {
+          "Size": [15.4, 4.6, 15.4],
+          "Intensity": 0.8,
+          "Capture": 0
+        },
+        "Transform": {
+          "Position": [0, 2.3, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

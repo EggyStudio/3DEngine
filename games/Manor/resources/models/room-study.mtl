@@ -1,0 +1,10 @@
+# room-study's materials, made by make-art.py.
+newmtl floor
+Kd 1.000 1.000 1.000
+map_Kd textures/floor-study.png
+newmtl ceiling
+Kd 1.000 1.000 1.000
+map_Kd textures/plaster.png
+newmtl wall
+Kd 1.000 1.000 1.000
+map_Kd textures/wall-study.png

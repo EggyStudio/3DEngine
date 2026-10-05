@@ -35,6 +35,14 @@ removed from this file, and an item that is partly done is rewritten around what
   on every machine, and more workers save little at these sizes (4.4 ms with four at 2000, and
   thirty-one take longer than one at 290), so a world of thousands of bodies sets it.
 
+- **Ground loaded for the first time costs a frame of 25 to 50 ms.** `games/Manor` streams its
+  estate in as cells of prefabs, and walking into cells whose models and textures have not been
+  loaded before takes frames of 25 to 50 ms as they arrive (offscreen on an RTX 4070 laptop), where cells
+  of models loaded already cost nothing a frame shows. Where those milliseconds go is not yet
+  measured. The prefab file read and parsed on the main thread, the meshes and textures uploaded,
+  the mesh colliders made and the probes captured are the candidates, and the frame profile split
+  by them is the first step.
+
 ### The flat API
 
 `Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and

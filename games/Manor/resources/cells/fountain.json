@@ -1,0 +1,176 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "7b9351a88e44",
+      "name": "path-cross",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/path-cross.obj"
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3465239bba11",
+      "name": "fountain",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/fountain.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "28a7c0c12e24",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-5.5, 0, -5.5],
+          "Rotation": [0, 0.38268346, 0, 0.9238795],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "b7a9d5a88cb2",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [5.5, 0, -5.5],
+          "Rotation": [-0, -0.38268346, -0, 0.9238795],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "91b9c43b80dc",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-5.5, 0, 5.5],
+          "Rotation": [0, 0.9238795, 0, 0.38268343],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "25897fa393f1",
+      "name": "bench",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bench.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [5.5, 0, 5.5],
+          "Rotation": [-0, -0.9238795, -0, 0.38268343],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "497353847459",
+      "name": "spray",
+      "components": {
+        "ParticleEmitter": {
+          "MaxParticles": 512,
+          "Rate": 160,
+          "Emitting": true,
+          "Life": 1.1,
+          "LifeVariation": 0.2,
+          "Velocity": [0, 3.2, 0],
+          "Spread": 25,
+          "SpeedVariation": 0.2,
+          "Radius": 0.1,
+          "Gravity": [0, -9, 0],
+          "StartSize": 0.08,
+          "EndSize": 0.04,
+          "StartColor": [220, 240, 255, 220],
+          "EndColor": [180, 210, 240, 0],
+          "Intensity": 1,
+          "Lit": true,
+          "Blend": "Alpha",
+          "Burst": 0
+        },
+        "Transform": {
+          "Position": [0, 1.8, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "format": "3dengine-scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "53bdbc889901",
+      "name": "room-library",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/room-library.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [0, 0, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "324560189e93",
+      "name": "fireplace",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/fireplace.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [7.3, 0, 0],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "f055ba93eced",
+      "name": "bookcase",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bookcase.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-4.5, 0, -7.6],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "56a85ae63089",
+      "name": "bookcase",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bookcase.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [4.5, 0, -7.6],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "2d8bf29ab3ff",
+      "name": "bookcase",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/bookcase.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [-7.6, 0, 4.5],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "3f381f97230d",
+      "name": "sofa",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/sofa.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [2, 0, 0],
+          "Rotation": [-0, -0.70710677, -0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "c0ac69510257",
+      "name": "rug",
+      "components": {
+        "ModelRef": {
+          "Path": "resources/models/rug.obj"
+        },
+        "Transform": {
+          "Position": [4, 0, 0],
+          "Rotation": [0, 0.70710677, 0, 0.70710677],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "d5ac0dcadacb",
+      "name": "table",
+      "components": {
+        "Collider": {
+          "Shape": "Mesh",
+          "Size": [0, 0, 0],
+          "Radius": 0,
+          "Height": 0,
+          "IsTrigger": false
+        },
+        "ModelRef": {
+          "Path": "resources/models/table.obj"
+        },
+        "RigidBody": {
+          "Kind": "Static",
+          "Mass": 0
+        },
+        "Transform": {
+          "Position": [4, 0, 4],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "a07a2433f191",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [1, 0.8392157, 0.627451],
+          "Intensity": 5,
+          "Range": 14,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": false
+        },
+        "Transform": {
+          "Position": [0, 3.4, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "73f4ec478c9c",
+      "name": "lamp",
+      "components": {
+        "Light": {
+          "Kind": "Point",
+          "Color": [1, 0.54901963, 0.23529412],
+          "Intensity": 6,
+          "Range": 9,
+          "InnerAngle": 25,
+          "OuterAngle": 30,
+          "CastsShadows": false
+        },
+        "Transform": {
+          "Position": [6.4, 0.8, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "e811f17aa705",
+      "name": "fire",
+      "components": {
+        "ParticleEmitter": {
+          "MaxParticles": 256,
+          "Rate": 70,
+          "Emitting": true,
+          "Life": 0.7,
+          "LifeVariation": 0.4,
+          "Velocity": [0, 1.2, 0],
+          "Spread": 20,
+          "SpeedVariation": 0.2,
+          "Radius": 0.35,
+          "Gravity": [0, 0.8, 0],
+          "StartSize": 0.35,
+          "EndSize": 0.05,
+          "StartColor": [255, 170, 60, 255],
+          "EndColor": [200, 40, 10, 0],
+          "Intensity": 3,
+          "Lit": false,
+          "Blend": "Additive",
+          "Burst": 0
+        },
+        "Transform": {
+          "Position": [7, 0.15, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    },
+    {
+      "id": "5866713c8e86",
+      "name": "probe",
+      "components": {
+        "ReflectionProbe": {
+          "Size": [15.4, 4.6, 15.4],
+          "Intensity": 0.8,
+          "Capture": 0
+        },
+        "Transform": {
+          "Position": [0, 2.3, 0],
+          "Rotation": [0, 0, 0, 1],
+          "Scale": [1, 1, 1]
+        }
+      }
+    }
+  ]
+}

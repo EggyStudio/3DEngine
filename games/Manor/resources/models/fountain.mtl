@@ -1,0 +1,7 @@
+# fountain's materials, made by make-art.py.
+newmtl stone
+Kd 1.000 1.000 1.000
+map_Kd textures/stone.png
+newmtl water
+Kd 1.000 1.000 1.000
+map_Kd textures/water.png

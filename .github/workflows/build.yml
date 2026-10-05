@@ -188,13 +188,54 @@ jobs:
             exit 1
           fi
 
+      # The first-person walk from the same package, played with the pad alone: Settings picked
+      # from the title, vertical sync turned off and kept in the settings file, back to the title,
+      # and a walk begun, which the autopilot finishes through the doors, the rooms and the yard,
+      # its cells streamed in and let go on the way.
+      - name: Build and walk the first-person game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Manor --force-evaluate
+          dotnet build games/Manor --no-restore
+          rm -f games/Manor/bin/Debug/net10.0/manor-settings.txt
+          ./e3d open games/Manor/bin/Debug/net10.0/Manor --offscreen --quiet
+          ./e3d command frames.wait 60 --quiet
+          pad() { ./e3d command input.button 0 "$1" 2 --quiet; ./e3d command frames.wait 4 --quiet; }
+          pad DpadDown; pad South; pad DpadDown; pad DpadDown; pad South; pad East; pad DpadUp; pad South
+          ./e3d command manor.autopilot true --quiet
+          ./e3d command frames.wait 300 --quiet --timeout 600
+          ./e3d shot captures/manor.png --quiet
+          build/webp.sh captures/manor.png captures/manor.webp lossy
+          # The walk takes about 90 seconds of the game's time, which a slow device reaches later.
+          status=""
+          for i in $(seq 1 40); do
+            status=$(./e3d command manor.status)
+            case "$status" in Finished*) break ;; *) ./e3d command frames.wait 300 --quiet --timeout 600 ;; esac
+          done
+          echo "$status"
+          ./e3d command memory.collect
+          ./e3d stop --quiet
+          case "$status" in
+            Finished*) ;;
+            *) echo "::error::Manor: the autopilot did not find every lantern"; exit 1 ;;
+          esac
+          if ! grep -q "vsync = False" games/Manor/bin/Debug/net10.0/manor-settings.txt; then
+            echo "::error::Manor: the setting changed with the pad was not kept in the settings file"
+            exit 1
+          fi
+          if grep -F '[Vulkan.Validation]' build/sessions/Manor.log | grep -F 'Validation Error'; then
+            echo "::error::Manor: the validation layer reported an error"
+            exit 1
+          fi
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off (build/soak-check.py), as a leak does.
       - name: Play each game a while and check nothing it holds grows
         run: |
           pids=()
-          for game in Pusher Hopper Summit Swarm Rally; do
+          for game in Pusher Hopper Summit Swarm Rally Manor; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
           done
@@ -212,7 +253,7 @@ jobs:
           failed=0
           for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
                          games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
-                         games/Rally/bin/Debug/net10.0/Rally \
+                         games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

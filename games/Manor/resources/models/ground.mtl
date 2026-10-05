@@ -1,0 +1,4 @@
+# ground's materials, made by make-art.py.
+newmtl grass
+Kd 1.000 1.000 1.000
+map_Kd textures/grass.png

@@ -1,0 +1,7 @@
+# lamppost's materials, made by make-art.py.
+newmtl iron
+Kd 1.000 1.000 1.000
+map_Kd textures/iron.png
+newmtl bulb
+Kd 1.000 0.900 0.700
+Ke 4.000 3.200 2.000
