@@ -316,8 +316,9 @@ or the first render target's when the window draws no meshes, are drawn through 
 right angle from the probe's middle into half-float render targets of 64 texels
 (`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the window's
 lighting buffer with its output flag set, so the light stays linear and as bright as it was drawn,
-cleared to the window's clear color in linear light, and read back at the end of the frame
-(`GraphicsDevice.RequestReadback`, a stall a capture can take). A worker thread maps each direction
+cleared to the window's clear color in linear light, and read back once the frame has finished on
+the GPU, when its frame slot comes round three frames later (`GraphicsDevice.RequestReadback`), so
+no frame waits for it. A worker thread maps each direction
 to the face looking most nearly along it, through that face's own view-projection, and prefilters
 the result as an environment map of faces 32 texels wide with its irradiance
 (`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
