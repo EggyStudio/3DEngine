@@ -229,13 +229,78 @@ jobs:
             exit 1
           fi
 
+      # The strategy board from the same package: a unit picked and walked by clicks the mouse
+      # makes through the ray picking, the whole side picked by a box dragged round it and ordered
+      # across the board together, the other side hidden in fog at the start, a match saved and
+      # taken up again, and the computer playing both sides to the end.
+      - name: Build and play the strategy game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Tactics --force-evaluate
+          dotnet build games/Tactics --no-restore
+          rm -f games/Tactics/bin/Debug/net10.0/tactics-save.json
+          ./e3d open games/Tactics/bin/Debug/net10.0/Tactics --offscreen --quiet
+          ./e3d command frames.wait 30 --quiet
+          ./e3d command tactics.new 7 --quiet
+          ./e3d command frames.wait 10 --quiet
+          click() { read -r x y <<< "$(./e3d command tactics.where "$1" "$2")"; ./e3d command input.click "$x" "$y" --quiet; ./e3d command frames.wait 40 --quiet; }
+          start=$(./e3d command tactics.status)
+          click 0 2
+          picked=$(./e3d command tactics.status)
+          click 2 2
+          walked=$(./e3d command tactics.status)
+          ./e3d command input.key Escape 2 --quiet
+          # A box from the screen corners of the tiles the blue side stands among.
+          xs=(); ys=()
+          for tile in "0 1" "2 1" "0 9" "2 9"; do read -r x y <<< "$(./e3d command tactics.where $tile)"; xs+=("$x"); ys+=("$y"); done
+          minx=$(printf '%s\n' "${xs[@]}" | sort -n | head -1); maxx=$(printf '%s\n' "${xs[@]}" | sort -n | tail -1)
+          miny=$(printf '%s\n' "${ys[@]}" | sort -n | head -1); maxy=$(printf '%s\n' "${ys[@]}" | sort -n | tail -1)
+          ./e3d command input.move $((minx - 30)) $((miny - 60)) --quiet
+          ./e3d command input.drag Left $((maxx - minx + 60)) $((maxy - miny + 90)) 20 5 --quiet
+          ./e3d command frames.wait 5 --quiet
+          boxed=$(./e3d command tactics.status)
+          click 6 5
+          ./e3d command frames.wait 300 --quiet
+          ordered=$(./e3d command tactics.status)
+          printf '%s\n' "$start" "$picked" "$walked" "$boxed" "$ordered"
+          ./e3d command tactics.save --quiet
+          ./e3d command tactics.autopilot true --quiet
+          ./e3d command frames.wait 300 --quiet --timeout 600
+          ./e3d shot captures/tactics.png --quiet
+          build/webp.sh captures/tactics.png captures/tactics.webp lossy
+          status=""
+          for i in $(seq 1 40); do
+            status=$(./e3d command tactics.status)
+            case "$status" in Over*) break ;; *) ./e3d command frames.wait 300 --quiet --timeout 600 ;; esac
+          done
+          echo "$status"
+          # The player's again before the match is taken up, or the computer ends the turn saved.
+          ./e3d command tactics.autopilot false --quiet
+          ./e3d command tactics.load --quiet
+          ./e3d command frames.wait 5 --quiet
+          loaded=$(./e3d command tactics.status)
+          echo "$loaded"
+          ./e3d stop --quiet
+          case "$start" in *"in sight 0"*) ;; *) echo "::error::Tactics: the other side was not hidden in fog at the start"; exit 1 ;; esac
+          case "$picked" in *"selected Archer 0,2"*) ;; *) echo "::error::Tactics: a click on a unit did not pick it"; exit 1 ;; esac
+          case "$walked" in *"selected Archer 2,2"*) ;; *) echo "::error::Tactics: a click on a tile did not walk the unit there"; exit 1 ;; esac
+          case "$boxed" in *"selected 5 units"*) ;; *) echo "::error::Tactics: a box dragged round the side did not pick it"; exit 1 ;; esac
+          case "$ordered" in *"ready 0"*) ;; *) echo "::error::Tactics: the units picked together did not all walk"; exit 1 ;; esac
+          case "$status" in Over*) ;; *) echo "::error::Tactics: the match did not end"; exit 1 ;; esac
+          case "$loaded" in "Play round 1 turn Blue"*"ready 0"*) ;; *) echo "::error::Tactics: the saved match was not taken up again"; exit 1 ;; esac
+          if grep -F '[Vulkan.Validation]' build/sessions/Tactics.log | grep -F 'Validation Error'; then
+            echo "::error::Tactics: the validation layer reported an error"
+            exit 1
+          fi
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off (build/soak-check.py), as a leak does.
       - name: Play each game a while and check nothing it holds grows
         run: |
           pids=()
-          for game in Pusher Hopper Summit Swarm Rally Manor; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
           done
@@ -254,6 +319,7 @@ jobs:
           for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
                          games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
                          games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
+                         games/Tactics/bin/Debug/net10.0/Tactics \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

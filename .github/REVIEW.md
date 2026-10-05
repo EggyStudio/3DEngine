@@ -8,11 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `abd09df5`. Windows and macOS drawing in the workflow (`d82c3a1e`, `04c00e4c`) is settled as
-written, and neither job has run, so its first result comes through the owner. The public
-surface from 536 types to 244 (`82b1feb4`, `a3428422`, `abd09df5`) was read in `PublicApi.txt`
-by its type names and is right in the large, and the verdict below is what is left of it. The
-surface made smaller breaks a program built on an earlier 5.0 package, which decision 5 answers.
+Reviewed up to `432b97ee`. The names said twice and the workings left public (`432b97ee`) are settled
+on the reply, which was read: the stores, the material descriptions, the window's data and the
+generators internal, `TextureAsset` and `PhysicsRayCollision` named apart from `Texture2D` and
+`RayCollision`, and DESIGN.md §11 saying what tells each remaining pair apart. 228 public types
+are left of 536. The owner has been told the version is due to be raised.
 
 ## Now
 
@@ -22,15 +22,14 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **The verdict below**, while the listing is fresh.
-3. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
+2. **A seventh game, of a kind not yet made.** A turn-based or real-time strategy board seen
    from above: units picked and ordered with the mouse through rays, paths found round
    obstacles on a grid, many units selected and listed in ImGui panels, fog over what is not
    seen, a match saved to a file and taken up again with whatever the engine offers for that,
    and an opponent that plays. From the package, with what it turns up fixed when small and
    entered in TODO.md when not, played, soaked and stormed by CI.
-4. **What that game turned up**, in the order it hurt.
-5. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
+3. **What that game turned up**, in the order it hurt.
+4. **TODO.md's order** for everything else, with a crowd's controller rays among it, and
    another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -40,21 +39,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-1. **The surface still says some things twice.** Reading the 244 type names left in
-   `3DEngine/PublicApi.txt`, these pairs and groups look like one thing under more than one
-   name, which the item asked to be gone. Each is either made one, or kept with a sentence in
-   DESIGN.md §11 saying what tells them apart.
-   - `TextureWrap` and `TextureWrapMode`.
-   - `Texture` and `Texture2D`.
-   - `RaycastHit` and `RayCollision`, after `a3428422` gave the physics rays raylib's shape.
-   - `Material`, `ModelMaterial`, `MaterialDescription` and `MaterialSettings`, four types for
-     what a surface looks like.
-   - `PhysicsBody` and `RigidBody`, and `PhysicsJoint` and `Joint`, where one of each pair is
-     the flat API's handle and the other the component, which the names do not say.
-   And these look like the engine's own workings still public: `MeshStore` and
-   `TextureStore` with their `Upload` types, `MaterialLibrary`, `ScheduleDiagnostics`,
-   `WindowCommand` and `WindowData`, and the three generator classes, which are public only if
-   the compiler has to find them.
+None open.
 
 ## Decisions
 
@@ -84,16 +69,14 @@ documentation by a tool stays to consider as well.
 ## Replies
 
 
-**Verdict on names said twice and workings left public.** `MeshStore`, `TextureStore` and their
-upload records, `MaterialLibrary`, `MaterialDescription`, `MaterialSettings`, `MaterialTextureRef`,
-`TextureWrapMode`, `ScheduleDiagnostics`, `WindowCommand`, `WindowData` and the three generator
-classes are internal, `MaterialHandle` kept public as the opaque handle a `Material` holds, and
-`Config`'s window members that took them internal beside them. The asset is `TextureAsset` now,
-beside `SceneAsset`, so `Texture2D` is the one thing called a texture, and the physics raycast's
-result is `PhysicsRayCollision`, beside `RayCollision`. `RigidBody`, `Joint` and `Collider` keep
-their names, since scene files write them, and DESIGN.md §11 says what tells each pair apart:
-`Physics` for a handle or result of the world and the plain noun for a component, `Texture2D` and
-`TextureAsset`, `RayCollision` and `PhysicsRayCollision`, `Material` and `ModelMaterial`. 228
-public types are left. Taken out of the surface by this commit and the three before it: 308 types
-(`82b1feb4`, this one), 227 members (`abd09df5`), and the raycast's and the asset's names
-(`a3428422`, this one), which by Decision 5 is the owner's to raise the version for.
+**A seventh game.** `games/Tactics` is a turn-based board seen from above, built from the package:
+tiles and units picked by `GetScreenToWorldRay` and `GetRayCollisionBox`, several units picked by
+a box dragged round them or a shift click and listed in an ImGui panel, walks found by Dijkstra's
+search within a turn's moves and routes by A* across the board, fog over every tile no unit of
+the side sees, woods hiding what is past them, a match written with `SaveFileText` and taken up
+with `LoadFileText`, and an opponent that plays from what its own side sees. CI picks a unit and
+walks it with clicks, picks the side with `input.drag`, orders it across the board, checks the
+other side is hidden at the start, plays both sides to the end, and takes the saved match up
+again, and the game is soaked and stormed with the others. It turned up nothing in the engine,
+every ray helper it needed being there, so Now 3 is empty; the one trap was Escape closing the
+window by default, as in raylib, which `SetExitKey(Key.Unknown)` answers in the game.

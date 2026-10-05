@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every interval into build/soak/<name>.csv. build/soak-check.py then fails
 # when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -euo pipefail
@@ -34,6 +34,7 @@ case "$name" in
   swarm) cmd swarm.invulnerable true; key Enter 2 ;;
   rally) cmd rally.autopilot true; key Enter 2 ;;
   manor) cmd input.button 0 South 2; cmd manor.autopilot true ;;
+  tactics) cmd tactics.new 1; cmd tactics.autopilot true ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -65,6 +66,12 @@ turn() {
       # button, a jump on the way, picks Walk again once every lantern is found.
       wait_frames 240
       cmd input.button 0 South 2 ;;
+    tactics)
+      # The computer plays both sides, and a match that has ended is followed by a new one on
+      # another map, saved and taken up again now and then.
+      wait_frames 240
+      if (( i % 3 == 2 )); then cmd tactics.save; cmd tactics.load; fi
+      case "$(./e3d command tactics.status "${session[@]}")" in Over*) cmd tactics.new "$i" ;; esac ;;
   esac
 }
 

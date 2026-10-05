@@ -124,7 +124,7 @@ those are.
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_morph_and_layers.webp" width="400"/><br>`models_morph_and_layers` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_texture.webp" width="400"/><br>`shaders_compute_texture` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.webp" width="400"/><br>`shaders_auto_exposure` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/swarm.webp" width="400"/><br>`games/Swarm` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="400"/><br>`shaders_particles` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/rally.webp" width="400"/><br>`games/Rally` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/><br>`games/Manor` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/><br>`games/Manor` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tactics.webp" width="400"/><br>`games/Tactics` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -149,8 +149,13 @@ a grid of prefab cells streamed in as the player nears and let go behind, doors 
 motors when their sensors see the player, rooms lit by lamps and reflection probes and a yard by
 the sun's cascaded shadows, fire, steam, dust and a fountain's spray as particles, exposure that
 opens indoors, and a settings screen for the resolution, vertical sync, volumes and key and button
-bindings, kept in a file. All of it, menus included, is played with a gamepad alone. BUILDING.md
-says how they are built.
+bindings, kept in a file. All of it, menus included, is played with a gamepad alone.
+`games/Tactics` is a strategy board seen from above: soldiers, archers and a knight on grass,
+woods, hills and water, picked with the mouse by a ray from the camera to the tile or unit it
+meets, or several at once by a box dragged round them and listed in an ImGui panel, walking as far
+as their moves allow by the cheapest way, which Dijkstra's search finds. Each side sees only what
+its units can, past no woods, and the rest is fog. The computer's side heads for the nearest enemy
+it sees by A*, and a match is saved to a file and taken up again. BUILDING.md says how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 
