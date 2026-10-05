@@ -696,6 +696,7 @@ PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size);               
 void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce);     // Ice or rubber, a dead or a bouncing ball
 void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     // Make a body a trigger, or solid again
 PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1); // Level geometry shaped as a model's triangles
+PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1); // Falls and is pushed, shaped as the hull of the model
 PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point); // Join two bodies at a point, free to turn
 PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis); // Turning only around an axis
 PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b);              // Join two bodies rigidly

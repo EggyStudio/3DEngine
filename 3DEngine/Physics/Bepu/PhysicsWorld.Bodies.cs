@@ -31,6 +31,7 @@ public sealed partial class PhysicsWorld
             Simulation.Bodies.Remove(new BodyHandle(body.Handle));
             _bodyToEntity.Remove(body.Handle);
             _previousPoses.Remove(body.Handle);
+            _origins.Remove(body.Handle);
             ForgetCharacter(body.Handle);
             _joined.RemoveBody(body.Handle);
         }
@@ -38,12 +39,21 @@ public sealed partial class PhysicsWorld
 
     // -- Pose
 
+    // Where the origin of a body's entity is from the body's center, in the body's own frame, for
+    // a body whose shape is not centered on that origin, as a convex hull of a mesh is, so its pose
+    // is read and set as where the mesh is drawn, and the solver keeps the center of mass.
+    private readonly Dictionary<int, Vector3> _origins = [];
+
+    private Vector3 Origin(int handle, Quaternion rotation) =>
+        _origins.TryGetValue(handle, out var origin) ? Vector3.Transform(origin, rotation) : Vector3.Zero;
+
     /// <inheritdoc />
     public Vector3 GetPosition(PhysicsBody body)
     {
         if (body.Kind == BodyKind.Static)
             return Simulation.Statics.GetStaticReference(new StaticHandle(body.Handle)).Pose.Position;
-        return Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Pose.Position;
+        var pose = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)).Pose;
+        return pose.Position + Origin(body.Handle, pose.Orientation);
     }
 
     /// <summary>
@@ -58,7 +68,9 @@ public sealed partial class PhysicsWorld
         if (body.Kind == BodyKind.Static || alpha >= 1 || !_previousPoses.TryGetValue(body.Handle, out var before))
             return (position, rotation);
         alpha = Math.Clamp(alpha, 0, 1);
-        return (Vector3.Lerp(before.Position, position, alpha), Quaternion.Slerp(before.Orientation, rotation, alpha));
+        var blended = Quaternion.Slerp(before.Orientation, rotation, alpha);
+        var center = Vector3.Lerp(before.Position, position - Origin(body.Handle, rotation), alpha);
+        return (center + Origin(body.Handle, blended), blended);
     }
 
     /// <inheritdoc />
@@ -83,7 +95,7 @@ public sealed partial class PhysicsWorld
         {
             var bh = new BodyHandle(body.Handle);
             var br = Simulation.Bodies.GetBodyReference(bh);
-            br.Pose.Position = position;
+            br.Pose.Position = position - Origin(body.Handle, br.Pose.Orientation);
             br.Awake = true;
             br.UpdateBounds();
             // A teleport, so it is not blended into.
@@ -105,7 +117,10 @@ public sealed partial class PhysicsWorld
         {
             var bh = new BodyHandle(body.Handle);
             var br = Simulation.Bodies.GetBodyReference(bh);
+            // Turned about its entity's origin, which stays where it is.
+            var origin = br.Pose.Position + Origin(body.Handle, br.Pose.Orientation);
             br.Pose.Orientation = rotation;
+            br.Pose.Position = origin - Origin(body.Handle, rotation);
             br.Awake = true;
             br.UpdateBounds();
             _previousPoses.Remove(body.Handle);
@@ -153,7 +168,7 @@ public sealed partial class PhysicsWorld
     {
         if (body.Kind != BodyKind.Kinematic || seconds <= 0 || !Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) return;
         var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
-        reference.Velocity.Linear = (position - reference.Pose.Position) / seconds;
+        reference.Velocity.Linear = (position - Origin(body.Handle, rotation) - reference.Pose.Position) / seconds;
 
         // The turn from the pose it has to the one it is to have, the short way round.
         var turn = Quaternion.Normalize(rotation * Quaternion.Conjugate(reference.Pose.Orientation));

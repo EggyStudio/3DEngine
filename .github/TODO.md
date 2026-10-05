@@ -153,7 +153,8 @@ it. Two bodies starting and stopping touching (a hundredth of a unit apart or cl
 entities as they were when the contact started. A resting pair whose bodies sleep stays touching.
 
 The flat API creates boxes, spheres, capsules, static and kinematic boxes, triggers, which report
-what enters them as contacts and stop nothing, and level geometry shaped as a model's triangles. It
+what enters them as contacts and stop nothing, level geometry shaped as a model's triangles, and
+bodies shaped as a model's convex hull, read and drawn at the model's origin. It
 joins bodies with ball, hinge, weld and distance joints, a hinge limited between two angles or
 driven by a motor, reads their blended poses, pushes them, casts rays and reads the frame's contacts
 with the point and normal where each pair met (CHEATSHEET.md, Physics). A `Collider` marked
@@ -172,8 +173,8 @@ and stands where there is room, and reports ground.
 
 `SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to JSON
 and loads it back (ARCHITECTURE.md, Scene files), a mesh entity made in code with its arrays and a
-model through its `ModelRef`. A body is described by a `Collider` (box, sphere, capsule, or the
-meshes of the entity and those under it) and a `RigidBody` (static, dynamic with a mass, or
+model through its `ModelRef`. A body is described by a `Collider` (box, sphere, capsule, the
+meshes of the entity and those under it, or their convex hull) and a `RigidBody` (static, dynamic with a mass, or
 kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
 when a `CharacterController` is beside a capsule. A `Joint` on an entity of its own joins two
 entities' bodies at its place, and a `PhysicsMaterial` beside a `Collider` gives its body a friction

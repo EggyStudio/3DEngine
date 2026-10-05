@@ -57,6 +57,21 @@ var liftAt = GetPhysicsBodyPosition(lift);
 SetPhysicsBodyVelocity(lift, new Vector3(0, (liftY - liftAt.Y) * 8, 0));
 ```
 
+A body of a model's own shape that falls and tumbles, as a rock or a barrel, is
+`CreatePhysicsConvexHull`, shaped as the smallest shape without hollows that holds the model's
+vertices. Its position is the model's origin, where the model is drawn, though it turns about its
+center of mass. The `physics_boxes` example drops cones among its boxes:
+
+```csharp
+cones.Add(CreatePhysicsConvexHull(cone, new Vector3(Random.Shared.NextSingle() * 6 - 3, 4 + i, Random.Shared.NextSingle() * 6 - 3), mass: 0.5f));
+// ...
+cone.Transform = GetPhysicsBodyTransform(body);
+DrawModel(cone, Vector3.Zero, 1, new Color(80, 130, 220));
+```
+
+In the ECS, `Collider.ConvexHull` beside a `RigidBody` makes the same from the entity's meshes and
+those below it.
+
 ## Pushing and moving
 
 `ApplyPhysicsImpulse` pushes a body at its center, as a hit or an explosion does, and

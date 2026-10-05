@@ -99,6 +99,7 @@ public sealed partial class PhysicsWorld
                 position = br.Pose.Position;
                 rotation = br.Pose.Orientation;
             }
+            position += Origin(handleValue, rotation);
 
             var parent = ecs.ParentOf(entity);
             if (parent != 0 && Matrix4x4.Invert(TransformPropagation.ComposedWorldMatrix(ecs, parent), out var toParent))

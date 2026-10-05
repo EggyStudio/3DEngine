@@ -73,6 +73,36 @@ public static partial class Engine3D
         return Physics.CreateStaticMesh(position, points.ToArray(), triangles.ToArray());
     }
 
+    /// <summary>
+    /// A body shaped as the convex hull of <paramref name="model"/>, the smallest shape without
+    /// hollows that holds its vertices, scaled as <c>DrawModel</c> scales it, with the model's origin
+    /// at <paramref name="position"/>, which falls and is pushed with <paramref name="mass"/>, as a
+    /// rock, a barrel or a crate of the model's own shape.
+    /// </summary>
+    /// <remarks>
+    /// The body's position and rotation are where the model is drawn, as
+    /// <c>DrawModelEx(model, GetPhysicsBodyPosition(body), ...)</c> draws it, and it turns about its
+    /// center of mass. A hollow in the model is filled, so a cup holds nothing.
+    /// </remarks>
+    /// <returns>The body, or an invalid one when the model's vertices hold nothing, with the reason in the log.</returns>
+    public static PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1)
+    {
+        var world = model.Transform * Matrix4x4.CreateScale(scale);
+        var points = new HashSet<Vector3>();
+        foreach (var mesh in model.Meshes)
+            if (Meshes.TryGetData(mesh.Id, out var vertices, out _))
+                foreach (var vertex in vertices) points.Add(Vector3.Transform(vertex.Position, world));
+        try
+        {
+            return Physics.CreateConvexHull(position, [.. points], mass);
+        }
+        catch (ArgumentException ex)
+        {
+            ApiLogger.Warn($"CreatePhysicsConvexHull: the model makes no convex hull, {ex.Message}");
+            return default;
+        }
+    }
+
     // -- Joints, which hold bodies that move. A body held to the world is joined to a kinematic one.
 
     /// <summary>Joins two bodies at a point in the world, each free to turn about it, as a ball in a socket.</summary>

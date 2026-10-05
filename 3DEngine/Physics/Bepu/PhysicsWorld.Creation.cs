@@ -140,6 +140,41 @@ public sealed partial class PhysicsWorld
         return WithMaterial(new PhysicsBody(this, handle.Value, BodyKind.Static), material);
     }
 
+    // -- Convex hulls
+
+    /// <summary>
+    /// A body shaped as the convex hull of <paramref name="points"/>, the smallest shape without
+    /// hollows that holds them all, as a rock, a barrel or a crate of a model's shape, placed with
+    /// the points' origin at <paramref name="origin"/>, falling and pushed unless
+    /// <paramref name="kind"/> says otherwise.
+    /// </summary>
+    /// <remarks>
+    /// The hull is turned about its center of mass, which the solver keeps, while the body's
+    /// position, as it is read and set and as its entity's <see cref="Transform"/> is written, is
+    /// where the points' origin is, so a mesh drawn at it sits in its hull.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The points lie in a plane or on a line, or are fewer than four.</exception>
+    public PhysicsBody CreateConvexHull(Vector3 origin, ReadOnlySpan<Vector3> points, float mass = 1, BodyKind kind = BodyKind.Dynamic,
+        PhysicsMaterial? material = null, int entityId = 0)
+    {
+        if (points.Length < 4) throw new ArgumentException("A convex hull needs at least four points.", nameof(points));
+        ConvexHullHelper.CreateShape(points.ToArray(), BufferPool, out var center, out ConvexHull hull);
+        if (hull.FaceToVertexIndicesStart.Length < 4)
+        {
+            hull.Dispose(BufferPool);
+            throw new ArgumentException("The points lie in a plane or on a line, which holds nothing.", nameof(points));
+        }
+        var body = kind switch
+        {
+            BodyKind.Static => RegisterStatic(hull, origin + center, entityId, material),
+            BodyKind.Kinematic => RegisterKinematic(hull, origin + center, material, entityId),
+            _ => RegisterDynamic(hull, origin + center, mass, material, entityId),
+        };
+        // A static hull is never moved, so it keeps no offset, and is read at its center.
+        if (kind != BodyKind.Static) _origins[body.Handle] = -center;
+        return body;
+    }
+
     // -- Kinematic
 
     /// <inheritdoc />

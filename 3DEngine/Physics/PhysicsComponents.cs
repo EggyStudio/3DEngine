@@ -17,6 +17,12 @@ public enum ColliderShape
     /// and walls. A model a <see cref="ModelRef"/> spawns under the entity counts, once it has.
     /// </summary>
     Mesh,
+    /// <summary>
+    /// The convex hull of the entity's meshes and its descendants', as the mesh is, the smallest
+    /// shape without hollows that holds them, which falls, is pushed or is moved as its
+    /// <see cref="RigidBody"/> says, as a rock or a barrel of a model's shape.
+    /// </summary>
+    ConvexHull,
 }
 
 /// <summary>
@@ -53,6 +59,9 @@ public struct Collider
 
     /// <summary>The shape of the meshes the entity and its descendants show.</summary>
     public static Collider Mesh => new() { Shape = ColliderShape.Mesh };
+
+    /// <summary>The convex hull of the meshes the entity and its descendants show.</summary>
+    public static Collider ConvexHull => new() { Shape = ColliderShape.ConvexHull };
 }
 
 /// <summary>
@@ -135,6 +144,9 @@ public struct Joint
     public float MinDistance, MaxDistance;
 }
 
+/// <summary>Marks an entity whose collider could not be made, so it is not tried again every frame.</summary>
+internal struct NoBody;
+
 /// <summary>
 /// Makes the body of every entity with a <see cref="Collider"/> and a <see cref="RigidBody"/> that
 /// has none, and destroys the bodies it made whose entities are gone or no longer have one.
@@ -173,7 +185,7 @@ public static class PhysicsBodies
 
         if (ecs.Count<Collider>() == 0) return;
         var wanted = new List<(int Entity, Collider Collider, RigidBody Body)>();
-        foreach (var (entity, collider, rigid) in ecs.Query<Collider, RigidBody>().Without<PhysicsBody>())
+        foreach (var (entity, collider, rigid) in ecs.Query<Collider, RigidBody>().Without<PhysicsBody>().Without<NoBody>())
             wanted.Add((entity, collider, rigid));
 
         foreach (var (entity, collider, rigid) in wanted)
@@ -187,6 +199,24 @@ public static class PhysicsBodies
                 if (TrianglesUnder(ecs, entity, placed) is not { } triangles) continue;
                 body = physics.CreateStaticMesh(position, triangles.Vertices, triangles.Indices, entityId: entity);
                 rotation = Quaternion.Identity;
+            }
+            else if (collider.Shape == ColliderShape.ConvexHull)
+            {
+                if (TrianglesUnder(ecs, entity, placed) is not { } triangles) continue;
+                // The triangles come placed about the entity and turned with it, and the hull is
+                // made unturned, then turned with the entity below.
+                var unturn = Quaternion.Inverse(rotation);
+                var points = triangles.Vertices.Select(v => Vector3.Transform(v, unturn)).Distinct().ToArray();
+                try
+                {
+                    body = physics.CreateConvexHull(position, points, rigid.Mass > 0 ? rigid.Mass : 1, rigid.Kind, entityId: entity);
+                }
+                catch (ArgumentException ex)
+                {
+                    Log.Category("Engine.Physics").Warn($"Collider: entity {entity}'s meshes make no convex hull, so it has no body: {ex.Message}");
+                    ecs.Add(entity, new NoBody());
+                    continue;
+                }
             }
             else body = Make(physics, ecs, entity, collider, rigid, position);
             if (ecs.TryGet<PhysicsMaterial>(entity, out var material)) physics.SetMaterial(body, material);
