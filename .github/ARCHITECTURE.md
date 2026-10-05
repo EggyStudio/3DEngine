@@ -146,9 +146,12 @@ A `[Behavior]` struct's methods carry a stage attribute (`[OnStartup]`, `[OnFixe
 `[OnUpdate]`, `[OnRender]` and the rest). `BehaviorGenerator`, a Roslyn incremental generator,
 emits a system per method, so a behavior may have several methods on one stage:
 
-- a **static** method is one system, called with a `BehaviorContext`;
+- a **static** method is one system, called with a `BehaviorContext`, which runs alone on the main
+  thread, since it is a rule over the whole game that writes resources, calls ImGui and plays
+  sounds with nothing declaring it;
 - an **instance** method runs once per entity that has the struct as a component, with `this` by
-  reference, and switches to a parallel loop above 4096 entities. It may take the entity's other
+  reference, and switches to a parallel loop above 4096 entities, unless it is marked
+  `[MainThread]`, which runs it alone on the main thread too. It may take the entity's other
   components after its context, `ref` to write one, which marks it changed and declares a write to
   the scheduler, and `in` or `ref readonly` to read one, which does neither, and then runs only for
   entities that have them all. The generated loop finds each by its dense index, once an entity.
@@ -170,8 +173,10 @@ state declaration that cannot be registered is reported on the enum or method (E
 or internal (E3D101). `BehaviorContext` resolves the ECS, commands, time and input when it is made,
 and `ctx.Physics` only when it is read, so behaviors run without `PhysicsPlugin`. The generated
 registrations are found by `BehaviorsPlugin` when it builds. `RuntimeBehaviorCompiler` watches
-`source/behaviors` beside the program, compiles what it finds with Roslyn and the same generator
-into a collectible load context, and replaces the previous generation's systems.
+`source/behaviors` beside the program, or the project's own when the program runs from a project's
+`bin/<configuration>/<framework>`, compiles what it finds with Roslyn and the same generator against
+the engine and the program's assembly into a collectible load context, and replaces the previous
+generation's systems.
 
 ## Assets
 

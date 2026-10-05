@@ -85,6 +85,24 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void The_App_Waits_For_An_Answer_As_Long_As_The_Request_Says()
+    {
+        // A queue nobody pumps, so the answer never comes and the wait is all there is to see.
+        using var server = new CliServer(new CliQueue());
+        using var caller = new System.Net.Sockets.TcpClient("127.0.0.1", server.Port) { ReceiveTimeout = 20_000 };
+        using var stream = caller.GetStream();
+        using var writer = new StreamWriter(stream) { AutoFlush = true, NewLine = "\n" };
+        using var reader = new StreamReader(stream);
+
+        var started = System.Diagnostics.Stopwatch.StartNew();
+        writer.WriteLine($$"""{"op":"run","token":"{{server.Token}}","line":"frames.wait 1000","seconds":1}""");
+        using var answer = JsonDocument.Parse(reader.ReadLine()!);
+
+        answer.RootElement.GetProperty("errors")[0].GetProperty("code").GetString().Should().Be("TIMEOUT");
+        started.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(10), "the request's own second, not the default half minute, is waited");
+    }
+
+    [Fact]
     public void A_Request_With_The_Wrong_Token_Is_Refused()
     {
         using var server = new CliServer(new CliQueue());

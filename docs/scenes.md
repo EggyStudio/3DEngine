@@ -189,7 +189,9 @@ Place("Block A", "block", new Vector3(0, 2, -15.5f));
 ```
 
 `Place` spawns an entity with a `SceneRef` naming the prefab's file and a `Transform` where it goes. Each copy gets fresh ids, so copies
-of one file stay apart. A placed file saved again while the level runs, from another tool or with
+of one file stay apart. A file is read and parsed once for every copy of it, and the copies share its
+meshes, one upload drawn as instances, so `games/Swarm` places hundreds of creatures from two
+prefabs, each copy taking a small part of a millisecond. A placed file saved again while the level runs, from another tool or with
 `scene.save`, is spawned again in place of every copy within half a second, so a prefab is edited
 while the game shows it.
 

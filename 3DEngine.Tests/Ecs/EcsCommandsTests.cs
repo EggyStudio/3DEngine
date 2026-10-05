@@ -44,6 +44,25 @@ public class EcsCommandsTests
         ecs.TryGet<TestComp>(e, out _).Should().BeFalse();
     }
 
+    [Fact]
+    public void DespawnRecursive_Takes_The_Entities_Below_With_It()
+    {
+        var ecs = new EcsWorld();
+        var copy = ecs.Spawn();
+        var creature = ecs.Spawn();
+        ecs.SetParent(creature, copy);
+        var eye = ecs.Spawn();
+        ecs.SetParent(eye, creature);
+        var bystander = ecs.Spawn();
+
+        var cmd = new EcsCommands();
+        cmd.DespawnRecursive(copy).DespawnRecursive(copy);
+        cmd.Apply(ecs);
+
+        new[] { copy, creature, eye }.Should().OnlyContain(e => !ecs.IsAlive(e), "the placed entity goes with all it holds");
+        ecs.IsAlive(bystander).Should().BeTrue();
+    }
+
     // -- Add
 
     [Fact]

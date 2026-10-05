@@ -46,6 +46,7 @@ public class GeneratorAttributeTests
         {
             public static World? World;
             public static bool Allowed;
+            public static int MainThreadId;
             public static readonly System.Collections.Generic.Dictionary<string, int> Runs = new();
 
             public static void Ran(BehaviorContext ctx, string name)
@@ -86,6 +87,14 @@ public class GeneratorAttributeTests
             [OnUpdate, Without(typeof(Tag))] public void Untagged(BehaviorContext ctx) => Probe.Ran(ctx, "Without");
             [OnUpdate, Changed(typeof(Health))] public readonly void Hurt(BehaviorContext ctx) => Probe.Ran(ctx, "Changed");
             [OnUpdate, Added(typeof(Health))] public readonly void Born(BehaviorContext ctx) => Probe.Ran(ctx, "Added");
+            [OnUpdate, MainThread] public readonly void OnMain(BehaviorContext ctx)
+            {
+                if (System.Environment.CurrentManagedThreadId == Probe.MainThreadId) Probe.Ran(ctx, "MainThread");
+            }
+            [OnUpdate] public static void Rule(BehaviorContext ctx)
+            {
+                if (System.Environment.CurrentManagedThreadId == Probe.MainThreadId) Probe.Ran(ctx, "StaticOnMain");
+            }
         }
 
         // The entity's other components as parameters: ref to write one, which marks it changed,
@@ -142,6 +151,7 @@ public class GeneratorAttributeTests
         ["Engine.AddedAttribute"] = "Added",
         ["Engine.RunIfAttribute"] = "RunIf",
         ["Engine.ToggleKeyAttribute"] = "ToggleKey",
+        ["Engine.MainThreadAttribute"] = "MainThread",
         ["Engine.CommandAttribute"] = "probe.ping",
         ["Engine.SceneComponentAttribute"] = "Marker",
     };
@@ -176,6 +186,7 @@ public class GeneratorAttributeTests
         var assembly = CompileAndLoad();
         var probe = assembly.GetType("GeneratorProbe.Probe")!;
         probe.GetField("World")!.SetValue(null, app.World);
+        probe.GetField("MainThreadId")!.SetValue(null, Environment.CurrentManagedThreadId);
         var runs = (Dictionary<string, int>)probe.GetField("Runs")!.GetValue(null)!;
         int Runs(string name) { lock (runs) return runs.GetValueOrDefault(name); }
 
@@ -230,6 +241,8 @@ public class GeneratorAttributeTests
         Runs("InState").Should().Be(0, "[InState] waits for its state");
         Runs("Enter").Should().Be(0);
         Runs("ToggleKey").Should().Be(1, "[ToggleKey] runs until its key is pressed");
+        Runs("MainThread").Should().Be(2, "[MainThread] visits both entities with the behavior on the main thread");
+        Runs("StaticOnMain").Should().Be(1, "a static method runs on the main thread");
         Runs("RefParameter").Should().Be(1, "a method taking components runs only for the entity that has them");
         Runs("InParameter").Should().Be(1, "and Look only for the tagged entity, which has health");
         ecs.GetReadOnly<Transform>(moving).Position.X.Should().Be(1, "the transform taken by ref is the entity's own");

@@ -180,10 +180,16 @@ public static class SceneRefSystem
     // spawned again by the pass after.
     internal static void ReloadChanged(EcsWorld ecs)
     {
+        // Each file asked once, however many copies of it are placed.
         List<int>? changed = null;
+        var written = new Dictionary<string, DateTime?>();
         foreach (var (entity, spawned) in ecs.Query<SceneRefSpawned>())
-            if (spawned.File is { } file && System.IO.File.Exists(file) && System.IO.File.GetLastWriteTimeUtc(file) != spawned.Written)
-                (changed ??= []).Add(entity);
+        {
+            if (spawned.File is not { } file) continue;
+            if (!written.TryGetValue(file, out var now))
+                written[file] = now = System.IO.File.Exists(file) ? System.IO.File.GetLastWriteTimeUtc(file) : null;
+            if (now is { } time && time != spawned.Written) (changed ??= []).Add(entity);
+        }
         if (changed is null) return;
 
         foreach (var entity in changed)
@@ -212,13 +218,33 @@ public static class SceneRefSystem
             return;
         }
 
+        // Copies of one version of a file share it parsed and its meshes, so a prefab placed many
+        // times is read and parsed once and is one upload drawn as instances, rather than a parse,
+        // an upload and a draw for each copy.
+        var written = File.GetLastWriteTimeUtc(file);
         List<int> spawned;
         try
         {
-            ecs.GetRef<SceneRefSpawned>(entity) = new SceneRefSpawned { File = file, Written = File.GetLastWriteTimeUtc(file) };
-            spawned = SceneFile.Read(world, File.ReadAllText(file));
+            ecs.GetRef<SceneRefSpawned>(entity) = new SceneRefSpawned { File = file, Written = written };
+            if (!Versions.TryGetValue(file, out var version) || version.Written != written)
+            {
+                var parsed = JsonDocument.Parse(File.ReadAllText(file));
+                version?.Document.Dispose();
+                Versions[file] = version = new Version(written, parsed);
+            }
+            var shared = version.Meshes;
+            spawned = SceneFile.Read(world, version.Document.RootElement, (index, component) => component == "Mesh" && index < shared.Count && shared[index] is not null);
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (i < shared.Count && shared[i] is { } mesh) ecs.Add(spawned[i], mesh);
+                else if (ecs.TryGet<Mesh>(spawned[i], out var read))
+                {
+                    while (shared.Count <= i) shared.Add(null);
+                    shared[i] = read;
+                }
+            }
         }
-        catch (Exception ex) when (ex is InvalidDataException or System.Text.Json.JsonException or IOException)
+        catch (Exception ex) when (ex is InvalidDataException or JsonException or IOException)
         {
             Logger.Warn($"SceneRef: '{path}' cannot be read: {ex.Message}");
             return;
@@ -231,6 +257,15 @@ public static class SceneRefSystem
             if (ecs.ParentOf(child) == 0) ecs.SetParent(child, entity);
         }
     }
+
+    // The version of each file last spawned, parsed, and the meshes its first copy read, by the
+    // place of their entity in the file.
+    private sealed record Version(DateTime Written, JsonDocument Document)
+    {
+        public List<Mesh?> Meshes { get; } = [];
+    }
+
+    private static readonly Dictionary<string, Version> Versions = [];
 
     // How many of the entity and its ancestors were spawned by a reference of their own.
     private static int Depth(EcsWorld ecs, int entity)
@@ -591,13 +626,22 @@ public static partial class SceneFile
 
     /// <summary>Spawns the entities of a scene file's JSON into the world's ECS and returns them.</summary>
     /// <exception cref="InvalidDataException">The text is not a scene file this code reads.</exception>
-    public static List<int> Read(World world, string json)
+    public static List<int> Read(World world, string json) => Read(world, json, null);
+
+    // The same, leaving out each component for which skip answers true by the index of its
+    // entity in the file and the component's name, which a copy of a prefab whose mesh is shared
+    // with the copies before it uses.
+    internal static List<int> Read(World world, string json, Func<int, string, bool>? skip)
+    {
+        using var document = JsonDocument.Parse(json);
+        return Read(world, document.RootElement, skip);
+    }
+
+    // The same from a file already parsed, which a prefab placed many times is parsed into once.
+    internal static List<int> Read(World world, JsonElement root, Func<int, string, bool>? skip)
     {
         var ecs = world.Resource<EcsWorld>();
         world.TryGetResource<AssetServer>(out var assets);
-
-        using var document = JsonDocument.Parse(json);
-        var root = document.RootElement;
         if (!root.TryGetProperty("format", out var format) || format.GetString() != Format)
             throw new InvalidDataException($"Not a scene file: its \"format\" is not \"{Format}\".");
         if (root.TryGetProperty("version", out var version) && version.GetInt32() > Version)
@@ -628,6 +672,7 @@ public static partial class SceneFile
             if (!entry.TryGetProperty("components", out var components)) continue;
             foreach (var component in components.EnumerateObject())
             {
+                if (skip?.Invoke(i, component.Name) == true) continue;
                 if (SceneComponents.Find(component.Name) is not { } codec)
                 {
                     Logger.Warn($"Scene file: no single component is called '{component.Name}', so it is skipped. "
@@ -638,7 +683,7 @@ public static partial class SceneFile
             }
         }
 
-        Logger.Info($"Scene file: spawned {spawned.Count} entit{(spawned.Count == 1 ? "y" : "ies")}.");
+        Logger.Debug($"Scene file: spawned {spawned.Count} entit{(spawned.Count == 1 ? "y" : "ies")}.");
         return spawned;
     }
 }

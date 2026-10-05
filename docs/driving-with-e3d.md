@@ -70,7 +70,9 @@ through the engine itself, so they reach a hidden or offscreen program that no d
 `input.key` and `input.click` answer once the input is released, so a `shot` after them sees what
 it did. `input.button` and `input.axis` make a pad when none is connected, which is how the
 `core_input_gamepad` example is captured with no pad on the machine. `./e3d command frames.wait
-60` waits for sixty frames, for a scene to settle before it is captured.
+60` waits for sixty frames, for a scene to settle before it is captured. An answer is waited for up
+to 30 seconds, and `--timeout 600` waits longer, both in the terminal and in the program, as a long
+wait on a device that draws slowly needs.
 
 ## The log
 

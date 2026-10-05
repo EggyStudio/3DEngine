@@ -37,6 +37,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     private const string InState = "Engine.InStateAttribute";
     private const string RunIf = "Engine.RunIfAttribute";
     private const string ToggleKey = "Engine.ToggleKeyAttribute";
+    private const string MainThread = "Engine.MainThreadAttribute";
 
     private static readonly (string Name, Stage Stage)[] StageAttributes =
     [
@@ -61,7 +62,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
 
     /// <summary>Every attribute this generator reads, by full name.</summary>
     public static IReadOnlyList<string> Attributes { get; } =
-        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey, SubStateOf, ComputedState];
+        [Behavior, .. StageAttributes.Select(s => s.Name), InState, With, Without, Changed, Added, RunIf, ToggleKey, MainThread, SubStateOf, ComputedState];
 
     private static readonly DiagnosticDescriptor BadSignature = new(
         "E3D001",
@@ -266,6 +267,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                 Stage = stages[0],
                 IsStatic = method.IsStatic,
                 IsReadOnly = method.IsReadOnly,
+                MainThread = method.IsStatic || HasAttribute(method, MainThread),
                 MethodContainer = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 MethodName = method.Name,
                 Filters = GetFilters(method),
@@ -542,10 +544,14 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
         }
 
         // The components it takes are written or read as it takes them, so the scheduler keeps a
-        // system writing one apart from others using it.
+        // system writing one apart from others using it. A static method is a rule over the whole
+        // game, which writes resources, calls ImGui and plays sounds with nothing declaring it, so
+        // it runs alone on the main thread, as the program's loop does, and so does a method marked
+        // [MainThread]. A static one runs once a frame, so little is lost by it.
         foreach (var c in m.Components)
             descriptor += c.Writes ? $".Write<{c.Type}>()" : $".Read<{c.Type}>()";
-        return descriptor + (m.IsStatic ? ".Read<global::Engine.EcsWorld>()" : $".Write<{b.BehaviorFqn}>()");
+        descriptor += m.IsStatic ? ".Read<global::Engine.EcsWorld>()" : $".Write<{b.BehaviorFqn}>()";
+        return m.MainThread ? descriptor + ".MainThreadOnly()" : descriptor;
     }
 
     /// <summary>Generates one system method body (static dispatch or chunked parallel iteration).</summary>
@@ -599,7 +605,7 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
                       var __entities = __store.EntitiesArray;
                       var __components = __store.ComponentsArray;
               {{hoist}}
-                      if (__count >= 4096)
+                      if ({{(m.MainThread ? "__count < 0" : "__count >= 4096")}})
                       {
                           System.Threading.Tasks.Parallel.ForEach(
                               System.Collections.Concurrent.Partitioner.Create(0, __count,
@@ -817,6 +823,9 @@ public sealed class BehaviorGenerator : IIncrementalGenerator
     {
         public Stage Stage { get; init; }
         public bool IsStatic { get; init; }
+
+        /// <summary>A static method, or one marked <c>[MainThread]</c>, which runs alone on the main thread and visits its entities in turn.</summary>
+        public bool MainThread { get; init; }
 
         /// <summary>A <c>readonly</c> method, which C# keeps from writing the behavior's fields, so running it marks nothing changed.</summary>
         public bool IsReadOnly { get; init; }

@@ -87,6 +87,14 @@ public static void Start(BehaviorContext ctx)
 }
 ```
 
+`GetMeshComponent` turns a generated or loaded mesh into a `Mesh` component, and one component given
+to many entities is one upload they share, as `games/Swarm` makes its shapes once:
+
+```csharp
+Ball = GetMeshComponent(GenMeshSphere(1, 8, 12));
+Cube = GetMeshComponent(GenMeshCube(1, 1, 1));
+```
+
 An entity with a `Mesh`, a `Material` and a `Transform` is drawn by every camera entity, or with
 no camera entity for the window, through the camera of the frame's first `BeginMode3D`, and one
 with a `Light` and a `Transform` lights them. A behavior is added to an entity as any component
@@ -102,7 +110,8 @@ var ball = new Ball { Position = /* ... */, Velocity = /* ... */, Color = /* ...
 ctx.Cmd.Spawn((entity, world) => world.Add(entity, ball));
 ```
 
-`ctx.Cmd.Despawn(entity)` removes one, as a coin picked up or an enemy defeated is, and
+`ctx.Cmd.Despawn(entity)` removes one, as a coin picked up or an enemy defeated is,
+`ctx.Cmd.DespawnRecursive(entity)` removes it with everything below it, as a placed prefab, and
 `ctx.Cmd.Add` and `ctx.Cmd.Remove` change what an entity has.
 
 ## Components a method uses
@@ -123,6 +132,22 @@ public void Spin(BehaviorContext ctx, ref Transform transform)
 
 A `ref` marks the component changed for the frame and an `in` does not, which the `[Changed]`
 filter below reads, and the scheduler learns from them which systems can run side by side.
+
+## Threads
+
+A method of the instance runs beside the other systems of its stage that take none of the
+components it takes, on another thread, and over 4096 entities it splits them between threads. A
+static method runs alone on the main thread, since it is a rule over the whole game, which writes
+resources, calls ImGui and plays sounds with nothing saying so. A method of the instance that does
+those is marked `[MainThread]`, as the player in `games/Swarm` is, since it plays a sound for each
+shot and writes where it stands for the creatures to read:
+
+```csharp
+[OnUpdate]
+[MainThread]
+[InState(Screen.Playing)]
+public void Move(BehaviorContext ctx, ref CharacterController controller, in PhysicsBody body, ref Material material)
+```
 
 ## Filters and conditions
 
@@ -146,6 +171,56 @@ public static bool Running => Example.Current == "ecs_behaviors";
 
 `[InState]`, `[OnEnter]` and `[OnExit]` run a method by the game's state, which the
 [States](states.md) page covers.
+
+The entities that lost a component since a method last ran are `ctx.Ecs.Removed<T>()`, kept for a
+second. `games/Swarm` ends a wave by them, looking for the last creature only in a frame after one
+fell:
+
+```csharp
+[OnUpdate]
+[InState(Round.Fighting)]
+public static void Won(BehaviorContext ctx)
+{
+    if (ctx.Ecs.Removed<Creature>().Count == 0) return;
+    if (ctx.Res<Arena>().ToSpawn == 0 && ctx.Ecs.Count<Creature>() == 0 && ctx.Ecs.Count<SceneRef>() == 0)
+        ctx.SetState(Round.Break);
+}
+```
+
+## Scripts changed while the game runs
+
+A behavior in a `.cs` file under `source/behaviors` is compiled by the running game, through Roslyn,
+and compiled again within a second of being saved, its systems replacing the last version's. A
+program run from a project's build folder watches the project's own `source/behaviors`, so a script
+is saved where it is written, and one run anywhere else watches the folder beside it. A script uses
+the engine and the game's own components and resources. `games/Swarm` keeps its numbers in one, so a
+wave is tuned while it is fought:
+
+```csharp
+[Behavior]
+public struct Tune
+{
+    [OnUpdate]
+    public static void Apply(BehaviorContext ctx)
+    {
+        var tuning = ctx.Res<Tuning>();
+        tuning.PlayerSpeed = 6;
+        tuning.EnemySpeed = 1;
+        // ...
+    }
+}
+```
+
+The project copies the scripts beside the program and leaves them out of its own compile, where
+they would be registered a second time:
+
+```xml
+<Compile Remove="source\**" />
+<Content Include="source\**\*.cs" CopyToOutputDirectory="PreserveNewest" />
+```
+
+A native build cannot load code it compiles, so it runs without its scripts, which
+[Shipping a game](shipping-a-game.md) says.
 
 ## The world from the loop
 
@@ -179,7 +254,8 @@ functions themselves, which work inside behaviors of the app `InitWindow` built.
 - Examples: [`ecs_behaviors`](../3DEngine.Examples/Ecs/EcsBehaviors.cs),
   [`ecs_mesh_entities`](../3DEngine.Examples/Ecs/EcsMeshEntities.cs),
   [`ecs_physics`](../3DEngine.Examples/Ecs/EcsPhysics.cs),
-  [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs)
+  [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs), and the game
+  [`games/Swarm`](../games/Swarm/Program.cs), written in behaviors with a script tuned as it runs
 - [DESIGN.md](../.github/DESIGN.md#5-the-ecs-underneath), on why the ECS sits under the flat API
 - Previous: [Physics](physics.md)
 - Next: [States](states.md)

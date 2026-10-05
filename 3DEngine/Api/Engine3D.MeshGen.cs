@@ -188,6 +188,33 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// The triangles of a mesh as a <see cref="Mesh"/> component, three positions to a triangle with
+    /// their normals and texture coordinates, so an entity draws a generated or loaded shape.
+    /// </summary>
+    /// <remarks>
+    /// The arrays are made each call, and one component may be given to many entities, which share
+    /// its upload as they share the arrays. A mesh with no data, as one unloaded, gives an empty one.
+    /// </remarks>
+    public static Mesh GetMeshComponent(ModelMesh mesh)
+    {
+        if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices))
+        {
+            ApiLogger.Warn("GetMeshComponent: the mesh has no data.");
+            return new Mesh([]);
+        }
+        var count = indices.Length / 3 * 3;
+        var positions = new Vector3[count];
+        var normals = new Vector3[count];
+        var uvs = new Vector2[count];
+        for (int i = 0; i < count; i++)
+        {
+            var v = vertices[indices[i]];
+            (positions[i], normals[i], uvs[i]) = (v.Position, v.Normal, v.Uv);
+        }
+        return new Mesh(positions, normals, uvs);
+    }
+
+    /// <summary>
     /// Writes a mesh as a Wavefront OBJ file, its positions, texture coordinates, normals and
     /// triangles, as raylib's <c>ExportMesh</c> does, answering whether it was written.
     /// </summary>

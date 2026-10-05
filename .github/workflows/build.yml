@@ -121,6 +121,38 @@ jobs:
             exit 1
           fi
 
+      # The game written in the ECS from the same package: Enter starts it, the first wave is
+      # fought until creatures fall, its script is changed while it runs and compiled again, and
+      # what a frame costs is kept beside the captures.
+      - name: Build and play the arena game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Swarm --force-evaluate
+          dotnet build games/Swarm --no-restore
+          ./e3d open games/Swarm/bin/Debug/net10.0/Swarm --offscreen --quiet
+          ./e3d command swarm.invulnerable true --quiet
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command frames.wait 600 --quiet --timeout 600
+          status=$(./e3d command swarm.status)
+          echo "$status"
+          sed -i 's/tuning.EnemySpeed = 1;/tuning.EnemySpeed = 0.5f;/' games/Swarm/source/behaviors/Tune.cs
+          ./e3d command frames.wait 300 --quiet --timeout 600
+          ./e3d shot captures/swarm.png --quiet
+          ./e3d command profile > captures/swarm-profile.txt
+          ./e3d stop --quiet
+          case "$status" in
+            *"fallen 0"*|"") echo "::error::Swarm: no creature fell in the first wave"; exit 1 ;;
+          esac
+          if ! grep -q "Hot-reload behaviors: Compiled" build/sessions/Swarm.log; then
+            echo "::error::Swarm: the script changed while it ran was not compiled again"
+            exit 1
+          fi
+          if grep -F '[Vulkan.Validation]' build/sessions/Swarm.log | grep -F 'Validation Error'; then
+            echo "::error::Swarm: the validation layer reported an error"
+            exit 1
+          fi
+
       # The documents' steps in a new folder, from the same package, as someone holding only the
       # package would follow them. BUILDING.md's nuget.config and add-package line and the README's
       # first program are built and run offscreen.

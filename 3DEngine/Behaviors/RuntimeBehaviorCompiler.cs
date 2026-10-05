@@ -59,6 +59,10 @@ public sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCo
 
         // Engine assembly carries App, EcsWorld, BehaviorAttribute, and the BehaviorGenerator type itself.
         AddReference(typeof(App).Assembly);
+        // The program's own, so a script reads and writes the components and resources the game
+        // declares, as a behavior compiled with the game does.
+        if (System.Reflection.Assembly.GetEntryAssembly() is { } program && program != typeof(App).Assembly)
+            AddReference(program);
     }
 
     /// <summary>Fluent <see cref="RuntimeAssemblyCompiler{TResult}.WatchDirectory"/> typed for chaining.</summary>

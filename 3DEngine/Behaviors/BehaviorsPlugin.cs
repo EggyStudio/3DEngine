@@ -30,7 +30,22 @@ public sealed class BehaviorsPlugin : IPlugin
     /// behavior scripts. When <see langword="null"/>, only the compile-time registrations run and no
     /// runtime compiler is started.
     /// </summary>
-    public string? ScriptsDirectory { get; init; } = Path.Combine(AppContext.BaseDirectory, "source", "behaviors");
+    /// <remarks>
+    /// By default it is <c>source/behaviors</c> beside the program, or, for a program run from the
+    /// build folder of a project that has that folder, the project's own, so a script saved where it
+    /// is written takes hold in the running game rather than waiting for the next build to copy it.
+    /// </remarks>
+    public string? ScriptsDirectory { get; init; } = DefaultScriptsDirectory(AppContext.BaseDirectory);
+
+    // The project's scripts when the program runs from bin/<configuration>/<framework> under a
+    // project that has them, and those beside the program otherwise, as a shipped game has.
+    internal static string DefaultScriptsDirectory(string programFolder)
+    {
+        var project = Path.GetFullPath(Path.Combine(programFolder, "..", "..", ".."));
+        var theirs = Path.Combine(project, "source", "behaviors");
+        if (Directory.Exists(theirs) && Directory.EnumerateFiles(project, "*.csproj").Any()) return theirs;
+        return Path.Combine(programFolder, "source", "behaviors");
+    }
 
     /// <summary>
     /// Provenance tag passed to <see cref="RuntimeBehaviorCompiler.SourceTag"/>. Used by

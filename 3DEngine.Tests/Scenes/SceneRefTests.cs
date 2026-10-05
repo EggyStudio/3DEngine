@@ -68,6 +68,32 @@ public sealed class SceneRefTests : IDisposable
     }
 
     [Fact]
+    public void Copies_Of_A_File_Share_Its_Mesh_Until_The_File_Is_Written_Again()
+    {
+        var ecs = new EcsWorld();
+        var rock = ecs.Spawn();
+        ecs.Add(rock, new Transform(Vector3.Zero));
+        ecs.Add(rock, new Mesh([Vector3.Zero, Vector3.UnitX, Vector3.UnitY]));
+        var path = Path.Combine(_directory, "rock.json");
+        SceneFile.Save(ecs, path);
+
+        var world = NewWorld();
+        var level = world.Resource<EcsWorld>();
+        var first = Place(level, path, new Vector3(-5, 0, 0));
+        var second = Place(level, path, new Vector3(5, 0, 0));
+        SceneRefSystem.Run(world);
+        Positions(first).Should().BeSameAs(Positions(second), "copies of one file are one mesh, uploaded once and drawn as instances");
+
+        // The file written again, with a later time, spawns a copy with arrays of its own.
+        File.SetLastWriteTimeUtc(path, File.GetLastWriteTimeUtc(path).AddSeconds(5));
+        var third = Place(level, path, Vector3.Zero);
+        SceneRefSystem.Run(world);
+        Positions(third).Should().NotBeSameAs(Positions(first), "a new version of the file is read anew");
+
+        Vector3[] Positions(int placed) => level.GetReadOnly<Mesh>(level.ChildrenOf(placed).Single()).Positions;
+    }
+
+    [Fact]
     public void A_Level_Saved_With_A_Placed_File_Keeps_The_Reference_And_Brings_The_Copy_Back()
     {
         var lamp = Lamp();

@@ -22,7 +22,7 @@ public static class CliClient
 
             using var stream = caller.GetStream();
             using var writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true, NewLine = "\n" };
-            writer.WriteLine(Request(session.Token, operation, line));
+            writer.WriteLine(Request(session.Token, operation, line, seconds));
 
             using var reader = new StreamReader(stream, Encoding.UTF8);
             return reader.ReadLine() ?? CliJson.Fail(operation, "SESSION_UNREACHABLE",
@@ -35,7 +35,9 @@ public static class CliClient
         }
     }
 
-    private static string Request(string token, string operation, string? line)
+    // The seconds the caller waits go with the request, so the app waits as long for the answer
+    // and a long frames.wait on a slow device is not cut short.
+    private static string Request(string token, string operation, string? line, double seconds)
     {
         var buffer = new MemoryStream(256);
         using (var writer = new Utf8JsonWriter(buffer))
@@ -44,6 +46,7 @@ public static class CliClient
             writer.WriteString("op", operation);
             writer.WriteString("token", token);
             if (line is not null) writer.WriteString("line", line);
+            writer.WriteNumber("seconds", seconds);
             writer.WriteEndObject();
         }
         return Encoding.UTF8.GetString(buffer.ToArray());

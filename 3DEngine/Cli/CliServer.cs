@@ -13,7 +13,8 @@ namespace Engine;
 /// <remarks>
 /// A request is <c>{"op":"run|list|status|ping","token":"...","line":"entity.count","id":"..."}</c>.
 /// The socket thread only parses and queues it. <see cref="CliQueue.Pump"/> answers it on the main
-/// thread between frames, and the socket thread waits up to <see cref="Patience"/> for that.
+/// thread between frames, and the socket thread waits for that up to the seconds the request
+/// carries, or <see cref="Patience"/> for one that carries none.
 /// </remarks>
 internal sealed class CliServer : IDisposable
 {
@@ -83,6 +84,7 @@ internal sealed class CliServer : IDisposable
     {
         string operation;
         string? command, id, token;
+        var patience = Patience;
         try
         {
             using var document = JsonDocument.Parse(line);
@@ -91,6 +93,8 @@ internal sealed class CliServer : IDisposable
             command = root.TryGetProperty("line", out var body) ? body.GetString() : null;
             id = root.TryGetProperty("id", out var given) ? given.GetString() : null;
             token = root.TryGetProperty("token", out var carried) ? carried.GetString() : null;
+            if (root.TryGetProperty("seconds", out var seconds) && seconds.TryGetDouble(out var wait) && wait > 0)
+                patience = TimeSpan.FromSeconds(Math.Min(wait, 24 * 60 * 60));
         }
         catch (Exception error) when (error is JsonException or InvalidOperationException)
         {
@@ -106,10 +110,10 @@ internal sealed class CliServer : IDisposable
         var request = new CliRequest(operation, command, id);
         _queue.Add(request);
 
-        return request.Answer.Wait(Patience)
+        return request.Answer.Wait(patience)
             ? request.Answer.Result
             : CliJson.Fail(operation, "TIMEOUT",
-                $"The app did not answer within {Patience.TotalSeconds:0} seconds. It may be stalled, or no longer running frames.", id);
+                $"The app did not answer within {patience.TotalSeconds:0} seconds. It may be stalled, or no longer running frames, and --timeout gives it longer.", id);
     }
 
     public void Dispose()

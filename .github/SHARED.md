@@ -147,3 +147,4 @@ table also answers whether the two agree.
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
 | A picture of an example opens the live demo of it on the site of the engine it follows | taken at `29ebd78`, 276 of Bevy's examples | taken at `ac529628`, the 17 examples raylib's site has |
+| Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | to take, at raylib's 800 by 450 |

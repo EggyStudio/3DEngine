@@ -122,7 +122,7 @@ those are.
 | <a href="https://www.raylib.com/examples/audio/loader.html?name=audio_raw_stream"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.png" width="400"/></a><br>`audio_raw_stream` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_reflection_probe.png" width="400"/><br>`models_reflection_probe` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.png" width="400"/><br>`shaders_bloom` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/summit.png" width="400"/><br>`games/Summit` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_morph_and_layers.png" width="400"/><br>`models_morph_and_layers` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_texture.png" width="400"/><br>`shaders_compute_texture` |
-| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.png" width="400"/><br>`shaders_auto_exposure` | |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.png" width="400"/><br>`shaders_auto_exposure` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/swarm.png" width="400"/><br>`games/Swarm` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -133,8 +133,12 @@ a saved high score. `games/Summit` is a 3D platformer: a level of prefabs solid 
 drawn, an animated character on the character controller with a camera that follows it and comes
 in front of walls, a carousel turned by a hinge's motor, a bridge hung on ropes, a lift, orbs that
 glow through bloom and are collected by triggers, a sun outdoors and a lamp in a house a reflection
-probe lights, a sky, music and sounds, a menu, a pause, a restart and a gamepad. BUILDING.md says
-how they are built.
+probe lights, a sky, music and sounds, a menu, a pause, a restart and a gamepad. `games/Swarm` is
+written in the ECS instead, its loop only opening and closing frames: waves of creatures placed from
+prefabs walk at the player, hundreds at once, each moved by a behavior taking its components, shots
+are triggers that harm by their speed, the waves go by states and sub-states, a HUD is drawn in
+ImGui, many short sounds overlap, and a script of the game's numbers is compiled again whenever it
+is saved while the game runs. BUILDING.md says how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

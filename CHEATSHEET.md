@@ -546,6 +546,7 @@ ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A 
 ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
 ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
 bool ExportMesh(ModelMesh mesh, string fileName);                          // Write a Wavefront OBJ file of its shape
+Mesh GetMeshComponent(ModelMesh mesh);                                     // Its triangles as a Mesh component, for entities to draw
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh

@@ -28,6 +28,13 @@ removed from this file, and an item that is partly done is rewritten around what
   example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
   three.
 
+- **Hundreds of characters take most of a frame's fixed steps.** `games/Swarm` walks about 290
+  creatures at once, each a dynamic capsule on the character controller, and its physics step takes
+  2.6 to 3.2 ms a frame on the desktop, where its behaviors take 0.1 ms and recording its frame 0.7 ms. Each
+  character is driven and its ground found one at a time on the main thread before and after the
+  step. A crowd that needs no stepping up or ground of its own would cost less as plain bodies
+  pushed toward their target, which the engine has no ready form of.
+
 ### The flat API
 
 `Engine3D` covers the window, timing, input, the frame, 2D and 3D cameras, render targets, 2D and

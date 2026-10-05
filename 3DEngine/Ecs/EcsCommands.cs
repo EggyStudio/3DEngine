@@ -93,6 +93,21 @@ public sealed class EcsCommands
         return this;
     }
 
+    /// <summary>
+    /// Queues the destruction of an entity and every entity below it, as a placed prefab goes with
+    /// what it spawned. An entity gone by the time the commands are applied is left alone.
+    /// </summary>
+    /// <param name="entity">The entity ID to despawn with its descendants.</param>
+    /// <returns>This <see cref="EcsCommands"/> instance for fluent chaining.</returns>
+    public EcsCommands DespawnRecursive(int entity)
+    {
+        _queue.Enqueue(world =>
+        {
+            if (world.IsAlive(entity)) world.DespawnRecursive(entity);
+        });
+        return this;
+    }
+
     /// <summary>Queues adding (or overwriting) a component on an entity.</summary>
     /// <typeparam name="T">The component type.</typeparam>
     /// <param name="entity">The entity ID to add the component to.</param>
