@@ -268,10 +268,12 @@ public class ChangeTrackingTests
         var entity = ecs.Spawn();
         ecs.Add(entity, new Health());
         ecs.BeginFrame();
+        // A system that last ran before the removal sees it within the kept frames, and not after.
+        // The tick is read before the removal, since the count is the process's and tests running
+        // beside this one advance it, so read after, it could already be past the removal's.
+        var before = ChangeTicks.Latest;
         ecs.Remove<Health>(entity);
 
-        // A system that last ran before the removal sees it within the kept frames, and not after.
-        var before = ChangeTicks.Latest - 1;
         List<int> SeenBy(long since)
         {
             var outer = ChangeTicks.Enter(since, out _);
