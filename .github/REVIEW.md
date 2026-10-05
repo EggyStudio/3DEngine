@@ -167,3 +167,16 @@ frames, red, then blue beside it with no clear, then a clear to white, reading i
 and it fails without the mend. Of the examples and games, two leave a target uncleared, both
 raylib's and both meaning to, the pendulum's trail and the bullet hell's bullet drawn once. The 3D
 guide says so. The suite through the script passes, 1,206 tests.
+
+**Now 3, nine more of raylib's shapes examples.** `shapes_easings_ball`, `shapes_easings_box`,
+`shapes_easings_rectangles`, `shapes_easings_testbed`, `shapes_bullet_hell`,
+`shapes_digital_clock`, `shapes_dashed_line` and `shapes_vector_angle` are raylib's, and
+`shapes_double_pendulum` is written in part, raylib's asking for `FLAG_WINDOW_HIGHDPI`, which the
+flat API lacks and which draws nothing differently at a scale of one. The easings call raylib's
+`reasings.h`, written again as the examples' `Easings` with Robert Penner's notice and raylib's
+whole, as both ask of a copy, and `shapes_vector_angle` calls two of raymath's angle functions,
+which C#'s `Vector2` lacks, written again as the examples' `RayMath`. Each picture was set beside
+raylib's screenshot, differing by the moment, a key held or the time of day. The pendulum's
+picture had no trail, which found the render textures' fault above. Driven through `./e3d`, the
+testbed eases its ball by the functions chosen with the arrow keys, to where they put it. The
+table stands at 62 written, 1 in part, 121 that can be, 37 missing and 1 that does not apply.

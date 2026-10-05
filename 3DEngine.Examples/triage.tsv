@@ -68,7 +68,7 @@ shapes_top_down_lights	missing	blend factors of the program's own (rlSetBlendFac
 shapes_rectangle_advanced	missing	GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
 shapes_splines_drawing	can	with ImGui in raygui's place
 shapes_digital_clock	can
-shapes_double_pendulum	can
+shapes_double_pendulum	part	leaves out FLAG_WINDOW_HIGHDPI, which ConfigFlags lacks and which draws nothing differently at a scale of one
 shapes_dashed_line	can
 shapes_triangle_strip	can	with ImGui in raygui's place
 shapes_vector_angle	can
