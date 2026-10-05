@@ -64,7 +64,7 @@ shapes_recursive_tree	can	with ImGui in raygui's place
 shapes_ring_drawing	can	with ImGui in raygui's place
 shapes_circle_sector_drawing	can	with ImGui in raygui's place
 shapes_rounded_rectangle_drawing	can	with ImGui in raygui's place
-shapes_top_down_lights	n/a	reaches OpenGL's own state through rlgl (rlSetBlendFactors, rlSetBlendMode), which a Vulkan engine has no counterpart for
+shapes_top_down_lights	missing	blend factors of the program's own (rlSetBlendFactors), which lay its lights' mask over the scene
 shapes_rectangle_advanced	missing	GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
 shapes_splines_drawing	can	with ImGui in raygui's place
 shapes_digital_clock	can
@@ -82,7 +82,7 @@ shapes_starfield_effect	can
 shapes_lines_drawing	can
 shapes_math_angle_rotation	can
 shapes_rlgl_color_wheel	missing	rlBegin, rlColor4f, rlColor4ub, rlEnd, rlVertex2f, with ImGui in raygui's place
-shapes_rlgl_triangle	n/a	reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlEnableBackfaceCulling), which a Vulkan engine has no counterpart for
+shapes_rlgl_triangle	missing	culling turned off, so a triangle wound either way is drawn
 shapes_ball_physics	can
 shapes_penrose_tile	can
 shapes_hilbert_curve	can	with ImGui in raygui's place
@@ -93,7 +93,7 @@ shapes_outlines_testbed	can	with ImGui in raygui's place
 shapes_outlines_thickness	can	with ImGui in raygui's place
 shapes_polygon_lines	can
 textures_clipboard_image	can
-textures_magnifying_glass	n/a	reaches OpenGL's own state through rlgl (rlSetBlendFactorsSeparate), which a Vulkan engine has no counterpart for
+textures_magnifying_glass	missing	separate blend factors for color and alpha (rlSetBlendFactorsSeparate)
 textures_logo_raylib	can
 textures_srcrec_dstrec	can
 textures_image_generation	can
@@ -122,7 +122,7 @@ textures_textured_curve	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTex
 textures_sprite_stacking	can
 textures_cellular_automata	can
 textures_framebuffer_rendering	can
-textures_portal_window	n/a	reaches OpenGL's own state through rlgl (rlDisableDepthTest, rlEnableDepthTest, rlMatrixMode, rlSetMatrixProjection), which a Vulkan engine has no counterpart for
+textures_portal_window	missing	the depth test turned off and on, and a projection set directly
 text_sprite_fonts	can
 text_font_spritefont	can
 text_font_filters	can
@@ -148,12 +148,12 @@ models_loading_gltf	can
 models_loading_vox	missing	MagicaVoxel's .vox files, which Assimp does not read
 models_loading_m3d	missing	M3D files, which the Assimp the engine carries does not read
 models_orthographic_projection	can
-models_point_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlDisablePointMode, rlEnableBackfaceCulling, rlEnablePointMode), which a Vulkan engine has no counterpart for
+models_point_rendering	missing	a mesh drawn as points, with culling turned off
 models_rlgl_solar_system	missing	rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlPopMatrix, rlPushMatrix, rlRotatef, rlScalef, rlTranslatef, rlVertex3f
 models_yaw_pitch_roll	can
 models_waving_cubes	can
 models_heightmap_rendering	can
-models_skybox_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlClearScreenBuffers, rlDisableBackfaceCulling, rlDisableDepthMask), which a Vulkan engine has no counterpart for
+models_skybox_rendering	can	its sky drawn with SetEnvironmentMap and DrawSkybox from the same .hdr, as models_skybox draws one
 models_textured_cube	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f
 models_animation_gpu_skinning	can
 models_bone_socket	can
@@ -162,7 +162,7 @@ models_basic_voxel	can
 models_rotating_cube	can
 models_decals	can
 models_directional_billboard	can
-models_animation_blend_custom	n/a	reaches OpenGL's own state through rlgl (rlUpdateVertexBuffer), which a Vulkan engine has no counterpart for
+models_animation_blend_custom	can	two clips blended bone by bone, an upper body's over a lower body's, which UpdateModelAnimationLayer does
 models_animation_blending	can	with ImGui in raygui's place
 models_animation_timing	can	with ImGui in raygui's place
 models_mesh_uv_painting	can	with ImGui in raygui's place
@@ -183,23 +183,23 @@ shaders_color_correction	can	with ImGui in raygui's place
 shaders_eratosthenes_sieve	can
 shaders_fog_rendering	can
 shaders_simple_mask	can
-shaders_hot_reloading	n/a	reaches OpenGL's own state through rlgl (rlGetShaderIdDefault), which a Vulkan engine has no counterpart for
+shaders_hot_reloading	can	a shader read again when its file changes, which LoadShader and the file's time do
 shaders_multi_sample2d	can
 shaders_normalmap_rendering	can
 shaders_spotlight_rendering	can
-shaders_deferred_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveDrawBuffers, rlActiveTextureSlot, rlBindFramebuffer, rlBlitFramebuffer), which a Vulkan engine has no counterpart for
-shaders_hybrid_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableDepthTest, rlEnableFramebuffer, rlFramebufferAttach), which a Vulkan engine has no counterpart for
+shaders_deferred_rendering	missing	a target with several attachments, as a G-buffer is
+shaders_hybrid_rendering	missing	a fragment's depth written by a shader, which the meshes drawn after are tested against
 shaders_texture_tiling	can
-shaders_shadowmap_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlDisableFramebuffer, rlDisableTexture, rlEnableFramebuffer), which a Vulkan engine has no counterpart for
-shaders_vertex_displacement	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlEnableShader, rlEnableTexture, rlSetUniformSampler), which a Vulkan engine has no counterpart for
-shaders_depth_writing	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for
+shaders_shadowmap_rendering	can	what shaders_shadowmap casts, a directional light's shadow map
+shaders_vertex_displacement	can	a texture handed to a shader, which SetShaderValueTexture does
+shaders_depth_writing	missing	a fragment's depth written by a shader
 shaders_basic_pbr	can
-shaders_lightmap_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableVertexArray, rlEnableVertexArray, rlEnableVertexAttribute, rlLoadVertexBuffer), which a Vulkan engine has no counterpart for
+shaders_lightmap_rendering	missing	a second set of texture coordinates in a mesh
 shaders_rounded_rectangle	can
-shaders_depth_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for
+shaders_depth_rendering	can	a target's depth read, which RenderTexture2D.Depth gives
 shaders_game_of_life	can	with ImGui in raygui's place
-shaders_rlgl_compute	n/a	reaches OpenGL's own state through rlgl (rlBindShaderBuffer, rlComputeShaderDispatch, rlDisableShader, rlEnableShader), which a Vulkan engine has no counterpart for
-shaders_cel_shading	n/a	reaches OpenGL's own state through rlgl (rlSetCullFace), which a Vulkan engine has no counterpart for
+shaders_rlgl_compute	can	the game of life shaders_compute_life runs, a compute shader over a buffer
+shaders_cel_shading	missing	front faces culled in place of back ones, for an outline
 shaders_lights_bloom	can
 audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
 audio_music_stream	can

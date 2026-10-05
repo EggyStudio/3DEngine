@@ -280,6 +280,24 @@ isometric, and `core_3d_camera_fps`, the first of the five set aside, is written
 looks down the first corridor, where raylib's code starts, and raylib's screenshot was taken with
 the view turned. PublicApi.txt gains the twelve functions and `CameraMode.Custom`.
 
+**Verdict 10, the rows that did not apply.** Each of the seventeen is read by what its example
+shows, and one does not apply now, `core_window_web`. Seven can be written. `shaders_rlgl_compute`
+is the game of life `shaders_compute_life` runs, `models_skybox_rendering` a sky from the same
+`.hdr` through `SetEnvironmentMap` and `DrawSkybox`, `shaders_shadowmap_rendering` the shadows
+`shaders_shadowmap` casts, `shaders_vertex_displacement` a texture handed to a shader, and
+`shaders_hot_reloading` a shader read again when its file changes, as the verdict found. Two more
+than it named can, `models_animation_blend_custom`, whose upper body plays one clip over another's
+lower body, which `UpdateModelAnimationLayer` does, and `shaders_depth_rendering`, which draws a
+target's depth, which a render texture's `Depth` gives a shader. Ten are missing, with the state
+named: culling for `shapes_rlgl_triangle`, `models_point_rendering` and `shaders_cel_shading`, the
+blend factors for `shapes_top_down_lights` and `textures_magnifying_glass`, the depth test and a
+projection set directly for `textures_portal_window`, a second set of texture coordinates for
+`shaders_lightmap_rendering`, several attachments for `shaders_deferred_rendering`, and a depth a
+shader writes for `shaders_hybrid_rendering` and `shaders_depth_writing`. The table stands at 42
+written, 145 that can be, 34 missing and 1 that does not apply. `build/examples-table.py` gives a
+new example that sets OpenGL's state through rlgl as missing, to be read over for what it shows,
+where it gave it as not applying.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an

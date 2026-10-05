@@ -150,8 +150,10 @@ def triage_line(source, example, api, have):
     gl = set(re.findall(r"\b(rl[A-Z]\w+)\s*\(", code))
     lacking = sorted((called - have - LANGUAGE) | (gl & RLGL_CARRIABLE))
     opengl = sorted(gl - RLGL_CARRIABLE)
+    # Vulkan has each state rlgl sets, so such a row is missing until it is read over by hand for
+    # what the example shows, which the engine may already do by means of its own.
     if opengl:
-        return f"{example['name']}\tn/a\treaches OpenGL's own state through rlgl ({', '.join(opengl[:4])}), which a Vulkan engine has no counterpart for"
+        return f"{example['name']}\tmissing\tsets OpenGL's state through rlgl ({', '.join(opengl[:4])}), to be read over for what it shows"
     gui_note = "with ImGui in raygui's place" if gui else ""
     if lacking:
         return f"{example['name']}\tmissing\t{', '.join(lacking)}" + (f", {gui_note}" if gui_note else "")
@@ -208,7 +210,7 @@ def build(commit, examples, triage, written):
     out.append("")
     out.append(
         f"**{total['written']} written, {total['part']} written in part, {total['can']} can be written, "
-        f"{total['missing']} missing and {total['n/a']} do not apply.** Of the {applies} that apply, "
+        f"{total['missing']} missing and {total['n/a']} {'does' if total['n/a'] == 1 else 'do'} not apply.** Of the {applies} that apply, "
         f"{total['written'] + total['part'] + total['can']} can be written with what the flat API carries.")
     out.append("")
     out.append("| Group | Written | Written in part | Can be written | Missing | Does not apply |")

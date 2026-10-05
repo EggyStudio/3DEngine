@@ -4,18 +4,18 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**42 written, 0 written in part, 138 can be written, 24 missing and 18 do not apply.** Of the 204 that apply, 180 can be written with what the flat API carries.
+**42 written, 0 written in part, 145 can be written, 34 missing and 1 does not apply.** Of the 221 that apply, 187 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
 | [Core](#core) | 33 | 0 | 9 | 6 | 1 |
-| [Shapes](#shapes) | 0 | 0 | 41 | 2 | 2 |
-| [Textures](#textures) | 2 | 0 | 25 | 4 | 2 |
+| [Shapes](#shapes) | 0 | 0 | 41 | 4 | 0 |
+| [Textures](#textures) | 2 | 0 | 25 | 6 | 0 |
 | [Text](#text) | 2 | 0 | 9 | 5 | 0 |
-| [Models](#models) | 2 | 0 | 23 | 4 | 3 |
-| [Shaders](#shaders) | 2 | 0 | 24 | 0 | 10 |
+| [Models](#models) | 2 | 0 | 25 | 5 | 0 |
+| [Shaders](#shaders) | 2 | 0 | 29 | 5 | 0 |
 | [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **42** | **0** | **138** | **24** | **18** |
+| **All** | **42** | **0** | **145** | **34** | **1** |
 
 ## Core
 
@@ -92,7 +92,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`shapes_ring_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_ring_drawing.c) |  |  | can be written, with ImGui in raygui's place |
 | [`shapes_circle_sector_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_circle_sector_drawing.c) |  |  | can be written, with ImGui in raygui's place |
 | [`shapes_rounded_rectangle_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rounded_rectangle_drawing.c) |  |  | can be written, with ImGui in raygui's place |
-| [`shapes_top_down_lights`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_top_down_lights.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetBlendFactors, rlSetBlendMode), which a Vulkan engine has no counterpart for |
+| [`shapes_top_down_lights`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_top_down_lights.c) |  |  | missing, blend factors of the program's own (rlSetBlendFactors), which lay its lights' mask over the scene |
 | [`shapes_rectangle_advanced`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_advanced.c) |  |  | missing, GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f |
 | [`shapes_splines_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_splines_drawing.c) |  |  | can be written, with ImGui in raygui's place |
 | [`shapes_digital_clock`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_digital_clock.c) |  |  | can be written |
@@ -110,7 +110,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`shapes_lines_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_drawing.c) |  |  | can be written |
 | [`shapes_math_angle_rotation`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_math_angle_rotation.c) |  |  | can be written |
 | [`shapes_rlgl_color_wheel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rlgl_color_wheel.c) |  |  | missing, rlBegin, rlColor4f, rlColor4ub, rlEnd, rlVertex2f, with ImGui in raygui's place |
-| [`shapes_rlgl_triangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rlgl_triangle.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlEnableBackfaceCulling), which a Vulkan engine has no counterpart for |
+| [`shapes_rlgl_triangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rlgl_triangle.c) |  |  | missing, culling turned off, so a triangle wound either way is drawn |
 | [`shapes_ball_physics`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_ball_physics.c) |  |  | can be written |
 | [`shapes_penrose_tile`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_penrose_tile.c) |  |  | can be written |
 | [`shapes_hilbert_curve`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_hilbert_curve.c) |  |  | can be written, with ImGui in raygui's place |
@@ -126,7 +126,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | Example | raylib | Here | State |
 |---|---|---|---|
 | [`textures_clipboard_image`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_clipboard_image.c) |  |  | can be written |
-| [`textures_magnifying_glass`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_magnifying_glass.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetBlendFactorsSeparate), which a Vulkan engine has no counterpart for |
+| [`textures_magnifying_glass`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_magnifying_glass.c) |  |  | missing, separate blend factors for color and alpha (rlSetBlendFactorsSeparate) |
 | [`textures_logo_raylib`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_logo_raylib.c) |  |  | can be written |
 | [`textures_srcrec_dstrec`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_srcrec_dstrec.c) |  |  | can be written |
 | [`textures_image_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_drawing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_drawing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_image_drawing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesImageDrawing.cs) |
@@ -157,7 +157,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`textures_sprite_stacking`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_sprite_stacking.c) |  |  | can be written |
 | [`textures_cellular_automata`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_cellular_automata.c) |  |  | can be written |
 | [`textures_framebuffer_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_framebuffer_rendering.c) |  |  | can be written |
-| [`textures_portal_window`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_portal_window.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableDepthTest, rlEnableDepthTest, rlMatrixMode, rlSetMatrixProjection), which a Vulkan engine has no counterpart for |
+| [`textures_portal_window`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_portal_window.c) |  |  | missing, the depth test turned off and on, and a projection set directly |
 
 ## Text
 
@@ -197,12 +197,12 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`models_loading_vox`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_vox.c) |  |  | missing, MagicaVoxel's .vox files, which Assimp does not read |
 | [`models_loading_m3d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_m3d.c) |  |  | missing, M3D files, which the Assimp the engine carries does not read |
 | [`models_orthographic_projection`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_orthographic_projection.c) |  |  | can be written |
-| [`models_point_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_point_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlDisablePointMode, rlEnableBackfaceCulling, rlEnablePointMode), which a Vulkan engine has no counterpart for |
+| [`models_point_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_point_rendering.c) |  |  | missing, a mesh drawn as points, with culling turned off |
 | [`models_rlgl_solar_system`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rlgl_solar_system.c) |  |  | missing, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlPopMatrix, rlPushMatrix, rlRotatef, rlScalef, rlTranslatef, rlVertex3f |
 | [`models_yaw_pitch_roll`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_yaw_pitch_roll.c) |  |  | can be written |
 | [`models_waving_cubes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_waving_cubes.c) |  |  | can be written |
 | [`models_heightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_heightmap_rendering.c) |  |  | can be written |
-| [`models_skybox_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_skybox_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlClearScreenBuffers, rlDisableBackfaceCulling, rlDisableDepthMask), which a Vulkan engine has no counterpart for |
+| [`models_skybox_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_skybox_rendering.c) |  |  | can be written, its sky drawn with SetEnvironmentMap and DrawSkybox from the same .hdr, as models_skybox draws one |
 | [`models_textured_cube`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_textured_cube.c) |  |  | missing, rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f |
 | [`models_animation_gpu_skinning`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_gpu_skinning.c) |  |  | can be written |
 | [`models_bone_socket`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_bone_socket.c) |  |  | can be written |
@@ -211,7 +211,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`models_rotating_cube`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rotating_cube.c) |  |  | can be written |
 | [`models_decals`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_decals.c) |  |  | can be written |
 | [`models_directional_billboard`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_directional_billboard.c) |  |  | can be written |
-| [`models_animation_blend_custom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_blend_custom.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlUpdateVertexBuffer), which a Vulkan engine has no counterpart for |
+| [`models_animation_blend_custom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_blend_custom.c) |  |  | can be written, two clips blended bone by bone, an upper body's over a lower body's, which UpdateModelAnimationLayer does |
 | [`models_animation_blending`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_blending.c) |  |  | can be written, with ImGui in raygui's place |
 | [`models_animation_timing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_timing.c) |  |  | can be written, with ImGui in raygui's place |
 | [`models_mesh_uv_painting`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_mesh_uv_painting.c) |  |  | can be written, with ImGui in raygui's place |
@@ -238,24 +238,24 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`shaders_eratosthenes_sieve`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_eratosthenes_sieve.c) |  |  | can be written |
 | [`shaders_fog_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_fog_rendering.c) |  |  | can be written |
 | [`shaders_simple_mask`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_simple_mask.c) |  |  | can be written |
-| [`shaders_hot_reloading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hot_reloading.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlGetShaderIdDefault), which a Vulkan engine has no counterpart for |
+| [`shaders_hot_reloading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hot_reloading.c) |  |  | can be written, a shader read again when its file changes, which LoadShader and the file's time do |
 | [`shaders_mesh_instancing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_mesh_instancing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_mesh_instancing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_mesh_instancing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersMeshInstancing.cs) |
 | [`shaders_multi_sample2d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_multi_sample2d.c) |  |  | can be written |
 | [`shaders_normalmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_normalmap_rendering.c) |  |  | can be written |
 | [`shaders_spotlight_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_spotlight_rendering.c) |  |  | can be written |
-| [`shaders_deferred_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_deferred_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveDrawBuffers, rlActiveTextureSlot, rlBindFramebuffer, rlBlitFramebuffer), which a Vulkan engine has no counterpart for |
-| [`shaders_hybrid_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hybrid_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableDepthTest, rlEnableFramebuffer, rlFramebufferAttach), which a Vulkan engine has no counterpart for |
+| [`shaders_deferred_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_deferred_rendering.c) |  |  | missing, a target with several attachments, as a G-buffer is |
+| [`shaders_hybrid_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hybrid_rendering.c) |  |  | missing, a fragment's depth written by a shader, which the meshes drawn after are tested against |
 | [`shaders_texture_tiling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_texture_tiling.c) |  |  | can be written |
-| [`shaders_shadowmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_shadowmap_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlDisableFramebuffer, rlDisableTexture, rlEnableFramebuffer), which a Vulkan engine has no counterpart for |
-| [`shaders_vertex_displacement`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_vertex_displacement.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlEnableShader, rlEnableTexture, rlSetUniformSampler), which a Vulkan engine has no counterpart for |
-| [`shaders_depth_writing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_writing.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for |
+| [`shaders_shadowmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_shadowmap_rendering.c) |  |  | can be written, what shaders_shadowmap casts, a directional light's shadow map |
+| [`shaders_vertex_displacement`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_vertex_displacement.c) |  |  | can be written, a texture handed to a shader, which SetShaderValueTexture does |
+| [`shaders_depth_writing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_writing.c) |  |  | missing, a fragment's depth written by a shader |
 | [`shaders_basic_pbr`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_basic_pbr.c) |  |  | can be written |
-| [`shaders_lightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableVertexArray, rlEnableVertexArray, rlEnableVertexAttribute, rlLoadVertexBuffer), which a Vulkan engine has no counterpart for |
+| [`shaders_lightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.c) |  |  | missing, a second set of texture coordinates in a mesh |
 | [`shaders_rounded_rectangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rounded_rectangle.c) |  |  | can be written |
-| [`shaders_depth_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for |
+| [`shaders_depth_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_rendering.c) |  |  | can be written, a target's depth read, which RenderTexture2D.Depth gives |
 | [`shaders_game_of_life`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_game_of_life.c) |  |  | can be written, with ImGui in raygui's place |
-| [`shaders_rlgl_compute`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rlgl_compute.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlBindShaderBuffer, rlComputeShaderDispatch, rlDisableShader, rlEnableShader), which a Vulkan engine has no counterpart for |
-| [`shaders_cel_shading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_cel_shading.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetCullFace), which a Vulkan engine has no counterpart for |
+| [`shaders_rlgl_compute`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rlgl_compute.c) |  |  | can be written, the game of life shaders_compute_life runs, a compute shader over a buffer |
+| [`shaders_cel_shading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_cel_shading.c) |  |  | missing, front faces culled in place of back ones, for an outline |
 | [`shaders_lights_bloom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lights_bloom.c) |  |  | can be written |
 
 ## Audio
