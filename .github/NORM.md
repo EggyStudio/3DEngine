@@ -115,6 +115,18 @@ examples in a project of their own on the packed package.
 used for, and adding one is the owner's.** A dependency is surface the engine answers for. A test
 compares the project file with the list its annex names.
 
+**N 2.9 A loader keeps no file open once a load returns.** A file the engine still holds cannot
+be written by the tool that made it, and on Windows cannot be removed, which ended a run of
+3DEngine's when a child process had inherited the handle. One test loads through every loader and
+finds its file let go, on Linux among the entries of `/proc/self/fd` and on Windows by opening it
+for writing with no sharing.
+
+**N 2.10 No exception leaves a callback that native code calls.** An exception that unwinds into
+native code ends the process with no message, as a reader's exception inside Assimp ended
+3DEngine's test host. Every method handed to native code catches everything and answers the
+native side in its own terms, the first exception kept for whoever asked. A test finds a method
+handed over that does not.
+
 ## 3 Tests
 
 **N 3.1 A fault that is mended has a test that fails without the mend.** A fault with no test
@@ -201,6 +213,11 @@ minor, and no commit message decides a release. The pack workflow and `build/ver
 **N 6.4 A test opens the packed package and finds what it should hold, the natives for each system
 among it.** A package without a native library fails on somebody else's machine. A test.
 
+**N 6.5 The package carries the notices of everything in it that is another's.** The licenses of
+what a package is built from ask that their notices go with a copy, a compiled one too.
+`THIRD-PARTY-NOTICES.md` is in the package, written by a script where the dependencies are many,
+and a test holds it to them.
+
 ## 7 Working
 
 **N 7.1 Commits stay local, and the owner pushes.** The owner decides what is published and when.
@@ -208,7 +225,9 @@ By review.
 
 **N 7.2 A commit is one finished batch, and its message has the form COMMITS.md gives.** The
 history is read by its descriptions, and release notes are written from them. A test reads the
-messages back, from the commit that adds the test on.
+messages back, from the commit that adds the test on. A commit that changes `build/version.txt`
+alone is the owner's setting of the version and is left out, whatever its message, and any other
+commit of the owner's is left out on the rule's list with that reason.
 
 **N 7.3 REVIEW.md, SHARED.md and this file have one writer, the reviewing session, and the working
 session writes under Replies.** Two sessions editing one file write over each other. By review.
@@ -237,6 +256,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.6 | checked, `BadFileTests` | to take |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
 | N 2.8 | checked, `NormTests` | to take |
+| N 2.9 | checked, `FileHandleTests` | to take |
+| N 2.10 | to take | to take |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
 | N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 4 left out |
@@ -256,6 +277,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.2 | checked, `test.yml` | checked, `package.yml` |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
+| N 6.5 | checked, `PackageContentsTests` | checked, by the test of N 6.4, which holds the notices to the lock |
 | N 7.1 | by review | by review |
 | N 7.2 | checked, `NormTests` | checked, `NormTests` |
 | N 7.3 | by review | by review |

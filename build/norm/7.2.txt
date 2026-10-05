@@ -1,0 +1,2 @@
+# N 7.2, a commit of the owner's other than the setting of the version.
+5d88a601	the owner's, the paragraph on NORM.md and its row in AGENTS.md

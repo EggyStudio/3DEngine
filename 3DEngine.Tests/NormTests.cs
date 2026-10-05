@@ -197,19 +197,21 @@ public sealed partial class NormTests
     [NeedsHistoryFact]
     public void N_7_2()
     {
-        var log = Git("log", "--format=%H%x1f%s%x1f%b%x1e", $"{MessagesFrom}..HEAD");
+        var log = Git("log", "--format=%x1e%H%x1f%s%x1f%b%x1f", "--name-only", $"{MessagesFrom}..HEAD");
 
         var found = new List<string>();
         foreach (var entry in log.Split('\u001e', StringSplitOptions.RemoveEmptyEntries))
         {
-            var parts = entry.Trim('\n').Split('\u001f');
-            if (parts.Length < 3) continue;
+            var parts = entry.Split('\u001f');
+            if (parts.Length < 4) continue;
             var (hash, subject, body) = (parts[0][..8], parts[1], parts[2].Trim());
+            // The owner's setting of the version, whatever its message.
+            if (parts[3].Split('\n', StringSplitOptions.RemoveEmptyEntries) is ["build/version.txt"]) continue;
             var sentence = body.Length > 0 && !body.Contains('\n') && body.EndsWith('.') && !Regex.IsMatch(body[..^1], @"[.!?] [A-Z]");
             if (subject != "\u200e \u200e \u200e" || !sentence) found.Add(hash);
         }
 
-        Assert.True(found.Count == 0, $"N 7.2: these commits do not have the form COMMITS.md gives, three marks and one sentence: {string.Join(", ", found)}");
+        Hold("7.2", found, "a message without the form COMMITS.md gives, three marks and one sentence");
     }
 
     /// <summary>
