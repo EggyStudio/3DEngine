@@ -327,6 +327,25 @@ that the reading still finds a method of each of the three ways, so it cannot pa
 none. What a catch does to answer native code is left to review. 218 tests over models, bad
 files, the IME and the device pass.
 
+**Now 2, `core_2d_camera_platformer` and `core_viewport_scaling`.** Both are raylib's, written
+again from its source, its constants, words and colors. The platformer's five camera functions
+are a delegate array, as raylib's are function pointers, and C's static locals are fields. The
+viewport's source rectangles start at the top with their heights as they are, since a render
+texture is upright here, and what it shows of the source's height it shows without the sign.
+Driven through `./e3d`, the player jumps onto a ledge and lands, the smoothed camera lags behind,
+and the scaling buttons move from 64 by 64 at a whole multiple to 256 by 240 kept to the window's
+aspect.
+
+The viewport's port found three calls that answer otherwise than raylib's, which the table in
+`docs/compared-with-raylib.md` has now. A texture loads bilinear here and with the point filter in
+raylib, so the 64 by 64 target came out blurred and its left edge bled into its right, and the
+port sets its target to point, which raylib's needs no call for. A window has four samples here
+unless asked otherwise, and one in raylib without `FLAG_MSAA_4X_HINT`. A render texture is drawn
+at the window's samples and resolved, so the circle's edge is smoothed where raylib's is hard,
+because the window's pipelines draw into it as they are. Which default follows raylib's is the
+owner's to say. Pixel art drawn small and scaled up, as this example teaches, keeps
+hard edges here only with `SetConfigSamples(1)`.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an
