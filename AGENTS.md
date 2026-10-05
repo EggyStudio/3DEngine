@@ -34,6 +34,7 @@ before driving a session.
 | [.github/TODO.md](.github/TODO.md) | Outstanding work, in the order it blocks making a game |
 | [.github/REVIEW.md](.github/REVIEW.md) | Direction from the reviewing session, which comes before TODO.md's order |
 | [.github/SHARED.md](.github/SHARED.md) | What this engine and BevyCSharp have in common, and which has solved what |
+| [.github/NORM.md](.github/NORM.md) | The numbered rules this engine and BevyCSharp keep, each with what checks it |
 | [.github/STYLE.md](.github/STYLE.md) | Rules for every comment, message and Markdown file |
 | [.github/COMMITS.md](.github/COMMITS.md) | How and when work is committed |
 
@@ -121,5 +122,12 @@ pushed.
   written by the session that writes REVIEW.md. A batch that touches a shared area is offered
   with a line under Replies in REVIEW.md beginning `Shared:`, and the other repository, checked
   out beside this one, may be read for a model and is never edited from here.
+- `.github/NORM.md` holds the rules this engine and its sibling keep, each with a number, a reason
+  and what checks it. It is the same file in both repositories and is written by the session that
+  writes REVIEW.md. `dotnet test 3DEngine.Tests --filter NormTests` says whether the rules hold. A
+  rule read as wrong, or a fault of a kind no rule names, is said with a line under Replies in
+  REVIEW.md beginning `Rule:`. A row that the table under Where things are lacks is added here
+  when N 1.5 asks for it, which the owner allowed on 2026-10-05, and nothing else in this file
+  changes without the owner's word.
 - The code before the redesign is on the local `legacy-modules` branch, as git submodules under
   `Modules/`. It is read for reference and not merged back.
