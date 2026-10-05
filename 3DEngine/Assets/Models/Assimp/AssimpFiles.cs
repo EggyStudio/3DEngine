@@ -44,9 +44,10 @@ internal sealed class AssimpFiles(Func<string, Stream?> open) : A.IOSystem
     {
         if (fileMode is not (A.FileIOMode.Read or A.FileIOMode.ReadBinary or A.FileIOMode.ReadText))
             return null;
-        var name = pathToFile.Replace('\\', '/');
+        var name = pathToFile;
         try
         {
+            name = name.Replace('\\', '/');
             while (name.StartsWith("./", StringComparison.Ordinal)) name = name[2..];
             if (Shared is not null && name == SharedName) return new File(this, pathToFile, fileMode, Shared, owned: false);
             var stream = open(name);
@@ -103,10 +104,18 @@ internal sealed class AssimpFiles(Func<string, Stream?> open) : A.IOSystem
         // file Assimp names is always this one.
         private UIntPtr ReadInto(IntPtr file, IntPtr data, UIntPtr elementSize, UIntPtr elements)
         {
-            var size = elementSize.ToUInt64();
-            if (size == 0) return UIntPtr.Zero;
-            var wanted = (int)Math.Min(size * elements.ToUInt64(), int.MaxValue);
-            return (UIntPtr)((ulong)ReadInto(new Span<byte>((void*)data, wanted)) / size);
+            try
+            {
+                var size = elementSize.ToUInt64();
+                if (size == 0) return UIntPtr.Zero;
+                var wanted = (int)Math.Min(size * elements.ToUInt64(), int.MaxValue);
+                return (UIntPtr)((ulong)ReadInto(new Span<byte>((void*)data, wanted)) / size);
+            }
+            catch (Exception ex)
+            {
+                _files.Fail(PathToFile, ex);
+                return UIntPtr.Zero;
+            }
         }
 
         private int ReadInto(Span<byte> into)
@@ -131,7 +140,18 @@ internal sealed class AssimpFiles(Func<string, Stream?> open) : A.IOSystem
         public override long Write(byte[] dataToWrite, long count) => 0;
 
         // Assimp reads through ReadInto, and this is here because the binding declares it.
-        public override long Read(byte[] dataRead, long count) => ReadInto(dataRead.AsSpan(0, (int)Math.Min(count, dataRead.Length)));
+        public override long Read(byte[] dataRead, long count)
+        {
+            try
+            {
+                return ReadInto(dataRead.AsSpan(0, (int)Math.Min(count, dataRead.Length)));
+            }
+            catch (Exception ex)
+            {
+                _files.Fail(PathToFile, ex);
+                return 0;
+            }
+        }
 
         public override A.ReturnCode Seek(long offset, A.Origin seekOrigin)
         {
@@ -172,21 +192,26 @@ internal sealed class AssimpFiles(Func<string, Stream?> open) : A.IOSystem
 
         public override void Flush() { }
 
+        // The binding's close reaches here from native code too, so the binding's own release is
+        // inside the catch as well as the stream's.
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _owned)
+            try
             {
                 try
                 {
-                    _stream?.Dispose();
+                    if (disposing && _owned) _stream?.Dispose();
                 }
-                catch (Exception ex)
+                finally
                 {
-                    _files.Fail(PathToFile, ex);
+                    _stream = null;
+                    base.Dispose(disposing);
                 }
             }
-            _stream = null;
-            base.Dispose(disposing);
+            catch (Exception ex)
+            {
+                _files.Fail(PathToFile, ex);
+            }
         }
     }
 }

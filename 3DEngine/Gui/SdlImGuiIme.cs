@@ -39,8 +39,20 @@ internal static unsafe class SdlImGuiIme
         ImGui.GetPlatformIO().Platform_SetImeDataFn = (nint)(delegate* unmanaged[Cdecl]<nint, nint, ImeData*, void>)&SetImeData;
     }
 
+    // Called from ImGui's native code, where an exception would end the process. A text box whose
+    // input area could not be set types as before, only without the candidate list beside it.
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static void SetImeData(nint context, nint viewport, ImeData* data) => Apply(*data);
+    private static void SetImeData(nint context, nint viewport, ImeData* data)
+    {
+        try
+        {
+            Apply(*data);
+        }
+        catch (Exception)
+        {
+            // ImGui asks for no answer.
+        }
+    }
 
     /// <summary>Sets or clears the window's text input area from what ImGui reports.</summary>
     internal static void Apply(in ImeData data)

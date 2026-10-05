@@ -310,6 +310,23 @@ of the library, and not in `NormTests`, whose test named for a rule NORM.md does
 would fail `NormAndItsTestsAgree`. N 6.6's cell can name `ScriptTests`, or it moves into
 `NormTests` as `N_6_6` once the rule is written, whichever the norm prefers.
 
+**Now 3, N 2.10.** `NormTests.N_2_10` finds the engine's methods native code calls in three ways:
+those marked `[UnmanagedCallersOnly]`, those made into a delegate of a type marked
+`[UnmanagedFunctionPointer]`, and the engine's overrides of a binding's virtual methods that the
+binding's own such methods reach, following the binding's calls. It reads twelve, the Vulkan
+debug callback, ImGui's IME callback, the Assimp file system's `OpenFile`, and its stream's read,
+write, seek, position, size, flush, validity and release. Each call, allocation or throw in them
+is to lie in a `try` whose catch takes every exception, or in that catch. Six did not.
+`GraphicsDevice.DebugCallback` and `SdlImGuiIme.SetImeData` caught nothing, and the debug
+callback runs a game's log callback, which may throw. `OpenFile` replaced the slashes before its
+`try`, the native `ReadInto` made its span before its own, `Read` sliced the array before it, and
+the stream's release called the binding's outside it. Each catches everything now, the debug
+callback answering the layer as it does without one, after counting the error, and the IME
+callback leaving the input area as it was. The test names the six without the mend, and asks
+that the reading still finds a method of each of the three ways, so it cannot pass by finding
+none. What a catch does to answer native code is left to review. 218 tests over models, bad
+files, the IME and the device pass.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an

@@ -217,18 +217,28 @@ internal sealed unsafe partial class GraphicsDevice
         VkDebugUtilsMessengerCallbackDataEXT* data,
         void* userData)
     {
-        var message = Marshal.PtrToStringUTF8((nint)data->pMessage) ?? string.Empty;
-        var logger = Log.Category("Vulkan.Validation");
-        var formatted = $"[{type}] {message}";
-        if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error))
+        // An exception leaving here would end the process, and the log runs a game's callback
+        // (SetTraceLogCallback), which may throw. An error is counted before it is logged, so a
+        // log that fails loses the line and not the count a test reads.
+        try
         {
-            lock (ValidationGate) ValidationErrorList.Add(formatted);
-            logger.Error(formatted);
+            var message = Marshal.PtrToStringUTF8((nint)data->pMessage) ?? string.Empty;
+            var logger = Log.Category("Vulkan.Validation");
+            var formatted = $"[{type}] {message}";
+            if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Error))
+            {
+                lock (ValidationGate) ValidationErrorList.Add(formatted);
+                logger.Error(formatted);
+            }
+            else if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Warning))
+                logger.Warn(formatted);
+            else
+                logger.Debug(formatted);
         }
-        else if (severity.HasFlag(VkDebugUtilsMessageSeverityFlagsEXT.Warning))
-            logger.Warn(formatted);
-        else
-            logger.Debug(formatted);
+        catch (Exception)
+        {
+            // The layer is told what it is told without one, to go on.
+        }
         return 0;
     }
 }

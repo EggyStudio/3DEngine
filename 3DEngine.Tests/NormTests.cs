@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 
@@ -115,6 +117,21 @@ public sealed partial class NormTests
             .Select(m => m.Groups["name"].Value).Where(name => !named.Contains(name));
 
         Hold("2.8", found, "a package the library references that D 8's table does not list");
+    }
+
+    [Fact]
+    public void N_2_10()
+    {
+        var handed = HandedToNativeCode();
+        handed.Select(Name).Should().Contain(["Engine.GraphicsDevice.DebugCallback", "Engine.AssimpFiles+File.ReadInto", "Engine.AssimpFiles.OpenFile"],
+            "one is marked to be called from native code, one is handed over as a delegate and one is reached through the binding's own");
+
+        var found = handed
+            .Select(method => (method, call: UnguardedCall(method)))
+            .Where(entry => entry.call is not null)
+            .Select(entry => $"{Name(entry.method)} calls {entry.call} outside a catch of every exception");
+
+        Hold("2.10", found, "a method native code calls");
     }
 
     [Fact]
@@ -248,6 +265,182 @@ public sealed partial class NormTests
                     problems.Add($"build/norm/{Path.GetFileName(list)} is the list of no test");
 
         Assert.True(problems.Count == 0, "NORM.md and NormTests disagree: " + string.Join("; ", problems));
+    }
+
+    // -- Native code
+
+    // The engine's methods native code calls. Those marked to be called from it, those made into a
+    // delegate of a type marked to be handed to it, and the engine's overrides of a binding's
+    // virtual methods that the binding's own such methods reach, as an Assimp file system's are.
+    private static List<MethodBase> HandedToNativeCode()
+    {
+        var engine = typeof(App).Assembly;
+        var handed = new HashSet<MethodBase>();
+        foreach (var method in Methods(engine))
+        {
+            if (method.IsDefined(typeof(System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute))) handed.Add(method);
+            foreach (var target in DelegatesHandedOver(method))
+                if (target.Module.Assembly == engine) handed.Add(target);
+        }
+
+        var bindings = engine.GetTypes()
+            .SelectMany(type => Bases(type))
+            .Select(type => type.Assembly)
+            .Where(assembly => assembly != engine && assembly != typeof(object).Assembly)
+            .ToHashSet();
+        var reached = bindings.SelectMany(VirtualsReachedFromNativeCode).ToHashSet();
+        foreach (var method in Methods(engine))
+            if (method is MethodInfo { IsVirtual: true } info && reached.Contains(info.GetBaseDefinition()))
+                handed.Add(method);
+
+        return [.. handed.OrderBy(Name, StringComparer.Ordinal)];
+    }
+
+    // The virtual methods a binding's methods that native code calls reach, through the
+    // binding's own calls, which are followed and others' are not.
+    private static IEnumerable<MethodBase> VirtualsReachedFromNativeCode(Assembly binding)
+    {
+        var pending = new Stack<MethodBase>(Methods(binding).SelectMany(DelegatesHandedOver).Where(m => m.Module.Assembly == binding));
+        var seen = new HashSet<MethodBase>();
+        while (pending.TryPop(out var method))
+        {
+            if (!seen.Add(method)) continue;
+            foreach (var (_, code, operand) in Instructions(method))
+                if ((code == OpCodes.Call || code == OpCodes.Callvirt) && Resolve(method, operand) is { } called && called.Module.Assembly == binding)
+                {
+                    if (called.IsVirtual) yield return called is MethodInfo info ? info.GetBaseDefinition() : called;
+                    pending.Push(called);
+                }
+        }
+    }
+
+    // The methods a method makes into a delegate of a type marked to be handed to native code.
+    private static IEnumerable<MethodBase> DelegatesHandedOver(MethodBase method)
+    {
+        MethodBase? pointed = null;
+        foreach (var (_, code, operand) in Instructions(method))
+        {
+            if (code == OpCodes.Ldftn || code == OpCodes.Ldvirtftn)
+                pointed = Resolve(method, operand);
+            else if (code == OpCodes.Newobj && pointed is not null
+                     && Resolve(method, operand)?.DeclaringType?.IsDefined(typeof(System.Runtime.InteropServices.UnmanagedFunctionPointerAttribute)) == true)
+                yield return pointed;
+            else if (code != OpCodes.Dup && code != OpCodes.Ldarg_0 && code != OpCodes.Ldnull)
+                pointed = null;
+        }
+    }
+
+    // The first call, allocation or throw of a method that no catch of every exception covers,
+    // or null where there is none. What a catch does to answer native code is read by review.
+    private static string? UnguardedCall(MethodBase method)
+    {
+        var body = method.GetMethodBody();
+        if (body is null) return null;
+        var guarded = body.ExceptionHandlingClauses
+            .Where(c => c.Flags == ExceptionHandlingClauseOptions.Clause && (c.CatchType == typeof(Exception) || c.CatchType == typeof(object)))
+            .SelectMany(c => new[] { (c.TryOffset, c.TryOffset + c.TryLength), (c.HandlerOffset, c.HandlerOffset + c.HandlerLength) })
+            .ToList();
+        foreach (var (offset, code, operand) in Instructions(method))
+        {
+            if (!Throwing.Contains(code) || guarded.Any(range => offset >= range.Item1 && offset < range.Item2)) continue;
+            return code == OpCodes.Throw ? "throw" : Resolve(method, operand) is { } called ? Name(called) : code.Name;
+        }
+        return null;
+    }
+
+    private static readonly HashSet<OpCode> Throwing =
+        [OpCodes.Call, OpCodes.Callvirt, OpCodes.Calli, OpCodes.Newobj, OpCodes.Newarr, OpCodes.Throw, OpCodes.Castclass, OpCodes.Unbox, OpCodes.Unbox_Any];
+
+    private static IEnumerable<MethodBase> Methods(Assembly assembly)
+    {
+        const BindingFlags all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+        Type[] types;
+        try
+        {
+            types = assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            types = [.. ex.Types.OfType<Type>()];
+        }
+        return types.SelectMany(type => type.GetMethods(all).Cast<MethodBase>().Concat(type.GetConstructors(all)));
+    }
+
+    private static IEnumerable<Type> Bases(Type type)
+    {
+        for (var at = type.BaseType; at is not null; at = at.BaseType) yield return at;
+    }
+
+    private static MethodBase? Resolve(MethodBase within, int token)
+    {
+        try
+        {
+            return within.Module.ResolveMethod(token,
+                within.DeclaringType is { IsGenericType: true } type ? type.GetGenericArguments() : null,
+                within.IsGenericMethod ? within.GetGenericArguments() : null);
+        }
+        catch (Exception ex) when (ex is ArgumentException or BadImageFormatException or TypeLoadException or FileNotFoundException)
+        {
+            return null;
+        }
+    }
+
+    private static string Name(MethodBase method) => $"{method.DeclaringType?.FullName}.{method.Name}";
+
+    // A method's instructions, each with where it starts and its operand when that is a token.
+    private static IEnumerable<(int Offset, OpCode Code, int Operand)> Instructions(MethodBase method)
+    {
+        byte[]? il;
+        try
+        {
+            il = method.GetMethodBody()?.GetILAsByteArray();
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or BadImageFormatException)
+        {
+            il = null;
+        }
+        if (il is null) yield break;
+        for (int at = 0; at < il.Length;)
+        {
+            var offset = at;
+            var code = il[at] == 0xFE ? TwoByteCodes[il[at + 1]] : OneByteCodes[il[at]];
+            at += code.Size;
+            var operand = 0;
+            switch (code.OperandType)
+            {
+                case OperandType.InlineNone:
+                    break;
+                case OperandType.ShortInlineBrTarget or OperandType.ShortInlineI or OperandType.ShortInlineVar:
+                    at += 1;
+                    break;
+                case OperandType.InlineVar:
+                    at += 2;
+                    break;
+                case OperandType.InlineI8 or OperandType.InlineR:
+                    at += 8;
+                    break;
+                case OperandType.InlineSwitch:
+                    at += 4 + 4 * BitConverter.ToInt32(il, at);
+                    break;
+                default:
+                    operand = BitConverter.ToInt32(il, at);
+                    at += 4;
+                    break;
+            }
+            yield return (offset, code, operand);
+        }
+    }
+
+    private static readonly OpCode[] OneByteCodes = Codes(twoBytes: false);
+    private static readonly OpCode[] TwoByteCodes = Codes(twoBytes: true);
+
+    private static OpCode[] Codes(bool twoBytes)
+    {
+        var codes = new OpCode[256];
+        foreach (var field in typeof(OpCodes).GetFields(BindingFlags.Public | BindingFlags.Static))
+            if (field.GetValue(null) is OpCode code && (code.Size == 2) == twoBytes)
+                codes[(ushort)code.Value & 0xFF] = code;
+        return codes;
     }
 
     // -- The lists
