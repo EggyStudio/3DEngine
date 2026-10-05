@@ -87,6 +87,27 @@ var ball = CreatePhysicsSphere(new Vector3(0, 5, 0), 0.5f);
 SetPhysicsBodyMaterial(ball, friction: 0.4f, bounce: 0.8f);
 ```
 
+`ApplyPhysicsImpulseAt` pushes a body at a point of it, which turns it as well as moving it, so a
+push under one corner of a car lifts that corner. `GetPhysicsBodyPointVelocity` says how fast a
+point of a body moves, its turning included, which is how fast a spring at that corner is pressed
+or a tyre slides. `GetPhysicsBodyRotation` and `SetPhysicsBodyRotation` read and set how it is
+turned, and `GetPhysicsBodyAngularVelocity` and `SetPhysicsBodyAngularVelocity` how fast it turns.
+`games/Rally` builds its car from these and a ray per wheel, one box held up by four springs:
+
+```csharp
+var mount = center + Vector3.Transform(Mounts[i], rotation);
+if (GetRayCollisionPhysicsEx(new Ray(mount, -up), Rest + WheelRadius, Body, out var hit))
+{
+    var pressed = Rest + WheelRadius - hit.Distance;
+    var closing = -Vector3.Dot(GetPhysicsBodyPointVelocity(Body, mount), up);
+    var load = MathF.Max(0, Spring * pressed + Damper * closing);
+    ApplyPhysicsImpulseAt(Body, up * load * dt, mount);
+}
+```
+
+A car pushed by its own wheels is stepped where the physics steps, in an `[OnFixedUpdate]`
+behavior, so its springs are pressed once a step however fast frames come.
+
 ## Rays and contacts
 
 `GetRayCollisionPhysics` finds the first body along a ray, with the point, the surface's normal
@@ -100,6 +121,9 @@ if (IsMouseButtonPressed(MouseButton.Left) &&
     hit.Body.Kind == BodyKind.Dynamic)
     ApplyPhysicsImpulse(hit.Body, Vector3.Normalize(hit.Point - camera.Position) * 6 + Vector3.UnitY * 3);
 ```
+
+`GetRayCollisionPhysicsEx` looks past one body, as a ray cast from inside a car's body to the
+ground under a wheel does. A ray goes through triggers, which stop nothing.
 
 `IsPhysicsBodyHit` says whether a body started touching anything this frame, which the example
 flashes a box white by. `GetPhysicsContacts` lists every pair that started touching this frame,
@@ -123,6 +147,10 @@ var goal = CreatePhysicsTrigger(new Vector3(0, 1, -20), new Vector3(4, 2, 1));
 foreach (var contact in GetPhysicsContacts())
     if (contact.BodyA == goal || contact.BodyB == goal) won = true;
 ```
+
+A contact starts when a body enters, so a body already inside a trigger when it begins to be
+counted, as a car waiting at a start line inside the first gate, is never reported until it
+leaves and comes back.
 
 `SetPhysicsBodyTrigger` turns a body of any shape into a trigger, or back into a solid one.
 

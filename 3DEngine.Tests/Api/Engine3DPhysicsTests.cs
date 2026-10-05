@@ -37,6 +37,40 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Push_At_A_Corner_Turns_A_Body_And_A_Ray_Can_Look_Past_It()
+    {
+        SetPhysicsGravity(Vector3.Zero);
+        var box = CreatePhysicsBox(new Vector3(0, 5, 0), Vector3.One, mass: 1);
+
+        // Pushed sideways at its top, it moves and turns about the axis across the push.
+        ApplyPhysicsImpulseAt(box, new Vector3(1, 0, 0), new Vector3(0, 5.5f, 0));
+        GetPhysicsBodyVelocity(box).X.Should().BeApproximately(1, 1e-4f, "the whole impulse moves it");
+        GetPhysicsBodyAngularVelocity(box).Z.Should().BeLessThan(-0.1f, "and pushed above its middle it turns, top first");
+        var top = GetPhysicsBodyPointVelocity(box, new Vector3(0, 5.5f, 0));
+        var bottom = GetPhysicsBodyPointVelocity(box, new Vector3(0, 4.5f, 0));
+        top.X.Should().BeGreaterThan(bottom.X, "its top moves faster than its bottom as it turns");
+
+        SetPhysicsBodyAngularVelocity(box, Vector3.Zero);
+        var turned = Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1);
+        SetPhysicsBodyRotation(box, turned);
+        Quaternion.Dot(GetPhysicsBodyRotation(box), turned).Should().BeGreaterThan(0.9999f);
+
+        // A ray from inside the box meets the box, and looking past it meets the floor below.
+        var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(20, 1, 20));
+        var down = new Ray(new Vector3(0, 5, 0), -Vector3.UnitY);
+        GetRayCollisionPhysicsEx(down, 20, box, out var hit).Should().BeTrue();
+        hit.Body.Should().Be(floor, "the box the ray starts in is looked past");
+        hit.Point.Y.Should().BeApproximately(0, 1e-3f);
+
+        // A trigger over the floor stops nothing, a ray included, from inside it or from above.
+        CreatePhysicsTrigger(new Vector3(0, 2, 0), new Vector3(6, 4, 6));
+        GetRayCollisionPhysicsEx(new Ray(new Vector3(0, 1, 0), -Vector3.UnitY), 5, box, out hit).Should().BeTrue();
+        hit.Body.Should().Be(floor, "a wheel's ray inside a gate's sensor reaches the ground");
+        GetRayCollisionPhysics(new Ray(new Vector3(3, 10, 3), -Vector3.UnitY), 20, out hit).Should().BeTrue();
+        hit.Body.Should().Be(floor, "and from above, the floor is what the ray meets");
+    }
+
+    [Fact]
     public void A_Box_Dropped_On_A_Floor_Lands_And_Reports_The_Contact()
     {
         var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10));

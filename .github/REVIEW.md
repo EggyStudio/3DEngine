@@ -8,9 +8,13 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `2a74282e`. Depth of field and motion blur over the HDR frame (`2a74282e`) are settled
-on their description and the reply, which was read. The ten-minute runs of the four games, with
-every count level, are in the working tree and are settled when committed.
+Reviewed up to `a8134c89`. The three things nothing had tried are settled, on the replies, which
+were read. Ten minutes of each game held every count level (`044d2396`). The games and five
+examples came through a storm of resizes under the validation layer (`b0d835c4`). Bad files
+found a font that stopped the whole process in native code, a loader that threw on a good PNG
+and decoders whose exceptions escaped, all fixed with one table of cases (`3442e2cd`). Morph
+targets under a layered clip (`42b99058`) and a body shaped as a model's hull (`a8134c89`) were
+taken on their descriptions. The three are in [SHARED.md](SHARED.md).
 
 ## Now
 
@@ -20,27 +24,27 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **A game left running does not grow.** Every test and capture here runs a few hundred
-   frames, and nothing has run for long. Each of the four games is played by a script for ten
-   minutes offscreen, with levels restarted, waves spawned and despawned, prefabs placed and
-   removed, and sounds started throughout, while managed memory, the GPU memory the device has
-   given out, descriptor sets, buffers kept by rings and retired lists, and entity ids are read
-   at intervals through an `e3d` command. Anything that climbs without leveling off is a leak
-   and is found and fixed. A shorter form of the run joins the workflow, failing on growth past
-   a bound.
-3. **A window resized, minimized and moved between monitors while it draws.** The swapchain,
-   the HDR frame, the shadow maps, render textures and probes are made again on a resize, and
-   that path is the least run. `e3d` gains what it needs to resize and minimize a hidden window,
-   each game and a handful of examples are put through a storm of them under the validation
-   layer, and a frame of zero size draws nothing and comes back.
-4. **Every loader refuses a bad file gracefully.** A missing file, an empty one, one cut short
-   and one of random bytes are given to each `Load` function of the flat API and to the scene,
-   model, font, image, sound and shader readers, and each answers as DESIGN.md says a failed
-   load does, with a message naming the file and no exception escaping a frame. The cases are a
-   table in one test, so a loader added later is a row.
-5. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
-   when TODO.md runs short, a fifth game of a kind not yet made, since each one has found what
-   nothing else did.
+2. **The public surface is written down, and a change to it is seen.** The package is numbered
+   5.0 and counts a patch a commit, and nothing says when a commit removes or reshapes something
+   a game calls. A listing of every public type and member of the engine, made by a tool from
+   the built assembly and checked in, with a test that fails when the two differ, so a change
+   to the surface is a change to that file in the same commit and is read as one. Beside it,
+   `build/pack.sh` writes the package's release notes from the commits since `build/version.txt`
+   last changed, each commit's sentence a line, since the messages are already written to be
+   read.
+3. **A fifth game, of a kind not yet made.** A first-person walk through a level larger than a
+   room: many prefabs and textures loaded as the player nears and let go behind, doors on
+   joints opened by triggers, lit rooms with probes and a sunlit yard with cascades, particles
+   and the effects over the frame used as a game would, a settings screen that changes
+   resolution, vertical sync, volume and key bindings and keeps them in a file, and the whole
+   of it played with a gamepad alone, menus included. From the package, with what it turns up
+   fixed when small and entered in TODO.md when not, played and soaked by CI.
+4. **What that game turned up**, in the order it hurt.
+5. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
+6. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
+   of field, motion blur and exposure, the memory and window commands, hull and mesh colliders,
+   morph targets and layered clips.
+7. **TODO.md's order** for everything else, and another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -75,53 +79,13 @@ None open.
 ## Replies
 
 
-**Now 6, depth of field and motion blur.** `SetDepthOfField(focusDistance, focusRange, blur)` and
-`SetMotionBlur(amount)` are passes over the HDR frame before the composite, reading its depth
-through the inverse of the window's camera. Depth of field gathers on a spiral, a blurred thing in
-front spreading over what is sharp behind it and not the other way, and reads color and depth
-unfiltered with each pixel taken as the nearest of the 3 by 3 round it, after a first version drew
-faint copies of a sharp thing's edges round it from the edge pixels multisampling gives the color of
-the thing and the depth of what is behind. Motion blur reprojects each pixel through last frame's
-camera and takes the fastest movement around it, so an edge smears outward too. It knows the camera's
-movement alone, which TODO.md says. `FrameEffectsTests` reads both from pixels, and `shaders_bloom`
-gives each a key.
-
-**Now 3, a game left running.** `memory` and `memory.collect` answer with the managed heap, the
-device's live buffers, images, descriptor sets, pipelines and carved memory, and the entities with
-the range of their ids, counted where the device's wrappers are made and destroyed, which takes in
-what rings and retired lists hold. `build/soak.sh` plays a game through `./e3d`, restarting its level
-(Pusher and Hopper gained R to restart for it), spawning and clearing waves and starting sounds, and
-reads them every ten seconds, and `build/soak-check.py` fails a value whose most in the second half
-of a run passes its most in the first by more than a slack. Ten minutes of each of the four games
-held every count level, and the heap level within a few hundred kilobytes. Summit's heap rises by
-about a kilobyte a reading while the console's log ring of 2000 lines fills, which bounds it. CI
-plays the four for two minutes at once.
-
-**Now 4, a window resized while it draws.** `window.size`, `window.minimize`, `window.restore`,
-`window.position` and `window.monitor` drive a window, and an offscreen run resizes the images it
-draws into, which a resize makes again as a window's swapchain is, so CI storms with no desktop.
-The window's resizes and an offscreen run's go through one debounced `SurfaceResize`, a minimized
-window or an empty surface skips the frame's GPU work and ImGui's frame is closed for it, and an
-offscreen run's screen size, camera aspect and ImGui follow its images. `build/storm.sh` resizes a
-program through odd sizes a frame apart, minimizes and restores it twice and moves it to each
-monitor, then captures at the size last asked for. The four games and five examples came through
-it on lavapipe under the validation layer with nothing reported, CI runs the same, and
-`WindowResizeTests` does it on an offscreen run with bloom and a shadow.
-
-**Now 5, bad files.** DESIGN.md §6 now says what a failed load does, which it did not before: a
-warning naming the file, a resource `Is...Valid` answers false for (the default font for a font,
-null for a file's bytes), and no exception. `BadFileTests` gives 21 flat loaders and the asset
-server's texture, model and shader readers, `SceneRef` and `ModelRef` a missing, an empty, a cut
-short and a random file each. What it found:
-
-- a font file shorter than 100 bytes, cut short or random stopped the whole process in ImGui's
-  native atlas builder, and a font's bytes are now looked over first (signature, table directory,
-  every table inside the file, the tables an outline font has);
-- `LoadImageAnim` threw on any file not a GIF, a good PNG among them, and loads one as a single
-  frame as raylib does;
-- image, sound and music decoders throw plain exceptions on bytes not their format, which the
-  loaders' narrow catches let through, and now catch;
-- a cut short Ogg decoded to nothing with no word, and a model of random bytes named .obj loaded as
-  an empty scene, and both are refused with a reason;
-- `LoadFileText` and `LoadFileData` returned null for a missing file silently, and warn as raylib's
-  do, with Hopper asking `FileExists` before reading a high score not yet saved.
+**Rally.** A racing game was under way when the Now list was refilled, so it is the fifth game
+and the first-person walk of item 3 is the sixth, which comes next. `games/Rally` drives a car of
+one box on four rays as springs round a dirt road over a heightmap, through gates that are
+triggers, with a ghost of the best lap kept in a file, dust, motion blur by speed and an engine's
+note pitched by it, and CI races it a lap on its autopilot, soaks it and storms it. It needed a
+push at a point, a body's turn and turning speed, a point's speed and a ray that looks past one
+body, which are flat functions now. It found that a ray stopped at a trigger, so a wheel inside a
+gate's sensor stood on the air in it and threw the car up, and a character's ground, step and
+headroom rays went through the same handler. Rays go through triggers now. A vehicle built by hand is entered in
+TODO.md.

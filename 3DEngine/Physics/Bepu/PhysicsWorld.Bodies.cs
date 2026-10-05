@@ -190,6 +190,26 @@ public sealed partial class PhysicsWorld
         br.Awake = true;
     }
 
+    /// <summary>
+    /// Pushes a body at a point in the world, which turns it as well as moving it unless the point
+    /// is its center of mass, as a wheel's grip or a hit on a corner does.
+    /// </summary>
+    public void ApplyImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)
+    {
+        if (body.Kind != BodyKind.Dynamic) return;
+        var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        br.ApplyImpulse(impulse, point - br.Pose.Position);
+        br.Awake = true;
+    }
+
+    /// <summary>How fast a point of a body moves, its own velocity and the turn about its center of mass at that point.</summary>
+    public Vector3 GetPointVelocity(PhysicsBody body, Vector3 point)
+    {
+        if (body.Kind == BodyKind.Static) return Vector3.Zero;
+        var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
+        return br.Velocity.Linear + Vector3.Cross(br.Velocity.Angular, point - br.Pose.Position);
+    }
+
     /// <inheritdoc />
     public void ApplyAngularImpulse(PhysicsBody body, Vector3 impulse)
     {

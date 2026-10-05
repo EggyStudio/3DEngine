@@ -157,13 +157,44 @@ jobs:
             exit 1
           fi
 
+      # The racing game from the same package, whose autopilot drives a lap through every gate, so
+      # the car's wheels, the triggers and the lap's count are all played, and a lap is recorded.
+      - name: Build and race the rally game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Rally --force-evaluate
+          dotnet build games/Rally --no-restore
+          ./e3d open games/Rally/bin/Debug/net10.0/Rally --offscreen --quiet
+          ./e3d command frames.wait 60 --quiet
+          ./e3d command rally.autopilot true --quiet
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command frames.wait 640 --quiet --timeout 600
+          ./e3d shot captures/rally.png --quiet
+          build/webp.sh captures/rally.png captures/rally.webp lossy
+          # A lap takes about 30 seconds of the game's time, which a slow device reaches later.
+          status=""
+          for i in $(seq 1 20); do
+            status=$(./e3d command rally.status)
+            case "$status" in *"laps []"*) ./e3d command frames.wait 300 --quiet --timeout 600 ;; *) break ;; esac
+          done
+          echo "$status"
+          ./e3d stop --quiet
+          case "$status" in
+            *"laps []"*|"") echo "::error::Rally: the autopilot did not finish a lap"; exit 1 ;;
+          esac
+          if grep -F '[Vulkan.Validation]' build/sessions/Rally.log | grep -F 'Validation Error'; then
+            echo "::error::Rally: the validation layer reported an error"
+            exit 1
+          fi
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off (build/soak-check.py), as a leak does.
       - name: Play each game a while and check nothing it holds grows
         run: |
           pids=()
-          for game in Pusher Hopper Summit Swarm; do
+          for game in Pusher Hopper Summit Swarm Rally; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
           done
@@ -181,6 +212,7 @@ jobs:
           failed=0
           for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
                          games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
+                         games/Rally/bin/Debug/net10.0/Rally \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

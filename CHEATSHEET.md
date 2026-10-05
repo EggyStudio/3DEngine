@@ -723,11 +723,18 @@ void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position);                
 Vector3 GetPhysicsBodyVelocity(PhysicsBody body);                                // How fast and which way it moves
 void SetPhysicsBodyVelocity(PhysicsBody body, Vector3 velocity);                 // Set that, waking it
 void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse);                     // Push it at its center
+void ApplyPhysicsImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point);    // Push it at a point, which turns it too
+Quaternion GetPhysicsBodyRotation(PhysicsBody body);                             // How it is turned as of its last step
+void SetPhysicsBodyRotation(PhysicsBody body, Quaternion rotation);              // Turn it at once, as righting a car
+Vector3 GetPhysicsBodyAngularVelocity(PhysicsBody body);                         // How fast it turns, about which axis
+void SetPhysicsBodyAngularVelocity(PhysicsBody body, Vector3 velocity);          // Set that, waking it
+Vector3 GetPhysicsBodyPointVelocity(PhysicsBody body, Vector3 point);            // How fast a point of it moves, as a wheel's contact
 void SetPhysicsGravity(Vector3 gravity);                                         // What every body falls by
 void SetPhysicsPaused(bool paused);                                              // Hold the simulation still, or let it run
 bool IsPhysicsPaused();                                                          // Whether it is held still
 
-bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets
+bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit);     // The first body a ray meets, past triggers
+bool GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore, out RaycastHit hit); // The same past one body, as a ray from inside a car
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window

@@ -132,6 +132,9 @@ table also answers whether the two agree.
 | A game published as native AOT and run by CI | to take | has (`458cd909`) |
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
+| A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | to take | has (`build/soak.sh`, `044d2396`) |
+| Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |
+| A window resized, minimized and moved by commands while it draws, as a storm the workflow runs | to consider, the window being Bevy's | has (`build/storm.sh`, `b0d835c4`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |

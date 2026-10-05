@@ -156,8 +156,10 @@ The flat API creates boxes, spheres, capsules, static and kinematic boxes, trigg
 what enters them as contacts and stop nothing, level geometry shaped as a model's triangles, and
 bodies shaped as a model's convex hull, read and drawn at the model's origin. It
 joins bodies with ball, hinge, weld and distance joints, a hinge limited between two angles or
-driven by a motor, reads their blended poses, pushes them, casts rays and reads the frame's contacts
-with the point and normal where each pair met (CHEATSHEET.md, Physics). A `Collider` marked
+driven by a motor, reads their blended poses, turns and how fast a point of them moves, pushes
+them at their center or at a point, casts rays, which go through triggers and may look past one
+body, and reads the frame's contacts with the point and normal where each pair met (CHEATSHEET.md,
+Physics). A `Collider` marked
 `IsTrigger` makes a trigger from a scene, and a kinematic body under a `Parent` follows its place
 under the parent by velocity, so a platform a moving parent carries carries what stands on it, a
 character walking relative to it and a crate by friction. A contact carries the speed its pair
@@ -168,6 +170,12 @@ bodies a joint holds do not collide with each other. The character controller is
 walked toward a velocity before each step, which slides along walls, climbs steps up to its step
 height (its radius unless set), holds slopes up to its limit, rides what moves under it, crouches
 and stands where there is room, and reports ground.
+
+- **A vehicle is built by hand.** `games/Rally` holds a box up on four rays as springs and grips
+  the ground with impulses at points, about 150 lines of tuning (spring, damper, grip, drag,
+  downforce, and roll damped so it does not flip at speed), which a second driving game would copy.
+  A raycast vehicle beside the character controller, with its wheels' pushes worked out on the
+  fixed step and the tuning as fields with sound defaults, is what a racing game needs.
 
 ### Scenes
 

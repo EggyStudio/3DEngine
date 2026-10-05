@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every interval into build/soak/<name>.csv. build/soak-check.py then fails
 # when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -euo pipefail
@@ -32,6 +32,7 @@ wait_frames 60
 case "$name" in
   pusher|summit) key Enter 2 ;;
   swarm) cmd swarm.invulnerable true; key Enter 2 ;;
+  rally) cmd rally.autopilot true; key Enter 2 ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -52,6 +53,12 @@ turn() {
     swarm)
       cmd swarm.wave 3; wait_frames 240; key W 30; key D 30
       if (( i % 5 == 4 )); then cmd state.set Screen Over; wait_frames 30; key Enter 2; fi ;;
+    rally)
+      # The autopilot races, and each Enter takes a finished race back to the menu and the menu
+      # to a new race, while a reset now and then puts the car back at its last gate.
+      wait_frames 120
+      if (( i % 4 == 3 )); then cmd rally.reset; fi
+      key Enter 2 ;;
   esac
 }
 

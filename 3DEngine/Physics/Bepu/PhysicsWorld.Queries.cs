@@ -22,7 +22,7 @@ public sealed partial class PhysicsWorld
     // their scratch memory from a pool of their own.
     private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out RaycastHit hit)
     {
-        var handler = new ClosestRayHitHandler();
+        var handler = new ClosestRayHitHandler { Triggers = _triggerFlags };
         if (ignore.World == this)
         {
             handler.Skips = true;
@@ -65,9 +65,12 @@ public sealed partial class PhysicsWorld
         public CollidableReference Collidable;
         public bool Skips;
         public CollidableReference Skip;
+        // A trigger stops nothing, so a ray goes through it as a body does. A car's wheel or a
+        // character's feet that met a gate's sensor stood on the air inside it.
+        public TriggerFlags Triggers;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AllowTest(CollidableReference collidable) => !Skips || collidable.Packed != Skip.Packed;
+        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AllowTest(CollidableReference collidable, int childIndex) => true;

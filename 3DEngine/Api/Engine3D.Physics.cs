@@ -252,6 +252,27 @@ public static partial class Engine3D
     /// <summary>Pushes a body at its center, changing its velocity by the impulse over its mass.</summary>
     public static void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse) => Physics.ApplyImpulse(body, impulse, Vector3.Zero);
 
+    /// <summary>
+    /// Pushes a body at a point in the world, which turns it as well as moving it unless the point
+    /// is its center of mass, as a wheel's grip on a car or a hit on a crate's corner does.
+    /// </summary>
+    public static void ApplyPhysicsImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point) => Physics.ApplyImpulseAt(body, impulse, point);
+
+    /// <summary>A body's rotation as of its last step.</summary>
+    public static Quaternion GetPhysicsBodyRotation(PhysicsBody body) => Physics.GetRotation(body);
+
+    /// <summary>Turns a body at once, about its position, as righting a car that rolled over does.</summary>
+    public static void SetPhysicsBodyRotation(PhysicsBody body, Quaternion rotation) => Physics.SetRotation(body, Quaternion.Normalize(rotation));
+
+    /// <summary>How fast a body turns, about which axis, in radians a second.</summary>
+    public static Vector3 GetPhysicsBodyAngularVelocity(PhysicsBody body) => Physics.GetAngularVelocity(body);
+
+    /// <summary>Sets how fast a body turns, waking it.</summary>
+    public static void SetPhysicsBodyAngularVelocity(PhysicsBody body, Vector3 velocity) => Physics.SetAngularVelocity(body, velocity);
+
+    /// <summary>How fast a point of a body moves in the world, its velocity and its turn at that point, as a wheel's contact patch.</summary>
+    public static Vector3 GetPhysicsBodyPointVelocity(PhysicsBody body, Vector3 point) => Physics.GetPointVelocity(body, point);
+
     /// <summary>Holds the simulation still, as a pause menu does, or lets it run again. Bodies keep their velocities across a pause.</summary>
     public static void SetPhysicsPaused(bool paused) => Res<PhysicsSettings>().Paused = paused;
 
@@ -263,8 +284,19 @@ public static partial class Engine3D
 
     // -- Queries
 
+    /// <summary>
+    /// The first body a ray meets other than <paramref name="ignore"/>, as a ray cast from inside a
+    /// car's body down to the ground under a wheel needs.
+    /// </summary>
+    public static bool GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
+    {
+        hit = default;
+        return ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out hit);
+    }
+
     /// <summary>The first body a ray meets within <paramref name="maxDistance"/>, with where and at what face.</summary>
     /// <returns>Whether the ray met a body.</returns>
+    /// <remarks>A ray goes through a trigger, which stops nothing, as a body does.</remarks>
     public static bool GetRayCollisionPhysics(Ray ray, float maxDistance, out RaycastHit hit)
     {
         hit = default;
