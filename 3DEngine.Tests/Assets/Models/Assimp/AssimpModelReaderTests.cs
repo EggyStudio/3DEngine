@@ -151,6 +151,46 @@ public sealed class AssimpModelReaderTests : IDisposable
             scene.Traverse().SelectMany(n => n.Components).OfType<SceneMeshPayload>().SelectMany(m => m.Positions).ToArray();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task A_Reader_That_Throws_Inside_Assimp_Fails_The_Load_With_The_Files_Name(bool whileReading)
+    {
+        // A game's own reader over an archive with a damaged entry, which throws what no file
+        // stream does, as it opens the entry or as Assimp reads it. Thrown into native code, it
+        // would end the process.
+        var source = new DamagedReader("models/tri.mtl", whileReading);
+        var obj = Encoding.ASCII.GetBytes("mtllib tri.mtl\no Tri\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl Red\nf 1 2 3\n");
+
+        using var context = new AssetLoadContext(new MemoryStream(obj), new AssetPath("models/tri.obj"), _ => default, source);
+        var read = () => new AssimpModelReader().ReadAsync(context, new SceneImportSettings(), default);
+
+        var thrown = await read.Should().ThrowAsync<IOException>();
+        thrown.Which.Message.Should().Contain("models/tri.mtl").And.Contain("damaged");
+        thrown.Which.InnerException.Should().BeOfType<InvalidDataException>();
+
+        using var again = new AssetLoadContext(new MemoryStream(obj), new AssetPath("models/tri.obj"), _ => default, source);
+        var result = await new AssimpModelLoader(new AssimpModelReader()).LoadAsync(again, default);
+        result.Success.Should().BeFalse();
+        result.Error.Should().Contain("models/tri.mtl", "the asset server's message names the file the reader failed to give");
+    }
+
+    private sealed class DamagedReader(string damaged, bool whileReading) : IAssetReader
+    {
+        public bool Exists(AssetPath path) => path.Path == damaged;
+
+        public Task<Stream> ReadAsync(AssetPath path, CancellationToken ct = default) => whileReading
+            ? Task.FromResult<Stream>(new DamagedStream())
+            : throw new InvalidDataException("the archive's entry is damaged");
+    }
+
+    private sealed class DamagedStream() : MemoryStream(Encoding.ASCII.GetBytes("newmtl Red\nKd 1 0 0\n"))
+    {
+        public override int Read(byte[] buffer, int offset, int count) => throw new InvalidDataException("the archive's entry is damaged");
+
+        public override int Read(Span<byte> buffer) => throw new InvalidDataException("the archive's entry is damaged");
+    }
+
     private static void AssertRed(Scene scene)
     {
         var material = scene.Traverse().SelectMany(n => n.Components).OfType<SceneMaterialPayload>().Should().ContainSingle().Subject;

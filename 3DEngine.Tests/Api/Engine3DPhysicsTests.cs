@@ -495,14 +495,23 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Theory]
-    [InlineData("the crate's layer")]
-    [InlineData("the floor's layer")]
-    [InlineData("which layers collide")]
-    [InlineData("the floor a trigger")]
-    [InlineData("the crate a trigger")]
-    public void A_Crate_Asleep_On_A_Floor_Falls_Once_A_Change_Lets_It_Through(string change)
+    [InlineData("the crate's layer", false)]
+    [InlineData("the floor's layer", false)]
+    [InlineData("which layers collide", false)]
+    [InlineData("the floor a trigger", false)]
+    [InlineData("the crate a trigger", false)]
+    // A kinematic floor at rest, which Bepu puts to sleep in the set of what rests on it, as a
+    // second crate coming to rest beside the first was found to join.
+    [InlineData("the crate's layer", true)]
+    [InlineData("the floor's layer", true)]
+    [InlineData("which layers collide", true)]
+    [InlineData("the floor a trigger", true)]
+    [InlineData("the crate a trigger", true)]
+    public void A_Crate_Asleep_On_A_Floor_Falls_Once_A_Change_Lets_It_Through(string change, bool kinematic)
     {
-        var floor = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10));
+        var floor = kinematic
+            ? CreatePhysicsKinematicBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10))
+            : CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(10, 1, 10));
         var crate = CreatePhysicsBox(new Vector3(0, 0.5f, 0), Vector3.One);
         SetPhysicsLayersCollide(1, 2, false);
         RunUntil(() => !crate.IsAwake, 600).Should().BeTrue("a crate at rest on a floor goes to sleep");
@@ -534,6 +543,7 @@ public sealed class Engine3DPhysicsTests : IDisposable
         }
 
         RunUntil(() => GetPhysicsBodyPosition(crate).Y < -1).Should().BeTrue("the crate falls through a floor it no longer meets when {0} changes", change);
+        if (kinematic) GetPhysicsBodyPosition(floor).Y.Should().BeApproximately(-0.5f, 1e-3f, "a kinematic floor stays where it is");
     }
 
     [Fact]

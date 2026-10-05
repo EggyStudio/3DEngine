@@ -83,7 +83,18 @@ internal sealed class AssimpModelReader : ISceneReader
             // match. The engine samples V down from the top row, as glTF and raylib count it.
             | A.PostProcessSteps.FlipUVs;
 
-        var aScene = importer.ImportFile(path, Steps);
+        // A file the reader failed to give is the reason, ahead of what Assimp made of its absence.
+        A.Scene? aScene;
+        try
+        {
+            aScene = importer.ImportFile(path, Steps);
+        }
+        catch (A.AssimpException)
+        {
+            files.ThrowIfFailed();
+            throw;
+        }
+        files.ThrowIfFailed();
         if (aScene is null || aScene.RootNode is null)
             throw new InvalidOperationException($"AssimpModelReader: ImportFile returned null for '{context.Path}'.");
 
@@ -96,34 +107,40 @@ internal sealed class AssimpModelReader : ISceneReader
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(settings);
 
-        // The model is read once into memory, since Assimp opens it more than once, first to
-        // tell its format and then to read it. The files beside it come from the reader it came
+        // Assimp opens a model more than once, first to tell its format and then to read it. A
+        // stream that can seek is read where it is, each open at a place of its own in it, and one
+        // that cannot is read into memory once. The files beside it come from the reader it came
         // from, so a model under any reader has its .mtl and .bin.
         var stream = context.GetStream();
-        if (stream.CanSeek) stream.Position = 0;
-        using var whole = new MemoryStream();
-        stream.CopyTo(whole);
-        var bytes = whole.GetBuffer();
-        var length = (int)whole.Length;
-        var name = context.Path.Path;
+        var shared = stream.CanSeek ? stream : InMemory(stream);
+        try
+        {
+            var files = new AssimpFiles(file => Seekable(context.OpenFromSource(new AssetPath(file))))
+            {
+                SharedName = context.Path.Path,
+                Shared = shared,
+            };
+            return Task.FromResult(Import(context.Path.Path, files, context, settings, ct));
+        }
+        finally
+        {
+            if (shared != stream) shared.Dispose();
+        }
+    }
 
-        var files = new AssimpFiles(file => file == name
-            ? new MemoryStream(bytes, 0, length, writable: false)
-            : Seekable(context.OpenFromSource(new AssetPath(file))));
-        return Task.FromResult(Import(name, files, context, settings, ct));
+    private static MemoryStream InMemory(Stream stream)
+    {
+        var copy = new MemoryStream();
+        stream.CopyTo(copy);
+        copy.Position = 0;
+        return copy;
     }
 
     // Assimp seeks in what it reads, which a reader's stream need not allow.
     private static Stream? Seekable(Stream? stream)
     {
         if (stream is null || stream.CanSeek) return stream;
-        using (stream)
-        {
-            var copy = new MemoryStream();
-            stream.CopyTo(copy);
-            copy.Position = 0;
-            return copy;
-        }
+        using (stream) return InMemory(stream);
     }
 
     // -- aiScene → Scene

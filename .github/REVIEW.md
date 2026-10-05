@@ -177,3 +177,30 @@ twice its speed. The crate kept its own momentum through that step and moved 0.0
 platform, so it was not left behind, and the test holds the platform's own speed instead. It
 finds the platform at 0 for a step at ten units, and within half a unit of 60 in every frame at
 100, the crate with it. PublicApi.txt gains `PlaceBeyond` and `MarkPlaced`.
+
+**Verdict 8, a reader's exception inside Assimp.** Every callback `AssimpFiles` gives Assimp
+catches every exception, keeps the first with the name of its file, and reports the file to
+Assimp as missing or short. Once Assimp returns, the load is answered with an `IOException`
+naming the file, with the reader's exception inside it, ahead of whatever Assimp made of the
+absence. The theory gives a model whose `.mtl` comes from a reader that throws
+`InvalidDataException`, once as the entry is opened and once as it is read. It finds the
+exception and the asset loader's message naming `models/tri.mtl`, where the code before ended the
+test host with that exception. A stream that can seek is now shared as it is, each of Assimp's
+opens at a place of its own in it, and only one that cannot is read into memory. Assimp's reads
+land in its own memory from the stream, through a read callback of the stream's own, where the
+binding's read filled an array as long as the read and copied it over.
+
+The 32 models of Manor, 549 KB of OBJ, read through the reader as the asset server reads them,
+allocated 2.31 MB a round before Verdict 4, when Assimp read the files itself, 3.94 MB with the
+copy into a growing `MemoryStream`, 3.16 MB with the stream shared, and 2.56 MB with the reads
+landing in Assimp's memory, in 77 to 88 ms a round each way, which is within the noise. Manor
+itself, packed, built from the package and walked by its autopilot for a minute, before and
+after, made the same walk to the entity: managed memory read 14.6 to 15.2 MB before and 11.0 to
+14.8 after, the heap 24 to 30 MB both times, and `profile.slowest` found 22.6 ms before and 23.0
+after, Manor's own longest frame 23 ms both times. A cell coming in costs the same either way.
+
+**Verdict 9, a kinematic floor.** The theory has five more cases, the same crate asleep on a
+kinematic floor, and all pass with no change to the engine. Bepu puts a kinematic body at rest to
+sleep in the set of what rests on it: the crate and the floor were in one set, and a second crate
+brought to rest beside the first woke that set and slept in it too, so `AwakenBody` on the floor
+wakes everything on it.
