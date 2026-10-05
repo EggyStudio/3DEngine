@@ -27,6 +27,12 @@ namespace Engine;
 /// <seealso cref="LoggerFactory"/>
 public static class Log
 {
+    /// <summary>Raised for every line logged at <see cref="LogLevel.Error"/> or above, with its category, its message and its exception.</summary>
+    /// <remarks>The test project fails a test in which the engine logs an error it did not expect (N 3.7).</remarks>
+    internal static event Action<string, string, Exception?>? ErrorLogged;
+
+    internal static void RaiseErrorLogged(string category, string message, Exception? exception) => ErrorLogged?.Invoke(category, message, exception);
+
     /// <summary>Shared logger factory that caches instances by category.</summary>
     public static LoggerFactory Factory { get; } = new();
 

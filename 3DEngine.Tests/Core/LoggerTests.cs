@@ -162,6 +162,7 @@ public class LoggerTests
     }
 
     [Fact]
+    [ExpectsError("Test", "msg")]
     public void Error_Routes_To_LogLevel_Error()
     {
         var (logger, spy) = CreateLoggerWithSpy();
@@ -172,6 +173,7 @@ public class LoggerTests
     }
 
     [Fact]
+    [ExpectsError("Test", "failed")]
     public void Error_Includes_Exception()
     {
         var (logger, spy) = CreateLoggerWithSpy();
@@ -184,6 +186,7 @@ public class LoggerTests
     }
 
     [Fact]
+    [ExpectsError("Test", "fatal")]
     public void Critical_Routes_To_LogLevel_Critical()
     {
         var (logger, spy) = CreateLoggerWithSpy();

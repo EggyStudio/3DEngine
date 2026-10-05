@@ -186,6 +186,7 @@ public class WorldTests : IDisposable
     }
 
     [Fact]
+    [ExpectsError("Engine.World", "ThrowingDisposable")]
     public void Clear_Swallows_Exceptions_During_Dispose()
     {
         _world.InsertResource(new ThrowingDisposable());

@@ -291,3 +291,25 @@ counts at 10 and 100 and the totals of 996 and 4 at shutdown. The logger's extra
 replaced whole when one comes or goes, where a list was iterated while another thread could add
 to it, and a test can take its spy off again (`RemoveProvider`). The whole suite through the
 script passes, 1,190 tests, and its most repeated lines are the startup banner of 555 apps.
+
+**Now 2, N 3.7.** A test during which the engine logs an error it does not expect fails, with the
+first error's text, from a hook the test project puts on every test (`FailOnLoggedErrors`, an
+assembly's `BeforeAfterTestAttribute`, whose `After` fails the test as a test that draws fails for
+the validation layer). An error is laid to its test by the app that logged it. The app sets itself
+as the current app of the flow that made it (`App.Current`, an `AsyncLocal`), which the threads
+and tasks it starts inherit, the hook takes an app made on a test's thread during the test as that
+test's (`App.Created`), and the log raises each error with its category (`Log.ErrorLogged`). An
+error logged on the test's own thread is the test's too. What a class's constructor makes logs on
+other threads, and what its Dispose logs, comes after the test is judged and is not read. A test
+of a failure names the error it expects, `[ExpectsError(category, part)]`, and fails where it does
+not come. `LoggedErrorsTests` holds the hook to an error on the test's thread, one on a thread the
+test's app started, one from another app's, and an expected one present and missing.
+
+The survey of the whole suite found 19 tests logging an error, which leaves `build/norm/3.7.txt`
+with nothing on it. Ten are tests of a failure whose error is their subject, and say so: the two
+of a plugin's missing dependency, a world disposing a resource that throws, the schedule's
+counting, the renderer on `NullGraphicsDevice`, the bad files, three of the logger's own, and
+ImGui's second context. Nine were a fault, `PhysicsWorld` throwing from Bepu when disposed a
+second time, which a program does where it disposes a world it also put in the app's. It is
+disposed once now, and without the mend the hook fails all nine with the error's text. The suite
+through the script passes, 1,193 tests.

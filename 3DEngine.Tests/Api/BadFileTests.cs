@@ -91,6 +91,7 @@ public sealed class BadFileTests : IDisposable
     ];
 
     [NeedsVulkanFact]
+    [ExpectsError("Engine.AssetServer", "Asset load failed")]
     public void Every_Reader_Under_The_Ecs_Marks_A_Bad_File_Failed_With_A_Message()
     {
         var config = Config.Default.WithWindow("bad files", 160, 120) with { Headless = true, Offscreen = true };

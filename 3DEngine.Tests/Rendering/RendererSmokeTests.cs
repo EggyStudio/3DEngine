@@ -15,6 +15,7 @@ public class RendererSmokeTests
 
     // The renderer compiles its built-in shaders while it initializes.
     [NeedsSlangFact]
+    [ExpectsError("Engine.RendererContext", "Failed to create camera resources")]
     public void Renderer_Can_Render_Frame_With_NullGraphics()
     {
 

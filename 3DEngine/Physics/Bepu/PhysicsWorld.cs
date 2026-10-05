@@ -127,9 +127,15 @@ public sealed partial class PhysicsWorld : IDisposable
     private ref BepuPoseIntegratorCallbacks CallbacksRef => 
         ref ((PoseIntegrator<BepuPoseIntegratorCallbacks>)Simulation.PoseIntegrator).Callbacks;
 
+    private bool _disposed;
+
     /// <inheritdoc />
     public void Dispose()
     {
+        // Disposed twice where a program disposes a world it also put in the app's, and Bepu's
+        // simulation throws on its second.
+        if (_disposed) return;
+        _disposed = true;
         Logger.Info("PhysicsWorld: disposing simulation.");
         Simulation.Dispose();
         Dispatcher.Dispose();

@@ -95,6 +95,7 @@ public class ScheduleTests
     }
 
     [Fact]
+    [ExpectsError("Engine.Schedule", "System 'Throws.")]
     public void A_System_That_Throws_In_Every_Frame_Is_Logged_Whole_Once_And_Then_Counted()
     {
         // A name of its own, since the schedule's log is the process's and other tests' apps log there too.

@@ -10,6 +10,7 @@ public class ImGuiHolderTests
     private static App Build() => new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
 
     [Fact]
+    [ExpectsError("Engine.Application", "Dear ImGui has one context")]
     public void A_Second_App_Using_ImGui_While_The_First_Is_Alive_Is_Refused_Plainly()
     {
         var first = Build();

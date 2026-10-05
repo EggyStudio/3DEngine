@@ -63,6 +63,8 @@ public sealed class Logger : ILogger
         if (level >= LogLevel.Info)
             ConsoleLog.Write(level, exception is null ? $"[{_category}] {message}" : $"[{_category}] {message}: {exception.Message}");
 
+        if (level >= LogLevel.Error) Engine.Log.RaiseErrorLogged(_category, message, exception);
+
         // Any extra user-added providers.
         foreach (var provider in Volatile.Read(ref _extraProviders))
             if (level >= LogConfig.MinimumLevel)

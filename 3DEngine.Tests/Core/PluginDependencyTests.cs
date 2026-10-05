@@ -49,6 +49,7 @@ public class PluginDependencyTests : IDisposable
     }
 
     [Fact]
+    [ExpectsError("Engine.Application", "missing dependency 'ProviderPlugin'")]
     public void AddPlugin_With_Missing_Declared_Dependency_Throws_Typed_Exception()
     {
         var act = () => _app.AddPlugin(new ConsumerWithDeclaredDep());
@@ -61,6 +62,7 @@ public class PluginDependencyTests : IDisposable
     }
 
     [Fact]
+    [ExpectsError("Engine.Application", "requires 'Marker'")]
     public void AddPlugin_Reordered_Reports_Wrong_Plugin_Not_NullReference()
     {
         // The user-facing scenario: someone reorders plugins and the build breaks.

@@ -72,6 +72,9 @@ public sealed partial class App : IDisposable
     /// </example>
     public App(Config? config = null)
     {
+        CurrentApp.Value = this;
+        Created?.Invoke(this);
+
         // Initialize file logger early so all subsequent logs are captured to disk.
         var logPath = LogConfig.GetLogFilePath("Engine.log");
         FileLoggerProvider.Initialize(logPath);
@@ -87,6 +90,20 @@ public sealed partial class App : IDisposable
         Logger.Info("App instance created successfully.");
     }
     
+    // The app this flow of execution made last, which the threads and tasks started after it
+    // inherit, so a line logged anywhere in an app's work can be laid to the app.
+    private static readonly AsyncLocal<App?> CurrentApp = new();
+
+    /// <summary>
+    /// The app the current flow of execution made last, which the threads and tasks it starts
+    /// inherit, or <see langword="null"/>.
+    /// </summary>
+    /// <remarks>The test project lays an error the engine logs to the test whose app logged it (N 3.7).</remarks>
+    internal static App? Current => CurrentApp.Value;
+
+    /// <summary>Raised on the thread that makes an app, before it builds anything.</summary>
+    internal static event Action<App>? Created;
+
     /// <summary>
     /// Disposes the <see cref="World"/> and all its <see cref="IDisposable"/> resources.
     /// Safe to call multiple times; subsequent calls are no-ops.
