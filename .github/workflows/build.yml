@@ -38,7 +38,7 @@ jobs:
       - run: build/fetch-slang.sh
 
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp clang zlib1g-dev
 
       - run: dotnet build 3DEngine.slnx
 
@@ -90,6 +90,12 @@ jobs:
         env:
           E3D_REQUIRE_PACKAGE: '1'
         run: dotnet test 3DEngine.Tests -c Release --filter "FullyQualifiedName~PackageContentsTests"
+
+      # The same game published as native code from the package, as a player gets it, which keeps
+      # only what the compiler sees used, and drawn under the validation layer (NORM.md, N 2.5).
+      # The native compiler links with clang and zlib, installed above.
+      - name: Publish the game native from the package and draw it
+        run: build/play-native.sh Pusher
 
       # The 2D game from the same package, run right and jumped with the pad's south button.
       - name: Build and play the 2D game from the package

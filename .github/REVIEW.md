@@ -129,3 +129,12 @@ This batch mends the rest one batch can.
 - N 1.4 and N 1.5 read as the norm now words them. The documents' tests, the package's and the
   norm's own class are on N 1.4's list with those reasons, and a folder is named by a row of its
   own or by one within it. N 1.4 has no place left to mend, and N 1.5 keeps its 3.
+
+**N 2.5, a game published native.** `build/play-native.sh <game>` publishes a game from the package
+as native code for the machine it runs on and draws 300 frames of it offscreen under the
+validation layer, failing where it stops early, where the layer is not on, or where the layer
+reports an error, as `play-game.sh` does for a game on the runtime. `build.yml` runs it for Pusher
+after the pack, with clang and zlib's headers installed beside lavapipe for the native compiler.
+In the Ubuntu 24.04 container with lavapipe it drew its 300 frames with no error. The publish warns
+that the library and AssimpNetter have code the trimmer cannot follow, which is the rest of N 2.5,
+the reflection a generator could replace, and which this game does not reach.

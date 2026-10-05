@@ -247,3 +247,8 @@ frames of it offscreen, failing on an error the layer reports. Each builds with 
 a warning fails the commit that wrote it, and a warning that is right to keep is turned off where
 it arises, with its reason. A Vulkan instance asks for portability devices where the loader offers
 them, and a device of the portability subset, as MoltenVK is, has the subset enabled.
+
+On Linux, `build.yml` then checks the package as a player meets it. `build/play-native.sh Pusher` publishes the game as native code from the package and draws 300
+frames of it under the layer, so a type the library reaches by reflection that the native
+compiler left out fails there. The native compiler needs clang and zlib's headers, which the
+workflow installs beside lavapipe.
