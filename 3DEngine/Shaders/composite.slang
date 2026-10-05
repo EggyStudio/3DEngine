@@ -1,5 +1,6 @@
-// The HDR frame onto the window: the scene's light with the bloom chain's added, scaled by the
-// exposure, brought under 1 by the chosen curve, graded, encoded, and darkened toward the corners.
+// The HDR frame onto the window. The scene's light with the bloom chain's added, scaled by the
+// exposure and the one that follows the scene, brought under 1 by the chosen curve, graded,
+// encoded, and darkened toward the corners.
 // With every effect at its default it is the engine's own curve and encoding, as the model pass
 // does it with the HDR frame off, so only bloom and the effects set tell the two frames apart.
 import color;
@@ -13,6 +14,8 @@ struct CompositePush
     float4 grade;
     // rgb: the tint, linear. a: where the vignette begins, from the middle toward a corner.
     float4 tint;
+    // x: 1 when the exposure follows the scene. y: the luminance it brings the scene's mean to.
+    float4 exposure;
 };
 
 [[vk::push_constant]]
@@ -23,6 +26,10 @@ Sampler2D scene;
 
 [[vk::binding(1, 0)]]
 Sampler2D bloom;
+
+// The log2 of the scene's mean luminance as the exposure that follows it has adapted to it, in one texel.
+[[vk::binding(2, 0)]]
+Sampler2D adapted;
 
 [shader("vertex")]
 FullscreenOutput vertexMain(uint id : SV_VertexID)
@@ -52,7 +59,10 @@ float4 fragmentMain(FullscreenOutput input) : SV_Target
     float3 light = scene.SampleLevel(input.uv, 0).rgb;
     if (push.bloom.z > 0.0)
         light += tent(bloom, input.uv, push.bloom.xy) * push.bloom.z;
-    float3 c = curve(max(light * push.bloom.w, 0.0), int(push.grade.z));
+    float exposure = push.bloom.w;
+    if (push.exposure.x > 0.0)
+        exposure *= push.exposure.y / exp2(adapted.Load(int3(0, 0, 0)).r);
+    float3 c = curve(max(light * exposure, 0.0), int(push.grade.z));
 
     // Grading after the curve, saturation and tint in linear light and contrast once encoded,
     // about the middle of what is shown.

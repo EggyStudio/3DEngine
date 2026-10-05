@@ -38,6 +38,28 @@ public static partial class Engine3D
     public static void SetExposure(float exposure) => Effects.Exposure = Math.Max(0, exposure);
 
     /// <summary>
+    /// Makes the exposure follow the scene, as an eye adapts, brightening a dark room and dimming a
+    /// sunlit field, between <paramref name="min"/> and <paramref name="max"/>, or turns it off. At
+    /// a <paramref name="speed"/> of 1 it moves about two thirds of the way to a new scene's exposure
+    /// in a second, at 2 most of the way, and at 0 it keeps where the first frame put it.
+    /// </summary>
+    /// <remarks>
+    /// The mean brightness of the scene, weighted toward the middle of the picture and measured on
+    /// the GPU each frame, is brought to that of a mid gray. <see cref="SetExposure"/> multiplies
+    /// what it chooses, so 1.5 keeps every scene a little brighter than that. The exposure starts
+    /// where the first frame puts it, and moves over later frames, so a player walking out of a cave
+    /// is dazzled for a moment.
+    /// </remarks>
+    public static void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4, float speed = 2)
+    {
+        var effects = Effects;
+        effects.AutoExposure = enabled;
+        effects.AutoExposureMin = Math.Max(1e-3f, Math.Min(min, max));
+        effects.AutoExposureMax = Math.Max(1e-3f, Math.Max(min, max));
+        effects.AutoExposureSpeed = Math.Max(0, speed);
+    }
+
+    /// <summary>
     /// Chooses the curve that brings the scene's light past 1 under it: the engine's own, which
     /// leaves colors under 0.9 as they are, Reinhard's, ACES's filmic one, or a cut at 1.
     /// </summary>

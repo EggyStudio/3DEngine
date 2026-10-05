@@ -8,10 +8,10 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `59188bd9`. Ten spot and twelve point lights casting shadows (`d075678e`), descriptor
-layouts read from each shader's reflection (`9fe41073`), a clip on part of a skeleton and morph
-targets (`3ea5b22f`) and seven more scenes compared with references (`59188bd9`) were taken on
-their descriptions and settle the four items they answer.
+Reviewed up to `d297db95`. The guide brought up to what each area gained (`eb14ee09`), characters
+past U+FFFF baked by the engine's own TrueType reader (`f7841c40`), instances kept for chunks
+nothing changed in (`e9b9c258`) and probes captured in half floats (`d297db95`) were taken on
+their descriptions and settle the two items they answer.
 
 ## Now
 
@@ -21,14 +21,25 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **The guide kept true.** Each page under `docs/` is read against what its area gained since
-   it was written (probes, bloom and the other effects over the frame, the shadowed lights, morph targets and
-   layered clips, instancing, compute into textures, joints, prefabs, native
-   builds), with a snippet from an example that runs for each addition.
-3. **Text past the Basic Multilingual Plane** (TODO.md, Fonts), so an emoji or a rare character
-    draws.
-4. **TODO.md's order** for everything else, and when TODO.md runs short, another game of a
-    kind not yet made, since each one has found what nothing else did.
+2. **A fourth game, driven by the ECS.** Pusher, Hopper and Summit are written in the flat
+   API's loop and hold almost no behaviors, so the half of the engine under the flat API has
+   been used by tests and never by a game. A small arena or tower defense under `games/`, from
+   the package: hundreds of entities at once, each moved by `[Behavior]` structs taking their
+   components as parameters, waves spawned and despawned by states with `DespawnOnExit` and
+   `OnTransition`, projectiles as triggers with contacts that deal damage by their speed,
+   `Changed`, `Added` and `Removed` filters doing real work, a prefab an enemy, a HUD in ImGui,
+   many short sounds at once, and a behavior script changed while the game runs. What had to be
+   worked around or looked up in the source is fixed when small and entered in TODO.md when
+   not, CI plays it from the package, and `e3d command profile` says what a frame of it costs.
+3. **What that game turned up**, in the order it hurt.
+4. **Particles.** Smoke, sparks and dust are in most games and nothing here draws them. An
+   emitter as a component and as a few flat functions, its particles simulated in a compute
+   shader and drawn as instanced billboards lit or unlit, with rate, life, velocity, gravity,
+   size and color over life, an example, a pixel test and a reference scene.
+5. **Depth of field and motion blur**, the two effects over the frame TODO.md names as left.
+6. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
+   when TODO.md runs short, another game of a kind not yet made, since each one has found what
+   nothing else did.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in

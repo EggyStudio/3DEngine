@@ -23,8 +23,8 @@ public enum Tonemap
 
 /// <summary>
 /// The effects over the frame besides bloom, a world resource the renderer reads each frame, which
-/// the flat API's <c>SetExposure</c>, <c>SetTonemap</c>, <c>SetColorGrading</c>, <c>SetVignette</c>
-/// and <c>SetFxaa</c> set.
+/// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
+/// <c>SetColorGrading</c>, <c>SetVignette</c> and <c>SetFxaa</c> set.
 /// </summary>
 /// <remarks>
 /// Any of them away from its default draws the scene through the HDR frame, as bloom does, and
@@ -33,8 +33,20 @@ public enum Tonemap
 /// </remarks>
 public sealed class FrameEffects
 {
-    /// <summary>What the scene's light is multiplied by before the curve, 1 unless set.</summary>
+    /// <summary>What the scene's light is multiplied by before the curve, 1 unless set, and on top of the exposure that follows the scene when that is on.</summary>
     public float Exposure { get; set; } = 1;
+
+    /// <summary>Whether the exposure follows the scene, brightening a dark one and dimming a bright one as an eye adapts.</summary>
+    public bool AutoExposure { get; set; }
+
+    /// <summary>The lowest exposure the one that follows the scene goes to, in the brightest scene.</summary>
+    public float AutoExposureMin { get; set; } = 0.25f;
+
+    /// <summary>The highest exposure the one that follows the scene goes to, in the darkest scene.</summary>
+    public float AutoExposureMax { get; set; } = 4;
+
+    /// <summary>How quickly the exposure follows the scene, the share of the way it moves in a second being 1 less e to the minus this.</summary>
+    public float AutoExposureSpeed { get; set; } = 2;
 
     /// <summary>The curve the light is brought under 1 by.</summary>
     public Tonemap Tonemap { get; set; } = Tonemap.Engine;
@@ -58,6 +70,6 @@ public sealed class FrameEffects
     public bool Fxaa { get; set; }
 
     /// <summary>Whether any effect is away from its default, which draws the frame through the HDR target.</summary>
-    public bool Active => Exposure != 1 || Tonemap != Tonemap.Engine || Contrast != 1 || Saturation != 1
+    public bool Active => Exposure != 1 || AutoExposure || Tonemap != Tonemap.Engine || Contrast != 1 || Saturation != 1
                           || Tint != Color.White || Vignette > 0 || Fxaa;
 }

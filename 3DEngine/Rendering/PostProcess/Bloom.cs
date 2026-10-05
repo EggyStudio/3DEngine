@@ -56,21 +56,46 @@ public sealed class BloomRenderer : IDisposable
         public float TexelX, TexelY, Threshold, Mode;
     }
 
+    // As exposure.slang reads it.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct ExposurePush
+    {
+        public float Mode, Share, Low, High;
+    }
+
+    // The width and height of the target the frame's luminance is measured into, as exposure.slang has it.
+    private const int MeasuredSize = 64;
+
     // As composite.slang reads it.
     [StructLayout(LayoutKind.Sequential)]
     private struct CompositePush
     {
-        public Vector4 Bloom, Grade, Tint;
+        public Vector4 Bloom, Grade, Tint, Exposure;
     }
 
+    // The luminance a scene's mean is brought to by the exposure that follows it, about what the
+    // engine's lit scenes show at an exposure of 1.
+    internal const float AutoExposureKey = 0.18f;
+
     private readonly ReadOnlyMemory<byte> _bloomVertexSpv, _bloomFragmentSpv, _compositeVertexSpv, _compositeFragmentSpv,
-        _fxaaVertexSpv, _fxaaFragmentSpv;
-    private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment, _fxaaVertex, _fxaaFragment;
+        _fxaaVertexSpv, _fxaaFragmentSpv, _exposureVertexSpv, _exposureFragmentSpv;
+    private IShader? _bloomVertex, _bloomFragment, _compositeVertex, _compositeFragment, _fxaaVertex, _fxaaFragment,
+        _exposureVertex, _exposureFragment;
     // The sets each pass reads its images through, as its shader declares them.
-    private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings;
-    private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout;
+    private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings, _exposureBindings;
+    private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout, _exposureLayout;
     private ISampler? _sampler;
-    private IPipeline? _down, _up;
+    private IPipeline? _down, _up, _measure;
+    // The exposure that follows the scene. The measured log luminance of the frame, the two texels
+    // the adapted value goes back and forth between, one written each frame from the other, and
+    // which was written last.
+    private RenderTarget? _measured;
+    private RenderTarget[]? _adapted;
+    private int _adaptedLast;
+    private long _adaptedFrame = -2;
+    private readonly System.Diagnostics.Stopwatch _sinceAdapted = new();
+    // The set each adapted texel is written through, reading the measured frame and the other texel.
+    private IDescriptorSet[]? _adaptSets;
     // The composite's and FXAA's pipelines by the pass they draw in, the window's or the 8-bit
     // target the composite draws into ahead of FXAA.
     private readonly Dictionary<IRenderPass, IPipeline> _composites = [], _fxaas = [];
@@ -81,7 +106,7 @@ public sealed class BloomRenderer : IDisposable
     // What is made for one size of the window: the HDR target, the levels, and the sets each pass
     // reads its source through.
     private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet[] down, IDescriptorSet[] up,
-        IDescriptorSet composite) : IDisposable
+        IDescriptorSet[] composite, IDescriptorSet measure) : IDisposable
     {
         // The 8-bit frame the composite draws into for FXAA to read, made the first frame FXAA is on.
         public RenderTarget? Shown { get; set; }
@@ -92,13 +117,17 @@ public sealed class BloomRenderer : IDisposable
         public RenderTarget[] Levels { get; } = levels;
         public IDescriptorSet[] Down { get; } = down;
         public IDescriptorSet[] Up { get; } = up;
-        public IDescriptorSet Composite { get; } = composite;
+        // The composite's set reading each of the two adapted exposures, and the set the frame is
+        // measured through.
+        public IDescriptorSet[] Composite { get; } = composite;
+        public IDescriptorSet Measure { get; } = measure;
 
         public void Dispose()
         {
             foreach (var set in Down) set.Dispose();
             foreach (var set in Up) set.Dispose();
-            Composite.Dispose();
+            foreach (var set in Composite) set.Dispose();
+            Measure.Dispose();
             ShownSet?.Dispose();
             Shown?.Dispose();
             foreach (var level in Levels) level.Dispose();
@@ -106,9 +135,10 @@ public sealed class BloomRenderer : IDisposable
         }
     }
 
-    /// <summary>Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c> and <c>fxaa.slang</c>, compiled.</summary>
-    public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa)
+    /// <summary>Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c>, <c>fxaa.slang</c> and <c>exposure.slang</c>, compiled.</summary>
+    public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa, ShaderProgram exposure)
     {
+        (_exposureVertexSpv, _exposureFragmentSpv, _exposureBindings) = (exposure.Vertex, exposure.Fragment, exposure.LayoutOf(0));
         (_bloomVertexSpv, _bloomFragmentSpv, _bloomBindings) = (bloom.Vertex, bloom.Fragment, bloom.LayoutOf(0));
         (_compositeVertexSpv, _compositeFragmentSpv, _compositeBindings) = (composite.Vertex, composite.Fragment, composite.LayoutOf(0));
         (_fxaaVertexSpv, _fxaaFragmentSpv, _fxaaBindings) = (fxaa.Vertex, fxaa.Fragment, fxaa.LayoutOf(0));
@@ -128,7 +158,7 @@ public sealed class BloomRenderer : IDisposable
     {
         if (renderContext.Device is not GraphicsDevice device) return false;
         Retire();
-        var sized = Ensure(device, extent);
+        var sized = Ensure(device, renderContext, extent);
         var clear = renderWorld.TryGet<ClearColor>() is { } set ? set : ClearColor.Black;
         var linear = new ClearColor(SrgbToLinear(clear.R), SrgbToLinear(clear.G), SrgbToLinear(clear.B), clear.A);
 
@@ -180,9 +210,10 @@ public sealed class BloomRenderer : IDisposable
             Bloom = new Vector4(1f / first.Width, 1f / first.Height, bloom is { On: true } ? bloom.Intensity / sized.Levels.Length : 0, effects.Exposure),
             Grade = new Vector4(effects.Contrast, effects.Saturation, (float)effects.Tonemap, effects.Vignette),
             Tint = new Vector4(tint, Math.Min(effects.VignetteRadius, 0.99f)),
+            Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, 0, 0),
         };
         pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, sized.Composite);
+        pass.SetBindGroup(pipeline, sized.Composite[_adaptedLast]);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
@@ -231,7 +262,8 @@ public sealed class BloomRenderer : IDisposable
         _sized = null;
     }
 
-    private static void Pass(RenderContext renderContext, RenderTarget target, LoadOp load, IPipeline pipeline, IDescriptorSet set, Push push)
+    private static void Pass<T>(RenderContext renderContext, RenderTarget target, LoadOp load, IPipeline pipeline, IDescriptorSet set, T push)
+        where T : unmanaged
     {
         using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
             target.RenderPass, target.Framebuffer, target.Extent, load, StoreOp.Store, ClearColor.Black with { A = 0 }));
@@ -239,12 +271,61 @@ public sealed class BloomRenderer : IDisposable
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         pass.SetPipeline(pipeline);
         pass.SetBindGroup(pipeline, set);
-        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
+        pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<T>(in push)));
         pass.Draw(3);
     }
 
+    /// <summary>
+    /// Measures the HDR frame and moves the exposure that follows it toward what it measured, at
+    /// the pace and within the bounds <paramref name="effects"/> sets.
+    /// </summary>
+    public void Adapt(RenderContext renderContext, FrameEffects effects)
+    {
+        if (_sized is not { } sized || _measure is null || _measured is null || _adapted is null || _adaptSets is null) return;
+        // All the way on the first frame and after frames without it, so a scene does not fade in
+        // from the last one seen, and otherwise by the share the time since the last frame gives.
+        var seconds = (float)_sinceAdapted.Elapsed.TotalSeconds;
+        _sinceAdapted.Restart();
+        var share = _adaptedFrame == _frame - 1 ? 1 - MathF.Exp(-Math.Min(seconds, 0.25f) * effects.AutoExposureSpeed) : 1;
+        // The luminance each bound of the exposure brings to the key, as log2.
+        var low = MathF.Log2(AutoExposureKey / Math.Max(effects.AutoExposureMax, 1e-3f));
+        var high = MathF.Log2(AutoExposureKey / Math.Max(effects.AutoExposureMin, 1e-3f));
+        var push = new ExposurePush { Mode = 0, Share = share, Low = Math.Min(low, high), High = high };
+        Pass(renderContext, _measured, LoadOp.Clear, _measure, sized.Measure, push);
+        var next = 1 - _adaptedLast;
+        Pass(renderContext, _adapted[next], LoadOp.Clear, _measure, _adaptSets[next], push with { Mode = 1 });
+        _adaptedLast = next;
+        _adaptedFrame = _frame;
+    }
+
+    // The measured frame and the two adapted texels, made once whatever the window's size, and
+    // cleared, so the composite can bind them in the layout a texture is sampled in before the
+    // exposure first follows the scene.
+    private RenderTarget[] Adapted(GraphicsDevice device, RenderContext renderContext)
+    {
+        if (_adapted is not null) return _adapted;
+        _exposureVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _exposureVertexSpv));
+        _exposureFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _exposureFragmentSpv));
+        _measured = device.CreateRenderTarget(MeasuredSize, MeasuredSize, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
+        _adapted = [.. Enumerable.Range(0, 2).Select(_ => device.CreateRenderTarget(1, 1, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false))];
+        foreach (var target in (RenderTarget[])[_measured, .. _adapted])
+        {
+            using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                target.RenderPass, target.Framebuffer, target.Extent, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
+        }
+        _adaptSets = [.. Enumerable.Range(0, 2).Select(i =>
+        {
+            var set = device.CreateDescriptorSet(_exposureLayout!);
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_measured.ColorView, _sampler!, 0));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_adapted[1 - i].ColorView, _sampler!, 1));
+            return set;
+        })];
+        _measure = Pipeline(device, _measured.RenderPass, _exposureVertex, _exposureFragment, _exposureLayout!, additive: false);
+        return _adapted;
+    }
+
     // The target and levels for the window's size, made again when it changes.
-    private Sized Ensure(GraphicsDevice device, Extent2D extent)
+    private Sized Ensure(GraphicsDevice device, RenderContext renderContext, Extent2D extent)
     {
         if (_sized is { } current && current.Extent == extent) return current;
         if (_sized is not null) _retired.Add((_frame, _sized));
@@ -254,6 +335,7 @@ public sealed class BloomRenderer : IDisposable
         _oneTexture ??= device.CreateDescriptorSetLayout(_bloomBindings);
         _twoTextures ??= device.CreateDescriptorSetLayout(_compositeBindings);
         _fxaaLayout ??= device.CreateDescriptorSetLayout(_fxaaBindings);
+        _exposureLayout ??= device.CreateDescriptorSetLayout(_exposureBindings);
         _bloomVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _bloomVertexSpv));
         _bloomFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _bloomFragmentSpv));
         _compositeVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _compositeVertexSpv));
@@ -277,14 +359,23 @@ public sealed class BloomRenderer : IDisposable
         }
         var down = levels.Select((_, i) => SetOf(i == 0 ? scene.ColorView : levels[i - 1].ColorView)).ToArray();
         var up = levels.Select(level => SetOf(level.ColorView)).ToArray();
-        var composite = device.CreateDescriptorSet(_twoTextures);
-        device.UpdateDescriptorSet(composite, null, new CombinedImageSamplerBinding(scene.ColorView, _sampler, 0));
-        device.UpdateDescriptorSet(composite, null, new CombinedImageSamplerBinding(levels[0].ColorView, _sampler, 1));
+        var adapted = Adapted(device, renderContext);
+        var composite = adapted.Select(exposure =>
+        {
+            var set = device.CreateDescriptorSet(_twoTextures);
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(scene.ColorView, _sampler, 0));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(levels[0].ColorView, _sampler, 1));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(exposure.ColorView, _sampler, 2));
+            return set;
+        }).ToArray();
+        var measure = device.CreateDescriptorSet(_exposureLayout!);
+        device.UpdateDescriptorSet(measure, null, new CombinedImageSamplerBinding(scene.ColorView, _sampler, 0));
+        device.UpdateDescriptorSet(measure, null, new CombinedImageSamplerBinding(adapted[0].ColorView, _sampler, 1));
 
         // Every level draws in the same pass, whatever its size, so the two pipelines are made once.
         _down ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: false);
         _up ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: true);
-        return _sized = new Sized(extent, scene, [.. levels], down, up, composite);
+        return _sized = new Sized(extent, scene, [.. levels], down, up, composite, measure);
     }
 
     private static IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, IShader vertex, IShader fragment,
@@ -320,6 +411,14 @@ public sealed class BloomRenderer : IDisposable
         _sized?.Dispose();
         _down?.Dispose();
         _up?.Dispose();
+        _measure?.Dispose();
+        _measured?.Dispose();
+        if (_adapted is not null)
+            foreach (var target in _adapted) target.Dispose();
+        foreach (var set in _adaptSets ?? []) set.Dispose();
+        _exposureVertex?.Dispose();
+        _exposureFragment?.Dispose();
+        _exposureLayout?.Dispose();
         foreach (var pipeline in _composites.Values.Concat(_fxaas.Values)) pipeline.Dispose();
         _fxaaVertex?.Dispose();
         _fxaaFragment?.Dispose();
@@ -383,6 +482,7 @@ public sealed class BloomNode : INode
         if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomRenderer>() is not { } renderer) return;
         var bloom = renderWorld.TryGet<BloomSettings>();
         if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom.Threshold);
+        if (renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } adapting) renderer.Adapt(renderContext, adapting);
         // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
         if (renderWorld.TryGet<FrameEffects>() is { Fxaa: true } effects) renderer.CompositeForFxaa(renderContext, bloom, effects);
     }

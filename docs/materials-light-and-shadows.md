@@ -84,13 +84,14 @@ A material's `AlphaMode` says what the alpha of its color and texture does:
 
 ## Effects over the frame
 
-Besides bloom, five effects change how the scene is shown, each set by one call and each off until
+Besides bloom, six effects change how the scene is shown, each set by one call and each off until
 set. Any of them draws the scene through the frame that holds light past white, as bloom does, and
 what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result untouched.
 
 | Call | What it does |
 |---|---|
 | `SetExposure(1.5f)` | Scales the scene's light before its curve, brighter above 1 and dimmer below |
+| `SetAutoExposure(true)` | Makes the exposure follow the scene as an eye adapts, between a quarter and four times unless bounds are given |
 | `SetTonemap(Tonemap.Aces)` | The curve that brings light past white under it: the engine's own, which leaves colors under 0.9 as they are, `Reinhard`, `Aces` or `Clamp` |
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
@@ -105,6 +106,17 @@ if (IsKeyPressed(Key.G)) SetColorGrading(1, (graded = !graded) ? 0.3f : 1, grade
 if (IsKeyPressed(Key.F)) SetFxaa(fxaa = !fxaa);
 if (IsKeyPressed(Key.E)) SetExposure((bright = !bright) ? 1.8f : 1);
 ```
+
+An exposure that follows the scene brings a dim room up and a sunlit field down, over a second or
+so, as an eye does, and `SetExposure` then multiplies what it chooses. The `shaders_auto_exposure`
+example rides a camera out of a tunnel lit by a few lamps into a field in the sun and back:
+
+```csharp
+SetAutoExposure(true, min: 0.3f, max: 6, speed: 1.5f);
+```
+
+The field is dazzling for a moment on the way out, and the tunnel dark on the way back in, until the
+exposure catches up.
 
 ## Lights
 
@@ -208,6 +220,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`models_reflection_probe`](../3DEngine.Examples/Models/ModelsReflectionProbe.cs),
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
   [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
+  [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and

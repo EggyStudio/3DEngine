@@ -97,12 +97,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   brightness or how much of the picture it lights, and each render target that draws meshes draws
   the map again for its own camera, with the point and spot lights chosen for the window's.
 
-- **Effects over the frame are bloom, exposure, a curve, grading, a vignette and FXAA.** Any of
-  them draws the window's scene into a half-float target and brings it into the window in one pass
-  (RENDERING.md §5). With all of them off the tonemap still runs at the end of the model pass,
-  render targets and probe captures stay eight bits, a shader of the program's own inside
-  `BeginMode3D` is read as linear in the HDR frame, and there is no exposure that adapts to the
-  scene, depth of field or motion blur.
+- **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
+  vignette and FXAA.** Any of them draws the window's scene into a half-float target and brings it
+  into the window in one pass (RENDERING.md §5). With all of them off the tonemap still runs at the
+  end of the model pass, render targets stay eight bits, a shader of the program's own inside
+  `BeginMode3D` is read as linear in the HDR frame, and there is no ambient occlusion, depth of
+  field or motion blur.
 
 ### The device
 

@@ -69,7 +69,8 @@ public sealed class Renderer : IDisposable
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
         var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");
         var fxaa = server.LoadSync<ShaderProgram>("shaders/fxaa.slang");
-        RenderWorld.Set(new BloomRenderer(bloom, composite, fxaa));
+        var exposure = server.LoadSync<ShaderProgram>("shaders/exposure.slang");
+        RenderWorld.Set(new BloomRenderer(bloom, composite, fxaa, exposure));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then render targets, each drawing the

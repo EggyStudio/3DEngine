@@ -77,6 +77,41 @@ public sealed class FrameEffectsTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void The_Exposure_That_Follows_The_Scene_Brightens_A_Dark_One_And_Dims_A_Bright_One()
+    {
+        Open();
+        var dark = Cube(new Color(40, 40, 40), new Color(10, 10, 10));
+        var bright = Cube(new Color(200, 200, 200), Color.White);
+        var darkBefore = GetImageColor(Capture(dark), 80, 60);
+        var brightBefore = GetImageColor(Capture(bright), 80, 60);
+
+        SetAutoExposure(true, min: 0.25f, max: 4, speed: 10000);
+        var darkAfter = GetImageColor(Capture(dark), 80, 60);
+        var brightAfter = GetImageColor(Capture(bright), 80, 60);
+
+        ((int)darkAfter.R).Should().BeGreaterThan(darkBefore.R + 30, $"a dark scene is brought up toward a mid gray ({darkBefore} to {darkAfter})");
+        ((int)brightAfter.R).Should().BeLessThan(brightBefore.R - 30, $"a bright one is brought down ({brightBefore} to {brightAfter})");
+    }
+
+    [NeedsVulkanFact]
+    public void The_Exposure_That_Follows_The_Scene_Moves_At_Its_Speed()
+    {
+        Open();
+        var dark = Cube(new Color(40, 40, 40), new Color(10, 10, 10));
+        var bright = Cube(new Color(200, 200, 200), Color.White);
+        // At a speed of 0 it keeps where the first frame put it, the dark scene's exposure.
+        SetAutoExposure(true, speed: 0);
+        Capture(dark);
+        var held = GetImageColor(Capture(bright), 80, 60);
+        SetAutoExposure(true, speed: 10000);
+        var followed = GetImageColor(Capture(bright), 80, 60);
+
+        ((int)held.R).Should().BeGreaterThan(followed.R + 30, $"the bright scene seen with the dark one's exposure is washed out ({held} against {followed})");
+        SetAutoExposure(false);
+        GetImageColor(Capture(bright), 80, 60).R.Should().BeInRange(198, 202, "with it off the cube keeps its color");
+    }
+
+    [NeedsVulkanFact]
     public void Each_Curve_Brings_White_Light_To_Its_Own_Shade()
     {
         Open();

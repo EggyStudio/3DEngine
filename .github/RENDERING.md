@@ -412,8 +412,17 @@ the composite draws into an eight-bit target the window's size instead, and `mai
 through FXAA (`fxaa.slang`, the console form of Lottes's, over the encoded colors) before the
 interface. `FrameEffectsTests` reads each from a frame.
 
-Render targets drawn with `BeginTextureMode` and the probes' captures stay eight bits and
-tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
+`SetAutoExposure` makes the exposure follow the scene, in two passes of `exposure.slang` after the
+bloom chain, which keep the log2 of luminance since an eye adapts by ratios and a mean of logs is not
+pulled up by one lamp. The first measures the HDR frame into a target of 64 by 64, each texel the
+mean of sixteen taps over its part of the frame. The second, one texel, weights those toward the
+middle of the picture, four times as much there as at the edges, holds the mean between the
+luminances the exposure's bounds bring to a mid gray of 0.18, and moves the value of the frame before
+toward it by one less e to the minus the speed times the seconds since, or all the way on the first
+frame. Two such texels take turns, each frame writing one from the other, and the composite divides
+0.18 by two to the value it reads and multiplies the exposure by that, so nothing is read back.
+
+Render targets drawn with `BeginTextureMode` stay eight bits and tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
 HDR frame as it is, so its sRGB colors are read as linear there.
 
 ## 6. What a frame costs
