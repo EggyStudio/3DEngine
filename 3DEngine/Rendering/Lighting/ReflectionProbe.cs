@@ -17,7 +17,9 @@ namespace Engine;
 /// </para>
 /// <para>
 /// What it captures is what the window draws in the frame of the capture, lit as the window is,
-/// so a probe is captured once its room is in the frame. Four probes are bound at once, those
+/// so a probe is captured once its room is in the frame. A probe spawned with a scene captures
+/// again once every model under the same root entity has spawned, as a room's prefab streamed in
+/// brings its probe at once and its models a few frames later. Four probes are bound at once, those
 /// nearest the camera, and where boxes overlap the smallest that holds a point wins.
 /// </para>
 /// <para>

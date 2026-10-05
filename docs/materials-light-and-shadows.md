@@ -207,7 +207,9 @@ A reflection is looked up where it leaves the box, so the room's walls hold stil
 moves. Put the box's middle in the open, away from the room's objects, since what stands there
 fills the capture. `UpdateReflectionProbe` captures it again after the room changes, and four
 probes, the nearest the camera, reflect at once. In the ECS a probe is a `ReflectionProbe`
-component placed by its entity's `Transform`.
+component placed by its entity's `Transform`, and one in a prefab beside its room's models, as
+`games/Manor` streams its rooms in, captures again once those models have spawned, so it holds
+the room and not the sky it saw in the frame it appeared.
 
 ## Lights in the ECS
 

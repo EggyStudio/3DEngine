@@ -142,4 +142,25 @@ public sealed class AssetReleaseTests : IDisposable
         Frames(2);
         SceneRefSystem.IsParsed(file).Should().BeFalse("no copy is left");
     }
+
+    [Fact]
+    public void A_Probe_Placed_With_A_Model_Captures_Again_Once_The_Model_Has_Spawned()
+    {
+        // A room's prefab as a level places it, its model and its probe under one entity.
+        var room = Ecs.Spawn();
+        Ecs.Add(room, new Transform(Vector3.Zero));
+        var model = Place();
+        Ecs.SetParent(model, room);
+        var probe = Ecs.Spawn();
+        Ecs.Add(probe, new Transform(Vector3.Zero));
+        Ecs.Add(probe, new ReflectionProbe(new Vector3(8)));
+        Ecs.SetParent(probe, room);
+        // Another model elsewhere, whose arrival is no reason for this probe to capture again.
+        Place();
+
+        for (int i = 0; i < 300 && !Textured(out _); i++) Frames(1);
+        Textured(out _).Should().BeTrue("the models spawned");
+        Frames(2);
+        Ecs.GetReadOnly<ReflectionProbe>(probe).Capture.Should().Be(1, "the probe captures again once, now its room is there");
+    }
 }

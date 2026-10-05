@@ -54,10 +54,12 @@ public static class SceneSpawnSystem
         }
         if (pending is null) return;
 
+        HashSet<int>? spawnedUnder = null;
         foreach (var (entity, request) in pending)
         {
             if (!assets.TryGet(request.Handle, out var asset))
                 continue; // still loading (or load failed - hot-reload may revive it)
+            (spawnedUnder ??= []).Add(Root(ecs, entity));
 
             try
             {
@@ -87,5 +89,28 @@ public static class SceneSpawnSystem
             // handled by SceneHotReloadSystem (no need to re-add the request component).
             ecs.Remove<SpawnSceneRequest>(entity);
         }
+
+        if (spawnedUnder is not null) RecaptureProbes(ecs, assetServer, spawnedUnder);
+    }
+
+    // A probe placed with its room, as a prefab places a room's models beside it, was captured in
+    // the frame it appeared, before the models had loaded, and reflected the sky where the walls
+    // now stand. Once nothing under a root waits for its model, the probes under it capture again.
+    private static void RecaptureProbes(EcsWorld ecs, AssetServer? server, HashSet<int> roots)
+    {
+        foreach (var (entity, request) in ecs.Query<SpawnSceneRequest>())
+            if (server?.GetLoadState(request.Handle.Id) != LoadState.Failed) roots.Remove(Root(ecs, entity));
+        if (roots.Count == 0) return;
+        List<int>? probes = null;
+        foreach (var (entity, _) in ecs.Query<ReflectionProbe>())
+            if (roots.Contains(Root(ecs, entity))) (probes ??= []).Add(entity);
+        if (probes is null) return;
+        foreach (var probe in probes) ecs.GetRef<ReflectionProbe>(probe).Capture++;
+    }
+
+    private static int Root(EcsWorld ecs, int entity)
+    {
+        while (ecs.ParentOf(entity) is var parent and not 0) entity = parent;
+        return entity;
     }
 }
