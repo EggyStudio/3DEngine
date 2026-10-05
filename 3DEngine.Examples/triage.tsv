@@ -1,0 +1,213 @@
+# Each of raylib's examples not written here, and a written one that differs, read by
+# build/examples-table.py. A line is a name, a state and a note, apart by tabs. The state is can
+# (everything it calls the flat API carries, and nobody has written it yet), part (written, leaving
+# out what the note names), missing (the note names what the flat API lacks) or n/a (the note says
+# why it is not a thing a program here does). C#'s own strings, files and memory stand in for
+# raylib's TextFormat, its file functions and MemAlloc, which count as carried. build/examples-table.py
+# --triage prints a first line for an example that has none.
+
+core_delta_time	can
+core_input_keys	can
+core_input_mouse	can
+core_input_mouse_wheel	can
+core_input_multitouch	can
+core_input_gestures_testbed	can
+core_input_virtual_controls	can
+core_2d_camera_mouse_zoom	missing	rlPopMatrix, rlPushMatrix, rlRotatef, rlTranslatef
+core_2d_camera_platformer	can
+core_2d_camera_split_screen	can
+core_3d_camera_mode	can
+core_3d_camera_split_screen	can
+core_3d_camera_fps	can
+core_3d_picking	can
+core_world_screen	can
+core_window_letterbox	can
+core_window_should_close	can
+core_monitor_detector	missing	GetMonitorPhysicalHeight, GetMonitorPhysicalWidth
+core_custom_logging	can
+core_random_values	can
+core_storage_values	can
+core_vr_simulator	missing	BeginVrStereoMode, EndVrStereoMode, LoadVrStereoConfig, UnloadVrStereoConfig
+core_scissor_test	can
+core_basic_screen_manager	can
+core_custom_frame_control	missing	PollInputEvents, SwapScreenBuffer
+core_smooth_pixelperfect	can
+core_random_sequence	can
+core_automation_events	missing	ExportAutomationEventList, LoadAutomationEventList, PlayAutomationEvent, SetAutomationEventBaseFrame, SetAutomationEventList, StartAutomationEventRecording, StopAutomationEventRecording, UnloadAutomationEventList
+core_highdpi_demo	can
+core_render_texture	can
+core_undo_redo	can
+core_viewport_scaling	can
+core_input_actions	can
+core_directory_files	can	with ImGui in raygui's place
+core_highdpi_testbed	can
+core_screen_recording	missing	LoadImageFromScreen
+core_clipboard_text	can	with ImGui in raygui's place
+core_text_file_loading	can
+core_compute_hash	can	with ImGui in raygui's place
+core_keyboard_testbed	can
+core_window_web	n/a	is about a browser's main loop, where a program here runs on the desktop
+shapes_basic_shapes	can
+shapes_bouncing_ball	can
+shapes_bullet_hell	can
+shapes_colors_palette	can
+shapes_logo_raylib	can
+shapes_logo_raylib_anim	can
+shapes_rectangle_scaling	can
+shapes_lines_bezier	can
+shapes_collision_area	can
+shapes_following_eyes	can
+shapes_easings_ball	can
+shapes_easings_box	can
+shapes_easings_rectangles	can
+shapes_recursive_tree	can	with ImGui in raygui's place
+shapes_ring_drawing	can	with ImGui in raygui's place
+shapes_circle_sector_drawing	can	with ImGui in raygui's place
+shapes_rounded_rectangle_drawing	can	with ImGui in raygui's place
+shapes_top_down_lights	n/a	reaches OpenGL's own state through rlgl (rlSetBlendFactors, rlSetBlendMode), which a Vulkan engine has no counterpart for
+shapes_rectangle_advanced	missing	GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
+shapes_splines_drawing	can	with ImGui in raygui's place
+shapes_digital_clock	can
+shapes_double_pendulum	can
+shapes_dashed_line	can
+shapes_triangle_strip	can	with ImGui in raygui's place
+shapes_vector_angle	can
+shapes_pie_chart	can	with ImGui in raygui's place
+shapes_kaleidoscope	can	with ImGui in raygui's place
+shapes_clock_of_clocks	can
+shapes_math_sine_cosine	can	with ImGui in raygui's place
+shapes_mouse_trail	can
+shapes_simple_particles	can
+shapes_starfield_effect	can
+shapes_lines_drawing	can
+shapes_math_angle_rotation	can
+shapes_rlgl_color_wheel	missing	rlBegin, rlColor4f, rlColor4ub, rlEnd, rlVertex2f, with ImGui in raygui's place
+shapes_rlgl_triangle	n/a	reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlEnableBackfaceCulling), which a Vulkan engine has no counterpart for
+shapes_ball_physics	can
+shapes_penrose_tile	can
+shapes_hilbert_curve	can	with ImGui in raygui's place
+shapes_easings_testbed	can
+shapes_drag_puzzle	can
+shapes_ellipse_collision	can
+shapes_outlines_testbed	can	with ImGui in raygui's place
+shapes_outlines_thickness	can	with ImGui in raygui's place
+shapes_polygon_lines	can
+textures_clipboard_image	can
+textures_magnifying_glass	n/a	reaches OpenGL's own state through rlgl (rlSetBlendFactorsSeparate), which a Vulkan engine has no counterpart for
+textures_logo_raylib	can
+textures_srcrec_dstrec	can
+textures_image_generation	can
+textures_image_loading	can
+textures_image_processing	missing	ImageFormat
+textures_image_text	can
+textures_to_image	can
+textures_raw_data	missing	LoadImageRaw
+textures_particles_blending	can
+textures_npatch_drawing	can
+textures_background_scrolling	can
+textures_sprite_animation	can
+textures_sprite_button	can
+textures_sprite_explosion	can
+textures_mouse_painting	can
+textures_blend_modes	can
+textures_tiled_drawing	can
+textures_polygon_drawing	missing	rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
+textures_fog_of_war	can
+textures_gif_player	can
+textures_image_kernel	can
+textures_image_channel	can
+textures_image_rotate	can
+textures_screen_buffer	can
+textures_textured_curve	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex2f
+textures_sprite_stacking	can
+textures_cellular_automata	can
+textures_framebuffer_rendering	can
+textures_portal_window	n/a	reaches OpenGL's own state through rlgl (rlDisableDepthTest, rlEnableDepthTest, rlMatrixMode, rlSetMatrixProjection), which a Vulkan engine has no counterpart for
+text_sprite_fonts	can
+text_font_spritefont	can
+text_font_filters	can
+text_font_loading	missing	BMFont's .fnt files
+text_format_text	can
+text_writing_anim	can
+text_rectangle_bounds	missing	GetGlyphIndex
+text_unicode_emojis	missing	GetGlyphIndex, BMFont's .fnt files
+text_unicode_ranges	can
+text_3d_drawing	missing	GetGlyphIndex, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlNormal3f, rlPopMatrix, rlPushMatrix, rlRotatef, rlSetTexture, rlTexCoord2f, rlTranslatef, rlVertex3f
+text_codepoints_loading	can
+text_inline_styling	missing	GetGlyphIndex
+text_words_alignment	can
+text_strings_management	can
+models_loading_iqm	can
+models_billboard_rendering	can
+models_box_collisions	can
+models_cubicmap_rendering	can
+models_first_person_maze	can
+models_geometric_shapes	can
+models_mesh_picking	can
+models_loading_gltf	can
+models_loading_vox	missing	MagicaVoxel's .vox files, which Assimp does not read
+models_loading_m3d	missing	M3D files, which the Assimp the engine carries does not read
+models_orthographic_projection	can
+models_point_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlDisablePointMode, rlEnableBackfaceCulling, rlEnablePointMode), which a Vulkan engine has no counterpart for
+models_rlgl_solar_system	missing	rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlPopMatrix, rlPushMatrix, rlRotatef, rlScalef, rlTranslatef, rlVertex3f
+models_yaw_pitch_roll	can
+models_waving_cubes	can
+models_heightmap_rendering	can
+models_skybox_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlClearScreenBuffers, rlDisableBackfaceCulling, rlDisableDepthMask), which a Vulkan engine has no counterpart for
+models_textured_cube	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f
+models_animation_gpu_skinning	can
+models_bone_socket	can
+models_tesseract_view	can
+models_basic_voxel	can
+models_rotating_cube	can
+models_decals	can
+models_directional_billboard	can
+models_animation_blend_custom	n/a	reaches OpenGL's own state through rlgl (rlUpdateVertexBuffer), which a Vulkan engine has no counterpart for
+models_animation_blending	can	with ImGui in raygui's place
+models_animation_timing	can	with ImGui in raygui's place
+models_mesh_uv_painting	can	with ImGui in raygui's place
+models_procedural_decals	can	with ImGui in raygui's place
+shaders_ascii_rendering	can
+shaders_basic_lighting	can
+shaders_model_shader	can
+shaders_shapes_textures	can
+shaders_custom_uniform	can
+shaders_palette_switch	can
+shaders_raymarching_rendering	can
+shaders_texture_rendering	can
+shaders_texture_outline	can
+shaders_texture_waves	can
+shaders_julia_set	can
+shaders_mandelbrot_set	can
+shaders_color_correction	can	with ImGui in raygui's place
+shaders_eratosthenes_sieve	can
+shaders_fog_rendering	can
+shaders_simple_mask	can
+shaders_hot_reloading	n/a	reaches OpenGL's own state through rlgl (rlGetShaderIdDefault), which a Vulkan engine has no counterpart for
+shaders_multi_sample2d	can
+shaders_normalmap_rendering	can
+shaders_spotlight_rendering	can
+shaders_deferred_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveDrawBuffers, rlActiveTextureSlot, rlBindFramebuffer, rlBlitFramebuffer), which a Vulkan engine has no counterpart for
+shaders_hybrid_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableDepthTest, rlEnableFramebuffer, rlFramebufferAttach), which a Vulkan engine has no counterpart for
+shaders_texture_tiling	can
+shaders_shadowmap_rendering	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlDisableFramebuffer, rlDisableTexture, rlEnableFramebuffer), which a Vulkan engine has no counterpart for
+shaders_vertex_displacement	n/a	reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlEnableShader, rlEnableTexture, rlSetUniformSampler), which a Vulkan engine has no counterpart for
+shaders_depth_writing	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for
+shaders_basic_pbr	can
+shaders_lightmap_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableVertexArray, rlEnableVertexArray, rlEnableVertexAttribute, rlLoadVertexBuffer), which a Vulkan engine has no counterpart for
+shaders_rounded_rectangle	can
+shaders_depth_rendering	n/a	reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for
+shaders_game_of_life	can	with ImGui in raygui's place
+shaders_rlgl_compute	n/a	reaches OpenGL's own state through rlgl (rlBindShaderBuffer, rlComputeShaderDispatch, rlDisableShader, rlEnableShader), which a Vulkan engine has no counterpart for
+shaders_cel_shading	n/a	reaches OpenGL's own state through rlgl (rlSetCullFace), which a Vulkan engine has no counterpart for
+shaders_lights_bloom	can
+audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
+audio_music_stream	can
+audio_sound_loading	can
+audio_mixed_processor	missing	AttachAudioMixedProcessor, DetachAudioMixedProcessor
+audio_stream_effects	missing	AttachAudioStreamProcessor, DetachAudioStreamProcessor
+audio_sound_multi	can
+audio_sound_positioning	can
+audio_spectrum_visualizer	can
+audio_stream_callback	can
+audio_amp_envelope	can	with ImGui in raygui's place

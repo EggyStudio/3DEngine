@@ -108,7 +108,9 @@ build/fetch-slang.sh                                          # once, for the sh
 dotnet run --project 3DEngine.Examples -- core_3d_camera_free
 ```
 
-A picture opens the program that drew it, and the name under it is the one it runs by.
+A picture opens the program that drew it, and the name under it is the one it runs by. Each of
+raylib's own examples, and what is written of it here, is a row of
+[the examples table](https://github.com/EggyStudio/3DEngine/blob/main/.github/EXAMPLES.md).
 
 | | |
 |---|---|

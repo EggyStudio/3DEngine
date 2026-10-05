@@ -141,7 +141,7 @@ table also answers whether the two agree.
 | A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
 | Examples picked by name as an argument, each with a capture CI takes | taken at `661682e`, measured against Bevy's own 421 examples in EXAMPLES.md | has (`3DEngine.Examples`, `048c072c`) |
 | Behaviors registered by a module initializer the generator writes, so a game published trimmed or as native AOT keeps them | has | has (`425ffc31`), with Pusher published native |
-| A game published as native AOT and run by CI | to take | to take, where Pusher is published native by hand (`458cd909`) and no workflow does it |
+| A game published as native AOT and run by CI | to take | has (`build/play-native.sh`, `f2abc4f0`), Pusher drawn for 300 frames under the validation layer |
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
@@ -161,7 +161,7 @@ table also answers whether the two agree.
 | A clock stepped by a set amount a frame, for a test and for a run with no window, so motion is measured in frames and is the same on every machine | to take, through Bevy's `TimeUpdateStrategy::ManualDuration` | taken at `966c2c88`, `Time.FrameSeconds` and `--frame-time` |
 | A loader lets go of its file when a load returns, checked on Linux as well as Windows, and a test's folder that cannot be removed says which process holds it | to check | taken at `abc24192`, `FileHandleTests` over eleven loaders and `TestFolder` |
 | Every example of the engine it follows is a row of a table a script makes from that engine's own list, each written, written in part, able to be written, missing or not applying | has (`.github/EXAMPLES.md`, 223 written of the 363 that apply) | to take, against the examples in raylib's checkout (REVIEW.md, Now 4) |
-| An example compiles on the package alone, what the examples share to say a thing in one word being the package's own calls | to take, where 208 of 231 examples call helpers of the examples project | has, an example being one file on the flat API |
+| An example compiles on the package alone, what the examples share to say a thing in one word being the package's own calls | to take, where 208 of 231 examples call helpers of the examples project | has (`build/examples-on-package.sh`, `a61308b0`), every example built on the packed package |
 
 ### Documents
 

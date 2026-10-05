@@ -60,6 +60,13 @@ every ten seconds into `build/soak/<game>.csv`, and `build/soak-check.py` fails 
 their ids) climbs past what it reached earlier in the run by more than a little. CI plays the four
 games for two minutes at once this way, and a ten-minute run of each holds level on the desktop.
 
+`build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
+the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under
+`build/raylib-bench/work`. An example is written when `3DEngine.Examples/Program.cs` opens it by
+raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.tsv`, which
+`--triage` starts for a new one from the functions it calls that the flat API lacks. `--check`
+fails where the table is out of date, which `build.yml` runs.
+
 `build/storm.sh <program> <png>` resizes a program a frame apart through odd sizes, minimizes and
 restores it and moves it to each monitor there is, under the validation layer, then captures a
 frame and fails unless it is drawn at the size last asked for with nothing reported. CI puts each

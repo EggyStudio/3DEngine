@@ -1,0 +1,310 @@
+# Examples
+
+raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa673e`](https://github.com/raysan5/raylib/tree/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples). Each is a row here, made by `build/examples-table.py` from raylib's own `examples_list.txt`, so a row is a thing raylib shows how to do and the table is how much of raylib a program here can do the same way.
+
+An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
+
+**17 written, 0 written in part, 163 can be written, 24 missing and 18 do not apply.** Of the 204 that apply, 180 can be written with what the flat API carries.
+
+| Group | Written | Written in part | Can be written | Missing | Does not apply |
+|---|---:|---:|---:|---:|---:|
+| [Core](#core) | 8 | 0 | 34 | 6 | 1 |
+| [Shapes](#shapes) | 0 | 0 | 41 | 2 | 2 |
+| [Textures](#textures) | 2 | 0 | 25 | 4 | 2 |
+| [Text](#text) | 2 | 0 | 9 | 5 | 0 |
+| [Models](#models) | 2 | 0 | 23 | 4 | 3 |
+| [Shaders](#shaders) | 2 | 0 | 24 | 0 | 10 |
+| [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
+| **All** | **17** | **0** | **163** | **24** | **18** |
+
+## Core
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`core_basic_window`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_basic_window.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_basic_window.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_basic_window.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreBasicWindow.cs) |
+| [`core_delta_time`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_delta_time.c) |  |  | can be written |
+| [`core_input_keys`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_keys.c) |  |  | can be written |
+| [`core_input_mouse`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_mouse.c) |  |  | can be written |
+| [`core_input_mouse_wheel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_mouse_wheel.c) |  |  | can be written |
+| [`core_input_gamepad`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gamepad.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gamepad.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gamepad.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputGamepad.cs) |
+| [`core_input_multitouch`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_multitouch.c) |  |  | can be written |
+| [`core_input_gestures`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_input_gestures.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreInputGestures.cs) |
+| [`core_input_gestures_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_gestures_testbed.c) |  |  | can be written |
+| [`core_input_virtual_controls`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_virtual_controls.c) |  |  | can be written |
+| [`core_2d_camera`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_2d_camera.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core2DCamera.cs) |
+| [`core_2d_camera_mouse_zoom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_mouse_zoom.c) |  |  | missing, rlPopMatrix, rlPushMatrix, rlRotatef, rlTranslatef |
+| [`core_2d_camera_platformer`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_platformer.c) |  |  | can be written |
+| [`core_2d_camera_split_screen`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_2d_camera_split_screen.c) |  |  | can be written |
+| [`core_3d_camera_mode`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_mode.c) |  |  | can be written |
+| [`core_3d_camera_free`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_free.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_free.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_free.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraFree.cs) |
+| [`core_3d_camera_first_person`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_first_person.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_first_person.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_first_person.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraFirstPerson.cs) |
+| [`core_3d_camera_split_screen`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_split_screen.c) |  |  | can be written |
+| [`core_3d_camera_fps`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_fps.c) |  |  | can be written |
+| [`core_3d_picking`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_picking.c) |  |  | can be written |
+| [`core_world_screen`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_world_screen.c) |  |  | can be written |
+| [`core_window_flags`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_flags.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_flags.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_window_flags.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreWindowFlags.cs) |
+| [`core_window_letterbox`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_letterbox.c) |  |  | can be written |
+| [`core_window_should_close`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_should_close.c) |  |  | can be written |
+| [`core_monitor_detector`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_monitor_detector.c) |  |  | missing, GetMonitorPhysicalHeight, GetMonitorPhysicalWidth |
+| [`core_custom_logging`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_custom_logging.c) |  |  | can be written |
+| [`core_drop_files`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_drop_files.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_drop_files.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_drop_files.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreDropFiles.cs) |
+| [`core_random_values`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_random_values.c) |  |  | can be written |
+| [`core_storage_values`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_storage_values.c) |  |  | can be written |
+| [`core_vr_simulator`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_vr_simulator.c) |  |  | missing, BeginVrStereoMode, EndVrStereoMode, LoadVrStereoConfig, UnloadVrStereoConfig |
+| [`core_scissor_test`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_scissor_test.c) |  |  | can be written |
+| [`core_basic_screen_manager`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_basic_screen_manager.c) |  |  | can be written |
+| [`core_custom_frame_control`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_custom_frame_control.c) |  |  | missing, PollInputEvents, SwapScreenBuffer |
+| [`core_smooth_pixelperfect`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_smooth_pixelperfect.c) |  |  | can be written |
+| [`core_random_sequence`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_random_sequence.c) |  |  | can be written |
+| [`core_automation_events`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_automation_events.c) |  |  | missing, ExportAutomationEventList, LoadAutomationEventList, PlayAutomationEvent, SetAutomationEventBaseFrame, SetAutomationEventList, StartAutomationEventRecording, StopAutomationEventRecording, UnloadAutomationEventList |
+| [`core_highdpi_demo`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_highdpi_demo.c) |  |  | can be written |
+| [`core_render_texture`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_render_texture.c) |  |  | can be written |
+| [`core_undo_redo`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_undo_redo.c) |  |  | can be written |
+| [`core_viewport_scaling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_viewport_scaling.c) |  |  | can be written |
+| [`core_input_actions`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_input_actions.c) |  |  | can be written |
+| [`core_directory_files`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_directory_files.c) |  |  | can be written, with ImGui in raygui's place |
+| [`core_highdpi_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_highdpi_testbed.c) |  |  | can be written |
+| [`core_screen_recording`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_screen_recording.c) |  |  | missing, LoadImageFromScreen |
+| [`core_clipboard_text`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_clipboard_text.c) |  |  | can be written, with ImGui in raygui's place |
+| [`core_text_file_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_text_file_loading.c) |  |  | can be written |
+| [`core_compute_hash`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_compute_hash.c) |  |  | can be written, with ImGui in raygui's place |
+| [`core_keyboard_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_keyboard_testbed.c) |  |  | can be written |
+| [`core_window_web`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_web.c) |  |  | does not apply, is about a browser's main loop, where a program here runs on the desktop |
+
+## Shapes
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`shapes_basic_shapes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_basic_shapes.c) |  |  | can be written |
+| [`shapes_bouncing_ball`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bouncing_ball.c) |  |  | can be written |
+| [`shapes_bullet_hell`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bullet_hell.c) |  |  | can be written |
+| [`shapes_colors_palette`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_colors_palette.c) |  |  | can be written |
+| [`shapes_logo_raylib`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib.c) |  |  | can be written |
+| [`shapes_logo_raylib_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib_anim.c) |  |  | can be written |
+| [`shapes_rectangle_scaling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_scaling.c) |  |  | can be written |
+| [`shapes_lines_bezier`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_bezier.c) |  |  | can be written |
+| [`shapes_collision_area`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_collision_area.c) |  |  | can be written |
+| [`shapes_following_eyes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_following_eyes.c) |  |  | can be written |
+| [`shapes_easings_ball`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_ball.c) |  |  | can be written |
+| [`shapes_easings_box`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_box.c) |  |  | can be written |
+| [`shapes_easings_rectangles`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_rectangles.c) |  |  | can be written |
+| [`shapes_recursive_tree`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_recursive_tree.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_ring_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_ring_drawing.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_circle_sector_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_circle_sector_drawing.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_rounded_rectangle_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rounded_rectangle_drawing.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_top_down_lights`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_top_down_lights.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetBlendFactors, rlSetBlendMode), which a Vulkan engine has no counterpart for |
+| [`shapes_rectangle_advanced`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_advanced.c) |  |  | missing, GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f |
+| [`shapes_splines_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_splines_drawing.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_digital_clock`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_digital_clock.c) |  |  | can be written |
+| [`shapes_double_pendulum`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_double_pendulum.c) |  |  | can be written |
+| [`shapes_dashed_line`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_dashed_line.c) |  |  | can be written |
+| [`shapes_triangle_strip`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_triangle_strip.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_vector_angle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_vector_angle.c) |  |  | can be written |
+| [`shapes_pie_chart`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_pie_chart.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_kaleidoscope`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_kaleidoscope.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_clock_of_clocks`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_clock_of_clocks.c) |  |  | can be written |
+| [`shapes_math_sine_cosine`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_math_sine_cosine.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_mouse_trail`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_mouse_trail.c) |  |  | can be written |
+| [`shapes_simple_particles`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_simple_particles.c) |  |  | can be written |
+| [`shapes_starfield_effect`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_starfield_effect.c) |  |  | can be written |
+| [`shapes_lines_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_drawing.c) |  |  | can be written |
+| [`shapes_math_angle_rotation`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_math_angle_rotation.c) |  |  | can be written |
+| [`shapes_rlgl_color_wheel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rlgl_color_wheel.c) |  |  | missing, rlBegin, rlColor4f, rlColor4ub, rlEnd, rlVertex2f, with ImGui in raygui's place |
+| [`shapes_rlgl_triangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rlgl_triangle.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlEnableBackfaceCulling), which a Vulkan engine has no counterpart for |
+| [`shapes_ball_physics`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_ball_physics.c) |  |  | can be written |
+| [`shapes_penrose_tile`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_penrose_tile.c) |  |  | can be written |
+| [`shapes_hilbert_curve`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_hilbert_curve.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_easings_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_testbed.c) |  |  | can be written |
+| [`shapes_drag_puzzle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_drag_puzzle.c) |  |  | can be written |
+| [`shapes_ellipse_collision`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_ellipse_collision.c) |  |  | can be written |
+| [`shapes_outlines_testbed`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_outlines_testbed.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_outlines_thickness`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_outlines_thickness.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shapes_polygon_lines`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_polygon_lines.c) |  |  | can be written |
+
+## Textures
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`textures_clipboard_image`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_clipboard_image.c) |  |  | can be written |
+| [`textures_magnifying_glass`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_magnifying_glass.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetBlendFactorsSeparate), which a Vulkan engine has no counterpart for |
+| [`textures_logo_raylib`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_logo_raylib.c) |  |  | can be written |
+| [`textures_srcrec_dstrec`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_srcrec_dstrec.c) |  |  | can be written |
+| [`textures_image_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_drawing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_drawing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_image_drawing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesImageDrawing.cs) |
+| [`textures_image_generation`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_generation.c) |  |  | can be written |
+| [`textures_image_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_loading.c) |  |  | can be written |
+| [`textures_image_processing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_processing.c) |  |  | missing, ImageFormat |
+| [`textures_image_text`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_text.c) |  |  | can be written |
+| [`textures_to_image`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_to_image.c) |  |  | can be written |
+| [`textures_raw_data`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_raw_data.c) |  |  | missing, LoadImageRaw |
+| [`textures_particles_blending`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_particles_blending.c) |  |  | can be written |
+| [`textures_npatch_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_npatch_drawing.c) |  |  | can be written |
+| [`textures_background_scrolling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_background_scrolling.c) |  |  | can be written |
+| [`textures_sprite_animation`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_sprite_animation.c) |  |  | can be written |
+| [`textures_sprite_button`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_sprite_button.c) |  |  | can be written |
+| [`textures_sprite_explosion`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_sprite_explosion.c) |  |  | can be written |
+| [`textures_bunnymark`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_bunnymark.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_bunnymark.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_bunnymark.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Benchmarks/TexturesBunnymark.cs) |
+| [`textures_mouse_painting`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_mouse_painting.c) |  |  | can be written |
+| [`textures_blend_modes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_blend_modes.c) |  |  | can be written |
+| [`textures_tiled_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_tiled_drawing.c) |  |  | can be written |
+| [`textures_polygon_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_polygon_drawing.c) |  |  | missing, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f |
+| [`textures_fog_of_war`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_fog_of_war.c) |  |  | can be written |
+| [`textures_gif_player`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_gif_player.c) |  |  | can be written |
+| [`textures_image_kernel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_kernel.c) |  |  | can be written |
+| [`textures_image_channel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_channel.c) |  |  | can be written |
+| [`textures_image_rotate`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_image_rotate.c) |  |  | can be written |
+| [`textures_screen_buffer`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_screen_buffer.c) |  |  | can be written |
+| [`textures_textured_curve`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_textured_curve.c) |  |  | missing, rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex2f |
+| [`textures_sprite_stacking`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_sprite_stacking.c) |  |  | can be written |
+| [`textures_cellular_automata`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_cellular_automata.c) |  |  | can be written |
+| [`textures_framebuffer_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_framebuffer_rendering.c) |  |  | can be written |
+| [`textures_portal_window`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/textures/textures_portal_window.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableDepthTest, rlEnableDepthTest, rlMatrixMode, rlSetMatrixProjection), which a Vulkan engine has no counterpart for |
+
+## Text
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`text_sprite_fonts`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_sprite_fonts.c) |  |  | can be written |
+| [`text_font_spritefont`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_spritefont.c) |  |  | can be written |
+| [`text_font_filters`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_filters.c) |  |  | can be written |
+| [`text_font_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_loading.c) |  |  | missing, BMFont's .fnt files |
+| [`text_font_sdf`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_sdf.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_sdf.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_font_sdf.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFontSdf.cs) |
+| [`text_format_text`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_format_text.c) |  |  | can be written |
+| [`text_input_box`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_input_box.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_input_box.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_input_box.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextInputBox.cs) |
+| [`text_writing_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_writing_anim.c) |  |  | can be written |
+| [`text_rectangle_bounds`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_rectangle_bounds.c) |  |  | missing, GetGlyphIndex |
+| [`text_unicode_emojis`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_emojis.c) |  |  | missing, GetGlyphIndex, BMFont's .fnt files |
+| [`text_unicode_ranges`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_ranges.c) |  |  | can be written |
+| [`text_3d_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_3d_drawing.c) |  |  | missing, GetGlyphIndex, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlNormal3f, rlPopMatrix, rlPushMatrix, rlRotatef, rlSetTexture, rlTexCoord2f, rlTranslatef, rlVertex3f |
+| [`text_codepoints_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_codepoints_loading.c) |  |  | can be written |
+| [`text_inline_styling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_inline_styling.c) |  |  | missing, GetGlyphIndex |
+| [`text_words_alignment`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_words_alignment.c) |  |  | can be written |
+| [`text_strings_management`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_strings_management.c) |  |  | can be written |
+
+## Models
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`models_loading_iqm`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_iqm.c) |  |  | can be written |
+| [`models_billboard_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_billboard_rendering.c) |  |  | can be written |
+| [`models_box_collisions`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_box_collisions.c) |  |  | can be written |
+| [`models_cubicmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_cubicmap_rendering.c) |  |  | can be written |
+| [`models_first_person_maze`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_first_person_maze.c) |  |  | can be written |
+| [`models_geometric_shapes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_geometric_shapes.c) |  |  | can be written |
+| [`models_mesh_generation`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_mesh_generation.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_mesh_generation.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_mesh_generation.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsMeshGeneration.cs) |
+| [`models_mesh_picking`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_mesh_picking.c) |  |  | can be written |
+| [`models_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoading.cs) |
+| [`models_loading_gltf`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_gltf.c) |  |  | can be written |
+| [`models_loading_vox`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_vox.c) |  |  | missing, MagicaVoxel's .vox files, which Assimp does not read |
+| [`models_loading_m3d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_m3d.c) |  |  | missing, M3D files, which the Assimp the engine carries does not read |
+| [`models_orthographic_projection`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_orthographic_projection.c) |  |  | can be written |
+| [`models_point_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_point_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableBackfaceCulling, rlDisablePointMode, rlEnableBackfaceCulling, rlEnablePointMode), which a Vulkan engine has no counterpart for |
+| [`models_rlgl_solar_system`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rlgl_solar_system.c) |  |  | missing, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlPopMatrix, rlPushMatrix, rlRotatef, rlScalef, rlTranslatef, rlVertex3f |
+| [`models_yaw_pitch_roll`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_yaw_pitch_roll.c) |  |  | can be written |
+| [`models_waving_cubes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_waving_cubes.c) |  |  | can be written |
+| [`models_heightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_heightmap_rendering.c) |  |  | can be written |
+| [`models_skybox_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_skybox_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlClearScreenBuffers, rlDisableBackfaceCulling, rlDisableDepthMask), which a Vulkan engine has no counterpart for |
+| [`models_textured_cube`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_textured_cube.c) |  |  | missing, rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f |
+| [`models_animation_gpu_skinning`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_gpu_skinning.c) |  |  | can be written |
+| [`models_bone_socket`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_bone_socket.c) |  |  | can be written |
+| [`models_tesseract_view`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_tesseract_view.c) |  |  | can be written |
+| [`models_basic_voxel`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_basic_voxel.c) |  |  | can be written |
+| [`models_rotating_cube`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rotating_cube.c) |  |  | can be written |
+| [`models_decals`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_decals.c) |  |  | can be written |
+| [`models_directional_billboard`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_directional_billboard.c) |  |  | can be written |
+| [`models_animation_blend_custom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_blend_custom.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlUpdateVertexBuffer), which a Vulkan engine has no counterpart for |
+| [`models_animation_blending`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_blending.c) |  |  | can be written, with ImGui in raygui's place |
+| [`models_animation_timing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_animation_timing.c) |  |  | can be written, with ImGui in raygui's place |
+| [`models_mesh_uv_painting`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_mesh_uv_painting.c) |  |  | can be written, with ImGui in raygui's place |
+| [`models_procedural_decals`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_procedural_decals.c) |  |  | can be written, with ImGui in raygui's place |
+
+## Shaders
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`shaders_ascii_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_ascii_rendering.c) |  |  | can be written |
+| [`shaders_basic_lighting`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_basic_lighting.c) |  |  | can be written |
+| [`shaders_model_shader`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_model_shader.c) |  |  | can be written |
+| [`shaders_shapes_textures`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_shapes_textures.c) |  |  | can be written |
+| [`shaders_custom_uniform`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_custom_uniform.c) |  |  | can be written |
+| [`shaders_postprocessing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_postprocessing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_postprocessing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_postprocessing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersPostprocessing.cs) |
+| [`shaders_palette_switch`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_palette_switch.c) |  |  | can be written |
+| [`shaders_raymarching_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_raymarching_rendering.c) |  |  | can be written |
+| [`shaders_texture_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_texture_rendering.c) |  |  | can be written |
+| [`shaders_texture_outline`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_texture_outline.c) |  |  | can be written |
+| [`shaders_texture_waves`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_texture_waves.c) |  |  | can be written |
+| [`shaders_julia_set`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_julia_set.c) |  |  | can be written |
+| [`shaders_mandelbrot_set`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_mandelbrot_set.c) |  |  | can be written |
+| [`shaders_color_correction`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_color_correction.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shaders_eratosthenes_sieve`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_eratosthenes_sieve.c) |  |  | can be written |
+| [`shaders_fog_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_fog_rendering.c) |  |  | can be written |
+| [`shaders_simple_mask`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_simple_mask.c) |  |  | can be written |
+| [`shaders_hot_reloading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hot_reloading.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlGetShaderIdDefault), which a Vulkan engine has no counterpart for |
+| [`shaders_mesh_instancing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_mesh_instancing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_mesh_instancing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_mesh_instancing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersMeshInstancing.cs) |
+| [`shaders_multi_sample2d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_multi_sample2d.c) |  |  | can be written |
+| [`shaders_normalmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_normalmap_rendering.c) |  |  | can be written |
+| [`shaders_spotlight_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_spotlight_rendering.c) |  |  | can be written |
+| [`shaders_deferred_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_deferred_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveDrawBuffers, rlActiveTextureSlot, rlBindFramebuffer, rlBlitFramebuffer), which a Vulkan engine has no counterpart for |
+| [`shaders_hybrid_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_hybrid_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableDepthTest, rlEnableFramebuffer, rlFramebufferAttach), which a Vulkan engine has no counterpart for |
+| [`shaders_texture_tiling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_texture_tiling.c) |  |  | can be written |
+| [`shaders_shadowmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_shadowmap_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlDisableFramebuffer, rlDisableTexture, rlEnableFramebuffer), which a Vulkan engine has no counterpart for |
+| [`shaders_vertex_displacement`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_vertex_displacement.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlActiveTextureSlot, rlEnableShader, rlEnableTexture, rlSetUniformSampler), which a Vulkan engine has no counterpart for |
+| [`shaders_depth_writing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_writing.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for |
+| [`shaders_basic_pbr`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_basic_pbr.c) |  |  | can be written |
+| [`shaders_lightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableVertexArray, rlEnableVertexArray, rlEnableVertexAttribute, rlLoadVertexBuffer), which a Vulkan engine has no counterpart for |
+| [`shaders_rounded_rectangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rounded_rectangle.c) |  |  | can be written |
+| [`shaders_depth_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_rendering.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlDisableFramebuffer, rlEnableFramebuffer, rlFramebufferAttach, rlFramebufferComplete), which a Vulkan engine has no counterpart for |
+| [`shaders_game_of_life`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_game_of_life.c) |  |  | can be written, with ImGui in raygui's place |
+| [`shaders_rlgl_compute`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rlgl_compute.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlBindShaderBuffer, rlComputeShaderDispatch, rlDisableShader, rlEnableShader), which a Vulkan engine has no counterpart for |
+| [`shaders_cel_shading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_cel_shading.c) |  |  | does not apply, reaches OpenGL's own state through rlgl (rlSetCullFace), which a Vulkan engine has no counterpart for |
+| [`shaders_lights_bloom`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lights_bloom.c) |  |  | can be written |
+
+## Audio
+
+| Example | raylib | Here | State |
+|---|---|---|---|
+| [`audio_module_playing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_module_playing.c) |  |  | missing, music in the XM and MOD module formats, which no decoder here reads |
+| [`audio_music_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.c) |  |  | can be written |
+| [`audio_raw_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioRawStream.cs) |
+| [`audio_sound_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.c) |  |  | can be written |
+| [`audio_mixed_processor`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_mixed_processor.c) |  |  | missing, AttachAudioMixedProcessor, DetachAudioMixedProcessor |
+| [`audio_stream_effects`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_effects.c) |  |  | missing, AttachAudioStreamProcessor, DetachAudioStreamProcessor |
+| [`audio_sound_multi`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_multi.c) |  |  | can be written |
+| [`audio_sound_positioning`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_positioning.c) |  |  | can be written |
+| [`audio_spectrum_visualizer`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_spectrum_visualizer.c) |  |  | can be written |
+| [`audio_stream_callback`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_callback.c) |  |  | can be written |
+| [`audio_amp_envelope`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_amp_envelope.c) |  |  | can be written, with ImGui in raygui's place |
+
+## This engine's own
+
+The programs here that are no example of raylib's, each showing what the engine has beside the flat API raylib's examples use.
+
+| Example | Here |
+|---|---|
+| [`audio_sound`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSound.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound.webp" width="200"/> |
+| [`ecs_animated_models`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsAnimatedModels.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_animated_models.webp" width="200"/> |
+| [`ecs_behaviors`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsBehaviors.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_behaviors.webp" width="200"/> |
+| [`ecs_mesh_entities`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsMeshEntities.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_mesh_entities.webp" width="200"/> |
+| [`ecs_physics`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsPhysics.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_physics.webp" width="200"/> |
+| [`ecs_states`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Ecs/EcsStates.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/ecs_states.webp" width="200"/> |
+| [`gui_imgui_window`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Gui/GuiImGuiWindow.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/gui_imgui_window.webp" width="200"/> |
+| [`models_animation`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsAnimation.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_animation.webp" width="200"/> |
+| [`models_morph_and_layers`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsMorphAndLayers.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_morph_and_layers.webp" width="200"/> |
+| [`models_reflection_probe`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsReflectionProbe.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_reflection_probe.webp" width="200"/> |
+| [`models_skybox`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsSkybox.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_skybox.webp" width="200"/> |
+| [`models_stress`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Benchmarks/ModelsStress.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_stress.webp" width="200"/> |
+| [`models_terrain`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsTerrain.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_terrain.webp" width="200"/> |
+| [`physics_boxes`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Physics/PhysicsBoxes.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/physics_boxes.webp" width="200"/> |
+| [`scenes_level`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Scenes/ScenesLevel.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/scenes_level.webp" width="200"/> |
+| [`shaders_auto_exposure`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersAutoExposure.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.webp" width="200"/> |
+| [`shaders_bloom`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersBloom.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.webp" width="200"/> |
+| [`shaders_compute_life`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersComputeLife.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_life.webp" width="200"/> |
+| [`shaders_compute_texture`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersComputeTexture.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_texture.webp" width="200"/> |
+| [`shaders_model`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersModel.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_model.webp" width="200"/> |
+| [`shaders_particles`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersParticles.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="200"/> |
+| [`shaders_shadowmap`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersShadowmap.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_shadowmap.webp" width="200"/> |
+| [`shapes_basic_2d`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBasic2D.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_2d.webp" width="200"/> |
+| [`shapes_basic_3d`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBasic3D.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_3d.webp" width="200"/> |
+| [`text_fonts`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFonts.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_fonts.webp" width="200"/> |
+| [`textures_basic`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesBasic.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.webp" width="200"/> |
+| [`textures_mipmaps`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesMipmaps.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_mipmaps.webp" width="200"/> |
+| [`textures_render_target`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesRenderTarget.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_render_target.webp" width="200"/> |

@@ -42,6 +42,13 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx
 
+      # Every one of raylib's examples is a row of .github/EXAMPLES.md, which the script writes from
+      # raylib's own list at the commit build/raylib-bench/run.sh pins (NORM.md, N 5.2). A new
+      # example here, or a line of 3DEngine.Examples/triage.tsv changed, without the table written
+      # again fails here.
+      - name: Check the table of raylib's examples
+        run: build/examples-table.py --check
+
       # Each example opened with no window, driven where it waits for input, run until its scene
       # has settled and its frame rate is measured, captured and closed (build/capture-example.sh),
       # then its session log checked for validation errors, which counts the teardown too. Every

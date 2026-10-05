@@ -8,20 +8,15 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `9decca1d`. The norm's checks are settled on the reply, which was read. `NormTests`
-holds twelve rules and the norm itself, written after BevyCSharp's so the two read the norm
-alike, each list from its test's own finding. Its first run found a fault at once, 30 commits
-whose subject has the three marks with none of the spaces COMMITS.md puts between them, written
-from a session's summary and not from the document. None is written again, 19 of them being
-pushed, and the check holds every commit since, which is what a rule with a check is for.
-
-The three lines beginning `Rule:` are answered in [NORM.md](NORM.md). A test of what is no area
-of the library, the documents or the package, is in a folder named for what it tests and is left
-out, and the norm's own class is at the root (N 1.4). The table of areas is held to the top
-folders of the repository and of the library, as this engine read it, a row naming a folder by
-itself or by a folder within it (N 1.5). A game's capture is left out of the size as an example
-with a window of its own is (N 4.5). The table under Conformance has this engine's column: 17
-rules checked, 7 with places listed, 3 still to take and 9 by review.
+Reviewed up to `a61308b0`. What the norm's lists held that a batch could mend is settled on the
+replies, which were read (`8d92856d`, `42da1c44`), with two rules taken that were steps of the
+workflow, a game published native and played (`f2abc4f0`, N 2.5) and every example built on the
+packed package alone (`a61308b0`, N 2.7). The lists found two things nobody had seen: two tests
+that left a folder in the system's temporary folder on every run, and a wait in the resize test
+that timed nothing the engine does. The table under Conformance has this engine at 23 rules
+checked, 3 with places listed, 1 still to take, which is the table of raylib's examples, and 9 by
+review. The norm's check came after BevyCSharp's and its first run found 30 commits out of the
+form COMMITS.md gives, none written again, 19 of them being pushed.
 
 Everything the Windows run of `db942962` showed is mended. The owner pushed `main` up to
 `15fa305a` on 2026-10-05, which has the clock and the follow rule, and its run is the first to
@@ -35,19 +30,7 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the norm's lists hold that a batch can mend.** The wait in `WindowResizeTests`, which
-   nothing in the engine times (N 3.3). The three temporary folders outside `TestFolder` (N 3.4).
-   `TrueTypeFontTests` in a folder that is no area of the library (N 1.4). The three packages D 8's
-   table does not name (N 2.8), which are companions of ones it does and are said there as such.
-   The checks of N 1.4 and N 1.5 brought to the norm's words since, a test of the documents or
-   the package left out with that reason, and a row for a folder within a top folder naming it.
-   The larger lists, the 116 places of N 1.2 and the 6 files of N 1.3, are mended as the norm
-   says, when a batch next touches a file on them, in a commit of its own.
-
-   Two rules still to take are steps of the workflow, each a batch. A game is published native
-   and played by the workflow (N 2.5), as Pusher was by hand. A handful of examples are built in a
-   project of their own on the packed package (N 2.7), which they keep already and nothing holds.
-2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
+1. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
    Bevy's own list, and writing them one by one found faults no test had. The same here: a table
@@ -60,8 +43,21 @@ for a reply. In this order.
    carried, or its row says why not, which is TODO.md's entry on the 128 functions taken from
    the side a program meets them. A picture that differs from raylib's for no known reason is
    taken down to the smallest program that still differs and explained before the pass goes
-   on. Many a batch, a module at a time, and it is the item to come back to whenever the ones
-   above are through.
+   on. Many a batch, a module at a time, and it is the item to come back to whenever the others
+   are through.
+
+   The first count, 17 written, 168 that can be, 20 missing and 17 that do not apply, is read as
+   it should be. What C# has of its own, strings, files and memory, covers raylib's helpers for
+   them, so their examples can be written. rlgl's matrix stack and its vertices one at a time are
+   missing and not out of reach, since a raylib program turns a drawn shape with the one and
+   draws a shape of its own with the other. Once the rows that can be written are, the missing
+   are taken by how many rows each holds, as BevyCSharp takes its gaps.
+2. **What the trimmer cannot follow in the library** (N 2.5). The native publish warns that the
+   library has code the trimmer cannot follow, which Pusher does not reach and another game may.
+   The library is marked `IsAotCompatible`, which turns the same analysis on in every build, and
+   each warning is mended where a generator can register what was reflected on, or said at its
+   place with the reason it is safe, so the build is clean and `-warnaserror` holds it there.
+   AssimpNetter's own warnings are the package's and are said once, where the reader calls it.
 3. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
@@ -112,36 +108,20 @@ None open. Verdicts 1 to 9 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 1, what the lists hold.** `8d92856d` moved `TrueTypeFontTests` and its `planes.ttf` to the
-tests of `Api`, where `TrueTypeFont` is, alone, as the norm asks of a commit that only moves code.
-This batch mends the rest one batch can.
+**Now 2, raylib's examples: the table.** `build/examples-table.py` writes `.github/EXAMPLES.md` from
+the `examples_list.txt` of the raylib `run.sh` pins, fetching that commit alone where no checkout is
+given, and `--check` in `build.yml` holds the table to what it writes (N 5.2). Of raylib's 222, 17
+are written, 163 can be written, 24 are missing something and 18 do not apply. A row for a written
+example shows raylib's screenshot beside the capture here, and the 28 programs of this engine's own
+are listed after raylib's.
 
-- N 3.3. The wait in `WindowResizeTests` is gone, its twenty frames kept without the ten
-  milliseconds after each. Nothing in the engine settles a resize by the clock, since the next
-  frame carries out the size asked for, and the test passed five runs in five without it, and
-  under lavapipe in the container. The list keeps the 10 waits the rule leaves out.
-- N 3.4. `Engine3DSceneTests`, `ImageTests` and `SceneSpawnerEmbeddedTextureTests` hold a
-  `TestFolder` each. The last two made a folder under the system's temporary folder on every
-  run and left it there. The list is empty and goes.
-- N 2.8. D 8's table names `SDL3-CS.Native`, `BepuUtilities` and `Microsoft.CodeAnalysis.CSharp`,
-  the companions it lacked and the generator's package under its full name, as
-  THIRD-PARTY-NOTICES.md already did. The list goes.
-- N 1.4 and N 1.5 read as the norm now words them. The documents' tests, the package's and the
-  norm's own class are on N 1.4's list with those reasons, and a folder is named by a row of its
-  own or by one within it. N 1.4 has no place left to mend, and N 1.5 keeps its 3.
-
-**N 2.5, a game published native.** `build/play-native.sh <game>` publishes a game from the package
-as native code for the machine it runs on and draws 300 frames of it offscreen under the
-validation layer, failing where it stops early, where the layer is not on, or where the layer
-reports an error, as `play-game.sh` does for a game on the runtime. `build.yml` runs it for Pusher
-after the pack, with clang and zlib's headers installed beside lavapipe for the native compiler.
-In the Ubuntu 24.04 container with lavapipe it drew its 300 frames with no error. The publish warns
-that the library and AssimpNetter have code the trimmer cannot follow, which is the rest of N 2.5,
-the reflection a generator could replace, and which this game does not reach.
-
-**N 2.7, the examples on the package alone.** `build/examples-on-package.sh` copies the examples
-project to a folder outside the repository, where `Directory.Build.props` does not reach, puts the
-package in place of the engine's project and its generator, and builds it with warnings as errors,
-the generator coming from the package's analyzers. Every example builds, the handful the item named
-and the rest, since building all of them costs no more than the copy. `build.yml` runs it after the
-pack, and it built with no warning here and in the Ubuntu container.
+`3DEngine.Examples/triage.tsv` holds the rest, started by `--triage` from the functions of raylib.h
+each example calls that CHEATSHEET.md lacks and read over by hand. C#'s strings, files and memory
+count as carrying raylib's `TextFormat`, its file and directory functions and `MemAlloc`, which
+otherwise made 101 examples missing for `TextFormat` alone. Of the 25 that call rlgl, 9 use only
+its matrix stack and its vertices one at a time, which the flat API could carry and which are
+listed as missing, and 16 reach OpenGL's own state, its framebuffers, blend factors, buffers and
+culling, which do not apply. Twenty use raygui and are noted as written with ImGui in its place.
+Five were read over for what the functions do not say: the M3D, VOX, XM and BMFont files no reader
+here takes, and `core_window_web`, which is about a browser's loop. The 17 written ones are read
+against raylib's screenshots next, before the first new one.
