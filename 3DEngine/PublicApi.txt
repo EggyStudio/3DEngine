@@ -3654,6 +3654,7 @@ sealed class Engine.PhysicsSettings
   float FixedTimeStep { get; set; }
   int MaxStepsPerFrame { get; set; }
   int SubstepCount { get; set; }
+  int ThreadedAbove { get; set; }
   int VelocityIterations { get; set; }
   int WorkerThreads { get; set; }
 sealed class Engine.PhysicsWorld : IDisposable

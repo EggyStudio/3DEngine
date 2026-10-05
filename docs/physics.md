@@ -236,6 +236,15 @@ says what in it is solid. Contacts reach behaviors as `ContactStarted` and `Cont
 each naming the two entities, and a character is walked through a `CharacterController` component
 beside its body.
 
+## The same every run
+
+The step gives the same result every run for the same input, to the bit, which a replay or a test
+that checks where things land relies on. It runs on four worker threads once 500 bodies are awake,
+the same four on every machine, in Bepu's deterministic mode, and contacts are worked through and
+reported in an order of the pairs' own rather than the order the workers met them.
+`PhysicsSettings.WorkerThreads` and `ThreadedAbove` change both, a program that changes them
+keeping its runs the same as each other but not as a program that does not.
+
 ## See also
 
 - Examples: [`physics_boxes`](../3DEngine.Examples/Physics/PhysicsBoxes.cs),

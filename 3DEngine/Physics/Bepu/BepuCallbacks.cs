@@ -26,14 +26,73 @@ internal sealed class ContactCollector
     public void Record(int workerIndex, CollidableReference a, CollidableReference b, Vector3 point, Vector3 normal, float speed, bool touching) =>
         _byWorker[workerIndex].Add((a, b, point, normal, speed, touching));
 
-    /// <summary>Every pair recorded since the last call, which it forgets.</summary>
-    public IEnumerable<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)> Take()
+    private readonly List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)> _all = [];
+    private readonly List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)> _sorted = [];
+    private ulong[] _keys = [];
+    private int[] _order = [];
+
+    // Sorts by the pair packed into one number, which sorts as fast as numbers do, and by the
+    // rest only within a pair met more than once, as a mesh's triangles are.
+    private void SortByPair()
     {
+        var count = _all.Count;
+        if (_keys.Length < count)
+        {
+            _keys = new ulong[Math.Max(count, _keys.Length * 2)];
+            _order = new int[_keys.Length];
+        }
+        for (int i = 0; i < count; i++)
+        {
+            _keys[i] = ((ulong)_all[i].A.Packed << 32) | _all[i].B.Packed;
+            _order[i] = i;
+        }
+        Array.Sort(_keys, _order, 0, count);
+        _sorted.Clear();
+        for (int i = 0; i < count; i++) _sorted.Add(_all[_order[i]]);
+        for (int start = 0; start < count;)
+        {
+            var end = start + 1;
+            while (end < count && _keys[end] == _keys[start]) end++;
+            if (end - start > 1) _sorted.Sort(start, end - start, SameKey.Instance);
+            start = end;
+        }
+        _all.Clear();
+        _all.AddRange(_sorted);
+    }
+
+    private sealed class SameKey : IComparer<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)>
+    {
+        public static readonly SameKey Instance = new();
+
+        public int Compare((CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching) x,
+            (CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching) y)
+        {
+            var order = x.Touching.CompareTo(y.Touching);
+            if (order == 0) order = x.Point.X.CompareTo(y.Point.X);
+            if (order == 0) order = x.Point.Y.CompareTo(y.Point.Y);
+            if (order == 0) order = x.Point.Z.CompareTo(y.Point.Z);
+            if (order == 0) order = x.Normal.X.CompareTo(y.Normal.X);
+            if (order == 0) order = x.Speed.CompareTo(y.Speed);
+            return order;
+        }
+    }
+
+    /// <summary>Every pair recorded since the last call, which it forgets, in an order of the pairs' own.</summary>
+    /// <remarks>
+    /// Which worker meets which pair changes from step to step, and a contact's bounce adds to its
+    /// bodies' velocities, whose sum depends on the order it is added in. Sorted by the pair, then by
+    /// where they met, the contacts are worked through in the same order every run.
+    /// </remarks>
+    public List<(CollidableReference A, CollidableReference B, Vector3 Point, Vector3 Normal, float Speed, bool Touching)> Take()
+    {
+        _all.Clear();
         foreach (var list in _byWorker)
         {
-            foreach (var pair in list) yield return pair;
+            _all.AddRange(list);
             list.Clear();
         }
+        if (_byWorker.Length > 1 && _all.Count > 1) SortByPair();
+        return _all;
     }
 }
 

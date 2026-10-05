@@ -28,12 +28,14 @@ removed from this file, and an item that is partly done is rewritten around what
   example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
   three.
 
-- **A crowd's physics is stepped on one worker.** `games/Swarm` walks about 280 creatures at once,
-  each a dynamic capsule on the character controller, in 2.0 ms of physics a frame, and 2000 take
-  12 ms a step, of which the controllers' ground rays take 2.1 ms on several threads, contacts 1.5 ms
-  and Bepu's own step 8 ms. `PhysicsSettings.WorkerThreads` is 1 by default, so the step is the same
-  on every machine, and more workers save little at these sizes (4.4 ms with four at 2000, and
-  thirty-one take longer than one at 290), so a world of thousands of bodies sets it.
+- **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
+  500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the
+  contacts sorted by pair, so a run repeats to the bit on every machine. Four workers step 2000
+  boxes in 1.4 ms where one takes 2.6, and 2000 characters in 5.0 where one takes 6.0, of which
+  the controllers' planning and rays are 1.9 ms on the thread pool, Bepu's step 2.2 and the
+  contacts 0.8, the sort among them. Under 500 bodies one worker is as fast or faster, and
+  `games/Swarm`'s 180 creatures take 1.5 to 1.8 ms. What is left is the controllers' rays, cast
+  for each character each step where most stand on the same ground as the step before.
 
 - **Ground loaded for the first time costs a frame of up to 22 ms.** `games/Manor` streams its
   estate in as cells of prefabs, and its walk's worst frame offscreen was 47 ms, read with

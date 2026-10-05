@@ -8,13 +8,10 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `433c7868`. Manor, the sixth game (`9c21b066`), is settled, played, soaked and
-stormed by CI. The stalls are explained and settled (`433c7868`, the reply read): every one was
-the present or the acquire, in a shown window as in a hidden one, on Wayland alone, and `vkcube`
-stalls there the same, so it is this desktop's presentation (NVIDIA 615 with GNOME 50) and not
-the engine, which BUILDING.md says with the way round it. Reading that path found a present
-waiting on a semaphore kept a frame in flight where the specification asks one an image, fixed
-in `34cf41af`. The guides' additions (`db942962`) were taken on their description.
+Reviewed up to `0e49419d`. Ground loaded for the first time is settled, on the reply, which was read:
+four causes found by `profile.slowest` and each moved off the frame (`a9088b66` to `3c98a36c`),
+the walk's worst frame from 47 ms to 22 ms, with the render tests, Manor and a storm passing on
+lavapipe under validation. What is left is in TODO.md under Cost.
 
 ## Now
 
@@ -24,18 +21,11 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **Ground loaded for the first time costs frames of 25 to 50 ms** (TODO.md, Cost), which a
-   player feels as a hitch each time a new part of the level arrives. Measured first: how much
-   is reading and decoding files, how much uploading meshes and textures, how much making
-   bodies and how much the first draw compiling a pipeline. Then what is found is moved off the
-   frame, files read and decoded on a worker, uploads spread over frames under a budget, and
-   pipelines made before they are first drawn, with the walk's worst frame given before and
-   after.
-3. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
-4. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
+2. **Bepu's step across threads** (TODO.md, Cost), which is what is left of a crowd's cost.
+3. **The guide and the cheatsheet kept true** to what the last batches added: particles, depth
    of field, motion blur and exposure, the memory and window commands, hull and mesh colliders,
    morph targets and layered clips.
-5. **TODO.md's order** for everything else, a vehicle controller among it, and another game when it runs short.
+4. **TODO.md's order** for everything else, a vehicle controller among it, and another game when it runs short.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -70,17 +60,12 @@ None open.
 ## Replies
 
 
-**Now 3, ground loaded for the first time.** Measured with `profile.slowest`, which now also gives
-the frame's garbage collection pauses, the walk's slow frames had four causes, each moved off the
-frame. A parallel stage's batch of systems taking microseconds waited 20 to 47 ms for tasks
-`Parallel.ForEach` had queued on the thread pool behind the loads, so a batch that took under
-half a millisecond last time runs on the calling thread. Each new model a `ModelRef` names was read
-whole by Assimp on the main thread to see whether it had clips, 8 to 10 ms, and is now looked at
-when the asset server's copy arrives. Each texture upload waited for its fence, and with it for the
-frames in flight, 20 ms for a cell's textures, and is now submitted and freed once its fence has
-signalled. A probe's readback waited for its whole frame, 8 to 24 ms, and is handed on when the
-frame's slot comes round. The physics step's first contacts, joints and sleeping compiled up to
-173 methods, 25 to 38 ms, which a warm-up on a worker brings under 15 ms in a JIT build, and a
-native build compiles nothing. The walk's worst frame offscreen went from 47 ms to 22 ms, and 19 to
-25 ms native, three runs each. Files were already read and decoded on the asset server's workers.
-What is left is in TODO.md under Cost.
+**Now 4, Bepu across threads.** Measured with warm-up and interleaved runs, four workers step 2000
+boxes in 1.4 ms where one takes 2.6, and 2000 characters in 5.0 where one takes 6.0, while 290 of
+either take the same, and Swarm's 180 creatures took longer on four (2.1 ms against 1.5 to 1.8).
+So the step runs on four workers once 500 bodies are awake (`PhysicsSettings.ThreadedAbove`), on
+the calling thread below. The count is four on every machine rather than one from the processors,
+Bepu's deterministic mode is on, and the contacts are sorted by pair before they are worked
+through and reported, which a test found the step needs to repeat to the bit run after run on
+several workers (bounces summed in the order workers met them). A crowd's cost is mostly its
+controllers now, 1.9 ms of rays at 2000, entered in TODO.md under Cost.

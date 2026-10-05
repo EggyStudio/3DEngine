@@ -17,7 +17,7 @@ public sealed partial class PhysicsWorld
             while (_accumulator >= _settings.FixedTimeStep && steps < _settings.MaxStepsPerFrame)
             {
                 UpdateCharacters(_settings.FixedTimeStep);
-                Simulation.Timestep(_settings.FixedTimeStep, Dispatcher);
+                Simulation.Timestep(_settings.FixedTimeStep, Workers);
                 UpdateContacts();
                 _accumulator -= _settings.FixedTimeStep;
                 steps++;
@@ -29,7 +29,7 @@ public sealed partial class PhysicsWorld
         else
         {
             UpdateCharacters(deltaSeconds);
-            Simulation.Timestep(deltaSeconds, Dispatcher);
+            Simulation.Timestep(deltaSeconds, Workers);
             UpdateContacts();
         }
     }
@@ -42,7 +42,7 @@ public sealed partial class PhysicsWorld
         if (seconds <= 0f) return;
         RememberPoses();
         UpdateCharacters(seconds);
-        Simulation.Timestep(seconds, Dispatcher);
+        Simulation.Timestep(seconds, Workers);
         UpdateContacts();
     }
 
@@ -130,4 +130,10 @@ public sealed partial class PhysicsWorld
             _previousPoses[handleValue] = (pose.Position, pose.Orientation);
         }
     }
+
+    // The workers a step runs on, or none for a world of few bodies awake, which steps faster on
+    // the calling thread than it is handed out. Which it is follows from the world alone, so a run
+    // steps the same way every time.
+    private BepuUtilities.IThreadDispatcher? Workers =>
+        Simulation.Bodies.ActiveSet.Count >= _settings.ThreadedAbove ? Dispatcher : null;
 }

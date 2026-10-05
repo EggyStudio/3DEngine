@@ -78,6 +78,9 @@ public sealed partial class PhysicsWorld : IDisposable
             narrowCallbacks,
             integrator,
             new SolveDescription(settings.VelocityIterations, settings.SubstepCount));
+        // Several workers give the same step every run only with the order of the constraints they
+        // add and move kept, which this costs a little to do.
+        Simulation.Deterministic = true;
         Logger.Info(
             $"PhysicsWorld: created (workers={workers}, gravity={settings.Gravity}, fixedStep={settings.FixedTimeStep}, substeps={settings.SubstepCount}).");
     }

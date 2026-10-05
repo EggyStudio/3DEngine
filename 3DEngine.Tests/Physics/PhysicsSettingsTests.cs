@@ -18,7 +18,7 @@ public class PhysicsSettingsTests
         s.VelocityIterations.Should().Be(8);
         s.UseFixedTimestep.Should().BeTrue();
         s.MaxStepsPerFrame.Should().Be(8);
-        s.WorkerThreads.Should().Be(1);
+        s.WorkerThreads.Should().Be(4);
     }
 
     [Fact]
