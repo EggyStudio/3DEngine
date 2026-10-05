@@ -18,6 +18,27 @@ public class TextureStoreTests
     }
 
     [Fact]
+    public void A_Texture_Not_On_The_GPU_Yet_Reads_Back_From_Its_Queued_Pixels_As_Raylib_Reads_At_Once()
+    {
+        var store = new TextureStore();
+        var pixels = Pixels(2, 2);
+        pixels[0] = 10;
+        var id = store.Add(pixels, 2, 2);
+        store.UpdateRegion(id, [20, 21, 22, 23], 1, 1, 1, 1).Should().BeTrue();
+
+        var pending = store.PendingPixels(id);
+
+        pending.Should().NotBeNull();
+        pending![0].Should().Be(10, "the whole upload is read");
+        pending[12..16].Should().Equal([20, 21, 22, 23], "with the rectangle queued after it laid over");
+        pixels[12].Should().Be(0, "and the program's own array is left as it was");
+
+        store.Take();
+        store.PendingPixels(id).Should().BeNull("once the queue is taken the pixels are on the GPU, read from there");
+        store.PendingPixels(store.AddTarget(4, 4)).Should().BeNull("and a render target is drawn rather than uploaded");
+    }
+
+    [Fact]
     public void Pixels_That_Do_Not_Match_The_Size_Are_Refused()
     {
         var act = () => new TextureStore().Add(Pixels(2, 2), 3, 2);

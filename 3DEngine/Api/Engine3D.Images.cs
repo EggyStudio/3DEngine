@@ -169,8 +169,13 @@ public static partial class Engine3D
 
     /// <summary>
     /// Reads every frame of an animated GIF into one image, the frames stacked from the top, each
-    /// as tall as the GIF, and says how many there are, as raylib's does.
+    /// as tall as the GIF, and says how many there are.
     /// </summary>
+    /// <remarks>
+    /// raylib's image is one frame tall with the rest after it in memory, where this one is as
+    /// tall as all of them, since an image's pixels here are always its size. The frames lie end
+    /// to end in both, so a frame's offset in the pixels is the same.
+    /// </remarks>
     /// <returns>The frames, or an empty image when the file cannot be read, with the reason in the log.</returns>
     public static Image LoadImageAnim(string fileName, out int frames)
     {
@@ -242,11 +247,14 @@ public static partial class Engine3D
     /// <remarks>
     /// The call waits for the frames in flight to finish, so it is for saving a picture of a
     /// render texture, as <c>ExportImage(LoadImageFromTexture(target.Texture), "shot.png")</c>
-    /// does, rather than for every frame. A texture uploaded since the last frame has not reached
-    /// the GPU, and reads after the next.
+    /// does, rather than for every frame. A texture loaded or given new pixels since the last frame
+    /// is read from those pixels, which have not reached the GPU yet, so a texture reads back at
+    /// once as raylib's does. A render target reads once a frame has drawn it.
     /// </remarks>
     public static Image LoadImageFromTexture(Texture2D texture)
     {
+        if (texture.IsValid && Textures.PendingPixels(texture.Id) is { } pending)
+            return new Image(pending, texture.Width, texture.Height);
         if (!texture.IsValid || ComputeDevice is not { } device
             || Res<Renderer>().RenderWorld.TryGet<GpuTextures>()?.ImageFor(texture.Id) is not { } image)
         {

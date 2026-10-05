@@ -236,6 +236,30 @@ internal sealed class TextureStore
         }
     }
 
+    /// <summary>
+    /// The pixels a texture will hold once what is queued for it reaches the GPU, when the queue
+    /// holds the whole texture: its last whole upload, with the rectangles queued after it laid
+    /// over a copy. Null when nothing whole is queued, as for a texture already on the GPU or a
+    /// render target.
+    /// </summary>
+    internal byte[]? PendingPixels(int id)
+    {
+        lock (_gate)
+        {
+            var whole = _uploads.FindLastIndex(u => u.Id == id && u.Rgba is not null && u.Offset is null && !u.Target);
+            if (whole < 0 || !_live.TryGetValue(id, out var texture)) return null;
+
+            var pixels = (byte[])_uploads[whole].Rgba!.Clone();
+            for (int i = whole + 1; i < _uploads.Count; i++)
+            {
+                if (_uploads[i] is not { Rgba: { } rgba, Offset: var (x, y) } region || region.Id != id) continue;
+                for (int row = 0; row < region.Height; row++)
+                    Array.Copy(rgba, row * region.Width * 4, pixels, ((y + row) * texture.Width + x) * 4, region.Width * 4);
+            }
+            return pixels;
+        }
+    }
+
     /// <summary>Hands the queued uploads and removals to the renderer and empties the queues.</summary>
     internal (Upload[] Uploads, int[] Removals) Take()
     {

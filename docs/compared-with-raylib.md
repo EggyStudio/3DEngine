@@ -77,6 +77,8 @@ here, with the reason.
 | `LoadFont` and `LoadFontEx` with no code points | The 95 characters of ASCII | Latin-1, to `ÿ` | Text in Spanish, French or German draws its accents without naming them |
 | A window's samples before `SetConfigFlags` | One, and four with `FLAG_MSAA_4X_HINT` | Four, and one with `SetConfigSamples(1)` | Edges are smooth without a flag |
 | A render texture's samples | One, so what is drawn into it has hard edges | The window's, resolved into the texture, so its edges are smoothed as the window's are | The window's pipelines, made for one count of samples, draw into it as they are |
+| `LoadImageAnim` | One frame tall, the other frames after it in memory | As tall as every frame, stacked from the top | An image's pixels are always its size here, so every image call reads all of it, and a frame is a rectangle of it |
+| An image from a file without alpha, as a PNG of RGB | Kept as three bytes a pixel, so the corners `ImageRotate` adds are black | Four bytes a pixel, so they are clear | Every image is RGBA, the one format drawing and the GPU take as it is |
 | A texture's filter before `SetTextureFilter` | `TEXTURE_FILTER_POINT`, every texel a sharp square | `TextureFilter.Bilinear`, blended between texels | A model's textures and a scaled image are smooth without a call, and pixel art sets `Point` |
 
 ## raymath

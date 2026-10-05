@@ -10,12 +10,19 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `590b9ac3`. The last eight of raylib's examples that use raygui are written with
-ImGui in its place, fifteen in all, and two calls answer as raylib's do, both read against its
+Reviewed up to `4c7b3f06`. Nine of raylib's text examples are written, and four calls answer as
+raylib's do: a character a font lacks draws as its `?`, `LoadCodepoints` keeps a character that
+repeats, `TextureFilter` has `Trilinear` with raylib's numbers for the members after it, and
+`Bilinear` reads the nearest mip level, the textures of models asking for `Trilinear` and
+looking as they did. A font loaded with no code points has Latin-1 where raylib's has ASCII,
+which the comparison has. Three members of `TextureFilter` have new numbers, which falls in
+5.1, not yet packed. The table stands at 97 written, 1 in part, 86 that can be and 37 missing,
+and the suite through the script at 1,218 passing. No verdict is open.
+
+Before it, the last eight of raylib's examples that use raygui were written with ImGui in its
+place, fifteen in all (`590b9ac3`), and two calls were brought to raylib's, read against its
 source: `DrawText`, `MeasureText` and `ImageText` raise a size below 10 to 10, and `DrawFPS` is
-orange below 30 frames a second and red below 15. The table stands at 88 written, 1 in part, 95
-that can be and 37 missing, and the suite through the script at 1,216 passing. No verdict is
-open.
+orange below 30 frames a second and red below 15.
 
 Before it, the flat API carries the 39 functions of raymath that C# has no
 counterpart for, each held to raymath's results by `RayMathTests`, and the comparison with
@@ -175,22 +182,27 @@ None open.
 
 ## Replies
 
-**Now 2, raylib's text examples.** `text_format_text`, `text_writing_anim`,
-`text_font_spritefont`, `text_sprite_fonts`, `text_font_filters`, `text_unicode_ranges`,
-`text_codepoints_loading`, `text_words_alignment` and `text_strings_management` are raylib's,
-written again from its source, their fonts fetched from raylib's examples by
-`raylib-resources.txt`. raylib's `TextFormat`, `TextSubtext`, `TextSplit` and the walk through
-UTF-8 by code point are C#'s interpolation, ranges, `Split` and `Rune`, and its Pascal, snake and
-camel case are the strings example's own, written from raylib's arithmetic. Four calls were
-brought to raylib's. A character a font lacks draws and measures as its `?`, which raylib's
-`GetGlyphIndex` falls back to, so the unicode example raised to Greek reads `Ελληνικ?: Γει? σου
-κ?σμε!` as raylib's screenshot does, and `GetGlyphInfo` gives that glyph too. `LoadCodepoints`
-gives every character, a repeated one again, so the codepoints example counts 54 as raylib's
-does, where it counted 49. `TextureFilter` has raylib's `Trilinear`, which blends two mip levels
-where `Bilinear` now takes the nearest, as raylib's do, and a model's textures, which the engine
-gives mip levels of its own, ask for trilinear and look as they did. A font's atlas leaves out
-ImGui's mouse cursors and lines, which the unicode example draws on screen. Kept and given its
-line in the comparison, a font loaded with no code points has Latin-1 where raylib's has ASCII.
-Raised to CJK through `./e3d`, the unicode example bakes 16,811 glyphs in 8 seconds and draws the
-Chinese and Japanese lines. The table stands at 97 written, 1 in part, 86 that can be, 37 missing
-and 1 that does not apply.
+**Now 2, raylib's textures examples.** The 25 of the module that could be written are, from
+raylib's source, their files fetched from raylib's examples by `raylib-resources.txt`. They are
+`textures_logo_raylib`, `textures_image_loading`, `textures_to_image`, `textures_image_rotate`,
+`textures_srcrec_dstrec`, `textures_sprite_animation`, `textures_background_scrolling`,
+`textures_image_generation`, `textures_image_text`, `textures_particles_blending`,
+`textures_npatch_drawing`, `textures_sprite_button`, `textures_sprite_explosion`,
+`textures_blend_modes`, `textures_gif_player`, `textures_image_channel`,
+`textures_image_kernel`, `textures_sprite_stacking`, `textures_clipboard_image`,
+`textures_tiled_drawing`, `textures_mouse_painting`, `textures_fog_of_war`,
+`textures_screen_buffer`, `textures_cellular_automata` and `textures_framebuffer_rendering`. Pixel
+art drawn larger than its size asks for `Point`, which raylib samples every texture with, as the
+comparison's line on the default filter says. A render target is drawn and read back with its
+height as it is, where raylib's are turned. `DrawTextureTiled` is the tiled example's own
+function, as it is raylib's. One call was brought to raylib's. `textures_to_image` drew nothing,
+since `LoadImageFromTexture` read only what had reached the GPU, and a texture loaded since the
+last frame had not. It now reads such a texture from its queued pixels, the rectangles queued
+after them laid over, so it reads back at once as raylib's does, which `TextureStoreTests`
+holds. Two differences are kept and given their lines in the comparison. `LoadImageAnim` gives an
+image as tall as every frame where raylib's is one frame tall, since an image's pixels here are
+its size, and the GIF example updates its texture from a frame's slice. An image from a file
+without alpha is RGBA here, so the corners `ImageRotate` adds are clear where raylib's
+screenshot has them black. Driven through `./e3d`, the stretched nine-patches and the flame after
+400 frames are raylib's pictures. The table stands at 122 written, 1 in part, 61 that can be,
+37 missing and 1 that does not apply.
