@@ -12,7 +12,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class FrameEffectsTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-effects-").FullName;
+    private readonly TestFolder _folder = new("engine-effects-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private readonly Camera3D _camera = new(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45);
     private int _captures;
@@ -21,7 +21,7 @@ public sealed class FrameEffectsTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open(int samples = 4)
@@ -33,7 +33,7 @@ public sealed class FrameEffectsTests : IDisposable
     // Draws frames until the first one's capture has been written, as ReferenceFrameTests does.
     private Image Capture(Action draw)
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

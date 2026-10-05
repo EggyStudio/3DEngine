@@ -19,12 +19,10 @@ namespace Engine;
 /// spawn systems apply a single root-level basis-change matrix.
 /// </para>
 /// <para>
-/// <b>Spool to temp file:</b> Assimp can ingest streams via
-/// <c>AssimpContext.ImportFileFromStream</c> but external textures and
-/// referenced sub-files only resolve via the on-disk path of the source file. The reader
-/// spools the asset stream to a temp file under <see cref="System.IO.Path.GetTempPath"/>
-/// preserving the original extension (Assimp's format-detection looks at the extension)
-/// and disposes it after the import finishes.
+/// <b>Files:</b> Assimp opens nothing itself. Every file it asks for, the model and those beside
+/// it (an OBJ's <c>.mtl</c>, a glTF's <c>.bin</c>), is a C# stream that <see cref="AssimpFiles"/>
+/// hands it, from the folder of a path or from the asset reader the model came from, so no native
+/// handle is open for a child process to inherit and a model in any reader has its siblings.
 /// </para>
 /// <para>
 /// <b>Coverage (v1):</b> meshes (triangulated, normals, tangents, primary + secondary
@@ -49,25 +47,26 @@ internal sealed class AssimpModelReader : ISceneReader
     /// <inheritdoc />
     public string FormatId => "assimp";
 
-    /// <inheritdoc />
     /// <summary>
-    /// Imports a model straight from its file, so the files it refers to beside it (an OBJ's
-    /// <c>.mtl</c>, a glTF's <c>.bin</c>, external textures) are found where they are.
+    /// Imports a model from a file on disk, with the files it names beside it (an OBJ's
+    /// <c>.mtl</c>, a glTF's <c>.bin</c>) read from its folder. The flat API's <c>LoadModel</c>
+    /// has the path and uses this.
     /// </summary>
-    /// <remarks>
-    /// <see cref="ReadAsync"/> does the same for a file the asset server opened from disk, and
-    /// spools any other stream to a temporary file, where those siblings are not. The flat API's
-    /// <c>LoadModel</c> has the real path and uses this.
-    /// </remarks>
     internal Scene ReadFile(string path, SceneImportSettings settings, CancellationToken ct = default)
     {
-        using var context = new AssetLoadContext(Stream.Null, new AssetPath(System.IO.Path.GetFileName(path)), _ => default);
-        return Import(path, context, settings, ct);
+        var directory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path)) ?? "";
+        var name = System.IO.Path.GetFileName(path);
+        using var context = new AssetLoadContext(Stream.Null, new AssetPath(name), _ => default);
+        // Assimp is given the file's name alone, and the folder is added here, so a path with
+        // letters outside ASCII never passes through native code as a string.
+        return Import(name, new AssimpFiles(file => AssimpFiles.OnDisk(directory, file)), context, settings, ct);
     }
 
-    private static Scene Import(string path, AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
+    private static Scene Import(string path, AssimpFiles files, AssetLoadContext context, SceneImportSettings settings, CancellationToken ct)
     {
+        using var _ = files;
         using var importer = new A.AssimpContext();
+        importer.SetIOSystem(files);
 
         const A.PostProcessSteps Steps =
             A.PostProcessSteps.Triangulate
@@ -97,21 +96,33 @@ internal sealed class AssimpModelReader : ISceneReader
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(settings);
 
-        // A file the asset server opened from disk is read where it is, so the files beside it
-        // (an OBJ's .mtl, a glTF's .bin, its textures) are found. Spooled to a temporary file,
-        // they were not, and every model loaded through the server lost its materials.
-        if (context.GetStream() is FileStream { Name: var onDisk } && File.Exists(onDisk))
-            return Task.FromResult(Import(onDisk, context, settings, ct));
+        // The model is read once into memory, since Assimp opens it more than once, first to
+        // tell its format and then to read it. The files beside it come from the reader it came
+        // from, so a model under any reader has its .mtl and .bin.
+        var stream = context.GetStream();
+        if (stream.CanSeek) stream.Position = 0;
+        using var whole = new MemoryStream();
+        stream.CopyTo(whole);
+        var bytes = whole.GetBuffer();
+        var length = (int)whole.Length;
+        var name = context.Path.Path;
 
-        var tempPath = SpoolToTempFile(context);
-        try
+        var files = new AssimpFiles(file => file == name
+            ? new MemoryStream(bytes, 0, length, writable: false)
+            : Seekable(context.OpenFromSource(new AssetPath(file))));
+        return Task.FromResult(Import(name, files, context, settings, ct));
+    }
+
+    // Assimp seeks in what it reads, which a reader's stream need not allow.
+    private static Stream? Seekable(Stream? stream)
+    {
+        if (stream is null || stream.CanSeek) return stream;
+        using (stream)
         {
-            ct.ThrowIfCancellationRequested();
-            return Task.FromResult(Import(tempPath, context, settings, ct));
-        }
-        finally
-        {
-            TryDeleteTempFile(tempPath);
+            var copy = new MemoryStream();
+            stream.CopyTo(copy);
+            copy.Position = 0;
+            return copy;
         }
     }
 
@@ -839,29 +850,6 @@ internal sealed class AssimpModelReader : ISceneReader
             scale = Vector3.One;
         }
         return new Transform { Position = translation, Rotation = rotation, Scale = scale };
-    }
-
-    // -- I/O plumbing
-
-    private static string SpoolToTempFile(AssetLoadContext context)
-    {
-        var ext = context.Path.Extension;
-        if (string.IsNullOrEmpty(ext)) ext = ".bin";
-        var tempPath = System.IO.Path.Combine(
-            System.IO.Path.GetTempPath(),
-            $"assimpspool-{Guid.NewGuid():N}{ext}");
-
-        var stream = context.GetStream();
-        if (stream.CanSeek) stream.Position = 0;
-        using (var file = File.Create(tempPath))
-            stream.CopyTo(file);
-        return tempPath;
-    }
-
-    private static void TryDeleteTempFile(string path)
-    {
-        try { if (File.Exists(path)) File.Delete(path); }
-        catch (Exception ex) { Logger.Debug($"AssimpModelReader: failed to delete temp '{path}': {ex.Message}"); }
     }
 
     private static string[] ResolveExtensions()

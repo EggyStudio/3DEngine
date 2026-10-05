@@ -13,7 +13,7 @@ namespace Engine.Tests.Rendering;
 public sealed class ManyShadowsTests : IDisposable
 {
     private const int Lights = 6;
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-many-shadows-").FullName;
+    private readonly TestFolder _folder = new("engine-many-shadows-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private readonly Camera3D _camera = new(new Vector3(0, 16, 0.01f), Vector3.Zero, Vector3.UnitY, 60);
     private int _captures;
@@ -22,14 +22,14 @@ public sealed class ManyShadowsTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static float At(int i) => (i - (Lights - 1) / 2f) * 4;
 
     private Image Capture(Model floor, Model block)
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

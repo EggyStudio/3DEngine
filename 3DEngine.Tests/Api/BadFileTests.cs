@@ -12,13 +12,16 @@ namespace Engine.Tests.Api;
 [Trait("Category", "Render")]
 public sealed class BadFileTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-bad-files-").FullName;
+    private readonly TestFolder _folder = new("engine-bad-files-");
+    // Where the asset server reads from, the program's source folder.
+    private readonly TestFolder _source = TestFolder.At(Path.Combine(AppContext.BaseDirectory, "source", "bad-files-" + Guid.NewGuid().ToString("N")[..8]));
 
     public void Dispose()
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
+        _source.Dispose();
     }
 
     private static string Repo(string path)
@@ -70,7 +73,7 @@ public sealed class BadFileTests : IDisposable
         var files = new (string Kind, byte[]? Bytes)[] { ("missing", null), ("empty", []), ("cut short", bytes[..(bytes.Length / 3)]), ("random", random) };
         foreach (var (kind, content) in files)
         {
-            var path = Path.Combine(_directory, $"{kind.Replace(' ', '-')}-{Guid.NewGuid():N}{extension}");
+            var path = Path.Combine(_folder.Path, $"{kind.Replace(' ', '-')}-{Guid.NewGuid():N}{extension}");
             if (content is not null) File.WriteAllBytes(path, content);
             yield return (kind, path);
         }
@@ -94,71 +97,62 @@ public sealed class BadFileTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         var server = GetApp().World.Resource<AssetServer>();
         var ecs = GetApp().World.Resource<EcsWorld>();
-        // The files go where the asset server reads from, the program's source folder.
-        var folder = Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "source", "bad-files")).FullName;
         var wrong = new List<string>();
-        try
-        {
-            foreach (var (name, extension, good, load) in Readers)
-                foreach (var (kind, path) in BadFiles(extension, good))
-                {
-                    var relative = Path.Combine("bad-files", Path.GetFileName(path));
-                    if (File.Exists(path)) File.Copy(path, Path.Combine(folder, Path.GetFileName(path)));
-                    var before = ConsoleLog.Written;
-                    try
-                    {
-                        var state = load(server, relative);
-                        for (int frame = 0; frame < 120 && state() is LoadState.Loading or LoadState.NotLoaded; frame++)
-                        {
-                            BeginDrawing();
-                            EndDrawing();
-                            // The file is read on the asset server's worker, outside the frame loop.
-                            Thread.Sleep(5);
-                        }
-                        if (state() == LoadState.Loaded && kind != "cut short") wrong.Add($"{name}, {kind} file: loaded");
-                        if (state() != LoadState.Loaded && !Named(before, Path.GetFileName(path))) wrong.Add($"{name}, {kind} file: no message naming the file");
-                    }
-                    catch (Exception error)
-                    {
-                        wrong.Add($"{name}, {kind} file: threw {error.GetType().Name}: {error.Message}");
-                    }
-                }
-
-            // A scene file and a model a level places, each bad four ways.
-            foreach (var (name, extension, good, component) in new (string, string, string, Func<string, object>)[]
+        foreach (var (name, extension, good, load) in Readers)
+            foreach (var (kind, path) in BadFiles(extension, good))
             {
-                ("SceneRef", ".json", "games/Summit/resources/level.json", p => new SceneRef { Path = p }),
-                ("ModelRef", ".obj", "3DEngine.Examples/resources/torus.obj", p => new ModelRef { Path = p }),
-            })
-                foreach (var (kind, path) in BadFiles(extension, good))
+                var relative = Path.Combine(Path.GetFileName(_source.Path), Path.GetFileName(path));
+                if (File.Exists(path)) File.Copy(path, _source.File(Path.GetFileName(path)));
+                var before = ConsoleLog.Written;
+                try
                 {
-                    var before = ConsoleLog.Written;
-                    try
+                    var state = load(server, relative);
+                    for (int frame = 0; frame < 120 && state() is LoadState.Loading or LoadState.NotLoaded; frame++)
                     {
-                        var entity = ecs.Spawn();
-                        ecs.Add(entity, new Transform(System.Numerics.Vector3.Zero));
-                        if (component(path) is SceneRef scene) ecs.Add(entity, scene);
-                        else ecs.Add(entity, (ModelRef)component(path));
-                        for (int frame = 0; frame < 60 && !Named(before, Path.GetFileName(path)); frame++)
-                        {
-                            BeginDrawing();
-                            EndDrawing();
-                            // The file is read on the asset server's worker, outside the frame loop.
-                            Thread.Sleep(5);
-                        }
-                        if (!Named(before, Path.GetFileName(path)) && kind != "cut short") wrong.Add($"{name}, {kind} file: no message naming the file");
-                        ecs.DespawnRecursive(entity);
+                        BeginDrawing();
+                        EndDrawing();
+                        // The file is read on the asset server's worker, outside the frame loop.
+                        Thread.Sleep(5);
                     }
-                    catch (Exception error)
-                    {
-                        wrong.Add($"{name}, {kind} file: threw {error.GetType().Name}: {error.Message}");
-                    }
+                    if (state() == LoadState.Loaded && kind != "cut short") wrong.Add($"{name}, {kind} file: loaded");
+                    if (state() != LoadState.Loaded && !Named(before, Path.GetFileName(path))) wrong.Add($"{name}, {kind} file: no message naming the file");
                 }
-        }
-        finally
+                catch (Exception error)
+                {
+                    wrong.Add($"{name}, {kind} file: threw {error.GetType().Name}: {error.Message}");
+                }
+            }
+
+        // A scene file and a model a level places, each bad four ways.
+        foreach (var (name, extension, good, component) in new (string, string, string, Func<string, object>)[]
         {
-            Directory.Delete(folder, recursive: true);
-        }
+            ("SceneRef", ".json", "games/Summit/resources/level.json", p => new SceneRef { Path = p }),
+            ("ModelRef", ".obj", "3DEngine.Examples/resources/torus.obj", p => new ModelRef { Path = p }),
+        })
+            foreach (var (kind, path) in BadFiles(extension, good))
+            {
+                var before = ConsoleLog.Written;
+                try
+                {
+                    var entity = ecs.Spawn();
+                    ecs.Add(entity, new Transform(System.Numerics.Vector3.Zero));
+                    if (component(path) is SceneRef scene) ecs.Add(entity, scene);
+                    else ecs.Add(entity, (ModelRef)component(path));
+                    for (int frame = 0; frame < 60 && !Named(before, Path.GetFileName(path)); frame++)
+                    {
+                        BeginDrawing();
+                        EndDrawing();
+                        // The file is read on the asset server's worker, outside the frame loop.
+                        Thread.Sleep(5);
+                    }
+                    if (!Named(before, Path.GetFileName(path)) && kind != "cut short") wrong.Add($"{name}, {kind} file: no message naming the file");
+                    ecs.DespawnRecursive(entity);
+                }
+                catch (Exception error)
+                {
+                    wrong.Add($"{name}, {kind} file: threw {error.GetType().Name}: {error.Message}");
+                }
+            }
 
         string.Join("\n", wrong).Should().BeEmpty();
     }

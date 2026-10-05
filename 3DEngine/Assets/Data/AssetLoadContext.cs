@@ -26,21 +26,37 @@ public sealed class AssetLoadContext : IDisposable
 {
     private readonly Stream _stream;
     private readonly Func<AssetPath, AssetId> _loadDependency;
+    private readonly IAssetReader? _source;
 
     /// <summary>The asset path being loaded.</summary>
     public AssetPath Path { get; }
 
     /// <summary>Creates a new load context.</summary>
-    internal AssetLoadContext(Stream stream, AssetPath path, Func<AssetPath, AssetId> loadDependency)
+    internal AssetLoadContext(Stream stream, AssetPath path, Func<AssetPath, AssetId> loadDependency, IAssetReader? source = null)
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         _loadDependency = loadDependency;
+        _source = source;
         Path = path;
     }
 
     /// <summary>Returns the raw byte stream. The caller should NOT dispose this stream directly.</summary>
     /// <returns>The asset byte stream.</returns>
     public Stream GetStream() => _stream;
+
+    /// <summary>
+    /// Opens another file from the reader this asset came from, as a model's <c>.mtl</c> or
+    /// <c>.bin</c> beside it, or returns null when that reader has no such file or none is known.
+    /// </summary>
+    /// <remarks>
+    /// The file is read as it is and not loaded as an asset of its own, so a loader that only
+    /// reads a part of itself from another file does not declare it a dependency.
+    /// </remarks>
+    internal Stream? OpenFromSource(AssetPath path)
+    {
+        if (_source is null || !_source.Exists(path)) return null;
+        return _source.ReadAsync(path).GetAwaiter().GetResult();
+    }
 
     /// <summary>Reads the entire stream into a byte array.</summary>
     /// <param name="ct">Cancellation token.</param>

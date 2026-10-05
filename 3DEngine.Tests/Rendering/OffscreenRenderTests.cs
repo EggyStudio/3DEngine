@@ -16,7 +16,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class OffscreenRenderTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-offscreen-").FullName;
+    private readonly TestFolder _folder = new("engine-offscreen-");
 
     // Errors the validation layer had reported before this test, so the test fails on its own.
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
@@ -25,7 +25,7 @@ public sealed class OffscreenRenderTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open(int width, int height, int samples = 4)
@@ -38,7 +38,7 @@ public sealed class OffscreenRenderTests : IDisposable
     // Draws frames until the capture asked for in the first has been written.
     private Image Capture(Action draw, string name = "frame")
     {
-        var path = Path.Combine(_directory, name + ".png");
+        var path = Path.Combine(_folder.Path, name + ".png");
         // An earlier capture of the same name would otherwise be read back in place of this one.
         File.Delete(path);
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
@@ -1994,7 +1994,7 @@ public sealed class OffscreenRenderTests : IDisposable
 
     // A triangle around the origin wound counterclockwise seen from +Z, glTF's front, with a
     // material that is single-sided or not.
-    private static string SidedTriangle(bool doubleSided)
+    private string SidedTriangle(bool doubleSided)
     {
         var bytes = new List<byte>();
         foreach (var f in new float[] { -1, -1, 0, 1, -1, 0, 0, 1, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
@@ -2006,7 +2006,7 @@ public sealed class OffscreenRenderTests : IDisposable
              "bufferViews":[{"buffer":0,"byteLength":36}],
              "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[-1,-1,0],"max":[1,1,0]}]}
             """;
-        var path = Path.Combine(Path.GetTempPath(), $"sided-{Guid.NewGuid():N}.gltf");
+        var path = _folder.File($"sided-{Guid.NewGuid():N}.gltf");
         File.WriteAllText(path, json);
         return path;
     }

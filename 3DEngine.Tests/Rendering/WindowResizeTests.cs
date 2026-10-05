@@ -12,7 +12,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class WindowResizeTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-resize-").FullName;
+    private readonly TestFolder _folder = new("engine-resize-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private int _captures;
 
@@ -20,7 +20,7 @@ public sealed class WindowResizeTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open()
@@ -51,7 +51,7 @@ public sealed class WindowResizeTests : IDisposable
 
     private Image Capture()
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         // Past the resize's settling time, so the frame captured is drawn at the new size.
         for (int i = 0; i < 20; i++)
         {

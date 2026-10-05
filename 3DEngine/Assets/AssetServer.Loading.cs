@@ -76,10 +76,12 @@ public sealed partial class AssetServer
 
         // Find the stream
         Stream? stream = null;
+        IAssetReader? source = null;
         foreach (var (_, reader) in _sources)
         {
             if (!reader.Exists(assetPath)) continue;
             stream = reader.ReadAsync(assetPath, CancellationToken.None).GetAwaiter().GetResult();
+            source = reader;
             break;
         }
 
@@ -97,7 +99,7 @@ public sealed partial class AssetServer
             _states[depId] = LoadState.NotLoaded;
             _idToPath[depId] = depPath;
             return depId;
-        });
+        }, source);
 
         var result = loader.LoadUntypedAsync(ctx, CancellationToken.None).GetAwaiter().GetResult();
         if (!result.Success || result.Asset is null)

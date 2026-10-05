@@ -14,7 +14,7 @@ namespace Engine.Tests.Api;
 public sealed class Engine3DModelTests : IDisposable
 {
     private readonly App _app = new();
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-model-api-").FullName;
+    private readonly TestFolder _folder = new("engine-model-api-");
 
     public Engine3DModelTests()
     {
@@ -26,14 +26,14 @@ public sealed class Engine3DModelTests : IDisposable
     public void Dispose()
     {
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     // A triangle whose material's base color texture is a 4 by 2 PNG stored in the file's binary
     // chunk, which is how a .glb carries its images.
     private string WriteGlbWithEmbeddedPng(byte[] rgba)
     {
-        var pngPath = Path.Combine(_directory, "pixels.png");
+        var pngPath = Path.Combine(_folder.Path, "pixels.png");
         PngWriter.Write(pngPath, rgba, 4, 2);
         var png = File.ReadAllBytes(pngPath);
 
@@ -62,7 +62,7 @@ public sealed class Engine3DModelTests : IDisposable
         var jsonBytes = Encoding.UTF8.GetBytes(json).ToList();
         while (jsonBytes.Count % 4 != 0) jsonBytes.Add((byte)' ');
 
-        var path = Path.Combine(_directory, "triangle.glb");
+        var path = Path.Combine(_folder.Path, "triangle.glb");
         using var file = new BinaryWriter(File.Create(path));
         file.Write(0x46546C67u);
         file.Write(2u);
@@ -210,7 +210,7 @@ public sealed class Engine3DModelTests : IDisposable
              "bufferViews":[{"buffer":0,"byteLength":36}],
              "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
             """;
-        var path = Path.Combine(_directory, "moved.gltf");
+        var path = Path.Combine(_folder.Path, "moved.gltf");
         File.WriteAllText(path, json);
 
         var bounds = GetModelBoundingBox(LoadModel(path));
@@ -231,7 +231,7 @@ public sealed class Engine3DModelTests : IDisposable
              "bufferViews":[{"buffer":0,"byteLength":36}],
              "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,0,0],"max":[1,1,0]}]}
             """;
-        var path = Path.Combine(_directory, $"alpha-{Guid.NewGuid():N}.gltf");
+        var path = Path.Combine(_folder.Path, $"alpha-{Guid.NewGuid():N}.gltf");
         File.WriteAllText(path, json);
         return path;
     }
@@ -297,7 +297,7 @@ public sealed class Engine3DModelTests : IDisposable
     public void An_Exported_Mesh_Loads_Back_With_Its_Positions_And_Texture_Coordinates()
     {
         var cube = GenMeshCube(1, 2, 3);
-        var path = Path.Combine(_directory, "cube.obj");
+        var path = Path.Combine(_folder.Path, "cube.obj");
 
         ExportMesh(cube, path).Should().BeTrue();
         var loaded = LoadModel(path);

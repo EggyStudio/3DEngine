@@ -12,21 +12,20 @@ namespace Engine.Tests.Scenes;
 public sealed class AssetReleaseTests : IDisposable
 {
     // A folder of the program's source folder, where the asset server reads from.
-    private readonly string _folder = Path.Combine(AppContext.BaseDirectory, "source", "release-" + Guid.NewGuid().ToString("N")[..8]);
+    private readonly TestFolder _folder = TestFolder.At(Path.Combine(AppContext.BaseDirectory, "source", "release-" + Guid.NewGuid().ToString("N")[..8]));
     private readonly App _app = new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins());
 
     public AssetReleaseTests()
     {
-        Directory.CreateDirectory(_folder);
         foreach (var file in new[] { "torus.obj", "torus.mtl", "checker.png" })
-            File.Copy(Path.Combine(CheatsheetTestsRoot(), "3DEngine.Examples", "resources", file), Path.Combine(_folder, file));
+            File.Copy(Path.Combine(CheatsheetTestsRoot(), "3DEngine.Examples", "resources", file), _folder.File(file));
         _app.World.Resource<AssetRelease>().Grace = 0;
     }
 
     public void Dispose()
     {
         _app.Shutdown();
-        Directory.Delete(_folder, recursive: true);
+        _folder.Dispose();
     }
 
     private static string CheatsheetTestsRoot() => Api.CheatsheetTests.RepoRoot();
@@ -48,7 +47,7 @@ public sealed class AssetReleaseTests : IDisposable
     {
         var entity = Ecs.Spawn();
         Ecs.Add(entity, new Transform(Vector3.Zero));
-        Ecs.Add(entity, new ModelRef { Path = Path.GetFileName(_folder) + "/torus.obj" });
+        Ecs.Add(entity, new ModelRef { Path = Path.GetFileName(_folder.Path) + "/torus.obj" });
         return entity;
     }
 
@@ -133,7 +132,7 @@ public sealed class AssetReleaseTests : IDisposable
 
         // The program asks for the same texture the level's material did, and keeps it.
         var server = _app.World.Resource<AssetServer>();
-        var own = server.LoadTextureSrgb(Path.GetFileName(_folder) + "/checker.png", generateMips: true);
+        var own = server.LoadTextureSrgb(Path.GetFileName(_folder.Path) + "/checker.png", generateMips: true);
         own.Id.Should().Be(texture, "one file is one asset");
 
         Ecs.DespawnRecursive(entity);
@@ -144,7 +143,7 @@ public sealed class AssetReleaseTests : IDisposable
     [Fact]
     public void A_Prefab_Files_Parsed_Copy_Is_Dropped_When_No_Copy_Of_It_Is_Left()
     {
-        var file = Path.Combine(_folder, "lamp.json");
+        var file = _folder.File("lamp.json");
         File.WriteAllText(file, """
             { "format": "3dengine-scene", "version": 1, "entities": [
               { "id": "a1", "name": "Lamp", "components": { "Transform": { "Position": [0, 1, 0] } } } ] }

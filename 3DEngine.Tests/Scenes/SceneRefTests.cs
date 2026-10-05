@@ -7,9 +7,9 @@ namespace Engine.Tests.Scenes;
 [Trait("Category", "Unit")]
 public sealed class SceneRefTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-sceneref-").FullName;
+    private readonly TestFolder _folder = new("engine-sceneref-");
 
-    public void Dispose() => Directory.Delete(_directory, recursive: true);
+    public void Dispose() => _folder.Dispose();
 
     private static World NewWorld()
     {
@@ -29,7 +29,7 @@ public sealed class SceneRefTests : IDisposable
         ecs.SetName(bulb, "Bulb");
         ecs.Add(bulb, new Transform(new Vector3(0, 1, 0)));
         ecs.SetParent(bulb, post);
-        var path = Path.Combine(_directory, "lamp.json");
+        var path = Path.Combine(_folder.Path, "lamp.json");
         SceneFile.Save(ecs, path);
         return path;
     }
@@ -74,7 +74,7 @@ public sealed class SceneRefTests : IDisposable
         var rock = ecs.Spawn();
         ecs.Add(rock, new Transform(Vector3.Zero));
         ecs.Add(rock, new Mesh([Vector3.Zero, Vector3.UnitX, Vector3.UnitY]));
-        var path = Path.Combine(_directory, "rock.json");
+        var path = Path.Combine(_folder.Path, "rock.json");
         SceneFile.Save(ecs, path);
 
         var world = NewWorld();
@@ -115,7 +115,7 @@ public sealed class SceneRefTests : IDisposable
     [Fact]
     public void A_File_That_Places_Itself_Stops_At_The_Deepest_Reference()
     {
-        var path = Path.Combine(_directory, "itself.json");
+        var path = Path.Combine(_folder.Path, "itself.json");
         var ecs = new EcsWorld();
         var inner = ecs.Spawn();
         ecs.Add(inner, new SceneRef { Path = path });

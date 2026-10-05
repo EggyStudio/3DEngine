@@ -13,7 +13,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class BloomTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-bloom-").FullName;
+    private readonly TestFolder _folder = new("engine-bloom-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private readonly Camera3D _camera = new(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45);
 
@@ -21,7 +21,7 @@ public sealed class BloomTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open()
@@ -33,7 +33,7 @@ public sealed class BloomTests : IDisposable
     // Draws frames until the first one's capture has been written, as ReferenceFrameTests does.
     private Image Capture(Action draw, string name)
     {
-        var path = Path.Combine(_directory, name + ".png");
+        var path = Path.Combine(_folder.Path, name + ".png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

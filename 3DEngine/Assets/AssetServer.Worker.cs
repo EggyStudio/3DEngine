@@ -52,10 +52,12 @@ public sealed partial class AssetServer
 
         // Find stream from sources
         Stream? stream = null;
+        IAssetReader? source = null;
         foreach (var (_, reader) in _sources)
         {
             if (!reader.Exists(request.Path)) continue;
             stream = await reader.ReadAsync(request.Path, ct);
+            source = reader;
             break;
         }
 
@@ -86,7 +88,7 @@ public sealed partial class AssetServer
             _idToPath[depId] = depPath;
             _loadQueue.Writer.TryWrite(new LoadRequest(depId, depPath, typeof(object)));
             return depId;
-        });
+        }, source);
 
         var result = await loader.LoadUntypedAsync(ctx, ct);
 

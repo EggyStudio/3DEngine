@@ -5,9 +5,9 @@ namespace Engine.Tests.Platform.Audio;
 [Trait("Category", "Unit")]
 public sealed class WavMusicDecoderTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-wav-music-").FullName;
+    private readonly TestFolder _folder = new("engine-wav-music-");
 
-    public void Dispose() => Directory.Delete(_directory, recursive: true);
+    public void Dispose() => _folder.Dispose();
 
     // A stereo 16-bit file of the given frames, a ramp on each channel, with a LIST chunk before
     // its samples as editors write one.
@@ -24,7 +24,7 @@ public sealed class WavMusicDecoderTests : IDisposable
             w.Write("data"u8); w.Write(data);
             for (int i = 0; i < frames; i++) { w.Write((short)(i * 7)); w.Write((short)(-i * 7)); }
         }
-        var path = Path.Combine(_directory, "ramp.wav");
+        var path = Path.Combine(_folder.Path, "ramp.wav");
         File.WriteAllBytes(path, stream.ToArray());
         return path;
     }
@@ -54,7 +54,7 @@ public sealed class WavMusicDecoderTests : IDisposable
     [Fact]
     public void A_File_That_Is_Not_WAV_Is_Refused()
     {
-        var path = Path.Combine(_directory, "not.wav");
+        var path = Path.Combine(_folder.Path, "not.wav");
         File.WriteAllText(path, "not a wave file at all, but long enough");
         var open = () => new WavMusicDecoder(File.OpenRead(path), path);
         open.Should().Throw<InvalidDataException>();

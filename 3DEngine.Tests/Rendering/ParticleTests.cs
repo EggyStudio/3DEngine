@@ -12,7 +12,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class ParticleTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-particles-").FullName;
+    private readonly TestFolder _folder = new("engine-particles-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private readonly Camera3D _camera = new(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45);
     private int _captures;
@@ -21,7 +21,7 @@ public sealed class ParticleTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open()
@@ -34,7 +34,7 @@ public sealed class ParticleTests : IDisposable
     // Draws frames in 3D mode, the last of them captured.
     private Image Capture(int frames, Action? draw = null)
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < frames + 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();
@@ -239,7 +239,7 @@ public sealed class ParticleTests : IDisposable
         var cloud = CreateParticleEmitter(Vector3.Zero, Cloud(new Color(255, 30, 30)) with { Radius = 0.3f });
         EmitParticles(cloud, 400);
 
-        var path = Path.Combine(_directory, "target.png");
+        var path = Path.Combine(_folder.Path, "target.png");
         for (int frame = 0; frame < 14 && !File.Exists(path); frame++)
         {
             BeginDrawing();

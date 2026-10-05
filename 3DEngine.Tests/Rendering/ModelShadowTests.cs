@@ -9,20 +9,20 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class ModelShadowTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-shadow-").FullName;
+    private readonly TestFolder _folder = new("engine-shadow-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
 
     public void Dispose()
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     // Draws frames until the first one's capture has been written, as ReferenceFrameTests does.
     private Image Capture(Action draw, string name)
     {
-        var path = Path.Combine(_directory, name + ".png");
+        var path = Path.Combine(_folder.Path, name + ".png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

@@ -8,9 +8,9 @@ namespace Engine.Tests.Cli;
 [Trait("Category", "Unit")]
 public sealed class CliTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-cli-test-").FullName;
+    private readonly TestFolder _folder = new("engine-cli-test-");
 
-    public void Dispose() => Directory.Delete(_directory, recursive: true);
+    public void Dispose() => _folder.Dispose();
 
     [Fact]
     public void An_Envelope_Carries_Success_Data_And_Errors()
@@ -30,7 +30,7 @@ public sealed class CliTests : IDisposable
     public void A_Session_File_Reads_Back_What_Was_Written()
     {
         var previous = CliSessionFile.Directory;
-        CliSessionFile.Directory = _directory;
+        CliSessionFile.Directory = _folder.Path;
         try
         {
             var session = new CliSession(Environment.ProcessId, 4242, "token", "/project", "Game", "Title", "hidden",
@@ -119,7 +119,7 @@ public sealed class CliTests : IDisposable
     {
         var pixels = new byte[3 * 2 * 4];
         for (int i = 0; i < pixels.Length; i++) pixels[i] = (byte)(i * 10);
-        var path = Path.Combine(_directory, "shot.png");
+        var path = Path.Combine(_folder.Path, "shot.png");
 
         PngWriter.Write(path, pixels, 3, 2);
 

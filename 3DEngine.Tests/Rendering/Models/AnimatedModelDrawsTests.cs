@@ -18,6 +18,7 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     private readonly App _app = new();
     private readonly EcsWorld _ecs = new();
     private readonly Time _time = new() { MaxDeltaSeconds = 10 };
+    private readonly TestFolder _folder = new("engine-animated-");
     private double _elapsed;
 
     public AnimatedModelDrawsTests()
@@ -34,7 +35,11 @@ public sealed class AnimatedModelDrawsTests : IDisposable
         _ecs.Add(camera, new Transform(new Vector3(0, 1, 6)));
     }
 
-    public void Dispose() => UseApp(null);
+    public void Dispose()
+    {
+        UseApp(null);
+        _folder.Dispose();
+    }
 
     private void Frame(double seconds = 0)
     {
@@ -122,24 +127,16 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     [Fact]
     public void A_Change_Of_Clip_Blends_From_The_One_Before_Over_Its_Blend_Time()
     {
-        var file = TwoClips();
-        try
-        {
-            var entity = Spawn(new AnimatedModel(file, "bend", speed: 0, blendSeconds: 1) { Time = 1 }, Vector3.Zero);
-            Frame(0.1);
-            Tip(0).X.Should().BeApproximately(-1, 0.02f, "bent");
+        var entity = Spawn(new AnimatedModel(TwoClips(), "bend", speed: 0, blendSeconds: 1) { Time = 1 }, Vector3.Zero);
+        Frame(0.1);
+        Tip(0).X.Should().BeApproximately(-1, 0.02f, "bent");
 
-            _ecs.GetRef<AnimatedModel>(entity).Clip = "rest";
-            Frame(0.5);
-            Tip(0).X.Should().BeInRange(-0.9f, -0.5f, "halfway from bent to straight, the tip has swung about half back");
+        _ecs.GetRef<AnimatedModel>(entity).Clip = "rest";
+        Frame(0.5);
+        Tip(0).X.Should().BeInRange(-0.9f, -0.5f, "halfway from bent to straight, the tip has swung about half back");
 
-            Frame(0.6);
-            Tip(0).Y.Should().BeApproximately(2, 0.01f, "the blend is over and the arm stands straight");
-        }
-        finally
-        {
-            Directory.Delete(Path.GetDirectoryName(file)!, recursive: true);
-        }
+        Frame(0.6);
+        Tip(0).Y.Should().BeApproximately(2, 0.01f, "the blend is over and the arm stands straight");
     }
 
     [Fact]
@@ -171,7 +168,7 @@ public sealed class AnimatedModelDrawsTests : IDisposable
 
     // The arm with a second clip, "rest", which holds the elbow straight for a second, in a
     // buffer of its own beside the file's.
-    private static string TwoClips()
+    private string TwoClips()
     {
         var gltf = JsonNode.Parse(File.ReadAllText(Arm))!.AsObject();
         var bytes = new byte[40];
@@ -192,8 +189,7 @@ public sealed class AnimatedModelDrawsTests : IDisposable
             ["samplers"] = new JsonArray(new JsonObject { ["input"] = accessors.Count - 2, ["output"] = accessors.Count - 1, ["interpolation"] = "LINEAR" }),
             ["channels"] = new JsonArray(new JsonObject { ["sampler"] = 0, ["target"] = new JsonObject { ["node"] = target, ["path"] = "rotation" } }),
         });
-        var directory = Directory.CreateTempSubdirectory("engine-animated-").FullName;
-        var file = Path.Combine(directory, "arm2.gltf");
+        var file = _folder.File("arm2.gltf");
         File.WriteAllText(file, gltf.ToJsonString());
         return file;
     }

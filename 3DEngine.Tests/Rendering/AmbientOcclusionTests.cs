@@ -13,7 +13,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class AmbientOcclusionTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-ao-").FullName;
+    private readonly TestFolder _folder = new("engine-ao-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private readonly Camera3D _camera = new(new Vector3(2, 3, 5), new Vector3(-1, 0.5f, -1), Vector3.UnitY, 45);
     private int _captures;
@@ -22,7 +22,7 @@ public sealed class AmbientOcclusionTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open()
@@ -34,7 +34,7 @@ public sealed class AmbientOcclusionTests : IDisposable
     // Draws frames of the cube on its floor, the last of them captured.
     private Image Capture(Model floor, Model cube, int frames = 4)
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < frames + 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

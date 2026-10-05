@@ -33,14 +33,14 @@ public sealed class ReferenceFrameTests : IDisposable
     // The share of pixels that may differ, which edges, text and filtering between devices take.
     private const double DifferingShare = 0.02;
 
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-reference-").FullName;
+    private readonly TestFolder _folder = new("engine-reference-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
 
     public void Dispose()
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private static void Open(int width, int height)
@@ -55,7 +55,7 @@ public sealed class ReferenceFrameTests : IDisposable
     private Image Capture(Action draw, int settle = 0, Func<bool>? ready = null)
     {
         // A capture taken earlier in the test is written over, rather than mistaken for this one.
-        var path = Path.Combine(_directory, "frame.png");
+        var path = Path.Combine(_folder.Path, "frame.png");
         File.Delete(path);
         for (int frame = 0; frame < 120 && ready is not null && !ready(); frame++)
         {

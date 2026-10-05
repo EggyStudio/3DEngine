@@ -53,6 +53,34 @@ public sealed class NeedsNoAudioDeviceFactAttribute : FactAttribute
     }
 }
 
+/// <summary>
+/// A theory skipped where the files the process has open cannot be told. Linux lists them under
+/// <c>/proc/self/fd</c> and Windows refuses a file open elsewhere to one opened alone, and macOS
+/// does neither.
+/// </summary>
+public sealed class NeedsOpenFilesTheoryAttribute : TheoryAttribute
+{
+    public NeedsOpenFilesTheoryAttribute()
+    {
+        if (NeedsOpenFilesFactAttribute.Missing() is { } reason) Skip = reason;
+    }
+}
+
+/// <summary>Skipped as <see cref="NeedsOpenFilesTheoryAttribute"/> is, and where <c>slangc</c> is not found when the constructor is told it is needed.</summary>
+public sealed class NeedsOpenFilesFactAttribute : FactAttribute
+{
+    public NeedsOpenFilesFactAttribute(bool slang = false)
+    {
+        if (Missing() is { } reason) Skip = reason;
+        else if (slang && !SlangCompiler.Available) Skip = "slangc was not found. Run build/fetch-slang.sh or set ENGINE_SLANGC.";
+    }
+
+    internal static string? Missing() =>
+        OperatingSystem.IsWindows() || Directory.Exists("/proc/self/fd")
+            ? null
+            : "This system neither lists a process's open files under /proc/self/fd nor refuses an open file to one opened alone.";
+}
+
 internal static class Probes
 {
     public static readonly Lazy<bool> Vulkan = new(() =>

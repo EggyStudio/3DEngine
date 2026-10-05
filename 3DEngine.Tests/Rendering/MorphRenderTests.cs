@@ -9,7 +9,7 @@ namespace Engine.Tests.Rendering;
 [Trait("Category", "Render")]
 public sealed class MorphRenderTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-morph-").FullName;
+    private readonly TestFolder _folder = new("engine-morph-");
     private readonly int _validationErrorsBefore = GraphicsDevice.ValidationErrors.Count;
     private int _captures;
 
@@ -17,12 +17,12 @@ public sealed class MorphRenderTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     private Image Capture(Model model, Camera3D camera)
     {
-        var path = Path.Combine(_directory, $"{_captures++}.png");
+        var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < 10 && !File.Exists(path); frame++)
         {
             BeginDrawing();

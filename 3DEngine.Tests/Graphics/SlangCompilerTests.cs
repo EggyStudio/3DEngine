@@ -26,9 +26,9 @@ public class SlangCompilerTests : IDisposable
     // The first word of every SPIR-V module, little-endian.
     private static readonly byte[] SpirvMagic = [0x03, 0x02, 0x23, 0x07];
 
-    private readonly string _cache = Directory.CreateTempSubdirectory("engine-slang-test-").FullName;
+    private readonly TestFolder _folder = new("engine-slang-test-");
 
-    public void Dispose() => Directory.Delete(_cache, recursive: true);
+    public void Dispose() => _folder.Dispose();
 
     [Fact]
     public void EntryPoints_Are_Found_With_Their_Stages()
@@ -42,7 +42,7 @@ public class SlangCompilerTests : IDisposable
     public void A_Program_Compiles_To_Spirv_For_Each_Stage()
     {
         
-        var program = new SlangLoader(_cache).Compile(Source, "test.slang");
+        var program = new SlangLoader(_folder.Path).Compile(Source, "test.slang");
 
         program.Vertex.Take(4).Should().Equal(SpirvMagic);
         program.Fragment.Take(4).Should().Equal(SpirvMagic);
@@ -52,8 +52,8 @@ public class SlangCompilerTests : IDisposable
     public void A_Cached_Entry_Loads_Without_A_Compiler()
     {
         
-        var compiled = SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _cache);
-        var cached = SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _cache, null, compiler: null);
+        var compiled = SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _folder.Path);
+        var cached = SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _folder.Path, null, compiler: null);
 
         cached.Should().Equal(compiled);
     }
@@ -62,10 +62,10 @@ public class SlangCompilerTests : IDisposable
     public void A_Changed_Source_Misses_The_Cache()
     {
         
-        SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _cache);
+        SlangCompiler.Compile(Source, "test.slang", "vertexMain", ShaderStage.Vertex, _folder.Path);
         var changed = Source.Replace("1.0, 0.5", "0.0, 0.5");
 
-        var act = () => SlangCompiler.Compile(changed, "test.slang", "vertexMain", ShaderStage.Vertex, _cache, null, compiler: null);
+        var act = () => SlangCompiler.Compile(changed, "test.slang", "vertexMain", ShaderStage.Vertex, _folder.Path, null, compiler: null);
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*not in the shader cache*");
     }
@@ -74,7 +74,7 @@ public class SlangCompilerTests : IDisposable
     public void A_Compile_Error_Names_The_File()
     {
         
-        var act = () => SlangCompiler.Compile("float4 broken(", "broken.slang", "broken", ShaderStage.Fragment, _cache);
+        var act = () => SlangCompiler.Compile("float4 broken(", "broken.slang", "broken", ShaderStage.Fragment, _folder.Path);
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*broken.slang*");
     }
@@ -86,7 +86,7 @@ public class SlangCompilerTests : IDisposable
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         foreach (var file in new[] { "imgui.slang", "immediate.slang", "model.slang" })
         {
-            var program = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, file)), file);
+            var program = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, file)), file);
             program.Stages.Keys.Should().BeEquivalentTo([ShaderStage.Vertex, ShaderStage.Fragment], file);
         }
     }
@@ -95,7 +95,7 @@ public class SlangCompilerTests : IDisposable
     public void The_Model_Pass_Sets_Are_Read_From_Its_Shader()
     {
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
-        var program = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
+        var program = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
 
         var lights = program.LayoutOf(1);
         lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 6 + LightingUboPacker.MaxProbes).Select(b => (uint)b),
@@ -106,7 +106,7 @@ public class SlangCompilerTests : IDisposable
         program.LayoutOf(0).Select(b => b.Binding).Should().Equal([1u, 2u, 3u, 4u, 5u], "the material's five maps");
 
         // The same read back from the cache, as a program that ships without slangc does.
-        var cached = new SlangLoader(_cache, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
+        var cached = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
         cached.LayoutOf(1).Should().Equal(lights);
     }
 
@@ -126,7 +126,7 @@ public class SlangCompilerTests : IDisposable
     [Fact]
     public void A_Cache_Key_Follows_Imports_With_Forward_Slashes_And_Counts_Missing_Ones()
     {
-        var folder = Directory.CreateDirectory(Path.Combine(_cache, "imports")).FullName;
+        var folder = Directory.CreateDirectory(Path.Combine(_folder.Path, "imports")).FullName;
         Directory.CreateDirectory(Path.Combine(folder, "lights"));
         File.WriteAllText(Path.Combine(folder, "engine.slang"), "module engine;");
         File.WriteAllText(Path.Combine(folder, "lights", "point-light.slang"), "import engine;\n#include \"common.slang\"");
@@ -141,10 +141,10 @@ public class SlangCompilerTests : IDisposable
     public void A_Shipped_Cache_Still_Serves_After_A_Shader_Of_Its_Own_Is_Added_Beside_It()
     {
         // A copy of the built-in shaders, compiled into a cache as build/pack.sh does.
-        var shaders = Directory.CreateDirectory(Path.Combine(_cache, "shaders")).FullName;
+        var shaders = Directory.CreateDirectory(Path.Combine(_folder.Path, "shaders")).FullName;
         foreach (var file in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "source", "shaders"), "*.slang"))
             File.Copy(file, Path.Combine(shaders, Path.GetFileName(file)));
-        var cache = Path.Combine(_cache, "cache");
+        var cache = Path.Combine(_folder.Path, "cache");
         SlangLoader.Precompile(shaders, cache);
 
         // A game adds a shader of its own to the same folder.
@@ -177,8 +177,8 @@ public class SlangCompilerTests : IDisposable
             }
             """;
 
-        var compiled = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _cache);
-        var cached = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _cache, null, compiler: null);
+        var compiled = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path);
+        var cached = SlangCompiler.CompileStage(withUniforms, "tinted.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path, null, compiler: null);
 
         compiled.Uniforms.Should().Equal(new ShaderUniform("tint", 0, 16), new ShaderUniform("strength", 16, 4));
         cached.Uniforms.Should().Equal(compiled.Uniforms);
@@ -189,7 +189,7 @@ public class SlangCompilerTests : IDisposable
     [Fact]
     public void An_Include_Is_Found_Beside_The_File_That_Names_It_Before_The_Import_Folder()
     {
-        var folder = Directory.CreateDirectory(Path.Combine(_cache, "nested")).FullName;
+        var folder = Directory.CreateDirectory(Path.Combine(_folder.Path, "nested")).FullName;
         Directory.CreateDirectory(Path.Combine(folder, "water"));
         File.WriteAllText(Path.Combine(folder, "water", "ocean.slang"), "#include \"waves.slang\"");
         File.WriteAllText(Path.Combine(folder, "water", "waves.slang"), "// beside ocean");
@@ -218,7 +218,7 @@ public class SlangCompilerTests : IDisposable
                 return tint * weights[0] + colors[1] * weights[2];
             }
             """;
-        var stage = SlangCompiler.CompileStage(arrays, "arrays.slang", "fragmentMain", ShaderStage.Fragment, _cache);
+        var stage = SlangCompiler.CompileStage(arrays, "arrays.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path);
         var uniforms = stage.Uniforms.ToDictionary(u => u.Name);
         uniforms["weights"].Size.Should().Be(48, "a float in an array takes sixteen bytes, as std140 lays a uniform buffer out");
         uniforms["colors"].Size.Should().Be(32);

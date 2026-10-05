@@ -59,7 +59,7 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     private readonly RecordingBackend _backend = new();
-    private readonly string _directory = Directory.CreateTempSubdirectory("engine-audio-api-").FullName;
+    private readonly TestFolder _folder = new("engine-audio-api-");
 
     public Engine3DAudioTests()
     {
@@ -77,7 +77,7 @@ public sealed class Engine3DAudioTests : IDisposable
         var app = GetApp();
         UseApp(null);
         app.Shutdown();
-        Directory.Delete(_directory, recursive: true);
+        _folder.Dispose();
     }
 
     // A tenth of a second of 16-bit mono silence at 8 kHz, as a canonical WAV file.
@@ -95,7 +95,7 @@ public sealed class Engine3DAudioTests : IDisposable
             w.Write("data"u8); w.Write(frames * 2); w.Write(new byte[frames * 2]);
         }
         // A file of its own each time, since one a piece of music has open cannot be written over on Windows.
-        var path = Path.Combine(_directory, $"blip{_written++}.wav");
+        var path = Path.Combine(_folder.Path, $"blip{_written++}.wav");
         File.WriteAllBytes(path, stream.ToArray());
         return path;
     }
@@ -103,7 +103,7 @@ public sealed class Engine3DAudioTests : IDisposable
     [Fact]
     public void A_Missing_File_Gives_An_Invalid_Sound()
     {
-        IsSoundValid(LoadSound(Path.Combine(_directory, "missing.wav"))).Should().BeFalse();
+        IsSoundValid(LoadSound(Path.Combine(_folder.Path, "missing.wav"))).Should().BeFalse();
     }
 
     [Fact]
@@ -211,7 +211,7 @@ public sealed class Engine3DAudioTests : IDisposable
         cut.Samples[2].Should().Be(cut.Samples[3], "one channel spread to two gives both the same");
         cut.Samples[2].Should().BeApproximately(0.1005f, 1e-4f, "the frame between the first two source frames is halfway between them");
 
-        var file = Path.Combine(_directory, "cut.wav");
+        var file = Path.Combine(_folder.Path, "cut.wav");
         ExportWave(cut, file).Should().BeTrue();
         var back = LoadWave(file);
         (back.FrameCount, back.SampleRate, back.Channels).Should().Be((400, 16000, 2));
