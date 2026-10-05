@@ -9,7 +9,8 @@ public static class ShadersComputeLife
 
     public static void Run()
     {
-        InitWindow(Width * CellSize, Height * CellSize, "[shaders] compute game of life");
+        // raylib's window, which the grid of four-pixel cells fills but for its last two rows.
+        InitWindow(800, 450, "[shaders] compute game of life");
 
         // Two grids the shader steps between, the one it reads and the one it writes, and the
         // pixels it colors, which reach the screen through a texture.

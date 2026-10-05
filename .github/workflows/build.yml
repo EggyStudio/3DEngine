@@ -38,7 +38,7 @@ jobs:
       - run: build/fetch-slang.sh
 
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp
 
       - run: dotnet build 3DEngine.slnx
 
@@ -51,7 +51,7 @@ jobs:
           mkdir -p captures
           failed=0
           for example in $(grep -oP '^\s*\["\K[a-z0-9_]+' 3DEngine.Examples/Program.cs); do
-            if ! build/capture-example.sh "$example" "captures/$example.png"; then
+            if ! build/capture-example.sh "$example" "captures/$example.webp"; then
               echo "::error::$example: the capture failed"
               failed=1
               ./e3d stop --quiet || true
@@ -78,6 +78,7 @@ jobs:
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 90 --quiet
           ./e3d shot captures/pusher.png --quiet
+          build/webp.sh captures/pusher.png captures/pusher.webp lossy
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Pusher.log | grep -F 'Validation Error'; then
             echo "::error::Pusher: the validation layer reported an error"
@@ -96,6 +97,7 @@ jobs:
           ./e3d command input.button 0 South 2 --quiet
           ./e3d command input.key Right 120 --quiet
           ./e3d shot captures/hopper.png --quiet
+          build/webp.sh captures/hopper.png captures/hopper.webp lossless
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Hopper.log | grep -F 'Validation Error'; then
             echo "::error::Hopper: the validation layer reported an error"
@@ -115,6 +117,7 @@ jobs:
           ./e3d command input.key Enter 2 --quiet
           ./e3d command input.key W 120 --quiet
           ./e3d shot captures/summit.png --quiet
+          build/webp.sh captures/summit.png captures/summit.webp lossy
           ./e3d stop --quiet
           if grep -F '[Vulkan.Validation]' build/sessions/Summit.log | grep -F 'Validation Error'; then
             echo "::error::Summit: the validation layer reported an error"
@@ -139,6 +142,7 @@ jobs:
           sed -i 's/tuning.EnemySpeed = 1;/tuning.EnemySpeed = 0.5f;/' games/Swarm/source/behaviors/Tune.cs
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d shot captures/swarm.png --quiet
+          build/webp.sh captures/swarm.png captures/swarm.webp lossy
           ./e3d command profile > captures/swarm-profile.txt
           ./e3d stop --quiet
           case "$status" in

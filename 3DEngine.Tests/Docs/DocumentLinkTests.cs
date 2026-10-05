@@ -56,6 +56,38 @@ public partial class DocumentLinkTests
     }
 
     [Fact]
+    public void Every_Picture_In_The_Gallery_Is_A_WebP_And_An_Examples_Is_Raylibs_Window()
+    {
+        var root = RepoRoot();
+        var examples = Regex.Matches(File.ReadAllText(Path.Combine(root, "3DEngine.Examples", "Program.cs")), @"\[""(?<name>[a-z0-9_]+)""\]")
+            .Select(m => m.Groups["name"].Value).ToHashSet();
+        var wrong = new List<string>();
+        foreach (Match picture in Picture().Matches(File.ReadAllText(Path.Combine(root, "README.md"))))
+        {
+            var name = picture.Groups["name"].Value;
+            var file = Path.Combine(root, ".github", "assets", "examples", name + ".webp");
+            if (!File.Exists(file)) wrong.Add($"{name}: no {name}.webp");
+            else if (examples.Contains(name) && WebPSize(File.ReadAllBytes(file)) is var size && size != (800, 450))
+                wrong.Add($"{name}: {size.Width} by {size.Height}");
+        }
+
+        string.Join("\n", wrong).Should().BeEmpty("an example is drawn at raylib's 800 by 450 and stored as drawn, and a game at its own window's size");
+    }
+
+    // The width and height a WebP file's header gives, from whichever of its three kinds it is.
+    private static (int Width, int Height) WebPSize(byte[] file)
+    {
+        var kind = System.Text.Encoding.ASCII.GetString(file, 12, 4);
+        return kind switch
+        {
+            "VP8X" => (1 + (file[24] | file[25] << 8 | file[26] << 16), 1 + (file[27] | file[28] << 8 | file[29] << 16)),
+            "VP8L" => (1 + ((file[21] | file[22] << 8) & 0x3FFF), 1 + ((file[22] >> 6 | file[23] << 2 | file[24] << 10) & 0x3FFF)),
+            "VP8 " => ((file[26] | file[27] << 8) & 0x3FFF, (file[28] | file[29] << 8) & 0x3FFF),
+            _ => (0, 0),
+        };
+    }
+
+    [Fact]
     public void A_Heading_Is_Linked_By_Its_Words_In_Lower_Case_Joined_By_Hyphens()
     {
         Slug("Window and timing").Should().Be("window-and-timing");
@@ -89,7 +121,7 @@ public partial class DocumentLinkTests
     private static partial Regex Link();
 
     // A gallery picture, with the address it links to when it is inside a link.
-    [GeneratedRegex(@"(?:<a href=""(?<link>[^""]+)"">)?<img src=""[^""]*/assets/examples/(?<name>[a-z0-9_]+)\.png""")]
+    [GeneratedRegex(@"(?:<a href=""(?<link>[^""]+)"">)?<img src=""[^""]*/assets/examples/(?<name>[a-z0-9_]+)\.webp""")]
     private static partial Regex Picture();
 
     private static string RepoRoot()

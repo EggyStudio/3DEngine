@@ -4,7 +4,10 @@
 # captured and closed. CI captures every example this way, and a new or changed example's capture
 # in .github/assets/examples is taken with it too.
 #
-#   build/capture-example.sh <example> <png> [--offscreen|--hidden]
+#   build/capture-example.sh <example> <png|webp> [--offscreen|--hidden]
+#
+# A .webp path is written through build/webp.sh, at quality 85 for a lit 3D scene and lossless for
+# flat color, 2D shapes or text, as the README's gallery stores them.
 #
 # Frames are capped at 60 a second, so a wait of a number of frames is at least that many
 # sixtieths of a second, and longer on a slow device, which a physics scene's fixed steps catch
@@ -72,6 +75,23 @@ esac
 # A device drawing on the CPU, as CI's does, can take minutes over the slowest examples' frames.
 ./e3d command frames.wait "$frames" --quiet --timeout 600
 
-./e3d shot "$out" --quiet --timeout 120
+case "$out" in
+  *.webp) shot="${out%.webp}.png" ;;
+  *) shot="$out" ;;
+esac
+./e3d shot "$shot" --quiet --timeout 120
 ./e3d stop --quiet
 wait
+
+# The examples that draw a lit 3D scene, whose shading a lossy picture keeps in a fraction of the
+# bytes. The rest are flat color, 2D shapes or text, kept exact.
+if [ "$shot" != "$out" ]; then
+  case "$example" in
+    ecs_animated_models|ecs_mesh_entities|ecs_physics|models_*|physics_boxes|scenes_level|\
+    shaders_auto_exposure|shaders_bloom|shaders_compute_texture|shaders_mesh_instancing|shaders_model|\
+    shaders_postprocessing|shaders_shadowmap) kind=lossy ;;
+    *) kind=lossless ;;
+  esac
+  build/webp.sh "$shot" "$out" "$kind"
+  rm -f "$shot"
+fi

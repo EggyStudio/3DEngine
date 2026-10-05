@@ -56,8 +56,9 @@ desktop session. xdotool does not, because its events reach a window only while 
 the session accepts them. The flat API can also run without a window in a test, through
 `Engine3D.UseApp(app)`, as `Engine3DAudioTests` does.
 
-A new or changed example gets a fresh capture in `.github/assets/examples/<name>.png`
-(`./e3d open <name> --hidden`, then `./e3d shot`), and the README links captures by
+A new or changed example gets a fresh capture in `.github/assets/examples/<name>.webp`
+(`build/capture-example.sh <name> .github/assets/examples/<name>.webp --hidden`, which draws it at
+800 by 450 and encodes it), and the README links captures by
 `https://raw.githubusercontent.com/EggyStudio/3DEngine/main/...`, so they show once the commit is
 pushed.
 

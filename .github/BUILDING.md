@@ -43,11 +43,14 @@ Every program built on the engine reads these flags, or the variables beside the
 `./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
 `.claude/skills/e3d-cli/SKILL.md` covers driving it.
 
-`build/capture-example.sh <example> <png> [--hidden|--offscreen]` captures an example as the README
-shows it: it gives the examples that wait for input their input (a gamepad, Enter, typed text,
-taps and swipes), runs it until its scene has settled and its frame rate is measured, and captures
-it. CI captures every example with it, and a new or changed example's capture in
-`.github/assets/examples` is taken with it.
+`build/capture-example.sh <example> <png|webp> [--hidden|--offscreen]` captures an example as the
+README shows it: it gives the examples that wait for input their input (a gamepad, Enter, typed
+text, taps and swipes), runs it until its scene has settled and its frame rate is measured, and
+captures it. CI captures every example with it, and a new or changed example's capture in
+`.github/assets/examples` is taken with it. The gallery's captures are WebP at the size their window
+is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at quality 85 for a lit
+3D scene and losslessly for flat color, 2D shapes or text, with ImageMagick or with `cwebp` from the
+`webp` package. The render tests' references stay PNG, since they compare pixels.
 
 `build/raylib-examples.sh` asks raylib's site which examples it runs in the browser and writes their
 names to `build/raylib-examples.txt`, whose pictures in the README's gallery open raylib's demo. It
