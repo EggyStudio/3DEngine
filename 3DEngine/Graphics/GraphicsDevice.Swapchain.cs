@@ -95,6 +95,7 @@ public sealed unsafe partial class GraphicsDevice
         Logger.Debug("Creating command pool and allocating command buffers...");
         CreateCommandPoolAndBuffers();
         Logger.Debug("Swapchain resource creation complete.");
+        CreatePresentSemaphores();
     }
 
     /// <summary>Destroys all swapchain-related resources including image views, depth buffer, and command pool.</summary>
@@ -102,6 +103,7 @@ public sealed unsafe partial class GraphicsDevice
     {
         Logger.Debug($"Destroying swapchain resources, {_swapchainImageViews.Length} image views...");
         foreach (var iv in _swapchainImageViews)
+        DestroyPresentSemaphores();
             if (iv.Handle != 0) _deviceApi.vkDestroyImageView(iv);
         if (_depthImageView.Handle != 0)
             _deviceApi.vkDestroyImageView(_depthImageView);

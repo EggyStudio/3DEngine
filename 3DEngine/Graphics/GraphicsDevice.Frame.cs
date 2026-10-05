@@ -60,7 +60,7 @@ public sealed unsafe partial class GraphicsDevice
         VkCommandBuffer* commandBuffers = stackalloc VkCommandBuffer[1];
         commandBuffers[0] = ctx.CommandBufferHandle;
         VkSemaphore* signalSemaphores = stackalloc VkSemaphore[1];
-        signalSemaphores[0] = _renderFinishedSemaphores[_currentFrame];
+        signalSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
 
         // Offscreen, no image is acquired to wait for and none is presented to signal.
         uint semaphores = _offscreen ? 0u : 1u;
@@ -90,7 +90,7 @@ public sealed unsafe partial class GraphicsDevice
         }
 
         VkSemaphore* presentWaitSemaphores = stackalloc VkSemaphore[1];
-        presentWaitSemaphores[0] = _renderFinishedSemaphores[_currentFrame];
+        presentWaitSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
         VkSwapchainKHR* swapchains = stackalloc VkSwapchainKHR[1];
         swapchains[0] = _swapchain;
         uint* imageIndices = stackalloc uint[1];
