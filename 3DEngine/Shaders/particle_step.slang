@@ -2,7 +2,7 @@
 // a run starting where the last run ended, wrapping round, so the oldest are replaced first, and
 // each new one starts at the emitter, within a radius of it, with the emitter's velocity turned
 // within a cone and its speed and life varied by a hash of its slot and the frame. Every other
-// particle alive ages and falls under gravity, and one past its life is left dead. The first
+// particle alive ages, falls under gravity and is slowed by drag, and one past its life is left dead. The first
 // thread also writes what the draw reads of the emitter into the header before the particles.
 
 struct Particle
@@ -26,9 +26,9 @@ struct StepPush
     float4 variation;
     float4 startColor;
     float4 endColor;
-    // x, y: the size at birth and at death. z: how bright an unlit one is. w: 1 when it is lit.
+    // x, y: the size at birth and at death. z: how bright an unlit one is. w: 1 when it is lit, plus 2 when it is textured.
     float4 look;
-    // x: the first slot to start a particle in. y: how many. z: how many slots there are.
+    // x: the first slot to start a particle in. y: how many. z: how many slots there are. w: the bits of the drag.
     uint4 counts;
 };
 
@@ -105,7 +105,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         slots[at + 1] = float4(0, 0, 0, 0);
         return;
     }
-    float3 moved = velocityLife.xyz + push.gravityAndLife.xyz * seconds;
+    // Drag takes a share of the speed away each second, by the exponential so a long step does
+    // not turn it back.
+    float3 moved = (velocityLife.xyz + push.gravityAndLife.xyz * seconds) * exp(-asfloat(push.counts.w) * seconds);
     slots[at] = float4(positionAge.xyz + moved * seconds, age);
     slots[at + 1] = float4(moved, velocityLife.w);
 }

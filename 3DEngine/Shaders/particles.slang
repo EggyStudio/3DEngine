@@ -1,7 +1,7 @@
 // Draws one emitter's particles as squares that face the camera, six vertices to an instance and
 // an instance to a particle, from the buffer particle_step.slang writes. A particle grows or
 // shrinks and changes color from birth to death by the share of its life gone, and is round, with
-// an edge that fades out. A lit one is lit as a rough surface facing the camera by the model
+// an edge that fades out, or the emitter's texture, the material's base color, tinted. A lit one is lit as a rough surface facing the camera by the model
 // pass's own lighting, and an unlit one gives off its color times the emitter's brightness, so it
 // glows through bloom where that is past 1. A dead particle's square is drawn at a point, which
 // covers no pixel.
@@ -44,7 +44,8 @@ ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Insta
     output.world = center + (right * corner.x + up * corner.y) * (size * 0.5);
     output.position = mul(viewProjection, float4(output.world, 1.0));
     output.normal = facing;
-    output.uv = corner * 0.5 + 0.5;
+    // A texture's first row is its top.
+    output.uv = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);
     output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
     output.color = lerp(slots[0], slots[1], t);
     // Not metallic, wholly rough, with no normal map or occlusion.
@@ -55,11 +56,23 @@ ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Insta
 [shader("fragment")]
 float4 fragmentMain(ModelVertexOutput input) : SV_Target
 {
-    float2 p = input.uv * 2.0 - 1.0;
-    float near = 1.0 - dot(p, p);
-    if (near <= 0.0)
-        discard;
     float4 look = slots[2];
-    float3 shown = look.w > 0.5 ? lit(input.color.rgb, input) : toDisplay(input.color.rgb * look.z);
-    return float4(shown, input.color.a * near * near);
+    float3 color = input.color.rgb;
+    float alpha = input.color.a;
+    if (look.w >= 1.5)
+    {
+        float4 texel = boundTexture.Sample(input.uv);
+        color *= texel.rgb;
+        alpha *= texel.a;
+    }
+    else
+    {
+        float2 p = input.uv * 2.0 - 1.0;
+        float near = 1.0 - dot(p, p);
+        if (near <= 0.0)
+            discard;
+        alpha *= near * near;
+    }
+    float3 shown = fmod(look.w, 2.0) > 0.5 ? lit(color, input) : toDisplay(color * look.z);
+    return float4(shown, alpha);
 }

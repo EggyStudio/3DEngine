@@ -2083,10 +2083,12 @@ struct Engine.ParticleEmitter
   Color EndColor
   Color StartColor
   ParticleBlend Blend
+  Texture2D Texture
   Vector3 Gravity
   Vector3 Velocity
   bool Emitting
   bool Lit
+  float Drag
   float EndSize
   float Intensity
   float Life

@@ -59,10 +59,12 @@ internal struct ParticleStep
     public System.Numerics.Vector4 StartColor;
     /// <summary>The color at death, linear, with its alpha.</summary>
     public System.Numerics.Vector4 EndColor;
-    /// <summary>The size at birth and at death, how bright an unlit one is, and 1 when it is lit.</summary>
+    /// <summary>The size at birth and at death, how bright an unlit one is, and 1 when it is lit plus 2 when it is textured.</summary>
     public System.Numerics.Vector4 Look;
     /// <summary>The first slot new particles are written into, how many, and how many slots there are.</summary>
-    public uint First, Count, Capacity, Unused;
+    public uint First, Count, Capacity;
+    /// <summary>How strongly the air slows a particle, read by the shader from the bits of the last word.</summary>
+    public float Drag;
 }
 
 internal sealed unsafe partial class GraphicsDevice

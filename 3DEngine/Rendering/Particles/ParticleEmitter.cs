@@ -15,7 +15,7 @@ public enum ParticleBlend
 /// <summary>
 /// An emitter of particles at its entity's place, as smoke, sparks or dust: a stream of small
 /// squares that face the camera, born at a rate, moving and falling, and changing size and color
-/// over their lives, simulated on the GPU and drawn into the window.
+/// over their lives, slowed by the air, simulated on the GPU and drawn into the window.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -23,7 +23,7 @@ public enum ParticleBlend
 /// every frame. A particle starts within <see cref="Radius"/> of the entity, with
 /// <see cref="Velocity"/> turned by up to <see cref="Spread"/> degrees and its speed and life
 /// varied by <see cref="SpeedVariation"/> and <see cref="LifeVariation"/>, falls by
-/// <see cref="Gravity"/>, and goes from <see cref="StartSize"/> and <see cref="StartColor"/> to
+/// <see cref="Gravity"/>, slows by <see cref="Drag"/>, and goes from <see cref="StartSize"/> and <see cref="StartColor"/> to
 /// <see cref="EndSize"/> and <see cref="EndColor"/>. Once every slot is taken the oldest particle
 /// is the one replaced.
 /// </para>
@@ -68,6 +68,13 @@ public struct ParticleEmitter
     /// <summary>The pull on every particle, in units a second squared, down for sparks and up for smoke.</summary>
     public Vector3 Gravity;
 
+    /// <summary>
+    /// How strongly the air slows a particle, 0 for not at all and 1 leaving about a third of its
+    /// speed after a second, so smoke puffed out slows and drifts where sparks fly on.
+    /// </summary>
+    /// <remarks>With <see cref="Gravity"/> it falls or rises no faster than gravity over drag.</remarks>
+    public float Drag;
+
     /// <summary>How wide a particle is at birth, in world units.</summary>
     public float StartSize;
 
@@ -88,6 +95,16 @@ public struct ParticleEmitter
 
     /// <summary>How it is laid over what is behind it.</summary>
     public ParticleBlend Blend;
+
+    /// <summary>
+    /// An image each particle is drawn as, a puff of smoke or a flame, tinted by its color, in place
+    /// of the round soft dot. Unset for the dot.
+    /// </summary>
+    /// <remarks>
+    /// The texture is the program's, loaded with <c>LoadTexture</c>, so a scene file does not hold
+    /// it, and an emitter a scene places is given its texture by the program.
+    /// </remarks>
+    public Texture2D Texture;
 
     /// <summary>Particles to give off at once in the next frame, beside the rate, which drawing them clears.</summary>
     public int Burst;

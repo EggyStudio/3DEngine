@@ -78,3 +78,11 @@ wait, so the queue's order is what it was. Six textures arriving together take 0
 3.1, and two 0.17 in place of 1.5. The suite and the render tests under the validation layer in
 the container pass. Making images under a budget, which TODO.md named as the next step, is not
 needed after this, and the entry says what is left.
+
+**Particles with a texture and drag.** `ParticleEmitter` has `Texture`, a `Texture2D` each
+particle is drawn as, tinted, in place of the round dot, bound as the borrowed material's base
+color, and `Drag`, which slows a particle by an exponential of the step. The texture is the
+program's, so a scene file does not hold it, as a camera's render texture is not held. Tests find a
+textured particle the right way up and square, and a stream with drag stopped short of where it
+rises without. `shaders_particles`' smoke is made of noisy puffs that slow as they rise, and its
+capture is new. `PublicApi.txt` gains two fields and loses nothing.

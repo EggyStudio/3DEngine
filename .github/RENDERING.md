@@ -245,12 +245,16 @@ run of slots after the last frame's, so the oldest are replaced, each started wi
 radius with its velocity turned within the cone and its speed and life varied by a hash of its slot
 and a seed of the frame and the emitter. The first thread writes the colors, sizes and brightness
 into the header, which the draw reads, so nothing of an emitter is written from the CPU while a
-frame in flight reads it. The draw (`particles.slang`) imports the model pass, binds its material
-set of white maps and the window's lights set as sets 0 and 1 and the particles as set 2, and draws
-six vertices an instance, a square facing the camera's eye that `eyeInWorld` finds from the
-view-projection, after the window's meshes into the window or the HDR frame, depth tested and not
-written, added or laid over by alpha. A lit particle goes through `lit` as a rough surface facing the
-camera and an unlit one through `toDisplay`, so both follow the HDR frame's output flag. Alpha
+frame in flight reads it. A particle alive falls by gravity and slows by the emitter's drag, as an
+exponential of the step, whose bits ride in the push block's last word. The draw
+(`particles.slang`) imports the model pass, binds its material set with the emitter's texture as
+the base color, white without one, and the window's lights set as sets 0 and 1 and the particles
+as set 2, and draws six vertices an instance, a square facing the camera's eye that `eyeInWorld`
+finds from the view-projection, after the window's meshes into the window or the HDR frame, depth
+tested and not written, added or laid over by alpha. The square is a round dot, or the texture
+sampled whole and tinted where the emitter has one, which the look's last value says with its 2.
+A lit particle goes through `lit` as a rough surface facing the camera and an unlit one through
+`toDisplay`, so both follow the HDR frame's output flag. Alpha
 particles are not sorted, and particles are not drawn into render textures or probe captures.
 
 ## 4. Lights and shadows

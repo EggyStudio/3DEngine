@@ -140,4 +140,53 @@ public sealed class ParticleTests : IDisposable
         ((int)color.G).Should().BeGreaterThan(color.R + 60, $"the entity's burst is drawn green, not {color}");
         ecs.GetReadOnly<ParticleEmitter>(entity).Burst.Should().Be(0, "a burst is given off once");
     }
+
+    [NeedsVulkanFact]
+    public void Drag_Stops_A_Stream_Short_Of_Where_It_Would_Rise_Without()
+    {
+        Open();
+        // The stream above rises three units in its second of life, and with a drag of 3 it comes
+        // no further than one, so it is seen near the emitter and not at the middle.
+        CreateParticleEmitter(new Vector3(0, -1.5f, 0), ParticleEmitter.Default with
+        {
+            MaxParticles = 800,
+            Rate = 300,
+            Life = 1,
+            LifeVariation = 0,
+            Velocity = new Vector3(0, 3, 0),
+            Spread = 0,
+            SpeedVariation = 0,
+            Gravity = Vector3.Zero,
+            Drag = 3,
+            StartSize = 0.3f,
+            EndSize = 0.3f,
+            StartColor = Color.White,
+            EndColor = Color.White,
+        });
+        var frame = Capture(60);
+
+        Sum(GetImageColor(frame, 80, 89)).Should().BeGreaterThan(300, "the stream leaves the emitter");
+        Sum(GetImageColor(frame, 80, 60)).Should().Be(0, "drag has slowed it to a stop before the middle, a unit and a half up");
+    }
+
+    [NeedsVulkanFact]
+    public void A_Textured_Particle_Is_Drawn_As_Its_Image_The_Right_Way_Up_And_Square()
+    {
+        Open();
+        var image = GenImageColor(8, 8, Color.Blue);
+        ImageDrawRectangle(ref image, 0, 0, 8, 4, Color.Red);
+        var texture = LoadTextureFromImage(image);
+        var emitter = CreateParticleEmitter(Vector3.Zero, Cloud(Color.White) with { MaxParticles = 1, Radius = 0, StartSize = 2, EndSize = 2, Texture = texture });
+        EmitParticles(emitter, 1);
+        var frame = Capture(3);
+
+        // Two units wide is 48 pixels across the middle of the picture.
+        var top = GetImageColor(frame, 80, 45);
+        var bottom = GetImageColor(frame, 80, 75);
+        var corner = GetImageColor(frame, 80 + 21, 60 + 21);
+        ((int)top.R).Should().BeGreaterThan(top.B + 100, $"the image's top row is drawn at the top, not {top}");
+        ((int)bottom.B).Should().BeGreaterThan(bottom.R + 100, $"and its bottom at the bottom, not {bottom}");
+        ((int)corner.B).Should().BeGreaterThan(100, $"the whole square is the image, where the dot would have faded its corner, not {corner}");
+        UnloadTexture(texture);
+    }
 }

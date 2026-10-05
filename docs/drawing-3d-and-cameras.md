@@ -176,8 +176,21 @@ var fire = CreateParticleEmitter(new Vector3(0, 0.15f, 0), ParticleEmitter.Defau
 ```
 
 Its smoke is `Lit`, so the fire's lamp and the moon light it as a rough surface facing the camera,
-and laid over by alpha (`ParticleBlend.Alpha`) where the flames add their light. Its sparks do not
-stream and are thrown out a hundred and twenty at a time:
+and laid over by alpha (`ParticleBlend.Alpha`) where the flames add their light. Each puff is a
+`Texture`, an image made in the example of white fading out from the middle and broken up by
+noise, tinted by the puff's color in place of the round dot a particle is otherwise, and `Drag`
+slows the puffs as they rise, 1 leaving about a third of a speed after a second, so they leave the
+fire fast and then hang and spread:
+
+```csharp
+Velocity = new Vector3(0.6f, 2.2f, 0),
+Gravity = new Vector3(0.15f, 0.4f, 0),
+Drag = 0.8f,
+Texture = smoke,
+```
+
+A texture is the program's, loaded with `LoadTexture`, so a scene file does not hold it. Its sparks
+do not stream and are thrown out a hundred and twenty at a time:
 
 ```csharp
 if (IsKeyPressed(Key.Space)) EmitParticles(sparks, 120);

@@ -9,9 +9,9 @@ public static class ShadersParticles
     {
         InitWindow(800, 450, "[shaders] particles");
 
-        // A campfire at night: flames that glow through bloom, smoke that rises and spreads, lit by
-        // the fire's lamp and the moon, and sparks that leap from it on Space. Each is an emitter
-        // whose particles a compute shader steps.
+        // A campfire at night: flames that glow through bloom, puffs of smoke that rise, slow and
+        // spread, lit by the fire's lamp and the moon, and sparks that leap from it on Space. Each
+        // is an emitter whose particles a compute shader steps.
         SetBloom(0.7f);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.6f)), new Color(120, 140, 190), 0.35f);
         var lamp = CreatePointLight(new Vector3(0, 1, 0), new Color(255, 150, 70), 5, range: 12);
@@ -32,22 +32,38 @@ public static class ShadersParticles
             EndColor = new Color(200, 40, 10, 0),
             Intensity = 3,
         });
+        // Each puff of smoke is an image, white fading out from the middle and broken up by noise,
+        // and the air slows a puff as it rises and spreads.
+        var noise = GenImagePerlinNoise(64, 64, 0, 0, 3);
+        var puff = GenImageColor(64, 64, Color.White);
+        for (int y = 0; y < 64; y++)
+            for (int x = 0; x < 64; x++)
+            {
+                var fromMiddle = Vector2.Distance(new Vector2(x, y), new Vector2(31.5f)) / 32;
+                var alpha = MathF.Max(0, 1 - fromMiddle) * (0.5f + GetImageColor(noise, x, y).R / 510f);
+                ImageDrawPixel(ref puff, x, y, new Color(255, 255, 255, (byte)(255 * alpha)));
+            }
+        var smoke = LoadTextureFromImage(puff);
+        UnloadImage(noise);
+        UnloadImage(puff);
         CreateParticleEmitter(new Vector3(0, 1.2f, 0), ParticleEmitter.Default with
         {
             MaxParticles = 400,
             Rate = 40,
             Life = 4,
             LifeVariation = 0.3f,
-            Velocity = new Vector3(0.3f, 1.1f, 0),
+            Velocity = new Vector3(0.6f, 2.2f, 0),
             Spread = 15,
             Radius = 0.2f,
-            Gravity = new Vector3(0.15f, 0.1f, 0),
-            StartSize = 0.5f,
-            EndSize = 2.2f,
-            StartColor = new Color(150, 150, 155, 150),
+            Gravity = new Vector3(0.15f, 0.4f, 0),
+            Drag = 0.8f,
+            StartSize = 0.6f,
+            EndSize = 2.6f,
+            StartColor = new Color(150, 150, 155, 170),
             EndColor = new Color(120, 120, 130, 0),
             Lit = true,
             Blend = ParticleBlend.Alpha,
+            Texture = smoke,
         });
         var sparks = CreateParticleEmitter(new Vector3(0, 0.4f, 0), ParticleEmitter.Default with
         {
@@ -103,6 +119,7 @@ public static class ShadersParticles
         UnloadModel(ground);
         UnloadModel(log);
         UnloadModel(stone);
+        UnloadTexture(smoke);
         CloseWindow();
     }
 }

@@ -123,10 +123,12 @@ internal sealed class ParticleRenderer : IDisposable
                     Seed(entity), Math.Max(0, emitter.Radius)),
                 StartColor = Linear(emitter.StartColor),
                 EndColor = Linear(emitter.EndColor),
-                Look = new Vector4(Math.Max(0, emitter.StartSize), Math.Max(0, emitter.EndSize), Math.Max(0, emitter.Intensity), emitter.Lit ? 1 : 0),
+                Look = new Vector4(Math.Max(0, emitter.StartSize), Math.Max(0, emitter.EndSize), Math.Max(0, emitter.Intensity),
+                    (emitter.Lit ? 1 : 0) + (emitter.Texture.IsValid ? 2 : 0)),
                 First = (uint)state.Next,
                 Count = (uint)born,
                 Capacity = (uint)capacity,
+                Drag = Math.Max(0, emitter.Drag),
             };
             state.Next = (state.Next + born) % capacity;
             device.RecordParticles(renderContext.CommandBuffer, state.Gpu, in step);
@@ -164,7 +166,6 @@ internal sealed class ParticleRenderer : IDisposable
         _vertex ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         _particleLayout ??= gfx.CreateDescriptorSetLayout(_particleBindings);
-        var material = models.PlainMaterial(gfx, textures);
         var lights = models.WindowLights(gfx, renderWorld, textures);
 
         foreach (var state in _drawn)
@@ -187,7 +188,8 @@ internal sealed class ParticleRenderer : IDisposable
                 gfx.UpdateDescriptorSet(state.DrawSet, new StorageBufferBinding(state.Gpu.Buffer, 0));
             }
             pass.SetPipeline(pipeline);
-            pass.SetBindGroup(pipeline, material, 0);
+            // The emitter's texture as the material's base color, which the shader samples in place of the dot.
+            pass.SetBindGroup(pipeline, models.TexturedMaterial(gfx, textures, state.Emitter.Texture.Id), 0);
             pass.SetBindGroup(pipeline, lights, 1);
             pass.SetBindGroup(pipeline, state.DrawSet, 2);
             pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
