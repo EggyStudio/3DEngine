@@ -306,6 +306,14 @@ public static partial class Engine3D
     /// <summary>The pairs of bodies that started touching in this frame's steps.</summary>
     public static IReadOnlyList<ContactStarted> GetPhysicsContacts() => World.ReadEvents<ContactStarted>();
 
+    /// <summary>The pairs of bodies that stopped touching in this frame's steps, as a body leaving a trigger.</summary>
+    /// <remarks>
+    /// A pair that touched and parted within the frame is in both this and
+    /// <see cref="GetPhysicsContacts"/>, and a body destroyed while touching ends its contacts with
+    /// the next step, so a door's sensor that counts who is in it by the two lists stays right.
+    /// </remarks>
+    public static IReadOnlyList<ContactEnded> GetPhysicsContactsEnded() => World.ReadEvents<ContactEnded>();
+
     /// <summary>Whether a body started touching anything in this frame's steps.</summary>
     public static bool IsPhysicsBodyHit(PhysicsBody body)
     {

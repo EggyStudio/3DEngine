@@ -1191,6 +1191,7 @@ static class Engine.Engine3D
   static GamepadButton? GetGamepadButtonPressed()
   static Gesture GetGestureDetected()
   static Glyph? GetGlyphInfo(Font font, int codepoint)
+  static IReadOnlyList<ContactEnded> GetPhysicsContactsEnded()
   static IReadOnlyList<ContactStarted> GetPhysicsContacts()
   static IReadOnlyList<Entity> LoadScene(string fileName)
   static Image GenImageCellular(int width, int height, int tileSize)

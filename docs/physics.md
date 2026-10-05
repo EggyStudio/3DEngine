@@ -148,6 +148,15 @@ foreach (var contact in GetPhysicsContacts())
     if (contact.BodyA == goal || contact.BodyB == goal) won = true;
 ```
 
+`GetPhysicsContactsEnded` lists the pairs that stopped touching this frame, so a door's sensor
+knows who is still in it by counting who entered and who left:
+
+```csharp
+foreach (var contact in GetPhysicsContacts()) if (contact.BodyA == sensor || contact.BodyB == sensor) inside++;
+foreach (var contact in GetPhysicsContactsEnded()) if (contact.BodyA == sensor || contact.BodyB == sensor) inside--;
+SetPhysicsHingeMotor(hinge, inside > 0 ? 120 : -120, 400);
+```
+
 A contact starts when a body enters, so a body already inside a trigger when it begins to be
 counted, as a car waiting at a start line inside the first gate, is never reported until it
 leaves and comes back.

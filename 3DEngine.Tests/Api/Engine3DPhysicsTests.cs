@@ -104,6 +104,16 @@ public sealed class Engine3DPhysicsTests : IDisposable
             return entered && GetPhysicsBodyVelocity(capsule).Length() < 0.01f && GetPhysicsBodyPosition(capsule).Y < 1.5f;
         }).Should().BeTrue("the capsule falls through the trigger and comes to rest on the floor");
         GetPhysicsBodyPosition(capsule).Y.Should().BeApproximately(1, 0.05f, "two units tall, it stands with its middle a unit up");
+
+        // Its top still reaches into the trigger, and moved aside it leaves it.
+        var left = false;
+        SetPhysicsBodyPosition(capsule, new Vector3(4, 1, 0));
+        RunUntil(() =>
+        {
+            foreach (var contact in GetPhysicsContactsEnded())
+                if ((contact.BodyA == gate && contact.BodyB == capsule) || (contact.BodyA == capsule && contact.BodyB == gate)) left = true;
+            return left;
+        }).Should().BeTrue("the capsule left the trigger");
     }
 
     [Fact]
