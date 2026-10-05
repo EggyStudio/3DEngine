@@ -1197,12 +1197,13 @@ internal sealed class ModelRenderer : IDisposable
     private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(_materialBindings);
 
     // What the particle pass borrows of this one, whose lighting it shares: the two layouts, a
-    // material whose base color is a texture, white for none, and the window's lights.
+    // material whose base color is a texture, white for none, and the lights of the window or of a
+    // render target.
     internal IDescriptorSetLayout MaterialSetLayout(IGraphicsDevice gfx) => MaterialLayout(gfx);
     internal IDescriptorSetLayout LightsSetLayout(IGraphicsDevice gfx) => LightsLayout(gfx);
     internal IDescriptorSet TexturedMaterial(IGraphicsDevice gfx, GpuTextures textures, int texture) =>
         MaterialSet(gfx, textures, new ModelDraw(0, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, texture));
-    internal IDescriptorSet WindowLights(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures) => LightsSet(gfx, renderWorld, textures, 0);
+    internal IDescriptorSet LightsFor(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target) => LightsSet(gfx, renderWorld, textures, target);
 
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(_lightsBindings);
 

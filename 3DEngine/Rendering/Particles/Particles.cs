@@ -172,25 +172,30 @@ internal sealed class ParticleRenderer : IDisposable
         new(BloomRenderer.SrgbToLinear(color.R / 255f), BloomRenderer.SrgbToLinear(color.G / 255f), BloomRenderer.SrgbToLinear(color.B / 255f), color.A / 255f);
 
     /// <summary>
-    /// Draws the particles stepped this frame into <paramref name="pass"/> through the window's
-    /// camera, after the window's meshes, lit by the window's lights where they ask to be.
+    /// Draws the particles stepped this frame into <paramref name="pass"/>, the window's through its
+    /// camera after its meshes, or a render target's through the camera its meshes were drawn
+    /// with, lit by that view's lights where they ask to be.
     /// </summary>
     /// <remarks>
     /// Emitters that add their light come first, in any order, and those laid over by alpha after
     /// them from the farthest from the camera to the nearest, so where two overlap the nearer is in
-    /// front. The particles within one emitter are not sorted.
+    /// front. The particles within one emitter are not sorted. A target that draws no mesh has no
+    /// camera to face, and draws none.
     /// </remarks>
-    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld)
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target = 0)
     {
-        if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>() is not { ViewProjection: { } viewProjection } frame) return;
+        if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>() is not { } frame) return;
         if (renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
+        var (camera, eye) = target == 0
+            ? (frame.ViewProjection, frame.Eye)
+            : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? (own, EyeOf(own)) : (null, Vector3.Zero);
+        if (camera is not { } viewProjection) return;
         var gfx = renderContext.Device;
         _vertex ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragment ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
         _particleLayout ??= gfx.CreateDescriptorSetLayout(_particleBindings);
-        var lights = models.WindowLights(gfx, renderWorld, textures);
+        var lights = models.LightsFor(gfx, renderWorld, textures, target);
 
-        var eye = frame.Eye;
         _drawn.Sort((a, b) => a.Emitter.Blend != b.Emitter.Blend
             ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1
             : a.Emitter.Blend == ParticleBlend.Alpha
@@ -223,6 +228,14 @@ internal sealed class ParticleRenderer : IDisposable
             pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in viewProjection)));
             pass.Draw(6, (uint)state.Gpu.Capacity);
         }
+    }
+
+    // Where a camera is, near enough, the middle of its near plane, which emitters are ordered from.
+    private static Vector3 EyeOf(Matrix4x4 viewProjection)
+    {
+        if (!Matrix4x4.Invert(viewProjection, out var inverse)) return Vector3.Zero;
+        var near = Vector4.Transform(new Vector4(0, 0, 0, 1), inverse);
+        return near.W == 0 ? Vector3.Zero : new Vector3(near.X, near.Y, near.Z) / near.W;
     }
 
     // Destroys what was let go once the frames in flight that might read it have finished.

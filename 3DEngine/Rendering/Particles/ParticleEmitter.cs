@@ -15,7 +15,7 @@ public enum ParticleBlend
 /// <summary>
 /// An emitter of particles at its entity's place, as smoke, sparks or dust: a stream of small
 /// squares that face the camera, born at a rate, moving and falling, and changing size and color
-/// over their lives, slowed by the air, simulated on the GPU and drawn into the window.
+/// over their lives, slowed by the air, simulated on the GPU and drawn into the window and render textures.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -31,7 +31,9 @@ public enum ParticleBlend
 /// An unlit particle gives off its color times <see cref="Intensity"/>, which blooms where it
 /// passes 1, and a lit one is lit by the scene's lights as a rough surface facing the camera.
 /// Particles are drawn after the window's meshes, with depth tested and not written, through the
-/// window's camera, and not into render textures or a probe's capture. Emitters laid over by
+/// window's camera, and into a render texture after the meshes drawn into it, through the camera
+/// those were drawn with, so a render texture with no mesh drawn into it has none. A probe's
+/// capture has none. Emitters laid over by
 /// alpha are drawn from the farthest from the camera to the nearest, so where two overlap the
 /// nearer is in front, and the particles within one are not sorted.
 /// </para>

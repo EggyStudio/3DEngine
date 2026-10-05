@@ -229,4 +229,38 @@ public sealed class ParticleTests : IDisposable
 
         ((int)middle.R).Should().BeGreaterThan(middle.B + 100, $"the nearer red cloud covers the farther blue one, not {middle}");
     }
+
+    [NeedsVulkanFact]
+    public void Particles_Are_Drawn_Into_A_Render_Texture_Through_Its_Camera()
+    {
+        Open();
+        var target = LoadRenderTexture(160, 120);
+        // A mesh drawn into the target, which gives it the camera the particles are drawn through.
+        var speck = LoadModelFromMesh(GenMeshCube(0.05f, 0.05f, 0.05f));
+        var cloud = CreateParticleEmitter(Vector3.Zero, Cloud(new Color(255, 30, 30)) with { Radius = 0.3f });
+        EmitParticles(cloud, 400);
+
+        var path = Path.Combine(_directory, "target.png");
+        for (int frame = 0; frame < 14 && !File.Exists(path); frame++)
+        {
+            BeginDrawing();
+            BeginTextureMode(target);
+            ClearBackground(Color.Black);
+            BeginMode3D(_camera);
+            DrawModel(speck, new Vector3(0, -2, 0), 1, Color.Gray);
+            EndMode3D();
+            EndTextureMode();
+            // The target shown in the window's top left quarter, its middle at (40, 30).
+            ClearBackground(Color.Black);
+            DrawTexturePro(target.Texture, new Rectangle(0, 0, 160, -120), new Rectangle(0, 0, 80, 60), Vector2.Zero, 0, Color.White);
+            if (frame == 3) TakeScreenshot(path);
+            EndDrawing();
+        }
+        File.Exists(path).Should().BeTrue();
+        var middle = GetImageColor(LoadImage(path), 40, 30);
+        ((int)middle.R).Should().BeGreaterThan(middle.G + 60, $"the red cloud is in the render texture, not {middle}");
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+        UnloadModel(speck);
+        UnloadRenderTexture(target);
+    }
 }

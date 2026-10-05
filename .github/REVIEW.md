@@ -75,3 +75,10 @@ does not. `PublicApi.txt` gains three functions, with their CHEATSHEET lines.
 from the farthest from the camera to the nearest, by where each emitter is, so where two clouds
 overlap the nearer covers the farther whichever was made first, which a test finds and which fails
 without the order. The particles within one emitter are still not sorted, which TODO.md says.
+
+**Particles in render textures.** `TargetsNode` draws the frame's particles into each render
+target after its meshes, through the camera those were drawn with and with that target's lights,
+emitters laid over by alpha ordered from that camera, so a scene drawn into a texture to be scaled
+or put through a shader of the program's keeps its smoke and sparks. A target with no mesh drawn
+into it has no camera, and draws none, which the documents say. A test finds a cloud in a texture
+drawn into a corner of the window, and fails without the change. Probe captures still have none.

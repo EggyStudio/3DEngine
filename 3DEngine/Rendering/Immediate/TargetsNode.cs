@@ -7,7 +7,8 @@ namespace Engine;
 /// <remarks>
 /// A target is drawn only in a frame that sends something to it. It is cleared first, to the color
 /// <c>ClearBackground</c> set inside its <c>BeginTextureMode</c> or to transparent black, then its
-/// models and its immediate shapes are drawn, in that order, as the window's are. A target that
+/// models, the particles through the camera its models were drawn with, and its immediate shapes
+/// are drawn, in that order, as the window's are. A target that
 /// draws models through a camera of its own has the shadow map drawn for that camera before it
 /// (<see cref="TargetShadows"/>), and the window's is drawn after every target.
 /// </remarks>
@@ -37,6 +38,7 @@ internal sealed class TargetsNode : INode
             pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
 
             models?.Draw(pass, target.RenderPass, renderContext, renderWorld, id);
+            renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, id);
             immediate?.Draw(pass, target.RenderPass, renderContext, renderWorld, id);
 
             pass.EndRenderPass();
