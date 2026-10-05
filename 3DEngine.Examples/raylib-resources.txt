@@ -49,3 +49,6 @@ models/resources/models/gltf/greenman_sword.glb
 models/resources/models/gltf/greenman_shield.glb
 models/resources/models/obj/turret.obj
 models/resources/models/obj/turret_diffuse.png
+audio/resources/sound.wav
+audio/resources/target.ogg
+audio/resources/country.mp3

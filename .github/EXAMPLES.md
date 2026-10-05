@@ -4,7 +4,7 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**139 written, 1 written in part, 43 can be written, 38 missing and 1 does not apply.** Of the 221 that apply, 183 can be written with what the flat API carries.
+**145 written, 1 written in part, 37 can be written, 38 missing and 1 does not apply.** Of the 221 that apply, 183 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
@@ -14,8 +14,8 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [Text](#text) | 11 | 0 | 0 | 5 | 0 |
 | [Models](#models) | 19 | 0 | 7 | 6 | 0 |
 | [Shaders](#shaders) | 2 | 0 | 29 | 5 | 0 |
-| [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **139** | **1** | **43** | **38** | **1** |
+| [Audio](#audio) | 7 | 0 | 1 | 3 | 0 |
+| **All** | **145** | **1** | **37** | **38** | **1** |
 
 ## Core
 
@@ -263,16 +263,16 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | Example | raylib | Here | State |
 |---|---|---|---|
 | [`audio_module_playing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_module_playing.c) |  |  | missing, music in the XM and MOD module formats, which no decoder here reads |
-| [`audio_music_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.c) |  |  | can be written |
+| [`audio_music_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_music_stream.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioMusicStream.cs) |
 | [`audio_raw_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioRawStream.cs) |
-| [`audio_sound_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.c) |  |  | can be written |
+| [`audio_sound_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound_loading.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSoundLoading.cs) |
 | [`audio_mixed_processor`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_mixed_processor.c) |  |  | missing, AttachAudioMixedProcessor, DetachAudioMixedProcessor |
 | [`audio_stream_effects`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_effects.c) |  |  | missing, AttachAudioStreamProcessor, DetachAudioStreamProcessor |
-| [`audio_sound_multi`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_multi.c) |  |  | can be written |
-| [`audio_sound_positioning`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_positioning.c) |  |  | can be written |
+| [`audio_sound_multi`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_multi.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_multi.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound_multi.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSoundMulti.cs) |
+| [`audio_sound_positioning`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_positioning.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_positioning.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound_positioning.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSoundPositioning.cs) |
 | [`audio_spectrum_visualizer`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_spectrum_visualizer.c) |  |  | can be written |
-| [`audio_stream_callback`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_callback.c) |  |  | can be written |
-| [`audio_amp_envelope`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_amp_envelope.c) |  |  | can be written, with ImGui in raygui's place |
+| [`audio_stream_callback`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_callback.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_stream_callback.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_stream_callback.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioStreamCallback.cs) |
+| [`audio_amp_envelope`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_amp_envelope.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_amp_envelope.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_amp_envelope.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioAmpEnvelope.cs), with ImGui in raygui's place |
 
 ## This engine's own
 

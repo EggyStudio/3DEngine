@@ -10,15 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `dc13ca69`. Twelve of raylib's models examples are written, `shapes_basic_3d` is
+Reviewed up to `1e47d1af`. Five more of raylib's models examples are written and three faults
+mended: a bone named as a mesh is found as the bone and not the mesh's node, a joint that weighs
+no vertex is kept, as raylib keeps it, and `UpdateModelAnimation` takes its frame as a float, a
+fraction posing between two frames, which reshapes a line of `PublicApi.txt` within 5.1. The
+first and the third have their tests in `Engine3DAnimationTests`, and the joint kept has none
+of its own yet (N 3.1), which the next batch that touches the reader gives it. `models_loading_iqm`
+is missing, Assimp's importer taking the mesh alone. The table stands at 139 written, 1 in
+part, 43 that can be and 38 missing, and the suite through the script at 1,224 passing. No
+verdict is open.
+
+Before it, twelve of raylib's models examples were written (`dc13ca69`), `shapes_basic_3d` is
 raylib's `models_geometric_shapes` under its name (N 5.1), and the mazes found three faults:
 `GenMeshCubicmap` gave every face the whole texture, stood each block half a cell off its pixel
 and had no roof, and is raylib's face for face; a `ModelMaterial` is single-sided unless set, as
 raylib draws a face and as the ECS material's `MaterialDescription` was; and `GenMeshSphere` was
 wound inside out, every sphere drawn by its far side, which `Engine3DModelTests` holds with the
 cube and the plane. Every example that draws a model was captured again and only the two mazes
-differ for more than time. The table stands at 134 written, 1 in part, 49 that can be and 37
-missing. No verdict is open.
+differ for more than time.
 
 Before it, the 25 of raylib's textures examples the flat API can carry were
 written, two of them held against raylib's C, and `LoadImageFromTexture` reads a texture loaded
@@ -197,17 +206,12 @@ None open.
 
 ## Replies
 
-**Now 2, five more of raylib's models examples.** `models_animation_timing`,
-`models_tesseract_view`, `models_basic_voxel`, `models_bone_socket` and `models_mesh_picking` are
-raylib's, written again from its source, the timing example with ImGui in raygui's place. Three
-faults were found and mended. raylib's robot, which `models_loading_gltf` and the timing example
-play, came apart, its head tipped back and its limbs away from it. Its file names a mesh and a
-bone each `Head`, as Blender's exports do, and the skeleton took a bone by the first node of its
-name, the mesh. A repeated name is now the node without a mesh, which `Engine3DAnimationTests`
-holds. The bone socket found no sockets, since Assimp leaves out a joint that weighs no vertex,
-which raylib keeps, and the reader now asks Assimp to keep them. `UpdateModelAnimation` takes a
-frame as a float, as raylib's does, a fraction posing between the two frames either side, so the
-timing example plays at half speed smoothly. `models_loading_iqm` is missing rather than written,
-its row saying why: Assimp's IQM importer takes the mesh alone, without its skeleton or clips,
-which raylib's loader reads. The table stands at 139 written, 1 in part, 43 that can be, 38
-missing and 1 that does not apply.
+**Now 2, six of raylib's audio examples.** `audio_sound_loading`, `audio_sound_multi`,
+`audio_sound_positioning`, `audio_music_stream`, `audio_stream_callback` and `audio_amp_envelope`
+are raylib's, written again from its source, their sounds fetched from raylib's examples, the
+envelope's sliders ImGui's in raygui's place. raylib's audio callback writes samples through a
+pointer, which here is a `Span<float>`. The positioning example plays the engine's own `coin.wav`,
+which has raylib's name and place. The callback example's waveform reads one sample past its
+buffer in raylib's C, which C allows, and here that last index is held to the buffer's end. The
+spectrum visualizer waits for the shaders, being one. The table stands at 145 written, 1 in part,
+37 that can be, 38 missing and 1 that does not apply.
