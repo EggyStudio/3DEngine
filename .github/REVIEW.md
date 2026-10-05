@@ -68,3 +68,14 @@ None open.
 
 ## Replies
 
+
+**Now 2, before the walk.** Reading the engine against the walk's list found three things it
+could not do, now done in three commits. ImGui had gamepad navigation switched on and was never
+given a pad's buttons, so no menu could be played with a pad (`4161a8c5`). Vsync was fixed as
+the window opened, so no settings screen could change it, and `SetWindowSize` did nothing in an
+offscreen run (`5aae4257`). And nothing a level loaded through `ModelRef` or `SceneRef` was ever
+let go: the asset server's handle counts were taken and never given back, the renderer kept every
+texture it had copied, and parsed prefab files stayed. A model, the textures its materials named
+and a prefab's parsed copy are now let go some seconds after no entity uses them, the counts
+being the server's own so what a program loaded itself stays, and `memory` reports the asset
+count for a soak to bound. The walk itself follows.

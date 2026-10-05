@@ -188,7 +188,11 @@ when a `CharacterController` is beside a capsule. A `Joint` on an entity of its 
 entities' bodies at its place, and a `PhysicsMaterial` beside a `Collider` gives its body a friction
 and a bounce. A scene file placed in another with `SceneRef` is spawned when the reference first
 appears, and again in place of that copy when the file is written while the level runs. An older
-file is read by keeping the fields it has, with no migration.
+file is read by keeping the fields it has, with no migration. The models, textures and parsed
+scene files a level loads through its references are let go some seconds after no entity uses
+them (`AssetRelease`), so a level streamed in as the player nears holds what is near. A scene
+spawned again by hot reload, or by a program calling `SceneSpawner.Spawn` itself, keeps its
+textures until the program ends.
 
 `SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
 field of `SceneMaterialPayload`.

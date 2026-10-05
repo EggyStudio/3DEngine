@@ -78,7 +78,10 @@ public static class ModelRefSystem
             if (server is null) continue;
             try
             {
-                ecs.Add(entity, new SpawnSceneRequest { Handle = server.Load<SceneAsset>(path) });
+                var handle = server.Load<SceneAsset>(path);
+                ecs.Add(entity, new SpawnSceneRequest { Handle = handle });
+                // The model is held while the entity naming it is, and let go some time after.
+                if (world.TryGetResource<AssetRelease>(out var release)) release.HoldModel(ecs.Handle(entity), handle.Id);
             }
             catch (InvalidOperationException ex)
             {
@@ -226,6 +229,7 @@ public static class SceneRefSystem
         try
         {
             ecs.GetRef<SceneRefSpawned>(entity) = new SceneRefSpawned { File = file, Written = written };
+            if (world.TryGetResource<AssetRelease>(out var release)) release.HoldFile(ecs.Handle(entity), file);
             if (!Versions.TryGetValue(file, out var version) || version.Written != written)
             {
                 var parsed = JsonDocument.Parse(File.ReadAllText(file));
@@ -266,6 +270,18 @@ public static class SceneRefSystem
     }
 
     private static readonly Dictionary<string, Version> Versions = [];
+
+    // Whether a file's parsed copy is kept, for the tests.
+    internal static bool IsParsed(string file) => Versions.ContainsKey(file);
+
+    /// <summary>Drops a file's parsed copy and the meshes its copies shared, once no entity spawned from it is left.</summary>
+    /// <returns>Whether the file was held.</returns>
+    internal static bool Forget(string file)
+    {
+        if (!Versions.Remove(file, out var version)) return false;
+        version.Document.Dispose();
+        return true;
+    }
 
     // How many of the entity and its ancestors were spawned by a reference of their own.
     private static int Depth(EcsWorld ecs, int entity)

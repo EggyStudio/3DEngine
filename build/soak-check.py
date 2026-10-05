@@ -18,6 +18,7 @@ SLACK = {
     "pipelines": (0.0, 2),
     "entities": (0.10, 10),
     "entityIds": (0.10, 10),
+    "assets": (0.10, 4),
 }
 
 def read(path):

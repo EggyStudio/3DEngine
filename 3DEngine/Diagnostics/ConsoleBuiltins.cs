@@ -138,7 +138,7 @@ internal static class ConsoleBuiltins
         }
     }
 
-    [Command("memory", "What the program holds, as name and number pairs: managed memory, the GPU's buffers, images, descriptor sets, pipelines and memory, and entities")]
+    [Command("memory", "What the program holds, as name and number pairs: managed memory, entities, the asset server's assets, and the GPU's buffers, images, descriptor sets, pipelines and memory")]
     internal static string Memory()
     {
         // Read as the program left them, without a collection, so a climb shows as it happens and
@@ -148,6 +148,9 @@ internal static class ConsoleBuiltins
         var line = $"managed {managed} heap {heap} gen2 {GC.CollectionCount(2)}";
         if (ConsoleHost.World?.TryGetResource<EcsWorld>(out var ecs) == true)
             line += $" entities {ecs.EntityCount} entityIds {ecs.EntityIdRange}";
+        // The files the asset server knows, which a level that lets nothing go climbs by as it streams.
+        if (ConsoleHost.World?.TryGetResource<AssetServer>(out var server) == true)
+            line += $" assets {server.TrackedAssetCount}";
         if (ConsoleHost.World?.TryGetResource<Renderer>(out var renderer) == true && renderer.Context.Graphics is GraphicsDevice device)
         {
             var usage = device.Usage;

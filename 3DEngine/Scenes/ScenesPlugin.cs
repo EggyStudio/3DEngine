@@ -57,6 +57,10 @@ public sealed class ScenesPlugin : IPlugin
         // last until Stage.Last, so the order between them does not matter.
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(SceneHotReloadSystem.Run, "SceneHotReloadSystem").MainThreadOnly());
 
+        // What a level loaded through its references is let go some time after no entity uses it.
+        app.World.InsertResource(new AssetRelease());
+        app.AddSystem(Stage.PreUpdate, new SystemDescriptor(AssetRelease.Run, "AssetRelease").MainThreadOnly());
+
         Logger.Info("ScenesPlugin: Scene model ready.");
     }
 }

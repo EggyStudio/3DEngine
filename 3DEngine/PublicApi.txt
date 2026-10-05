@@ -161,6 +161,12 @@ sealed class Engine.AssetProcessorPipeline
   Task<bool> ProcessFileAsync(string relativePath, CancellationToken ct = default)
   Task<int> ProcessAllAsync(CancellationToken ct = default)
   void ClearCache()
+sealed class Engine.AssetRelease
+  AssetRelease()
+  double Grace { get; set; }
+  int Held { get; }
+  int Released { get; }
+  static void Run(World world)
 sealed class Engine.AssetServer : IDisposable
   AssetServer AddSource(IAssetReader reader, string? label = null)
   AssetServer RegisterLoader<T>(IAssetLoader<T?> loader)
@@ -3964,13 +3970,13 @@ sealed class Engine.RendererContext : IDisposable
   void EndFrame(IFrameContext frameContext, uint imageIndex)
   void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1, bool vsync = false)
   void OnResize()
+  void SetVsync(bool vsync)
 sealed class Engine.RendererDiagnostics
   Extent2D SurfaceExtent { get; }
   GraphicsAdapterInfo AdapterInfo { get; }
   RendererDiagnostics()
   ulong FramesRendered { get; }
   ulong SurfaceRevision { get; }
-  void SetVsync(bool vsync)
 struct Engine.RigidBody
   BodyKind Kind
   float Mass
@@ -4415,6 +4421,7 @@ sealed class Engine.SdlAudioPlugin : IPlugin
   SdlAudioPlugin()
   void Build(App app)
 static class Engine.SdlImGuiInput
+  static void FeedGamepad(GamepadState? pad)
   static void ProcessEvent(SDL.Event e)
 sealed class Engine.SdlImGuiPlugin : IPlugin
   SdlImGuiPlugin()
@@ -4422,7 +4429,6 @@ sealed class Engine.SdlImGuiPlugin : IPlugin
 sealed class Engine.SdlImGuiRenderer : IDisposable
   SdlImGuiRenderer(nint renderer)
   void Dispose()
-  static void FeedGamepad(GamepadState? pad)
   void NewFrame(nint window)
   void RenderDrawData(ImDrawDataPtr drawData)
 sealed class Engine.SdlInput
@@ -4814,15 +4820,15 @@ sealed class Engine.SubStateOfAttribute : Attribute
   object? Initial { get; set; }
 sealed class Engine.SurfaceResize
   bool Empty { get; }
+  bool Vsync { get; }
   void Request(int width, int height)
+  void RequestVsync(bool vsync)
 sealed class Engine.SwapchainTarget
   Extent2D Extent { get; }
   IFramebuffer Framebuffer { get; }
   IRenderPass RenderPass { get; }
   SwapchainTarget(IRenderPass renderPass, IFramebuffer framebuffer, Extent2D extent)
-  bool Vsync { get; }
 sealed class Engine.SyntheticInput
-  void RequestVsync(bool vsync)
   SyntheticInput()
   const uint ConsolePadId = 12648430u
   static GamepadState? Pad(Input input, int index)

@@ -195,6 +195,30 @@ prefabs, each copy taking a small part of a millisecond. A placed file saved aga
 `scene.save`, is spawned again in place of every copy within half a second, so a prefab is edited
 while the game shows it.
 
+## A level streamed in
+
+A level larger than memory should hold is placed a piece at a time: an entity with a `SceneRef`
+spawned for each part of the level as the player comes near, and despawned with what is under it
+once they are far, so only the near parts are drawn and simulated.
+
+```csharp
+// The part of the level a cell holds, near the player.
+var cell = ecs.Spawn();
+ecs.Add(cell, new SceneRef { Path = $"resources/cells/{x}-{z}.json" });
+ecs.Add(cell, new Transform(new Vector3(x * CellSize, 0, z * CellSize)));
+// ...and once the player is far from it.
+ecs.DespawnRecursive(cell);
+```
+
+What a level loads through its references is let go once no entity uses it: a model once no
+`ModelRef` names it, a texture once no spawned material names it, and a scene file's parsed copy
+once no copy of it is left. Each waits `AssetRelease.Grace` seconds first, ten unless set, so a
+room left and entered again is not read again. The meshes go from the GPU in the first frame no
+entity draws them. What the program loads itself, with `AssetServer.Load` or the flat API's
+`Load` functions, stays until the program lets it go, even where a level used the same file. The
+`memory` command reports the assets the server knows, which climbs as a level streams in and
+settles once what is left behind is let go.
+
 ## From outside
 
 The console's `scene.save` and `scene.load` commands save and load the running program's world,

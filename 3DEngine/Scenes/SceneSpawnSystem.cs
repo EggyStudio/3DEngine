@@ -42,6 +42,7 @@ public static class SceneSpawnSystem
         // SceneMaterialPayload as a MaterialDescription and stash the resulting
         // handle on Material.Handle for the renderer's per-material pipeline cache.
         world.TryGetResource<MaterialLibrary>(out var materialLibrary);
+        world.TryGetResource<AssetRelease>(out var release);
 
         // Snapshot first: SceneSpawner.Spawn mutates the world (Spawn + Add), and
         // EcsWorld.Query yields live references; iterating a stale snapshot keeps the
@@ -61,10 +62,13 @@ public static class SceneSpawnSystem
             try
             {
                 var settings = request.Settings ?? SceneSpawnSettings.Default;
-                var entities = SceneSpawner.Spawn(
+                var textures = new List<AssetId>();
+                var entities = SceneSpawner.SpawnTaking(
                     ecs, asset.Scene, settings, request.Handle.Id.Value,
-                    assetServer, asset.SourcePath, materialLibrary);
+                    assetServer, asset.SourcePath, materialLibrary, textures);
                 tracking.Track(request.Handle.Id, entities, settings);
+                // The textures the materials loaded are held while any entity spawned with them is.
+                release?.HoldTextures(entities.Select(ecs.Handle).ToArray(), textures);
 
                 // The scene hangs under the entity that asked for it, so that entity's Transform
                 // places it. One with no Transform composes as identity, as before.

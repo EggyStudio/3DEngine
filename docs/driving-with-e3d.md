@@ -49,8 +49,9 @@ engine's own, which read and change the ECS:
 ```
 
 `memory` answers with what the program holds, as name and number pairs: the managed heap, the GPU's
-buffers, images, descriptor sets, pipelines and memory, and the entities with the range of their
-ids. Read at intervals while a game is played, as `build/soak.sh` does, a value that keeps
+buffers, images, descriptor sets, pipelines and memory, the entities with the range of their
+ids, and the assets the asset server knows, which a level streamed in climbs by until what it
+leaves behind is let go. Read at intervals while a game is played, as `build/soak.sh` does, a value that keeps
 climbing is a leak.
 
 `window.size 1280 720`, `window.minimize`, `window.restore`, `window.position` and `window.monitor`

@@ -76,7 +76,20 @@ public static class SceneSpawner
         ulong sceneAssetId = 0,
         AssetServer? assetServer = null,
         string? sceneSourcePath = null,
-        MaterialLibrary? materialLibrary = null)
+        MaterialLibrary? materialLibrary = null) =>
+        SpawnTaking(ecs, scene, settings, sceneAssetId, assetServer, sceneSourcePath, materialLibrary, taken: null);
+
+    // The same, adding each texture a material loaded to taken, a load each, which the spawn
+    // driver gives back once the spawned entities are gone (AssetRelease).
+    internal static List<int> SpawnTaking(
+        EcsWorld ecs,
+        Scene scene,
+        SceneSpawnSettings? settings,
+        ulong sceneAssetId,
+        AssetServer? assetServer,
+        string? sceneSourcePath,
+        MaterialLibrary? materialLibrary,
+        List<AssetId>? taken)
     {
         ArgumentNullException.ThrowIfNull(ecs);
         ArgumentNullException.ThrowIfNull(scene);
@@ -84,7 +97,7 @@ public static class SceneSpawner
 
         var entities = new List<int>();
         var rootMatrix = ComputeRootMatrix(scene, settings);
-        var ctx = new SpawnContext(assetServer, sceneSourcePath, materialLibrary, scene);
+        var ctx = new SpawnContext(assetServer, sceneSourcePath, materialLibrary, scene, taken);
 
         foreach (var node in scene.Roots)
             SpawnRecursive(ecs, node, rootMatrix, settings, sceneAssetId, entities, ctx);
@@ -100,9 +113,11 @@ public static class SceneSpawner
         public MaterialLibrary? Materials { get; }
         public Scene Scene { get; }
         public string SceneKey { get; }
-        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials, Scene scene)
+        public List<AssetId>? Taken { get; }
+        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials, Scene scene, List<AssetId>? taken)
         {
             Server = server;
+            Taken = taken;
             SceneDirectory = ResolveSceneDirectory(sceneSourcePath);
             Materials = materials;
             Scene = scene;
@@ -387,9 +402,11 @@ public static class SceneSpawner
         var resolved = EmbeddedTexturePath(ctx, texRef.AssetPath) ?? ResolveTexturePath(ctx.SceneDirectory, texRef.AssetPath);
         if (string.IsNullOrEmpty(resolved)) return Handle<Texture>.Invalid;
 
-        return srgb
+        var handle = srgb
             ? ctx.Server.LoadTextureSrgb(resolved, generateMips: true)
             : ctx.Server.LoadTextureLinear(resolved, generateMips: true);
+        ctx.Taken?.Add(handle.Id);
+        return handle;
     }
 
     /// <summary>
