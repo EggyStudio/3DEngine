@@ -35,13 +35,18 @@ removed from this file, and an item that is partly done is rewritten around what
   on every machine, and more workers save little at these sizes (4.4 ms with four at 2000, and
   thirty-one take longer than one at 290), so a world of thousands of bodies sets it.
 
-- **Ground loaded for the first time costs a frame of 25 to 50 ms.** `games/Manor` streams its
-  estate in as cells of prefabs, and walking into cells whose models and textures have not been
-  loaded before takes frames of 25 to 50 ms as they arrive (offscreen on an RTX 4070 laptop), where cells
-  of models loaded already cost nothing a frame shows. Where those milliseconds go is not yet
-  measured. The prefab file read and parsed on the main thread, the meshes and textures uploaded,
-  the mesh colliders made and the probes captured are the candidates, and the frame profile split
-  by them is the first step.
+- **Ground loaded for the first time costs a frame of up to 22 ms.** `games/Manor` streams its
+  estate in as cells of prefabs, and its walk's worst frame offscreen was 47 ms, read with
+  `profile.slowest`. Four causes were found and moved off the frame: a stage's batch of tiny
+  systems waiting on the thread pool behind the loads (up to 47 ms), each model file read with
+  Assimp on the main thread to look for clips (8 to 10 ms), each texture upload waiting for the
+  frames in flight (20 ms for a cell's textures), and a probe's readback waiting for its whole frame
+  (8 to 24 ms). The worst frame of a walk is now 22 ms, and 19 to 25 ms in a native build. What is
+  left is the first frames' compiling of code a JIT build has not run yet, the physics step's
+  shapes and joints most of it (up to 15 ms after a warm-up on a worker), a probe's six faces
+  recorded in one frame (3 to 5 ms), images made for a cell's textures (5 ms), and the first
+  shadow pass (17 ms once). Recording a probe's faces over six frames and making images under a
+  budget a frame are the next steps.
 
 ### The flat API
 

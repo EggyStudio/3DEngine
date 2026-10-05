@@ -139,11 +139,17 @@ public sealed class FrameProfilePlugin : IPlugin
             .MainThreadOnly());
     }
 
+    private static TimeSpan _paused = GC.GetTotalPauseDuration();
+
     // The frame just ended, read before the schedule overwrites its numbers with this frame's.
     private static void Measure(World world)
     {
         var profile = world.Resource<FrameProfile>();
         if (world.TryGetResource<Time>(out var time) && time.DeltaSeconds > 0) profile.Add("frame", time.DeltaSeconds * 1000);
+        // The garbage collector's pauses in the frame, which land in whatever stage was running.
+        var paused = GC.GetTotalPauseDuration();
+        profile.Add("gc.pause", (paused - _paused).TotalMilliseconds);
+        _paused = paused;
 
         if (world.TryGetResource<ScheduleDiagnostics>(out var schedule))
         {
