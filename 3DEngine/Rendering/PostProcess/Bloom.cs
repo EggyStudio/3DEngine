@@ -56,6 +56,21 @@ public sealed class BloomRenderer : IDisposable
         public float TexelX, TexelY, Threshold, Mode;
     }
 
+    // As dof.slang and motion_blur.slang read them.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct DofPush
+    {
+        public Matrix4x4 InverseViewProjection;
+        public Vector4 EyeAndFocus, Lens;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct BlurPush
+    {
+        public Matrix4x4 Reprojection;
+        public Vector4 Amount;
+    }
+
     // As exposure.slang reads it.
     [StructLayout(LayoutKind.Sequential)]
     private struct ExposurePush
@@ -84,8 +99,18 @@ public sealed class BloomRenderer : IDisposable
     // The sets each pass reads its images through, as its shader declares them.
     private readonly DescriptorSetLayoutBinding[] _bloomBindings, _compositeBindings, _fxaaBindings, _exposureBindings;
     private IDescriptorSetLayout? _oneTexture, _twoTextures, _fxaaLayout, _exposureLayout;
-    private ISampler? _sampler;
-    private IPipeline? _down, _up, _measure;
+    private ISampler? _sampler, _depthSampler;
+    private IPipeline? _down, _up, _measure, _dof, _blur;
+    // The depth of field's and the motion blur's passes, which read the scene and its depth.
+    private readonly ReadOnlyMemory<byte> _dofVertexSpv, _dofFragmentSpv, _blurVertexSpv, _blurFragmentSpv;
+    private readonly DescriptorSetLayoutBinding[] _lensBindings;
+    private IShader? _dofVertex, _dofFragment, _blurVertex, _blurFragment;
+    private IDescriptorSetLayout? _lensLayout;
+    // The image the composite reads this frame, the scene or the last lens pass's, and the camera
+    // of the frame before with the frame it was seen in, which motion blur measures movement from.
+    private IImageView? _shown;
+    private Matrix4x4? _lastViewProjection;
+    private long _lastViewFrame = -2;
     // The exposure that follows the scene. The measured log luminance of the frame, the two texels
     // the adapted value goes back and forth between, one written each frame from the other, and
     // which was written last.
@@ -108,6 +133,12 @@ public sealed class BloomRenderer : IDisposable
     private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet[] down, IDescriptorSet[] up,
         IDescriptorSet[] composite, IDescriptorSet measure) : IDisposable
     {
+        // The composite's sets by the image they read, the scene or a lens pass's, the two lens
+        // passes' targets once one is on, and their sets by the image they read with the depth.
+        public Dictionary<IImageView, IDescriptorSet[]> CompositeFrom { get; } = new() { [scene.ColorView] = composite };
+        public RenderTarget[]? Lens { get; set; }
+        public Dictionary<(IImageView Source, bool Exact), IDescriptorSet> LensFrom { get; } = [];
+
         // The 8-bit frame the composite draws into for FXAA to read, made the first frame FXAA is on.
         public RenderTarget? Shown { get; set; }
         public IDescriptorSet? ShownSet { get; set; }
@@ -117,16 +148,18 @@ public sealed class BloomRenderer : IDisposable
         public RenderTarget[] Levels { get; } = levels;
         public IDescriptorSet[] Down { get; } = down;
         public IDescriptorSet[] Up { get; } = up;
-        // The composite's set reading each of the two adapted exposures, and the set the frame is
-        // measured through.
-        public IDescriptorSet[] Composite { get; } = composite;
+        // The set the frame is measured through.
         public IDescriptorSet Measure { get; } = measure;
 
         public void Dispose()
         {
             foreach (var set in Down) set.Dispose();
             foreach (var set in Up) set.Dispose();
-            foreach (var set in Composite) set.Dispose();
+            foreach (var sets in CompositeFrom.Values)
+                foreach (var set in sets) set.Dispose();
+            foreach (var set in LensFrom.Values) set.Dispose();
+            if (Lens is not null)
+                foreach (var target in Lens) target.Dispose();
             Measure.Dispose();
             ShownSet?.Dispose();
             Shown?.Dispose();
@@ -135,9 +168,15 @@ public sealed class BloomRenderer : IDisposable
         }
     }
 
-    /// <summary>Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c>, <c>fxaa.slang</c> and <c>exposure.slang</c>, compiled.</summary>
-    public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa, ShaderProgram exposure)
+    /// <summary>
+    /// Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c>, <c>fxaa.slang</c>,
+    /// <c>exposure.slang</c>, <c>dof.slang</c> and <c>motion_blur.slang</c>, compiled.
+    /// </summary>
+    public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa, ShaderProgram exposure,
+        ShaderProgram dof, ShaderProgram motionBlur)
     {
+        (_dofVertexSpv, _dofFragmentSpv, _lensBindings) = (dof.Vertex, dof.Fragment, dof.LayoutOf(0));
+        (_blurVertexSpv, _blurFragmentSpv) = (motionBlur.Vertex, motionBlur.Fragment);
         (_exposureVertexSpv, _exposureFragmentSpv, _exposureBindings) = (exposure.Vertex, exposure.Fragment, exposure.LayoutOf(0));
         (_bloomVertexSpv, _bloomFragmentSpv, _bloomBindings) = (bloom.Vertex, bloom.Fragment, bloom.LayoutOf(0));
         (_compositeVertexSpv, _compositeFragmentSpv, _compositeBindings) = (composite.Vertex, composite.Fragment, composite.LayoutOf(0));
@@ -158,6 +197,7 @@ public sealed class BloomRenderer : IDisposable
     {
         if (renderContext.Device is not GraphicsDevice device) return false;
         Retire();
+        _shown = null;
         var sized = Ensure(device, renderContext, extent);
         var clear = renderWorld.TryGet<ClearColor>() is { } set ? set : ClearColor.Black;
         var linear = new ClearColor(SrgbToLinear(clear.R), SrgbToLinear(clear.G), SrgbToLinear(clear.B), clear.A);
@@ -214,7 +254,7 @@ public sealed class BloomRenderer : IDisposable
             Exposure = new Vector4(effects.AutoExposure && _adaptedFrame == _frame ? 1 : 0, AutoExposureKey, 0, 0),
         };
         pass.SetPipeline(pipeline);
-        pass.SetBindGroup(pipeline, sized.Composite[_adaptedLast]);
+        pass.SetBindGroup(pipeline, CompositeSets(renderContext.Device, sized, _shown ?? sized.Scene.ColorView)[_adaptedLast]);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<CompositePush>(in push)));
         pass.Draw(3);
     }
@@ -274,6 +314,92 @@ public sealed class BloomRenderer : IDisposable
         pass.SetBindGroup(pipeline, set);
         pass.PushConstants(pipeline, ShaderStageFlags.Fragment, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<T>(in push)));
         pass.Draw(3);
+    }
+
+    /// <summary>
+    /// Blurs the HDR frame by its depth of field and the camera's movement as <paramref name="effects"/>
+    /// says, in passes of their own that the composite then reads in place of the scene.
+    /// </summary>
+    public void Lens(RenderContext renderContext, FrameEffects effects, WindowView? view)
+    {
+        // The camera of the frame before, kept only from the frame before this one, so a frame after
+        // others drawn without the HDR frame does not blur by a movement long past.
+        Matrix4x4? last = _lastViewFrame == _frame - 1 ? _lastViewProjection : null;
+        (_lastViewProjection, _lastViewFrame) = (view?.ViewProjection, _frame);
+        if (_sized is not { } sized || view is null || renderContext.Device is not GraphicsDevice device) return;
+        var focus = effects.FocusBlur > 0;
+        var blur = effects.MotionBlur > 0 && last is not null;
+        if (!focus && !blur) return;
+
+        EnsureLens(device, sized);
+        Matrix4x4.Invert(view.ViewProjection, out var inverse);
+        var lens = sized.Lens!;
+        var source = sized.Scene.ColorView;
+        if (focus)
+        {
+            var push = new DofPush
+            {
+                InverseViewProjection = inverse,
+                EyeAndFocus = new Vector4(view.Eye, effects.FocusDistance),
+                Lens = new Vector4(effects.FocusRange, effects.FocusBlur, (float)sized.Extent.Width / sized.Extent.Height, sized.Extent.Height),
+            };
+            Pass(renderContext, lens[0], LoadOp.Clear, _dof!, LensSet(device, sized, source, exact: true), push);
+            source = lens[0].ColorView;
+        }
+        if (blur)
+        {
+            // This frame's clip space to the world and on through the camera of the frame before,
+            // as System.Numerics multiplies a row vector.
+            var push = new BlurPush { Reprojection = inverse * last!.Value, Amount = new Vector4(effects.MotionBlur, 0.1f, 0, 0) };
+            Pass(renderContext, lens[1], LoadOp.Clear, _blur!, LensSet(device, sized, source, exact: false), push);
+            source = lens[1].ColorView;
+        }
+        _shown = source;
+    }
+
+    // The lens passes' targets, half floats with no depth at the window's size, their shaders and
+    // their pipelines, made the first time one is on.
+    private void EnsureLens(GraphicsDevice device, Sized sized)
+    {
+        _lensLayout ??= device.CreateDescriptorSetLayout(_lensBindings);
+        _dofVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _dofVertexSpv));
+        _dofFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _dofFragmentSpv));
+        _blurVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _blurVertexSpv));
+        _blurFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _blurFragmentSpv));
+        sized.Lens ??= [.. Enumerable.Range(0, 2).Select(_ =>
+            device.CreateRenderTarget(sized.Extent.Width, sized.Extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false))];
+        _dof ??= Pipeline(device, sized.Lens[0].RenderPass, _dofVertex, _dofFragment, _lensLayout, additive: false, Marshal.SizeOf<DofPush>());
+        _blur ??= Pipeline(device, sized.Lens[0].RenderPass, _blurVertex, _blurFragment, _lensLayout, additive: false, Marshal.SizeOf<BlurPush>());
+    }
+
+    // The set a lens pass reads an image through, with the scene's depth beside it. Depth is read
+    // as it is, since filtering it across an edge gives a distance between the two sides that
+    // neither has, and the depth of field reads color as it is too, since a tap whose depth is the
+    // background's and whose filtered color takes in a sharp thing beside it spread that thing in
+    // faint copies round itself.
+    private IDescriptorSet LensSet(GraphicsDevice device, Sized sized, IImageView source, bool exact)
+    {
+        if (sized.LensFrom.TryGetValue((source, exact), out var set)) return set;
+        _depthSampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
+            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+        set = device.CreateDescriptorSet(_lensLayout!);
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(source, exact ? _depthSampler : _sampler!, 0));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 1));
+        return sized.LensFrom[(source, exact)] = set;
+    }
+
+    // The composite's sets reading an image, one for each of the two adapted exposures.
+    private IDescriptorSet[] CompositeSets(IGraphicsDevice gfx, Sized sized, IImageView source)
+    {
+        if (sized.CompositeFrom.TryGetValue(source, out var sets)) return sets;
+        return sized.CompositeFrom[source] = [.. _adapted!.Select(exposure =>
+        {
+            var set = gfx.CreateDescriptorSet(_twoTextures!);
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(source, _sampler!, 0));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sized.Levels[0].ColorView, _sampler!, 1));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(exposure.ColorView, _sampler!, 2));
+            return set;
+        })];
     }
 
     /// <summary>
@@ -413,6 +539,13 @@ public sealed class BloomRenderer : IDisposable
         _down?.Dispose();
         _up?.Dispose();
         _measure?.Dispose();
+        _dof?.Dispose();
+        _blur?.Dispose();
+        _dofVertex?.Dispose();
+        _dofFragment?.Dispose();
+        _blurVertex?.Dispose();
+        _blurFragment?.Dispose();
+        _lensLayout?.Dispose();
         _measured?.Dispose();
         if (_adapted is not null)
             foreach (var target in _adapted) target.Dispose();
@@ -431,6 +564,7 @@ public sealed class BloomRenderer : IDisposable
         _twoTextures?.Dispose();
         _fxaaLayout?.Dispose();
         _sampler?.Dispose();
+        _depthSampler?.Dispose();
     }
 }
 
@@ -483,8 +617,12 @@ public sealed class BloomNode : INode
         if (renderWorld.TryGet<BloomFrame>() is null || renderWorld.TryGet<BloomRenderer>() is not { } renderer) return;
         var bloom = renderWorld.TryGet<BloomSettings>();
         if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom.Threshold);
-        if (renderWorld.TryGet<FrameEffects>() is { AutoExposure: true } adapting) renderer.Adapt(renderContext, adapting);
+        var effects = renderWorld.TryGet<FrameEffects>();
+        if (effects is { AutoExposure: true }) renderer.Adapt(renderContext, effects);
+        // The depth of field and motion blur, run with bloom alone too, so motion blur knows the
+        // camera of the frame before once it is turned on.
+        renderer.Lens(renderContext, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
         // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
-        if (renderWorld.TryGet<FrameEffects>() is { Fxaa: true } effects) renderer.CompositeForFxaa(renderContext, bloom, effects);
+        if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, bloom, effects);
     }
 }

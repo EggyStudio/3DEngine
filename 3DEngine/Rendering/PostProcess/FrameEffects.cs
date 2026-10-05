@@ -24,7 +24,8 @@ public enum Tonemap
 /// <summary>
 /// The effects over the frame besides bloom, a world resource the renderer reads each frame, which
 /// the flat API's <c>SetExposure</c>, <c>SetAutoExposure</c>, <c>SetTonemap</c>,
-/// <c>SetColorGrading</c>, <c>SetVignette</c> and <c>SetFxaa</c> set.
+/// <c>SetColorGrading</c>, <c>SetVignette</c>, <c>SetFxaa</c>, <c>SetDepthOfField</c> and
+/// <c>SetMotionBlur</c> set.
 /// </summary>
 /// <remarks>
 /// Any of them away from its default draws the scene through the HDR frame, as bloom does, and
@@ -69,7 +70,19 @@ public sealed class FrameEffects
     /// <summary>Whether FXAA smooths the edges multisampling leaves, those inside a surface and of thin lines.</summary>
     public bool Fxaa { get; set; }
 
+    /// <summary>The distance from the camera that is sharp, for the depth of field.</summary>
+    public float FocusDistance { get; set; } = 10;
+
+    /// <summary>How far before and past the focus the blur grows to its widest.</summary>
+    public float FocusRange { get; set; } = 5;
+
+    /// <summary>The widest blur, as a share of the picture's height, 0 for no depth of field.</summary>
+    public float FocusBlur { get; set; }
+
+    /// <summary>The share of the camera's movement in a frame blurred along, 0 for no motion blur and 0.5 as a film camera's shutter.</summary>
+    public float MotionBlur { get; set; }
+
     /// <summary>Whether any effect is away from its default, which draws the frame through the HDR target.</summary>
     public bool Active => Exposure != 1 || AutoExposure || Tonemap != Tonemap.Engine || Contrast != 1 || Saturation != 1
-                          || Tint != Color.White || Vignette > 0 || Fxaa;
+                          || Tint != Color.White || Vignette > 0 || Fxaa || FocusBlur > 0 || MotionBlur > 0;
 }

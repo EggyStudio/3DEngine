@@ -112,11 +112,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   dot with no texture of the program's own, and none collides with the world or slows by drag.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
-  vignette and FXAA.** Any of them draws the window's scene into a half-float target and brings it
-  into the window in one pass (RENDERING.md §5). With all of them off the tonemap still runs at the
-  end of the model pass, render targets stay eight bits, a shader of the program's own inside
-  `BeginMode3D` is read as linear in the HDR frame, and there is no ambient occlusion, depth of
-  field or motion blur.
+  vignette, FXAA, depth of field and motion blur.** Any of them draws the window's scene into a
+  half-float target and brings it into the window in one pass, after passes of their own for the
+  depth of field and motion blur (RENDERING.md §5). With all of them off the tonemap still runs at
+  the end of the model pass, render targets stay eight bits, a shader of the program's own inside
+  `BeginMode3D` is read as linear in the HDR frame, motion blur knows only the camera's movement and
+  not a thing's own, and there is no ambient occlusion.
 
 ### The device
 

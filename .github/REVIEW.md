@@ -8,12 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `e673197a`. Swarm, the fourth game, written in behaviors (`3c9c7ac8`), is settled with
-what it turned up, which the reply listed and was read: static behavior methods running side by
-side on worker threads while they wrote resources and called ImGui, scripts that could not name
-the game's types or be seen when saved, a prefab parsed again for each copy, and a timeout that
-did not reach the program. The captures as WebP at 800 by 450 (`e673197a`) are settled, 48
-pictures in 876 KB where they were 3.4 MB. Both are in [SHARED.md](SHARED.md).
+Reviewed up to `8aeb778b`. A crowd of characters at a third of its cost (`bb7b1624`) and particle
+emitters stepped in compute and lit by the model pass (`8aeb778b`) are settled on their
+descriptions and the replies, which were read. The contact pairs' key hashing thousands of pairs
+alike was in `81b520d5`, which this review read and passed, and the profile found what reading
+did not.
 
 ## Now
 
@@ -23,15 +22,27 @@ for a reply. In this order.
 
 1. **What a run on GitHub says**, when the owner brings one back. A red job or an annotation
    comes before anything else.
-2. **Particles.** Smoke, sparks and dust are in most games and nothing here draws them. An
-   emitter as a component and as a few flat functions, its particles simulated in a compute
-   shader and drawn as instanced billboards lit or unlit, with rate, life, velocity, gravity,
-   size and color over life, an example, a pixel test and a reference scene.
-3. **Depth of field and motion blur**, the two effects over the frame TODO.md names as left.
-4. **The physics of many characters**, which Swarm measured at 2.6 to 3.2 ms a frame for 290
-   and TODO.md's Cost section holds: found by the profile, then the largest part of it taken.
-5. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
-   when TODO.md runs short, another game of a kind not yet made, since each one has found what
+2. **Depth of field and motion blur**, the two effects over the frame TODO.md names as left.
+3. **A game left running does not grow.** Every test and capture here runs a few hundred
+   frames, and nothing has run for long. Each of the four games is played by a script for ten
+   minutes offscreen, with levels restarted, waves spawned and despawned, prefabs placed and
+   removed, and sounds started throughout, while managed memory, the GPU memory the device has
+   given out, descriptor sets, buffers kept by rings and retired lists, and entity ids are read
+   at intervals through an `e3d` command. Anything that climbs without leveling off is a leak
+   and is found and fixed. A shorter form of the run joins the workflow, failing on growth past
+   a bound.
+4. **A window resized, minimized and moved between monitors while it draws.** The swapchain,
+   the HDR frame, the shadow maps, render textures and probes are made again on a resize, and
+   that path is the least run. `e3d` gains what it needs to resize and minimize a hidden window,
+   each game and a handful of examples are put through a storm of them under the validation
+   layer, and a frame of zero size draws nothing and comes back.
+5. **Every loader refuses a bad file gracefully.** A missing file, an empty one, one cut short
+   and one of random bytes are given to each `Load` function of the flat API and to the scene,
+   model, font, image, sound and shader readers, and each answers as DESIGN.md says a failed
+   load does, with a message naming the file and no exception escaping a frame. The cases are a
+   table in one test, so a loader added later is a row.
+6. **TODO.md's order** for everything else (physics, scenes and input each have entries), and
+   when TODO.md runs short, a fifth game of a kind not yet made, since each one has found what
    nothing else did.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -67,18 +78,13 @@ None open.
 ## Replies
 
 
-**Now 4, what Swarm turned up.** Its physics was the cost left, and measuring a crowd of 290 and
-2000 characters found two causes outside Bepu. A pair of bodies was keyed by its two handles side by
-side, which a `ulong` hashes to the same value for thousands of pairs, so tracking contacts took
-19.9 ms a step at 2000 and now takes 1.5. The controllers' ground rays are now cast on several
-threads, each through a pool of its own, and written back in order, 12 ms down to 2.1 at 2000, with
-a test that the crowd moves the same every run. Swarm's physics is 2.0 ms a frame where it was 2.6
-to 3.2, and what is left is Bepu's step on its one worker, which TODO.md (Cost) records.
-
-**Now 5, particles.** A `ParticleEmitter` component and seven flat functions (CHEATSHEET.md,
-Particles), stepped by `particle_step.slang` in a node beside skinning and drawn by `particles.slang`
-through the model pass's lighting, lit or giving off their own light, added or laid over by alpha,
-into the window or the HDR frame. `shaders_particles` is a campfire of three emitters,
-`ParticleTests` reads a burst, a stream, a lit cloud and an ECS emitter from pixels, and
-`ReferenceFrameTests` compares still clouds through bloom with a reference. What is left is in
-TODO.md (Particles are drawn into the window alone).
+**Now 6, depth of field and motion blur.** `SetDepthOfField(focusDistance, focusRange, blur)` and
+`SetMotionBlur(amount)` are passes over the HDR frame before the composite, reading its depth
+through the inverse of the window's camera. Depth of field gathers on a spiral, a blurred thing in
+front spreading over what is sharp behind it and not the other way, and reads color and depth
+unfiltered with each pixel taken as the nearest of the 3 by 3 round it, after a first version drew
+faint copies of a sharp thing's edges round it from the edge pixels multisampling gives the color of
+the thing and the depth of what is behind. Motion blur reprojects each pixel through last frame's
+camera and takes the fastest movement around it, so an edge smears outward too. It knows the camera's
+movement alone, which TODO.md says. `FrameEffectsTests` reads both from pixels, and `shaders_bloom`
+gives each a key.

@@ -441,6 +441,23 @@ toward it by one less e to the minus the speed times the seconds since, or all t
 frame. Two such texels take turns, each frame writing one from the other, and the composite divides
 0.18 by two to the value it reads and multiplies the exposure by that, so nothing is read back.
 
+`SetDepthOfField` and `SetMotionBlur` are passes of their own after the bloom chain, into half-float
+targets the window's size that the composite then reads in place of the scene, both reading the HDR
+target's resolved depth unfiltered and working back to the world through the inverse of the window's
+camera (`WindowView`, which `CameraExtract` sets from `MeshEntityDraws.WindowCamera`). The depth of
+field (`dof.slang`) gives each pixel a blur from its distance to the eye against the focus, and
+gathers 32 taps on a golden-angle spiral out to the widest blur, a tap counting once its own blur
+reaches past it and a tap behind the pixel counting no wider than the pixel's own, so a blurred thing
+in front spreads over what is sharp behind it and not the other way. It reads color unfiltered too,
+and a pixel's distance is the nearest of the 3 by 3 texels round it, since multisampling leaves a
+thing's edge pixels its color and the depth of what is behind, which spread as faint copies of the
+edge otherwise. Motion blur (`motion_blur.slang`) puts each pixel's point through the camera of the
+frame before (the inverse view-projection times last frame's, one matrix in the push constants), and
+averages twelve taps along the way it moved, scaled by the amount and held to a tenth of the
+picture, taking the fastest of eight movements around it so a near thing's edge smears over the
+background beside it. Only the camera's movement is known, so a thing moving across a still camera
+stays sharp, and a frame after others drawn without the HDR frame blurs nothing.
+
 Render targets drawn with `BeginTextureMode` stay eight bits and tonemapped as they were. A shader of the program's own drawn inside `BeginMode3D` writes into the
 HDR frame as it is, so its sRGB colors are read as linear there.
 

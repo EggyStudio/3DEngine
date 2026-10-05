@@ -94,4 +94,35 @@ public static partial class Engine3D
     /// surface, as a sharp highlight's or a texture's, and of lines thinner than a pixel.
     /// </summary>
     public static void SetFxaa(bool enabled) => Effects.Fxaa = enabled;
+
+    /// <summary>
+    /// Blurs what is nearer or farther than <paramref name="focusDistance"/> from the camera, as a
+    /// camera's lens does, growing over <paramref name="focusRange"/> either side of it to
+    /// <paramref name="blur"/> of the picture's height across, or turns it off with a blur of 0.
+    /// </summary>
+    /// <remarks>
+    /// It works from the depth of the window's scene, so what is drawn after <c>EndMode3D</c>, a
+    /// game's interface, stays sharp. A blur of 0.01 is about four pixels at raylib's window, and
+    /// more than 0.03 spreads thinly. A blurred thing in front spreads over what is sharp behind it,
+    /// and one behind never over what is in front.
+    /// </remarks>
+    public static void SetDepthOfField(float focusDistance, float focusRange, float blur)
+    {
+        var effects = Effects;
+        effects.FocusDistance = Math.Max(0, focusDistance);
+        effects.FocusRange = Math.Max(1e-3f, focusRange);
+        effects.FocusBlur = Math.Clamp(blur, 0, 0.1f);
+    }
+
+    /// <summary>
+    /// Blurs the picture along the way the camera moved it since the frame before, by
+    /// <paramref name="amount"/> of that movement, 0.5 as a film camera's shutter does, or turns it
+    /// off with 0.
+    /// </summary>
+    /// <remarks>
+    /// Only the camera's movement is known, so a thing moving across a still camera stays sharp,
+    /// and a cut to another camera blurs nothing in its first frame, as long as the camera moved
+    /// less than a tenth of the picture.
+    /// </remarks>
+    public static void SetMotionBlur(float amount) => Effects.MotionBlur = Math.Clamp(amount, 0, 1);
 }

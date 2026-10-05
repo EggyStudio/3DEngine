@@ -111,6 +111,81 @@ public sealed class FrameEffectsTests : IDisposable
         GetImageColor(Capture(bright), 80, 60).R.Should().BeInRange(198, 202, "with it off the cube keeps its color");
     }
 
+    // How many pixels of a row between two x's are neither near black nor near white, the width
+    // of the edges there.
+    private static int Soft(Image image, int y, int from, int to)
+    {
+        var count = 0;
+        for (int x = from; x < to; x++)
+        {
+            var c = GetImageColor(image, x, y);
+            if (c.R is > 30 and < 220) count++;
+        }
+        return count;
+    }
+
+    [NeedsVulkanFact]
+    public void Depth_Of_Field_Blurs_A_Far_Thing_And_Keeps_The_One_In_Focus_Sharp()
+    {
+        Open();
+        var camera = new Camera3D(new Vector3(0, 0, 6), Vector3.Zero, Vector3.UnitY, 45);
+        Action scene = () =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCube(new Vector3(-1.2f, 0, 0), 1, 1, 0.2f, Color.White);
+            DrawCube(new Vector3(9, 0, -24), 6, 6, 0.2f, Color.White);
+            EndMode3D();
+        };
+        var sharp = Capture(scene);
+        SetDepthOfField(6, 2, 0.06f);
+        var focused = Capture(scene);
+
+        // The near square spans about x 38 to 62 and the far one about 103 to 125, row 60.
+        var (nearBefore, nearAfter) = (Soft(sharp, 60, 30, 70), Soft(focused, 60, 30, 70));
+        var (farBefore, farAfter) = (Soft(sharp, 60, 90, 140), Soft(focused, 60, 90, 140));
+        farAfter.Should().BeGreaterThan(farBefore + 6, $"the far square's edges spread ({farBefore} soft pixels before, {farAfter} after)");
+        nearAfter.Should().BeLessThanOrEqualTo(nearBefore + 2, $"the square in focus stays sharp ({nearBefore} before, {nearAfter} after)");
+    }
+
+    [NeedsVulkanFact]
+    public void Motion_Blur_Smears_A_Picture_Along_The_Way_The_Camera_Moves()
+    {
+        Open();
+        SetBloom(0.0001f);
+        var x = 0f;
+        // The camera slides sideways three tenths of a unit a frame past a white square, about
+        // seven pixels at this distance.
+        Action scene = () =>
+        {
+            x += 0.3f;
+            var camera = new Camera3D(new Vector3(x, 0, 6), new Vector3(x, 0, 0), Vector3.UnitY, 45);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCube(Vector3.Zero, 1.5f, 1.5f, 0.2f, Color.White);
+            EndMode3D();
+        };
+        // The same frames each time, the capture taken as the square passes the middle.
+        Image Slide()
+        {
+            x = -1.5f;
+            for (int i = 0; i < 3; i++)
+            {
+                BeginDrawing();
+                scene();
+                EndDrawing();
+            }
+            return Capture(scene);
+        }
+
+        var still = Slide();
+        SetMotionBlur(1);
+        var moving = Slide();
+
+        Soft(moving, 60, 0, 160).Should().BeGreaterThan(Soft(still, 60, 0, 160) + 6, "the square's sides smear across the row as the camera moves");
+        Soft(moving, 20, 0, 160).Should().Be(0, "above the square there is nothing to smear");
+    }
+
     [NeedsVulkanFact]
     public void Each_Curve_Brings_White_Light_To_Its_Own_Shade()
     {

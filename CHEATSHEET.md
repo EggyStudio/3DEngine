@@ -653,6 +653,8 @@ void SetTonemap(Tonemap curve);                                            // Th
 void SetColorGrading(float contrast, float saturation, Color tint);        // Grade the scene's color, 1, 1 and white for as it is
 void SetVignette(float intensity, float radius = 0.5f);                    // Darken toward the corners, 0 for none
 void SetFxaa(bool enabled);                                                // Smooth the edges multisampling leaves
+void SetDepthOfField(float focusDistance, float focusRange, float blur);   // Blur what is out of focus, 0 for none
+void SetMotionBlur(float amount);                                          // Blur along the camera's movement, 0.5 as a shutter, 0 for none
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky

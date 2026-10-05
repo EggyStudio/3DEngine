@@ -84,7 +84,7 @@ A material's `AlphaMode` says what the alpha of its color and texture does:
 
 ## Effects over the frame
 
-Besides bloom, six effects change how the scene is shown, each set by one call and each off until
+Besides bloom, eight effects change how the scene is shown, each set by one call and each off until
 set. Any of them draws the scene through the frame that holds light past white, as bloom does, and
 what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result untouched.
 
@@ -96,6 +96,8 @@ what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result un
 | `SetColorGrading(1.1f, 0.8f, new Color(255, 240, 220))` | Contrast, saturation and a tint, 1, 1 and white leaving it as it is |
 | `SetVignette(0.4f)` | Darkens toward the corners, from half the way out unless a radius is given |
 | `SetFxaa(true)` | Smooths the jagged edges multisampling leaves, inside a surface and of thin lines |
+| `SetDepthOfField(8, 2, 0.02f)` | Keeps what is 8 units from the camera sharp and blurs what is nearer or farther, to its widest 2 units either side |
+| `SetMotionBlur(0.5f)` | Smears the picture along the way the camera moved since the frame before, as a film camera's shutter does |
 
 The `shaders_bloom` example gives each a key:
 
@@ -105,7 +107,14 @@ if (IsKeyPressed(Key.V)) SetVignette((vignette = !vignette) ? 0.6f : 0);
 if (IsKeyPressed(Key.G)) SetColorGrading(1, (graded = !graded) ? 0.3f : 1, graded ? new Color(255, 225, 190) : Color.White);
 if (IsKeyPressed(Key.F)) SetFxaa(fxaa = !fxaa);
 if (IsKeyPressed(Key.E)) SetExposure((bright = !bright) ? 1.8f : 1);
+// ...
+if (IsKeyPressed(Key.D)) SetDepthOfField(8.3f, 2, (focus = !focus) ? 0.025f : 0);
+if (IsKeyPressed(Key.M)) SetMotionBlur((blur = !blur) ? 0.6f : 0);
 ```
+
+The depth of field and motion blur work from the depth of what is drawn inside `BeginMode3D`, so
+the text and interface drawn after stay sharp. Motion blur knows the camera's movement alone, so a
+thing moving past a still camera stays sharp.
 
 An exposure that follows the scene brings a dim room up and a sunlit field down, over a second or
 so, as an eye does, and `SetExposure` then multiplies what it chooses. The `shaders_auto_exposure`

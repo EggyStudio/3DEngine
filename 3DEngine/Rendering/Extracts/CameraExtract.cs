@@ -13,7 +13,10 @@ public sealed class CameraExtract : IExtractSystem
     /// <inheritdoc />
     public void Run(World world, RenderWorld renderWorld)
     {
-        if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
+        world.TryGetResource<EcsWorld>(out var ecs);
+        if (MeshEntityDraws.WindowCamera(world, ecs) is { } window) renderWorld.Set(new WindowView(window.ViewProjection, window.Eye));
+        else renderWorld.Remove<WindowView>();
+        if (ecs is null) return;
 
         var surface = renderWorld.TryGet<RenderSurfaceInfo>();
         int surfaceW = surface?.Width > 0 ? surface!.Width : 1;
@@ -54,3 +57,12 @@ public sealed class CameraExtract : IExtractSystem
         return (view, proj);
     }
 }
+
+/// <summary>
+/// The camera the window's scene is drawn through this frame, the first camera entity without a
+/// render texture or the frame's <c>BeginMode3D</c>, which the effects that read the scene's depth
+/// work back to the world from.
+/// </summary>
+/// <param name="ViewProjection">Its view and projection, as the model pass takes them.</param>
+/// <param name="Eye">Where it is.</param>
+public sealed record WindowView(System.Numerics.Matrix4x4 ViewProjection, System.Numerics.Vector3 Eye);
