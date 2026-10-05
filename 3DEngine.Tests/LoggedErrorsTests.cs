@@ -51,6 +51,18 @@ public sealed class LoggedErrorsTests
         thread.Join();
     }
 
+    // On a thread that inherits nothing of this flow, as another test's is.
+    private static void InAnotherFlow(Action action)
+    {
+        Thread thread;
+        using (ExecutionContext.SuppressFlow())
+        {
+            thread = new Thread(() => action());
+            thread.Start();
+        }
+        thread.Join();
+    }
+
     [Fact]
     public void An_Error_Logged_On_A_Thread_Of_The_Tests_App_Is_The_Tests_And_Another_Apps_Is_Not()
     {
@@ -60,11 +72,43 @@ public sealed class LoggedErrorsTests
             OnAnotherThread(() => Log.Category("Tests.Hook").Error("from a thread the app started"));
         }).Should().EndWith("[Tests.Hook] from a thread the app started");
 
-        Judge(nameof(Plain), () => OnAnotherThread(() =>
+        Judge(nameof(Plain), () => InAnotherFlow(() =>
         {
             using var other = new App();
             Log.Category("Tests.Hook").Error("from another test's app");
-        })).Should().BeNull("an app made on another thread is another test's");
+        })).Should().BeNull("an app made in another flow is another test's");
+    }
+
+    [Fact]
+    public async Task An_Error_Logged_After_An_Await_By_An_App_Made_After_It_Is_The_Tests()
+    {
+        var hook = new FailOnLoggedErrorsAttribute();
+        hook.Before(Method(nameof(Plain)));
+        // The app made on a thread of the pool, as a test that awaits goes on on one.
+        await Task.Yield();
+        await Task.Run(() =>
+        {
+            using var app = new App();
+            OnAnotherThread(() => Log.Category("Tests.Hook").Error("after an await"));
+        });
+        var judge = () => hook.After(Method(nameof(Plain)));
+
+        judge.Should().Throw<XunitException>().WithMessage("*[Tests.Hook] after an await",
+            "the test's ears went with it over the await, to the app it made after it");
+    }
+
+    // The same through the hook xUnit puts on every test, which fails this test where the error is
+    // laid to no test or to another.
+    [Fact]
+    [ExpectsError("Tests.Hook", "an awaiting test's own")]
+    public async Task An_Awaiting_Test_Hears_Its_Own_Apps_Errors()
+    {
+        await Task.Yield();
+        await Task.Run(() =>
+        {
+            using var app = new App();
+            OnAnotherThread(() => Log.Category("Tests.Hook").Error("an awaiting test's own"));
+        });
     }
 
     [Fact]

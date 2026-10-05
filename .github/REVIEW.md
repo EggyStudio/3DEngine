@@ -253,3 +253,13 @@ lines the output repeated most, and the digest job's carries each system's head.
 the annotations build a cause's entry the one way. `TestScriptTests` reads what the script prints
 for its 500 failures as a run on GitHub would, ten errors each with a frame and a test's name and
 one notice with the head and the 60,000 repeated lines, and finds the page in the summary file.
+
+**Verdict 18, the hook's ears.** They are an `AsyncLocal` now, which `Before` sets in the flow
+xUnit runs the test in, since it calls `Before` from a method that is not `async`, so they follow
+a test over its awaits and into the threads and tasks it starts. An app is the test's when its
+flow made it, and a thread the test starts is the test's. `LoggedErrorsTests` gains an awaiting
+test that makes its app on a thread of the pool and logs from a thread the app started, judged by
+a hook of its own, and one through the hook on every test, which expects its error. Both failed
+with the ears bound to a thread. Another test's app is made on a thread started with the flow
+suppressed, which inherits nothing. The whole suite passed beside them, but for N 3.3 finding
+`Task.Delay` in the two, which await `Task.Yield` now.

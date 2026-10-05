@@ -14,9 +14,10 @@ namespace Engine.Tests;
 /// <remarks>
 /// <para>
 /// Tests run side by side and the log is the process's, so an error is laid to a test by the app
-/// that logged it. An app is the test's when it was made on the test's thread while the test ran,
-/// and a line logged anywhere in an app's work, on a task or a thread the app started, carries the
-/// app (<see cref="App.Current"/>). A line logged on the test's own thread is the test's as well.
+/// that logged it. An app is the test's when the test's flow made it while the test ran, over any
+/// awaits, and a line logged anywhere in an app's work, on a task or a thread the app started,
+/// carries the app (<see cref="App.Current"/>). A line logged in the test's own flow is the test's
+/// as well.
 /// What an app made in a test class's constructor logs from another thread, and what a class's
 /// Dispose logs, comes after the test is judged and is not read.
 /// </para>
@@ -37,7 +38,10 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
         public volatile bool Closed;
     }
 
-    [ThreadStatic] private static Heard? _onThisThread;
+    // The ears of the test whose flow this is, which follow it over its awaits to whichever thread
+    // goes on with it, and into the threads and tasks it starts. xUnit calls Before from a method
+    // that is not async, so what Before sets here is the test's.
+    private static readonly AsyncLocal<Heard?> Ears = new();
     private static readonly ConditionalWeakTable<App, Heard> Apps = new();
     private static readonly string? Survey = Environment.GetEnvironmentVariable("E3D_LOGGED_ERRORS");
     private static readonly Lazy<HashSet<string>> Listed = new(() =>
@@ -54,22 +58,22 @@ public sealed class FailOnLoggedErrorsAttribute : BeforeAfterTestAttribute
     {
         App.Created += app =>
         {
-            if (_onThisThread is { } heard) Apps.AddOrUpdate(app, heard);
+            if (Ears.Value is { } heard) Apps.AddOrUpdate(app, heard);
         };
         Log.ErrorLogged += (category, message, exception) =>
         {
-            var heard = App.Current is { } app && Apps.TryGetValue(app, out var made) ? made : _onThisThread;
+            var heard = App.Current is { } app && Apps.TryGetValue(app, out var made) ? made : Ears.Value;
             if (heard is { Closed: false }) heard.Errors.Enqueue((category, message, exception));
         };
     }
 
-    public override void Before(MethodInfo methodUnderTest) => _onThisThread = _heard = new Heard();
+    public override void Before(MethodInfo methodUnderTest) => Ears.Value = _heard = new Heard();
 
     public override void After(MethodInfo methodUnderTest)
     {
         var heard = _heard;
         _heard = null;
-        if (ReferenceEquals(_onThisThread, heard)) _onThisThread = null;
+        if (ReferenceEquals(Ears.Value, heard)) Ears.Value = null;
         if (heard is null) return;
         heard.Closed = true;
 
