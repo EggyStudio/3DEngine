@@ -68,6 +68,7 @@ public sealed partial class PhysicsWorld : IDisposable
         narrowCallbacks.Triggers = _triggerFlags;
         narrowCallbacks.Materials = _materials;
         narrowCallbacks.Joined = _joined;
+        narrowCallbacks.Layers = _layers;
         var integrator = new BepuPoseIntegratorCallbacks
         {
             Gravity = settings.Gravity,

@@ -167,54 +167,67 @@ whenever an ImGui window has focus, so the engine's own shortcuts ask `WantTextI
 
 `PhysicsWorld` runs BepuPhysics with bodies and colliders from components, steps once per
 `Stage.FixedUpdate` run on `FixedTime`'s step (the same steps `[OnFixedUpdate]` behaviors run on),
-answers `Raycast`, and writes each body's `Transform` blended between its last two steps by
-`FixedTime.Alpha`. That blend is the `Transform` game code reads too, so code that needs the
-simulation's own pose asks `PhysicsWorld.GetPosition`. A body under a `Parent` is given the local
-`Transform` that puts it at its pose under the parent as the parent is in that frame, so it can be
-grouped under a level's entity and stays where the simulation has it, and a parent never carries
-it. Two bodies starting and stopping touching (a hundredth of a unit apart or closer) are sent as
-`ContactStarted` and `ContactEnded` events after each step and cleared at `Stage.First`, with the
-entities as they were when the contact started. A resting pair whose bodies sleep stays touching.
+and writes each body's `Transform` blended between its last two steps by `FixedTime.Alpha`. That
+blend is the `Transform` game code reads too, so code that needs the simulation's own pose asks
+`PhysicsWorld.GetPosition`. A body under a `Parent` is given the local `Transform` that puts it at
+its pose under the parent as the parent is in that frame, so it can be grouped under a level's
+entity and stays where the simulation has it, and a parent never carries it. Two bodies starting
+and stopping touching (a hundredth of a unit apart or closer) are sent as `ContactStarted` and
+`ContactEnded` events after each step and cleared at `Stage.First`, with the entities as they were
+when the contact started. A resting pair whose bodies sleep stays touching.
 
 The flat API creates boxes, spheres, capsules, static and kinematic boxes, triggers, which report
 what enters them as contacts and stop nothing, level geometry shaped as a model's triangles, and
-bodies shaped as a model's convex hull, read and drawn at the model's origin. It
-joins bodies with ball, hinge, weld and distance joints, a hinge limited between two angles or
-driven by a motor, reads their blended poses, turns and how fast a point of them moves, pushes
-them at their center or at a point, casts rays and balls along them, which go through triggers
-and may look past one body, finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where each pair met (CHEATSHEET.md,
-Physics). A `Collider` marked
-`IsTrigger` makes a trigger from a scene, and a kinematic body under a `Parent` follows its place
-under the parent by velocity, so a platform a moving parent carries carries what stands on it, a
-character walking relative to it and a crate by friction. A contact carries the speed its pair
-closed at as they met, read while they approach since the solver slows them before they touch, and
-not the impulse the solver gave them. A hinge has limits and a motor, a ball joint a cone it swings
-and twists within, and a distance joint a range that can change, and no other joint has a motor. Two
-bodies a joint holds do not collide with each other. The character controller is a dynamic capsule
-walked toward a velocity before each step, which slides along walls, climbs steps up to its step
-height (its radius unless set), holds slopes up to its limit, rides what moves under it, crouches
-and stands where there is room, and reports ground. A vehicle is a box held up by raycast wheels
-as springs, gripping, driving, braking and steering on the fixed step.
+bodies shaped as a model's convex hull, read and drawn at the model's origin. It puts bodies on 32
+layers whose pairs collide or not, joins bodies with ball, hinge, weld and distance joints, a hinge
+limited between two angles or driven by a motor, reads their blended poses, turns and how fast a
+point of them moves, pushes them at their center or at a point, casts rays and balls along them,
+which go through triggers and may look past one body and the layers it does not collide with,
+finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where
+each pair met (CHEATSHEET.md, Physics). A `Collider` marked `IsTrigger` makes a trigger from a
+scene, and its `Layer` puts the body on a layer. A kinematic body under a `Parent` follows its
+place under the parent by velocity, so a platform a moving parent carries carries what stands on
+it, a character walking relative to it and a crate by friction. A ball joint swings and twists
+within a cone, and a distance joint keeps a range that can change. Two bodies a joint holds do not
+collide with each other. The character controller is a dynamic capsule walked toward a velocity
+before each step, which slides along walls, climbs steps up to its step height (its radius unless
+set), holds slopes up to its limit, rides what moves under it, crouches and stands where there is
+room, and reports ground. A vehicle is a box held up by raycast wheels as springs, gripping,
+driving, braking and steering on the fixed step. What is missing, in the order a game meets it:
+
+- **A fast body passes through a thin wall.** A body moves by its velocity times the step, and one
+  that crosses a wall within a step, as a shot or a ball struck hard, is never seen inside it.
+  Bepu's continuous collision detection, which sweeps such a body over the step, needs turning on
+  per body, for the bodies a game says are fast.
+- **Only a hinge has a motor, and nothing slides.** A sliding door, a lift or a piston needs a joint
+  along an axis with limits and a motor, which Bepu's point-on-line and linear axis constraints
+  make, and a scene's `Joint` a kind for it.
+- **A contact carries how fast its pair closed, and not how hard they pushed.** The speed is read
+  as they approach, which says how hard a crate landed but not how hard a stack presses, so a
+  sound or damage scaled by a push needs the impulse the solver gave the pair.
 
 ### Scenes
 
 `SceneFile` saves a level of entities and their `[SceneComponent]` and behavior components to JSON
 and loads it back (ARCHITECTURE.md, Scene files), a mesh entity made in code with its arrays and a
 model through its `ModelRef`. A body is described by a `Collider` (box, sphere, capsule, the
-meshes of the entity and those under it, or their convex hull) and a `RigidBody` (static, dynamic with a mass, or
-kinematic), which a file holds, and `PhysicsBodies` makes it when the entity appears, a character
-when a `CharacterController` is beside a capsule. A `Joint` on an entity of its own joins two
-entities' bodies at its place, and a `PhysicsMaterial` beside a `Collider` gives its body a friction
-and a bounce. A scene file placed in another with `SceneRef` is spawned when the reference first
-appears, and again in place of that copy when the file is written while the level runs. An older
-file is read by keeping the fields it has, with no migration. The models, textures and parsed
-scene files a level loads through its references are let go some seconds after no entity uses
-them (`AssetRelease`), so a level streamed in as the player nears holds what is near. A scene
-spawned again by hot reload, or by a program calling `SceneSpawner.Spawn` itself, keeps its
-textures until the program ends.
+meshes of the entity and those under it, or their convex hull) and a `RigidBody` (static, dynamic
+with a mass, or kinematic), which a file holds, and `PhysicsBodies` makes it when the entity
+appears, a character when a `CharacterController` is beside a capsule. A `Joint` on an entity of
+its own joins two entities' bodies at its place, and a `PhysicsMaterial` beside a `Collider` gives
+its body a friction and a bounce. A scene file placed in another with `SceneRef` is spawned when
+the reference first appears, and again in place of that copy when the file is written while the
+level runs. The models, textures and parsed scene files a level loads through its references are
+let go some seconds after no entity uses them (`AssetRelease`), so a level streamed in as the
+player nears holds what is near. `SceneLightPayload` and `Light` hold what the model pass reads,
+and the model pass reads every field of `SceneMaterialPayload`. What is missing:
 
-`SceneLightPayload` and `Light` hold what the model pass reads, and the model pass reads every
-field of `SceneMaterialPayload`.
+- **A scene spawned again keeps its textures until the program ends.** One spawned again by hot
+  reload, or by a program calling `SceneSpawner.Spawn` itself, holds its textures outside
+  `AssetRelease`, so a level written over and over while it runs grows by its textures each time.
+- **An older file is read by keeping the fields it has, with no migration.** A field renamed or a
+  component split leaves the old file's value behind. BevyCSharp has files that outlive a renamed
+  type, which SHARED.md keeps to consider, as the owner decided.
 
 ## Platform
 

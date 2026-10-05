@@ -118,6 +118,55 @@ internal sealed class TriggerFlags
     }
 }
 
+/// <summary>
+/// Each body's and static's layer, 0 unless set, and which of the 32 layers collide with which, all
+/// of them to begin with, which the narrow phase asks of a pair before it makes their contacts.
+/// </summary>
+/// <remarks>Written only between steps, and read from the narrow phase's worker threads during one.</remarks>
+internal sealed class CollisionLayers
+{
+    /// <summary>How many layers there are.</summary>
+    public const int Count = 32;
+
+    private byte[] _bodies = [];
+    private byte[] _statics = [];
+    // Bit b of entry a, set when layers a and b collide.
+    private readonly uint[] _collides = Enumerable.Repeat(uint.MaxValue, Count).ToArray();
+
+    public void Set(PhysicsBody body, int layer)
+    {
+        ref var table = ref body.Kind == BodyKind.Static ? ref _statics : ref _bodies;
+        if (table.Length <= body.Handle) Array.Resize(ref table, Math.Max(body.Handle + 1, table.Length * 2));
+        table[body.Handle] = (byte)layer;
+    }
+
+    public int Of(PhysicsBody body) => Of(body.Kind == BodyKind.Static ? _statics : _bodies, body.Handle);
+
+    public int Of(CollidableReference collidable) => collidable.Mobility == CollidableMobility.Static
+        ? Of(_statics, collidable.StaticHandle.Value)
+        : Of(_bodies, collidable.BodyHandle.Value);
+
+    private static int Of(byte[] table, int handle) => handle < table.Length ? table[handle] : 0;
+
+    public void SetCollide(int a, int b, bool collide)
+    {
+        if (collide)
+        {
+            _collides[a] |= 1u << b;
+            _collides[b] |= 1u << a;
+        }
+        else
+        {
+            _collides[a] &= ~(1u << b);
+            _collides[b] &= ~(1u << a);
+        }
+    }
+
+    public bool Collide(int a, int b) => (_collides[a] & (1u << b)) != 0;
+
+    public bool Collide(CollidableReference a, CollidableReference b) => Collide(Of(a), Of(b));
+}
+
 /// <summary>Each body's and static's friction and bounce, where one was given, which the narrow phase mixes for a pair.</summary>
 internal sealed class BodyMaterials
 {
@@ -215,6 +264,7 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     public TriggerFlags? Triggers;
     public BodyMaterials? Materials;
     public JoinedPairs? Joined;
+    public CollisionLayers? Layers;
     private Simulation? _simulation;
 
     /// <summary>The gap in world units below which a contact counts as touching.</summary>
@@ -233,7 +283,8 @@ internal struct BepuNarrowPhaseCallbacks : INarrowPhaseCallbacks
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b,
         ref float speculativeMargin)
-        => (a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic) && Joined?.Has(a, b) != true;
+        => (a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic) && Joined?.Has(a, b) != true
+           && Layers?.Collide(a, b) != false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB) => true;

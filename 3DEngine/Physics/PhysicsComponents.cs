@@ -48,6 +48,12 @@ public struct Collider
     /// <summary>Whether it reports what enters it, as contacts, and stops nothing, as a goal or a pickup does.</summary>
     public bool IsTrigger;
 
+    /// <summary>
+    /// Which of the 32 layers its body is on, 0 unless set, which decides what it collides with as
+    /// <c>SetPhysicsLayersCollide</c> says.
+    /// </summary>
+    public int Layer;
+
     /// <summary>A box this size.</summary>
     public static Collider Box(Vector3 size) => new() { Shape = ColliderShape.Box, Size = size };
 
@@ -221,6 +227,7 @@ internal static class PhysicsBodies
             else body = Make(physics, ecs, entity, collider, rigid, position);
             if (ecs.TryGet<PhysicsMaterial>(entity, out var material)) physics.SetMaterial(body, material);
             if (collider.IsTrigger) physics.SetTrigger(body, true);
+            if (collider.Layer != 0) physics.SetLayer(body, collider.Layer);
             if (rotation != Quaternion.Identity && collider.Shape != ColliderShape.Capsule) physics.SetRotation(body, rotation);
             ecs.Add(entity, body);
             made[body] = ecs.Handle(entity);

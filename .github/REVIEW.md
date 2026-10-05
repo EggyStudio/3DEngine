@@ -90,3 +90,16 @@ its picture into `.github/assets/first-game`. The workflow runs it after the REA
 and the page's level to the game's file, and changing one number in the page fails it. The publish
 was tried, an 11 MB executable beside SDL3's, cimgui's and Assimp's libraries, the resources and the
 compiled shaders, which the step says rather than calling it one file.
+
+**Physics and Scenes, first entry.** The two sections are rewritten as what there is and, below
+it, an entry for each thing missing in the order a game meets it: a fast body through a thin wall,
+a sliding joint and motors past the hinge, a contact's impulse, a scene spawned again keeping its
+textures, and migration, which stays to consider by the owner's decision. Before those came
+collision layers, which none of the sections named and a game meets first: `SetPhysicsBodyLayer`,
+`GetPhysicsBodyLayer` and `SetPhysicsLayersCollide` over 32 layers, checked in the narrow phase, a
+`Collider`'s `Layer` in scene files, and the character's ground rays, the broad phase shortcut,
+wheels and `GetRayCollisionPhysicsEx` seeing only what the layer of the body they look past
+collides with. Tests find balls and a box passing through what their layers do not collide with
+and reporting no contact, a trigger reporting only the player's layer, a character falling through
+a platform to the floor, and a layer through a scene file, with a section in docs/physics.md.
+`PublicApi.txt` gains three functions and a field. The other entries follow in order.

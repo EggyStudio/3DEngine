@@ -308,7 +308,8 @@ public static partial class Engine3D
 
     /// <summary>
     /// The first body a ray meets other than <paramref name="ignore"/>, as a ray cast from inside a
-    /// car's body down to the ground under a wheel needs.
+    /// car's body down to the ground under a wheel needs, of those <paramref name="ignore"/>'s layer
+    /// collides with.
     /// </summary>
     public static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore) =>
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, ignore, out var hit) ? hit : default;
@@ -340,6 +341,28 @@ public static partial class Engine3D
     /// are left out, as rays pass through them.
     /// </summary>
     public static PhysicsBody[] GetPhysicsBodiesInSphere(Vector3 center, float radius) => [.. Physics.Overlap(center, radius)];
+
+    /// <summary>
+    /// Puts a body on one of 32 layers, 0 to 31, which decides what it collides with, as
+    /// <see cref="SetPhysicsLayersCollide"/> says. Every body is on layer 0 to begin with.
+    /// </summary>
+    /// <remarks>
+    /// Bodies on layers that do not collide pass through each other and report no contact, a
+    /// trigger included, so a trigger on a layer only the player's collides with reports the player
+    /// alone. A character stands only on what its layer collides with, and a ray cast past a body
+    /// with <see cref="GetRayCollisionPhysicsEx"/> sees what that body's layer collides with.
+    /// </remarks>
+    public static void SetPhysicsBodyLayer(PhysicsBody body, int layer) => Physics.SetLayer(body, layer);
+
+    /// <summary>The layer a body is on.</summary>
+    public static int GetPhysicsBodyLayer(PhysicsBody body) => Physics.GetLayer(body);
+
+    /// <summary>
+    /// Whether bodies on layer <paramref name="a"/> collide with bodies on layer <paramref name="b"/>,
+    /// both ways, as the player's shots pass through the player and the enemies through each other.
+    /// Every layer collides with every other to begin with.
+    /// </summary>
+    public static void SetPhysicsLayersCollide(int a, int b, bool collide) => Physics.SetLayersCollide(a, b, collide);
 
     /// <summary>The pairs of bodies that started touching in this frame's steps.</summary>
     public static IReadOnlyList<ContactStarted> GetPhysicsContacts() => World.ReadEvents<ContactStarted>();

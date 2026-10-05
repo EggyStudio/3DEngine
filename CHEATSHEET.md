@@ -698,6 +698,9 @@ PhysicsBody CreatePhysicsCapsule(Vector3 position, float radius, float height, f
 PhysicsBody CreatePhysicsTrigger(Vector3 position, Vector3 size);               // A box that reports what enters it and stops nothing
 void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce);     // Ice or rubber, a dead or a bouncing ball
 void SetPhysicsBodyTrigger(PhysicsBody body, bool trigger);                     // Make a body a trigger, or solid again
+void SetPhysicsBodyLayer(PhysicsBody body, int layer);                          // Put it on one of 32 layers, 0 to begin with
+int GetPhysicsBodyLayer(PhysicsBody body);                                      // The layer it is on
+void SetPhysicsLayersCollide(int a, int b, bool collide);                       // Whether two layers' bodies collide, all do to begin with
 PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1); // Level geometry shaped as a model's triangles
 PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1); // Falls and is pushed, shaped as the hull of the model
 PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point); // Join two bodies at a point, free to turn

@@ -281,6 +281,7 @@ struct Engine.Collider
   bool IsTrigger
   float Height
   float Radius
+  int Layer
   static Collider Box(Vector3 size)
   static Collider Capsule(float radius, float height)
   static Collider ConvexHull { get; }
@@ -932,6 +933,7 @@ static class Engine.Engine3D
   static int GetMonitorWidth(int monitor)
   static int GetMouseX()
   static int GetMouseY()
+  static int GetPhysicsBodyLayer(PhysicsBody body)
   static int GetRandomValue(int min, int max)
   static int GetRenderHeight()
   static int GetRenderWidth()
@@ -1208,6 +1210,7 @@ static class Engine.Engine3D
   static void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position)
   static void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees)
   static void SetPhysicsBodyAngularVelocity(PhysicsBody body, Vector3 velocity)
+  static void SetPhysicsBodyLayer(PhysicsBody body, int layer)
   static void SetPhysicsBodyMaterial(PhysicsBody body, float friction, float bounce)
   static void SetPhysicsBodyPosition(PhysicsBody body, Vector3 position)
   static void SetPhysicsBodyRotation(PhysicsBody body, Quaternion rotation)
@@ -1219,6 +1222,7 @@ static class Engine.Engine3D
   static void SetPhysicsGravity(Vector3 gravity)
   static void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees)
   static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque)
+  static void SetPhysicsLayersCollide(int a, int b, bool collide)
   static void SetPhysicsPaused(bool paused)
   static void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings)
   static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false)

@@ -296,7 +296,8 @@ public sealed partial class PhysicsWorld
     // CreateGroundPlane makes. One query of the broad phase over the room the ground rays and the
     // step ray take finds that in place of the rays. A ray tests only what the broad phase's bounds
     // put along it, and every ray lies inside the room, so what the query does not find no ray
-    // meets. When it finds that box, triggers, which rays pass through, and other characters whose
+    // meets. When it finds that box, triggers and bodies on layers the character does not collide
+    // with, which rays pass through, and other characters whose
     // capsules stand clear of every ground ray, the ground rays would meet the box's top or
     // nothing, and when it finds nothing they would meet nothing, which is the same answer they
     // give. The step ray is still cast toward a character near, unless nothing but the box is.
@@ -323,7 +324,8 @@ public sealed partial class PhysicsWorld
         for (int i = 0; i < near.Count; i++)
         {
             var found = near.Found[i];
-            if (_triggerFlags.Is(found)) continue;
+            // What the character passes through, as its rays do, is no ground and nothing in the way.
+            if (_triggerFlags.Is(found) || !_layers.Collide(_layers.Of(character.Body), _layers.Of(found))) continue;
             if (found.Mobility == CollidableMobility.Static && float.IsNaN(top))
             {
                 var ground = Simulation.Statics[found.StaticHandle];

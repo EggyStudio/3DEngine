@@ -140,6 +140,17 @@ public sealed partial class PhysicsWorld
     }
 
     private readonly TriggerFlags _triggerFlags = new();
+    private readonly CollisionLayers _layers = new();
+
+    /// <summary>Puts a body on one of the 32 layers, which decides what it collides with, 0 to begin with.</summary>
+    internal void SetLayer(PhysicsBody body, int layer) => _layers.Set(body, Math.Clamp(layer, 0, CollisionLayers.Count - 1));
+
+    /// <summary>The layer a body is on.</summary>
+    internal int GetLayer(PhysicsBody body) => _layers.Of(body);
+
+    /// <summary>Whether bodies on two layers collide, which every pair does to begin with.</summary>
+    internal void SetLayersCollide(int a, int b, bool collide) =>
+        _layers.SetCollide(Math.Clamp(a, 0, CollisionLayers.Count - 1), Math.Clamp(b, 0, CollisionLayers.Count - 1), collide);
 
     /// <summary>
     /// Makes a body a trigger, which reports what it touches as contacts that start and end and

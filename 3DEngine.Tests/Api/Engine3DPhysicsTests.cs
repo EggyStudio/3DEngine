@@ -259,6 +259,75 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void Bodies_On_Layers_That_Do_Not_Collide_Pass_Through_Each_Other_And_Report_Nothing()
+    {
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(40, 1, 40));
+        // A ball dropped onto another on a layer it does not collide with, and a box on a layer the
+        // floor's does not collide with.
+        SetPhysicsLayersCollide(1, 2, false);
+        SetPhysicsLayersCollide(3, 0, false);
+        var under = CreatePhysicsSphere(new Vector3(0, 0.5f, 0), 0.5f, mass: 50);
+        var over = CreatePhysicsSphere(new Vector3(0, 3, 0), 0.5f);
+        SetPhysicsBodyLayer(under, 1);
+        SetPhysicsBodyLayer(over, 2);
+        GetPhysicsBodyLayer(over).Should().Be(2);
+        var sinking = CreatePhysicsBox(new Vector3(5, 1, 0), Vector3.One);
+        SetPhysicsBodyLayer(sinking, 3);
+
+        RunUntil(() => GetPhysicsBodyPosition(sinking).Y < -3).Should().BeTrue("the box falls through a floor its layer does not collide with");
+        GetPhysicsBodyPosition(over).Y.Should().BeLessThan(0.7f, "the ball falls through the other to the floor");
+        GetPhysicsContacts().Any(c => (c.BodyA == over && c.BodyB == under) || (c.BodyA == under && c.BodyB == over)).Should().BeFalse();
+
+        // A ray sees every layer, and one cast past a body only what that body's layer collides with.
+        var down = new Ray(new Vector3(0, 5, 0), -Vector3.UnitY);
+        var past = CreatePhysicsSphere(new Vector3(0, 5, 0), 0.2f);
+        SetPhysicsBodyLayer(past, 2);
+        SetPhysicsBodyVelocity(past, Vector3.Zero);
+        GetRayCollisionPhysicsEx(down, 20, past).Body.Should().NotBe(under, "a ray past a body on layer 2 does not see layer 1");
+        var below = GetRayCollisionPhysics(new Ray(new Vector3(0, 4, 0), -Vector3.UnitY), 20).Body;
+        (below == under || below == over).Should().BeTrue("a ray past no body sees a ball of either layer");
+    }
+
+    [Fact]
+    public void A_Trigger_On_A_Layer_Reports_Only_The_Layers_It_Collides_With()
+    {
+        SetPhysicsGravity(Vector3.Zero);
+        SetPhysicsLayersCollide(5, 0, false);
+        var sensor = CreatePhysicsTrigger(Vector3.Zero, new Vector3(4, 4, 4));
+        SetPhysicsBodyLayer(sensor, 5);
+        SetPhysicsLayersCollide(5, 6, true);
+        // Each in a lane of its own through the trigger, so they do not meet each other.
+        var crate = CreatePhysicsBox(new Vector3(-3, 0, 1.2f), Vector3.One);
+        var player = CreatePhysicsBox(new Vector3(3, 0, -1.2f), Vector3.One);
+        SetPhysicsBodyLayer(player, 6);
+        SetPhysicsBodyVelocity(crate, new Vector3(4, 0, 0));
+        SetPhysicsBodyVelocity(player, new Vector3(-4, 0, 0));
+
+        var seen = new HashSet<PhysicsBody>();
+        RunUntil(() =>
+        {
+            foreach (var contact in GetPhysicsContacts())
+                if (contact.BodyA == sensor || contact.BodyB == sensor) seen.Add(contact.BodyA == sensor ? contact.BodyB : contact.BodyA);
+            return GetPhysicsBodyPosition(player).X < -2;
+        }).Should().BeTrue();
+        seen.Should().Contain(player, "the player's layer collides with the trigger's").And.NotContain(crate, "the crate's does not");
+    }
+
+    [Fact]
+    public void A_Character_Falls_Through_A_Platform_Its_Layer_Does_Not_Collide_With()
+    {
+        CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(40, 1, 40));
+        var platform = CreatePhysicsStaticBox(new Vector3(0, 2.5f, 0), new Vector3(4, 1, 4));
+        SetPhysicsBodyLayer(platform, 8);
+        SetPhysicsLayersCollide(8, 9, false);
+        var character = CreatePhysicsCharacter(new Vector3(0, 3.1f, 0), 0.4f, 1.8f);
+        SetPhysicsBodyLayer(character, 9);
+
+        RunUntil(() => GetPhysicsBodyPosition(character).Y < 1.2f && IsPhysicsCharacterGrounded(character)).Should()
+            .BeTrue("it stands on the floor under the platform, whose layer it passes through");
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);

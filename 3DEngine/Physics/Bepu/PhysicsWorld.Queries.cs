@@ -23,7 +23,7 @@ public sealed partial class PhysicsWorld
     private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out PhysicsRayCollision hit)
     {
         var (skips, skip) = SkipOf(ignore);
-        var handler = new ClosestRayHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip };
+        var handler = new ClosestRayHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip, Layers = _layers, From = skips ? _layers.Of(ignore) : -1 };
         Simulation.RayCast(origin, direction, maxDistance, pool, ref handler);
         if (!handler.Found)
         {
@@ -64,7 +64,7 @@ public sealed partial class PhysicsWorld
         if (radius <= 0 || direction == Vector3.Zero || maxDistance < 0) return false;
         var way = Vector3.Normalize(direction);
         var (skips, skip) = SkipOf(ignore);
-        var handler = new ClosestSweepHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip };
+        var handler = new ClosestSweepHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip, Layers = _layers, From = skips ? _layers.Of(ignore) : -1 };
         Simulation.Sweep(new Sphere(radius), new RigidPose(origin), new BodyVelocity(way), maxDistance, BufferPool, ref handler);
         if (!handler.Found) return false;
 
@@ -109,8 +109,11 @@ public sealed partial class PhysicsWorld
         public bool Skips;
         public CollidableReference Skip;
         public TriggerFlags Triggers;
+        public CollisionLayers Layers;
+        public int From;
 
-        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable);
+        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable)
+            && (From < 0 || Layers.Collide(From, Layers.Of(collidable)));
 
         public bool AllowTest(CollidableReference collidable, int child) => true;
 
@@ -166,9 +169,14 @@ public sealed partial class PhysicsWorld
         // A trigger stops nothing, so a ray goes through it as a body does. A car's wheel or a
         // character's feet that met a gate's sensor stood on the air inside it.
         public TriggerFlags Triggers;
+        // A ray cast past a body sees what that body's layer collides with, so a character stands
+        // only on what it would land on, or every layer from -1.
+        public CollisionLayers Layers;
+        public int From;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable);
+        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable)
+            && (From < 0 || Layers.Collide(From, Layers.Of(collidable)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AllowTest(CollidableReference collidable, int childIndex) => true;

@@ -48,6 +48,27 @@ public class PhysicsBodiesTests
     }
 
     [Fact]
+    public void A_Colliders_Layer_Goes_Through_A_Scene_File_Onto_Its_Body()
+    {
+        var authoring = NewWorld();
+        var ecs = authoring.Resource<EcsWorld>();
+        var ghost = ecs.Spawn();
+        ecs.Add(ghost, new Transform(Vector3.Zero));
+        ecs.Add(ghost, Collider.Sphere(0.5f) with { Layer = 4 });
+        ecs.Add(ghost, RigidBody.Dynamic());
+        var json = SceneFile.Write(ecs);
+        authoring.Resource<PhysicsWorld>().Dispose();
+        json.Should().Contain("\"Layer\": 4");
+
+        var loaded = NewWorld();
+        var spawned = SceneFile.Read(loaded, json);
+        PhysicsBodies.Run(loaded);
+        var physics = loaded.Resource<PhysicsWorld>();
+        physics.GetLayer(loaded.Resource<EcsWorld>().GetReadOnly<PhysicsBody>(spawned.Single())).Should().Be(4);
+        physics.Dispose();
+    }
+
+    [Fact]
     public void A_Body_Made_For_An_Entity_Is_Destroyed_With_It()
     {
         var world = NewWorld();

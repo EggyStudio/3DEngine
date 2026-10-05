@@ -171,6 +171,27 @@ leaves and comes back.
 
 `SetPhysicsBodyTrigger` turns a body of any shape into a trigger, or back into a solid one.
 
+## Layers
+
+Every body is on one of 32 layers, 0 to begin with, and every layer collides with every other
+until told otherwise. A player's shots that should pass through the player, enemies that should
+not jam in a doorway against each other, and a pickup only the player takes are layers that do
+not collide:
+
+```csharp
+const int Player = 1, Shots = 2, Enemies = 3;
+SetPhysicsLayersCollide(Player, Shots, false);
+SetPhysicsLayersCollide(Enemies, Enemies, false);
+SetPhysicsBodyLayer(player, Player);
+```
+
+Bodies on layers that do not collide pass through each other and report no contact, a trigger
+included, so a trigger on a layer only the player's collides with reports the player alone. A
+character stands only on what its layer collides with, and `GetRayCollisionPhysicsEx` sees what
+the layer of the body it looks past collides with, so a shot's ray cast past the player who fired
+it passes the player's friends as the shot does. In a scene file a `Collider`'s `Layer` puts its
+body on a layer.
+
 ## Joints
 
 A joint holds two bodies together, and two bodies joined do not collide with each other. A ball
