@@ -65,11 +65,6 @@ restores it and moves it to each monitor there is, under the validation layer, t
 frame and fails unless it is drawn at the size last asked for with nothing reported. CI puts each
 game and five examples through one.
 
-`build/raylib-examples.sh` asks raylib's site which examples it runs in the browser and writes their
-names to `build/raylib-examples.txt`, whose pictures in the README's gallery open raylib's demo. It
-is run by hand when an example is added, since the suite runs with no network, and
-`DocumentLinkTests` checks the gallery against the list.
-
 `--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
 one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. The render tests in
 `3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and are skipped where there is

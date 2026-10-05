@@ -36,23 +36,37 @@ public partial class DocumentLinkTests
     }
 
     [Fact]
-    public void A_Picture_In_The_Gallery_Opens_Raylibs_Demo_Exactly_When_Raylib_Has_The_Example()
+    public void A_Picture_In_The_Gallery_Opens_The_Program_That_Drew_It()
     {
         var root = RepoRoot();
-        var hosted = File.ReadAllLines(Path.Combine(root, "build", "raylib-examples.txt"))
-            .Where(l => l.Length > 0 && !l.StartsWith('#')).ToHashSet();
-        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        // Each example's name and the class it runs, and each class by the file it is written in.
+        var runs = Regex.Matches(File.ReadAllText(Path.Combine(root, "3DEngine.Examples", "Program.cs")), @"\[""(?<name>[a-z0-9_]+)""\]\s*=\s*(?<class>\w+)\.Run")
+            .ToDictionary(m => m.Groups["name"].Value, m => m.Groups["class"].Value);
+        var written = new Dictionary<string, string>();
+        foreach (var file in Directory.EnumerateFiles(Path.Combine(root, "3DEngine.Examples"), "*.cs", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(root, file).Replace('\\', '/');
+            if (relative.Contains("/bin/") || relative.Contains("/obj/")) continue;
+            foreach (Match type in Regex.Matches(File.ReadAllText(file), @"\bclass\s+(?<class>\w+)"))
+                written.TryAdd(type.Groups["class"].Value, relative);
+        }
+
         var wrong = new List<string>();
-        foreach (Match picture in Picture().Matches(readme))
+        foreach (Match picture in Picture().Matches(File.ReadAllText(Path.Combine(root, "README.md"))))
         {
             var name = picture.Groups["name"].Value;
             var link = picture.Groups["link"].Success ? picture.Groups["link"].Value : null;
-            var expected = hosted.Contains(name) ? $"https://www.raylib.com/examples/{name.Split('_')[0]}/loader.html?name={name}" : null;
-            if (link != expected) wrong.Add($"{name}: links {link ?? "nothing"}, where {expected ?? "nothing"} belongs");
+            // An example opens the file its class is in, and a game, named for its folder, its Program.cs.
+            var game = Directory.GetDirectories(Path.Combine(root, "games")).Select(Path.GetFileName)
+                .FirstOrDefault(folder => string.Equals(folder, name, StringComparison.OrdinalIgnoreCase));
+            var file = runs.TryGetValue(name, out var type) && written.TryGetValue(type, out var at) ? at
+                : game is not null && File.Exists(Path.Combine(root, "games", game, "Program.cs")) ? $"games/{game}/Program.cs"
+                : null;
+            if (file is null) wrong.Add($"{name}: no example or game of that name");
+            else if (link != Blob + file) wrong.Add($"{name}: links {link ?? "nothing"}, where {Blob + file} belongs");
         }
 
-        string.Join("\n", wrong).Should().BeEmpty("build/raylib-examples.txt names the examples raylib's site runs");
-        hosted.Should().NotBeEmpty();
+        string.Join("\n", wrong).Should().BeEmpty("a picture opens the program that drew it, a file in the checkout");
     }
 
     [Fact]

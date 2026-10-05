@@ -204,3 +204,12 @@ kinematic floor, and all pass with no change to the engine. Bepu puts a kinemati
 sleep in the set of what rests on it: the crate and the floor were in one set, and a second crate
 brought to rest beside the first woke that set and slept in it too, so `AwakenBody` on the floor
 wakes everything on it.
+
+**Now 2, a picture opens its program.** Each of the 52 pictures in the gallery links to the file
+of the program that drew it, an example's class file under
+`https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/` and a game's `Program.cs`
+under `games/`, and the sentence above the gallery says so. The links to raylib's site are gone
+with `build/raylib-examples.sh`, `build/raylib-examples.txt` and their paragraph in BUILDING.md.
+`DocumentLinkTests` finds each example's class from `Program.cs` and the file it is written in, or
+the game of the picture's name, and holds the picture's link to that file, with no request made.
+A link changed to another example's file fails it.
