@@ -71,11 +71,15 @@ BevyCSharp, the bridge, with a list.
 
 **N 1.4 A test class is in the folder of the area it tests, the test project laid out as the
 library is, and what the tests share is at its root.** A test is found from the code it holds, and
-the code from its test. A test compares the two trees, with a list.
+the code from its test. The norm's own class is at the root too. A test of what is no area of the
+library, such as the documents or the package, is in a folder named for what it tests and is left
+out. A test compares the two trees, with a list.
 
-**N 1.5 Every project and every top folder of the library has its row in the table of areas in
-AGENTS.md.** A session reads that table to find where a thing belongs, and a folder it does not
-name is found by search or not at all. A test compares the table with the folders.
+**N 1.5 Every top folder of the repository, the hidden ones apart, and every top folder of the
+library is named in the table of areas in AGENTS.md, by a row of its own or by a row for a folder
+within it.** A session reads that table to find where a thing belongs, and a folder it does not
+name is found by search or not at all. A project is in a top folder, so the folder's row is the
+project's. A test compares the table with the folders.
 
 ## 2 The public surface
 
@@ -159,8 +163,8 @@ first program in a new project, and a page of steps is held to programs the work
 **N 4.5 A capture is a WebP file at the size of the followed engine's window, and a picture of an
 example in the README opens that example's source.** One size down the gallery, small files, and
 a picture that leads to the code that drew it. An example that asks for a window of its own, as
-the followed engine's example does, is left out of the size. A test reads each capture's size and
-each picture's link.
+the followed engine's example does, and a game, whose window is its own, are left out of the size.
+A test reads each capture's size and each picture's link.
 
 **N 4.6 A rule is stated once, here, and a document that needs it cites its number.** A rule
 written in two places comes to say two things. By review.
@@ -220,11 +224,11 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
-| N 1.1 | to take | checked, `NormTests` |
-| N 1.2 | to take | listed 348, `NormTests` |
-| N 1.3 | to take | listed 32, `NormTests`, 18 of them in the bridge |
-| N 1.4 | to take | listed 133, `NormTests` |
-| N 1.5 | to take | checked, `NormTests` |
+| N 1.1 | checked, `NormTests` | checked, `NormTests` |
+| N 1.2 | listed 116, `NormTests` | listed 348, `NormTests` |
+| N 1.3 | listed 6, `NormTests` | listed 32, `NormTests`, 18 of them in the bridge |
+| N 1.4 | listed 1, `NormTests`, 3 left out | listed 133, `NormTests` |
+| N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
@@ -232,18 +236,18 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.5 | to take | to take |
 | N 2.6 | checked, `BadFileTests` | to take |
 | N 2.7 | to take | to take |
-| N 2.8 | to take | to take |
+| N 2.8 | listed 3, `NormTests` | to take |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
-| N 3.3 | to take | checked, `NormTests`, 4 left out |
-| N 3.4 | to take | listed 55, `NormTests` |
+| N 3.3 | listed 1, `NormTests`, 10 left out | checked, `NormTests`, 4 left out |
+| N 3.4 | listed 3, `NormTests` | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
-| N 4.1 | to take | checked, `NormTests`, 3 left out |
-| N 4.2 | to take | checked, `NormTests` |
+| N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 3 left out |
+| N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | to take | checked, `NormTests`, 5 left out |
+| N 4.5 | checked, `NormTests`, 7 left out | checked, `NormTests`, 5 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | to take | to take |
@@ -253,7 +257,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 7.1 | by review | by review |
-| N 7.2 | to take | checked, `NormTests` |
+| N 7.2 | checked, `NormTests` | checked, `NormTests` |
 | N 7.3 | by review | by review |
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |

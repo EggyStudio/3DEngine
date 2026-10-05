@@ -1,4 +1,0 @@
-# N 3.4, a temporary folder made or removed without TestFolder, by file and kind.
-3DEngine.Tests/Api/Engine3DSceneTests.cs Path.GetTempPath
-3DEngine.Tests/Api/ImageTests.cs CreateTempSubdirectory
-3DEngine.Tests/Scenes/SceneSpawnerEmbeddedTextureTests.cs CreateTempSubdirectory

@@ -216,6 +216,7 @@ that is added. The set is:
 | package | used for |
 |---|---|
 | SDL3-CS | the window, input, gamepads and audio |
+| SDL3-CS.Native | SDL3's own library for each system, which SDL3-CS calls into |
 | Vortice.Vulkan | the Vulkan API |
 | Twizzle.ImGui-Bundle.NET | Dear ImGui |
 | StbImageSharp | decoding images |
@@ -223,7 +224,8 @@ that is added. The set is:
 | NVorbis | decoding Ogg Vorbis, in managed code |
 | NLayer | decoding MP3, in managed code, which raylib reads and the owner admitted on 2026-10-04 |
 | BepuPhysics | rigid bodies |
-| Microsoft.CodeAnalysis | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
+| BepuUtilities | BepuPhysics' own companion, the memory pools and the callbacks' types its simulation takes |
+| Microsoft.CodeAnalysis.CSharp | the source generator, its code fixes (through the workspace layer, which an editor already loads), and compiling behaviors while an app runs |
 | `slangc` | compiling Slang to SPIR-V, fetched as a tool and not linked |
 
 Scene description formats, material graph languages, embedded browsers, web servers, spatial

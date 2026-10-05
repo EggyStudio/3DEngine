@@ -99,7 +99,8 @@ public sealed partial class NormTests
             .Select(f => f[..f.IndexOf('/')])
             .Concat(Files("3DEngine/", "").Where(f => f.Count(c => c == '/') >= 2).Select(f => f[..f.IndexOf('/', "3DEngine/".Length)]))
             .Distinct();
-        var found = wanted.Where(path => !rows.Any(row => path == row || path.StartsWith(row + "/", StringComparison.Ordinal)));
+        // A folder is named by a row of its own or by a row for a folder within it.
+        var found = wanted.Where(path => !rows.Any(row => row == path || row.StartsWith(path + "/", StringComparison.Ordinal)));
 
         Hold("1.5", found, "a top folder of the repository or of the library with no row in AGENTS.md's table of areas");
     }

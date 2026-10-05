@@ -52,12 +52,9 @@ public sealed class WindowResizeTests : IDisposable
     private Image Capture()
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
-        // Past the resize's settling time, so the frame captured is drawn at the new size.
-        for (int i = 0; i < 20; i++)
-        {
-            Frame();
-            Thread.Sleep(10);
-        }
+        // Frames enough for a resize asked for to be carried out, which the next frame does, and
+        // for the frames in flight at the old size to finish, before the one captured.
+        for (int i = 0; i < 20; i++) Frame();
         for (int i = 0; i < 10 && !File.Exists(path); i++) Frame(i == 0 ? path : null);
         File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
         return LoadImage(path);

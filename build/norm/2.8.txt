@@ -1,4 +1,0 @@
-# N 2.8, a package the library references that the table of D 8 does not name. Adding one to the table is the owner's.
-BepuUtilities
-Microsoft.CodeAnalysis.CSharp
-SDL3-CS.Native

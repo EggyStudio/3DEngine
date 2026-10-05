@@ -6,8 +6,12 @@ namespace Engine.Tests.Api;
 
 /// <summary>The flat API's image functions, which work on memory and need no app.</summary>
 [Trait("Category", "Unit")]
-public class ImageTests
+public sealed class ImageTests : IDisposable
 {
+    private readonly TestFolder _folder = new("engine-image-");
+
+    public void Dispose() => _folder.Dispose();
+
     private static readonly Color Red = new(255, 0, 0), Blue = new(0, 0, 255);
 
     // A 3 by 2 image whose pixels are numbered left to right, top to bottom, in their red byte.
@@ -178,7 +182,7 @@ public class ImageTests
     [Fact]
     public void ExportImage_Writes_A_Png_That_Loads_Back()
     {
-        var path = Path.Combine(Directory.CreateTempSubdirectory("engine-image-").FullName, "out.png");
+        var path = _folder.File("out.png");
         var image = Numbered();
 
         ExportImage(image, path).Should().BeTrue();
@@ -222,7 +226,7 @@ public class ImageTests
     [Fact]
     public void An_Animated_Gif_Loads_As_Its_Frames_Stacked_From_The_Top()
     {
-        var file = Path.Combine(Directory.CreateTempSubdirectory("engine-gif-").FullName, "two.gif");
+        var file = _folder.File("two.gif");
         File.WriteAllBytes(file, TwoFrames);
 
         var image = LoadImageAnim(file, out var frames);
@@ -242,7 +246,7 @@ public class ImageTests
         back.Data.Should().Equal(image.Data);
         ExportImageToMemory(image, ".bmp").Should().BeEmpty("PNG is the type written");
 
-        var file = Path.Combine(Directory.CreateTempSubdirectory("engine-data-").FullName, "save.bin");
+        var file = _folder.File("save.bin");
         SaveFileData(file, png).Should().BeTrue();
         LoadFileData(file).Should().Equal(png);
         LoadFileData(file + ".missing").Should().BeNull();

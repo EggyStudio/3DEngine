@@ -8,12 +8,16 @@ namespace Engine.Tests.Scenes;
 /// source, so a spawned material can load it like a file.
 /// </summary>
 [Trait("Category", "Unit")]
-public class SceneSpawnerEmbeddedTextureTests
+public sealed class SceneSpawnerEmbeddedTextureTests : IDisposable
 {
+    private readonly TestFolder _folder = new("engine-embedded-");
+
+    public void Dispose() => _folder.Dispose();
+
     [Fact]
     public void An_Embedded_Png_Is_Published_And_Loads_As_The_Base_Color_Texture()
     {
-        var png = Path.Combine(Directory.CreateTempSubdirectory("engine-embedded-").FullName, "red.png");
+        var png = _folder.File("red.png");
         PngWriter.Write(png, [255, 0, 0, 255, 255, 0, 0, 255], 2, 1);
 
         var registry = new TextureDecoderRegistry();

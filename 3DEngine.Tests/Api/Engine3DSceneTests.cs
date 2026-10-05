@@ -9,7 +9,8 @@ namespace Engine.Tests.Api;
 [Trait("Category", "Integration")]
 public sealed class Engine3DSceneTests : IDisposable
 {
-    private readonly string _file = Path.Combine(Path.GetTempPath(), $"e3d-scene-{Guid.NewGuid():N}.json");
+    private readonly TestFolder _folder = new("engine-scene-api-");
+    private string LevelFile => _folder.File("scene.json");
 
     public Engine3DSceneTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -17,7 +18,7 @@ public sealed class Engine3DSceneTests : IDisposable
     {
         CloseWindow();
         UseApp(null);
-        File.Delete(_file);
+        _folder.Dispose();
     }
 
     [Fact]
@@ -28,9 +29,9 @@ public sealed class Engine3DSceneTests : IDisposable
         ecs.Add(kept, new Transform(new Vector3(1, 2, 3)));
         var other = ecs.Spawn();
         ecs.Add(other, new Transform(new Vector3(4, 5, 6)));
-        SaveScene(_file, [ecs.Handle(kept), ecs.Handle(other)]);
+        SaveScene(LevelFile, [ecs.Handle(kept), ecs.Handle(other)]);
 
-        var level = LoadScene(_file);
+        var level = LoadScene(LevelFile);
 
         level.Should().HaveCount(2);
         level.Select(e => ecs.GetReadOnly<Transform>(e).Position).Should().Equal(new Vector3(1, 2, 3), new Vector3(4, 5, 6));
@@ -48,8 +49,8 @@ public sealed class Engine3DSceneTests : IDisposable
         var handle = ecs.Handle(gone);
         ecs.Despawn(gone);
 
-        SaveScene(_file, [handle]);
+        SaveScene(LevelFile, [handle]);
 
-        LoadScene(_file).Should().BeEmpty();
+        LoadScene(LevelFile).Should().BeEmpty();
     }
 }
