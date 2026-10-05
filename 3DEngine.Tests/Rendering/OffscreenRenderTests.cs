@@ -1441,8 +1441,11 @@ public sealed class OffscreenRenderTests : IDisposable
         SetLightColor(lamp, Color.White, 0);
         Frames(3);
         probes.Relit.Should().Be(1, "the lamp going out asks for the probe once");
-        for (int frame = 0; frame < 240 && (probes.Captured != probes.Wanted || probes.Passes < ReflectionProbes.Passes); frame++) Frames(1);
-        probes.Captured.Should().Be(probes.Wanted, "the probe is captured again with the lamp out");
+        IsReflectionProbeReady(probe).Should().BeFalse("its capture is of the lamp on");
+        for (int frame = 0; frame < 240 && !IsReflectionProbeReady(probe); frame++) Frames(1);
+        IsReflectionProbeReady(probe).Should().BeTrue("the probe is captured again with the lamp out, both its passes");
+        probes.Captured.Should().Be(probes.Wanted);
+        probes.Passes.Should().BeGreaterThanOrEqualTo(ReflectionProbes.Passes);
         var dark = GetImageColor(Capture(Draw, "the lamp out"), 32, 32);
         ((int)dark.R).Should().BeLessThan(lit.R - 60, $"the ball no longer mirrors a lit room, {lit} before and {dark} after");
         UnloadReflectionProbe(probe);

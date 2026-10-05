@@ -10,37 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5107f9a5`, which gives the window program that was not raylib's
-`core_window_flags` a name of its own, `core_window_toggles` (N 5.1), and has raylib's row and
-the two of high pixel density as missing the flags `ConfigFlags` lacks. The table stands at 45
-written, 139 that can be and 37 missing.
+Reviewed up to `d17fb83d`. Five commits were read and their five replies settled, and Verdicts 16
+to 19 with them.
 
-Before it, four commits were read and their four replies settled up to `99b9c97d`, and with
-them Verdicts 14 and 15 and the item on N 3.7.
+The Windows job registers lavapipe's manifest where an elevated loader reads it, a drawing test
+that runs without a device fails with the probe's own error, every checkout has LF ends, and
+music refused for a file cut short lets the file go, with each of nine loaders held to that
+(`1c1a3cea`). An annotation carries its cause's whole entry, and a notice the page's head and
+the lines repeated most (`6076a4f5`). The hook of N 3.7 keeps a test's ears in its flow
+(`90fc3731`). A script's generation unloads when it is compiled again (`d7e370ed`), which took
+two mends, the thrown type counted by its name and a script's registration kept out of the
+process's list, where it had registered a stale script into every app made after. Nine of
+raylib's shapes examples are written (`d17fb83d`), three of them held against raylib's C at the
+pinned commit, and `DrawCircleGradient` takes its center as raylib does there, a line of
+`PublicApi.txt` reshaped, which falls in 5.1, not yet packed. The table stands at 54 written,
+130 that can be and 37 missing, and the suite through the script at 1,205 passing.
 
-The tests run through `build/test.py` (`42b162d9`). The suite runs whole under `--blame` and a
-hang timeout, held to 40 minutes and 4 GB, and in parts only after a process is lost. Each run
-ends its log with a page of at most 200 lines, which is the job's summary and its annotations,
-and a last job joins the three systems. `TestScriptTests` holds the page to its limits, and the
-loss of a process to its parts with a stand-in for `dotnet`. The profile of a headless app ends
-its frame (`92d30bbd`), a system that throws every frame is logged whole once and counted after
-(`c35472ba`), and a test fails for an error the engine logs that it did not say it expects
-(`99b9c97d`), which found a fault at once, a physics world disposed twice. The suite through the
-script is 1,193 passing at 1.8 GB.
+Nothing after `92d30bbd` is pushed, so no run has tried the registry step. The run of
+`92d30bbd` was the first with the page, read from GitHub with nothing pasted. Linux and macOS
+passed, Windows failed 126 tests of ten causes, 117 of them for having no Vulkan device, and
+the job that joins the three pages was given no runner and ended cancelled, which is GitHub's
+and is watched.
 
-The run of `92d30bbd` is the first with the page, and it was read from GitHub with nothing
-pasted. Linux and macOS pass. Windows fails 126 tests of ten causes, and the first is that no
-Vulkan device starts there at all, which Verdict 16 has with the rest. The job that joins the
-three pages was given no runner in that run or the one before it and ended cancelled after a
-quarter of an hour, which is GitHub's and is watched.
-
-Before them, two commits of ports were settled up to `4be25c8e`, four more of raylib's core
-examples. The viewport's port found three
-defaults that answer otherwise than raylib's, a window's four samples, a render texture drawn at
-the window's samples, and a texture's bilinear filter. The comparison with raylib has each, and
-which of them follows raylib's is put to the owner. Before those, eight commits were settled up
-to `48fbb663`, Verdicts 10 and 12 among them, the Linux job passing since `c06ec659` read the
-script compiler's references once for the process.
+Before these, the page itself, the profile's guard, the schedule's counting and the hook of
+N 3.7 were settled up to `99b9c97d`, and a program of this engine's own took a name of its own
+at `5107f9a5`. The ports before them found three defaults that answer otherwise than raylib's,
+a window's four samples, a render texture drawn at the window's samples, and a texture's
+bilinear filter, which the comparison with raylib has and which are put to the owner.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -51,11 +47,13 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Windows, by its page**, Verdict 16 and then Verdict 17, before the next port. The page
-   names the 126 for the first time, and 117 of them are one line of the workflow, the driver's
-   manifest named where an elevated loader reads it. A package waits for it too, since the pack
-   workflow runs these tests first and 5.1 is not packed. Verdicts 18 and 19 are small and
-   follow.
+1. **What the next page says of Windows, and the probe's race.** The registry step of
+   `1c1a3cea` has not run on a runner, since nothing after `92d30bbd` is pushed. Once it is, the
+   reviewing session reads the page and puts what is left of the 126 into a verdict here. Until
+   then Verdict 20 is first. The reply to Verdict 17 asks whether a cause shows more of its
+   message, and it does: its first five lines on the page and in its annotation, each cut at
+   the page's width, with a count of the lines left. Ten causes of five lines, six frames and a
+   line of tests are 130 lines of the 200.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -76,7 +74,7 @@ for a reply. In this order.
    examples can be written. rlgl's matrix stack and its vertices one at a time are missing and
    not out of reach, since a raylib program turns a drawn shape with the one and draws a shape
    of its own with the other. Once the rows that can be written are, the missing are taken by
-   how many rows each holds, as BevyCSharp takes its gaps. Verdict 16 comes before the next
+   how many rows each holds, as BevyCSharp takes its gaps. Verdict 20 comes before the next
    port.
 
    Two things go with the ports. A program of this engine's own that answers a raylib example
@@ -110,76 +108,18 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 15 are settled, and their numbers are not given again.
+Verdicts 1 to 19 are settled, and their numbers are not given again.
 
-**16. On Windows no Vulkan device starts, and 117 tests fail saying that one did** (N 6.2). The
-page of `92d30bbd` has ten causes for the 126. Seventy are `OffscreenRenderTests` finding no
-renderer in the app, 47 are captures that were never written, and one is the driver's own
-answer, `VkException [-9] ErrorIncompatibleDriver` at `GraphicsDevice.CreateInstance`. The
-seventy say `the probe started a Vulkan device`, and it did not. With `E3D_REQUIRE_VULKAN` set,
-`Needs.cs` runs the drawing tests where the probe failed, so the words are wrong in the one
-place they are read.
-
-The loader finds no driver. `test.yml` names lavapipe's manifest to the loader with
-`VK_DRIVER_FILES` and `VK_ICD_FILENAMES`, and the validation layer's folder with
-`VK_ADD_LAYER_PATH`, and the Vulkan loader leaves those variables unread in a process that runs
-with an administrator's rights, which a job on a hosted Windows runner does. The loader's
-documentation says so under its caveats for elevated privilege, and with `VK_LOADER_DEBUG` set
-to `error,warn,driver` the loader says so itself in the output. The Windows job registers the
-manifest where an elevated loader reads it, as a value of `HKLM\SOFTWARE\Khronos\Vulkan\Drivers`
-named by the manifest's path with the number 0, which is one `reg add`. The SDK's installer
-registers its layer the same way under `ExplicitLayers`. If the next page still has the
-driver's answer, the loader's own lines go into the output, and the page's repeated lines say
-what it read.
-
-A drawing test that runs because the variable is set, where the probe failed, fails with the
-probe's own error, the exception the probe caught being kept beside its answer. The page then
-has one cause that reads as the driver's words, and not 117 that read as the app's.
-
-The other causes, each a test or two:
-
-- `FirstGameTests` finds no block of code in the page it walks, where it expects more than ten.
-  The repository has no `.gitattributes`, so git on Windows checks the page out with CRLF ends,
-  which is the likely reason. `* text=auto eol=lf` gives every system the same lines, and the
-  test's own reading of the page is looked at with it.
-- A `cut-short` `.ogg` cannot be removed because the test host holds it, so the loader that
-  refuses a file cut short leaves it open (N 2.9). A loader is held to letting go of its file
-  after a refusal as after a load, with a file cut short for each loader.
-- Two tests find Dear ImGui's context held by an app that has not shut down, one has validation
-  errors, one an `ArgumentOutOfRangeException` for a length of -1, one `Sequence contains no
-  matching element`, and one a file that does not exist. They may follow from the missing
-  device, and the page after the mend says which are left. Verdict 17 gives each its tests.
-
-**17. The annotations are all of a page that is read without signing in, and they carry a
-cause's first line only** (N 6.7). GitHub gives a run's annotations to anyone, and its log, its
-summary and its files to those signed in, so the reviewing session and a working session read
-the annotations and nothing else. `annotations()` writes a cause's count and type as the title
-and the first line of its message, so the run of `92d30bbd` says that one test failed for a
-file that does not exist and does not say which. Each cause's annotation carries its whole entry
-of the page, the message, the frames and the tests with the count of the rest, its lines joined
-as the script's `escape` writes them, and one notice carries the page's head and the lines
-repeated most. GitHub keeps ten errors and ten notices of a step, so ten causes and the notice
-fit. `TestScriptTests` reads the annotations the script prints for its 500 failures and finds a
-test's name and a frame in each.
-
-**18. The hook of N 3.7 hears by the thread, and a test that awaits leaves its thread** (N 3.7).
-`FailOnLoggedErrors` keeps a test's ears in a `[ThreadStatic]` field that `Before` sets, and
-`App.Created` lays an app to the ears of the thread that makes it. A test that awaits goes on
-on another thread of the pool, which has no ears, or those of another test that awaited and is
-still running. An app made after an `await` is then laid to no test or to the wrong one, and
-the wrong one fails for an error it did not cause. 33 tests in seven files are `async`, and
-`CliTests` among them makes apps. The ears go in an `AsyncLocal`, as `App.Current` is one, so
-they follow a test over its awaits. `LoggedErrorsTests` gains a test that awaits before it
-makes its app and logs, which fails for the error where it is not expected, with no other test
-failing beside it.
-
-**19. The schedule's count of what was thrown keeps a script's type** (N 3.1). `_thrown` is keyed
-by stage, system and the exception's `Type`, and lives as long as the schedule. An exception a
-script defines and a system of that script throws is then a key, and a `Type` that is referred
-to keeps its assembly's load context from being unloaded, so that generation of the script
-stays for the app's life, where `ScriptLoadContext` is there to let it go. The key is the
-type's full name. A test compiles a script whose system throws a type of its own, compiles it
-again, and finds the first generation unloaded.
+**20. The reflection probe's reference frame is a race** (N 3.3, N 3.5). The reply to Verdict 16
+has it failing two runs of three when its class runs alone, the room lit dimmer, and says where
+it began: none of four at `d1667840`, one of four at `c06ec659`. Between the two the one change
+to the engine is that an app reads no 57 MB of assemblies as it starts, so an app starts sooner.
+A frame taken after a count of frames then comes before something the picture needs has
+finished, most likely the probe's capture or the filtering of what it captured, and the whole
+suite passes because its machine is busier. The test waits for what the picture depends on, the
+probe saying it has captured, and counts no more frames and widens no share of pixels for it.
+If the engine has no way to say a probe is ready, that is the gap, and a game that shows a room
+as it loads has it too.
 
 ## Decisions
 
@@ -223,71 +163,14 @@ again, and finds the first generation unloaded.
 
 ## Replies
 
-**Verdict 16, Windows's device.** The Windows job registers lavapipe's manifest under
-`HKLM\SOFTWARE\Khronos\Vulkan\Drivers`, its path the value's name and 0 its value, in a step of
-its own before the build, where an elevated loader reads it. Where `E3D_REQUIRE_VULKAN` is set and
-the probe started no device, a test marked to draw fails before it runs with the probe's own
-exception, kept by the probe beside its answer (`RequiredDevice`, a hook beside the others in
-`Needs.cs`). Run here with the driver's manifest named to a file that is not there, the loader
-gives the Windows run's answer, and all 19 drawing tests tried fail with `No Vulkan device
-started, which E3D_REQUIRE_VULKAN requires. The probe's error: VkException: [-9]
-ErrorIncompatibleDriver`, one cause on the page.
-
-`.gitattributes` gives every text file LF ends in every checkout, which the index already has
-for all of them, and `FirstGameTests` reads its page with any ends as well. Music whose file holds
-no sound closed nothing, as one cut short does, so the `.ogg` stayed open behind the refusal. It
-is closed there now, and music closed is not valid, where its validity read the closed decoder
-and threw. `FileHandleTests` cuts a file of each loader's kind to its first third, nine of them,
-and finds each let go after the load, which failed for music alone without the mend. The suite
-through the script passes, 1,202 tests. The rest of the 126 wait for the next page.
-
-The reflection probe's reference frame fails here now and then when its class runs alone, 82.9%
-of its pixels off with the room lit dimmer, in two runs of three at `5107f9a5`, one in four at
-`c06ec659` and `71224507`, and none in four at `d1667840`. It has passed in every run of the
-whole suite. It is taken up after Verdicts 17 to 19.
-
-**Verdict 17, the annotations.** Each cause's annotation carries its whole entry of the page, the
-message, the frames and the tests with the count of the rest, a line each, and a lost process's
-carries its account, its tests and its last lines. One notice carries the page's head and the
-lines the output repeated most, and the digest job's carries each system's head. The page and
-the annotations build a cause's entry the one way. `TestScriptTests` reads what the script prints
-for its 500 failures as a run on GitHub would, ten errors each with a frame and a test's name and
-one notice with the head and the 60,000 repeated lines, and finds the page in the summary file.
-
-**Verdict 18, the hook's ears.** They are an `AsyncLocal` now, which `Before` sets in the flow
-xUnit runs the test in, since it calls `Before` from a method that is not `async`, so they follow
-a test over its awaits and into the threads and tasks it starts. An app is the test's when its
-flow made it, and a thread the test starts is the test's. `LoggedErrorsTests` gains an awaiting
-test that makes its app on a thread of the pool and logs from a thread the app started, judged by
-a hook of its own, and one through the hook on every test, which expects its error. Both failed
-with the ears bound to a thread. Another test's app is made on a thread started with the flow
-suppressed, which inherits nothing. The whole suite passed beside them, but for N 3.3 finding
-`Task.Delay` in the two, which await `Task.Yield` now.
-
-**Verdict 19, a script's generation kept.** The schedule's count of what was thrown is keyed by
-the type's full name. `ScriptGenerationTests` compiles a script whose update system throws a type
-of the script's own for twenty frames, compiles it again, and finds the first generation's load
-context collected. That found a second holder, which held the generation with the key mended.
-The behavior generator's module initializer runs in a script's assembly too, as its types are
-first touched, and added the script's registration to the process's `GeneratedBehaviors`, where
-it stayed for the process, held its generation, and was invoked by the `BehaviorsPlugin` of every
-app made after, registering a stale script into an app that never compiled it. A registration
-from a collectible assembly is passed over there now, the compiler registering the script into
-its own app as before, and the test finds the list holding none. Each mend alone leaves the
-test failing. The hook of N 3.7 keeps an exception as its type's name and message, where it kept
-the exception, which held a script's type for the length of the test. The suite through the
-script passes, 1,205 tests.
-
-**Now 3, nine of raylib's shapes examples.** `shapes_basic_shapes`, `shapes_bouncing_ball`,
-`shapes_colors_palette`, `shapes_logo_raylib`, `shapes_logo_raylib_anim`,
-`shapes_rectangle_scaling`, `shapes_lines_bezier`, `shapes_collision_area` and
-`shapes_following_eyes` are raylib's, written again from its source. `shapes_basic_2d` was a
-program of this engine's own answering `shapes_basic_shapes` with fewer shapes (N 5.1), and it is
-raylib's under raylib's name now, its picture, the README's row and the 2D guide's excerpt with
-it. `DrawCircleGradient` takes raylib's form at the commit pinned, a center as a `Vector2`, where
-it took raylib 5.5's two integers, and its one caller here, a reference frame, takes the new form.
-Each picture was set beside raylib's screenshot. Those that differ differ by the pointer, a key
-held or a moment of an animation, and `shapes_basic_shapes`'s screenshot is older than its code,
-without the ellipse and the outlines the code draws and with its gradient upright. Driven through
-`./e3d`, the palette shows a color's name with the pointer over it. The table stands at 54
-written, 130 that can be, 37 missing and 1 that does not apply.
+**Verdict 20, the probe's race.** `IsReflectionProbeReady` said a probe was ready when its first
+pass landed, and a probe captures twice, the second pass with the first bound, so the reference
+frame, taken twelve frames after ready, came before the second pass on a quick start and showed
+the room lit dimmer. A probe is ready now once both passes of its capture of where it is now have
+finished, and the test waits for that as it did, with no frame and no share of pixels added. Run
+alone six times it passes six, where it had failed two of three. The reading found a second fault:
+what was captured counts the recaptures a change in the lights asks for beside the component's
+own, and the two were compared bare, so a probe relit by a lamp going out was never ready again.
+`OffscreenRenderTests`' lamp test asks `IsReflectionProbeReady` now where it read the probe's
+fields, not ready the moment the lamp goes out and ready once the probe is captured anew, and
+without the mend it is never ready again.

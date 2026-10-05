@@ -39,14 +39,25 @@ public static partial class Engine3D
         if (Resolve(probe) is { } entity) Ecs.GetRef<ReflectionProbe>(entity).Capture++;
     }
 
-    /// <summary>Whether a probe has a capture of where it is now, which surfaces in its box reflect.</summary>
+    /// <summary>
+    /// Whether a probe's capture of where it is now, under the lights reaching it now, has finished
+    /// both its passes, so the surfaces in its box reflect the room as it is drawn.
+    /// </summary>
+    /// <remarks>
+    /// A probe reflects something as soon as its first pass lands, and the second, captured with the
+    /// first bound, gives what it reflects of itself. Ready waits for the second, so a frame taken
+    /// once it is ready shows what every later frame shows.
+    /// </remarks>
     public static bool IsReflectionProbeReady(ReflectionProbeHandle probe)
     {
         if (Resolve(probe) is not { } entity || !TryRes<ReflectionProbes>(out var probes)
             || !probes.ByEntity.TryGetValue(entity, out var known) || known.Map is null || known.Captured is not { } captured) return false;
         // Against the component as it is now, which the renderer takes up at the end of the frame.
+        // What was captured counts the captures a change in the lights asked for beside the
+        // component's own, so a probe relit was never ready again while the two were compared bare.
         var wanted = Ecs.GetReadOnly<ReflectionProbe>(entity);
-        return captured.Size == wanted.Size && captured.Capture == wanted.Capture && captured == known.Wanted;
+        return captured.Size == wanted.Size && captured.Capture == wanted.Capture + known.Relit && captured == known.Wanted
+            && known.Passes >= ReflectionProbes.Passes;
     }
 
     /// <summary>Removes a probe, and its box reflects the environment map again.</summary>
