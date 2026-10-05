@@ -2604,11 +2604,12 @@ enum Engine.TextureColorSpace : int
   Linear = 0
   Srgb = 1
 enum Engine.TextureFilter : int
-  Anisotropic16x = 4
-  Anisotropic4x = 2
-  Anisotropic8x = 3
+  Anisotropic16x = 5
+  Anisotropic4x = 3
+  Anisotropic8x = 4
   Bilinear = 1
   Point = 0
+  Trilinear = 2
 enum Engine.TextureFormat : int
   Bc1 = 5
   Bc3 = 6

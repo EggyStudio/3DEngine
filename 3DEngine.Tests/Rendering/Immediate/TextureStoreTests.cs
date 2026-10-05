@@ -159,4 +159,13 @@ public class TextureStoreTests
         GpuTextures.SamplerFor(TextureFilter.Bilinear).MaxAnisotropy.Should().Be(1);
         GpuTextures.SamplerFor(TextureFilter.Anisotropic8x).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MaxAnisotropy == 8);
     }
+
+    [Fact]
+    public void Bilinear_Reads_The_Nearest_Mip_Level_And_Trilinear_Blends_Two_As_In_Raylib()
+    {
+        GpuTextures.SamplerFor(TextureFilter.Point).MipFilter.Should().Be(SamplerFilter.Nearest);
+        GpuTextures.SamplerFor(TextureFilter.Bilinear).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MipFilter == SamplerFilter.Nearest);
+        GpuTextures.SamplerFor(TextureFilter.Trilinear).Should().Match<SamplerDesc>(d => d.MinFilter == SamplerFilter.Linear && d.MipFilter == SamplerFilter.Linear);
+        GpuTextures.SamplerFor(TextureFilter.Anisotropic4x).MipFilter.Should().Be(SamplerFilter.Linear, "an anisotropic filter is trilinear with more samples");
+    }
 }

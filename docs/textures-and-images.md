@@ -45,18 +45,21 @@ A texture drawn larger or smaller than its size is filtered. `SetTextureFilter` 
 | Filter | Suits |
 |---|---|
 | `TextureFilter.Point` | Pixel art, every texel a sharp square |
-| `TextureFilter.Bilinear` | Photographs and smooth art, blended between texels and between mip levels |
+| `TextureFilter.Bilinear` | Photographs and smooth art, blended between texels, in the nearest mip level |
+| `TextureFilter.Trilinear` | The same, blended between mip levels too, so a texture drawn ever smaller shows no step |
 | `TextureFilter.Anisotropic4x`, `8x` and `16x` | Textures seen at a slant, as a floor stretching away |
 
 A texture drawn much smaller than its size, as a floor stretching away, breaks into noise unless it
 has mip levels, smaller copies of itself the GPU reads instead. `GenTextureMipmaps` makes them,
-which the `textures_mipmaps` example shows beside a texture without:
+and `Trilinear` blends between them, which the `textures_mipmaps` example shows beside a texture
+without:
 
 ```csharp
 var image = GenImageChecked(512, 512, 8, 8, Color.Black, Color.White);
 var plain = LoadTextureFromImage(image);
 var mipmapped = LoadTextureFromImage(image);
 GenTextureMipmaps(ref mipmapped);
+SetTextureFilter(mipmapped, TextureFilter.Trilinear);
 ```
 
 `SetTextureWrap` sets what lies past a texture's edge when a model's texture coordinates reach

@@ -604,7 +604,8 @@ internal sealed class MeshEntityDraws
         }
         var bytes = texture.Width * texture.Height * 4;
         var pixels = texture.Pixels.Length == bytes ? texture.Pixels : texture.Pixels[..bytes];
-        return _textures[handle.Id] = textures.Add(pixels, texture.Width, texture.Height, mipmaps: true);
+        // Trilinear, so a floor stretching away blends its mip levels rather than stepping between them.
+        return _textures[handle.Id] = textures.Add(pixels, texture.Width, texture.Height, TextureFilter.Trilinear, mipmaps: true);
     }
 
     private void ForgetReloadedTextures(World world, TextureStore textures)

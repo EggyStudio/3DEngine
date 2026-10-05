@@ -241,9 +241,9 @@ internal sealed unsafe partial class GraphicsDevice
             compareEnable = false,
             compareOp = VkCompareOp.Always,
             // Blends between mip levels when the texture is smoothed and picks the nearest level
-            // when it is not, and lets an image with mip levels use all of them. An image without
-            // them has one level, which the bound leaves alone.
-            mipmapMode = desc.MinFilter == SamplerFilter.Linear ? VkSamplerMipmapMode.Linear : VkSamplerMipmapMode.Nearest,
+            // when it is not, unless the description says which, and lets an image with mip levels
+            // use all of them. An image without them has one level, which the bound leaves alone.
+            mipmapMode = (desc.MipFilter ?? desc.MinFilter) == SamplerFilter.Linear ? VkSamplerMipmapMode.Linear : VkSamplerMipmapMode.Nearest,
             minLod = 0,
             maxLod = Vulkan.VK_LOD_CLAMP_NONE,
         };

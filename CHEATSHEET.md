@@ -413,7 +413,7 @@ void UnloadTexture(Texture2D texture);                                          
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
 bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels);                 // Replace a rectangle of it, the rest kept
-void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point, Bilinear (the default) or Anisotropic4x, 8x, 16x
+void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point, Bilinear (the default), Trilinear or Anisotropic4x, 8x, 16x
 void SetTextureWrap(Texture2D texture, TextureWrap wrap);                              // Repeat (the default), Clamp or MirrorRepeat past its edges
 void GenTextureMipmaps(ref Texture2D texture);                                         // Make mip levels on the GPU, so it stays smooth drawn small
 
@@ -867,7 +867,7 @@ Font LoadFontFromImage(Image image, Color key, int firstChar);                  
 Font LoadFontEx(string fileName, int fontSize);                                             // Baked at a size, with the Latin-1 characters
 Font LoadFontEx(string fileName, int fontSize, int[] codepoints);                           // Baked with exactly these characters (Greek, Cyrillic, ...)
 Font LoadFontEx(string fileName, int fontSize, int[]? codepoints, FontType type);          // FontType.Sdf bakes a distance field, sharp at any size
-int[] LoadCodepoints(string text);                                                          // The distinct characters of a text, for LoadFontEx
+int[] LoadCodepoints(string text);                                                          // The characters of a text, each in order, for LoadFontEx
 void UnloadFont(Font font);                                                                 // Free its atlas
 void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint); // Text in a font
 void DrawTextPro(Font font, string text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Rotated around an origin
@@ -878,7 +878,7 @@ Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? c
 void SetTextLineSpacing(int spacing);                                                       // Lines a size and this many pixels apart
 void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint); // One character by its code point
 void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint); // Characters by code point
-Glyph? GetGlyphInfo(Font font, int codepoint);                                              // Where a glyph sits and how far it advances
+Glyph? GetGlyphInfo(Font font, int codepoint);                                              // Where a glyph sits and how far it advances, or the font's '?' glyph
 Rectangle GetGlyphAtlasRec(Font font, int codepoint);                                       // Where it lies in the atlas, in pixels
 ```
 

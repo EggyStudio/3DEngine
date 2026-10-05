@@ -4,3 +4,17 @@
 core/resources/ps3.png
 core/resources/xbox.png
 core/resources/text_file.txt
+text/resources/custom_mecha.png
+text/resources/custom_alagard.png
+text/resources/custom_jupiter_crash.png
+text/resources/sprite_fonts/alagard.png
+text/resources/sprite_fonts/pixelplay.png
+text/resources/sprite_fonts/mecha.png
+text/resources/sprite_fonts/setback.png
+text/resources/sprite_fonts/romulus.png
+text/resources/sprite_fonts/pixantiqua.png
+text/resources/sprite_fonts/alpha_beta.png
+text/resources/sprite_fonts/jupiter_crash.png
+text/resources/KAISG.ttf
+text/resources/NotoSansTC-Regular.ttf
+text/resources/DotGothic16-Regular.ttf

@@ -71,8 +71,8 @@ stays sharp pixels.
 ## Characters past Latin-1
 
 A font holds only the characters it was baked with. Text in Greek, Cyrillic or another script, or
-with a sign as the euro, gets its characters from `LoadCodepoints`, which lists the distinct ones
-a string uses, so the bake holds those and no more:
+with a sign as the euro, gets its characters from `LoadCodepoints`, which lists those a string
+uses, so the bake holds those and no more:
 
 ```csharp
 // Beyond Latin-1, a font is baked with the characters a text needs.
@@ -83,9 +83,11 @@ DrawTextEx(wide, World, new Vector2(20, 270), 28, 0, Color.DarkPurple);
 ```
 
 A game with text in several languages bakes one font from all of its strings together. A character
-the font file lacks draws as nothing. Characters past U+FFFF, emoji and historic scripts among
-them, are baked from the font's outlines with the rest, so a monochrome emoji font such as Noto
-Emoji or Symbola draws them, where a color emoji font, whose glyphs are pictures, does not.
+the font lacks, left out of the bake or missing from the file, draws as the font's `?`, as raylib's
+does, and as nothing where the font has no `?` either. Characters past U+FFFF, emoji and historic
+scripts among them, are baked from the font's outlines with the rest, so a monochrome emoji font
+such as Noto Emoji or Symbola draws them, where a color emoji font, whose glyphs are pictures,
+does not.
 
 ## Typed text
 

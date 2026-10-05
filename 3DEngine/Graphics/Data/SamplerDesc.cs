@@ -27,10 +27,12 @@ internal enum SamplerAddressMode
 /// <param name="AddressV">Addressing mode for the V (vertical) texture coordinate.</param>
 /// <param name="AddressW">Addressing mode for the W (depth) texture coordinate.</param>
 /// <param name="MaxAnisotropy">The most samples taken along a slanted texture's squashed direction, 1 for none, limited to what the device allows.</param>
+/// <param name="MipFilter">How mip levels are chosen between, the nearest or a blend of two, or as <paramref name="MinFilter"/> when not given.</param>
 internal readonly record struct SamplerDesc(
     SamplerFilter MinFilter,
     SamplerFilter MagFilter,
     SamplerAddressMode AddressU,
     SamplerAddressMode AddressV,
     SamplerAddressMode AddressW,
-    float MaxAnisotropy = 1);
+    float MaxAnisotropy = 1,
+    SamplerFilter? MipFilter = null);

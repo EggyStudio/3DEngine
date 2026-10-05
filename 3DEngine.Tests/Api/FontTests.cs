@@ -26,7 +26,21 @@ public class FontTests
     public void Code_Points_Become_Merged_Ranges_Ending_In_Zero()
     {
         Engine3D.GlyphRanges([0x41, 0x43, 0x42, 0x45, 0x1F600, 0x41]).Should().Equal((ushort)0x41, (ushort)0x43, (ushort)0x45, (ushort)0x45, (ushort)0);
-        Engine3D.LoadCodepoints("aba€").Should().Equal('a', 'b', 0x20AC);
+        Engine3D.LoadCodepoints("aba€").Should().Equal(['a', 'b', 'a', 0x20AC], "a character that comes again is counted again, as raylib's are");
+    }
+
+    [Fact]
+    public void A_Character_The_Font_Lacks_Is_Measured_As_Its_Question_Mark_As_In_Raylib()
+    {
+        var glyphs = new Dictionary<int, Glyph>
+        {
+            ['A'] = new Glyph(0, 0, 4, 8, 0, 0, 0.5f, 1, 5),
+            ['?'] = new Glyph(0, 0, 6, 8, 0.5f, 0, 1, 1, 7),
+        };
+        var font = new Font(new Texture2D(1, 8, 8), 8, 8, glyphs);
+
+        Engine3D.MeasureTextEx(font, "A\u0436", 8, 0).X.Should().Be(5 + 7, "the Cyrillic letter the font lacks takes the '?' glyph's advance");
+        Engine3D.GetGlyphInfo(font, 0x436).Should().Be(glyphs['?']);
     }
 
     [Fact]
@@ -94,7 +108,7 @@ public class FontTests
 
             fromMemory.Glyphs['A'].Should().Be(fromFile.Glyphs['A'], "the same bytes bake the same glyphs");
             Engine3D.GetGlyphInfo(fromMemory, 'A').Should().Be(fromFile.Glyphs['A']);
-            Engine3D.GetGlyphInfo(fromMemory, 0x4E00).Should().BeNull("Latin-1 has no CJK");
+            Engine3D.GetGlyphInfo(fromMemory, 0x4E00).Should().Be(fromFile.Glyphs['?'], "Latin-1 has no CJK, and raylib answers with the '?' glyph");
             var rec = Engine3D.GetGlyphAtlasRec(fromMemory, 'A');
             (rec.Width, rec.Height).Should().Match<(float W, float H)>(s => s.W > 0 && s.H > 0);
             Engine3D.LoadFontFromMemory(".png", [1, 2, 3], 24, null).Should().BeSameAs(Engine3D.GetFontDefault());

@@ -18,6 +18,9 @@ public static class TexturesMipmaps
         var mipmapped = LoadTextureFromImage(image);
         GenTextureMipmaps(ref mipmapped);
 
+        // Trilinear blends the two nearest levels, where bilinear would step from one to the next.
+        SetTextureFilter(mipmapped, TextureFilter.Trilinear);
+
         var left = LoadModelFromMesh(GenMeshPlane(8, 60, 1, 1));
         var right = LoadModelFromMesh(GenMeshPlane(8, 60, 1, 1));
         left.Materials[0].Texture = plain;

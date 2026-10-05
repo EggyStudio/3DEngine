@@ -462,8 +462,13 @@ public static partial class Engine3D
         return (new Image(field, width, height), new Image(coverage, width, height), grown);
     }
 
-    /// <summary>The distinct code points of <paramref name="text"/>, in order, for <see cref="LoadFontEx(string, int, int[])"/>.</summary>
-    public static int[] LoadCodepoints(string text) => text.EnumerateRunes().Select(r => r.Value).Distinct().ToArray();
+    /// <summary>The code points of <paramref name="text"/>, one for each character in order, for <see cref="LoadFontEx(string, int, int[])"/>.</summary>
+    /// <remarks>A character that comes again is counted again, as raylib's are, and the font bakes it once.</remarks>
+    public static int[] LoadCodepoints(string text) => text.EnumerateRunes().Select(r => r.Value).ToArray();
+
+    // A character's glyph, or the font's '?' where it lacks the character, as raylib draws one.
+    internal static bool TryGetGlyph(Font font, int codepoint, out Glyph glyph) =>
+        font.Glyphs.TryGetValue(codepoint, out glyph) || font.Glyphs.TryGetValue('?', out glyph);
 
     /// <summary>
     /// Code points as the pairs of first and last that ImGui's atlas takes, ending in a zero, with
@@ -526,7 +531,7 @@ public static partial class Engine3D
                 pen = new Vector2(0, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
-            if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
+            if (!TryGetGlyph(font, rune.Value, out var g)) continue;
 
             if (g.X1 > g.X0 && g.Y1 > g.Y0)
             {
@@ -582,7 +587,7 @@ public static partial class Engine3D
                 pen = new Vector2(position.X, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
-            if (!font.Glyphs.TryGetValue(rune.Value, out var g)) continue;
+            if (!TryGetGlyph(font, rune.Value, out var g)) continue;
             if (g.X1 > g.X0 && g.Y1 > g.Y0)
             {
                 var source = new Rectangle(g.U0 * font.Atlas.Width, g.V0 * font.Atlas.Height,
@@ -618,13 +623,13 @@ public static partial class Engine3D
     public static void DrawTextCodepoints(Font font, int[] codepoints, Vector2 position, float fontSize, float spacing, Color tint) =>
         DrawTextEx(font, string.Concat(codepoints.Where(System.Text.Rune.IsValid).Select(char.ConvertFromUtf32)), position, fontSize, spacing, tint);
 
-    /// <summary>A character's glyph in a font, where it sits and how far it advances, or null when the font lacks it.</summary>
-    public static Glyph? GetGlyphInfo(Font font, int codepoint) => font.Glyphs.TryGetValue(codepoint, out var glyph) ? glyph : null;
+    /// <summary>A character's glyph in a font, where it sits and how far it advances, the font's '?' where it lacks the character, as raylib's is, or null when it lacks both.</summary>
+    public static Glyph? GetGlyphInfo(Font font, int codepoint) => TryGetGlyph(font, codepoint, out var glyph) ? glyph : null;
 
-    /// <summary>Where a character's glyph lies in the font's atlas, in pixels, or an empty rectangle when the font lacks it.</summary>
+    /// <summary>Where a character's glyph lies in the font's atlas, in pixels, the '?' glyph's where the font lacks the character, or an empty rectangle when it lacks both.</summary>
     public static Rectangle GetGlyphAtlasRec(Font font, int codepoint)
     {
-        if (!font.Glyphs.TryGetValue(codepoint, out var g)) return default;
+        if (!TryGetGlyph(font, codepoint, out var g)) return default;
         var (w, h) = (font.Texture.Width, font.Texture.Height);
         return new Rectangle(g.U0 * w, g.V0 * h, (g.U1 - g.U0) * w, (g.V1 - g.V0) * h);
     }
@@ -723,7 +728,7 @@ public static partial class Engine3D
                 lines++;
                 continue;
             }
-            if (font.Glyphs.TryGetValue(rune.Value, out var g)) line += g.Advance * scale + spacing;
+            if (TryGetGlyph(font, rune.Value, out var g)) line += g.Advance * scale + spacing;
         }
         return new Vector2(Math.Max(width, line), (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
     }
@@ -804,6 +809,9 @@ public static partial class Engine3D
         var atlas = new ImFontAtlasPtr(ImGuiNative.ImFontAtlas_ImFontAtlas());
         try
         {
+            // ImGui's mouse cursors and lines, drawn into an atlas for its own windows, have no
+            // place in a font's, which holds its glyphs as raylib's does.
+            atlas.Flags |= ImFontAtlasFlags.NoMouseCursors | ImFontAtlasFlags.NoBakedLines;
             var imFont = add(atlas);
             if (imFont.NativePtr == null || !atlas.Build()) return null;
 

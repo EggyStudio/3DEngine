@@ -10,15 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5ba111bd`. The flat API carries the 39 functions of raymath that C# has no
+Reviewed up to `590b9ac3`. The last eight of raylib's examples that use raygui are written with
+ImGui in its place, fifteen in all, and two calls answer as raylib's do, both read against its
+source: `DrawText`, `MeasureText` and `ImageText` raise a size below 10 to 10, and `DrawFPS` is
+orange below 30 frames a second and red below 15. The table stands at 88 written, 1 in part, 95
+that can be and 37 missing, and the suite through the script at 1,216 passing. No verdict is
+open.
+
+Before it, the flat API carries the 39 functions of raymath that C# has no
 counterpart for, each held to raymath's results by `RayMathTests`, and the comparison with
 raylib maps the rest to C#'s names (`2bbc746a`), which settles Verdict 22. Verdict 21 is
 settled on its measurement: a target of 1920 by 1080 at four samples holds the same memory
 before and after, and the targets' pass takes the same time, on NVIDIA and on lavapipe. A GPU
 that draws in tiles could not be measured here. Eighteen more of raylib's shapes examples are
 written (`817e4cea`, `5ba111bd`), seven with ImGui's controls where raygui's stand and three
-held against raylib's C, and the table stands at 80 written, 1 in part, 103 that can be and 37
-missing. No verdict is open.
+held against raylib's C.
 
 Before them, a render texture that nothing clears in a frame keeps what it held (`d3150f11`),
 a fault the port of `shapes_double_pendulum` found, and nine more of raylib's shapes examples
@@ -169,19 +175,22 @@ None open.
 
 ## Replies
 
-**Now 2, the rest of raylib's examples with raygui.** `shapes_splines_drawing`,
-`shapes_pie_chart`, `shapes_kaleidoscope`, `shapes_math_sine_cosine`, `shapes_outlines_testbed`,
-`core_directory_files`, `core_clipboard_text` and `core_compute_hash` are raylib's, written again
-from its source with ImGui in raygui's place. raygui's dropdown is a combo, its scroll panel a
-child window, its toggle a button that stays down, its list view a list box, and a button that
-stands alone is an ImGui window of its own at raygui's rectangle. raygui's icons are left out,
-ImGui's font having none. The testbed's group boxes are drawn in the camera's space, where ImGui
-does not draw, so they are lines and text in raygui's color. raylib's file, hash and Base64
-helpers are C#'s `Directory`, `System.Security.Cryptography` and `Convert`, and the CRC-32 is the
-example's own, since .NET keeps one in a package outside the runtime. Pressed through `./e3d`,
-the hashes are those of raylib's screenshot, all but its SHA1, which raylib's `ComputeSHA1` of
-today, compiled from its source, gives as ours does, the screenshot being older. Two calls were
-brought to raylib's. `DrawText`, `MeasureText` and `ImageText` draw a size below 10 at 10, as
-raylib's do, since the sine example asks for 6, and `DrawFPS` is orange below 30 frames a second
-and red below 15, as the kaleidoscope's 20 shows in raylib's screenshot. The table stands at 88
-written, 1 in part, 95 that can be, 37 missing and 1 that does not apply.
+**Now 2, raylib's text examples.** `text_format_text`, `text_writing_anim`,
+`text_font_spritefont`, `text_sprite_fonts`, `text_font_filters`, `text_unicode_ranges`,
+`text_codepoints_loading`, `text_words_alignment` and `text_strings_management` are raylib's,
+written again from its source, their fonts fetched from raylib's examples by
+`raylib-resources.txt`. raylib's `TextFormat`, `TextSubtext`, `TextSplit` and the walk through
+UTF-8 by code point are C#'s interpolation, ranges, `Split` and `Rune`, and its Pascal, snake and
+camel case are the strings example's own, written from raylib's arithmetic. Four calls were
+brought to raylib's. A character a font lacks draws and measures as its `?`, which raylib's
+`GetGlyphIndex` falls back to, so the unicode example raised to Greek reads `Ελληνικ?: Γει? σου
+κ?σμε!` as raylib's screenshot does, and `GetGlyphInfo` gives that glyph too. `LoadCodepoints`
+gives every character, a repeated one again, so the codepoints example counts 54 as raylib's
+does, where it counted 49. `TextureFilter` has raylib's `Trilinear`, which blends two mip levels
+where `Bilinear` now takes the nearest, as raylib's do, and a model's textures, which the engine
+gives mip levels of its own, ask for trilinear and look as they did. A font's atlas leaves out
+ImGui's mouse cursors and lines, which the unicode example draws on screen. Kept and given its
+line in the comparison, a font loaded with no code points has Latin-1 where raylib's has ASCII.
+Raised to CJK through `./e3d`, the unicode example bakes 16,811 glyphs in 8 seconds and draws the
+Chinese and Japanese lines. The table stands at 97 written, 1 in part, 86 that can be, 37 missing
+and 1 that does not apply.

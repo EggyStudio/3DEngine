@@ -4,18 +4,18 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**88 written, 1 written in part, 95 can be written, 37 missing and 1 does not apply.** Of the 221 that apply, 184 can be written with what the flat API carries.
+**97 written, 1 written in part, 86 can be written, 37 missing and 1 does not apply.** Of the 221 that apply, 184 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
 | [Core](#core) | 39 | 0 | 0 | 9 | 1 |
 | [Shapes](#shapes) | 40 | 1 | 0 | 4 | 0 |
 | [Textures](#textures) | 2 | 0 | 25 | 6 | 0 |
-| [Text](#text) | 2 | 0 | 9 | 5 | 0 |
+| [Text](#text) | 11 | 0 | 0 | 5 | 0 |
 | [Models](#models) | 2 | 0 | 25 | 5 | 0 |
 | [Shaders](#shaders) | 2 | 0 | 29 | 5 | 0 |
 | [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **88** | **1** | **95** | **37** | **1** |
+| **All** | **97** | **1** | **86** | **37** | **1** |
 
 ## Core
 
@@ -163,22 +163,22 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 
 | Example | raylib | Here | State |
 |---|---|---|---|
-| [`text_sprite_fonts`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_sprite_fonts.c) |  |  | can be written |
-| [`text_font_spritefont`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_spritefont.c) |  |  | can be written |
-| [`text_font_filters`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_filters.c) |  |  | can be written |
+| [`text_sprite_fonts`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_sprite_fonts.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_sprite_fonts.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_sprite_fonts.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextSpriteFonts.cs) |
+| [`text_font_spritefont`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_spritefont.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_spritefont.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_font_spritefont.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFontSpritefont.cs) |
+| [`text_font_filters`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_filters.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_filters.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_font_filters.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFontFilters.cs) |
 | [`text_font_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_loading.c) |  |  | missing, BMFont's .fnt files |
 | [`text_font_sdf`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_sdf.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_font_sdf.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_font_sdf.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFontSdf.cs) |
-| [`text_format_text`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_format_text.c) |  |  | can be written |
+| [`text_format_text`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_format_text.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_format_text.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_format_text.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFormatText.cs) |
 | [`text_input_box`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_input_box.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_input_box.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_input_box.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextInputBox.cs) |
-| [`text_writing_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_writing_anim.c) |  |  | can be written |
+| [`text_writing_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_writing_anim.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_writing_anim.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_writing_anim.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextWritingAnim.cs) |
 | [`text_rectangle_bounds`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_rectangle_bounds.c) |  |  | missing, GetGlyphIndex |
 | [`text_unicode_emojis`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_emojis.c) |  |  | missing, GetGlyphIndex, BMFont's .fnt files |
-| [`text_unicode_ranges`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_ranges.c) |  |  | can be written |
+| [`text_unicode_ranges`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_ranges.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_unicode_ranges.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_unicode_ranges.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextUnicodeRanges.cs) |
 | [`text_3d_drawing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_3d_drawing.c) |  |  | missing, GetGlyphIndex, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlNormal3f, rlPopMatrix, rlPushMatrix, rlRotatef, rlSetTexture, rlTexCoord2f, rlTranslatef, rlVertex3f |
-| [`text_codepoints_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_codepoints_loading.c) |  |  | can be written |
+| [`text_codepoints_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_codepoints_loading.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_codepoints_loading.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_codepoints_loading.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextCodepointsLoading.cs) |
 | [`text_inline_styling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_inline_styling.c) |  |  | missing, GetGlyphIndex |
-| [`text_words_alignment`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_words_alignment.c) |  |  | can be written |
-| [`text_strings_management`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_strings_management.c) |  |  | can be written |
+| [`text_words_alignment`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_words_alignment.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_words_alignment.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_words_alignment.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextWordsAlignment.cs) |
+| [`text_strings_management`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_strings_management.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/text/text_strings_management.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_strings_management.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextStringsManagement.cs) |
 
 ## Models
 
