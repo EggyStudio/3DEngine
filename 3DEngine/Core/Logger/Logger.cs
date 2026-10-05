@@ -10,7 +10,9 @@ namespace Engine;
 public sealed class Logger : ILogger
 {
     private readonly string _category;
-    private readonly List<ILoggerProvider> _extraProviders = new();
+    // Replaced whole when a provider comes or goes, so a log on another thread reads a whole list.
+    private ILoggerProvider[] _extraProviders = [];
+    private readonly Lock _providersGate = new();
 
     /// <summary>Creates a new logger for the specified category.</summary>
     /// <param name="category">A hierarchical category name, e.g. <c>"Engine.World"</c>.</param>
@@ -27,10 +29,18 @@ public sealed class Logger : ILogger
     /// <returns>This <see cref="Logger"/> instance for fluent chaining.</returns>
     internal Logger UseProvider(ILoggerProvider provider)
     {
-        if (!_extraProviders.Contains(provider)
-            && provider != ConsoleLoggerProvider.Instance
-            && provider is not FileLoggerProvider)
-            _extraProviders.Add(provider);
+        lock (_providersGate)
+            if (!_extraProviders.Contains(provider)
+                && provider != ConsoleLoggerProvider.Instance
+                && provider is not FileLoggerProvider)
+                _extraProviders = [.. _extraProviders, provider];
+        return this;
+    }
+
+    /// <summary>Removes a provider <see cref="UseProvider"/> added, for a test that hears a category for a while.</summary>
+    internal Logger RemoveProvider(ILoggerProvider provider)
+    {
+        lock (_providersGate) _extraProviders = [.. _extraProviders.Where(p => p != provider)];
         return this;
     }
 
@@ -54,7 +64,7 @@ public sealed class Logger : ILogger
             ConsoleLog.Write(level, exception is null ? $"[{_category}] {message}" : $"[{_category}] {message}: {exception.Message}");
 
         // Any extra user-added providers.
-        foreach (var provider in _extraProviders)
+        foreach (var provider in Volatile.Read(ref _extraProviders))
             if (level >= LogConfig.MinimumLevel)
                 provider.Log(level, _category, message, exception);
     }

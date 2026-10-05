@@ -109,6 +109,7 @@ public sealed partial class App
 
         Logger.Info("Running the Cleanup stage, teardown and resource disposal...");
         Schedule.RunStage(Stage.Cleanup, World);
+        Schedule.ReportThrownTotals();
 
         if (World.TryGetResource<IMainLoopDriver>(out var loop))
         {

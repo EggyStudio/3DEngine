@@ -84,4 +84,51 @@ public class ScheduleTests
         light.Select(d => threads[d.Name]).Should().AllBeEquivalentTo(Environment.CurrentManagedThreadId, "four systems of microseconds are not worth the thread pool");
         heavy.Select(d => parallel[d.Name]).Should().AllBeEquivalentTo(true, "systems of milliseconds each are shared among threads");
     }
+
+    // Hears what one category logs, from any thread, for as long as it is added.
+    private sealed class Heard : ILoggerProvider
+    {
+        public ConcurrentQueue<(LogLevel Level, string Message, Exception? Exception)> Lines { get; } = new();
+
+        public void Log(LogLevel level, string category, string message, Exception? exception = null) =>
+            Lines.Enqueue((level, message, exception));
+    }
+
+    [Fact]
+    public void A_System_That_Throws_In_Every_Frame_Is_Logged_Whole_Once_And_Then_Counted()
+    {
+        // A name of its own, since the schedule's log is the process's and other tests' apps log there too.
+        var name = $"Throws.{Guid.NewGuid():N}";
+        var heard = new Heard();
+        var schedule = Log.Factory.CreateLogger("Engine.Schedule").UseProvider(heard);
+        try
+        {
+            var app = new App();
+            int frames = 0;
+            app.AddSystem(Stage.Update, new SystemDescriptor(_ =>
+            {
+                frames++;
+                if (frames % 250 == 0) throw new ArgumentException("another kind, now and then");
+                throw new InvalidOperationException($"frame {frames} failed");
+            }, name));
+            for (int i = 0; i < 1000; i++) app.Schedule.RunStage(Stage.Update, app.World);
+            app.Shutdown();
+        }
+        finally
+        {
+            schedule.RemoveProvider(heard);
+        }
+
+        var lines = heard.Lines.Where(line => line.Message.Contains(name, StringComparison.Ordinal)).ToList();
+        lines.Where(line => line.Exception is not null).Select(line => line.Exception!.GetType())
+            .Should().Equal([typeof(InvalidOperationException), typeof(ArgumentException)], "each type's first is logged whole, once");
+        lines.Select(line => line.Message[(line.Message.IndexOf(name, StringComparison.Ordinal) + name.Length)..]).Should().Equal(
+            "' threw in stage Update",
+            "' has thrown InvalidOperationException in stage Update 10 times, the last: frame 10 failed",
+            "' has thrown InvalidOperationException in stage Update 100 times, the last: frame 100 failed",
+            "' threw in stage Update",
+            "' threw InvalidOperationException in stage Update 996 times in all",
+            "' threw ArgumentException in stage Update 4 times in all");
+        lines.Should().OnlyContain(line => line.Level == LogLevel.Error);
+    }
 }

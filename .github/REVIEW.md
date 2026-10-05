@@ -282,3 +282,12 @@ once the renderer's context is initialized, so a headless app's profile ends eac
 nothing. `FrameProfileHeadlessTests` runs one for five frames and finds them in its profile and no
 error of the profile logged, and without the mend found none of the five. Before it, the run of the
 whole suite through `build/test.py` repeated the error and its exception 5,802 times each.
+
+**Verdict 14, the schedule's half.** A system's exception is logged whole the first time that
+system throws that type in that stage, and counted after, with a line at the 10th, the 100th and
+each power of ten, and the app says each total as it closes. `ScheduleTests` throws from a system
+for a thousand frames, a different type every 250th, and finds two traces and four lines, the
+counts at 10 and 100 and the totals of 996 and 4 at shutdown. The logger's extra providers are
+replaced whole when one comes or goes, where a list was iterated while another thread could add
+to it, and a test can take its spy off again (`RemoveProvider`). The whole suite through the
+script passes, 1,190 tests, and its most repeated lines are the startup banner of 555 apps.

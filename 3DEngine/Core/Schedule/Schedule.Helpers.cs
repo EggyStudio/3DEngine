@@ -214,7 +214,7 @@ public sealed partial class Schedule
         }
         catch (Exception ex)
         {
-            Logger.Error($"System '{desc.Name}' threw in stage {stage}", ex);
+            ReportThrown(stage, desc.Name, ex);
         }
         finally
         {
@@ -224,5 +224,45 @@ public sealed partial class Schedule
         sw.Stop();
         desc.LastMilliseconds = sw.Elapsed.TotalMilliseconds;
         Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);
+    }
+
+    // How often each system has thrown each type of exception in each stage. A system that throws
+    // in every frame wrote its trace sixty times a second, into a player's log file as into a
+    // test's, so the first of each is logged whole and the rest are counted.
+    private readonly Dictionary<(Stage Stage, string System, Type Exception), long> _thrown = [];
+
+    // Logs an exception a system threw: whole the first time that system throws that type in that
+    // stage, and after that a line at the 10th, the 100th, the 1,000th and so on.
+    private void ReportThrown(Stage stage, string system, Exception ex)
+    {
+        long count;
+        lock (_thrown)
+        {
+            var key = (stage, system, ex.GetType());
+            _thrown.TryGetValue(key, out count);
+            _thrown[key] = ++count;
+        }
+        if (count == 1)
+            Logger.Error($"System '{system}' threw in stage {stage}", ex);
+        else if (IsPowerOfTen(count))
+            Logger.Error($"System '{system}' has thrown {ex.GetType().Name} in stage {stage} {count:N0} times, the last: {ex.Message}");
+    }
+
+    private static bool IsPowerOfTen(long count)
+    {
+        while (count >= 10 && count % 10 == 0) count /= 10;
+        return count == 1;
+    }
+
+    /// <summary>
+    /// Logs, for each system that threw the same type in a stage more than once, how many times in
+    /// all, which the app does as it closes.
+    /// </summary>
+    internal void ReportThrownTotals()
+    {
+        KeyValuePair<(Stage Stage, string System, Type Exception), long>[] thrown;
+        lock (_thrown) thrown = [.. _thrown.Where(entry => entry.Value > 1)];
+        foreach (var ((stage, system, type), count) in thrown)
+            Logger.Error($"System '{system}' threw {type.Name} in stage {stage} {count:N0} times in all");
     }
 }
