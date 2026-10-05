@@ -339,7 +339,7 @@ internal sealed unsafe partial class GraphicsDevice
             data.Slice(0, (int)expectedSize).CopyTo(stagingSpan);
             Unmap(staging);
 
-            var cmd = BeginSingleTimeCommands();
+            var cmd = UploadCommands();
 
             // Every mip level to transfer destination, which the chain below fills, after every
             // earlier command on the queue, since a rectangle written into an image the frames in
@@ -363,7 +363,7 @@ internal sealed unsafe partial class GraphicsDevice
             // Fill the smaller levels from the first, which leaves every level ready to sample
             RecordMipChain(cmd, vkImage);
 
-            SubmitUpload(cmd, staging);
+            _batchStaging.Add(staging);
             staging = null;
             vkImage.Layout = VkImageLayout.ShaderReadOnlyOptimal;
         }
@@ -373,15 +373,25 @@ internal sealed unsafe partial class GraphicsDevice
         }
     }
 
-    // Uploads submitted and not yet known to be finished, with what each holds until it is.
-    private readonly List<(VkFence Fence, VkCommandBuffer Commands, IBuffer Staging)> _uploads = [];
+    // Batches of uploads submitted and not yet known to be finished, with what each holds until it is.
+    private readonly List<(VkFence Fence, VkCommandBuffer Commands, IBuffer[] Staging)> _uploads = [];
 
-    // Submits an upload's commands without waiting for them. The queue runs them before the frames
-    // submitted after, whose draws the upload's barriers order after it, so nothing on the CPU need
-    // wait. Each upload waited for its fence once, which waited for the frames in flight too, and a
-    // level's textures arriving together cost a frame of 20 ms.
-    private void SubmitUpload(VkCommandBuffer cmd, IBuffer staging)
+    // The uploads recorded since the last submit, into one command buffer, with the staging buffers
+    // it reads. A submit of its own for each texture cost 0.25 to 0.8 ms, most of a texture's
+    // upload, so a cell of a level streaming in with ten of them spent a frame's budget on submits.
+    private VkCommandBuffer? _uploadBatch;
+    private readonly List<IBuffer> _batchStaging = [];
+
+    private VkCommandBuffer UploadCommands() => _uploadBatch ??= BeginSingleTimeCommands();
+
+    // Submits the uploads recorded since the last submit, without waiting for them. Every other
+    // submit and every wait for the device calls this first, so the queue runs the uploads before
+    // anything submitted after them, as it did when each was submitted on its own, and a frame's
+    // draws, whose barriers order them after the uploads, sample what was written.
+    private void FlushUploads()
     {
+        if (_uploadBatch is not { } cmd) return;
+        _uploadBatch = null;
         _deviceApi.vkEndCommandBuffer(cmd).CheckResult();
         VkSubmitInfo submitInfo = new()
         {
@@ -391,7 +401,8 @@ internal sealed unsafe partial class GraphicsDevice
         VkFenceCreateInfo fenceInfo = new();
         _deviceApi.vkCreateFence(&fenceInfo, null, out var fence).CheckResult();
         _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence).CheckResult();
-        _uploads.Add((fence, cmd, staging));
+        _uploads.Add((fence, cmd, [.. _batchStaging]));
+        _batchStaging.Clear();
     }
 
     /// <summary>
@@ -406,7 +417,7 @@ internal sealed unsafe partial class GraphicsDevice
             if (!all && _deviceApi.vkGetFenceStatus(fence) != VkResult.Success) continue;
             _deviceApi.vkDestroyFence(fence);
             _deviceApi.vkFreeCommandBuffers(_commandPool, 1, &cmd);
-            staging.Dispose();
+            foreach (var buffer in staging) buffer.Dispose();
             _uploads.RemoveAt(i);
         }
     }

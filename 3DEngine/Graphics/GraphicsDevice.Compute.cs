@@ -264,6 +264,7 @@ internal sealed unsafe partial class GraphicsDevice
             var fenceInfo = new VkFenceCreateInfo();
             _deviceApi.vkCreateFence(&fenceInfo, null, out VkFence fence).CheckResult();
             var submit = new VkSubmitInfo { commandBufferCount = 1, pCommandBuffers = &cmd };
+            FlushUploads();
             _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submit, fence).CheckResult();
             _computeInFlight.Add((fence, cmd, pool, uniformBuffer));
         }

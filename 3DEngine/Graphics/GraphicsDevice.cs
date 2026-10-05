@@ -125,6 +125,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     public void WaitIdle()
     {
         if (!IsInitialized) return;
+        FlushUploads();
         _deviceApi.vkDeviceWaitIdle();
         RetireUploads(all: true);
     }
@@ -134,6 +135,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     {
         if (!IsInitialized) return;
         Logger.Info("Swapchain resize requested, waiting for the device to idle before recreating it...");
+        FlushUploads();
         _deviceApi.vkDeviceWaitIdle().CheckResult();
         // Uploads' command buffers come from the pool the swapchain's resources go with.
         RetireUploads(all: true);
@@ -173,6 +175,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     {
         if (!IsInitialized) return;
         Logger.Info("Disposing graphics device, waiting for the device to idle...");
+        FlushUploads();
         _deviceApi.vkDeviceWaitIdle();
         RetireUploads(all: true);
         for (int slot = 0; slot < MaxFramesInFlight; slot++) FinishReadbacks(slot, drop: true);

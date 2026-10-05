@@ -47,11 +47,12 @@ removed from this file, and an item that is partly done is rewritten around what
   systems waiting on the thread pool behind the loads (up to 47 ms), each model file read with
   Assimp on the main thread to look for clips (8 to 10 ms), each texture upload waiting for the
   frames in flight (20 ms for a cell's textures), and a probe's readback waiting for its whole frame
-  (8 to 24 ms). The worst frame of a walk is now 22 ms, and 19 to 25 ms in a native build. What is
-  left is the first frames' compiling of code a JIT build has not run yet, the physics step's
-  shapes and joints most of it (up to 15 ms after a warm-up on a worker), images made for a cell's
-  textures (5 ms), and the first shadow pass (17 ms once). A probe's faces are recorded one a frame.
-  Making images under a budget a frame is the next step.
+  (8 to 24 ms). The worst frame of a walk is now 22 ms, and 19 to 25 ms in a native build. A
+  frame's texture uploads go to the queue in one submit, where a submit of each cost 0.25 to 0.8
+  ms, so six textures take 0.8 ms in place of 3.1. A probe's faces are recorded one a frame. What
+  is left is the first frames' compiling of code a JIT build has not run yet, the physics step's
+  shapes and joints most of it (up to 15 ms after a warm-up on a worker), the first texture's
+  memory (11 ms once, at the start), and the first shadow pass (17 ms once).
 
 ### The flat API
 

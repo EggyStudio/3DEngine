@@ -184,6 +184,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var vkImage = (VulkanImage)image;
         var extent = vkImage.Description.Extent;
+        FlushUploads();
         _deviceApi.vkDeviceWaitIdle().CheckResult();
         var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
         try

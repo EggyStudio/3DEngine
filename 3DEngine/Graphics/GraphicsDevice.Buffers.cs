@@ -263,6 +263,7 @@ internal sealed unsafe partial class GraphicsDevice
         VkFenceCreateInfo fenceInfo = new();
         _deviceApi.vkCreateFence(&fenceInfo, null, out fence).CheckResult();
 
+        FlushUploads();
         _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, fence).CheckResult();
         _deviceApi.vkWaitForFences(1, &fence, true, ulong.MaxValue).CheckResult();
 

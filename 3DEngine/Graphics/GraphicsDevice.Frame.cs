@@ -84,6 +84,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkResetFences(_inFlightFences[_currentFrame]).CheckResult();
+        FlushUploads();
         _deviceApi.vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]).CheckResult();
 
         if (capture is { } taken)

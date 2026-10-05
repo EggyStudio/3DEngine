@@ -70,3 +70,11 @@ over steps, a turned ramp, a pushed box, a trigger and jumps both ways and finds
 equal to the bit. Two shortcuts made wrong on purpose fail it. 2000 characters standing plan in
 0.4 ms in place of 1.3, and walking in a crowd that bumps in 1.4 in place of 1.8, where the step
 ray toward a neighbour is still cast. TODO.md's entry says what is left.
+
+**A frame's texture uploads in one submit.** Measured in Manor's walk, a texture's upload was
+almost all its own `vkQueueSubmit`, 0.25 to 0.8 ms each, so the device records a frame's uploads
+into one command buffer and submits them once, flushing that before every other submit and every
+wait, so the queue's order is what it was. Six textures arriving together take 0.8 ms in place of
+3.1, and two 0.17 in place of 1.5. The suite and the render tests under the validation layer in
+the container pass. Making images under a budget, which TODO.md named as the next step, is not
+needed after this, and the entry says what is left.
