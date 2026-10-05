@@ -3697,6 +3697,7 @@ sealed class Engine.PhysicsWorld : IDisposable
   bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out RaycastHit hit)
   bool SetCharacterHeight(PhysicsBody body, float height)
   const float BounceThreshold = 0.5f
+  static void WarmUp()
   void ApplyAngularImpulse(PhysicsBody body, Vector3 impulse)
   void ApplyImpulse(PhysicsBody body, Vector3 impulse, Vector3 offsetFromCenter)
   void ApplyImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)

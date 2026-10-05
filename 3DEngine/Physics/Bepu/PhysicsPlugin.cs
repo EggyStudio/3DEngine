@@ -42,6 +42,20 @@ public sealed class PhysicsPlugin : IPlugin
         var settings = app.World.GetOrInsertResource(() => new PhysicsSettings());
         var world = new PhysicsWorld(settings);
         app.World.InsertResource(world);
+        // The solver's code for each pair of shapes and kind of joint compiled on a worker, before
+        // a game's first contacts would compile it on a frame.
+        Task.Run(() =>
+        {
+            try { PhysicsWorld.WarmUp(); }
+            catch (Exception ex) { Logger.Warn($"PhysicsPlugin: warming the solver failed, which costs the first contacts a frame: {ex.Message}"); }
+        });
+        // The solver's code for each pair of shapes compiled on a worker, before a game's first
+        // contacts would compile it on a frame.
+        Task.Run(() =>
+        {
+            try { PhysicsWorld.WarmUp(); }
+            catch (Exception ex) { Logger.Warn($"PhysicsPlugin: warming the solver failed, which only costs the first contacts a frame: {ex.Message}"); }
+        });
 
         // With FixedTime (TimePlugin adds it), the simulation advances one step per FixedUpdate run,
         // on the same steps as [OnFixedUpdate] behaviors, so a behavior that pushes a body pushes it
