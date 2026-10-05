@@ -1,4 +1,5 @@
 # N 4.5, a capture not at 800 by 450, or a README picture that does not open its program.
+core_2d_camera_split_screen 800x440	raylib's example asks for a window of 800 by 440
 hopper 960x540	a game, captured at its own window's size
 manor 1280x720	a game, captured at its own window's size
 pusher 960x540	a game, captured at its own window's size

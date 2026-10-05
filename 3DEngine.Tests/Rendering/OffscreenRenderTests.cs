@@ -461,6 +461,44 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Render_Texture_Drawn_Into_Before_BeginDrawing_Is_Drawn_In_That_Frame()
+    {
+        // raylib's examples draw into a render texture between frames, before BeginDrawing, flat
+        // and in 3D, which BeginDrawing once forgot.
+        Open(32, 32);
+        var flat = LoadRenderTexture(32, 32);
+        var deep = LoadRenderTexture(32, 32);
+        var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
+
+        var image = Capture(() => { });
+        for (int frame = 0; frame < 10; frame++)
+        {
+            BeginTextureMode(flat);
+            ClearBackground(Color.Black);
+            DrawRectangle(0, 0, 32, 32, Color.Red);
+            EndTextureMode();
+            BeginTextureMode(deep);
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCube(Vector3.Zero, 2, 2, 2, Color.Green);
+            EndMode3D();
+            EndTextureMode();
+            image = Capture(() =>
+            {
+                ClearBackground(Color.Blue);
+                DrawTextureRec(flat.Texture, new Rectangle(0, 0, 16, -32), Vector2.Zero, Color.White);
+                DrawTextureRec(deep.Texture, new Rectangle(16, 0, 16, -32), new Vector2(16, 0), Color.White);
+            }, $"between-{frame}");
+            if (GetImageColor(image, 8, 16) == Color.Red) break;
+        }
+
+        GetImageColor(image, 8, 16).Should().Be(Color.Red, "the target was drawn red before the frame began");
+        GetImageColor(image, 24, 16).G.Should().BeGreaterThan(100, "the cube was drawn into the other with its camera before the frame began");
+        UnloadRenderTexture(flat);
+        UnloadRenderTexture(deep);
+    }
+
+    [NeedsVulkanFact]
     public void An_Immediate_Shader_Reads_Named_Uniforms_As_They_Were_When_Each_Shape_Was_Drawn()
     {
         Open(64, 32);

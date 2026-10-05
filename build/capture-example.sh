@@ -44,10 +44,6 @@ case "$example" in
     ./e3d command input.move 600 200 --quiet
     ./e3d command input.drag Left 10 0 3 --quiet
     ;;
-  core_2d_camera)
-    # Zoomed out, so the rooftops and the spline through them are in the picture.
-    ./e3d command input.wheel -7 --quiet
-    ;;
   core_input_gestures)
     # A tap, then swipes right and up with the mouse, each starting with a tap of its own, then a
     # finger held through the capture. A double tap is left out, since two commands do not

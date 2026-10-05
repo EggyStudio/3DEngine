@@ -32,8 +32,8 @@ internal sealed class RenderPlugin : IPlugin
     /// Extract system that hands the flat API's draw lists and stores (<see cref="DrawList"/>,
     /// <see cref="ModelDrawList"/>, <see cref="TextureStore"/>, <see cref="MeshStore"/>) to the
     /// render world. They are handed over rather than copied, because the frame is rendered on the
-    /// main thread in <see cref="Stage.Last"/>, nothing records into the lists again until
-    /// <see cref="Stage.First"/> clears them, and the stores guard themselves with a lock.
+    /// main thread in <see cref="Stage.Last"/>, which clears the lists once it has drawn them, and the
+    /// stores guard themselves with a lock.
     /// </summary>
     private sealed class DrawListExtract : IExtractSystem
     {
@@ -82,13 +82,6 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();
         app.World.InitResource<ShaderBufferStore>();
-        app.AddSystem(Stage.First, new SystemDescriptor(static world =>
-            {
-                world.Resource<DrawList>().Clear();
-                world.Resource<ModelDrawList>().Clear();
-            }, "RenderPlugin.ClearDrawLists")
-            .Write<DrawList>()
-            .Write<ModelDrawList>());
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
         app.AddSystem(Stage.Render, new SystemDescriptor(AnimatedModelDraws.Run, "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
 
@@ -149,33 +142,51 @@ internal sealed class RenderPlugin : IPlugin
         // has emitted ImGui UI / per-frame data. Also resolves debounced resize.
         app.AddSystem(Stage.Last, new SystemDescriptor(world =>
             {
-                if (!world.TryGetResource<Renderer>(out var r) || !r.Context.IsInitialized)
-                    return;
-            
-                // A minimized window, or an offscreen run made zero across, has nothing to draw
-                // into, so the frame's GPU work is skipped until it has a size again.
-                if (world.TryGetResource<AppWindow>(out var shown) && shown.Minimized) return;
-                if (resize.Empty) return;
-
-                // -- Resolve debounced resize
-                if (resize.Pending && (Environment.TickCount64 - resize.Tick) >= ResizeDebounceMs)
+                try
                 {
-                    resize.Pending = false;
-                    if (resize.VsyncChanged)
-                    {
-                        resize.VsyncChanged = false;
-                        r.Context.SetVsync(resize.Vsync);
-                    }
-                    Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
-                    r.Context.OnResize();
+                    Render(world);
                 }
-            
-                r.RenderFrame(world);
+                finally
+                {
+                    // Cleared once the frame is rendered, or would have been, rather than as the next
+                    // begins, so what a program draws between frames, into a render texture before
+                    // BeginDrawing as raylib's examples do, is drawn in the next frame.
+                    world.Resource<DrawList>().Clear();
+                    world.Resource<ModelDrawList>().Clear();
+                }
             }, "RenderPlugin.Render")
             .MainThreadOnly()
             .Read<ClearColor>()
             .Read<EcsWorld>()
-            .Write<Renderer>());
+            .Write<Renderer>()
+            .Write<DrawList>()
+            .Write<ModelDrawList>());
+
+        void Render(World world)
+        {
+            if (!world.TryGetResource<Renderer>(out var r) || !r.Context.IsInitialized)
+                return;
+        
+            // A minimized window, or an offscreen run made zero across, has nothing to draw
+            // into, so the frame's GPU work is skipped until it has a size again.
+            if (world.TryGetResource<AppWindow>(out var shown) && shown.Minimized) return;
+            if (resize.Empty) return;
+
+            // -- Resolve debounced resize
+            if (resize.Pending && (Environment.TickCount64 - resize.Tick) >= ResizeDebounceMs)
+            {
+                resize.Pending = false;
+                if (resize.VsyncChanged)
+                {
+                    resize.VsyncChanged = false;
+                    r.Context.SetVsync(resize.Vsync);
+                }
+                Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
+                r.Context.OnResize();
+            }
+        
+            r.RenderFrame(world);
+        }
 
         // Ensure disposal at app exit (Cleanup stage)
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(world =>

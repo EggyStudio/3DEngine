@@ -225,9 +225,9 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | listed 116, `NormTests` | listed 348, `NormTests` |
+| N 1.2 | listed 116, `NormTests` | listed 347, `NormTests` |
 | N 1.3 | listed 6, `NormTests` | listed 32, `NormTests`, 18 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 6 left out | listed 133, `NormTests` |
+| N 1.4 | checked, `NormTests`, 6 left out | listed 113, `NormTests`, 20 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
@@ -250,7 +250,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.5 | checked, `NormTests`, 7 left out | checked, `NormTests`, 5 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
-| N 5.2 | to take | to take |
+| N 5.2 | checked, `build/examples-table.py --check` in the workflow | to take |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | to take |
 | N 6.2 | checked, `test.yml` | checked, `package.yml` |
@@ -262,7 +262,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
-| B 3 | | checked, `NormTests`, 17 left out |
+| B 3 | | listed 2, `NormTests`, 15 left out |
 | B 4 | | by review |
 
 ## How the norm changes

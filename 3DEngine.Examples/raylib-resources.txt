@@ -3,3 +3,4 @@
 # raylib-resources/, from where the build copies them beside the program under resources/.
 core/resources/ps3.png
 core/resources/xbox.png
+core/resources/text_file.txt

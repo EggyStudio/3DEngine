@@ -62,6 +62,19 @@ machine, with the command that measures it again.
   string functions, with VR stereo, automation events, the audio processors and some image and
   shape variants, which TODO.md names with reasons.
 
+## Where a call answers otherwise
+
+A call of raylib's name here does what raylib's does, and a port of one of raylib's examples that
+finds otherwise either brings the call to raylib's or, where the difference is kept, adds its line
+here, with the reason.
+
+| Call | raylib | 3DEngine | Why |
+|---|---|---|---|
+| `GetGamepadAxisMovement` on a trigger | -1 at rest to 1 | 0 at rest to 1 | SDL3 reads a trigger from 0, and a trigger that rests at 0 needs no shifting to be read |
+| A render texture drawn with `DrawTextureRec` or `DrawTexturePro` | Stored bottom up, as OpenGL draws, and drawn with its height negative to turn it upright | Stored top down, as Vulkan draws and an image is read, and drawn as it is | A target read back with `LoadImageFromTexture` is the right way up, as any texture is |
+| `MouseButton.X1` and `X2` | `MOUSE_BUTTON_SIDE` and `MOUSE_BUTTON_EXTRA`, beside forward and back | Named as SDL3 names them, with no forward and back | SDL3, raylib's backend on the desktop as well, reports two extra buttons |
+| `GetFontDefault` | raylib's own pixel font | ImGui's, ProggyClean | One atlas serves ImGui and the flat API's text |
+
 ## Measured
 
 Taken on 2026-10-04 on an Intel Core i9-14900HX with an NVIDIA GeForce RTX 4070 Laptop GPU (driver
