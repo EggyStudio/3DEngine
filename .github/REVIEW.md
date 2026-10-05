@@ -231,3 +231,17 @@ of statics. A change to which layers collide wakes every sleeping body on the tw
 from the sleeping sets before any is woken. A setter given what a body already has changes and
 wakes nothing, so a scene's collider setting its layer each time it is read costs nothing. The
 flat functions' remarks say a change wakes.
+
+**Verdict 6, the push alone.** `GetPhysicsContactImpulse` adds each contact's penetration impulse
+and nothing else, read through `TryExtractSolverContactData`, whose extractor hands over the
+convex and the nonconvex constraints' accumulated impulses, from which
+`GetPenetrationImpulseForContact` and `GetImpulsesForContact` give each contact's push. A crate of
+2 dragged at 3 units a second and turned about the plate's normal measured 0.87 by the old sum
+against its weight times the step, 0.33, and measures that now, as the crate at rest still does.
+The function's summary, the internal one's and the physics page say it is the push along the
+normals, with friction and twist left out. The page's example divided by `GetFrameTime`, which is
+the step only when a frame is one, and multiplies by the 60 steps of a second now. No public line
+changed shape.
+
+Shared: the impulse a pair presses with is the push alone now, the row in SHARED.md that calls
+it `to take, as the push alone`.

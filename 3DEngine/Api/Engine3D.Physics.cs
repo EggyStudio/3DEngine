@@ -409,15 +409,17 @@ public static partial class Engine3D
     public static void SetPhysicsLayersCollide(int a, int b, bool collide) => Physics.SetLayersCollide(a, b, collide);
 
     /// <summary>
-    /// The impulse the last step gave two touching bodies, the push between them and the friction
-    /// together, in mass times units a second, or 0 for a pair not touching. It says how hard they
-    /// press, as a crate's weight on a pressure plate, where a contact's <c>Speed</c> says how fast
-    /// they met. Divided by <c>GetFrameTime</c>'s step it is the force between them.
+    /// The push the last step gave two touching bodies along the normals of their contacts, in mass
+    /// times units a second, or 0 for a pair not touching. It says how hard they press, as a
+    /// crate's weight on a pressure plate, where a contact's <c>Speed</c> says how fast they met.
+    /// Divided by the step, a sixtieth of a second, it is the force between them.
     /// </summary>
     /// <remarks>
-    /// A pair asked about goes on being answered with what it was when it fell asleep, as a crate
-    /// long at rest on a pressure plate does, since nothing between them changes while it sleeps. A
-    /// pair asked about first while asleep is woken and answered from its next step.
+    /// The friction along the surface and the twist about the normal are left out, so a crate
+    /// dragged across a plate presses it by its weight as one at rest does. A pair asked about goes
+    /// on being answered with what it was when it fell asleep, as a crate long at rest on a
+    /// pressure plate does, since nothing between them changes while it sleeps. A pair asked about
+    /// first while asleep is woken and answered from its next step.
     /// </remarks>
     public static float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b) => Physics.GetContactImpulse(a, b);
 

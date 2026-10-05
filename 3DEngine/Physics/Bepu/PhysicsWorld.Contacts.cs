@@ -1,6 +1,7 @@
 using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
+using BepuPhysics.Constraints.Contact;
 
 namespace Engine;
 
@@ -252,8 +253,8 @@ public sealed partial class PhysicsWorld
     }
 
     /// <summary>
-    /// The impulse the last step's solver gave two touching bodies, in mass times units a second,
-    /// the push between them and the friction along them together, or 0 for a pair not touching.
+    /// The push the last step's solver gave two touching bodies along their contacts' normals, in
+    /// mass times units a second, or 0 for a pair not touching.
     /// </summary>
     /// <remarks>
     /// It says how hard a pair presses as well as how hard it met, as a stack's weight on what holds
@@ -278,11 +279,11 @@ public sealed partial class PhysicsWorld
         }
         if (found && Simulation.Solver.ConstraintExists(cache.ConstraintHandle))
         {
-            // The sum of each contact's push and each friction's part, where Bepu's magnitude is
-            // their vector's length, which gave a box resting on four corners half its weight.
-            var sum = new ImpulseSum();
-            Simulation.Solver.EnumerateAccumulatedImpulses(cache.ConstraintHandle, ref sum);
-            return _impulses[key] = sum.Total;
+            // The sum of each contact's push along its normal, the friction along the surface and
+            // the twist about the normal left out, being other numbers in other units.
+            var sum = new PushSum();
+            if (Simulation.NarrowPhase.TryExtractSolverContactData(cache.ConstraintHandle, ref sum))
+                return _impulses[key] = sum.Total;
         }
 
         var sleeping = false;
@@ -317,11 +318,39 @@ public sealed partial class PhysicsWorld
         _ => new CollidableReference(CollidableMobility.Dynamic, new BodyHandle(body.Handle)),
     };
 
-    private struct ImpulseSum : BepuUtilities.IForEach<float>
+    // Adds a contact constraint's penetration impulses, which Bepu keeps in the first lane of each
+    // of its wide numbers for the constraint handed over.
+    private struct PushSum : ISolverContactDataExtractor
     {
         public float Total;
 
-        public void LoopBody(float impulse) => Total += MathF.Abs(impulse);
+        public void ConvexOneBody<TPrestep, TAccumulatedImpulses>(BodyHandle a, ref TPrestep prestep, ref TAccumulatedImpulses impulses)
+            where TPrestep : struct, IConvexContactPrestep<TPrestep>
+            where TAccumulatedImpulses : struct, IConvexContactAccumulatedImpulses<TAccumulatedImpulses> => AddConvex(ref impulses);
+
+        public void ConvexTwoBody<TPrestep, TAccumulatedImpulses>(BodyHandle a, BodyHandle b, ref TPrestep prestep, ref TAccumulatedImpulses impulses)
+            where TPrestep : struct, ITwoBodyConvexContactPrestep<TPrestep>
+            where TAccumulatedImpulses : struct, IConvexContactAccumulatedImpulses<TAccumulatedImpulses> => AddConvex(ref impulses);
+
+        public void NonconvexOneBody<TPrestep, TAccumulatedImpulses>(BodyHandle a, ref TPrestep prestep, ref TAccumulatedImpulses impulses)
+            where TPrestep : struct, INonconvexContactPrestep<TPrestep>
+            where TAccumulatedImpulses : struct, INonconvexContactAccumulatedImpulses<TAccumulatedImpulses> => AddNonconvex(ref impulses);
+
+        public void NonconvexTwoBody<TPrestep, TAccumulatedImpulses>(BodyHandle a, BodyHandle b, ref TPrestep prestep, ref TAccumulatedImpulses impulses)
+            where TPrestep : struct, ITwoBodyNonconvexContactPrestep<TPrestep>
+            where TAccumulatedImpulses : struct, INonconvexContactAccumulatedImpulses<TAccumulatedImpulses> => AddNonconvex(ref impulses);
+
+        private void AddConvex<T>(ref T impulses) where T : struct, IConvexContactAccumulatedImpulses<T>
+        {
+            for (int i = 0; i < T.ContactCount; i++)
+                Total += T.GetPenetrationImpulseForContact(ref impulses, i)[0];
+        }
+
+        private void AddNonconvex<T>(ref T impulses) where T : struct, INonconvexContactAccumulatedImpulses<T>
+        {
+            for (int i = 0; i < T.ContactCount; i++)
+                Total += T.GetImpulsesForContact(ref impulses, i).Penetration[0];
+        }
     }
 
     private PhysicsBody BodyOf(CollidableReference collidable) => collidable.Mobility switch

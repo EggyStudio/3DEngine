@@ -552,6 +552,27 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Crate_Dragged_And_Turned_Across_A_Plate_Presses_It_By_Its_Weight_Alone()
+    {
+        var plate = CreatePhysicsStaticBox(new Vector3(0, -0.5f, 0), new Vector3(40, 1, 40));
+        var crate = CreatePhysicsBox(new Vector3(-5, 0.5f, 0), Vector3.One, mass: 2);
+        Frames(30);
+
+        // Dragged at a steady 3 units a second and turned about the plate's normal, so friction
+        // along the plate and the twist about its normal both work against it, and neither is a push.
+        var pressed = new List<float>();
+        RunUntil(() =>
+        {
+            SetPhysicsBodyVelocity(crate, new Vector3(3, GetPhysicsBodyVelocity(crate).Y, 0));
+            SetPhysicsBodyAngularVelocity(crate, new Vector3(0, 2, 0));
+            pressed.Add(GetPhysicsContactImpulse(crate, plate));
+            return pressed.Count == 60;
+        });
+
+        pressed.Skip(10).Average().Should().BeApproximately(2 * 9.81f / 60, 0.03f, "it presses by its weight times the step, as it does at rest");
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);
