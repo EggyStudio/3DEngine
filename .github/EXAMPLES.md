@@ -4,18 +4,18 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**41 written, 0 written in part, 139 can be written, 24 missing and 18 do not apply.** Of the 204 that apply, 180 can be written with what the flat API carries.
+**42 written, 0 written in part, 138 can be written, 24 missing and 18 do not apply.** Of the 204 that apply, 180 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
-| [Core](#core) | 32 | 0 | 10 | 6 | 1 |
+| [Core](#core) | 33 | 0 | 9 | 6 | 1 |
 | [Shapes](#shapes) | 0 | 0 | 41 | 2 | 2 |
 | [Textures](#textures) | 2 | 0 | 25 | 4 | 2 |
 | [Text](#text) | 2 | 0 | 9 | 5 | 0 |
 | [Models](#models) | 2 | 0 | 23 | 4 | 3 |
 | [Shaders](#shaders) | 2 | 0 | 24 | 0 | 10 |
 | [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **41** | **0** | **139** | **24** | **18** |
+| **All** | **42** | **0** | **138** | **24** | **18** |
 
 ## Core
 
@@ -39,7 +39,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`core_3d_camera_free`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_free.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_free.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_free.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraFree.cs) |
 | [`core_3d_camera_first_person`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_first_person.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_first_person.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_first_person.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraFirstPerson.cs) |
 | [`core_3d_camera_split_screen`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_split_screen.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_split_screen.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_split_screen.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraSplitScreen.cs) |
-| [`core_3d_camera_fps`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_fps.c) |  |  | can be written |
+| [`core_3d_camera_fps`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_fps.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_camera_fps.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_camera_fps.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DCameraFps.cs) |
 | [`core_3d_picking`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_picking.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_3d_picking.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_3d_picking.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/Core3DPicking.cs) |
 | [`core_world_screen`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_world_screen.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_world_screen.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_world_screen.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreWorldScreen.cs) |
 | [`core_window_flags`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_flags.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/core/core_window_flags.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/core_window_flags.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Core/CoreWindowFlags.cs) |

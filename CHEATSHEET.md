@@ -83,8 +83,20 @@ void EndDrawing();                                       // Render and present t
 void ClearBackground(Color color);                       // Color the frame is cleared to
 void BeginMode3D(Camera3D camera);                       // Draw the following shapes through a camera, depth tested
 void EndMode3D();                                        // Return to screen space, in pixels from the top left
-void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from input (Free or Orbital)
+void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from the keys, mouse and pad, as raylib's does in that mode
 void UpdateCameraPro(ref Camera3D camera, Vector3 movement, Vector3 rotation, float zoom); // Move and turn it by amounts of the program's own
+Vector3 GetCameraForward(Camera3D camera);               // The way it looks, of length one
+Vector3 GetCameraUp(Camera3D camera);                    // Its up, of length one
+Vector3 GetCameraRight(Camera3D camera);                 // Its right, of length one
+void CameraMoveForward(ref Camera3D camera, float distance, bool moveInWorldPlane); // Move it and its target the way it looks, level if asked
+void CameraMoveUp(ref Camera3D camera, float distance);  // Move it and its target along its up
+void CameraMoveRight(ref Camera3D camera, float distance, bool moveInWorldPlane); // Move it and its target to its right, level if asked
+void CameraMoveToTarget(ref Camera3D camera, float delta); // Move it farther from its target, or nearer when negative
+void CameraYaw(ref Camera3D camera, float angle, bool rotateAroundTarget); // Turn it left in radians, about itself or its target
+void CameraPitch(ref Camera3D camera, float angle, bool lockView, bool rotateAroundTarget, bool rotateUp); // Tip it up in radians
+void CameraRoll(ref Camera3D camera, float angle);       // Roll it about the way it looks, in radians
+Matrix4x4 GetCameraViewMatrix(Camera3D camera);          // The world to the camera
+Matrix4x4 GetCameraProjectionMatrix(Camera3D camera, float aspect); // Its projection for a picture of that width over height
 void BeginMode2D(Camera2D camera);                       // Draw the following 2D calls in world units through a 2D camera
 void EndMode2D();                                        // Return to screen pixels
 Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Where a world point appears on the screen

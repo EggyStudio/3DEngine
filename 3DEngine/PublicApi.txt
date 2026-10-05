@@ -257,6 +257,7 @@ struct Engine.Camera3D
   Vector3 Up
   float FovY
 enum Engine.CameraMode : int
+  Custom = 4
   FirstPerson = 2
   Free = 0
   Orbital = 1
@@ -726,6 +727,8 @@ static class Engine.Engine3D
   static LightHandle CreateSpotLight(Vector3 position, Vector3 direction, Color color, float intensity = 1f, float innerAngle = 25f, float outerAngle = 30f, float range = 0f, bool castsShadows = false)
   static Matrix4x4 GetCameraMatrix(Camera3D camera)
   static Matrix4x4 GetCameraMatrix2D(Camera2D camera)
+  static Matrix4x4 GetCameraProjectionMatrix(Camera3D camera, float aspect)
+  static Matrix4x4 GetCameraViewMatrix(Camera3D camera)
   static Matrix4x4 GetPhysicsBodyTransform(PhysicsBody body)
   static Mesh GetMeshComponent(ModelMesh mesh)
   static Model LoadModel(string fileName)
@@ -819,6 +822,9 @@ static class Engine.Engine3D
   static Vector2 MeasureTextCodepoints(Font font, int[] codepoints, float fontSize, float spacing)
   static Vector2 MeasureTextEx(Font font, string text, float fontSize, float spacing)
   static Vector3 ColorToHSV(Color color)
+  static Vector3 GetCameraForward(Camera3D camera)
+  static Vector3 GetCameraRight(Camera3D camera)
+  static Vector3 GetCameraUp(Camera3D camera)
   static Vector3 GetGamepadAccelerometer(int gamepad)
   static Vector3 GetGamepadGyro(int gamepad)
   static Vector3 GetPhysicsBodyAngularVelocity(PhysicsBody body)
@@ -972,6 +978,13 @@ static class Engine.Engine3D
   static void BeginScissorMode(int x, int y, int width, int height)
   static void BeginShaderMode(Shader shader)
   static void BeginTextureMode(RenderTexture2D target)
+  static void CameraMoveForward(ref Camera3D camera, float distance, bool moveInWorldPlane)
+  static void CameraMoveRight(ref Camera3D camera, float distance, bool moveInWorldPlane)
+  static void CameraMoveToTarget(ref Camera3D camera, float delta)
+  static void CameraMoveUp(ref Camera3D camera, float distance)
+  static void CameraPitch(ref Camera3D camera, float angle, bool lockView, bool rotateAroundTarget, bool rotateUp)
+  static void CameraRoll(ref Camera3D camera, float angle)
+  static void CameraYaw(ref Camera3D camera, float angle, bool rotateAroundTarget)
   static void ClearBackground(Color color)
   static void ClearWindowState(ConfigFlags flags)
   static void CloseAudioDevice()

@@ -5,6 +5,7 @@ using Engine.Examples;
 var examples = new Dictionary<string, Action>
 {
     ["core_basic_window"] = CoreBasicWindow.Run,
+    ["core_3d_camera_fps"] = Core3DCameraFps.Run,
     ["core_keyboard_testbed"] = CoreKeyboardTestbed.Run,
     ["core_input_actions"] = CoreInputActions.Run,
     ["core_undo_redo"] = CoreUndoRedo.Run,

@@ -16,25 +16,29 @@ public enum CameraProjection
 public enum CameraMode
 {
     /// <summary>
-    /// W, A, S and D move, Q and E move down and up, Shift moves faster, and dragging with the
-    /// right mouse button turns. The wheel moves forward and back.
+    /// The mouse and the arrow keys turn, Q and E roll, W, A, S and D move the way it looks, Space
+    /// rises and left Ctrl sinks, dragging with the middle button pans, and the wheel and the
+    /// keypad's plus and minus move it nearer its target and farther.
     /// </summary>
     Free,
 
-    /// <summary>The camera circles its target, and the wheel moves it closer or further.</summary>
+    /// <summary>The camera circles its target half a radian a second, and the wheel moves it nearer and farther.</summary>
     Orbital,
 
     /// <summary>
-    /// The mouse turns the camera without a button, and W, A, S and D walk along the ground, the
-    /// plane across <see cref="Camera3D.Up"/>. Meant with <see cref="Engine3D.DisableCursor"/>.
+    /// The mouse and the arrow keys turn the camera, Q and E roll it, and W, A, S and D walk along
+    /// the ground, the plane across <see cref="Camera3D.Up"/>. Meant with <see cref="Engine3D.DisableCursor"/>.
     /// </summary>
     FirstPerson,
 
     /// <summary>
-    /// The camera looks at its target from behind. The mouse turns it around the target without a
-    /// button, W, A, S and D walk both along the ground, and the wheel moves closer or further.
+    /// The camera turns about its target with the mouse and the arrow keys, W, A, S and D walk the
+    /// target along the ground, and the wheel moves the camera nearer and farther.
     /// </summary>
     ThirdPerson,
+
+    /// <summary>Nothing moves the camera, which the program moves by its own means, as raylib's custom mode.</summary>
+    Custom,
 }
 
 /// <summary>A camera the program keeps and passes to <see cref="Engine3D.BeginMode3D"/>.</summary>

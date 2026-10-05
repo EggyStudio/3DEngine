@@ -259,6 +259,27 @@ so the job's next run is the first with it.
 `build/version.txt`, and reads `build/norm/7.2.txt` for the owner's other commits, which holds
 `5d88a601`, the paragraph on NORM.md in AGENTS.md (`6b3ee413`).
 
+
+**Now 2, rcamera carried and `UpdateCamera` raylib's.** `core_3d_camera_first_person` calls
+`CameraYaw` and `CameraPitch`, rcamera's, which the flat API lacked with the rest of that module, and
+its words tell a reader to look with the arrow keys and rise with Space, which `UpdateCamera` did
+not do. The flat API carries rcamera's twelve now, `GetCameraForward`, `GetCameraUp`,
+`GetCameraRight`, `CameraMoveForward`, `CameraMoveUp`, `CameraMoveRight`, `CameraMoveToTarget`,
+`CameraYaw`, `CameraPitch`, `CameraRoll`, `GetCameraViewMatrix` and `GetCameraProjectionMatrix`,
+the ones that move a camera taking it by `ref` and the ones that read it taking it as it is, and
+`UpdateCamera` and `UpdateCameraPro` are rcamera's arithmetic over them, its speeds, its keys, its
+mouse, the first pad, the locked pitch, and the wheel and keypad's zoom. `CameraMode` gains
+`Custom` at its end, which moves nothing. ImGui keeps the keys and the mouse while it is using them, as
+before. `CameraTests` holds each function to rcamera's results, the turns by their direction, the
+pitch stopping short of straight up, the orbital camera at half a radian a second over a stepped
+fifth of a second, and the custom camera left alone, and the tests of `UpdateCameraPro` pass as
+they were. The guide's camera section is rcamera's controls, with a paragraph on the functions.
+
+`core_3d_camera_first_person` is raylib's now, with its modes on 1 to 4 and P turning the view
+isometric, and `core_3d_camera_fps`, the first of the five set aside, is written. Its picture
+looks down the first corridor, where raylib's code starts, and raylib's screenshot was taken with
+the view turned. PublicApi.txt gains the twelve functions and `CameraMode.Custom`.
+
 Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
 `MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
 until its finalizer, so a host recompiling on each save gathers them as this one gathered them an

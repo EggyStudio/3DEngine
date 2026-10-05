@@ -52,41 +52,46 @@ section. Models loaded from files and meshes the program generates are drawn the
 
 ## Moving the camera
 
-`UpdateCamera` moves a camera from the keyboard and mouse in one of four ways:
+`UpdateCamera` moves a camera from the keyboard, the mouse and the first gamepad as raylib's does,
+in one of its modes:
 
 | Mode | Moves |
 |---|---|
-| `CameraMode.Free` | W, A, S, D, Q and E fly, the right mouse button turns, Shift goes faster |
-| `CameraMode.Orbital` | Circles its target |
-| `CameraMode.FirstPerson` | The mouse looks and W, A, S and D walk along the ground |
-| `CameraMode.ThirdPerson` | As first person, around its target, which the program draws as the player |
+| `CameraMode.Free` | The mouse and the arrow keys turn, W, A, S and D fly the way it looks, Space and left Ctrl rise and sink, the middle button pans |
+| `CameraMode.Orbital` | Circles its target half a radian a second |
+| `CameraMode.FirstPerson` | The mouse and the arrow keys look, and W, A, S and D walk along the ground |
+| `CameraMode.ThirdPerson` | As first person, about its target, which the program draws as the player |
+| `CameraMode.Custom` | Nothing, the program moves it |
 
-The first and third person modes are meant with the cursor held to the window, which
-`DisableCursor` does and `EnableCursor` undoes. From the `core_3d_camera_first_person` example:
+Q and E roll every mode that turns, and the wheel and the keypad's plus and minus move the free,
+third-person and orbital cameras nearer their target and farther. The first and third person modes
+are meant with the cursor held to the window, which `DisableCursor` does and `EnableCursor` undoes.
+From the `core_3d_camera_first_person` example, raylib's:
 
 ```csharp
 var camera = new Camera3D(new Vector3(0, 2, 4), new Vector3(0, 2, 0), Vector3.UnitY, 60);
-var mode = CameraMode.FirstPerson;
+var cameraMode = CameraMode.FirstPerson;
 // ...
 DisableCursor();
 SetTargetFPS(60);
 
 while (!WindowShouldClose())
 {
-    if (IsKeyPressed(Key.Alpha1)) mode = CameraMode.Free;
-    if (IsKeyPressed(Key.Alpha2)) mode = CameraMode.FirstPerson;
-    if (IsKeyPressed(Key.Alpha3)) mode = CameraMode.ThirdPerson;
-    if (IsKeyPressed(Key.Alpha4)) mode = CameraMode.Orbital;
-    if (IsKeyPressed(Key.Tab))
-    {
-        if (IsCursorHidden()) EnableCursor();
-        else DisableCursor();
-    }
+    if (IsKeyPressed(Key.Alpha1)) cameraMode = CameraMode.Free;
+    if (IsKeyPressed(Key.Alpha2)) cameraMode = CameraMode.FirstPerson;
+    if (IsKeyPressed(Key.Alpha3)) cameraMode = CameraMode.ThirdPerson;
+    if (IsKeyPressed(Key.Alpha4)) cameraMode = CameraMode.Orbital;
 
-    UpdateCamera(ref camera, mode);
+    UpdateCamera(ref camera, cameraMode);
     // ...
 }
 ```
+
+The movements `UpdateCamera` is made of are functions of their own, as raylib's rcamera has them,
+for a camera a program moves by amounts it works out: `CameraMoveForward`, `CameraMoveRight` and
+`CameraMoveUp` move it with its target, `CameraMoveToTarget` nearer or farther, and `CameraYaw`,
+`CameraPitch` and `CameraRoll` turn it by radians, about itself or about its target.
+`UpdateCameraPro` does several at once from amounts in degrees.
 
 A game that moves its camera itself sets `camera.Position` and `camera.Target` each frame and
 skips `UpdateCamera`. The `core_3d_camera_free` example looks back at the origin when Z is pressed
