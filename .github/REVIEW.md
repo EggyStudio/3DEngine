@@ -70,3 +70,8 @@ pushes. Both pass through triggers as rays do, and the ray's skip and collidable
 with them. Tests find a ball meeting an edge a ray beside it clears, its distance and normal at a
 face, a start inside a body, and a sphere leaving out a body whose bounds reach it and whose shape
 does not. `PublicApi.txt` gains three functions, with their CHEATSHEET lines.
+
+**Alpha emitters drawn far to near.** Emitters laid over by alpha are drawn after the additive ones
+from the farthest from the camera to the nearest, by where each emitter is, so where two clouds
+overlap the nearer covers the farther whichever was made first, which a test finds and which fails
+without the order. The particles within one emitter are still not sorted, which TODO.md says.

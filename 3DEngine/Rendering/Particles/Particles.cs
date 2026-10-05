@@ -14,6 +14,9 @@ internal sealed class RenderParticles
 
     /// <summary>The camera the window is drawn through, or null when there is none to face.</summary>
     public Matrix4x4? ViewProjection { get; set; }
+
+    /// <summary>Where that camera is, which emitters laid over by alpha are drawn far to near from.</summary>
+    public Vector3 Eye { get; set; }
 }
 
 /// <summary>
@@ -35,7 +38,9 @@ internal sealed class ParticleExtract : IExtractSystem
         // A long frame, as the first or one after a stall, is stepped as a tenth of a second, so
         // the particles alive do not leap.
         particles.Seconds = world.TryGetResource<Time>(out var time) ? (float)Math.Min(time.DeltaSeconds, 0.1) : 1f / 60;
-        particles.ViewProjection = MeshEntityDraws.WindowCamera(world, ecs)?.ViewProjection;
+        var camera = MeshEntityDraws.WindowCamera(world, ecs);
+        particles.ViewProjection = camera?.ViewProjection;
+        particles.Eye = camera?.Eye ?? Vector3.Zero;
         foreach (var (entity, emitter) in ecs.Query<ParticleEmitter>())
         {
             var position = TransformPropagation.WorldMatrix(ecs, entity).Translation;
@@ -68,6 +73,7 @@ internal sealed class ParticleRenderer : IDisposable
         public int Next;
         public long Seen;
         public ParticleEmitter Emitter;
+        public Vector3 Position;
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv, _fragmentSpv;
@@ -106,6 +112,7 @@ internal sealed class ParticleRenderer : IDisposable
             }
             state.Seen = _frame;
             state.Emitter = emitter;
+            state.Position = position;
 
             // This frame's share of the rate, the fraction left owed to the next.
             var seconds = frame!.Seconds;
@@ -168,9 +175,14 @@ internal sealed class ParticleRenderer : IDisposable
     /// Draws the particles stepped this frame into <paramref name="pass"/> through the window's
     /// camera, after the window's meshes, lit by the window's lights where they ask to be.
     /// </summary>
+    /// <remarks>
+    /// Emitters that add their light come first, in any order, and those laid over by alpha after
+    /// them from the farthest from the camera to the nearest, so where two overlap the nearer is in
+    /// front. The particles within one emitter are not sorted.
+    /// </remarks>
     public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld)
     {
-        if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>()?.ViewProjection is not { } viewProjection) return;
+        if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>() is not { ViewProjection: { } viewProjection } frame) return;
         if (renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
         var gfx = renderContext.Device;
         _vertex ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
@@ -178,6 +190,12 @@ internal sealed class ParticleRenderer : IDisposable
         _particleLayout ??= gfx.CreateDescriptorSetLayout(_particleBindings);
         var lights = models.WindowLights(gfx, renderWorld, textures);
 
+        var eye = frame.Eye;
+        _drawn.Sort((a, b) => a.Emitter.Blend != b.Emitter.Blend
+            ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1
+            : a.Emitter.Blend == ParticleBlend.Alpha
+                ? Vector3.DistanceSquared(b.Position, eye).CompareTo(Vector3.DistanceSquared(a.Position, eye))
+                : 0);
         foreach (var state in _drawn)
         {
             var key = (renderPass, state.Emitter.Blend);

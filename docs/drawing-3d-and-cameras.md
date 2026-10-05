@@ -210,8 +210,9 @@ SetParticleEmitter(dust, GetParticleEmitter(dust) with { Rate = speed * 4 });
 ```
 
 An emitter keeps room for `MaxParticles`, and once that many are alive the oldest are replaced.
-Particles laid over by alpha are not sorted from back to front, so where two emitters overlap the
-one drawn later is in front. In the ECS an emitter is a `ParticleEmitter` component placed by its
+Emitters laid over by alpha are drawn from the farthest from the camera to the nearest, by where
+each emitter is, so where two overlap the nearer is in front. The particles within one emitter are
+not sorted. In the ECS an emitter is a `ParticleEmitter` component placed by its
 entity's `Transform`, which a scene file saves.
 
 ## See also

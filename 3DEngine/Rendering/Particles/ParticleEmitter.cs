@@ -31,8 +31,9 @@ public enum ParticleBlend
 /// An unlit particle gives off its color times <see cref="Intensity"/>, which blooms where it
 /// passes 1, and a lit one is lit by the scene's lights as a rough surface facing the camera.
 /// Particles are drawn after the window's meshes, with depth tested and not written, through the
-/// window's camera, and not into render textures or a probe's capture. Alpha-blended particles
-/// are not sorted by distance, so where two emitters overlap the later drawn is in front.
+/// window's camera, and not into render textures or a probe's capture. Emitters laid over by
+/// alpha are drawn from the farthest from the camera to the nearest, so where two overlap the
+/// nearer is in front, and the particles within one are not sorted.
 /// </para>
 /// </remarks>
 [SceneComponent]

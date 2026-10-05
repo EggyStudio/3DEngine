@@ -215,4 +215,18 @@ public sealed class ParticleTests : IDisposable
         ((int)late.B).Should().BeGreaterThan(late.R + 100, $"late in its life the second, not {late}");
         UnloadTexture(texture);
     }
+
+    [NeedsVulkanFact]
+    public void Of_Two_Clouds_Laid_Over_By_Alpha_The_Nearer_Is_In_Front_Whichever_Was_Made_First()
+    {
+        Open();
+        // The near cloud made first, which drawn in the order made would be covered by the far one.
+        var near = CreateParticleEmitter(new Vector3(0, 0, 1.5f), Cloud(new Color(255, 30, 30)) with { Radius = 0.2f });
+        var far = CreateParticleEmitter(new Vector3(0, 0, -1.5f), Cloud(new Color(30, 30, 255)) with { Radius = 0.2f });
+        EmitParticles(near, 400);
+        EmitParticles(far, 400);
+        var middle = GetImageColor(Capture(3), 80, 60);
+
+        ((int)middle.R).Should().BeGreaterThan(middle.B + 100, $"the nearer red cloud covers the farther blue one, not {middle}");
+    }
 }

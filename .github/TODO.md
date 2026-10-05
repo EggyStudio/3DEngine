@@ -127,8 +127,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   shader steps, drawn as round dots or the program's texture facing the window's camera after its
   meshes, lit or giving off their own light, with a rate, a burst, a life, a velocity in a cone,
   gravity, drag, and a size and color that change over each life (RENDERING.md §3). They are not
-  drawn into render textures or a probe's capture, those laid over by alpha are not sorted from
-  back to front, a sheet's frames are shown one at a time with no blend between them, and none
+  drawn into render textures or a probe's capture, those laid over by alpha are sorted by their
+  emitters and not within one, a sheet's frames are shown one at a time with no blend between them, and none
   collides with the world.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a

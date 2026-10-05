@@ -256,8 +256,10 @@ tinted where the emitter has one, whole or the frame of a sheet the share of the
 The look's last value packs whether it is lit and textured and the sheet's columns and rows into
 an integer a float holds exactly, since the push block has no room left.
 A lit particle goes through `lit` as a rough surface facing the camera and an unlit one through
-`toDisplay`, so both follow the HDR frame's output flag. Alpha
-particles are not sorted, and particles are not drawn into render textures or probe captures.
+`toDisplay`, so both follow the HDR frame's output flag. Emitters laid over by alpha are drawn after
+the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is,
+and the particles within one are not sorted. Particles are not drawn into render textures or probe
+captures.
 
 ## 4. Lights and shadows
 
