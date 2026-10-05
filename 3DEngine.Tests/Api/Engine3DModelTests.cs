@@ -116,7 +116,10 @@ public sealed class Engine3DModelTests : IDisposable
         { "hemisphere", new(-1, 0, -1), new(1, 1, 1) },
         { "torus", new(-1.25f, -0.25f, -1.25f), new(1.25f, 0.25f, 1.25f) },
         { "heightmap", new(0, 0, 0), new(4, 2, 4) },
-        { "cubicmap", new(0, 0, 0), new(3, 1, 3) },
+        { "cubicmap", new(-0.5f, 0, -0.5f), new(2.5f, 1, 2.5f) },
+        { "sphere", new(-1, -1, -1), new(1, 1, 1) },
+        { "cube", new(-1, -1, -1), new(1, 1, 1) },
+        { "plane", new(-1, 0, -1), new(1, 0, 1) },
     };
 
     private static ModelMesh Generate(string shape) => shape switch
@@ -128,6 +131,9 @@ public sealed class Engine3DModelTests : IDisposable
         "torus" => GenMeshTorus(1, 0.25f, 64, 32),
         "heightmap" => GenMeshHeightmap(GenImageGradientLinear(8, 8, 90, Color.Black, Color.White), new Vector3(4, 2, 4)),
         "cubicmap" => GenMeshCubicmap(Maze(), Vector3.One),
+        "sphere" => GenMeshSphere(1, 16, 32),
+        "cube" => GenMeshCube(2, 2, 2),
+        "plane" => GenMeshPlane(2, 2, 4, 4),
         _ => GenMeshKnot(3, 0.3f, 128, 16),
     };
 
@@ -187,12 +193,12 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
-    public void A_Cubicmap_Makes_Only_The_Faces_That_Can_Be_Seen()
+    public void A_Cubicmap_Makes_The_Faces_Raylibs_Makes_Each_Cell_Centered_On_Its_Pixel()
     {
         var mesh = GenMeshCubicmap(Maze(), Vector3.One);
 
-        // Eight open cells with a floor, and the wall's top and four sides.
-        mesh.TriangleCount.Should().Be((8 + 1 + 4) * 2);
+        // Eight open cells with a floor and a roof, and the wall's top, bottom and four sides.
+        mesh.TriangleCount.Should().Be((8 * 2 + 6) * 2);
     }
 
     [Fact]

@@ -15,7 +15,7 @@ a program given by its path, serving, and returns once it is ready:
 ./e3d open models_loading --hidden            # renders into a window that is never shown
 ./e3d open models_loading --offscreen         # renders with no window and no display at all
 ./e3d open ecs_behaviors --headless           # no window, no GPU: logic, ECS and the flat API's state only
-./e3d open shapes_basic_3d                    # a visible window, for a person to watch
+./e3d open models_geometric_shapes            # a visible window, for a person to watch
 ./e3d open core_basic_window --frames 300     # closes itself after 300 frames
 ./e3d open ../MyGame/bin/Debug/net10.0/MyGame --hidden
 ```

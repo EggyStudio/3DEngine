@@ -1395,6 +1395,7 @@ public sealed class OffscreenRenderTests : IDisposable
         SetEnvironmentMap(GenImageColor(64, 32, new Color(40, 90, 255)));
         CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
         var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));
+        room.Materials[0].DoubleSided = true; // seen from inside, where a single-sided cube shows nothing
         var ball = LoadModelFromMesh(GenMeshSphere(1, 32, 32));
         ball.Materials[0] = new ModelMaterial(Color.White) { Metallic = 1, Roughness = 0.05f };
         var camera = new Camera3D(new Vector3(0, -1.5f, 3), new Vector3(0, -1.5f, 0), Vector3.UnitY, 60);
@@ -1439,6 +1440,7 @@ public sealed class OffscreenRenderTests : IDisposable
         var lamp = CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
         CreateDirectionalLight(-Vector3.UnitY, Color.White, 0.05f);
         var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));
+        room.Materials[0].DoubleSided = true; // seen from inside, where a single-sided cube shows nothing
         var ball = LoadModelFromMesh(GenMeshSphere(1, 32, 32));
         ball.Materials[0] = new ModelMaterial(Color.White) { Metallic = 1, Roughness = 0.05f };
         var camera = new Camera3D(new Vector3(0, -1.5f, 3), new Vector3(0, -1.5f, 0), Vector3.UnitY, 60);

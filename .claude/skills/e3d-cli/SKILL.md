@@ -25,7 +25,7 @@ If nothing is serving, start one and wait for it to be ready:
 ./e3d open models_loading --hidden            # renders into a window that is never shown
 ./e3d open models_loading --offscreen         # renders with no window and no display at all
 ./e3d open ecs_behaviors --headless           # no window, no GPU: logic, ECS and the flat API's state only
-./e3d open shapes_basic_3d                    # a visible window, when a person should see it
+./e3d open models_geometric_shapes            # a visible window, when a person should see it
 ./e3d open core_basic_window --frames 300     # closes itself after 300 frames
 ```
 

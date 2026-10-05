@@ -98,6 +98,11 @@ The size given to `GenMeshHeightmap` is the terrain's width, its greatest height
 world units. A heightmap is usually a grayscale PNG loaded with `LoadImage`, as one drawn in a paint
 program.
 
+A cubicmap's block stands centered on its pixel's place, as raylib's does, and each face takes a
+quarter of the texture, laid out as raylib's `cubicmap_atlas.png` is: the walls' sides from the top
+half, the floor from the bottom right. An open cell has a roof as well, which faces down, so it is
+the ceiling from inside the maze and hides nothing from above.
+
 ## Animation
 
 A model with a skeleton, as a character exported to glTF or FBX, has `Bones` and the pose they

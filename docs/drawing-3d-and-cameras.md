@@ -8,42 +8,52 @@ and the same frame can draw 3D and then 2D over it.
 
 `BeginMode3D` draws everything after it through a camera until `EndMode3D`, after which drawing is
 in screen pixels again. A `Camera3D` holds where it is, the point it looks at, which way is up and
-its vertical field of view in degrees. The `shapes_basic_3d` example:
+its vertical field of view in degrees. From the `models_geometric_shapes` example, raylib's:
 
 ```csharp
-var camera = new Camera3D(new Vector3(0, 10, 10), Vector3.Zero, Vector3.UnitY, 45);
+Camera3D camera = new(new Vector3(0.0f, 10.0f, 10.0f), Vector3.Zero, Vector3.UnitY, 45.0f, CameraProjection.Perspective);
 
 SetTargetFPS(60);
 
 while (!WindowShouldClose())
 {
-    UpdateCamera(ref camera, CameraMode.Orbital);
-
     BeginDrawing();
-    ClearBackground(Color.RayWhite);
 
-    BeginMode3D(camera);
-    DrawCube(new Vector3(-4, 0, 2), 2, 5, 2, Color.Red);
-    DrawCubeWires(new Vector3(-4, 0, 2), 2, 5, 2, Color.Gold);
-    DrawCubeWires(new Vector3(-4, 0, -2), 3, 6, 2, Color.Maroon);
+        ClearBackground(Color.RayWhite);
 
-    DrawSphere(new Vector3(-1, 0, -2), 1, Color.Green);
-    DrawSphereWires(new Vector3(1, 0, 2), 2, 16, 16, Color.Lime);
+        BeginMode3D(camera);
 
-    DrawPlane(new Vector3(4, 0, -2), new Vector2(3, 3), Color.SkyBlue);
-    DrawLine3D(new Vector3(4, 0, 2), new Vector3(4, 4, 2), Color.Purple);
+            DrawCube(new Vector3(-4.0f, 0.0f, 2.0f), 2.0f, 5.0f, 2.0f, Color.Red);
+            DrawCubeWires(new Vector3(-4.0f, 0.0f, 2.0f), 2.0f, 5.0f, 2.0f, Color.Gold);
+            DrawCubeWires(new Vector3(-4.0f, 0.0f, -2.0f), 3.0f, 6.0f, 2.0f, Color.Maroon);
 
-    DrawGrid(10, 1);
-    EndMode3D();
+            DrawSphere(new Vector3(-1.0f, 0.0f, -2.0f), 1.0f, Color.Green);
+            DrawSphereWires(new Vector3(1.0f, 0.0f, 2.0f), 2.0f, 16, 16, Color.Lime);
 
-    DrawFPS(10, 10);
+            DrawCylinder(new Vector3(4.0f, 0.0f, -2.0f), 1.0f, 2.0f, 3.0f, 4, Color.SkyBlue);
+            DrawCylinderWires(new Vector3(4.0f, 0.0f, -2.0f), 1.0f, 2.0f, 3.0f, 4, Color.DarkBlue);
+            DrawCylinderWires(new Vector3(4.5f, -1.0f, 2.0f), 1.0f, 1.0f, 2.0f, 6, Color.Brown);
+
+            DrawCylinder(new Vector3(1.0f, 0.0f, -4.0f), 0.0f, 1.5f, 3.0f, 8, Color.Gold);
+            DrawCylinderWires(new Vector3(1.0f, 0.0f, -4.0f), 0.0f, 1.5f, 3.0f, 8, Color.Pink);
+
+            DrawCapsule(new Vector3(-3.0f, 1.5f, -4.0f), new Vector3(-4.0f, -1.0f, -4.0f), 1.2f, 8, 8, Color.Violet);
+            DrawCapsuleWires(new Vector3(-3.0f, 1.5f, -4.0f), new Vector3(-4.0f, -1.0f, -4.0f), 1.2f, 8, 8, Color.Purple);
+
+            DrawGrid(10, 1.0f);
+
+        EndMode3D();
+
+        DrawFPS(10, 10);
+
     EndDrawing();
 }
 ```
 
 The world is right-handed with y up, as raylib's is. A cube is given by its center and its size
-along x, y and z, a plane lies on the ground, and `DrawGrid` draws the ground's lines around the
-origin, which helps judge where things are.
+along x, y and z, a cylinder by the center of its base, its radius at the top and at the bottom,
+its height and its sides, so a radius of zero makes a cone and four sides a square frustum, and
+`DrawGrid` draws the ground's lines around the origin, which helps judge where things are.
 
 The 3D shapes are cubes, spheres, cylinders and cones, capsules, planes, lines, points, circles,
 rays and triangles, each with a wire form, listed in the cheatsheet's [3D shapes](../CHEATSHEET.md#3d-shapes)
@@ -226,7 +236,7 @@ saves.
 
 ## See also
 
-- Examples: [`shapes_basic_3d`](../3DEngine.Examples/Shapes/ShapesBasic3D.cs),
+- Examples: [`models_geometric_shapes`](../3DEngine.Examples/Models/ModelsGeometricShapes.cs),
   [`core_3d_camera_free`](../3DEngine.Examples/Core/Core3DCameraFree.cs),
   [`core_3d_camera_first_person`](../3DEngine.Examples/Core/Core3DCameraFirstPerson.cs),
   [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs),

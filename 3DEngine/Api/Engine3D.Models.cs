@@ -67,10 +67,12 @@ public record struct ModelMaterial(Color Color, Texture2D Texture = default)
     public float AlphaCutoff { get; set; } = 0.5f;
 
     /// <summary>
-    /// Whether both sides of each face are drawn, as they are for a material the program makes.
-    /// A glTF file that says a material is single-sided has its back faces left out.
+    /// Whether both sides of each face are drawn. Only a face's front is unless this is set, the
+    /// side its corners go round counterclockwise, as raylib draws a face, so a maze's roof hides
+    /// nothing from above. A leaf or a flag seen from behind sets it, and a glTF file says for each
+    /// of its materials.
     /// </summary>
-    public bool DoubleSided { get; set; } = true;
+    public bool DoubleSided { get; set; }
 
     /// <summary>Whether the surface casts shadows, true unless set, false for a glow, a light's bulb or an effect that would darken what is under it.</summary>
     public bool CastsShadows { get; set; } = true;
@@ -233,8 +235,9 @@ public static partial class Engine3D
         for (int r = 0; r < rings; r++)
         for (int s = 0; s < slices; s++)
         {
+            // Counterclockwise seen from outside, the front a single-sided material draws
             uint a = (uint)(r * (slices + 1) + s), b = a + (uint)(slices + 1);
-            indices.AddRange([a, b, b + 1, a, b + 1, a + 1]);
+            indices.AddRange([a, b + 1, b, a, a + 1, b + 1]);
         }
         return UploadMesh(vertices, [.. indices]);
     }

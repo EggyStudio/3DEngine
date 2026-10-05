@@ -80,7 +80,8 @@ A material's `AlphaMode` says what the alpha of its color and texture does:
 | `MaterialAlphaMode.Mask` | Solid where alpha is at least `AlphaCutoff` and nothing where it is below, as leaves and fences need |
 | `MaterialAlphaMode.Opaque` | Solid everywhere, alpha ignored |
 
-`DoubleSided` is true unless set, so a leaf or a flag shows from behind, and a glTF file sets both.
+`DoubleSided` is false unless set, as raylib draws only a face's front, so a leaf or a flag that
+shows from behind sets it, and a glTF file says for each of its materials.
 
 ## Effects over the frame
 

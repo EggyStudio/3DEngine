@@ -143,46 +143,83 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// Makes a maze from an image: a block of <paramref name="cubeSize"/> for every white pixel,
-    /// and floor under every other, from the origin along +X and +Z.
+    /// Makes a maze from an image as raylib's does: a block of <paramref name="cubeSize"/> for every
+    /// white pixel, centered on the pixel's place, so pixel (x, y) stands at x by y times the size,
+    /// and a floor and a roof over every black pixel.
     /// </summary>
     /// <remarks>
-    /// Only the faces that can be seen are made: a wall's side where it meets an open cell, the
-    /// floor of open cells, and a wall's top. raylib's also roofs the open cells, which its back
-    /// face culling hides from above. The model pass draws both sides of a face, so a roof would
-    /// hide the maze, and it is left out. Every face has texture coordinates from 0 to 1, so one
-    /// texture covers each.
+    /// A block has its top and bottom and the sides that face a black pixel or the map's edge, and
+    /// a pixel of any other color makes nothing. Each face takes a quarter of a texture laid out as
+    /// raylib's atlas is: the right and front sides the top left, the left and back sides the top
+    /// right, a block's top and an open cell's roof the bottom left, and a block's bottom and the
+    /// floor the bottom right. The roofs face down, so from above they are culled and from inside
+    /// the maze they are its ceiling, as a material is single-sided unless set.
     /// </remarks>
     public static ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize)
     {
         if (!cubicmap.IsValid) return default;
-        int w = cubicmap.Width, h = cubicmap.Height;
-        bool Wall(int x, int z) => x >= 0 && z >= 0 && x < w && z < h && GetImageColor(cubicmap, x, z) is { R: 255, G: 255, B: 255 };
+        int width = cubicmap.Width, height = cubicmap.Height;
+        Color[] pixels = LoadImageColors(cubicmap);
+        bool Is(int x, int z, Color color) => pixels[z * width + x] == color;
 
         var mesh = new MeshBuilder();
-        var s = cubeSize;
-        void Face(Vector3 center, Vector3 normal, Vector3 u, Vector3 v)
+        float w = cubeSize.X, h = cubeSize.Z, h2 = cubeSize.Y;
+
+        // Each face's quarter of the atlas, as x, y, width and height in texture coordinates
+        var right = new Vector4(0.0f, 0.0f, 0.5f, 0.5f);
+        var left = new Vector4(0.5f, 0.0f, 0.5f, 0.5f);
+        var front = new Vector4(0.0f, 0.0f, 0.5f, 0.5f);
+        var back = new Vector4(0.5f, 0.0f, 0.5f, 0.5f);
+        var top = new Vector4(0.0f, 0.5f, 0.5f, 0.5f);
+        var bottom = new Vector4(0.5f, 0.5f, 0.5f, 0.5f);
+
+        // A corner of a quarter: 0 its left or top, 1 its right or bottom.
+        static Vector2 At(Vector4 rect, int u, int v) => new(rect.X + u * rect.Z, rect.Y + v * rect.W);
+
+        // Two triangles of raylib's, their corners and texture coordinates in its order
+        void Triangles(Vector3 normal, ReadOnlySpan<Vector3> corners, ReadOnlySpan<Vector2> uvs)
         {
-            uint V(float a, float b, float tu, float tv) => mesh.Vertex(center + u * a + v * b, normal, new Vector2(tu, tv));
-            mesh.Quad(V(-0.5f, -0.5f, 0, 1), V(0.5f, -0.5f, 1, 1), V(0.5f, 0.5f, 1, 0), V(-0.5f, 0.5f, 0, 0));
+            for (int i = 0; i < 6; i += 3)
+                mesh.Triangle(mesh.Vertex(corners[i], normal, uvs[i]), mesh.Vertex(corners[i + 1], normal, uvs[i + 1]), mesh.Vertex(corners[i + 2], normal, uvs[i + 2]));
         }
 
-        for (int z = 0; z < h; z++)
-        for (int x = 0; x < w; x++)
+        for (int z = 0; z < height; z++)
         {
-            var center = new Vector3((x + 0.5f) * s.X, s.Y / 2, (z + 0.5f) * s.Z);
-            var (ux, uy, uz) = (Vector3.UnitX * s.X, Vector3.UnitY * s.Y, Vector3.UnitZ * s.Z);
-            if (!Wall(x, z))
+            for (int x = 0; x < width; x++)
             {
-                Face(center with { Y = 0 }, Vector3.UnitY, ux, -uz);
-                continue;
-            }
+                // The cell's eight corners, the first four at the top
+                var v1 = new Vector3(w * (x - 0.5f), h2, h * (z - 0.5f));
+                var v2 = new Vector3(w * (x - 0.5f), h2, h * (z + 0.5f));
+                var v3 = new Vector3(w * (x + 0.5f), h2, h * (z + 0.5f));
+                var v4 = new Vector3(w * (x + 0.5f), h2, h * (z - 0.5f));
+                var v5 = new Vector3(w * (x + 0.5f), 0, h * (z - 0.5f));
+                var v6 = new Vector3(w * (x - 0.5f), 0, h * (z - 0.5f));
+                var v7 = new Vector3(w * (x - 0.5f), 0, h * (z + 0.5f));
+                var v8 = new Vector3(w * (x + 0.5f), 0, h * (z + 0.5f));
 
-            Face(center with { Y = s.Y }, Vector3.UnitY, ux, -uz);
-            if (!Wall(x + 1, z)) Face(center + Vector3.UnitX * s.X / 2, Vector3.UnitX, -uz, uy);
-            if (!Wall(x - 1, z)) Face(center - Vector3.UnitX * s.X / 2, -Vector3.UnitX, uz, uy);
-            if (!Wall(x, z + 1)) Face(center + Vector3.UnitZ * s.Z / 2, Vector3.UnitZ, ux, uy);
-            if (!Wall(x, z - 1)) Face(center - Vector3.UnitZ * s.Z / 2, -Vector3.UnitZ, -ux, uy);
+                if (Is(x, z, Color.White))
+                {
+                    // The top, which is seen only from outside the map, and the bottom
+                    Triangles(Vector3.UnitY, [v1, v2, v3, v1, v3, v4], [At(top, 0, 0), At(top, 0, 1), At(top, 1, 1), At(top, 0, 0), At(top, 1, 1), At(top, 1, 0)]);
+                    Triangles(-Vector3.UnitY, [v6, v8, v7, v6, v5, v8], [At(bottom, 1, 0), At(bottom, 0, 1), At(bottom, 1, 1), At(bottom, 1, 0), At(bottom, 0, 0), At(bottom, 0, 1)]);
+
+                    // The sides that face an open cell or the edge
+                    if ((z < height - 1 && Is(x, z + 1, Color.Black)) || z == height - 1)
+                        Triangles(Vector3.UnitZ, [v2, v7, v3, v3, v7, v8], [At(front, 0, 0), At(front, 0, 1), At(front, 1, 0), At(front, 1, 0), At(front, 0, 1), At(front, 1, 1)]);
+                    if ((z > 0 && Is(x, z - 1, Color.Black)) || z == 0)
+                        Triangles(-Vector3.UnitZ, [v1, v5, v6, v1, v4, v5], [At(back, 1, 0), At(back, 0, 1), At(back, 1, 1), At(back, 1, 0), At(back, 0, 0), At(back, 0, 1)]);
+                    if ((x < width - 1 && Is(x + 1, z, Color.Black)) || x == width - 1)
+                        Triangles(Vector3.UnitX, [v3, v8, v4, v4, v8, v5], [At(right, 0, 0), At(right, 0, 1), At(right, 1, 0), At(right, 1, 0), At(right, 0, 1), At(right, 1, 1)]);
+                    if ((x > 0 && Is(x - 1, z, Color.Black)) || x == 0)
+                        Triangles(-Vector3.UnitX, [v1, v7, v2, v1, v6, v7], [At(left, 0, 0), At(left, 1, 1), At(left, 1, 0), At(left, 0, 0), At(left, 0, 1), At(left, 1, 1)]);
+                }
+                else if (Is(x, z, Color.Black))
+                {
+                    // The roof, facing down, and the floor, facing up
+                    Triangles(-Vector3.UnitY, [v1, v3, v2, v1, v4, v3], [At(top, 0, 0), At(top, 1, 1), At(top, 0, 1), At(top, 0, 0), At(top, 1, 0), At(top, 1, 1)]);
+                    Triangles(Vector3.UnitY, [v6, v7, v8, v6, v8, v5], [At(bottom, 1, 0), At(bottom, 1, 1), At(bottom, 0, 1), At(bottom, 1, 0), At(bottom, 0, 1), At(bottom, 0, 0)]);
+                }
+            }
         }
         return mesh.Upload();
     }

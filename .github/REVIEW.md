@@ -10,14 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4c7b3f06`. Nine of raylib's text examples are written, and four calls answer as
+Reviewed up to `7ba078c8`. The 25 of raylib's textures examples the flat API can carry are
+written, two of them held against raylib's C, and `LoadImageFromTexture` reads a texture loaded
+since the last frame from its queued pixels, as raylib's reads one at once, which
+`TextureStoreTests` holds. Two differences are kept on the comparison, `LoadImageAnim`'s image
+as tall as all its frames, and an image from a file without alpha being RGBA. The table
+stands at 122 written, 1 in part, 61 that can be and 37 missing, and the suite through the
+script at 1,219 passing. No verdict is open.
+
+Before it, nine of raylib's text examples were written (`4c7b3f06`), and four calls answer as
 raylib's do: a character a font lacks draws as its `?`, `LoadCodepoints` keeps a character that
 repeats, `TextureFilter` has `Trilinear` with raylib's numbers for the members after it, and
 `Bilinear` reads the nearest mip level, the textures of models asking for `Trilinear` and
 looking as they did. A font loaded with no code points has Latin-1 where raylib's has ASCII,
 which the comparison has. Three members of `TextureFilter` have new numbers, which falls in
-5.1, not yet packed. The table stands at 97 written, 1 in part, 86 that can be and 37 missing,
-and the suite through the script at 1,218 passing. No verdict is open.
+5.1, not yet packed.
 
 Before it, the last eight of raylib's examples that use raygui were written with ImGui in its
 place, fifteen in all (`590b9ac3`), and two calls were brought to raylib's, read against its
@@ -182,27 +189,20 @@ None open.
 
 ## Replies
 
-**Now 2, raylib's textures examples.** The 25 of the module that could be written are, from
-raylib's source, their files fetched from raylib's examples by `raylib-resources.txt`. They are
-`textures_logo_raylib`, `textures_image_loading`, `textures_to_image`, `textures_image_rotate`,
-`textures_srcrec_dstrec`, `textures_sprite_animation`, `textures_background_scrolling`,
-`textures_image_generation`, `textures_image_text`, `textures_particles_blending`,
-`textures_npatch_drawing`, `textures_sprite_button`, `textures_sprite_explosion`,
-`textures_blend_modes`, `textures_gif_player`, `textures_image_channel`,
-`textures_image_kernel`, `textures_sprite_stacking`, `textures_clipboard_image`,
-`textures_tiled_drawing`, `textures_mouse_painting`, `textures_fog_of_war`,
-`textures_screen_buffer`, `textures_cellular_automata` and `textures_framebuffer_rendering`. Pixel
-art drawn larger than its size asks for `Point`, which raylib samples every texture with, as the
-comparison's line on the default filter says. A render target is drawn and read back with its
-height as it is, where raylib's are turned. `DrawTextureTiled` is the tiled example's own
-function, as it is raylib's. One call was brought to raylib's. `textures_to_image` drew nothing,
-since `LoadImageFromTexture` read only what had reached the GPU, and a texture loaded since the
-last frame had not. It now reads such a texture from its queued pixels, the rectangles queued
-after them laid over, so it reads back at once as raylib's does, which `TextureStoreTests`
-holds. Two differences are kept and given their lines in the comparison. `LoadImageAnim` gives an
-image as tall as every frame where raylib's is one frame tall, since an image's pixels here are
-its size, and the GIF example updates its texture from a frame's slice. An image from a file
-without alpha is RGBA here, so the corners `ImageRotate` adds are clear where raylib's
-screenshot has them black. Driven through `./e3d`, the stretched nine-patches and the flame after
-400 frames are raylib's pictures. The table stands at 122 written, 1 in part, 61 that can be,
-37 missing and 1 that does not apply.
+**Now 2, twelve of raylib's models examples, and N 5.1.** `models_geometric_shapes`,
+`models_box_collisions`, `models_waving_cubes`, `models_orthographic_projection`,
+`models_billboard_rendering`, `models_cubicmap_rendering`, `models_first_person_maze`,
+`models_heightmap_rendering`, `models_rotating_cube`, `models_directional_billboard`,
+`models_yaw_pitch_roll` and `models_loading_gltf` are raylib's, written again from its source.
+`shapes_basic_3d` was raylib's `models_geometric_shapes` cut down, so it is that program now, under
+its name, with the docs, the README, the skill and the capture following. The mazes found three
+faults. `GenMeshCubicmap` gave every face the whole texture, stood each block at a corner of its
+pixel rather than on it, and left the roof out, so the first person maze had no ceiling and its
+walls stood half a cell from where its collisions were. It is raylib's now, face for face. The
+roof needs raylib's culling, so a `ModelMaterial` is single-sided unless set, as raylib draws a
+face, where it was double-sided. That showed `GenMeshSphere` wound inside out, every sphere having
+been drawn by its far side, which `Engine3DModelTests` now holds with the cube and the plane
+among the generators that face outward. Every example that draws a model was captured again and
+set beside its capture, and only the two that draw a maze differ for more than time. The
+reference frames pass unchanged. The table stands at 134 written, 1 in part, 49 that can be, 37
+missing and 1 that does not apply.
