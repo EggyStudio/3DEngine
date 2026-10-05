@@ -31,6 +31,11 @@ public sealed partial class PhysicsWorld
         public Vector3 GroundNormal = Vector3.UnitY;
         // The highest step it climbs onto, its radius unless set.
         public required float StepHeight;
+        // What the step about to run was planned to do with it, written back once every
+        // character is planned.
+        public bool Exists;
+        public Vector3 Planned;
+        public float Lift;
     }
 
     /// <summary>
@@ -56,6 +61,7 @@ public sealed partial class PhysicsWorld
 
         var body = new PhysicsBody(this, handle.Value, BodyKind.Dynamic);
         _characters[handle.Value] = new Character { Body = body, Radius = radius, HalfHeight = height / 2, StepHeight = radius };
+        _charactersChanged = true;
         _characterFlags.Set(handle.Value, true);
         return body;
     }
@@ -135,19 +141,85 @@ public sealed partial class PhysicsWorld
     private void ForgetCharacter(int handle)
     {
         if (_characters.Remove(handle)) _characterFlags.Set(handle, false);
+        _charactersChanged = true;
     }
 
     // Before a step of dt: finds each character's ground, and sets its velocity to walk where it
     // was asked to, along that ground, with the step's pull of gravity along a slope it may stand
-    // on taken out beforehand, since the integrator adds it during the step.
+    // on taken out beforehand, since the integrator adds it during the step. The rays and what
+    // follows from them only read the simulation, so a crowd is worked out on several threads, each
+    // casting through a pool of its own, and what it decided is written back in order after, so
+    // every character sees the others as the step left them and the result is the same however
+    // many threads there are.
     private void UpdateCharacters(float dt)
     {
         if (_characters.Count == 0) return;
-        var gravity = Gravity;
-        foreach (var character in _characters.Values)
+        if (_characterList.Count != _characters.Count || _charactersChanged)
         {
+            _characterList.Clear();
+            _characterList.AddRange(_characters.Values);
+            _charactersChanged = false;
+        }
+
+        var all = _characterList;
+        const int Chunk = 32;
+        if (all.Count < 2 * Chunk) Plan(all, 0, all.Count, dt, BufferPool);
+        else
+        {
+            var chunks = (all.Count + Chunk - 1) / Chunk;
+            while (_probePools.Count < Environment.ProcessorCount) _probePools.Add(new BepuUtilities.Memory.BufferPool());
+            Parallel.For(0, chunks, () => TakePool(), (chunk, _, pool) =>
+            {
+                Plan(all, chunk * Chunk, Math.Min(all.Count, (chunk + 1) * Chunk), dt, pool);
+                return pool;
+            }, GivePool);
+        }
+
+        foreach (var character in all)
+        {
+            if (!character.Exists) continue;
+            var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(character.Body.Handle));
+            if (character.Lift > 0) reference.Pose.Position += new Vector3(0, character.Lift, 0);
+            reference.Velocity.Linear = character.Planned;
+            reference.Velocity.Angular = Vector3.Zero;
+            if (!reference.Awake) Simulation.Awakener.AwakenBody(new BodyHandle(character.Body.Handle));
+        }
+    }
+
+    // The characters in order, made again when one is added or removed, and the pools rays are cast
+    // through on other threads, each lent to one thread at a time.
+    private readonly List<Character> _characterList = [];
+    private bool _charactersChanged;
+    private readonly List<BepuUtilities.Memory.BufferPool> _probePools = [];
+    private readonly Stack<BepuUtilities.Memory.BufferPool> _idlePools = new();
+
+    private BepuUtilities.Memory.BufferPool TakePool()
+    {
+        lock (_idlePools)
+        {
+            if (_idlePools.Count == 0)
+                foreach (var pool in _probePools) _idlePools.Push(pool);
+            return _idlePools.Count > 0 ? _idlePools.Pop() : new BepuUtilities.Memory.BufferPool();
+        }
+    }
+
+    private void GivePool(BepuUtilities.Memory.BufferPool pool)
+    {
+        lock (_idlePools) _idlePools.Push(pool);
+    }
+
+    // Works out the ground, the velocity and any step to climb of the characters from first to
+    // before end, reading the simulation and writing only the characters themselves.
+    private void Plan(List<Character> all, int first, int end, float dt, BepuUtilities.Memory.BufferPool pool)
+    {
+        var gravity = Gravity;
+        for (int i = first; i < end; i++)
+        {
+            var character = all[i];
             var body = character.Body;
-            if (!Simulation.Bodies.BodyExists(new BodyHandle(body.Handle))) continue;
+            character.Exists = Simulation.Bodies.BodyExists(new BodyHandle(body.Handle));
+            character.Lift = 0;
+            if (!character.Exists) continue;
             var reference = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
             var center = reference.Pose.Position;
 
@@ -165,7 +237,7 @@ public sealed partial class PhysicsWorld
                 var from = center + offset;
                 // A ray at the side starts lower, where the round of the foot is, so it reaches as far below it.
                 var length = reach - (character.Radius - MathF.Sqrt(MathF.Max(0, character.Radius * character.Radius - offset.LengthSquared())));
-                if (!Raycast(from, -Vector3.UnitY, length, body, out var hit) || hit.Normal.Y < character.MaxSlopeCos) continue;
+                if (!Raycast(from, -Vector3.UnitY, length, body, pool, out var hit) || hit.Normal.Y < character.MaxSlopeCos) continue;
                 if (hit.Distance >= nearest) continue;
                 nearest = hit.Distance;
                 character.Grounded = true;
@@ -174,7 +246,7 @@ public sealed partial class PhysicsWorld
             }
 
             var velocity = reference.Velocity.Linear;
-            if (character.Grounded) ClimbStep(character, ref reference);
+            if (character.Grounded) character.Lift = ClimbStep(character, center, pool);
             if (character.Grounded)
             {
                 // Along the ground, so a walk up or down a slope follows it, and with the pull along
@@ -203,10 +275,7 @@ public sealed partial class PhysicsWorld
                 velocity += change;
             }
             character.JumpSpeed = 0;
-
-            reference.Velocity.Linear = velocity;
-            reference.Velocity.Angular = Vector3.Zero;
-            if (!reference.Awake) Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+            character.Planned = velocity;
         }
     }
 
@@ -219,27 +288,27 @@ public sealed partial class PhysicsWorld
     }
 
     // A grounded character walking into a wall whose top is no higher than its step height, with
-    // room above, is lifted onto it, so it walks up stairs rather than stopping at each.
-    private void ClimbStep(Character character, ref BodyReference reference)
+    // room above, is lifted onto it, so it walks up stairs rather than stopping at each. The rise it
+    // is lifted by, or 0.
+    private float ClimbStep(Character character, Vector3 center, BepuUtilities.Memory.BufferPool pool)
     {
         var wanted = character.Wanted with { Y = 0 };
-        if (character.StepHeight <= 0 || wanted.LengthSquared() < 1e-6f) return;
+        if (character.StepHeight <= 0 || wanted.LengthSquared() < 1e-6f) return 0;
         var way = Vector3.Normalize(wanted);
-        var center = reference.Pose.Position;
         var feet = center - new Vector3(0, character.HalfHeight, 0);
         var reach = character.Radius + 0.15f;
 
         // Something steep close ahead at the foot.
-        if (!Raycast(feet + new Vector3(0, 0.02f, 0), way, reach, character.Body, out var wall) || wall.Normal.Y >= character.MaxSlopeCos) return;
+        if (!Raycast(feet + new Vector3(0, 0.02f, 0), way, reach, character.Body, pool, out var wall) || wall.Normal.Y >= character.MaxSlopeCos) return 0;
 
         // Its top, found from above, no higher than a step and flat enough to stand on.
         var above = feet + way * (wall.Distance + 0.05f) + new Vector3(0, character.StepHeight + 0.02f, 0);
-        if (!Raycast(above, -Vector3.UnitY, character.StepHeight + 0.02f, character.Body, out var top) || top.Normal.Y < character.MaxSlopeCos) return;
+        if (!Raycast(above, -Vector3.UnitY, character.StepHeight + 0.02f, character.Body, pool, out var top) || top.Normal.Y < character.MaxSlopeCos) return 0;
         var rise = top.Point.Y - feet.Y;
-        if (rise <= 0.01f || rise > character.StepHeight) return;
+        if (rise <= 0.01f || rise > character.StepHeight) return 0;
 
         // Room for the head that high.
-        if (Raycast(center, Vector3.UnitY, character.HalfHeight + rise, character.Body, out _)) return;
-        reference.Pose.Position = center + new Vector3(0, rise + 0.01f, 0);
+        if (Raycast(center, Vector3.UnitY, character.HalfHeight + rise, character.Body, pool, out _)) return 0;
+        return rise + 0.01f;
     }
 }

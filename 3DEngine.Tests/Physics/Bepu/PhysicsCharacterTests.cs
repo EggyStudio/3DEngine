@@ -34,6 +34,34 @@ public class PhysicsCharacterTests
     }
 
     [Fact]
+    public void A_Crowd_Is_Planned_On_Several_Threads_And_Moves_The_Same_Every_Run()
+    {
+        // Enough characters that their ground is found on several threads, closing on a point and
+        // pressing against each other, run twice from the same start.
+        Vector3[] Crowd()
+        {
+            using var world = NewWorld();
+            var bodies = Enumerable.Range(0, 200)
+                .Select(i => world.CreateCharacter(new Vector3(i % 20 - 10, 0, i / 20 * 1.2f - 6), Radius, Height, mass: 9)).ToArray();
+            for (int step = 0; step < 90; step++)
+            {
+                foreach (var body in bodies)
+                {
+                    var to = -world.GetPosition(body) with { Y = 0 };
+                    world.MoveCharacter(body, to.LengthSquared() < 0.01f ? Vector3.Zero : Vector3.Normalize(to) * 4);
+                }
+                world.StepOnce(Step);
+            }
+            return [.. bodies.Select(world.GetPosition)];
+        }
+
+        var first = Crowd();
+        var second = Crowd();
+        second.Should().Equal(first, "each character is worked out from the step before alone, whichever thread works it out");
+        first.Average(p => new Vector2(p.X, p.Z).Length()).Should().BeLessThan(5, "the crowd walked in toward the point");
+    }
+
+    [Fact]
     public void A_Character_Stands_On_A_Floor_And_Reports_Ground()
     {
         using var world = NewWorld();

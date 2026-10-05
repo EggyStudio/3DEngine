@@ -15,7 +15,12 @@ public sealed partial class PhysicsWorld
         Raycast(origin, direction, maxDistance, default, out hit);
 
     /// <summary>The closest hit along a ray that is not <paramref name="ignore"/>, as a body looking past itself.</summary>
-    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit)
+    public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, out RaycastHit hit) =>
+        Raycast(origin, direction, maxDistance, ignore, BufferPool, out hit);
+
+    // The same through a pool of the caller's, so rays cast on several threads at once each take
+    // their scratch memory from a pool of their own.
+    private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out RaycastHit hit)
     {
         var handler = new ClosestRayHitHandler();
         if (ignore.World == this)
@@ -25,7 +30,7 @@ public sealed partial class PhysicsWorld
                 ? new CollidableReference(new StaticHandle(ignore.Handle))
                 : new CollidableReference(ignore.Kind == BodyKind.Kinematic ? CollidableMobility.Kinematic : CollidableMobility.Dynamic, new BodyHandle(ignore.Handle));
         }
-        Simulation.RayCast(origin, direction, maxDistance, BufferPool, ref handler);
+        Simulation.RayCast(origin, direction, maxDistance, pool, ref handler);
         if (!handler.Found)
         {
             hit = default;

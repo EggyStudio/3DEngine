@@ -28,12 +28,12 @@ removed from this file, and an item that is partly done is rewritten around what
   example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
   three.
 
-- **Hundreds of characters take most of a frame's fixed steps.** `games/Swarm` walks about 290
-  creatures at once, each a dynamic capsule on the character controller, and its physics step takes
-  2.6 to 3.2 ms a frame on the desktop, where its behaviors take 0.1 ms and recording its frame 0.7 ms. Each
-  character is driven and its ground found one at a time on the main thread before and after the
-  step. A crowd that needs no stepping up or ground of its own would cost less as plain bodies
-  pushed toward their target, which the engine has no ready form of.
+- **A crowd's physics is stepped on one worker.** `games/Swarm` walks about 280 creatures at once,
+  each a dynamic capsule on the character controller, in 2.0 ms of physics a frame, and 2000 take
+  12 ms a step, of which the controllers' ground rays take 2.1 ms on several threads, contacts 1.5 ms
+  and Bepu's own step 8 ms. `PhysicsSettings.WorkerThreads` is 1 by default, so the step is the same
+  on every machine, and more workers save little at these sizes (4.4 ms with four at 2000, and
+  thirty-one take longer than one at 290), so a world of thousands of bodies sets it.
 
 ### The flat API
 

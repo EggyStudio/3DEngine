@@ -10,8 +10,8 @@ public sealed partial class PhysicsWorld
     // The pairs touching after the last step, by both collidables packed into one key, with the
     // bodies and entities as they were when the contact started, so an ended contact can name a
     // body that has since been destroyed.
-    private readonly Dictionary<ulong, PhysicsContact> _touching = [];
-    private readonly HashSet<ulong> _seen = [];
+    private readonly Dictionary<ulong, PhysicsContact> _touching = new(PairKeys.Instance);
+    private readonly HashSet<ulong> _seen = new(PairKeys.Instance);
     private readonly List<ulong> _gone = [];
     private readonly List<PhysicsContact> _started = [];
     private readonly List<PhysicsContact> _ended = [];
@@ -20,8 +20,18 @@ public sealed partial class PhysicsWorld
 
     // The fastest each pair near but not yet touching has closed at, which its contact reports
     // when it starts, forgotten once it starts or leaves.
-    private readonly Dictionary<ulong, float> _approaching = [];
-    private readonly HashSet<ulong> _near = [];
+    private readonly Dictionary<ulong, float> _approaching = new(PairKeys.Instance);
+    private readonly HashSet<ulong> _near = new(PairKeys.Instance);
+
+    // Hashes a pair's key by all its bits. A ulong hashes as its halves XORed, which for a key of
+    // two small handles side by side is the same for thousands of pairs in a crowd, so the sets
+    // above slowed to lists, 2 microseconds a pair with 2000 bodies touching.
+    private sealed class PairKeys : IEqualityComparer<ulong>
+    {
+        public static readonly PairKeys Instance = new();
+        public bool Equals(ulong x, ulong y) => x == y;
+        public int GetHashCode(ulong key) => (int)((key * 0x9E3779B97F4A7C15UL) >> 32);
+    }
 
     /// <summary>
     /// Hands over the contacts that started and ended in the steps since the last call, in the

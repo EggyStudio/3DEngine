@@ -47,6 +47,8 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (`49ea5eb`) | taken at `91f0f793`, with E3D008 for a parameter it cannot hand over |
+| A behavior method that touches what only one thread may (resources, the interface, sounds) runs on the main thread, by rule for a static method and by an attribute for an instance one | to check | has (`[MainThread]`, `3c9c7ac8`) |
+| A script compiled while the game runs names the game's own types, and the scripts watched are the project's, not a copy in the build folder | to check | has (`3c9c7ac8`) |
 | One table of the attributes a generator accepts, and a test that compiles and runs a use of each | has (`deb1b79`) | has (`9bfd44e3`) |
 | Diagnostics for a behavior or a command written wrongly | has (`BevyCSharp.Generator/BehaviorDiagnostics.cs`) | has (E3D001 to E3D006) |
 | Fixes for those diagnostics offered in an editor | to take | has (`3DEngine.CodeFixes`, `c6b529d4`) |
@@ -129,6 +131,7 @@ table also answers whether the two agree.
 | Behaviors registered by a module initializer the generator writes, so a game published trimmed or as native AOT keeps them | has | has (`425ffc31`), with Pusher published native |
 | A game published as native AOT and run by CI | to take | has (`458cd909`) |
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
+| A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
@@ -147,4 +150,4 @@ table also answers whether the two agree.
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
 | A picture of an example opens the live demo of it on the site of the engine it follows | taken at `29ebd78`, 276 of Bevy's examples | taken at `ac529628`, the 17 examples raylib's site has |
-| Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | to take, at raylib's 800 by 450 |
+| Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | taken at `e673197a`, at raylib's 800 by 450 |

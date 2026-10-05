@@ -104,5 +104,6 @@ public sealed partial class PhysicsWorld : IDisposable
         Simulation.Dispose();
         Dispatcher.Dispose();
         BufferPool.Clear();
+        foreach (var pool in _probePools) pool.Clear();
     }
 }
