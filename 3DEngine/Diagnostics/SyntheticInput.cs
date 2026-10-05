@@ -117,11 +117,11 @@ internal sealed class SyntheticInput
     public void Button(Input input, MouseButton button, ulong frame, int frames)
     {
         input.Enqueue(i => i.SetMouseButton(button, true));
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent((int)button, true);
+        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), true);
         _releases.Add((frame + (ulong)Math.Max(1, frames), i =>
         {
             i.SetMouseButton(button, false);
-            if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent((int)button, false);
+            if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), false);
         }));
     }
 
@@ -156,10 +156,20 @@ internal static class InputCommands
         return (world.Resource<Input>(), world.GetOrInsertResource(() => new SyntheticInput()), ConsoleHost.Time.FrameCount);
     }
 
+    // A member of an enum by its name in any case, and nothing else. Enum.TryParse also takes a
+    // number or a list of names, which would give a value no member has, as a mouse button 100
+    // that ImGui stops the program over.
+    internal static bool TryName<T>(string word, out T value) where T : struct, Enum
+    {
+        var name = Enum.GetNames<T>().FirstOrDefault(n => n.Equals(word, StringComparison.OrdinalIgnoreCase));
+        value = name is null ? default : Enum.Parse<T>(name);
+        return name is not null;
+    }
+
     [Command("input.key", "Holds a key for some frames and answers when it is released: input.key <name> <frames>")]
     internal static string Key(string name, int frames)
     {
-        if (!Enum.TryParse<Key>(name, ignoreCase: true, out var key) || key == Engine.Key.Unknown)
+        if (!TryName<Key>(name, out var key) || key == Engine.Key.Unknown)
         {
             ConsoleHost.Fail("BAD_ARGUMENT", $"'{name}' is not a key. Keys are named as in the Key enum: W, Space, Escape, F2, Up, LShift.");
             return $"not a key: {name}";
@@ -200,7 +210,7 @@ internal static class InputCommands
     [Command("input.drag", "Holds a mouse button for some frames while moving the pointer a step a frame, and rests at the end before letting go: input.drag <button> <dx> <dy> <frames> [rest]")]
     internal static string Drag(string button, int dx, int dy, int frames, int rest = 0)
     {
-        if (!Enum.TryParse<MouseButton>(button, ignoreCase: true, out var which))
+        if (!TryName<MouseButton>(button, out var which))
         {
             ConsoleHost.Fail("BAD_ARGUMENT", $"'{button}' is not a mouse button. They are Left, Middle and Right.");
             return $"not a button: {button}";
@@ -215,7 +225,7 @@ internal static class InputCommands
     [Command("input.button", "Holds a gamepad button for some frames, on a console pad when none is connected: input.button <pad> <button> <frames>")]
     internal static string PadButton(int pad, string button, int frames)
     {
-        if (!Enum.TryParse<GamepadButton>(button, ignoreCase: true, out var which))
+        if (!TryName<GamepadButton>(button, out var which))
         {
             ConsoleHost.Fail("BAD_ARGUMENT", $"'{button}' is not a gamepad button. They are South, East, West, North, Start, Back, LeftShoulder, DpadUp and the rest of GamepadButton.");
             return $"not a button: {button}";
@@ -236,7 +246,7 @@ internal static class InputCommands
     [Command("input.axis", "Sets a gamepad axis until it is set again, on a console pad when none is connected: input.axis <pad> <axis> <value>")]
     internal static string PadAxis(int pad, string axis, float value)
     {
-        if (!Enum.TryParse<GamepadAxis>(axis, ignoreCase: true, out var which))
+        if (!TryName<GamepadAxis>(axis, out var which))
         {
             ConsoleHost.Fail("BAD_ARGUMENT", $"'{axis}' is not a gamepad axis. They are LeftX, LeftY, RightX, RightY, LeftTrigger and RightTrigger.");
             return $"not an axis: {axis}";

@@ -101,7 +101,10 @@ makes an image of text, and `LoadImageAnim` reads every frame of an animated GIF
 stacked from the top, which a sprite drawn frame by frame reads as a sheet.
 
 A texture already loaded is changed with `UpdateTexture(texture, image)`, which uploads an image of
-the same size again, as a picture drawn by the program every frame needs.
+the same size again, as a picture drawn by the program every frame needs. A render texture's pixels
+are written in their place among what is drawn into it, so a pattern written with
+`UpdateTextureRec` after the target's `ClearBackground` is kept, as raylib's
+`shaders_game_of_life` starts its world.
 
 ## Sprites and animation
 

@@ -203,6 +203,22 @@ public sealed class ImageTests : IDisposable
         GenImagePerlinNoise(64, 64, 10, 20, 4).Data.Should().Equal(noise.Data, "the same arguments give the same image");
     }
 
+    // Pixels of raylib's own GenImagePerlinNoise, built from its rtextures.c and stb_perlin.h, for a
+    // square image and for one wider and one taller, whose wider side spans more of the noise.
+    [Theory]
+    [InlineData(512, 512, 0, 0, 1f, 300, 300, 76)]
+    [InlineData(512, 512, 0, 0, 1f, 511, 17, 108)]
+    [InlineData(512, 512, 0, 0, 1f, 100, 400, 97)]
+    [InlineData(64, 32, 10, 20, 4f, 63, 31, 120)]
+    [InlineData(64, 32, 10, 20, 4f, 40, 5, 150)]
+    [InlineData(32, 64, 10, 20, 4f, 31, 63, 174)]
+    [InlineData(32, 64, 10, 20, 4f, 5, 40, 54)]
+    public void Perlin_Noise_Is_Raylibs_Pixel_For_Pixel(int width, int height, int offsetX, int offsetY, float scale, int x, int y, byte gray)
+    {
+        var noise = GenImagePerlinNoise(width, height, offsetX, offsetY, scale);
+        noise.Data[(y * width + x) * 4].Should().Be(gray);
+    }
+
     [Fact]
     public void Cellular_Noise_Is_Dark_At_Its_Points_And_Gray_Throughout()
     {

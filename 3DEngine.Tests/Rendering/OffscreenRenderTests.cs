@@ -403,6 +403,40 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Pixels_Written_Into_A_Render_Target_Come_After_Its_Clear_And_Replace_What_Is_There()
+    {
+        Open(64, 32);
+        var target = LoadRenderTexture(16, 16);
+        var green = new Color(0, 255, 0);
+        // A red square with a clear pixel in its corner, which replaces the green rather than
+        // being laid over it.
+        var pixels = new byte[4 * 4 * 4];
+        for (int i = 0; i < 16; i++) (pixels[i * 4], pixels[i * 4 + 3]) = (255, 255);
+        pixels[3] = 0;
+
+        var image = Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(green);
+            EndTextureMode();
+            UpdateTextureRec(target.Texture, new Rectangle(4, 4, 4, 4), pixels).Should().BeTrue();
+            BeginTextureMode(target);
+            DrawRectangle(6, 6, 1, 1, Color.Blue);
+            EndTextureMode();
+
+            ClearBackground(Color.Black);
+            DrawTexture(target.Texture, 32, 8, Color.White);
+        });
+
+        GetImageColor(image, 32 + 5, 8 + 5).Should().Be(new Color(255, 0, 0), "the pixels were written after the clear");
+        GetImageColor(image, 32 + 4, 8 + 4).Should().Be(Color.Black, "a clear pixel written into the target leaves it clear, showing the window");
+        GetImageColor(image, 32 + 6, 8 + 6).Should().Be(Color.Blue, "a shape drawn after the pixels lies over them");
+        GetImageColor(image, 32 + 10, 8 + 10).Should().Be(green, "the rest of the target kept its clear");
+        UpdateTextureRec(target.Texture, new Rectangle(14, 14, 4, 4), pixels).Should().BeFalse("the rectangle reaches past the target");
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void An_Immediate_Shader_Reads_Its_Slot_And_Applies_Only_Inside_Its_Mode()
     {
         Open(64, 32);

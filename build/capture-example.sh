@@ -58,6 +58,15 @@ case "$example" in
   text_input_box)
     ./e3d command input.text e3d.cs --quiet
     ;;
+  shaders_rlgl_compute)
+    # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
+    ./e3d command input.wheel 16 --quiet
+    ./e3d command input.move 200 250 --quiet
+    ./e3d command input.drag Left 400 0 12 --quiet
+    ./e3d command input.drag Left 0 300 12 --quiet
+    ./e3d command input.drag Left -400 0 12 --quiet
+    ./e3d command input.drag Left 0 -300 12 --quiet
+    ;;
 esac
 
 # Scenes where something falls or grows get longer before the capture. The skybox's orbit, half
@@ -85,7 +94,9 @@ if [ "$shot" != "$out" ]; then
   case "$example" in
     ecs_animated_models|ecs_mesh_entities|ecs_physics|models_*|physics_boxes|scenes_level|\
     shaders_auto_exposure|shaders_bloom|shaders_particles|shaders_compute_texture|shaders_mesh_instancing|shaders_model|\
-    shaders_postprocessing|shaders_shadowmap) kind=lossy ;;
+    shaders_postprocessing|shaders_shadowmap|shaders_basic_lighting|shaders_fog_rendering|shaders_normalmap_rendering|\
+    shaders_basic_pbr|shaders_shadowmap_rendering|shaders_vertex_displacement|shaders_lights_bloom|shaders_depth_rendering|\
+    shaders_raymarching_rendering|shaders_model_shader|shaders_custom_uniform) kind=lossy ;;
     *) kind=lossless ;;
   esac
   build/webp.sh "$shot" "$out" "$kind"

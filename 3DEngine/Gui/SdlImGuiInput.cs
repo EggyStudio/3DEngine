@@ -7,6 +7,17 @@ namespace Engine;
 /// <summary>Translates SDL input events into ImGui IO events (keys, mouse, text, wheel).</summary>
 internal static class SdlImGuiInput
 {
+    /// <summary>
+    /// ImGui's index for a mouse button. ImGui puts the right button before the middle one, where
+    /// <see cref="MouseButton"/> and SDL put the middle one first.
+    /// </summary>
+    public static int ImGuiButton(MouseButton button) => button switch
+    {
+        MouseButton.Middle => (int)ImGuiMouseButton.Middle,
+        MouseButton.Right => (int)ImGuiMouseButton.Right,
+        _ => (int)button,
+    };
+
     /// <summary>Processes an SDL event and updates the ImGui input state accordingly.</summary>
     /// <param name="e">The SDL event to process.</param>
     public static void ProcessEvent(SDL.Event e)
@@ -21,8 +32,9 @@ internal static class SdlImGuiInput
             case SDL.EventType.MouseButtonUp:
                 bool down = (SDL.EventType)e.Type == SDL.EventType.MouseButtonDown;
                 int button = e.Button.Button;
+                // SDL counts from 1 in MouseButton's order.
                 if (button >= 1 && button <= 5)
-                    io.AddMouseButtonEvent(button - 1, down);
+                    io.AddMouseButtonEvent(ImGuiButton((MouseButton)(button - 1)), down);
                 break;
             case SDL.EventType.MouseWheel:
                 io.AddMouseWheelEvent(e.Wheel.X, e.Wheel.Y);

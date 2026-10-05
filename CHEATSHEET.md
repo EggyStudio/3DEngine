@@ -304,7 +304,7 @@ void DrawCubeWires(Vector3 position, float width, float height, float length, Co
 void DrawCubeWiresV(Vector3 position, Vector3 size, Color color);                               // Box edges
 void DrawSphere(Vector3 center, float radius, Color color);                                     // Sphere
 void DrawSphereEx(Vector3 center, float radius, int rings, int slices, Color color);            // Sphere with a chosen detail
-void DrawSphereWires(Vector3 center, float radius, int rings, int slices, Color color);         // Sphere as lines
+void DrawSphereWires(Vector3 center, float radius, int rings, int slices, Color color);         // Sphere as lines, a diagonal across each face
 void DrawPlane(Vector3 center, Vector2 size, Color color);                                      // Rectangle on the XZ plane
 void DrawGrid(int slices, float spacing);                                                       // Grid on the XZ plane
 void DrawPoint3D(Vector3 position, Color color);                                                // A point, as a small cross

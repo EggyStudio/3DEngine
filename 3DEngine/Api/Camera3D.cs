@@ -80,11 +80,12 @@ public struct Camera3D
     /// <summary>The view to clip transform for a target of the given aspect ratio.</summary>
     /// <remarks>
     /// Y is flipped for Vulkan, whose clip space points down where <c>System.Numerics</c> assumes
-    /// up, and depth runs from 0 to 1.
+    /// up, and depth runs from 0 to 1. It clips from 0.05 to 4000 units away, as raylib's
+    /// <c>RL_CULL_DISTANCE_NEAR</c> and <c>RL_CULL_DISTANCE_FAR</c> do.
     /// </remarks>
     public readonly Matrix4x4 ProjectionMatrix(float aspect)
     {
-        const float near = 0.05f, far = 1000f;
+        const float near = 0.05f, far = 4000f;
         var projection = Projection == CameraProjection.Perspective
             ? Matrix4x4.CreatePerspectiveFieldOfView(float.DegreesToRadians(FovY), aspect, near, far)
             : Matrix4x4.CreateOrthographic(FovY * aspect, FovY, near, far);

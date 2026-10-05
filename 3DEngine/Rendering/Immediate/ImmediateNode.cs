@@ -300,7 +300,7 @@ internal sealed class ImmediateRenderer : IDisposable
             renderPass,
             stages.Vertex,
             stages.Fragment,
-            BlendEnabled: true,
+            BlendEnabled: batch.Blend != DrawList.Replace,
             CullBackFace: false,
             VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ImmediateVertex>())],
             VertexAttributes:

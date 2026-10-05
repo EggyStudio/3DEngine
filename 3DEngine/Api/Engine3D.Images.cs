@@ -50,9 +50,14 @@ public static partial class Engine3D
     {
         var w = Math.Max(1, width);
         var h = Math.Max(1, height);
+        var aspectRatio = (float)w / h;
         return Generate(width, height, (x, y) =>
         {
-            var value = PerlinFbm((x + offsetX) * (scale / w), (y + offsetY) * (scale / h), 1f, octaves: 6);
+            float nx = (x + offsetX) * (scale / w), ny = (y + offsetY) * (scale / h);
+            // The wider side spans more of the noise, so its features stay round.
+            if (w > h) nx *= aspectRatio;
+            else ny /= aspectRatio;
+            var value = PerlinFbm(nx, ny, 1f, octaves: 6);
             var gray = (byte)(Math.Clamp((value + 1) / 2, 0, 1) * 255);
             return new Color(gray, gray, gray);
         });
@@ -74,7 +79,7 @@ public static partial class Engine3D
         {
             int tileX = Math.Min(x / tileSize, across - 1), tileY = Math.Min(y / tileSize, down - 1);
             var nearest = float.MaxValue;
-            // A point in a neighbouring square can be nearer than the one in this one.
+            // A point in a neighboring square can be nearer than the one in this one.
             for (int j = Math.Max(0, tileY - 1); j <= Math.Min(down - 1, tileY + 1); j++)
             for (int i = Math.Max(0, tileX - 1); i <= Math.Min(across - 1, tileX + 1); i++)
                 nearest = MathF.Min(nearest, Vector2.Distance(new Vector2(x, y), seeds[j * across + i]));
@@ -83,60 +88,104 @@ public static partial class Engine3D
         });
     }
 
-    // Ken Perlin's improved noise, summed over octaves each twice the frequency and half the
-    // weight of the one before, as stb_perlin's fbm is, from roughly -1 to 1.
+    // stb_perlin's noise (Sean Barrett, public domain), which raylib's GenImagePerlinNoise calls,
+    // summed over octaves each twice the frequency and half the weight of the one before, each
+    // octave with a seed of its own, from roughly -1 to 1.
     private static float PerlinFbm(float x, float y, float z, int octaves)
     {
         float sum = 0, frequency = 1, amplitude = 1;
         for (int i = 0; i < octaves; i++)
         {
-            sum += Perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+            sum += Perlin(x * frequency, y * frequency, z * frequency, (byte)i) * amplitude;
             frequency *= 2;
             amplitude *= 0.5f;
         }
         return sum;
     }
 
-    private static float Perlin(float x, float y, float z)
+    // Ken Perlin's improved noise of 2002, with stb_perlin's table and its twelve gradients.
+    private static float Perlin(float x, float y, float z, byte seed)
     {
-        int xi = (int)MathF.Floor(x) & 255, yi = (int)MathF.Floor(y) & 255, zi = (int)MathF.Floor(z) & 255;
-        x -= MathF.Floor(x);
-        y -= MathF.Floor(y);
-        z -= MathF.Floor(z);
-        float u = Fade(x), v = Fade(y), w = Fade(z);
-        int a = PerlinTable[xi] + yi, aa = PerlinTable[a] + zi, ab = PerlinTable[a + 1] + zi;
-        int b = PerlinTable[xi + 1] + yi, ba = PerlinTable[b] + zi, bb = PerlinTable[b + 1] + zi;
-        return Lerp(w,
-            Lerp(v, Lerp(u, Grad(PerlinTable[aa], x, y, z), Grad(PerlinTable[ba], x - 1, y, z)),
-                    Lerp(u, Grad(PerlinTable[ab], x, y - 1, z), Grad(PerlinTable[bb], x - 1, y - 1, z))),
-            Lerp(v, Lerp(u, Grad(PerlinTable[aa + 1], x, y, z - 1), Grad(PerlinTable[ba + 1], x - 1, y, z - 1)),
-                    Lerp(u, Grad(PerlinTable[ab + 1], x, y - 1, z - 1), Grad(PerlinTable[bb + 1], x - 1, y - 1, z - 1))));
+        int px = (int)MathF.Floor(x), py = (int)MathF.Floor(y), pz = (int)MathF.Floor(z);
+        int x0 = px & 255, x1 = (px + 1) & 255;
+        int y0 = py & 255, y1 = (py + 1) & 255;
+        int z0 = pz & 255, z1 = (pz + 1) & 255;
 
-        static float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
-        static float Lerp(float t, float a, float b) => a + t * (b - a);
-        static float Grad(int hash, float x, float y, float z)
+        x -= px;
+        y -= py;
+        z -= pz;
+        float u = Ease(x), v = Ease(y), w = Ease(z);
+
+        int r0 = PerlinTable[x0 + seed], r1 = PerlinTable[x1 + seed];
+        int r00 = PerlinTable[r0 + y0], r01 = PerlinTable[r0 + y1];
+        int r10 = PerlinTable[r1 + y0], r11 = PerlinTable[r1 + y1];
+
+        float n000 = Grad(PerlinGradients[r00 + z0], x, y, z);
+        float n001 = Grad(PerlinGradients[r00 + z1], x, y, z - 1);
+        float n010 = Grad(PerlinGradients[r01 + z0], x, y - 1, z);
+        float n011 = Grad(PerlinGradients[r01 + z1], x, y - 1, z - 1);
+        float n100 = Grad(PerlinGradients[r10 + z0], x - 1, y, z);
+        float n101 = Grad(PerlinGradients[r10 + z1], x - 1, y, z - 1);
+        float n110 = Grad(PerlinGradients[r11 + z0], x - 1, y - 1, z);
+        float n111 = Grad(PerlinGradients[r11 + z1], x - 1, y - 1, z - 1);
+
+        float n0 = Lerp(Lerp(n000, n001, w), Lerp(n010, n011, w), v);
+        float n1 = Lerp(Lerp(n100, n101, w), Lerp(n110, n111, w), v);
+        return Lerp(n0, n1, u);
+
+        static float Ease(float t) => ((t * 6 - 15) * t + 10) * t * t * t;
+        static float Lerp(float a, float b, float t) => a + (b - a) * t;
+        static float Grad(int index, float x, float y, float z) => index switch
         {
-            var h = hash & 15;
-            float u = h < 8 ? x : y, v = h < 4 ? y : h is 12 or 14 ? x : z;
-            return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
-        }
+            0 => x + y, 1 => -x + y, 2 => x - y, 3 => -x - y,
+            4 => x + z, 5 => -x + z, 6 => x - z, 7 => -x - z,
+            8 => y + z, 9 => -y + z, 10 => y - z, _ => -y - z,
+        };
     }
 
-    // Perlin's permutation of 0 to 255, twice over, so an index past 255 needs no wrap.
+    // stb_perlin's permutation of 0 to 255, and the gradient each entry picks, twice over, so an
+    // index past 255 needs no wrap.
     private static readonly int[] PerlinTable = [.. PerlinPermutation, .. PerlinPermutation];
+    private static readonly int[] PerlinGradients = [.. PerlinGradientIndices, .. PerlinGradientIndices];
 
     private static ReadOnlySpan<int> PerlinPermutation =>
     [
-        151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
-        190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174,
-        20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166, 77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133,
-        230, 220, 105, 92, 41, 55, 46, 245, 40, 244, 102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89,
-        18, 169, 200, 196, 135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123, 5,
-        202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42, 223, 183, 170, 213, 119,
-        248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9, 129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224,
-        232, 178, 185, 112, 104, 218, 246, 97, 228, 251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235,
-        249, 14, 239, 107, 49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254, 138,
-        236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
+        23, 125, 161, 52, 103, 117, 70, 37, 247, 101, 203, 169, 124, 126, 44, 123,
+        152, 238, 145, 45, 171, 114, 253, 10, 192, 136, 4, 157, 249, 30, 35, 72,
+        175, 63, 77, 90, 181, 16, 96, 111, 133, 104, 75, 162, 93, 56, 66, 240,
+        8, 50, 84, 229, 49, 210, 173, 239, 141, 1, 87, 18, 2, 198, 143, 57,
+        225, 160, 58, 217, 168, 206, 245, 204, 199, 6, 73, 60, 20, 230, 211, 233,
+        94, 200, 88, 9, 74, 155, 33, 15, 219, 130, 226, 202, 83, 236, 42, 172,
+        165, 218, 55, 222, 46, 107, 98, 154, 109, 67, 196, 178, 127, 158, 13, 243,
+        65, 79, 166, 248, 25, 224, 115, 80, 68, 51, 184, 128, 232, 208, 151, 122,
+        26, 212, 105, 43, 179, 213, 235, 148, 146, 89, 14, 195, 28, 78, 112, 76,
+        250, 47, 24, 251, 140, 108, 186, 190, 228, 170, 183, 139, 39, 188, 244, 246,
+        132, 48, 119, 144, 180, 138, 134, 193, 82, 182, 120, 121, 86, 220, 209, 3,
+        91, 241, 149, 85, 205, 150, 113, 216, 31, 100, 41, 164, 177, 214, 153, 231,
+        38, 71, 185, 174, 97, 201, 29, 95, 7, 92, 54, 254, 191, 118, 34, 221,
+        131, 11, 163, 99, 234, 81, 227, 147, 156, 176, 17, 142, 69, 12, 110, 62,
+        27, 255, 0, 194, 59, 116, 242, 252, 19, 21, 187, 53, 207, 129, 64, 135,
+        61, 40, 167, 237, 102, 223, 106, 159, 197, 189, 215, 137, 36, 32, 22, 5,
+    ];
+
+    private static ReadOnlySpan<int> PerlinGradientIndices =>
+    [
+        7, 9, 5, 0, 11, 1, 6, 9, 3, 9, 11, 1, 8, 10, 4, 7,
+        8, 6, 1, 5, 3, 10, 9, 10, 0, 8, 4, 1, 5, 2, 7, 8,
+        7, 11, 9, 10, 1, 0, 4, 7, 5, 0, 11, 6, 1, 4, 2, 8,
+        8, 10, 4, 9, 9, 2, 5, 7, 9, 1, 7, 2, 2, 6, 11, 5,
+        5, 4, 6, 9, 0, 1, 1, 0, 7, 6, 9, 8, 4, 10, 3, 1,
+        2, 8, 8, 9, 10, 11, 5, 11, 11, 2, 6, 10, 3, 4, 2, 4,
+        9, 10, 3, 2, 6, 3, 6, 10, 5, 3, 4, 10, 11, 2, 9, 11,
+        1, 11, 10, 4, 9, 4, 11, 0, 4, 11, 4, 0, 0, 0, 7, 6,
+        10, 4, 1, 3, 11, 5, 3, 4, 2, 9, 1, 3, 0, 1, 8, 0,
+        6, 7, 8, 7, 0, 4, 6, 10, 8, 2, 3, 11, 11, 8, 0, 2,
+        4, 8, 3, 0, 0, 10, 6, 1, 2, 2, 4, 5, 6, 0, 1, 3,
+        11, 9, 5, 5, 9, 6, 9, 8, 3, 8, 1, 8, 9, 6, 9, 11,
+        10, 7, 5, 6, 5, 9, 1, 3, 7, 0, 2, 10, 11, 2, 6, 1,
+        3, 11, 7, 7, 2, 1, 7, 3, 0, 8, 1, 1, 5, 0, 6, 10,
+        11, 11, 0, 2, 7, 0, 10, 8, 3, 5, 7, 1, 11, 1, 0, 7,
+        9, 0, 11, 5, 10, 3, 2, 3, 5, 9, 7, 9, 8, 4, 6, 5,
     ];
 
     /// <summary>A copy of an image, with pixels of its own.</summary>

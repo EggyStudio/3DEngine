@@ -65,7 +65,7 @@ public static partial class Engine3D
         }
     }
 
-    /// <summary>Draws a sphere's rings and slices as lines.</summary>
+    /// <summary>Draws a sphere's rings and slices as lines, with a diagonal across each face between them, as raylib's does.</summary>
     public static void DrawSphereWires(Vector3 center, float radius, int rings, int slices, Color color)
     {
         rings = Math.Max(2, rings);
@@ -76,6 +76,7 @@ public static partial class Engine3D
             var a = SpherePoint(center, radius, r, s, rings, slices);
             DrawList.Line(a, SpherePoint(center, radius, r + 1, s, rings, slices), color);
             DrawList.Line(a, SpherePoint(center, radius, r, s + 1, rings, slices), color);
+            DrawList.Line(a, SpherePoint(center, radius, r + 1, s + 1, rings, slices), color);
         }
     }
 

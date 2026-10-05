@@ -274,7 +274,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | listed 116, `NormTests` | listed 337, `NormTests` |
-| N 1.3 | listed 6, `NormTests` | listed 26, `NormTests`, 16 of them in the bridge |
+| N 1.3 | listed 6, `NormTests` | listed 25, `NormTests`, 15 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 20 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
@@ -298,7 +298,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | checked, `NormTests`, 9 left out | checked, `NormTests`, 18 left out |
+| N 4.5 | checked, `NormTests`, 9 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | to take |

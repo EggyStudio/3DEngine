@@ -4,6 +4,7 @@ hopper 960x540	a game, captured at its own window's size
 manor 1280x720	a game, captured at its own window's size
 pusher 960x540	a game, captured at its own window's size
 rally 1280x720	a game, captured at its own window's size
+shaders_rlgl_compute 768x768	raylib's example asks for a window of 768 by 768
 shapes_math_angle_rotation 720x400	raylib's example asks for a window of 720 by 400
 summit 960x540	a game, captured at its own window's size
 swarm 1280x720	a game, captured at its own window's size

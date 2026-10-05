@@ -391,7 +391,7 @@ internal static class ConsoleBuiltins
             _ when type == typeof(double) && double.TryParse(word, System.Globalization.NumberStyles.Float, invariant, out var d) => d,
             _ when type == typeof(int) && int.TryParse(word, invariant, out var i) => i,
             _ when type == typeof(bool) && bool.TryParse(word, out var b) => b,
-            _ when type.IsEnum && Enum.TryParse(type, word, ignoreCase: true, out var e) => e,
+            _ when type.IsEnum && Enum.GetNames(type).FirstOrDefault(n => n.Equals(word, StringComparison.OrdinalIgnoreCase)) is { } name => Enum.Parse(type, name),
             _ when type == typeof(System.Numerics.Vector2) && numbers.Length == 2 => new System.Numerics.Vector2(numbers[0], numbers[1]),
             _ when type == typeof(System.Numerics.Vector3) && numbers.Length == 3 => new System.Numerics.Vector3(numbers[0], numbers[1], numbers[2]),
             _ when type == typeof(System.Numerics.Vector4) && numbers.Length == 4 => new System.Numerics.Vector4(numbers[0], numbers[1], numbers[2], numbers[3]),

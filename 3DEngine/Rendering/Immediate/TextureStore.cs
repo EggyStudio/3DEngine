@@ -81,6 +81,7 @@ internal sealed class TextureStore
     // The textures with a pixel neither clear nor solid, which a blended material draws with
     // what is behind it. A texture that is only clear or solid cuts out as it is.
     private readonly HashSet<int> _translucent = [];
+    private readonly HashSet<int> _targets = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -125,6 +126,12 @@ internal sealed class TextureStore
         }
     }
 
+    /// <summary>Whether a loaded texture is a render target's.</summary>
+    internal bool IsTarget(int id)
+    {
+        lock (_gate) return _targets.Contains(id);
+    }
+
     /// <summary>Whether a loaded texture has mip levels.</summary>
     internal bool HasMipmaps(int id)
     {
@@ -139,6 +146,7 @@ internal sealed class TextureStore
         {
             var id = _next++;
             _live[id] = (width, height, filter, false, TextureWrap.Repeat);
+            _targets.Add(id);
             _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
             return id;
         }
@@ -230,6 +238,7 @@ internal sealed class TextureStore
         {
             if (!_live.Remove(id)) return false;
             _translucent.Remove(id);
+            _targets.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
             return true;

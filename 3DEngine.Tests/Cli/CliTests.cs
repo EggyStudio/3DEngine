@@ -179,4 +179,26 @@ public sealed class CliTests : IDisposable
         input.KeyDown(Key.W).Should().BeFalse();
         input.KeyReleased(Key.W).Should().BeTrue();
     }
+
+    [Fact]
+    public void Input_Commands_Take_Names_And_Not_Numbers()
+    {
+        InputCommands.TryName<MouseButton>("right", out var button).Should().BeTrue();
+        button.Should().Be(MouseButton.Right);
+        InputCommands.TryName<Key>("alpha2", out var key).Should().BeTrue();
+        key.Should().Be(Key.Alpha2);
+
+        InputCommands.TryName<MouseButton>("100", out _).Should().BeFalse("a number names no button, and ImGui stops the program over one past its five");
+        InputCommands.TryName<MouseButton>("Middle, Right", out _).Should().BeFalse("a list of names is not a name");
+        InputCommands.TryName<Key>("30", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Mouse_Buttons_Reach_ImGui_In_Its_Order()
+    {
+        SdlImGuiInput.ImGuiButton(MouseButton.Left).Should().Be((int)ImGuiNET.ImGuiMouseButton.Left);
+        SdlImGuiInput.ImGuiButton(MouseButton.Right).Should().Be((int)ImGuiNET.ImGuiMouseButton.Right);
+        SdlImGuiInput.ImGuiButton(MouseButton.Middle).Should().Be((int)ImGuiNET.ImGuiMouseButton.Middle);
+        SdlImGuiInput.ImGuiButton(MouseButton.X2).Should().Be(4);
+    }
 }

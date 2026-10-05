@@ -190,15 +190,15 @@ shaders_spotlight_rendering	can
 shaders_deferred_rendering	missing	a target with several attachments, as a G-buffer is
 shaders_hybrid_rendering	missing	a fragment's depth written by a shader, which the meshes drawn after are tested against
 shaders_texture_tiling	can
-shaders_shadowmap_rendering	can	what shaders_shadowmap casts, a directional light's shadow map
-shaders_vertex_displacement	can	a texture handed to a shader, which SetShaderValueTexture does
+shaders_shadowmap_rendering	can
+shaders_vertex_displacement	can
 shaders_depth_writing	missing	a fragment's depth written by a shader
 shaders_basic_pbr	can
 shaders_lightmap_rendering	missing	a second set of texture coordinates in a mesh
 shaders_rounded_rectangle	can
-shaders_depth_rendering	can	a target's depth read, which RenderTexture2D.Depth gives
+shaders_depth_rendering	can
 shaders_game_of_life	can	with ImGui in raygui's place
-shaders_rlgl_compute	can	the game of life shaders_compute_life runs, a compute shader over a buffer
+shaders_rlgl_compute	can	with the flat API's compute functions in rlgl's place
 shaders_cel_shading	missing	front faces culled in place of back ones, for an outline
 shaders_lights_bloom	can
 audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads

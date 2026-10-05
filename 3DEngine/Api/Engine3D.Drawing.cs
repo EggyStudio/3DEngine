@@ -45,6 +45,7 @@ public static partial class Engine3D
 
         var drawing = Stopwatch.GetElapsedTime(_drawingStart);
         GetApp().EndFrame();
+        ForgetTargetWrites();
         // The cameras the frame drew with are forgotten once it is rendered, and not as the next
         // begins, so a 3D camera a program sets for a render texture between frames is kept.
         if (TryRes<Mode3DCamera>(out var mode3D))

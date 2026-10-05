@@ -54,6 +54,12 @@ internal readonly record struct ScissorRect(int X, int Y, int Width, int Height)
 /// </remarks>
 internal sealed class DrawList
 {
+    /// <summary>
+    /// The blend pixels written into a render target are drawn with, which replaces what is there,
+    /// alpha and all, as an upload does. It is none of raylib's modes, so the API does not offer it.
+    /// </summary>
+    public const BlendMode Replace = (BlendMode)(-1);
+
     private readonly object _gate = new();
 
     // Holds the lock while systems run in parallel, and nothing otherwise.

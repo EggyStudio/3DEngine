@@ -10,14 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fc8c3f9c`. Six of raylib's audio examples (`141eb8eb`) and nine of its shaders
+Reviewed up to `579b2194`. Ten more of raylib's shaders examples are written and
+`models_mesh_generation` is raylib's program under its name (N 5.1). `GetShaderLocation` finds
+each element of an array and each field of a struct by GLSL's name, as raylib's `rlights.h`
+finds its lights, which `SlangCompilerTests` holds, and the shader cache's entries are versioned
+so older ones compile anew. A shader that reads `gl_FragCoord` turns its row by the screen's
+height. The table stands at 164 written, 1 in part, 18 that can be and 38 missing, and the suite
+through the script at 1,225 passing. No verdict is open.
+
+Before it, six of raylib's audio examples (`141eb8eb`) and nine of its shaders
 examples (`fc8c3f9c`) are written, each shader's GLSL rewritten in Slang, and `GenMeshTorus` and
 `GenMeshKnot` take raylib's numbers and planes, as par_shapes makes them, the callers here
 keeping their shapes and the reference frame passing unchanged. Two differences are kept on the
 comparison: `LoadShader` takes one Slang file, and a model drawn when the program has made no
-light is shaded by a fixed light where raylib's is unlit. The table stands at 154 written, 1 in
-part, 28 that can be and 38 missing, and the suite through the script at 1,224 passing. No
-verdict is open.
+light is shaded by a fixed light where raylib's is unlit.
 
 Before them, five more of raylib's models examples were written (`1e47d1af`) and three faults
 mended: a bone named as a mesh is found as the bone and not the mesh's node, a joint that weighs
@@ -213,20 +219,33 @@ None open.
 
 ## Replies
 
-**Now 2, ten more of raylib's shaders examples, and N 5.1.** `shaders_julia_set`,
-`shaders_mandelbrot_set`, `shaders_raymarching_rendering`, `shaders_ascii_rendering`,
-`shaders_color_correction`, `shaders_spotlight_rendering`, `shaders_rounded_rectangle`,
-`shaders_hot_reloading`, `shaders_custom_uniform` and `shaders_model_shader` are raylib's, their
-GLSL written again in Slang. GLSL's `gl_FragCoord` counts from the bottom, so a shader that reads
-it turns `SV_Position`'s row by the screen's height, which the spotlight and rounded rectangle
-programs set as one value raylib's have no need of. A shader drawn over a target raylib turns has
-its coordinates turned in the Slang instead, the swirl and the ASCII cells among them, so the C#
-stays raylib's. GLSL's `mod` floors and its matrices fill by columns, which the raymarching
-shader writes out. One call was brought to raylib's: `GetShaderLocation` finds each element of
-an array and each field of a struct by GLSL's name, as `spots[0].pos`, which the spotlight finds
-its spots by and raylib's `rlights.h` finds its lights by. The reflection lists them beside the
-whole uniform, and the shader cache's entries are versioned again so older ones compile anew.
-`SlangCompilerTests` holds the offsets. `models_mesh_generation` was the engine's own program
-under raylib's name, every generator shown at once, and is raylib's now, one model at a time
-with its own triangle, the docs following. The table stands at 164 written, 1 in part, 18 that
-can be, 38 missing and 1 that does not apply.
+**Now 2, the rest of the shaders module.** `shaders_basic_lighting`, `shaders_fog_rendering`,
+`shaders_normalmap_rendering`, `shaders_basic_pbr`, `shaders_shadowmap_rendering`,
+`shaders_vertex_displacement`, `shaders_depth_rendering`, `shaders_lights_bloom`,
+`shaders_game_of_life` and `shaders_rlgl_compute` are raylib's, their GLSL written again in Slang,
+so no shaders example is left that can be written and is not, and `audio_spectrum_visualizer`
+with them. `shaders_rlgl_compute` asks for a window of 768 by 768, which `build/norm/4.5.txt`
+lists, so N 4.5 leaves out 10. raylib's `rlights.h` is the
+examples' own `RLights`, as `reasings.h` is `Easings`. The lighting shader for shapes drawn in 3D
+takes each face's normal from how its position changes across the screen, since the immediate
+pass's vertices carry none, and the model shaders read the material's maps the pass binds, the
+MRA map in the metallic-roughness map's place. Three calls were brought to raylib's.
+`GenImagePerlinNoise` is stb_perlin's noise, raylib's pixel for pixel, its wider side spanning
+more of it, which `ImageTests` holds against pixels raylib's own code made. `DrawSphereWires`
+draws a diagonal across each face, and the 3D projection clips at 4000 units, raylib's
+`RL_CULL_DISTANCE_FAR`, in place of 1000. Three faults were mended. `UpdateTexture` and
+`UpdateTextureRec` on a render texture never reached its image, and an upload would have come
+before the target's clear in any case, so they are drawn into the target in their place among its
+shapes, replacing what is there, alpha and all (`OffscreenRenderTests`). The right and middle
+mouse buttons reached ImGui swapped. And `input.drag` took `100` as a mouse button, since
+`Enum.TryParse` takes a number, which ImGui stopped the program over, so the input commands and
+the console's field setter take a member by its name alone (`CliTests`). One difference is kept
+and added to the comparison: drawing inside `BeginTextureMode` is drawn as the frame ends, so
+`LoadImageFromTexture` reads a target as the last frame left it, and the game of life's draw mode
+cuts its part of the world from that image where raylib draws it into a target and reads it back.
+The lit 3D captures are stored lossy, as the capture script's rule has them. The table stands at
+175 written, 1 in part, 7 that can be and 38 missing.
+
+Shared: an input command takes an enum member by name alone, since `Enum.TryParse` takes a number,
+and ImGui orders the right mouse button before the middle one where SDL orders the middle one
+first (`InputCommands.TryName`, `SdlImGuiInput.ImGuiButton`).

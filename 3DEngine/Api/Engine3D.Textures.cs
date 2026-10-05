@@ -177,9 +177,15 @@ public static partial class Engine3D
 
     /// <summary>Replaces a texture's pixels with an image of the same size.</summary>
     /// <returns>Whether the texture is loaded and the sizes matched.</returns>
+    /// <remarks>
+    /// A render texture's pixels are written in the order of the drawing into it, as
+    /// <see cref="UpdateTextureRec"/> writes them.
+    /// </remarks>
     public static bool UpdateTexture(Texture2D texture, Image image) =>
         texture.IsValid && image.Width == texture.Width && image.Height == texture.Height &&
-        Textures.Update(texture.Id, (byte[])image.Data.Clone());
+        (Textures.IsTarget(texture.Id)
+            ? WriteIntoTarget(texture, 0, 0, image.Width, image.Height, image.Data)
+            : Textures.Update(texture.Id, (byte[])image.Data.Clone()));
 
     /// <summary>
     /// Replaces the pixels of a rectangle of a texture, the rest kept, as a minimap or a painted
@@ -188,11 +194,59 @@ public static partial class Engine3D
     /// </summary>
     /// <returns>Whether the texture is loaded and the rectangle lies inside it.</returns>
     /// <remarks>
+    /// <para>
     /// The rectangle is written into the texture on the GPU in the frame after, once the frames
     /// before have finished drawing with it, and a texture with mip levels has them made again.
+    /// </para>
+    /// <para>
+    /// A render texture's rectangle is written as the frame draws it, in the order of the drawing
+    /// into it, as raylib's is, so pixels written after a <see cref="ClearBackground"/> inside
+    /// <see cref="BeginTextureMode"/> are kept, and a shape drawn into it afterward lies over them.
+    /// </para>
     /// </remarks>
     public static bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels) =>
-        texture.IsValid && Textures.UpdateRegion(texture.Id, (byte[])pixels.Clone(), (int)rec.X, (int)rec.Y, (int)rec.Width, (int)rec.Height);
+        texture.IsValid && (Textures.IsTarget(texture.Id)
+            ? WriteIntoTarget(texture, (int)rec.X, (int)rec.Y, (int)rec.Width, (int)rec.Height, pixels)
+            : Textures.UpdateRegion(texture.Id, (byte[])pixels.Clone(), (int)rec.X, (int)rec.Y, (int)rec.Width, (int)rec.Height));
+
+    // The textures holding pixels written into render targets this frame, unloaded once it is drawn.
+    private static readonly List<int> TargetWrites = [];
+
+    // Pixels for a render target, drawn into it as a quad that replaces what is there, in the order
+    // of the drawing around it. A target is drawn as the frame ends, after the textures' uploads, so
+    // an upload into its image would come before a ClearBackground called ahead of it and be lost.
+    private static bool WriteIntoTarget(Texture2D target, int x, int y, int width, int height, byte[] pixels)
+    {
+        if (width <= 0 || height <= 0 || x < 0 || y < 0 || x + width > target.Width || y + height > target.Height
+            || pixels.Length != width * height * 4)
+            return false;
+        var written = Textures.Add((byte[])pixels.Clone(), width, height, TextureFilter.Point);
+        TargetWrites.Add(written);
+
+        var (into, transform, depthTest, blend, scissor) = (DrawList.Target, DrawList.Transform, DrawList.DepthTest, DrawList.Blend, DrawList.Scissor);
+        var (shader, parameters, uniforms, textures) = (DrawList.Shader, DrawList.Params, DrawList.Uniforms, DrawList.Textures);
+        DrawList.SetTarget(target.Id);
+        DrawList.SetTransform(Matrix4x4.CreateOrthographicOffCenter(0, target.Width, 0, target.Height, -1, 1), depthTest: false);
+        // The engine's shader, told by param 0 to keep the clear pixels it discards elsewhere
+        DrawList.SetShader(0, default(ShaderParams).With(0, Vector4.UnitX));
+        DrawList.SetBlend(DrawList.Replace);
+        DrawList.SetScissor(null);
+        DrawList.TexturedQuad(new Vector3(x, y, 0), new Vector3(x, y + height, 0), new Vector3(x + width, y + height, 0), new Vector3(x + width, y, 0),
+            Vector2.Zero, Vector2.UnitY, Vector2.One, Vector2.UnitX, Color.White, written);
+        DrawList.SetTarget(into);
+        DrawList.SetTransform(transform, depthTest);
+        DrawList.SetShader(shader, parameters, uniforms, textures);
+        DrawList.SetBlend(blend);
+        DrawList.SetScissor(scissor);
+        return true;
+    }
+
+    // Unloads the textures that carried pixels into render targets, once the frame has drawn them.
+    private static void ForgetTargetWrites()
+    {
+        foreach (var written in TargetWrites) Textures.Remove(written);
+        TargetWrites.Clear();
+    }
 
     /// <summary>
     /// Gives a texture mip levels, each half the size of the one before, down to one pixel, so it
