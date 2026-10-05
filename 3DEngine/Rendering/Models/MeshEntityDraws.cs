@@ -545,15 +545,8 @@ public sealed class MeshEntityDraws
         {
             var target = camera.Target.IsValid ? camera.Target.Texture.Id : 0;
             if (target == 0 && window) continue;
-            // The window's shape, or with no window (an offscreen run) the size the config asked
-            // for, which is what the frames are drawn at. Assuming square there stretched every
-            // mesh entity in an offscreen capture while the 2D drawing beside it was right.
-            var (width, height) = target != 0 ? (camera.Target.Texture.Width, camera.Target.Texture.Height)
-                : world.TryGetResource<AppWindow>(out var appWindow) ? (appWindow.Sdl.Width, appWindow.Sdl.Height)
-                : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
-            var aspect = height > 0 ? (float)width / height : 1f;
-            var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
-            var seen = (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation, target);
+            var (viewProjection, eye) = Through(world, ecs, entity, camera);
+            var seen = (viewProjection, eye, target);
             if (target == 0)
             {
                 window = true;
@@ -566,9 +559,35 @@ public sealed class MeshEntityDraws
                 drawList?.UseTarget(target, camera.Background);
             }
         }
-        if (!window && world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } viewProjection)
-            cameras.Insert(0, (viewProjection, flat.Eye, 0));
+        if (!window && world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } flatViewProjection)
+            cameras.Insert(0, (flatViewProjection, flat.Eye, 0));
         return cameras;
+    }
+
+    // A camera entity's view-projection and eye. The shape is its render texture's, or the
+    // window's, or with no window (an offscreen run) the size the config asked for, which is what
+    // the frames are drawn at. Assuming square there stretched every mesh entity in an offscreen
+    // capture while the 2D drawing beside it was right.
+    private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
+    {
+        var (width, height) = camera.Target.IsValid ? (camera.Target.Texture.Width, camera.Target.Texture.Height)
+            : world.TryGetResource<AppWindow>(out var appWindow) ? (appWindow.Sdl.Width, appWindow.Sdl.Height)
+            : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
+        var aspect = height > 0 ? (float)width / height : 1f;
+        var (view, projection) = CameraExtract.Matrices(ecs, entity, camera, aspect);
+        return (view * projection, TransformPropagation.WorldMatrix(ecs, entity).Translation);
+    }
+
+    /// <summary>
+    /// The camera the window is drawn through, as <see cref="Cameras"/> gives it first, the first
+    /// camera entity without a render texture or the frame's <c>BeginMode3D</c>, or null for none.
+    /// </summary>
+    internal static (Matrix4x4 ViewProjection, Vector3 Eye)? WindowCamera(World world, EcsWorld? ecs)
+    {
+        if (ecs is not null)
+            foreach (var (entity, camera) in ecs.Query<Camera>())
+                if (!camera.Target.IsValid) return Through(world, ecs, entity, camera);
+        return world.TryGetResource<Mode3DCamera>(out var flat) && flat.ViewProjection is { } viewProjection ? (viewProjection, flat.Eye) : null;
     }
 
     private int TextureFor(Handle<Texture> handle, Assets<Texture>? assets, TextureStore textures)

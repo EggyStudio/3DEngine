@@ -210,7 +210,7 @@ public struct ModelVertexOutput
 // a perspective projection the eye is the one point clip space's x, y and w all take as zero,
 // three planes whose meeting point Cramer's rule gives. An orthographic projection has no such
 // point, and gives the way toward the camera instead, with w of 0.
-float4 eyeInWorld(float4x4 transform)
+public float4 eyeInWorld(float4x4 transform)
 {
     float4 a = transform[0];
     float4 b = transform[1];

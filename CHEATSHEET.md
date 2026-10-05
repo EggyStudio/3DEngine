@@ -664,6 +664,24 @@ void UnloadReflectionProbe(ReflectionProbeHandle probe);                   // Re
 With no lights, models are lit by one fixed light from above. Lights are `Light` entities in the
 ECS, so lights made here and light entities of a program's own light the same models.
 
+## Particles
+
+```csharp
+ParticleEmitterHandle CreateParticleEmitter(Vector3 position, ParticleEmitter? emitter = null); // A stream of particles, a small white fountain unless set
+void SetParticleEmitterPosition(ParticleEmitterHandle emitter, Vector3 position); // Move where its next particles start
+void SetParticleEmitter(ParticleEmitterHandle emitter, ParticleEmitter settings); // Give it new rate, life, velocity, gravity, sizes or colors
+ParticleEmitter GetParticleEmitter(ParticleEmitterHandle emitter);       // Its settings, to change one with `with`
+void SetParticleEmitterActive(ParticleEmitterHandle emitter, bool emitting); // Start or stop its stream
+void EmitParticles(ParticleEmitterHandle emitter, int count);            // Give off that many at once, as a hit or an explosion
+void UnloadParticleEmitter(ParticleEmitterHandle emitter);               // Remove it and its particles
+```
+
+A `ParticleEmitter` holds the rate, the life, the velocity and the cone it is spread over, gravity,
+the size and color at birth and at death, how bright an unlit one is, whether lights light it and
+whether it adds its light or is laid over by alpha. Its particles are stepped by a compute shader
+and drawn after the window's meshes through its camera, and an entity with the component in the
+ECS is drawn the same way.
+
 ## Physics
 
 ```csharp

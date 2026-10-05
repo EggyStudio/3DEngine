@@ -410,6 +410,36 @@ public sealed class ReferenceFrameTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Particles_Match_Their_Reference()
+    {
+        // Two still clouds given off at once over a lit floor, through bloom: an unlit one that
+        // glows past white and adds its light, and a lit one laid over by alpha that takes the
+        // lamp's. Still, so the frame is the same however long its frames took.
+        Open(256, 160);
+        SetBloom(0.6f);
+        CreatePointLight(new Vector3(0, 2.5f, 1.5f), new Color(255, 200, 150), 4, range: 10);
+        ParticleEmitter Still(Color color) => ParticleEmitter.Default with
+        {
+            MaxParticles = 150, Emitting = false, Burst = 150, Life = 60, Velocity = Vector3.Zero, Gravity = Vector3.Zero,
+            Radius = 0.7f, StartSize = 0.25f, EndSize = 0.25f, StartColor = color, EndColor = color,
+        };
+        CreateParticleEmitter(new Vector3(-1.1f, 1, 0), Still(new Color(255, 120, 40)) with { Intensity = 3 });
+        CreateParticleEmitter(new Vector3(1.1f, 1, 0), Still(new Color(200, 200, 210, 200)) with { Lit = true, Blend = ParticleBlend.Alpha });
+        var floor = LoadModelFromMesh(GenMeshPlane(10, 10, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 2, 5), new Vector3(0, 0.8f, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(10, 12, 20));
+            BeginMode3D(camera);
+            DrawModel(floor, Vector3.Zero, 1, new Color(120, 120, 120));
+            EndMode3D();
+        }, settle: 2);
+        Matches(frame, "particles");
+        UnloadModel(floor);
+    }
+
+    [NeedsVulkanFact]
     public void A_Reflection_Probe_Matches_Its_Reference()
     {
         Open(256, 160);

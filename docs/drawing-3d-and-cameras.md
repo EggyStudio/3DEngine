@@ -147,13 +147,55 @@ Inside texture mode `ClearBackground` clears the texture, and 2D drawing is in i
 camera entity in the ECS draws the scene's mesh entities into a texture the same way when its
 `Target` is set.
 
+## Particles
+
+Smoke, sparks, dust and fire are particles: small squares facing the camera, given off by an
+emitter, moving and falling, and changing size and color over their lives. `CreateParticleEmitter`
+places one, from a `ParticleEmitter` that says how, and its particles are simulated on the GPU and
+drawn after the frame's models with no drawing call. The `shaders_particles` example's campfire is
+three emitters, and its flames glow through bloom, since an unlit particle gives off its color times
+its intensity:
+
+```csharp
+var fire = CreateParticleEmitter(new Vector3(0, 0.15f, 0), ParticleEmitter.Default with
+{
+    MaxParticles = 600,
+    Rate = 220,
+    Life = 0.9f,
+    LifeVariation = 0.4f,
+    Velocity = new Vector3(0, 1.6f, 0),
+    Spread = 18,
+    Radius = 0.35f,
+    Gravity = new Vector3(0, 0.8f, 0),
+    StartSize = 0.45f,
+    EndSize = 0.1f,
+    StartColor = new Color(255, 190, 80),
+    EndColor = new Color(200, 40, 10, 0),
+    Intensity = 3,
+});
+```
+
+Its smoke is `Lit`, so the fire's lamp and the moon light it as a rough surface facing the camera,
+and laid over by alpha (`ParticleBlend.Alpha`) where the flames add their light. Its sparks do not
+stream and are thrown out a hundred and twenty at a time:
+
+```csharp
+if (IsKeyPressed(Key.Space)) EmitParticles(sparks, 120);
+```
+
+An emitter keeps room for `MaxParticles`, and once that many are alive the oldest are replaced.
+Particles laid over by alpha are not sorted from back to front, so where two emitters overlap the
+one drawn later is in front. In the ECS an emitter is a `ParticleEmitter` component placed by its
+entity's `Transform`, which a scene file saves.
+
 ## See also
 
 - Examples: [`shapes_basic_3d`](../3DEngine.Examples/Shapes/ShapesBasic3D.cs),
   [`core_3d_camera_free`](../3DEngine.Examples/Core/Core3DCameraFree.cs),
   [`core_3d_camera_first_person`](../3DEngine.Examples/Core/Core3DCameraFirstPerson.cs),
-  [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs)
-- The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras) and
-  [3D shapes](../CHEATSHEET.md#3d-shapes)
+  [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs),
+  [`shaders_particles`](../3DEngine.Examples/Shaders/ShadersParticles.cs)
+- The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
+  [3D shapes](../CHEATSHEET.md#3d-shapes) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)
 - Next: [Textures and images](textures-and-images.md)

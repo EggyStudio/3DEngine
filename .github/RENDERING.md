@@ -234,6 +234,25 @@ were last posed. A clip played on part of the skeleton (`UpdateModelAnimationLay
 bone's pose relative to its parent from the second clip from a bone down, and composes it onto
 where the first clip puts that bone's parent.
 
+Particles take the skins' path too. `ParticleExtract` copies each `ParticleEmitter`, placed by its
+entity's world matrix, with the window's camera (`MeshEntityDraws.WindowCamera`) and the frame's
+seconds, held to a tenth of a second. `ParticleRenderer` keeps a storage buffer for each emitter, a
+header of four float4 values and then two a particle (position and age, velocity and life), and the
+`particles` node, after `skinning`, records a dispatch of `particle_step.slang` for each, a thread a
+particle, with everything the step and the draw need in its 128 bytes of push constants. The frame's
+births are its share of the rate, the fraction owed carried to the next frame, and its burst, in a
+run of slots after the last frame's, so the oldest are replaced, each started within the emitter's
+radius with its velocity turned within the cone and its speed and life varied by a hash of its slot
+and a seed of the frame and the emitter. The first thread writes the colors, sizes and brightness
+into the header, which the draw reads, so nothing of an emitter is written from the CPU while a
+frame in flight reads it. The draw (`particles.slang`) imports the model pass, binds its material
+set of white maps and the window's lights set as sets 0 and 1 and the particles as set 2, and draws
+six vertices an instance, a square facing the camera's eye that `eyeInWorld` finds from the
+view-projection, after the window's meshes into the window or the HDR frame, depth tested and not
+written, added or laid over by alpha. A lit particle goes through `lit` as a rough surface facing the
+camera and an unlit one through `toDisplay`, so both follow the HDR frame's output flag. Alpha
+particles are not sorted, and particles are not drawn into render textures or probe captures.
+
 ## 4. Lights and shadows
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up

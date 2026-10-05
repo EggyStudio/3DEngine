@@ -88,7 +88,7 @@ wait
 if [ "$shot" != "$out" ]; then
   case "$example" in
     ecs_animated_models|ecs_mesh_entities|ecs_physics|models_*|physics_boxes|scenes_level|\
-    shaders_auto_exposure|shaders_bloom|shaders_compute_texture|shaders_mesh_instancing|shaders_model|\
+    shaders_auto_exposure|shaders_bloom|shaders_particles|shaders_compute_texture|shaders_mesh_instancing|shaders_model|\
     shaders_postprocessing|shaders_shadowmap) kind=lossy ;;
     *) kind=lossless ;;
   esac

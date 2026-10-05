@@ -1196,6 +1196,14 @@ public sealed class ModelRenderer : IDisposable
 
     private IDescriptorSetLayout MaterialLayout(IGraphicsDevice gfx) => _materialLayout ??= gfx.CreateDescriptorSetLayout(_materialBindings);
 
+    // What the particle pass borrows of this one, whose lighting it shares: the two layouts, a
+    // material of white maps, and the window's lights.
+    internal IDescriptorSetLayout MaterialSetLayout(IGraphicsDevice gfx) => MaterialLayout(gfx);
+    internal IDescriptorSetLayout LightsSetLayout(IGraphicsDevice gfx) => LightsLayout(gfx);
+    internal IDescriptorSet PlainMaterial(IGraphicsDevice gfx, GpuTextures textures) =>
+        MaterialSet(gfx, textures, new ModelDraw(0, Matrix4x4.Identity, Matrix4x4.Identity, Color.White, 0));
+    internal IDescriptorSet WindowLights(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures) => LightsSet(gfx, renderWorld, textures, 0);
+
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(_lightsBindings);
 
     // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
@@ -1376,5 +1384,6 @@ public sealed class ModelNode : INode
         // With bloom on, the window's models were drawn into the HDR frame.
         if (renderWorld.TryGet<BloomFrame>() is not null) return;
         renderWorld.TryGet<ModelRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0);
+        renderWorld.TryGet<ParticleRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld);
     }
 }

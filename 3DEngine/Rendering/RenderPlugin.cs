@@ -70,6 +70,7 @@ public sealed class RenderPlugin : IPlugin
         renderer.AddExtractSystem(new ClearColorExtract());
         renderer.AddExtractSystem(new DrawListExtract());
         renderer.AddExtractSystem(new CameraExtract());
+        renderer.AddExtractSystem(new ParticleExtract());
         renderer.AddPrepareSystem(new GpuTexturesPrepare());
         renderer.AddPrepareSystem(new GpuMeshesPrepare());
         app.World.InsertResource(renderer);

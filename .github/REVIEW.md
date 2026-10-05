@@ -74,3 +74,11 @@ side, which a `ulong` hashes to the same value for thousands of pairs, so tracki
 threads, each through a pool of its own, and written back in order, 12 ms down to 2.1 at 2000, with
 a test that the crowd moves the same every run. Swarm's physics is 2.0 ms a frame where it was 2.6
 to 3.2, and what is left is Bepu's step on its one worker, which TODO.md (Cost) records.
+
+**Now 5, particles.** A `ParticleEmitter` component and seven flat functions (CHEATSHEET.md,
+Particles), stepped by `particle_step.slang` in a node beside skinning and drawn by `particles.slang`
+through the model pass's lighting, lit or giving off their own light, added or laid over by alpha,
+into the window or the HDR frame. `shaders_particles` is a campfire of three emitters,
+`ParticleTests` reads a burst, a stream, a lit cloud and an ECS emitter from pixels, and
+`ReferenceFrameTests` compares still clouds through bloom with a reference. What is left is in
+TODO.md (Particles are drawn into the window alone).

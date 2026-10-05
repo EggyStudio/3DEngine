@@ -104,6 +104,13 @@ physics, text and fonts, audio, audio streams and waves, and files
   brightness or how much of the picture it lights, and each render target that draws meshes draws
   the map again for its own camera, with the point and spot lights chosen for the window's.
 
+- **Particles are drawn into the window alone.** A `ParticleEmitter` gives off particles a compute
+  shader steps, drawn as squares facing the window's camera after its meshes, lit or giving off
+  their own light, with a rate, a burst, a life, a velocity in a cone, gravity, and a size and color
+  that change over each life (RENDERING.md §3). They are not drawn into render textures or a probe's
+  capture, those laid over by alpha are not sorted from back to front, a particle is a round soft
+  dot with no texture of the program's own, and none collides with the world or slows by drag.
+
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
   vignette and FXAA.** Any of them draws the window's scene into a half-float target and brings it
   into the window in one pass (RENDERING.md §5). With all of them off the tonemap still runs at the

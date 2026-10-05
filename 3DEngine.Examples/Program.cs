@@ -34,6 +34,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_compute_texture"] = ShadersComputeTexture.Run,
     ["shaders_bloom"] = ShadersBloom.Run,
     ["shaders_auto_exposure"] = ShadersAutoExposure.Run,
+    ["shaders_particles"] = ShadersParticles.Run,
     ["shaders_shadowmap"] = ShadersShadowmap.Run,
     ["shaders_mesh_instancing"] = ShadersMeshInstancing.Run,
     ["core_input_gestures"] = CoreInputGestures.Run,

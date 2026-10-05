@@ -123,6 +123,7 @@ those are.
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_bloom.webp" width="400"/><br>`shaders_bloom` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/summit.webp" width="400"/><br>`games/Summit` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_morph_and_layers.webp" width="400"/><br>`models_morph_and_layers` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_compute_texture.webp" width="400"/><br>`shaders_compute_texture` |
 | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.webp" width="400"/><br>`shaders_auto_exposure` | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/swarm.webp" width="400"/><br>`games/Swarm` |
+| <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="400"/><br>`shaders_particles` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates

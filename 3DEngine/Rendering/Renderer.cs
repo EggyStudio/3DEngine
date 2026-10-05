@@ -63,7 +63,11 @@ public sealed class Renderer : IDisposable
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
         var shadow = server.LoadSync<ShaderProgram>("shaders/shadow.slang");
         if (Context.Graphics is GraphicsDevice device)
+        {
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
+            device.InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
+        }
+        RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment, server.LoadSync<ShaderProgram>("shaders/immediate_linear.slang").Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
@@ -77,8 +81,11 @@ public sealed class Renderer : IDisposable
         // shadow map for its own camera before its pass, then the window's shadow, so the window's
         // passes can sample the targets and the map as the window's camera needs it.
         Graph.AddNode("skinning", new SkinningNode());
+        // Particles are stepped beside the skins, before every pass that might draw them.
+        Graph.AddNode("particles", new ParticleNode());
+        Graph.AddNodeEdge("skinning", "particles");
         Graph.AddNode("targets", new TargetsNode());
-        Graph.AddNodeEdge("skinning", "targets");
+        Graph.AddNodeEdge("particles", "targets");
         Graph.AddNode("shadows", new ShadowNode());
         Graph.AddNodeEdge("targets", "shadows");
         Graph.AddNode("probes", new ProbeNode());
@@ -289,6 +296,7 @@ public sealed class Renderer : IDisposable
 
         Graph.Dispose();
         RenderWorld.TryGet<ImmediateRenderer>()?.Dispose();
+        RenderWorld.TryGet<ParticleRenderer>()?.Dispose();
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");

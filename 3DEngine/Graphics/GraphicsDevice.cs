@@ -182,6 +182,7 @@ public sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySwapchainResources();
         DestroyCompute();
         DestroySkinning();
+        DestroyParticles();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
         DestroyMemoryBlocks();
