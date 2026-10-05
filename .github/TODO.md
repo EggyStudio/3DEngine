@@ -179,8 +179,8 @@ when the contact started. A resting pair whose bodies sleep stays touching.
 The flat API creates boxes, spheres, capsules, static and kinematic boxes, triggers, which report
 what enters them as contacts and stop nothing, level geometry shaped as a model's triangles, and
 bodies shaped as a model's convex hull, read and drawn at the model's origin. It puts bodies on 32
-layers whose pairs collide or not, joins bodies with ball, hinge, weld and distance joints, a hinge
-limited between two angles or driven by a motor, reads their blended poses, turns and how fast a
+layers whose pairs collide or not, joins bodies with ball, hinge, weld, distance and slider joints,
+a hinge or a slider limited between two angles or distances or driven by a motor, reads their blended poses, turns and how fast a
 point of them moves, pushes them at their center or at a point, casts rays and balls along them,
 which go through triggers and may look past one body and the layers it does not collide with,
 finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where
@@ -198,9 +198,6 @@ set), holds slopes up to its limit, rides what moves under it, crouches and stan
 room, and reports ground. A vehicle is a box held up by raycast wheels as springs, gripping,
 driving, braking and steering on the fixed step. What is missing, in the order a game meets it:
 
-- **Only a hinge has a motor, and nothing slides.** A sliding door, a lift or a piston needs a joint
-  along an axis with limits and a motor, which Bepu's point-on-line and linear axis constraints
-  make, and a scene's `Joint` a kind for it.
 - **A contact carries how fast its pair closed, and not how hard they pushed.** The speed is read
   as they approach, which says how hard a crate landed but not how hard a stack presses, so a
   sound or damage scaled by a push needs the impulse the solver gave the pair.

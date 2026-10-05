@@ -763,6 +763,7 @@ static class Engine.Engine3D
   static PhysicsJoint CreatePhysicsBallJoint(PhysicsBody a, PhysicsBody b, Vector3 point)
   static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum)
   static PhysicsJoint CreatePhysicsHingeJoint(PhysicsBody a, PhysicsBody b, Vector3 point, Vector3 axis)
+  static PhysicsJoint CreatePhysicsSliderJoint(PhysicsBody a, PhysicsBody b, Vector3 axis)
   static PhysicsJoint CreatePhysicsWeldJoint(PhysicsBody a, PhysicsBody b)
   static PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance)
   static PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore)
@@ -920,6 +921,7 @@ static class Engine.Engine3D
   static float GetMouseWheelMove()
   static float GetMusicTimeLength(Music music)
   static float GetMusicTimePlayed(Music music)
+  static float GetPhysicsSliderPosition(PhysicsJoint slider)
   static float[] LoadWaveSamples(Wave wave)
   static int ColorToInt(Color color)
   static int GetCharPressed()
@@ -1225,6 +1227,8 @@ static class Engine.Engine3D
   static void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque)
   static void SetPhysicsLayersCollide(int a, int b, bool collide)
   static void SetPhysicsPaused(bool paused)
+  static void SetPhysicsSliderLimits(PhysicsJoint slider, float minimum, float maximum)
+  static void SetPhysicsSliderMotor(PhysicsJoint slider, float speed, float maximumForce)
   static void SetPhysicsVehicle(PhysicsBody vehicle, Vehicle settings)
   static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false)
   static void SetProfileValue(string name, double value)
@@ -1544,6 +1548,7 @@ enum Engine.JointKind : int
   Ball = 0
   Distance = 3
   Hinge = 1
+  Slider = 4
   Weld = 2
 enum Engine.Key : int
   A = 4

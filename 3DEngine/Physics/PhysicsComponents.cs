@@ -112,6 +112,8 @@ public enum JointKind
     Weld,
     /// <summary>Kept between two distances, as a rope or a rod.</summary>
     Distance,
+    /// <summary>Sliding along the joint's up and not turning, as a drawer or a lift.</summary>
+    Slider,
 }
 
 /// <summary>
@@ -147,13 +149,16 @@ public struct Joint
     /// <summary>A hinge's limits, in degrees from where it is made, none where both are 0.</summary>
     public float MinAngle, MaxAngle;
 
-    /// <summary>A hinge's motor, in degrees a second, with no more than <see cref="MotorTorque"/>, none where the torque is 0.</summary>
+    /// <summary>
+    /// A hinge's motor, in degrees a second, with no more than <see cref="MotorTorque"/>, or a
+    /// slider's, in units a second with no more than that force, none where it is 0.
+    /// </summary>
     public float MotorSpeed, MotorTorque;
 
     /// <summary>A ball joint's cone, how far it swings and twists in degrees, none where both are 0.</summary>
     public float Swing, Twist;
 
-    /// <summary>A distance joint's range.</summary>
+    /// <summary>A distance joint's range, and a slider's limits along its up from where it is made, none where both are 0.</summary>
     public float MinDistance, MaxDistance;
 }
 
@@ -279,12 +284,17 @@ internal static class PhysicsBodies
                     JointKind.Hinge => physics.CreateHingeJoint(a, b, point, up),
                     JointKind.Weld => physics.CreateWeldJoint(a, b),
                     JointKind.Distance => Distance(physics, a, b, point, joint),
+                    JointKind.Slider => physics.CreateSliderJoint(a, b, up),
                     _ => physics.CreateBallJoint(a, b, point),
                 };
                 if (joint.Kind == JointKind.Hinge && (joint.MinAngle != 0 || joint.MaxAngle != 0))
                     physics.SetHingeLimit(made1, float.DegreesToRadians(joint.MinAngle), float.DegreesToRadians(joint.MaxAngle));
                 if (joint.Kind == JointKind.Hinge && joint.MotorTorque > 0)
                     physics.SetHingeMotor(made1, float.DegreesToRadians(joint.MotorSpeed), joint.MotorTorque);
+                if (joint.Kind == JointKind.Slider && (joint.MinDistance != 0 || joint.MaxDistance != 0))
+                    physics.SetSliderLimit(made1, joint.MinDistance, joint.MaxDistance);
+                if (joint.Kind == JointKind.Slider && joint.MotorTorque > 0)
+                    physics.SetSliderMotor(made1, joint.MotorSpeed, joint.MotorTorque);
                 if (joint.Kind == JointKind.Ball && (joint.Swing > 0 || joint.Twist > 0))
                     physics.SetBallJointLimit(made1, up, float.DegreesToRadians(joint.Swing > 0 ? joint.Swing : 180),
                         float.DegreesToRadians(joint.Twist > 0 ? joint.Twist : 180));

@@ -113,3 +113,13 @@ spring, the stiffest a sixtieth's step solves, stops it over a step rather than 
 documents say, pointing a bullet at a ball cast. It stays a choice per body rather than every
 body's, since it costs a sweep test a pair, and the games' bodies keep what they were tuned with.
 A test finds a ball at 40 crossing a thin wall plain and stopping swept.
+
+**A slider.** `CreatePhysicsSliderJoint`, `SetPhysicsSliderLimits`, `SetPhysicsSliderMotor` and
+`GetPhysicsSliderPosition`, and a scene `Joint` of kind `Slider` along the joint entity's up with
+its limits and motor in the existing fields: Bepu's point-on-line servo keeps the second body on a
+line through where it started, an angular servo keeps it from turning, and a linear axis limit and
+motor are added and replaced as the hinge's are. A test drives a lift's car to its upper limit,
+pushed and twisted on the way and staying on its line unturned, then back to its lower limit, and a
+scene file's slider turned to run along X reaches its limit there. With it the entry on motors
+goes, since a hinge and a slider are the joints a game drives. `PublicApi.txt` gains four
+functions and an enum member.

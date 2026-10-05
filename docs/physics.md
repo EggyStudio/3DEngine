@@ -240,6 +240,25 @@ CreatePhysicsDistanceJoint(beam, bridge, new Vector3(2.5f, 9, -27), new Vector3(
 CreatePhysicsDistanceJoint(beam, bridge, new Vector3(7.5f, 9, -27), new Vector3(7.5f, 3, -27), 5.9f, 6);
 ```
 
+`CreatePhysicsSliderJoint` lets the second body slide along an axis against the first and neither
+turn, as a drawer, a sliding door or a lift. `SetPhysicsSliderLimits` stops it at its ends, in
+units along the axis from where it was made, `SetPhysicsSliderMotor` drives it toward the axis's
+tip at a speed for a positive one, with no more than a force, and `GetPhysicsSliderPosition` says
+how far along it is. A lift that carries what stands on it is a car slid up a frame that stays
+still:
+
+```csharp
+var frame = CreatePhysicsKinematicBox(shaftBottom, new Vector3(2, 0.2f, 2));
+var car = CreatePhysicsBox(shaftBottom + Vector3.UnitY, new Vector3(2, 0.2f, 2), mass: 200);
+var lift = CreatePhysicsSliderJoint(frame, car, Vector3.UnitY);
+SetPhysicsSliderLimits(lift, 0, 8);
+SetPhysicsSliderMotor(lift, goingUp ? 2 : -2, 20000);
+```
+
+In a scene file a `Joint` of kind `Slider` slides along the joint entity's up, with
+`MinDistance` and `MaxDistance` as its limits and `MotorSpeed` and `MotorTorque` as its motor's
+speed and force.
+
 ## A vehicle
 
 `CreatePhysicsVehicle` makes a car: a box held up by four wheels, each a ray cast down from the

@@ -343,6 +343,30 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Slider_Is_Driven_Along_Its_Axis_To_Its_Limits_And_Keeps_Its_Line_And_Its_Turn()
+    {
+        // A lift's car on a frame that does not move, sliding up its axis and nothing else.
+        var frame = CreatePhysicsKinematicBox(Vector3.Zero, new Vector3(2, 0.2f, 2));
+        var car = CreatePhysicsBox(new Vector3(0, 1, 0), Vector3.One, mass: 10);
+        var lift = CreatePhysicsSliderJoint(frame, car, Vector3.UnitY);
+        SetPhysicsSliderLimits(lift, 0, 3);
+        SetPhysicsSliderMotor(lift, 2, 2000);
+        ApplyPhysicsImpulseAt(car, new Vector3(30, 0, 10), new Vector3(0.5f, 1.5f, 0.5f));
+
+        RunUntil(() => GetPhysicsSliderPosition(lift) > 2.95f).Should().BeTrue("a positive speed drives it toward the axis's tip, up to its upper limit");
+        var held = Stopwatch.StartNew();
+        RunUntil(() => held.Elapsed.TotalSeconds > 0.5);
+        GetPhysicsSliderPosition(lift).Should().BeApproximately(3, 0.05f, "the limit holds it against the motor");
+        var at = GetPhysicsBodyPosition(car);
+        new Vector2(at.X, at.Z).Length().Should().BeLessThan(0.02f, "pushed sideways it stays on its line");
+        Quaternion.Dot(GetPhysicsBodyRotation(car), Quaternion.Identity).Should().BeGreaterThan(0.999f, "and twisted it does not turn");
+
+        SetPhysicsSliderMotor(lift, -2, 2000);
+        RunUntil(() => GetPhysicsSliderPosition(lift) < 0.05f).Should().BeTrue("driven back down to its lower limit");
+        GetPhysicsBodyPosition(car).Y.Should().BeGreaterThan(0.9f, "and no lower, where it started");
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);

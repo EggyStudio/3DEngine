@@ -184,6 +184,38 @@ public class PhysicsBodiesTests
     }
 
     [Fact]
+    public void A_Scene_Files_Slider_Runs_Along_The_Joint_Entitys_Up_Between_Its_Limits_By_Its_Motor()
+    {
+        var authoring = new EcsWorld();
+        var frame = authoring.Spawn();
+        authoring.Add(frame, new Transform(Vector3.Zero));
+        authoring.Add(frame, Collider.Box(new Vector3(2, 0.2f, 2)));
+        authoring.Add(frame, RigidBody.Kinematic);
+        var car = authoring.Spawn();
+        authoring.Add(car, new Transform(new Vector3(0, 1, 0)));
+        authoring.Add(car, Collider.Box(Vector3.One));
+        authoring.Add(car, RigidBody.Dynamic());
+        var slider = authoring.Spawn();
+        // Turned so its up is along X, the way the car slides.
+        authoring.Add(slider, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, -MathF.PI / 2), Vector3.One));
+        authoring.Add(slider, new Joint { Kind = JointKind.Slider, A = authoring.Handle(frame), B = authoring.Handle(car), MinDistance = 0, MaxDistance = 2, MotorSpeed = 3, MotorTorque = 500 });
+        var json = SceneFile.Write(authoring);
+
+        var world = new World();
+        world.InsertResource(new EcsWorld());
+        using var physics = new PhysicsWorld(new PhysicsSettings { UseFixedTimestep = true, FixedTimeStep = 1f / 60, Gravity = Vector3.Zero });
+        world.InsertResource(physics);
+        var spawned = SceneFile.Read(world, json);
+        PhysicsBodies.Run(world);
+        var ecs = world.Resource<EcsWorld>();
+
+        var made = ecs.GetReadOnly<PhysicsJoint>(spawned[2]);
+        for (int i = 0; i < 120; i++) physics.StepOnce(1f / 60);
+        physics.GetSliderPosition(made).Should().BeApproximately(2, 0.05f, "its motor drives it to the limit along the joint's up");
+        physics.GetPosition(ecs.GetReadOnly<PhysicsBody>(spawned[1])).X.Should().BeApproximately(2, 0.05f, "which the joint's turn pointed along X");
+    }
+
+    [Fact]
     public void A_Scene_Files_Hinge_Hangs_Its_Door_Where_The_Joint_Entity_Stands_And_Keeps_Its_Limits()
     {
         var authoring = new EcsWorld();

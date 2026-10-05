@@ -222,6 +222,125 @@ public sealed partial class PhysicsWorld
         return Quaternion.Normalize(new Quaternion(Vector3.Cross(from, to), 1 + dot));
     }
 
+    // A slider's constraints past the one that keeps it on its line: what keeps the bodies from
+    // turning against each other, and its limits and motor, each replaced as it is set again.
+    private sealed class SliderParts
+    {
+        public required BodyHandle A;
+        public required BodyHandle B;
+        public required Vector3 LocalOffsetA;
+        public required Vector3 LocalAxisA;
+        public ConstraintHandle? Lock;
+        public ConstraintHandle? Limit;
+        public ConstraintHandle? Motor;
+    }
+
+    private readonly Dictionary<int, SliderParts> _sliders = [];
+
+    /// <summary>
+    /// Joins two bodies so the second slides along <paramref name="axis"/> against the first and
+    /// neither turns against the other, starting as they are placed, as a drawer, a sliding door or
+    /// a lift on its frame.
+    /// </summary>
+    /// <exception cref="ArgumentException">A body is static.</exception>
+    internal PhysicsJoint CreateSliderJoint(PhysicsBody a, PhysicsBody b, Vector3 axis)
+    {
+        var (ra, rb) = Bodies(a, b);
+        axis = Vector3.Normalize(axis);
+        var localAxisA = LocalDirection(ra, axis);
+        // The second body's middle, as a point fixed to the first, which it is kept on a line through.
+        var localOffsetA = Local(ra, rb.Pose.Position);
+        var joint = Add(ra, rb, new PointOnLineServo
+        {
+            LocalOffsetA = localOffsetA,
+            LocalOffsetB = Vector3.Zero,
+            LocalDirection = localAxisA,
+            ServoSettings = ServoSettings.Default,
+            SpringSettings = JointSpring,
+        });
+        _sliders[joint.Handle] = new SliderParts
+        {
+            A = ra.Handle,
+            B = rb.Handle,
+            LocalOffsetA = localOffsetA,
+            LocalAxisA = localAxisA,
+            Lock = Simulation.Solver.Add(ra.Handle, rb.Handle, new AngularServo
+            {
+                TargetRelativeRotationLocalA = Quaternion.Normalize(Quaternion.Conjugate(ra.Pose.Orientation) * rb.Pose.Orientation),
+                ServoSettings = ServoSettings.Default,
+                SpringSettings = JointSpring,
+            }),
+        };
+        return joint;
+    }
+
+    /// <summary>
+    /// Keeps a slider between <paramref name="minimum"/> and <paramref name="maximum"/> units along
+    /// its axis from where it was made, replacing limits set before, as a drawer that stops out and in.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a slider, or the distances are out of order.</exception>
+    internal void SetSliderLimit(PhysicsJoint slider, float minimum, float maximum)
+    {
+        var parts = SliderOf(slider);
+        if (maximum < minimum) throw new ArgumentException("A slider's minimum is at most its maximum.");
+        Remove(ref parts.Limit);
+        parts.Limit = Simulation.Solver.Add(parts.A, parts.B, new LinearAxisLimit
+        {
+            LocalOffsetA = parts.LocalOffsetA,
+            LocalOffsetB = Vector3.Zero,
+            LocalAxis = parts.LocalAxisA,
+            MinimumOffset = minimum,
+            MaximumOffset = maximum,
+            SpringSettings = JointSpring,
+        });
+        WakeSlider(parts);
+    }
+
+    /// <summary>
+    /// Drives a slider at <paramref name="speed"/> units a second along its axis, the second body
+    /// toward the axis's tip for a positive speed, with no more than <paramref name="maximumForce"/>,
+    /// replacing a motor set before, as a lift's winch. A speed of 0 holds it against what pushes it,
+    /// up to that force.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a slider.</exception>
+    internal void SetSliderMotor(PhysicsJoint slider, float speed, float maximumForce)
+    {
+        var parts = SliderOf(slider);
+        Remove(ref parts.Motor);
+        parts.Motor = Simulation.Solver.Add(parts.A, parts.B, new LinearAxisMotor
+        {
+            LocalOffsetA = parts.LocalOffsetA,
+            LocalOffsetB = Vector3.Zero,
+            LocalAxis = parts.LocalAxisA,
+            TargetVelocity = speed,
+            Settings = new MotorSettings(Math.Max(0, maximumForce), 1e-4f),
+        });
+        WakeSlider(parts);
+    }
+
+    /// <summary>How far the second body of a slider is along its axis from where it was made.</summary>
+    /// <exception cref="ArgumentException">The joint is not a slider.</exception>
+    internal float GetSliderPosition(PhysicsJoint slider)
+    {
+        var parts = SliderOf(slider);
+        var a = Simulation.Bodies[parts.A].Pose;
+        var b = Simulation.Bodies[parts.B].Pose;
+        var anchor = a.Position + Vector3.Transform(parts.LocalOffsetA, a.Orientation);
+        return Vector3.Dot(b.Position - anchor, Vector3.Transform(parts.LocalAxisA, a.Orientation));
+    }
+
+    private void WakeSlider(SliderParts parts)
+    {
+        var (a, b) = (Simulation.Bodies[parts.A], Simulation.Bodies[parts.B]);
+        a.Awake = true;
+        b.Awake = true;
+    }
+
+    private SliderParts SliderOf(PhysicsJoint slider) =>
+        IsJointOf(slider, PointOnLineServo.ConstraintTypeId) && _sliders.TryGetValue(slider.Handle, out var parts)
+            ? parts
+            : throw new ArgumentException("The joint is not a slider that exists.", nameof(slider));
+
     /// <summary>Joins two bodies rigidly, as they are placed when it is made, so they move as one.</summary>
     /// <exception cref="ArgumentException">A body is static.</exception>
     internal PhysicsJoint CreateWeldJoint(PhysicsBody a, PhysicsBody b)
@@ -267,7 +386,7 @@ public sealed partial class PhysicsWorld
         Simulation.Awakener.AwakenConstraint(handle);
     }
 
-    /// <summary>Removes a joint, with a hinge's limit and motor and a ball joint's limits. One already gone with a destroyed body is passed over.</summary>
+    /// <summary>Removes a joint, with a hinge's limit and motor, a ball joint's limits and a slider's lock, limits and motor. One already gone with a destroyed body is passed over.</summary>
     internal void DestroyJoint(PhysicsJoint joint)
     {
         if (_hinges.Remove(joint.Handle, out var parts))
@@ -279,6 +398,12 @@ public sealed partial class PhysicsWorld
         {
             Remove(ref ball.Swing);
             Remove(ref ball.Twist);
+        }
+        if (_sliders.Remove(joint.Handle, out var slider))
+        {
+            Remove(ref slider.Lock);
+            Remove(ref slider.Limit);
+            Remove(ref slider.Motor);
         }
         _joined.Remove(joint.Handle);
         if (joint.IsValid && Simulation.Solver.ConstraintExists(new ConstraintHandle(joint.Handle)))
@@ -299,6 +424,7 @@ public sealed partial class PhysicsWorld
         // forgotten here, before the new joint's are kept.
         _hinges.Remove(handle);
         _balls.Remove(handle);
+        _sliders.Remove(handle);
         _joined.Remove(handle);
         _joined.Add(handle, a.Handle.Value, b.Handle.Value);
         return new PhysicsJoint(handle);

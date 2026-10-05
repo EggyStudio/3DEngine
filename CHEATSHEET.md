@@ -712,6 +712,10 @@ void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maxim
 void SetPhysicsHingeMotor(PhysicsJoint hinge, float degreesPerSecond, float maximumTorque); // Drive a hinge at a speed
 void SetPhysicsBallJointLimits(PhysicsJoint ball, Vector3 axis, float swingDegrees, float twistDegrees); // Keep a ball joint in a cone
 void SetPhysicsDistanceJointRange(PhysicsJoint joint, float minimum, float maximum); // Lengthen or shorten a rope
+PhysicsJoint CreatePhysicsSliderJoint(PhysicsBody a, PhysicsBody b, Vector3 axis); // Sliding along an axis, not turning, as a drawer or a lift
+void SetPhysicsSliderLimits(PhysicsJoint slider, float minimum, float maximum);  // Keep a slider between two distances along its axis
+void SetPhysicsSliderMotor(PhysicsJoint slider, float speed, float maximumForce); // Drive a slider at a speed
+float GetPhysicsSliderPosition(PhysicsJoint slider);                            // How far along its axis it is
 void DestroyPhysicsJoint(PhysicsJoint joint);                                   // Remove a joint
 void SetPhysicsCharacterStepHeight(PhysicsBody body, float height);             // The highest step a character climbs (its radius)
 bool SetPhysicsCharacterHeight(PhysicsBody body, float height);                 // Crouch or stand, false when a ceiling is in the way

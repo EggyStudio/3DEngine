@@ -123,6 +123,33 @@ public static partial class Engine3D
     public static PhysicsJoint CreatePhysicsDistanceJoint(PhysicsBody a, PhysicsBody b, Vector3 pointA, Vector3 pointB, float minimum, float maximum) =>
         Physics.CreateDistanceJoint(a, b, pointA, pointB, minimum, maximum);
 
+    /// <summary>
+    /// Joins two bodies so the second slides along <paramref name="axis"/> against the first and
+    /// neither turns, as a drawer, a sliding door or a lift on its frame, starting as they are placed.
+    /// </summary>
+    /// <remarks>
+    /// The first is often a kinematic body the frame is, which the program moves or leaves still,
+    /// since a joint holds bodies that move. <see cref="SetPhysicsSliderLimits"/> stops it at its
+    /// ends, and <see cref="SetPhysicsSliderMotor"/> drives it.
+    /// </remarks>
+    /// <exception cref="ArgumentException">A body is static.</exception>
+    public static PhysicsJoint CreatePhysicsSliderJoint(PhysicsBody a, PhysicsBody b, Vector3 axis) => Physics.CreateSliderJoint(a, b, axis);
+
+    /// <summary>Keeps a slider between two distances along its axis from where it was made, as a drawer that stops out and in.</summary>
+    /// <exception cref="ArgumentException">The joint is not a slider, or the distances are out of order.</exception>
+    public static void SetPhysicsSliderLimits(PhysicsJoint slider, float minimum, float maximum) => Physics.SetSliderLimit(slider, minimum, maximum);
+
+    /// <summary>
+    /// Drives a slider at a speed in units a second, toward its axis's tip for a positive one, with
+    /// no more than a force, as a lift's winch. A speed of 0 holds it where it is, up to that force.
+    /// </summary>
+    /// <exception cref="ArgumentException">The joint is not a slider.</exception>
+    public static void SetPhysicsSliderMotor(PhysicsJoint slider, float speed, float maximumForce) => Physics.SetSliderMotor(slider, speed, maximumForce);
+
+    /// <summary>How far a slider's second body is along its axis from where it was made, as how high a lift has risen.</summary>
+    /// <exception cref="ArgumentException">The joint is not a slider.</exception>
+    public static float GetPhysicsSliderPosition(PhysicsJoint slider) => Physics.GetSliderPosition(slider);
+
     /// <summary>Keeps a hinge turned between two angles in degrees from where it was made, as a door that opens one way.</summary>
     /// <exception cref="ArgumentException">The joint is not a hinge, or the angles are out of order.</exception>
     public static void SetPhysicsHingeLimits(PhysicsJoint hinge, float minimumDegrees, float maximumDegrees) =>
