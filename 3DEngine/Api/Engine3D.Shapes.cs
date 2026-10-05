@@ -320,9 +320,8 @@ public static partial class Engine3D
         DrawRing(center, MathF.Max(0, radius - thick), radius, 0, 360, 0, color);
 
     /// <summary>Draws a filled circle blending from <paramref name="inner"/> at its middle to <paramref name="outer"/> at its edge.</summary>
-    public static void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer)
+    public static void DrawCircleGradient(Vector2 center, float radius, Color inner, Color outer)
     {
-        var center = new Vector2(centerX, centerY);
         var segments = CircleSegments(radius);
         var c = new Vector3(center, 0);
         for (int i = 0; i < segments; i++)

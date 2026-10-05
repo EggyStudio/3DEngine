@@ -6,22 +6,27 @@ program draws its whole picture every frame between `BeginDrawing` and `EndDrawi
 
 ## Shapes
 
-Shapes take their position in pixels and a `Color`. The `shapes_basic_2d` example draws the common
-ones:
+Shapes take their position in pixels and a `Color`. The `shapes_basic_shapes` example, raylib's,
+draws the common ones, and turns its hexagon a little each frame:
 
 ```csharp
-DrawText("some basic shapes available", 20, 20, 20, Color.DarkGray);
+DrawText("some basic shapes available on raylib", 20, 20, 20, Color.DarkGray);
 
-DrawCircle(GetScreenWidth() / 5, 120, 35, Color.DarkBlue);
-DrawCircleLines(GetScreenWidth() / 5, 220, 80, Color.DarkBlue);
+DrawCircle(screenWidth/5, 120, 35, Color.DarkBlue);
+DrawCircleGradient(new Vector2(screenWidth/5.0f, 220.0f), 60, Color.Green, Color.SkyBlue);
+DrawCircleLines(screenWidth/5, 340, 80, Color.DarkBlue);
 
-DrawRectangle(GetScreenWidth() / 4 * 2 - 60, 100, 120, 60, Color.Red);
-DrawRectangleLines(GetScreenWidth() / 4 * 2 - 40, 320, 80, 60, Color.Orange);
+DrawRectangle(screenWidth/4*2 - 60, 100, 120, 60, Color.Red);
+DrawRectangleGradientH(screenWidth/4*2 - 90, 170, 180, 130, Color.Maroon, Color.Gold);
+DrawRectangleLines(screenWidth/4*2 - 40, 320, 80, 60, Color.Orange);
 
-DrawTriangle(new Vector2(GetScreenWidth() / 4f * 3, 80), new Vector2(GetScreenWidth() / 4f * 3 - 60, 150),
-    new Vector2(GetScreenWidth() / 4f * 3 + 60, 150), Color.Violet);
+DrawTriangle(new Vector2(screenWidth/4.0f*3.0f, 80.0f),
+             new Vector2(screenWidth/4.0f*3.0f - 60.0f, 150.0f),
+             new Vector2(screenWidth/4.0f*3.0f + 60.0f, 150.0f), Color.Violet);
 
-DrawLine(18, 42, GetScreenWidth() - 18, 42, Color.Black);
+DrawPoly(new Vector2(screenWidth/4.0f*3, 330), 6, 80, rotation, Color.Brown);
+
+DrawLine(18, 42, screenWidth - 18, 42, Color.Black);
 ```
 
 Most shapes come as a filled call and a `Lines` call for the outline. Past those, the flat API has
@@ -128,7 +133,7 @@ until `EndScissorMode`, as a scrolling list inside a panel needs.
 
 ## See also
 
-- Examples: [`shapes_basic_2d`](../3DEngine.Examples/Shapes/ShapesBasic2D.cs),
+- Examples: [`shapes_basic_shapes`](../3DEngine.Examples/Shapes/ShapesBasicShapes.cs),
   [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs)
 - The cheatsheet's [2D shapes](../CHEATSHEET.md#2d-shapes), [Collision](../CHEATSHEET.md#collision) and
   [Colors](../CHEATSHEET.md#colors)

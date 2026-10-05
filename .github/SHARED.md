@@ -172,6 +172,7 @@ table also answers whether the two agree.
 | A test process held to a time and a memory, the suite run again in parts when one is lost, so a crash, a hang or a leak is named and the runner stays up to say so | to take, from 3DEngine's `42b162d9` | has (`build/test.py`, `42b162d9`), held to 40 minutes and 4 GB, with `TestScriptTests` and a stand-in for `dotnet` |
 | A test in which the engine logs an error fails unless it says it expects that error | to take | has (`FailOnLoggedErrors`, `99b9c97d`), an error laid to its test by the app that logged it, which found a physics world disposed twice |
 | A system that throws in every frame is logged in full once and counted after | to check | has (`c35472ba`), by stage, system and type, with a line at each power of ten and the totals as the app closes |
+| The followed engine's own stress programs built from its source and measured beside the engine's by a script, the numbers in a document that names the script | has (`build/bevy-stress.sh` and `build/measure-stress.sh`, `1fc9c9c`), thirteen of Bevy's stress tests, a difference placed by adding to Bevy's program what the bridge adds | has (`build/raylib-bench/run.sh`), raylib's bunnymark and a cube count beside `textures_bunnymark` and `models_stress` |
 
 ### Documents
 

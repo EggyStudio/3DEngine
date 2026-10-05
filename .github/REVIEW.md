@@ -277,3 +277,17 @@ its own app as before, and the test finds the list holding none. Each mend alone
 test failing. The hook of N 3.7 keeps an exception as its type's name and message, where it kept
 the exception, which held a script's type for the length of the test. The suite through the
 script passes, 1,205 tests.
+
+**Now 3, nine of raylib's shapes examples.** `shapes_basic_shapes`, `shapes_bouncing_ball`,
+`shapes_colors_palette`, `shapes_logo_raylib`, `shapes_logo_raylib_anim`,
+`shapes_rectangle_scaling`, `shapes_lines_bezier`, `shapes_collision_area` and
+`shapes_following_eyes` are raylib's, written again from its source. `shapes_basic_2d` was a
+program of this engine's own answering `shapes_basic_shapes` with fewer shapes (N 5.1), and it is
+raylib's under raylib's name now, its picture, the README's row and the 2D guide's excerpt with
+it. `DrawCircleGradient` takes raylib's form at the commit pinned, a center as a `Vector2`, where
+it took raylib 5.5's two integers, and its one caller here, a reference frame, takes the new form.
+Each picture was set beside raylib's screenshot. Those that differ differ by the pointer, a key
+held or a moment of an animation, and `shapes_basic_shapes`'s screenshot is older than its code,
+without the ellipse and the outlines the code draws and with its gradient upright. Driven through
+`./e3d`, the palette shows a color's name with the pointer over it. The table stands at 54
+written, 130 that can be, 37 missing and 1 that does not apply.

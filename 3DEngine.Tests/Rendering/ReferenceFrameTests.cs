@@ -127,7 +127,7 @@ public sealed class ReferenceFrameTests : IDisposable
             DrawRectangleRounded(new Rectangle(150, 10, 90, 40), 0.5f, 8, Color.Gold);
             DrawRectangleGradientH(10, 60, 110, 30, Color.Lime, Color.Purple);
             DrawCircle(160, 75, 18, Color.SkyBlue);
-            DrawCircleGradient(210, 75, 18, Color.White, Color.Maroon);
+            DrawCircleGradient(new Vector2(210, 75), 18, Color.White, Color.Maroon);
             DrawTriangle(new Vector2(20, 150), new Vector2(60, 150), new Vector2(40, 110), Color.Orange);
             DrawPoly(new Vector2(95, 130), 6, 18, 30, Color.Violet);
             DrawLineEx(new Vector2(130, 110), new Vector2(240, 150), 3, Color.Black);

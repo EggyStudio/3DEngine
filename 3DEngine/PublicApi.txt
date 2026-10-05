@@ -1002,7 +1002,7 @@ static class Engine.Engine3D
   static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color)
   static void DrawCircle(int centerX, int centerY, float radius, Color color)
   static void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color)
-  static void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer)
+  static void DrawCircleGradient(Vector2 center, float radius, Color inner, Color outer)
   static void DrawCircleLines(int centerX, int centerY, float radius, Color color)
   static void DrawCircleLinesEx(Vector2 center, float radius, float thick, Color color)
   static void DrawCircleLinesV(Vector2 center, float radius, Color color)

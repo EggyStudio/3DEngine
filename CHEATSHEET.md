@@ -236,7 +236,7 @@ void DrawPolyLinesEx(Vector2 center, int sides, float radius, float rotation, fl
 void DrawCircleSector(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Filled slice
 void DrawCircleSectorLines(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color); // Its outline
 void DrawCircleSectorLinesEx(Vector2 center, float radius, float startAngle, float endAngle, int segments, float thick, Color color); // Its outline, thick
-void DrawCircleGradient(int centerX, int centerY, float radius, Color inner, Color outer); // Blended from the middle out
+void DrawCircleGradient(Vector2 center, float radius, Color inner, Color outer);       // Blended from the middle out
 void DrawCircleLinesV(Vector2 center, float radius, Color color);                  // Circle outline
 void DrawCircleLinesEx(Vector2 center, float radius, float thick, Color color);     // Circle outline, thick
 void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color color); // Filled ellipse

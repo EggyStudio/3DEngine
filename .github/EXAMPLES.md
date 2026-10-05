@@ -4,18 +4,18 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**45 written, 0 written in part, 139 can be written, 37 missing and 1 does not apply.** Of the 221 that apply, 184 can be written with what the flat API carries.
+**54 written, 0 written in part, 130 can be written, 37 missing and 1 does not apply.** Of the 221 that apply, 184 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
 | [Core](#core) | 36 | 0 | 3 | 9 | 1 |
-| [Shapes](#shapes) | 0 | 0 | 41 | 4 | 0 |
+| [Shapes](#shapes) | 9 | 0 | 32 | 4 | 0 |
 | [Textures](#textures) | 2 | 0 | 25 | 6 | 0 |
 | [Text](#text) | 2 | 0 | 9 | 5 | 0 |
 | [Models](#models) | 2 | 0 | 25 | 5 | 0 |
 | [Shaders](#shaders) | 2 | 0 | 29 | 5 | 0 |
 | [Audio](#audio) | 1 | 0 | 7 | 3 | 0 |
-| **All** | **45** | **0** | **139** | **37** | **1** |
+| **All** | **54** | **0** | **130** | **37** | **1** |
 
 ## Core
 
@@ -75,16 +75,16 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 
 | Example | raylib | Here | State |
 |---|---|---|---|
-| [`shapes_basic_shapes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_basic_shapes.c) |  |  | can be written |
-| [`shapes_bouncing_ball`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bouncing_ball.c) |  |  | can be written |
+| [`shapes_basic_shapes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_basic_shapes.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_basic_shapes.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_shapes.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBasicShapes.cs) |
+| [`shapes_bouncing_ball`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bouncing_ball.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bouncing_ball.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_bouncing_ball.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBouncingBall.cs) |
 | [`shapes_bullet_hell`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_bullet_hell.c) |  |  | can be written |
-| [`shapes_colors_palette`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_colors_palette.c) |  |  | can be written |
-| [`shapes_logo_raylib`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib.c) |  |  | can be written |
-| [`shapes_logo_raylib_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib_anim.c) |  |  | can be written |
-| [`shapes_rectangle_scaling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_scaling.c) |  |  | can be written |
-| [`shapes_lines_bezier`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_bezier.c) |  |  | can be written |
-| [`shapes_collision_area`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_collision_area.c) |  |  | can be written |
-| [`shapes_following_eyes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_following_eyes.c) |  |  | can be written |
+| [`shapes_colors_palette`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_colors_palette.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_colors_palette.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_colors_palette.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesColorsPalette.cs) |
+| [`shapes_logo_raylib`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_logo_raylib.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesLogoRaylib.cs) |
+| [`shapes_logo_raylib_anim`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib_anim.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_logo_raylib_anim.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_logo_raylib_anim.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesLogoRaylibAnim.cs) |
+| [`shapes_rectangle_scaling`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_scaling.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_rectangle_scaling.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_rectangle_scaling.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesRectangleScaling.cs) |
+| [`shapes_lines_bezier`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_bezier.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_lines_bezier.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_lines_bezier.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesLinesBezier.cs) |
+| [`shapes_collision_area`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_collision_area.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_collision_area.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_collision_area.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesCollisionArea.cs) |
+| [`shapes_following_eyes`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_following_eyes.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_following_eyes.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_following_eyes.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesFollowingEyes.cs) |
 | [`shapes_easings_ball`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_ball.c) |  |  | can be written |
 | [`shapes_easings_box`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_box.c) |  |  | can be written |
 | [`shapes_easings_rectangles`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shapes/shapes_easings_rectangles.c) |  |  | can be written |
@@ -303,7 +303,6 @@ The programs here that are no example of raylib's, each showing what the engine 
 | [`shaders_model`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersModel.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_model.webp" width="200"/> |
 | [`shaders_particles`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersParticles.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="200"/> |
 | [`shaders_shadowmap`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersShadowmap.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_shadowmap.webp" width="200"/> |
-| [`shapes_basic_2d`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBasic2D.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_2d.webp" width="200"/> |
 | [`shapes_basic_3d`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shapes/ShapesBasic3D.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shapes_basic_3d.webp" width="200"/> |
 | [`text_fonts`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Text/TextFonts.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/text_fonts.webp" width="200"/> |
 | [`textures_basic`](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Textures/TexturesBasic.cs) | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/textures_basic.webp" width="200"/> |
