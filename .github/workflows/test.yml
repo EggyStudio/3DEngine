@@ -39,13 +39,15 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+      # Each test named as it ends, so a run cut short says which were running.
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
 
       - uses: actions/upload-artifact@v7
-        if: failure()
+        # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
+        if: failure() || cancelled()
         with:
           name: test-results-linux
           path: 3DEngine.Tests/TestResults/
@@ -94,7 +96,8 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+      # Each test named as it ends, so a run cut short says which were running.
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
@@ -103,7 +106,8 @@ jobs:
         run: build/play-game.sh Pusher
 
       - uses: actions/upload-artifact@v7
-        if: failure()
+        # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
+        if: failure() || cancelled()
         with:
           name: test-results-windows
           path: |
@@ -140,7 +144,8 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx"
+      # Each test named as it ends, so a run cut short says which were running.
+      - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
@@ -149,7 +154,8 @@ jobs:
         run: build/play-game.sh Pusher
 
       - uses: actions/upload-artifact@v7
-        if: failure()
+        # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.
+        if: failure() || cancelled()
         with:
           name: test-results-macos
           path: |

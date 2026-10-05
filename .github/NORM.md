@@ -243,11 +243,11 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.4 | checked, `NormTests` | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
-| N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 3 left out |
+| N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | checked, `NormTests`, 7 left out | checked, `NormTests`, 5 left out |
+| N 4.5 | checked, `NormTests`, 8 left out | checked, `NormTests`, 5 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | to take |

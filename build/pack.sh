@@ -31,6 +31,11 @@ dotnet pack 3DEngine/3DEngine.csproj -c Release --no-build -o build/package -p:V
 # project asks for, so a project made from them builds against the engine packed with them.
 rm -rf build/templates
 cp -r templates build/templates
-sed -i "s/PACKED_VERSION/$version/" build/templates/content/*/.template.config/template.json
+# Written to a file beside each and moved over it, since macOS's sed takes what follows -i as the
+# ending of a backup and GNU's does not.
+for template in build/templates/content/*/.template.config/template.json; do
+  sed "s/PACKED_VERSION/$version/" "$template" > "$template.packed"
+  mv "$template.packed" "$template"
+done
 dotnet pack build/templates/3DEngine.Templates.csproj -c Release -o build/package -p:Version="$version"
 echo "packed 3DEngine and 3DEngine.Templates $version into build/package, with $(wc -l < "$notes") lines of release notes"

@@ -8,14 +8,20 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `7b9b2f2e`. The table of raylib's examples (`c05bd485`) and the first port with what
-it found (`7b9b2f2e`) are settled on their replies, which were read. The table is written from
-raylib's own list at the commit pinned, 222 rows, and the workflow holds it to its script, which
-was the last rule here with no check (N 5.2). Every rule of the norm a machine can check has its
-check in this engine: 24 checked, 3 with places listed and 9 by review. The port of
-`core_input_gamepad` found a function answering otherwise than raylib's of the same name, which
-is what the ports are for, and raylib's files are fetched and credited and not kept. Verdict 10
-is about how the table reads a row.
+Reviewed up to `14c8b4a1`. Twenty-eight of raylib's core examples are settled on the reply, which
+was read, 24 written for the first time and 4 that were programs of this engine's own under
+raylib's names written again from its source. `core_scissor_test` was set beside raylib's C at
+the commit pinned and is it line for line, its constants, its words and its colors. The ports
+found that whatever a program drew between frames was lost, into a render texture before
+`BeginDrawing` as half of raylib's examples draw, which five of them showed and a test holds.
+The table of calls that answer otherwise than raylib's has its first four rows, and the table of
+examples stands at 41 written, 139 that can be, 24 missing and 18 that do not apply, Verdict 10
+not yet taken. The reply corrected an earlier one of its own, on the wait in the resize test,
+and Verdict 13 is about what the correction found.
+
+Before these, the table of raylib's examples (`c05bd485`) and the first port (`7b9b2f2e`) were
+settled. Every rule of the norm a machine can check has its check in this engine: 24 checked, 3
+with places listed and 9 by review.
 
 The owner pushed `main` up to `7b9b2f2e` on 2026-10-05 and brought back its run. On macOS the
 tests ran to the end and passed, in 3 minutes 12, the first time the suite has drawn through
@@ -145,6 +151,14 @@ Linux and native is where to look first: Assimp's reads landing in its own memor
 and what only Linux runs, `FileHandleTests` over `/proc/self/fd` and the drawing under lavapipe
 with the validation layer required.
 
+**13. The renderer's resize debounce reads the machine's clock** (N 3.3). `RenderPlugin` carries
+a resize out 150 ms after the last one by `Environment.TickCount64`, as the reply's correction
+found. `WindowResizeTests` passes because its twenty frames are paced at sixty a second and so
+take a third of a second of the machine's time, which a run paced faster would not, as the
+physics tests are at a thousand frames a second. Where `Time.FrameSeconds` is set, the debounce
+counts the frame's time as everything else stepped does, so the test steps past it in ten frames
+at any pace, and a resize in a capture lands on the same frame on every machine.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -176,34 +190,28 @@ with the validation layer required.
 
 ## Replies
 
-**Now 1, raylib's core examples, the first part.** 24 more of raylib's core examples are written,
-and `core_2d_camera`, `core_3d_camera_free`, `core_drop_files` and `core_input_gestures` are
-raylib's again where they were programs of their own under its names. Each was read from raylib's
-C at the pinned commit, written for the flat API with its window, scene and words, captured, and
-set beside raylib's screenshot, and the table counts 41 written. Their pictures differ from
-raylib's where the reason is known: the default font, the pointer at the corner where raylib's
-screenshot moved it, and a random layout.
+**Verdict 11, macOS's sed.** `build/pack.sh` writes the version into each template through a file
+beside it moved over it, which both seds read alike. It wrote both templates in a dry run, and no
+other `sed -i` is in the scripts the three jobs run.
 
-The ports found a fault. Anything drawn between frames, into a render texture before
-`BeginDrawing` as half of raylib's examples do, was lost, since the draw lists were cleared as a
-frame began and the cameras set for targets forgotten there too. The lists are cleared now in the
-render system's own `finally`, once the frame is drawn or would have been, and the cameras once
-`EndDrawing` has rendered. `A_Render_Texture_Drawn_Into_Before_BeginDrawing_Is_Drawn_In_That_Frame`
-draws into one flat and one in 3D between frames, and failed before the change. Five ports showed
-it, the render texture, the letterbox, the pixel-perfect camera and the two split screens.
+Rule: a script a job runs on more than one system uses only what both GNU's and BSD's tools have.
+A check could read the scripts `test.yml` runs on Windows and macOS, `build/pack.sh`,
+`build/play-game.sh` and `build/fetch-slang.sh` today, for `sed -i`, `grep -P`, `readarray`,
+`date -d`, `stat -c`, `sha256sum` and `${x,,}`, with a list.
 
-A render texture here is upright, and raylib's examples draw theirs with a negative height to turn
-OpenGL's upright, which turned these over. The engine's is kept, since a target read back is the
-right way up as any texture is, and the ports draw it as it is with a line saying why. It is the
-second row of the new table on `docs/compared-with-raylib.md`, whose first is the trigger's axis,
-with SDL's two extra mouse buttons and the default font after.
+**Verdict 12, Linux cut short.** It is memory. The Linux job's steps in the Ubuntu 24.04 container
+held to 4 processors and 16 GB, with both variables set, built, ran 1,121 tests in about 85 seconds,
+and lost its test host at the limit. The host's peak resident memory was 15.6 GB and the
+container's 16 GB, and the test run says the host crashed. A second run, its memory read every
+second, climbed about 50 MB a second for four minutes to the same end. GitHub's runner for
+`ubuntu-24.04` has 16 GB, so the job's step is the host taken by the system, which GitHub reports
+as cancelled.
 
-A correction to the reply on N 3.3. The renderer does settle a resize by the machine's clock, a
-debounce of 150 ms in `RenderPlugin`, which the wait in `WindowResizeTests` stood for. Its 20 frames
-are paced at 60 a second, a third of a second, so the test waits past the debounce on frames alone,
-as it did five times in five and under lavapipe, but the reason given was wrong.
+It is no one test. The 44 tests that never reported were render tests running beside the flat
+API's, and the render classes alone climb the same way, `OffscreenRenderTests` from 200 MB to
+1.5 GB over its 70 tests, `FrameEffectsTests` to 843 MB over 9. The next run reads the GC's heap
+beside the process's memory, to say whether what grows is managed or what lavapipe and the
+validation layer hold, and the cause and its mend come in a batch of their own.
 
-Still to come in core: `core_3d_camera_first_person` and four more that wait on rcamera's functions,
-which are carried next with `UpdateCamera` as raylib's, `core_window_flags` and the two high-DPI
-examples, which wait on six of raylib's window flags the flat API lacks, the five larger ones set
-aside, and the three that use raygui.
+`test.yml` names each test as it ends, the console logger at normal verbosity in all three jobs,
+and keeps the results of a job cancelled as well as of one that failed.
