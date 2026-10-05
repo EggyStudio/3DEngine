@@ -25,7 +25,12 @@ public sealed class WindowResizeTests : IDisposable
 
     private static void Open()
     {
-        var config = Config.Default.WithWindow("resize test", 160, 120) with { Headless = true, Offscreen = true, Samples = 4 };
+        // A stepped clock with frames unpaced, so the resize's debounce of 0.15 s is ten frames of a
+        // sixtieth whatever the machine's pace.
+        var config = Config.Default.WithWindow("resize test", 160, 120) with
+        {
+            Headless = true, Offscreen = true, Samples = 4, FrameSeconds = 1.0 / 60, HeadlessFps = 1000,
+        };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
     }
 
@@ -52,9 +57,9 @@ public sealed class WindowResizeTests : IDisposable
     private Image Capture()
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
-        // Frames enough for a resize asked for to be carried out, which the next frame does, and
-        // for the frames in flight at the old size to finish, before the one captured.
-        for (int i = 0; i < 20; i++) Frame();
+        // Frames past the resize's debounce, ten of a sixtieth, and the frames in flight at the old
+        // size finished, before the one captured.
+        for (int i = 0; i < 12; i++) Frame();
         for (int i = 0; i < 10 && !File.Exists(path); i++) Frame(i == 0 ? path : null);
         File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
         return LoadImage(path);

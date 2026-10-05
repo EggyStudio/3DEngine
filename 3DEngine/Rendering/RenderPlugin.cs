@@ -12,10 +12,16 @@ internal sealed class RenderPlugin : IPlugin
 {
     private static readonly ILogger Logger = Log.Category("Engine.Renderer");
 
-    /// <summary>Delay (ms) after the last resize event before committing the expensive
-    /// swapchain + allocator + camera rebuild.  During this window the Vulkan lazy path
-    /// (<c>VK_ERROR_OUT_OF_DATE_KHR</c>) handles swapchain-only rebuilds if needed.</summary>
-    private const long ResizeDebounceMs = 150;
+    /// <summary>
+    /// The seconds of frames after the last resize asked for before the swapchain, the allocator and
+    /// the camera are made again, during which the Vulkan lazy path (<c>VK_ERROR_OUT_OF_DATE_KHR</c>)
+    /// rebuilds the swapchain alone if it must.
+    /// </summary>
+    /// <remarks>
+    /// Counted in the frames' own time, so a stepped clock steps past it as it steps everything
+    /// else, and a resize lands on the same frame however fast the machine runs.
+    /// </remarks>
+    private const double ResizeDebounceSeconds = 0.15;
 
     /// <summary>Extract system that copies <see cref="ClearColor"/> from the game world to the render world.</summary>
     private sealed class ClearColorExtract : IExtractSystem
@@ -173,7 +179,8 @@ internal sealed class RenderPlugin : IPlugin
             if (resize.Empty) return;
 
             // -- Resolve debounced resize
-            if (resize.Pending && (Environment.TickCount64 - resize.Tick) >= ResizeDebounceMs)
+            if (resize.Pending && world.TryGetResource<Time>(out var time)) resize.Waited += time.DeltaSeconds;
+            if (resize.Pending && resize.Waited >= ResizeDebounceSeconds)
             {
                 resize.Pending = false;
                 if (resize.VsyncChanged)
@@ -250,8 +257,8 @@ internal sealed class SurfaceResize
     // A change of vsync not yet carried out.
     internal bool VsyncChanged { get; set; }
 
-    /// <summary>When the last resize was asked for, in <see cref="Environment.TickCount64"/>.</summary>
-    internal long Tick { get; private set; }
+    /// <summary>The seconds of frames since the last resize was asked for.</summary>
+    internal double Waited { get; set; }
 
     /// <summary>Whether the surface is zero across or zero high, so nothing is drawn.</summary>
     public bool Empty => _renderer.RenderWorld.TryGet<RenderSurfaceInfo>() is { } info && (info.Width <= 0 || info.Height <= 0);
@@ -262,7 +269,7 @@ internal sealed class SurfaceResize
         _renderer.RenderWorld.Set(new RenderSurfaceInfo { Width = Math.Max(0, width), Height = Math.Max(0, height) });
         if (width <= 0 || height <= 0) return;
         Pending = true;
-        Tick = Environment.TickCount64;
+        Waited = 0;
     }
 
     /// <summary>
@@ -276,6 +283,6 @@ internal sealed class SurfaceResize
         VsyncChanged = true;
         Pending = true;
         // Carried out on the next frame, as nothing is being dragged that more requests follow.
-        Tick = 0;
+        Waited = double.PositiveInfinity;
     }
 }

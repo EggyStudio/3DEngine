@@ -215,3 +215,11 @@ validation layer hold, and the cause and its mend come in a batch of their own.
 
 `test.yml` names each test as it ends, the console logger at normal verbosity in all three jobs,
 and keeps the results of a job cancelled as well as of one that failed.
+
+**Verdict 13, the resize debounce.** `SurfaceResize` counts the seconds waited since a resize was
+asked for in the frames' own time, each frame adding `Time.DeltaSeconds`, which is the stepped
+amount where `Time.FrameSeconds` is set and the frame's clock time where it is not, and the swapchain
+is made again past 0.15 s of them. A change of vsync still goes on the next frame. `WindowResizeTests`
+steps its clock at a sixtieth and runs unpaced at a thousand frames a second, and passed three
+runs in three, a second each. With the debounce on the machine's clock it failed both tests, the
+twelve frames it waits being done in a few milliseconds.
