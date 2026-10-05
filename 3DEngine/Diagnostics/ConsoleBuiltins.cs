@@ -37,6 +37,10 @@ internal static class ConsoleBuiltins
     internal static string Profile() =>
         ConsoleHost.World!.TryGetResource<FrameProfile>(out var profile) ? profile.Report() : "no profile";
 
+    [Command("profile.slowest", "The slowest frame since this was last asked, and where its time went, every stage, system, render phase and wait")]
+    internal static string ProfileSlowest() =>
+        ConsoleHost.World!.TryGetResource<FrameProfile>(out var profile) ? profile.Slowest() : "no profile";
+
     [Command("profile.reset", "Starts the profile's averages afresh")]
     internal static string ProfileReset()
     {

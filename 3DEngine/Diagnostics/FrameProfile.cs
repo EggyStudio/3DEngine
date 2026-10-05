@@ -25,6 +25,10 @@ public sealed class FrameProfile
     private readonly Dictionary<string, double> _averages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, double> _values = new(StringComparer.Ordinal);
     private readonly Lock _lock = new();
+    // Every value of the frame being measured, and of the slowest frame since it was last read,
+    // since a stall of one frame is lost in the averages.
+    private Dictionary<string, double> _frame = new(StringComparer.Ordinal);
+    private Dictionary<string, double> _slowest = new(StringComparer.Ordinal);
 
     /// <summary>How many frames have been measured.</summary>
     public long Frames { get; private set; }
@@ -54,12 +58,41 @@ public sealed class FrameProfile
     internal void Add(string name, double milliseconds)
     {
         lock (_lock)
+        {
             _averages[name] = _averages.TryGetValue(name, out var average) ? average + (milliseconds - average) * Weight : milliseconds;
+            _frame[name] = _frame.GetValueOrDefault(name) + milliseconds;
+        }
     }
 
     internal void EndFrame()
     {
-        lock (_lock) Frames++;
+        lock (_lock)
+        {
+            Frames++;
+            if (_frame.GetValueOrDefault("frame") > _slowest.GetValueOrDefault("frame")) (_slowest, _frame) = (_frame, _slowest);
+            _frame.Clear();
+        }
+    }
+
+    /// <summary>
+    /// The slowest frame since this was last called, every value measured in it, largest first
+    /// within each group, and forgets it, so the next call reports the frames after this one.
+    /// </summary>
+    /// <remarks>
+    /// The averages smooth a stall of one frame away, so a frame of a quarter second among frames
+    /// of 16 milliseconds shows here with the stage or the wait that held it.
+    /// </remarks>
+    public string Slowest()
+    {
+        lock (_lock)
+        {
+            if (_slowest.Count == 0) return "no frame measured since the last call";
+            var text = new StringBuilder();
+            foreach (var group in _slowest.GroupBy(a => a.Key.Split('.')[0]).OrderBy(g => g.Key == "frame" ? "" : g.Key, StringComparer.Ordinal))
+                foreach (var (name, ms) in group.OrderByDescending(a => a.Value)) text.Append($"{name} {ms:0.000} ms\n");
+            _slowest.Clear();
+            return text.ToString().TrimEnd();
+        }
     }
 
     /// <summary>The program's values, then every average in milliseconds, largest first within each group.</summary>
@@ -134,6 +167,14 @@ public sealed class FrameProfilePlugin : IPlugin
             profile.Add("render.prepare", t.PrepareMs);
             profile.Add("render.graph", t.GraphMs);
             profile.Add("render.endframe", t.EndFrameMs);
+            // The three waits a frame can make on the device and the display, which begin and end
+            // frame hold between them.
+            if (renderer.Context.Graphics is GraphicsDevice device)
+            {
+                profile.Add("render.fence", device.FenceWaitMs);
+                profile.Add("render.acquire", device.AcquireMs);
+                profile.Add("render.present", device.PresentMs);
+            }
             foreach (var (system, ms) in t.PrepareCpu) profile.Add($"prepare.{system}", ms);
             foreach (var (node, ms) in t.NodeCpu) profile.Add($"cpu.{node}", ms);
             foreach (var (node, ms) in t.NodeGpu) profile.Add($"gpu.{node}", ms);

@@ -74,6 +74,25 @@ one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. T
 `3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and are skipped where there is
 no device.
 
+### Timing a program
+
+`e3d command profile` gives where a frame's time goes, averaged over about a second, and
+`e3d command profile.slowest` the slowest frame since it was last asked with every stage, system
+and render phase measured in it, among them `render.fence` (the GPU finishing the frame that last
+used the slot), `render.acquire` (waiting for an image to draw into) and `render.present`. A
+program is timed with `--offscreen`, which presents nothing, since a window's frames are paced by
+the desktop as well as the program.
+
+On a Wayland desktop with NVIDIA's driver (615, under GNOME 50) a window's frames were held back
+for 0.5 to 2 seconds at a time, in some runs every second or two and in others once in fifteen
+seconds, in `render.present` and after a swapchain was made again in `render.acquire`, shown or
+hidden, focused and not covered, in every present mode, while the engine's own work in those
+frames took a few milliseconds. `vkcube` on the same desktop showed
+it in one run of two. The same programs through XWayland (`SDL_VIDEO_DRIVER=x11`) and offscreen
+show none of it, a walk through `games/Manor`'s estate having no frame over 45 ms either way. It is
+the desktop's doing, and the engine says so in its log once it has seen three such waits in ten
+seconds, naming `SDL_VIDEO_DRIVER=x11` as what avoids it.
+
 ## The package
 
 ```bash

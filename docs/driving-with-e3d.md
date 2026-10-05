@@ -57,8 +57,15 @@ climbing is a leak.
 `window.size 1280 720`, `window.minimize`, `window.restore`, `window.position` and `window.monitor`
 resize and move the window while it draws, and in an offscreen run resize the images it draws
 into, as a window's swapchain is made again, or make it zero across, when no frame is drawn until
-it is restored. `build/storm.sh` puts a program through a run of them under the validation layer. `window.vsync true` turns vsync on, and `false` off, which makes the swapchain again on
-the next frame.
+it is restored. `build/storm.sh` puts a program through a run of them under the validation layer.
+`window.vsync true` turns vsync on, and `false` off, which makes the swapchain again on the next
+frame, and `window.state` says whether the window is shown or hidden, covered by others, focused,
+minimized or maximized, and its size.
+
+`profile` gives where a frame's time goes, averaged over about a second, and `profile.slowest` the
+slowest frame since it was last asked, every stage, system and render phase measured in it, so a
+stall of one frame shows with what held it, the program's own work or a wait on the GPU or the
+display (BUILDING.md, Timing a program).
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

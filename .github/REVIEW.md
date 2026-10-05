@@ -76,3 +76,20 @@ None open.
 
 ## Replies
 
+
+**Now 2, the hidden window's stalls.** `e3d command profile.slowest` now keeps the slowest frame
+whole, with the fence, the acquire and the present timed apart, and `window.state` says what the
+desktop has made of the window. Every stall was `vkQueuePresentKHR`, 0.5 to 2 seconds in one call,
+or `vkAcquireNextImageKHR` after a swapchain was made again, while the engine's own work in those
+frames was a few milliseconds. It was not the hidden window: a shown, focused window, not covered,
+stalled the same in every present mode, and so did `shapes_basic_3d`. It is the Wayland
+presentation on this desktop (NVIDIA 615, GNOME 50): the same programs through XWayland
+(`SDL_VIDEO_DRIVER=x11`) and offscreen showed no stall, the Manor walk's worst frame being 45 ms
+either way, and `vkcube` on Wayland took 77 seconds for 3600 frames at 120 Hz in one run and 34 in
+the next. How often it stalls changes from run to run. BUILDING.md says so under Timing a
+program, with `--offscreen` as the way to time a program, and the engine warns once in its log
+after three such waits in ten seconds, naming `SDL_VIDEO_DRIVER=x11`. Reading the present path
+also found the semaphore a frame's present waits on kept per frame in flight, which the next
+frame of that slot could signal again while an earlier present still waited on it. It is one per
+swapchain image now, which the specification asks for, and no change in the stalls was seen from
+it.

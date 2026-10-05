@@ -19,6 +19,30 @@ public class FrameProfileTests
     }
 
     [Fact]
+    public void The_Slowest_Frame_Is_Kept_Whole_And_Forgotten_Once_Read()
+    {
+        var profile = new FrameProfile();
+        void Frame(double frame, double present)
+        {
+            profile.Add("frame", frame);
+            profile.Add("render.present", present);
+            profile.Add("stage.Update", 1);
+            profile.EndFrame();
+        }
+
+        Frame(16, 0.5);
+        Frame(250, 800);
+        Frame(17, 0.4);
+        var slowest = profile.Slowest();
+        slowest.Should().StartWith("frame 250.000 ms", "the stall's frame is the one kept");
+        slowest.Should().Contain("render.present 800.000 ms", "with what held it, which the averages would have smoothed away");
+        profile.Slowest().Should().Be("no frame measured since the last call");
+
+        Frame(20, 1);
+        profile.Slowest().Should().StartWith("frame 20.000 ms", "the frames after the last call are the ones looked at");
+    }
+
+    [Fact]
     public void The_Command_Reports_The_Programs_Values_And_The_Averages_And_Resets_Them()
     {
         var app = new App();

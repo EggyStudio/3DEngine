@@ -25,6 +25,22 @@ internal static class WindowCommands
         return $"resizing to {width}x{height}";
     }
 
+    [Command("window.state", "What the window is as the desktop has it: shown or hidden, covered by others, focused, minimized or maximized, and its size")]
+    internal static string State()
+    {
+        if (!ConsoleHost.World!.TryGetResource<AppWindow>(out var window)) return Refuse("window.state");
+        var flags = SDL.GetWindowFlags(window.Sdl.Window);
+        var words = new List<string> { (flags & SDL.WindowFlags.Hidden) != 0 ? "hidden" : "shown" };
+        // Covered wholly by other windows, which a compositor may stop drawing.
+        if ((flags & SDL.WindowFlags.Occluded) != 0) words.Add("occluded");
+        if ((flags & SDL.WindowFlags.InputFocus) != 0) words.Add("focused");
+        if ((flags & SDL.WindowFlags.Minimized) != 0) words.Add("minimized");
+        if ((flags & SDL.WindowFlags.Maximized) != 0) words.Add("maximized");
+        if ((flags & SDL.WindowFlags.Fullscreen) != 0) words.Add("fullscreen");
+        words.Add($"{window.Sdl.Width}x{window.Sdl.Height}");
+        return string.Join(" ", words);
+    }
+
     [Command("window.vsync", "Turns vsync on or off, which makes the swapchain again on the next frame: window.vsync <on>")]
     internal static string Vsync(bool on)
     {

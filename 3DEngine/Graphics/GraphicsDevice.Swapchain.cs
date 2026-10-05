@@ -28,7 +28,8 @@ public sealed unsafe partial class GraphicsDevice
         var presentMode = ChoosePresentMode(support.PresentModes);
         var extent = ChooseSwapExtent(support.Capabilities, (uint)drawable.Width, (uint)drawable.Height);
         Logger.Debug($"Chosen surface format: {surfaceFormat.format}, color space: {surfaceFormat.colorSpace}");
-        Logger.Debug($"Chosen present mode: {presentMode}");
+        // Said at Info, since how a window presents decides whether presenting waits.
+        Logger.Info($"Present mode {presentMode}, of {string.Join(", ", support.PresentModes)}, with vsync {(Vsync ? "on" : "off")}.");
         Logger.Debug($"Chosen swap extent: {extent.width}x{extent.height}");
 
         _swapchainFormat = surfaceFormat.format;
@@ -94,16 +95,16 @@ public sealed unsafe partial class GraphicsDevice
         CreateFramebuffers();
         Logger.Debug("Creating command pool and allocating command buffers...");
         CreateCommandPoolAndBuffers();
-        Logger.Debug("Swapchain resource creation complete.");
         CreatePresentSemaphores();
+        Logger.Debug("Swapchain resource creation complete.");
     }
 
     /// <summary>Destroys all swapchain-related resources including image views, depth buffer, and command pool.</summary>
     private partial void DestroySwapchainResources()
     {
         Logger.Debug($"Destroying swapchain resources, {_swapchainImageViews.Length} image views...");
-        foreach (var iv in _swapchainImageViews)
         DestroyPresentSemaphores();
+        foreach (var iv in _swapchainImageViews)
             if (iv.Handle != 0) _deviceApi.vkDestroyImageView(iv);
         if (_depthImageView.Handle != 0)
             _deviceApi.vkDestroyImageView(_depthImageView);

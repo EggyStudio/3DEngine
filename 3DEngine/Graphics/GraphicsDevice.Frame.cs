@@ -12,7 +12,9 @@ public sealed unsafe partial class GraphicsDevice
         if (!IsInitialized)
             throw new InvalidOperationException("Graphics device not initialized");
 
+        var mark = System.Diagnostics.Stopwatch.GetTimestamp();
         _deviceApi.vkWaitForFences(_inFlightFences[_currentFrame], true, ulong.MaxValue).CheckResult();
+        FenceWaitMs = System.Diagnostics.Stopwatch.GetElapsedTime(mark).TotalMilliseconds;
 
         // After the fence signals, the GPU has finished reading staging buffers from this slot's
         // previous frame, so they are disposed now.
@@ -20,11 +22,15 @@ public sealed unsafe partial class GraphicsDevice
 
         uint imageIndex;
         var result = VkResult.Success;
+        mark = System.Diagnostics.Stopwatch.GetTimestamp();
         if (_offscreen)
             imageIndex = _offscreenNext++ % (uint)_swapchainImages.Length;
         else
             result = _deviceApi.vkAcquireNextImageKHR(_swapchain, ulong.MaxValue,
                 _imageAvailableSemaphores[_currentFrame], default, out imageIndex);
+
+        AcquireMs = System.Diagnostics.Stopwatch.GetElapsedTime(mark).TotalMilliseconds;
+        NoteDisplayWait(AcquireMs);
 
         if (result == VkResult.ErrorOutOfDateKHR)
         {
@@ -105,7 +111,10 @@ public sealed unsafe partial class GraphicsDevice
             pImageIndices = imageIndices
         };
 
+        var mark = System.Diagnostics.Stopwatch.GetTimestamp();
         var presentResult = _deviceApi.vkQueuePresentKHR(_presentQueue, &presentInfo);
+        PresentMs = System.Diagnostics.Stopwatch.GetElapsedTime(mark).TotalMilliseconds;
+        NoteDisplayWait(PresentMs);
 
         if (presentResult == VkResult.ErrorOutOfDateKHR)
         {
@@ -263,5 +272,35 @@ public sealed unsafe partial class GraphicsDevice
         public void Resize(Extent2D newExtent) => _owner.OnResize();
         /// <inheritdoc />
         public void Dispose() { }
+    }
+
+    /// <summary>How long the last frame waited for its slot's fence, the GPU finishing the frame that used it before.</summary>
+    public double FenceWaitMs { get; private set; }
+
+    /// <summary>How long the last frame waited to be given a swapchain image to draw into.</summary>
+    public double AcquireMs { get; private set; }
+
+    /// <summary>How long the last frame's present call took, which a present mode that waits for the display holds.</summary>
+    public double PresentMs { get; private set; }
+
+    // When the display last held a frame back a quarter second or more, and how many times in a
+    // row it has, within ten seconds of each other.
+    private long _lastLongWait;
+    private int _longWaits;
+    private bool _longWaitsWarned;
+
+    // A desktop that holds frames back for most of a second at a time shows here and nowhere in
+    // the engine's own work, so it is said once in the log, with what avoids it.
+    private void NoteDisplayWait(double milliseconds)
+    {
+        if (milliseconds < 250 || _longWaitsWarned) return;
+        var now = System.Diagnostics.Stopwatch.GetTimestamp();
+        _longWaits = System.Diagnostics.Stopwatch.GetElapsedTime(_lastLongWait, now).TotalSeconds < 10 ? _longWaits + 1 : 1;
+        _lastLongWait = now;
+        if (_longWaits < 3) return;
+        _longWaitsWarned = true;
+        Logger.Warn($"The display has held frames back three times in ten seconds, the last for {milliseconds:0} ms, in acquiring or presenting an image, " +
+                    "which the engine's work does not account for. Under Wayland with NVIDIA's driver, SDL_VIDEO_DRIVER=x11 presents through XWayland " +
+                    "without it, and an offscreen run (--offscreen) times a program with no display at all (BUILDING.md, Timing a program).");
     }
 }
