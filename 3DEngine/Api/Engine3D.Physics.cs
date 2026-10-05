@@ -318,6 +318,29 @@ public static partial class Engine3D
     public static PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance) =>
         ray.Direction != Vector3.Zero && Physics.Raycast(ray.Position, Vector3.Normalize(ray.Direction), maxDistance, out var hit) ? hit : default;
 
+    /// <summary>
+    /// The first body a ball of <paramref name="radius"/> meets moving along a ray within
+    /// <paramref name="maxDistance"/>, as a thick shot or a camera pulled in from behind a wall,
+    /// its <see cref="PhysicsRayCollision.Hit"/> false for none.
+    /// </summary>
+    /// <remarks>
+    /// The distance is how far the ball's middle moved, the point where the ball touched and the
+    /// normal the way the surface faces there. A ball that starts inside a body meets it at 0,
+    /// facing back along the ray. It goes through triggers as a ray does.
+    /// </remarks>
+    public static PhysicsRayCollision GetSphereCastPhysics(Ray ray, float radius, float maxDistance) =>
+        Physics.SphereCast(ray.Position, radius, ray.Direction, maxDistance, default, out var hit) ? hit : default;
+
+    /// <summary>The same past one body, as a ball cast from a character's own capsule.</summary>
+    public static PhysicsRayCollision GetSphereCastPhysicsEx(Ray ray, float radius, float maxDistance, PhysicsBody ignore) =>
+        Physics.SphereCast(ray.Position, radius, ray.Direction, maxDistance, ignore, out var hit) ? hit : default;
+
+    /// <summary>
+    /// Every body a sphere overlaps or touches, each once, as what an explosion reaches. Triggers
+    /// are left out, as rays pass through them.
+    /// </summary>
+    public static PhysicsBody[] GetPhysicsBodiesInSphere(Vector3 center, float radius) => [.. Physics.Overlap(center, radius)];
+
     /// <summary>The pairs of bodies that started touching in this frame's steps.</summary>
     public static IReadOnlyList<ContactStarted> GetPhysicsContacts() => World.ReadEvents<ContactStarted>();
 

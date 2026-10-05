@@ -8,11 +8,11 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `760b8206`. Every public member documented with the warning made an error (`a4b2785c`), the
-template package with `dotnet new 3dengine` and `3dengine-ecs` (`ec7e6c3c`) and the test that
-opens the packed package (`760b8206`) are settled on the replies, which were read. The owner
-has been told of the two things left to them, the template package's name on nuget.org and a
-row for `templates/` in AGENTS.md.
+Reviewed up to `3768b339`. A character's ground from one broad phase query (`8ef1af2f`), a frame's
+texture uploads in one submit (`5ceba2fa`), and particles with a texture, drag and a sheet of
+frames (`63b8d8b8`, `3768b339`) are settled on the replies, which were read. Each was measured or
+tested against the form it replaces, the ground query to the bit. `build/version.txt` holds 5.0
+and is the owner's to raise, as they have been told.
 
 ## Now
 
@@ -62,34 +62,11 @@ None open.
 ## Replies
 
 
-**A crowd's controller rays.** A character whose foot has only the flat top of an upright static
-box near it, past triggers and characters clear of its rays, reads its ground from one query of
-the broad phase in place of five rays down and the step ray ahead. A ray tests only what the
-broad phase puts along it, so that query is the rays' answer, and a test steps a crowd bumping
-over steps, a turned ramp, a pushed box, a trigger and jumps both ways and finds every position
-equal to the bit. Two shortcuts made wrong on purpose fail it. 2000 characters standing plan in
-0.4 ms in place of 1.3, and walking in a crowd that bumps in 1.4 in place of 1.8, where the step
-ray toward a neighbour is still cast. TODO.md's entry says what is left.
-
-**A frame's texture uploads in one submit.** Measured in Manor's walk, a texture's upload was
-almost all its own `vkQueueSubmit`, 0.25 to 0.8 ms each, so the device records a frame's uploads
-into one command buffer and submits them once, flushing that before every other submit and every
-wait, so the queue's order is what it was. Six textures arriving together take 0.8 ms in place of
-3.1, and two 0.17 in place of 1.5. The suite and the render tests under the validation layer in
-the container pass. Making images under a budget, which TODO.md named as the next step, is not
-needed after this, and the entry says what is left.
-
-**Particles with a texture and drag.** `ParticleEmitter` has `Texture`, a `Texture2D` each
-particle is drawn as, tinted, in place of the round dot, bound as the borrowed material's base
-color, and `Drag`, which slows a particle by an exponential of the step. The texture is the
-program's, so a scene file does not hold it, as a camera's render texture is not held. Tests find a
-textured particle the right way up and square, and a stream with drag stopped short of where it
-rises without. `shaders_particles`' smoke is made of noisy puffs that slow as they rise, and its
-capture is new. `PublicApi.txt` gains two fields and loses nothing.
-
-**Particle sheets.** `TextureColumns` and `TextureRows` make an emitter's texture a sheet of
-frames each particle plays through over its life, as a flame drawn frame by frame. The push block
-is full, so the sheet's size rides with the lit and textured flags in the look's last value as an
-integer a float holds exactly. A test finds a particle on the first frame early in its life and on
-the second late, stepped by fixed tenths of a second so it does not depend on the clock.
-`PublicApi.txt` gains two fields.
+**Ball casts and the bodies in a sphere.** `GetSphereCastPhysics` and its `Ex` past one body move
+a ball along a ray through Bepu's sweep and give back the first body it meets, as a thick shot or
+a camera pulled in from a wall, and `GetPhysicsBodiesInSphere` gives back every body a sphere
+reaches by shape and not by bounds, each once, in the traversal's order, as what an explosion
+pushes. Both pass through triggers as rays do, and the ray's skip and collidable lookups are shared
+with them. Tests find a ball meeting an edge a ray beside it clears, its distance and normal at a
+face, a start inside a body, and a sphere leaving out a body whose bounds reach it and whose shape
+does not. `PublicApi.txt` gains three functions, with their CHEATSHEET lines.

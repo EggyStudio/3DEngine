@@ -7,7 +7,7 @@ using BepuPhysics.Trees;
 
 namespace Engine;
 
-/// <summary>Spatial queries, which are raycasts.</summary>
+/// <summary>Spatial queries: rays, spheres swept along a ray, and the bodies a sphere overlaps.</summary>
 public sealed partial class PhysicsWorld
 {
     /// <inheritdoc />
@@ -22,14 +22,8 @@ public sealed partial class PhysicsWorld
     // their scratch memory from a pool of their own.
     private bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, PhysicsBody ignore, BepuUtilities.Memory.BufferPool pool, out PhysicsRayCollision hit)
     {
-        var handler = new ClosestRayHitHandler { Triggers = _triggerFlags };
-        if (ignore.World == this)
-        {
-            handler.Skips = true;
-            handler.Skip = ignore.Kind == BodyKind.Static
-                ? new CollidableReference(new StaticHandle(ignore.Handle))
-                : new CollidableReference(ignore.Kind == BodyKind.Kinematic ? CollidableMobility.Kinematic : CollidableMobility.Dynamic, new BodyHandle(ignore.Handle));
-        }
+        var (skips, skip) = SkipOf(ignore);
+        var handler = new ClosestRayHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip };
         Simulation.RayCast(origin, direction, maxDistance, pool, ref handler);
         if (!handler.Found)
         {
@@ -37,24 +31,127 @@ public sealed partial class PhysicsWorld
             return false;
         }
 
-        var coll = handler.Collidable;
-        BodyKind kind = coll.Mobility == CollidableMobility.Static
-            ? BodyKind.Static
-            : (coll.Mobility == CollidableMobility.Kinematic ? BodyKind.Kinematic : BodyKind.Dynamic);
-        int rawHandle = coll.Mobility == CollidableMobility.Static ? coll.StaticHandle.Value : coll.BodyHandle.Value;
-        int entityId = kind == BodyKind.Static
-            ? (_staticToEntity.TryGetValue(rawHandle, out var se) ? se : 0)
-            : (_bodyToEntity.TryGetValue(rawHandle, out var be) ? be : 0);
         hit = new PhysicsRayCollision
         {
             Hit = true,
-            Body = new PhysicsBody(this, rawHandle, kind),
+            Body = BodyOf(handler.Collidable),
             Distance = handler.T,
             Normal = handler.Normal == Vector3.Zero ? Vector3.Zero : Vector3.Normalize(handler.Normal),
             Point = origin + Vector3.Normalize(direction) * handler.T,
-            EntityId = entityId,
+            EntityId = EntityOf(handler.Collidable),
         };
         return true;
+    }
+
+    // The collidable a body is, to leave out of a query, or a skip of nothing.
+    private (bool Skips, CollidableReference Skip) SkipOf(PhysicsBody ignore) =>
+        ignore.World != this ? (false, default)
+        : (true, ignore.Kind == BodyKind.Static
+            ? new CollidableReference(new StaticHandle(ignore.Handle))
+            : new CollidableReference(ignore.Kind == BodyKind.Kinematic ? CollidableMobility.Kinematic : CollidableMobility.Dynamic, new BodyHandle(ignore.Handle)));
+
+    /// <summary>
+    /// The first body a sphere of <paramref name="radius"/> meets moving from <paramref name="origin"/>
+    /// along <paramref name="direction"/> within <paramref name="maxDistance"/>, past triggers and
+    /// <paramref name="ignore"/>, as a thick shot or a camera pulled in from a wall needs. Its
+    /// distance is how far the sphere's middle moved, its point where the sphere touched, and its
+    /// normal the way the surface faces there. A sphere that starts inside a body meets it at 0,
+    /// facing back along the direction.
+    /// </summary>
+    internal bool SphereCast(Vector3 origin, float radius, Vector3 direction, float maxDistance, PhysicsBody ignore, out PhysicsRayCollision hit)
+    {
+        hit = default;
+        if (radius <= 0 || direction == Vector3.Zero || maxDistance < 0) return false;
+        var way = Vector3.Normalize(direction);
+        var (skips, skip) = SkipOf(ignore);
+        var handler = new ClosestSweepHitHandler { Triggers = _triggerFlags, Skips = skips, Skip = skip };
+        Simulation.Sweep(new Sphere(radius), new RigidPose(origin), new BodyVelocity(way), maxDistance, BufferPool, ref handler);
+        if (!handler.Found) return false;
+
+        hit = new PhysicsRayCollision
+        {
+            Hit = true,
+            Body = BodyOf(handler.Collidable),
+            Distance = handler.T,
+            Normal = handler.T == 0 || handler.Normal == Vector3.Zero ? -way : Vector3.Normalize(handler.Normal),
+            Point = handler.T == 0 ? origin : handler.Point,
+            EntityId = EntityOf(handler.Collidable),
+        };
+        return true;
+    }
+
+    /// <summary>
+    /// Every body a sphere overlaps or touches, past triggers, each once, as the reach of an
+    /// explosion or of a sound heard nearby.
+    /// </summary>
+    /// <remarks>
+    /// The sphere is swept a hundredth of a millimetre, which Bepu reports a body it starts inside
+    /// at 0 for, so the bodies are those whose shapes the sphere meets, and not only their bounds.
+    /// </remarks>
+    internal List<PhysicsBody> Overlap(Vector3 center, float radius)
+    {
+        var found = new List<PhysicsBody>();
+        if (radius <= 0) return found;
+        var handler = new EverySweepHitHandler { Triggers = _triggerFlags, Found = [] };
+        Simulation.Sweep(new Sphere(radius), new RigidPose(center), new BodyVelocity(Vector3.UnitY), 1e-5f, BufferPool, ref handler);
+        foreach (var collidable in handler.Found) found.Add(BodyOf(collidable));
+        return found;
+    }
+
+    /// <summary>Bepu sweep callback that keeps the nearest hit, past triggers and one collidable.</summary>
+    private struct ClosestSweepHitHandler : ISweepHitHandler
+    {
+        public bool Found;
+        public float T;
+        public Vector3 Point;
+        public Vector3 Normal;
+        public CollidableReference Collidable;
+        public bool Skips;
+        public CollidableReference Skip;
+        public TriggerFlags Triggers;
+
+        public bool AllowTest(CollidableReference collidable) => (!Skips || collidable.Packed != Skip.Packed) && !Triggers.Is(collidable);
+
+        public bool AllowTest(CollidableReference collidable, int child) => true;
+
+        public void OnHit(ref float maximumT, float t, Vector3 hitLocation, Vector3 hitNormal, CollidableReference collidable)
+        {
+            if (Found && t >= T) return;
+            (Found, T, Point, Normal, Collidable) = (true, t, hitLocation, hitNormal, collidable);
+            maximumT = t;
+        }
+
+        public void OnHitAtZeroT(ref float maximumT, CollidableReference collidable)
+        {
+            (Found, T, Point, Normal, Collidable) = (true, 0, default, default, collidable);
+            maximumT = 0;
+        }
+    }
+
+    /// <summary>
+    /// Bepu sweep callback that keeps every collidable it meets once, past triggers, in the order
+    /// the traversal met them, so a query answers alike every run.
+    /// </summary>
+    private struct EverySweepHitHandler : ISweepHitHandler
+    {
+        public TriggerFlags Triggers;
+        public List<CollidableReference> Found;
+
+        public bool AllowTest(CollidableReference collidable) => !Triggers.Is(collidable);
+
+        public bool AllowTest(CollidableReference collidable, int child) => true;
+
+        public void OnHit(ref float maximumT, float t, Vector3 hitLocation, Vector3 hitNormal, CollidableReference collidable) => Keep(collidable);
+
+        public void OnHitAtZeroT(ref float maximumT, CollidableReference collidable) => Keep(collidable);
+
+        // A mesh is met once a triangle, so a collidable already kept is not kept again.
+        private readonly void Keep(CollidableReference collidable)
+        {
+            foreach (var kept in Found)
+                if (kept.Packed == collidable.Packed) return;
+            Found.Add(collidable);
+        }
     }
 
     /// <summary>Bepu ray-hit callback that retains the closest hit encountered along the ray.</summary>

@@ -177,8 +177,8 @@ what enters them as contacts and stop nothing, level geometry shaped as a model'
 bodies shaped as a model's convex hull, read and drawn at the model's origin. It
 joins bodies with ball, hinge, weld and distance joints, a hinge limited between two angles or
 driven by a motor, reads their blended poses, turns and how fast a point of them moves, pushes
-them at their center or at a point, casts rays, which go through triggers and may look past one
-body, and reads the frame's contacts with the point and normal where each pair met (CHEATSHEET.md,
+them at their center or at a point, casts rays and balls along them, which go through triggers
+and may look past one body, finds the bodies a sphere reaches, and reads the frame's contacts with the point and normal where each pair met (CHEATSHEET.md,
 Physics). A `Collider` marked
 `IsTrigger` makes a trigger from a scene, and a kinematic body under a `Parent` follows its place
 under the parent by velocity, so a platform a moving parent carries carries what stands on it, a

@@ -208,6 +208,57 @@ public sealed class Engine3DPhysicsTests : IDisposable
     }
 
     [Fact]
+    public void A_Ball_Cast_Meets_What_A_Ray_Beside_It_Would_Miss()
+    {
+        // A wall a unit high whose near face is 4.5 ahead, a trigger before it, and a box to look past.
+        var wall = CreatePhysicsStaticBox(new Vector3(0, 0.5f, -5), new Vector3(10, 1, 1));
+        CreatePhysicsTrigger(new Vector3(0, 0.5f, -2), new Vector3(10, 1, 1));
+        var near = CreatePhysicsStaticBox(new Vector3(3, 0.5f, -1), Vector3.One);
+        BeginDrawing();
+        EndDrawing();
+
+        // Just over the wall's top a ray passes, and a ball of half a unit does not.
+        var over = new Ray(new Vector3(0, 1.3f, 0), -Vector3.UnitZ);
+        GetRayCollisionPhysics(over, 100).Hit.Should().BeFalse("the ray clears the wall");
+        var hit = GetSphereCastPhysics(over, 0.5f, 100);
+        hit.Hit.Should().BeTrue("the ball is too thick to clear it");
+        hit.Body.Should().Be(wall, "and goes through the trigger, as a ray does");
+        hit.Point.Y.Should().BeApproximately(1, 0.01f, "it touches the wall's top edge");
+
+        // Straight at the face it stops with its middle half a unit short, facing back.
+        var level = GetSphereCastPhysics(new Ray(new Vector3(0, 0.5f, 0), -Vector3.UnitZ), 0.5f, 100);
+        level.Distance.Should().BeApproximately(4, 0.01f, "the face is 4.5 ahead and the ball half a unit wide");
+        level.Normal.Z.Should().BeApproximately(1, 0.01f, "the face looks back at it");
+        GetSphereCastPhysics(new Ray(new Vector3(0, 0.5f, 0), -Vector3.UnitZ), 0.5f, 3).Hit.Should().BeFalse("short of the wall it meets nothing");
+
+        // Starting inside a body it meets that at 0, and past it what is beyond.
+        var start = new Ray(new Vector3(3, 0.5f, -1), Vector3.UnitZ * -1);
+        GetSphereCastPhysics(start, 0.2f, 100).Distance.Should().Be(0, "it starts inside the box");
+        GetSphereCastPhysicsEx(start, 0.2f, 100, near).Body.Should().Be(wall, "looking past the box it starts in");
+    }
+
+    [Fact]
+    public void The_Bodies_In_A_Sphere_Are_Those_It_Reaches_Past_Triggers()
+    {
+        SetPhysicsGravity(Vector3.Zero);
+        var close = CreatePhysicsSphere(new Vector3(1, 0, 0), 0.5f);
+        var touching = CreatePhysicsBox(new Vector3(0, 0, -2.4f), Vector3.One);
+        var far = CreatePhysicsSphere(new Vector3(5, 0, 0), 0.5f);
+        var trigger = CreatePhysicsTrigger(new Vector3(0, 0, 1), Vector3.One);
+        // Its bounds reach into the sphere's corner and its shape, 2.2 from the middle, does not.
+        var beside = CreatePhysicsSphere(new Vector3(1.9f, 1.9f, 0), 0.5f);
+        BeginDrawing();
+        EndDrawing();
+
+        var found = GetPhysicsBodiesInSphere(Vector3.Zero, 2);
+        found.Should().Contain(close).And.Contain(touching, "a box whose face is within the sphere");
+        found.Should().NotContain(far).And.NotContain(trigger, "triggers are left out, as rays pass through them");
+        found.Should().NotContain(beside, "a body is found by its shape, not its bounds");
+        found.Should().OnlyHaveUniqueItems();
+        GetPhysicsBodiesInSphere(new Vector3(20, 0, 0), 1).Should().BeEmpty("nothing is there");
+    }
+
+    [Fact]
     public void An_Impulse_Moves_A_Body_And_Destroying_It_Removes_It()
     {
         SetPhysicsGravity(Vector3.Zero);

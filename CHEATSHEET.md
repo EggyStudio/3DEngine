@@ -741,6 +741,9 @@ bool IsPhysicsPaused();                                                         
 
 PhysicsRayCollision GetRayCollisionPhysics(Ray ray, float maxDistance);         // The first body a ray meets, past triggers, and whether it met one
 PhysicsRayCollision GetRayCollisionPhysicsEx(Ray ray, float maxDistance, PhysicsBody ignore); // The same past one body, as a ray from inside a car
+PhysicsRayCollision GetSphereCastPhysics(Ray ray, float radius, float maxDistance); // The first body a ball moving along a ray meets, as a thick shot
+PhysicsRayCollision GetSphereCastPhysicsEx(Ray ray, float radius, float maxDistance, PhysicsBody ignore); // The same past one body
+PhysicsBody[] GetPhysicsBodiesInSphere(Vector3 center, float radius);           // Every body a sphere overlaps, as what an explosion reaches
 IReadOnlyList<ContactStarted> GetPhysicsContacts();                              // Pairs that started touching this frame, where, which way and how hard
 IReadOnlyList<ContactEnded> GetPhysicsContactsEnded();                           // Pairs that stopped touching this frame, as a body leaving a trigger
 bool IsPhysicsBodyHit(PhysicsBody body);                                         // Whether a body started touching anything this frame

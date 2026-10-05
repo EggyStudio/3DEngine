@@ -111,6 +111,28 @@ if (IsMouseButtonPressed(MouseButton.Left) &&
 `GetRayCollisionPhysicsEx` looks past one body, as a ray cast from inside a car's body to the
 ground under a wheel does. A ray goes through triggers, which stop nothing.
 
+A ray is thin, so a shot of some size passes over an edge it should strike. `GetSphereCastPhysics`
+moves a ball of a radius along the ray instead, and gives back the first body it meets, how far
+its middle moved, where it touched and which way the surface faces there. A camera behind a
+player pulled in from a wall casts a ball of its own size from the player back toward where it
+would be, and stops where the ball does:
+
+```csharp
+var back = Vector3.Normalize(wanted - head);
+var room = GetSphereCastPhysicsEx(new Ray(head, back), 0.3f, Vector3.Distance(head, wanted), player);
+camera.Position = room.Hit ? head + back * room.Distance : wanted;
+```
+
+`GetPhysicsBodiesInSphere` gives back every body a sphere reaches, by their shapes and not their
+bounds, each once, as what an explosion pushes:
+
+```csharp
+foreach (var body in GetPhysicsBodiesInSphere(blast, 4))
+    ApplyPhysicsImpulse(body, Vector3.Normalize(GetPhysicsBodyPosition(body) - blast) * 10);
+```
+
+Both pass through triggers as a ray does.
+
 `IsPhysicsBodyHit` says whether a body started touching anything this frame, which the example
 flashes a box white by. `GetPhysicsContacts` lists every pair that started touching this frame,
 with where they met, the normal between them, and `Speed`, how fast they closed, which says how
