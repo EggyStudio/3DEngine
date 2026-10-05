@@ -146,6 +146,7 @@ table also answers whether the two agree.
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
 | A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | to take | has (`build/soak.sh`, `044d2396`) |
+| An app made and closed a hundred times in one test holds no more than it held after ten, the rule a soak keeps for a game kept for an app's whole life | to check | to take, where each app a render test makes leaves about 20 MB and the Linux job ends at the runner's 16 GB (REVIEW.md, Verdict 12) |
 | Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |
 | A window resized, minimized and moved by commands while it draws, as a storm the workflow runs | to consider, the window being Bevy's | has (`build/storm.sh`, `b0d835c4`) |
 | The public surface listed in a checked-in file a tool writes from the built assembly, a test failing when they differ | to take | has (`PublicApi.txt`, `fc5aef49`) |
@@ -163,8 +164,8 @@ table also answers whether the two agree.
 | Every example of the engine it follows is a row of a table a script makes from that engine's own list, each written, written in part, able to be written, missing or not applying | has (`.github/EXAMPLES.md`, 225 written of the 363 that apply), the workflow not yet holding the table to its script | taken at `c05bd485`, 41 written of the 204 that apply at `14c8b4a1`, the workflow holding the table to its script |
 | An example compiles on the package alone, what the examples share to say a thing in one word being the package's own calls | to take, where 208 of 231 examples call helpers of the examples project | has (`build/examples-on-package.sh`, `a61308b0`), every example built on the packed package |
 | The followed engine's own files that its examples load are fetched at a pinned commit and not kept in the repository | has (`bevy-assets.txt`) | taken at `7b9b2f2e` (`raylib-resources.txt`, `build/fetch-raylib-resources.sh`) |
-| An example written from the followed engine's says so at its head, with that engine's copyright line and license | to take | has (`7b9b2f2e`), each port naming raylib's example, its authors and the zlib license |
-| The package carries the notices of everything in it that is another's, and a test holds the notices to the dependencies | to take, where the package carries its own license alone and the bridge is built from the 570 crates of its lock | has (`THIRD-PARTY-NOTICES.md` in the package, `PackageContentsTests`) |
+| An example written from the followed engine's says so at its head, with that engine's copyright line and license | taken at `00c3db9`, all 218 written | has (`7b9b2f2e`), each port naming raylib's example, its authors and the zlib license |
+| The package carries the notices of everything in it that is another's, and a test holds the notices to the dependencies | taken at `00c3db9`, every crate of the bridge's lock named, 569 of them, by a script the pack workflow checks | has (`THIRD-PARTY-NOTICES.md` in the package, `PackageContentsTests`) |
 
 ### Documents
 

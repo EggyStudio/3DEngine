@@ -8,28 +8,37 @@ This file has one writer. The session doing the work edits the Replies section o
 what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read.
 
-Reviewed up to `14c8b4a1`. Twenty-eight of raylib's core examples are settled on the reply, which
-was read, 24 written for the first time and 4 that were programs of this engine's own under
-raylib's names written again from its source. `core_scissor_test` was set beside raylib's C at
-the commit pinned and is it line for line, its constants, its words and its colors. The ports
-found that whatever a program drew between frames was lost, into a render texture before
-`BeginDrawing` as half of raylib's examples draw, which five of them showed and a test holds.
-The table of calls that answer otherwise than raylib's has its first four rows, and the table of
-examples stands at 41 written, 139 that can be, 24 missing and 18 that do not apply, Verdict 10
-not yet taken. The reply corrected an earlier one of its own, on the wait in the resize test,
-and Verdict 13 is about what the correction found.
+Reviewed up to `aae58f45`, which is the owner's own commit setting `build/version.txt` to 5.1, with
+the three marks and no description. N 7.2's check would fail on it, and the norm says since that
+a commit changing that file alone is the owner's and is left out, which the check takes up
+before the next commit here. AGENTS.md still waits for the owner's word in this session.
 
-Before these, the table of raylib's examples (`c05bd485`) and the first port (`7b9b2f2e`) were
-settled. Every rule of the norm a machine can check has its check in this engine: 24 checked, 3
-with places listed and 9 by review.
+The owner brought back the run of `aae58f45`. macOS passed, tests and the game drawn after
+them, so the pack's `sed` is mended there. Linux was ended at the runner's memory again, as it
+will be until Verdict 12 is mended. Windows failed 126 of 1,165 tests, as it has in each of the
+three runs since its job began to draw, and its log is mostly one error from a system that
+throws every frame. Verdicts 14 and 15 are about Windows.
 
-The owner pushed `main` up to `7b9b2f2e` on 2026-10-05 and brought back its run. On macOS the
-tests ran to the end and passed, in 3 minutes 12, the first time the suite has drawn through
-MoltenVK anywhere, and the game after them failed at the pack, which is Verdict 11. On Linux the
-test step was ended from outside after 1 minute 36 with no test failed, which is Verdict 12.
-Both come before everything else. `Config.FrameSeconds`, `Time.FrameSeconds`,
-`PhysicsSettings.PlaceBeyond` and `PhysicsWorld.MarkPlaced` are new public lines and
-`PhysicsSettings.MaxStepsPerFrame` is gone, which Decision 5 leaves with the owner.
+Before it, Verdicts 11 and 13 were settled on their replies, which were read: the
+pack writing the templates' version in a way both seds read, with the test jobs naming each test
+and keeping the results of a run cut short (`d42a5c95`), and a resize waiting out its debounce
+in the frames' own time (`d1667840`), which the resize test failed without once it ran unpaced.
+
+Verdict 12 has its answer, and it is memory. The Linux job's steps in a container held to the
+runner's 4 processors and 16 GB lost the test host at the limit after 85 seconds, 15.6 GB
+resident, climbing about 50 MB a second, in the render classes and in no one test. So the run
+of `7b9b2f2e` was the system taking the host, and every run on Linux ends so until this is
+mended. Verdict 12 says how to find what grows, and it is first.
+
+Before these, 28 of raylib's core examples were settled (`14c8b4a1`), the table standing at 41
+written, 139 that can be, 24 missing and 18 that do not apply, Verdict 10 not yet taken. Every
+rule of the norm's first 36 that a machine can check has its check in this engine. The owner
+took three more into the norm on 2026-10-05, N 2.9, N 2.10 and N 6.5, of which this engine keeps
+two with their checks already, and stands at 26 checked, 3 with places listed, 1 to take and 9
+by review.
+
+The owner pushed `main` up to `7b9b2f2e` on 2026-10-05. On macOS its tests ran to the end and
+passed, in 3 minutes 12, the first time the suite has drawn through MoltenVK anywhere.
 
 ## Now
 
@@ -37,8 +46,12 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the run of `7b9b2f2e` says**, which is Verdicts 11 and 12, in that order, the first
-   being a line and the second a search.
+1. **What the runs say**, three verdicts. Verdict 15's first half comes first, being an hour's
+   work that makes every later run name its own failures. Then Verdict 12, what grows in the
+   test host, since the Linux job ends at 16 GB on every run until it is found. Then Verdict 14,
+   which is one line and a test. After them Verdict 10, and the check the reply offered for
+   scripts run on more than one system, which the norm takes as N 6.6 once it is in and finds
+   nothing.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -60,7 +73,7 @@ for a reply. In this order.
    not out of reach, since a raylib program turns a drawn shape with the one and draws a shape
    of its own with the other. Once the rows that can be written are, the missing are taken by
    how many rows each holds, as BevyCSharp takes its gaps. Verdict 10 comes before the next
-   port, and Verdicts 11 and 12 before it.
+   port, and Verdict 12 before it.
 
    Two things go with the ports. A program of this engine's own that answers a raylib example
    under another name takes raylib's name once it is read against raylib's source (N 5.1), as
@@ -70,20 +83,26 @@ for a reply. In this order.
    a line on `docs/compared-with-raylib.md`, in a table of its own a port adds to, the first
    being a trigger's axis, from 0 at rest here and from -1 in raylib, which docs/input.md says
    and the comparison does not.
-3. **What the trimmer cannot follow in the library** (N 2.5). The native publish warns that the
+3. **No exception leaves a callback native code calls** (N 2.10), which the owner took into
+   the norm on 2026-10-05. The methods handed to native code are found, Assimp's file system,
+   the audio stream's callback, the Vulkan debug callback and whatever else a binding takes,
+   and each catches everything and answers the native side in its own terms, as `AssimpFiles`
+   does since `1fac9eff`. A test finds one handed over that does not, by the attribute or the
+   delegate type it is handed over with, so the next callback written is held too.
+4. **What the trimmer cannot follow in the library** (N 2.5). The native publish warns that the
    library has code the trimmer cannot follow, which Pusher does not reach and another game may.
    The library is marked `IsAotCompatible`, which turns the same analysis on in every build, and
    each warning is mended where a generator can register what was reflected on, or said at its
    place with the reason it is safe, so the build is clean and `-warnaserror` holds it there.
    AssimpNetter's own warnings are the package's and are said once, where the reader calls it.
-4. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
+5. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
    costs a frame's worth of GPU and no readback, which recapturing on a light's change made
    worth having.
-5. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
+6. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
    engine's own list names: an `e3d eval` that compiles a line or a file against the running
    world through the script compiler already there, for looking at and changing a game while it
    runs.
-6. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
+7. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
    and another game only when it is of a kind that uses what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
@@ -93,7 +112,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 9 are settled, and their numbers are not given again.
+Verdicts 1 to 9, 11 and 13 are settled, and their numbers are not given again.
 
 **10. The table says does not apply where an example calls what the flat API lacks** (N 5.2).
 Seventeen of the eighteen rows that do not apply give one reason, that the example reaches
@@ -121,43 +140,55 @@ the calls it makes.
 The script's first reading, by the functions an example calls, stays as the start, and each row
 it calls out of reach is read over by hand as the five were.
 
-**11. `build/pack.sh` asks `sed` for what only GNU's has** (N 6.2). Line 34 is
-`sed -i "s/PACKED_VERSION/$version/"` over the templates' files. The `sed` of macOS reads what
-follows `-i` as the ending of a backup file, and then the first file's name as its script, which
-is the error the job printed, an undefined label `uild/templates/content/game-ecs/...`. The macOS
-job packs through `build/play-game.sh`, and this was its first run, so the line had never run
-there. The version is written without `-i`, through a file beside it or through Python, which
-the scripts use already. It is the one such form in the scripts the Windows and macOS jobs reach,
-as far as a search for the usual ones went (`grep -P`, `readarray`, `date -d`, `stat -c`,
-`sha256sum`, `${x,,}`). A check in `NormTests` finds those forms in the scripts `test.yml` runs
-on more than one system and in the scripts they call, and is offered under Replies with a line
-beginning `Rule:`, since the norm has no rule for it yet.
+**12. The test host grows to the runner's 16 GB, in the render classes** (N 6.2). The reply found
+it: 15.6 GB after 85 seconds at 4 processors, about 50 MB a second, `OffscreenRenderTests` from
+200 MB to 1.5 GB over its 70 tests and `FrameEffectsTests` to 843 MB over 9, each of which makes
+an app and closes it. That is about 20 MB an app that closing does not give back, and a game
+makes one app, which is why no soak of a game saw it.
 
-**12. The Linux test job was ended from outside the tests** (N 6.2). The step printed sixteen
-seconds of tests, skips alone since only skips and failures print, and then nothing until
-`The operation was canceled` at 1 minute 36. No test failed. Nothing in the workflows cancels a
-job, there being no concurrency group, no time limit and no matrix, and nothing in the engine,
-the client or the tests signals a process. macOS ran the same suite to the end. What is left is
-the runner itself being stopped, which a machine out of memory does, or a fault of GitHub's.
-The owner is asked to run the failed job again, which tells the two apart.
+One test finds it faster than reading the suite. It makes an app with `DefaultPlugins` and closes
+it a hundred times, reading the process's memory and the GC's heap every ten, and the slope is
+what one app leaves. Then a plugin is left out at a time until the slope goes: the physics,
+whose Bepu pools are native memory nothing collects, ImGui's context and its font atlas, the
+renderer's device under lavapipe, the audio. If the GC's heap grows, something static holds each
+app, a list of events, commands or log sinks. If the process grows and the heap does not, it is
+native, and one more thing is told apart there, a leak from glibc keeping an arena a thread for
+lavapipe's pool of threads a device, which `MALLOC_ARENA_MAX=2` and `LP_NUM_THREADS=1` in the
+environment change and a leak does not.
 
-Three things make the next one say what it was. The test step's console logger at normal
-verbosity, so each test is named as it passes and a death says which were running. The Linux
-job's steps run in the Ubuntu container held to the runner's size, 4 processors and 16 GB, with
-`E3D_REQUIRE_VALIDATION` and `E3D_REQUIRE_VULKAN` set as the job sets them, the most memory the
-test host took read at the end. And the results kept on a job that did not succeed, where
-`if: failure()` keeps them only for one that failed. What is new since the last green run on
-Linux and native is where to look first: Assimp's reads landing in its own memory (`1fac9eff`),
-and what only Linux runs, `FileHandleTests` over `/proc/self/fd` and the drawing under lavapipe
-with the validation layer required.
+The test stays once it passes, a hundred apps within a few megabytes of where ten were, which is
+the rule the soaks keep for a game, kept for an app's whole life. If the mend takes more than a
+batch, the classes that open a device go in one collection for the while, so they run one at a
+time and the job's most is bounded, and that is said in the workflow as a stopgap.
 
-**13. The renderer's resize debounce reads the machine's clock** (N 3.3). `RenderPlugin` carries
-a resize out 150 ms after the last one by `Environment.TickCount64`, as the reply's correction
-found. `WindowResizeTests` passes because its twenty frames are paced at sixty a second and so
-take a third of a second of the machine's time, which a run paced faster would not, as the
-physics tests are at a thousand frames a second. Where `Time.FrameSeconds` is set, the debounce
-counts the frame's time as everything else stepped does, so the test steps past it in ten frames
-at any pace, and a resize in a capture lands on the same frame on every machine.
+**14. `FrameProfile` throws in every frame of an app with no device** (N 3.1). `Measure` asks
+`renderer.Context.Graphics` at line 178 of `FrameProfile.cs`, which throws where the renderer is
+there and not initialized, and that is every headless run since `433c7868`. The schedule logs
+the exception and goes on, so a headless run's profile never ends its frame, each frame pays for
+an exception and its trace, and the log of a test run is mostly this error, 60,000 lines on
+Windows. `IsInitialized` is asked first. A test runs a headless app for some frames and finds
+its profile holding them and no error logged.
+
+It stood for thirteen hours with every headless test passing over it, since a system that throws
+is logged and the test goes on. A test in which the engine logs an error could fail unless it
+says it expects one, as a test that draws fails for an error of the validation layer. That would
+be a rule of the norm, and is put to the owner.
+
+**15. On Windows 126 tests fail, and the run does not say which** (N 6.2). The Windows test step
+has failed in each of three runs, `7b9b2f2e`, `d1667840` and `aae58f45`, 1,033 passed, 126 failed
+and 6 skipped in the last. The names are in a log only the owner can open, and what anyone else
+can read of a run, its annotations, says `Process completed with exit code 1`.
+
+First, the workflow says which tests failed. After `dotnet test`, on a job that did not succeed,
+a step reads `results.trx` and writes each failed test's name with the first line of its message
+as an error annotation, of which GitHub keeps ten a step, and the whole list to the job's
+summary. In Python, as the other scripts are, on all three systems. A red run then names its
+failures to whoever looks, the reviewing session among them, with nothing pasted.
+
+Then the failures, once they are named. 126 is close to the count of tests that draw, which were
+skipped on Windows until its job was given a device, so one cause is likely, in how the device
+under lavapipe on Windows starts or in what the validation layer says of it there. The owner is
+asked for one failure's message meanwhile.
 
 ## Decisions
 
@@ -182,7 +213,11 @@ at any pace, and a resize in a capture lands on the same frame on every machine.
 5. **A commit that takes something out of the public surface is the owner's to number.** The
    patch counts commits and says nothing of what broke. When `PublicApi.txt` loses or reshapes a
    line, the working session says so under Replies, and the owner raises the minor or the major
-   in `build/version.txt` before the next package. After `82b1feb4` and `abd09df5` that is due.
+   in `build/version.txt` before the next package. On 2026-10-05 the owner chose 5.1 for what
+   has changed since 5.0.12 and set it in `aae58f45`. A minor may break what a game calls until
+   the table of raylib's examples is mostly written, and 6.0 is the surface promised after
+   that, which BUILDING.md says where it says how a package is numbered, in the next batch that
+   touches it.
 6. **AGENTS.md's bullet and table row on NORM.md are the owner's, with the exception N 7.4
    makes.** They approved both on 2026-10-05 in the reviewing session, with the plan for the
    norm. A working session that commits a change to its instruction file only on the owner's
@@ -190,36 +225,41 @@ at any pace, and a resize in a capture lands on the same frame on every machine.
 
 ## Replies
 
-**Verdict 11, macOS's sed.** `build/pack.sh` writes the version into each template through a file
-beside it moved over it, which both seds read alike. It wrote both templates in a dry run, and no
-other `sed -i` is in the scripts the three jobs run.
+**Verdict 12, what grows.** The script compiler. Every app with `DefaultPlugins` starts the
+behaviors plugin's `RuntimeBehaviorCompiler`, scripts or none, and its constructor read 169 of the
+runtime's assemblies, 57 MB, with the engine's and the program's, as Roslyn references, each
+holding its file's whole image in native memory that its finalizer gives back. The GC's heap stayed
+under 80 MB, so a full collection came once in dozens of apps, and the process kept what every app
+between two of them had read. A dump of the test host at 956 MB held 55 MB of the GC's heap and 197
+of those images. The compiler now reads its references at its first compilation, once for the
+process, every compiler sharing them, so an app with no scripts reads none and a game's start no
+longer reads 60 MB it does not use.
 
-Rule: a script a job runs on more than one system uses only what both GNU's and BSD's tools have.
-A check could read the scripts `test.yml` runs on Windows and macOS, `build/pack.sh`,
-`build/play-game.sh` and `build/fetch-slang.sh` today, for `sed -i`, `grep -P`, `readarray`,
-`date -d`, `stat -c`, `sha256sum` and `${x,,}`, with a list.
+`AppLeakTests` makes an app and closes it a hundred times, reading the process's memory every ten
+before any collection, since a collection hid this. Headless, without the mend, it went from 827 MB
+at ten apps to 2.4 GB at a hundred and failed by 679 MB, and with it from 186 to 201 MB. Drawing a
+rectangle, text, a cube and a model on the device, from 234 to 255 MB. `OffscreenRenderTests`
+alone, which climbed to 1.2 GB on NVIDIA and 1.4 GB on lavapipe, holds at about 330 MB on NVIDIA and
+reaches 441 MB on lavapipe. What lavapipe adds is glibc's arenas, one for each thread of a device's
+pool, kept after the device closes, and with `MALLOC_ARENA_MAX=2`, which the Linux job's test step
+now sets, it reaches 349 MB.
 
-**Verdict 12, Linux cut short.** It is memory. The Linux job's steps in the Ubuntu 24.04 container
-held to 4 processors and 16 GB, with both variables set, built, ran 1,121 tests in about 85 seconds,
-and lost its test host at the limit. The host's peak resident memory was 15.6 GB and the
-container's 16 GB, and the test run says the host crashed. A second run, its memory read every
-second, climbed about 50 MB a second for four minutes to the same end. GitHub's runner for
-`ubuntu-24.04` has 16 GB, so the job's step is the host taken by the system, which GitHub reports
-as cancelled.
+In the whole suite the hundred apps still failed, by 30 MB of the GC's heap, and a dump found every
+app built after `BehaviorRegistrationTests` kept for good. That test adds a registration to the
+process's list, where it stays, and the registration kept each app it was called for in a static
+bag, each with its device. It holds them weakly now. A run also failed
+`Removals_Are_Forgotten_After_A_Second_Of_Frames` once, which read its tick after the removal from
+the process's count that tests beside it advance, and reads it before now (`6c458f8c`). The whole
+suite, held to 6 GB here, peaked at 1.4 GB on NVIDIA and at 1.35 GB on lavapipe with two arenas,
+1,172 passing in both, where the job's host had reached 15.6 GB at 85 seconds. No stopgap was
+needed, and the classes that open a device run as they did. This machine has no validation layer,
+so the job's next run is the first with it.
 
-It is no one test. The 44 tests that never reported were render tests running beside the flat
-API's, and the render classes alone climb the same way, `OffscreenRenderTests` from 200 MB to
-1.5 GB over its 70 tests, `FrameEffectsTests` to 843 MB over 9. The next run reads the GC's heap
-beside the process's memory, to say whether what grows is managed or what lavapipe and the
-validation layer hold, and the cause and its mend come in a batch of their own.
+**N 7.2, the owner's commits.** The check passes over a commit whose one file is
+`build/version.txt`, and reads `build/norm/7.2.txt` for the owner's other commits, which holds
+`5d88a601`, the paragraph on NORM.md in AGENTS.md (`6b3ee413`).
 
-`test.yml` names each test as it ends, the console logger at normal verbosity in all three jobs,
-and keeps the results of a job cancelled as well as of one that failed.
-
-**Verdict 13, the resize debounce.** `SurfaceResize` counts the seconds waited since a resize was
-asked for in the frames' own time, each frame adding `Time.DeltaSeconds`, which is the stepped
-amount where `Time.FrameSeconds` is set and the frame's clock time where it is not, and the swapchain
-is made again past 0.15 s of them. A change of vsync still goes on the next frame. `WindowResizeTests`
-steps its clock at a sixtieth and runs unpaced at a thousand frames a second, and passed three
-runs in three, a second each. With the debounce on the machine's clock it failed both tests, the
-twelve frames it waits being done in a few milliseconds.
+Shared: BevyCSharp's `ScriptHost.References()` reads every loaded assembly with
+`MetadataReference.CreateFromFile` at each compilation, which holds each image in native memory
+until its finalizer, so a host recompiling on each save gathers them as this one gathered them an
+app at a time. `EditorEval` already reads them once and keeps them.

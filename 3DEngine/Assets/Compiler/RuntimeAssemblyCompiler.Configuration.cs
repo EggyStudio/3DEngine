@@ -23,7 +23,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
         var location = assembly.Location;
         if (!string.IsNullOrEmpty(location) && File.Exists(location))
         {
-            _references.Add(MetadataReference.CreateFromFile(location));
+            _referencePaths.Add(location);
             _userAssemblyPaths.Add(location);
         }
 

@@ -39,11 +39,14 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
-      # Each test named as it ends, so a run cut short says which were running.
+      # Each test named as it ends, so a run cut short says which were running. glibc is held to two
+      # arenas, since each device lavapipe opens starts threads that glibc gives arenas of their own,
+      # and what is freed in an arena stays the test host's, some hundred MB over the drawing tests.
       - run: dotnet test 3DEngine.Tests --no-build --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
         env:
           E3D_REQUIRE_VALIDATION: '1'
           E3D_REQUIRE_VULKAN: '1'
+          MALLOC_ARENA_MAX: '2'
 
       - uses: actions/upload-artifact@v7
         # Kept for a job cancelled as well as one that failed, since a cut-short run is the one to read.

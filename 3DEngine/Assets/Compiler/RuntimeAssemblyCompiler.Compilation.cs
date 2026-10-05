@@ -83,7 +83,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
         var compilation = CSharpCompilation.Create(
             $"{AssemblyNamePrefix}_Gen{gen}",
             syntaxTrees,
-            _references,
+            References(),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOptimizationLevel(OptimizationLevel.Debug)
                 .WithAllowUnsafe(true));

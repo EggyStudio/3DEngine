@@ -20,7 +20,8 @@ namespace Engine.Files.Compiler;
 ///   <item><description>Collectible <see cref="AssemblyLoadContext"/> per generation
 ///         (<see cref="ScriptLoadContext"/>) so the previous generation's assembly can be GC'd.</description></item>
 ///   <item><description>Default <c>System.*</c> / <c>Microsoft.*</c> reference set sourced from
-///         <c>TRUSTED_PLATFORM_ASSEMBLIES</c>.</description></item>
+///         <c>TRUSTED_PLATFORM_ASSEMBLIES</c>, read at the first compilation and shared by every
+///         compiler in the process.</description></item>
 ///   <item><description>In-memory Roslyn <c>.cs</c> compilation pipeline (<see cref="CompileWithRoslyn"/>).</description></item>
 /// </list>
 /// <para>
@@ -41,7 +42,10 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult> : IDisposable
     /// <summary>Directories that contribute source files to every compilation cycle.</summary>
     protected readonly List<string> _scriptDirectories = [];
 
-    /// <summary>Roslyn metadata references resolved from default and user-added assemblies.</summary>
+    /// <summary>Assemblies read as Roslyn metadata references at the first compilation, the default and the user-added.</summary>
+    protected readonly List<string> _referencePaths = [];
+
+    /// <summary>Roslyn metadata references added as they are, beside those read from <see cref="_referencePaths"/>.</summary>
     protected readonly List<MetadataReference> _references = [];
 
     /// <summary>File system paths of user-added assemblies .</summary>

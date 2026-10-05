@@ -1,15 +1,18 @@
+using System.Runtime.CompilerServices;
 using FluentAssertions;
 using Xunit;
 
 namespace Engine.Tests.Entities;
 
-// The apps it was called for, kept apart since the list is the process's and other tests build
-// the plugin at the same time.
+// How many times it was called for each app, kept apart since the list is the process's and other
+// tests build the plugin at the same time. The apps are held weakly, since the registration stays
+// in the list and is called for every app built after this test, which a list of them kept for
+// good, each with its device, a thousand apps in a run of the suite.
 public static class DummyRegistration
 {
-    public static readonly System.Collections.Concurrent.ConcurrentBag<App> Apps = [];
+    public static readonly ConditionalWeakTable<App, StrongBox<int>> Calls = new();
 
-    public static void Register(App app) => Apps.Add(app);
+    public static void Register(App app) => Interlocked.Increment(ref Calls.GetOrCreateValue(app).Value);
 }
 
 [Trait("Category", "Unit")]
@@ -23,7 +26,8 @@ public class BehaviorRegistrationTests
 
         new BehaviorsPlugin { ScriptsDirectory = null }.Build(app);
 
-        DummyRegistration.Apps.Count(a => ReferenceEquals(a, app)).Should().Be(1);
+        DummyRegistration.Calls.TryGetValue(app, out var calls).Should().BeTrue();
+        calls!.Value.Should().Be(1);
     }
 
     [Fact]
