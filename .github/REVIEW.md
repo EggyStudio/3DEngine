@@ -255,3 +255,25 @@ argument and the variable, and sixty frames of a sixtieth come to a second exact
 after it on purpose. `.claude/skills/e3d-cli/SKILL.md` lists the run flags too, and as an
 instruction file for agents it is left to the owner to add `--frame-time` to. `PublicApi.txt`
 gains `Config.FrameSeconds` and `Time.FrameSeconds`.
+
+**Verdict 2, a kinematic body keeping its parent's pace.** The theory the verdict asked for, a
+crate on a platform whose parent the program moves at 2, measured over two seconds of frames of
+each length with the clock of Verdict 1, found the engine where the model put it before the change:
+
+| Frames a second | 144 | 75 | 60 | 50 | 40 | 30 | 20 | 100 and 25 by turns | 144 and 35 by turns |
+|---|---|---|---|---|---|---|---|---|---|
+| The model's rule today | 1.74 | 1.64 | 2.00 | 2.37 | 2.95 | 0.08 | 0.05 | | |
+| The engine before | 1.75 | 1.64 | 2.00 | 2.37 | 2.93 | 0.10 | 0.06 | 0.06 | 0.81 |
+| The engine after | 2.01 | 2.00 | 2.00 | 2.00 | 1.99 | 2.00 | 2.00 | 2.00 | 2.01 |
+
+`ParentFollowers` observes each parent in `Stage.Last`, once the update has moved it. A parent
+that moved since the last step moves once a frame: its velocity and spin are the move over the
+frame's time, and each step aims at the place observed moved on by them for the time from the
+observation to the step's end. That time starts at minus what the fixed step has not yet stepped
+through, since the steps run behind the frame's clock. Without that, the first form left 144, 75
+and 50 where they were, a platform taking 0.8 and 1.6 of the speed by turns when frames are
+shorter than a step. A parent that has not moved since the last step, still or moved in the steps
+by a fixed behavior, is aimed at as before; a test moves one a step's distance a step at 144 and
+at 30 frames a second and finds the platform never more than a step's travel from it. A parent put
+more than ten units away in a frame places its body at rest there, and the crate on it is not flung
+after it, which a test finds. The theory runs at 0.06 tolerance; the old test stays at a sixtieth.

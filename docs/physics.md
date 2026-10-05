@@ -57,6 +57,13 @@ var liftAt = GetPhysicsBodyPosition(lift);
 SetPhysicsBodyVelocity(lift, new Vector3(0, (liftY - liftAt.Y) * 8, 0));
 ```
 
+In the ECS a kinematic body under a `Parent` follows its parent by itself. A parent the program
+moves once a frame is followed at its speed, its move over the frame's time, through every step of
+the next frame, so a crate on the platform keeps the parent's pace at 144 frames a second and at
+20 alike. A parent moved in the steps, by an `[OnFixedUpdate]` behavior, is followed a step's
+distance a step. A parent put more than ten units away in one frame, as when a level starts again,
+puts its body there at rest rather than flinging it through whatever is between.
+
 A body of a model's own shape that falls and tumbles, as a rock or a barrel, is
 `CreatePhysicsConvexHull`, shaped as the smallest shape without hollows that holds the model's
 vertices. Its position is the model's origin, where the model is drawn, though it turns about its

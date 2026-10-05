@@ -144,6 +144,119 @@ public sealed class Engine3DPhysicsTests : IDisposable
         UnloadModel(ground);
     }
 
+    // A crate on a platform whose parent the program moves at 2 units a second, its pace measured
+    // over a second of frames of each length, and over frames of two lengths taking turns.
+    [Theory]
+    [InlineData(144.0, 144.0)]
+    [InlineData(75.0, 75.0)]
+    [InlineData(60.0, 60.0)]
+    [InlineData(50.0, 50.0)]
+    [InlineData(40.0, 40.0)]
+    [InlineData(30.0, 30.0)]
+    [InlineData(20.0, 20.0)]
+    [InlineData(100.0, 25.0)]
+    [InlineData(144.0, 35.0)]
+    public void A_Crate_On_A_Platform_Keeps_Its_Parents_Pace_At_Every_Frame_Rate(double fps, double otherFps)
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var time = GetApp().World.Resource<Time>();
+        var carrier = ecs.Spawn();
+        ecs.Add(carrier, new Transform(Vector3.Zero));
+        var platform = ecs.Spawn();
+        ecs.Add(platform, new Transform(new Vector3(0, 0.25f, 0)));
+        ecs.Add(platform, Collider.Box(new Vector3(20, 0.5f, 6)));
+        ecs.Add(platform, RigidBody.Kinematic);
+        ecs.SetParent(platform, carrier);
+        var crate = ecs.Spawn();
+        ecs.Add(crate, new Transform(new Vector3(0, 1, 0)));
+        ecs.Add(crate, Collider.Box(Vector3.One));
+        ecs.Add(crate, RigidBody.Dynamic());
+
+        var frame = 0;
+        void Frame(bool carry)
+        {
+            time.FrameSeconds = 1 / (frame++ % 2 == 0 ? fps : otherFps);
+            BeginDrawing();
+            if (carry) ecs.GetRef<Transform>(carrier).Position.X += 2 * GetFrameTime();
+            EndDrawing();
+        }
+        double Simulated(double seconds, bool carry)
+        {
+            var spent = 0.0;
+            while (spent < seconds)
+            {
+                Frame(carry);
+                spent += time.DeltaSeconds;
+            }
+            return spent;
+        }
+        float CrateX() => GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(crate)).X;
+
+        Simulated(0.5, carry: false);
+        Simulated(1, carry: true);
+        var from = CrateX();
+        var spent = Simulated(2, carry: true);
+        var pace = (CrateX() - from) / spent;
+        pace.Should().BeApproximately(2, 0.06f, $"the crate rides at its platform's pace, 2, at {fps} and {otherFps} frames a second");
+    }
+
+    [Theory]
+    [InlineData(144.0)]
+    [InlineData(30.0)]
+    public void A_Parent_Moved_In_The_Fixed_Steps_Is_Followed_A_Steps_Distance_A_Step(double fps)
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        GetApp().World.Resource<Time>().FrameSeconds = 1 / fps;
+        var carrier = ecs.Spawn();
+        ecs.Add(carrier, new Transform(Vector3.Zero));
+        var platform = ecs.Spawn();
+        ecs.Add(platform, new Transform(Vector3.Zero));
+        ecs.Add(platform, Collider.Box(new Vector3(4, 0.5f, 4)));
+        ecs.Add(platform, RigidBody.Kinematic);
+        ecs.SetParent(platform, carrier);
+        // Moved 2 units a second a step at a time, as an [OnFixedUpdate] behavior moves it.
+        GetApp().AddSystem(Stage.FixedUpdate, new SystemDescriptor(w =>
+        {
+            var step = (float)w.Resource<FixedTime>().StepSeconds;
+            w.Resource<EcsWorld>().GetRef<Transform>(carrier).Position.X += 2 * step;
+        }, "MoveCarrierInSteps").Write<EcsWorld>());
+
+        var gap = 0f;
+        RunUntil(() =>
+        {
+            var behind = ecs.GetReadOnly<Transform>(carrier).Position.X - GetPhysicsBodyPosition(ecs.GetReadOnly<PhysicsBody>(platform)).X;
+            gap = MathF.Max(gap, MathF.Abs(behind));
+            return false;
+        }, (int)fps);
+        gap.Should().BeLessThan(2f / 60 + 1e-3f, "the platform is never more than a step's travel from its parent");
+    }
+
+    [Fact]
+    public void A_Parent_Put_Far_Away_In_One_Frame_Places_Its_Platform_And_Flings_Nothing()
+    {
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var carrier = ecs.Spawn();
+        ecs.Add(carrier, new Transform(Vector3.Zero));
+        var platform = ecs.Spawn();
+        ecs.Add(platform, new Transform(Vector3.Zero));
+        ecs.Add(platform, Collider.Box(new Vector3(4, 0.5f, 4)));
+        ecs.Add(platform, RigidBody.Kinematic);
+        ecs.SetParent(platform, carrier);
+        var crate = ecs.Spawn();
+        ecs.Add(crate, new Transform(new Vector3(0, 0.75f, 0)));
+        ecs.Add(crate, Collider.Box(Vector3.One));
+        ecs.Add(crate, RigidBody.Dynamic());
+        Frames(30);
+
+        // A level started again: the carrier put fifty units away at once.
+        ecs.GetRef<Transform>(carrier).Position = new Vector3(50, 0, 0);
+        Frames(3);
+        var body = ecs.GetReadOnly<PhysicsBody>(platform);
+        GetPhysicsBodyPosition(body).X.Should().BeApproximately(50, 0.01f, "the platform is put at its parent's new place");
+        GetPhysicsBodyVelocity(body).Length().Should().BeLessThan(0.01f, "and is at rest there");
+        GetPhysicsBodyVelocity(ecs.GetReadOnly<PhysicsBody>(crate)).Length().Should().BeLessThan(1, "the crate that stood on it is not flung after it");
+    }
+
     [Fact]
     public void A_Platform_Under_A_Moving_Parent_Carries_A_Crate_And_A_Character()
     {

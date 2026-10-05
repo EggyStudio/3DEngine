@@ -77,12 +77,13 @@ internal sealed class PhysicsPlugin : IPlugin
             .Write<Events<ContactStarted>>()
             .Write<Events<ContactEnded>>());
 
+        app.World.InitResource<ParentFollowers>();
         app.AddSystem(Stage.FixedUpdate, new SystemDescriptor(static w =>
             {
                 if (!w.TryGetResource<FixedTime>(out var fixedTime) || w.Resource<PhysicsSettings>().Paused) return;
                 var phys = Prepared(w);
                 DriveCharacters(w, phys);
-                FollowParents(w, phys, (float)fixedTime.StepSeconds);
+                StepFollowers(w, phys, (float)fixedTime.StepSeconds);
                 phys.StepOnce((float)fixedTime.StepSeconds);
                 ReportCharacters(w, phys);
                 SendContacts(w, phys);
@@ -108,6 +109,20 @@ internal sealed class PhysicsPlugin : IPlugin
             .Write<PhysicsWorld>()
             .Write<Events<ContactStarted>>()
             .Write<Events<ContactEnded>>()
+            .MainThreadOnly());
+
+        // Where each kinematic body's parent is once the frame's update has moved it, which the
+        // next frame's steps follow (ParentFollowers).
+        app.AddSystem(Stage.Last, new SystemDescriptor(static w =>
+            {
+                if (!w.TryGetResource<FixedTime>(out var fixedTime) || !w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+                w.Resource<ParentFollowers>().Observe(ecs, w.Resource<PhysicsWorld>(), w.Resource<Time>().DeltaSeconds, fixedTime.Accumulator);
+            }, "Physics.ObserveParents")
+            .Read<Time>()
+            .Read<FixedTime>()
+            .Read<EcsWorld>()
+            .Write<PhysicsWorld>()
+            .Write<ParentFollowers>()
             .MainThreadOnly());
 
         app.AddSystem(Stage.PostUpdate, new SystemDescriptor(static w =>
@@ -145,8 +160,17 @@ internal sealed class PhysicsPlugin : IPlugin
         }
     }
 
+    // Each kinematic body under a parent moved over the step as ParentFollowers says.
+    private static void StepFollowers(World w, PhysicsWorld phys, float seconds)
+    {
+        if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
+        w.Resource<ParentFollowers>().Step(ecs, phys, seconds);
+    }
+
     // Each kinematic body under a parent moved over the step to its place under the parent, as its
     // own Transform puts it, so a platform an animated parent carries carries what stands on it.
+    // What a world with no FixedTime steps by, a frame at a time, where the parent's move and the
+    // step are one.
     private static void FollowParents(World w, PhysicsWorld phys, float seconds)
     {
         if (!w.TryGetResource<EcsWorld>(out var ecs) || ecs.Count<Parent>() == 0) return;
