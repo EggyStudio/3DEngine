@@ -10,6 +10,9 @@ public sealed class CliTests : IDisposable
 {
     private readonly TestFolder _folder = new("engine-cli-test-");
 
+    // A session's times, which these tests write and read back as values and never wait on.
+    private static readonly DateTimeOffset Stamp = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
+
     public void Dispose() => _folder.Dispose();
 
     [Fact]
@@ -34,13 +37,14 @@ public sealed class CliTests : IDisposable
         try
         {
             var session = new CliSession(Environment.ProcessId, 4242, "token", "/project", "Game", "Title", "hidden",
-                DateTimeOffset.UtcNow, true, "ready", 12, DateTimeOffset.UtcNow);
+                Stamp, true, "ready", 12, Stamp);
             CliSessionFile.Write(session);
 
             var read = CliSessionFile.All().Should().ContainSingle().Subject;
             read.Port.Should().Be(4242);
             read.Mode.Should().Be("hidden");
-            read.Report.Should().Be("ready");
+            read.State.Should().Be("ready");
+            read.Report.Should().Be("unreachable", "its heartbeat is long past, so the app is taken as no longer answering");
 
             CliSessionFile.Remove(session.Pid);
             CliSessionFile.All().Should().BeEmpty();
@@ -63,7 +67,7 @@ public sealed class CliTests : IDisposable
         var queue = new CliQueue();
         using var server = new CliServer(queue, new AppThreads());
         var session = new CliSession(Environment.ProcessId, server.Port, server.Token, "", "test", "test", "headless",
-            DateTimeOffset.UtcNow, false, "ready", 0, DateTimeOffset.UtcNow);
+            Stamp, false, "ready", 0, Stamp);
 
         // The main thread's part, pumped while the client waits on its socket.
         using var stop = new CancellationTokenSource();
@@ -72,7 +76,7 @@ public sealed class CliTests : IDisposable
             while (!stop.IsCancellationRequested)
             {
                 queue.Pump(app.World, app);
-                Thread.Sleep(5);
+                Thread.Yield();
             }
         });
 
@@ -87,19 +91,19 @@ public sealed class CliTests : IDisposable
     [Fact]
     public void The_App_Waits_For_An_Answer_As_Long_As_The_Request_Says()
     {
-        // A queue nobody pumps, so the answer never comes and the wait is all there is to see.
+        // A queue nobody pumps, so the answer never comes and the wait is all there is to see. The
+        // caller gives up reading after ten seconds, so an app waiting the default half minute in
+        // place of the request's second fails the read rather than answering.
         using var server = new CliServer(new CliQueue(), new AppThreads());
-        using var caller = new System.Net.Sockets.TcpClient("127.0.0.1", server.Port) { ReceiveTimeout = 20_000 };
+        using var caller = new System.Net.Sockets.TcpClient("127.0.0.1", server.Port) { ReceiveTimeout = 10_000 };
         using var stream = caller.GetStream();
         using var writer = new StreamWriter(stream) { AutoFlush = true, NewLine = "\n" };
         using var reader = new StreamReader(stream);
 
-        var started = System.Diagnostics.Stopwatch.StartNew();
         writer.WriteLine($$"""{"op":"run","token":"{{server.Token}}","line":"frames.wait 1000","seconds":1}""");
         using var answer = JsonDocument.Parse(reader.ReadLine()!);
 
-        answer.RootElement.GetProperty("errors")[0].GetProperty("code").GetString().Should().Be("TIMEOUT");
-        started.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(10), "the request's own second, not the default half minute, is waited");
+        answer.RootElement.GetProperty("errors")[0].GetProperty("code").GetString().Should().Be("TIMEOUT", "the request's own second, not the default half minute, is waited");
     }
 
     [Fact]
@@ -107,7 +111,7 @@ public sealed class CliTests : IDisposable
     {
         using var server = new CliServer(new CliQueue(), new AppThreads());
         var session = new CliSession(Environment.ProcessId, server.Port, "wrong", "", "test", "test", "headless",
-            DateTimeOffset.UtcNow, false, "ready", 0, DateTimeOffset.UtcNow);
+            Stamp, false, "ready", 0, Stamp);
 
         using var answer = JsonDocument.Parse(CliClient.Send(session, "ping", seconds: 5));
 
