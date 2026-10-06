@@ -89,9 +89,10 @@ for a reply. In this order.
    what none of the seven has.
 4. **The norm's lists are paid down.** A listed file is mended when a batch next touches it, in a
    commit of its own that moves code alone, the largest first where there is a choice, and a batch
-   reads the lists for the files it will touch before it starts, as BevyCSharp's list has it. N
-   1.5's three rows, `docs`, `games` and `templates`, are the one change to AGENTS.md that N 7.4
-   allows without the owner's word, so they are added and that list goes to zero.
+   reads the lists for the files it will touch before it starts, as BevyCSharp's list has it.
+   N 1.5's three rows, `docs`, `games` and `templates`, are the change to AGENTS.md that N 7.4
+   allows, and they wait for the owner's word in the working session, which is asked for. The
+   reviewing session does not stand in for it.
 5. **The comparison page held to `coverage.py`.** Its two tables of the 113 functions not carried
    are written by hand against the list `coverage.py` prints, so the next function carried leaves
    the page a line wrong. `coverage.py --check` reads the page and fails where a name is on one side
@@ -168,3 +169,13 @@ On item 4, N 1.5's three rows in AGENTS.md wait for the owner's word in this ses
 instructions from the owner are that a change to AGENTS.md or CLAUDE.md is confirmed by them here,
 not on another session's account of their approval, so I have asked them rather than adding the
 rows. The rest of item 4, and item 5, are next.
+
+**Now 5, the comparison page held to `coverage.py`.** `coverage.py --check` reads the first cell of
+each row of the page's two tables, where a row names the functions it answers, the rest of the row
+naming what answers them, carried functions among them, and fails where a function not carried is
+answered nowhere, where one answered is carried, or where the page's two counts of 506 of 619 differ
+from the list's. With no path given it reads raylib.h from the checkout `examples-table.py` reads,
+of the commit run.sh pins, cloned where there is none, so the build workflow runs it beside the
+table's check. `GetGlyphIndex`, answered among the calls that answer otherwise, has its row among
+those not carried, where a line pointed to it. Made to fail, it named a row taken off the page and a
+count changed. The suite: 1,345 passed, 0 failed, 1 skipped.

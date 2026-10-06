@@ -179,8 +179,7 @@ array or a string nothing holds.
 | `LoadFontData`, `GenImageFontAtlas`, `UnloadFontData` | A font's glyphs are kept by code point in ImGui's atlas, which the flat API's text shares, so there is no glyph data apart from a font |
 | `GenMeshTangents`, `GetShaderLocationAttrib` | The vertex layout is fixed and has no tangents, since the model pass works a normal map's frame out per pixel from how the surface changes across the screen |
 | `UpdateSound` | It writes into a sound the audio thread is playing, which the audio backend does not open to the program. An `AudioStream` is fed from the program's thread instead |
-
-`GetGlyphIndex` is above, among the calls that answer otherwise.
+| `GetGlyphIndex` | A font keeps its glyphs by code point in ImGui's atlas, and `GetGlyphInfo` and `GetGlyphAtlasRec` take the code point, as the row above among the calls that answer otherwise says |
 
 ## Measured
 
@@ -212,6 +211,8 @@ build/raylib-bench/run.sh
 
 builds raylib for the measurement in a scratch folder, runs both pairs and counts the functions,
 with `build/raylib-bench/coverage.py` naming those left out by the section of `raylib.h` they are in.
+`coverage.py --check`, which the build workflow runs, fails where this page's two tables of the
+functions not carried, or its counts, differ from that list.
 raylib is not a dependency of the engine.
 
 ## See also
