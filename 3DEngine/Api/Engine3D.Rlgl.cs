@@ -153,6 +153,8 @@ public static partial class Engine3D
     {
         (_rlView, _rlProjection) = (view, projection);
         DrawList.SetTransform(view * projection, depthTest);
+        _rl3D = depthTest;
+        ApplyRlCulling();
     }
 
     private static void SetRlProjection(Matrix4x4 projection)
@@ -223,10 +225,12 @@ public static partial class Engine3D
     public static bool rlCheckRenderBatchLimit(int vertexCount) => false;
 
     // Whether faces are culled: as the engine leaves them, until a program turns culling on or off,
-    // then as it set. The engine's shapes draw both faces and a model the faces its material says,
-    // where rlgl culls back faces from the start.
+    // then as it set. Shapes drawn inside BeginMode3D leave out their back faces, as rlgl's do from
+    // the start, so a cube is hollow seen from within, 2D shapes draw both faces, and a model the
+    // faces its material says.
     private enum RlCulling { Unset, Enabled, Disabled }
     private static RlCulling _rlCulling;
+    private static bool _rl3D;
     private static RlCullFace _rlCullFace = RlCullFace.Back;
     private static bool _rlPointMode;
 
@@ -236,11 +240,12 @@ public static partial class Engine3D
     /// <c>rlEnableBackfaceCulling</c> does.
     /// </summary>
     /// <remarks>
-    /// rlgl culls from the start, and a shape here draws both faces until this is called, so a
-    /// triangle given clockwise shows here where raylib leaves it out. A model leaves out the
-    /// faces its material says, the back ones unless it is double-sided, until a program calls
-    /// this, <see cref="rlDisableBackfaceCulling"/> or <see cref="rlSetCullFace"/>, and the
-    /// faces they say after, whatever its material says, as raylib's are.
+    /// rlgl culls from the start, and a shape drawn inside <see cref="BeginMode3D"/> leaves out its
+    /// back faces as raylib's does, where a 2D shape draws both faces until this is called, so a
+    /// triangle given clockwise on the screen shows here where raylib leaves it out. A model
+    /// leaves out the faces its material says, the back ones unless it is double-sided, until a
+    /// program calls this, <see cref="rlDisableBackfaceCulling"/> or <see cref="rlSetCullFace"/>,
+    /// and the faces they say after, whatever its material says, as raylib's are.
     /// </remarks>
     public static void rlEnableBackfaceCulling()
     {
@@ -294,11 +299,13 @@ public static partial class Engine3D
         DrawList.SetColorBlend(false);
     }
 
-    // The faces the draw list leaves out of shapes, none until a program turns culling on,
-    // whether depth tested shapes write their depth, and whether shapes are blended.
+    // The faces the draw list leaves out of shapes, those rlgl's culling names in 3D and none in 2D
+    // until a program turns culling on or off, whether depth tested shapes write their depth, and
+    // whether shapes are blended.
     private static void ApplyRlCulling()
     {
-        DrawList.SetCull(_rlCulling == RlCulling.Enabled ? (_rlCullFace == RlCullFace.Front ? CullMode.Front : CullMode.Back) : CullMode.None);
+        var culled = _rlCulling == RlCulling.Enabled || (_rlCulling == RlCulling.Unset && _rl3D);
+        DrawList.SetCull(culled ? (_rlCullFace == RlCullFace.Front ? CullMode.Front : CullMode.Back) : CullMode.None);
         DrawList.SetDepthMask(_rlDepthMask);
         DrawList.SetColorBlend(_rlColorBlend);
     }

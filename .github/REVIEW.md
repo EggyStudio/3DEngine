@@ -183,3 +183,15 @@ scaled up with the bilinear filter the page keeps, `core_directory_files` lists 
 directory and `core_highdpi_demo` another monitor, and the rest are the font and raygui's panel.
 In shapes `shapes_rectangle_advanced` is 0.0% apart and `shapes_basic_shapes` 0.7%.
 The suite: 1,379 passed, 0 failed, 1 skipped.
+
+**Now 5, 3D shapes culled as rlgl culls them.** As the word on the culling question has it, a shape
+drawn inside `BeginMode3D` leaves out its back faces until a program switches rlgl's culling, so a
+cube drawn around the camera is hollow seen from within, while 2D shapes and text draw both faces
+and a model the faces its material says. A test draws a cube at the camera's place, finds it
+hollow and a clockwise 2D triangle drawn, and the cube filled once `rlDisableBackfaceCulling` is
+called. `core_3d_camera_split_screen` is 8.8% apart from 99.4%, its scene matching raylib's, and
+the rest is a bar partly clear drawn into a render texture, whose alpha raylib blends by the
+color's factors so the black behind shows through, where alpha here is laid over by alpha and the
+texture stays opaque. That is a new line on the comparison page with its reason, and the culling
+line there says the three cases. The suite: 1,380 passed, 0 failed, 1 skipped, and the render
+tests pass on lavapipe under the validation layer.

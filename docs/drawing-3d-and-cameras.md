@@ -285,8 +285,9 @@ shapes and text among them, which are wound counterclockwise as raylib's are, so
 clockwise is not drawn. `rlSetCullFace(RlCullFace.Front)` leaves out the front faces instead, as
 `shaders_cel_shading` does to draw an outline from the back of a model pushed out along its
 normals, and `rlDisableBackfaceCulling` draws both. Until a program calls one of them, shapes
-draw both faces and a model the faces its material says, where rlgl culls back faces from the
-start. Between `rlEnablePointMode` and `rlDisablePointMode` a model is drawn as a point at each
+drawn inside `BeginMode3D` leave out their back faces, as rlgl's do from the start, so a cube
+drawn around the camera is hollow seen from within, while 2D shapes and text draw both faces and
+a model the faces its material says. Between `rlEnablePointMode` and `rlDisablePointMode` a model is drawn as a point at each
 corner of its triangles.
 
 rlgl's matrix modes are carried for a projection of a program's own. In

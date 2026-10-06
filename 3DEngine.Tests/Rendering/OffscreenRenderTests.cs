@@ -393,6 +393,32 @@ public sealed partial class OffscreenRenderTests : IDisposable
         UnloadTexture(white);
     }
 
+    // A cube drawn at a camera's own place, as raylib's split screen draws each player, is hollow
+    // seen from within, since 3D shapes leave out their back faces as rlgl's do from the start,
+    // where a 2D triangle given clockwise still shows until culling is turned on.
+    [NeedsVulkanFact]
+    public void A_Cube_Around_The_Camera_Is_Hollow_Until_Culling_Is_Off_And_2D_Draws_Both_Faces()
+    {
+        Open(32, 32);
+        var camera = new Camera3D(new Vector3(0, 1, 0), new Vector3(0, 1, 5), Vector3.UnitY, 60);
+        void Scene()
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            DrawCube(camera.Position, 1, 1, 1, Color.Red);
+            EndMode3D();
+            DrawTriangle(new Vector2(0, 0), new Vector2(8, 0), new Vector2(0, 8), Color.Blue);
+        }
+
+        var hollow = Capture(Scene, "hollow");
+        GetImageColor(hollow, 16, 16).Should().Be(Color.Black, "the cube's faces seen from within are its back faces, left out");
+        GetImageColor(hollow, 2, 2).Should().Be(Color.Blue, "a 2D triangle given clockwise on the screen draws both faces");
+
+        rlDisableBackfaceCulling();
+        var filled = Capture(Scene, "filled");
+        GetImageColor(filled, 16, 16).Should().Be(Color.Red, "with culling off the cube's insides are drawn");
+    }
+
     [NeedsVulkanFact]
     public void Custom_Blend_Factors_Combine_Color_And_Alpha_As_Rlgl_Sets_Them_And_A_Clear_Texel_Is_Blended_In_2D()
     {

@@ -127,8 +127,9 @@ An unloaded shader's stages and pipelines are destroyed after the frames in flig
 them.
 
 This is raylib's rlgl layer in Vulkan terms. It keeps shapes, grids, gizmos and debug lines out of
-the ECS and out of the mesh path. Its pipelines (lines or triangles, depth tested or not) do not
-cull, so a shape's triangles may wind either way, and blend by alpha unless a batch was recorded
+the ECS and out of the mesh path. A batch carries the faces it culls, the back ones of a shape
+drawn inside `BeginMode3D` and none of a 2D one until rlgl's culling is switched, so a 2D shape's
+triangles may wind either way, and its pipelines blend by alpha unless a batch was recorded
 inside `BeginBlendMode`, which makes a pipeline for each of raylib's modes the batch asks for. Alpha
 is laid over by alpha in every mode, so a render target keeps the coverage of what was drawn into
 it. A batch recorded inside `BeginScissorMode` carries its rectangle, clipped to the target, and
