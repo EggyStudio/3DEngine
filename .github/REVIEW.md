@@ -178,8 +178,8 @@ passed, 0 failed, 1 skipped, and the render and model tests pass on lavapipe und
 layer. Audio is the module left.
 
 **Now 5, audio measured.** Ten of raylib's eleven audio programs are written, `audio_module_playing`
-waiting on a decoder for XM and MOD, and five are within 2% of raylib's picture. The fault found:
-`SetSoundPan`, `SetMusicPan` and `SetAudioStreamPan` took 0 to 1 with the middle at 0.5, where
+waiting on a decoder for XM and MOD, and five are within 2% of raylib's picture. The fault found was
+that `SetSoundPan`, `SetMusicPan` and `SetAudioStreamPan` took 0 to 1 with the middle at 0.5, where
 raylib's take -1 to 1 with the middle at 0, so `audio_music_stream` and `audio_sound_positioning`,
 which pass raylib's values, played raylib's middle and everything left of it at the far left, and
 the right half spread across both sides. They take raylib's range now, held at either side as raylib
@@ -188,5 +188,16 @@ holds it, and the law between the sides was already the equal power raylib's cub
 raylib's, its buffer filled whenever `IsAudioStreamProcessed` says so, with the arrows for frequency
 and pan. What is left apart is the font, raygui in `audio_amp_envelope` (14.3%), and in
 `audio_raw_stream` (6.0%) and `audio_mixed_processor` (2.4%) a picture drawn from when the device
-last asked for samples, which is the clock on both sides and moves from run to run. The suite:
-1,390 passed, 0 failed, 1 skipped.
+last asked for samples, which is the clock on both sides and moves from run to run. The suite: 1,390
+passed, 0 failed, 1 skipped.
+
+**Now 5, the sieve and the bloom grid explained.** Each ends as a line of the comparison page, since
+both come from how a driver rounds. `shaders_eratosthenes_sieve` (4.3%) differs only below its
+quad's diagonal, on 44 of the 50 rows of pixels where its coordinate times 1000 is exactly whole,
+row 22's being 950. raylib's floors it to 949, because OpenGL's interpolation comes out a hair under
+in that triangle, where Vulkan's here lands on it in both. Turning the quad's triangles so each
+starts from the vertex OpenGL's would start from changed nothing, so it is not the provoking vertex.
+`shaders_lights_bloom` (3.2%) draws `DrawGrid` in its floor's plane, and raylib's lines across the
+screen are dashed where OpenGL's depth for a line comes out behind the floor's, where ours draw
+whole at the same one sample and the same `LessOrEqual`. The rest of it is the font. Every example
+written now has its number in the table.
