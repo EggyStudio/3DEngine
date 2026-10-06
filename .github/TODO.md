@@ -77,7 +77,7 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
-- **103 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names
+- **99 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names
   and [compared-with-raylib.md](../docs/compared-with-raylib.md) answers one by one. Most have their
   counterparts in C#, its strings, code points, files, directories, hashes, compression and freeing
   of memory, each there beside its counterpart. The rest are left out for a reason the page gives.
@@ -85,8 +85,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   their glyphs by code point in ImGui's atlas, so the shapes texture, `GetGlyphIndex`,
   `LoadFontData` and `GenImageFontAtlas` have no meaning. The vertex layout has no tangents, for
   `GenMeshTangents` and `GetShaderLocationAttrib`, and `UpdateSound` reaches into the audio thread,
-  which the backend does not open to the program. VR stereo, the file callbacks (which the asset
-  server's sources stand in for) and the exports as C code are left out too.
+  which the backend does not open to the program. The file callbacks (which the asset server's
+  sources stand in for) and the exports as C code are left out too. VR stereo draws the shapes,
+  lines and text of a `BeginMode3D` once for each eye, and a model drawn in it once, through the
+  camera.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on

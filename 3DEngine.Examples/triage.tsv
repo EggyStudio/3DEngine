@@ -27,7 +27,6 @@ core_window_should_close	can
 core_custom_logging	can
 core_random_values	can
 core_storage_values	can	its text in ImGui's default font, as the comparison page says
-core_vr_simulator	missing	BeginVrStereoMode, EndVrStereoMode, LoadVrStereoConfig, UnloadVrStereoConfig
 core_scissor_test	can
 core_basic_screen_manager	can
 core_smooth_pixelperfect	can

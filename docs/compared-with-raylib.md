@@ -59,7 +59,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 516 of the 619 functions in `raylib.h` are carried, 83 percent, counted
+- **Not all of raylib.** 520 of the 619 functions in `raylib.h` are carried, 84 percent, counted
   below. The rest have their counterparts in C#, file paths, directories, hashes, compression,
   memory and strings, each beside its counterpart below, and a few are left out, each with its
   reason.
@@ -136,6 +136,7 @@ another name or takes another shape, it is here with the reason.
 | `GAMEPAD_BUTTON_LEFT_TRIGGER_2`, `GAMEPAD_BUTTON_RIGHT_TRIGGER_2` | Not carried, a trigger read as an axis, `GamepadAxis.LeftTrigger` from 0 to 1 | SDL3 reports a trigger as an axis alone |
 | `Model.skeleton`'s `currentPose` and `boneMatrices` | Not carried | A model's pose lives with its skinned meshes on the GPU, posed by `UpdateModelAnimation` |
 | `ModelAnimation` of a bone count | `ModelAnimation` with its `Bones` | A clip is checked against the model it is played on by its bones' names and parents |
+| A model drawn with `DrawModel` inside `BeginVrStereoMode` | Drawn once for each eye, as every rlgl batch is | Drawn once, through the camera | The model pass draws a target through one camera, where the shapes, lines and text drawn in 3D are drawn for each eye |
 | `DrawModelPoints`, `DrawModelPointsEx`, `UnloadModelAnimation` | Carried, from raylib 5.5, which raylib 6 left out | A program of 5.5's calls them, and they take nothing from the rest |
 | An argument's name, as `posX` and `startPos` | C#'s name for it in places, as `x` and `start` | A call's arguments are given in order, which is raylib's, and a program naming one takes the name the cheatsheet gives |
 
@@ -206,7 +207,6 @@ array or a string nothing holds.
 
 | raylib | Why |
 |---|---|
-| `BeginVrStereoMode`, `EndVrStereoMode`, `LoadVrStereoConfig`, `UnloadVrStereoConfig` | VR is not in the engine's plan |
 | `SetLoadFileDataCallback`, `SetSaveFileDataCallback`, `SetLoadFileTextCallback`, `SetSaveFileTextCallback` | The flat API reads files beside the program or in the working directory, and the asset server, which loads a level's models, textures and scenes, reads through the sources a program gives it with `AddSource`, an archive of its own among them |
 | `ExportDataAsCode`, `ExportImageAsCode`, `ExportFontAsCode`, `ExportMeshAsCode`, `ExportWaveAsCode` | They write a C header for a C program to compile its data into, where a .NET program embeds a file as a resource of its assembly or ships it beside itself |
 | `SetShapesTexture`, `GetShapesTexture`, `GetShapesTextureRectangle` | Shapes are drawn untextured, by the immediate pass's own shader, so there is no texture they are cut from |
@@ -230,7 +230,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 516 (83 percent) |
+| Functions of `raylib.h` carried | 619 | 520 (84 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw

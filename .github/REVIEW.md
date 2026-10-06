@@ -292,3 +292,19 @@ outline, since raylib's glTF normals under a node that scales are as long as one
 39.37 for this car in inches, as the page says, so raylib's 0.005 pushes its hull 0.197, where a
 unit normal here pushed it 0.005, inside the car. The port pushes it by 0.005 over 0.0254 with a
 comment saying why, and the pair went from 4.1 to 1.5 per cent apart; its capture is taken again.
+
+**Now 2, the last example.** `core_vr_simulator` is written, which makes 221 of 222, the one left
+being the browser's main loop. Its row had said VR was not in the engine's plan, which a working
+session wrote and nobody decided. `LoadVrStereoConfig` works each eye's projection, offset and the
+lens's parameters out from a `VrDeviceInfo` as raylib's does, the projections the engine's own with
+depth from 0 to 1, and between `BeginVrStereoMode` and `EndVrStereoMode` a `BeginMode3D` records its
+3D through the left eye, squeezed into the left half of clip space and kept to the left half's
+pixels, and `EndMode3D` records the same batches again through the right eye into the right half,
+sharing their vertices, as rlgl draws each batch once an eye with a viewport of half the target.
+A model drawn inside it is drawn once, through the camera, since the model pass draws a target
+through one camera, which the comparison page says. The example bends the stereo picture through
+raylib's distortion shader written in Slang, and stands 2.3 per cent apart from raylib's program,
+its FPS counter's font. Tests check the config against numbers worked from raylib's code for the
+example's headset, and that the cube is drawn in the middle of each half with stereo on, in the
+middle alone with it off, and 2D after it over both halves, which pass on lavapipe under the layer.
+`coverage.py` counts 520 of 619 carried. The suite: 1,438 passed, none skipped.

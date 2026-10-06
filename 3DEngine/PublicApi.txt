@@ -926,6 +926,7 @@ static class Engine.Engine3D
   static Vector4 Vector4MoveTowards(Vector4 v, Vector4 target, float maxDistance)
   static Vehicle GetPhysicsVehicle(PhysicsBody vehicle)
   static VehicleWheel[] GetPhysicsVehicleWheels(PhysicsBody vehicle)
+  static VrStereoConfig LoadVrStereoConfig(VrDeviceInfo device)
   static Wave LoadWave(string fileName)
   static Wave LoadWaveFromMemory(string fileType, byte[] fileData)
   static Wave WaveCopy(Wave wave)
@@ -1091,6 +1092,7 @@ static class Engine.Engine3D
   static void BeginScissorMode(int x, int y, int width, int height)
   static void BeginShaderMode(Shader shader)
   static void BeginTextureMode(RenderTexture2D target)
+  static void BeginVrStereoMode(VrStereoConfig config)
   static void CameraMoveForward(ref Camera3D camera, float distance, bool moveInWorldPlane)
   static void CameraMoveRight(ref Camera3D camera, float distance, bool moveInWorldPlane)
   static void CameraMoveToTarget(ref Camera3D camera, float delta)
@@ -1223,6 +1225,7 @@ static class Engine.Engine3D
   static void EndScissorMode()
   static void EndShaderMode()
   static void EndTextureMode()
+  static void EndVrStereoMode()
   static void GenTextureMipmaps(ref Texture2D texture)
   static void HideCursor()
   static void ImageAlphaClear(ref Image image, Color color, float threshold)
@@ -1438,6 +1441,7 @@ static class Engine.Engine3D
   static void UnloadSound(Sound sound)
   static void UnloadSoundAlias(Sound alias)
   static void UnloadTexture(Texture2D texture)
+  static void UnloadVrStereoConfig(VrStereoConfig config)
   static void UnloadWave(Wave wave)
   static void UnloadWaveSamples(float[] samples)
   static void UpdateAudioStream(AudioStream stream, ReadOnlySpan<float> samples)
@@ -2905,6 +2909,25 @@ readonly struct Engine.VehicleWheel : IEquatable<VehicleWheel>
   static bool op_Equality(VehicleWheel left, VehicleWheel right)
   static bool op_Inequality(VehicleWheel left, VehicleWheel right)
   void Deconstruct(out Vector3 Center, out Vector3 Contact, out bool Grounded, out float Slip, out float Spin, out float Steer)
+struct Engine.VrDeviceInfo
+  Vector4 ChromaAbCorrection
+  Vector4 LensDistortionValues
+  float EyeToScreenDistance
+  float HScreenSize
+  float InterpupillaryDistance
+  float LensSeparationDistance
+  float VScreenSize
+  int HResolution
+  int VResolution
+struct Engine.VrStereoConfig
+  Matrix4x4[] Projection
+  Matrix4x4[] ViewOffset
+  Vector2 LeftLensCenter
+  Vector2 LeftScreenCenter
+  Vector2 RightLensCenter
+  Vector2 RightScreenCenter
+  Vector2 Scale
+  Vector2 ScaleIn
 sealed class Engine.Wave
   Wave()
   float[] Samples { get; init; }

@@ -54,6 +54,7 @@ var examples = new Dictionary<string, Action>
     ["core_directory_files"] = CoreDirectoryFiles.Run,
     ["core_clipboard_text"] = CoreClipboardText.Run,
     ["core_compute_hash"] = CoreComputeHash.Run,
+    ["core_vr_simulator"] = CoreVrSimulator.Run,
     ["shapes_basic_shapes"] = ShapesBasicShapes.Run,
     ["shapes_bouncing_ball"] = ShapesBouncingBall.Run,
     ["shapes_colors_palette"] = ShapesColorsPalette.Run,

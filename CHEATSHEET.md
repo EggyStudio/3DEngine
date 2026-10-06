@@ -87,6 +87,10 @@ void EndDrawing();                                       // Render and present t
 void ClearBackground(Color color);                       // Color the frame is cleared to
 void BeginMode3D(Camera3D camera);                       // Draw the following shapes through a camera, depth tested
 void EndMode3D();                                        // Return to screen space, in pixels from the top left
+VrStereoConfig LoadVrStereoConfig(VrDeviceInfo device);  // Each eye's projection and offset, and the lens's parameters, from a headset's measures
+void UnloadVrStereoConfig(VrStereoConfig config);        // Let it go, which frees nothing
+void BeginVrStereoMode(VrStereoConfig config);           // Draw the 3D that follows once for each eye, in each half
+void EndVrStereoMode();                                  // Back to one camera
 void UpdateCamera(ref Camera3D camera, CameraMode mode); // Move a camera from the keys, mouse and pad, as raylib's does in that mode
 void UpdateCameraPro(ref Camera3D camera, Vector3 movement, Vector3 rotation, float zoom); // Move and turn it by amounts of the program's own
 Vector3 GetCameraForward(Camera3D camera);               // The way it looks, of length one

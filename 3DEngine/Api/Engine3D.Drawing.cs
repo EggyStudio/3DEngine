@@ -225,16 +225,19 @@ public static partial class Engine3D
     /// It keeps the shapes, textures and text drawn after it, in 2D and 3D, to the rectangle, as a
     /// scrolling panel does. Models and ImGui are not kept to it.
     /// </remarks>
-    public static void BeginScissorMode(int x, int y, int width, int height)
+    public static void BeginScissorMode(int x, int y, int width, int height) => DrawList.SetScissor(PixelsOf(x, y, width, height));
+
+    // A rectangle of the window's units or a render texture's pixels as the framebuffer's pixels.
+    // The window's units are those of mouse positions, which a display with more pixels than that,
+    // as a scaled one has, multiplies into the framebuffer's.
+    private static ScissorRect PixelsOf(int x, int y, int width, int height)
     {
-        // The window's units are those of mouse positions, which a display with more pixels than
-        // that, as a scaled one has, multiplies into the framebuffer's.
         var (scaleX, scaleY) = (1f, 1f);
         if (!_target.IsValid && TryRes<AppWindow>(out var window)
             && SDL3.SDL.GetWindowSizeInPixels(window.Sdl.Window, out var pixelsWide, out var pixelsHigh)
             && GetScreenWidth() > 0 && GetScreenHeight() > 0)
             (scaleX, scaleY) = ((float)pixelsWide / GetScreenWidth(), (float)pixelsHigh / GetScreenHeight());
-        DrawList.SetScissor(new ScissorRect((int)(x * scaleX), (int)(y * scaleY), (int)(width * scaleX), (int)(height * scaleY)));
+        return new ScissorRect((int)(x * scaleX), (int)(y * scaleY), (int)(width * scaleX), (int)(height * scaleY));
     }
 
     /// <summary>Returns to drawing over the whole window or render target.</summary>
@@ -254,6 +257,7 @@ public static partial class Engine3D
         var projection = camera.ProjectionMatrix(aspect);
         var viewProjection = camera.View * projection;
         SetRlCamera(camera.View, projection, depthTest: true);
+        if (_stereo is { } stereo) BeginStereo(camera, stereo);
         ResetRlglUnlessPushed();
         _camera3D = camera;
         var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
@@ -267,6 +271,7 @@ public static partial class Engine3D
     /// <summary>Returns to drawing in screen space, in pixels from the top left corner.</summary>
     public static void EndMode3D()
     {
+        EndStereo();
         _camera3D = null;
         SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
         ResetRlglUnlessPushed();

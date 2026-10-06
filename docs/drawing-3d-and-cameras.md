@@ -183,6 +183,27 @@ var gBuffer = LoadRenderTexture(800, 450,
 SetShaderValueTexture(deferredShader, GetShaderLocation(deferredShader, "gPosition"), gBuffer.Textures[0]);
 ```
 
+A headset's two pictures are drawn as raylib's VR simulator draws them. `LoadVrStereoConfig` works
+each eye's projection and offset out from a `VrDeviceInfo` of the headset's measures, and between
+`BeginVrStereoMode` and `EndVrStereoMode` the shapes, lines and text of a `BeginMode3D` are drawn
+once for each eye, the left in the left half of the target and the right in the right. The
+`core_vr_simulator` example draws into a texture of the headset's size and bends it through the
+lenses with raylib's distortion shader, written in Slang, whose parameters the config holds:
+
+```csharp
+BeginTextureMode(target);
+    ClearBackground(Color.RayWhite);
+    BeginVrStereoMode(config);
+        BeginMode3D(camera);
+            DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, Color.Red);
+            DrawGrid(40, 1.0f);
+        EndMode3D();
+    EndVrStereoMode();
+EndTextureMode();
+```
+
+A model drawn with `DrawModel` inside it is drawn once, through the camera.
+
 ## Particles
 
 Smoke, sparks, dust and fire are particles: small squares facing the camera, given off by an
@@ -325,7 +346,8 @@ grid after it shows in front. Models are drawn through the camera of `BeginMode3
   [`shapes_rlgl_triangle`](../3DEngine.Examples/Shapes/ShapesRlglTriangle.cs),
   [`models_point_rendering`](../3DEngine.Examples/Models/ModelsPointRendering.cs),
   [`shaders_cel_shading`](../3DEngine.Examples/Shaders/ShadersCelShading.cs),
-  [`textures_portal_window`](../3DEngine.Examples/Textures/TexturesPortalWindow.cs)
+  [`textures_portal_window`](../3DEngine.Examples/Textures/TexturesPortalWindow.cs),
+  [`core_vr_simulator`](../3DEngine.Examples/Core/CoreVrSimulator.cs)
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
   [3D shapes](../CHEATSHEET.md#3d-shapes), [rlgl](../CHEATSHEET.md#rlgl) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)

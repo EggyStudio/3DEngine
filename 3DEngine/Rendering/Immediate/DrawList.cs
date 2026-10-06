@@ -240,6 +240,34 @@ internal sealed class DrawList
         }
     }
 
+    /// <summary>How many batches are recorded, the open one closed, which <see cref="Repeat"/> counts from.</summary>
+    public int Mark()
+    {
+        using (Enter())
+        {
+            Close();
+            return _batches.Count;
+        }
+    }
+
+    /// <summary>
+    /// Records again each batch from <paramref name="from"/> on that was drawn through
+    /// <paramref name="transform"/>, through <paramref name="other"/> and kept to
+    /// <paramref name="scissor"/>, sharing its vertices, as raylib's rlgl draws a stereo frame's
+    /// batches once for each eye.
+    /// </summary>
+    public void Repeat(int from, Matrix4x4 transform, Matrix4x4 other, ScissorRect scissor)
+    {
+        using (Enter())
+        {
+            Close();
+            var end = _batches.Count;
+            for (int i = from; i < end; i++)
+                if (_batches[i].Transform == transform)
+                    _batches.Add(_batches[i] with { Transform = other, Scissor = scissor });
+        }
+    }
+
     /// <summary>Sets the transform and depth mode the following shapes are recorded with.</summary>
     public void SetTransform(Matrix4x4 transform, bool depthTest)
     {
