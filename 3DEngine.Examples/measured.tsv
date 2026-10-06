@@ -86,6 +86,7 @@ models_point_rendering	3.5
 models_procedural_decals	3.0
 models_rlgl_solar_system	1.0
 models_rotating_cube	0.2
+models_skybox_rendering	0.2
 models_tesseract_view	0.0
 models_textured_cube	0.8
 models_waving_cubes	0.2

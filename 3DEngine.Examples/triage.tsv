@@ -30,13 +30,11 @@ core_scissor_test	can
 core_basic_screen_manager	can
 core_smooth_pixelperfect	can
 core_random_sequence	can
-core_automation_events	missing	ExportAutomationEventList, LoadAutomationEventList, PlayAutomationEvent, SetAutomationEventBaseFrame, SetAutomationEventList, StartAutomationEventRecording, StopAutomationEventRecording, UnloadAutomationEventList
 core_render_texture	can
 core_undo_redo	can
 core_viewport_scaling	can
 core_input_actions	can
 core_directory_files	can	with ImGui in raygui's place
-core_screen_recording	missing	LoadImageFromScreen
 core_clipboard_text	can	with ImGui in raygui's place
 core_text_file_loading	can
 core_compute_hash	can	with ImGui in raygui's place
@@ -130,7 +128,6 @@ models_orthographic_projection	can
 models_yaw_pitch_roll	can
 models_waving_cubes	can
 models_heightmap_rendering	can
-models_skybox_rendering	missing	LoadTextureCubemap and a material's cubemap a shader samples, since textures are two-dimensional, and a model drawn without writing depth, which rlDisableDepthMask leaves to shapes
 models_animation_gpu_skinning	can
 models_bone_socket	can
 models_tesseract_view	can

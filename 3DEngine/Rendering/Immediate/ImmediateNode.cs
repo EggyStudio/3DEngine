@@ -241,7 +241,7 @@ internal sealed class ImmediateRenderer : IDisposable
         {
             var index = IndexOf(program, texture);
             var id = batch.Textures is { } ids && index >= 0 && index < ids.Length ? ids[index] : 0;
-            var (ownView, ownSampler) = textures.ViewFor(gfx, id);
+            var (ownView, ownSampler) = textures.ViewFor(gfx, id, cube: texture.Cube);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(ownView, ownSampler, (uint)texture.Binding, texture.Type));
         }
         BindBuffers(gfx, renderWorld, set, program, batch.Textures, ref _noBuffer);

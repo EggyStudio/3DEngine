@@ -21,7 +21,7 @@ public enum MaterialMapIndex
     Emission,
     /// <summary>A height map, which the engine's materials do not have.</summary>
     Height,
-    /// <summary>A cube map, which the engine's materials do not have.</summary>
+    /// <summary>A cube map, which the engine's materials do not hold, a shader's <c>SamplerCube</c> being given one by <see cref="Engine3D.SetShaderValueTexture"/>.</summary>
     Cubemap,
     /// <summary>An irradiance map, which the environment map gives instead.</summary>
     Irradiance,

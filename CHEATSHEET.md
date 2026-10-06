@@ -471,6 +471,7 @@ Image ImageTextEx(Font font, string text, float fontSize, float spacing, Color t
 
 Texture2D LoadTexture(string fileName);                                                // Read an image file into a texture
 Texture2D LoadTextureFromImage(Image image);                                           // Upload an image into a texture
+Texture2D LoadTextureCubemap(Image image, CubemapLayout layout);                       // A cube from six faces in a line or a cross, for a SamplerCube
 void UnloadTexture(Texture2D texture);                                                 // Free a texture
 bool IsTextureValid(Texture2D texture);                                                // Whether a texture is loaded
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size

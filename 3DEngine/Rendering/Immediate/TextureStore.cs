@@ -75,9 +75,13 @@ internal sealed class TextureStore
     /// <param name="Formats">The formats of a render target that draws into several textures at once, or null for one in the window's format.</param>
     /// <param name="ColorOf">The render target whose color past its first the texture samples, or 0 when it is not one's.</param>
     /// <param name="ColorIndex">Which of that target's colors, from 1.</param>
+    /// <param name="Cube">
+    /// Whether the texture is a cube, <paramref name="Width"/> texels a face, whose
+    /// <paramref name="Rgba"/> holds its six faces one under the next in Vulkan's order.
+    /// </param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
         int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null, ImageFormat[]? Formats = null,
-        int ColorOf = 0, int ColorIndex = 0);
+        int ColorOf = 0, int ColorIndex = 0, bool Cube = false);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
@@ -86,6 +90,8 @@ internal sealed class TextureStore
     // what is behind it. A texture that is only clear or solid cuts out as it is.
     private readonly HashSet<int> _translucent = [];
     private readonly HashSet<int> _targets = [];
+    // Cube textures, whose pixels are six faces and which nothing writes after they are made.
+    private readonly HashSet<int> _cubes = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -111,13 +117,38 @@ internal sealed class TextureStore
         }
     }
 
+    /// <summary>
+    /// Queues a cube texture of faces <paramref name="size"/> texels wide, from six faces one under
+    /// the next in Vulkan's order (+X, -X, +Y, -Y, +Z, -Z), and returns its id.
+    /// </summary>
+    /// <exception cref="ArgumentException">The pixel array does not hold six faces of <paramref name="size"/> by <paramref name="size"/> pixels.</exception>
+    internal int AddCube(byte[] faces, int size)
+    {
+        Validate(faces, size, size * 6);
+        lock (_gate)
+        {
+            var id = _next++;
+            // Clamped at the faces' edges and filtered between texels, as rlgl makes a cube map.
+            _live[id] = (size, size, TextureFilter.Bilinear, false, TextureWrap.Clamp);
+            _cubes.Add(id);
+            _uploads.Add(new Upload(id, faces, size, size, TextureFilter.Bilinear, Wrap: TextureWrap.Clamp, Cube: true));
+            return id;
+        }
+    }
+
+    /// <summary>Whether a loaded texture is a cube.</summary>
+    internal bool IsCube(int id)
+    {
+        lock (_gate) return _cubes.Contains(id);
+    }
+
     /// <summary>Gives a loaded texture mip levels, made on the GPU from its pixels.</summary>
     /// <returns>Whether the texture is loaded and can have them. A render target cannot.</returns>
     internal bool GenerateMipmaps(int id)
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture)) return false;
+            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id)) return false;
             if (_uploads.Any(u => u.Id == id && u.Target)) return false;
             if (texture.Mipmaps) return true;
             _live[id] = texture with { Mipmaps = true };
@@ -195,7 +226,7 @@ internal sealed class TextureStore
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4)
+            if (!_live.TryGetValue(id, out var texture) || rgba.Length != texture.Width * texture.Height * 4 || _cubes.Contains(id))
                 return false;
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
@@ -210,7 +241,7 @@ internal sealed class TextureStore
     {
         lock (_gate)
         {
-            if (!_live.TryGetValue(id, out var texture) || width <= 0 || height <= 0 || x < 0 || y < 0
+            if (!_live.TryGetValue(id, out var texture) || _cubes.Contains(id) || width <= 0 || height <= 0 || x < 0 || y < 0
                 || x + width > texture.Width || y + height > texture.Height || rgba.Length != width * height * 4)
                 return false;
             _uploads.Add(new Upload(id, rgba, width, height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap, Offset: (x, y)));
@@ -262,6 +293,7 @@ internal sealed class TextureStore
             if (!_live.Remove(id)) return false;
             _translucent.Remove(id);
             _targets.Remove(id);
+            _cubes.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
             return true;
@@ -278,7 +310,8 @@ internal sealed class TextureStore
     {
         lock (_gate)
         {
-            var whole = _uploads.FindLastIndex(u => u.Id == id && u.Rgba is not null && u.Offset is null && !u.Target);
+            // A cube's six faces are not one image of its size, so it is not read back.
+            var whole = _uploads.FindLastIndex(u => u.Id == id && u.Rgba is not null && u.Offset is null && !u.Target && !u.Cube);
             if (whole < 0 || !_live.TryGetValue(id, out var texture)) return null;
 
             var pixels = (byte[])_uploads[whole].Rgba!.Clone();

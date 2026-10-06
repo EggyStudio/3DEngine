@@ -296,7 +296,8 @@ internal static partial class SlangCompiler
             var found = shape is "structuredBuffer" or "byteAddressBuffer" ? Resource.Buffer : written ? Resource.Image : Resource.Texture;
             if (found != kind) continue;
             var combined = type.TryGetProperty("combined", out var flag) && flag.GetBoolean();
-            textures.Add(new ShaderTexture(name, index, found != Resource.Texture || combined ? DescriptorType.CombinedImageSampler : DescriptorType.SampledImage));
+            textures.Add(new ShaderTexture(name, index, found != Resource.Texture || combined ? DescriptorType.CombinedImageSampler : DescriptorType.SampledImage,
+                Cube: shape == "textureCube"));
         }
         return textures;
     }
@@ -307,10 +308,11 @@ internal static partial class SlangCompiler
         string.Concat(uniforms.Select(u => $"{u.Name} {u.Offset} {u.Size}\n"));
 
     // A texture's line carries how it is declared after its binding, where one combined with its
-    // sampler, all a cache written before samplers apart has, has nothing there.
+    // sampler, all a cache written before samplers apart has, has nothing there, and a cube says so
+    // after that, which a cache written before cubes has nowhere.
     private static string WriteTextures(IReadOnlyList<ShaderTexture> textures) =>
-        string.Concat(textures.Select(t => t.Type == DescriptorType.CombinedImageSampler
-            ? $"texture {t.Name} {t.Binding}\n"
+        string.Concat(textures.Select(t => t.Cube ? $"texture {t.Name} {t.Binding} {t.Type} Cube\n"
+            : t.Type == DescriptorType.CombinedImageSampler ? $"texture {t.Name} {t.Binding}\n"
             : $"texture {t.Name} {t.Binding} {t.Type}\n"));
 
     private static string WriteBuffers(IReadOnlyList<ShaderTexture> buffers) =>
@@ -328,9 +330,9 @@ internal static partial class SlangCompiler
     private static IReadOnlyList<ShaderTexture> ReadResources(string text, string kind) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
-            .Where(parts => parts.Length is 3 or 4 && parts[0] == kind && !IsNumber(parts[1]))
+            .Where(parts => parts.Length is 3 or 4 or 5 && parts[0] == kind && !IsNumber(parts[1]))
             .Select(parts => new ShaderTexture(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture),
-                parts.Length == 4 ? Enum.Parse<DescriptorType>(parts[3]) : DescriptorType.CombinedImageSampler))
+                parts.Length >= 4 ? Enum.Parse<DescriptorType>(parts[3]) : DescriptorType.CombinedImageSampler, Cube: parts.Length == 5 && parts[4] == "Cube"))
             .ToArray();
 
     // A uniform's line is its name and two numbers, and a resource's its kind, its name and a
@@ -407,9 +409,9 @@ internal static partial class SlangCompiler
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         // The version names what an entry holds, so entries from before uniforms, then textures,
-        // then every binding, then each element and field of a uniform were cached beside the
-        // SPIR-V are compiled again rather than read without them.
-        hash.AppendData(Encoding.UTF8.GetBytes($"entries 5\n{Arguments}\n{entryPoint}\n{stage}\n"));
+        // then every binding, then each element and field of a uniform, then whether a texture is
+        // a cube were cached beside the SPIR-V are compiled again rather than read without them.
+        hash.AppendData(Encoding.UTF8.GetBytes($"entries 6\n{Arguments}\n{entryPoint}\n{stage}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))
@@ -533,6 +535,6 @@ internal readonly record struct ShaderUniform(string Name, int Offset, int Size)
 /// <summary>
 /// A texture a shader samples, a sampler it declares apart from its texture, or a storage buffer or
 /// image a compute shader uses, by its name and its binding in the first descriptor set, and for a
-/// texture or a sampler how it is declared.
+/// texture or a sampler how it is declared, and whether a texture is a cube.
 /// </summary>
-internal readonly record struct ShaderTexture(string Name, int Binding, DescriptorType Type = DescriptorType.CombinedImageSampler);
+internal readonly record struct ShaderTexture(string Name, int Binding, DescriptorType Type = DescriptorType.CombinedImageSampler, bool Cube = false);

@@ -25,7 +25,7 @@ internal sealed class GpuTextures : IDisposable
     // from sRGB when sampled, which the model pass reads a base color through, since it lights in
     // linear space.
     private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null,
-        int Of = 0)
+        int Of = 0, bool Cube = false)
     {
         // The first level alone, which a compute shader writes a mipmapped image through, made
         // when one first does. A copy made for a new sampler shares it, since the image is the same.
@@ -54,9 +54,19 @@ internal sealed class GpuTextures : IDisposable
     /// loaded, for a descriptor set of a pass's own. With <paramref name="srgb"/> the view decodes
     /// the texture's color from sRGB to linear as it is sampled.
     /// </summary>
-    public (IImageView View, ISampler Sampler) ViewFor(IGraphicsDevice gfx, int id, bool srgb = false)
+    /// <remarks>
+    /// With <paramref name="cube"/> it is for a <c>SamplerCube</c>, which a texture that is not a
+    /// cube, or none, reads as black, as an unset cube reads in OpenGL. Without it a cube reads as
+    /// the white texture, since a 2D sampler cannot read a cube.
+    /// </remarks>
+    public (IImageView View, ISampler Sampler) ViewFor(IGraphicsDevice gfx, int id, bool srgb = false, bool cube = false)
     {
-        var entry = id != 0 && _entries.TryGetValue(id, out var found) ? found : White(gfx);
+        if (cube)
+        {
+            var face = id != 0 && _entries.TryGetValue(id, out var cubeEntry) && cubeEntry.Cube ? cubeEntry : BlackCube(gfx);
+            return (srgb ? face.SrgbView : face.View, face.Sampler);
+        }
+        var entry = id != 0 && _entries.TryGetValue(id, out var found) && !found.Cube ? found : White(gfx);
         return (srgb ? entry.SrgbView : entry.View, entry.Sampler);
     }
 
@@ -80,7 +90,7 @@ internal sealed class GpuTextures : IDisposable
 
     /// <summary>The image of texture <paramref name="id"/>, a render target's colors among them and not its depth, or null for one not on the GPU yet.</summary>
     internal IImage? ImageFor(int id) =>
-        id != 0 && _entries.TryGetValue(id, out var entry)
+        id != 0 && _entries.TryGetValue(id, out var entry) && !entry.Cube
             ? entry.Image ?? entry.Target?.ColorView.Image ?? (entry.Of != 0 && entry.View.Image.Description.Format != ImageFormat.D32_Float ? entry.View.Image : null)
             : null;
 
@@ -146,6 +156,18 @@ internal sealed class GpuTextures : IDisposable
                     continue;
                 }
 
+                if (upload.Cube && upload.Rgba is { } faces)
+                {
+                    if (gfx is not GraphicsDevice cubeDevice) continue;
+                    var (cubeImage, cubeView, cubeSrgb) = cubeDevice.CreateTextureCube((uint)upload.Width, faces);
+                    var cubeSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
+                    // The immediate pass's set holds the white texture, since a 2D sampler cannot read a cube.
+                    _entries[upload.Id] = new Entry(cubeImage, cubeView, cubeSrgb, cubeSampler, CreateSet(gfx, White(gfx).View, cubeSampler), Cube: true);
+                    cubeDevice.Name(cubeImage, $"Cube texture {upload.Id}");
+                    if (existing is not null) Retire(existing.Owned);
+                    continue;
+                }
+
                 if (upload.Offset is { } at && upload.Rgba is { } part)
                 {
                     // A rectangle of a texture on the GPU, written into its image in place.
@@ -172,7 +194,7 @@ internal sealed class GpuTextures : IDisposable
                     // Only the filter changed, so the image stays and the sampler and set are new.
                     if (existing is null) continue;
                     var sampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
-                    _entries[upload.Id] = existing with { Sampler = sampler, Set = CreateSet(gfx, existing.View, sampler) };
+                    _entries[upload.Id] = existing with { Sampler = sampler, Set = CreateSet(gfx, existing.Cube ? White(gfx).View : existing.View, sampler) };
                     Retire(existing.Set, existing.Sampler);
                     continue;
                 }
@@ -196,6 +218,19 @@ internal sealed class GpuTextures : IDisposable
     {
         if (_entries.TryGetValue(0, out var white)) return white;
         return _entries[0] = Create(gfx, [255, 255, 255, 255], 1, 1, TextureFilter.Point);
+    }
+
+    // A cube of one black texel a face, which a SamplerCube with no cube set reads.
+    private Entry? _blackCube;
+
+    private Entry BlackCube(IGraphicsDevice gfx)
+    {
+        if (_blackCube is not null) return _blackCube;
+        if (gfx is not GraphicsDevice device) return White(gfx);
+        byte[] faces = [.. Enumerable.Repeat<byte[]>([0, 0, 0, 255], 6).SelectMany(texel => texel)];
+        var (image, view, srgb) = device.CreateTextureCube(1, faces);
+        var sampler = CreateSampler(gfx, TextureFilter.Point, TextureWrap.Clamp);
+        return _blackCube = new Entry(image, view, srgb, sampler, CreateSet(gfx, White(gfx).View, sampler), Cube: true);
     }
 
     private static Entry Create(IGraphicsDevice gfx, byte[] rgba, int width, int height, TextureFilter filter, bool mipmaps = false,
@@ -263,6 +298,8 @@ internal sealed class GpuTextures : IDisposable
         foreach (var e in _entries.Values)
             foreach (var o in e.Owned) o.Dispose();
         _entries.Clear();
+        foreach (var o in _blackCube?.Owned ?? []) o.Dispose();
+        _blackCube = null;
     }
 }
 

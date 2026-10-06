@@ -138,6 +138,7 @@ var examples = new Dictionary<string, Action>
     ["physics_boxes"] = PhysicsBoxes.Run,
     ["models_animation"] = ModelsAnimation.Run,
     ["models_loading"] = ModelsLoading.Run,
+    ["models_skybox_rendering"] = ModelsSkyboxRendering.Run,
     ["models_mesh_generation"] = ModelsMeshGeneration.Run,
     ["models_terrain"] = ModelsTerrain.Run,
     ["models_skybox"] = ModelsSkybox.Run,

@@ -30,11 +30,13 @@ namespace Engine;
 /// <param name="CullFront">Whether the front faces are left out in place of the back ones, where any are, as rlgl's rlSetCullFace sets.</param>
 /// <param name="Points">Whether the triangles are drawn as a point at each corner, as rlgl's point mode draws them.</param>
 /// <param name="ColorBlend">Whether the draw is blended with what is behind it by its alpha, which rlgl's rlDisableColorBlend turns off, so it is written as it is.</param>
+/// <param name="DepthWrite">Whether the draw writes its depth, which rlgl's rlDisableDepthMask turns off, so what is drawn after it shows over it, as a sky drawn around the camera does.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
-    bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true)
+    bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true,
+    bool DepthWrite = true)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:

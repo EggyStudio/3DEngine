@@ -122,7 +122,10 @@ Textures a shader declares beyond the module's, found by name in Slang's reflect
 bindings Slang gave them, binding 0 among them for a shader with no uniforms, so such a shader
 has a descriptor layout of its own built from them, and the batch's set holds the textures
 `SetShaderValueTexture` set, as they were when it was recorded. A model shader's are the same,
-beside the material's maps.
+beside the material's maps. A `SamplerCube` is marked in the reflection, and the shader cache
+keeps the mark, so it is bound the cube view of a texture `LoadTextureCubemap` made, eight bits a
+channel in six layers, or a black cube where none is set, and a 2D slot handed a cube binds the
+white texture, since neither view can stand for the other.
 An unloaded shader's stages and pipelines are destroyed after the frames in flight that might use
 them.
 

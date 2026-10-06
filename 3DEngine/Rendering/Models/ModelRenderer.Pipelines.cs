@@ -6,18 +6,19 @@ namespace Engine;
 
 internal sealed partial class ModelRenderer
 {
-    // Which faces of a draw are left out and whether it is drawn as points: none for a
-    // double-sided material or a pass that culls nothing, and otherwise the back or the front ones.
-    private static (CullMode Cull, bool Points, bool Blend) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
-        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend);
+    // Which faces of a draw are left out, whether it is drawn as points, blended and writes its
+    // depth: no faces for a double-sided material or a pass that culls nothing, and otherwise the
+    // back or the front ones.
+    private static (CullMode Cull, bool Points, bool Blend, bool Depth) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
+        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend, draw.DepthWrite);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
-    // front ones out, filled or as points, blended or written as they are, through
-    // model_streams.slang for a mesh with streams.
+    // front ones out, filled or as points, blended or written as they are, writing its depth or
+    // not, through model_streams.slang for a mesh with streams.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        bool blend = true, Streams streams = Streams.None)
+        bool blend = true, Streams streams = Streams.None, bool depth = true)
     {
-        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams), out var made)) return made;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams, depth), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
@@ -25,20 +26,20 @@ internal sealed partial class ModelRenderer
             ? (_vertexShader, _fragmentShader)
             : (_streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv)),
                _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)));
-        return _pipelines[(renderPass, cull, points, blend, streams)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
-            blend: blend, streams: streams);
+        return _pipelines[(renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
+            blend: blend, streams: streams, depth: depth);
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
-        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None)
+        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None, bool depth = true)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
-        return _customPipelines[(id, renderPass, cull, points, blend, streams)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
+        return _customPipelines[(id, renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
-            blend: blend, streams: streams);
+            blend: blend, streams: streams, depth: depth);
     }
 
     // A material's own shader's stages, and whether it reads a mesh's colors and second texture
@@ -225,7 +226,7 @@ internal sealed partial class ModelRenderer
             for (int i = 0; i < program.Textures.Count && index < 0; i++)
                 if (program.Textures[i] == texture) index = i;
             var id = draw.ShaderTextures is { } ids && index >= 0 && index < ids.Length ? ids[index] : 0;
-            var (view, sampler) = textures.ViewFor(gfx, id);
+            var (view, sampler) = textures.ViewFor(gfx, id, cube: texture.Cube);
             gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, sampler, (uint)texture.Binding, texture.Type));
         }
         ImmediateRenderer.BindBuffers(gfx, renderWorld, set, program, draw.ShaderTextures, ref _noBuffer);
@@ -247,7 +248,7 @@ internal sealed partial class ModelRenderer
 
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
-        Streams streams = Streams.None, bool blend = true)
+        Streams streams = Streams.None, bool blend = true, bool depth = true)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -290,7 +291,7 @@ internal sealed partial class ModelRenderer
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
             DescriptorSetLayouts: [material ?? MaterialLayout(gfx), LightsLayout(gfx)],
             DepthTestEnabled: true,
-            DepthWriteEnabled: true,
+            DepthWriteEnabled: depth,
             DepthCompareOp: CompareOp.LessOrEqual);
 
         return renderWorld.TryGet<PipelineCache>() is { } cache

@@ -109,5 +109,6 @@ models/resources/models/vox/monu9.vox
 models/resources/models/vox/fez.vox
 models/resources/models/obj/castle.obj
 models/resources/models/obj/castle_diffuse.png
+models/resources/skybox.png
 shaders/resources/models/church.obj
 shaders/resources/models/church_diffuse.png

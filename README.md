@@ -267,7 +267,7 @@ ImGui in the same frame. The ECS, the
 scheduler and behaviors run underneath, and a game ships as one native executable through native
 AOT. What is missing:
 
-- **Some of raylib is not carried**, as VR stereo and cubemap textures, and
+- **Some of raylib is not carried**, as VR stereo and the shapes texture, and
   [the comparison with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md)
   answers each function left out with what C# has in its place or why it is left out.
 - **The effects over the frame are bloom, exposure, a choice of curve, color grading, a vignette,

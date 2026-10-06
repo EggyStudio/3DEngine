@@ -178,6 +178,85 @@ public static partial class Engine3D
         return new Texture2D(id, image.Width, image.Height);
     }
 
+    /// <summary>
+    /// A cube texture from an image of its six faces laid out as <paramref name="layout"/> says, or
+    /// as its shape shows with <see cref="CubemapLayout.AutoDetect"/>, as raylib's
+    /// <c>LoadTextureCubemap</c>, for a shader's <c>SamplerCube</c>, set by
+    /// <see cref="SetShaderValueTexture"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A face is as wide as the image's length in faces allows, and an image whose layout cannot
+    /// be found gives an invalid texture, with a warning, as raylib's does. A face reaching past
+    /// the image is magenta where it does, and a face's pixels with alpha below 1 are laid over
+    /// magenta, as raylib draws the faces into an image of that color.
+    /// </para>
+    /// <para>
+    /// Drawn as a 2D texture, by <c>DrawTexture</c>, it draws white, and a 2D sampler of a shader
+    /// reads it so, since a cube is not one image. <c>UnloadTexture</c> frees it.
+    /// </para>
+    /// </remarks>
+    public static Texture2D LoadTextureCubemap(Image image, CubemapLayout layout)
+    {
+        var size = 0;
+        if (layout == CubemapLayout.AutoDetect)
+        {
+            // raylib's tests, a line first and then a cross, by the integer sizes its C divides to.
+            if (image.Width > image.Height)
+            {
+                if (image.Width / 6 == image.Height) (layout, size) = (CubemapLayout.LineHorizontal, image.Width / 6);
+                else if (image.Width / 4 == image.Height / 3) (layout, size) = (CubemapLayout.CrossFourByThree, image.Width / 4);
+            }
+            else if (image.Height > image.Width)
+            {
+                if (image.Height / 6 == image.Width) (layout, size) = (CubemapLayout.LineVertical, image.Height / 6);
+                else if (image.Width / 3 == image.Height / 4) (layout, size) = (CubemapLayout.CrossThreeByFour, image.Width / 3);
+            }
+        }
+        else
+        {
+            size = layout switch
+            {
+                CubemapLayout.LineVertical => image.Height / 6,
+                CubemapLayout.LineHorizontal => image.Width / 6,
+                CubemapLayout.CrossThreeByFour => image.Width / 3,
+                CubemapLayout.CrossFourByThree => image.Width / 4,
+                _ => 0,
+            };
+        }
+
+        if (!image.IsValid || layout == CubemapLayout.AutoDetect || size <= 0)
+        {
+            ApiLogger.Warn($"LoadTextureCubemap: the layout of an image of {image.Width} by {image.Height} could not be found.");
+            return default;
+        }
+
+        Image faces;
+        if (layout == CubemapLayout.LineVertical)
+        {
+            // The faces already one under the next, as the cube takes them, its bytes read as
+            // raylib's upload reads the image it copies.
+            var data = new byte[size * size * 6 * 4];
+            image.Data.AsSpan(0, Math.Min(image.Data.Length, data.Length)).CopyTo(data);
+            faces = new Image(data, size, size * 6);
+        }
+        else
+        {
+            (int X, int Y)[] at = layout switch
+            {
+                CubemapLayout.LineHorizontal => [(0, 0), (size, 0), (size * 2, 0), (size * 3, 0), (size * 4, 0), (size * 5, 0)],
+                CubemapLayout.CrossThreeByFour => [(size, size), (size, size * 3), (size, 0), (size, size * 2), (0, size), (size * 2, size)],
+                _ => [(size * 2, size), (0, size), (size, 0), (size, size * 2), (size, size), (size * 3, size)],
+            };
+            faces = GenImageColor(size, size * 6, Color.Magenta);
+            for (int i = 0; i < 6; i++)
+                ImageDraw(ref faces, image, new Rectangle(at[i].X, at[i].Y, size, size), new Rectangle(0, size * i, size, size), Color.White);
+        }
+
+        var id = Textures.AddCube(faces.Data, size);
+        return new Texture2D(id, size, size);
+    }
+
     /// <summary>Frees a texture. Drawing it afterward draws nothing.</summary>
     public static void UnloadTexture(Texture2D texture)
     {

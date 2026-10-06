@@ -128,7 +128,8 @@ public static partial class Engine3D
 
     /// <summary>
     /// Tests what is drawn after against the depth there without writing its own, as rlgl's
-    /// <c>rlDisableDepthMask</c> does, for shapes, text and rlgl's vertices.
+    /// <c>rlDisableDepthMask</c> does, for shapes, text, rlgl's vertices and models, so a sky
+    /// drawn around the camera leaves what is drawn after it in front.
     /// </summary>
     public static void rlDisableDepthMask()
     {
@@ -315,9 +316,10 @@ public static partial class Engine3D
     private static bool RlCullingSet => _rlCulling != RlCulling.Unset || _rlCullFace != RlCullFace.Back;
 
     // A model's draw with the faces rlgl's culling leaves out, once a program has set it, drawn as
-    // points in point mode, and written as it is with blending off.
+    // points in point mode, written as it is with blending off, and leaving the depth as it was
+    // with the depth mask off.
     private static ModelDraw WithRlState(ModelDraw draw) =>
-        !RlCullingSet && !_rlPointMode && _rlColorBlend
+        !RlCullingSet && !_rlPointMode && _rlColorBlend && _rlDepthMask
             ? draw
             : draw with
             {
@@ -325,6 +327,7 @@ public static partial class Engine3D
                 CullFront = _rlCullFace == RlCullFace.Front,
                 Points = _rlPointMode,
                 ColorBlend = _rlColorBlend,
+                DepthWrite = _rlDepthMask,
             };
 
     // The factors the custom blend modes combine by, as rlgl keeps them: one set for

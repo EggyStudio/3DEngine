@@ -299,7 +299,8 @@ and `rlMultMatrixf` set the view.
 and the corners of an arch, so it lines up with the arch from wherever the camera stands, with
 `rlEnableDepthTest` and `rlDisableDepthTest` around it as `BeginMode3D` and `EndMode3D` turn
 the test on and off. `rlDisableDepthMask` tests what follows against the depth without writing
-its own. Models are drawn through the camera of `BeginMode3D` whatever rlgl's projection is, as
+its own, models among it, so `models_skybox_rendering` draws its sky cube around the camera and the
+grid after it shows in front. Models are drawn through the camera of `BeginMode3D` whatever rlgl's projection is, as
 [compared with raylib](compared-with-raylib.md) says.
 
 ## See also

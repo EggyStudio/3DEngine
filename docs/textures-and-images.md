@@ -136,6 +136,22 @@ particle. A model's material holds the texture it is drawn with, set by
 `model.Materials[0].Texture = texture`, and the [Drawing in 3D and cameras](drawing-3d-and-cameras.md)
 page draws a scene into a texture with `BeginTextureMode`.
 
+`LoadTextureCubemap` makes a cube texture from an image of its six faces, in a line across or down
+or a cross four faces by three or three by four, found from the image's shape with
+`CubemapLayout.AutoDetect`, as raylib finds it. A shader samples it by direction through a
+`SamplerCube` it declares, given the cube with `SetShaderValueTexture`, which reads black until it
+is set. `models_skybox_rendering` draws a sky that way, a cube around the camera drawn with
+`rlDisableDepthMask` so the grid drawn after it shows in front:
+
+```csharp
+Image image = LoadImage("resources/skybox.png");
+Texture2D cubemap = LoadTextureCubemap(image, CubemapLayout.AutoDetect);
+SetShaderValueTexture(shader, GetShaderLocation(shader, "cubemap"), cubemap);
+```
+
+`SetEnvironmentMap` lights the scene from a panorama and `DrawSkybox` draws it, which needs no
+shader of the program's own.
+
 ## Many sprites
 
 Drawing a texture costs little, and the immediate pass draws every sprite of one texture in one
@@ -148,7 +164,8 @@ runs on, which is over a hundred thousand on a desktop GPU.
 - Examples: [`textures_basic`](../3DEngine.Examples/Textures/TexturesBasic.cs),
   [`textures_image_drawing`](../3DEngine.Examples/Textures/TexturesImageDrawing.cs),
   [`textures_mipmaps`](../3DEngine.Examples/Textures/TexturesMipmaps.cs),
-  [`textures_bunnymark`](../3DEngine.Examples/Benchmarks/TexturesBunnymark.cs)
+  [`textures_bunnymark`](../3DEngine.Examples/Benchmarks/TexturesBunnymark.cs),
+  [`models_skybox_rendering`](../3DEngine.Examples/Models/ModelsSkyboxRendering.cs)
 - The cheatsheet's [Images and textures](../CHEATSHEET.md#images-and-textures)
 - Previous: [Drawing in 3D and cameras](drawing-3d-and-cameras.md)
 - Next: [Text and fonts](text-and-fonts.md)

@@ -171,3 +171,21 @@ its derivatives. A test draws two particles born together, the one blending show
 frame's blue and the other none, and the particle and reference tests pass on lavapipe under the
 validation layer. The entry keeps particles colliding with the world. The suite: 1,398 passed, 0
 failed, 1 skipped.
+
+**Now 2, `LoadTextureCubemap` carried and `models_skybox_rendering` written.** A cube texture is
+made from an image of its six faces in raylib's four layouts, found from the image's shape by
+raylib's own tests, the faces of a cross drawn into a column over magenta as raylib draws them, into
+eight bits a channel in six layers with a view as stored and one decoding sRGB, as a 2D texture has.
+Slang's reflection marks a `SamplerCube`, and the shader cache keeps the mark at version 6, so both
+passes bind a cube's view there, a black cube where none is set, as OpenGL reads an unset cube, and
+the white texture where a 2D slot is handed a cube. A shader's sampler is given its cube by
+`SetShaderValueTexture`, where raylib names the material's cube map, which the comparison page
+keeps. The example also needed models to honor `rlDisableDepthMask`, so its sky drawn around the
+camera leaves the grid drawn after it in front, and model draws now carry the depth write beside the
+blend in their batches and pipelines. raylib's `GenTextureCubemap`, used only with its HDR switch
+off, draws through rlgl's framebuffers, so the port works the faces out on the CPU by `cubemap.fs`'s
+own mapping. The example is 0.2% apart from raylib's picture, the sky's faces lying as raylib's do.
+Tests read the faces each layout gives in order, a cube refusing new pixels, a cube sampled along +X
+and +Y and an unset one black on the GPU, and a model drawn with the mask off leaving a later one in
+front. The render tests pass on lavapipe under the validation layer, 219 examples are written, 516
+of 619 functions are carried, and the suite: 1,405 passed, 0 failed, 1 skipped.

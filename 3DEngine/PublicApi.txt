@@ -498,6 +498,12 @@ readonly struct Engine.ContactStarted : IEquatable<ContactStarted>
   static bool op_Equality(ContactStarted left, ContactStarted right)
   static bool op_Inequality(ContactStarted left, ContactStarted right)
   void Deconstruct(out Entity A, out Entity B, out PhysicsBody BodyA, out PhysicsBody BodyB, out Vector3 Point, out Vector3 Normal, out float Speed)
+enum Engine.CubemapLayout : int
+  AutoDetect = 0
+  CrossFourByThree = 4
+  CrossThreeByFour = 3
+  LineHorizontal = 2
+  LineVertical = 1
 sealed class Engine.DefaultPlugins : IPlugin, IPluginGroup
   DefaultPlugins()
   IEnumerable<IPlugin> GetPlugins()
@@ -866,6 +872,7 @@ static class Engine.Engine3D
   static Sound LoadSoundFromWave(Wave wave)
   static TState GetState<TState>() where TState : struct, Enum
   static Texture2D LoadTexture(string fileName)
+  static Texture2D LoadTextureCubemap(Image image, CubemapLayout layout)
   static Texture2D LoadTextureFromImage(Image image)
   static Vector2 GetGamepadTouchPosition(int gamepad, int index)
   static Vector2 GetGestureDragVector()
