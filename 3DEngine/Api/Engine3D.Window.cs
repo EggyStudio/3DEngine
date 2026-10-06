@@ -45,6 +45,7 @@ public static partial class Engine3D
         _app?.Shutdown();
         _app = null;
         ForgetConfigFlags();
+        ForgetRlgl();
         _ambient = Entity.None;
     }
 

@@ -510,7 +510,7 @@ internal sealed class BloomRenderer : IDisposable
         gfx.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             renderPass, vertex, fragment,
             BlendEnabled: additive,
-            CullBackFace: false,
+            Cull: CullMode.None,
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)pushSize)],
             DescriptorSetLayouts: [layout],
             Blend: BlendMode.AddColors));

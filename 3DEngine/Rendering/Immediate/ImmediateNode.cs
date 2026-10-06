@@ -54,7 +54,7 @@ internal sealed class ImmediateRenderer : IDisposable
     private Stages? _engineStages;
     private Stages? _linearStages;
     private readonly Dictionary<int, Stages> _customStages = [];
-    private readonly Dictionary<(int Shader, int Slot, BlendMode Blend, IRenderPass Pass), IPipeline> _pipelines = [];
+    private readonly Dictionary<(int Shader, int Slot, BlendMode Blend, CullMode Cull, IRenderPass Pass), IPipeline> _pipelines = [];
     private readonly List<(long Frame, IDisposable Stages)> _retired = [];
     private long _frame;
     private DynamicAllocation? _vertices;
@@ -294,14 +294,14 @@ internal sealed class ImmediateRenderer : IDisposable
         // The HDR frame's pass is the only one drawn linear, so the pass in the key tells the two
         // engine stages apart.
         var stages = StagesFor(gfx, renderWorld, batch.Shader, linear, out var shader);
-        if (_pipelines.TryGetValue((shader, slot, batch.Blend, renderPass), out var existing)) return existing;
+        if (_pipelines.TryGetValue((shader, slot, batch.Blend, batch.Cull, renderPass), out var existing)) return existing;
 
         var desc = new GraphicsPipelineDesc(
             renderPass,
             stages.Vertex,
             stages.Fragment,
             BlendEnabled: batch.Blend != DrawList.Replace,
-            CullBackFace: false,
+            Cull: batch.Cull,
             VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ImmediateVertex>())],
             VertexAttributes:
             [
@@ -326,7 +326,7 @@ internal sealed class ImmediateRenderer : IDisposable
         var pipeline = shader == 0 && renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)
             : gfx.CreateGraphicsPipeline(desc);
-        return _pipelines[(shader, slot, batch.Blend, renderPass)] = pipeline;
+        return _pipelines[(shader, slot, batch.Blend, batch.Cull, renderPass)] = pipeline;
     }
 
     // The stages for a batch's shader, made on first use. A shader that is not loaded falls back
@@ -390,7 +390,7 @@ internal sealed class ImmediateRenderer : IDisposable
     public void Dispose()
     {
         foreach (var (_, disposable) in _retired) disposable.Dispose();
-        foreach (var ((shader, _, _, _), pipeline) in _pipelines)
+        foreach (var ((shader, _, _, _, _), pipeline) in _pipelines)
             if (shader != 0 && pipeline is IDisposable disposable) disposable.Dispose();
         foreach (var stages in _customStages.Values) stages.Dispose();
         foreach (var sets in _uniformSets)

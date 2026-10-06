@@ -69,8 +69,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   functions have nothing to do, and textures are two-dimensional in one format, so cubemaps and
   render textures of other formats are left out. Shapes are drawn untextured, and fonts keep their
   glyphs by codepoint in ImGui's atlas, so the shapes texture, `GetGlyphIndex`, `LoadFontData` and
-  `GenImageFontAtlas` have no meaning. The vertex layout is fixed and has no tangents, for
-  `UpdateMeshBuffer`, `GenMeshTangents` and `GetShaderLocationAttrib`. The audio processors and
+  `GenImageFontAtlas` have no meaning. The vertex layout is fixed and has no tangents or colors, for
+  `UpdateMeshBuffer`, `GenMeshTangents`, `GetShaderLocationAttrib` and a mesh's `colors`, which
+  `models_point_rendering` keeps as a hue in each point's texture coordinate for a shader. The audio processors and
   `UpdateSound` reach into the audio thread, which the backend does not open to the program. VR
   stereo, automation events (which `./e3d` stands in for), the frame control a loop of its own needs
   and the monitor's size in millimetres (which SDL3 does not give) are left out too.

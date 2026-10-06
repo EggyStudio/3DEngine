@@ -264,8 +264,17 @@ rlPopMatrix();
 
 The transform given last applies first, as in rlgl, so the earth is scaled, turned and then
 carried out along its orbit. A transform set with nothing pushed lasts until the next camera mode
-begins or ends, and the next frame starts with none. rlgl's switches of depth, culling and
-blending are not carried, as [compared with raylib](compared-with-raylib.md) says.
+begins or ends, and the next frame starts with none.
+
+Culling is rlgl's to switch as well. `rlEnableBackfaceCulling` leaves out the faces turned away,
+shapes and text among them, which are wound counterclockwise as raylib's are, so a triangle given
+clockwise is not drawn. `rlSetCullFace(RlCullFace.Front)` leaves out the front faces instead, as
+`shaders_cel_shading` does to draw an outline from the back of a model pushed out along its
+normals, and `rlDisableBackfaceCulling` draws both. Until a program calls one of them, shapes
+draw both faces and a model the faces its material says, where rlgl culls back faces from the
+start. Between `rlEnablePointMode` and `rlDisablePointMode` a model is drawn as a point at each
+corner of its triangles. rlgl's switches of depth and blending are not carried, as
+[compared with raylib](compared-with-raylib.md) says.
 
 ## See also
 
@@ -274,7 +283,10 @@ blending are not carried, as [compared with raylib](compared-with-raylib.md) say
   [`core_3d_camera_first_person`](../3DEngine.Examples/Core/Core3DCameraFirstPerson.cs),
   [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs),
   [`shaders_particles`](../3DEngine.Examples/Shaders/ShadersParticles.cs),
-  [`models_rlgl_solar_system`](../3DEngine.Examples/Models/ModelsRlglSolarSystem.cs)
+  [`models_rlgl_solar_system`](../3DEngine.Examples/Models/ModelsRlglSolarSystem.cs),
+  [`shapes_rlgl_triangle`](../3DEngine.Examples/Shapes/ShapesRlglTriangle.cs),
+  [`models_point_rendering`](../3DEngine.Examples/Models/ModelsPointRendering.cs),
+  [`shaders_cel_shading`](../3DEngine.Examples/Shaders/ShadersCelShading.cs)
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
   [3D shapes](../CHEATSHEET.md#3d-shapes), [rlgl](../CHEATSHEET.md#rlgl) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)

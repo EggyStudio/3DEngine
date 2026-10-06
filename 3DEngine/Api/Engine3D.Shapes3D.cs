@@ -21,11 +21,12 @@ public static partial class Engine3D
     {
         Span<Vector3> c = stackalloc Vector3[8];
         CubeCorners(position, size, c);
-        DrawList.Quad(c[0], c[1], c[2], c[3], color); // -Z
+        // Each face counterclockwise seen from outside, as raylib's are, so culling leaves the inside out.
+        DrawList.Quad(c[0], c[3], c[2], c[1], color); // -Z
         DrawList.Quad(c[4], c[5], c[6], c[7], color); // +Z
         DrawList.Quad(c[0], c[1], c[5], c[4], color); // -Y
-        DrawList.Quad(c[3], c[2], c[6], c[7], color); // +Y
-        DrawList.Quad(c[0], c[3], c[7], c[4], color); // -X
+        DrawList.Quad(c[3], c[7], c[6], c[2], color); // +Y
+        DrawList.Quad(c[0], c[4], c[7], c[3], color); // -X
         DrawList.Quad(c[1], c[2], c[6], c[5], color); // +X
     }
 
@@ -61,7 +62,7 @@ public static partial class Engine3D
             var b = SpherePoint(center, radius, r + 1, s, rings, slices);
             var c = SpherePoint(center, radius, r + 1, s + 1, rings, slices);
             var d = SpherePoint(center, radius, r, s + 1, rings, slices);
-            DrawList.Quad(a, b, c, d, color);
+            DrawList.Quad(a, d, c, b, color);
         }
     }
 
@@ -107,10 +108,17 @@ public static partial class Engine3D
         for (int i = 0; i < Segments; i++) DrawList.Line(Point(i), Point(i + 1), color);
     }
 
-    /// <summary>Draws a strip of triangles, each from three points in a row.</summary>
+    /// <summary>
+    /// Draws a strip of triangles, each from three points in a row, every other one taken in the
+    /// opposite order so that all face the way the first does, as raylib's are.
+    /// </summary>
     public static void DrawTriangleStrip3D(ReadOnlySpan<Vector3> points, Color color)
     {
-        for (int i = 2; i < points.Length; i++) DrawList.Triangle(points[i - 2], points[i - 1], points[i], color);
+        for (int i = 2; i < points.Length; i++)
+        {
+            if (i % 2 == 0) DrawList.Triangle(points[i - 2], points[i - 1], points[i], color);
+            else DrawList.Triangle(points[i - 1], points[i - 2], points[i], color);
+        }
     }
 
     /// <summary>
@@ -222,8 +230,8 @@ public static partial class Engine3D
     public static void DrawPlane(Vector3 center, Vector2 size, Color color)
     {
         var (hx, hz) = (size.X / 2, size.Y / 2);
-        DrawList.Quad(center + new Vector3(-hx, 0, -hz), center + new Vector3(hx, 0, -hz),
-            center + new Vector3(hx, 0, hz), center + new Vector3(-hx, 0, hz), color);
+        DrawList.Quad(center + new Vector3(-hx, 0, -hz), center + new Vector3(-hx, 0, hz),
+            center + new Vector3(hx, 0, hz), center + new Vector3(hx, 0, -hz), color);
     }
 
     /// <summary>Draws a grid on the XZ plane centered on the origin, <paramref name="slices"/> cells across.</summary>

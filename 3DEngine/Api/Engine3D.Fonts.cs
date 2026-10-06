@@ -537,8 +537,8 @@ public static partial class Engine3D
             {
                 // Glyph corners are relative to the top of the line, so the text hangs from position.
                 var (x0, y0, x1, y1) = (pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, pen.X + g.X1 * scale, pen.Y + g.Y1 * scale);
-                DrawList.TexturedQuad(Corner(x0, y0), Corner(x1, y0), Corner(x1, y1), Corner(x0, y1),
-                    new(g.U0, g.V0), new(g.U1, g.V0), new(g.U1, g.V1), new(g.U0, g.V1), tint, font.Texture.Id);
+                DrawList.TexturedQuad(Corner(x0, y0), Corner(x0, y1), Corner(x1, y1), Corner(x1, y0),
+                    new(g.U0, g.V0), new(g.U0, g.V1), new(g.U1, g.V1), new(g.U1, g.V0), tint, font.Texture.Id);
             }
             pen.X += g.Advance * scale + spacing;
         }

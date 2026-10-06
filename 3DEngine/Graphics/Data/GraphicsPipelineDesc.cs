@@ -26,7 +26,7 @@ internal enum CompareOp
 /// <param name="VertexShader">The compiled vertex shader.</param>
 /// <param name="FragmentShader">The compiled fragment shader, or <c>null</c> for a pipeline that writes depth only, into a depth-only pass such as a <see cref="ShadowMap"/>'s.</param>
 /// <param name="BlendEnabled">Whether alpha blending is enabled.</param>
-/// <param name="CullBackFace">Whether back-face culling is enabled.</param>
+/// <param name="Cull">Which faces are left out by their winding: none, the back ones, or the front ones.</param>
 /// <param name="VertexBindings">Optional vertex buffer binding descriptions.</param>
 /// <param name="VertexAttributes">Optional vertex attribute descriptions.</param>
 /// <param name="PushConstantRanges">Optional push constant range descriptions.</param>
@@ -38,12 +38,13 @@ internal enum CompareOp
 /// <param name="DepthCompareOp">The comparison function for depth testing. Defaults to <see cref="CompareOp.Less"/>.</param>
 /// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>
 /// <param name="Blend">How the colors combine when <paramref name="BlendEnabled"/> is <c>true</c>, raylib's blend modes.</param>
+/// <param name="Points">Whether triangles are drawn as a point at each corner, where the device can, as rlgl's point mode draws them.</param>
 internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
     IShader? FragmentShader,
     bool BlendEnabled = false,
-    bool CullBackFace = true,
+    CullMode Cull = CullMode.Back,
     VertexInputBindingDesc[]? VertexBindings = null,
     VertexInputAttributeDesc[]? VertexAttributes = null,
     PushConstantRange[]? PushConstantRanges = null,
@@ -53,7 +54,19 @@ internal readonly record struct GraphicsPipelineDesc(
     bool DepthWriteEnabled = false,
     CompareOp DepthCompareOp = CompareOp.Less,
     PrimitiveTopology Topology = PrimitiveTopology.TriangleList,
-    BlendMode Blend = BlendMode.Alpha);
+    BlendMode Blend = BlendMode.Alpha,
+    bool Points = false);
+
+/// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
+internal enum CullMode
+{
+    /// <summary>Both faces are drawn.</summary>
+    None,
+    /// <summary>The back faces are left out.</summary>
+    Back,
+    /// <summary>The front faces are left out, as an outline drawn from a model's inside is.</summary>
+    Front,
+}
 
 /// <summary>How a pipeline assembles vertices into primitives.</summary>
 internal enum PrimitiveTopology

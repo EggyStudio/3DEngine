@@ -225,7 +225,7 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         var pipelineDesc = new GraphicsPipelineDesc(
             renderPass, _vertexShader, _fragmentShader,
             BlendEnabled: true,
-            CullBackFace: false,
+            Cull: CullMode.None,
             VertexBindings: vertexBindings,
             VertexAttributes: vertexAttributes,
             PushConstantRanges: pushConstants);

@@ -182,8 +182,8 @@ internal sealed unsafe partial class GraphicsDevice
 
         VkPipelineRasterizationStateCreateInfo rasterizer = new()
         {
-            polygonMode = VkPolygonMode.Fill,
-            cullMode = desc.CullBackFace ? VkCullModeFlags.Back : VkCullModeFlags.None,
+            polygonMode = desc.Points && CanDrawPoints ? VkPolygonMode.Point : VkPolygonMode.Fill,
+            cullMode = desc.Cull switch { CullMode.Back => VkCullModeFlags.Back, CullMode.Front => VkCullModeFlags.Front, _ => VkCullModeFlags.None },
             frontFace = VkFrontFace.CounterClockwise,
             lineWidth = 1.0f
         };

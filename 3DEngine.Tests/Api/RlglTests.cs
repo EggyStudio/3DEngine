@@ -23,7 +23,12 @@ public sealed class RlglTests : IDisposable
         ResetRlgl();
     }
 
-    public void Dispose() => UseApp(null);
+    public void Dispose()
+    {
+        // Culling and point mode outlast a frame, as rlgl's do, so they are forgotten for the next test.
+        ForgetRlgl();
+        UseApp(null);
+    }
 
     private DrawList List => _app.World.Resource<DrawList>();
     private ReadOnlySpan<ImmediateVertex> Vertices => List.Vertices;
@@ -98,5 +103,57 @@ public sealed class RlglTests : IDisposable
         rlPopMatrix();
 
         _app.World.Resource<ModelDrawList>().Draws.Should().ContainSingle().Which.World.Translation.Should().Be(new Vector3(1, 5, 0));
+    }
+
+    [Fact]
+    public void Shapes_Draw_Both_Faces_Until_Culling_Is_Turned_On_And_Then_Leave_Out_The_Faces_Set()
+    {
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlEnableBackfaceCulling();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlSetCullFace(RlCullFace.Front);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlDisableBackfaceCulling();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+
+        List.Batches.Select(b => b.Cull).Should().Equal(CullMode.None, CullMode.Back, CullMode.Front, CullMode.None);
+    }
+
+    [Fact]
+    public void Culling_Outlasts_The_Frame_It_Was_Set_In()
+    {
+        rlEnableBackfaceCulling();
+        List.Clear();
+        ResetRlgl();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+
+        List.Batches.Should().ContainSingle().Which.Cull.Should().Be(CullMode.Back, "rlgl's state is kept from frame to frame");
+    }
+
+    [Fact]
+    public void A_Model_Keeps_Its_Materials_Faces_Until_Culling_Is_Set_And_Point_Mode_Draws_Its_Corners()
+    {
+        _app.World.InitResource<ModelDrawList>();
+        var mesh = new ModelMesh(1, 3, 1, default);
+        var draws = _app.World.Resource<ModelDrawList>();
+        void Draw(bool doubleSided = false) =>
+            DrawMesh(mesh, new ModelMaterial(Color.White) { DoubleSided = doubleSided }, Matrix4x4.Identity);
+
+        Draw();
+        Draw(doubleSided: true);
+        rlEnablePointMode();
+        Draw(doubleSided: true);
+        rlDisablePointMode();
+        rlSetCullFace(RlCullFace.Front);
+        Draw(doubleSided: true);
+        rlDisableBackfaceCulling();
+        Draw();
+        rlEnableBackfaceCulling();
+        rlSetCullFace(RlCullFace.Back);
+        Draw(doubleSided: true);
+
+        draws.Draws.ToArray().Select(d => (d.DoubleSided, d.CullFront, d.Points)).Should().Equal(
+            [(false, false, false), (true, false, false), (true, false, true), (false, true, false), (true, true, false), (false, false, false)],
+            "a model keeps its material's faces until rlgl's culling is set, and then follows it");
     }
 }

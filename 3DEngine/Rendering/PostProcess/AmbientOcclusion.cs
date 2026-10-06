@@ -164,7 +164,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         _pipeline ??= device.CreateGraphicsPipeline(new GraphicsPipelineDesc(
             occlusion.RenderPass, _vertex, _fragment,
             BlendEnabled: false,
-            CullBackFace: false,
+            Cull: CullMode.None,
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Fragment, 0, (uint)Marshal.SizeOf<Push>())],
             DescriptorSetLayouts: [_layout]));
 

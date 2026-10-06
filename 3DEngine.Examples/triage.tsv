@@ -79,7 +79,6 @@ shapes_simple_particles	can
 shapes_starfield_effect	can
 shapes_lines_drawing	can
 shapes_math_angle_rotation	can
-shapes_rlgl_triangle	missing	culling turned off, so a triangle wound either way is drawn
 shapes_ball_physics	can
 shapes_penrose_tile	can
 shapes_hilbert_curve	can	with ImGui in raygui's place
@@ -143,7 +142,6 @@ models_loading_gltf	can
 models_loading_vox	missing	MagicaVoxel's .vox files, which Assimp does not read
 models_loading_m3d	missing	M3D files, which the Assimp the engine carries does not read
 models_orthographic_projection	can
-models_point_rendering	missing	a mesh drawn as points, with culling turned off
 models_yaw_pitch_roll	can
 models_waving_cubes	can
 models_heightmap_rendering	can
@@ -192,7 +190,6 @@ shaders_rounded_rectangle	can
 shaders_depth_rendering	can
 shaders_game_of_life	can	with ImGui in raygui's place
 shaders_rlgl_compute	can	with the flat API's compute functions in rlgl's place
-shaders_cel_shading	missing	front faces culled in place of back ones, for an outline
 shaders_lights_bloom	can
 audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
 audio_music_stream	can

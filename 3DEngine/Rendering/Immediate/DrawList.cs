@@ -21,10 +21,11 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <param name="Params">The values the shader reads with <c>param</c>.</param>
 /// <param name="Blend">How the run is laid over what is there.</param>
 /// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
+/// <param name="Cull">Which faces of the run's triangles are left out by their winding.</param>
 internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
-    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null);
+    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None);
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
 internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
@@ -122,6 +123,19 @@ internal sealed class DrawList
 
     /// <summary>The pixels the next recorded shapes are kept to, or null for the whole target.</summary>
     public ScissorRect? Scissor { get; private set; }
+
+    /// <summary>Which faces of the next recorded triangles are left out, none until a program turns culling on.</summary>
+    public CullMode Cull { get; private set; }
+
+    /// <summary>Leaves out the faces of the following triangles that <paramref name="cull"/> names.</summary>
+    public void SetCull(CullMode cull)
+    {
+        using (Enter())
+        {
+            Cull = cull;
+            Close();
+        }
+    }
 
     /// <summary>Lays the following shapes over what is there by <paramref name="blend"/>.</summary>
     public void SetBlend(BlendMode blend)
@@ -285,7 +299,10 @@ internal sealed class DrawList
         }
     }
 
-    /// <summary>Records a triangle. Both faces are drawn, so the winding does not matter.</summary>
+    /// <summary>
+    /// Records a triangle, whose front face is the one its corners go counterclockwise around on
+    /// the screen, as raylib's are, for when <see cref="Cull"/> leaves out back or front faces.
+    /// </summary>
     public void Triangle(Vector3 a, Vector3 b, Vector3 c, Color color)
     {
         using (Enter())
@@ -367,6 +384,7 @@ internal sealed class DrawList
             Textures = null;
             Blend = BlendMode.Alpha;
             Scissor = null;
+            Cull = CullMode.None;
             (_model, _hasModel) = (Matrix4x4.Identity, false);
             _targetClears.Clear();
         }
@@ -437,14 +455,14 @@ internal sealed class DrawList
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
-                && last.Scissor == Scissor && last.FirstIndex + last.IndexCount == first)
+                && last.Scissor == Scissor && last.Cull == Cull && last.FirstIndex + last.IndexCount == first)
             {
                 Open(topology, texture, last.IndexCount + count);
                 return;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull));
         Open(topology, texture, count);
     }
 

@@ -749,6 +749,11 @@ public static partial class Engine3D
     private static ModelDraw MeshDraw(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {
         if (!_rlTransform.IsIdentity) transform *= _rlTransform;
+        return WithRlState(MeshDrawOf(mesh, material, transform));
+    }
+
+    private static ModelDraw MeshDrawOf(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
+    {
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
         var shader = material.Shader.IsValid && Draws(material.Shader) ? material.Shader.Id : 0;
         return new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,

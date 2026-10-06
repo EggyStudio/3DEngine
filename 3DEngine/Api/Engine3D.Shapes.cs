@@ -27,7 +27,7 @@ public static partial class Engine3D
     public static void DrawRectangleV(Vector2 position, Vector2 size, Color color)
     {
         var (x0, y0, x1, y1) = (position.X, position.Y, position.X + size.X, position.Y + size.Y);
-        DrawList.Quad(new(x0, y0, 0), new(x1, y0, 0), new(x1, y1, 0), new(x0, y1, 0), color);
+        DrawList.Quad(new(x0, y0, 0), new(x0, y1, 0), new(x1, y1, 0), new(x1, y0, 0), color);
     }
 
     /// <summary>Draws a rectangle's outline.</summary>
@@ -51,7 +51,7 @@ public static partial class Engine3D
         var segments = CircleSegments(radius);
         var c = new Vector3(center, 0);
         for (int i = 0; i < segments; i++)
-            DrawList.Triangle(c, CirclePoint(center, radius, i, segments), CirclePoint(center, radius, i + 1, segments), color);
+            DrawList.Triangle(c, CirclePoint(center, radius, i + 1, segments), CirclePoint(center, radius, i, segments), color);
     }
 
     /// <summary>Draws a circle's outline.</summary>
@@ -120,7 +120,7 @@ public static partial class Engine3D
         var turn = Matrix3x2.CreateRotation(float.DegreesToRadians(rotation));
         var at = new Vector2(rec.X, rec.Y);
         Vector3 Corner(float x, float y) => new(at + Vector2.Transform(new Vector2(x, y) - origin, turn), 0);
-        DrawList.Quad(Corner(0, 0), Corner(rec.Width, 0), Corner(rec.Width, rec.Height), Corner(0, rec.Height), color);
+        DrawList.Quad(Corner(0, 0), Corner(0, rec.Height), Corner(rec.Width, rec.Height), Corner(rec.Width, 0), color);
     }
 
     /// <summary>Draws a filled rectangle blending from <paramref name="top"/> to <paramref name="bottom"/>.</summary>
@@ -166,7 +166,7 @@ public static partial class Engine3D
         var outline = RoundedOutline(rec, radius, segments);
         var middle = new Vector3(rec.X + rec.Width / 2, rec.Y + rec.Height / 2, 0);
         for (int i = 0; i < outline.Length; i++)
-            DrawList.Triangle(middle, new Vector3(outline[i], 0), new Vector3(outline[(i + 1) % outline.Length], 0), color);
+            DrawList.Triangle(middle, new Vector3(outline[(i + 1) % outline.Length], 0), new Vector3(outline[i], 0), color);
     }
 
     /// <summary>Draws the outline of a rectangle with rounded corners, as <see cref="DrawRectangleRounded"/> shapes it.</summary>
@@ -195,7 +195,7 @@ public static partial class Engine3D
         for (int i = 0; i < inner.Length; i++)
         {
             var next = (i + 1) % inner.Length;
-            DrawList.Quad(new(inner[i], 0), new(outer[i], 0), new(outer[next], 0), new(inner[next], 0), color);
+            DrawList.Quad(new(inner[next], 0), new(outer[next], 0), new(outer[i], 0), new(inner[i], 0), color);
         }
     }
 
@@ -251,10 +251,17 @@ public static partial class Engine3D
         for (int i = 2; i < points.Length; i++) DrawTriangle(points[0], points[i - 1], points[i], color);
     }
 
-    /// <summary>Draws a strip of triangles, each from three points in a row.</summary>
+    /// <summary>
+    /// Draws a strip of triangles, each from three points in a row, every other one taken in the
+    /// opposite order so that all face the way the first does, as raylib's are.
+    /// </summary>
     public static void DrawTriangleStrip(ReadOnlySpan<Vector2> points, Color color)
     {
-        for (int i = 2; i < points.Length; i++) DrawTriangle(points[i - 2], points[i - 1], points[i], color);
+        for (int i = 2; i < points.Length; i++)
+        {
+            if (i % 2 == 0) DrawTriangle(points[i - 2], points[i - 1], points[i], color);
+            else DrawTriangle(points[i - 1], points[i - 2], points[i], color);
+        }
     }
 
     /// <summary>Draws a filled regular polygon of <paramref name="sides"/> sides, turned <paramref name="rotation"/> degrees.</summary>
@@ -263,7 +270,7 @@ public static partial class Engine3D
         sides = Math.Max(3, sides);
         var c = new Vector3(center, 0);
         for (int i = 0; i < sides; i++)
-            DrawList.Triangle(c, PolyPoint(center, radius, rotation, i, sides), PolyPoint(center, radius, rotation, i + 1, sides), color);
+            DrawList.Triangle(c, PolyPoint(center, radius, rotation, i + 1, sides), PolyPoint(center, radius, rotation, i, sides), color);
     }
 
     /// <summary>Draws a regular polygon's outline.</summary>
@@ -283,7 +290,7 @@ public static partial class Engine3D
         {
             Vector3 a = PolyPoint(center, radius, rotation, i, sides), b = PolyPoint(center, radius, rotation, i + 1, sides);
             Vector3 c = PolyPoint(center, inner, rotation, i + 1, sides), d = PolyPoint(center, inner, rotation, i, sides);
-            DrawList.Quad(a, b, c, d, color);
+            DrawList.Quad(d, c, b, a, color);
         }
     }
 
@@ -325,7 +332,7 @@ public static partial class Engine3D
         var segments = CircleSegments(radius);
         var c = new Vector3(center, 0);
         for (int i = 0; i < segments; i++)
-            DrawList.Triangle(c, inner, CirclePoint(center, radius, i, segments), outer, CirclePoint(center, radius, i + 1, segments), outer);
+            DrawList.Triangle(c, inner, CirclePoint(center, radius, i + 1, segments), outer, CirclePoint(center, radius, i, segments), outer);
     }
 
     /// <summary>Draws a circle's outline.</summary>
@@ -338,7 +345,7 @@ public static partial class Engine3D
         var segments = CircleSegments(MathF.Max(radiusH, radiusV));
         var c = new Vector3(center, 0);
         for (int i = 0; i < segments; i++)
-            DrawList.Triangle(c, EllipsePoint(center, radiusH, radiusV, i, segments), EllipsePoint(center, radiusH, radiusV, i + 1, segments), color);
+            DrawList.Triangle(c, EllipsePoint(center, radiusH, radiusV, i + 1, segments), EllipsePoint(center, radiusH, radiusV, i, segments), color);
     }
 
     /// <summary>Draws an ellipse's outline.</summary>
@@ -351,7 +358,7 @@ public static partial class Engine3D
         var segments = CircleSegments(MathF.Max(radiusH, radiusV));
         var c = new Vector3(center, 0);
         for (int i = 0; i < segments; i++)
-            DrawList.Triangle(c, EllipsePoint(center, radiusH, radiusV, i, segments), EllipsePoint(center, radiusH, radiusV, i + 1, segments), color);
+            DrawList.Triangle(c, EllipsePoint(center, radiusH, radiusV, i + 1, segments), EllipsePoint(center, radiusH, radiusV, i, segments), color);
     }
 
     /// <summary>Draws an ellipse's outline around a point.</summary>
@@ -364,8 +371,8 @@ public static partial class Engine3D
         var segments = CircleSegments(MathF.Max(radiusH, radiusV));
         float innerH = MathF.Max(0, radiusH - thick), innerV = MathF.Max(0, radiusV - thick);
         for (int i = 0; i < segments; i++)
-            DrawList.Quad(EllipsePoint(center, innerH, innerV, i, segments), EllipsePoint(center, radiusH, radiusV, i, segments),
-                EllipsePoint(center, radiusH, radiusV, i + 1, segments), EllipsePoint(center, innerH, innerV, i + 1, segments), color);
+            DrawList.Quad(EllipsePoint(center, innerH, innerV, i + 1, segments), EllipsePoint(center, radiusH, radiusV, i + 1, segments),
+                EllipsePoint(center, radiusH, radiusV, i, segments), EllipsePoint(center, innerH, innerV, i, segments), color);
     }
 
     private static void DrawEllipseLines(Vector2 center, float radiusH, float radiusV, Color color)
@@ -388,12 +395,15 @@ public static partial class Engine3D
     /// </summary>
     public static void DrawRing(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, int segments, Color color)
     {
+        // Swept from the smaller angle, as raylib's is, so each piece runs counterclockwise on the
+        // screen whichever way the angles were given.
+        if (endAngle < startAngle) (startAngle, endAngle) = (endAngle, startAngle);
         var outer = Arc(center, outerRadius, startAngle, endAngle, segments);
         var inner = Arc(center, innerRadius, startAngle, endAngle, outer.Length - 1);
         for (int i = 1; i < outer.Length; i++)
         {
-            if (innerRadius <= 0) DrawList.Triangle(new(center, 0), new(outer[i - 1], 0), new(outer[i], 0), color);
-            else DrawList.Quad(new(inner[i - 1], 0), new(outer[i - 1], 0), new(outer[i], 0), new(inner[i], 0), color);
+            if (innerRadius <= 0) DrawList.Triangle(new(center, 0), new(outer[i], 0), new(outer[i - 1], 0), color);
+            else DrawList.Quad(new(inner[i], 0), new(outer[i], 0), new(outer[i - 1], 0), new(inner[i - 1], 0), color);
         }
     }
 

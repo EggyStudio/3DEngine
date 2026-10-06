@@ -221,7 +221,7 @@ internal sealed class ParticleRenderer : IDisposable
                 _pipelines[key] = pipeline = gfx.CreateGraphicsPipeline(new GraphicsPipelineDesc(
                     renderPass, _vertex, _fragment,
                     BlendEnabled: true,
-                    CullBackFace: false,
+                    Cull: CullMode.None,
                     PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
                     DescriptorSetLayouts: [models.MaterialSetLayout(gfx), models.LightsSetLayout(gfx), _particleLayout],
                     DepthTestEnabled: true,

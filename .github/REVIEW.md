@@ -277,3 +277,31 @@ none of, so a tab drew as four spaces where raylib draws and measures it as the 
 the tab is left out of a font's glyphs (`FontTests`). The text programs walk raylib's UTF-8 bytes
 as raylib does, through `Rune.DecodeFromUtf8` in `GetCodepoint`'s place. The table stands at 191
 written, 1 in part and 29 missing, culling's three rows next.
+
+**Now 2, culling's three rows.** `rlEnableBackfaceCulling`, `rlDisableBackfaceCulling`,
+`rlSetCullFace` with `RlCullFace`, `rlEnablePointMode` and `rlDisablePointMode` are carried. The
+draw list keeps a cull mode with each batch, none until a program turns culling on, and the model
+pass takes a cull mode and a point mode in its pipelines' keys, a custom shader's among them. A
+model keeps its material's faces until a program sets rlgl's culling, and then follows it whatever
+its material says, as raylib's does, since `shaders_cel_shading` culls the front faces of a car
+whose glTF material is double-sided, which drawn with both faces would hide the car behind its
+outline. `WindingTests` audits the shape functions against rshapes.c, as the review asked. It
+reads back every 2D shape, texture and text call and finds each triangle counterclockwise on the
+screen, the solids counterclockwise from outside, the plane facing up, billboards facing the
+camera and both strips turning every other triangle. It found the rectangles, circles, ellipses,
+rings, polygons, rounded rectangles, textures, nine-patches, text and billboards clockwise, three
+of the cube's faces and the sphere's turned inward, the plane facing down and the strips
+alternating, and each is brought to rshapes.c's order over the same diagonal. A ring or sector
+given from the larger angle is swept from the smaller, as raylib swaps them. A render test draws
+each shape and text with culling on and finds it drawn, a clockwise triangle left out, front-face
+culling leaving out a rectangle and culling turned off drawing the clockwise triangle again, and
+another finds the solids and a billboard drawn from outside. Point mode needs the device's
+`fillModeNonSolid`, without which the model is drawn filled, and `VK_KHR_maintenance5`, enabled
+where the driver has it, makes a point one pixel where the shader writes no size.
+`models_point_rendering` gives each point a color, which the fixed vertex layout has no room for,
+so each point carries its hue in its texture coordinate for a shader to color it as `ColorFromHSV`
+does, and TODO.md's line on the layout names a mesh's colors. `shapes_rlgl_triangle` turns
+culling on as it starts, as rlgl starts with it on. The comparison's rlgl line counts culling and
+point mode as carried, and two lines say how culling starts here and that point mode draws models
+alone. The table stands at 194 written, 1 in part and 26 missing, the high-density flag's rows
+next.

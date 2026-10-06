@@ -340,6 +340,11 @@ void rlColor4ub(byte r, byte g, byte b, byte a);           // The next vertices'
 void rlColor4f(float r, float g, float b, float a);        // The same from 0 to 1
 void rlSetTexture(int id);                                 // The next primitives' texture, 0 for none
 bool rlCheckRenderBatchLimit(int vertexCount);             // False, the draw list growing as it needs
+void rlEnableBackfaceCulling();                            // Leave out back faces, shapes and text too
+void rlDisableBackfaceCulling();                           // Draw both faces, models whatever their material says
+void rlSetCullFace(RlCullFace mode);                       // Which faces culling leaves out, Front or Back
+void rlEnablePointMode();                                  // Draw models as a point at each corner
+void rlDisablePointMode();                                 // Draw them filled again
 ```
 
 ## Images and textures

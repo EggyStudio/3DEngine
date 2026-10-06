@@ -320,8 +320,8 @@ public static partial class Engine3D
             : new Vector3(Vector2.Transform(new Vector2(x, y) - origin, turn) + at, 0);
 
         DrawList.TexturedQuad(
-            Corner(0, 0), Corner(dest.Width, 0), Corner(dest.Width, dest.Height), Corner(0, dest.Height),
-            new Vector2(u0, v0), new Vector2(u1, v0), new Vector2(u1, v1), new Vector2(u0, v1),
+            Corner(0, 0), Corner(0, dest.Height), Corner(dest.Width, dest.Height), Corner(dest.Width, 0),
+            new Vector2(u0, v0), new Vector2(u0, v1), new Vector2(u1, v1), new Vector2(u1, v0),
             tint, texture.Id);
     }
 
@@ -374,8 +374,8 @@ public static partial class Engine3D
         Vector3 Corner(float x, float y) => new(Vector2.Transform(new Vector2(x, y) - origin, turn) + at, 0);
         // The patch between lines i0 and i1 across and j0 and j1 down.
         void Patch(int i0, int j0, int i1, int j1) =>
-            DrawList.TexturedQuad(Corner(xs[i0], ys[j0]), Corner(xs[i1], ys[j0]), Corner(xs[i1], ys[j1]), Corner(xs[i0], ys[j1]),
-                new Vector2(us[i0], vs[j0]), new Vector2(us[i1], vs[j0]), new Vector2(us[i1], vs[j1]), new Vector2(us[i0], vs[j1]),
+            DrawList.TexturedQuad(Corner(xs[i0], ys[j0]), Corner(xs[i0], ys[j1]), Corner(xs[i1], ys[j1]), Corner(xs[i1], ys[j0]),
+                new Vector2(us[i0], vs[j0]), new Vector2(us[i0], vs[j1]), new Vector2(us[i1], vs[j1]), new Vector2(us[i1], vs[j0]),
                 tint, texture.Id);
 
         switch (layout)
@@ -414,8 +414,8 @@ public static partial class Engine3D
         var up = new Vector3(view.M12, view.M22, view.M32) * (size / 2);
 
         DrawList.TexturedQuad(
-            position - right + up, position + right + up, position + right - up, position - right - up,
-            new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1),
+            position - right + up, position - right - up, position + right - up, position + right + up,
+            new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 1), new Vector2(1, 0),
             tint, texture.Id);
     }
 
@@ -465,8 +465,8 @@ public static partial class Engine3D
         float u0 = source.X / texture.Width, u1 = (source.X + source.Width) / texture.Width;
         float vTop = source.Y / texture.Height, vBottom = (source.Y + source.Height) / texture.Height;
         DrawList.TexturedQuad(
-            Corner(up), Corner(up + right), Corner(right), Corner(Vector3.Zero),
-            new Vector2(u0, vTop), new Vector2(u1, vTop), new Vector2(u1, vBottom), new Vector2(u0, vBottom),
+            Corner(up), Corner(Vector3.Zero), Corner(right), Corner(up + right),
+            new Vector2(u0, vTop), new Vector2(u0, vBottom), new Vector2(u1, vBottom), new Vector2(u1, vTop),
             tint, texture.Id);
     }
 

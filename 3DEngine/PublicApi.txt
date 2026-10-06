@@ -1371,12 +1371,17 @@ static class Engine.Engine3D
   static void rlBegin(RlDrawMode mode)
   static void rlColor4f(float r, float g, float b, float a)
   static void rlColor4ub(byte r, byte g, byte b, byte a)
+  static void rlDisableBackfaceCulling()
+  static void rlDisablePointMode()
+  static void rlEnableBackfaceCulling()
+  static void rlEnablePointMode()
   static void rlEnd()
   static void rlNormal3f(float x, float y, float z)
   static void rlPopMatrix()
   static void rlPushMatrix()
   static void rlRotatef(float angle, float x, float y, float z)
   static void rlScalef(float x, float y, float z)
+  static void rlSetCullFace(RlCullFace mode)
   static void rlSetTexture(int id)
   static void rlTexCoord2f(float x, float y)
   static void rlTranslatef(float x, float y, float z)
@@ -2367,6 +2372,9 @@ struct Engine.RigidBody
   static RigidBody Dynamic(float mass = 1f)
   static RigidBody Kinematic { get; }
   static RigidBody Static { get; }
+enum Engine.RlCullFace : int
+  Back = 1
+  Front = 0
 enum Engine.RlDrawMode : int
   Lines = 0
   Quads = 2

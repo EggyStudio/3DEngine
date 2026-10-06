@@ -275,6 +275,101 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void With_Culling_On_Every_Shape_And_Text_Is_Drawn_As_Raylib_Draws_Them_And_A_Clockwise_Triangle_Is_Not()
+    {
+        Open(256, 128);
+        var white = LoadTextureFromImage(GenImageColor(8, 8, Color.White));
+        var patch = new NPatchInfo(new Rectangle(0, 0, 8, 8), 2, 2, 2, 2);
+        // Each shape in a cell 32 pixels square, eight to a row, in the order drawn.
+        Action<Vector2>[] shapes =
+        [
+            at => DrawRectangleV(at + new Vector2(4, 4), new Vector2(24, 24), Color.White),
+            at => DrawRectanglePro(new Rectangle(at.X + 16, at.Y + 16, 20, 20), new Vector2(10, 10), 30, Color.White),
+            at => DrawRectangleRounded(new Rectangle(at.X + 4, at.Y + 4, 24, 24), 0.5f, 4, Color.White),
+            at => DrawRectangleGradientEx(new Rectangle(at.X + 4, at.Y + 4, 24, 24), Color.White, Color.White, Color.White, Color.White),
+            at => DrawRectangleLinesEx(new Rectangle(at.X + 4, at.Y + 4, 24, 24), 4, Color.White),
+            at => DrawRectangleRoundedLinesEx(new Rectangle(at.X + 8, at.Y + 8, 16, 16), 0.5f, 4, 3, Color.White),
+            at => DrawCircleV(at + new Vector2(16, 16), 12, Color.White),
+            at => DrawCircleGradient(at + new Vector2(16, 16), 12, Color.White, Color.White),
+            at => DrawCircleSector(at + new Vector2(16, 16), 12, 0, 270, 8, Color.White),
+            at => DrawCircleSector(at + new Vector2(16, 16), 12, 270, 0, 8, Color.White),
+            at => DrawCircleLinesEx(at + new Vector2(16, 16), 12, 4, Color.White),
+            at => DrawEllipseV(at + new Vector2(16, 16), 14, 8, Color.White),
+            at => DrawEllipseLinesEx(at + new Vector2(16, 16), 14, 8, 3, Color.White),
+            at => DrawRing(at + new Vector2(16, 16), 6, 13, 0, 360, 0, Color.White),
+            at => DrawRingLinesEx(at + new Vector2(16, 16), 6, 13, 0, 270, 0, 3, Color.White),
+            at => DrawPoly(at + new Vector2(16, 16), 6, 12, 0, Color.White),
+            at => DrawPolyLinesEx(at + new Vector2(16, 16), 6, 12, 0, 4, Color.White),
+            at => DrawLineEx(at + new Vector2(28, 4), at + new Vector2(4, 28), 6, Color.White),
+            at => DrawLineBezier(at + new Vector2(4, 4), at + new Vector2(28, 28), 4, Color.White),
+            at => DrawSplineCatmullRom([at + new Vector2(2, 4), at + new Vector2(10, 28), at + new Vector2(22, 4), at + new Vector2(30, 28)], 4, Color.White),
+            at => DrawTriangle(at + new Vector2(16, 4), at + new Vector2(4, 28), at + new Vector2(28, 28), Color.White),
+            at => DrawTriangleFan([at + new Vector2(16, 16), at + new Vector2(28, 16), at + new Vector2(16, 4), at + new Vector2(4, 16), at + new Vector2(16, 28)], Color.White),
+            at => DrawTriangleStrip([at + new Vector2(4, 4), at + new Vector2(4, 28), at + new Vector2(16, 4), at + new Vector2(16, 28), at + new Vector2(28, 4), at + new Vector2(28, 28)], Color.White),
+            at => DrawTexturePro(white, new Rectangle(0, 0, 8, 8), new Rectangle(at.X + 4, at.Y + 4, 24, 24), Vector2.Zero, 0, Color.White),
+            at => DrawTexturePro(white, new Rectangle(0, 0, -8, -8), new Rectangle(at.X + 16, at.Y + 16, 24, 24), new Vector2(12, 12), 45, Color.White),
+            at => DrawTextureNPatch(white, patch, new Rectangle(at.X + 4, at.Y + 4, 24, 24), Vector2.Zero, 0, Color.White),
+            at => DrawText("Hi", (int)at.X + 4, (int)at.Y + 6, 20, Color.White),
+            at => DrawTextPro(GetFontDefault(), "Hi", at + new Vector2(16, 16), new Vector2(8, 10), 90, 20, 2, Color.White),
+        ];
+
+        static Vector2 Cell(int i) => new(i % 8 * 32, i / 8 * 32);
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            rlEnableBackfaceCulling();
+            for (int i = 0; i < shapes.Length; i++) shapes[i](Cell(i));
+            // Given clockwise, which raylib leaves out with culling on.
+            DrawTriangle(Cell(28) + new Vector2(16, 4), Cell(28) + new Vector2(28, 28), Cell(28) + new Vector2(4, 28), Color.White);
+            // Culling the front faces leaves out a rectangle, and with culling off the clockwise
+            // triangle is drawn.
+            rlSetCullFace(RlCullFace.Front);
+            DrawRectangleV(Cell(29) + new Vector2(4, 4), new Vector2(24, 24), Color.White);
+            rlSetCullFace(RlCullFace.Back);
+            rlDisableBackfaceCulling();
+            DrawTriangle(Cell(30) + new Vector2(16, 4), Cell(30) + new Vector2(28, 28), Cell(30) + new Vector2(4, 28), Color.White);
+        });
+
+        int Lit(int i) => Count(image, (int)Cell(i).X, (int)Cell(i).Y, (int)Cell(i).X + 32, (int)Cell(i).Y + 32, c => c.R > 128);
+        for (int i = 0; i < shapes.Length; i++)
+            Lit(i).Should().BeGreaterThan(30, $"the shape in cell {i} is counterclockwise as raylib's is, so culling keeps it");
+        Lit(28).Should().Be(0, "the clockwise triangle faces away");
+        Lit(29).Should().Be(0, "culling front faces leaves out the rectangle");
+        Lit(30).Should().BeGreaterThan(30, "with culling off the clockwise triangle is drawn");
+        UnloadTexture(white);
+    }
+
+    [NeedsVulkanFact]
+    public void With_Culling_On_Solids_Show_Their_Outsides_And_Billboards_Face_The_Camera()
+    {
+        Open(160, 64);
+        var camera = new Camera3D(new Vector3(0, 3, 10), Vector3.Zero, Vector3.UnitY, 45);
+        var white = LoadTextureFromImage(GenImageColor(8, 8, Color.White));
+        (Color Color, Action<Color> Draw)[] solids =
+        [
+            (new Color(255, 0, 0), c => DrawCube(new Vector3(-4, 0, 0), 1.2f, 1.2f, 1.2f, c)),
+            (new Color(0, 255, 0), c => DrawSphere(new Vector3(-2, 0, 0), 0.7f, c)),
+            (new Color(0, 0, 255), c => DrawCylinder(new Vector3(0, -0.6f, 0), 0.5f, 0.7f, 1.2f, 12, c)),
+            (new Color(255, 255, 0), c => DrawCapsule(new Vector3(2, -0.5f, 0), new Vector3(2, 0.5f, 0), 0.5f, 12, 6, c)),
+            (new Color(0, 255, 255), c => DrawBillboard(camera, white, new Vector3(4, 0, 0), 1.2f, c)),
+            (new Color(255, 0, 255), c => DrawPlane(new Vector3(0, -1.5f, 0), new Vector2(10, 2), c)),
+        ];
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            rlEnableBackfaceCulling();
+            BeginMode3D(camera);
+            foreach (var (color, draw) in solids) draw(color);
+            EndMode3D();
+        });
+
+        foreach (var (color, _) in solids)
+            Count(image, 0, 0, 160, 64, c => c == color).Should().BeGreaterThan(20, $"the solid in {color} faces the camera from outside, so culling keeps the side seen");
+        UnloadTexture(white);
+    }
+
+    [NeedsVulkanFact]
     public void Text_Lands_Inside_The_Box_MeasureText_Gives_It()
     {
         Open(96, 48);

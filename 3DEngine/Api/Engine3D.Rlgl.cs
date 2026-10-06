@@ -107,6 +107,76 @@ public static partial class Engine3D
     /// </summary>
     public static bool rlCheckRenderBatchLimit(int vertexCount) => false;
 
+    // Whether faces are culled: as the engine leaves them, until a program turns culling on or off,
+    // then as it set. The engine's shapes draw both faces and a model the faces its material says,
+    // where rlgl culls back faces from the start.
+    private enum RlCulling { Unset, Enabled, Disabled }
+    private static RlCulling _rlCulling;
+    private static RlCullFace _rlCullFace = RlCullFace.Back;
+    private static bool _rlPointMode;
+
+    /// <summary>
+    /// Leaves out the back faces of what is drawn after, or the front ones after
+    /// <see cref="rlSetCullFace"/>, shapes and text as well as models, as rlgl's
+    /// <c>rlEnableBackfaceCulling</c> does.
+    /// </summary>
+    /// <remarks>
+    /// rlgl culls from the start, and a shape here draws both faces until this is called, so a
+    /// triangle given clockwise shows here where raylib leaves it out. A model leaves out the
+    /// faces its material says, the back ones unless it is double-sided, until a program calls
+    /// this, <see cref="rlDisableBackfaceCulling"/> or <see cref="rlSetCullFace"/>, and the
+    /// faces they say after, whatever its material says, as raylib's are.
+    /// </remarks>
+    public static void rlEnableBackfaceCulling()
+    {
+        _rlCulling = RlCulling.Enabled;
+        ApplyRlCulling();
+    }
+
+    /// <summary>Draws both faces of what is drawn after, models whatever their material says, as rlgl's <c>rlDisableBackfaceCulling</c> does.</summary>
+    public static void rlDisableBackfaceCulling()
+    {
+        _rlCulling = RlCulling.Disabled;
+        ApplyRlCulling();
+    }
+
+    /// <summary>Sets which faces culling leaves out, the back ones unless set, as rlgl's <c>rlSetCullFace</c> does.</summary>
+    public static void rlSetCullFace(RlCullFace mode)
+    {
+        _rlCullFace = mode;
+        ApplyRlCulling();
+    }
+
+    /// <summary>
+    /// Draws the models drawn after as a point at each corner of their triangles, as rlgl's
+    /// <c>rlEnablePointMode</c> draws them, where the GPU's driver can, and filled where it cannot.
+    /// </summary>
+    /// <remarks>It applies to models alone, shapes being drawn filled whatever it says.</remarks>
+    public static void rlEnablePointMode() => _rlPointMode = true;
+
+    /// <summary>Draws the models drawn after filled again.</summary>
+    public static void rlDisablePointMode() => _rlPointMode = false;
+
+    // The faces the draw list leaves out of shapes: none until a program turns culling on.
+    private static void ApplyRlCulling() =>
+        DrawList.SetCull(_rlCulling == RlCulling.Enabled ? (_rlCullFace == RlCullFace.Front ? CullMode.Front : CullMode.Back) : CullMode.None);
+
+    // Whether a program has set rlgl's culling, after which a model's faces are culled as rlgl
+    // culls them, whatever its material says, as raylib's are.
+    private static bool RlCullingSet => _rlCulling != RlCulling.Unset || _rlCullFace != RlCullFace.Back;
+
+    // A model's draw with the faces rlgl's culling leaves out, once a program has set it, and
+    // drawn as points in point mode.
+    private static ModelDraw WithRlState(ModelDraw draw) =>
+        !RlCullingSet && !_rlPointMode
+            ? draw
+            : draw with
+            {
+                DoubleSided = RlCullingSet ? _rlCulling == RlCulling.Disabled : draw.DoubleSided,
+                CullFront = _rlCullFace == RlCullFace.Front,
+                Points = _rlPointMode,
+            };
+
     // Sets the transform rlgl moves vertices by, which the draw list moves every shape's by.
     private static void SetRlTransform(Matrix4x4 transform)
     {
@@ -114,12 +184,22 @@ public static partial class Engine3D
         DrawList.SetModel(transform);
     }
 
-    // A frame starts with no transform, nothing pushed and no vertices half given.
+    // A frame starts with no transform, nothing pushed and no vertices half given. Culling and
+    // point mode are kept, as rlgl's state is, and given to the draw list again.
     internal static void ResetRlgl()
     {
         RlStack.Clear();
         SetRlTransform(Matrix4x4.Identity);
         (_rlMode, _rlCornerCount, _rlColor, _rlTexCoord, _rlTexture) = (null, 0, Color.White, Vector2.Zero, 0);
+        ApplyRlCulling();
+    }
+
+    // A window closed takes rlgl's state with it, so the next starts as the engine leaves faces.
+    internal static void ForgetRlgl()
+    {
+        (_rlCulling, _rlCullFace, _rlPointMode) = (RlCulling.Unset, RlCullFace.Back, false);
+        RlStack.Clear();
+        _rlTransform = Matrix4x4.Identity;
     }
 
     // A camera mode begun or ended with nothing pushed starts from no transform, as rlgl loads the
