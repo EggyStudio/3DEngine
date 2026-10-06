@@ -222,8 +222,9 @@ public static partial class Engine3D
     /// the render target inside <see cref="BeginTextureMode"/>, until <see cref="EndScissorMode"/>.
     /// </summary>
     /// <remarks>
-    /// It keeps the shapes, textures and text drawn after it, in 2D and 3D, to the rectangle, as a
-    /// scrolling panel does. Models and ImGui are not kept to it.
+    /// It keeps the shapes, textures, text and models drawn after it, in 2D and 3D, to the
+    /// rectangle, as a scrolling panel does, and as raylib's keeps all it draws. The mesh entities of
+    /// the ECS and ImGui are not kept to it.
     /// </remarks>
     public static void BeginScissorMode(int x, int y, int width, int height) => DrawList.SetScissor(PixelsOf(x, y, width, height));
 

@@ -320,9 +320,10 @@ public static partial class Engine3D
     // with the depth mask off.
     private static ModelDraw WithRlState(ModelDraw draw) =>
         !RlCullingSet && !_rlPointMode && _rlColorBlend && _rlDepthMask
-            ? draw
+            ? draw with { Scissor = DrawList.Scissor }
             : draw with
             {
+                Scissor = DrawList.Scissor,
                 DoubleSided = RlCullingSet ? _rlCulling == RlCulling.Disabled : draw.DoubleSided,
                 CullFront = _rlCullFace == RlCullFace.Front,
                 Points = _rlPointMode,

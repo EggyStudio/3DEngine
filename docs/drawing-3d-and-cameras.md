@@ -202,7 +202,8 @@ BeginTextureMode(target);
 EndTextureMode();
 ```
 
-A model drawn with `DrawModel` inside it is drawn once, through the camera.
+Models drawn inside it are drawn for each eye as well, and the ECS's mesh entities and particles
+once, through the camera.
 
 ## Particles
 

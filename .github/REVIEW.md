@@ -308,3 +308,14 @@ its FPS counter's font. Tests check the config against numbers worked from rayli
 example's headset, and that the cube is drawn in the middle of each half with stereo on, in the
 middle alone with it off, and 2D after it over both halves, which pass on lavapipe under the layer.
 `coverage.py` counts 520 of 619 carried. The suite: 1,438 passed, none skipped.
+
+**Models in stereo and in scissor mode.** A model drawn inside `BeginVrStereoMode` took the left
+eye's squeezed camera and was drawn in the left half alone, spilling past it, where the comparison
+page said it was drawn once through the camera. The model pass now keeps each batch to a scissor
+its draws carry, so a model drawn in stereo is recorded again for the right eye into the right half,
+as the shapes are, and a model drawn inside `BeginScissorMode` is kept to the rectangle, as raylib's
+scissor keeps all it draws, where models were left out of it. A probe's face and the shadows ignore
+the scissor. The ECS's mesh entities and particles are drawn once, through the camera, which the
+page says. Two tests, a model in each half of a stereo frame and a wall kept to a scissor's half,
+and the 110 render and reference tests pass on lavapipe under the layer. The suite: 1,440 passed,
+none skipped.

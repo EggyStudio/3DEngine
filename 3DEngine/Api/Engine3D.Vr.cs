@@ -7,9 +7,10 @@ public static partial class Engine3D
     // The stereo config BeginVrStereoMode set, until EndVrStereoMode.
     private static VrStereoConfig? _stereo;
 
-    // Where the 3D of a BeginMode3D in stereo mode began, the eyes' transforms, the right half and
-    // the scissor before it, which EndMode3D draws the right eye with and puts back.
-    private static (int From, Matrix4x4 Left, Matrix4x4 Right, ScissorRect RightHalf, ScissorRect? Before)? _stereo3D;
+    // Where the 3D of a BeginMode3D in stereo mode began, its shapes and its models, the eyes'
+    // transforms, the right half and the scissor before it, which EndMode3D draws the right eye
+    // with and puts back.
+    private static (int From, int Models, Matrix4x4 Left, Matrix4x4 Right, ScissorRect RightHalf, ScissorRect? Before)? _stereo3D;
 
     /// <summary>
     /// Works out how to draw for two eyes from a head-mounted display's measures, each eye's
@@ -65,9 +66,8 @@ public static partial class Engine3D
     /// eye's offset from the camera and its projection, until <see cref="EndVrStereoMode"/>.
     /// </summary>
     /// <remarks>
-    /// The shapes, lines and text drawn in 3D are drawn for both eyes. A model drawn with
-    /// <see cref="DrawModel"/> is drawn once, through the camera, since the model pass draws a target
-    /// through one camera.
+    /// The shapes, lines, text and models drawn in 3D are drawn for both eyes. The mesh entities of
+    /// the ECS and particles are drawn once, through the camera, as they are without it.
     /// </remarks>
     public static void BeginVrStereoMode(VrStereoConfig config) => _stereo = config;
 
@@ -92,7 +92,8 @@ public static partial class Engine3D
         SetRlCamera(leftView, Projection(0), depthTest: true);
         var before = DrawList.Scissor;
         DrawList.SetScissor(PixelsOf(0, 0, half, height));
-        _stereo3D = (DrawList.Mark(), leftView * Projection(0), camera.View * stereo.ViewOffset[1] * Projection(1), PixelsOf(half, 0, width - half, height), before);
+        _stereo3D = (DrawList.Mark(), Res<ModelDrawList>().Mark(), leftView * Projection(0), camera.View * stereo.ViewOffset[1] * Projection(1),
+            PixelsOf(half, 0, width - half, height), before);
     }
 
     // Draws the 3D recorded since BeginStereo again through the right eye, and puts the scissor back.
@@ -101,6 +102,7 @@ public static partial class Engine3D
         if (_stereo3D is not { } stereo) return;
         _stereo3D = null;
         DrawList.Repeat(stereo.From, stereo.Left, stereo.Right, stereo.RightHalf);
+        Res<ModelDrawList>().Repeat(stereo.Models, stereo.Left, stereo.Right, stereo.RightHalf);
         DrawList.SetScissor(stereo.Before);
     }
 }

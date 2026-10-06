@@ -87,8 +87,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   `GenMeshTangents` and `GetShaderLocationAttrib`, and `UpdateSound` reaches into the audio thread,
   which the backend does not open to the program. The file callbacks (which the asset server's
   sources stand in for) and the exports as C code are left out too. VR stereo draws the shapes,
-  lines and text of a `BeginMode3D` once for each eye, and a model drawn in it once, through the
-  camera.
+  lines, text and models of a `BeginMode3D` once for each eye, and the ECS's mesh entities and
+  particles once, through the camera.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on

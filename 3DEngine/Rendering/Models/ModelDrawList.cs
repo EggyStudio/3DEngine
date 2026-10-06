@@ -31,12 +31,13 @@ namespace Engine;
 /// <param name="Points">Whether the triangles are drawn as a point at each corner, as rlgl's point mode draws them.</param>
 /// <param name="ColorBlend">Whether the draw is blended with what is behind it by its alpha, which rlgl's rlDisableColorBlend turns off, so it is written as it is.</param>
 /// <param name="DepthWrite">Whether the draw writes its depth, which rlgl's rlDisableDepthMask turns off, so what is drawn after it shows over it, as a sky drawn around the camera does.</param>
+/// <param name="Scissor">The pixels of the target the draw is kept to, as <c>BeginScissorMode</c> and an eye of a stereo frame keep it, or null for all of them.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
     bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true,
-    bool DepthWrite = true)
+    bool DepthWrite = true, ScissorRect? Scissor = null)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:
@@ -114,6 +115,28 @@ internal sealed class ModelDrawList
     public void Add(in ModelDraw draw)
     {
         lock (_gate) _draws.Add(draw);
+    }
+
+    /// <summary>How many meshes are recorded, which <see cref="Repeat"/> counts from.</summary>
+    public int Mark()
+    {
+        lock (_gate) return _draws.Count;
+    }
+
+    /// <summary>
+    /// Records again each mesh from <paramref name="from"/> on that was recorded through
+    /// <paramref name="viewProjection"/>, through <paramref name="other"/> and kept to
+    /// <paramref name="scissor"/>, as a stereo frame draws its 3D once for each eye.
+    /// </summary>
+    public void Repeat(int from, Matrix4x4 viewProjection, Matrix4x4 other, ScissorRect scissor)
+    {
+        lock (_gate)
+        {
+            var end = _draws.Count;
+            for (int i = from; i < end; i++)
+                if (_draws[i].ViewProjection == viewProjection)
+                    _draws.Add(_draws[i] with { ViewProjection = other, Scissor = scissor });
+        }
     }
 
     /// <summary>Records several meshes under one lock, as a system recording thousands does.</summary>

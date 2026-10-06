@@ -120,6 +120,8 @@ internal sealed partial class ModelRenderer : IDisposable
         public bool Depth;
         // World to clip space, pushed for the call, the camera's that its draws were recorded through.
         public Matrix4x4 ViewProjection;
+        // The pixels its draws are kept to, or null for the whole target.
+        public ScissorRect? Scissor;
         // What the shadow pass draws it with: nothing, a solid shadow, or one its material cuts out.
         public ShadowKind Shadow;
         public uint First;
@@ -233,7 +235,7 @@ internal sealed partial class ModelRenderer : IDisposable
     // Past this many instances the segments are copied on several threads, since one thread
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
     // instances are and the blocks they are culled by, made once a frame by whichever of its
@@ -378,8 +380,18 @@ internal sealed partial class ModelRenderer : IDisposable
 
         IPipeline? pipeline = null;
         var pushed = default(Matrix4x4?);
+        // The scissor the pass was begun with is the whole target, which a batch kept to some of it
+        // changes, and a face of a probe, drawn through a camera of its own, keeps.
+        ScissorRect? scissored = null;
         foreach (var batch in batches)
         {
+            var keptTo = viewProjection is null ? batch.Scissor : null;
+            if (keptTo != scissored)
+            {
+                if (keptTo is { } rect) pass.SetScissor(rect.X, rect.Y, (uint)Math.Max(0, rect.Width), (uint)Math.Max(0, rect.Height));
+                else pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);
+                scissored = keptTo;
+            }
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
@@ -415,6 +427,7 @@ internal sealed partial class ModelRenderer : IDisposable
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             DrawCalls += DrawSeen(pass, batch, blocks, through);
         }
+        if (scissored is not null) pass.SetScissor(0, 0, pass.Extent.Width, pass.Extent.Height);
     }
 
     // Draws of the pass's own shader gather by mesh and set, and a draw with a shader of its own
@@ -502,8 +515,8 @@ internal sealed partial class ModelRenderer : IDisposable
                 continue;
             }
             _drawBatch.Add(kind == Kind.Alone
-                ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection)
-                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection)));
+                ? AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor)
+                : Join(mesh, (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor)));
         }
 
         for (int g = 0; g < groups.Count; g++)
@@ -512,11 +525,11 @@ internal sealed partial class ModelRenderer : IDisposable
             if (group.Count == 0) continue;
             var (kind, set) = classify(in group.Template);
             if (kind != Kind.Batched || meshes.Get(group.Template.Mesh) is not { } mesh) continue;
-            var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection);
+            var index = AddBatch(mesh, set, -1, FacesOf(in group.Template, cullBackFaces), ShadowOf(group.Template), group.Template.ViewProjection, group.Template.Scissor);
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
-        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true, true), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4));
+        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true, true), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4), Scissor: (ScissorRect?)null);
         var lastBatch = -1;
         for (int i = 0; i < draws.Length; i++)
         {
@@ -533,14 +546,14 @@ internal sealed partial class ModelRenderer : IDisposable
                     Grow(_drawBatch[i - 1]);
                     _drawBatch[i] = _drawBatch[i - 1];
                 }
-                else _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection);
+                else _drawBatch[i] = AddBatch(mesh, null, i, culled, shadow, draw.ViewProjection, draw.Scissor);
                 lastBatch = -1;
                 continue;
             }
-            if (lastBatch < 0 || last != (draw.Mesh, set, culled, shadow, draw.ViewProjection))
+            if (lastBatch < 0 || last != (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor))
             {
-                lastBatch = AddBatch(mesh, set, -1, culled, shadow, draw.ViewProjection);
-                last = (draw.Mesh, set, culled, shadow, draw.ViewProjection);
+                lastBatch = AddBatch(mesh, set, -1, culled, shadow, draw.ViewProjection, draw.Scissor);
+                last = (draw.Mesh, set, culled, shadow, draw.ViewProjection, draw.Scissor);
             }
             Grow(lastBatch);
             _drawBatch[i] = lastBatch;
@@ -555,7 +568,7 @@ internal sealed partial class ModelRenderer : IDisposable
         if (first < 0) return false;
         ref readonly var a = ref draws[first];
         ref readonly var b = ref draws[i];
-        return a.Shader == b.Shader && a.Mesh == b.Mesh && a.Target == b.Target && a.ViewProjection == b.ViewProjection && a.DoubleSided == b.DoubleSided
+        return a.Shader == b.Shader && a.Mesh == b.Mesh && a.Target == b.Target && a.ViewProjection == b.ViewProjection && a.Scissor == b.Scissor && a.DoubleSided == b.DoubleSided
             && a.CastsShadow == b.CastsShadow && a.AlphaMode == b.AlphaMode && a.IsTranslucent == b.IsTranslucent
             && a.Texture == b.Texture && a.NormalMap == b.NormalMap && a.MetallicRoughnessMap == b.MetallicRoughnessMap
             && a.EmissiveMap == b.EmissiveMap && a.OcclusionMap == b.OcclusionMap
@@ -566,20 +579,22 @@ internal sealed partial class ModelRenderer : IDisposable
     // Marks a translucent draw until the opaque batches are made.
     private const int Translucent = -2;
 
-    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth) faces, ShadowKind shadow, in Matrix4x4 viewProjection)
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend, bool Depth) faces, ShadowKind shadow, in Matrix4x4 viewProjection,
+        ScissorRect? scissor)
     {
         _batches.Add(new Batch
         {
             Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Depth = faces.Depth, Shadow = shadow, ViewProjection = viewProjection,
+            Scissor = scissor,
             Count = custom >= 0 ? 1u : 0u,
         });
         return _batches.Count - 1;
     }
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection) key)
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend, bool Depth) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection, ScissorRect? Scissor) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
-            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection);
+            _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection, key.Scissor);
         Grow(index);
         return index;
     }

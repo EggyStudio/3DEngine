@@ -136,7 +136,7 @@ another name or takes another shape, it is here with the reason.
 | `GAMEPAD_BUTTON_LEFT_TRIGGER_2`, `GAMEPAD_BUTTON_RIGHT_TRIGGER_2` | Not carried, a trigger read as an axis, `GamepadAxis.LeftTrigger` from 0 to 1 | SDL3 reports a trigger as an axis alone |
 | `Model.skeleton`'s `currentPose` and `boneMatrices` | Not carried | A model's pose lives with its skinned meshes on the GPU, posed by `UpdateModelAnimation` |
 | `ModelAnimation` of a bone count | `ModelAnimation` with its `Bones` | A clip is checked against the model it is played on by its bones' names and parents |
-| A model drawn with `DrawModel` inside `BeginVrStereoMode` | Drawn once for each eye, as every rlgl batch is | Drawn once, through the camera | The model pass draws a target through one camera, where the shapes, lines and text drawn in 3D are drawn for each eye |
+| The ECS's mesh entities and particles inside `BeginVrStereoMode` | No ECS, and no particles | Drawn once, through the camera | They are drawn through the cameras that draw a target, where the shapes, lines, text and models drawn in 3D are drawn for each eye |
 | `DrawModelPoints`, `DrawModelPointsEx`, `UnloadModelAnimation` | Carried, from raylib 5.5, which raylib 6 left out | A program of 5.5's calls them, and they take nothing from the rest |
 | An argument's name, as `posX` and `startPos` | C#'s name for it in places, as `x` and `start` | A call's arguments are given in order, which is raylib's, and a program naming one takes the name the cheatsheet gives |
 

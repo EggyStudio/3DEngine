@@ -73,4 +73,53 @@ public sealed partial class OffscreenRenderTests
         GetImageColor(stereo, 10, 78).Should().Be(Color.Blue, "2D after the stereo mode draws over both halves");
         GetImageColor(stereo, 150, 78).Should().Be(Color.Blue);
     }
+
+    [NeedsVulkanFact]
+    public void A_Model_In_Stereo_Mode_Is_Drawn_Through_Each_Eye_In_Its_Half()
+    {
+        Open(160, 80, samples: 1);
+        var camera = new Camera3D(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY, 45);
+        var config = LoadVrStereoConfig(Rift);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0] = new ModelMaterial(Color.Green);
+
+        var stereo = Capture(() =>
+        {
+            ClearBackground(Color.White);
+            BeginVrStereoMode(config);
+            BeginMode3D(camera);
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            EndVrStereoMode();
+        }, "stereo model");
+
+        // Unlit, with no light made, its green as it is.
+        GetImageColor(stereo, 40, 40).Should().Be(Color.Green, "the left eye draws it in the middle of the left half");
+        GetImageColor(stereo, 120, 40).Should().Be(Color.Green, "and the right eye in the middle of the right");
+        GetImageColor(stereo, 80, 40).Should().Be(Color.White, "neither eye draws past its half");
+        UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Model_Drawn_In_Scissor_Mode_Is_Kept_To_Its_Rectangle()
+    {
+        Open(64, 32, samples: 1);
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 90);
+        var wall = LoadModelFromMesh(GenMeshCube(20, 20, 0.1f));
+        wall.Materials[0] = new ModelMaterial(Color.Green);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.White);
+            BeginScissorMode(0, 0, 32, 32);
+            BeginMode3D(camera);
+            DrawModel(wall, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            EndScissorMode();
+        }, "scissored model");
+
+        GetImageColor(image, 16, 16).Should().Be(Color.Green, "the wall covers the frame, and the rectangle keeps it here");
+        GetImageColor(image, 48, 16).Should().Be(Color.White, "and out of here, as raylib's scissor keeps all it draws");
+        UnloadModel(wall);
+    }
 }
