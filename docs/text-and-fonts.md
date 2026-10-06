@@ -156,7 +156,7 @@ An ImGui text field places it by itself.
 
 A character is an `int` code point rather than a `char`, since one past U+FFFF takes two of C#'s
 `char`s, which `char.ConvertFromUtf32` makes. `GetKeyPressed` reads keys the same way, one call
-each until `Key.Unknown`. A program with many fields, or with a console, may draw them with ImGui
+each until `Key.Null`. A program with many fields, or with a console, may draw them with ImGui
 instead, which reads typing itself.
 
 ## Distance field fonts

@@ -123,7 +123,7 @@ internal static class SceneSpawnSystem
         foreach (var probe in probes) ecs.GetRef<ReflectionProbe>(probe).Capture++;
     }
 
-    private static bool Animated(Scene scene) => ModelSkeleton.Walk(scene).Any(node => node.Components.OfType<SceneAnimationPayload>().Any());
+    private static bool Animated(Scene scene) => SceneBones.Walk(scene).Any(node => node.Components.OfType<SceneAnimationPayload>().Any());
 
     private static int Root(EcsWorld ecs, int entity)
     {

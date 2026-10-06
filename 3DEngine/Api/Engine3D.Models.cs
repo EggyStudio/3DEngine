@@ -206,7 +206,7 @@ public static partial class Engine3D
         var textures = new Dictionary<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
         var meshes = new List<ModelMesh>();
         var meshMaterial = new List<int>();
-        var bones = ModelSkeleton.Bones(scene);
+        var bones = SceneBones.Bones(scene);
         var boneIndex = bones.Select((b, i) => (b.Name, i)).ToDictionary(x => x.Name, x => x.i, StringComparer.Ordinal);
         var skins = new List<SkinnedMesh>();
         var morphed = new List<(int Mesh, SceneMeshPayload Payload, Matrix4x4 World, string Node)>();
@@ -320,7 +320,7 @@ public static partial class Engine3D
         if (meshes.Count == 0)
             ApiLogger.Warn($"LoadModel: '{fileName}' has no meshes.");
 
-        var rest = ModelSkeleton.Pose(bones, ModelSkeleton.NodesByName(scene), n => n.LocalTransform);
+        var rest = SceneBones.Pose(bones, SceneBones.NodesByName(scene), n => n.LocalTransform);
         var bindPose = new Transform[bones.Length];
         for (int b = 0; b < bones.Length; b++)
         {
@@ -334,8 +334,7 @@ public static partial class Engine3D
             Meshes = [.. meshes],
             Materials = [.. materials],
             MeshMaterial = [.. meshMaterial],
-            Bones = bones,
-            BindPose = bindPose,
+            Skeleton = new ModelSkeleton { Bones = bones, BindPose = bindPose },
             Skins = [.. skins],
             OwnedTextures = [.. textures.Values.Where(t => t.IsValid)],
         };
@@ -468,8 +467,7 @@ public static partial class Engine3D
             Materials = (ModelMaterial[])model.Materials.Clone(),
             MeshMaterial = model.MeshMaterial,
             Transform = model.Transform,
-            Bones = model.Bones,
-            BindPose = model.BindPose,
+            Skeleton = model.Skeleton,
             Skins = model.Skins,
         };
     }

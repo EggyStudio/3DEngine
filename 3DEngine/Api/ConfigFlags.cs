@@ -51,4 +51,8 @@ public enum ConfigFlags : uint
     WindowHighdpi = 0x00002000,
     /// <summary>Cover the monitor with the window, borderless, at the desktop's display mode, as <see cref="Engine3D.ToggleBorderlessWindowed"/> does.</summary>
     BorderlessWindowedMode = 0x00008000,
+    /// <summary>Let the mouse through the window to what is under it, which SDL3 has no way to, so it is warned of and does nothing, as raylib's SDL backend does.</summary>
+    WindowMousePassthrough = 0x00004000,
+    /// <summary>An interlaced video mode on a Raspberry Pi's V3D, which a desktop has none of, so it is warned of and does nothing, as raylib's SDL backend does.</summary>
+    InterlacedHint = 0x00010000,
 }

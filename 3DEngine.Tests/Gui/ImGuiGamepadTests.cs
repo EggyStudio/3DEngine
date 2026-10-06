@@ -49,14 +49,14 @@ public class ImGuiGamepadTests
         ImGui.GetIO().BackendFlags.HasFlag(ImGuiBackendFlags.HasGamepad).Should().BeTrue();
 
         // Navigation starts on the focused window's first item, so down twice is the third.
-        menu.Press(pad, GamepadButton.DpadDown);
-        menu.Press(pad, GamepadButton.DpadDown);
-        menu.Press(pad, GamepadButton.South);
+        menu.Press(pad, GamepadButton.LeftFaceDown);
+        menu.Press(pad, GamepadButton.LeftFaceDown);
+        menu.Press(pad, GamepadButton.RightFaceDown);
         menu.Picked.Should().Equal(["Quit"], "the pad moved down two items and picked that one");
 
         // Up one and picked again.
-        menu.Press(pad, GamepadButton.DpadUp);
-        menu.Press(pad, GamepadButton.South);
+        menu.Press(pad, GamepadButton.LeftFaceUp);
+        menu.Press(pad, GamepadButton.RightFaceDown);
         menu.Picked.Should().Equal(["Quit", "Settings"]);
     }
 
@@ -68,7 +68,7 @@ public class ImGuiGamepadTests
         menu.Frame();
         menu.Frame();
 
-        menu.Press(pad, GamepadButton.South);
+        menu.Press(pad, GamepadButton.RightFaceDown);
         menu.Picked.Should().Equal(["Play"], "the press picks, where ImGui alone only shows its cursor on the first");
     }
 }

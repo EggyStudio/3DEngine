@@ -29,6 +29,9 @@ public sealed class Music
     /// <remarks>The music itself is played with the music functions, which feed this stream's processors.</remarks>
     public AudioStream Stream { get; }
 
+    /// <summary>How many frames the piece is long, a sample of each channel a frame, raylib's <c>music.frameCount</c>.</summary>
+    public int FrameCount => (int)Math.Min(int.MaxValue, Decoder?.TotalFrames ?? 0);
+
     internal IMusicDecoder? Decoder { get; }
 
     // The file it was opened from, for the log.

@@ -125,9 +125,9 @@ public static class BehaviorConditions
     internal static bool ModifiersHeld(Input input, KeyModifier modifier)
     {
         if (modifier == KeyModifier.None) return true;
-        if ((modifier & KeyModifier.Ctrl)  != 0 && !input.KeyDown(Key.LCtrl)  && !input.KeyDown(Key.RCtrl))  return false;
-        if ((modifier & KeyModifier.Shift) != 0 && !input.KeyDown(Key.LShift) && !input.KeyDown(Key.RShift)) return false;
-        if ((modifier & KeyModifier.Alt)   != 0 && !input.KeyDown(Key.LAlt)   && !input.KeyDown(Key.RAlt))   return false;
+        if ((modifier & KeyModifier.Ctrl)  != 0 && !input.KeyDown(Key.LeftControl)  && !input.KeyDown(Key.RightControl))  return false;
+        if ((modifier & KeyModifier.Shift) != 0 && !input.KeyDown(Key.LeftShift) && !input.KeyDown(Key.RightShift)) return false;
+        if ((modifier & KeyModifier.Alt)   != 0 && !input.KeyDown(Key.LeftAlt)   && !input.KeyDown(Key.RightAlt))   return false;
         return true;
     }
 }

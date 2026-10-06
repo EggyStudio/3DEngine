@@ -160,7 +160,7 @@ internal sealed class AppWindowPlugin : IPlugin
                 case SDL.EventType.KeyUp:
                     bool down = (SDL.EventType)e.Type == SDL.EventType.KeyDown;
                     var mapped = (Key)e.Key.Scancode;
-                    if (mapped != Key.Unknown)
+                    if (mapped != Key.Null)
                         input.SetKey(mapped, down, e.Key.Repeat);
                     break;
             }

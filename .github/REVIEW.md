@@ -10,7 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2bcac3a6`. Verdict 29's causes were the tests' own: macOS ships bash 3.2, where a
+Reviewed up to `20bf8c72`. The six pairs furthest from raylib with no reason on their rows are
+traced: five are kept differences with their reasons on the page and the rows, an RGB logo's corners
+opaque where RGBA's are clear, ImGui's wider font wrapping lines elsewhere, raylib blending alpha
+into a render texture by the color's factors so a bar darkens over black, ours times 0.84 being
+raylib's to the unit, and Latin-1 loaded where raylib loads ASCII; and one was a fault, text in a
+font from a file drifting along each line, its advances kept in fractions where raylib cuts them to
+whole pixels, its baseline a pixel low and a larger bake laid out by its own boxes where raylib
+scales its one bake, mended and measured over all 220 pairs, `textures_image_text` 5.1 to 0.3 and
+the `font_from_file` reference 9.5 to 0.7 per cent from raylib's own drawing, so it is retaken
+(`20bf8c72`). The suite: 1,435 passed, none skipped. Item 5, the surface read whole, is under way.
+
+Before them, Verdict 29's causes were found to be the tests' own: macOS ships bash 3.2, where a
 command not found in a sourced script exits 1, so the test holds the error's title to whatever code
 the step ended with; the notices test kept a carriage return on each line's last pair; and the
 missing notice is most likely .NET reading the script's UTF-8 in the console code page, said as
@@ -31,19 +42,6 @@ package whose notes name anyone, and COMMITS.md has the rule (`78d79c22`), which
 runs of `38e81c4f` and `78d79c22` fail on Windows and macOS in the new scripts' own tests, Linux
 passing, which is Verdict 29, and the examples job did not run, so Verdict 28 waits. The suite here:
 1,434 passed, none skipped.
-
-Before them, Verdict 28's cause was found through GitHub's public listing of a run's jobs, which
-gives each step's conclusion and time without a sign-in: the step that failed in all three runs was
-the first-person game's walk, where each pad press held two frames and the runner drew Manor's menu
-under 5 frames a second, so the first press went past Settings to Quit and the game quit itself,
-`e3d` answering 4 for an app it could not reach. Presses are held one frame with a check that the
-walk began, every step of the examples job runs through `build/step.py`, which gives a step that
-fails silently an `::error::` naming the step, the command, its code, the last lines and the session
-logs' warnings, `e3d` writes its errors on stderr, the pairs measured for the first time are at most
-ten notices that fail nothing while `measured-ci.tsv` is empty, and `build/page.py` is shared with
-`test.py` under `StepScriptTests`, which N 1.4 leaves out, eleven from ten (`38e81c4f`); the verdict
-settles when an examples job passes. The owner packed 5.1 from `b43818f9`, whose pack workflow
-passed. The suite: 1,433 passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -229,31 +227,53 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, the pairs furthest apart from raylib.** Six written examples stood 8 to 27 per cent apart
-from raylib's program with no reason on their rows, and each is traced. `textures_image_rotate`
-(19.2) turns `raylib_logo.png`, which is RGB, and raylib fills the corners the turn opens with
-zeros in the image's own format, which are opaque black, where an image here is RGBA and its zeros
-clear, which the comparison page now keeps with its reason. `core_text_file_loading` (27.1) is
-ImGui's default font, wider than raylib's, so its lines wrap elsewhere, which the page keeps under
-`GetFontDefault`. The two split screens (10.6 and 8.8) differ in their bars, which raylib blends
-into a render texture with alpha by the color's factors, so a bar at 0.8 over the opaque sky leaves
-0.84 and darkens over the black it is drawn on: ours times 0.84 is raylib's to the unit, and the 2D
-one's 245 times 0.76 its 186, which the page keeps, with their text in the default font.
-`text_unicode_ranges` loads Latin-1 where raylib loads ASCII, which the page keeps as well.
+**Now 5, the public surface read against raylib, first batch** (Decision 5). Read by scripts kept
+in the session, every function of the flat API against `raylib.h`, `raymath.h`, `rcamera.h` and
+`rlgl.h` at the pinned commit, which is raylib 6.1-dev, by name, by its arguments' names and order
+and by their types, and every struct's fields and enum's members against raylib's. 601 of raylib's
+functions are carried by name, 501 with raylib's argument names in raylib's order; of the rest one
+pair took its arguments in another order, one took another shape, one another type, and the others
+differ in an argument's name or take a C pointer and its count as one array. What moved, to raylib's:
 
-`text_codepoints_loading` (9.8) held a fault. Its line of glyphs drifted from raylib's along each
-line, since the atlas builder keeps a glyph's advance in fractions where raylib cuts it to whole
-pixels at the size a font is loaded at, its baseline sat a pixel lower, at the ascent plus one
-rounded down where raylib's is the ascent cut, and text drawn past a font's size from a larger bake
-was laid out by that bake's own boxes, where raylib scales its one bake. A font loaded from a file
-now has whole advances and its glyphs a pixel higher, and a larger bake is drawn in the boxes and
-advances of the font's own bake scaled, keeping its sharper pixels. Measured over all 220 pairs,
-`text_codepoints_loading` went from 9.8 to 6.0, `text_unicode_ranges` 11.2 to 9.1,
-`text_font_filters` 4.4 to 3.0, `text_font_sdf` 6.1 to 5.7 and `textures_image_text` 5.1 to 0.3, and
-no other pair moved by 0.3 points but three whose rows say they move with the clock or the audio
-device. `measured.tsv` is that run's. The reference `font_from_file` stood 9.5 per cent from raylib's
-own drawing of its three lines, a program built here against the pinned raylib, and the new frame
-stands 0.7, so it is the reference now, and the 38 reference and font tests pass on lavapipe. A
-color emoji test sampled the emoji's last row, which is a pixel higher now, and samples the middle
-of each half. Five captures are taken again, and the six rows say their reasons. The suite: 1,435
-passed, none skipped.
+- `DrawCapsule` and `DrawCapsuleWires` take rings before slices, as raylib 6 does, where they kept
+  raylib 5's order.
+- `ImageDrawRectangleLines(dst, posX, posY, width, height, color)` is raylib's, a pixel wide, where
+  it had the shape of `ImageDrawRectangleLinesEx`, which stays.
+- `ImageColorContrast` takes an int, as raylib's does.
+- `GetMouseRay`, `ImageDraw` and `GetSplinePointBezierQuad`, raylib's older names for
+  `GetScreenToWorldRay`, `ImageDrawImagePro` and `GetSplinePointBezierQuadratic`, which are carried,
+  are gone from the surface. `ImageDraw` stays inside the engine, which draws text and cube faces
+  into images with it, and the skies the examples, games and docs drew with it are
+  `ImageDrawImage`, which copies a whole image as it did, so no picture moved.
+- `ModelAnimation`'s `FrameCount`, `FramePoses` and `FrameMorphWeights` are `KeyframeCount`,
+  `KeyframePoses` and `KeyframeMorphWeights`, and a model's `Bones` and `BindPose` are in its
+  `Skeleton`, a `ModelSkeleton`, as raylib 6 holds them. The engine's own helper of that name is
+  `SceneBones`.
+- `Sound` and `Music` have raylib's `FrameCount`.
+- `LogLevel` has raylib's `All` and `None` around its levels, numbered as raylib's, and `Critical`
+  is `Fatal`, as the log already printed it, so `SetTraceLogLevel(LogLevel.None)` silences the
+  console as `LOG_NONE` does, with a test.
+- `Key`'s members raylib names otherwise take raylib's names, `Zero` to `Nine`, `LeftShift` and the
+  other modifiers, `Equal`, `NumLock`, `KbMenu`, `KpSubtract`, `KpAdd`, `KpEqual`, `Back` and `Null`,
+  their values SDL's scancodes as before.
+- `GamepadButton`'s members are raylib's, `RightFaceDown` for A or the cross, the directional pad
+  `LeftFaceUp` and so on, the shoulders `LeftTrigger1` and `RightTrigger1`, the sticks' buttons
+  `LeftThumb` and `RightThumb`, and `MiddleLeft`, `Middle` and `MiddleRight`, their values SDL's.
+  The workflow's pad presses, `build/soak.sh`, the capture script, the games, the docs and the e3d
+  skill follow, and Manor's walk through Settings with the new names reaches the walk here.
+- `TextureWrap.MirrorClamp` is carried, Vulkan 1.2's feature for it turned on where the device has
+  it, with a test, and `ConfigFlags` has `WindowMousePassthrough` and `InterlacedHint`, warned of
+  and doing nothing, as raylib's SDL backend does.
+
+Kept, each with its reason in a new section of the comparison page, Names and shapes: `Key` and
+`LogLevel` for raylib's enum names, `Camera3D` alone and `ModelMesh` and `ModelMaterial`, since
+`Camera`, `Mesh` and `Material` are the ECS components' names, `System.Numerics`' types,
+`string[]`, an array for a pointer and its count, `UploadMesh` of vertices, `SetShaderValue`'s
+overloads, `TraceLog`'s text, `UnloadDroppedFiles()`, `null` for no button, the triggers as axes
+alone, a model's pose kept on the GPU, a clip's own bones, `DrawModelPoints`, `DrawModelPointsEx`
+and `UnloadModelAnimation` carried from raylib 5.5, which raylib 6 left out, and C#'s names for
+some arguments. One more is the next batch: the ECS `Transform`'s `Position`, which raylib's
+`Transform` and Bevy's both call `translation`. The games build from a package packed here, and
+the render tests pass on lavapipe under the layer, 107 of them. The surface lost and reshaped lines
+(`PublicApi.txt`, 69 in and 61 out), which Decision 5 puts to the owner to number. The suite:
+1,436 passed, none skipped.

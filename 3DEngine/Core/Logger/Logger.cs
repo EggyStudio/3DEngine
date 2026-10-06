@@ -84,5 +84,5 @@ public sealed class Logger : ILogger
     /// <inheritdoc />
     public void Error(string message, Exception? exception = null) => Log(LogLevel.Error, message, exception);
     /// <inheritdoc />
-    public void Critical(string message, Exception? exception = null) => Log(LogLevel.Critical, message, exception);
+    public void Fatal(string message, Exception? exception = null) => Log(LogLevel.Fatal, message, exception);
 }

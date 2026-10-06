@@ -43,9 +43,9 @@ public static class ModelsBoneSocket
         // The bones the equipment hangs from, found by name. raylib's skeleton.bones are Bones here.
         int[] boneSocketIndex = [-1, -1, -1];
 
-        for (int i = 0; i < characterModel.Bones.Length; i++)
+        for (int i = 0; i < characterModel.Skeleton.Bones.Length; i++)
         {
-            switch (characterModel.Bones[i].Name)
+            switch (characterModel.Skeleton.Bones[i].Name)
             {
                 case "socket_hat": boneSocketIndex[BONE_SOCKET_HAT] = i; break;
                 case "socket_hand_R": boneSocketIndex[BONE_SOCKET_HAND_R] = i; break;
@@ -73,12 +73,12 @@ public static class ModelsBoneSocket
             else if (IsKeyPressed(Key.G)) animIndex = (animIndex + animsCount - 1)%animsCount;
 
             // and 1, 2 and 3 show and hide the hat, the sword and the shield.
-            if (IsKeyPressed(Key.Alpha1)) showEquip[BONE_SOCKET_HAT] = !showEquip[BONE_SOCKET_HAT];
-            if (IsKeyPressed(Key.Alpha2)) showEquip[BONE_SOCKET_HAND_R] = !showEquip[BONE_SOCKET_HAND_R];
-            if (IsKeyPressed(Key.Alpha3)) showEquip[BONE_SOCKET_HAND_L] = !showEquip[BONE_SOCKET_HAND_L];
+            if (IsKeyPressed(Key.One)) showEquip[BONE_SOCKET_HAT] = !showEquip[BONE_SOCKET_HAT];
+            if (IsKeyPressed(Key.Two)) showEquip[BONE_SOCKET_HAND_R] = !showEquip[BONE_SOCKET_HAND_R];
+            if (IsKeyPressed(Key.Three)) showEquip[BONE_SOCKET_HAND_L] = !showEquip[BONE_SOCKET_HAND_L];
 
             ModelAnimation anim = modelAnimations[animIndex];
-            animCurrentFrame = (animCurrentFrame + 1)%anim.FrameCount;
+            animCurrentFrame = (animCurrentFrame + 1)%anim.KeyframeCount;
             UpdateModelAnimation(characterModel, anim, animCurrentFrame);
 
             BeginDrawing();
@@ -101,8 +101,8 @@ public static class ModelsBoneSocket
                     {
                         if (!showEquip[i]) continue;
 
-                        Transform transform = anim.FramePoses[animCurrentFrame][boneSocketIndex[i]];
-                        Quaternion inRotation = characterModel.BindPose[boneSocketIndex[i]].Rotation;
+                        Transform transform = anim.KeyframePoses[animCurrentFrame][boneSocketIndex[i]];
+                        Quaternion inRotation = characterModel.Skeleton.BindPose[boneSocketIndex[i]].Rotation;
                         Quaternion outRotation = transform.Rotation;
 
                         // The socket's turn from its pose at rest to its pose in this frame,

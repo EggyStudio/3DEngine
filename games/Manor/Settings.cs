@@ -27,13 +27,13 @@ public sealed class Settings
     public readonly Dictionary<Action, Key> Keys = new()
     {
         [Action.Forward] = Key.W, [Action.Back] = Key.S, [Action.Left] = Key.A, [Action.Right] = Key.D,
-        [Action.Jump] = Key.Space, [Action.Run] = Key.LShift, [Action.Pause] = Key.Escape,
+        [Action.Jump] = Key.Space, [Action.Run] = Key.LeftShift, [Action.Pause] = Key.Escape,
     };
 
     // Moving is the left stick's, so only the buttons are bound.
     public readonly Dictionary<Action, GamepadButton> Buttons = new()
     {
-        [Action.Jump] = GamepadButton.South, [Action.Run] = GamepadButton.LeftStick, [Action.Pause] = GamepadButton.Start,
+        [Action.Jump] = GamepadButton.RightFaceDown, [Action.Run] = GamepadButton.LeftThumb, [Action.Pause] = GamepadButton.MiddleRight,
     };
 
     public static Settings Load()

@@ -37,5 +37,5 @@ public interface ILogger
     /// <summary>Writes a critical error message about a failure that may terminate the application.</summary>
     /// <param name="message">The log message text.</param>
     /// <param name="exception">Optional exception that caused the critical failure.</param>
-    void Critical(string message, Exception? exception = null);
+    void Fatal(string message, Exception? exception = null);
 }

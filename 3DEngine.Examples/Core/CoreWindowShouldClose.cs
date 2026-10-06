@@ -15,7 +15,7 @@ public static class CoreWindowShouldClose
 
         InitWindow(screenWidth, screenHeight, "[core] window should close");
 
-        SetExitKey(Key.Unknown);
+        SetExitKey(Key.Null);
 
         bool exitWindowRequested = false;
         bool exitWindow = false;

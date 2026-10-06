@@ -142,9 +142,9 @@ public sealed class IqmModelReaderTests
 
         clip.Name.Should().Be("wave");
         clip.Bones.Should().Equal(new BoneInfo("root", -1), new BoneInfo("tip", 0));
-        clip.FrameCount.Should().Be(2, "the file's frames are the clip's, whatever rate it gives");
-        clip.FramePoses[0][1].Position.Y.Should().BeApproximately(1, 1e-5f);
-        clip.FramePoses[1][1].Position.Y.Should().BeApproximately(2, 1e-5f, "half of the frame's 2 lifts the tip");
+        clip.KeyframeCount.Should().Be(2, "the file's frames are the clip's, whatever rate it gives");
+        clip.KeyframePoses[0][1].Position.Y.Should().BeApproximately(1, 1e-5f);
+        clip.KeyframePoses[1][1].Position.Y.Should().BeApproximately(2, 1e-5f, "half of the frame's 2 lifts the tip");
 
         IqmModelReader.ReadAnimations(Triangle(joints: false, mesh: false)).Single().Bones
             .Should().Equal([new BoneInfo("", -1), new BoneInfo("", 0)], "a file of clips alone names no bones");

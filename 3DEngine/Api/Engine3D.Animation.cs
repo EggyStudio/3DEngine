@@ -53,12 +53,12 @@ public static partial class Engine3D
         }
         if (ReadModelScene(fileName, "LoadModelAnimations") is not { } scene) return [];
 
-        var bones = ModelSkeleton.Bones(scene);
-        var nodes = ModelSkeleton.NodesByName(scene);
+        var bones = SceneBones.Bones(scene);
+        var nodes = SceneBones.NodesByName(scene);
         var clips = new List<ModelAnimation>();
-        foreach (var node in ModelSkeleton.Walk(scene))
+        foreach (var node in SceneBones.Walk(scene))
             foreach (var clip in node.Components.OfType<SceneAnimationPayload>())
-                clips.Add(ModelSkeleton.Sample(scene, clip, bones, nodes));
+                clips.Add(SceneBones.Sample(scene, clip, bones, nodes));
 
         if (clips.Count == 0) ApiLogger.Warn($"LoadModelAnimations: '{fileName}' has no animations.");
         return [.. clips];
@@ -79,7 +79,7 @@ public static partial class Engine3D
     /// </remarks>
     public static void UpdateModelAnimation(Model model, ModelAnimation animation, float frame)
     {
-        if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
+        if (animation.KeyframeCount == 0 || !IsModelAnimationValid(model, animation)) return;
         if (frame != MathF.Floor(frame))
         {
             // Between two frames, which the clip is sampled at AnimationFps apart
@@ -87,9 +87,9 @@ public static partial class Engine3D
             return;
         }
         var whole = (int)frame;
-        whole = ((whole % animation.FrameCount) + animation.FrameCount) % animation.FrameCount;
-        ApplyMorphs(model, animation, animation.FrameMorphWeights.Length > whole ? animation.FrameMorphWeights[whole] : null, 1);
-        Pose(model, animation.FramePoses[whole]);
+        whole = ((whole % animation.KeyframeCount) + animation.KeyframeCount) % animation.KeyframeCount;
+        ApplyMorphs(model, animation, animation.KeyframeMorphWeights.Length > whole ? animation.KeyframeMorphWeights[whole] : null, 1);
+        Pose(model, animation.KeyframePoses[whole]);
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public static partial class Engine3D
     /// </remarks>
     public static void UpdateModelAnimationAt(Model model, ModelAnimation animation, float seconds)
     {
-        if (animation.FrameCount == 0 || !IsModelAnimationValid(model, animation)) return;
+        if (animation.KeyframeCount == 0 || !IsModelAnimationValid(model, animation)) return;
         ApplyMorphs(model, animation, SampleMorphs(animation, seconds), 1);
         Pose(model, Sample(animation, seconds));
     }
@@ -123,7 +123,7 @@ public static partial class Engine3D
     /// <remarks>Both clips move the model's bones, and each is sampled as <see cref="UpdateModelAnimationAt"/> does.</remarks>
     public static void UpdateModelAnimationBlend(Model model, ModelAnimation from, float fromSeconds, ModelAnimation to, float toSeconds, float weight)
     {
-        if (from.FrameCount == 0 || to.FrameCount == 0 || !IsModelAnimationValid(model, from) || !IsModelAnimationValid(model, to)) return;
+        if (from.KeyframeCount == 0 || to.KeyframeCount == 0 || !IsModelAnimationValid(model, from) || !IsModelAnimationValid(model, to)) return;
         weight = Math.Clamp(weight, 0f, 1f);
         ApplyMorphs(model, from, SampleMorphs(from, fromSeconds), 1);
         ApplyMorphs(model, to, SampleMorphs(to, toSeconds), weight);
@@ -147,7 +147,7 @@ public static partial class Engine3D
     public static void UpdateModelAnimationLayer(Model model, ModelAnimation under, float underSeconds, ModelAnimation over, float overSeconds,
         string bone, float weight = 1)
     {
-        if (under.FrameCount == 0 || over.FrameCount == 0 || !IsModelAnimationValid(model, under) || !IsModelAnimationValid(model, over)) return;
+        if (under.KeyframeCount == 0 || over.KeyframeCount == 0 || !IsModelAnimationValid(model, under) || !IsModelAnimationValid(model, over)) return;
         var root = Array.FindIndex(under.Bones, b => b.Name == bone);
         var below = Sample(under, underSeconds);
         ApplyMorphs(model, under, SampleMorphs(under, underSeconds), 1);
@@ -209,13 +209,13 @@ public static partial class Engine3D
                     skin.MorphWeights[t] = weight;
                     found = true;
                 }
-        if (found) Pose(model, model.LastPose ?? model.BindPose);
+        if (found) Pose(model, model.LastPose ?? model.Skeleton.BindPose);
     }
 
     // A clip's morph weights at a time, between the frames either side, counted round its length.
     private static float[]? SampleMorphs(ModelAnimation animation, float seconds)
     {
-        var frames = animation.FrameMorphWeights;
+        var frames = animation.KeyframeMorphWeights;
         if (frames.Length == 0 || animation.MorphChannels.Length == 0) return null;
         var at = seconds * AnimationFps;
         at -= MathF.Floor(at / frames.Length) * frames.Length;
@@ -242,11 +242,11 @@ public static partial class Engine3D
     // A clip's bones at a time, between the frames either side, counted round its length.
     private static Transform[] Sample(ModelAnimation animation, float seconds)
     {
-        var frames = animation.FrameCount;
+        var frames = animation.KeyframeCount;
         var at = seconds * AnimationFps;
         at -= MathF.Floor(at / frames) * frames;
         var first = Math.Min((int)at, frames - 1);
-        return Mix(animation.FramePoses[first], animation.FramePoses[(first + 1) % frames], at - first);
+        return Mix(animation.KeyframePoses[first], animation.KeyframePoses[(first + 1) % frames], at - first);
     }
 
     // Two poses of the same bones, weight of the way from the first to the second.
@@ -345,12 +345,12 @@ public static partial class Engine3D
     /// </remarks>
     public static bool IsModelAnimationValid(Model model, ModelAnimation animation)
     {
-        if (model.Bones.Length == 0)
+        if (model.Skeleton.Bones.Length == 0)
             return animation.Bones.Length == 0 && animation.MorphChannels.Length > 0 && model.Skins.Any(s => s.MorphNames.Length > 0);
-        if (model.Bones.Length != animation.Bones.Length) return false;
-        for (int b = 0; b < model.Bones.Length; b++)
+        if (model.Skeleton.Bones.Length != animation.Bones.Length) return false;
+        for (int b = 0; b < model.Skeleton.Bones.Length; b++)
         {
-            var (bone, moved) = (model.Bones[b], animation.Bones[b]);
+            var (bone, moved) = (model.Skeleton.Bones[b], animation.Bones[b]);
             if (bone.Parent != moved.Parent || (moved.Name.Length > 0 && moved.Name != bone.Name)) return false;
         }
         return true;
@@ -402,7 +402,7 @@ public static partial class Engine3D
 }
 
 /// <summary>The bones of a model file and its clips' poses, which <c>LoadModel</c> and <c>LoadModelAnimations</c> both work out the same way.</summary>
-internal static class ModelSkeleton
+internal static class SceneBones
 {
     /// <summary>Every node of the scene, parents before children, in the order <c>LoadModel</c> visits them.</summary>
     public static IEnumerable<SceneNode> Walk(Scene scene)
@@ -520,9 +520,9 @@ internal static class ModelSkeleton
 
         return new ModelAnimation
         {
-            Name = clip.Name, Bones = bones, FramePoses = poses,
+            Name = clip.Name, Bones = bones, KeyframePoses = poses,
             MorphChannels = [.. morphChannels.Select(c => (c.TargetNodePath.TrimStart('/'), c.MorphTarget))],
-            FrameMorphWeights = morphChannels.Length > 0 ? morphWeights : [],
+            KeyframeMorphWeights = morphChannels.Length > 0 ? morphWeights : [],
         };
     }
 

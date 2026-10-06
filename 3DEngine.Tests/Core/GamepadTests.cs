@@ -12,16 +12,16 @@ public class GamepadTests
         var input = new Input();
         var pad = input.ConnectGamepad(7, "Pad", 0);
 
-        pad.SetButton(GamepadButton.South, true);
-        pad.ButtonPressed(GamepadButton.South).Should().BeTrue();
+        pad.SetButton(GamepadButton.RightFaceDown, true);
+        pad.ButtonPressed(GamepadButton.RightFaceDown).Should().BeTrue();
 
         input.BeginFrame();
-        pad.ButtonPressed(GamepadButton.South).Should().BeFalse();
-        pad.ButtonDown(GamepadButton.South).Should().BeTrue();
+        pad.ButtonPressed(GamepadButton.RightFaceDown).Should().BeFalse();
+        pad.ButtonDown(GamepadButton.RightFaceDown).Should().BeTrue();
 
-        pad.SetButton(GamepadButton.South, false);
-        pad.ButtonReleased(GamepadButton.South).Should().BeTrue();
-        pad.ButtonDown(GamepadButton.South).Should().BeFalse();
+        pad.SetButton(GamepadButton.RightFaceDown, false);
+        pad.ButtonReleased(GamepadButton.RightFaceDown).Should().BeTrue();
+        pad.ButtonDown(GamepadButton.RightFaceDown).Should().BeFalse();
     }
 
     [Fact]
@@ -37,15 +37,15 @@ public class GamepadTests
             var second = input.ConnectGamepad(2, "Second", 0);
 
             Engine3D.GetGamepadButtonPressed().Should().BeNull();
-            second.SetButton(GamepadButton.Start, true);
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.Start);
+            second.SetButton(GamepadButton.MiddleRight, true);
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight);
             input.BeginFrame();
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.Start, "it is the last pressed while it is held, as raylib's is");
-            first.SetButton(GamepadButton.South, true);
-            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.South, "the last pressed on any pad");
-            first.SetButton(GamepadButton.South, false);
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.MiddleRight, "it is the last pressed while it is held, as raylib's is");
+            first.SetButton(GamepadButton.RightFaceDown, true);
+            Engine3D.GetGamepadButtonPressed().Should().Be(GamepadButton.RightFaceDown, "the last pressed on any pad");
+            first.SetButton(GamepadButton.RightFaceDown, false);
             Engine3D.GetGamepadButtonPressed().Should().BeNull("once the last one is up, as raylib clears it, though Start is held");
-            second.SetButton(GamepadButton.Start, false);
+            second.SetButton(GamepadButton.MiddleRight, false);
 
             input.AddWheel(2, -1);
             Engine3D.GetMouseWheelMoveV().Should().Be(new System.Numerics.Vector2(2, -1));

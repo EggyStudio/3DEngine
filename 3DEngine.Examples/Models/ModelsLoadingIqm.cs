@@ -60,7 +60,7 @@ public static class ModelsLoadingIqm
 
             animCurrentFrame += animSpeed;
             UpdateModelAnimation(model, anims[animIndex], animCurrentFrame);
-            if (animCurrentFrame >= anims[animIndex].FrameCount) animCurrentFrame = 0;
+            if (animCurrentFrame >= anims[animIndex].KeyframeCount) animCurrentFrame = 0;
 
             // Draw
             BeginDrawing();

@@ -133,6 +133,6 @@ public class Collision3DTests
     public void The_Quadratic_Bezier_Point_Has_Both_Of_Raylibs_Names()
     {
         GetSplinePointBezierQuadratic(Vector2.Zero, new Vector2(1, 2), new Vector2(2, 0), 0.5f)
-            .Should().Be(GetSplinePointBezierQuad(Vector2.Zero, new Vector2(1, 2), new Vector2(2, 0), 0.5f));
+            .Should().Be(GetSplinePointBezierQuadratic(Vector2.Zero, new Vector2(1, 2), new Vector2(2, 0), 0.5f));
     }
 }

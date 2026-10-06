@@ -463,7 +463,4 @@ public static partial class Engine3D
         var to = new Vector3(far.X, far.Y, far.Z) / far.W;
         return new Ray(from, Vector3.Normalize(to - from));
     }
-
-    /// <summary>The ray from a camera through the mouse pointer, raylib's older name for <see cref="GetScreenToWorldRay"/>.</summary>
-    public static Ray GetMouseRay(Vector2 mousePosition, Camera3D camera) => GetScreenToWorldRay(mousePosition, camera);
 }

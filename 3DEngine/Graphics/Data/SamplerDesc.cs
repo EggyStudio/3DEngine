@@ -17,7 +17,9 @@ internal enum SamplerAddressMode
     /// <summary>Repeat the texture (tile).</summary>
     Repeat,
     /// <summary>Repeat with mirroring on each boundary.</summary>
-    MirrorRepeat
+    MirrorRepeat,
+    /// <summary>Mirrored once across the edge at 0, then clamped to the edge texel past it.</summary>
+    MirrorClampToEdge
 }
 
 /// <summary>Descriptor for creating a texture sampler.</summary>

@@ -33,7 +33,7 @@ case "$name" in
   pusher|summit) key Enter 2 ;;
   swarm) cmd swarm.invulnerable true; key Enter 2 ;;
   rally) cmd rally.autopilot true; key Enter 2 ;;
-  manor) cmd input.button 0 South 2; cmd manor.autopilot true ;;
+  manor) cmd input.button 0 RightFaceDown 2; cmd manor.autopilot true ;;
   tactics) cmd tactics.new 1; cmd tactics.autopilot true ;;
 esac
 
@@ -65,7 +65,7 @@ turn() {
       # The autopilot walks the estate, its cells streamed in and let go, and the pad's bottom
       # button, a jump on the way, picks Walk again once every lantern is found.
       wait_frames 240
-      cmd input.button 0 South 2 ;;
+      cmd input.button 0 RightFaceDown 2 ;;
     tactics)
       # The computer plays both sides, and a match that has ended is followed by a new one on
       # another map, saved and taken up again now and then.

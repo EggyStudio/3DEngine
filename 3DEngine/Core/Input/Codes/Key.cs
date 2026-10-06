@@ -12,7 +12,7 @@ namespace Engine;
 public enum Key
 {
     /// <summary>No key, which a key the engine does not know reports and <see cref="Engine3D.SetExitKey"/> takes for none.</summary>
-    Unknown = 0,
+    Null = 0,
     /// <summary>The key where a US layout has A.</summary>
     A = 4,
     /// <summary>The key where a US layout has B.</summary>
@@ -66,25 +66,25 @@ public enum Key
     /// <summary>The key where a US layout has Z.</summary>
     Z = 29,
     /// <summary>The key where a US layout has 1, on the row above the letters.</summary>
-    Alpha1 = 30,
+    One = 30,
     /// <summary>The key where a US layout has 2, on the row above the letters.</summary>
-    Alpha2 = 31,
+    Two = 31,
     /// <summary>The key where a US layout has 3, on the row above the letters.</summary>
-    Alpha3 = 32,
+    Three = 32,
     /// <summary>The key where a US layout has 4, on the row above the letters.</summary>
-    Alpha4 = 33,
+    Four = 33,
     /// <summary>The key where a US layout has 5, on the row above the letters.</summary>
-    Alpha5 = 34,
+    Five = 34,
     /// <summary>The key where a US layout has 6, on the row above the letters.</summary>
-    Alpha6 = 35,
+    Six = 35,
     /// <summary>The key where a US layout has 7, on the row above the letters.</summary>
-    Alpha7 = 36,
+    Seven = 36,
     /// <summary>The key where a US layout has 8, on the row above the letters.</summary>
-    Alpha8 = 37,
+    Eight = 37,
     /// <summary>The key where a US layout has 9, on the row above the letters.</summary>
-    Alpha9 = 38,
+    Nine = 38,
     /// <summary>The key where a US layout has 0, on the row above the letters.</summary>
-    Alpha0 = 39,
+    Zero = 39,
     /// <summary>Return, the Enter key beside the letters.</summary>
     Return = 40,
     /// <summary>The Return key by raylib's name for it.</summary>
@@ -100,7 +100,7 @@ public enum Key
     /// <summary>The key where a US layout has the minus sign.</summary>
     Minus = 45,
     /// <summary>The key where a US layout has the equals sign.</summary>
-    Equals = 46,
+    Equal = 46,
     /// <summary>The key where a US layout has the left square bracket.</summary>
     Leftbracket = 47,
     /// <summary>The key where a US layout has the right square bracket.</summary>
@@ -188,15 +188,15 @@ public enum Key
     Up = 82,
 
     /// <summary>Num Lock on PC, Clear on Mac keyboards.</summary>
-    NumLockClear = 83,
+    NumLock = 83,
     /// <summary>The keypad's divide key.</summary>
     KpDivide = 84,
     /// <summary>The keypad's multiply key.</summary>
     KpMultiply = 85,
     /// <summary>The keypad's minus key.</summary>
-    KpMinus = 86,
+    KpSubtract = 86,
     /// <summary>The keypad's plus key.</summary>
-    KpPlus = 87,
+    KpAdd = 87,
     /// <summary>The keypad's Enter.</summary>
     KpEnter = 88,
     /// <summary>The keypad's 1.</summary>
@@ -229,12 +229,12 @@ public enum Key
     NonUsBackSlash = 100,
 
     /// <summary>Windows contextual menu / Compose key.</summary>
-    Application = 101,
+    KbMenu = 101,
 
     /// <summary>Power key (status flag on USB spec, physical key on some Mac keyboards).</summary>
     Power = 102,
     /// <summary>The keypad's equals sign, on Mac keyboards.</summary>
-    KpEquals = 103,
+    KpEqual = 103,
     /// <summary>F13, on keyboards with more than twelve function keys.</summary>
     F13 = 104,
     /// <summary>F14, on keyboards with more than twelve function keys.</summary>
@@ -462,25 +462,25 @@ public enum Key
     /// <summary>The keypad's hexadecimal key, on keypads that have one.</summary>
     KpHexadecimal = 221,
     /// <summary>The left Control key.</summary>
-    LCtrl = 224,
+    LeftControl = 224,
     /// <summary>The left Shift key.</summary>
-    LShift = 225,
+    LeftShift = 225,
 
     /// <summary>Left Alt / Option.</summary>
-    LAlt = 226,
+    LeftAlt = 226,
 
     /// <summary>Left GUI, the Windows, Command (Apple) or Meta key.</summary>
-    LGUI = 227,
+    LeftSuper = 227,
     /// <summary>The right Control key.</summary>
-    RCtrl = 228,
+    RightControl = 228,
     /// <summary>The right Shift key.</summary>
-    RShift = 229,
+    RightShift = 229,
 
     /// <summary>Right Alt / AltGr / Option.</summary>
-    RAlt = 230,
+    RightAlt = 230,
 
     /// <summary>Right GUI, the Windows, Command (Apple) or Meta key.</summary>
-    RGUI = 231,
+    RightSuper = 231,
 
     /// <summary>Mode key (SDL_KMOD_MODE).</summary>
     Mode = 257,
@@ -558,7 +558,7 @@ public enum Key
     ACHome = 281,
 
     /// <summary>AC Back.</summary>
-    ACBack = 282,
+    Back = 282,
 
     /// <summary>AC Forward.</summary>
     ACForward = 283,

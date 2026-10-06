@@ -50,7 +50,7 @@ public static class TexturesTexturedCurve
         {
             // Curve config options
             if (IsKeyPressed(Key.Space)) showCurve = !showCurve;
-            if (IsKeyPressed(Key.Equals)) curveWidth += 2;
+            if (IsKeyPressed(Key.Equal)) curveWidth += 2;
             if (IsKeyPressed(Key.Minus)) curveWidth -= 2;
             if (curveWidth < 2) curveWidth = 2;
 

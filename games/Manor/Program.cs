@@ -25,7 +25,7 @@ InitWindow(startWidth, startHeight, "Manor");
 InitAudioDevice();
 SetTargetFPS(60);
 // Escape pauses rather than closing the window.
-SetExitKey(Key.Unknown);
+SetExitKey(Key.Null);
 settings.Apply();
 var ecs = GetApp().World.Resource<EcsWorld>();
 
@@ -36,10 +36,10 @@ CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.45f, -1, -0.3f)), new Co
 SetShadowDistance(70);
 SetAmbientLight(new Color(150, 175, 215), 0.3f);
 var sky = GenImageColor(256, 128, Color.Blank);
-ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(70, 120, 210), new Color(205, 225, 245)),
-    new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
-ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(120, 140, 110), new Color(60, 72, 60)),
-    new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(70, 120, 210), new Color(205, 225, 245)),
+    0, 0, Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(120, 140, 110), new Color(60, 72, 60)),
+    0, 64, Color.White);
 SetEnvironmentMap(sky, intensity: 0.6f);
 SetBloom(0.45f);
 // The rooms' corners and what stands on their floors darken the light from all around.
@@ -127,7 +127,7 @@ while (!WindowShouldClose() && !ManorCommands.Quit)
     else if (screen == Screen.Pause && binding is null && settings.Pressed(Action.Pause)) Go(Screen.Play);
     // The pad's back button first leaves a slider or a list it is in, which ImGui sees to.
     else if (screen == Screen.Settings && binding is null && !ImGui.IsAnyItemActive() && !ImGui.IsPopupOpen("", ImGuiPopupFlags.AnyPopup)
-             && (IsKeyPressed(Key.Escape) || pad && IsGamepadButtonPressed(0, GamepadButton.East)))
+             && (IsKeyPressed(Key.Escape) || pad && IsGamepadButtonPressed(0, GamepadButton.RightFaceRight)))
         Go(settingsFrom);
     screen = GetState<Screen>();
     playing = screen == Screen.Play;
@@ -370,13 +370,13 @@ void SettingsMenu(Vector2 button)
     // picked it, which is still down.
     if (binding is { } wanted)
     {
-        if (!bindingPad && GetKeyPressed() is var key && key != Key.Unknown)
+        if (!bindingPad && GetKeyPressed() is var key && key != Key.Null)
         {
             settings.Keys[wanted] = key;
             binding = null;
             changed = true;
         }
-        else if (bindingPad && GetGamepadButtonPressed() is { } pressed && pressed != GamepadButton.South)
+        else if (bindingPad && GetGamepadButtonPressed() is { } pressed && pressed != GamepadButton.RightFaceDown)
         {
             settings.Buttons[wanted] = pressed;
             binding = null;

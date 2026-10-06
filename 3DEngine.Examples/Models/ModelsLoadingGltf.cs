@@ -37,7 +37,7 @@ public static class ModelsLoadingGltf
             else if (IsKeyPressed(Key.Left)) animIndex = (animIndex + animCount - 1)%animCount;
 
             // which plays a frame a frame. raylib's keyframeCount is FrameCount here.
-            animCurrentFrame = (animCurrentFrame + 1)%anims[animIndex].FrameCount;
+            animCurrentFrame = (animCurrentFrame + 1)%anims[animIndex].KeyframeCount;
             UpdateModelAnimation(model, anims[animIndex], animCurrentFrame);
 
             BeginDrawing();

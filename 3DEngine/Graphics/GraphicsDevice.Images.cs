@@ -253,10 +253,12 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Maps an engine <see cref="SamplerAddressMode"/> to the Vulkan equivalent.</summary>
-    private static VkSamplerAddressMode ToVkAddressMode(SamplerAddressMode mode) => mode switch
+    private VkSamplerAddressMode ToVkAddressMode(SamplerAddressMode mode) => mode switch
     {
         SamplerAddressMode.ClampToEdge => VkSamplerAddressMode.ClampToEdge,
         SamplerAddressMode.MirrorRepeat => VkSamplerAddressMode.MirroredRepeat,
+        // A device without the feature clamps at the edge, the nearest of the modes it has.
+        SamplerAddressMode.MirrorClampToEdge => CanMirrorClamp ? VkSamplerAddressMode.MirrorClampToEdge : VkSamplerAddressMode.ClampToEdge,
         SamplerAddressMode.Repeat => VkSamplerAddressMode.Repeat,
         _ => VkSamplerAddressMode.ClampToEdge
     };

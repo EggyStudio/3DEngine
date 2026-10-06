@@ -129,10 +129,10 @@ public static class ShadersBasicPbr
             // The camera's position, which the highlights are seen from
             SetShaderValue(shader, viewLoc, camera.Position);
 
-            if (IsKeyPressed(Key.Alpha1)) { lights[2].enabled = (lights[2].enabled == 0) ? 1 : 0; }
-            if (IsKeyPressed(Key.Alpha2)) { lights[1].enabled = (lights[1].enabled == 0) ? 1 : 0; }
-            if (IsKeyPressed(Key.Alpha3)) { lights[3].enabled = (lights[3].enabled == 0) ? 1 : 0; }
-            if (IsKeyPressed(Key.Alpha4)) { lights[0].enabled = (lights[0].enabled == 0) ? 1 : 0; }
+            if (IsKeyPressed(Key.One)) { lights[2].enabled = (lights[2].enabled == 0) ? 1 : 0; }
+            if (IsKeyPressed(Key.Two)) { lights[1].enabled = (lights[1].enabled == 0) ? 1 : 0; }
+            if (IsKeyPressed(Key.Three)) { lights[3].enabled = (lights[3].enabled == 0) ? 1 : 0; }
+            if (IsKeyPressed(Key.Four)) { lights[0].enabled = (lights[0].enabled == 0) ? 1 : 0; }
 
             // Update light values on shader (only whether each is on changes)
             for (int i = 0; i < MAX_LIGHTS; i++) UpdateLight(shader, lights[i]);

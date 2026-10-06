@@ -154,7 +154,7 @@ public sealed partial class OffscreenRenderTests : IDisposable
             ClearBackground(Color.Black);
             BeginMode3D(camera);
             DrawCylinderEx(new Vector3(-3, -1.5f, 0), new Vector3(-3, 1.5f, 0), 0.8f, 0.8f, 16, new Color(255, 0, 0));
-            DrawCapsule(new Vector3(2, -1, 0), new Vector3(4, 1, 0), 0.6f, 12, 6, new Color(0, 255, 0));
+            DrawCapsule(new Vector3(2, -1, 0), new Vector3(4, 1, 0), 0.6f, 6, 12, new Color(0, 255, 0));
             EndMode3D();
         });
 
@@ -372,7 +372,7 @@ public sealed partial class OffscreenRenderTests : IDisposable
             (new Color(255, 0, 0), c => DrawCube(new Vector3(-4, 0, 0), 1.2f, 1.2f, 1.2f, c)),
             (new Color(0, 255, 0), c => DrawSphere(new Vector3(-2, 0, 0), 0.7f, c)),
             (new Color(0, 0, 255), c => DrawCylinder(new Vector3(0, -0.6f, 0), 0.5f, 0.7f, 1.2f, 12, c)),
-            (new Color(255, 255, 0), c => DrawCapsule(new Vector3(2, -0.5f, 0), new Vector3(2, 0.5f, 0), 0.5f, 12, 6, c)),
+            (new Color(255, 255, 0), c => DrawCapsule(new Vector3(2, -0.5f, 0), new Vector3(2, 0.5f, 0), 0.5f, 6, 12, c)),
             (new Color(0, 255, 255), c => DrawBillboard(camera, white, new Vector3(4, 0, 0), 1.2f, c)),
             (new Color(255, 0, 255), c => DrawPlane(new Vector3(0, -1.5f, 0), new Vector2(10, 2), c)),
         ];

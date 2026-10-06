@@ -83,7 +83,7 @@ public static partial class Engine3D
         if (TryRes<AppWindow>(out var window)) window.WaitForEvents = false;
     }
 
-    /// <summary>Sets the key that makes <see cref="WindowShouldClose"/> return true. <see cref="Key.Unknown"/> disables it.</summary>
+    /// <summary>Sets the key that makes <see cref="WindowShouldClose"/> return true. <see cref="Key.Null"/> disables it.</summary>
     public static void SetExitKey(Key key) => _exitKey = key;
 
     /// <summary>Sets the window's title.</summary>
@@ -173,7 +173,7 @@ public static partial class Engine3D
 
         if (!Res<IMainLoopDriver>().PumpEvents())
             _shouldClose = true;
-        if (_exitKey != Key.Unknown && Res<Input>().KeyPressed(_exitKey))
+        if (_exitKey != Key.Null && Res<Input>().KeyPressed(_exitKey))
             _shouldClose = true;
         _resized = (GetScreenWidth(), GetScreenHeight()) != _sizeBeforeEvents;
     }

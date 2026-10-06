@@ -23,8 +23,8 @@ public static class Core2DCameraMouseZoom
 
         while (!WindowShouldClose())
         {
-            if (IsKeyPressed(Key.Alpha1)) zoomMode = 0;
-            else if (IsKeyPressed(Key.Alpha2)) zoomMode = 1;
+            if (IsKeyPressed(Key.One)) zoomMode = 0;
+            else if (IsKeyPressed(Key.Two)) zoomMode = 1;
 
             // Translate based on mouse right click
             if (IsMouseButtonDown(MouseButton.Left))

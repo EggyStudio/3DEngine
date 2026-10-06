@@ -32,7 +32,7 @@ case "$driven" in
     # a face button held through the capture.
     ./e3d command input.axis 0 LeftX 0.6 --quiet
     ./e3d command input.axis 0 RightTrigger 0.5 --quiet
-    ./e3d command input.button 0 South 600 --quiet >/dev/null 2>&1 &
+    ./e3d command input.button 0 RightFaceDown 600 --quiet >/dev/null 2>&1 &
     ;;
   ecs_states)
     ./e3d command input.key Enter 2 --quiet

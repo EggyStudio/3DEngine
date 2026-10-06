@@ -14,7 +14,7 @@ InitWindow(1280, 720, "Tactics");
 InitAudioDevice();
 SetTargetFPS(60);
 // Escape lets go of the units picked, so it does not close the window.
-SetExitKey(Key.Unknown);
+SetExitKey(Key.Null);
 
 const float Tile = 2;
 const string SaveFile = "tactics-save.json";
@@ -202,7 +202,7 @@ while (!WindowShouldClose() && !TacticsCommands.Quit)
         // -- The player's turn: pick units, a tile to walk to, an enemy to strike. A press and
         // release in one place is a click, and a drag between them a box round the units to pick.
         var mouse = GetMousePosition();
-        var shift = IsKeyDown(Key.LShift) || IsKeyDown(Key.RShift);
+        var shift = IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift);
         if (IsMouseButtonPressed(MouseButton.Left) && !ImGui.GetIO().WantCaptureMouse) boxFrom = mouse;
         if (IsMouseButtonReleased(MouseButton.Left) && boxFrom is { } from)
         {

@@ -63,7 +63,7 @@ public static class ShapesRlglColorWheel
             bool sliderHover = (mousePosition.X >= sliderRectangle.X && mousePosition.Y >= sliderRectangle.Y && mousePosition.X < sliderRectangle.X + sliderRectangle.Width && mousePosition.Y < sliderRectangle.Y + sliderRectangle.Height);
 
             // Copy color as hex
-            if (IsKeyDown(Key.LCtrl) && IsKeyDown(Key.C))
+            if (IsKeyDown(Key.LeftControl) && IsKeyDown(Key.C))
             {
                 if (IsKeyPressed(Key.C))
                 {
@@ -219,7 +219,7 @@ public static class ShapesRlglColorWheel
             // Update the visuals for the copying text
             Color copyColor = Color.DarkGray;
             int offsetY = 0;
-            if (IsKeyDown(Key.LCtrl) && IsKeyDown(Key.C))
+            if (IsKeyDown(Key.LeftControl) && IsKeyDown(Key.C))
             {
                 copyColor = Color.DarkGreen;
                 offsetY = 4;

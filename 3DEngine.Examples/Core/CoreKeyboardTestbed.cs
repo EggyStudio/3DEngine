@@ -19,18 +19,18 @@ public static class CoreKeyboardTestbed
             case Key.Minus           : return "-";
             case Key.Period          : return ".";
             case Key.Slash           : return "/";
-            case Key.Alpha0            : return "0";
-            case Key.Alpha1             : return "1";
-            case Key.Alpha2             : return "2";
-            case Key.Alpha3           : return "3";
-            case Key.Alpha4            : return "4";
-            case Key.Alpha5            : return "5";
-            case Key.Alpha6             : return "6";
-            case Key.Alpha7           : return "7";
-            case Key.Alpha8           : return "8";
-            case Key.Alpha9            : return "9";
+            case Key.Zero            : return "0";
+            case Key.One             : return "1";
+            case Key.Two             : return "2";
+            case Key.Three           : return "3";
+            case Key.Four            : return "4";
+            case Key.Five            : return "5";
+            case Key.Six             : return "6";
+            case Key.Seven           : return "7";
+            case Key.Eight           : return "8";
+            case Key.Nine            : return "9";
             case Key.Semicolon       : return ";";
-            case Key.Equals           : return "=";
+            case Key.Equal           : return "=";
             case Key.A               : return "A";
             case Key.B               : return "B";
             case Key.C               : return "C";
@@ -78,7 +78,7 @@ public static class CoreKeyboardTestbed
             case Key.End             : return "END";
             case Key.Capslock       : return "CAPS";
             case Key.Scrolllock     : return "LOCK";
-            case Key.NumLockClear        : return "NUMLOCK";
+            case Key.NumLock        : return "NUMLOCK";
             case Key.Printscreen    : return "PRINTSCR";
             case Key.Pause           : return "PAUSE";
             case Key.F1              : return "F1";
@@ -93,14 +93,14 @@ public static class CoreKeyboardTestbed
             case Key.F10             : return "F10";
             case Key.F11             : return "F11";
             case Key.F12             : return "F12";
-            case Key.LShift      : return "LSHIFT";
-            case Key.LCtrl    : return "LCTRL";
-            case Key.LAlt        : return "LALT";
-            case Key.LGUI      : return "WIN";
-            case Key.RShift     : return "RSHIFT";
-            case Key.RCtrl   : return "RCTRL";
-            case Key.RAlt       : return "ALTGR";
-            case Key.RGUI     : return "RSUPER";
+            case Key.LeftShift      : return "LSHIFT";
+            case Key.LeftControl    : return "LCTRL";
+            case Key.LeftAlt        : return "LALT";
+            case Key.LeftSuper      : return "WIN";
+            case Key.RightShift     : return "RSHIFT";
+            case Key.RightControl   : return "RCTRL";
+            case Key.RightAlt       : return "ALTGR";
+            case Key.RightSuper     : return "RSUPER";
             case Key.Menu         : return "KBMENU";
             case Key.Kp0            : return "KP0";
             case Key.Kp1            : return "KP1";
@@ -115,17 +115,17 @@ public static class CoreKeyboardTestbed
             case Key.KpPeriod      : return "KPDEC";
             case Key.KpDivide       : return "KPDIV";
             case Key.KpMultiply     : return "KPMUL";
-            case Key.KpMinus     : return "KPSUB";
-            case Key.KpPlus          : return "KPADD";
+            case Key.KpSubtract     : return "KPSUB";
+            case Key.KpAdd          : return "KPADD";
             case Key.KpEnter        : return "KPENTER";
-            case Key.KpEquals        : return "KPEQU";
+            case Key.KpEqual        : return "KPEQU";
             default: return "";
         }
     }
 
     private static void GuiKeyboardKey(Rectangle bounds, Key key)
     {
-        if (key == Key.Unknown) DrawRectangleLinesEx(bounds, 2.0f, Color.LightGray);
+        if (key == Key.Null) DrawRectangleLinesEx(bounds, 2.0f, Color.LightGray);
         else
         {
             if (IsKeyDown(key))
@@ -153,7 +153,7 @@ public static class CoreKeyboardTestbed
         const int screenHeight = 450;
 
         InitWindow(screenWidth, screenHeight, "[core] keyboard testbed");
-        SetExitKey(Key.Unknown);
+        SetExitKey(Key.Null);
 
         int[] line01KeyWidths = new int[15];
         for (int i = 0; i < 15; i++) line01KeyWidths[i] = 45;
@@ -169,9 +169,9 @@ public static class CoreKeyboardTestbed
         line02KeyWidths[0] = 25;
         line02KeyWidths[13] = 82;
         Key[] line02Keys = {
-            Key.Grave, Key.Alpha1, Key.Alpha2, Key.Alpha3, Key.Alpha4,
-            Key.Alpha5, Key.Alpha6, Key.Alpha7, Key.Alpha8, Key.Alpha9,
-            Key.Alpha0, Key.Minus, Key.Equals, Key.Backspace, Key.Delete };
+            Key.Grave, Key.One, Key.Two, Key.Three, Key.Four,
+            Key.Five, Key.Six, Key.Seven, Key.Eight, Key.Nine,
+            Key.Zero, Key.Minus, Key.Equal, Key.Backspace, Key.Delete };
 
         int[] line03KeyWidths = new int[15];
         for (int i = 0; i < 15; i++) line03KeyWidths[i] = 45;
@@ -198,9 +198,9 @@ public static class CoreKeyboardTestbed
         line05KeyWidths[0] = 80;
         line05KeyWidths[11] = 76;
         Key[] line05Keys = {
-            Key.LShift, Key.Z, Key.X, Key.C, Key.V, Key.B,
+            Key.LeftShift, Key.Z, Key.X, Key.C, Key.V, Key.B,
             Key.N, Key.M, Key.Comma, Key.Period, /*Key.Minus*/
-            Key.Slash, Key.RShift, Key.Up, Key.Pagedown
+            Key.Slash, Key.RightShift, Key.Up, Key.Pagedown
         };
 
         int[] line06KeyWidths = new int[11];
@@ -209,9 +209,9 @@ public static class CoreKeyboardTestbed
         line06KeyWidths[3] = 208;
         line06KeyWidths[7] = 60;
         Key[] line06Keys = {
-            Key.LCtrl, Key.LGUI, Key.LAlt,
-            Key.Space, Key.RAlt, Key.Application, Key.Unknown,
-            Key.RCtrl, Key.Left, Key.Down, Key.Right
+            Key.LeftControl, Key.LeftSuper, Key.LeftAlt,
+            Key.Space, Key.RightAlt, Key.KbMenu, Key.Null,
+            Key.RightControl, Key.Left, Key.Down, Key.Right
         };
 
         Vector2 keyboardOffset = new(26, 80);

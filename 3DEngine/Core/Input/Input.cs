@@ -116,8 +116,8 @@ public sealed class Input
     /// <summary>Takes the next character typed this frame, as a Unicode code point, or 0 when none is left.</summary>
     internal int TakeChar() => _charQueue.TryDequeue(out var c) ? c : 0;
 
-    /// <summary>Takes the next key pressed this frame, or <see cref="Key.Unknown"/> when none is left.</summary>
-    internal Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Unknown;
+    /// <summary>Takes the next key pressed this frame, or <see cref="Key.Null"/> when none is left.</summary>
+    internal Key TakeKey() => _keyQueue.TryDequeue(out var k) ? k : Key.Null;
 
     /// <summary>Returns <c>true</c> while the specified key is held down.</summary>
     /// <param name="key">The key to test.</param>

@@ -98,9 +98,9 @@ while (!WindowShouldClose())
     {
         var stick = GetGamepadAxisMovement(0, GamepadAxis.LeftX);
         if (MathF.Abs(stick) > 0.25f) run = stick;
-        if (IsGamepadButtonDown(0, GamepadButton.DpadLeft)) run = -1;
-        if (IsGamepadButtonDown(0, GamepadButton.DpadRight)) run = 1;
-        jump |= IsGamepadButtonPressed(0, GamepadButton.South);
+        if (IsGamepadButtonDown(0, GamepadButton.LeftFaceLeft)) run = -1;
+        if (IsGamepadButtonDown(0, GamepadButton.LeftFaceRight)) run = 1;
+        jump |= IsGamepadButtonPressed(0, GamepadButton.RightFaceDown);
     }
 
     // Movement, one axis at a time, so a wall stops the run and a floor or ceiling the fall.

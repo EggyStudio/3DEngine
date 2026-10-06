@@ -12,10 +12,10 @@ public static class ModelsSkybox
         // An equirectangular sky made here, so the example needs no file: the top half a sky
         // with a sun, the bottom half the ground. A photo or a .hdr file loads the same way.
         var sky = GenImageColor(1024, 512, Color.Blank);
-        ImageDraw(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
-            new Rectangle(0, 0, 1024, 256), new Rectangle(0, 0, 1024, 256), Color.White);
-        ImageDraw(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
-            new Rectangle(0, 0, 1024, 256), new Rectangle(0, 256, 1024, 256), Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
+            0, 0, Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
+            0, 256, Color.White);
         ImageDrawCircle(ref sky, 300, 150, 14, new Color(255, 250, 225));
         SetEnvironmentMap(sky);
 

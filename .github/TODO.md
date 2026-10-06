@@ -58,7 +58,7 @@ removed from this file, and an item that is partly done is rewritten around what
   (20 ms for a cell's textures), and a probe's readback waiting for its whole frame (8 to 24 ms). A
   frame's texture uploads go to the queue in one submit, and a probe's faces are recorded one a
   frame. On 2026-10-06 the autopilot walked the route for a minute offscreen
-  (`input.button 0 South 2`, then `manor.autopilot true`, `profile.slowest` read every ten seconds):
+  (`input.button 0 RightFaceDown 2`, then `manor.autopilot true`, `profile.slowest` read every ten seconds):
   the native build's worst frame was 18 ms, and the build `dotnet run` makes 57 ms, its slow frames
   holding 23 to 27 ms of the runtime compiling the code of a thing's first use, the first probe
   capture's and the first point shadows' among them. Natively the first frame shown takes 30 ms, and

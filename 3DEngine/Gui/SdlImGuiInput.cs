@@ -110,13 +110,13 @@ internal static class SdlImGuiInput
     // activates and the right one goes back, as on every pad ImGui's navigation is made for.
     private static readonly (GamepadButton Button, ImGuiKey Key)[] PadButtons =
     [
-        (GamepadButton.South, ImGuiKey.GamepadFaceDown), (GamepadButton.East, ImGuiKey.GamepadFaceRight),
-        (GamepadButton.West, ImGuiKey.GamepadFaceLeft), (GamepadButton.North, ImGuiKey.GamepadFaceUp),
-        (GamepadButton.Back, ImGuiKey.GamepadBack), (GamepadButton.Start, ImGuiKey.GamepadStart),
-        (GamepadButton.LeftShoulder, ImGuiKey.GamepadL1), (GamepadButton.RightShoulder, ImGuiKey.GamepadR1),
-        (GamepadButton.LeftStick, ImGuiKey.GamepadL3), (GamepadButton.RightStick, ImGuiKey.GamepadR3),
-        (GamepadButton.DpadUp, ImGuiKey.GamepadDpadUp), (GamepadButton.DpadDown, ImGuiKey.GamepadDpadDown),
-        (GamepadButton.DpadLeft, ImGuiKey.GamepadDpadLeft), (GamepadButton.DpadRight, ImGuiKey.GamepadDpadRight),
+        (GamepadButton.RightFaceDown, ImGuiKey.GamepadFaceDown), (GamepadButton.RightFaceRight, ImGuiKey.GamepadFaceRight),
+        (GamepadButton.RightFaceLeft, ImGuiKey.GamepadFaceLeft), (GamepadButton.RightFaceUp, ImGuiKey.GamepadFaceUp),
+        (GamepadButton.MiddleLeft, ImGuiKey.GamepadBack), (GamepadButton.MiddleRight, ImGuiKey.GamepadStart),
+        (GamepadButton.LeftTrigger1, ImGuiKey.GamepadL1), (GamepadButton.RightTrigger1, ImGuiKey.GamepadR1),
+        (GamepadButton.LeftThumb, ImGuiKey.GamepadL3), (GamepadButton.RightThumb, ImGuiKey.GamepadR3),
+        (GamepadButton.LeftFaceUp, ImGuiKey.GamepadDpadUp), (GamepadButton.LeftFaceDown, ImGuiKey.GamepadDpadDown),
+        (GamepadButton.LeftFaceLeft, ImGuiKey.GamepadDpadLeft), (GamepadButton.LeftFaceRight, ImGuiKey.GamepadDpadRight),
     ];
 
     /// <summary>

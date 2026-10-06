@@ -57,12 +57,12 @@ internal sealed class ExceptionsPlugin : IPlugin
     {
         if (e.ExceptionObject is Exception ex)
         {
-            Logger.Critical($"Unhandled exception (isTerminating={e.IsTerminating})", ex);
+            Logger.Fatal($"Unhandled exception (isTerminating={e.IsTerminating})", ex);
             WriteCrashLog(ex, fatal: e.IsTerminating);
         }
         else
         {
-            Logger.Critical($"Unhandled non-Exception object: {e.ExceptionObject}");
+            Logger.Fatal($"Unhandled non-Exception object: {e.ExceptionObject}");
         }
     }
 

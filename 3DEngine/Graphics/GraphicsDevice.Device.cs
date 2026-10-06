@@ -18,6 +18,9 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     public bool CanDrawBresenhamLines { get; private set; }
 
+    /// <summary>Whether a sampler can mirror a texture once and clamp past it, Vulkan 1.2's feature for it being on, which raylib's <c>TEXTURE_WRAP_MIRROR_CLAMP</c> needs.</summary>
+    public bool CanMirrorClamp { get; private set; }
+
     /// <summary>
     /// Whether a pipeline can blend and mask each color attachment of its own, which needs the
     /// device's independentBlend, so a target of several images keeps those past a shader's outputs.
@@ -100,7 +103,8 @@ internal sealed unsafe partial class GraphicsDevice
         // Vulkan 1.3, which every desktop driver in use and lavapipe have.
         var lines = new VkPhysicalDeviceLineRasterizationFeatures();
         var vulkan13 = new VkPhysicalDeviceVulkan13Features { pNext = lineRasterization is null ? null : &lines };
-        var vulkan11 = new VkPhysicalDeviceVulkan11Features { pNext = &vulkan13 };
+        var vulkan12 = new VkPhysicalDeviceVulkan12Features { pNext = &vulkan13 };
+        var vulkan11 = new VkPhysicalDeviceVulkan11Features { pNext = &vulkan12 };
         var supported2 = new VkPhysicalDeviceFeatures2 { pNext = &vulkan11 };
         _instanceApi.vkGetPhysicalDeviceFeatures2(_physicalDevice, &supported2);
         if (!vulkan13.dynamicRendering || !vulkan13.synchronization2)
@@ -115,7 +119,9 @@ internal sealed unsafe partial class GraphicsDevice
             dynamicRendering = true,
             synchronization2 = true,
         };
-        var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled13, shaderDrawParameters = vulkan11.shaderDrawParameters };
+        CanMirrorClamp = vulkan12.samplerMirrorClampToEdge;
+        var enabled12 = new VkPhysicalDeviceVulkan12Features { pNext = &enabled13, samplerMirrorClampToEdge = CanMirrorClamp };
+        var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled12, shaderDrawParameters = vulkan11.shaderDrawParameters };
 
         Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
         using var deviceExts = new VkStringArray(extensionNames);

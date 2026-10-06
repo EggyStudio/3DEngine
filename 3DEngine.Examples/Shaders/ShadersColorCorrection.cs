@@ -52,10 +52,10 @@ public static class ShadersColorCorrection
         while (!WindowShouldClose())
         {
             // 1 to 4 pick the picture,
-            if (IsKeyPressed(Key.Alpha1)) imageIndex = 0;
-            else if (IsKeyPressed(Key.Alpha2)) imageIndex = 1;
-            else if (IsKeyPressed(Key.Alpha3)) imageIndex = 2;
-            else if (IsKeyPressed(Key.Alpha4)) imageIndex = 3;
+            if (IsKeyPressed(Key.One)) imageIndex = 0;
+            else if (IsKeyPressed(Key.Two)) imageIndex = 1;
+            else if (IsKeyPressed(Key.Three)) imageIndex = 2;
+            else if (IsKeyPressed(Key.Four)) imageIndex = 3;
 
             // and R or the button sets the values back to 0.
             if (IsKeyPressed(Key.R) || resetButtonClicked)

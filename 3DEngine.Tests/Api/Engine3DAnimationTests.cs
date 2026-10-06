@@ -116,8 +116,8 @@ public sealed class Engine3DAnimationTests : IDisposable
     {
         var model = LoadModel(Arm);
 
-        model.Bones.Should().Equal(new BoneInfo("Shoulder", -1), new BoneInfo("Elbow", 0));
-        model.BindPose[1].Position.Should().Be(new Vector3(0, 1, 0), "the elbow rests a unit above the shoulder");
+        model.Skeleton.Bones.Should().Equal(new BoneInfo("Shoulder", -1), new BoneInfo("Elbow", 0));
+        model.Skeleton.BindPose[1].Position.Should().Be(new Vector3(0, 1, 0), "the elbow rests a unit above the shoulder");
         Positions(model).Max(p => p.Y).Should().BeApproximately(2, 1e-5f, "the arm stands two units tall");
     }
 
@@ -138,7 +138,7 @@ public sealed class Engine3DAnimationTests : IDisposable
 
         using var folder = new TestFolder("engine-clip-test-");
         File.WriteAllText(folder.File("arm.gltf"), gltf.ToJsonString());
-        LoadModelAnimations(folder.File("arm.gltf")).Should().ContainSingle().Which.FrameCount.Should().Be(60);
+        LoadModelAnimations(folder.File("arm.gltf")).Should().ContainSingle().Which.KeyframeCount.Should().Be(60);
     }
 
     [Fact]
@@ -147,8 +147,8 @@ public sealed class Engine3DAnimationTests : IDisposable
         var clip = LoadModelAnimations(Arm).Should().ContainSingle().Subject;
 
         clip.Name.Should().Be("bend");
-        clip.FrameCount.Should().Be(AnimationFps + 1, "a one second clip has a frame at each end");
-        var bent = clip.FramePoses[^1][1];
+        clip.KeyframeCount.Should().Be(AnimationFps + 1, "a one second clip has a frame at each end");
+        var bent = clip.KeyframePoses[^1][1];
         bent.Position.Should().Be(new Vector3(0, 1, 0), "the elbow turns in place");
         Vector3.Transform(Vector3.UnitY, bent.Rotation).X.Should().BeApproximately(-1, 1e-5f, "a quarter turn about Z points up to -X");
         IsModelAnimationValid(LoadModel(Arm), clip).Should().BeTrue();
@@ -165,7 +165,7 @@ public sealed class Engine3DAnimationTests : IDisposable
         Positions(model).Should().BeEquivalentTo(rest, o => o.Using<float>(c => c.Subject.Should().BeApproximately(c.Expectation, 1e-4f)).WhenTypeIs<float>(),
             "the first frame is the pose the arm was modeled in");
 
-        UpdateModelAnimation(model, clip, clip.FrameCount - 1);
+        UpdateModelAnimation(model, clip, clip.KeyframeCount - 1);
         var bent = Positions(model);
         int tip = Array.FindIndex(rest, p => p.Y > 1.99f);
         // A quarter turn about the elbow takes a point (x, 1) above it to (-1, x) beside it.
@@ -190,7 +190,7 @@ public sealed class Engine3DAnimationTests : IDisposable
         var scene = new Scene();
         scene.Roots.Add(armature);
 
-        var nodes = ModelSkeleton.NodesByName(scene);
+        var nodes = SceneBones.NodesByName(scene);
 
         nodes["Head"].Node.Should().BeSameAs(bone, "the bone is the node without a mesh");
         nodes["Head"].Parent.Should().BeSameAs(neck);
@@ -224,14 +224,14 @@ public sealed class Engine3DAnimationTests : IDisposable
 
         var model = LoadModel(modelPath);
         var clip = LoadModelAnimations(clipPath).Single();
-        model.Bones.Should().Equal(new BoneInfo("root", -1), new BoneInfo("tip", 0));
+        model.Skeleton.Bones.Should().Equal(new BoneInfo("root", -1), new BoneInfo("tip", 0));
 
         IsModelAnimationValid(model, clip).Should().BeTrue("as many bones under the same parents, the clip naming none");
         UpdateModelAnimation(model, clip, 1);
         Positions(model)[2].Y.Should().BeApproximately(2, 1e-4f, "the corner the tip holds rises with it");
         Positions(model)[0].Should().Be(Vector3.Zero, "and the root's stay");
 
-        var other = new ModelAnimation { Bones = [new BoneInfo("", -1), new BoneInfo("", -1)], FramePoses = [[Transform.Identity, Transform.Identity]] };
+        var other = new ModelAnimation { Bones = [new BoneInfo("", -1), new BoneInfo("", -1)], KeyframePoses = [[Transform.Identity, Transform.Identity]] };
         IsModelAnimationValid(model, other).Should().BeFalse("a bone under another parent is another skeleton's");
     }
 
@@ -244,7 +244,7 @@ public sealed class Engine3DAnimationTests : IDisposable
 
         var model = LoadModel(path);
         var clip = LoadModelAnimations(path).Single();
-        model.Bones.Select(b => b.Name).Should().Equal("root", "tip", "NO BONE");
+        model.Skeleton.Bones.Select(b => b.Name).Should().Equal("root", "tip", "NO BONE");
         model.Meshes.Single().VertexCount.Should().Be(3, "three vertices of its own for each face, as raylib's");
 
         IsModelAnimationValid(model, clip).Should().BeTrue();
@@ -256,7 +256,7 @@ public sealed class Engine3DAnimationTests : IDisposable
     public void A_Clip_Of_Other_Bones_Leaves_The_Model_As_It_Is()
     {
         var model = LoadModel(Arm);
-        var other = new ModelAnimation { Bones = [new BoneInfo("Tail", -1)], FramePoses = [[Transform.Identity]] };
+        var other = new ModelAnimation { Bones = [new BoneInfo("Tail", -1)], KeyframePoses = [[Transform.Identity]] };
 
         IsModelAnimationValid(model, other).Should().BeFalse();
         var rest = Positions(model);
@@ -302,10 +302,10 @@ public sealed class Engine3DAnimationTests : IDisposable
         var top = Array.IndexOf(rest, rest.MaxBy(p => p.Y));
 
         // The clip's first frame, at rest, and its last, bent a quarter turn, half each.
-        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.FrameCount - 1) / (float)AnimationFps, 0.5f);
+        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.KeyframeCount - 1) / (float)AnimationFps, 0.5f);
         Vector2.Distance(Top(model, top), Turned(rest[top], 45)).Should().BeLessThan(1e-3f);
 
-        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.FrameCount - 1) / (float)AnimationFps, 0);
+        UpdateModelAnimationBlend(model, clip, 0, clip, (clip.KeyframeCount - 1) / (float)AnimationFps, 0);
         Vector2.Distance(Top(model, top), Turned(rest[top], 0)).Should().BeLessThan(1e-3f, "weight 0 is the first clip alone");
     }
 }

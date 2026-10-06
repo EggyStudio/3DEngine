@@ -111,6 +111,33 @@ here, with the reason.
 | A texture coordinate a fragment shader reads, where it falls exactly on a whole number of the shader's scale | OpenGL's, which in a quad's lower left triangle comes out a hair under it, so `shaders_eratosthenes_sieve`'s grid, which floors its coordinate times 1000, counts one row less there on 44 of the 50 rows of pixels where the coordinate is exact | Vulkan's, which comes out on it in both triangles | Each API's rasterizer rounds the last bit of what it interpolates its own way, below anything a program sets |
 | A line drawn in the plane of a model's face, as `DrawGrid` on a floor at its height | Hidden on the pixels where OpenGL's depth for the line comes out behind the face's, so `shaders_lights_bloom`'s grid is dashed where it runs across the screen | Drawn whole, Vulkan's depth for it coming out no deeper than the face's in that example | Each API's rasterizer rounds depth its own way, and a line meant to show on a face is lifted off it to be sure of it in either |
 
+## Names and shapes
+
+The flat API's functions, types, fields and enum members take raylib's names, at the commit
+`build/raylib-bench/run.sh` pins, and their arguments in raylib's order. Where one answers to
+another name or takes another shape, it is here with the reason.
+
+| raylib | 3DEngine | Why |
+|---|---|---|
+| `KeyboardKey`, each key `KEY_SPACE` and the rest | `Key`, each key by raylib's name, `Key.Space`, valued by SDL's scancodes | A C program writes `KEY_SPACE` without its enum's name and a C# one writes the name at every key, so it is the short word, as raylib's `MouseButton` and `GamepadButton` are |
+| `TraceLogLevel` | `LogLevel` | raylib's constants read `LOG_INFO`, as `LogLevel.Info` does, and the engine's own log is leveled by the same enum |
+| `Camera`, raylib's other name for `Camera3D` | `Camera3D` alone | `Camera` is the component a camera entity holds in the ECS, whose components have Bevy's names |
+| `Mesh` | `ModelMesh`, a handle to a mesh's buffers on the GPU | `Mesh` is the component a mesh entity holds, and raylib's holds its arrays on the CPU, where a mesh here keeps its vertices on the GPU |
+| `Material` | `ModelMaterial`, a color, maps and the model pass's values | `Material` is the component a mesh entity holds, and a model's material here is drawn by the model pass rather than by a shader and its maps |
+| `Vector2`, `Vector3`, `Vector4`, `Matrix`, `Quaternion` | `System.Numerics`' `Vector2`, `Vector3`, `Vector4`, `Matrix4x4` and `Quaternion` | They are C#'s own, which the runtime computes with SIMD |
+| `FilePathList` | `string[]` | An array keeps its count |
+| A pointer and its count, as `DrawLineStrip(points, pointCount, color)` | One array or span, `DrawLineStrip(points, color)` | An array or a span knows its length |
+| `UploadMesh(Mesh *mesh, bool dynamic)` | `UploadMesh(vertices, indices)`, which gives the mesh | A mesh here is its buffers on the GPU, so it is made from the vertices rather than filled and then uploaded |
+| `SetShaderValue(shader, locIndex, value, uniformType)` | An overload for each type of value | C# chooses the overload by the value, so its type is not given twice |
+| `TraceLog(logLevel, text, ...)` | `TraceLog(level, text)` | A C# program formats its text with an interpolated string |
+| `UnloadDroppedFiles(files)` | `UnloadDroppedFiles()` | The list of dropped files is the engine's, which the call empties |
+| `GetGamepadButtonPressed` with none pressed, `GAMEPAD_BUTTON_UNKNOWN` | `null` | The buttons are numbered from 0 as SDL numbers them, so no value is left for none |
+| `GAMEPAD_BUTTON_LEFT_TRIGGER_2`, `GAMEPAD_BUTTON_RIGHT_TRIGGER_2` | Not carried, a trigger read as an axis, `GamepadAxis.LeftTrigger` from 0 to 1 | SDL3 reports a trigger as an axis alone |
+| `Model.skeleton`'s `currentPose` and `boneMatrices` | Not carried | A model's pose lives with its skinned meshes on the GPU, posed by `UpdateModelAnimation` |
+| `ModelAnimation` of a bone count | `ModelAnimation` with its `Bones` | A clip is checked against the model it is played on by its bones' names and parents |
+| `DrawModelPoints`, `DrawModelPointsEx`, `UnloadModelAnimation` | Carried, from raylib 5.5, which raylib 6 left out | A program of 5.5's calls them, and they take nothing from the rest |
+| An argument's name, as `posX` and `startPos` | C#'s name for it in places, as `x` and `start` | A call's arguments are given in order, which is raylib's, and a program naming one takes the name the cheatsheet gives |
+
 ## raymath
 
 raymath's functions are C#'s own where `System.Numerics` has them, and the package carries the

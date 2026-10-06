@@ -226,7 +226,7 @@ public class InputTests
 
         new[] { input.TakeChar(), input.TakeChar(), input.TakeChar(), input.TakeChar() }
             .Should().Equal('a', 'é', 0x1F600, 0);
-        new[] { input.TakeKey(), input.TakeKey(), input.TakeKey() }.Should().Equal(Key.A, Key.Return, Key.Unknown);
+        new[] { input.TakeKey(), input.TakeKey(), input.TakeKey() }.Should().Equal(Key.A, Key.Return, Key.Null);
     }
 
     [Fact]
@@ -239,6 +239,6 @@ public class InputTests
         input.BeginFrame();
 
         input.TakeChar().Should().Be(0);
-        input.TakeKey().Should().Be(Key.Unknown);
+        input.TakeKey().Should().Be(Key.Null);
     }
 }

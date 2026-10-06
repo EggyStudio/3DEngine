@@ -7,8 +7,10 @@ namespace Engine;
 /// frames a second, played on a model with <see cref="Engine3D.UpdateModelAnimation"/>.
 /// </summary>
 /// <remarks>
-/// The fields are raylib's. <see cref="FramePoses"/> holds each frame's bones in the model's own
-/// space, in the order of <see cref="Bones"/>, which a model loaded from the same file shares.
+/// The fields are raylib's. <see cref="KeyframePoses"/> holds each keyframe's bones in the model's
+/// own space, in the order of <see cref="Bones"/>, which a model loaded from the same file holds in
+/// its <see cref="Model.Skeleton"/>. A clip keeps its bones as well, where raylib's keeps their
+/// count, so a clip is checked against a model it is played on.
 /// </remarks>
 public sealed class ModelAnimation
 {
@@ -18,18 +20,18 @@ public sealed class ModelAnimation
     /// <summary>The bones the clip moves, in the order of each frame's poses.</summary>
     public BoneInfo[] Bones { get; init; } = [];
 
-    /// <summary>For each frame, each bone's pose in the model's space.</summary>
-    public Transform[][] FramePoses { get; init; } = [];
+    /// <summary>For each keyframe, each bone's pose in the model's space.</summary>
+    public Transform[][] KeyframePoses { get; init; } = [];
 
     /// <summary>The morph targets the clip moves the weights of, by the node their mesh hangs from and their index among its targets.</summary>
     public (string Node, int Target)[] MorphChannels { get; init; } = [];
 
-    /// <summary>For each frame, each of <see cref="MorphChannels"/>' weights.</summary>
-    public float[][] FrameMorphWeights { get; init; } = [];
+    /// <summary>For each keyframe, each of <see cref="MorphChannels"/>' weights.</summary>
+    public float[][] KeyframeMorphWeights { get; init; } = [];
 
-    /// <summary>How many bones each frame poses.</summary>
+    /// <summary>How many bones each keyframe poses.</summary>
     public int BoneCount => Bones.Length;
 
-    /// <summary>How many frames the clip has.</summary>
-    public int FrameCount => FramePoses.Length;
+    /// <summary>How many keyframes the clip has.</summary>
+    public int KeyframeCount => KeyframePoses.Length;
 }

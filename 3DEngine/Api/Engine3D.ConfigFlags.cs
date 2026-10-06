@@ -9,7 +9,11 @@ public static partial class Engine3D
 
     /// <summary>Asks the next <see cref="InitWindow"/> for these flags, added to any asked before, as raylib's does.</summary>
     /// <remarks>Called before <see cref="InitWindow"/>. <see cref="CloseWindow"/> forgets them.</remarks>
-    public static void SetConfigFlags(ConfigFlags flags) => _configFlags |= flags;
+    public static void SetConfigFlags(ConfigFlags flags)
+    {
+        WarnUnsupported(flags, "SetConfigFlags");
+        _configFlags |= flags;
+    }
 
     /// <summary>
     /// How many samples a pixel of the next window is drawn with: 1 for none, or 2, 4 or 8, rounded
@@ -85,8 +89,16 @@ public static partial class Engine3D
         return true;
     }
 
+    // The flags raylib's SDL backend has no way to honor, said in the log as raylib says them.
+    private static void WarnUnsupported(ConfigFlags flags, string caller)
+    {
+        foreach (var flag in new[] { ConfigFlags.WindowMousePassthrough, ConfigFlags.InterlacedHint })
+            if (flags.HasFlag(flag)) ApiLogger.Warn($"{caller}: {flag} is not supported over SDL3, so it does nothing.");
+    }
+
     private static void ChangeWindowState(ConfigFlags flags, bool on)
     {
+        WarnUnsupported(flags, on ? "SetWindowState" : "ClearWindowState");
         // An offscreen run makes its images again too, with no window to change.
         if (flags.HasFlag(ConfigFlags.VsyncHint) && TryRes<SurfaceResize>(out var surface)) surface.RequestVsync(on);
         if (flags.HasFlag(ConfigFlags.WindowAlwaysRun)) _alwaysRun = on;

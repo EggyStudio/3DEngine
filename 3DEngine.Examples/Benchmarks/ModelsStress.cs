@@ -99,7 +99,7 @@ public static class ModelsStress
             BeginMode3D(camera);
             for (int i = 0; i < arms.Length; i++)
             {
-                UpdateModelAnimation(arms[i], bend, (frame + i * 7) % bend.FrameCount);
+                UpdateModelAnimation(arms[i], bend, (frame + i * 7) % bend.KeyframeCount);
                 DrawModel(arms[i], new Vector3((i * 2 - arms.Length + 1) * size, -0.5f, -side * 0.5f - 1.5f * size), size, new Color(230, 160, 60));
             }
             EndMode3D();

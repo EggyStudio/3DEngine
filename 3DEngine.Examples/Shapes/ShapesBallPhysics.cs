@@ -84,7 +84,7 @@ public static class ShapesBallPhysics
                 }
             }
 
-            if (IsMouseButtonPressed(MouseButton.Right) || (IsKeyDown(Key.LCtrl) && IsMouseButtonDown(MouseButton.Right)))
+            if (IsMouseButtonPressed(MouseButton.Right) || (IsKeyDown(Key.LeftControl) && IsMouseButtonDown(MouseButton.Right)))
             {
                 if (ballCount < MAX_BALLS)
                 {

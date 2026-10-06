@@ -81,7 +81,7 @@ public static class TextStringsManagement
                 {
                     if (CheckCollisionPointRec(mousePos, textParticles[i].rect))
                     {
-                        if (IsKeyDown(Key.LShift))
+                        if (IsKeyDown(Key.LeftShift))
                         {
                             ShatterTextParticle(i, textParticles, ref particleCount);
                         }
@@ -104,12 +104,12 @@ public static class TextStringsManagement
 
             // raylib's TextToUpper and TextToLower are C#'s, and its Pascal, snake and camel case
             // are this example's own, as raylib writes them.
-            if (IsKeyPressed(Key.Alpha1)) PrepareFirstTextParticle("raylib => fun videogames programming!", textParticles, ref particleCount);
-            if (IsKeyPressed(Key.Alpha2)) PrepareFirstTextParticle("raylib => fun videogames programming!".ToUpperInvariant(), textParticles, ref particleCount);
-            if (IsKeyPressed(Key.Alpha3)) PrepareFirstTextParticle("raylib => fun videogames programming!".ToLowerInvariant(), textParticles, ref particleCount);
-            if (IsKeyPressed(Key.Alpha4)) PrepareFirstTextParticle(TextToPascal("raylib_fun_videogames_programming"), textParticles, ref particleCount);
-            if (IsKeyPressed(Key.Alpha5)) PrepareFirstTextParticle(TextToSnake("RaylibFunVideogamesProgramming"), textParticles, ref particleCount);
-            if (IsKeyPressed(Key.Alpha6)) PrepareFirstTextParticle(TextToCamel("raylib_fun_videogames_programming"), textParticles, ref particleCount);
+            if (IsKeyPressed(Key.One)) PrepareFirstTextParticle("raylib => fun videogames programming!", textParticles, ref particleCount);
+            if (IsKeyPressed(Key.Two)) PrepareFirstTextParticle("raylib => fun videogames programming!".ToUpperInvariant(), textParticles, ref particleCount);
+            if (IsKeyPressed(Key.Three)) PrepareFirstTextParticle("raylib => fun videogames programming!".ToLowerInvariant(), textParticles, ref particleCount);
+            if (IsKeyPressed(Key.Four)) PrepareFirstTextParticle(TextToPascal("raylib_fun_videogames_programming"), textParticles, ref particleCount);
+            if (IsKeyPressed(Key.Five)) PrepareFirstTextParticle(TextToSnake("RaylibFunVideogamesProgramming"), textParticles, ref particleCount);
+            if (IsKeyPressed(Key.Six)) PrepareFirstTextParticle(TextToCamel("raylib_fun_videogames_programming"), textParticles, ref particleCount);
 
             // A character typed slices the only particle at that character.
             int charPressed = GetCharPressed();
@@ -164,7 +164,7 @@ public static class TextStringsManagement
                     tp.ppos.Y = tp.rect.Y;
 
                     // Left control glues the held particle to those it touches.
-                    if (IsKeyDown(Key.LCtrl))
+                    if (IsKeyDown(Key.LeftControl))
                     {
                         for (int j = 0; j < particleCount; j++)
                         {

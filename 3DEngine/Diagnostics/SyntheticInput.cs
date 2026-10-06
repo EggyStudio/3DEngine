@@ -169,9 +169,9 @@ internal static class InputCommands
     [Command("input.key", "Holds a key for some frames and answers when it is released: input.key <name> <frames>")]
     internal static string Key(string name, int frames)
     {
-        if (!TryName<Key>(name, out var key) || key == Engine.Key.Unknown)
+        if (!TryName<Key>(name, out var key) || key == Engine.Key.Null)
         {
-            ConsoleHost.Fail("BAD_ARGUMENT", $"'{name}' is not a key. Keys are named as in the Key enum: W, Space, Escape, F2, Up, LShift.");
+            ConsoleHost.Fail("BAD_ARGUMENT", $"'{name}' is not a key. Keys are named as in the Key enum: W, Space, Escape, F2, Up, LeftShift.");
             return $"not a key: {name}";
         }
 
@@ -227,7 +227,7 @@ internal static class InputCommands
     {
         if (!TryName<GamepadButton>(button, out var which))
         {
-            ConsoleHost.Fail("BAD_ARGUMENT", $"'{button}' is not a gamepad button. They are South, East, West, North, Start, Back, LeftShoulder, DpadUp and the rest of GamepadButton.");
+            ConsoleHost.Fail("BAD_ARGUMENT", $"'{button}' is not a gamepad button. They are RightFaceDown, RightFaceRight, LeftFaceUp, MiddleRight, LeftTrigger1 and the rest of GamepadButton, named as raylib names them.");
             return $"not a button: {button}";
         }
 
@@ -285,7 +285,7 @@ internal static class InputCommands
     internal static string State()
     {
         var input = Parts().Input;
-        var keys = Enum.GetValues<Key>().Where(k => k != Engine.Key.Unknown && input.KeyDown(k)).Distinct().Select(k => k.ToString());
+        var keys = Enum.GetValues<Key>().Where(k => k != Engine.Key.Null && input.KeyDown(k)).Distinct().Select(k => k.ToString());
         var buttons = Enum.GetValues<MouseButton>().Where(input.MouseDown).Select(b => b.ToString());
         var pads = input.Gamepads.Select((p, i) => $"{i}: {p.Name}");
         var touches = input.Touches.Select(t => $"{t.Id}: {t.Position.X:0}, {t.Position.Y:0}");

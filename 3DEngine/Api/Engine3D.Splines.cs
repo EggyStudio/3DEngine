@@ -33,7 +33,7 @@ public static partial class Engine3D
     /// control, end, control, end and so on, at least three, <paramref name="thick"/> pixels wide.
     /// </summary>
     public static void DrawSplineBezierQuadratic(ReadOnlySpan<Vector2> points, float thick, Color color) =>
-        DrawSampled(points, 3, 2, thick, color, static (p, i, t) => GetSplinePointBezierQuad(p[i], p[i + 1], p[i + 2], t));
+        DrawSampled(points, 3, 2, thick, color, static (p, i, t) => GetSplinePointBezierQuadratic(p[i], p[i + 1], p[i + 2], t));
 
     /// <summary>
     /// Draws cubic Bezier curves joined end to end, <paramref name="points"/> given as start, two
@@ -83,10 +83,7 @@ public static partial class Engine3D
     }
 
     /// <summary>The point at <paramref name="t"/>, from 0 to 1, along the quadratic Bezier curve.</summary>
-    public static Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t) => GetSplinePointBezierQuad(p1, c2, p3, t);
-
-    /// <summary>The same point as <see cref="GetSplinePointBezierQuadratic"/>, by raylib's older name for it.</summary>
-    public static Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t)
+    public static Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t)
     {
         var u = 1 - t;
         return u * u * p1 + 2 * u * t * c2 + t * t * p3;

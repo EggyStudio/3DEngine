@@ -24,7 +24,7 @@ public sealed partial class OffscreenRenderTests
 
         UpdateModelAnimation(model, bend, 0);
         var rest = Capture(Draw, "rest");
-        UpdateModelAnimation(model, bend, bend.FrameCount - 1);
+        UpdateModelAnimation(model, bend, bend.KeyframeCount - 1);
         var bent = Capture(Draw, "bent");
 
         // Pixel (32, 24) is half a unit above the elbow, and (23, 32) six tenths of a unit left of it.
@@ -51,7 +51,7 @@ public sealed partial class OffscreenRenderTests
         for (int i = 0; i < 8; i++)
         {
             var atRest = i % 2 == 0;
-            UpdateModelAnimation(model, bend, atRest ? 0 : bend.FrameCount - 1);
+            UpdateModelAnimation(model, bend, atRest ? 0 : bend.KeyframeCount - 1);
             var pose = Capture(Draw, $"pose{i}");
             (GetImageColor(pose, 32, 24).R > 40).Should().Be(atRest, $"frame {i} drew the pose given that frame");
         }
@@ -470,15 +470,16 @@ public sealed partial class OffscreenRenderTests
         var texture = LoadTextureFromImage(image);
         SetTextureFilter(texture, TextureFilter.Point);
 
-        // The source runs two widths of the texture across, so the right half of the strip is past its edge.
-        Image Strip(TextureWrap wrap)
+        // The source runs two widths of the texture across, so the right half of the strip is past
+        // its edge, or the left half where it starts two texels before the texture.
+        Image Strip(TextureWrap wrap, float from = 0)
         {
             SetTextureWrap(texture, wrap);
             return Capture(() =>
             {
                 ClearBackground(Color.Black);
-                DrawTexturePro(texture, new Rectangle(0, 0, 4, 1), new Rectangle(0, 0, 64, 16), Vector2.Zero, 0, Color.White);
-            }, $"wrap {wrap}");
+                DrawTexturePro(texture, new Rectangle(from, 0, 4, 1), new Rectangle(0, 0, 64, 16), Vector2.Zero, 0, Color.White);
+            }, $"wrap {wrap} from {from}");
         }
 
         var repeat = Strip(TextureWrap.Repeat);
@@ -488,6 +489,12 @@ public sealed partial class OffscreenRenderTests
         GetImageColor(clamp, 8, 8).Should().Be(new Color(255, 0, 0));
         var mirror = Strip(TextureWrap.MirrorRepeat);
         GetImageColor(mirror, 40, 8).Should().Be(new Color(0, 0, 255), "the mirrored copy starts with the edge it meets");
+        // Before the texture, a mirror clamp shows it mirrored across its edge at 0, where a clamp
+        // stretches that edge, and past its far edge it clamps as well.
+        var mirrorClamp = Strip(TextureWrap.MirrorClamp, -2);
+        GetImageColor(mirrorClamp, 8, 8).Should().Be(new Color(0, 0, 255), "three quarters of a width before 0 mirrors to three quarters in");
+        GetImageColor(Strip(TextureWrap.Clamp, -2), 8, 8).Should().Be(new Color(255, 0, 0));
+        GetImageColor(Strip(TextureWrap.MirrorClamp), 56, 8).Should().Be(new Color(0, 0, 255), "past the far edge the edge pixel goes on");
         UnloadTexture(texture);
     }
 

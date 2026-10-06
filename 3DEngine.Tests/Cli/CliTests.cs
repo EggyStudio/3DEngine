@@ -203,8 +203,8 @@ public sealed class CliTests : IDisposable
     {
         InputCommands.TryName<MouseButton>("right", out var button).Should().BeTrue();
         button.Should().Be(MouseButton.Right);
-        InputCommands.TryName<Key>("alpha2", out var key).Should().BeTrue();
-        key.Should().Be(Key.Alpha2);
+        InputCommands.TryName<Key>("two", out var key).Should().BeTrue();
+        key.Should().Be(Key.Two);
 
         InputCommands.TryName<MouseButton>("100", out _).Should().BeFalse("a number names no button, and ImGui stops the program over one past its five");
         InputCommands.TryName<MouseButton>("Middle, Right", out _).Should().BeFalse("a list of names is not a name");

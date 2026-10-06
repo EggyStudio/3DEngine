@@ -152,7 +152,7 @@ public sealed class WindingTests : IDisposable
         ["DrawCylinder"] = () => DrawCylinder(new Vector3(0, -1, 0), 1, 1.5f, 2, 12, Color.Red),
         ["DrawCone"] = () => DrawCylinder(new Vector3(0, -1, 0), 0, 1.5f, 2, 12, Color.Red),
         ["DrawCylinderEx"] = () => DrawCylinderEx(new Vector3(-1, -1, 0), new Vector3(1, 1, 0), 1, 0.5f, 12, Color.Red),
-        ["DrawCapsule"] = () => DrawCapsule(new Vector3(0, -1, 0), new Vector3(0, 1, 0), 0.75f, 12, 6, Color.Red),
+        ["DrawCapsule"] = () => DrawCapsule(new Vector3(0, -1, 0), new Vector3(0, 1, 0), 0.75f, 6, 12, Color.Red),
     };
 
     [Theory]

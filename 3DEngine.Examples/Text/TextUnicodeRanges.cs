@@ -74,11 +74,11 @@ public static class TextUnicodeRanges
                 SetTextureFilter(font.Texture, TextureFilter.Bilinear);
             }
 
-            if (IsKeyPressed(Key.Alpha0)) unicodeRange = 0;
-            else if (IsKeyPressed(Key.Alpha1)) unicodeRange = 1;
-            else if (IsKeyPressed(Key.Alpha2)) unicodeRange = 2;
-            else if (IsKeyPressed(Key.Alpha3)) unicodeRange = 3;
-            else if (IsKeyPressed(Key.Alpha4)) unicodeRange = 4;
+            if (IsKeyPressed(Key.Zero)) unicodeRange = 0;
+            else if (IsKeyPressed(Key.One)) unicodeRange = 1;
+            else if (IsKeyPressed(Key.Two)) unicodeRange = 2;
+            else if (IsKeyPressed(Key.Three)) unicodeRange = 3;
+            else if (IsKeyPressed(Key.Four)) unicodeRange = 4;
 
             BeginDrawing();
 

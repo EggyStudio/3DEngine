@@ -73,7 +73,7 @@ public static class ShadersShadowmapRendering
             SetShaderValue(shadowShader, viewLoc, camera.Position);
 
             frameCounter++;
-            frameCounter %= anims[0].FrameCount;
+            frameCounter %= anims[0].KeyframeCount;
             UpdateModelAnimation(robot, anims[0], (float)frameCounter);
 
             // Move light with arrow keys

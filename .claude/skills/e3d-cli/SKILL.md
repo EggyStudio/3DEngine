@@ -59,7 +59,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `entity.add <id> <Component>` | adds a component at sensible defaults (a unit `Transform`, a white `Material`), which `entity.set` then changes |
 | `component.list`, `resource.list`, `schedule.list` | what the world holds and what runs each stage |
 | `state.list`, `state.set <State> <Value>` | every state machine and its value, and a move that answers once it has applied (`state.set Screen Playing`) |
-| `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LShift`) for that many frames |
+| `input.key <name> <frames>` | holds a key (`W`, `Space`, `Escape`, `F2`, `LeftShift`) for that many frames |
 | `input.move <x> <y>`, `input.click <x> <y>` | moves the pointer, and clicks, in window coordinates |
 | `input.drag <button> <dx> <dy> <frames> [rest]` | holds a button while moving the pointer, as a camera drag, and holds it `rest` frames more at the end, as a window held over a docking target |
 | `input.touch <id> <x> <y> <frames>` | holds a finger at a window position, which `GetTouchPosition` and `input.state` see |
@@ -67,7 +67,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 | `input.text <text>` | types text into the game's text input and the focused ImGui field |
 | `input.drop <path>` | drops a file on the window, as dragging it from the desktop does, which `LoadDroppedFiles` returns |
 | `input.state` | the keys and buttons down, the pointer and the gamepads, as the engine sees them |
-| `input.button <pad> <button> <frames>` | holds a gamepad button (`South`, `East`, `DpadUp`, `Start`), on a console pad when none is connected |
+| `input.button <pad> <button> <frames>` | holds a gamepad button (`RightFaceDown`, `RightFaceRight`, `LeftFaceUp`, `MiddleRight`), on a console pad when none is connected |
 | `input.axis <pad> <axis> <value>` | sets a stick or trigger (`LeftX`, `RightTrigger`) until it is set again |
 
 A game adds its own with a static method:

@@ -48,10 +48,10 @@ CreateDirectionalLight(new Vector3(-0.5f, -1, -0.35f), new Color(255, 244, 225),
 CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);
 SetShadowDistance(60);
 var sky = GenImageColor(256, 128, Color.Blank);
-ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 200), new Color(200, 220, 240)),
-    new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
-ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
-    new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 200), new Color(200, 220, 240)),
+    0, 0, Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
+    0, 64, Color.White);
 SetEnvironmentMap(sky, intensity: 0.5f);
 // The room reflects itself rather than the sky, which the brass ball by the exit shows.
 CreateReflectionProbe(new Vector3(12, 7.6f, -38), new Vector3(8, 3.2f, 8));
@@ -106,15 +106,15 @@ while (!WindowShouldClose())
 
     // The level's meshes are made solid a frame or two after it loads, so play waits for them.
     var ready = ecs.Query<Collider>().All(c => ecs.Has<PhysicsBody>(c.Entity));
-    if (screen == Screen.Menu && ready && Pressed(Key.Enter, GamepadButton.Start))
+    if (screen == Screen.Menu && ready && Pressed(Key.Enter, GamepadButton.MiddleRight))
     {
         Restart();
         PlayMusicStream(music);
         SetState(Screen.Play);
     }
-    else if (screen == Screen.Play && Pressed(Key.P, GamepadButton.Start)) SetState(Screen.Pause);
-    else if (screen == Screen.Pause && Pressed(Key.P, GamepadButton.Start)) SetState(Screen.Play);
-    else if (screen == Screen.Won && Pressed(Key.R, GamepadButton.Start))
+    else if (screen == Screen.Play && Pressed(Key.P, GamepadButton.MiddleRight)) SetState(Screen.Pause);
+    else if (screen == Screen.Pause && Pressed(Key.P, GamepadButton.MiddleRight)) SetState(Screen.Play);
+    else if (screen == Screen.Won && Pressed(Key.R, GamepadButton.MiddleRight))
     {
         Restart();
         SetState(Screen.Play);
@@ -147,7 +147,7 @@ while (!WindowShouldClose())
     if (walk != Vector3.Zero) facing = MathF.Atan2(walk.X, walk.Z);
 
     var grounded = IsPhysicsCharacterGrounded(player);
-    if (screen == Screen.Play && grounded && Pressed(Key.Space, GamepadButton.South))
+    if (screen == Screen.Play && grounded && Pressed(Key.Space, GamepadButton.RightFaceDown))
     {
         JumpPhysicsCharacter(player, 6.5f);
         PlaySound(jumpSound);

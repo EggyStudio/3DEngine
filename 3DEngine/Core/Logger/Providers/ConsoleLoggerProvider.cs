@@ -20,7 +20,7 @@ internal sealed class ConsoleLoggerProvider : ILoggerProvider
             LogLevel.Info     => "INFO ",
             LogLevel.Warning  => "WARN ",
             LogLevel.Error    => "ERROR",
-            LogLevel.Critical => "FATAL",
+            LogLevel.Fatal    => "FATAL",
             _ => level.ToString().ToUpperInvariant()
         };
         Console.WriteLine($"[{elapsed,10:F4}s] [{levelTag}] [{category}] {message}");

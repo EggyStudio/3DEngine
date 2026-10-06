@@ -87,10 +87,10 @@ SetTargetFPS(60);
 
 while (!WindowShouldClose())
 {
-    if (IsKeyPressed(Key.Alpha1)) cameraMode = CameraMode.Free;
-    if (IsKeyPressed(Key.Alpha2)) cameraMode = CameraMode.FirstPerson;
-    if (IsKeyPressed(Key.Alpha3)) cameraMode = CameraMode.ThirdPerson;
-    if (IsKeyPressed(Key.Alpha4)) cameraMode = CameraMode.Orbital;
+    if (IsKeyPressed(Key.One)) cameraMode = CameraMode.Free;
+    if (IsKeyPressed(Key.Two)) cameraMode = CameraMode.FirstPerson;
+    if (IsKeyPressed(Key.Three)) cameraMode = CameraMode.ThirdPerson;
+    if (IsKeyPressed(Key.Four)) cameraMode = CameraMode.Orbital;
 
     UpdateCamera(ref camera, cameraMode);
     // ...

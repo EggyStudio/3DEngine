@@ -111,7 +111,7 @@ terrain.Materials[0].Texture = LoadTextureFromImage(GenImageGradientLinear(64, 6
 
 // A maze: white pixels are walls.
 var plan = GenImageColor(9, 9, Color.Black);
-ImageDrawRectangleLines(ref plan, new Rectangle(0, 0, 9, 9), 1, Color.White);
+ImageDrawRectangleLines(ref plan, 0, 0, 9, 9, Color.White);
 ImageDrawLine(ref plan, 2, 2, 6, 2, Color.White);
 // ...
 var maze = LoadModelFromMesh(GenMeshCubicmap(plan, new Vector3(1, 1.2f, 1)));
@@ -141,13 +141,13 @@ var bend = animations[0];
 // ...
 // Back and forth, up the clip and then down it again.
 if (playing) frame++;
-var length = bend.FrameCount - 1;
+var length = bend.KeyframeCount - 1;
 var shown = Math.Abs(((frame % (2 * length)) + 2 * length) % (2 * length) - length);
 UpdateModelAnimation(arm, bend, length - shown);
 // ...
 DrawModel(arm, Vector3.Zero, 1, new Color(230, 160, 60));
 // Each bone as a point, joined to its parent.
-var pose = bend.FramePoses[length - shown];
+var pose = bend.KeyframePoses[length - shown];
 for (int b = 0; b < bend.BoneCount; b++)
 {
     DrawSphere(pose[b].Position, 0.06f, Color.Red);
@@ -219,10 +219,10 @@ paints its sky so it needs no file:
 // An equirectangular sky made here, so the example needs no file: the top half a sky
 // with a sun, the bottom half the ground. A photo or a .hdr file loads the same way.
 var sky = GenImageColor(1024, 512, Color.Blank);
-ImageDraw(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
-    new Rectangle(0, 0, 1024, 256), new Rectangle(0, 0, 1024, 256), Color.White);
-ImageDraw(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
-    new Rectangle(0, 0, 1024, 256), new Rectangle(0, 256, 1024, 256), Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
+    0, 0, Color.White);
+ImageDrawImage(ref sky, GenImageGradientLinear(1024, 256, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
+    0, 256, Color.White);
 ImageDrawCircle(ref sky, 300, 150, 14, new Color(255, 250, 225));
 SetEnvironmentMap(sky);
 // ...

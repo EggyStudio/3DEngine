@@ -17,7 +17,7 @@ bool WindowShouldClose();                                // Process events; true
 void PollInputEvents();                                  // Process events, unless the frame has
 void SwapScreenBuffer();                                 // Nothing to do, EndDrawing having presented the frame
 bool IsWindowReady();                                    // Whether a window is open
-void SetExitKey(Key key);                                // Key that closes the window (Escape by default, Key.Unknown for none)
+void SetExitKey(Key key);                                // Key that closes the window (Escape by default, Key.Null for none)
 void EnableEventWaiting();                               // WindowShouldClose waits for input, up to a tenth of a second, for tools
 void DisableEventWaiting();                              // Back to returning at once
 void SetWindowTitle(string title);                       // Set the window's title
@@ -212,8 +212,9 @@ void StopAutomationEventRecording();                                   // Stop r
 void PlayAutomationEvent(AutomationEvent automationEvent);             // Set the input it records as if it happened now
 ```
 
-Pads are indexed in the order they connected. Buttons are named by position (`South`, `East`,
-`West`, `North`, `DpadUp`, `LeftShoulder`, `Start`, ...) rather than by the letter printed on them.
+Pads are indexed in the order they connected. Buttons are named by position, as raylib names
+them (`RightFaceDown` for A or the cross, `RightFaceRight`, `LeftFaceUp` on the directional pad,
+`LeftTrigger1`, `MiddleRight` for start, ...), rather than by the letter printed on them.
 
 ## 2D shapes
 
@@ -277,8 +278,7 @@ void DrawSplineSegmentBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4
 Vector2 GetSplinePointLinear(Vector2 startPos, Vector2 endPos, float t);           // The point a fraction t along each, 0 to 1
 Vector2 GetSplinePointBasis(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
 Vector2 GetSplinePointCatmullRom(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t);
-Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t);
-Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t); // The same, by raylib's newer name
+Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t);
 Vector2 GetSplinePointBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4, float t);
 ```
 
@@ -332,8 +332,8 @@ void DrawCylinder(Vector3 position, float radiusTop, float radiusBottom, float h
 void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color); // From one point to another
 void DrawCylinderWires(Vector3 position, float radiusTop, float radiusBottom, float height, int slices, Color color); // Its edges
 void DrawCylinderWiresEx(Vector3 startPos, Vector3 endPos, float startRadius, float endRadius, int sides, Color color); // Its edges
-void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color); // Capsule between two points
-void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color); // Its edges
+void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color); // Capsule between two points
+void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color); // Its edges
 ```
 
 ## rlgl
@@ -431,7 +431,7 @@ void ImageRotateCCW(ref Image image);                                           
 void ImageColorTint(ref Image image, Color color);                                     // Multiply every pixel
 void ImageColorInvert(ref Image image);                                                // Invert red, green and blue
 void ImageColorGrayscale(ref Image image);                                             // Gray by brightness
-void ImageColorContrast(ref Image image, float contrast);                              // -100 to 100
+void ImageColorContrast(ref Image image, int contrast);                                // -100 to 100
 void ImageColorBrightness(ref Image image, int brightness);                            // -255 to 255
 void ImageColorReplace(ref Image image, Color color, Color replace);                   // Swap one exact color
 
@@ -458,8 +458,7 @@ void ImageDrawRectanglePro(ref Image dst, Rectangle rec, Vector2 origin, float r
 void ImageDrawRectangleLinesEx(ref Image dst, Rectangle rec, int thick, Color color); // Its outline, thick
 void ImageDrawRectangleGradientEx(ref Image dst, Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight); // A color at each corner
 void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color);               // A filled rectangle
-void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color);  // A rectangle's outline
-void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint); // Part of an image into another, blended
+void ImageDrawRectangleLines(ref Image dst, int posX, int posY, int width, int height, Color color); // A rectangle's outline, a pixel wide
 void ImageDrawImage(ref Image dst, Image src, int posX, int posY, Color tint);         // A whole image at a pixel
 void ImageDrawImageRec(ref Image dst, Image src, Rectangle srcRec, Vector2 position, Color tint); // Part of one at a position
 void ImageDrawImageEx(ref Image dst, Image src, Vector2 position, float rotation, float scale, Color tint); // Scaled and turned
@@ -478,7 +477,7 @@ bool IsTextureValid(Texture2D texture);                                         
 bool UpdateTexture(Texture2D texture, Image image);                                    // Replace a texture's pixels with an image of the same size
 bool UpdateTextureRec(Texture2D texture, Rectangle rec, byte[] pixels);                 // Replace a rectangle of it, the rest kept
 void SetTextureFilter(Texture2D texture, TextureFilter filter);                        // Point, Bilinear (the default), Trilinear or Anisotropic4x, 8x, 16x
-void SetTextureWrap(Texture2D texture, TextureWrap wrap);                              // Repeat (the default), Clamp or MirrorRepeat past its edges
+void SetTextureWrap(Texture2D texture, TextureWrap wrap);                              // Repeat (the default), Clamp, MirrorRepeat or MirrorClamp past its edges
 void GenTextureMipmaps(ref Texture2D texture);                                         // Make mip levels on the GPU, so it stays smooth drawn small
 
 void DrawTexture(Texture2D texture, int x, int y, Color tint);                                         // Texture at a position
@@ -669,8 +668,8 @@ void DrawBoundingBox(BoundingBox box, Color color);                             
 ```
 
 A `Model` has `Meshes`, `Materials` and `MeshMaterial`, as raylib's does, and a `Transform`, and
-a model with a skeleton has `Bones` and `BindPose`, which a `ModelAnimation` of the same file
-poses frame by frame. A
+a model with a skeleton has its `Skeleton`, its `Bones` and `BindPose`, which a `ModelAnimation`
+of the same file poses keyframe by keyframe in its `KeyframePoses`. A
 `ModelMaterial` is a `Color` and a `Texture`, so `model.Materials[0].Texture = texture;` textures a
 mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `MetallicRoughnessMap`
 as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
@@ -849,7 +848,6 @@ bool IsPhysicsBodyHit(PhysicsBody body);                                        
 float GetPhysicsContactImpulse(PhysicsBody a, PhysicsBody b);                    // How hard two touching bodies press, 0 when apart
 Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);                      // The ray through a point of the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height); // The same for a view of a given size
-Ray GetMouseRay(Vector2 mousePosition, Camera3D camera);                         // GetScreenToWorldRay by raylib's older name
 ```
 
 Bodies are BepuPhysics's, stepped at the fixed rate inside `BeginDrawing`, so a box is drawn by

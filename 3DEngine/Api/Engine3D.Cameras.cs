@@ -217,15 +217,15 @@ public static partial class Engine3D
             if (mode == CameraMode.Free)
             {
                 if (KeyDown(Key.Space)) CameraMoveUp(ref camera, moveSpeed);
-                if (KeyDown(Key.LCtrl)) CameraMoveUp(ref camera, -moveSpeed);
+                if (KeyDown(Key.LeftControl)) CameraMoveUp(ref camera, -moveSpeed);
             }
         }
 
         if (mode is CameraMode.ThirdPerson or CameraMode.Orbital or CameraMode.Free)
         {
             if (mouse) CameraMoveToTarget(ref camera, -GetMouseWheelMove());
-            if (KeyPressed(Key.KpMinus)) CameraMoveToTarget(ref camera, 2.0f);
-            if (KeyPressed(Key.KpPlus)) CameraMoveToTarget(ref camera, -2.0f);
+            if (KeyPressed(Key.KpSubtract)) CameraMoveToTarget(ref camera, 2.0f);
+            if (KeyPressed(Key.KpAdd)) CameraMoveToTarget(ref camera, -2.0f);
         }
     }
 

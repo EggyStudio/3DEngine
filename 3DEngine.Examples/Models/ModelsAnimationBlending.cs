@@ -102,9 +102,9 @@ public static class ModelsAnimationBlending
                 {
                     // Playing anim0 and anim1 at the same time
                     animCurrentFrame0 += animFrameSpeed0;
-                    if (animCurrentFrame0 >= anims[animIndex0].FrameCount) animCurrentFrame0 = 0.0f;
+                    if (animCurrentFrame0 >= anims[animIndex0].KeyframeCount) animCurrentFrame0 = 0.0f;
                     animCurrentFrame1 += animFrameSpeed1;
-                    if (animCurrentFrame1 >= anims[animIndex1].FrameCount) animCurrentFrame1 = 0.0f;
+                    if (animCurrentFrame1 >= anims[animIndex1].KeyframeCount) animCurrentFrame1 = 0.0f;
 
                     // Increment blend factor over time to transition from anim0 --> anim1 over time
                     // NOTE: Time blending could be other than linear, using some easing
@@ -146,14 +146,14 @@ public static class ModelsAnimationBlending
                     {
                         // Playing anim0 at defined speed
                         animCurrentFrame0 += animFrameSpeed0;
-                        if (animCurrentFrame0 >= anims[animIndex0].FrameCount) animCurrentFrame0 = 0.0f;
+                        if (animCurrentFrame0 >= anims[animIndex0].KeyframeCount) animCurrentFrame0 = 0.0f;
                         UpdateModelAnimation(model, anims[animIndex0], animCurrentFrame0);
                     }
                     else if (currentAnimPlaying == 1)
                     {
                         // Playing anim1 at defined speed
                         animCurrentFrame1 += animFrameSpeed1;
-                        if (animCurrentFrame1 >= anims[animIndex1].FrameCount) animCurrentFrame1 = 0.0f;
+                        if (animCurrentFrame1 >= anims[animIndex1].KeyframeCount) animCurrentFrame1 = 0.0f;
                         UpdateModelAnimation(model, anims[animIndex1], animCurrentFrame1);
                     }
                 }
@@ -209,18 +209,18 @@ public static class ModelsAnimationBlending
 
                 // Draw playing timeline with keyframes for anim0[]
                 ProgressBar(new Rectangle(60, GetScreenHeight() - 60.0f, GetScreenWidth() - 180.0f, 20), "ANIM 0",
-                    $"FRAME: {animFrameProgress0:0.00} / {anims[animIndex0].FrameCount}",
-                    animFrameProgress0, 0.0f, (float)anims[animIndex0].FrameCount);
-                for (int i = 0; i < anims[animIndex0].FrameCount; i++)
-                    KeyframeMark(60 + (int)(((float)(GetScreenWidth() - 180)/(float)anims[animIndex0].FrameCount)*(float)i),
+                    $"FRAME: {animFrameProgress0:0.00} / {anims[animIndex0].KeyframeCount}",
+                    animFrameProgress0, 0.0f, (float)anims[animIndex0].KeyframeCount);
+                for (int i = 0; i < anims[animIndex0].KeyframeCount; i++)
+                    KeyframeMark(60 + (int)(((float)(GetScreenWidth() - 180)/(float)anims[animIndex0].KeyframeCount)*(float)i),
                         GetScreenHeight() - 60, 20);
 
                 // Draw playing timeline with keyframes for anim1[]
                 ProgressBar(new Rectangle(60, GetScreenHeight() - 30.0f, GetScreenWidth() - 180.0f, 20), "ANIM 1",
-                    $"FRAME: {animFrameProgress1:0.00} / {anims[animIndex1].FrameCount}",
-                    animFrameProgress1, 0.0f, (float)anims[animIndex1].FrameCount);
-                for (int i = 0; i < anims[animIndex1].FrameCount; i++)
-                    KeyframeMark(60 + (int)(((float)(GetScreenWidth() - 180)/(float)anims[animIndex1].FrameCount)*(float)i),
+                    $"FRAME: {animFrameProgress1:0.00} / {anims[animIndex1].KeyframeCount}",
+                    animFrameProgress1, 0.0f, (float)anims[animIndex1].KeyframeCount);
+                for (int i = 0; i < anims[animIndex1].KeyframeCount; i++)
+                    KeyframeMark(60 + (int)(((float)(GetScreenWidth() - 180)/(float)anims[animIndex1].KeyframeCount)*(float)i),
                         GetScreenHeight() - 30, 20);
 
                 ImGui.End();

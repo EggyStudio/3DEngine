@@ -430,6 +430,7 @@ sealed class Engine.Config : IEquatable<Config>
 enum Engine.ConfigFlags : uint
   BorderlessWindowedMode = 32768
   FullscreenMode = 2
+  InterlacedHint = 65536
   Msaa4xHint = 32
   None = 0
   VsyncHint = 64
@@ -438,6 +439,7 @@ enum Engine.ConfigFlags : uint
   WindowHighdpi = 8192
   WindowMaximized = 1024
   WindowMinimized = 512
+  WindowMousePassthrough = 16384
   WindowResizable = 4
   WindowTopmost = 4096
   WindowTransparent = 16
@@ -846,7 +848,6 @@ static class Engine.Engine3D
   static Quaternion QuaternionFromVector3ToVector3(Vector3 from, Vector3 to)
   static Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float amount)
   static Quaternion QuaternionTransform(Quaternion q, Matrix4x4 mat)
-  static Ray GetMouseRay(Vector2 mousePosition, Camera3D camera)
   static Ray GetScreenToWorldRay(Vector2 position, Camera3D camera)
   static Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height)
   static RayCollision GetRayCollisionBox(Ray ray, BoundingBox box)
@@ -885,7 +886,6 @@ static class Engine.Engine3D
   static Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera)
   static Vector2 GetSplinePointBasis(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t)
   static Vector2 GetSplinePointBezierCubic(Vector2 p1, Vector2 c2, Vector2 c3, Vector2 p4, float t)
-  static Vector2 GetSplinePointBezierQuad(Vector2 p1, Vector2 c2, Vector2 p3, float t)
   static Vector2 GetSplinePointBezierQuadratic(Vector2 p1, Vector2 c2, Vector2 p3, float t)
   static Vector2 GetSplinePointCatmullRom(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t)
   static Vector2 GetSplinePointLinear(Vector2 startPos, Vector2 endPos, float t)
@@ -1113,8 +1113,8 @@ static class Engine.Engine3D
   static void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint)
   static void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector2 size, Color tint)
   static void DrawBoundingBox(BoundingBox box, Color color)
-  static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color)
-  static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color)
+  static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
+  static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
   static void DrawCircle(int centerX, int centerY, float radius, Color color)
   static void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color)
   static void DrawCircleGradient(Vector2 center, float radius, Color inner, Color outer)
@@ -1232,14 +1232,13 @@ static class Engine.Engine3D
   static void ImageBlurGaussian(ref Image image, int blurSize)
   static void ImageClearBackground(ref Image image, Color color)
   static void ImageColorBrightness(ref Image image, int brightness)
-  static void ImageColorContrast(ref Image image, float contrast)
+  static void ImageColorContrast(ref Image image, int contrast)
   static void ImageColorGrayscale(ref Image image)
   static void ImageColorInvert(ref Image image)
   static void ImageColorReplace(ref Image image, Color color, Color replace)
   static void ImageColorTint(ref Image image, Color color)
   static void ImageCrop(ref Image image, Rectangle rec)
   static void ImageDither(ref Image image, int rBpp, int gBpp, int bBpp, int aBpp)
-  static void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint)
   static void ImageDrawCircle(ref Image image, int centerX, int centerY, int radius, Color color)
   static void ImageDrawCircleGradient(ref Image dst, Vector2 center, float radius, Color inner, Color outer)
   static void ImageDrawCircleLines(ref Image image, int centerX, int centerY, int radius, Color color)
@@ -1257,7 +1256,7 @@ static class Engine.Engine3D
   static void ImageDrawPixelV(ref Image image, Vector2 position, Color color)
   static void ImageDrawRectangle(ref Image image, int x, int y, int width, int height, Color color)
   static void ImageDrawRectangleGradientEx(ref Image dst, Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight)
-  static void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color)
+  static void ImageDrawRectangleLines(ref Image dst, int posX, int posY, int width, int height, Color color)
   static void ImageDrawRectangleLinesEx(ref Image dst, Rectangle rec, int thick, Color color)
   static void ImageDrawRectanglePro(ref Image dst, Rectangle rec, Vector2 origin, float rotation, Color color)
   static void ImageDrawRectangleRec(ref Image image, Rectangle rec, Color color)
@@ -1547,21 +1546,21 @@ enum Engine.GamepadAxis : int
   RightX = 2
   RightY = 3
 enum Engine.GamepadButton : int
-  Back = 4
-  DpadDown = 12
-  DpadLeft = 13
-  DpadRight = 14
-  DpadUp = 11
-  East = 1
-  Guide = 5
-  LeftShoulder = 9
-  LeftStick = 7
-  North = 3
-  RightShoulder = 10
-  RightStick = 8
-  South = 0
-  Start = 6
-  West = 2
+  LeftFaceDown = 12
+  LeftFaceLeft = 13
+  LeftFaceRight = 14
+  LeftFaceUp = 11
+  LeftThumb = 7
+  LeftTrigger1 = 9
+  Middle = 5
+  MiddleLeft = 4
+  MiddleRight = 6
+  RightFaceDown = 0
+  RightFaceLeft = 2
+  RightFaceRight = 1
+  RightFaceUp = 3
+  RightThumb = 8
+  RightTrigger1 = 10
 sealed class Engine.GamepadState
   IReadOnlyCollection<Vector2> Touches { get; }
   Vector3 Accelerometer { get; }
@@ -1663,9 +1662,9 @@ interface Engine.IAudioBackend : IDisposable
   void StopVoice(int voiceId)
   void Update()
 interface Engine.ILogger
-  void Critical(string message, Exception? exception = null)
   void Debug(string message)
   void Error(string message, Exception? exception = null)
+  void Fatal(string message, Exception? exception = null)
   void FrameTrace(string message)
   void Info(string message)
   void Log(LogLevel level, string message, Exception? exception = null)
@@ -1732,7 +1731,6 @@ enum Engine.JointKind : int
   Weld = 2
 enum Engine.Key : int
   A = 4
-  ACBack = 282
   ACBookmarks = 286
   ACClose = 275
   ACExit = 276
@@ -1747,20 +1745,10 @@ enum Engine.Key : int
   ACSearch = 280
   ACStop = 284
   Again = 121
-  Alpha0 = 39
-  Alpha1 = 30
-  Alpha2 = 31
-  Alpha3 = 32
-  Alpha4 = 33
-  Alpha5 = 34
-  Alpha6 = 35
-  Alpha7 = 36
-  Alpha8 = 37
-  Alpha9 = 38
   AltErase = 153
   Apostrophe = 52
-  Application = 101
   B = 5
+  Back = 282
   Backslash = 49
   Backspace = 42
   C = 6
@@ -1783,10 +1771,11 @@ enum Engine.Key : int
   Delete = 76
   Down = 81
   E = 8
+  Eight = 37
   End = 77
   EndCall = 290
   Enter = 40
-  Equals = 46
+  Equal = 46
   Escape = 41
   ExSel = 164
   Execute = 116
@@ -1816,6 +1805,8 @@ enum Engine.Key : int
   F8 = 65
   F9 = 66
   Find = 126
+  Five = 34
+  Four = 33
   G = 10
   Grave = 53
   H = 11
@@ -1834,6 +1825,7 @@ enum Engine.Key : int
   International9 = 143
   J = 13
   K = 14
+  KbMenu = 101
   Kp0 = 98
   Kp00 = 176
   Kp000 = 177
@@ -1847,6 +1839,7 @@ enum Engine.Key : int
   Kp8 = 96
   Kp9 = 97
   KpA = 188
+  KpAdd = 87
   KpAmpersand = 199
   KpAt = 206
   KpB = 189
@@ -1864,7 +1857,7 @@ enum Engine.Key : int
   KpDivide = 84
   KpE = 192
   KpEnter = 88
-  KpEquals = 103
+  KpEqual = 103
   KpEqualsAs400 = 134
   KpExClam = 207
   KpF = 193
@@ -1881,25 +1874,20 @@ enum Engine.Key : int
   KpMemRecall = 209
   KpMemStore = 208
   KpMemSubtract = 212
-  KpMinus = 86
   KpMultiply = 85
   KpOctal = 219
   KpPercent = 196
   KpPeriod = 99
-  KpPlus = 87
   KpPlusMinus = 215
   KpPower = 195
   KpRightBrace = 185
   KpRightParen = 183
   KpSpace = 205
+  KpSubtract = 86
   KpTab = 186
   KpVerticalBar = 201
   KpXor = 194
   L = 15
-  LAlt = 226
-  LCtrl = 224
-  LGUI = 227
-  LShift = 225
   Lang1 = 144
   Lang2 = 145
   Lang3 = 146
@@ -1910,6 +1898,10 @@ enum Engine.Key : int
   Lang8 = 151
   Lang9 = 152
   Left = 80
+  LeftAlt = 226
+  LeftControl = 224
+  LeftShift = 225
+  LeftSuper = 227
   Leftbracket = 47
   M = 16
   MediaEject = 270
@@ -1928,10 +1920,13 @@ enum Engine.Key : int
   Mode = 257
   Mute = 127
   N = 17
+  Nine = 38
   NonUsBackSlash = 100
   NonUshash = 50
-  NumLockClear = 83
+  Null = 0
+  NumLock = 83
   O = 18
+  One = 30
   Oper = 161
   Out = 160
   P = 19
@@ -1945,20 +1940,22 @@ enum Engine.Key : int
   Prior = 157
   Q = 20
   R = 21
-  RAlt = 230
-  RCtrl = 228
-  RGUI = 231
-  RShift = 229
   Reserved = 400
   Return = 40
   Return2 = 158
   Right = 79
+  RightAlt = 230
+  RightControl = 228
+  RightShift = 229
+  RightSuper = 231
   Rightbracket = 48
   S = 22
   Scrolllock = 71
   Select = 119
   Semicolon = 51
   Separator = 159
+  Seven = 36
+  Six = 35
   Slash = 56
   Sleep = 258
   SoftLeft = 287
@@ -1969,9 +1966,10 @@ enum Engine.Key : int
   T = 23
   Tab = 43
   ThousandsSeparator = 178
+  Three = 32
+  Two = 31
   U = 24
   Undo = 122
-  Unknown = 0
   Up = 82
   V = 25
   VolumeDown = 129
@@ -1981,6 +1979,7 @@ enum Engine.Key : int
   X = 27
   Y = 28
   Z = 29
+  Zero = 39
 enum Engine.KeyModifier : int
   Alt = 4
   Ctrl = 1
@@ -2026,17 +2025,19 @@ static class Engine.Log
   static LoggerFactory Factory { get; }
   static void PrintStartupBanner()
 enum Engine.LogLevel : int
-  Critical = 5
-  Debug = 1
-  Error = 4
-  Info = 2
-  Trace = 0
-  Warning = 3
+  All = 0
+  Debug = 2
+  Error = 5
+  Fatal = 6
+  Info = 3
+  None = 7
+  Trace = 1
+  Warning = 4
 sealed class Engine.Logger : ILogger
   Logger(string category)
-  void Critical(string message, Exception? exception = null)
   void Debug(string message)
   void Error(string message, Exception? exception = null)
+  void Fatal(string message, Exception? exception = null)
   void FrameTrace(string message)
   void Info(string message)
   void Log(LogLevel level, string message, Exception? exception = null)
@@ -2107,22 +2108,21 @@ struct Engine.Mesh
   Vector3[] Positions
   Vector3[]? Normals
 sealed class Engine.Model
-  BoneInfo[] Bones { get; init; }
   Matrix4x4 Transform { get; set; }
   Model()
   ModelMaterial[] Materials { get; init; }
   ModelMesh[] Meshes { get; init; }
-  Transform[] BindPose { get; init; }
+  ModelSkeleton Skeleton { get; init; }
   bool IsValid { get; }
   int[] MeshMaterial { get; init; }
 sealed class Engine.ModelAnimation
   (string, int)[] MorphChannels { get; init; }
   BoneInfo[] Bones { get; init; }
   ModelAnimation()
-  Transform[][] FramePoses { get; init; }
-  float[][] FrameMorphWeights { get; init; }
+  Transform[][] KeyframePoses { get; init; }
+  float[][] KeyframeMorphWeights { get; init; }
   int BoneCount { get; }
-  int FrameCount { get; }
+  int KeyframeCount { get; }
   string Name { get; init; }
 struct Engine.ModelMaterial : IEquatable<ModelMaterial>
   Color Color { get; set; }
@@ -2166,6 +2166,11 @@ readonly struct Engine.ModelMesh : IEquatable<ModelMesh>
   void Deconstruct(out int Id, out int VertexCount, out int TriangleCount, out BoundingBox Bounds)
 struct Engine.ModelRef
   string Path
+sealed class Engine.ModelSkeleton
+  BoneInfo[] Bones { get; init; }
+  ModelSkeleton()
+  Transform[] BindPose { get; init; }
+  int BoneCount { get; }
 readonly struct Engine.ModelVertex : IEquatable<ModelVertex>
   ModelVertex(Vector3 Position, Vector3 Normal, Vector2 Uv)
   Vector2 Uv { get; init; }
@@ -2212,6 +2217,7 @@ sealed class Engine.Music
   AudioStream Stream { get; }
   bool IsValid { get; }
   bool Looping { get; set; }
+  int FrameCount { get; }
 readonly struct Engine.NPatchInfo : IEquatable<NPatchInfo>
   NPatchInfo(Rectangle Source, int Left, int Top, int Right, int Bottom, NPatchLayout Layout = NPatchLayout.NinePatch)
   NPatchLayout Layout { get; init; }
@@ -2688,6 +2694,7 @@ sealed class Engine.Sound
   double DurationSeconds { get; }
   float[] Samples { get; init; }
   int Channels { get; init; }
+  int FrameCount { get; }
   int SampleRate { get; init; }
   string SourceFormat { get; init; }
   string SourcePath { get; init; }
@@ -2813,6 +2820,7 @@ enum Engine.TextureFormat : int
   Rgba8 = 2
 enum Engine.TextureWrap : int
   Clamp = 1
+  MirrorClamp = 3
   MirrorRepeat = 2
   Repeat = 0
 enum Engine.ThreadAffinity : int

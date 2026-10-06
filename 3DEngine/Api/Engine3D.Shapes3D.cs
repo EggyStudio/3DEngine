@@ -180,13 +180,13 @@ public static partial class Engine3D
     }
 
     /// <summary>Draws a capsule: a cylinder from <paramref name="startPos"/> to <paramref name="endPos"/> with a half sphere on each end.</summary>
-    public static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color)
+    public static void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
     {
         foreach (var (a, b, c, d) in CapsuleQuads(startPos, endPos, radius, slices, rings)) DrawList.Quad(a, b, c, d, color);
     }
 
     /// <summary>Draws a capsule's edges as lines.</summary>
-    public static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color)
+    public static void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int rings, int slices, Color color)
     {
         foreach (var (a, b, _, d) in CapsuleQuads(startPos, endPos, radius, slices, rings))
         {

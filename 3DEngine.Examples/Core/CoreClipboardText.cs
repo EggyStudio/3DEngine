@@ -67,7 +67,7 @@ public static class CoreClipboardText
             if (btnRandomPressed) inputBuffer = sampleTexts[GetRandomValue(0, MAX_TEXT_SAMPLES - 1)];
 
             // Cut, copy and paste from the keyboard.
-            if (IsKeyDown(Key.LCtrl) || IsKeyDown(Key.RCtrl))
+            if (IsKeyDown(Key.LeftControl) || IsKeyDown(Key.RightControl))
             {
                 if (IsKeyPressed(Key.X))
                 {

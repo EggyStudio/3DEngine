@@ -87,7 +87,7 @@ public static class CoreUndoRedo
                 undoFrameCounter = 0;
             }
 
-            if (IsKeyDown(Key.LCtrl) && IsKeyPressed(Key.Z))
+            if (IsKeyDown(Key.LeftControl) && IsKeyPressed(Key.Z))
             {
                 if (currentUndoIndex != firstUndoIndex)
                 {
@@ -98,7 +98,7 @@ public static class CoreUndoRedo
                 }
             }
 
-            if (IsKeyDown(Key.LCtrl) && IsKeyPressed(Key.Y))
+            if (IsKeyDown(Key.LeftControl) && IsKeyPressed(Key.Y))
             {
                 if (currentUndoIndex != lastUndoIndex)
                 {

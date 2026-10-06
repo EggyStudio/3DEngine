@@ -279,7 +279,7 @@ public sealed class ReferenceFrameTests : IDisposable
         var arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
         var model = LoadModel(arm);
         var bend = LoadModelAnimations(arm)[0];
-        UpdateModelAnimation(model, bend, bend.FrameCount / 2);
+        UpdateModelAnimation(model, bend, bend.KeyframeCount / 2);
         var camera = new Camera3D(new Vector3(2, 2, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
         // Lit from above over a floor of light from all around, so the bend shows in the shading
         // where a model drawn with no light is flat.
@@ -329,10 +329,10 @@ public sealed class ReferenceFrameTests : IDisposable
     {
         Open(256, 160);
         var sky = GenImageColor(256, 128, Color.Blank);
-        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
-            new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
-        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
-            new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(40, 90, 170), new Color(190, 215, 235)),
+            0, 0, Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(95, 105, 80), new Color(45, 50, 40)),
+            0, 64, Color.White);
         ImageDrawCircle(ref sky, 70, 35, 6, new Color(255, 250, 225));
         SetEnvironmentMap(sky);
         var sphere = LoadModelFromMesh(GenMeshSphere(0.8f, 32, 32));
@@ -683,10 +683,10 @@ public sealed class ReferenceFrameTests : IDisposable
         CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);
         SetShadowDistance(60);
         var sky = GenImageColor(256, 128, Color.Blank);
-        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 200), new Color(200, 220, 240)),
-            new Rectangle(0, 0, 256, 64), new Rectangle(0, 0, 256, 64), Color.White);
-        ImageDraw(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
-            new Rectangle(0, 0, 256, 64), new Rectangle(0, 64, 256, 64), Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(60, 110, 200), new Color(200, 220, 240)),
+            0, 0, Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(150, 160, 140), new Color(70, 80, 70)),
+            0, 64, Color.White);
         SetEnvironmentMap(sky, intensity: 0.5f);
         SetBloom(0.7f);
         var orb = LoadModelFromMesh(GenMeshSphere(0.3f, 16, 16));

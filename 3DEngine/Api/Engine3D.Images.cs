@@ -511,9 +511,9 @@ public static partial class Engine3D
     });
 
     /// <summary>Changes every pixel's contrast, from -100 (flat gray) to 100.</summary>
-    public static void ImageColorContrast(ref Image image, float contrast)
+    public static void ImageColorContrast(ref Image image, int contrast)
     {
-        var scale = MathF.Pow((100 + Math.Clamp(contrast, -100, 100)) / 100, 2);
+        var scale = MathF.Pow((100 + Math.Clamp(contrast, -100, 100)) / 100f, 2);
         byte Adjust(byte v) => (byte)Math.Clamp(((v / 255f - 0.5f) * scale + 0.5f) * 255, 0, 255);
         EachPixel(image, c => new Color(Adjust(c.R), Adjust(c.G), Adjust(c.B), c.A));
     }
@@ -606,21 +606,15 @@ public static partial class Engine3D
             SetPixel(image, column, row, color);
     }
 
-    /// <summary>Draws a rectangle's outline, <paramref name="thick"/> pixels wide, inside its edge.</summary>
-    public static void ImageDrawRectangleLines(ref Image image, Rectangle rec, int thick, Color color)
-    {
-        thick = Math.Max(1, thick);
-        ImageDrawRectangleRec(ref image, rec with { Height = thick }, color);
-        ImageDrawRectangleRec(ref image, rec with { Y = rec.Y + rec.Height - thick, Height = thick }, color);
-        ImageDrawRectangleRec(ref image, rec with { Width = thick }, color);
-        ImageDrawRectangleRec(ref image, rec with { X = rec.X + rec.Width - thick, Width = thick }, color);
-    }
+    /// <summary>Draws a rectangle's outline a pixel wide, inside its edge, as <see cref="ImageDrawRectangleLinesEx"/> draws one of any width.</summary>
+    public static void ImageDrawRectangleLines(ref Image dst, int posX, int posY, int width, int height, Color color) =>
+        ImageDrawRectangleLinesEx(ref dst, new Rectangle(posX, posY, width, height), 1, color);
 
     /// <summary>
     /// Draws part of one image into a rectangle of another, scaled to fit by the nearest pixel,
     /// multiplied by <paramref name="tint"/> and blended over what is there by its alpha.
     /// </summary>
-    public static void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint)
+    internal static void ImageDraw(ref Image dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint)
     {
         if (!src.IsValid || srcRec.Width <= 0 || srcRec.Height <= 0) return;
         var (x, y, w, h) = Clip(dst, dstRec);

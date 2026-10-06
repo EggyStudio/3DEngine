@@ -38,6 +38,9 @@ public sealed class Sound
     /// <summary>Decoder backend identifier (e.g. <c>"wav-builtin"</c>). Mirrors <see cref="TextureAsset.SourceFormat"/>.</summary>
     public string SourceFormat { get; init; } = string.Empty;
 
+    /// <summary>How many frames the sound holds, a sample of each channel a frame, raylib's <c>sound.frameCount</c>.</summary>
+    public int FrameCount => Channels <= 0 ? 0 : Samples.Length / Channels;
+
     /// <summary>Total duration in seconds, derived from sample count, rate, and channels.</summary>
     public double DurationSeconds => SampleRate <= 0 || Channels <= 0
         ? 0.0

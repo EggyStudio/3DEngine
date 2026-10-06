@@ -2,8 +2,8 @@ namespace Engine;
 
 /// <summary>What a texture shows past its edges, where a texture coordinate leaves 0 to 1.</summary>
 /// <remarks>
-/// raylib's mirror clamp is left out, since Vulkan has it only where the device turns on a feature
-/// for it.
+/// <see cref="MirrorClamp"/> needs a feature of Vulkan 1.2 that every desktop driver in use and
+/// lavapipe have, and a device without it clamps there.
 /// </remarks>
 public enum TextureWrap
 {
@@ -13,4 +13,6 @@ public enum TextureWrap
     Clamp,
     /// <summary>The texture again, mirrored across each edge.</summary>
     MirrorRepeat,
+    /// <summary>The texture mirrored once across its edge at 0, then its edge pixel stretched on, as raylib's <c>TEXTURE_WRAP_MIRROR_CLAMP</c>.</summary>
+    MirrorClamp,
 }

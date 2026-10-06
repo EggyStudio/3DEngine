@@ -48,7 +48,7 @@ public static class ModelsAnimationGpuSkinning
             else if (IsKeyPressed(Key.Left)) animIndex = (animIndex + animCount - 1)%animCount;
 
             // Update model animation
-            animCurrentFrame = (animCurrentFrame + 1)%anims[animIndex].FrameCount;
+            animCurrentFrame = (animCurrentFrame + 1)%anims[animIndex].KeyframeCount;
             UpdateModelAnimation(model, anims[animIndex], (float)animCurrentFrame);
 
             BeginDrawing();

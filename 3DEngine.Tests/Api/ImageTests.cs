@@ -143,7 +143,7 @@ public sealed class ImageTests : IDisposable
         Reds(image).Count(r => r == 255).Should().Be(4);
 
         var outline = GenImageColor(4, 4, Color.Black);
-        ImageDrawRectangleLines(ref outline, new Rectangle(0, 0, 4, 4), 1, Color.White);
+        ImageDrawRectangleLines(ref outline, 0, 0, 4, 4, Color.White);
         Reds(outline).Count(r => r == 255).Should().Be(12);
         GetImageColor(outline, 1, 1).Should().Be(Color.Black);
     }

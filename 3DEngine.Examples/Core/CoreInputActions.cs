@@ -66,11 +66,11 @@ public static class CoreInputActions
         actionInputs[ACTION_RIGHT].key = Key.D;
         actionInputs[ACTION_FIRE].key = Key.Space;
 
-        actionInputs[ACTION_UP].button = GamepadButton.DpadUp;
-        actionInputs[ACTION_DOWN].button = GamepadButton.DpadDown;
-        actionInputs[ACTION_LEFT].button = GamepadButton.DpadLeft;
-        actionInputs[ACTION_RIGHT].button = GamepadButton.DpadRight;
-        actionInputs[ACTION_FIRE].button = GamepadButton.South;
+        actionInputs[ACTION_UP].button = GamepadButton.LeftFaceUp;
+        actionInputs[ACTION_DOWN].button = GamepadButton.LeftFaceDown;
+        actionInputs[ACTION_LEFT].button = GamepadButton.LeftFaceLeft;
+        actionInputs[ACTION_RIGHT].button = GamepadButton.LeftFaceRight;
+        actionInputs[ACTION_FIRE].button = GamepadButton.RightFaceDown;
     }
 
     private static void SetActionsCursor()
@@ -81,11 +81,11 @@ public static class CoreInputActions
         actionInputs[ACTION_RIGHT].key = Key.Right;
         actionInputs[ACTION_FIRE].key = Key.Space;
 
-        actionInputs[ACTION_UP].button = GamepadButton.North;
-        actionInputs[ACTION_DOWN].button = GamepadButton.South;
-        actionInputs[ACTION_LEFT].button = GamepadButton.West;
-        actionInputs[ACTION_RIGHT].button = GamepadButton.East;
-        actionInputs[ACTION_FIRE].button = GamepadButton.DpadDown;
+        actionInputs[ACTION_UP].button = GamepadButton.RightFaceUp;
+        actionInputs[ACTION_DOWN].button = GamepadButton.RightFaceDown;
+        actionInputs[ACTION_LEFT].button = GamepadButton.RightFaceLeft;
+        actionInputs[ACTION_RIGHT].button = GamepadButton.RightFaceRight;
+        actionInputs[ACTION_FIRE].button = GamepadButton.LeftFaceDown;
     }
 
     public static void Run()

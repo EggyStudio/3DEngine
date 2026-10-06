@@ -48,7 +48,7 @@ public static class ModelsLoadingM3d
 
             // Update model animation
             animCurrentFrame += 1.0f;
-            if (animCurrentFrame >= anims[animIndex].FrameCount) animCurrentFrame = 0.0f;
+            if (animCurrentFrame >= anims[animIndex].KeyframeCount) animCurrentFrame = 0.0f;
             UpdateModelAnimation(model, anims[animIndex], animCurrentFrame);
 
             // Draw
@@ -63,7 +63,7 @@ public static class ModelsLoadingM3d
                     else
                     {
                         // Draw the animated skeleton
-                        DrawModelSkeleton(model.Bones, anims[animIndex].FramePoses[(int)animCurrentFrame], 1.0f, Color.Red);
+                        DrawModelSkeleton(model.Skeleton.Bones, anims[animIndex].KeyframePoses[(int)animCurrentFrame], 1.0f, Color.Red);
                     }
 
                     DrawGrid(10, 1.0f);

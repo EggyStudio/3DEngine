@@ -1,40 +1,42 @@
 namespace Engine;
 
-/// <summary>A gamepad button, by position, in SDL's order and with SDL's values.</summary>
+/// <summary>A gamepad button, by position, named as raylib names it, in SDL's order and with SDL's values.</summary>
 /// <remarks>
 /// Buttons are named by where they sit rather than by a printed letter, because the letter on the
-/// bottom face button is A on one pad and a cross on another.
+/// bottom face button is A on one pad and a cross on another. The left face is the directional pad
+/// and the right face the four buttons, so <see cref="RightFaceDown"/> is A on an Xbox pad and the
+/// cross on a PlayStation one, as raylib's <c>GAMEPAD_BUTTON_RIGHT_FACE_DOWN</c> is.
 /// </remarks>
 public enum GamepadButton
 {
     /// <summary>The bottom face button (A, cross).</summary>
-    South,
+    RightFaceDown,
     /// <summary>The right face button (B, circle).</summary>
-    East,
+    RightFaceRight,
     /// <summary>The left face button (X, square).</summary>
-    West,
+    RightFaceLeft,
     /// <summary>The top face button (Y, triangle).</summary>
-    North,
-    /// <summary>The back or select button.</summary>
-    Back,
-    /// <summary>The guide or home button.</summary>
-    Guide,
-    /// <summary>The start button.</summary>
-    Start,
+    RightFaceUp,
+    /// <summary>The back or select button, left of the middle.</summary>
+    MiddleLeft,
+    /// <summary>The guide or home button in the middle.</summary>
+    Middle,
+    /// <summary>The start button, right of the middle.</summary>
+    MiddleRight,
     /// <summary>Pressing the left stick.</summary>
-    LeftStick,
+    LeftThumb,
     /// <summary>Pressing the right stick.</summary>
-    RightStick,
+    RightThumb,
     /// <summary>The left shoulder button.</summary>
-    LeftShoulder,
+    LeftTrigger1,
     /// <summary>The right shoulder button.</summary>
-    RightShoulder,
-    /// <summary>D-pad up.</summary>
-    DpadUp,
-    /// <summary>D-pad down.</summary>
-    DpadDown,
-    /// <summary>D-pad left.</summary>
-    DpadLeft,
-    /// <summary>D-pad right.</summary>
-    DpadRight,
+    RightTrigger1,
+    /// <summary>The directional pad's up.</summary>
+    LeftFaceUp,
+    /// <summary>The directional pad's down.</summary>
+    LeftFaceDown,
+    /// <summary>The directional pad's left.</summary>
+    LeftFaceLeft,
+    /// <summary>The directional pad's right.</summary>
+    LeftFaceRight,
 }

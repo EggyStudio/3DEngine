@@ -55,8 +55,8 @@ public static class ModelsAnimationBlendCustom
             ModelAnimation anim0 = anims[animIndex0];
             ModelAnimation anim1 = anims[animIndex1];
 
-            animCurrentFrame0 = (animCurrentFrame0 + 1)%anim0.FrameCount;
-            animCurrentFrame1 = (animCurrentFrame1 + 1)%anim1.FrameCount;
+            animCurrentFrame0 = (animCurrentFrame0 + 1)%anim0.KeyframeCount;
+            animCurrentFrame1 = (animCurrentFrame1 + 1)%anim1.KeyframeCount;
 
             // Blend the two animations
             // When upperBodyBlend is ON: upper body = attack (1.0), lower body = walk (0.0)
@@ -130,26 +130,26 @@ public static class ModelsAnimationBlendCustom
         ModelAnimation anim1, int frame1, float blend, bool upperBodyBlend)
     {
         // Validate inputs
-        if ((anim0.BoneCount != 0) && (anim0.FrameCount != 0) &&
-            (anim1.BoneCount != 0) && (anim1.FrameCount != 0) &&
-            (model.Bones.Length != 0) && (model.BindPose.Length != 0))
+        if ((anim0.BoneCount != 0) && (anim0.KeyframeCount != 0) &&
+            (anim1.BoneCount != 0) && (anim1.KeyframeCount != 0) &&
+            (model.Skeleton.Bones.Length != 0) && (model.Skeleton.BindPose.Length != 0))
         {
             // Clamp blend factor to [0, 1]
             blend = MathF.Min(1.0f, MathF.Max(0.0f, blend));
 
             // Ensure frame indices are valid
-            if (frame0 >= anim0.FrameCount) frame0 = anim0.FrameCount - 1;
-            if (frame1 >= anim1.FrameCount) frame1 = anim1.FrameCount - 1;
+            if (frame0 >= anim0.KeyframeCount) frame0 = anim0.KeyframeCount - 1;
+            if (frame1 >= anim1.KeyframeCount) frame1 = anim1.KeyframeCount - 1;
             if (frame0 < 0) frame0 = 0;
             if (frame1 < 0) frame1 = 0;
 
             // Get bone count (use minimum of all to be safe)
-            int boneCount = model.Bones.Length;
+            int boneCount = model.Skeleton.Bones.Length;
             if (anim0.BoneCount < boneCount) boneCount = anim0.BoneCount;
             if (anim1.BoneCount < boneCount) boneCount = anim1.BoneCount;
 
             // Bones past the count are left at their bind pose.
-            Transform[] pose = [.. model.BindPose];
+            Transform[] pose = [.. model.Skeleton.BindPose];
 
             // Blend each bone
             for (int boneIndex = 0; boneIndex < boneCount; boneIndex++)
@@ -160,7 +160,7 @@ public static class ModelsAnimationBlendCustom
                 // If upper body blending is enabled, use different blend factors for upper vs lower body
                 if (upperBodyBlend)
                 {
-                    string boneName = model.Bones[boneIndex].Name;
+                    string boneName = model.Skeleton.Bones[boneIndex].Name;
                     bool isUpperBody = IsUpperBodyBone(boneName);
 
                     // Upper body: use anim1 (attack), Lower body: use anim0 (walk)
@@ -170,8 +170,8 @@ public static class ModelsAnimationBlendCustom
                 }
 
                 // Get transforms from both animations
-                Transform animTransform0 = anim0.FramePoses[frame0][boneIndex];
-                Transform animTransform1 = anim1.FramePoses[frame1][boneIndex];
+                Transform animTransform0 = anim0.KeyframePoses[frame0][boneIndex];
+                Transform animTransform1 = anim1.KeyframePoses[frame1][boneIndex];
 
                 // Blend the transforms
                 pose[boneIndex] = new Transform
@@ -185,7 +185,7 @@ public static class ModelsAnimationBlendCustom
             // raylib turns each bone's blended pose and its bind pose into the bone's matrix and
             // skins the vertices on the CPU itself. Here the blended poses are a clip of one frame,
             // which UpdateModelAnimation skins on the GPU from the same bind pose.
-            UpdateModelAnimation(model, new ModelAnimation { Name = "blend", Bones = model.Bones, FramePoses = [pose] }, 0);
+            UpdateModelAnimation(model, new ModelAnimation { Name = "blend", Bones = model.Skeleton.Bones, KeyframePoses = [pose] }, 0);
         }
     }
 }

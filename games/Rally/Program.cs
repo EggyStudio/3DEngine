@@ -90,7 +90,7 @@ while (!WindowShouldClose())
     UpdateMusicStream(engine);
 
     // -- Menu, countdown, race and finish.
-    if (screen == Screen.Menu && (IsKeyPressed(Key.Enter) || IsGamepadButtonPressed(0, GamepadButton.Start)))
+    if (screen == Screen.Menu && (IsKeyPressed(Key.Enter) || IsGamepadButtonPressed(0, GamepadButton.MiddleRight)))
     {
         race = new Race();
         car.Reset(Course.Start, Course.Along(0));
@@ -136,7 +136,7 @@ while (!WindowShouldClose())
                 else PlaySound(lapDone);
             }
     }
-    if (screen == Screen.Finished && (IsKeyPressed(Key.Enter) || IsGamepadButtonPressed(0, GamepadButton.Start))) SetState(Screen.Menu);
+    if (screen == Screen.Finished && (IsKeyPressed(Key.Enter) || IsGamepadButtonPressed(0, GamepadButton.MiddleRight))) SetState(Screen.Menu);
 
     // -- Driving, from the keys or a pad, or the autopilot the e3d command turns on.
     var (throttle, steer, brake) = (0f, 0f, false);
@@ -155,7 +155,7 @@ while (!WindowShouldClose())
                 var stick = GetGamepadAxisMovement(0, GamepadAxis.LeftX);
                 if (MathF.Abs(stick) > 0.15f) steer = -stick;
             }
-            brake = IsKeyDown(Key.Space) || IsGamepadButtonDown(0, GamepadButton.South);
+            brake = IsKeyDown(Key.Space) || IsGamepadButtonDown(0, GamepadButton.RightFaceDown);
         }
         // Back on the road at the last gate passed, upright, after a roll or on R.
         if (IsKeyPressed(Key.R) || car.Stuck > 3)

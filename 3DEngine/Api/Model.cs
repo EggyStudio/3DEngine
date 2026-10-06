@@ -31,11 +31,8 @@ public sealed class Model
     /// <summary>Applied before the position, rotation and scale a draw call gives.</summary>
     public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
 
-    /// <summary>The bones of a file's skeletons, which an animation of the same file moves, or none.</summary>
-    public BoneInfo[] Bones { get; init; } = [];
-
-    /// <summary>Each bone's pose in the model's space as the file rests, in the order of <see cref="Bones"/>.</summary>
-    public Transform[] BindPose { get; init; } = [];
+    /// <summary>The bones of a file's skeletons, which an animation of the same file moves, and their pose at rest.</summary>
+    public ModelSkeleton Skeleton { get; init; } = new();
 
     /// <summary>The meshes bones move, with their vertices at rest.</summary>
     internal SkinnedMesh[] Skins { get; init; } = [];

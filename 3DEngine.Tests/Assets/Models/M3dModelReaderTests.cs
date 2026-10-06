@@ -111,10 +111,10 @@ public sealed class M3dModelReaderTests
 
         clip.Name.Should().Be("wave");
         clip.Bones.Select(b => b.Name).Should().Equal("root", "tip", "NO BONE");
-        clip.FrameCount.Should().Be(2, "34 milliseconds hold two frames of 17");
-        clip.FramePoses[0][1].Position.Y.Should().BeApproximately(1, 1e-5f);
-        clip.FramePoses[1][1].Position.Y.Should().BeApproximately(1.5f, 1e-5f, "17 milliseconds is halfway to the key that lifts the tip");
-        clip.FramePoses[1][2].Should().Be(Transform.Identity, "the last bone never moves");
+        clip.KeyframeCount.Should().Be(2, "34 milliseconds hold two frames of 17");
+        clip.KeyframePoses[0][1].Position.Y.Should().BeApproximately(1, 1e-5f);
+        clip.KeyframePoses[1][1].Position.Y.Should().BeApproximately(1.5f, 1e-5f, "17 milliseconds is halfway to the key that lifts the tip");
+        clip.KeyframePoses[1][2].Should().Be(Transform.Identity, "the last bone never moves");
     }
 
     [Fact]

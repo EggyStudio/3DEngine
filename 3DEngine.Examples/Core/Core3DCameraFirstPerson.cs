@@ -43,25 +43,25 @@ public static class Core3DCameraFirstPerson
 
         while (!WindowShouldClose())
         {
-            if (IsKeyPressed(Key.Alpha1))
+            if (IsKeyPressed(Key.One))
             {
                 cameraMode = CameraMode.Free;
                 camera.Up = new Vector3(0.0f, 1.0f, 0.0f);
             }
 
-            if (IsKeyPressed(Key.Alpha2))
+            if (IsKeyPressed(Key.Two))
             {
                 cameraMode = CameraMode.FirstPerson;
                 camera.Up = new Vector3(0.0f, 1.0f, 0.0f);
             }
 
-            if (IsKeyPressed(Key.Alpha3))
+            if (IsKeyPressed(Key.Three))
             {
                 cameraMode = CameraMode.ThirdPerson;
                 camera.Up = new Vector3(0.0f, 1.0f, 0.0f);
             }
 
-            if (IsKeyPressed(Key.Alpha4))
+            if (IsKeyPressed(Key.Four))
             {
                 cameraMode = CameraMode.Orbital;
                 camera.Up = new Vector3(0.0f, 1.0f, 0.0f);

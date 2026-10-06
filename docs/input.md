@@ -28,8 +28,8 @@ if (IsKeyDown(Key.A)) camera.Rotation--;
 if (IsKeyDown(Key.S)) camera.Rotation++;
 ```
 
-Keys are named by their place on a US keyboard (`Key.W`, `Key.Space`, `Key.Alpha1` for the 1 above
-the letters, `Key.LShift`), so W, A, S and D are under the same fingers on a French or German
+Keys are named by their place on a US keyboard (`Key.W`, `Key.Space`, `Key.One` for the 1 above
+the letters, `Key.LeftShift`), so W, A, S and D are under the same fingers on a French or German
 keyboard. The player above moves 240 pixels a second, scaled by `GetFrameTime()`, so it moves at
 the same speed at any frame rate. A program typing text reads `GetCharPressed` instead, which the
 [Text and fonts](text-and-fonts.md#typed-text) page shows.
@@ -105,14 +105,16 @@ are recognized. A drag's distance, a pinch's spread and their angles have calls 
 ## Gamepads
 
 A gamepad is asked by its index, from 0 in the order the pads connected. `IsGamepadAvailable` says
-whether one is there. Buttons are named by their place on the pad (`South`, `East`, `West`,
-`North`) rather than by the letter printed on them, so `South` is A on an Xbox pad and the cross on
-a PlayStation one. The `core_input_gamepad` example draws a pad's state:
+whether one is there. Buttons are named by their place on the pad, as raylib names them, the left
+face the directional pad and the right face the four buttons (`RightFaceDown`, `RightFaceRight`,
+`RightFaceLeft`, `RightFaceUp`), rather than by the letter printed on them, so `RightFaceDown` is A
+on an Xbox pad and the cross on a PlayStation one. The `core_input_gamepad` example draws a pad's
+state:
 
 ```csharp
 if (!IsGamepadAvailable(0))
 {
-    DrawText("Connect a gamepad, or drive one with: e3d command input.button 0 South 30", 40, 200, 20, Color.Gray);
+    DrawText("Connect a gamepad, or drive one with: e3d command input.button 0 RightFaceDown 30", 40, 200, 20, Color.Gray);
     EndDrawing();
     continue;
 }
@@ -146,7 +148,7 @@ settings screen waiting for one binds whatever comes, and `SaveFileText` and `Lo
 between runs. `games/Manor` does this, from its `Settings` class:
 
 ```csharp
-if (waitingFor is { } action && GetKeyPressed() is var key && key != Key.Unknown)
+if (waitingFor is { } action && GetKeyPressed() is var key && key != Key.Null)
 {
     keys[action] = key;
     SaveFileText("manor-settings.txt", string.Join("\n", keys.Select(k => $"key.{k.Key} = {k.Value}")));

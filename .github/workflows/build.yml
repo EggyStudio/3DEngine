@@ -175,7 +175,7 @@ jobs:
           dotnet build games/Hopper --no-restore
           ./e3d open games/Hopper/bin/Debug/net10.0/Hopper --offscreen --quiet
           ./e3d command input.key Right 40 --quiet
-          ./e3d command input.button 0 South 2 --quiet
+          ./e3d command input.button 0 RightFaceDown 2 --quiet
           ./e3d command input.key Right 120 --quiet
           ./e3d shot captures/hopper.png --quiet
           build/webp.sh captures/hopper.png captures/hopper.webp lossless
@@ -286,7 +286,7 @@ jobs:
           # second, which two frames pass on a runner drawing the title under five a second, and a
           # first press so moved twice went past Settings to Quit.
           pad() { ./e3d command input.button 0 "$1" 1 --quiet; ./e3d command frames.wait 4 --quiet; }
-          pad DpadDown; pad South; pad DpadDown; pad DpadDown; pad South; pad East; pad DpadUp; pad South
+          pad LeftFaceDown; pad RightFaceDown; pad LeftFaceDown; pad LeftFaceDown; pad RightFaceDown; pad RightFaceRight; pad LeftFaceUp; pad RightFaceDown
           screen=$(./e3d command manor.status)
           case "$screen" in
             Play*) ;;

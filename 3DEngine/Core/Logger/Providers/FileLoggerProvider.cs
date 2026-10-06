@@ -61,7 +61,7 @@ internal sealed class FileLoggerProvider : ILoggerProvider, IDisposable
                 LogLevel.Info     => "INFO ",
                 LogLevel.Warning  => "WARN ",
                 LogLevel.Error    => "ERROR",
-                LogLevel.Critical => "FATAL",
+                LogLevel.Fatal    => "FATAL",
                 _ => level.ToString().ToUpperInvariant()
             };
 

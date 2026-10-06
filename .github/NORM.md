@@ -281,7 +281,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 231, `NormTests` |
+| N 1.2 | checked, `NormTests` | listed 229, `NormTests` |
 | N 1.3 | checked, `NormTests` | listed 17, `NormTests`, 11 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 11 left out | listed 88, `NormTests`, 22 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |

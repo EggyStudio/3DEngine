@@ -105,10 +105,10 @@ public static class ShadersDeferredRendering
             if (IsKeyPressed(Key.B)) { lights[3].enabled = !lights[3].enabled; }
 
             // Check key inputs to switch between G-buffer textures
-            if (IsKeyPressed(Key.Alpha1)) mode = DeferredMode.DEFERRED_POSITION;
-            if (IsKeyPressed(Key.Alpha2)) mode = DeferredMode.DEFERRED_NORMAL;
-            if (IsKeyPressed(Key.Alpha3)) mode = DeferredMode.DEFERRED_ALBEDO;
-            if (IsKeyPressed(Key.Alpha4)) mode = DeferredMode.DEFERRED_SHADING;
+            if (IsKeyPressed(Key.One)) mode = DeferredMode.DEFERRED_POSITION;
+            if (IsKeyPressed(Key.Two)) mode = DeferredMode.DEFERRED_NORMAL;
+            if (IsKeyPressed(Key.Three)) mode = DeferredMode.DEFERRED_ALBEDO;
+            if (IsKeyPressed(Key.Four)) mode = DeferredMode.DEFERRED_SHADING;
 
             // Update light values (actually, only enable/disable them)
             for (int i = 0; i < MAX_LIGHTS; i++) UpdateLightValues(deferredShader, lights[i]);

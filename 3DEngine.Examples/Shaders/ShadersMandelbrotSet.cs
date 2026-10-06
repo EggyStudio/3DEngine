@@ -63,7 +63,7 @@ public static class ShadersMandelbrotSet
             bool updateShader = false;
 
             // 1 to 6 go to a place worth seeing.
-            Key[] numbers = [Key.Alpha1, Key.Alpha2, Key.Alpha3, Key.Alpha4, Key.Alpha5, Key.Alpha6];
+            Key[] numbers = [Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six];
             for (int i = 0; i < numbers.Length; i++)
             {
                 if (IsKeyPressed(numbers[i]))

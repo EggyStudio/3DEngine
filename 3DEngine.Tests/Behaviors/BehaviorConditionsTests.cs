@@ -154,7 +154,7 @@ public class BehaviorConditionsTests
 
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Ctrl).Should().BeFalse();
 
-        input.SetKey(Key.LCtrl, true);
+        input.SetKey(Key.LeftControl, true);
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Ctrl).Should().BeTrue();
     }
 
@@ -165,7 +165,7 @@ public class BehaviorConditionsTests
 
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Shift).Should().BeFalse();
 
-        input.SetKey(Key.RShift, true);
+        input.SetKey(Key.RightShift, true);
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Shift).Should().BeTrue();
     }
 
@@ -176,7 +176,7 @@ public class BehaviorConditionsTests
 
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Alt).Should().BeFalse();
 
-        input.SetKey(Key.LAlt, true);
+        input.SetKey(Key.LeftAlt, true);
         BehaviorConditions.ModifiersHeld(input, KeyModifier.Alt).Should().BeTrue();
     }
 
@@ -188,11 +188,11 @@ public class BehaviorConditionsTests
         var combined = KeyModifier.Ctrl | KeyModifier.Shift;
 
         // Only Ctrl held → not enough
-        input.SetKey(Key.LCtrl, true);
+        input.SetKey(Key.LeftControl, true);
         BehaviorConditions.ModifiersHeld(input, combined).Should().BeFalse();
 
         // Both held → passes
-        input.SetKey(Key.LShift, true);
+        input.SetKey(Key.LeftShift, true);
         BehaviorConditions.ModifiersHeld(input, combined).Should().BeTrue();
     }
 

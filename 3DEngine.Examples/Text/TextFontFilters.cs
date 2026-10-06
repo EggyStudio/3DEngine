@@ -37,17 +37,17 @@ public static class TextFontFilters
         {
             fontSize += GetMouseWheelMove()*4.0f;
 
-            if (IsKeyPressed(Key.Alpha1))
+            if (IsKeyPressed(Key.One))
             {
                 SetTextureFilter(font.Texture, TextureFilter.Point);
                 currentFontFilter = 0;
             }
-            else if (IsKeyPressed(Key.Alpha2))
+            else if (IsKeyPressed(Key.Two))
             {
                 SetTextureFilter(font.Texture, TextureFilter.Bilinear);
                 currentFontFilter = 1;
             }
-            else if (IsKeyPressed(Key.Alpha3))
+            else if (IsKeyPressed(Key.Three))
             {
                 SetTextureFilter(font.Texture, TextureFilter.Trilinear);
                 currentFontFilter = 2;

@@ -50,7 +50,7 @@ public static class CoreScreenRecording
             }
 
             // Ctrl+R starts recording and stops it, writing screenrecording.gif beside the program
-            if (IsKeyDown(Key.LCtrl) && IsKeyPressed(Key.R))
+            if (IsKeyDown(Key.LeftControl) && IsKeyPressed(Key.R))
             {
                 if (gifRecording)
                 {

@@ -265,6 +265,7 @@ internal sealed class GpuTextures : IDisposable
         {
             TextureWrap.Clamp => SamplerAddressMode.ClampToEdge,
             TextureWrap.MirrorRepeat => SamplerAddressMode.MirrorRepeat,
+            TextureWrap.MirrorClamp => SamplerAddressMode.MirrorClampToEdge,
             _ => SamplerAddressMode.Repeat,
         };
         var f = filter == TextureFilter.Point ? SamplerFilter.Nearest : SamplerFilter.Linear;

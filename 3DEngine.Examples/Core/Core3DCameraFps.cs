@@ -63,7 +63,7 @@ public static class Core3DCameraFps
 
             int sideway = (IsKeyDown(Key.D) ? 1 : 0) - (IsKeyDown(Key.A) ? 1 : 0);
             int forward = (IsKeyDown(Key.W) ? 1 : 0) - (IsKeyDown(Key.S) ? 1 : 0);
-            bool crouching = IsKeyDown(Key.LCtrl);
+            bool crouching = IsKeyDown(Key.LeftControl);
             UpdateBody(ref player, lookRotation.X, sideway, forward, IsKeyPressed(Key.Space), crouching);
 
             float delta = GetFrameTime();

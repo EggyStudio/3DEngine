@@ -29,7 +29,7 @@ public static class ModelsTerrain
 
         // A maze: white pixels are walls.
         var plan = GenImageColor(9, 9, Color.Black);
-        ImageDrawRectangleLines(ref plan, new Rectangle(0, 0, 9, 9), 1, Color.White);
+        ImageDrawRectangleLines(ref plan, 0, 0, 9, 9, Color.White);
         ImageDrawLine(ref plan, 2, 2, 6, 2, Color.White);
         ImageDrawLine(ref plan, 2, 2, 2, 6, Color.White);
         ImageDrawLine(ref plan, 4, 4, 8, 4, Color.White);

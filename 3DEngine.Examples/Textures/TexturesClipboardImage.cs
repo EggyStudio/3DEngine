@@ -37,7 +37,7 @@ public static class TexturesClipboardImage
                 currentCollectionIndex = 0;
             }
 
-            if (IsKeyDown(Key.LCtrl) && IsKeyPressed(Key.V) && (currentCollectionIndex < MAX_TEXTURE_COLLECTION))
+            if (IsKeyDown(Key.LeftControl) && IsKeyPressed(Key.V) && (currentCollectionIndex < MAX_TEXTURE_COLLECTION))
             {
                 Image image = GetClipboardImage();
 

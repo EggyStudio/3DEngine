@@ -30,9 +30,9 @@ public sealed class SplineTests : IDisposable
         Vector2 p1 = new(0, 0), p2 = new(10, 20), p3 = new(30, 20), p4 = new(40, 0);
 
         GetSplinePointLinear(p1, p4, 0.25f).Should().Be(new Vector2(10, 0));
-        GetSplinePointBezierQuad(p1, p2, p4, 0).Should().Be(p1);
-        GetSplinePointBezierQuad(p1, p2, p4, 1).Should().Be(p4);
-        GetSplinePointBezierQuad(p1, p2, p4, 0.5f).Should().Be(new Vector2(15, 10), "halfway is a quarter of each end and half the control");
+        GetSplinePointBezierQuadratic(p1, p2, p4, 0).Should().Be(p1);
+        GetSplinePointBezierQuadratic(p1, p2, p4, 1).Should().Be(p4);
+        GetSplinePointBezierQuadratic(p1, p2, p4, 0.5f).Should().Be(new Vector2(15, 10), "halfway is a quarter of each end and half the control");
         GetSplinePointBezierCubic(p1, p2, p3, p4, 0).Should().Be(p1);
         GetSplinePointBezierCubic(p1, p2, p3, p4, 1).Should().Be(p4);
         GetSplinePointCatmullRom(p1, p2, p3, p4, 0).Should().Be(p2, "a Catmull-Rom segment runs between its middle points");

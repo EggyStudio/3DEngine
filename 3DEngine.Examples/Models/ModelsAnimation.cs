@@ -33,7 +33,7 @@ public static class ModelsAnimation
 
             // Back and forth, up the clip and then down it again.
             if (playing) frame++;
-            var length = bend.FrameCount - 1;
+            var length = bend.KeyframeCount - 1;
             var shown = Math.Abs(((frame % (2 * length)) + 2 * length) % (2 * length) - length);
             UpdateModelAnimation(arm, bend, length - shown);
 
@@ -43,7 +43,7 @@ public static class ModelsAnimation
             BeginMode3D(camera);
             DrawModel(arm, Vector3.Zero, 1, new Color(230, 160, 60));
             // Each bone as a point, joined to its parent.
-            var pose = bend.FramePoses[length - shown];
+            var pose = bend.KeyframePoses[length - shown];
             for (int b = 0; b < bend.BoneCount; b++)
             {
                 DrawSphere(pose[b].Position, 0.06f, Color.Red);

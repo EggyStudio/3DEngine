@@ -96,7 +96,7 @@ public class LoggerTests
         var originalLevel = LogConfig.ConsoleMinimumLevel;
         try
         {
-            LogConfig.ConsoleMinimumLevel = LogLevel.Critical;
+            LogConfig.ConsoleMinimumLevel = LogLevel.Fatal;
             logger.Log(LogLevel.Info, "test");
 
             // Only spy should have received the message
@@ -187,13 +187,13 @@ public class LoggerTests
 
     [Fact]
     [ExpectsError("Test", "fatal")]
-    public void Critical_Routes_To_LogLevel_Critical()
+    public void Fatal_Routes_To_LogLevel_Fatal()
     {
         var (logger, spy) = CreateLoggerWithSpy();
 
-        logger.Critical("fatal");
+        logger.Fatal("fatal");
 
-        spy.Messages.Should().ContainSingle(m => m.Level == LogLevel.Critical);
+        spy.Messages.Should().ContainSingle(m => m.Level == LogLevel.Fatal);
     }
 
     [Fact]
@@ -299,5 +299,28 @@ public class LoggerTests
 
         heard.Should().ContainSingle(h => h.Item2.EndsWith("callback test line") && h.Item1 == LogLevel.Warning);
         heard.Should().NotContain(h => h.Item2.Contains("below the console's level"));
+    }
+
+    [Fact]
+    public void None_Lets_No_Line_Reach_The_Console_And_All_Lets_Every_Line_As_Raylibs_Levels_Do()
+    {
+        var heard = new System.Collections.Concurrent.ConcurrentQueue<(LogLevel, string)>();
+        var before = LogConfig.ConsoleMinimumLevel;
+        Engine3D.SetTraceLogCallback((level, text) => heard.Enqueue((level, text)));
+        try
+        {
+            Engine3D.SetTraceLogLevel(LogLevel.None);
+            Engine3D.TraceLog(LogLevel.Warning, "a warning with the console silenced");
+            Engine3D.SetTraceLogLevel(LogLevel.All);
+            Engine3D.TraceLog(LogLevel.Trace, "a trace with every level shown");
+        }
+        finally
+        {
+            Engine3D.SetTraceLogCallback(null);
+            Engine3D.SetTraceLogLevel(before);
+        }
+
+        heard.Should().NotContain(h => h.Item2.Contains("with the console silenced"));
+        heard.Should().ContainSingle(h => h.Item2.EndsWith("a trace with every level shown") && h.Item1 == LogLevel.Trace);
     }
 }

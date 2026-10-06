@@ -153,7 +153,7 @@ internal static class M3dModelReader
                 }
                 frames[f][^1] = Transform.Identity;
             }
-            clips.Add(new ModelAnimation { Name = action.Name, Bones = [.. bones], FramePoses = frames });
+            clips.Add(new ModelAnimation { Name = action.Name, Bones = [.. bones], KeyframePoses = frames });
         }
         return [.. clips];
     }

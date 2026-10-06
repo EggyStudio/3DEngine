@@ -235,7 +235,7 @@ internal static class IqmModelReader
             {
                 Name = Text(text, BinaryPrimitives.ReadUInt32LittleEndian(at)),
                 Bones = [.. bones],
-                FramePoses = framePoses,
+                KeyframePoses = framePoses,
             };
         }
         return clips;

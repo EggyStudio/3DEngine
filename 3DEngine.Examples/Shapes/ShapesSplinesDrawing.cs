@@ -131,13 +131,13 @@ public static class ShapesSplinesDrawing
                 }
             }
 
-            if (IsKeyPressed(Key.Alpha1)) splineTypeActive = 0;
-            else if (IsKeyPressed(Key.Alpha2)) splineTypeActive = 1;
-            else if (IsKeyPressed(Key.Alpha3)) splineTypeActive = 2;
-            else if (IsKeyPressed(Key.Alpha4)) splineTypeActive = 3;
+            if (IsKeyPressed(Key.One)) splineTypeActive = 0;
+            else if (IsKeyPressed(Key.Two)) splineTypeActive = 1;
+            else if (IsKeyPressed(Key.Three)) splineTypeActive = 2;
+            else if (IsKeyPressed(Key.Four)) splineTypeActive = 3;
 
             // A spline without control points clears their selection.
-            if (IsKeyPressed(Key.Alpha1) || IsKeyPressed(Key.Alpha2) || IsKeyPressed(Key.Alpha3)) selectedControlPoint = -1;
+            if (IsKeyPressed(Key.One) || IsKeyPressed(Key.Two) || IsKeyPressed(Key.Three)) selectedControlPoint = -1;
 
             BeginDrawing();
 
