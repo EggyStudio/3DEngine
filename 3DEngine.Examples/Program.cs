@@ -168,6 +168,7 @@ var examples = new Dictionary<string, Action>
     ["models_procedural_decals"] = ModelsProceduralDecals.Run,
     ["models_mesh_uv_painting"] = ModelsMeshUvPainting.Run,
     ["models_point_rendering"] = ModelsPointRendering.Run,
+    ["models_loading_vox"] = ModelsLoadingVox.Run,
     ["shaders_postprocessing"] = ShadersPostprocessing.Run,
     ["shaders_model"] = ShadersModel.Run,
     ["shaders_compute_life"] = ShadersComputeLife.Run,

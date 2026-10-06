@@ -160,11 +160,25 @@ public static partial class Engine3D
 
     /// <summary>Uploads vertices and triangle indices as a mesh.</summary>
     /// <exception cref="ArgumentException">The indices are not whole triangles, or one is out of range.</exception>
-    public static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices)
+    public static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices) => UploadMesh(vertices, indices, null, null);
+
+    /// <summary>
+    /// Uploads vertices and triangle indices as a mesh, with a color at each vertex and a second
+    /// texture coordinate at each, either of which may be null, as raylib's mesh has its
+    /// <c>colors</c> and <c>texcoords2</c>.
+    /// </summary>
+    /// <remarks>
+    /// The colors are sRGB, as every color is, and multiply the material's color and texture. The
+    /// second texture coordinates are read by a shader of the program's own, as a lightmap's are.
+    /// Each is a buffer of its own beside the vertices, a mesh given one carries the other at its
+    /// default, white or zero, and a mesh given neither is drawn from its vertices alone.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or the colors or coordinates are not one a vertex.</exception>
+    public static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2)
     {
         var positions = new Vector3[vertices.Length];
         for (int i = 0; i < vertices.Length; i++) positions[i] = vertices[i].Position;
-        var id = Meshes.Add(vertices, indices);
+        var id = Meshes.Add(vertices, indices, colors is null && texcoords2 is null ? null : new MeshStore.Streams(colors, texcoords2));
         return new ModelMesh(id, vertices.Length, indices.Length / 3, BoundingBox.Around(positions));
     }
 
@@ -537,7 +551,7 @@ public static partial class Engine3D
         {
             var mesh = model.Meshes[skin.Mesh];
             if (!Meshes.TryGetData(mesh.Id, out _, out var indices)) continue;
-            var id = Meshes.Add((ModelVertex[])skin.Rest.Clone(), indices);
+            var id = Meshes.Add((ModelVertex[])skin.Rest.Clone(), indices, Meshes.StreamsOf(mesh.Id));
             Meshes.SetSkin(id, new MeshStore.Skin(skin.Joints, skin.Weights, skin.BoneOfJoint.Length));
             meshes[skin.Mesh] = mesh with { Id = id };
         }
@@ -813,6 +827,14 @@ public static partial class Engine3D
 
         var indices = new uint[mesh.Indices.Length];
         for (int i = 0; i < indices.Length; i++) indices[i] = (uint)mesh.Indices[i];
-        return UploadMesh(vertices, indices);
+        // A file's colors as raylib reads them, each channel times 255, and its second texture
+        // coordinates, where it has them for every vertex.
+        var colors = mesh.Colors is { } fileColors && fileColors.Length == vertices.Length
+            ? Array.ConvertAll(fileColors, c => new Color(Byte(c.X), Byte(c.Y), Byte(c.Z), Byte(c.W)))
+            : null;
+        var texcoords2 = mesh.Uv1 is { } uv1 && uv1.Length == vertices.Length ? uv1 : null;
+        return UploadMesh(vertices, indices, colors, texcoords2);
     }
+
+    private static byte Byte(float unit) => (byte)Math.Clamp(MathF.Round(unit * 255), 0, 255);
 }

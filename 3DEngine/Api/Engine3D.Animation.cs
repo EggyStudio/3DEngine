@@ -380,6 +380,9 @@ public static partial class Engine3D
 
         try
         {
+            // MagicaVoxel's files are read here, as raylib reads them itself, and the rest by Assimp.
+            if (Path.GetExtension(path).Equals(".vox", StringComparison.OrdinalIgnoreCase))
+                return VoxModelReader.Read(File.ReadAllBytes(path), Path.GetFileNameWithoutExtension(path));
             return new AssimpModelReader().ReadFile(path, new SceneImportSettings());
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or Assimp.AssimpException)

@@ -69,7 +69,7 @@ internal sealed class Renderer : IDisposable
             device.InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
-        RenderWorld.Set(new ModelRenderer(model, shadow));
+        RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang")));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment, server.LoadSync<ShaderProgram>("shaders/immediate_linear.slang").Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");
         var composite = server.LoadSync<ShaderProgram>("shaders/composite.slang");

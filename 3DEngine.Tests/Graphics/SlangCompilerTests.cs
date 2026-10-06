@@ -49,6 +49,36 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Stage_Says_How_Many_Input_Locations_It_Reads()
+    {
+        var program = new SlangLoader(_folder.Path).Compile("""
+            struct Output { float4 position : SV_Position; float4 color : COLOR0; float2 uv : TEXCOORD0; };
+
+            [shader("vertex")]
+            Output vertexMain(float3 position : POSITION, [[vk::location(5)]] float4 color : COLOR0, uint id : SV_VertexID)
+            {
+                Output output;
+                output.position = float4(position, 1.0);
+                output.color = color;
+                output.uv = float2(id, 0.0);
+                return output;
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(Output input) : SV_Target
+            {
+                return input.color * input.uv.x;
+            }
+            """, "inputs.slang");
+
+        // The vertex stage's color sits at location 5 and its vertex index is built in, and the
+        // fragment stage reads the color and the coordinate at 0 and 1 beside the built-in position.
+        program.InputLocations(ShaderStage.Vertex).Should().Be(6);
+        program.InputLocations(ShaderStage.Fragment).Should().Be(2);
+        program.InputLocations(ShaderStage.Compute).Should().Be(0);
+    }
+
+    [NeedsSlangFact]
     public void A_Cached_Entry_Loads_Without_A_Compiler()
     {
         

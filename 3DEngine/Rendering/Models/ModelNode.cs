@@ -128,6 +128,10 @@ internal sealed class ModelRenderer : IDisposable
     }
 
     private readonly ReadOnlyMemory<byte> _vertexSpv;
+    private readonly ReadOnlyMemory<byte> _streamsVertexSpv;
+    private readonly ReadOnlyMemory<byte> _streamsFragmentSpv;
+    private IShader? _streamsVertexShader;
+    private IShader? _streamsFragmentShader;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
     private readonly ReadOnlyMemory<byte> _shadowVertexSpv;
     private readonly ReadOnlyMemory<byte> _shadowMaskSpv;
@@ -138,7 +142,37 @@ internal sealed class ModelRenderer : IDisposable
     private IShader? _fragmentShader;
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, Streams Streams), IPipeline> _pipelines = [];
+
+    // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
+    // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
+    // buffer of one default element, for a shader of the program's own that reads them on a mesh
+    // without them. The pass's own pipeline reads them only for a mesh that has them, so a mesh
+    // without them draws through model.slang, reading its vertices alone.
+    private enum Streams : byte { None, PerVertex, Default }
+
+    // The inputs model.slang's stages take, the mesh's vertex and its instance into the vertex
+    // stage and ModelVertexOutput into the fragment stage, past which a shader reads the streams.
+    private readonly int _plainVertexInputs;
+    private readonly int _plainFragmentInputs;
+
+    // A white color and a second texture coordinate of zero, bound with a stride of 0.
+    private IBuffer? _defaultColor;
+    private IBuffer? _defaultTexcoords2;
+
+    private (IBuffer Colors, IBuffer Texcoords2) DefaultStreams(IGraphicsDevice gfx)
+    {
+        if (_defaultColor is null)
+        {
+            _defaultColor = gfx.CreateBuffer(new BufferDesc(4, BufferUsage.Vertex, CpuAccessMode.Write));
+            gfx.Map(_defaultColor).Fill(255);
+            gfx.Unmap(_defaultColor);
+            _defaultTexcoords2 = gfx.CreateBuffer(new BufferDesc(8, BufferUsage.Vertex, CpuAccessMode.Write));
+            gfx.Map(_defaultTexcoords2).Clear();
+            gfx.Unmap(_defaultTexcoords2);
+        }
+        return (_defaultColor, _defaultTexcoords2!);
+    }
     private IDescriptorSetLayout? _defaultLayout;
     private IDescriptorSetLayout? _materialLayout;
     private IBuffer? _noUniforms;
@@ -276,8 +310,8 @@ internal sealed class ModelRenderer : IDisposable
 
     // The modules of the program's own shaders, by ShaderStore id, and their pipelines by the pass
     // they draw in.
-    private readonly Dictionary<int, (IShader Vertex, IShader Fragment)> _custom = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points), IPipeline> _customPipelines = [];
+    private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams)> _custom = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, Streams Streams), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -293,10 +327,17 @@ internal sealed class ModelRenderer : IDisposable
     /// casts a shadow, and the fragment stage that cuts a masked surface out of it, without which
     /// every shadow is solid.
     /// </summary>
-    public ModelRenderer(ShaderProgram model, ShaderProgram shadow)
+    /// <param name="model">The compiled <c>model.slang</c>.</param>
+    /// <param name="shadow">The compiled <c>shadow.slang</c>.</param>
+    /// <param name="streams">The compiled <c>model_streams.slang</c>, for a mesh with a color or a second texture coordinate at each vertex, or none where every mesh is drawn with <c>model.slang</c>.</param>
+    public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null)
     {
         _vertexSpv = model.Vertex;
+        _streamsVertexSpv = streams?.Vertex ?? model.Vertex;
+        _streamsFragmentSpv = streams?.Fragment ?? model.Fragment;
         _fragmentSpv = model.Fragment;
+        _plainVertexInputs = model.InputLocations(ShaderStage.Vertex);
+        _plainFragmentInputs = model.InputLocations(ShaderStage.Fragment);
         _shadowVertexSpv = shadow.Vertex;
         _shadowMaskSpv = shadow.Fragment;
         // The material and lights sets as model.slang declares them, so a binding added to
@@ -337,9 +378,13 @@ internal sealed class ModelRenderer : IDisposable
             var draw = batch.Custom >= 0 ? draws.Draws[batch.Custom] : default;
             // A shader unloaded after the draw was recorded draws with the model pass's own.
             var program = batch.Custom >= 0 ? store?.Get(draw.Shader) : null;
+            var meshStreams = batch.Mesh.Colors is null ? Streams.Default : Streams.PerVertex;
+            var streams = program is null
+                ? meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None
+                : CustomModules(gfx, draw.Shader, program).ReadsStreams ? meshStreams : Streams.None;
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points);
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, streams)
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, streams);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -355,7 +400,13 @@ internal sealed class ModelRenderer : IDisposable
             }
 
             pass.SetBindGroup(pipeline, program is null ? batch.Set ?? MaterialSet(gfx, textures, draw) : DrawSet(gfx, renderContext, renderWorld, textures, draw, program));
-            pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
+            if (streams == Streams.None)
+                pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!], [0, offset]);
+            else
+            {
+                var (colors, texcoords2) = streams == Streams.PerVertex ? (batch.Mesh.Colors!, batch.Mesh.Texcoords2!) : DefaultStreams(gfx);
+                pass.SetVertexBuffer(0, [batch.Mesh.Vertices, ring!, colors, texcoords2], [0, offset, 0, 0]);
+            }
             pass.SetIndexBuffer(batch.Mesh.Indices, 0, IndexType.UInt32);
             DrawCalls += DrawSeen(pass, batch, blocks, through);
         }
@@ -930,28 +981,49 @@ internal sealed class ModelRenderer : IDisposable
         (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
-    // front ones out, filled or as points.
-    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false)
+    // front ones out, filled or as points, through model_streams.slang for a mesh with streams.
+    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
+        Streams streams = Streams.None)
     {
-        if (_pipelines.TryGetValue((renderPass, cull, points), out var made)) return made;
+        if (_pipelines.TryGetValue((renderPass, cull, points, streams), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
-        return _pipelines[(renderPass, cull, points)] = MakePipeline(gfx, renderPass, renderWorld, _vertexShader, _fragmentShader, cull, points: points);
+        var (vertex, fragment) = streams == Streams.None
+            ? (_vertexShader, _fragmentShader)
+            : (_streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv)),
+               _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)));
+        return _pipelines[(renderPass, cull, points, streams)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
+            streams: streams);
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
-        CullMode cull = CullMode.None, bool points = false)
+        CullMode cull = CullMode.None, bool points = false, Streams streams = Streams.None)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, streams), out var made)) return made;
 
-        if (!_custom.TryGetValue(id, out var modules))
-            _custom[id] = modules = (
-                gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, program.Stages.TryGetValue(ShaderStage.Vertex, out var own) ? own : _vertexSpv)),
-                gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment)));
-        return _customPipelines[(id, renderPass, cull, points)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
-            material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points);
+        var modules = CustomModules(gfx, id, program);
+        return _customPipelines[(id, renderPass, cull, points, streams)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
+            material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
+            streams: streams);
+    }
+
+    // A material's own shader's stages, and whether it reads a mesh's colors and second texture
+    // coordinates: a vertex stage of its own that takes an input past the mesh's vertex and its
+    // instance, or a fragment stage that takes ModelStreamsOutput, which then draws with
+    // model_streams.slang's vertex stage where it has none of its own.
+    private (IShader Vertex, IShader Fragment, bool ReadsStreams) CustomModules(IGraphicsDevice gfx, int id, ShaderProgram program)
+    {
+        if (_custom.TryGetValue(id, out var modules)) return modules;
+        var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
+        var reads = own
+            ? program.InputLocations(ShaderStage.Vertex) > _plainVertexInputs
+            : program.InputLocations(ShaderStage.Fragment) > _plainFragmentInputs;
+        return _custom[id] = (
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, own ? vertex! : reads ? _streamsVertexSpv : _vertexSpv)),
+            gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, program.Fragment)),
+            reads);
     }
 
     // Frees what was made for shaders the program has unloaded. Their pipelines belong to the
@@ -1142,7 +1214,8 @@ internal sealed class ModelRenderer : IDisposable
     }
 
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
-        CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false)
+        CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
+        Streams streams = Streams.None)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -1155,11 +1228,18 @@ internal sealed class ModelRenderer : IDisposable
             Cull: cull,
             Points: points,
             // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats
-            // from location 3 in ModelInstance's order.
+            // from location 3 in ModelInstance's order. With streams, its colors at binding 2 and
+            // location 9 and its second texture coordinates at binding 3 and location 10, each a
+            // vertex at a time from the mesh or the one default for every vertex.
             VertexBindings:
             [
                 new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ModelVertex>()),
                 new VertexInputBindingDesc(1, Instance.Size, PerInstance: true),
+                .. streams == Streams.None ? Array.Empty<VertexInputBindingDesc>() :
+                [
+                    new VertexInputBindingDesc(2, streams == Streams.PerVertex ? 4u : 0u),
+                    new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
+                ],
             ],
             VertexAttributes:
             [
@@ -1167,6 +1247,11 @@ internal sealed class ModelRenderer : IDisposable
                 new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12),
                 new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
                 .. Enumerable.Range(0, rows).Select(row => new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
+                .. streams == Streams.None ? Array.Empty<VertexInputAttributeDesc>() :
+                [
+                    new VertexInputAttributeDesc(9, 2, VertexFormat.UNormR8G8B8A8, 0),
+                    new VertexInputAttributeDesc(10, 3, VertexFormat.Float2, 0),
+                ],
             ],
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
@@ -1433,7 +1518,7 @@ internal sealed class ModelRenderer : IDisposable
         foreach (var set in _lightSets.SelectMany(s => s)) set.Dispose();
         foreach (var sets in _drawSets)
             foreach (var set in sets) set.Dispose();
-        foreach (var (vertex, fragment) in _custom.Values)
+        foreach (var (vertex, fragment, _) in _custom.Values)
         {
             vertex.Dispose();
             fragment.Dispose();
@@ -1464,7 +1549,11 @@ internal sealed class ModelRenderer : IDisposable
         _defaultLayout?.Dispose();
         _fragmentShader?.Dispose();
         _vertexShader?.Dispose();
+        _streamsVertexShader?.Dispose();
+        _streamsFragmentShader?.Dispose();
         _noBuffer?.Dispose();
+        _defaultColor?.Dispose();
+        _defaultTexcoords2?.Dispose();
     }
 }
 

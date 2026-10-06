@@ -25,7 +25,15 @@ internal sealed class MeshStore
     /// <param name="Indices">Three indices into the vertices for each triangle.</param>
     /// <param name="VerticesOnly">Whether only the vertices changed, so the index buffer is kept.</param>
     /// <param name="Skin">The joints and weights that pose it on the GPU, or null for a mesh that is not skinned there.</param>
-    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null);
+    /// <param name="Streams">A color and a second texture coordinate at each vertex, which a mesh may have beside its vertices.</param>
+    public sealed record Upload(int Id, ModelVertex[] Vertices, uint[] Indices, bool VerticesOnly = false, Skin? Skin = null, Streams? Streams = null);
+
+    /// <summary>
+    /// A mesh's colors and second texture coordinates, one a vertex each, either or both, kept in
+    /// buffers of their own beside its vertices, as raylib keeps them in arrays of their own, so a
+    /// mesh without them has its vertices no larger.
+    /// </summary>
+    public sealed record Streams(Color[]? Colors, System.Numerics.Vector2[]? Texcoords2);
 
     /// <summary>
     /// A skinned mesh's four joints and four weights a vertex, how many joints its skeleton has, and
@@ -39,6 +47,7 @@ internal sealed class MeshStore
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (ModelVertex[] Vertices, uint[] Indices)> _live = [];
+    private readonly Dictionary<int, Streams> _streams = [];
     private readonly List<Upload> _uploads = [];
     private readonly List<int> _removals = [];
     private int _next = 1;
@@ -49,23 +58,35 @@ internal sealed class MeshStore
         get { lock (_gate) return _live.Count; }
     }
 
-    /// <summary>Queues a mesh of triangles and returns its id.</summary>
-    /// <exception cref="ArgumentException">The indices are not whole triangles, or one is out of range.</exception>
-    public int Add(ModelVertex[] vertices, uint[] indices)
+    /// <summary>Queues a mesh of triangles, with its colors and second texture coordinates when it has them, and returns its id.</summary>
+    /// <exception cref="ArgumentException">The indices are not whole triangles, one is out of range, or a stream's count differs from the vertices'.</exception>
+    public int Add(ModelVertex[] vertices, uint[] indices, Streams? streams = null)
     {
         if (indices.Length == 0 || indices.Length % 3 != 0)
             throw new ArgumentException("A mesh needs a whole number of triangles.", nameof(indices));
         foreach (var index in indices)
             if (index >= vertices.Length)
                 throw new ArgumentException($"Index {index} is past the {vertices.Length} vertices.", nameof(indices));
+        if (streams?.Colors is { } colors && colors.Length != vertices.Length)
+            throw new ArgumentException($"{colors.Length} colors for {vertices.Length} vertices.", nameof(streams));
+        if (streams?.Texcoords2 is { } texcoords2 && texcoords2.Length != vertices.Length)
+            throw new ArgumentException($"{texcoords2.Length} second texture coordinates for {vertices.Length} vertices.", nameof(streams));
+        if (streams is { Colors: null, Texcoords2: null }) streams = null;
 
         lock (_gate)
         {
             var id = _next++;
             _live.Add(id, (vertices, indices));
-            _uploads.Add(new Upload(id, vertices, indices));
+            if (streams is not null) _streams[id] = streams;
+            _uploads.Add(new Upload(id, vertices, indices, Streams: streams));
             return id;
         }
+    }
+
+    /// <summary>A loaded mesh's colors and second texture coordinates, or null for one without them.</summary>
+    internal Streams? StreamsOf(int id)
+    {
+        lock (_gate) return _streams.GetValueOrDefault(id);
     }
 
     /// <summary>
@@ -89,7 +110,7 @@ internal sealed class MeshStore
             // A mesh not yet uploaded is uploaded whole with the new vertices, and an update
             // queued earlier this frame is replaced, since only the last one is seen.
             int queued = _uploads.FindIndex(u => u.Id == id);
-            var upload = new Upload(id, vertices, data.Indices, VerticesOnly: queued < 0 || _uploads[queued].VerticesOnly);
+            var upload = new Upload(id, vertices, data.Indices, VerticesOnly: queued < 0 || _uploads[queued].VerticesOnly, Streams: _streams.GetValueOrDefault(id));
             if (queued >= 0) _uploads[queued] = upload;
             else _uploads.Add(upload);
             return true;
@@ -121,6 +142,7 @@ internal sealed class MeshStore
         {
             if (!_live.Remove(id)) return false;
             _skins.Remove(id);
+            _streams.Remove(id);
             _poses.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
             _removals.Add(id);
@@ -140,7 +162,7 @@ internal sealed class MeshStore
             if (!_live.TryGetValue(id, out var data)) return false;
             _skins[id] = skin;
             _uploads.RemoveAll(u => u.Id == id);
-            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin));
+            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: skin, Streams: _streams.GetValueOrDefault(id)));
             return true;
         }
     }
@@ -197,6 +219,12 @@ internal sealed class GpuMeshes : IDisposable
     /// <summary>One mesh's buffers, with the ring its vertices move through once they are replaced.</summary>
     public sealed record Entry(IBuffer Vertices, IBuffer Indices, uint IndexCount)
     {
+        /// <summary>Its colors, four bytes a vertex, or null for a mesh with neither these nor second texture coordinates.</summary>
+        internal IBuffer? Colors { get; init; }
+
+        /// <summary>Its second texture coordinates, eight bytes a vertex, or null for a mesh with neither these nor colors.</summary>
+        internal IBuffer? Texcoords2 { get; init; }
+
         internal IBuffer[]? Ring { get; init; }
         internal int Slot { get; init; }
 
@@ -237,15 +265,23 @@ internal sealed class GpuMeshes : IDisposable
 
                 if (_entries.Remove(upload.Id, out var replaced)) Retire(replaced, vertices: true);
                 var indices = Buffer(gfx, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), BufferUsage.Index);
+                // A mesh with one of the two is given the other at its default, white or zero, so
+                // the model pass reads both a vertex at a time, which measured faster than reading
+                // the missing one from a buffer of a single element.
+                var (colors, texcoords2) = upload.Streams is { } streams
+                    ? (Buffer(gfx, streams.Colors is { } c ? MemoryMarshal.AsBytes(c.AsSpan()) : Filled(upload.Vertices.Length * 4, 255), BufferUsage.Vertex),
+                       Buffer(gfx, streams.Texcoords2 is { } t ? MemoryMarshal.AsBytes(t.AsSpan()) : new byte[upload.Vertices.Length * 8], BufferUsage.Vertex))
+                    : ((IBuffer?)null, (IBuffer?)null);
                 // A skin the GPU poses writes its vertices into a buffer of its own.
                 if (upload.Skin is { } skinData && gfx is GraphicsDevice { CanSkin: true } device)
                 {
                     var skin = device.CreateSkin(upload.Vertices, skinData.Joints, skinData.Weights, skinData.JointCount, GpuTextures.RetireFrames + 1,
                         skinData.Morphs, skinData.MorphCount);
-                    _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin };
+                    _entries[upload.Id] = new Entry(skin.Output, indices, (uint)upload.Indices.Length) { Skin = skin, Colors = colors, Texcoords2 = texcoords2 };
                     continue;
                 }
-                _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length);
+                _entries[upload.Id] = new Entry(Buffer(gfx, bytes, BufferUsage.Vertex), indices, (uint)upload.Indices.Length)
+                    { Colors = colors, Texcoords2 = texcoords2 };
             }
         }
 
@@ -288,11 +324,23 @@ internal sealed class GpuMeshes : IDisposable
                 foreach (var buffer in ring) _retired.Add((_frame, buffer));
             else _retired.Add((_frame, entry.Vertices));
         }
-        if (indices) _retired.Add((_frame, entry.Indices));
+        if (indices)
+        {
+            _retired.Add((_frame, entry.Indices));
+            if (entry.Colors is { } colors) _retired.Add((_frame, colors));
+            if (entry.Texcoords2 is { } texcoords2) _retired.Add((_frame, texcoords2));
+        }
     }
 
     // Host-visible buffers written through a mapping. A device-local buffer behind a staging copy
     // would draw faster, which RENDERING.md lists with the move to the memory allocator.
+    private static byte[] Filled(int length, byte value)
+    {
+        var bytes = new byte[length];
+        bytes.AsSpan().Fill(value);
+        return bytes;
+    }
+
     private static IBuffer Buffer(IGraphicsDevice gfx, ReadOnlySpan<byte> data, BufferUsage usage)
     {
         var buffer = gfx.CreateBuffer(new BufferDesc((ulong)data.Length, usage, CpuAccessMode.Write));
@@ -312,6 +360,8 @@ internal sealed class GpuMeshes : IDisposable
                 foreach (var buffer in ring) buffer.Dispose();
             else entry.Vertices.Dispose();
             entry.Indices.Dispose();
+            entry.Colors?.Dispose();
+            entry.Texcoords2?.Dispose();
         }
         _retired.Clear();
         _entries.Clear();

@@ -73,6 +73,14 @@ ModelVertex[] vertices =
 return UploadMesh(vertices, [0, 1, 2]);
 ```
 
+A mesh may have a color at each vertex and a second texture coordinate at each, as raylib's
+`colors` and `texcoords2`, given to `UploadMesh` after its indices, either of them null. The
+colors multiply the material's color and texture, and a file's are read with it, as
+`models_loading_vox` colors each voxel, and the second coordinates are read by a shader of the
+program's own, as a lightmap's are. The two are buffers of their own beside the vertices. A mesh
+with either carries both, the one it was not given white or zero, which adds twelve bytes to each
+of its vertices' thirty-two, and a mesh with neither is drawn from its vertices alone.
+
 `UpdateMeshVertices` moves a mesh's vertices later, keeping the triangles, as water or cloth
 needs. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its material, which
 `LoadModel` reads back and any modeling program opens.
@@ -243,6 +251,7 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
 
 - Examples: [`models_loading`](../3DEngine.Examples/Models/ModelsLoading.cs),
   [`models_mesh_generation`](../3DEngine.Examples/Models/ModelsMeshGeneration.cs),
+  [`models_loading_vox`](../3DEngine.Examples/Models/ModelsLoadingVox.cs),
   [`models_terrain`](../3DEngine.Examples/Models/ModelsTerrain.cs),
   [`models_animation`](../3DEngine.Examples/Models/ModelsAnimation.cs),
   [`models_morph_and_layers`](../3DEngine.Examples/Models/ModelsMorphAndLayers.cs),

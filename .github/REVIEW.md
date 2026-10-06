@@ -10,15 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5e6f1722`. Four batches are read. raylib's window flags are carried, high density
+Reviewed up to `5916882f`. Three batches are read. raylib's pixel formats are carried,
+`LoadImageRaw` reading a format into four bytes a pixel and `ImageFormat` keeping what a format
+keeps (`6639650a`), its audio processors, the mixed ones on SDL3's audio thread as raylib's and a
+stream's on the program's thread as a kept difference (`0ea9401c`), and the monitor's size as
+raylib's SDL3 backend reckons it with raylib's custom frame control (`5916882f`), where `GetTime`
+reads the clock as raylib's does, the frame's time kept in a run that steps time by a set amount,
+which had a frame-control example run at 137 frames a second against its own 60. Six more ports
+take the table to 211 written and 10 missing, the surface gains lines and loses none, and the
+last ten rows are ordered: the voxel reader with the vertex layout decided once and measured,
+the IQM and M3D readers, deferred rendering as a target with several attachments, the skybox
+waiting on cubemaps, the module player put to the owner as a dependency, and VR, automation
+events and screen recording out as TODO.md has them. No verdict is open.
+
+Before them, raylib's window flags are carried, high density
 reading the monitor's pixels, transparency, unfocused, always-run and borderless (`42f3dfea`),
 rlgl's blend factors and custom modes (`73ab123c`), with clear texels discarded in 3D alone as
 raylib blends them in 2D, BMFont's fonts read as raylib reads them (`c732ac54`), and rlgl's
 depth test and mask, its matrix modes with a projection of a program's own, and a shader's
 written depth (`5e6f1722`). Ten more ports, one read against raylib's C, take the table to 205
 written and 16 missing, and the surface gains 43 lines and loses none. Where a picture differs
-from raylib's screenshot, raylib's own shader changed after it, which the port says. No
-verdict is open.
+from raylib's screenshot, raylib's own shader changed after it, which the port says.
 
 Before them, rlgl's vertices given one at a time and its matrix stack are carried
 as the rows call them, the matrix moving each vertex as it is recorded (`bdf197ce`), the three
@@ -260,42 +272,46 @@ None open.
 
 ## Replies
 
-**Now 2, pixel formats' two rows.** `PixelFormat` is carried under raylib's values, with
-`LoadImageRaw`, which reads a file of pixels alone in an uncompressed format after a header, and
-`ImageFormat`, which keeps of each pixel what the format keeps: gray by raylib's weights, fewer
-levels rounded as raylib's `ImageFormat` rounds them and read back as the GPU reads a texture of
-the format, no alpha where the format has none, and red alone for a format of one channel. An
-image still holds four bytes a pixel, which the comparison has a line on, and a compressed format
-is read by neither, with a warning. TODO.md's line on images is rewritten around what is left,
-and the count of raylib's functions carried is 493, 80 percent. Two tests read a raw file and
-format a pixel through each format. `textures_raw_data` and `textures_image_processing` are
-raylib's. The table stands at 207 written and 14 missing, the audio processors' two rows next.
+**Now 2, the vertex layout and `models_loading_vox`.** The layout gains a color and a second
+texture coordinate for all three rows, each in a buffer of its own beside the fixed vertex of 32
+bytes, as raylib's `colors` and `texcoords2`. `UploadMesh` takes them after its indices, a file's
+are read with it, and a mesh with either carries both, the one it was not given white or zero,
+which adds 12 bytes to each of its vertices. A mesh with neither is drawn through `model.slang` as
+before: both its stages compile to the same SPIR-V, byte for byte, as at `5916882f`, and its
+pipeline binds the same two buffers, so the seven games, none of whose meshes has either, draw the
+same frame with the same work. `model_streams.slang` draws a mesh that has them and multiplies the
+color in, and a shader of a program's own reads them by taking `ModelStreamsOutput` in place of
+`ModelVertexOutput`, which the pass tells from the input locations its SPIR-V declares, so only
+such a shader on a mesh without them reads a default from a buffer of one element.
 
-**Now 2, the audio processors' two rows.** `AttachAudioMixedProcessor` and
-`DetachAudioMixedProcessor` run over the mix the device plays on SDL3's postmix callback, on the
-audio thread, as raylib's run, the call made with a function pointer, since SDL3-CS hands the
-buffer over as an array it cannot size, and the processors kept as a whole array replaced on each
-change, which the audio thread reads without a lock. `AttachAudioStreamProcessor` and
-`DetachAudioStreamProcessor` run over what a stream or a piece of music queues, on the program's
-thread and in the stream's own channels, where raylib's run on the audio thread in the device's,
-which the comparison has a line on, and `Music` has the `Stream` raylib's programs attach them to.
-Running against the device here, `audio_mixed_processor`'s volume history fills as its music
-plays. Two tests run processors over what a stream and a piece of music queue and hand the mixed
-ones to the backend in order. TODO.md keeps `UpdateSound` alone of the audio thread's functions,
-and the count carried is 497. `audio_mixed_processor` and `audio_stream_effects` are raylib's.
-The table stands at 209 written and 12 missing, each row a gap of its own.
+The measures, each read through `./e3d command profile` from a program run with `E3D_SERVE=1
+E3D_HIDDEN=1`, the builds at `5916882f` and now taken in turn:
 
-**Now 2, the monitor's size and frame control.** `GetMonitorPhysicalWidth` and
-`GetMonitorPhysicalHeight` answer as raylib's own SDL3 backend does, a monitor's pixels at 96 an
-inch times the window's display scale, since SDL3 gives no monitor's own size, which the
-comparison has a line on. `PollInputEvents` processes the window's events unless the frame has,
-and `SwapScreenBuffer` has nothing left to do, `EndDrawing` having presented the frame, as raylib's
-own build does where `SUPPORT_CUSTOM_FRAME_CONTROL` leaves both to the program, which the
-comparison has a line on too. One call was brought to raylib's: `GetTime` gave the frame's time,
-where raylib's reads the clock as it is called, so `core_custom_frame_control`, which times its own
-frames, ran at 137 frames a second against its 60. It reads the clock past the frame's start now,
-and in a run whose frames count a set time it keeps the frame's, so tests read the same time on
-any machine (`Engine3DDisplayTests`). `core_monitor_detector` and `core_custom_frame_control` are
-raylib's, the second at 61 frames a second where raylib's screenshot shows 59. TODO.md's line of
-what is left out keeps VR stereo and automation events, and the count carried is 501, 81 percent.
-The table stands at 211 written and 10 missing.
+- A vertex-bound frame, `GenMeshSphere(1, 256, 256)` (66,049 vertices) drawn 200 times through
+  `DrawMeshInstanced` with no frame cap, its `gpu.models` line after 600 frames, five runs each:
+  3.387 ms at `5916882f` and 3.412 ms now, the medians.
+- A sphere of as many vertices built by hand and given to `UploadMesh` without streams and with
+  both, eight runs each: 3.397 ms and 3.634 ms, 7 percent for 12 bytes on 32. Carrying a missing
+  stream as the one default read for every vertex measured slower than carrying it whole (4.51 ms
+  against 3.71 ms, four runs each), which is why one brings the other.
+- `models_stress`'s `limit` line: 369,239, 348,726 and 379,495 at `5916882f` against 379,495,
+  400,009 and 410,266 now, and three more pairs taken while another session's build held the
+  machine fell to as low as 142,834 on both.
+
+`models_point_rendering` gives its points raylib's colors through `UploadMesh`, its shader of its
+own gone with the hue it carried in a texture coordinate. `VoxModelReader` reads MagicaVoxel's
+files of versions 150 and 200 as raylib's `vox_loader.h` reads them, written again in C# under its
+MIT license, one mesh of 32-bit indices where raylib's makes several of 16, a voxel a quarter of a
+unit across with the volume rounded up to sixteen voxels each way, as raylib's is. Two tests read a
+file of two voxels and a file that is not one. `models_loading_vox` is raylib's, with its
+`voxel_lighting` shader in Slang reading the mesh's color, and its four files from raylib's
+resources. raylib's screenshot stands nearer than the camera its source sets at (10, 10, 10), where
+the knight measures the same three squares of the grid across, and its points' screenshot shows the
+100,000 two presses of Up give, which drawn here are hued as raylib's are. TODO.md's line on the
+vertex layout keeps tangents alone. The table stands at 212 written and 9 missing,
+`shaders_lightmap_rendering` next, with `UpdateMeshBuffer` for the second coordinates raylib gives
+a plane after it is made.
+
+Shared: a mesh's colors and second texture coordinates as buffers of their own beside a fixed
+vertex, drawn through a second vertex stage only for a mesh that has them, so a mesh without them
+costs what it did, which BevyCSharp may read if its layout grows the same way.

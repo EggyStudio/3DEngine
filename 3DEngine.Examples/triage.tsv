@@ -127,7 +127,6 @@ models_first_person_maze	can
 models_geometric_shapes	can
 models_mesh_picking	can
 models_loading_gltf	can
-models_loading_vox	missing	MagicaVoxel's .vox files, which Assimp does not read
 models_loading_m3d	missing	M3D files, which the Assimp the engine carries does not read
 models_orthographic_projection	can
 models_yaw_pitch_roll	can

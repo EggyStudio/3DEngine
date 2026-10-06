@@ -520,7 +520,8 @@ Inside `BeginShaderMode`, a shader applies to the immediate pass: shapes, textur
 render textures drawn as textures. A model takes one through its material,
 `model.Materials[0].Shader = shader;`, and such a shader imports `modelpass` instead, which gives
 it `ModelVertexOutput` (position, normal, world position, uv), `baseColor(input)` and
-`lit(color, input)`, the model pass's own lighting. A model shader with a vertex stage of its own
+`lit(color, input)`, the model pass's own lighting, and `ModelStreamsOutput` in its place adds the
+mesh's `vertexColor` and `uv2` beside a `base`. A model shader with a vertex stage of its own
 takes a `ModelInstance` after the mesh's position, normal and uv, and hands it to
 `transformModelVertex`. A model shader's uniforms are set by name:
 
@@ -606,6 +607,7 @@ ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A 
 bool ExportMesh(ModelMesh mesh, string fileName);                          // Write a Wavefront OBJ file of its shape
 Mesh GetMeshComponent(ModelMesh mesh);                                     // Its triangles as a Mesh component, for entities to draw
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
+ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2); // With a color and a second texture coordinate at each vertex
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 

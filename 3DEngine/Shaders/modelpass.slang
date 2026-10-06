@@ -223,6 +223,18 @@ public struct ModelVertexOutput
     public nointerpolation float4 factors : TEXCOORD2;
 };
 
+// What a mesh with a color or a second texture coordinate at each vertex gives the fragment stage
+// beside what every mesh does: the color in linear color, white where the mesh has none, and the
+// coordinate, zero where it has none. model_streams.slang draws with it, and a shader of the
+// program's own reads it by taking this in place of ModelVertexOutput, whose fields are in base.
+// A mesh without either is drawn without it, so its vertices carry no more to the fragment stage.
+public struct ModelStreamsOutput
+{
+    public ModelVertexOutput base;
+    public float4 vertexColor : COLOR3;
+    public float2 uv2 : TEXCOORD3;
+};
+
 // Where the camera is, worked out from its view-projection alone, so the call carries no more
 // than it. The transform here is as mul takes it, its rows the columns System.Numerics has. Under
 // a perspective projection the eye is the one point clip space's x, y and w all take as zero,
@@ -249,6 +261,17 @@ static const int Point = 1;
 static const int Spot = 2;
 static const int Ambient = 3;
 
+// The vertex stage for a mesh's color and second texture coordinate as well, the color in sRGB as a
+// mesh gives it.
+public ModelStreamsOutput transformModelVertex(float3 position, float3 normal, float2 uv, float4 color, float2 uv2, ModelInstance instance)
+{
+    ModelStreamsOutput output;
+    output.base = transformModelVertex(position, normal, uv, instance);
+    output.vertexColor = float4(srgbToLinear(color.rgb), color.a);
+    output.uv2 = uv2;
+    return output;
+}
+
 // The vertex stage every model shader uses unless it writes its own.
 public ModelVertexOutput transformModelVertex(float3 position, float3 normal, float2 uv, ModelInstance instance)
 {
@@ -274,6 +297,12 @@ public ModelVertexOutput transformModelVertex(float3 position, float3 normal, fl
 public float4 baseColor(ModelVertexOutput input)
 {
     return materialColor(input) * boundTexture.Sample(input.uv);
+}
+
+// The same times the mesh's color at this point.
+public float4 baseColor(ModelStreamsOutput input)
+{
+    return baseColor(input.base) * input.vertexColor;
 }
 
 // The color as the material's alpha mode means it. Alpha is ignored for an opaque material, cut

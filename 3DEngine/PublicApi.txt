@@ -762,6 +762,7 @@ static class Engine.Engine3D
   static ModelMesh GenMeshSphere(float radius, int rings, int slices)
   static ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides)
   static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices)
+  static ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2)
   static MonitorMode[] GetMonitorModes(int monitor)
   static Music LoadMusicStream(string fileName)
   static Music LoadMusicStreamFromMemory(string fileType, byte[] data)

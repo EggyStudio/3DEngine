@@ -109,4 +109,31 @@ internal sealed class ShaderProgram
         Stages.TryGetValue(stage, out var bytecode)
             ? bytecode
             : throw new InvalidOperationException($"'{Name}' defines no {stage.ToString().ToLowerInvariant()} entry point.");
+
+    /// <summary>One past the highest location a stage takes an input at, or 0 for a stage it lacks or one that takes none.</summary>
+    /// <remarks>
+    /// Read from the SPIR-V itself rather than the reflection, so a stage from the shader cache
+    /// answers as a stage compiled now does.
+    /// </remarks>
+    public int InputLocations(ShaderStage stage) => Stages.TryGetValue(stage, out var spirv) ? InputLocations(spirv) : 0;
+
+    internal static int InputLocations(ReadOnlySpan<byte> spirv)
+    {
+        const uint magic = 0x07230203, opVariable = 59, opDecorate = 71, location = 30, input = 1;
+        var words = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(spirv);
+        if (words.Length < 5 || words[0] != magic) return 0;
+        var locations = new Dictionary<uint, uint>();
+        var inputs = new List<uint>();
+        // After the five words of the header, each instruction's first word holds its length in
+        // words above its opcode.
+        for (int at = 5, length; at < words.Length; at += length)
+        {
+            length = (int)(words[at] >> 16);
+            if (length == 0 || length > words.Length - at) break;
+            var opcode = words[at] & 0xffff;
+            if (opcode == opDecorate && length >= 4 && words[at + 2] == location) locations[words[at + 1]] = words[at + 3];
+            else if (opcode == opVariable && length >= 4 && words[at + 3] == input) inputs.Add(words[at + 2]);
+        }
+        return inputs.Select(id => locations.TryGetValue(id, out var at) ? (int)at + 1 : 0).DefaultIfEmpty(0).Max();
+    }
 }

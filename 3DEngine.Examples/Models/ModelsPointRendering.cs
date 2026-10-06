@@ -32,13 +32,8 @@ public static class ModelsPointRendering
         bool numPointsChanged = false;
         int numPoints = 1000;
 
-        // Each point's color, which a mesh here does not keep, is drawn by this shader from the
-        // hue the point carries.
-        Shader pointColors = LoadShader("resources/shaders/slang/point_colors.slang");
-
         var (mesh, vertices, colors) = GenMeshPoints(numPoints);
         Model model = LoadModelFromMesh(mesh);
-        model.Materials[0].Shader = pointColors;
 
         SetTargetFPS(60);
 
@@ -64,7 +59,6 @@ public static class ModelsPointRendering
                 UnloadModel(model);
                 (mesh, vertices, colors) = GenMeshPoints(numPoints);
                 model = LoadModelFromMesh(mesh);
-                model.Materials[0].Shader = pointColors;
                 numPointsChanged = false;
             }
 
@@ -103,7 +97,6 @@ public static class ModelsPointRendering
         }
 
         UnloadModel(model);
-        UnloadShader(pointColors);
 
         CloseWindow();
     }
@@ -126,8 +119,7 @@ public static class ModelsPointRendering
             vertices[i] = new Vector3(r*MathF.Sin(theta)*MathF.Cos(phi), r*MathF.Sin(theta)*MathF.Sin(phi), r*MathF.Cos(theta));
             colors[i] = ColorFromHSV(r*360.0f, 1.0f, 1.0f);
 
-            // The hue as a fraction of a turn, which the shader colors the point by
-            points[i] = new ModelVertex(vertices[i], Vector3.UnitY, new Vector2(r - MathF.Floor(r), 0.0f));
+            points[i] = new ModelVertex(vertices[i], Vector3.UnitY, Vector2.Zero);
         }
 
         // raylib draws the vertices three at a time as triangles, a point at each corner in point
@@ -135,7 +127,7 @@ public static class ModelsPointRendering
         var indices = new uint[numPoints/3*3];
         for (int i = 0; i < indices.Length; i++) indices[i] = (uint)i;
 
-        return (UploadMesh(points, indices), vertices, colors);
+        return (UploadMesh(points, indices, colors, null), vertices, colors);
     }
 
     // Draw a model points

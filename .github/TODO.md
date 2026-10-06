@@ -70,11 +70,11 @@ physics, text and fonts, audio, audio streams and waves, and files
   are two-dimensional in one format, so cubemaps and render textures of other formats are left out.
   Shapes are drawn untextured, and fonts keep their glyphs by codepoint in ImGui's atlas, so the
   shapes texture, `GetGlyphIndex`, `LoadFontData` and `GenImageFontAtlas` have no meaning. The
-  vertex layout is fixed and has no tangents or colors, for `UpdateMeshBuffer`, `GenMeshTangents`,
-  `GetShaderLocationAttrib` and a mesh's `colors`, which `models_point_rendering` keeps as a hue in
-  each point's texture coordinate for a shader. `UpdateSound` reaches into the audio thread, which
-  the backend does not open to the program. VR stereo and automation events (which `./e3d` stands in
-  for) are left out too.
+  vertex layout is fixed apart from the colors and second texture coordinates a mesh may carry
+  beside it, and has no tangents, for `UpdateMeshBuffer`, `GenMeshTangents` and
+  `GetShaderLocationAttrib`. `UpdateSound` reaches into the audio thread, which the backend does
+  not open to the program. VR stereo and automation events (which `./e3d` stands in for) are left
+  out too.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on

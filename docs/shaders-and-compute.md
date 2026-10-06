@@ -93,7 +93,10 @@ and the location kept.
 A model takes a shader through its material, `model.Materials[0].Shader = shader`. Such a shader
 imports `modelpass` instead, which gives it `ModelVertexOutput` (position, normal, world position
 and texture coordinate), `baseColor(input)` for the material's color and texture, and
-`lit(color, input)`, which lights a color by the frame's lights as the engine's own shader does.
+`lit(color, input)`, which lights a color by the frame's lights as the engine's own shader does. A
+shader that takes `ModelStreamsOutput` in its place has the same in its `base` with the mesh's
+`vertexColor` and second texture coordinate `uv2` beside them, white and zero where the mesh has
+none, and its `baseColor(input)` multiplies the mesh's color in.
 The `toon.slang` of the `shaders_model` example cuts that light into bands:
 
 ```slang
@@ -145,7 +148,11 @@ does, encodes its result with `toDisplay`.
 
 A model shader may have a vertex stage of its own, which takes the mesh's position, normal and
 texture coordinate with a `ModelInstance`, hands them to `transformModelVertex` and changes what
-it gives back. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted from 0.
+it gives back. One that reads the mesh's color and second texture coordinate takes them after the
+instance, as `[[vk::location(9)]] float4 color : COLOR0` and `[[vk::location(10)]] float2 uv2 :
+TEXCOORD1`, and hands them to `transformModelVertex` before the instance, which then gives back a
+`ModelStreamsOutput`. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted
+from 0.
 The `instancing.slang` of the `shaders_mesh_instancing` example gives each of ten thousand cubes
 its own hue:
 

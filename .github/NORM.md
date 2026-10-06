@@ -273,15 +273,15 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | listed 116, `NormTests` | listed 307, `NormTests` |
+| N 1.2 | listed 116, `NormTests` | listed 291, `NormTests` |
 | N 1.3 | listed 6, `NormTests` | listed 23, `NormTests`, 14 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 21 left out |
+| N 1.4 | checked, `NormTests`, 10 left out | listed 100, `NormTests`, 22 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
 | N 2.4 | by review | by review |
-| N 2.5 | checked, `build/play-native.sh` in the workflow | to take |
+| N 2.5 | checked, `build/play-native.sh` in the workflow | checked, `build/play-native.sh` in the workflow |
 | N 2.6 | checked, `BadFileTests` | to take |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
@@ -290,10 +290,10 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
 | N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 6 left out |
-| N 3.4 | checked, `NormTests` | listed 55, `NormTests` |
+| N 3.4 | checked, `NormTests` | listed 52, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
-| N 3.7 | checked, `FailOnLoggedErrors` | to take |
+| N 3.7 | checked, `FailOnLoggedErrors` | checked, `FailOnLoggedErrors` |
 | N 4.1 | checked, `NormTests`, 2 left out | checked, `NormTests`, 4 left out |
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
@@ -309,8 +309,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |
 | N 6.6 | checked, `ScriptTests` | checked, `ScriptTests` |
-| N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
-| N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
+| N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
+| N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | checked, `build/test.py` in the workflow and `TestScriptTests` |
 | N 7.1 | by review | by review |
 | N 7.2 | checked, `NormTests`, 1 left out | checked, `NormTests` |
 | N 7.3 | by review | by review |
