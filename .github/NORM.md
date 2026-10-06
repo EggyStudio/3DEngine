@@ -187,6 +187,14 @@ A test reads each capture's size and each picture's link.
 **N 4.6 A rule is stated once, here, and a document that needs it cites its number.** A rule
 written in two places comes to say two things. By review.
 
+**N 4.7 A document a game's author reads, the release notes among them, gives a rule with its reason
+and names no one who decided it.** A reader of the package has no owner, reviewer or session to
+follow, and a reason stands on its own where a name does not. Who chose what, and when, belongs to
+REVIEW.md's Decisions, and a commit's message, from which release notes are made, says what changed
+and why without it. `NormTests` over `README.md`, `CHEATSHEET.md` and `docs/`, and the pack
+workflow's step that writes the release notes, for the words `the owner`, `the reviewing session`
+and `REVIEW.md`.
+
 ## 5 Examples and games
 
 **N 5.1 An example has the followed engine's name for it where that engine has one, is opened by
@@ -273,9 +281,9 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 276, `NormTests` |
-| N 1.3 | checked, `NormTests` | listed 18, `NormTests`, 11 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 10 left out | listed 90, `NormTests`, 22 left out |
+| N 1.2 | checked, `NormTests` | listed 233, `NormTests` |
+| N 1.3 | checked, `NormTests` | listed 17, `NormTests`, 11 of them in the bridge |
+| N 1.4 | checked, `NormTests`, 11 left out | listed 88, `NormTests`, 22 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
@@ -300,6 +308,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
 | N 4.5 | checked, `NormTests`, 10 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
+| N 4.7 | to take | to take |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |

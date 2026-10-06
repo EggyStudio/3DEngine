@@ -176,6 +176,18 @@ public sealed partial class NormTests
     }
 
     [Fact]
+    public void N_4_7()
+    {
+        // Each line of the documents a game's author reads that names who decided, by file and line.
+        var found = Files("docs/", ".md").Prepend("CHEATSHEET.md").Prepend("README.md")
+            .SelectMany(file => Read(file).Split('\n').Select((line, index) => (Place: $"{file}:{index + 1}", Line: line)))
+            .Where(line => NamesWhoDecided().IsMatch(line.Line))
+            .Select(line => line.Place);
+
+        Hold("4.7", found, "a line of a document a game's author reads that names who decided");
+    }
+
+    [Fact]
     public void N_4_5()
     {
         var found = new List<string>();
@@ -526,6 +538,10 @@ public sealed partial class NormTests
         if (git.ExitCode != 0) throw new InvalidOperationException($"git {string.Join(' ', arguments)} ended with {git.ExitCode}: {git.StandardError.ReadToEnd()}");
         return output;
     }
+
+    // The words N 4.7 looks for, which build/pack.sh leaves out of the release notes as well.
+    [GeneratedRegex(@"(?i:\bthe owner\b|\bthe reviewing session\b)|\bREVIEW\.md\b")]
+    internal static partial Regex NamesWhoDecided();
 
     [GeneratedRegex(@"`(?<name>[^`]+)`")]
     private static partial Regex Ticked();

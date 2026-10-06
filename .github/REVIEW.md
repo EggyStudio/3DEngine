@@ -10,12 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `b43818f9`. The runs of `6336aba6`, `b9ebd0bd` and `039bd788` pass their tests on all
-three systems, macOS at 1,398, 1,401 and 1,402 with none failed, so Verdict 27 is settled, with the
-note that the two runs before the watcher's mend passed as well, so the leak test's margin on macOS
-is thin and the next failure's series will say; no examples job names a failed capture, so Verdict
-26 is settled too. All three examples jobs fail with `Process completed with exit code 4` and
-nothing else, which is Verdict 28. Motion blur blurs each mesh entity along its own movement where
+Reviewed up to `38e81c4f`. Verdict 28's cause was found through GitHub's public listing of a run's
+jobs, which gives each step's conclusion and time without a sign-in: the step that failed in all
+three runs was the first-person game's walk, where each pad press held two frames and the runner
+drew Manor's menu under 5 frames a second, so the first press went past Settings to Quit and the
+game quit itself, `e3d` answering 4 for an app it could not reach. Presses are held one frame with a
+check that the walk began, every step of the examples job runs through `build/step.py`, which gives
+a step that fails silently an `::error::` naming the step, the command, its code, the last lines and
+the session logs' warnings, `e3d` writes its errors on stderr, the pairs measured for the first time
+are at most ten notices that fail nothing while `measured-ci.tsv` is empty, and `build/page.py` is
+shared with `test.py` under `StepScriptTests`, which N 1.4 leaves out, eleven from ten (`38e81c4f`);
+the verdict settles when an examples job passes. The owner packed 5.1 from `b43818f9`, whose pack
+workflow passed. The suite: 1,433 passed, none skipped.
+
+Before them, the runs of `6336aba6`, `b9ebd0bd` and `039bd788` passed their tests on all three
+systems, macOS at 1,398, 1,401 and 1,402 with none failed, so Verdict 27 is settled, with the note
+that the two runs before the watcher's mend passed as well, so the leak test's margin on macOS is
+thin and the next failure's series will say; no examples job names a failed capture, so Verdict 26
+is settled too. All three examples jobs fail with `Process completed with exit code 4` and nothing
+else, which is Verdict 28. Motion blur blurs each mesh entity along its own movement where
 `SetMotionBlur` is given objects, from a velocity image its moving entities are drawn into as
 instanced runs, off by default, a new reference and no old one changed, about 425,000 turning
 entities held at 60 fps against 700,000 camera-only, two slower designs measured on the way
@@ -32,20 +45,7 @@ lists left holding only what is left out with its reason. That was the restructu
 chose not to have when the norm was adopted, done as moves alone with the suite green, and it
 stands, said here rather than as a verdict. The suite: 1,428 passed, none skipped.
 
-Before them, a render texture came to take the window's samples unless `LoadRenderTextureEx` is
-given one, the two passes drawing into a one-sample target through pipelines of its own count, with
-a test and no reference changed, and where no audio device opens the backend goes to SDL's dummy
-driver, warned of once a process, `IsAudioDeviceReady` true there as raylib's is on its null device,
-with a test that names a missing driver, so `audio_spectrum_visualizer` draws the song's spectrum
-with no device, which settles item 6 (`b9ebd0bd`). A directory of scripts is watched once a process
-by `DirectoryWatches`, shared by the compilers that watch it and let go with the last, with a test
-that a second app on the directory adds no watcher, and the leak test's heap and thread series are
-on lines of their own so the page carries them whole, where one line of a hundred counts was cut at
-240 characters (`039bd788`); Verdict 27 settles when the macOS run of it passes, and Verdict 26 when
-an examples job passes the capture, `56564fe2`'s having failed on it before the mend as expected.
-The suite: 1,427 passed, none skipped.
-
-The norm has 43 rules, and this engine stands at 34 checked, none with places listed, none to take
+The norm has 44 rules, and this engine stands at 34 checked, none with places listed, one to take
 and 9 by review.
 
 
@@ -104,6 +104,12 @@ for a reply. In this order.
    an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
    default, with a test that a viewport's window is made and closed and the editor's panels checked
    by hand.
+6. **N 4.7 taken** (Decision 14), before item 5. `docs/compared-with-raylib.md`'s row on a render
+   texture's samples says the reason alone, without who chose it or when, and the same words are
+   looked for in the pack workflow's release notes step and by `NormTests` over `README.md`,
+   `CHEATSHEET.md` and `docs/`, which pass with no list. COMMITS.md says a message names no one who
+   decided, since the release notes are made from the messages, and `32bc8543`'s message is the kind
+   to avoid.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -200,32 +206,22 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
    raylib's do through miniaudio's null device, rather than standing still with the backend
    disabled.
 
+14. **A document a game's author reads names no one who decided.** The owner asked on 2026-10-06
+   that release notes and the documents under `docs/`, the README and the cheatsheet give reasons
+   and not who wanted what, which is N 4.7, and who chose what stays here under Decisions.
+
 ## Replies
 
-**Verdict 28.** The step that failed in all three runs was the first-person walk, the steps after
-it skipped, the captures, the measure and the four games before it having passed, which GitHub's
-jobs listing (`/actions/runs/<id>/jobs`) gives without a sign-in, each step with its conclusion and
-its times. The step failed 19 to 25 seconds in, and 4 is `e3d`'s code for an app it cannot talk to.
-Manor quit itself. Each press of the pad was held two frames, and ImGui moves again along a
-direction held 0.198 seconds, its repeat delay of 0.275 times 0.72 for moving, which two frames pass
-on a runner drawing the title under five a second, so the first press went past Settings to Quit
-and the second chose it. Run in the workflow's image held to four processors, the step ended with
-code 4 after 22 seconds, and on this machine with each frame fixed at a quarter second Manor shut at
-the second press and opened Settings at a sixtieth. Each press is now held a frame, which reaches
-the walk with vertical sync off at both frame times, and the step names the screen it ended on
-where it is not the walk. In the image at four processors the step now passes in 294 seconds, the
-six lanterns found and the layer silent. Three things keep a bare code from ending a job again. `e3d` writes an
-error on standard error, so `status=$(./e3d command manor.status)` no longer takes it into the
-variable. Each step of the examples job runs its script through `build/step.py`, the job's shell,
-in bash as GitHub's own runs it, and a step that fails with no error of its own is given one naming
-the step as the workflow does, the command that failed with its line and code, the step's last
-lines, and each session log's last lines at a warning or worse. The failing run in the image gave
-"Build and walk the first-person game from the package: exit code 4", `./e3d command input.button 0
-"$1" 2 --quiet` on line 6, and `error [SESSION_CLOSING] The app shut down`. `build/page.py` holds
-what the test page and these share, the width a line is cut to, the escaping and the annotations,
-and `StepScriptTests` holds the step's error, a function's, a step that says its own, and the
-notices to their forms and limits. The measure's pairs measured for the first time are notices
-too, shared among at most ten, every pair with its share, and where `measured-ci.tsv` holds no
-share the measure says what would fail and passes. `StepScriptTests` is in `Scripts` beside
-`TestScriptTests` and on N 1.4's list with it, eleven left out where NORM.md's table says ten. The
-suite: 1,433 passed, none skipped.
+**Now 6, N 4.7** (Decision 14). `docs/compared-with-raylib.md`'s row on a render texture's samples
+gives the reason alone. `NormTests.N_4_7` looks line by line over `README.md`, `CHEATSHEET.md` and
+`docs/` for "the owner" and "the reviewing session" in any case and for "REVIEW.md", and passes
+with no list. The release notes are written by `build/pack.sh`, which the pack workflow runs, from
+the messages since the version was raised, and two of those name the owner already, `32bc8543`'s
+and the one on N 7.2's check, which no commit can change, so failing the pack on them would hold
+every pack until the version is raised again. `pack.sh` leaves a line with the same words out of
+the notes and says each, as a warning in the workflow, and `PackageContentsTests`, which the pack
+workflow runs on the package before offering it, fails a package whose notes still hold one.
+Packed here, the two lines were left out and 114 kept. COMMITS.md says the sentence names no one
+who decided or asked and gives the reason, with `32bc8543`'s as the example, and the helper this
+session commits through refuses a sentence with the words. NORM.md's table can say N 4.7 is
+checked, by `NormTests` and the package's test. The suite: 1,434 passed, none skipped.

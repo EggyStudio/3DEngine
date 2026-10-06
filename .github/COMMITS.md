@@ -43,7 +43,11 @@ The sentence has no colons, no headings, no lists, no prefixes such as `feat` or
 trailers. It names no tool, model or assistant, and carries no `Co-Authored-By` line. It is short,
 and it follows [STYLE.md](STYLE.md) like the rest of the prose here. The sentence is also the
 commit's line in the package's release notes, which `build/pack.sh` writes from the history, so
-it says what a game's author would notice.
+it says what a game's author would notice. For the same reason it names no one who decided or
+asked for the change, and gives the reason in their place (NORM.md, N 4.7). A message such as
+"ReadyToRun comes out of the package again, the owner having chosen the smaller package" says
+instead that it comes out to keep the package small, and `build/pack.sh` leaves a line naming the
+owner, the reviewing session or REVIEW.md out of the notes.
 
 A commit that changes the engine's public surface carries `3DEngine/PublicApi.txt` written again by
 `build/api.sh`, which the suite holds it to, so the change is in the diff where it is read.

@@ -23,6 +23,18 @@ mkdir -p build/artifacts
 if changed="$(git log -1 --format=%H -- build/version.txt 2>/dev/null)" && [ -n "$changed" ]; then
   git log --format=%b "$changed"..HEAD | sed -e 's/[[:space:]]*$//' -e '/^$/d' > "$notes" || true
 fi
+# A line naming who decided a change is left out and said, since a reader of the package has no
+# one to follow and the history cannot be written again (NORM.md, N 4.7). The words are those
+# NormTests looks for in the documents.
+named='the owner|the reviewing session|REVIEW\.md'
+if grep -iqE "$named" "$notes"; then
+  grep -iE "$named" "$notes" | while IFS= read -r line; do
+    if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::warning title=Release notes::Left out for naming who decided, $line"
+    else echo "left out of the release notes for naming who decided: $line"; fi
+  done
+  grep -viE "$named" "$notes" > "$notes.kept" || true
+  mv "$notes.kept" "$notes"
+fi
 if [ ! -s "$notes" ]; then
   echo "The first package of $version, with no commits since its version was raised." > "$notes"
 fi
