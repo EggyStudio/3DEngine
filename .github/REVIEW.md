@@ -206,3 +206,21 @@ the measure leaves them out. Tried here, a pair within a point of a share record
 one recorded as drawing no frame fails the run, and one never recorded is listed to record.
 `measured.tsv` holds the second run's shares. The first run on the workflow's device will take as
 long again as its captures, about half an hour here.
+
+**Now 3, color emoji.** The engine's TrueType reader reads a glyph's colors, from a font's PNG
+bitmaps (CBDT and CBLC, index formats 1 to 5 and image formats 17 to 19, the strike nearest above
+the size scaled by area) as Noto Color Emoji and Twemoji hold them, or from its layers (COLR version
+0 with CPAL's first palette, each layer's outline filled and laid over the last) as Segoe UI Emoji
+holds them. `LoadFontEx` and `LoadFontFromMemory` now share one path, in which the characters past
+U+FFFF and every character a color font holds in color, the first plane's too, are drawn by the
+reader into the atlas in RGBA, the atlas builder baking the rest, and a font of bitmaps alone, which
+the builder cannot read, is baked by the reader whole from an empty atlas, the file check accepting
+it. Twemoji and Segoe UI Emoji on this machine bake as their pictures, and text drawn in white shows
+them in color. `build/make-color-test-fonts.py` writes two fonts of known colors beside
+`planes.ttf`, one of bitmaps alone and one of layers, and tests read a bitmap at its strike's size
+and twice it, layers in their palette colors, both fonts through `LoadFontEx` with a first-plane
+emoji among them, and an emoji drawn red over blue by white text on the GPU. TODO.md's entry keeps
+what is left. A sequence a font joins into one picture is drawn as its characters apart, since
+nothing shapes text by the font's substitutions, and COLR version 1's gradients and Apple's sbix are
+not read. The suite passed 1,413 with one skipped, and the render tests on lavapipe 105 with no
+message from the validation layer.

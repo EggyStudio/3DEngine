@@ -265,6 +265,60 @@ public static partial class Engine3D
         return path;
     }
 
+    // Whether a font file holds glyphs in color, bitmaps (CBDT) or layers (COLR), by its table
+    // directory alone.
+    private static bool HasColorTables(string path)
+    {
+        using var file = File.OpenRead(path);
+        Span<byte> head = stackalloc byte[12];
+        if (file.ReadAtLeast(head, 12, throwOnEndOfStream: false) < 12) return false;
+        int count = System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(head[4..]);
+        var directory = new byte[count * 16];
+        if (file.ReadAtLeast(directory, directory.Length, throwOnEndOfStream: false) < directory.Length) return false;
+        for (int i = 0; i < count; i++)
+            if (System.Text.Encoding.ASCII.GetString(directory, i * 16, 4) is "CBDT" or "COLR") return true;
+        return false;
+    }
+
+    // A font baked at fontSize with the characters asked for: those past U+FFFF, which the atlas
+    // builder cannot name, and those a color font holds in color, which it would bake in gray,
+    // drawn by the engine's own TrueType reader from data into the same atlas, and the rest by the
+    // builder through add, given a size and the pinned ranges. The builder bakes at least a space,
+    // so the font has its line and baseline whatever was asked for, and a font of color bitmaps
+    // alone, which it cannot read, is baked by the reader whole. Null when nothing could be baked.
+    private static unsafe Font? LoadAsked(string caller, string name, byte[] data, int fontSize, int[] codepoints,
+        Func<int, IntPtr, Func<ImFontAtlasPtr, ImFontPtr>> add)
+    {
+        var asked = codepoints.Where(c => c is > 0 and <= 0x10FFFF).Distinct().Order().ToArray();
+        if (asked.Length == 0)
+        {
+            ApiLogger.Warn($"{caller}: no code points were given. Using the default font.");
+            return null;
+        }
+        var outlines = TrueTypeFont.Read(data);
+        var own = outlines is null ? []
+            : outlines.HasOutlines ? [.. asked.Where(c => c > 0xFFFF || outlines.HasColor(outlines.GlyphIndex(c)))]
+            : asked;
+        if (asked.Any(c => c > 0xFFFF) && outlines is null)
+            ApiLogger.Warn($"{caller}: '{name}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
+        // The reader and the bytes it holds are kept with the font only where it draws some of it.
+        if (own.Length == 0) outlines = null;
+        var ranges = GlyphRanges(asked.Except(own));
+        if (ranges.Length == 1) ranges = GlyphRanges([' ']);
+
+        // The atlas reads the ranges when it builds, after the font is added, so they stay pinned
+        // until the bake is done.
+        Font? BakeAt(int size)
+        {
+            if (outlines is { HasOutlines: false } bitmaps)
+                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, bitmaps, Math.Max(4, size), own));
+            fixed (ushort* pinned = ranges)
+                return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
+                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), own));
+        }
+        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : null;
+    }
+
     /// <summary>
     /// Why bytes are not a TrueType or OpenType font the atlas builder can read safely, or null when
     /// they are: a signature it knows, a table directory and every table inside the bytes, and the
@@ -298,8 +352,9 @@ public static partial class Engine3D
         }
         foreach (var needed in new[] { "cmap", "head", "hhea", "hmtx", "maxp" })
             if (!tables.Contains(needed)) return $"no '{needed}' table";
-        if (!(tables.Contains("glyf") && tables.Contains("loca")) && !tables.Contains("CFF ") && !tables.Contains("CFF2"))
-            return "no outlines, neither 'glyf' nor 'CFF '";
+        if (!(tables.Contains("glyf") && tables.Contains("loca")) && !tables.Contains("CFF ") && !tables.Contains("CFF2")
+            && !(tables.Contains("CBDT") && tables.Contains("CBLC")))
+            return "no outlines, neither 'glyf' nor 'CFF ', and no color bitmaps";
         return null;
     }
 
@@ -308,6 +363,9 @@ public static partial class Engine3D
     public static Font LoadFontEx(string fileName, int fontSize)
     {
         if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
+        // A color font's Latin-1, as many of its characters as are colored drawn by the engine's
+        // own reader, which the code points' overload does.
+        if (HasColorTables(path)) return LoadFontEx(fileName, fontSize, [.. Enumerable.Range(0x20, 0xE0)]);
 
         Font? BakeAt(int size) => Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear);
         return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
@@ -320,44 +378,28 @@ public static partial class Engine3D
     /// such as emoji and historic scripts.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The atlas builder names characters in 16 bits, so those past U+FFFF are drawn by the engine's
     /// own TrueType reader into a strip of the same atlas, at the same size and on the same
     /// baseline. They need the font's outlines, which a TrueType font has and an OpenType font of
-    /// CFF outlines or a color emoji font of bitmaps does not. Characters the font file does not
-    /// have are skipped when drawn.
+    /// CFF outlines does not. Characters the font file does not have are skipped when drawn.
+    /// </para>
+    /// <para>
+    /// A color font's colored characters, emoji, are drawn by the reader in their colors, whichever
+    /// plane they are in: from its bitmaps, as Noto Color Emoji and Twemoji hold them, scaled from
+    /// the size nearest above, or from its layers, as Segoe UI Emoji holds them. A font of bitmaps
+    /// alone is baked by the reader whole. Text drawn in white shows them as they are, and another
+    /// color tints them. Each is one character, so a sequence a font joins into one picture, a
+    /// family, a flag or a skin tone, is drawn as its characters apart, and the gradients of a
+    /// COLR version 1 font are not read.
+    /// </para>
     /// </remarks>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
     public static unsafe Font LoadFontEx(string fileName, int fontSize, int[] codepoints)
     {
         if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
-
-        // Characters past U+FFFF, which the atlas builder cannot name, are drawn by the engine's own
-        // TrueType reader into the same atlas. The builder bakes at least a space, so the font has
-        // its line and baseline whatever was asked for.
-        var beyond = codepoints.Where(c => c is > 0xFFFF and <= 0x10FFFF).Distinct().Order().ToArray();
-        var ranges = GlyphRanges(codepoints);
-        if (ranges.Length == 1 && beyond.Length > 0) ranges = GlyphRanges([' ']);
-        if (ranges.Length == 1)
-        {
-            ApiLogger.Warn("LoadFontEx: no code points were given. Using the default font.");
-            return GetFontDefault();
-        }
-        var outlines = beyond.Length > 0 ? TrueTypeFont.Read(File.ReadAllBytes(path)) : null;
-        if (beyond.Length > 0 && outlines is null)
-            ApiLogger.Warn($"LoadFontEx: '{fileName}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
-
-        // The atlas reads the ranges when it builds, after AddFontFromFileTTF returns, so they stay
-        // pinned until the bake is done.
-        Font? BakeAt(int size)
-        {
-            fixed (ushort* pinned = ranges)
-            {
-                var address = (IntPtr)pinned;
-                return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, address), TextureFilter.Bilinear,
-                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), beyond));
-            }
-        }
-        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
+        return LoadAsked("LoadFontEx", fileName, File.ReadAllBytes(path), fontSize, codepoints,
+            (size, ranges) => atlas => atlas.AddFontFromFileTTF(path, size, null, ranges)) ?? GetFontDefault();
     }
 
     /// <summary>
@@ -584,7 +626,11 @@ public static partial class Engine3D
     /// <c>".ttf"</c>, baked at <paramref name="fontSize"/> pixels with the characters in
     /// <paramref name="codepoints"/>, or the Latin-1 ones when it is null.
     /// </summary>
-    /// <remarks>The bytes are kept with the font, so it is baked again at the larger sizes it is drawn at, as one from a file is.</remarks>
+    /// <remarks>
+    /// The bytes are kept with the font, so it is baked again at the larger sizes it is drawn at, as
+    /// one from a file is, and characters past U+FFFF and those a color font holds in color are
+    /// drawn as <see cref="LoadFontEx(string, int, int[])"/> draws them.
+    /// </remarks>
     /// <returns>The font, or the default font when the bytes cannot be read, with the reason in the log.</returns>
     public static unsafe Font LoadFontFromMemory(string fileType, byte[] fileData, int fontSize, int[]? codepoints)
     {
@@ -598,37 +644,23 @@ public static partial class Engine3D
             ApiLogger.Warn($"LoadFontFromMemory: the {fileData.Length} bytes are not a font the engine reads, {problem}. Using the default font.");
             return GetFontDefault();
         }
-        var ranges = codepoints is null ? null : GlyphRanges(codepoints);
-        if (ranges is { Length: 1 })
-        {
-            ApiLogger.Warn("LoadFontFromMemory: no code points below U+10000 were given. Using the default font.");
-            return GetFontDefault();
-        }
-
-        // The atlas reads the bytes and ranges when it builds, after AddFontFromMemoryTTF returns,
-        // so both stay pinned until the bake is done, and the atlas is told the bytes are not its
-        // own to free.
-        Font? BakeAt(int size)
-        {
-            var config = ImGuiNative.ImFontConfig_ImFontConfig();
-            try
+        // The atlas is told the bytes are not its own to free, and they stay pinned with the ranges
+        // until the bake is done, since it reads both as it builds.
+        return LoadAsked("LoadFontFromMemory", $"{fileData.Length} bytes", fileData, fontSize, codepoints ?? [.. Enumerable.Range(0x20, 0xE0)],
+            (size, ranges) => atlas =>
             {
-                config->FontDataOwnedByAtlas = 0;
-                fixed (byte* data = fileData)
-                fixed (ushort* pinned = ranges)
+                var config = ImGuiNative.ImFontConfig_ImFontConfig();
+                try
                 {
-                    var (address, length) = ((IntPtr)data, fileData.Length);
-                    var glyphs = (IntPtr)pinned;
-                    return Bake(atlas => atlas.AddFontFromMemoryTTF(address, length, Math.Max(4, size), new ImFontConfigPtr(config),
-                        glyphs == IntPtr.Zero ? atlas.GetGlyphRangesDefault() : glyphs), TextureFilter.Bilinear);
+                    config->FontDataOwnedByAtlas = 0;
+                    fixed (byte* bytes = fileData)
+                        return atlas.AddFontFromMemoryTTF((IntPtr)bytes, fileData.Length, size, new ImFontConfigPtr(config), ranges);
                 }
-            }
-            finally
-            {
-                ImGuiNative.ImFontConfig_destroy(config);
-            }
-        }
-        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
+                finally
+                {
+                    ImGuiNative.ImFontConfig_destroy(config);
+                }
+            }) ?? GetFontDefault();
     }
 
     /// <summary>A new image holding text in the default font, as large as the text, clear around it.</summary>

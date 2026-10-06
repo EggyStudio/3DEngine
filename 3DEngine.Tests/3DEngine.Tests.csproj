@@ -47,6 +47,8 @@
         <None Include="Api\layered-morph.gltf" CopyToOutputDirectory="PreserveNewest" />
         <!-- Four glyphs, three past U+FFFF, which build/make-test-font.py writes. -->
         <None Include="Api\planes.ttf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Api\bitmaps.ttf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Api\layers.ttf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Api\raylib-shapes.txt" CopyToOutputDirectory="PreserveNewest" />
         <!-- Summit's level, its prefabs and their models, which a reference frame of the game loads. -->
         <None Include="..\games\Summit\resources\level.json" Link="resources\level.json" CopyToOutputDirectory="PreserveNewest" />

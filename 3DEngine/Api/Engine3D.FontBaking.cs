@@ -79,6 +79,22 @@ public static partial class Engine3D
         return (new Image(field, width, height), new Image(coverage, width, height), grown);
     }
 
+    // A font of color bitmaps alone, which the atlas builder cannot read, its atlas made by the
+    // engine's own reader from nothing, a line as high as the size it is baked at.
+    private static Font? BakeOwn(int size, TextureFilter filter,
+        Func<(Image Image, float Size, Dictionary<int, Glyph> Glyphs), (Image Image, float Size, Dictionary<int, Glyph> Glyphs)> extend)
+    {
+        var baked = extend((new Image([], 1024, 0), size, []));
+        if (baked.Image.Height == 0)
+        {
+            ApiLogger.Warn("A font of color bitmaps had none of the characters asked for.");
+            return null;
+        }
+        var texture = LoadTextureFromImage(baked.Image);
+        SetTextureFilter(texture, filter);
+        return new Font(texture, baked.Size, baked.Size, baked.Glyphs, baked.Image);
+    }
+
     // Bakes the atlas, then copies its pixels into a texture, so nothing of ImGui's is kept for the font.
     private static Font? Bake(Func<ImFontAtlasPtr, ImFontPtr> add, TextureFilter filter,
         Func<(Image Image, float Size, Dictionary<int, Glyph> Glyphs), (Image Image, float Size, Dictionary<int, Glyph> Glyphs)>? extend = null)
@@ -105,13 +121,21 @@ public static partial class Engine3D
     {
         var scale = size / (float)(outlines.Ascent - outlines.Descent);
         var baseline = MathF.Round(MathF.Floor(outlines.Ascent * scale + 1));
-        var drawn = new List<(int Codepoint, byte[] Alpha, int Width, int Height, int Left, int Top, float Advance)>();
+        // Each glyph's pixels, its own colors where it has them, and its outline's coverage in white
+        // otherwise, which the text's color tints as it does the atlas builder's glyphs.
+        var drawn = new List<(int Codepoint, byte[] Rgba, int Width, int Height, int Left, int Top, float Advance)>();
         foreach (var codepoint in codepoints)
         {
             var glyph = outlines.GlyphIndex(codepoint);
             if (glyph == 0) continue;
             var advance = outlines.Advance(glyph) * scale;
-            if (outlines.Rasterize(glyph, scale) is { } r) drawn.Add((codepoint, r.Alpha, r.Width, r.Height, r.Left, r.Top, advance));
+            if (outlines.Color(glyph, scale) is { } c) drawn.Add((codepoint, c.Rgba, c.Width, c.Height, c.Left, c.Top, advance));
+            else if (outlines.Rasterize(glyph, scale) is { } r)
+            {
+                var white = new byte[r.Alpha.Length * 4];
+                for (int i = 0; i < r.Alpha.Length; i++) (white[i * 4], white[i * 4 + 1], white[i * 4 + 2], white[i * 4 + 3]) = (255, 255, 255, r.Alpha[i]);
+                drawn.Add((codepoint, white, r.Width, r.Height, r.Left, r.Top, advance));
+            }
             else drawn.Add((codepoint, [], 0, 0, 0, 0, advance));
         }
         if (drawn.Count == 0) return baked;
@@ -138,11 +162,7 @@ public static partial class Engine3D
             var g = drawn[i];
             var (px, py) = (places[i].X, atlas.Height + places[i].Y);
             for (int gy = 0; gy < g.Height; gy++)
-                for (int gx = 0; gx < g.Width; gx++)
-                {
-                    int at = ((py + gy) * width + px + gx) * 4;
-                    (pixels[at], pixels[at + 1], pixels[at + 2], pixels[at + 3]) = (255, 255, 255, g.Alpha[gy * g.Width + gx]);
-                }
+                Array.Copy(g.Rgba, gy * g.Width * 4, pixels, ((py + gy) * width + px) * 4, g.Width * 4);
             glyphs[g.Codepoint] = new Glyph(g.Left, baseline + g.Top, g.Left + g.Width, baseline + g.Top + g.Height,
                 (float)px / width, (float)py / height, (float)(px + g.Width) / width, (float)(py + g.Height) / height, g.Advance);
         }

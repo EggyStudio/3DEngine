@@ -97,8 +97,21 @@ A game with text in several languages bakes one font from all of its strings tog
 the font lacks, left out of the bake or missing from the file, draws as the font's `?`, as raylib's
 does, and as nothing where the font has no `?` either. Characters past U+FFFF, emoji and historic
 scripts among them, are baked from the font's outlines with the rest, so a monochrome emoji font
-such as Noto Emoji or Symbola draws them, where a color emoji font, whose glyphs are pictures,
-does not.
+such as Noto Emoji or Symbola draws them.
+
+A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Noto
+Color Emoji and Twemoji do, or as outlines colored in layers, as Segoe UI Emoji does, and text drawn
+in white shows them as they are:
+
+```csharp
+const string Faces = "😀 😂 😍 🚀 ❤";
+var emoji = LoadFontEx("resources/fonts/NotoColorEmoji.ttf", 48, LoadCodepoints(Faces));
+DrawTextEx(emoji, Faces, new Vector2(20, 20), 48, 4, Color.White);
+```
+
+Each character is drawn on its own, so a sequence a font joins into one picture, a family, a flag or
+a skin tone, is drawn as the characters it is made of, and a font of COLR version 1's gradients
+alone, as one of Noto Color Emoji's builds is, draws its emoji's outlines without their colors.
 
 ## Typed text
 
