@@ -273,8 +273,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | listed 116, `NormTests` | listed 279, `NormTests` |
-| N 1.3 | listed 6, `NormTests` | listed 21, `NormTests`, 14 of them in the bridge |
+| N 1.2 | listed 101, `NormTests` | listed 279, `NormTests` |
+| N 1.3 | listed 2, `NormTests` | listed 21, `NormTests`, 14 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 10 left out | listed 98, `NormTests`, 22 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
@@ -289,7 +289,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.10 | checked, `NormTests` | checked, `NormTests` |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
-| N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 6 left out |
+| N 3.3 | checked, `NormTests`, 9 left out | checked, `NormTests`, 6 left out |
 | N 3.4 | checked, `NormTests` | listed 52, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |

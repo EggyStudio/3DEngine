@@ -147,6 +147,7 @@ bool IsKeyUp(Key key);                                   // Key is not held
 Key GetKeyPressed();                                     // Next key pressed this frame, Unknown when none is left
 string GetKeyName(Key key);                              // The key as the keyboard's layout prints it
 int GetCharPressed();                                    // Next character typed this frame (a code point), 0 when none is left
+void SetTextInputArea(Rectangle area, int cursor = 0);   // Place the input method's window beside a text box, empty to let the platform
 
 bool IsMouseButtonPressed(MouseButton button);           // Button went down this frame
 bool IsMouseButtonDown(MouseButton button);              // Button is held

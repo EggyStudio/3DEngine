@@ -10,19 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d46c829a`. The environment map is filtered on the GPU by the probe's stages, from a
-cube that weighs each direction by its solid angle, a 4096 map in 10 ms where it took 917, with a
-test holding a cap of light at the zenith and one on the horizon to the same mean at every mip,
-which the old filter fails from mip 1 (`c5b4c7d9`). A script compiled again is swapped in between
-frames and carries its components and resources onto its new types by their fields, where the swap
-on the compiler's thread could skip a system or run one twice (`2d506d4b`). Four more of raylib's
-functions are carried, 506 of 619, and each of the 113 left has its line on the comparison page
-(`63f0fc30`). A probe refreshes every so many seconds while it stays ready (`74e1827a`), a texture
-and a sampler declared apart are laid out and bound as such (`b0386c1e`), and STYLE.md's checks are
-run over the tree, with a nullable warning that reached `main` under an incremental build mended
-(`2b39ddd2`), and a probe's capture draws the frame's particles after its meshes, so a fire glows in
-a room's metal (`d46c829a`). Items 3, 4 and 5 are settled, and the list is refilled. No verdict is
-open.
+Reviewed up to `c890b169`. Shadowed lights past the slots there are room for are ranked by the light
+that reaches the eye, a light's brightness over one plus the square of its reach's distance, with
+the reach for ties, and the flat API's remarks say what is so (`545189cc`). `coverage.py --check`
+holds the comparison page's two tables and two counts to its list, in the build workflow beside the
+examples table's check, and a page broken on purpose failed it (`ab1a218e`). Five commits of moves
+alone split the offscreen render tests, the model renderer and the physics tests and give fifteen
+public types files of their own names, so N 1.2's list stands at 101 from 116 and N 1.3's at 2 from
+6, and two probe tests stop sleeping for a worker the GPU filter replaced, so N 3.3 leaves out 9
+from 10 (`a96ed25a` to `f8b6a65b`). N 1.5's three rows of AGENTS.md wait for the owner's word in the
+working session, asked for there. Item 5 is settled. No verdict is open.
+
+Before them, the environment map is filtered on the GPU by the probe's stages, from a cube that
+weighs each direction by its solid angle, a 4096 map in 10 ms where it took 917, with a test holding
+a cap of light at the zenith and one on the horizon to the same mean at every mip, which the old
+filter fails from mip 1 (`c5b4c7d9`). A script compiled again is swapped in between frames and
+carries its components and resources onto its new types by their fields, where the swap on the
+compiler's thread could skip a system or run one twice (`2d506d4b`). Four more of raylib's functions
+are carried, 506 of 619, and each of the 113 left has its line on the comparison page (`63f0fc30`).
+A probe refreshes every so many seconds while it stays ready (`74e1827a`), a texture and a sampler
+declared apart are laid out and bound as such (`b0386c1e`), and STYLE.md's checks are run over the
+tree, with a nullable warning that reached `main` under an incremental build mended (`2b39ddd2`),
+and a probe's capture draws the frame's particles after its meshes, so a fire glows in a room's
+metal (`d46c829a`). No verdict was open.
 
 Before them, a reflection probe's capture is filtered on the GPU in the frame that draws its sixth
 face, with nothing read back, and its reference frame is redrawn with the reason measured, the CPU
@@ -31,17 +41,6 @@ filter shared (`3f597c01`). `./e3d eval` compiles C# against the running program
 frames, four tests and no trim warning (`075c5b3c`). A scene spawn hands back every load it took,
 where `SceneSpawner.Spawn` loaded textures nothing held (`2094e704`), which closes TODO.md's Scenes
 entry. No verdict was open.
-
-Before them, a render texture draws into up to four images of their own formats at
-once, with one depth, pipelines shared by targets of the same formats and a shader's outputs
-read from its SPIR-V, rlgl's color blend switch is carried, and `shaders_deferred_rendering` is
-written (`692cefee`), held under lavapipe and the validation layer in a container, which found a
-device feature the code had assumed, and beside raylib's own program built here, which draws the
-same frame. Every raylib example the engine carries is written, 216 of 221, the five missing out
-by direction. The library is marked AOT compatible and its build has no trim warning, the asset
-server's and the ECS's reflection mended and the console's and the script compiler's said at
-their places with their reasons, the native publish naming AssimpNetter's own alone, and Pusher
-published native drew its frames (`c3dddc1b`), which settled the trimmer's item.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -93,11 +92,16 @@ for a reply. In this order.
    N 1.5's three rows, `docs`, `games` and `templates`, are the change to AGENTS.md that N 7.4
    allows, and they wait for the owner's word in the working session, which is asked for. The
    reviewing session does not stand in for it.
-5. **The comparison page held to `coverage.py`.** Its two tables of the 113 functions not carried
-   are written by hand against the list `coverage.py` prints, so the next function carried leaves
-   the page a line wrong. `coverage.py --check` reads the page and fails where a name is on one side
-   alone, in the workflow beside `examples-table.py --check` (N 5.2), and the page's two counts of
-   506 of 619 are checked with the names.
+5. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
+   capture beside raylib's screenshot, read by eye, and `692cefee` built raylib's deferred program
+   here to compare the same frame, which is the measure item 2 asks for and the 216 written have not
+   had. A module at a time: raylib's examples built from the checkout `run.sh` pins, each run to the
+   frame the capture here is taken at, with a shim around `EndDrawing` that takes the screenshot and
+   closes, and each pair compared as the reference tests compare their frames, by the share of
+   pixels that differ past the tolerance. A pair that differs is taken down to the smallest program
+   that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
+   page where the difference is kept, a trigger's axis being the first. The share each pair differs
+   by is written by the script into the table, so the number is measured again on each run.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -152,43 +156,12 @@ None open.
 
 ## Replies
 
-**Now 3, the shadow ranking.** The spot and point lights past the slots there are room for were
-ranked by whether the camera sees their reach and then by how near it comes, so a dim candle the eye
-stands in took a shadow from a lamp of forty times its light three units off.
-`LightingUboPrepare.Rank` puts between the two the light that reaches the eye, a light's brightness
-over one plus the square of how far its reach is from the eye, and keeps the reach for ties, so of
-two alike the nearer still comes first. A test ranks a candle, a lamp and the lamp twice as far, two
-lamps alike at two distances, and a light behind the camera against a dimmer one in front of it. The
-98 render and reference tests pass as they were, the dozen shadowed lights' reference among them.
-The flat API's remarks said the four lights of each kind nearest the camera shadow, and the first
-spot light, from before there were ten and twelve, and say what is so, as RENDERING.md, the guide
-and TODO.md's entry do, which keeps how much of the picture a light lights as unweighed. The suite:
-1,345 passed, 0 failed, 1 skipped.
-
-On item 4, N 1.5's three rows in AGENTS.md wait for the owner's word in this session: my
-instructions from the owner are that a change to AGENTS.md or CLAUDE.md is confirmed by them here,
-not on another session's account of their approval, so I have asked them rather than adding the
-rows. The rest of item 4, and item 5, are next.
-
-**Now 5, the comparison page held to `coverage.py`.** `coverage.py --check` reads the first cell of
-each row of the page's two tables, where a row names the functions it answers, the rest of the row
-naming what answers them, carried functions among them, and fails where a function not carried is
-answered nowhere, where one answered is carried, or where the page's two counts of 506 of 619 differ
-from the list's. With no path given it reads raylib.h from the checkout `examples-table.py` reads,
-of the commit run.sh pins, cloned where there is none, so the build workflow runs it beside the
-table's check. `GetGlyphIndex`, answered among the calls that answer otherwise, has its row among
-those not carried, where a line pointed to it. Made to fail, it named a row taken off the page and a
-count changed. The suite: 1,345 passed, 0 failed, 1 skipped.
-
-**Now 4, the norm's lists paid down, for the files this session's batches touched.** Five commits of
-their own move code and nothing else: `OffscreenRenderTests` into six files by what they draw
-(a96ed25a), `ModelRenderer` into its culling, shadows, pipelines and lighting beside `ModelNode.cs`
-(19bbb866), seven public types of the flat API into files of their names, which brings
-`Engine3D.Models.cs` to 762 lines (048ab56b), and eight more types of the audio backend, the scenes
-and the compute API, with the physics tests split in three (f8b6a65b), where the commit helper
-refused three British spellings in the lines moved, mended with them. A commit of its own between
-them takes out two probe tests' sleeps for a worker the GPU filter replaced, which N 3.3 listed with
-that reason (3ab72483). N 1.3's list is down from 6 to 2, `Engine3D.Fonts.cs` and
-`AssimpModelReader.cs`, which no batch of this session touched, N 1.2's from 116 to 101 and N 3.3's
-from 10 to 9. N 1.5's three rows wait for the owner's word, asked for. The suite: 1,345 passed, 0
-failed, 1 skipped after each.
+**(d), the input method's window beside a game's own text box.** `SetTextInputArea(area, cursor)`
+sets the window's text input area, as `SdlImGuiIme` does for an ImGui field, an empty area clearing
+it, so a language composed from several keys shows its candidates beside the box a program reads
+`GetCharPressed` into. On `text_input_box` run hidden, `./e3d eval` set it and read SDL's area back
+as 40, 180, 225 and 50 with the caret at 12, and 0 after it was cleared, and a test with no window
+holds what was set. The typed text section of the text guide has a paragraph on it, the cheatsheet
+its line and TODO.md's Input paragraph the call where it said a game's text had no place to give
+one. The suite: 1,346 passed, 0 failed, 1 skipped. Item 5, the 216 pictures against raylib's own
+programs, is next.

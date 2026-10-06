@@ -123,6 +123,11 @@ if (name.Length < MaxLength && framesCounter / 20 % 2 == 0)
     DrawText("_", 212 + MeasureText(name, 30), 194, 30, Color.Maroon);
 ```
 
+A language composed from several keys, as Japanese or Chinese, is typed in the input method's
+window, which `SetTextInputArea(new Rectangle(200, 180, 400, 50))` places beside the box the text
+lands in, the caret's distance from its left as the second argument, so the candidates show where
+the player is looking. An ImGui text field places it by itself.
+
 A character is an `int` code point rather than a `char`, since one past U+FFFF takes two of C#'s
 `char`s, which `char.ConvertFromUtf32` makes. `GetKeyPressed` reads keys the same way, one call
 each until `Key.Unknown`. A program with many fields, or with a console, may draw them with ImGui

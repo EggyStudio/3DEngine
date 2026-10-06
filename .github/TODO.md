@@ -216,11 +216,11 @@ Keyboard, mouse, typed text and gamepads come from SDL3 into the `Input` resourc
 hands out typed characters and pressed keys one at a time (`GetCharPressed`, `GetKeyPressed`). Text
 input is started once on the window and never stopped. An ImGui text field being typed into places
 the input method's composition window at its cursor, which is checked against what ImGui reports and
-not with an input method running, and text a game reads itself (`GetCharPressed`) has no place to
-give one. Typing from a real keyboard has only been checked through injected text. Fingers are read
-as touch points (`GetTouchPosition`) and recognized as raylib's gestures (taps, holds, drags, swipes
-and pinches), and a gamepad's gyro, accelerometer, touchpad and light are read and set through SDL,
-which has been checked against the state it fills and not with a pad that has them.
+not with an input method running, and a text box a game draws itself places it with
+`SetTextInputArea`. Typing from a real keyboard has only been checked through injected text. Fingers
+are read as touch points (`GetTouchPosition`) and recognized as raylib's gestures (taps, holds,
+drags, swipes and pinches), and a gamepad's gyro, accelerometer, touchpad and light are read and set
+through SDL, which has been checked against the state it fills and not with a pad that has them.
 
 ## Project
 

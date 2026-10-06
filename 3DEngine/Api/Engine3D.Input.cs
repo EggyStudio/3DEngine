@@ -37,6 +37,32 @@ public static partial class Engine3D
     /// </summary>
     public static int GetCharPressed() => Input.TakeChar();
 
+    /// <summary>
+    /// Places the input method's window, where a language composes a character from several keys,
+    /// beside <paramref name="area"/> of the window, the text box a program reads
+    /// <see cref="GetCharPressed"/> into, its caret <paramref name="cursor"/> pixels from the box's
+    /// left. An empty area lets the platform place it again.
+    /// </summary>
+    /// <remarks>
+    /// raylib has no such call. An ImGui text field being typed into places the window by itself,
+    /// and one taking focus sets its own area over the program's until the program sets it again.
+    /// </remarks>
+    public static void SetTextInputArea(Rectangle area, int cursor = 0)
+    {
+        TextInputArea = area.Width > 0 && area.Height > 0 ? (area, cursor) : null;
+        if (!TryRes<AppWindow>(out var window)) return;
+        if (TextInputArea is null)
+        {
+            SDL.SetTextInputArea(window.Sdl.Window, 0, 0);
+            return;
+        }
+        var rect = new SDL.Rect { X = (int)area.X, Y = (int)area.Y, W = (int)MathF.Ceiling(area.Width), H = (int)MathF.Ceiling(area.Height) };
+        SDL.SetTextInputArea(window.Sdl.Window, in rect, cursor);
+    }
+
+    // The area the program last set, or null after it cleared it, for a test with no window.
+    internal static (Rectangle Area, int Cursor)? TextInputArea { get; private set; }
+
     // -- Mouse
 
     /// <summary>Whether <paramref name="button"/> went down this frame.</summary>

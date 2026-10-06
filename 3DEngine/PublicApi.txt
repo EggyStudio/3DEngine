@@ -1328,6 +1328,7 @@ static class Engine.Engine3D
   static void SetSoundVolume(Sound sound, float volume)
   static void SetState<TState>(TState value) where TState : struct, Enum
   static void SetTargetFPS(int fps)
+  static void SetTextInputArea(Rectangle area, int cursor = 0)
   static void SetTextLineSpacing(int spacing)
   static void SetTextureFilter(Texture2D texture, TextureFilter filter)
   static void SetTextureWrap(Texture2D texture, TextureWrap wrap)
