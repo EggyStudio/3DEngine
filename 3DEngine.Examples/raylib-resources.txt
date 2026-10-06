@@ -101,6 +101,7 @@ textures/resources/fudesumi.raw
 models/resources/models/iqm/guy.iqm
 models/resources/models/iqm/guyanim.iqm
 models/resources/models/iqm/guytex.png
+models/resources/models/m3d/cesium_man.m3d
 models/resources/models/vox/chr_knight.vox
 models/resources/models/vox/chr_sword.vox
 models/resources/models/vox/monu9.vox

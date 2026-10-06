@@ -75,12 +75,17 @@ public static partial class Engine3D
     /// <remarks>
     /// An Inter-Quake Model's clips keep the file's own frames, as raylib reads them, whatever rate
     /// the file gives. A file of clips alone names no bones, so its clips fit a model of as many
-    /// bones under the same parents (<see cref="IsModelAnimationValid"/>).
+    /// bones under the same parents (<see cref="IsModelAnimationValid"/>). A Model 3D file's actions
+    /// are posed every 17 milliseconds, as raylib samples them, with raylib's last bone that never
+    /// moves.
     /// </remarks>
     public static ModelAnimation[] LoadModelAnimations(string fileName)
     {
-        if (Path.GetExtension(fileName).Equals(".iqm", StringComparison.OrdinalIgnoreCase))
-            return ReadModelFile(fileName, "LoadModelAnimations", (data, _) => IqmModelReader.ReadAnimations(data)) ?? [];
+        switch (Path.GetExtension(fileName).ToLowerInvariant())
+        {
+            case ".iqm": return ReadModelFile(fileName, "LoadModelAnimations", (data, _) => IqmModelReader.ReadAnimations(data)) ?? [];
+            case ".m3d": return ReadModelFile(fileName, "LoadModelAnimations", (data, _) => M3dModelReader.ReadAnimations(data)) ?? [];
+        }
         if (ReadModelScene(fileName, "LoadModelAnimations") is not { } scene) return [];
 
         var bones = ModelSkeleton.Bones(scene);
@@ -392,14 +397,15 @@ public static partial class Engine3D
     /// <summary>Lets go of clips. They hold no GPU objects, so this is for symmetry with raylib.</summary>
     public static void UnloadModelAnimations(ModelAnimation[] animations) { }
 
-    // A model file as Assimp reads it, or null with the reason logged. MagicaVoxel's files and
-    // Inter-Quake Models are read here, as raylib reads them itself, where Assimp reads an IQM's
-    // mesh without its skeleton.
+    // A model file as Assimp reads it, or null with the reason logged. MagicaVoxel's files,
+    // Inter-Quake Models and Model 3D files are read here, as raylib reads them itself, where
+    // Assimp reads an IQM's mesh without its skeleton and the Assimp carried reads no M3D.
     private static Scene? ReadModelScene(string fileName, string caller) =>
         ReadModelFile(fileName, caller, (data, path) => Path.GetExtension(path).ToLowerInvariant() switch
         {
             ".vox" => VoxModelReader.Read(data, Path.GetFileNameWithoutExtension(path)),
             ".iqm" => IqmModelReader.Read(data, Path.GetFileNameWithoutExtension(path)),
+            ".m3d" => M3dModelReader.Read(data, Path.GetFileNameWithoutExtension(path)),
             _ => new AssimpModelReader().ReadFile(path, new SceneImportSettings()),
         });
 
@@ -419,7 +425,7 @@ public static partial class Engine3D
         try
         {
             // Assimp reads the file itself, so only the readers of this engine's own are given its bytes.
-            var data = Path.GetExtension(path).ToLowerInvariant() is ".vox" or ".iqm" ? File.ReadAllBytes(path) : [];
+            var data = Path.GetExtension(path).ToLowerInvariant() is ".vox" or ".iqm" or ".m3d" ? File.ReadAllBytes(path) : [];
             return read(data, path);
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or Assimp.AssimpException)

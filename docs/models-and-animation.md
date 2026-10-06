@@ -7,9 +7,9 @@ posed by the clips of its file, frame by frame or at a time in seconds.
 ## Loading and drawing a model
 
 `LoadModel` reads a model file through Assimp, which knows glTF, FBX, OBJ, COLLADA and about forty
-more, with the colors and textures its materials name, embedded ones too. MagicaVoxel's `.vox` and
-the Inter-Quake Model's `.iqm` it reads itself, as raylib does, an IQM with its skeleton, which
-Assimp's reader leaves out. `DrawModel` draws it at a
+more, with the colors and textures its materials name, embedded ones too. MagicaVoxel's `.vox`, the
+Inter-Quake Model's `.iqm` and the Model 3D's `.m3d` it reads itself, as raylib does, an IQM with
+its skeleton, which Assimp's reader leaves out. `DrawModel` draws it at a
 position and a scale, tinted, and `DrawModelEx` turns it about an axis by degrees and scales each
 axis apart. From the `models_loading` example:
 
@@ -257,6 +257,7 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
   [`models_mesh_generation`](../3DEngine.Examples/Models/ModelsMeshGeneration.cs),
   [`models_loading_vox`](../3DEngine.Examples/Models/ModelsLoadingVox.cs),
   [`models_loading_iqm`](../3DEngine.Examples/Models/ModelsLoadingIqm.cs),
+  [`models_loading_m3d`](../3DEngine.Examples/Models/ModelsLoadingM3d.cs),
   [`models_terrain`](../3DEngine.Examples/Models/ModelsTerrain.cs),
   [`models_animation`](../3DEngine.Examples/Models/ModelsAnimation.cs),
   [`models_morph_and_layers`](../3DEngine.Examples/Models/ModelsMorphAndLayers.cs),

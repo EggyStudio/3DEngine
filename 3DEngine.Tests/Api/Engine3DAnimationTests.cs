@@ -236,6 +236,23 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void An_M3d_Action_Poses_Its_Model_With_Raylibs_Bone_That_Never_Moves()
+    {
+        using var folder = new TestFolder("engine-m3d-");
+        var path = Path.Combine(folder.Path, "tri.m3d");
+        File.WriteAllBytes(path, Engine.Tests.Assets.Models.M3dModelReaderTests.Triangle());
+
+        var model = LoadModel(path);
+        var clip = LoadModelAnimations(path).Single();
+        model.Bones.Select(b => b.Name).Should().Equal("root", "tip", "NO BONE");
+        model.Meshes.Single().VertexCount.Should().Be(3, "three vertices of its own for each face, as raylib's");
+
+        IsModelAnimationValid(model, clip).Should().BeTrue();
+        UpdateModelAnimation(model, clip, 1);
+        Positions(model)[2].Y.Should().BeApproximately(1.5f, 1e-4f, "the corner the tip holds rises halfway to the action's last key");
+    }
+
+    [Fact]
     public void A_Clip_Of_Other_Bones_Leaves_The_Model_As_It_Is()
     {
         var model = LoadModel(Arm);

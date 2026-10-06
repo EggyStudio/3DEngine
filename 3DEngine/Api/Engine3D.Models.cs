@@ -345,8 +345,9 @@ public static partial class Engine3D
     /// <remarks>
     /// Textures embedded in the file, as a <c>.glb</c> carries them, are decoded from it, and the
     /// rest are looked for beside the model file. Each gets mip levels, since a model is seen from
-    /// any distance. MagicaVoxel's <c>.vox</c> files and Inter-Quake Models (<c>.iqm</c>) are read
-    /// as raylib reads them, an IQM with its skeleton, which Assimp leaves out.
+    /// any distance. MagicaVoxel's <c>.vox</c> files, Inter-Quake Models (<c>.iqm</c>) and Model 3D
+    /// files (<c>.m3d</c>) are read as raylib reads them, an IQM with its skeleton, which Assimp
+    /// leaves out.
     /// </remarks>
     public static Model LoadModel(string fileName)
     {

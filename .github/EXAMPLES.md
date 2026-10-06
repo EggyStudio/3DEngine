@@ -4,7 +4,7 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**214 written, 0 written in part, 0 can be written, 7 missing and 1 does not apply.** Of the 221 that apply, 214 can be written with what the flat API carries.
+**215 written, 0 written in part, 0 can be written, 6 missing and 1 does not apply.** Of the 221 that apply, 215 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
@@ -12,10 +12,10 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [Shapes](#shapes) | 45 | 0 | 0 | 0 | 0 |
 | [Textures](#textures) | 33 | 0 | 0 | 0 | 0 |
 | [Text](#text) | 16 | 0 | 0 | 0 | 0 |
-| [Models](#models) | 30 | 0 | 0 | 2 | 0 |
+| [Models](#models) | 31 | 0 | 0 | 1 | 0 |
 | [Shaders](#shaders) | 35 | 0 | 0 | 1 | 0 |
 | [Audio](#audio) | 10 | 0 | 0 | 1 | 0 |
-| **All** | **214** | **0** | **0** | **7** | **1** |
+| **All** | **215** | **0** | **0** | **6** | **1** |
 
 ## Core
 
@@ -195,7 +195,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`models_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoading.cs) |
 | [`models_loading_gltf`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_gltf.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_gltf.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading_gltf.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoadingGltf.cs) |
 | [`models_loading_vox`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_vox.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_vox.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading_vox.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoadingVox.cs) |
-| [`models_loading_m3d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_m3d.c) |  |  | missing, M3D files, which the Assimp the engine carries does not read |
+| [`models_loading_m3d`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_m3d.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_m3d.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading_m3d.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoadingM3d.cs) |
 | [`models_orthographic_projection`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_orthographic_projection.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_orthographic_projection.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_orthographic_projection.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsOrthographicProjection.cs) |
 | [`models_point_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_point_rendering.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_point_rendering.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_point_rendering.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsPointRendering.cs) |
 | [`models_rlgl_solar_system`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rlgl_solar_system.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_rlgl_solar_system.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_rlgl_solar_system.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsRlglSolarSystem.cs) |

@@ -306,3 +306,23 @@ alone. `models_loading_iqm` is raylib's, with its three files from raylib's reso
 shaded by the engine's light where raylib's is drawn unlit, which the comparison has a line on, and
 the orbital camera stands elsewhere than in raylib's screenshot. The table stands at 214 written
 and 7 missing, the M3D reader next.
+
+**Now 2, `models_loading_m3d`.** Model 3D files are read by a reader of the engine's own, written
+again from `m3d.h` under its MIT license, as raylib's `LoadM3D` and `LoadModelAnimationsM3D` read
+them, the Assimp carried reading none. The binary form is read, its body inflated by .NET's own
+`ZLibStream`, so no dependency is added, with its color map, texture coordinates, vertices,
+skeleton and skins, materials, triangles, actions and inlined textures, and its text form, voxels,
+shapes and labels left out with a message. `LoadModel` makes a mesh of each run of faces of one
+material, three vertices of its own to a face as raylib's has, scaled by the file's scale, texture
+coordinates counted from the bottom and normals made from the faces where the file gives none, with
+raylib's colors and raylib's last bone, `NO BONE`, that holds every vertex no bone holds.
+`LoadModelAnimations` poses each action every 17 milliseconds as raylib samples it, through m3d's
+`m3d_pose`, a position blended in a line and an orientation by m3d's approximation of a turn. Three
+tests read a file a test writes, a triangle on two bones with an action whose second frame falls
+halfway to its key, and a fourth poses a model loaded from it. `models_loading_m3d` is raylib's,
+with `cesium_man.m3d` from raylib's resources and its `DrawModelSkeleton` over the model's bones
+and a clip's poses. raylib's screenshot shows the skeleton with SPACE held, which drawn here with
+SPACE held through `./e3d` stands as raylib's does, and the capture shows the model. The
+comparison's line on a file's materials names Model 3D beside glTF, raylib's loader putting its
+default material first for both. The table stands at 215 written and 6 missing, deferred rendering
+next.
