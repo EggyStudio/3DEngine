@@ -179,3 +179,16 @@ of the commit run.sh pins, cloned where there is none, so the build workflow run
 table's check. `GetGlyphIndex`, answered among the calls that answer otherwise, has its row among
 those not carried, where a line pointed to it. Made to fail, it named a row taken off the page and a
 count changed. The suite: 1,345 passed, 0 failed, 1 skipped.
+
+**Now 4, the norm's lists paid down, for the files this session's batches touched.** Five commits of
+their own move code and nothing else: `OffscreenRenderTests` into six files by what they draw
+(a96ed25a), `ModelRenderer` into its culling, shadows, pipelines and lighting beside `ModelNode.cs`
+(19bbb866), seven public types of the flat API into files of their names, which brings
+`Engine3D.Models.cs` to 762 lines (048ab56b), and eight more types of the audio backend, the scenes
+and the compute API, with the physics tests split in three (f8b6a65b), where the commit helper
+refused three British spellings in the lines moved, mended with them. A commit of its own between
+them takes out two probe tests' sleeps for a worker the GPU filter replaced, which N 3.3 listed with
+that reason (3ab72483). N 1.3's list is down from 6 to 2, `Engine3D.Fonts.cs` and
+`AssimpModelReader.cs`, which no batch of this session touched, N 1.2's from 116 to 101 and N 3.3's
+from 10 to 9. N 1.5's three rows wait for the owner's word, asked for. The suite: 1,345 passed, 0
+failed, 1 skipped after each.
