@@ -1,6 +1,5 @@
 # N 1.3, a source file of more than 800 lines.
 3DEngine.Tests/Api/Engine3DPhysicsTests.cs
-3DEngine.Tests/Rendering/OffscreenRenderTests.cs
 3DEngine/Api/Engine3D.Fonts.cs
 3DEngine/Api/Engine3D.Models.cs
 3DEngine/Assets/Models/Assimp/AssimpModelReader.cs

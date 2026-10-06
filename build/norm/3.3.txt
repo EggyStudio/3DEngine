@@ -4,7 +4,7 @@
 3DEngine.Tests/Cli/CliTests.cs DateTimeOffset.UtcNow	a session file's times, written and read back as values
 3DEngine.Tests/Cli/CliTests.cs Stopwatch	how long a request waits on the socket, which is the client's own clock
 3DEngine.Tests/Cli/CliTests.cs Thread.Sleep	a thread pumping the request queue as the main loop does between frames
-3DEngine.Tests/Rendering/OffscreenRenderTests.cs Thread.Sleep	a probe's capture is read back and filtered on a worker, outside the frame loop
+3DEngine.Tests/Rendering/OffscreenRenderTests.ProbesAndShadows.cs Thread.Sleep	a probe's capture is read back and filtered on a worker, outside the frame loop
 3DEngine.Tests/Scenes/AssetReleaseTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
 3DEngine.Tests/Scenes/SceneRefTests.cs DateTime.UtcNow	a file's write time set ahead, so the scene reads as changed
 3DEngine.Tests/TestFolder.cs Stopwatch	a delete tried again while another process lets go of a file
