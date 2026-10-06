@@ -130,11 +130,11 @@ public class SlangCompilerTests : IDisposable
         var program = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
 
         var lights = program.LayoutOf(1);
-        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 6 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b),
-            "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes, the occlusion and the probes' irradiance");
+        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 7 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b),
+            "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes, the occlusion and the probes' and the environment's irradiance");
         lights[0].Type.Should().Be(DescriptorType.UniformBuffer);
         lights.Skip(1).Take(5 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.CombinedImageSampler);
-        lights.Skip(6 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.StorageBuffer, "the GPU writes a probe's irradiance");
+        lights.Skip(6 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.StorageBuffer, "the GPU writes the irradiance");
         lights.Should().OnlyContain(b => b.Stages.HasFlag(ShaderStageFlags.Fragment));
         program.LayoutOf(0).Select(b => b.Binding).Should().Equal([1u, 2u, 3u, 4u, 5u], "the material's five maps");
 

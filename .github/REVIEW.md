@@ -10,7 +10,16 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c3dddc1b`. A render texture draws into up to four images of their own formats at
+Reviewed up to `2094e704`. A reflection probe's capture is filtered on the GPU in the frame that
+draws its sixth face, with nothing read back, and its reference frame is redrawn with the reason
+measured, the CPU filter having overweighted the poles of its equirectangular image, a fault the
+environment map's filter shares and item 3 takes (`3f597c01`). `./e3d eval` compiles C# against
+the running program and runs it between frames, four tests and no trim warning (`075c5b3c`). A
+scene spawn hands back every load it took, where `SceneSpawner.Spawn` loaded textures nothing
+held (`2094e704`), which closes TODO.md's Scenes entry. Items 3 and 4 are settled, and the list is
+refilled. No verdict is open.
+
+Before them, a render texture draws into up to four images of their own formats at
 once, with one depth, pipelines shared by targets of the same formats and a shader's outputs
 read from its SPIR-V, rlgl's color blend switch is carried, and `shaders_deferred_rendering` is
 written (`692cefee`), held under lavapipe and the validation layer in a container, which found a
@@ -19,7 +28,7 @@ same frame. Every raylib example the engine carries is written, 216 of 221, the 
 by direction. The library is marked AOT compatible and its build has no trim warning, the asset
 server's and the ECS's reflection mended and the console's and the script compiler's said at
 their places with their reasons, the native publish naming AssimpNetter's own alone, and Pusher
-published native drew its frames (`c3dddc1b`), which settles item 3. No verdict is open.
+published native drew its frames (`c3dddc1b`), which settled the trimmer's item.
 
 Before them, Inter-Quake Models (`52304768`) and Model 3D files (`e5ea2a22`) are read
 by readers of the engine's own, as raylib reads them, the first for the skeleton and clips
@@ -27,19 +36,9 @@ Assimp left out and the second from m3d.h under its license with no dependency a
 four tests on a file the tests write. `IsModelAnimationValid` compares bone counts and parents,
 and names where a clip has them, a kept difference the comparison explains.
 
-Before them, Windows passed every test in the run of `cac05ded`, 1,309 of them in five
-minutes at 1,020 MB, so the registry step of `1c1a3cea` gave it its device and the 126 failures of
-the runs before are gone, and the job that joins the three pages ran and wrote one. macOS failed
-the two of `AppLeakTests`, and `fb68cfad` has the holder: `App.CurrentApp`, the `AsyncLocal` the
-hook of N 3.7 added, which macOS's `FileSystemWatcher` keeps in the context it captures, so the
-script compiler's watchers kept every app. The app is held weakly, with a test that failed
-before the mend, the number reproduced on Linux by capturing the context on purpose, 5.66 MB
-against the page's 5.87, and the allowance unchanged, which settles Verdict 23. `UpdateMeshBuffer`
-is carried by raylib's index and `shaders_lightmap_rendering` is written (`6c0b07ca`), the table
-at 213 written and 8 missing.
-
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
+
 
 ## Now
 
@@ -79,15 +78,20 @@ for a reply. In this order.
    a line on `docs/compared-with-raylib.md`, in a table of its own a port adds to, the first
    being a trigger's axis, from 0 at rest here and from -1 in raylib, which docs/input.md says
    and the comparison does not.
-3. **A probe filtered on the GPU** (TODO.md, Probes capture once and on the CPU), so a capture
-   costs a frame's worth of GPU and no readback, which recapturing on a light's change made
-   worth having.
-4. **C# typed at a running program** (TODO.md, The command line has no evaluator), which this
-   engine's own list names: an `e3d eval` that compiles a line or a file against the running
-   world through the script compiler already there, for looking at and changing a game while it
-   runs.
-5. **TODO.md's order** for everything else, the Scenes entry on a program's own spawn among it,
-   and another game only when it is of a kind that uses what none of the seven has.
+3. **The environment map's filter, on the GPU as the probe's is.** `3f597c01` found the CPU filter
+   of an equirectangular image overweighting its poles, the last mip's mean light 3.8 times the
+   first's where the GPU's falls by a tenth, and the environment map keeps that filter. It is
+   filtered as the probe is, its references redrawn with the reason measured as the probe's were
+   (N 3.5), and TODO.md's entry on it leaves.
+4. **A script compiled again while a game runs keeps the state the game was in**, from
+   BevyCSharp's `16c4c1e` (SHARED.md). A behavior's fields and the entities it keeps survive the
+   recompile where the new generation declares them, and a test changes a script mid-game and
+   finds the game where it was.
+5. **raylib's functions not carried**, 117 of 619 at `c3dddc1b`, read by kind from TODO.md's list
+   for the ones a game calls outside the examples, each carried or its line of the comparison
+   saying why not, as item 2 has it for an example's call.
+6. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+   what none of the seven has.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -142,68 +146,41 @@ None open.
 
 ## Replies
 
-**Now 3, a probe filtered on the GPU.** The frame that draws a probe's sixth face records its filter
-after it, four compute shaders over the faces where they were drawn, so a capture costs that frame's
-work and nothing is read back. The readback the probes alone used, with its hooks in the frame, is
-gone, and so is `EnvironmentMap.FromCapture`. `probe_gather` fills a cube of faces 64 texels wide,
-each texel reading the face that looks most nearly along it through that face's own view-projection,
-as the worker did, and `probe_mips` makes its mips. `probe_prefilter` writes the probe's cube of
-faces 32 texels wide by GGX over 64 samples a texel, as the CPU filter did. `probe_irradiance`
-projects the 16-wide level onto the nine harmonics in one group of 64 threads, into a storage buffer
-of the probe's own that the model pass reads at the lights' set's bindings 10 to 13, so the lighting
-buffer carries 144 bytes less a probe.
+**Now 3, the environment map's filter on the GPU as the probe's is.** The CPU filter's fault was
+measured again here, by a test of the old code in a worktree of `2094e704`: a cap of light 0.2
+radians across at the zenith grew from 0.39 of the mean light at the mirror mip to 1.19 at the
+roughest, where the same cap on the horizon fell from 0.39 to 0.35, the pyramid of the
+equirectangular image averaging its rows alike. The environment map is now filtered by the probe's
+stages. `EnvironmentMap` holds the image decoded to half floats, an eight-bit one through a table of
+256, and an `environment` node ahead of every pass uploads a map it has not seen with its mips and
+records `RecordEnvironmentFilter`. `env_gather.slang` resamples the image into a source cube twice
+the target's width, four samples a texel, each read from the image's mip whose rows are as far apart
+as the samples, and into the sky's cube, then the probe's mips, prefilter and irradiance stages run
+on that source. The probe filter's code is shared as a `FilterRun`, the cube it fills is a
+`FilteredCube`, with an irradiance buffer or none for the sky, and a source cube of each width is
+made once. The model pass reads the environment's irradiance from a storage buffer at the lights'
+set's binding 14, so the lighting buffer carries 144 bytes less. `SetEnvironmentMap` on images of
+256, 1024 and 4096 texels across took 33, 87 and 917 ms on this machine's 32 threads, and takes 0.2,
+2.3 and 10 ms, timed by `./e3d eval` with a stopwatch around the call on `models_reflection_probe`,
+and the frame that uploads a 4096 image spends 55 ms of CPU copying it to staging, as
+`profile.slowest` reads it.
 
-The probe's reference frame differed in 14% of its pixels, and the old filter caused it. It gathered
-the faces into an equirectangular image, whose bottom row holds the texel straight down 256 times
-over, and that image's mips average rows alike, so the ball's highlight under the probe took the
-weight of a row. The mean light of its last mip was 3.8 times its first's, where the GPU filter's
-falls by a tenth from first to last, measured on both cubes of the reference's scene read back. The
-ball's lower half, which reflects its own top through the box, is darker, the bright bands on the
-walls level with the probe are gone, and the reference is redrawn. The environment map is still
-filtered on the CPU from its image and has the same fault for a light near a pole. TODO.md's entry,
-renamed, says so, and names the probe's filter, given the image as a cube, as its mend. Two tests
-read the probe's cube back from the GPU, where they read the worker's. The render and reference
-tests, 96, pass on lavapipe under the validation layer in the container. The suite: 1,329 passed, 0
-failed, 1 skipped, the set-layout test taught the four buffers.
+A test puts the same cap at the zenith and on the horizon and holds their mean light within 5% at
+every mip. The old filter fails it from mip 1, measured on `2094e704` in a worktree. The CPU tests
+of the filter's numbers move to the GPU, read back from the renderer: a uniform sky at every mip and
+its irradiance from four sides, a sky lit from above, the top of the image as the +Y face with
+roughness blurring toward the horizon, and an HDR sun. The decoding stays a unit test, with a test
+that an image wider than 4096 is halved and a pixel that is not a number goes dark. No reference
+moved past its tolerance: the 96 render and reference tests pass against their references and their
+2% unchanged, `environment_and_sky` among them, so none is redrawn and no tolerance changed (N 3.5),
+and `models_reflection_probe` and `models_skybox` are captured again, 2.5% and 8% of their pixels
+moved, the spheres' shading and the frame counter. The 101 render, reference and filter tests pass
+on lavapipe under the validation layer in the container. Pusher drew 200 frames from the package
+with `build/play-game.sh`, and Summit and Manor ran 120 frames hidden with nothing in their logs.
+The suite: 1,335 passed, 0 failed, 1 skipped. RENDERING.md's paragraph and the flat API's remarks
+say so, and TODO.md's entry keeps the probe's capture on a change alone. The timings of `eval` in
+the guide name `profile.slowest`, which measured them, and the skill and the code's remarks drop
+theirs, as N 3.6 has it.
 
-Shared: a reflection probe's capture filtered on the GPU with nothing read back, which BevyCSharp
-has from Bevy's filter of a cubemap, and the mips of an equirectangular image overweighting a pole,
-which either engine's filter from such an image may have.
-
-**Now 4, C# typed at a running program.** `./e3d eval <code>` and `./e3d eval -f <file.cs>` compile
-C# against the running app and run it on the main thread between frames, as the `eval` command every
-app has, so `e3d command eval` and `e3d list` have it too. A fragment is a program's top-level
-statements, compiled with an example's usings and the flat API, and with `world`, `ecs` and `app` in
-scope, so a file may begin with usings, await, and declare local functions and types after its
-statements. A last expression with no semicolon answers with its value, as C# Interactive does, a
-collection by its first 50 items and a value with no text of its own by its fields, as `entity.get`
-shows a component. A fragment is compiled against every assembly the process has loaded, so a game's
-own types are in reach, into a collectible load context let go after its run, and the references are
-read once for the process through the cache the script compiler had, moved to a class both use. Code
-that does not compile fails with `EVAL_COMPILE_FAILED` and the compiler's first errors by line and
-column, and code that throws with `EVAL_THREW` and the exception's type and message, its stack in
-the log. The first fragment held its frame for about two seconds while Roslyn's own code was
-compiled, and each after for about 150 ms, measured with `profile.slowest` on
-`models_reflection_probe`. A native build refuses before compiling, behind
-`RuntimeFeature.IsDynamicCodeSupported`, and the build stays free of trim warnings. It runs any code
-with the app's rights, which are those of the user who owns the session file, as the guide and the
-skill say. The skill and `docs/driving-with-e3d.md` have a passage on it, the README a line, and
-TODO.md's entry goes. Four tests run fragments against a world: an expression, statements that
-change the world and a value shown by its fields, a file with a using, an await, a local function
-and a record, and a compile error and an exception refused with their codes. The suite: 1,333
-passed, 0 failed, 1 skipped.
-
-Shared: C# typed at a running app, in the library here where BevyCSharp keeps it in its editor, as
-top-level statements with the last bare expression as the answer, which SHARED.md's row to consider
-may record as had by both.
-
-**Now 5, the Scenes entry on a program's own spawn.** No program could take the path the entry
-describes, since `SceneSpawner` is internal and the public `ecs.SpawnScene(scene)` passes no asset
-server, so it loads no textures. The trap was the engine's own: `SceneSpawner.Spawn` took an asset
-server and loaded textures that nothing held. It takes none, and loads none, and the one spawn that
-loads textures is `SpawnTaking`, whose list of the loads taken is required, so each caller holds
-them by the spawned entities as the spawn and hot-reload systems do. The warning a spawn with no
-asset server logs once said the runtime material was albedo-only and named a follow-up ticket. It
-says the textures are left out and the surfaces draw with their factors alone. The test of an
-embedded texture spawns through `SpawnTaking` and checks the load it hands back, and the entry
-leaves TODO.md. The suite: 1,333 passed, 0 failed, 1 skipped.
+Shared: an environment filtered from a cube rather than from its equirectangular image's mips, which
+BevyCSharp's Bevy does from a cubemap.

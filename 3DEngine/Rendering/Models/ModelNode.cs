@@ -277,12 +277,13 @@ internal sealed class ModelRenderer : IDisposable
     // Maps replaced by ones of another size, kept until no frame in flight reads them.
     private readonly List<(long Frame, ShadowMap Map)> _retiredMaps = [];
     private ShadowMap? _noPointShadowMap;
-    private CubeMap? _environment;
+    // The environment map filtered on the GPU and its sky, made in the frame that first sees the map.
+    private FilteredCube? _environment;
+    private FilteredCube? _sky;
     private EnvironmentMap? _environmentSource;
     private CubeMap? _noEnvironment;
-    private CubeMap? _sky;
-    // Cubes, probes' maps and the descriptor sets of probes' filters let go, each freed once no
-    // frame in flight reads it.
+    // Cubes, probes' maps, the environment's image and the descriptor sets of filters let go, each
+    // freed once no frame in flight reads it.
     private readonly List<(long Frame, IDisposable Cube)> _retiredCubes = [];
     private IPipeline? _shadowPipeline;
     private readonly List<Batch> _shadowBatches = [];
@@ -1296,11 +1297,12 @@ internal sealed class ModelRenderer : IDisposable
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
                     new CombinedImageSamplerBinding(white, whiteSampler, 1));
                 gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
-                if (EnvironmentCube(gfx, null) is { } black)
+                if (BlackCube(gfx) is { } black)
                     for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
                         if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, b));
                 for (uint s = 0; s < LightingUboPacker.MaxProbes; s++)
                     gfx.UpdateDescriptorSet(_noLights, new StorageBufferBinding(NoIrradiance(gfx), ProbeIrradianceBinding + s));
+                gfx.UpdateDescriptorSet(_noLights, new StorageBufferBinding(NoIrradiance(gfx), EnvironmentIrradianceBinding));
                 if (gfx is GraphicsDevice stub)
                 {
                     var none = NoPointShadowMap(stub);
@@ -1337,12 +1339,20 @@ internal sealed class ModelRenderer : IDisposable
         gfx.UpdateDescriptorSet(set, null, target == 0 && renderWorld.TryGet<AmbientOcclusionImage>() is { } occlusion
             ? new CombinedImageSamplerBinding(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
-        if (EnvironmentCube(gfx, frame.HasEnvironment ? renderWorld.TryGet<EnvironmentMap>() : null) is { } cube)
+        // The environment as the frame's filter left it, or black and no light where it has none.
+        var environment = frame.HasEnvironment && _environmentSource is not null
+            && ReferenceEquals(renderWorld.TryGet<EnvironmentMap>(), _environmentSource) ? _environment : null;
+        if (environment is not null && _sky is not null)
         {
-            var sky = frame.HasEnvironment ? _sky ?? cube : cube;
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(cube.View, cube.Sampler, 2));
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sky.View, sky.Sampler, 3));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(environment.View, environment.Sampler, 2));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_sky.View, _sky.Sampler, 3));
         }
+        else if (BlackCube(gfx) is { } none)
+        {
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(none.View, none.Sampler, 2));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(none.View, none.Sampler, 3));
+        }
+        gfx.UpdateDescriptorSet(set, new StorageBufferBinding(environment?.Irradiance ?? NoIrradiance(gfx), EnvironmentIrradianceBinding));
         if (gfx is GraphicsDevice device)
         {
             var points = shadow is { PointLights.Count: > 0 } ? PointShadowMap(device, shadow.PointFaceSize) : NoPointShadowMap(device);
@@ -1350,7 +1360,7 @@ internal sealed class ModelRenderer : IDisposable
 
             // Each bound probe's cube and irradiance at its slot, and the black cube and zeros past them.
             var slots = renderWorld.TryGet<BoundProbes>()?.Slots ?? [];
-            var black = EnvironmentCube(gfx, null)!;
+            var black = BlackCube(gfx)!;
             for (int s = 0; s < LightingUboPacker.MaxProbes; s++)
             {
                 var probeMap = s < slots.Count ? slots[s].Map : null;
@@ -1370,8 +1380,10 @@ internal sealed class ModelRenderer : IDisposable
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
 
-    // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after it.
+    // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after
+    // it, and the environment's.
     private const uint ProbeIrradianceBinding = 10;
+    private const uint EnvironmentIrradianceBinding = 14;
 
     // Nine zero coefficients, the irradiance of a slot no probe is bound at.
     private IBuffer? _noIrradiance;
@@ -1398,25 +1410,42 @@ internal sealed class ModelRenderer : IDisposable
 
     private IDescriptorSetLayout LightsLayout(IGraphicsDevice gfx) => _defaultLayout ??= gfx.CreateDescriptorSetLayout(_lightsBindings);
 
-    // The cube of the environment map, uploaded when the map is new, or a black cube of one texel
-    // for none. A cube replaced is kept for RetireFrames frames, since a frame in flight may read it.
-    private CubeMap? EnvironmentCube(IGraphicsDevice gfx, EnvironmentMap? environment)
-    {
-        if (gfx is not GraphicsDevice device) return null;
-        if (environment is null)
-            return _noEnvironment ??= device.CreateCubeMap(1, 1, new Half[6 * 4]);
+    // A black cube of one texel, bound where there is no environment or probe.
+    private CubeMap? BlackCube(IGraphicsDevice gfx) =>
+        gfx is GraphicsDevice device ? _noEnvironment ??= device.CreateCubeMap(1, 1, new Half[6 * 4]) : null;
 
-        if (!ReferenceEquals(environment, _environmentSource))
-        {
-            if (_environment is not null) _retiredCubes.Add((_frames, _environment));
-            if (_sky is not null) _retiredCubes.Add((_frames, _sky));
-            _environment = device.CreateCubeMap((uint)environment.Size, (uint)environment.MipLevels, environment.Texels);
-            _sky = device.CreateCubeMap((uint)environment.SkySize, 1, environment.SkyTexels);
-            device.Name(_environment.View.Image, "Environment map");
-            device.Name(_sky.View.Image, "Sky");
-            _environmentSource = environment;
-        }
-        return _environment;
+    /// <summary>The environment map's filtered cube, once a frame has filtered it, for a test to read back.</summary>
+    internal FilteredCube? Environment => _environment;
+
+    /// <summary>
+    /// Filters the environment map on the GPU in the frame that first sees it, before any pass
+    /// samples it: its image uploaded with its mips, resampled into a cube prefiltered by
+    /// roughness with its irradiance, and into the sky's cube
+    /// (<see cref="GraphicsDevice.RecordEnvironmentFilter"/>). The cubes it replaces are kept until
+    /// no frame in flight reads them.
+    /// </summary>
+    internal void FilterEnvironment(RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderContext.Device is not GraphicsDevice { CanFilterProbes: true } device) return;
+        if (renderWorld.TryGet<EnvironmentMap>() is not { } environment || ReferenceEquals(environment, _environmentSource)) return;
+
+        if (_environment is not null) _retiredCubes.Add((_frames, _environment));
+        if (_sky is not null) _retiredCubes.Add((_frames, _sky));
+        var (width, height) = ((uint)environment.Width, (uint)environment.Height);
+        var image = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
+            ImageUsage.Sampled | ImageUsage.TransferDst | ImageUsage.TransferSrc, (uint)Math.Log2(Math.Max(width, height)) + 1));
+        device.UploadTexture2D(image, System.Runtime.InteropServices.MemoryMarshal.AsBytes(environment.Pixels.AsSpan()), width, height, 8);
+        var view = device.CreateImageView(image);
+        _environment = device.CreateFilteredCube((uint)environment.Size, (uint)environment.MipLevels);
+        _sky = device.CreateFilteredCube((uint)environment.SkySize, 1, irradiance: false);
+        device.Name(_environment.Image, "Environment map");
+        device.Name(_sky.Image, "Sky");
+        var filter = device.RecordEnvironmentFilter(renderContext.CommandBuffer, view, height, _environment, _sky);
+        // The image is read by this frame's filter alone.
+        _retiredCubes.Add((_frames, filter));
+        _retiredCubes.Add((_frames, view));
+        _retiredCubes.Add((_frames, image));
+        _environmentSource = environment;
     }
 
     // The six faces a probe is drawn into, made for the first capture and kept for the next.
@@ -1493,7 +1522,7 @@ internal sealed class ModelRenderer : IDisposable
 
         // The last face drawn, the probe's map is filtered from all six, and the next probe waits
         // for the next frame.
-        var map = device.CreateProbeMap(ProbeMapSize);
+        var map = device.CreateFilteredCube(ProbeMapSize);
         device.Name(map.Image, "Reflection probe");
         var filter = device.RecordProbeFilter(renderContext.CommandBuffer, [.. _probeFaces.Select(f => f.ColorView)], capture.ViewProjections,
             capture.Wanted.Position, map);
@@ -1519,7 +1548,7 @@ internal sealed class ModelRenderer : IDisposable
 
     // Every probe's map the filter has made and not let go, which a probe or a capture it has not
     // taken yet holds.
-    private readonly HashSet<ProbeMap> _probeMaps = [];
+    private readonly HashSet<FilteredCube> _probeMaps = [];
 
     // Lets the maps no probe holds go, a capture taken over by the one after it and those of probes
     // gone, once no frame in flight reads them.
@@ -1527,7 +1556,7 @@ internal sealed class ModelRenderer : IDisposable
     {
         if (_probeMaps.Count == 0) return;
         var probes = renderWorld.TryGet<ReflectionProbes>();
-        var held = probes?.ByEntity.Values.SelectMany(p => new[] { p.Map, p.Done?.Map }).OfType<ProbeMap>().ToHashSet() ?? [];
+        var held = probes?.ByEntity.Values.SelectMany(p => new[] { p.Map, p.Done?.Map }).OfType<FilteredCube>().ToHashSet() ?? [];
         foreach (var gone in _probeMaps.Where(m => !held.Contains(m)).ToArray())
         {
             _retiredCubes.Add((_frames, gone));

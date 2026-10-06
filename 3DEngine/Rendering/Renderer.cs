@@ -70,7 +70,8 @@ internal sealed class Renderer : IDisposable
             device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
-                server.LoadSync<ShaderProgram>("shaders/probe_irradiance.slang").Compute);
+                server.LoadSync<ShaderProgram>("shaders/probe_irradiance.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/env_gather.slang").Compute);
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang")));
@@ -88,6 +89,9 @@ internal sealed class Renderer : IDisposable
         // shadow map for its own camera before its pass, then the window's shadow, so the window's
         // passes can sample the targets and the map as the window's camera needs it.
         Graph.AddNode("skinning", new SkinningNode());
+        // A new environment map is filtered ahead of every pass that lights by it.
+        Graph.AddNode("environment", new EnvironmentNode());
+        Graph.AddNodeEdge("environment", "skinning");
         // Particles are stepped beside the skins, before every pass that might draw them.
         Graph.AddNode("particles", new ParticleNode());
         Graph.AddNodeEdge("skinning", "particles");

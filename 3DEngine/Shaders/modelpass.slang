@@ -152,8 +152,6 @@ public struct Lighting
     public float4 spotShadowTexels[3];
     // World space to each shadowed spot light's clip space, by slot.
     public float4x4 spotShadows[10];
-    // The environment's irradiance over pi as nine spherical harmonic coefficients, in xyz.
-    public float4 environmentIrradiance[9];
     // How many probes are bound, in x, and the probes by the slot their cube is bound at.
     public float4 probeCount;
     public Probe probes[4];
@@ -198,8 +196,8 @@ public SamplerCube probeMap3;
 [[vk::binding(9, 1)]]
 public Sampler2D ambientOcclusionMap;
 
-// The bound reflection probes' irradiance, nine coefficients in xyz each, as the environment's in
-// the lighting buffer, or zeros.
+// The bound reflection probes' irradiance over pi, nine spherical harmonic coefficients in xyz
+// each, which the filter that made each probe's cube wrote, or zeros.
 [[vk::binding(10, 1)]]
 public StructuredBuffer<float4> probeIrradiance0;
 [[vk::binding(11, 1)]]
@@ -208,6 +206,10 @@ public StructuredBuffer<float4> probeIrradiance1;
 public StructuredBuffer<float4> probeIrradiance2;
 [[vk::binding(13, 1)]]
 public StructuredBuffer<float4> probeIrradiance3;
+
+// The environment's irradiance the same way, or zeros where there is none.
+[[vk::binding(14, 1)]]
+public StructuredBuffer<float4> environmentIrradianceBuffer;
 
 // The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
 // has no occlusion. The map is half the window's size, so a pixel reads it at half its position.
@@ -636,11 +638,13 @@ float3 boxProjected(int i, float3 p, float3 r)
     return p + r * t - center;
 }
 
-// The light a white diffuse surface facing n returns from the environment, from the nine
-// spherical harmonic coefficients EnvironmentMap.Irradiance holds, in the same order.
+// The light a white diffuse surface facing n returns from the environment.
 float3 environmentIrradiance(float3 n)
 {
-    return harmonics(lighting.environmentIrradiance, n);
+    float4 c[9];
+    for (int k = 0; k < 9; k++)
+        c[k] = environmentIrradianceBuffer[k];
+    return harmonics(c, n);
 }
 
 // The share of light from all around that a surface reflects, with no environment to reflect,

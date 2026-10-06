@@ -83,7 +83,7 @@ internal sealed class ReflectionProbes
 
         // The prefiltered capture on the GPU, and a finished one the renderer hands over, which
         // Sync takes on the main thread.
-        public ProbeMap? Map;
+        public FilteredCube? Map;
         public volatile Capture? Done;
 
         /// <summary>Whether the probe has a map to reflect.</summary>
@@ -97,7 +97,7 @@ internal sealed class ReflectionProbes
     public readonly record struct LitBy(int Entity, LightKind Kind, Vector3 Light, Vector3 Position, Vector3 Forward, float Range);
 
     /// <summary>A capture filtered on the GPU, and what it was captured as.</summary>
-    public sealed record Capture(ProbeMap Map, (Vector3 Position, Vector3 Size, int Capture) As);
+    public sealed record Capture(FilteredCube Map, (Vector3 Position, Vector3 Size, int Capture) As);
 
     /// <summary>
     /// Takes the probes the ECS holds, adding new ones and forgetting those gone, and the captures

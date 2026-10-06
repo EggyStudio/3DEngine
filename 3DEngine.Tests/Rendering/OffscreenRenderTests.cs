@@ -1868,7 +1868,7 @@ public sealed class OffscreenRenderTests : IDisposable
     {
         var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
         var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
-        return (device.ReadProbeFaces(map), (int)map.Size);
+        return (device.ReadCubeFaces(map), (int)map.Size);
     }
 
     [NeedsVulkanFact]

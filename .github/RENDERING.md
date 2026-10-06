@@ -308,19 +308,28 @@ the frame in the composite (§5), from the module `color.slang` both import.
 
 An `EnvironmentMap`, a world resource set by `SetEnvironmentMap` from an equirectangular image,
 lights a frame from all around. A Radiance `.hdr` file is read as linear floats, so a sun keeps its
-brightness past white, and an eight-bit image is decoded from sRGB. It is prefiltered on the CPU
-into a half-float cube map with faces 64 texels wide, mip 0 for a mirror and each mip after for a
-roughness of `mip / (mips - 1)`, by GGX importance sampling with the eye along the normal (Karis's
-split sum), each sample reading the image blurred to its solid angle. The model pass looks the
-mirror direction up at the mip for the surface's roughness, weighted by Karis's fit, and lights the
-diffuse share by the image's irradiance, both darkened by occlusion. The irradiance is the image
-projected onto the nine spherical harmonics of bands 0 to 2 on the CPU, each band scaled by its
-share of a cosine lobe (Ramamoorthi and Hanrahan), so a surface takes the light of the whole half of
-the sky it faces. The cube is set 1's binding 2, a black cube when there is none, and the lighting
-buffer carries its intensity, its last mip and the nine coefficients, which come last so no other
-field moves. With a map set the fixed light is not used, whether or not there are light entities.
+brightness past white, and an eight-bit image is decoded from sRGB through a table of half floats,
+an image wider than 4096 halved until it fits, which is all the CPU does. The `environment` node,
+ahead of every pass, uploads the image of a map it has not seen with its mips and filters it on the
+GPU (`GraphicsDevice.RecordEnvironmentFilter`) with the stages a reflection probe's capture goes
+through, below. `env_gather.slang` resamples the image into a source cube twice the target's width,
+each texel averaging four samples read from the image's mip whose rows are as far apart as the
+samples, and into the sky cube. The image's own mips would weigh a row by its length, which near a
+pole holds one direction many times over, where a cube's texels differ in solid angle by a factor
+of about five at most, so the source's mips weigh each direction by what it covers and a light at
+the zenith is spread as one on the horizon is. The target is a half-float cube with faces 64 texels
+wide, mip 0 for a mirror and each mip after for a roughness of `mip / (mips - 1)`, by GGX
+importance sampling with the eye along the normal (Karis's split sum), each sample reading the
+source at the level its solid angle covers. The model pass looks the mirror direction up at the mip
+for the surface's roughness, weighted by Karis's fit, and lights the diffuse share by the image's
+irradiance, both darkened by occlusion. The irradiance is the source projected onto the nine
+spherical harmonics of bands 0 to 2, each band scaled by its share of a cosine lobe (Ramamoorthi
+and Hanrahan), so a surface takes the light of the whole half of the sky it faces. The cube is set
+1's binding 2, a black cube when there is none, the irradiance a storage buffer at binding 14,
+zeros when there is none, and the lighting buffer carries the map's intensity and its last mip.
+With a map set the fixed light is not used, whether or not there are light entities.
 
-The map keeps a second cube for the sky, at a quarter of the image's width a face up to 512
+The filter writes a second cube for the sky, at a quarter of the image's width a face up to 512
 texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw
 of a cube around the camera with `sky.slang`, which looks the sky cube up along the way from the
 eye through each pixel and sets its depth a millionth inside the far plane, so whatever else the frame
@@ -339,26 +348,23 @@ clear color in linear light. The frame that draws the sixth face filters them on
 `probe_gather.slang` fills a cube of faces 64 texels wide, each texel reading the face that looks
 most nearly along it through that face's own view-projection, and `probe_mips.slang` makes its mips,
 each texel the average of four. `probe_prefilter.slang` writes the probe's cube of faces 32 texels
-wide (`ProbeMap`), mip 0 for a mirror read from the gathered cube's level of the same width, and
+wide (`FilteredCube`), mip 0 for a mirror read from the gathered cube's level of the same width, and
 each mip after by GGX over 64 samples, each read from the gathered level its solid angle covers, as
 the environment map is filtered. `probe_irradiance.slang` projects the gathered cube's level 16
 texels wide onto the nine harmonics in one group of 64 threads, into a storage buffer of the probe's
-own. The gathered cube is one, shared by every capture, since two filters never run in one frame.
-The faces are gathered into a cube rather than the equirectangular image an environment map is
-filtered from, since the image's rows near a pole hold one direction many times over and its mips,
-which average rows alike, give a light there the weight of a row, where a cube's texels differ in
-solid angle by a factor of about five at most. A probe is captured twice, the second time with the
-first bound, so the metal in its room reflects the room in the capture rather than the sky. A probe
-whose map is of an earlier placement or of lights since changed gives a capture no light, its
-intensity 0 in the capture's lighting buffer, so its first pass sees only the lights and its second
-bounces that. `ReflectionProbes.Sync` keeps the lights that reached each box when it was last asked
-for, and asks again when one is added or removed, grows or dims by a quarter, turns color, or moves
-a quarter of a unit or turns past eleven degrees, so a lamp switched off is seen and a flickering
-one is not. Four probes with a capture, those whose boxes come nearest the camera, are bound at set
-1's bindings 5 to 8 and their irradiance buffers at 10 to 13, and the lighting buffer carries each
-one's middle, intensity, half size and last mip after the environment's. A surface in a box takes
-its reflection and diffuse light from the smallest box holding it, the reflection looked up where
-the reflected ray leaves the box (box projection), and a surface in none keeps the environment map.
+own. A source cube of each width is made once and shared by every filter. A probe is captured twice,
+the second time with the first bound, so the metal in its room reflects the room in the capture
+rather than the sky. A probe whose map is of an earlier placement or of lights since changed gives a
+capture no light, its intensity 0 in the capture's lighting buffer, so its first pass sees only the
+lights and its second bounces that. `ReflectionProbes.Sync` keeps the lights that reached each box
+when it was last asked for, and asks again when one is added or removed, grows or dims by a quarter,
+turns color, or moves a quarter of a unit or turns past eleven degrees, so a lamp switched off is
+seen and a flickering one is not. Four probes with a capture, those whose boxes come nearest the
+camera, are bound at set 1's bindings 5 to 8 and their irradiance buffers at 10 to 13, and the
+lighting buffer carries each one's middle, intensity, half size and last mip after the
+environment's. A surface in a box takes its reflection and diffuse light from the smallest box
+holding it, the reflection looked up where the reflected ray leaves the box (box projection), and a
+surface in none keeps the environment map.
 
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
 `ShadowFit` cuts each view's camera out to 150 units into slices ending at 12, 45 and 150

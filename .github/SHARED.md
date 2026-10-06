@@ -131,7 +131,7 @@ table also answers whether the two agree.
 | A field holding an array written from the terminal, its items split by semicolons | to check against `entity.set` | has (`3cab9d9d`) |
 | Files dropped on the window reach the program, and a command pretends a drop | has the messages, the command to check | has (`input.drop`, `eca234f9`) |
 | A command's parameter with a default may be left off, shown in brackets in its usage | to check against the command generator | has (`a3d56597`) |
-| C# typed at a running app | has in the editor (`eval`) | to consider |
+| C# typed at a running app | has in the editor (`eval`) | has (`e3d eval`, `075c5b3c`), compiled against the running program and run between frames |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
 | A command takes an enum member by its name alone, since `Enum.TryParse` takes any number as well and an undefined value reaches the engine | to check (`ConsoleWorldCommands.cs` reads gamepad buttons, axes and keys with `Enum.TryParse`) | has (`InputCommands.TryName`, `ef042886`), where a button of 100 stopped the program in ImGui |
 
@@ -178,6 +178,7 @@ table also answers whether the two agree.
 | A mesh's colors and second texture coordinates as buffers of their own beside a fixed vertex, drawn through a second vertex stage only where a mesh has them, so a mesh without them costs what it did, measured | to consider, Bevy's meshes carrying their own attributes | has (`cac05ded`), the same work without them and 7 percent more with both |
 | Every text file has LF ends in every checkout, by `.gitattributes`, so a test that reads a page or a script reads the same lines on Windows | has (`5264257`), after its first page failed two tests on Windows for CRLF | has (`1c1a3cea`), after its page showed a test reading no code blocks on Windows |
 | A render target of several images of their own formats, a pass described by its formats so targets alike share pipelines, and a shader's outputs read from its SPIR-V to mask the rest | to consider, Bevy's deferred pipeline having its own | has (`692cefee`), up to four images with one depth |
+| A reflection probe's capture filtered on the GPU with nothing read back, and a filter of an equirectangular image weighting its poles as their area | has, by Bevy's filter of a cubemap; to check for an image's poles | has (`3f597c01`), the environment map's CPU filter still to mend (REVIEW.md, item 3) |
 
 ### Documents
 

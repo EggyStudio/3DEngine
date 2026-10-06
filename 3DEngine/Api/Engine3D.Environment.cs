@@ -9,10 +9,10 @@ public static partial class Engine3D
     /// painted gradient, which smooth and metal surfaces reflect and rough ones scatter.
     /// </summary>
     /// <remarks>
-    /// The image is prefiltered by roughness into a cube map with faces 64 texels wide, which takes
-    /// a few hundred milliseconds, so it is set when a level starts. With a map set, models are lit
-    /// by it and the ECS's light entities, in place of the fixed light. <see cref="DrawSkybox()"/>
-    /// draws it as a background.
+    /// The image is decoded here, and the next frame uploads it and filters it by roughness on the
+    /// GPU into a cube map with faces 64 texels wide, so a map can change while a level runs. With a map set, models are lit by it and the ECS's
+    /// light entities, in place of the fixed light. <see cref="DrawSkybox()"/> draws it as a
+    /// background.
     /// </remarks>
     /// <exception cref="ArgumentException">The image is empty.</exception>
     public static void SetEnvironmentMap(Image equirectangular, float intensity = 1) =>

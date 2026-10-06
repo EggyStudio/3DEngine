@@ -72,13 +72,7 @@ internal struct LightingUbo
     /// <summary>World space to each shadowed spot light's clip space, by slot.</summary>
     public SpotShadowArray SpotShadows;
 
-    /// <summary>
-    /// The environment map's <see cref="EnvironmentMap.Irradiance"/> in xyz, nine coefficients,
-    /// zero with no map. Last, so the fields before it keep their offsets.
-    /// </summary>
-    public IrradianceArray EnvironmentIrradiance;
-
-    /// <summary>How many of <see cref="Probes"/> are bound, in x. After the irradiance, so the fields before keep their offsets.</summary>
+    /// <summary>How many of <see cref="Probes"/> are bound, in x.</summary>
     public Vector4 ProbeCount;
 
     /// <summary>The reflection probes bound this frame, by the slot their cube is bound at.</summary>
@@ -108,14 +102,6 @@ internal struct ProbeUboArray
 {
     /// <summary>The first probe.</summary>
     public ProbeUboEntry _element0;
-}
-
-/// <summary>Fixed-size storage for the environment's nine irradiance coefficients.</summary>
-[InlineArray(9)]
-internal struct IrradianceArray
-{
-    /// <summary>The first coefficient.</summary>
-    public Vector4 _element0;
 }
 
 /// <summary>Fixed-size storage for the shadowed spot lights' texel widths, four to an element.</summary>

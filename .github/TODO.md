@@ -95,21 +95,16 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### Meshes, materials and light
 
-- **A probe captures only on a change, and an environment map is filtered on the CPU.** The model
-  pass reflects up to 16 light entities and an environment map by the material's metallic-roughness
-  model, its diffuse light from nine spherical harmonics of irradiance (RENDERING.md §3 and §4), and
-  inside a reflection probe's box the probe's capture in place of the map. A probe is captured in
-  half floats from the meshes the window draws, or the first render target's when it draws none, and
-  filtered on the GPU in the frame that draws its last face, so a capture costs a frame's work. It
-  is captured again only when it moves, when a light reaching its box is added, removed or changed
-  past a threshold, or when `UpdateReflectionProbe` asks, and a door opening in its room is not seen
-  until then. The environment map is filtered on the CPU in a few hundred milliseconds from its
-  equirectangular image, whose mips average rows alike, so a sun near the zenith is spread over more
-  of the rougher mips than its solid angle covers. The probe's filter, given the image resampled
-  into a cube, would make it in a frame and weigh each texel by its solid angle. A mesh entity and
-  an `AnimatedModel` are drawn into the window through the first camera entity without a render
-  texture, and into each camera entity's render texture, each with its shadow fitted to its own
-  camera.
+- **A probe captures only on a change.** The model pass reflects up to 16 light entities and an
+  environment map by the material's metallic-roughness model, its diffuse light from nine spherical
+  harmonics of irradiance (RENDERING.md §3 and §4), and inside a reflection probe's box the probe's
+  capture in place of the map, both filtered on the GPU in a frame. A probe is captured in half
+  floats from the meshes the window draws, or the first render target's when it draws none, a face a
+  frame. It is captured again only when it moves, when a light reaching its box is added, removed or
+  changed past a threshold, or when `UpdateReflectionProbe` asks, and a door opening in its room is
+  not seen until then. A mesh entity and an `AnimatedModel` are drawn into the window through the
+  first camera entity without a render texture, and into each camera entity's render texture, each
+  with its shadow fitted to its own camera.
 - **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
   which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
   pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex

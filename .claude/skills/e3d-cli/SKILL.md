@@ -89,7 +89,7 @@ semicolon is the answer, and `-f <file.cs>` sends a file of top-level statements
 ```
 
 A fragment that does not compile fails with `EVAL_COMPILE_FAILED` and the compiler's errors by
-line, one that throws with `EVAL_THREW`, and the first holds its frame for about two seconds.
+line, one that throws with `EVAL_THREW`, and the first holds its frame while the compiler starts.
 
 ## Input goes through the engine, not the desktop
 

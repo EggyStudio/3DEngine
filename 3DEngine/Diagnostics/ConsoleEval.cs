@@ -27,8 +27,8 @@ namespace Engine;
 /// It is compiled against every assembly the process has loaded, so a game's own types are in
 /// reach, into a collectible load context let go after its one run. It runs on the main thread
 /// between frames, as every command does, so it may touch whatever a behavior may, and its compile
-/// holds that frame, about two seconds the first time while Roslyn's own code is compiled and some
-/// 150 milliseconds after. A native build cannot load code compiled while it runs, and answers so.
+/// holds that frame, longest the first time, while Roslyn's own code is compiled. A native build
+/// cannot load code compiled while it runs, and answers so.
 /// </para>
 /// </remarks>
 internal static class ConsoleEval

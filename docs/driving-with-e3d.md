@@ -142,8 +142,9 @@ A file is a program's top-level statements, as a `Program.cs` is, so it may begi
 directives and declare local functions and types after its statements, and the game's own types
 are in reach. A fragment that does not compile is refused with the compiler's errors and their
 lines, and one that throws with the exception's type and message, its stack in the log. The first
-fragment holds its frame for about two seconds while the compiler starts, and each after for
-about 150 milliseconds. A native build has no compiler and refuses it.
+fragment holds its frame while the compiler starts, about two seconds, and each after for about
+150 milliseconds, as `./e3d command profile.slowest` read after a fragment on
+`models_reflection_probe`. A native build has no compiler and refuses it.
 
 ## Scripts and agents
 
