@@ -2,16 +2,6 @@ using System.Numerics;
 
 namespace Engine;
 
-/// <summary>How an emitter's particles are laid over what is behind them.</summary>
-public enum ParticleBlend
-{
-    /// <summary>Their light added to what is behind, as fire, sparks and magic are, which needs no order.</summary>
-    Additive,
-
-    /// <summary>Laid over what is behind by their alpha, as smoke and dust are, in the order they were born.</summary>
-    Alpha,
-}
-
 /// <summary>
 /// An emitter of particles at its entity's place, as smoke, sparks or dust: a stream of small
 /// squares that face the camera, born at a rate, moving and falling, and changing size and color

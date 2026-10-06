@@ -81,7 +81,6 @@
 3DEngine/Rendering/Immediate/TextureStore.cs TextureWrap
 3DEngine/Rendering/Lighting/Light.cs LightKind
 3DEngine/Rendering/Models/MeshStore.cs ModelVertex
-3DEngine/Rendering/Particles/ParticleEmitter.cs ParticleBlend
 3DEngine/Rendering/PostProcess/FrameEffects.cs Tonemap
 3DEngine/Scenes/SceneFile.cs ISceneCodec
 3DEngine/Scenes/SceneFile.cs ModelRef
