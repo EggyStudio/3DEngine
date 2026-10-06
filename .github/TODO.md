@@ -21,16 +21,21 @@ removed from this file, and an item that is partly done is rewritten around what
   the pass copies into its ring on several threads, and each view draws the blocks of 64 instances
   it sees. `models_stress` without its arms held 410,266 on 2026-10-06 (`E3D_STRESS_ARMS=0`, the
   Release build opened offscreen and `./e3d command profile` read once the search ended, as
-  RENDERING.md §6 runs it), in a frame of 19.9 ms: the program's loop turning every entity 9.8 ms,
-  `MeshEntityDraws` 5.9 ms, the first pass copying the instances into the ring and boxing their
-  blocks 3.3 ms, and the GPU 5.8 ms for the model pass. Every entity turns each frame there, so a
-  chunk kept from the frame before saves nothing, and the copy goes only if `MeshEntityDraws` writes
-  into the renderer's mapped memory, across the two worlds, for at most the 3.3 ms. A chunk of 4096
-  entities none of which changed keeps the instances it gathered the frame before, so 400,000
-  standing still take 2.4 ms in place of 6.0, but every instance is still copied into the ring each
-  frame and a culled block with them, and one entity moving gathers its whole chunk again. A frame
-  holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the example's loop, the
-  upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the three.
+  RENDERING.md §6 runs it), in a frame of 17.7 ms: the program's loop turning every entity through
+  `GetRef` 8.4 ms, `MeshEntityDraws` 5.4 ms, the first pass, the shadows', copying the instances
+  into the ring and boxing their blocks 3.2 ms, and the GPU 4.9 ms for the model pass. Two changes
+  would take more of it, and neither pays for its reach at a count no raylib-style game nears.
+  `MeshEntityDraws` writing straight into the renderer's mapped ring, across the two worlds and
+  after a pass counting each group, would save the copy's read and about 1.5 ms, since most of the
+  copy is the write into write-combined memory, which stays. An instance of a 3x4 world matrix and
+  an index into a kept table of materials, in place of 96 bytes with its color, emission and
+  factors, would halve what the gather writes and the copy moves, about 2.5 to 3 ms, and changes the
+  model pass's instance layout and every vertex stage of a program's own that reads an instance's
+  color. A chunk of 4096 entities none of which changed keeps the instances it gathered the frame
+  before, so 400,000 standing still take 2.4 ms in place of 6.0, but every instance is still copied
+  into the ring each frame and a culled block with them, and one entity moving gathers its whole
+  chunk again. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
+  example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the three.
 
 - **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
   500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the
@@ -45,18 +50,22 @@ removed from this file, and an item that is partly done is rewritten around what
   character is near, and its ray onto the step after a hit. Ground of a mesh, a turned box or a
   heightfield still takes the rays.
 
-- **Ground loaded for the first time costs a frame of up to 22 ms.** `games/Manor` streams its
+- **A build that compiles as it runs stalls on a thing's first use.** `games/Manor` streams its
   estate in as cells of prefabs, and its walk's worst frame offscreen was 47 ms, read with
-  `profile.slowest`. Four causes were found and moved off the frame: a stage's batch of tiny
-  systems waiting on the thread pool behind the loads (up to 47 ms), each model file read with
-  Assimp on the main thread to look for clips (8 to 10 ms), each texture upload waiting for the
-  frames in flight (20 ms for a cell's textures), and a probe's readback waiting for its whole frame
-  (8 to 24 ms). The worst frame of a walk is now 22 ms, and 19 to 25 ms in a native build. A
-  frame's texture uploads go to the queue in one submit, where a submit of each cost 0.25 to 0.8
-  ms, so six textures take 0.8 ms in place of 3.1. A probe's faces are recorded one a frame. What
-  is left is the first frames' compiling of code a JIT build has not run yet, the physics step's
-  shapes and joints most of it (up to 15 ms after a warm-up on a worker), the first texture's
-  memory (11 ms once, at the start), and the first shadow pass (17 ms once).
+  `profile.slowest`. Four causes were found and moved off the frame: a stage's batch of tiny systems
+  waiting on the thread pool behind the loads (up to 47 ms), each model file read with Assimp on the
+  main thread to look for clips (8 to 10 ms), each texture upload waiting for the frames in flight
+  (20 ms for a cell's textures), and a probe's readback waiting for its whole frame (8 to 24 ms). A
+  frame's texture uploads go to the queue in one submit, and a probe's faces are recorded one a
+  frame. On 2026-10-06 the autopilot walked the route for a minute offscreen
+  (`input.button 0 South 2`, then `manor.autopilot true`, `profile.slowest` read every ten seconds):
+  the native build's worst frame was 18 ms, and the build `dotnet run` makes 57 ms, its slow frames
+  holding 23 to 27 ms of the runtime compiling the code of a thing's first use, the first probe
+  capture's and the first point shadows' among them. Natively the first frame shown takes 30 ms, and
+  the first texture's memory, 11 ms, is taken before it. What is left belongs to the compiler a
+  player's build does not have, and would go by packing the engine compiled ahead (ReadyToRun) for
+  each platform beside its portable code, a copy of a few megabytes each, so a game run from its
+  project compiles only its own code.
 
 ### The flat API
 

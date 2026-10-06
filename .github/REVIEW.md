@@ -196,3 +196,16 @@ as the frame before, and the render tests pass on lavapipe under the validation 
 example's own in the place of the msf_gif.h raylib's includes, and a recording made through `./e3d`
 with Ctrl and R decodes as 19 frames of the scene. 515 of 619 functions are carried, and the suite:
 1,397 passed, 0 failed, 1 skipped.
+
+**Now 3, TODO.md's cost entries measured again.** The per-entity entry keeps its fresh run, 410,266
+entities in a 17.7 ms frame with the command that made it, and names the two changes and what each
+would save, as decided. The one-time hitches were measured frame by frame, with a trace of each
+frame's costs, pipeline creation, device memory and the runtime's compiling, kept out of the commit.
+They are the compiler's. Manor's first shown frame spends 629 ms compiling across its threads and
+its first probe and point shadows 23 to 27 ms each, while the nine pipelines it makes take under 1.5
+ms together and the first memory, 11 ms, comes before the first frame. Built native, as a player
+gets it, the first frame shown takes 30 ms and the autopilot's minute-long walk is 18 ms at worst,
+against 57 ms for the build `dotnet run` makes, so there is nothing of them to mend in the engine's
+frame. The entry now says so, with the run that measured it, and names packing the engine compiled
+ahead (ReadyToRun) for each platform as what would take the rest from a game run from its project,
+at a few megabytes a platform, which is the owner's to weigh.
