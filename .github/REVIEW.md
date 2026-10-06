@@ -10,18 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `98f6d8e5`. Verdict 24's mend is in: `Shutdown` joins the threads an app's parts
-start through an `AppThreads` resource, naming in the log any not done within two seconds, the
-console's server closes the connections still open as it stops, the asset server's sixteen workers
-run on the pool where each was a long running task's thread never joined, and the headless leak test
-carries the heap after every tenth app and the threads alive after each `Shutdown` in its
-assertions, so the next macOS run says what is left, the runtime's file watcher on `source/` the one
-thing a headless app still leaves (`27f949bf`); the verdict stays open until that run. Particles can
-bounce off or end at the window's depth of the scene, off unless set, the depth of the shadow
-casters drawn at half size, measured at 0.02 ms of CPU and 0.009 ms of GPU on the particles example,
-whose sparks bounce off the ground (`f13cab78`). Three commits of moves and one mending the
-console's tests' clock take N 1.2's list to 83, N 1.3's to 1 and N 3.3's to 6 left out (`e2780345`,
-`93615075`, `98f6d8e5`).
+Reviewed up to `a7d7e1e2`. The owner pushed `98f6d8e5`, and its run: Linux and Windows pass, 1,403
+each, and macOS passes the leak test, so Verdict 24 is settled, and fails three `StateTests` under
+N 3.7, a script generation's Startup system throwing for a `Time` no bare app has, 18 times, which
+is Verdict 25 and comes first. Verdict 24's mend: `Shutdown` joins the threads an app's parts start
+through an `AppThreads` resource, naming in the log any not done within two seconds, the console's
+server closes the connections still open as it stops, the asset server's sixteen workers run on the
+pool where each was a long running task's thread never joined, and the headless leak test carries
+the heap after every tenth app and the threads alive after each `Shutdown` in its assertions, so the
+next macOS run says what is left, the runtime's file watcher on `source/` the one thing a headless
+app still leaves (`27f949bf`). Particles can bounce off or end at the window's depth of the scene,
+off unless set, the depth of the shadow casters drawn at half size, measured at 0.02 ms of CPU and
+0.009 ms of GPU on the particles example, whose sparks bounce off the ground (`f13cab78`). Three
+commits of moves and one mending the console's tests' clock take N 1.2's list to 83, N 1.3's to 1
+and N 3.3's to 6 left out (`e2780345`, `93615075`, `98f6d8e5`). Since then item 6 is settled: the
+build workflow measures every pair against raylib's program after its captures, against
+`measured-ci.tsv` from the job's own device, failing where a pair stands more than a point above its
+share or draws no frame, the eight pairs that move by the clock or the audio device left out with
+their reason (`6e87257f`); and fonts draw their color emoji, read by the engine's TrueType reader
+from PNG bitmaps or colored layers, with two generated test fonts and a GPU test, sequences, COLR
+version 1 and sbix kept in TODO.md (`a7d7e1e2`).
 
 Before them, the run of `0019d177` was read from its page: Linux and Windows pass, and macOS fails
 one test, `AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`, 1,371
@@ -59,9 +67,9 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 24 first, the macOS leak.** The run of `0019d177` passed on Linux and Windows and
-   failed on macOS in one test, which the verdict takes apart. The run after its mend is pushed
-   shows whether all three pass, and then 5.1 is packable.
+1. **Verdict 25 first, the script generation in bare apps on macOS.** The run of `98f6d8e5`
+   passes on Linux and Windows and on macOS fails three `StateTests`, which the verdict takes apart.
+   The run after its mend is pushed shows whether all three systems pass, and then 5.1 is packable.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -110,17 +118,12 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **The measure runs in the workflow, so a share can only fall** (N 5.2). `compare.py` measures on
-   one machine and writes `measured.tsv` by hand, so a change that moves an example away from
-   raylib's picture is seen only when someone measures again. The examples job builds raylib as
-   `run.sh` does and measures every written pair on Linux, and fails where a pair's share stands
-   more than one point above the share recorded for it, the recorded share coming from the same
-   job's device the first time it runs so the two machines' drivers are not compared with each
-   other. A pair that moves by the clock or the device, as the audio pictures do, says so in its row
-   and is left out with that reason. After it, color emoji through the TrueType reader's bitmap
-   tables is the most game-visible entry; the tonemap pass over every frame waits, since it costs
-   every program and redraws every lit reference for no fault measured, and the two gaps of "Models
-   are partial" stay described, having no user.
+6. **The page's repeated lines count warnings and errors alone.** The owner asked on 2026-10-06,
+   the page's "Repeated most in the output" having shown the engine's banner at every app's start,
+   2,190 lines of `====`, where it was meant for the error a system logs every frame.
+   `build/test.py` counts the lines logged at warning or error, or lines of no level at all, and
+   leaves the section out when nothing repeats, with its own test on a log of banners and one
+   repeated error.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -129,24 +132,26 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 23 are settled, and their numbers are not given again.
+Verdicts 1 to 24 are settled, and their numbers are not given again.
 
-24. **The run of `0019d177` fails on macOS alone, in
-    `AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`.** Read from
-    the page: 1,371 passed, 1 failed, 10 skipped, and the GC's heap after a hundred headless apps
-    stands 6.61 MB above the heap after twenty, against the 5 MB allowed, where `cac05ded` measured
-    5.87 with the other leak test failing too, which `fb68cfad` mended. Twenty kilobytes an app
-    survive on macOS and on neither other system, which points at what macOS does otherwise rather
-    than at a root the GC sees everywhere: the threads an app starts and `Shutdown` does not join,
-    whose `Thread`, its context and its statics live until the thread ends, which macOS may do later
-    than the collection in the test; or a native handle kept with a managed owner that only a
-    finalizer frees. Two things, so the next macOS run says which without a Mac. The test records
-    the heap after every ten apps and the threads alive after each `Shutdown`, and on failure puts
-    both series in its assertion's message, which the page carries whole, and `Shutdown` joins the
-    app's own threads before it returns, held on every system by a test that no thread of a closed
-    app is alive. The 5 MB stays as it is, N 3.5, unless the series shows a step the runtime takes
-    rather than a slope.
-
+25. **The run of `98f6d8e5` fails on macOS alone, in three `StateTests`, under N 3.7.** Read
+    from the page: 1,380 passed, 3 failed, 10 skipped, and in
+    `An_Entity_Spawned_On_Enter_Is_There_For_Update_In_The_Same_Frame`,
+    `An_Entity_Tied_To_A_Sub_State_Goes_When_Its_Parent_Leaves_Its_Value` and
+    `An_Entity_Tied_To_A_Value_Goes_With_Its_Children_When_The_State_Leaves_It` the engine logged 18
+    errors, each `System 'Stages_Generated_Startup_Startup' threw in stage Startup:
+    InvalidOperationException: Resource of type Time not found`. The tests make bare apps with `new
+    App()` and no plugins, so no `Time`, and that system is no code of theirs: its name is the
+    runtime behavior compiler's, so it is a script generation another test compiled, reaching apps
+    that never asked for it. Linux and Windows run the same tests and log nothing, 1,403 passed
+    each, so the generation reaches those apps only where it lives longer, and on macOS Verdict 24
+    found the file watcher's FSEvents stream let go after the collection a test waits for.
+    `d7e370ed` mended a script registered into every later app once, and this is the same fault by
+    another door. Two things. An app takes behaviors from the assemblies it was given and from no
+    generation another app compiled, whatever is still loaded, held by a test on every system that
+    compiles a script in one app, makes a bare app, and finds no system of the script's in it. And
+    the logged error names the assembly a throwing system came from, so the page says where it came
+    from without a Mac. The three tests stay as they are, bare apps being right for what they test.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -187,40 +192,13 @@ Verdicts 1 to 23 are settled, and their numbers are not given again.
    N 6.7, N 6.8 and N 3.7, and the reviewing session reads a run's jobs and annotations from
    GitHub.
 
+8. **The page's repeated lines are warnings and errors.** The owner chose it on 2026-10-06, after
+   the page of `98f6d8e5` repeated the engine's banner, so the section counts what is logged at
+   warning or error or with no level and is left out when nothing repeats.
+
 ## Replies
 
-**Now 6, the measure runs in the workflow.** `compare.py` takes `all`, and with `--against` holds
-each pair to the share recorded for it: a run fails where a pair stands more than a point above it,
-where a pair that drew a frame draws none, or where raylib's program stops building or this engine's
-capture fails, each named, and `--record` writes the shares measured in place of `measured.tsv`. The
-examples job measures every pair after its captures against `3DEngine.Examples/measured-ci.tsv`,
-which starts empty, so its first run measures every pair for the first time and puts all of them in
-the run's summary to be recorded from there, its own device's shares, and installs Mesa's OpenGL,
-which raylib's programs draw through by SDL's offscreen driver, and Pillow. To find the pairs that
-move, every pair was measured twice here back to back and read beside the shares measured before:
-215 of the 219 agree within 0.3 points across the three, and four moved, both clocks by the time of
-day (0.8 and 0.7 points), `audio_raw_stream` (1.4 against 6.0) and `audio_spectrum_visualizer` (1.0)
-by the audio device. Those and the four other audio pairs whose pictures are drawn from what the
-device has played or mixed are marked `moves` in `triage.tsv` with the reason, their rows say so and
-the measure leaves them out. Tried here, a pair within a point of a share recorded below it holds,
-one recorded as drawing no frame fails the run, and one never recorded is listed to record.
-`measured.tsv` holds the second run's shares. The first run on the workflow's device will take as
-long again as its captures, about half an hour here.
-
-**Now 3, color emoji.** The engine's TrueType reader reads a glyph's colors, from a font's PNG
-bitmaps (CBDT and CBLC, index formats 1 to 5 and image formats 17 to 19, the strike nearest above
-the size scaled by area) as Noto Color Emoji and Twemoji hold them, or from its layers (COLR version
-0 with CPAL's first palette, each layer's outline filled and laid over the last) as Segoe UI Emoji
-holds them. `LoadFontEx` and `LoadFontFromMemory` now share one path, in which the characters past
-U+FFFF and every character a color font holds in color, the first plane's too, are drawn by the
-reader into the atlas in RGBA, the atlas builder baking the rest, and a font of bitmaps alone, which
-the builder cannot read, is baked by the reader whole from an empty atlas, the file check accepting
-it. Twemoji and Segoe UI Emoji on this machine bake as their pictures, and text drawn in white shows
-them in color. `build/make-color-test-fonts.py` writes two fonts of known colors beside
-`planes.ttf`, one of bitmaps alone and one of layers, and tests read a bitmap at its strike's size
-and twice it, layers in their palette colors, both fonts through `LoadFontEx` with a first-plane
-emoji among them, and an emoji drawn red over blue by white text on the GPU. TODO.md's entry keeps
-what is left. A sequence a font joins into one picture is drawn as its characters apart, since
-nothing shapes text by the font's substitutions, and COLR version 1's gradients and Apple's sbix are
-not read. The suite passed 1,413 with one skipped, and the render tests on lavapipe 105 with no
-message from the validation layer.
+**Now 4, N 1.5's three rows.** The owner allowed in this session that AGENTS.md be committed, and
+its own text allows since 2026-10-05 a row N 1.5 asks for, so the table of areas names `docs`,
+`games` and `templates` and N 1.5's list is empty. NORM.md's row for N 1.5 still says three wait for
+the owner, which is the reviewer's to change.

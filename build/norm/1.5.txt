@@ -1,4 +1,1 @@
-# N 1.5, a top folder with no row in AGENTS.md's table of areas. These rows wait for the owner's word on AGENTS.md.
-docs
-games
-templates
+# N 1.5, a top folder with no row in AGENTS.md's table of areas.
