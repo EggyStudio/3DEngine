@@ -35,10 +35,8 @@ public sealed partial class OffscreenRenderTests
             BeginDrawing();
             Draw();
             EndDrawing();
-            // The capture is read back and prefiltered on a worker, outside the frame loop.
-            Thread.Sleep(5);
         }
-        IsReflectionProbeReady(probe).Should().BeTrue("the probe is captured, read back and prefiltered within a few frames");
+        IsReflectionProbeReady(probe).Should().BeTrue("the probe is captured and filtered within a few frames");
         var room0 = Capture(Draw, "room in the ball");
 
         // The middle of the ball, which mirrors what is behind the camera.
@@ -79,8 +77,6 @@ public sealed partial class OffscreenRenderTests
                 BeginDrawing();
                 Draw();
                 EndDrawing();
-                // A capture is prefiltered on a worker, outside the frame loop.
-                Thread.Sleep(5);
             }
         }
 
