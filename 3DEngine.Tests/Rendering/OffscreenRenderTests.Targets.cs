@@ -244,6 +244,46 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
+    public void A_Render_Texture_Is_Drawn_At_The_Windows_Samples_Unless_It_Asks_For_One()
+    {
+        Open(64, 32, samples: 4);
+        var smooth = LoadRenderTexture(32, 32);
+        var hard = LoadRenderTextureEx(32, 32, PixelFormat.UncompressedR8G8B8A8, samples: 1);
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // Read texel for texel, so the frame shows each target's own texels.
+        SetTextureFilter(smooth.Texture, TextureFilter.Point);
+        SetTextureFilter(hard.Texture, TextureFilter.Point);
+
+        var image = Capture(() =>
+        {
+            foreach (var target in new[] { smooth, hard })
+            {
+                BeginTextureMode(target);
+                ClearBackground(Color.Black);
+                DrawCircle(16, 16, 11.3f, Color.White);
+                // A model too, drawn by the model pass's pipelines for the target's samples, unlit
+                // and so white, turned so its edges slant.
+                BeginMode3D(new Camera3D(new Vector3(0, 0, 9), Vector3.Zero, Vector3.UnitY, 45));
+                DrawModelEx(cube, new Vector3(2.2f, 2.2f, 0), Vector3.UnitZ, 30, Vector3.One, Color.White);
+                EndMode3D();
+                EndTextureMode();
+            }
+            ClearBackground(Color.Black);
+            DrawTextureRec(smooth.Texture, new Rectangle(0, 0, 32, -32), Vector2.Zero, Color.White);
+            DrawTextureRec(hard.Texture, new Rectangle(0, 0, 32, -32), new Vector2(32, 0), Color.White);
+        }, "target samples");
+
+        // The pixels of a half that are neither the circle nor the ground, the edge's blend.
+        int Blended(int left) => Enumerable.Range(0, 32 * 32).Count(i => GetImageColor(image, left + i % 32, i / 32).R is > 20 and < 235);
+        Blended(0).Should().BeGreaterThan(20, "a render texture drawn at the window's four samples smooths the circle's edge");
+        Blended(32).Should().Be(0, "and one asked for at one sample leaves it hard, as raylib's");
+        (GetImageColor(image, 25, 25).R, GetImageColor(image, 57, 25).R).Should().Be(((byte)255, (byte)255), "the cube is drawn into both, past the circle at their lower right");
+        UnloadModel(cube);
+        UnloadRenderTexture(smooth);
+        UnloadRenderTexture(hard);
+    }
+
+    [NeedsVulkanFact]
     public void An_Immediate_Shader_Mixes_Its_Own_Texture_With_The_One_Drawn()
     {
         Open(64, 32);

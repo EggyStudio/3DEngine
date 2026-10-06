@@ -126,8 +126,8 @@ internal sealed class GpuTextures : IDisposable
                 {
                     if (gfx is not GraphicsDevice device) continue;
                     var target = upload.Formats is { } formats
-                        ? device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height, formats)
-                        : device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
+                        ? device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height, formats, multisampled: upload.Multisampled)
+                        : device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height, ImageFormat.Undefined, multisampled: upload.Multisampled);
                     var targetSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
                     device.Name(target.ColorView.Image, $"Render texture {upload.Id}");

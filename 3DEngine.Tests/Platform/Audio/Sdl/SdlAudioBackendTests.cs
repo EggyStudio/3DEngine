@@ -59,11 +59,44 @@ public class SdlAudioBackendTests
         public void Log(LogLevel level, string category, string message, Exception? exception = null) => Lines.Enqueue((level, message));
     }
 
-    [NeedsNoAudioDeviceFact]
+    // Opens a backend as on a machine with no audio device, SDL's audio driver named as one that is
+    // not there, which no other test's backend has open while these run one at a time.
+    private static SdlAudioBackend WithNoDevice(bool fallBackToDummy)
+    {
+        SDL3.SDL.SetHintWithPriority(SDL3.SDL.Hints.AudioDriver, "no-such-driver", SDL3.SDL.HintPriority.Override);
+        try
+        {
+            var backend = new SdlAudioBackend { FallBackToDummy = fallBackToDummy };
+            backend.Initialize();
+            return backend;
+        }
+        finally
+        {
+            SDL3.SDL.ResetHint(SDL3.SDL.Hints.AudioDriver);
+        }
+    }
+
+    [Fact]
+    public void A_Machine_With_No_Audio_Device_Plays_To_The_Dummy_Driver_Where_A_Stream_Moves_On()
+    {
+        using var backend = WithNoDevice(fallBackToDummy: true);
+        backend.IsInitialized.Should().BeTrue("where no device opens, sound goes to SDL's dummy driver, as raylib's to miniaudio's null device");
+        backend.Driver.Should().Be("dummy");
+
+        // Half a second queued, which the dummy driver takes at the rate it would play.
+        var voice = backend.CreateStreamVoice(2, 48000, new AudioVoiceParams { Volume = 1, PlaybackRate = 1 });
+        voice.Should().NotBe(0);
+        backend.QueueVoiceSamples(voice, new float[48000]);
+        var queued = backend.QueuedVoiceFrames(voice);
+        for (int wait = 0; wait < 100 && backend.QueuedVoiceFrames(voice) >= queued; wait++) Thread.Sleep(20);
+
+        backend.QueuedVoiceFrames(voice).Should().BeLessThan(queued, "the stream's position moves on with no device, so music and streams go on as they do with one");
+    }
+
+    [Fact]
     public void Method_Calls_Are_Safe_When_Backend_Failed_To_Initialise()
     {
-        var backend = new SdlAudioBackend();
-        backend.Initialize();
+        var backend = WithNoDevice(fallBackToDummy: false);
         backend.IsInitialized.Should().BeFalse();
 
         var sound = new Sound { Samples = new float[1024], SampleRate = 44100, Channels = 1 };

@@ -157,8 +157,12 @@ public static partial class Engine3D
     }
 
     /// <summary>Whether the audio device is open and has a backend that makes sound.</summary>
+    /// <remarks>
+    /// Where the machine has no audio device, sound goes to SDL's dummy driver, which takes it at
+    /// the rate it plays, and this answers true, as raylib's does on miniaudio's null device.
+    /// </remarks>
     public static bool IsAudioDeviceReady() =>
-        _app?.World.TryGetResource<AudioServer>(out var audio) == true && audio.Backend is not NullAudioBackend;
+        _app?.World.TryGetResource<AudioServer>(out var audio) == true && audio.Backend is not NullAudioBackend && audio.Backend.IsInitialized;
 
     /// <summary>Sets the volume every sound is multiplied by, from 0 to 1.</summary>
     public static void SetMasterVolume(float volume)

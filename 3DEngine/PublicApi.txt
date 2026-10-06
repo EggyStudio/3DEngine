@@ -861,6 +861,7 @@ static class Engine.Engine3D
   static RenderTexture2D LoadRenderTexture(int width, int height)
   static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
   static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format)
+  static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format, int samples)
   static Shader LoadComputeShader(string fileName)
   static Shader LoadComputeShaderFromMemory(string code, string name = "compute.slang")
   static Shader LoadShader(string fileName)

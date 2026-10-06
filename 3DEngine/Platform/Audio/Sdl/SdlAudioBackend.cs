@@ -34,10 +34,12 @@ namespace Engine;
 /// SDL's own examples recommend for short looped SFX.
 /// </para>
 /// <para>
-/// <b>Failure mode:</b> if the SDL audio subsystem fails to initialise (no audio
-/// device, headless CI), <see cref="Initialize"/> logs and leaves
-/// <see cref="IsInitialized"/> <c>false</c>; every subsequent call becomes a no-op,
-/// matching <see cref="NullAudioBackend"/> semantics.
+/// <b>No device:</b> where no audio device opens, as on a machine with none or a runner, sound
+/// goes to SDL's dummy driver, which takes samples at the rate a device would play them and plays
+/// none, as raylib's goes to miniaudio's null device (REVIEW.md, Decision 13), so sounds end,
+/// music moves on and streams ask for more as they do with a device. Where even that fails,
+/// <see cref="Initialize"/> logs and leaves <see cref="IsInitialized"/> <c>false</c>, and every
+/// call after is a no-op, as <see cref="NullAudioBackend"/>'s are.
 /// </para>
 /// </remarks>
 /// <seealso cref="SdlAudioPlugin"/>
@@ -154,6 +156,12 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
     /// <inheritdoc />
     public string BackendId => "sdl3";
 
+    /// <summary>Whether SDL's dummy driver is tried where no device opens, false only for a test of a backend with none.</summary>
+    internal bool FallBackToDummy { get; init; } = true;
+
+    /// <summary>The audio driver SDL opened the device through, <c>dummy</c> where no device opened, or null before one has.</summary>
+    internal string? Driver { get; private set; }
+
     /// <inheritdoc />
     public void Initialize()
     {
@@ -163,43 +171,27 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
             if (_initialized) return;
             try
             {
-                // SDL_Init is additive, so when the app's SDL already booted Video and Gamepad,
-                // adding Audio starts the audio subsystem alone. Track ownership so we
-                // only quit-subsystem what we initialised ourselves.
-                if (!SDL.WasInit(SDL.InitFlags.Audio).HasFlag(SDL.InitFlags.Audio))
+                if (TryOpen(out var failure)) return;
+                if (!FallBackToDummy)
                 {
-                    if (!SDL.InitSubSystem(SDL.InitFlags.Audio))
-                    {
-                        WarnOnce($"SdlAudioBackend: SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}', so the backend is disabled.");
-                        return;
-                    }
-                    _ownsAudioSubsystem = true;
-                }
-
-                // Request a sensible default; SDL will negotiate something close.
-                var desired = new SDL.AudioSpec
-                {
-                    Format = SDL.AudioFormat.AudioF32LE,
-                    Channels = 2,
-                    Freq = 48000,
-                };
-                _device = SDL.OpenAudioDevice(SDL.AudioDeviceDefaultPlayback, in desired);
-                if (_device == 0)
-                {
-                    WarnOnce($"SdlAudioBackend: SDL_OpenAudioDevice failed: '{SDL.GetError()}', so the backend is disabled.");
-                    if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
+                    WarnOnce($"SdlAudioBackend: {failure}, so the backend is disabled.");
                     return;
                 }
-                if (!SDL.GetAudioDeviceFormat(_device, out _deviceSpec, out _))
-                {
-                    Logger.Debug($"SdlAudioBackend: GetAudioDeviceFormat failed ('{SDL.GetError()}'); falling back to desired spec.");
-                    _deviceSpec = desired;
-                }
 
-                _initialized = true;
-                Logger.Info(
-                    $"SdlAudioBackend: device opened (id={_device}, format={_deviceSpec.Format}, " +
-                    $"{_deviceSpec.Channels}ch @ {_deviceSpec.Freq}Hz).");
+                // No audio device opens, so sound goes to SDL's dummy driver, chosen over what the
+                // environment names, as raylib's goes to miniaudio's null device.
+                SDL.SetHintWithPriority(SDL.Hints.AudioDriver, "dummy", SDL.HintPriority.Override);
+                try
+                {
+                    if (TryOpen(out var dummyFailure))
+                        WarnOnce($"SdlAudioBackend: {failure}, so sound goes to SDL's dummy driver, which takes it at the rate it plays and plays none.");
+                    else
+                        WarnOnce($"SdlAudioBackend: {failure}, and with SDL's dummy driver {dummyFailure}, so the backend is disabled.");
+                }
+                finally
+                {
+                    SDL.ResetHint(SDL.Hints.AudioDriver);
+                }
             }
             catch (DllNotFoundException ex)
             {
@@ -210,6 +202,50 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                 Logger.Warn($"SdlAudioBackend: initialisation failed ({ex.GetType().Name}: {ex.Message}). Backend disabled.");
             }
         }
+    }
+
+    // Starts SDL's audio, unless the app's SDL already has, and opens the default playback device,
+    // saying what failed where it cannot. SDL_Init is additive, so where the app's SDL booted video
+    // and gamepads, adding audio starts audio alone, and only what was started here is quit.
+    private bool TryOpen(out string failure)
+    {
+        if (!SDL.WasInit(SDL.InitFlags.Audio).HasFlag(SDL.InitFlags.Audio))
+        {
+            if (!SDL.InitSubSystem(SDL.InitFlags.Audio))
+            {
+                failure = $"SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}'";
+                return false;
+            }
+            _ownsAudioSubsystem = true;
+        }
+
+        // A sensible default, which SDL negotiates something close to.
+        var desired = new SDL.AudioSpec
+        {
+            Format = SDL.AudioFormat.AudioF32LE,
+            Channels = 2,
+            Freq = 48000,
+        };
+        _device = SDL.OpenAudioDevice(SDL.AudioDeviceDefaultPlayback, in desired);
+        if (_device == 0)
+        {
+            failure = $"SDL_OpenAudioDevice failed: '{SDL.GetError()}'";
+            if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
+            return false;
+        }
+        if (!SDL.GetAudioDeviceFormat(_device, out _deviceSpec, out _))
+        {
+            Logger.Debug($"SdlAudioBackend: GetAudioDeviceFormat failed ('{SDL.GetError()}'); falling back to desired spec.");
+            _deviceSpec = desired;
+        }
+
+        _initialized = true;
+        Driver = SDL.GetCurrentAudioDriver();
+        Logger.Info(
+            $"SdlAudioBackend: device opened through '{Driver}' (id={_device}, format={_deviceSpec.Format}, " +
+            $"{_deviceSpec.Channels}ch @ {_deviceSpec.Freq}Hz).");
+        failure = "";
+        return true;
     }
 
     /// <inheritdoc />

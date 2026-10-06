@@ -18,8 +18,10 @@ CloseWindow();
 ```
 
 `IsAudioDeviceReady` says whether the device opened with a backend that makes sound. On a machine
-with no audio device, as a build server, the program runs on in silence rather than failing, so a
-game need not check. `SetMasterVolume` sets a volume from 0 to 1 that every sound and piece of
+with no audio device, as a build server, sound goes to SDL's dummy driver, which takes it at the
+rate it would play and plays none, as raylib's goes to miniaudio's null device, so sounds end,
+music moves on and streams ask for more as they do with a device, and a game need not check.
+`SetMasterVolume` sets a volume from 0 to 1 that every sound and piece of
 music is multiplied by, which a game's settings screen changes.
 
 ## Sounds

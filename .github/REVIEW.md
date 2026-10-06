@@ -10,22 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `660b3bc6`. The examples job of `ac774ac9`'s run failed on one capture with no reason
-given, `audio_spectrum_visualizer`, which is Verdict 26. The owner decided six things on 2026-10-06,
-Decisions 9 to 12 and 5.1 packed from `ac774ac9`, and items 6 to 9 come of them. The warnings the
-suite repeated are gone: thirteen tests let go the texture they left, the tests reading Summit's
-level register stand-ins for its components, a missing audio device is warned of once a process, the
-Linux jobs fetch LunarG's layer of 1.4.363.0, which knows `VK_KHR_line_rasterization` and found the
-ambient occlusion renderer never disposed and a custom vertex stage fed instance rows it did not
-read, both mended, and macOS names the layer once, the page repeating only `ScheduleTests`' meant
-throw (`660b3bc6`). Music opens XM and MOD modules, played by a tracker player of the engine's own
-with no dependency added, readers for FastTracker 2's XM and ProTracker's MOD with its kin and the
-older Soundtracker's, following raylib's jar_xm and measured against it built from the pinned
-checkout: the same length to the frame, the first ten seconds correlating at 1.0 with a mean
-difference of 1e-4 of full scale, and a MOD's panning and loudness as jar_mod's to three places;
-`audio_module_playing` is written, 220 of 222 (`56564fe2`). The run of `ac774ac9` passed its tests
-on all three systems, and its examples job, which measures every pair against raylib's program for
-the first time, is still running.
+Reviewed up to `6336aba6`. Verdict 26's cause was a loop that never ended, a stream with no device
+answering `IsAudioStreamProcessed` true for ever, mended with a test on the null backend, and a
+failed capture's error carries the exit code, the script's last line and the example's last three
+lines at a warning or worse (`6336aba6`); the verdict settles when a run's examples job passes the
+capture. The run of `660b3bc6` failed the headless leak test on macOS again, by 6.09 MB against 5
+where `ac774ac9` passed, with its threads constant through the hundred apps, which is Verdict 27.
+The owner decided six things on 2026-10-06, Decisions 9 to 12 and 5.1 packed from `ac774ac9`, and
+items 6 to 9 come of them. The warnings the suite repeated are gone: thirteen tests let go the
+texture they left, the tests reading Summit's level register stand-ins for its components, a missing
+audio device is warned of once a process, the Linux jobs fetch LunarG's layer of 1.4.363.0, which
+knows `VK_KHR_line_rasterization` and found the ambient occlusion renderer never disposed and a
+custom vertex stage fed instance rows it did not read, both mended, and macOS names the layer once,
+the page repeating only `ScheduleTests`' meant throw (`660b3bc6`). Music opens XM and MOD modules,
+played by a tracker player of the engine's own with no dependency added, readers for FastTracker 2's
+XM and ProTracker's MOD with its kin and the older Soundtracker's, following raylib's jar_xm and
+measured against it built from the pinned checkout: the same length to the frame, the first ten
+seconds correlating at 1.0 with a mean difference of 1e-4 of full scale, and a MOD's panning and
+loudness as jar_mod's to three places; `audio_module_playing` is written, 220 of 222 (`56564fe2`).
+The run of `ac774ac9` passed its tests on all three systems, and its examples job, which measures
+every pair against raylib's program for the first time, is still running.
 
 Before them, the owner pushed `ac774ac9`, whose run passed on all three systems, Linux and Windows
 1,409 each and macOS 1,389 with 10 skipped, so Verdict 25 is settled and 5.1 is packable, the first
@@ -73,10 +77,10 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 26 first, the examples job.** The run of `ac774ac9` passed its tests on all three
-   systems and its examples job failed on one capture, which the verdict takes apart; the runs of
-   `56564fe2` and `660b3bc6` are under way. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
+1. **Verdict 27 first, the macOS heap again, and Verdict 26's capture on the next examples job.**
+   The run of `660b3bc6` failed the headless leak test on macOS by 6.09 MB with its threads
+   constant, and `56564fe2`'s examples job is still measuring; the run after both mends shows
+   whether all three systems and the examples pass.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -127,7 +131,11 @@ for a reply. In this order.
    otherwise than the same scene drawn to the window. The owner chose on 2026-10-06 that a render
    texture takes the window's samples unless `LoadRenderTextureEx` says otherwise, the window's four
    samples and the bilinear filter staying as the page keeps them. A test holds a render texture's
-   samples, and a reference that changes is redrawn with the reason (N 3.5).
+   samples, and a reference that changes is redrawn with the reason (N 3.5). With it, Decision 13:
+   where no audio device opens, the backend falls back to SDL's dummy driver, which takes samples in
+   real time, so sounds, music and streams advance as raylib's do through miniaudio's null device,
+   with a test on a machine with no device that a stream's position moves and `IsAudioDeviceReady`
+   says what it says in raylib.
 7. **The engine ships compiled ahead, ReadyToRun, for each platform** (Decision 11). The
    package's library is published ReadyToRun for each runtime identifier the package carries, in
    `3DEngine.csproj` and `.github/workflows/pack.yml`, so a game run from its project does not spend
@@ -164,6 +172,22 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
     is disabled there, which the Windows job warns of once a process, and the example is run here
     with the backend disabled, `SDL_AUDIO_DRIVER` set to a driver with no device, to find what it
     does; the runs of `56564fe2` and `660b3bc6` say whether the failure repeats.
+
+27. **The run of `660b3bc6` fails the headless leak test on macOS again, with its series read.**
+    The GC's heap after a hundred headless apps stands 6.09 MB above the heap after twenty, 56.49 to
+    62.58, against the 5 MB allowed, where `ac774ac9` passed and `0019d177` measured 6.61, and the
+    process's threads stand at 31 to 33 through all hundred apps, so Verdict 24's joins hold and the
+    threads are not it. On Linux the same test grows 0.07 MB, so the 6 MB is macOS's, 75 KB an app,
+    and the test's threshold sits at its edge there. What a headless app still makes once an app and
+    macOS lets go of later than the others is the `FileSystemWatcher` `BehaviorsPlugin` starts on
+    `source/behaviors` for each extension it watches (`RuntimeAssemblyCompiler.Lifecycle.cs`), an
+    FSEvents stream whose managed side, its buffers and its handle, lives until the stream is
+    released on a thread of the system's, after the collection the test waits for. A directory is
+    watched once a process, shared by the apps that compile from it and let go with the last, so a
+    hundred apps make one stream and one watcher's worth of heap, held by a test that a second app
+    on the same directory makes no second watcher; the series then says whether anything else grows.
+    The 5 MB stays, N 3.5, and the heap after every tenth app rides in the message on every system,
+    since the two points it carried say less than the slope would.
 
 ## Decisions
 
@@ -225,20 +249,29 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
    owner said so on 2026-10-06, and that neither is a priority, so they are the last items of the
    list and are taken when the rest is through.
 
+13. **Audio falls back to a device of silence where there is none.** The owner chose it on
+   2026-10-06: where no audio device opens, the backend plays through SDL's dummy driver, which
+   takes samples in real time, so sounds, music and streams advance on a machine without one as
+   raylib's do through miniaudio's null device, rather than standing still with the backend
+   disabled.
+
 ## Replies
 
-**Verdict 26.** Run here with `SDL_AUDIO_DRIVER` naming a driver that is not there, the example
-never became ready, as on the workflow's device. Its loop feeds its stream
-`while (IsAudioStreamProcessed(audioStream))`, and with no device the stream has no voice, so
-`IsAudioStreamProcessed` answered true for ever while `UpdateAudioStream` dropped what it was given.
-A stream with no device to play it now counts what it is given and takes two buffers' worth, as
-raylib's takes its two buffers, then answers false, since nothing plays them, so the loop ends and
-the example draws the spectrum of the song's first tenth of a second, which is near silence. A test
-holds the two buffers on the null backend. raylib plays through miniaudio, which falls back to a
-null device that takes samples at the rate it would play them, so raylib's program on the same
-runner draws the song's spectrum where this draws that silence. Falling back to SDL's own dummy
-driver would do the same here, the engine's sounds, music and streams then moving on with no device
-as they do with one, and it is a change of what a player with no audio device gets, so it is the
-owner's to choose and is not made. The capture step's error now carries the script's exit code and
-its last line, and the last three lines the example logged at a warning or worse, joined in the
-annotation, tried here under `bash -e` as Actions runs it.
+**Now 6, a render texture's samples and audio with no device** (Decisions 10 and 13). A render
+texture was already drawn at the window's samples and resolved, as the comparison page said, so the
+first half is a test and the choice. `LoadRenderTextureEx(width, height, format, samples)` makes one
+at one sample where it is given one, the target's upload carrying it to `CreateRenderTarget`, and
+the immediate and model passes draw into it through pipelines of its own count. A test draws a
+circle and an unlit model into a render texture of each kind and finds the circle's edge blended in
+the window's and none blended in the other. No reference changed, since every target drawn before is
+drawn as it was. The page's row says the owner's reason where it gave the pipelines' as one. For the
+second half, where no audio device opens, `SdlAudioBackend` opens SDL's dummy driver, named over
+what the environment names, which takes samples at the rate a device would play them, as raylib's
+goes to miniaudio's null device, and warns once a process that it has. `IsAudioDeviceReady` answers
+whether the backend opened a device, true on the dummy one, as raylib's is on its null device. A
+test names a driver that is not there and finds the backend on `dummy` with a stream's queue going
+down, waiting on SDL's thread, which N 3.3's list now names with that reason. The test of a backend
+that opens nothing forces the same missing driver with the fallback off, so it runs on every machine
+where it ran on none with a device, and the attribute that skipped it is gone. With
+`SDL_AUDIO_DRIVER` naming a driver that is not there, `audio_spectrum_visualizer` now draws the
+song's spectrum, as raylib's program does on its null device.

@@ -114,6 +114,7 @@ Matrix4x4 GetCameraMatrix(Camera3D camera);              // The camera's world t
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to, its depth in .Depth
 RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats); // An image of each format drawn into at once, a G-buffer, in .Textures
 RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format); // An image drawing can be sent to, of one format, floats kept past white
+RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format, int samples); // The same at one sample, edges hard, or any other count for the window's
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
 bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
@@ -860,7 +861,7 @@ walks a character through a `CharacterController` component beside its `PhysicsB
 ```csharp
 void InitAudioDevice();                                   // Open the audio device (sounds are silent until then)
 void CloseAudioDevice();                                  // Stop every sound and music the flat API started
-bool IsAudioDeviceReady();                                // Whether the device is open with a backend that makes sound
+bool IsAudioDeviceReady();                                // Whether the device is open, SDL's dummy driver where the machine has none
 void SetMasterVolume(float volume);                       // Volume every sound is multiplied by (0 to 1)
 float GetMasterVolume();                                  // That volume
 

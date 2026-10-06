@@ -164,6 +164,11 @@ painting drawn into it a stroke a frame builds up, as `shapes_double_pendulum`'s
 new one starts transparent black. A camera entity in the ECS draws the scene's mesh entities into a
 texture the same way when its `Target` is set.
 
+A render texture is drawn at the window's samples and resolved, so its edges are smoothed as the
+window's are, where raylib's has one sample and hard edges. `LoadRenderTextureEx(width, height,
+format, samples: 1)` makes one with hard edges, as pixel art drawn small and scaled up needs, or an
+image of ids a shader reads, which resolving would mix where two meet.
+
 A render texture loaded with up to four `PixelFormat`s draws into an image of each at once, as a
 deferred renderer's G-buffer is drawn into, a shader writing each from its output of the same
 index, `SV_Target0` into the first, and `Textures` holds them in the order of the formats. One of

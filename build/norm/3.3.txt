@@ -1,6 +1,7 @@
 # N 3.3, a test that waits on or reads the machine's clock, by file and kind.
 3DEngine.Tests/Api/BadFileTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
 3DEngine.Tests/Assets/FileHandleTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
+3DEngine.Tests/Platform/Audio/Sdl/SdlAudioBackendTests.cs Thread.Sleep	SDL's dummy driver takes samples on its own thread at the rate they play
 3DEngine.Tests/Scenes/AssetReleaseTests.cs Thread.Sleep	the asset server reads a file on its worker, outside the frame loop
 3DEngine.Tests/Scenes/SceneRefTests.cs DateTime.UtcNow	a file's write time set ahead, so the scene reads as changed
 3DEngine.Tests/TestFolder.cs Stopwatch	a delete tried again while another process lets go of a file

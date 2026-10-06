@@ -60,21 +60,12 @@ public sealed class NeedsVulkanTheoryAttribute : TheoryAttribute
     }
 }
 
-/// <summary>Skipped where SDL finds no audio device to open.</summary>
+/// <summary>Skipped where SDL opens no audio device, not even its dummy driver's.</summary>
 public sealed class NeedsAudioDeviceFactAttribute : FactAttribute
 {
     public NeedsAudioDeviceFactAttribute()
     {
-        if (!Probes.Audio.Value) Skip = "No audio device opens here.";
-    }
-}
-
-/// <summary>Skipped where SDL opens an audio device, for what is checked only without one.</summary>
-public sealed class NeedsNoAudioDeviceFactAttribute : FactAttribute
-{
-    public NeedsNoAudioDeviceFactAttribute()
-    {
-        if (Probes.Audio.Value) Skip = "An audio device opens here, so the backend's behavior without one cannot be reached.";
+        if (!Probes.Audio.Value) Skip = "SDL opens no audio device here, not even its dummy driver's.";
     }
 }
 

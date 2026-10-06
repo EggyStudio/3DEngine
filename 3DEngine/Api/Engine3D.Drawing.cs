@@ -96,6 +96,11 @@ public static partial class Engine3D
     /// Makes an image of <paramref name="width"/> by <paramref name="height"/> pixels that drawing
     /// can be sent to, with its depth to sample as <see cref="RenderTexture2D.Depth"/>.
     /// </summary>
+    /// <remarks>
+    /// It is drawn at the window's samples and resolved into its image, so its edges are smoothed as
+    /// the window's are, where raylib's has one sample. <see cref="LoadRenderTextureEx(int, int, PixelFormat, int)"/>
+    /// with one sample makes one with hard edges.
+    /// </remarks>
     public static RenderTexture2D LoadRenderTexture(int width, int height)
     {
         (width, height) = (Math.Max(1, width), Math.Max(1, height));
@@ -119,11 +124,15 @@ public static partial class Engine3D
     /// compressed format is drawn into as eight-bit RGBA, with a warning.
     /// </remarks>
     /// <exception cref="ArgumentException">There are no formats, or more than four.</exception>
-    public static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
+    public static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats) =>
+        LoadRenderTexture(width, height, formats, multisampled: true);
+
+    // A render texture of an image for each format, drawn at the window's samples or at one.
+    private static RenderTexture2D LoadRenderTexture(int width, int height, PixelFormat[] formats, bool multisampled)
     {
         if (formats.Length is 0 or > 4) throw new ArgumentException($"A render texture draws into 1 to 4 images, not {formats.Length}.", nameof(formats));
         (width, height) = (Math.Max(1, width), Math.Max(1, height));
-        var id = Textures.AddTarget(width, height, formats: [.. formats.Select(TargetFormat)]);
+        var id = Textures.AddTarget(width, height, formats: [.. formats.Select(TargetFormat)], multisampled: multisampled);
         var depth = Textures.AddTargetDepth(id);
         Texture2D[] textures = [new Texture2D(id, width, height), .. Enumerable.Range(1, formats.Length - 1)
             .Select(index => new Texture2D(Textures.AddTargetColor(id, index), width, height))];
@@ -149,6 +158,20 @@ public static partial class Engine3D
     /// <summary>An image drawing can be sent to, of one <paramref name="format"/>, as raylib's <c>LoadRenderTextureEx</c> makes one.</summary>
     /// <remarks>A format of 16 or 32 bits a channel is drawn into as half floats or floats, so light past white is kept, and the rest as eight-bit RGBA.</remarks>
     public static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format) => LoadRenderTexture(width, height, format);
+
+    /// <summary>
+    /// An image drawing can be sent to, of one <paramref name="format"/>, drawn at
+    /// <paramref name="samples"/> samples a pixel, 1 for edges as hard as raylib's render textures
+    /// have and any other for the window's.
+    /// </summary>
+    /// <remarks>
+    /// A render texture is drawn at the window's samples and resolved into its image, so a scene
+    /// drawn into one is edged as the same scene drawn to the window is. One sample suits pixel art
+    /// drawn small and scaled up, and an image of ids or positions a shader reads, which resolving
+    /// would mix where two meet.
+    /// </remarks>
+    public static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format, int samples) =>
+        LoadRenderTexture(width, height, [format], multisampled: samples != 1);
 
     /// <summary>Frees a render texture, each image it draws into and its depth.</summary>
     public static void UnloadRenderTexture(RenderTexture2D target)

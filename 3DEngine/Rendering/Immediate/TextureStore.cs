@@ -42,9 +42,10 @@ internal sealed class TextureStore
     /// Whether the texture is a cube, <paramref name="Width"/> texels a face, whose
     /// <paramref name="Rgba"/> holds its six faces one under the next in Vulkan's order.
     /// </param>
+    /// <param name="Multisampled">Whether a render target is drawn at the window's samples, or at one.</param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
         int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null, ImageFormat[]? Formats = null,
-        int ColorOf = 0, int ColorIndex = 0, bool Cube = false);
+        int ColorOf = 0, int ColorIndex = 0, bool Cube = false, bool Multisampled = true);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
@@ -138,9 +139,10 @@ internal sealed class TextureStore
 
     /// <summary>
     /// Queues a render target of the given size and returns its id, which is also its texture's id,
-    /// the texture of its first format where it draws into one of each of <paramref name="formats"/>.
+    /// the texture of its first format where it draws into one of each of <paramref name="formats"/>,
+    /// drawn at the window's samples, or at one where <paramref name="multisampled"/> is false.
     /// </summary>
-    internal int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear, ImageFormat[]? formats = null)
+    internal int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear, ImageFormat[]? formats = null, bool multisampled = true)
     {
         if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width), "A render target needs a size.");
         lock (_gate)
@@ -148,7 +150,7 @@ internal sealed class TextureStore
             var id = _next++;
             _live[id] = (width, height, filter, false, TextureWrap.Repeat);
             _targets.Add(id);
-            _uploads.Add(new Upload(id, null, width, height, filter, Target: true, Formats: formats));
+            _uploads.Add(new Upload(id, null, width, height, filter, Target: true, Formats: formats, Multisampled: multisampled));
             return id;
         }
     }
