@@ -170,7 +170,7 @@ public static partial class Engine3D
             case AutomationEventType.InputMousePosition:
                 input.AddMouseDelta(p0 - input.MouseX, p1 - input.MouseY);
                 input.SetMousePosition(p0, p1);
-                if (imGui) ImGui.GetIO().AddMousePosEvent(p0, p1);
+                if (imGui) SdlImGuiInput.AddMousePos(p0, p1);
                 break;
             case AutomationEventType.InputMouseWheelMotion:
                 input.SetWheel(p0, p1);

@@ -44,7 +44,8 @@ public static class GuiImGuiWindow
             ImGui.Text($"{GetFPS()} FPS");
             ImGui.End();
 
-            ImGui.SetNextWindowPos(new Vector2(480, 300), ImGuiCond.FirstUseEver);
+            // From the window's corner, which is the desktop's with ImGui's viewports turned on.
+            ImGui.SetNextWindowPos(ImGui.GetMainViewport().Pos + new Vector2(480, 300), ImGuiCond.FirstUseEver);
             ImGui.SetNextWindowSize(new Vector2(240, 100), ImGuiCond.FirstUseEver);
             ImGui.Begin("Help");
             ImGui.TextWrapped("Drag a window by its title to an edge to dock it.");

@@ -205,3 +205,20 @@ public sealed class NeedsPythonAndBashFactAttribute : FactAttribute
         else if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
     }
 }
+
+/// <summary>
+/// Skipped where no Vulkan device starts, or off Linux, for a test that opens a window on SDL's
+/// offscreen video driver, which draws through <c>VK_EXT_headless_surface</c>.
+/// </summary>
+/// <remarks>
+/// Mesa's lavapipe, which the Linux jobs draw on, offers the extension, and the Windows and macOS
+/// jobs' devices are not known to.
+/// </remarks>
+public sealed class NeedsHeadlessWindowFactAttribute : FactAttribute
+{
+    public NeedsHeadlessWindowFactAttribute()
+    {
+        if (!OperatingSystem.IsLinux()) Skip = "A window on SDL's offscreen driver draws through VK_EXT_headless_surface, which the Linux jobs' device offers.";
+        else if (new NeedsVulkanFactAttribute().Skip is { } reason) Skip = reason;
+    }
+}

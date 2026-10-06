@@ -239,3 +239,37 @@ since it passed on Windows at `38e81c4f`. Both
 tests now read a script's output as UTF-8, with `PYTHONIOENCODING` set for its errors, and compare
 lines with the carriage return taken off, and the page test's 100,000 lines end as Windows ends them
 on every system, so Linux reads what Windows gives. The suite: 1,434 passed, none skipped.
+
+**Now 5, ImGui viewports** (Decision 12). Off by default. A program sets ImGui's own
+`ImGuiConfigFlags.ViewportsEnable`, and a running session `imgui.viewports on`. `SdlImGuiViewports`
+gives ImGui the platform's callbacks over SDL windows and the renderer's over Vulkan swapchains,
+with SDL's displays as its monitors, on X11, Windows, macOS and SDL's offscreen driver, and none on
+Wayland, where no program reads or sets where its windows are, as ImGui's own SDL backend has it.
+`GraphicsDevice.Windows` makes a window's surface and swapchain in the main window's present mode
+and acquires its image as the frame draws it. The frame's one submit waits on and signals each
+window's semaphores beside the main window's, and its one present presents them all, a swapchain
+gone out of date made again before its next image. The renderer calls a node's `AfterWindowPass`
+once the window's pass has ended, where the ImGui node calls `UpdatePlatformWindows` and draws each
+viewport into its own window, with a pipeline for each pass, since the window's may be multisampled
+and a viewport's is not. With viewports on ImGui measures from the desktop, so SDL's mouse positions
+are moved by where their window is, and e3d's and a replayed recording's by where the main window is,
+and the game's own pointer takes no event from a window not its own. The cimgui in the package is
+built with its asserts, which stop the process, and two were met on the way. ImGui asks for
+`UpdatePlatformWindows` after every frame once a backend offers viewports, the flag on or off, which
+a frame the renderer skips now does as well, and a program turning the flag on between ImGui's first
+two frames, as one setting it in its first frame does, is held back a frame.
+
+A test opens an app on SDL's offscreen driver, places an ImGui window outside it, and finds a second
+SDL window of the ImGui window's size with a swapchain of that size, a captured frame of it holding
+the window's white text, and both gone when the window comes back inside. It passed here and on
+lavapipe under LunarG's layer in a container, with the GUI, offscreen and reference tests, 113 with
+no message of the layer's. It runs alone, in a collection with parallelism off, since closing the
+app quits SDL for the process, and it is skipped off Linux, since SDL's offscreen driver draws
+through `VK_EXT_headless_surface`, which the Windows and macOS jobs' devices are not known to offer.
+By hand, through `imgui.viewports` and `imgui.shot`, which writes a viewport's next frame to a file,
+`gui_imgui_window`'s Help window and the engine's Performance panel (F2), each dragged out of the
+window, had a window of their own drawn whole and were gone from the main one. Dragged back in, the
+window closed, and turned off and on again, the windows closed and came back, with no warning logged
+under the layer. The example places Help from the main viewport's corner, and its capture is taken
+again, the one kept having been taken with an ImGui settings file of an earlier session's that had
+moved Help to the right edge. The suite: 1,435 passed, none skipped.

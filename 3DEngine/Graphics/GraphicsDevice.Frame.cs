@@ -58,24 +58,35 @@ internal sealed unsafe partial class GraphicsDevice
     private partial void SubmitFrame(VulkanFrameContext ctx)
     {
         var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
+        var windowCaptures = RecordWindowCaptures(ctx.CommandBufferHandle);
         RecordKeptScreen(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
-        var waitStage = VkPipelineStageFlags.ColorAttachmentOutput;
-        VkSemaphore* waitSemaphores = stackalloc VkSemaphore[1];
+        // The main window's image and each other window's acquired this frame, waited on before
+        // drawing and signaled once drawn, which the present waits on in turn.
+        var windows = _presenting.Count;
+        var waitStages = stackalloc VkPipelineStageFlags[1 + windows];
+        VkSemaphore* waitSemaphores = stackalloc VkSemaphore[1 + windows];
+        VkSemaphore* signalSemaphores = stackalloc VkSemaphore[1 + windows];
+        waitStages[0] = VkPipelineStageFlags.ColorAttachmentOutput;
         waitSemaphores[0] = _imageAvailableSemaphores[_currentFrame];
+        signalSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
+        for (int i = 0; i < windows; i++)
+        {
+            waitStages[1 + i] = VkPipelineStageFlags.ColorAttachmentOutput;
+            waitSemaphores[1 + i] = _presenting[i].Acquired[_currentFrame];
+            signalSemaphores[1 + i] = _presenting[i].Drawn[_presenting[i].Image];
+        }
         VkCommandBuffer* commandBuffers = stackalloc VkCommandBuffer[1];
         commandBuffers[0] = ctx.CommandBufferHandle;
-        VkSemaphore* signalSemaphores = stackalloc VkSemaphore[1];
-        signalSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
 
         // Offscreen, no image is acquired to wait for and none is presented to signal.
-        uint semaphores = _offscreen ? 0u : 1u;
+        uint semaphores = _offscreen ? 0u : (uint)(1 + windows);
         VkSubmitInfo submitInfo = new()
         {
             waitSemaphoreCount = semaphores,
             pWaitSemaphores = waitSemaphores,
-            pWaitDstStageMask = &waitStage,
+            pWaitDstStageMask = waitStages,
             commandBufferCount = 1,
             pCommandBuffers = commandBuffers,
             signalSemaphoreCount = semaphores,
@@ -88,6 +99,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
+        FinishWindowCaptures(windowCaptures, _inFlightFences[_currentFrame]);
 
         if (_offscreen)
         {
@@ -95,26 +107,42 @@ internal sealed unsafe partial class GraphicsDevice
             return;
         }
 
-        VkSemaphore* presentWaitSemaphores = stackalloc VkSemaphore[1];
-        presentWaitSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
-        VkSwapchainKHR* swapchains = stackalloc VkSwapchainKHR[1];
+        VkSwapchainKHR* swapchains = stackalloc VkSwapchainKHR[1 + windows];
+        uint* imageIndices = stackalloc uint[1 + windows];
+        VkResult* results = stackalloc VkResult[1 + windows];
         swapchains[0] = _swapchain;
-        uint* imageIndices = stackalloc uint[1];
         imageIndices[0] = ctx.FrameIndex;
+        for (int i = 0; i < windows; i++)
+        {
+            swapchains[1 + i] = _presenting[i].Swapchain;
+            imageIndices[1 + i] = _presenting[i].Image;
+        }
 
         VkPresentInfoKHR presentInfo = new()
         {
-            waitSemaphoreCount = 1,
-            pWaitSemaphores = presentWaitSemaphores,
-            swapchainCount = 1,
+            waitSemaphoreCount = semaphores,
+            pWaitSemaphores = signalSemaphores,
+            swapchainCount = semaphores,
             pSwapchains = swapchains,
-            pImageIndices = imageIndices
+            pImageIndices = imageIndices,
+            pResults = results,
         };
 
         var mark = System.Diagnostics.Stopwatch.GetTimestamp();
-        var presentResult = _deviceApi.vkQueuePresentKHR(_presentQueue, &presentInfo);
+        var presented = _deviceApi.vkQueuePresentKHR(_presentQueue, &presentInfo);
         PresentMs = System.Diagnostics.Stopwatch.GetElapsedTime(mark).TotalMilliseconds;
         NoteDisplayWait(PresentMs);
+
+        // Each swapchain's own result, of which the call's is the worst. Another window's out of
+        // date is made again before its next image, and a failure the main window's own would not
+        // say is said by the call's.
+        var presentResult = results[0];
+        for (int i = 0; i < windows; i++)
+            if (results[1 + i] is VkResult.ErrorOutOfDateKHR or VkResult.SuboptimalKHR)
+                _presenting[i].Stale = true;
+        _presenting.Clear();
+        if (presented is not (VkResult.Success or VkResult.SuboptimalKHR or VkResult.ErrorOutOfDateKHR))
+            presented.CheckResult();
 
         if (presentResult == VkResult.ErrorOutOfDateKHR)
         {

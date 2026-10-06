@@ -76,7 +76,7 @@ internal sealed class SyntheticInput
             i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
             i.SetMousePosition(x, y);
         });
-        if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMousePosEvent(x, y);
+        if (ImGui.GetCurrentContext() != IntPtr.Zero) SdlImGuiInput.AddMousePos(x, y);
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ internal sealed class SyntheticInput
             {
                 i.AddMouseDelta(x - i.MouseX, y - i.MouseY);
                 i.SetMousePosition(x, y);
-                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMousePosEvent(x, y);
+                if (ImGui.GetCurrentContext() != IntPtr.Zero) SdlImGuiInput.AddMousePos(x, y);
             }));
         }
     }

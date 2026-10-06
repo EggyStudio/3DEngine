@@ -65,6 +65,12 @@ it is restored. `build/storm.sh` puts a program through a run of them under the 
 frame, and `window.state` says whether the window is shown or hidden, covered by others, focused,
 minimized or maximized, and its size.
 
+`imgui.viewports on` lets an ImGui window dragged out of the program's window have a window of its
+own, as a program does by setting `ImGuiConfigFlags.ViewportsEnable`, `off` keeps them in, and with
+no value it lists ImGui's viewports, where each is and its window and swapchain. `imgui.shot 1
+viewport.png` writes the next frame of the first of them to a file, as `shot` does the program's
+window. A window of a hidden program's is never shown either.
+
 `profile` gives where a frame's time goes, averaged over about a second, and `profile.slowest` the
 slowest frame since it was last asked, every stage, system and render phase measured in it, so a
 stall of one frame shows with what held it, the program's own work or a wait on the GPU or the

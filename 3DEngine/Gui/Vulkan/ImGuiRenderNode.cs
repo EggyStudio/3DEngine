@@ -7,10 +7,11 @@ namespace Engine;
 /// <summary>
 /// Render graph node that draws ImGui draw data using Vulkan.
 /// Reads draw data directly from ImGui (valid after ImGui.Render(), before next NewFrame()).
-/// Manages its own pipeline and font atlas texture; vertex/index buffers are
+/// Manages its own pipelines and font atlas texture; vertex/index buffers are
 /// transiently allocated from the <see cref="DynamicBufferAllocator"/> each frame.
-/// Draws into the shared <see cref="ActiveSwapchainPass"/> opened by <see cref="MainPassNode"/>
-/// (no separate render pass begin/end).
+/// Draws the main viewport into the shared <see cref="ActiveSwapchainPass"/> opened by
+/// <see cref="MainPassNode"/>, and each other viewport into its own window's swapchain once that
+/// pass has ended (<see cref="SdlImGuiViewports"/>).
 /// </summary>
 /// <seealso cref="VulkanImGuiPlugin"/>
 internal sealed class ImGuiRenderNode : INode, IDisposable
@@ -20,14 +21,19 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
     private readonly ReadOnlyMemory<byte> _vertexSpv;
     private readonly ReadOnlyMemory<byte> _fragmentSpv;
 
-    // Pipeline and font resources, created lazily on first Run.
-    private IPipeline? _pipeline;
+    // A pipeline for each pass drawn into, since the window's may be multisampled where a
+    // viewport's window's swapchain is not, and the font, created lazily on first Run.
+    private readonly Dictionary<IRenderPass, IPipeline> _pipelines = [];
     private IShader? _vertexShader;
     private IShader? _fragmentShader;
     private IImage? _fontImage;
     private IImageView? _fontImageView;
     private ISampler? _fontSampler;
     private IDescriptorSet? _fontDescriptorSet;
+
+    // Whether ImGui had windows of its own last frame, which are closed when the program turns
+    // viewports off.
+    private bool _hadViewports;
 
     /// <summary>Creates a new <see cref="ImGuiRenderNode"/> with pre-compiled shader SPIR-V bytecode.</summary>
     /// <param name="vertexSpv">Compiled SPIR-V bytecode for the ImGui vertex shader.</param>
@@ -39,28 +45,66 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
     }
 
     /// <inheritdoc />
-    public unsafe void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
         // Close the ImGui frame here (Stage.Last) so all Stage.Render UI emitters have run.
         ImGui.Render();
 
-        var drawData = ImGui.GetDrawData();
+        // Draw into the shared swapchain pass opened by MainPassNode.
+        var activePass = renderWorld.TryGet<ActiveSwapchainPass>();
+        var swapchainTarget = renderWorld.TryGet<SwapchainTarget>();
+        if (activePass is null || swapchainTarget is null) return;
+        Draw(renderContext, activePass.Pass, swapchainTarget.RenderPass, ImGui.GetDrawData(), activePass.Extent);
+    }
+
+    /// <summary>
+    /// Makes, moves and closes the windows of ImGui's viewports, where a program has them on, and
+    /// draws each into its own window's swapchain, which the frame's submit presents with the main
+    /// window's.
+    /// </summary>
+    public void AfterWindowPass(RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (!SdlImGuiViewports.Installed) return;
+        var device = renderContext.Device as GraphicsDevice;
+        SdlImGuiViewports.Device = device;
+        if (!SdlImGuiViewports.Enabled)
+        {
+            if (_hadViewports) SdlImGuiViewports.DestroyWindows();
+            _hadViewports = false;
+        }
+        else _hadViewports = true;
+
+        // Every frame, on or off, since ImGui holds a program that turns viewports on between two
+        // frames to having called it after the first.
+        SdlImGuiViewports.Update();
+        if (!_hadViewports || device is not { HasWindowSurfaces: true }) return;
+
+        var viewports = ImGui.GetPlatformIO().Viewports;
+        for (int i = 1; i < viewports.Size; i++)
+        {
+            var viewport = viewports[i];
+            if ((viewport.Flags & ImGuiViewportFlags.IsMinimized) != 0 || !viewport.DrawData.Valid) continue;
+            if (SdlImGuiViewports.SurfaceOf(viewport) is not { } surface || !device.AcquireWindowImage(surface)) continue;
+
+            // Begun once the image is acquired, whatever is drawn, so the clear leaves it ready to present.
+            using var pass = renderContext.BeginTrackedRenderPass(new RenderPassDescriptor(
+                surface.Pass, surface.Framebuffer, surface.Size, LoadOp.Clear, StoreOp.Store, ClearColor.Black));
+            Draw(renderContext, pass, surface.Pass, viewport.DrawData, surface.Size);
+        }
+    }
+
+    // Draws one viewport's draw data into the pass open on its window, which is of renderPass.
+    private unsafe void Draw(RenderContext renderContext, TrackedRenderPass pass, IRenderPass renderPass, ImDrawDataPtr drawData, Extent2D extent)
+    {
         if (!drawData.Valid || drawData.CmdListsCount == 0)
             return;
 
-        // Draw into the shared swapchain pass opened by MainPassNode.
-        var activePass = renderWorld.TryGet<ActiveSwapchainPass>();
-        if (activePass is null) return;
-
         var gfx = renderContext.Device;
         var allocator = renderContext.DynamicAllocator;
-        var swapchainTarget = renderWorld.TryGet<SwapchainTarget>();
-        if (swapchainTarget is null) return;
+        if (allocator is null)
+            return; // No allocator - cannot upload ImGui geometry.
 
-        if (_pipeline is null)
-        {
-            CreatePipelineAndFontAtlas(gfx, swapchainTarget.RenderPass);
-        }
+        var pipeline = Pipeline(gfx, renderPass);
 
         int totalVertices = drawData.TotalVtxCount;
         int totalIndices = drawData.TotalIdxCount;
@@ -70,16 +114,8 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         ulong vertexSize = (ulong)(totalVertices * sizeof(ImDrawVert));
         ulong indexSize = (ulong)(totalIndices * sizeof(ushort));
 
-        DynamicAllocation vertexAlloc, indexAlloc;
-        if (allocator is not null)
-        {
-            vertexAlloc = allocator.Allocate(vertexSize, BufferUsage.Vertex);
-            indexAlloc = allocator.Allocate(indexSize, BufferUsage.Index);
-        }
-        else
-        {
-            return; // No allocator - cannot upload ImGui geometry.
-        }
+        var vertexAlloc = allocator.Allocate(vertexSize, BufferUsage.Vertex);
+        var indexAlloc = allocator.Allocate(indexSize, BufferUsage.Index);
 
         // Upload vertex/index data, concatenating each ImGui command list into the
         // single transient vertex and index buffer.
@@ -108,10 +144,8 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
             allocator.Unmap(indexAlloc);
         }
 
-        var pass = activePass.Pass;
-        var extent = activePass.Extent;
-
-        // Orthographic projection matching ImGui's display rect.
+        // Orthographic projection matching ImGui's display rect, which is the desktop's with
+        // viewports on and the window's without.
         float L = drawData.DisplayPos.X;
         float R = drawData.DisplayPos.X + drawData.DisplaySize.X;
         float T = drawData.DisplayPos.Y;
@@ -134,11 +168,11 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
 
         pass.SetViewport(0, 0, fbWidth, fbHeight, 0, 1);
 
-        pass.SetPipeline(_pipeline!);
-        pass.SetBindGroup(_pipeline!, _fontDescriptorSet!);
+        pass.SetPipeline(pipeline);
+        pass.SetBindGroup(pipeline, _fontDescriptorSet!);
 
         var projBytes = MemoryMarshal.AsBytes(new ReadOnlySpan<Matrix4x4>(in projection));
-        pass.PushConstants(_pipeline!, ShaderStageFlags.Vertex, 0, projBytes);
+        pass.PushConstants(pipeline, ShaderStageFlags.Vertex, 0, projBytes);
 
         pass.SetVertexBuffer(0, new[] { vertexAlloc.Buffer }, new ulong[] { vertexAlloc.Offset });
         pass.SetIndexBuffer(indexAlloc.Buffer, indexAlloc.Offset, IndexType.UInt16);
@@ -196,15 +230,21 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         pass.SetScissor(0, 0, extent.Width, extent.Height);
     }
 
-    /// <summary>Creates the ImGui graphics pipeline (with alpha blending and push-constant projection) and uploads the font atlas texture.</summary>
-    private unsafe void CreatePipelineAndFontAtlas(IGraphicsDevice gfx, IRenderPass renderPass)
+    // The pipeline for a pass, made the first time it is drawn into, with the font on first use.
+    private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass)
     {
-        Logger.Info("Creating ImGui Vulkan pipeline and font atlas...");
+        if (_pipelines.TryGetValue(renderPass, out var pipeline)) return pipeline;
+        if (_fontDescriptorSet is null) CreateFontAtlas(gfx);
+        return _pipelines[renderPass] = CreatePipeline(gfx, renderPass);
+    }
 
-        var vsDesc = new ShaderDesc(ShaderStage.Vertex, _vertexSpv, "main");
-        var fsDesc = new ShaderDesc(ShaderStage.Fragment, _fragmentSpv, "main");
-        _vertexShader = gfx.CreateShader(vsDesc);
-        _fragmentShader = gfx.CreateShader(fsDesc);
+    /// <summary>Creates the ImGui graphics pipeline for a pass, with alpha blending and push-constant projection.</summary>
+    private unsafe IPipeline CreatePipeline(IGraphicsDevice gfx, IRenderPass renderPass)
+    {
+        Logger.Info("Creating an ImGui Vulkan pipeline...");
+
+        _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv, "main"));
+        _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv, "main"));
 
         // ImDrawVert layout: pos (vec2, 8 bytes), uv (vec2, 8 bytes), col (uint32, 4 bytes) = 20 bytes
         var vertexBindings = new[]
@@ -230,9 +270,14 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
             VertexAttributes: vertexAttributes,
             PushConstantRanges: pushConstants);
 
-        _pipeline = gfx.CreateGraphicsPipeline(pipelineDesc);
+        var pipeline = gfx.CreateGraphicsPipeline(pipelineDesc);
         Logger.Info("ImGui pipeline created.");
+        return pipeline;
+    }
 
+    /// <summary>Uploads the font atlas texture and makes the set it is read through.</summary>
+    private unsafe void CreateFontAtlas(IGraphicsDevice gfx)
+    {
         var io = ImGui.GetIO();
         io.Fonts.GetTexDataAsRGBA32(out IntPtr pixels, out int width, out int height, out int bytesPerPixel);
 
@@ -262,11 +307,17 @@ internal sealed class ImGuiRenderNode : INode, IDisposable
         Logger.Info($"ImGui font atlas uploaded: {width}x{height} R8G8B8A8_UNorm.");
     }
 
-    /// <summary>Disposes the pipeline, which this node made itself rather than through the pipeline cache, the font descriptor set, sampler, image view, image, and shader modules.</summary>
+    /// <summary>
+    /// Closes the viewports' windows and swapchains while the device is there to destroy them on,
+    /// then disposes the pipelines, which this node made itself rather than through the pipeline
+    /// cache, the font descriptor set, sampler, image view, image, and shader modules.
+    /// </summary>
     public void Dispose()
     {
-        _pipeline?.Dispose();
-        _pipeline = null;
+        SdlImGuiViewports.DestroyWindows();
+        SdlImGuiViewports.Device = null;
+        foreach (var pipeline in _pipelines.Values) pipeline.Dispose();
+        _pipelines.Clear();
         _fontDescriptorSet?.Dispose();
         _fontSampler?.Dispose();
         _fontImageView?.Dispose();

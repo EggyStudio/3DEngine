@@ -250,6 +250,9 @@ internal sealed class Renderer : IDisposable
         // End the shared swapchain pass that MainPassNode left open.
         var activePass = RenderWorld.TryGet<ActiveSwapchainPass>();
         activePass?.Dispose();
+
+        foreach (var (_, node) in orderedNodes)
+            node.AfterWindowPass(renderCtx, RenderWorld);
     }
 
     /// <summary>Runs a named sub-graph with forwarded slot values.</summary>

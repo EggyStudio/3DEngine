@@ -41,11 +41,14 @@ internal sealed unsafe partial class GraphicsDevice
 
     // Copies the frame's swapchain image into a buffer as large, between the end of drawing and
     // the present, and leaves the image in the layout it was found in.
-    private void CopyPresented(VkCommandBuffer cmd, uint imageIndex, VulkanBuffer buffer)
-    {
-        var image = _swapchainImages[imageIndex];
+    private void CopyPresented(VkCommandBuffer cmd, uint imageIndex, VulkanBuffer buffer) =>
+        CopyOut(cmd, _swapchainImages[imageIndex], _swapchainExtent, _finalLayout, buffer);
 
-        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), _finalLayout, VkImageLayout.TransferSrcOptimal,
+    // Copies an image drawn this frame into a buffer as large, and leaves it in the layout it was
+    // found in, which is the one it is presented in.
+    private void CopyOut(VkCommandBuffer cmd, VkImage image, VkExtent2D extent, VkImageLayout layout, VulkanBuffer buffer)
+    {
+        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), layout, VkImageLayout.TransferSrcOptimal,
             VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.TransferRead,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
 
@@ -56,11 +59,11 @@ internal sealed unsafe partial class GraphicsDevice
             bufferImageHeight = 0,
             imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
             imageOffset = new VkOffset3D(0, 0, 0),
-            imageExtent = new VkExtent3D(_swapchainExtent.width, _swapchainExtent.height, 1),
+            imageExtent = new VkExtent3D(extent.width, extent.height, 1),
         };
         _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
 
-        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, _finalLayout,
+        PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, layout,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.None, VkAccessFlags2.None));
     }
 
@@ -128,9 +131,11 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     // The swapchain's pixels in RGBA order, opaque.
-    private void ToRgba(byte[] pixels)
+    private void ToRgba(byte[] pixels) => ToRgba(pixels, _swapchainFormat);
+
+    private static void ToRgba(byte[] pixels, VkFormat format)
     {
-        var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
+        var bgra = format is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
         for (int i = 0; i < pixels.Length; i += 4)
         {
             if (bgra) (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);

@@ -151,6 +151,18 @@ ImGui.End();
 
 `DrawProfileWindow()` draws where each frame's time goes in a window of its own.
 
+An ImGui window dragged outside the game's window is given a window of its own on the desktop,
+with ImGui's viewports turned on, which they are not until the program sets ImGui's flag:
+
+```csharp
+ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+```
+
+Each such window is drawn in the same frame as the game's and shown with it. ImGui then measures
+its positions from the desktop's corner rather than the window's, so a window placed by position
+adds `ImGui.GetMainViewport().Pos`. They are offered on X11, Windows and macOS. Wayland lets no
+program place its windows, so there ImGui's windows stay inside the game's.
+
 ## Without a window on the screen
 
 Every program built on the engine takes the same flags, so one can run where nothing is shown:

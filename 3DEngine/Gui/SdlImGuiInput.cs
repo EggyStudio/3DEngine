@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
 using SDL3;
@@ -18,15 +19,30 @@ internal static class SdlImGuiInput
         _ => (int)button,
     };
 
+    /// <summary>
+    /// Gives ImGui a pointer position in the main window, moved to the desktop's where viewports
+    /// are on, for input that comes from no SDL event, as <c>./e3d</c>'s and a replayed recording's.
+    /// </summary>
+    public static void AddMousePos(float x, float y)
+    {
+        var origin = SdlImGuiViewports.Enabled ? ImGui.GetMainViewport().Pos : Vector2.Zero;
+        ImGui.GetIO().AddMousePosEvent(x + origin.X, y + origin.Y);
+    }
+
     /// <summary>Processes an SDL event and updates the ImGui input state accordingly.</summary>
     /// <param name="e">The SDL event to process.</param>
     public static void ProcessEvent(SDL.Event e)
     {
         var io = ImGui.GetIO();
+        SdlImGuiViewports.Observe(e);
         switch ((SDL.EventType)e.Type)
         {
             case SDL.EventType.MouseMotion:
-                io.AddMousePosEvent(e.Motion.X, e.Motion.Y);
+                // With viewports on, ImGui measures from the desktop, so a position in the window
+                // the event came from, the main one or a viewport's, is moved by where that window is.
+                var at = new Vector2(e.Motion.X, e.Motion.Y);
+                if (SdlImGuiViewports.Enabled) at += SdlImGuiViewports.PositionOf(e.Motion.WindowID);
+                io.AddMousePosEvent(at.X, at.Y);
                 break;
             case SDL.EventType.MouseButtonDown:
             case SDL.EventType.MouseButtonUp:

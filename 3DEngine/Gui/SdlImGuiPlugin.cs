@@ -55,7 +55,8 @@ internal sealed class SdlImGuiPlugin : IPlugin
         var io = ImGui.GetIO();
         // Docking lets a window be dragged onto another or onto a dock space, which
         // ImGui.DockSpaceOverViewport makes of the whole window. Viewports, which take ImGui
-        // windows out of the game's window, need a platform backend the engine does not have.
+        // windows out of the game's window, are offered where SdlImGuiViewports can place a window
+        // and stay off until a program sets ImGuiConfigFlags.ViewportsEnable.
         io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard | ImGuiConfigFlags.NavEnableGamepad | ImGuiConfigFlags.DockingEnable;
         ImGui.StyleColorsDark();
 
@@ -95,6 +96,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
         var appWindow = app.World.Resource<AppWindow>();
         appWindow.SDLEvent += SdlImGuiInput.ProcessEvent;
         SdlImGuiIme.Install(sdlWindow.Window);
+        if (isVulkan) SdlImGuiViewports.Install(sdlWindow.Window, cfg.Hidden);
 
         app.AddSystem(Stage.PreUpdate, new SystemDescriptor(world =>
             {
@@ -118,7 +120,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
                 }
             
                 SdlImGuiInput.FeedGamepad(world.TryGetResource<Input>(out var input) ? input.Gamepad(0) : null);
-                ImGui.NewFrame();
+                SdlImGuiViewports.NewFrame();
                 if (world.TryGetResource<SdlImGuiRenderer>(out var imguiRenderer))
                 {
                     imguiRenderer.NewFrame(appWindow.Sdl.Window);
@@ -131,9 +133,14 @@ internal sealed class SdlImGuiPlugin : IPlugin
             .Write<SdlImGuiRenderer>());
 
         // A frame the renderer skips, as one while the window is minimized, leaves ImGui's frame
-        // open, which is ended here after the render node would have, and is left alone when it has.
+        // open, which is ended here after the render node would have, and is left alone when it has,
+        // and the viewports' windows are kept as ImGui asks of every frame.
         if (isVulkan)
-            app.AddSystem(Stage.Last, new SystemDescriptor(_ => ImGui.EndFrame(), "SdlImGuiPlugin.EndSkippedFrame").MainThreadOnly());
+            app.AddSystem(Stage.Last, new SystemDescriptor(_ =>
+            {
+                ImGui.EndFrame();
+                SdlImGuiViewports.Update();
+            }, "SdlImGuiPlugin.EndSkippedFrame").MainThreadOnly());
 
         app.AddSystem(Stage.Render, new SystemDescriptor(world =>
             {
@@ -173,7 +180,8 @@ internal sealed class SdlImGuiPlugin : IPlugin
                     imguiRenderer.Dispose();
                     world.RemoveResource<SdlImGuiRenderer>();
                 }
-            
+
+                SdlImGuiViewports.Uninstall();
                 ImGui.DestroyContext();
                 Release(app);
             }, "SdlImGuiPlugin.Cleanup")
@@ -201,7 +209,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
                 if (world.TryGetResource<OffscreenSurface>(out var surface) && surface.Size.Width > 0 && surface.Size.Height > 0)
                     ImGui.GetIO().DisplaySize = new Vector2(surface.Size.Width, surface.Size.Height);
                 SdlImGuiInput.FeedGamepad(world.TryGetResource<Input>(out var input) ? input.Gamepad(0) : null);
-                ImGui.NewFrame();
+                SdlImGuiViewports.NewFrame();
             }, "SdlImGuiPlugin.PreUpdate")
             .MainThreadOnly()
             .Read<Time>()

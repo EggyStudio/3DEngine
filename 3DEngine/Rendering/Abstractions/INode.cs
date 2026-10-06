@@ -23,4 +23,12 @@ internal interface INode
     /// <param name="renderContext">Context wrapping the graphics device, command buffer, and dynamic allocator.</param>
     /// <param name="renderWorld">The render world containing render resources.</param>
     void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld);
+
+    /// <summary>
+    /// Called once every node has run and the window's pass has ended, for a node that draws into
+    /// windows beside the main one, whose passes cannot begin while the window's is open.
+    /// </summary>
+    /// <param name="renderContext">Context wrapping the graphics device, command buffer, and dynamic allocator.</param>
+    /// <param name="renderWorld">The render world containing render resources.</param>
+    void AfterWindowPass(RenderContext renderContext, RenderWorld renderWorld) { }
 }

@@ -165,9 +165,14 @@ allocation each.
 ImGui is drawn by `ImGuiRenderNode` into the main pass. Its frame starts in `PreUpdate`, so ImGui
 calls a system makes in `First` are lost. Docking is enabled (`gui_imgui_window` makes a dock space
 over the window), and a window dragged onto a dock target and held there docks, as `./e3d command
-input.drag Left 280 156 20 20` shows on that example. Viewports, which take ImGui windows out of the
-game's window, are not supported. Keyboard navigation is on, which makes `WantCaptureKeyboard` true
-whenever an ImGui window has focus, so the engine's own shortcuts ask `WantTextInput` instead.
+input.drag Left 280 156 20 20` shows on that example. Viewports, which take an ImGui window dragged
+outside the game's window into a window of its own (`SdlImGuiViewports`), are offered on X11,
+Windows, macOS and SDL's offscreen driver, and stay off until a program sets
+`ImGuiConfigFlags.ViewportsEnable`. Each such window has an SDL window and a swapchain drawn after
+the main window's pass and presented with it, and `imgui.viewports` and `imgui.shot` show them from
+`./e3d`. Wayland lets no program place a window, so there ImGui keeps every window inside. Keyboard
+navigation is on, which makes `WantCaptureKeyboard` true whenever an ImGui window has focus, so the
+engine's own shortcuts ask `WantTextInput` instead.
 
 ## Simulation
 

@@ -46,7 +46,10 @@ internal static unsafe class SdlImGuiIme
     {
         try
         {
-            Apply(*data);
+            // With viewports on, the field may be in a window of its own, and its place is the
+            // desktop's, so the area is set on that window, from where it is.
+            var on = viewport != 0 && SdlImGuiViewports.Enabled ? new ImGuiViewportPtr(viewport) : default;
+            Apply(*data, on.NativePtr == null ? 0 : on.PlatformHandle, on.NativePtr == null ? Vector2.Zero : on.Pos);
         }
         catch (Exception)
         {
@@ -54,20 +57,25 @@ internal static unsafe class SdlImGuiIme
         }
     }
 
-    /// <summary>Sets or clears the window's text input area from what ImGui reports.</summary>
-    internal static void Apply(in ImeData data)
+    /// <summary>
+    /// Sets or clears the window's text input area from what ImGui reports, on the window given
+    /// where it is not the main one, the place measured from <paramref name="origin"/>.
+    /// </summary>
+    internal static void Apply(in ImeData data, nint window = 0, Vector2 origin = default)
     {
+        if (window == 0) window = _window;
         if (data.WantVisible != 0)
         {
             LastArea = (data.InputPos, data.InputLineHeight);
-            if (_window == 0) return;
-            var rect = new SDL.Rect { X = (int)data.InputPos.X, Y = (int)data.InputPos.Y, W = 1, H = (int)MathF.Ceiling(data.InputLineHeight) };
-            SDL.SetTextInputArea(_window, in rect, 0);
+            if (window == 0) return;
+            var at = data.InputPos - origin;
+            var rect = new SDL.Rect { X = (int)at.X, Y = (int)at.Y, W = 1, H = (int)MathF.Ceiling(data.InputLineHeight) };
+            SDL.SetTextInputArea(window, in rect, 0);
         }
         else
         {
             LastArea = null;
-            if (_window != 0) SDL.SetTextInputArea(_window, 0, 0);
+            if (window != 0) SDL.SetTextInputArea(window, 0, 0);
         }
     }
 }

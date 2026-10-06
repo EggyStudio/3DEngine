@@ -59,8 +59,23 @@ internal sealed class AppWindowPlugin : IPlugin
             win.EventsPolled += input.ApplyQueued;
         }
 
+        private static bool FromAnotherWindow(SDL.Event e, AppWindow window)
+        {
+            var id = (SDL.EventType)e.Type switch
+            {
+                SDL.EventType.MouseMotion => e.Motion.WindowID,
+                SDL.EventType.MouseButtonDown or SDL.EventType.MouseButtonUp => e.Button.WindowID,
+                SDL.EventType.MouseWheel => e.Wheel.WindowID,
+                _ => 0u,
+            };
+            return id != 0 && id != SDL.GetWindowID(window.Sdl.Window);
+        }
+
         private static void ProcessInputEvent(SDL.Event e, Input input, AppWindow window)
         {
+            // The pointer over a window of ImGui's own, a viewport's, is ImGui's, and its position
+            // there is in that window's pixels, which the game's pointer is not measured in.
+            if (FromAnotherWindow(e, window)) return;
             switch ((SDL.EventType)e.Type)
             {
                 // A finger's place comes as a fraction of the window, scaled here to its pixels.
