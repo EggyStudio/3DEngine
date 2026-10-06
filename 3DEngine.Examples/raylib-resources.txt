@@ -97,3 +97,4 @@ text/resources/noto_cjk.fnt
 text/resources/noto_cjk.png
 text/resources/symbola.fnt
 text/resources/symbola.png
+textures/resources/fudesumi.raw

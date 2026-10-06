@@ -57,7 +57,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 491 of the 619 functions in `raylib.h` are carried, 79 percent, counted
+- **Not all of raylib.** 493 of the 619 functions in `raylib.h` are carried, 80 percent, counted
   below. The rest are mostly what C# already has, file paths, directories, hashes, compression and
   string functions, with VR stereo, automation events, the audio processors and some image and
   shape variants, which TODO.md names with reasons.
@@ -80,6 +80,7 @@ here, with the reason.
 | A render texture's samples | One, so what is drawn into it has hard edges | The window's, resolved into the texture, so its edges are smoothed as the window's are | The window's pipelines, made for one count of samples, draw into it as they are |
 | Drawing inside `BeginTextureMode` | Drawn into the target at once, so a call after `EndTextureMode` reads it | Drawn as the frame ends, before the window, each target in one pass cleared to the last `ClearBackground` inside it, with `UpdateTexture` and `UpdateTextureRec` in their places among the shapes | A frame's drawing is batched as the window's is, so `LoadImageFromTexture` reads a target as the last frame left it |
 | `LoadImageAnim` | One frame tall, the other frames after it in memory | As tall as every frame, stacked from the top | An image's pixels are always its size here, so every image call reads all of it, and a frame is a rectangle of it |
+| `ImageFormat` | The image's pixels stored in the format, which a program then reads them by | Each pixel keeps what the format keeps, and is stored as four bytes still | Every image is RGBA, the one format drawing and the GPU take as it is |
 | An image from a file without alpha, as a PNG of RGB | Kept as three bytes a pixel, so the corners `ImageRotate` adds are black | Four bytes a pixel, so they are clear | Every image is RGBA, the one format drawing and the GPU take as it is |
 | The materials `LoadModel` reads from a glTF file | raylib's default material at 0, the file's from 1 | The file's from 0, and a white one of its own for a mesh with none | A model's materials are the file's, so `Materials[i]` is the file's material `i` |
 | `VertexCount` of a mesh from an OBJ file, `GenMeshSphere`, `GenMeshHemiSphere`, `GenMeshCylinder`, `GenMeshCone`, `GenMeshTorus` or `GenMeshKnot` | Three vertices of its own for each triangle, three times `triangleCount` | Vertices shared between the triangles that meet at them, as Assimp joins a file's and the generators make them | A mesh draws and collides the same with fewer vertices to send |
@@ -135,7 +136,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 491 (79 percent) |
+| Functions of `raylib.h` carried | 619 | 493 (80 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw

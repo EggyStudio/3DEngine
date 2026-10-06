@@ -363,6 +363,8 @@ void rlDisableDepthMask();                                 // Test against the d
 
 ```csharp
 Image LoadImage(string fileName);                                                      // Read PNG, JPEG, BMP, TGA, PSD, GIF or HDR into memory
+Image LoadImageRaw(string fileName, int width, int height, PixelFormat format, int headerSize); // Read pixels alone, laid out in a format, after a header
+void ImageFormat(ref Image image, PixelFormat newFormat);                              // Keep of each pixel what a format keeps
 Image GenImageColor(int width, int height, Color color);                               // An image of one color
 Image GenImageText(int width, int height, string text);                                // Text's bytes as gray pixels, then black
 Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard of checksX by checksY pixel squares

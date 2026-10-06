@@ -426,4 +426,42 @@ public sealed class ImageTests : IDisposable
         GetImageColor(glow, 10, 10).R.Should().BeGreaterThan(230);
         GetImageColor(glow, 10, 1).R.Should().BeLessThan(40);
     }
+
+    [Fact]
+    public void A_Raw_File_Is_Read_After_Its_Header_In_The_Format_Given()
+    {
+        // Two pixels of R5G6B5 after a header of three bytes: full red, and half green with full blue
+        var path = Path.Combine(_folder.Path, "pixels.raw");
+        File.WriteAllBytes(path, [9, 9, 9, 0x00, 0xF8, 0x1F, 0x04]);
+
+        var image = LoadImageRaw(path, 2, 1, PixelFormat.UncompressedR5G6B5, 3);
+
+        GetImageColor(image, 0, 0).Should().Be(new Color(255, 0, 0, 255));
+        GetImageColor(image, 1, 0).Should().Be(new Color(0, 130, 255, 255), "32 of 63 levels of green, and all 31 of blue");
+        LoadImageRaw(path, 4, 1, PixelFormat.UncompressedR5G6B5, 3).IsValid.Should().BeFalse("the file holds two pixels, not four");
+        LoadImageRaw(path, 1, 1, PixelFormat.CompressedDxt1Rgb, 0).IsValid.Should().BeFalse("a compressed format is not read");
+    }
+
+    [Fact]
+    public void An_Image_Keeps_What_A_Format_Keeps_Of_Each_Pixel()
+    {
+        Image Of(Color c) => GenImageColor(1, 1, c);
+        Color Formatted(Color c, PixelFormat format)
+        {
+            var image = Of(c);
+            ImageFormat(ref image, format);
+            return GetImageColor(image, 0, 0);
+        }
+        var color = new Color(200, 100, 50, 128);
+
+        Formatted(color, PixelFormat.UncompressedR8G8B8A8).Should().Be(color, "an image holds that format already");
+        Formatted(color, PixelFormat.UncompressedGrayscale).Should().Be(new Color(124, 124, 124, 255), "gray by raylib's weights, and opaque");
+        Formatted(color, PixelFormat.UncompressedGrayAlpha).Should().Be(new Color(124, 124, 124, 128));
+        Formatted(color, PixelFormat.UncompressedR5G6B5).Should().Be(new Color(197, 101, 49, 255), "24, 25 and 6 levels, read back as the GPU reads them");
+        Formatted(color, PixelFormat.UncompressedR4G4B4A4).Should().Be(new Color(204, 102, 51, 136));
+        Formatted(color, PixelFormat.UncompressedR5G5B5A1).A.Should().Be(255, "an alpha past 50 of 255 is kept whole");
+        Formatted(color, PixelFormat.UncompressedR32).Should().Be(new Color(124, 0, 0, 255), "a format of one channel is read as red");
+        Formatted(color, PixelFormat.UncompressedR32G32B32A32).Should().Be(color);
+        Formatted(color, PixelFormat.CompressedEtc2Rgb).Should().Be(color, "a compressed format leaves the image as it is");
+    }
 }

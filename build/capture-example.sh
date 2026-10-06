@@ -98,6 +98,10 @@ case "$example" in
     ./e3d command frames.wait 3 --quiet
     ./e3d command input.click 385 265 --quiet
     ;;
+  textures_image_processing)
+    # Grayscale picked, as raylib's screenshot has it.
+    ./e3d command input.key Down 2 --quiet
+    ;;
   shaders_rlgl_compute)
     # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
     ./e3d command input.wheel 16 --quiet

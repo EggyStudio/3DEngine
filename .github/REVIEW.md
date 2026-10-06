@@ -10,7 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6673c8bd`. rlgl's vertices given one at a time and its matrix stack are carried
+Reviewed up to `5e6f1722`. Four batches are read. raylib's window flags are carried, high density
+reading the monitor's pixels, transparency, unfocused, always-run and borderless (`42f3dfea`),
+rlgl's blend factors and custom modes (`73ab123c`), with clear texels discarded in 3D alone as
+raylib blends them in 2D, BMFont's fonts read as raylib reads them (`c732ac54`), and rlgl's
+depth test and mask, its matrix modes with a projection of a program's own, and a shader's
+written depth (`5e6f1722`). Ten more ports, one read against raylib's C, take the table to 205
+written and 16 missing, and the surface gains 43 lines and loses none. Where a picture differs
+from raylib's screenshot, raylib's own shader changed after it, which the port says. No
+verdict is open.
+
+Before them, rlgl's vertices given one at a time and its matrix stack are carried
 as the rows call them, the matrix moving each vertex as it is recorded (`bdf197ce`), the three
 text examples that read glyphs by index are written with `GetGlyphInfo` by code point, a row
 saying why `GetGlyphIndex` is not carried (`5c89a408`), and rlgl's culling and point mode are
@@ -18,8 +28,7 @@ states of the draw list and the model pass (`6673c8bd`), a model following rlgl'
 a program sets it, as raylib's does. The audit asked for found every 2D shape, texture and text
 wound clockwise, three faces of the cube and the sphere turned inward and the plane facing
 down, and `WindingTests` holds each to rshapes.c's order, the reference frames unchanged. The
-27 lines `PublicApi.txt` gains are rlgl's names. The table stands at 194 written, 1 in part
-and 26 missing, and the suite through the script at 1,298 passing. No verdict is open.
+27 lines `PublicApi.txt` gains are rlgl's names.
 
 Before them, the last of raylib's models examples that can be written were written, so every
 row of the table that can be written is: 181 written, 1 in part, 39 missing and 1 that does not
@@ -251,70 +260,13 @@ None open.
 
 ## Replies
 
-**Now 2, the window flags' rows.** `ConfigFlags` carries raylib's `WindowHighdpi`,
-`WindowTransparent`, `WindowUnfocused`, `WindowAlwaysRun` and `BorderlessWindowedMode`, under
-raylib's values. High density asks SDL3 for the monitor's pixels, so on a monitor at twice the
-density `GetRenderWidth` is twice `GetScreenWidth` and shapes, text and the mouse keep the
-window's units. Run against a headless mutter whose monitor is scaled by two, the testbed reads a
-render size of 1600 by 826 for a screen of 800 by 413, and its mouse lands where it is moved.
-Transparency asks SDL3 for a transparent window and the swapchain for premultiplied alpha, or
-the next way of compositing it the surface offers, and is opaque with a warning where there is
-none. `IsWindowState(WindowUnfocused)` answers whether the window is without the focus, as
-raylib's focus callback keeps it, and setting it leaves the focus where it is the next time the
-window is shown. `IsWindowFullscreen` and the two fullscreen flags tell `ToggleFullscreen` from
-`ToggleBorderlessWindowed`, as raylib's do. Always-run is kept and answered, and the loop goes on
-while minimized with it or without it, which the comparison has a line on, since `./e3d` drives a
-minimized window and an audio stream fed from the loop keeps playing. A `--hidden` run's window
-is never shown, whatever `ClearWindowState(WindowHidden)` asks, since `core_window_flags` shows
-itself after 240 frames. `core_highdpi_demo`, `core_highdpi_testbed` and `core_window_flags` are
-raylib's, and `shapes_double_pendulum` asks for high density as raylib's does and is written
-whole. The table stands at 198 written, none in part and 23 missing, blend factors' and BMFont's
-two rows each next.
-
-**Now 2, blend factors' two rows.** `rlSetBlendFactors` and `rlSetBlendFactorsSeparate` are
-carried with `RlBlendFactor` and `RlBlendEquation` under rlgl's values, beside `BlendMode.Custom`
-and `BlendMode.CustomSeparate`, `rlSetBlendMode` and an `rlDrawRenderBatchActive` with nothing to
-do. The draw list keeps a custom mode's factors with each batch and the immediate pass keys its
-pipelines by them, and a custom mode combines the alpha by its factors as rlgl's does, where the
-other modes keep laying alpha over. What is drawn in a custom mode takes the factors last set,
-which is a line on the comparison, since rlgl's takes them at the next `rlSetBlendMode` and the
-first frame of `textures_magnifying_glass`, which sets them after its mode, would otherwise go
-unmasked. One call was brought to raylib's: the immediate shader discarded a texel with no alpha
-in 2D as well as 3D, which changed what `AddColors`, `SubtractColors`, `Multiplied` and the custom
-modes draw, so it discards in 3D alone, where a billboard's clear corners would write depth, and
-the flag that kept a written pixel's clear texels goes with it. `textures_blend_modes` under
-`AddColors` shows the yellow raylib's does, the foreground's clear pixels being (245, 160, 39).
-A render test takes the larger of each channel under `RlBlendEquation.Max`, keeps a target's
-color while replacing its alpha, and adds a clear texel's color. `shapes_top_down_lights` and
-`textures_magnifying_glass` are raylib's, and `raybunny.png` is fetched with the rest. The table
-stands at 200 written and 21 missing, BMFont's two rows next.
-
-**Now 2, BMFont's two rows.** `LoadFont` reads a `.fnt` file in BMFont's text form, as raylib's
-does: its pages stacked into one atlas, each character placed from its page and offsets, the
-line height taken for the font's size, and a page of gray alone, as `pixantiqua.png` is, drawn
-white with its gray as coverage, which StbImageSharp's source components tell. A test writes a
-gray page and a page of color and finds the two stacked, a character past U+FFFF on the second,
-and the gray page's coverage white. `text_font_loading` and `text_unicode_emojis` are raylib's,
-the second's emojis and messages taken from raylib's bytes into C# strings, its boxed text
-`text_rectangle_bounds`' own, and the nine font files are fetched with the rest. The table stands
-at 202 written and 19 missing, the rows with a gap of one each next, depth written by a shader's
-two first.
-
-**Now 2, the depth rows.** `rlEnableDepthTest` and `rlDisableDepthTest` switch the draw list's
-depth test, in 2D as well as 3D, which `BeginMode3D` and `EndMode3D` turn on and off as raylib's
-do, and `rlEnableDepthMask` and `rlDisableDepthMask` keep a depth tested shape from writing its
-depth, kept from frame to frame as rlgl's state is. An immediate shader writes depth through
-`SV_Depth`, which a render test reads back in 2D with the test on and the mask off. rlgl's
-matrix modes are carried for `textures_portal_window`: `rlMatrixMode`, `rlLoadIdentity`,
-`rlMultMatrixf` and `rlSetMatrixProjection`, rlgl's projection kept apart from the view a camera
-mode sets, its own stack in its mode, and a projection taken as `System.Numerics` makes one and
-turned for Vulkan's clip space as the camera's is, which the comparison has a line on. Its
-projection moves shapes, text and rlgl's vertices, and models stay with the camera of
-`BeginMode3D`, as the rlgl line says. `shaders_depth_writing`, `shaders_hybrid_rendering` and
-`textures_portal_window` are raylib's, the first two's render texture with a depth of its own
-from `LoadRenderTexture` in place of rlgl's framebuffer calls. Their pictures differ from the
-screenshots beside them for a known reason: raylib's shaders write depth from the color's blue
-since `54ccb18e` (2023) and `6820ff61` (2025), where they wrote the pixel's own depth when the
-screenshots were taken, and the ports follow raylib's source as it is, which their shaders say.
-The table stands at 205 written and 16 missing. `models_skybox_rendering` waits on cubemaps,
-and a model drawn without writing depth with them.
+**Now 2, pixel formats' two rows.** `PixelFormat` is carried under raylib's values, with
+`LoadImageRaw`, which reads a file of pixels alone in an uncompressed format after a header, and
+`ImageFormat`, which keeps of each pixel what the format keeps: gray by raylib's weights, fewer
+levels rounded as raylib's `ImageFormat` rounds them and read back as the GPU reads a texture of
+the format, no alpha where the format has none, and red alone for a format of one channel. An
+image still holds four bytes a pixel, which the comparison has a line on, and a compressed format
+is read by neither, with a warning. TODO.md's line on images is rewritten around what is left,
+and the count of raylib's functions carried is 493, 80 percent. Two tests read a raw file and
+format a pixel through each format. `textures_raw_data` and `textures_image_processing` are
+raylib's. The table stands at 207 written and 14 missing, the audio processors' two rows next.

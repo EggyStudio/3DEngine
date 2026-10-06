@@ -89,10 +89,8 @@ textures_logo_raylib	can
 textures_srcrec_dstrec	can
 textures_image_generation	can
 textures_image_loading	can
-textures_image_processing	missing	ImageFormat
 textures_image_text	can
 textures_to_image	can
-textures_raw_data	missing	LoadImageRaw
 textures_particles_blending	can
 textures_npatch_drawing	can
 textures_background_scrolling	can

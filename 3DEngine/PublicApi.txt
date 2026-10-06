@@ -731,6 +731,7 @@ static class Engine.Engine3D
   static Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames)
   static Image LoadImageFromMemory(string fileType, byte[] fileData)
   static Image LoadImageFromTexture(Texture2D texture)
+  static Image LoadImageRaw(string fileName, int width, int height, PixelFormat format, int headerSize)
   static Key GetKeyPressed()
   static LightHandle CreateDirectionalLight(Vector3 direction, Color color, float intensity = 1f, bool castsShadows = false)
   static LightHandle CreatePointLight(Vector3 position, Color color, float intensity = 1f, float range = 0f, bool castsShadows = false)
@@ -1205,6 +1206,7 @@ static class Engine.Engine3D
   static void ImageDrawTriangleStrip(ref Image dst, Vector2[] points, Color color)
   static void ImageFlipHorizontal(ref Image image)
   static void ImageFlipVertical(ref Image image)
+  static void ImageFormat(ref Image image, PixelFormat newFormat)
   static void ImageKernelConvolution(ref Image image, float[] kernel)
   static void ImageResize(ref Image image, int newWidth, int newHeight)
   static void ImageResizeCanvas(ref Image image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill)
@@ -2316,6 +2318,31 @@ sealed class Engine.PhysicsWorld : IDisposable
   void MarkPlaced(Entity entity)
   void SetLinearVelocity(PhysicsBody body, Vector3 velocity)
   void SetPosition(PhysicsBody body, Vector3 position)
+enum Engine.PixelFormat : int
+  CompressedAstc4x4Rgba = 23
+  CompressedAstc8x8Rgba = 24
+  CompressedDxt1Rgb = 14
+  CompressedDxt1Rgba = 15
+  CompressedDxt3Rgba = 16
+  CompressedDxt5Rgba = 17
+  CompressedEtc1Rgb = 18
+  CompressedEtc2EacRgba = 20
+  CompressedEtc2Rgb = 19
+  CompressedPvrtRgb = 21
+  CompressedPvrtRgba = 22
+  UncompressedGrayAlpha = 2
+  UncompressedGrayscale = 1
+  UncompressedR16 = 11
+  UncompressedR16G16B16 = 12
+  UncompressedR16G16B16A16 = 13
+  UncompressedR32 = 8
+  UncompressedR32G32B32 = 9
+  UncompressedR32G32B32A32 = 10
+  UncompressedR4G4B4A4 = 6
+  UncompressedR5G5B5A1 = 5
+  UncompressedR5G6B5 = 3
+  UncompressedR8G8B8 = 4
+  UncompressedR8G8B8A8 = 7
 static class Engine.PluginOrder
   const int Default = 0
   const int Earliest = -2000

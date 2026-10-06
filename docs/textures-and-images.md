@@ -100,6 +100,12 @@ channel (`ImageDither`), and trimmed to what is not clear (`GetImageAlphaBorder`
 makes an image of text, and `LoadImageAnim` reads every frame of an animated GIF into one image,
 stacked from the top, which a sprite drawn frame by frame reads as a sheet.
 
+An image here always holds four bytes a pixel, red, green, blue and alpha. `LoadImageRaw` reads a
+file of pixels alone in one of raylib's `PixelFormat`s, gray, sixteen bits, floats or half floats,
+after a header of a size the program gives, as `textures_raw_data` reads its sprite, and
+`ImageFormat` keeps of each pixel what a format keeps, its gray, its fewer levels or its missing
+alpha.
+
 A texture already loaded is changed with `UpdateTexture(texture, image)`, which uploads an image of
 the same size again, as a picture drawn by the program every frame needs. A render texture's pixels
 are written in their place among what is drawn into it, so a pattern written with

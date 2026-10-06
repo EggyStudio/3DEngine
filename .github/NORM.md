@@ -273,8 +273,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | listed 116, `NormTests` | listed 337, `NormTests` |
-| N 1.3 | listed 6, `NormTests` | listed 25, `NormTests`, 15 of them in the bridge |
+| N 1.2 | listed 116, `NormTests` | listed 307, `NormTests` |
+| N 1.3 | listed 6, `NormTests` | listed 23, `NormTests`, 14 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 21 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
@@ -317,7 +317,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 7.4 | by review | by review |
 | B 1 | | checked, `NativeLoader` at load |
 | B 2 | | by review |
-| B 3 | | listed 1, `NormTests`, 15 left out |
+| B 3 | | checked, `NormTests`, 15 left out |
 | B 4 | | by review |
 
 ## How the norm changes
