@@ -944,6 +944,7 @@ static class Engine.Engine3D
   static bool Vector3Equals(Vector3 p, Vector3 q)
   static bool Vector4Equals(Vector4 p, Vector4 q)
   static bool WindowShouldClose()
+  static bool rlCheckRenderBatchLimit(int vertexCount)
   static byte[] ExportImageToMemory(Image image, string fileType)
   static byte[]? LoadFileData(string fileName)
   static double GetProfileAverage(string name)
@@ -1367,6 +1368,20 @@ static class Engine.Engine3D
   static void WaitTime(double seconds)
   static void WaveCrop(ref Wave wave, int initFrame, int finalFrame)
   static void WaveFormat(ref Wave wave, int sampleRate, int sampleSize, int channels)
+  static void rlBegin(RlDrawMode mode)
+  static void rlColor4f(float r, float g, float b, float a)
+  static void rlColor4ub(byte r, byte g, byte b, byte a)
+  static void rlEnd()
+  static void rlNormal3f(float x, float y, float z)
+  static void rlPopMatrix()
+  static void rlPushMatrix()
+  static void rlRotatef(float angle, float x, float y, float z)
+  static void rlScalef(float x, float y, float z)
+  static void rlSetTexture(int id)
+  static void rlTexCoord2f(float x, float y)
+  static void rlTranslatef(float x, float y, float z)
+  static void rlVertex2f(float x, float y)
+  static void rlVertex3f(float x, float y, float z)
 readonly struct Engine.Entity : IEquatable<Entity>
   Entity(int Index, int Generation)
   bool Equals(Entity other)
@@ -2352,6 +2367,10 @@ struct Engine.RigidBody
   static RigidBody Dynamic(float mass = 1f)
   static RigidBody Kinematic { get; }
   static RigidBody Static { get; }
+enum Engine.RlDrawMode : int
+  Lines = 0
+  Quads = 2
+  Triangles = 1
 sealed class Engine.RunIfAttribute : Attribute
   RunIfAttribute(string memberName)
   string MethodName { get; }

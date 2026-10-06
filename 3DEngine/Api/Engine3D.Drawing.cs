@@ -29,6 +29,7 @@ public static partial class Engine3D
         _target = default;
         _shader = default;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        ResetRlgl();
         Profile("program.update", update);
         _drawingStart = Stopwatch.GetTimestamp();
     }
@@ -175,6 +176,7 @@ public static partial class Engine3D
         var aspect = (float)width / Math.Max(1, height);
         var viewProjection = camera.View * camera.ProjectionMatrix(aspect);
         DrawList.SetTransform(viewProjection, depthTest: true);
+        ResetRlglUnlessPushed();
         _camera3D = camera;
         var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
         if (_target.IsValid) mode3D.Targets.TryAdd(_target.Texture.Id, (viewProjection, camera.Position));
@@ -189,6 +191,7 @@ public static partial class Engine3D
     {
         _camera3D = null;
         DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        ResetRlglUnlessPushed();
     }
 
     // Pixels from the top left corner to clip space. Vulkan's clip space points down, so the top

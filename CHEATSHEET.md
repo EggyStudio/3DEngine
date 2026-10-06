@@ -319,6 +319,29 @@ void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int
 void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices, int rings, Color color); // Its edges
 ```
 
+## rlgl
+
+raylib's layer under its shapes, the calls its examples make. Vertices go into the frame's draw
+list, moved by the matrix stack, which moves every shape, text and model drawn inside a push too.
+
+```csharp
+void rlPushMatrix();                                       // Keep the transform, for rlPopMatrix
+void rlPopMatrix();                                        // Back to the transform kept
+void rlTranslatef(float x, float y, float z);              // Move what is drawn after
+void rlRotatef(float angle, float x, float y, float z);    // Turn it by degrees about an axis
+void rlScalef(float x, float y, float z);                  // Scale it
+void rlBegin(RlDrawMode mode);                             // Start vertices as Lines, Triangles or Quads
+void rlEnd();                                              // End them
+void rlVertex2f(float x, float y);                         // A vertex in 2D
+void rlVertex3f(float x, float y, float z);                // A vertex in 3D
+void rlTexCoord2f(float x, float y);                       // The next vertices' texture coordinate
+void rlNormal3f(float x, float y, float z);                // Taken and not kept, the vertices being unlit
+void rlColor4ub(byte r, byte g, byte b, byte a);           // The next vertices' color
+void rlColor4f(float r, float g, float b, float a);        // The same from 0 to 1
+void rlSetTexture(int id);                                 // The next primitives' texture, 0 for none
+bool rlCheckRenderBatchLimit(int vertexCount);             // False, the draw list growing as it needs
+```
+
 ## Images and textures
 
 ```csharp

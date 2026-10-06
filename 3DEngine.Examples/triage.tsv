@@ -13,7 +13,6 @@ core_input_mouse_wheel	can
 core_input_multitouch	can
 core_input_gestures_testbed	can
 core_input_virtual_controls	can
-core_2d_camera_mouse_zoom	missing	rlPopMatrix, rlPushMatrix, rlRotatef, rlTranslatef
 core_2d_camera_platformer	can
 core_2d_camera_split_screen	can
 core_3d_camera_mode	can
@@ -65,7 +64,6 @@ shapes_ring_drawing	can	with ImGui in raygui's place
 shapes_circle_sector_drawing	can	with ImGui in raygui's place
 shapes_rounded_rectangle_drawing	can	with ImGui in raygui's place
 shapes_top_down_lights	missing	blend factors of the program's own (rlSetBlendFactors), which lay its lights' mask over the scene
-shapes_rectangle_advanced	missing	GetShapesTexture, GetShapesTextureRectangle, rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
 shapes_splines_drawing	can	with ImGui in raygui's place
 shapes_digital_clock	can
 shapes_double_pendulum	part	leaves out FLAG_WINDOW_HIGHDPI, which ConfigFlags lacks and which draws nothing differently at a scale of one
@@ -81,7 +79,6 @@ shapes_simple_particles	can
 shapes_starfield_effect	can
 shapes_lines_drawing	can
 shapes_math_angle_rotation	can
-shapes_rlgl_color_wheel	missing	rlBegin, rlColor4f, rlColor4ub, rlEnd, rlVertex2f, with ImGui in raygui's place
 shapes_rlgl_triangle	missing	culling turned off, so a triangle wound either way is drawn
 shapes_ball_physics	can
 shapes_penrose_tile	can
@@ -111,14 +108,12 @@ textures_sprite_explosion	can
 textures_mouse_painting	can
 textures_blend_modes	can
 textures_tiled_drawing	can
-textures_polygon_drawing	missing	rlBegin, rlColor4ub, rlEnd, rlSetTexture, rlTexCoord2f, rlVertex2f
 textures_fog_of_war	can
 textures_gif_player	can
 textures_image_kernel	can
 textures_image_channel	can
 textures_image_rotate	can
 textures_screen_buffer	can
-textures_textured_curve	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex2f
 textures_sprite_stacking	can
 textures_cellular_automata	can
 textures_framebuffer_rendering	can
@@ -132,7 +127,7 @@ text_writing_anim	can
 text_rectangle_bounds	missing	GetGlyphIndex
 text_unicode_emojis	missing	GetGlyphIndex, BMFont's .fnt files
 text_unicode_ranges	can
-text_3d_drawing	missing	GetGlyphIndex, rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlNormal3f, rlPopMatrix, rlPushMatrix, rlRotatef, rlSetTexture, rlTexCoord2f, rlTranslatef, rlVertex3f
+text_3d_drawing	missing	GetGlyphIndex
 text_codepoints_loading	can
 text_inline_styling	missing	GetGlyphIndex
 text_words_alignment	can
@@ -149,12 +144,10 @@ models_loading_vox	missing	MagicaVoxel's .vox files, which Assimp does not read
 models_loading_m3d	missing	M3D files, which the Assimp the engine carries does not read
 models_orthographic_projection	can
 models_point_rendering	missing	a mesh drawn as points, with culling turned off
-models_rlgl_solar_system	missing	rlBegin, rlCheckRenderBatchLimit, rlColor4ub, rlEnd, rlPopMatrix, rlPushMatrix, rlRotatef, rlScalef, rlTranslatef, rlVertex3f
 models_yaw_pitch_roll	can
 models_waving_cubes	can
 models_heightmap_rendering	can
 models_skybox_rendering	missing	LoadTextureCubemap and a material's cubemap a shader samples, since textures are two-dimensional, and a model drawn without writing depth (rlDisableDepthMask)
-models_textured_cube	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f
 models_animation_gpu_skinning	can
 models_bone_socket	can
 models_tesseract_view	can

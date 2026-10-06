@@ -226,6 +226,33 @@ internal sealed class DrawList
         }
     }
 
+    // The model transform the following shapes' positions are moved by as they are recorded, as
+    // rlgl moves each vertex by its matrix stack, and whether it is anything but the identity.
+    private Matrix4x4 _model = Matrix4x4.Identity;
+    private bool _hasModel;
+
+    /// <summary>
+    /// Moves the positions of the following shapes by <paramref name="model"/> as they are
+    /// recorded, before the batch's transform, as rlgl's matrix stack moves each vertex.
+    /// </summary>
+    public void SetModel(Matrix4x4 model)
+    {
+        using (Enter())
+        {
+            _model = model;
+            _hasModel = !model.IsIdentity;
+        }
+    }
+
+    // Moves the positions of the count vertices from at by the model transform. Called inside
+    // Enter, after the vertices are written.
+    private void Place(int at, int count)
+    {
+        if (!_hasModel) return;
+        for (int i = at; i < at + count; i++)
+            _vertices[i] = _vertices[i] with { Position = Vector3.Transform(_vertices[i].Position, _model) };
+    }
+
     /// <summary>Records a line.</summary>
     public void Line(Vector3 from, Vector3 to, Color color)
     {
@@ -234,7 +261,27 @@ internal sealed class DrawList
             var at = Reserve(PrimitiveTopology.LineList, 2, 0);
             _vertices[at] = new ImmediateVertex(from, default, color);
             _vertices[at + 1] = new ImmediateVertex(to, default, color);
+            Place(at, 2);
             Index(at, 0, 1);
+        }
+    }
+
+    /// <summary>
+    /// Records a line, a triangle or a quad of two triangles over its corners in order around its
+    /// edge, by how many corners there are, each corner with its own texture coordinate and color,
+    /// sampling <paramref name="texture"/>, as rlgl's vertices are given one at a time.
+    /// </summary>
+    public void Primitive(ReadOnlySpan<ImmediateVertex> corners, int texture)
+    {
+        if (corners.Length is < 2 or > 4) throw new ArgumentOutOfRangeException(nameof(corners), "A primitive has two, three or four corners.");
+        using (Enter())
+        {
+            var at = Reserve(corners.Length == 2 ? PrimitiveTopology.LineList : PrimitiveTopology.TriangleList, corners.Length, texture);
+            corners.CopyTo(_vertices.AsSpan(at));
+            Place(at, corners.Length);
+            if (corners.Length == 2) Index(at, 0, 1);
+            else if (corners.Length == 3) Index(at, 0, 1, 2);
+            else QuadIndices(at);
         }
     }
 
@@ -247,6 +294,7 @@ internal sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, color);
             _vertices[at + 1] = new ImmediateVertex(b, default, color);
             _vertices[at + 2] = new ImmediateVertex(c, default, color);
+            Place(at, 3);
             Index(at, 0, 1, 2);
         }
     }
@@ -260,6 +308,7 @@ internal sealed class DrawList
             _vertices[at] = new ImmediateVertex(a, default, colorA);
             _vertices[at + 1] = new ImmediateVertex(b, default, colorB);
             _vertices[at + 2] = new ImmediateVertex(c, default, colorC);
+            Place(at, 3);
             Index(at, 0, 1, 2);
         }
     }
@@ -275,6 +324,7 @@ internal sealed class DrawList
             corners[1] = new ImmediateVertex(b, default, color);
             corners[2] = new ImmediateVertex(c, default, color);
             corners[3] = new ImmediateVertex(d, default, color);
+            Place(at, 4);
             QuadIndices(at);
         }
     }
@@ -294,6 +344,7 @@ internal sealed class DrawList
             corners[1] = new ImmediateVertex(b, uvB, tint);
             corners[2] = new ImmediateVertex(c, uvC, tint);
             corners[3] = new ImmediateVertex(d, uvD, tint);
+            Place(at, 4);
             QuadIndices(at);
         }
     }
@@ -316,6 +367,7 @@ internal sealed class DrawList
             Textures = null;
             Blend = BlendMode.Alpha;
             Scissor = null;
+            (_model, _hasModel) = (Matrix4x4.Identity, false);
             _targetClears.Clear();
         }
     }

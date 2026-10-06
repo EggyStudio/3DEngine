@@ -234,14 +234,48 @@ its first `BeginMode3D`, so a texture drawn only in 2D shows none. In the ECS an
 emitter is a `ParticleEmitter` component placed by its entity's `Transform`, which a scene file
 saves.
 
+## Vertices one at a time, and the matrix stack
+
+raylib draws its shapes through rlgl, a layer where a program gives vertices one at a time, and
+the calls its examples make are carried under rlgl's names. Between `rlBegin` and `rlEnd` each
+`rlVertex3f` (or `rlVertex2f`) takes the color, texture coordinate and texture set before it, and
+two, three or four make a line, a triangle or a quad. `rlPushMatrix` keeps the transform,
+`rlTranslatef`, `rlRotatef` and `rlScalef` change it, and `rlPopMatrix` returns to it, and
+everything drawn in between is moved, rlgl's vertices, shapes, text and models alike. The
+`models_rlgl_solar_system` example turns the earth about the sun and the moon about the earth:
+
+```csharp
+rlPushMatrix();
+    rlRotatef(earthOrbitRotation, 0.0f, 1.0f, 0.0f);    // Earth's orbit around the sun
+    rlTranslatef(earthOrbitRadius, 0.0f, 0.0f);
+
+    rlPushMatrix();
+        rlRotatef(earthRotation, 0.25f, 1.0f, 0.0f);    // Earth turning
+        rlScalef(earthRadius, earthRadius, earthRadius);
+        DrawSphereBasic(Color.Blue);
+    rlPopMatrix();
+
+    rlRotatef(moonOrbitRotation, 0.0f, 1.0f, 0.0f);     // The moon's orbit around the earth
+    rlTranslatef(moonOrbitRadius, 0.0f, 0.0f);
+    rlScalef(moonRadius, moonRadius, moonRadius);
+    DrawSphereBasic(Color.LightGray);
+rlPopMatrix();
+```
+
+The transform given last applies first, as in rlgl, so the earth is scaled, turned and then
+carried out along its orbit. A transform set with nothing pushed lasts until the next camera mode
+begins or ends, and the next frame starts with none. rlgl's switches of depth, culling and
+blending are not carried, as [compared with raylib](compared-with-raylib.md) says.
+
 ## See also
 
 - Examples: [`models_geometric_shapes`](../3DEngine.Examples/Models/ModelsGeometricShapes.cs),
   [`core_3d_camera_free`](../3DEngine.Examples/Core/Core3DCameraFree.cs),
   [`core_3d_camera_first_person`](../3DEngine.Examples/Core/Core3DCameraFirstPerson.cs),
   [`textures_render_target`](../3DEngine.Examples/Textures/TexturesRenderTarget.cs),
-  [`shaders_particles`](../3DEngine.Examples/Shaders/ShadersParticles.cs)
+  [`shaders_particles`](../3DEngine.Examples/Shaders/ShadersParticles.cs),
+  [`models_rlgl_solar_system`](../3DEngine.Examples/Models/ModelsRlglSolarSystem.cs)
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
-  [3D shapes](../CHEATSHEET.md#3d-shapes) and [Particles](../CHEATSHEET.md#particles)
+  [3D shapes](../CHEATSHEET.md#3d-shapes), [rlgl](../CHEATSHEET.md#rlgl) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)
 - Next: [Textures and images](textures-and-images.md)

@@ -80,6 +80,10 @@ case "$example" in
     ./e3d command input.move 460 260 --quiet
     ./e3d command input.drag Left -100 30 30 --quiet
     ;;
+  shapes_rlgl_color_wheel)
+    # A color picked near the top of the wheel, where raylib's screenshot picks one.
+    ./e3d command input.click 405 104 --quiet
+    ;;
   shaders_rlgl_compute)
     # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
     ./e3d command input.wheel 16 --quiet

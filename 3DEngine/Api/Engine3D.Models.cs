@@ -735,7 +735,7 @@ public static partial class Engine3D
         var draws = System.Buffers.ArrayPool<ModelDraw>.Shared.Rent(transforms.Length);
         try
         {
-            for (int i = 0; i < transforms.Length; i++) draws[i] = first with { World = transforms[i] };
+            for (int i = 0; i < transforms.Length; i++) draws[i] = first with { World = _rlTransform.IsIdentity ? transforms[i] : transforms[i] * _rlTransform };
             Res<ModelDrawList>().AddRange(draws.AsSpan(0, transforms.Length));
         }
         finally
@@ -744,9 +744,11 @@ public static partial class Engine3D
         }
     }
 
-    // A mesh's draw with a material, its shader's values taken as they are now.
+    // A mesh's draw with a material, its shader's values taken as they are now, moved by rlgl's
+    // matrix stack as raylib's DrawMesh moves it.
     private static ModelDraw MeshDraw(ModelMesh mesh, ModelMaterial material, Matrix4x4 transform)
     {
+        if (!_rlTransform.IsIdentity) transform *= _rlTransform;
         var texture = material.Texture.IsValid ? material.Texture.Id : 0;
         var shader = material.Shader.IsValid && Draws(material.Shader) ? material.Shader.Id : 0;
         return new ModelDraw(mesh.Id, transform, DrawList.Transform, material.Color, texture, DrawList.Target,

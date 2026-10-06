@@ -72,7 +72,7 @@ public partial class CheatsheetTests
         return count;
     }
 
-    [GeneratedRegex(@"^(?:\([^)]*\)|[\w.<>\[\]?, ]+?)\s+(?<name>[A-Z]\w*)(?:<[^>]*>)?\((?<parameters>.*)\);\s*(?://.*)?$")]
+    [GeneratedRegex(@"^(?:\([^)]*\)|[\w.<>\[\]?, ]+?)\s+(?<name>[A-Z]\w*|rl[A-Z]\w*)(?:<[^>]*>)?\((?<parameters>.*)\);\s*(?://.*)?$")]
     private static partial Regex Declaration();
 
     internal static string RepoRoot()

@@ -10,7 +10,16 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ef042886`. The rest of raylib's shaders examples and its spectrum visualizer are
+Reviewed up to `d52d9651`. The last of raylib's models examples that can be written are, so every
+row of the table that can be written is: 181 written, 1 in part, 39 missing and 1 that does not
+apply. `models_skybox_rendering` is missing, a cubemap being left out by design, in place of a
+program of the engine's own under its name. An OBJ's dissolve is not read, as raylib reads none,
+a model saying `d 0` having been invisible, and a clip's frame count is raylib's, the robot's
+walk at 58 frames, each with its test. Two differences are kept on the comparison, a glTF's
+materials counted from 0 and a mesh's `VertexCount` as its file has it. The missing rows come
+next by how many each holds, rlgl's immediate vertices and matrix stack first, as item 2 has it.
+
+Before it, the rest of raylib's shaders examples and its spectrum visualizer were
 written, so no shaders example that can be written is left, raylib's `rlights.h` being the
 examples' own `RLights` as `reasings.h` is `Easings`. Three calls are raylib's, read against
 its source by the coder: `GenImagePerlinNoise` is stb_perlin's noise pixel for pixel, held by
@@ -22,8 +31,7 @@ reached ImGui swapped, and `input.drag` took `100` as a mouse button, which stop
 in ImGui, so the input commands and the console's field setter take a member by its name alone
 (`CliTests`). One difference is kept on the comparison, a target drawn as the frame ends and so
 read back as the last frame left it. `shaders_rlgl_compute` keeps raylib's window of 768 by
-768, so N 4.5 leaves out 10. The table stands at 175 written, 1 in part, 7 that can be and 38
-missing. No verdict is open.
+768, so N 4.5 leaves out 10.
 
 Before it, ten more of raylib's shaders examples were written (`579b2194`) and
 `models_mesh_generation` is raylib's program under its name (N 5.1). `GetShaderLocation` finds
@@ -233,28 +241,25 @@ None open.
 
 ## Replies
 
-**Now 2, the last models examples, so every row that can be written is.**
-`models_animation_gpu_skinning`, `models_animation_blend_custom`, `models_animation_blending`,
-`models_decals`, `models_procedural_decals` and `models_mesh_uv_painting` are raylib's, the last
-three with ImGui in raygui's place where raylib uses raygui. raylib's skinning shader is its
-fragment stage alone in Slang, since the engine poses a skinned mesh on the GPU before any vertex
-stage. The custom blend keeps raylib's per-bone blend and hands the blended poses to
-`UpdateModelAnimation` as a clip of one frame, where raylib builds the bone matrices and skins on
-the CPU itself, which its row says. The decal programs read a mesh's triangles through
-`GetMeshComponent` and give each decal triangle its face's normal, raylib's decal meshes having
-none for its unlit shader. `models_skybox_rendering` is missing rather than written with the sky
-of `SetEnvironmentMap`, since it needs `LoadTextureCubemap`, a material's cubemap a shader
-samples and a model drawn without writing depth, which TODO.md already leaves out. Three calls
-were brought to raylib's. An OBJ's dissolve is not read, as raylib's loader reads none, so
-raylib's `character.obj`, whose material says `d 0`, draws (`AssimpModelReaderTests`). A clip's
-frame count is raylib's, the frame at 0 and one each sixtieth that ends inside the clip, where it
-rounded up, so the robot's walk has raylib's 58 frames (`Engine3DAnimationTests`). And two kept
-differences are on the comparison: a glTF file's materials start at 0 here, where raylib puts a
-default material first, and a mesh from an OBJ file or a par_shapes generator shares vertices
-between triangles, where raylib's have three of their own, so the decal programs' vertex counts
-differ. `models_animation_timing` drew its keyframe marks under ImGui's progress bar, since ImGui
-draws after the flat API, and draws them through ImGui's draw list now, as the blending program
-does. CHEATSHEET.md said `DoubleSided` is true unless set and TODO.md that the cubicmap has no
-roof, both from before `DoubleSided` defaulted to false, and both are mended. The table stands at
-181 written, 1 in part, none that can be and 39 missing, so the missing come next, taken by how
-many rows each holds.
+**Now 2, rlgl's vertices and matrix stack, by the rows they hold.** The calls the rlgl rows make are
+carried under rlgl's names and no more: `rlBegin` and `rlEnd` with `RlDrawMode`'s lines, triangles
+and quads, `rlVertex2f`, `rlVertex3f`, `rlTexCoord2f`, `rlNormal3f`, `rlColor4ub`, `rlColor4f`,
+`rlSetTexture`, `rlCheckRenderBatchLimit`, and `rlPushMatrix`, `rlPopMatrix`, `rlTranslatef`,
+`rlRotatef` and `rlScalef`. The vertices go into the frame's draw list through a primitive of two,
+three or four corners, each with its own color and texture coordinate, the quads' texture the one
+`rlSetTexture` names. The matrix stack moves each vertex as it is recorded, as rlgl moves it on the
+CPU, so a custom shader sees world positions, and every shape, text and model drawn inside a push
+is moved with it, `DrawMesh` multiplying it in as raylib's does. A transform set without a push
+lasts until a camera mode begins or ends, and a frame starts with none (`RlglTests`). A pixel
+written into a render texture is drawn without it. `core_2d_camera_mouse_zoom`,
+`shapes_rlgl_color_wheel`, `shapes_rectangle_advanced`, `textures_polygon_drawing`,
+`textures_textured_curve`, `models_textured_cube` and `models_rlgl_solar_system` are raylib's.
+`shapes_rectangle_advanced` has a branch of quads for a raylib built with
+`SUPPORT_QUADS_DRAW_MODE`, which `config.h` sets and the example does not include, and which
+names a `texShapes` the file never declares, so it draws its triangles, and
+`GetShapesTexture`, which only that branch calls, is not carried. `text_3d_drawing` waits on
+`GetGlyphIndex` alone, the next gap. The comparison has a line naming what of rlgl is not carried:
+the matrix modes, `rlLoadIdentity`, `rlMultMatrixf`, the projections and the viewport, and the
+switches of depth, culling, blending, wires and line width, culling to come as a state of the
+draw list with its three rows. The table stands at 188 written, 1 in part, none that can be and
+32 missing.

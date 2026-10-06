@@ -275,7 +275,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | listed 116, `NormTests` | listed 337, `NormTests` |
 | N 1.3 | listed 6, `NormTests` | listed 25, `NormTests`, 15 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 20 left out |
+| N 1.4 | checked, `NormTests`, 10 left out | listed 113, `NormTests`, 21 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
@@ -284,7 +284,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.5 | checked, `build/play-native.sh` in the workflow | to take |
 | N 2.6 | checked, `BadFileTests` | to take |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
-| N 2.8 | checked, `NormTests` | to take |
+| N 2.8 | checked, `NormTests` | checked, `NormTests` |
 | N 2.9 | checked, `FileHandleTests` | to take |
 | N 2.10 | checked, `NormTests` | to take |
 | N 3.1 | by review | by review |
@@ -301,14 +301,14 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.5 | checked, `NormTests`, 10 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
-| N 5.2 | checked, `build/examples-table.py --check` in the workflow | to take |
+| N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | to take |
 | N 6.2 | checked, `test.yml` | checked, `package.yml` |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
-| N 6.5 | checked, `PackageContentsTests` | checked, by the test of N 6.4, which holds the notices to the lock |
-| N 6.6 | checked, `ScriptTests` | to take |
+| N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |
+| N 6.6 | checked, `ScriptTests` | checked, `ScriptTests` |
 | N 6.7 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
 | N 6.8 | checked, `build/test.py` in the workflow and `TestScriptTests` | to take |
 | N 7.1 | by review | by review |

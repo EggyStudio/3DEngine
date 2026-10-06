@@ -24,10 +24,18 @@ public record struct Camera2D(Vector2 Offset, Vector2 Target, float Rotation = 0
 public static partial class Engine3D
 {
     /// <summary>Draws the following 2D calls through <paramref name="camera"/>, in world units, until <see cref="EndMode2D"/>.</summary>
-    public static void BeginMode2D(Camera2D camera) => DrawList.SetTransform(camera.Matrix * ScreenTransform(), depthTest: false);
+    public static void BeginMode2D(Camera2D camera)
+    {
+        DrawList.SetTransform(camera.Matrix * ScreenTransform(), depthTest: false);
+        ResetRlglUnlessPushed();
+    }
 
     /// <summary>Returns to drawing in screen pixels.</summary>
-    public static void EndMode2D() => DrawList.SetTransform(ScreenTransform(), depthTest: false);
+    public static void EndMode2D()
+    {
+        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        ResetRlglUnlessPushed();
+    }
 
     /// <summary>The camera's world to screen transform.</summary>
     public static Matrix4x4 GetCameraMatrix2D(Camera2D camera) => camera.Matrix;

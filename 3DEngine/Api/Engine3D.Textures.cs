@@ -231,6 +231,7 @@ public static partial class Engine3D
         DrawList.SetShader(0, default(ShaderParams).With(0, Vector4.UnitX));
         DrawList.SetBlend(DrawList.Replace);
         DrawList.SetScissor(null);
+        DrawList.SetModel(Matrix4x4.Identity);
         DrawList.TexturedQuad(new Vector3(x, y, 0), new Vector3(x, y + height, 0), new Vector3(x + width, y + height, 0), new Vector3(x + width, y, 0),
             Vector2.Zero, Vector2.UnitY, Vector2.One, Vector2.UnitX, Color.White, written);
         DrawList.SetTarget(into);
@@ -238,6 +239,7 @@ public static partial class Engine3D
         DrawList.SetShader(shader, parameters, uniforms, textures);
         DrawList.SetBlend(blend);
         DrawList.SetScissor(scissor);
+        DrawList.SetModel(_rlTransform);
         return true;
     }
 
