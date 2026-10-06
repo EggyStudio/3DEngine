@@ -196,3 +196,14 @@ passed, 0 failed, 1 skipped.
 Shared: C# typed at a running app, in the library here where BevyCSharp keeps it in its editor, as
 top-level statements with the last bare expression as the answer, which SHARED.md's row to consider
 may record as had by both.
+
+**Now 5, the Scenes entry on a program's own spawn.** No program could take the path the entry
+describes, since `SceneSpawner` is internal and the public `ecs.SpawnScene(scene)` passes no asset
+server, so it loads no textures. The trap was the engine's own: `SceneSpawner.Spawn` took an asset
+server and loaded textures that nothing held. It takes none, and loads none, and the one spawn that
+loads textures is `SpawnTaking`, whose list of the loads taken is required, so each caller holds
+them by the spawned entities as the spawn and hot-reload systems do. The warning a spawn with no
+asset server logs once said the runtime material was albedo-only and named a follow-up ticket. It
+says the textures are left out and the surfaces draw with their factors alone. The test of an
+embedded texture spawns through `SpawnTaking` and checks the load it hands back, and the entry
+leaves TODO.md. The suite: 1,333 passed, 0 failed, 1 skipped.

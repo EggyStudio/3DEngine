@@ -40,12 +40,14 @@ public sealed class SceneSpawnerEmbeddedTextureTests : IDisposable
         });
 
         var ecs = new EcsWorld();
-        var spawned = SceneSpawner.Spawn(ecs, scene, assetServer: server, sceneSourcePath: "models/crate.glb");
+        var taken = new List<AssetId>();
+        var spawned = SceneSpawner.SpawnTaking(ecs, scene, null, 0, server, "models/crate.glb", null, taken);
 
         ecs.TryGet(spawned[0], out Material material).Should().BeTrue();
         material.BaseColorTexture.Path.Path.Should().StartWith("__embedded__/models/crate.glb/0.png");
         var texture = server.LoadSync<TextureAsset>(material.BaseColorTexture.Path.ToString());
         (texture.Width, texture.Height).Should().Be((2, 1));
         texture.Pixels.Take(4).Should().Equal(255, 0, 0, 255);
+        taken.Should().Equal([material.BaseColorTexture.Id], "the load is handed back for the caller to give back");
     }
 }

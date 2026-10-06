@@ -44,22 +44,15 @@ internal static class SceneSpawner
     /// every entity created. The order matches a depth-first traversal of
     /// <see cref="Scene.Roots"/>.
     /// </summary>
+    /// <remarks>
+    /// Loads no textures, so its materials draw with their factors alone. A spawn that loads them
+    /// goes through <see cref="SpawnTaking"/>, which hands back each load it took, for
+    /// <see cref="AssetRelease"/> to hold by the spawned entities and give back once they are gone.
+    /// </remarks>
     /// <param name="ecs">Target ECS world.</param>
     /// <param name="scene">Source snapshot. Not mutated.</param>
     /// <param name="settings">Spawn-time policy (purpose mask, defaults). May be <c>null</c>; <see cref="SceneSpawnSettings.Default"/> is used.</param>
     /// <param name="sceneAssetId">Optional source asset id, copied into <see cref="SceneInstance.SceneAssetId"/> on every spawned entity.</param>
-    /// <param name="assetServer">
-    /// When non-null, texture references on <see cref="SceneMaterialPayload"/> are
-    /// resolved against the asset server (using <see cref="TextureLoadExtensions"/>'
-    /// sRGB / linear / mips conventions) and the resulting handles populate the
-    /// <see cref="Material"/> texture slots. <c>null</c> (legacy / test path) skips
-    /// texture loads and fires the once-per-process "textures ignored" warning.
-    /// </param>
-    /// <param name="sceneSourcePath">
-    /// Resolved <see cref="SceneAsset.SourcePath"/> of the source file
-    /// (e.g. <c>"models/hero.glb"</c>). Used as the directory root for any relative
-    /// texture paths in the scene's material payloads. <c>null</c> = no prefix.
-    /// </param>
     /// <param name="materialLibrary">
     /// Optional <see cref="MaterialLibrary"/> used to register every spawned
     /// <see cref="SceneMaterialPayload"/> as a <see cref="MaterialDescription"/>. The
@@ -74,13 +67,31 @@ internal static class SceneSpawner
         Scene scene,
         SceneSpawnSettings? settings = null,
         ulong sceneAssetId = 0,
-        AssetServer? assetServer = null,
-        string? sceneSourcePath = null,
         MaterialLibrary? materialLibrary = null) =>
-        SpawnTaking(ecs, scene, settings, sceneAssetId, assetServer, sceneSourcePath, materialLibrary, taken: null);
+        SpawnTaking(ecs, scene, settings, sceneAssetId, assetServer: null, sceneSourcePath: null, materialLibrary, taken: []);
 
-    // The same, adding each texture a material loaded to taken, a load each, which the spawn
-    // driver gives back once the spawned entities are gone (AssetRelease).
+    /// <summary>
+    /// Spawns <paramref name="scene"/> as <see cref="Spawn"/> does, loading the textures its
+    /// materials name from <paramref name="assetServer"/> and adding each load to
+    /// <paramref name="taken"/>, which the caller gives back once the spawned entities are gone.
+    /// </summary>
+    /// <param name="ecs">Target ECS world.</param>
+    /// <param name="scene">Source snapshot. Not mutated.</param>
+    /// <param name="settings">Spawn-time policy, <see cref="SceneSpawnSettings.Default"/> where <c>null</c>.</param>
+    /// <param name="sceneAssetId">The source asset's id, copied into <see cref="SceneInstance.SceneAssetId"/> on every spawned entity.</param>
+    /// <param name="assetServer">
+    /// Resolves texture references on <see cref="SceneMaterialPayload"/> (using
+    /// <see cref="TextureLoadExtensions"/>' sRGB / linear / mips conventions) into the
+    /// <see cref="Material"/> texture slots. <c>null</c> skips texture loads and logs once a
+    /// process that they were left out.
+    /// </param>
+    /// <param name="sceneSourcePath">
+    /// Resolved <see cref="SceneAsset.SourcePath"/> of the source file
+    /// (e.g. <c>"models/hero.glb"</c>). Used as the directory root for any relative
+    /// texture paths in the scene's material payloads. <c>null</c> = no prefix.
+    /// </param>
+    /// <param name="materialLibrary">Registers each spawned material, as on <see cref="Spawn"/>.</param>
+    /// <param name="taken">Receives the id of each texture loaded, a load of the asset server's each.</param>
     internal static List<int> SpawnTaking(
         EcsWorld ecs,
         Scene scene,
@@ -89,10 +100,11 @@ internal static class SceneSpawner
         AssetServer? assetServer,
         string? sceneSourcePath,
         MaterialLibrary? materialLibrary,
-        List<AssetId>? taken)
+        List<AssetId> taken)
     {
         ArgumentNullException.ThrowIfNull(ecs);
         ArgumentNullException.ThrowIfNull(scene);
+        ArgumentNullException.ThrowIfNull(taken);
         settings ??= SceneSpawnSettings.Default;
 
         var entities = new List<int>();
@@ -113,8 +125,8 @@ internal static class SceneSpawner
         public MaterialLibrary? Materials { get; }
         public Scene Scene { get; }
         public string SceneKey { get; }
-        public List<AssetId>? Taken { get; }
-        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials, Scene scene, List<AssetId>? taken)
+        public List<AssetId> Taken { get; }
+        public SpawnContext(AssetServer? server, string? sceneSourcePath, MaterialLibrary? materials, Scene scene, List<AssetId> taken)
         {
             Server = server;
             Taken = taken;
@@ -319,8 +331,8 @@ internal static class SceneSpawner
         // degenerate bounds without a debugger.
         LogMeshDiagnostics(node, entity, positions, runtimeMaterial.Albedo);
 
-        // When no AssetServer was supplied, texture refs lose information silently;
-        // surface that exactly once so the gap is visible without log spam.
+        // A spawn with no asset server leaves its textures out, which is said once rather than
+        // for every material.
         if (material is not null && ctx.Server is null)
             WarnIfTexturesIgnoredOnce(material);
     }
@@ -405,7 +417,7 @@ internal static class SceneSpawner
         var handle = srgb
             ? ctx.Server.LoadTextureSrgb(resolved, generateMips: true)
             : ctx.Server.LoadTextureLinear(resolved, generateMips: true);
-        ctx.Taken?.Add(handle.Id);
+        ctx.Taken.Add(handle.Id);
         return handle;
     }
 
@@ -515,10 +527,8 @@ internal static class SceneSpawner
             $"albedo=({albedo.X:0.##},{albedo.Y:0.##},{albedo.Z:0.##},{albedo.W:0.##}).");
     }
 
-    // Process-wide dedup flag for the "textures ignored" warning. The runtime Material
-    // is Albedo-only today, so any SceneMaterialPayload with non-null texture refs loses
-    // information at spawn time. Surface the gap exactly once so it's visible in logs
-    // without flooding (a complex scene can bind hundreds of textured materials).
+    // Whether a spawn with no asset server has said that it leaves textures out, once a process,
+    // since a scene can have hundreds of textured materials.
     private static int s_textureWarningEmitted;
 
     private static void WarnIfTexturesIgnoredOnce(SceneMaterialPayload mat)
@@ -533,10 +543,8 @@ internal static class SceneSpawner
             return;
 
         Logger.Warn(
-            $"SceneSpawner: material '{mat.SourcePath}' carries texture references " +
-            "(BaseColor / MR / Normal / Emissive / Occlusion) but the runtime Material " +
-            "component is currently Albedo-only; PBR upgrade is a follow-up ticket. " +
-            "(This warning is emitted once per process.)");
+            $"SceneSpawner: material '{mat.SourcePath}' names textures, which a spawn with no asset server leaves out, " +
+            "so its surfaces draw with their factors alone. This is said once a process.");
     }
 
     /// <summary>
