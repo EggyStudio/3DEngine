@@ -95,7 +95,7 @@ models_yaw_pitch_roll	1.0
 shaders_ascii_rendering	3.6
 shaders_basic_lighting	1.1
 shaders_basic_pbr	3.1
-shaders_cel_shading	4.1
+shaders_cel_shading	1.5
 shaders_color_correction	3.6
 shaders_custom_uniform	4.6
 shaders_deferred_rendering	1.7

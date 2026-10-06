@@ -26,7 +26,7 @@ core_window_letterbox	can
 core_window_should_close	can
 core_custom_logging	can
 core_random_values	can
-core_storage_values	can
+core_storage_values	can	its text in ImGui's default font, as the comparison page says
 core_vr_simulator	missing	BeginVrStereoMode, EndVrStereoMode, LoadVrStereoConfig, UnloadVrStereoConfig
 core_scissor_test	can
 core_basic_screen_manager	can
@@ -76,7 +76,7 @@ shapes_math_angle_rotation	can
 shapes_ball_physics	can
 shapes_penrose_tile	can
 shapes_hilbert_curve	can	with ImGui in raygui's place
-shapes_easings_testbed	can
+shapes_easings_testbed	can	its text in ImGui's default font, as the comparison page says
 shapes_drag_puzzle	can
 shapes_ellipse_collision	can
 shapes_outlines_testbed	can	with ImGui in raygui's place
@@ -118,7 +118,7 @@ text_3d_drawing	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_codepoints_loading	can	its counts in ImGui's default font, and its text drawn larger than its font from a bake at the size, as the comparison page says
 text_inline_styling	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_words_alignment	can
-text_strings_management	can
+text_strings_management	can	its text in ImGui's default font, as the comparison page says
 models_billboard_rendering	can
 models_box_collisions	can
 models_cubicmap_rendering	can
@@ -142,11 +142,11 @@ models_animation_blending	can	with ImGui in raygui's place
 models_animation_timing	can	with ImGui in raygui's place
 models_mesh_uv_painting	can	with ImGui in raygui's place
 models_procedural_decals	can	with ImGui in raygui's place
-shaders_ascii_rendering	can
+shaders_ascii_rendering	can	its cells read from texture coordinates that fall on whole numbers of its scale, which OpenGL rounds otherwise, as the comparison page says
 shaders_basic_lighting	can
 shaders_model_shader	can
 shaders_shapes_textures	can
-shaders_custom_uniform	can
+shaders_custom_uniform	can	its model's textures filtered bilinear where raylib's are read texel by texel until a program sets a filter, as the comparison page says
 shaders_palette_switch	can
 shaders_raymarching_rendering	can
 shaders_texture_rendering	can
@@ -155,7 +155,7 @@ shaders_texture_waves	can
 shaders_julia_set	can
 shaders_mandelbrot_set	can
 shaders_color_correction	can	with ImGui in raygui's place
-shaders_eratosthenes_sieve	can
+shaders_eratosthenes_sieve	can	its cells read from texture coordinates that fall on whole numbers of its scale, which OpenGL rounds otherwise, as the comparison page says
 shaders_fog_rendering	can
 shaders_simple_mask	can
 shaders_hot_reloading	can	a shader read again when its file changes, which LoadShader and the file's time do
@@ -183,3 +183,9 @@ audio_raw_stream	moves	its wave drawn from when the audio device last asked for 
 audio_mixed_processor	moves	its volume history that of what the audio device has mixed
 audio_stream_effects	moves	its bar as far as the audio device has played
 core_input_gamepad	can	drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is
+core_custom_frame_control	can	its text in ImGui's default font, as the comparison page says
+core_window_flags	can	its text in ImGui's default font, as the comparison page says
+core_highdpi_demo	can	its text in ImGui's default font, as the comparison page says
+core_highdpi_testbed	can	its text in ImGui's default font, as the comparison page says
+models_point_rendering	can	its text in ImGui's default font, as the comparison page says
+text_font_sdf	can	its labels in ImGui's default font, as the comparison page says

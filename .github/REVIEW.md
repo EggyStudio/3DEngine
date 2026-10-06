@@ -278,7 +278,17 @@ the render tests pass on lavapipe under the layer, 107 of them. The surface lost
 (`PublicApi.txt`, 69 in and 61 out), which Decision 5 puts to the owner to number. The suite:
 1,436 passed, none skipped.
 
-**Now 5, the ECS `Transform`.** Kept as `Position`, with its reason on the comparison page:
+**Now 5, the ECS `Transform`.** Kept as `Position`, with its reason on the comparison page.
 BevyCSharp's `Transform` names the field the same, and the levels and prefabs of the games, which
 `SaveScene` writes and `LoadScene` reads, store it by that name, so renaming it would leave every
 saved level unread. With it, every name the reading found is raylib's or on the page with its reason.
+
+**Now 4, the next pairs.** Of the written examples 3.5 to 7 per cent apart from raylib's program,
+every one now says its reason on its row. Most differ in their text, drawn in ImGui's default font,
+and the rest in what the comparison page keeps already: a model's textures filtered bilinear before
+a program sets a filter, and texture coordinates falling on whole numbers of a shader's scale,
+which OpenGL rounds otherwise, in the sieve and the ASCII renderer. `shaders_cel_shading` drew no
+outline, since raylib's glTF normals under a node that scales are as long as one over its scale,
+39.37 for this car in inches, as the page says, so raylib's 0.005 pushes its hull 0.197, where a
+unit normal here pushed it 0.005, inside the car. The port pushes it by 0.005 over 0.0254 with a
+comment saying why, and the pair went from 4.1 to 1.5 per cent apart; its capture is taken again.

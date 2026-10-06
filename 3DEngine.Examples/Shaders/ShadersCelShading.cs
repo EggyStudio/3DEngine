@@ -86,7 +86,10 @@ public static class ShadersCelShading
                     if (outlineEnabled)
                     {
                         // Outline pass: cull front faces, draw extruded back faces as silhouette
-                        float thickness = 0.005f;
+                        // raylib's normals of this file are as long as one over its scale of
+                        // 0.0254, inches to meters, where a normal here is a unit long, so the hull
+                        // is pushed by as much more for the outline raylib's picture has.
+                        float thickness = 0.005f / 0.0254f;
                         SetShaderValue(outlineShader, outlineThicknessLoc, thickness);
 
                         rlSetCullFace(RlCullFace.Front);
