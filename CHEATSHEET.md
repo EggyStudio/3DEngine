@@ -14,6 +14,8 @@ bool IsWindowState(ConfigFlags flags);                   // Whether the window h
 void InitWindow(int width, int height, string title);    // Open a window and build the app behind it
 void CloseWindow();                                      // Run Cleanup, close the window and free what the app holds
 bool WindowShouldClose();                                // Process events; true once the window or the exit key asks to close
+void PollInputEvents();                                  // Process events, unless the frame has
+void SwapScreenBuffer();                                 // Nothing to do, EndDrawing having presented the frame
 bool IsWindowReady();                                    // Whether a window is open
 void SetExitKey(Key key);                                // Key that closes the window (Escape by default, Key.Unknown for none)
 void EnableEventWaiting();                               // WindowShouldClose waits for input, up to a tenth of a second, for tools
@@ -51,6 +53,8 @@ int GetCurrentMonitor();                                 // The monitor the wind
 int GetMonitorWidth(int monitor);                        // Its width in its current mode
 int GetMonitorHeight(int monitor);                       // Its height in its current mode
 int GetMonitorRefreshRate(int monitor);                  // Its refresh rate in hertz
+int GetMonitorPhysicalWidth(int monitor);                // Its width in millimeters, at 96 pixels an inch times its scale
+int GetMonitorPhysicalHeight(int monitor);               // Its height in millimeters, the same way
 Vector2 GetMonitorPosition(int monitor);                 // Its top left corner on the desktop
 string GetMonitorName(int monitor);                      // Its name
 MonitorMode[] GetMonitorModes(int monitor);              // The sizes and rates it can be set to in fullscreen
@@ -64,7 +68,7 @@ void TakeScreenshot(string fileName);                    // Write the frame bein
 
 void SetTargetFPS(int fps);                              // Cap the frame rate (0 for no cap)
 float GetFrameTime();                                    // Seconds the last frame took
-double GetTime();                                        // Seconds since the first frame
+double GetTime();                                        // Seconds since the window opened, read from the clock
 int GetFPS();                                            // Frames per second, smoothed
 void SetProfileValue(string name, double value);         // A number of the program's own in the frame profile
 double GetProfileAverage(string name);                   // A profiled average in milliseconds, as "work" or "gpu.models"

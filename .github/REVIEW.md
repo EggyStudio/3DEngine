@@ -284,3 +284,18 @@ plays. Two tests run processors over what a stream and a piece of music queue an
 ones to the backend in order. TODO.md keeps `UpdateSound` alone of the audio thread's functions,
 and the count carried is 497. `audio_mixed_processor` and `audio_stream_effects` are raylib's.
 The table stands at 209 written and 12 missing, each row a gap of its own.
+
+**Now 2, the monitor's size and frame control.** `GetMonitorPhysicalWidth` and
+`GetMonitorPhysicalHeight` answer as raylib's own SDL3 backend does, a monitor's pixels at 96 an
+inch times the window's display scale, since SDL3 gives no monitor's own size, which the
+comparison has a line on. `PollInputEvents` processes the window's events unless the frame has,
+and `SwapScreenBuffer` has nothing left to do, `EndDrawing` having presented the frame, as raylib's
+own build does where `SUPPORT_CUSTOM_FRAME_CONTROL` leaves both to the program, which the
+comparison has a line on too. One call was brought to raylib's: `GetTime` gave the frame's time,
+where raylib's reads the clock as it is called, so `core_custom_frame_control`, which times its own
+frames, ran at 137 frames a second against its 60. It reads the clock past the frame's start now,
+and in a run whose frames count a set time it keeps the frame's, so tests read the same time on
+any machine (`Engine3DDisplayTests`). `core_monitor_detector` and `core_custom_frame_control` are
+raylib's, the second at 61 frames a second where raylib's screenshot shows 59. TODO.md's line of
+what is left out keeps VR stereo and automation events, and the count carried is 501, 81 percent.
+The table stands at 211 written and 10 missing.

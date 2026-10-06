@@ -28,6 +28,49 @@ public class Engine3DDisplayTests
         ToggleBorderlessWindowed();
         SetWindowIcon(GenImageColor(16, 16, Color.Red));
         GetWindowScaleDPI().Should().Be(System.Numerics.Vector2.One);
+        GetMonitorPhysicalWidth(-1).Should().Be(0);
+    }
+
+    [Fact]
+    public void A_Monitors_Size_In_Millimeters_Is_Its_Pixels_At_96_An_Inch_Times_Its_Scale_As_Raylibs_SDL_Backend_Has_It()
+    {
+        Millimeters(3840, 1).Should().Be(1016);
+        Millimeters(3840, 2).Should().Be(508, "a monitor that doubles its pixels has twice as many an inch");
+    }
+
+    [Fact]
+    public void Time_Is_Read_From_The_Clock_As_It_Is_Asked_And_From_The_Frame_Where_Frames_Count_A_Set_Time()
+    {
+        UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000 }).AddPlugin(new DefaultPlugins()));
+        try
+        {
+            BeginDrawing();
+            var start = GetTime();
+            WaitTime(0.05);
+            GetTime().Should().BeGreaterThanOrEqualTo(start + 0.045, "raylib's GetTime reads the clock, so a program's own wait shows in it");
+            EndDrawing();
+        }
+        finally
+        {
+            CloseWindow();
+        }
+
+        UseApp(new App(Config.Default with { Headless = true, HeadlessFps = 1000, FrameSeconds = 0.5 }).AddPlugin(new DefaultPlugins()));
+        try
+        {
+            BeginDrawing();
+            var frame = GetTime();
+            WaitTime(0.05);
+            GetTime().Should().Be(frame, "a frame that counts a set time keeps its time through the frame");
+            EndDrawing();
+            BeginDrawing();
+            GetTime().Should().BeApproximately(frame + 0.5, 1e-9, "the next frame is half a second on");
+            EndDrawing();
+        }
+        finally
+        {
+            CloseWindow();
+        }
     }
 
     [Fact]

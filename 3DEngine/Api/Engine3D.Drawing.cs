@@ -25,6 +25,7 @@ public static partial class Engine3D
         var update = Stopwatch.GetElapsedTime(_lastFrameEnd);
         PumpEvents();
         GetApp().BeginFrame();
+        _frameTimeTakenAt = Stopwatch.GetTimestamp();
         _inFrame = true;
         _target = default;
         _shader = default;

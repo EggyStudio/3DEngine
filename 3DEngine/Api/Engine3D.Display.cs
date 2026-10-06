@@ -130,6 +130,19 @@ public static partial class Engine3D
     /// <summary>A monitor's height in pixels, in its current mode, or 0 when there is no such monitor.</summary>
     public static int GetMonitorHeight(int monitor) => Mode(monitor) is { } mode ? mode.H : 0;
 
+    /// <summary>A monitor's width in millimeters, as raylib's SDL backend works it out, or 0 when there is no such monitor.</summary>
+    /// <remarks>
+    /// SDL3 gives no monitor's own size, so it is the width in pixels at 96 pixels an inch times
+    /// the window's display scale, as raylib's SDL3 backend reckons it.
+    /// </remarks>
+    public static int GetMonitorPhysicalWidth(int monitor) => Mode(monitor) is { } mode ? Millimeters(mode.W, GetWindowScaleDPI().X) : 0;
+
+    /// <summary>A monitor's height in millimeters, as <see cref="GetMonitorPhysicalWidth"/> works it out.</summary>
+    public static int GetMonitorPhysicalHeight(int monitor) => Mode(monitor) is { } mode ? Millimeters(mode.H, GetWindowScaleDPI().X) : 0;
+
+    // Pixels in millimeters at a display scale times 96 pixels an inch.
+    internal static int Millimeters(int pixels, float scale) => (int)(pixels / (scale * 96.0f) * 25.4f);
+
     /// <summary>A monitor's refresh rate in hertz, rounded, or 0 when it is not known.</summary>
     public static int GetMonitorRefreshRate(int monitor) => Mode(monitor) is { } mode ? (int)MathF.Round(mode.RefreshRate) : 0;
 

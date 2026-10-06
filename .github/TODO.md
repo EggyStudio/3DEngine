@@ -61,7 +61,7 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
-- **122 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names.
+- **118 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names.
   Most are what C# has, its strings, codepoints, files, directories, hashes, compression and freeing
   of memory, and the exports as C code. `LoadImageFromScreen` needs the frame as drawn, which the
   GPU has not finished when the call returns and has presented after. Images are eight bits a
@@ -73,9 +73,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   vertex layout is fixed and has no tangents or colors, for `UpdateMeshBuffer`, `GenMeshTangents`,
   `GetShaderLocationAttrib` and a mesh's `colors`, which `models_point_rendering` keeps as a hue in
   each point's texture coordinate for a shader. `UpdateSound` reaches into the audio thread, which
-  the backend does not open to the program. VR stereo, automation events (which `./e3d` stands in
-  for), the frame control a loop of its own needs and the monitor's size in millimeters (which SDL3
-  does not give) are left out too.
+  the backend does not open to the program. VR stereo and automation events (which `./e3d` stands in
+  for) are left out too.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on

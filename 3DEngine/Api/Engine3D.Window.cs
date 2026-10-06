@@ -29,6 +29,7 @@ public static partial class Engine3D
         if (_configFlags.HasFlag(ConfigFlags.BorderlessWindowedMode) && !IsWindowHidden()) ToggleBorderlessWindowed();
         _shouldClose = false;
         _eventsPumped = false;
+        _frameTimeTakenAt = 0;
         _lastFrameEnd = Stopwatch.GetTimestamp();
     }
 
@@ -115,11 +116,48 @@ public static partial class Engine3D
     /// <summary>Seconds the last frame took.</summary>
     public static float GetFrameTime() => (float)Res<Time>().DeltaSeconds;
 
-    /// <summary>Seconds since the first frame.</summary>
-    public static double GetTime() => Res<Time>().ElapsedSeconds;
+    /// <summary>Seconds since the window opened, read from the clock as it is called, as raylib's <c>GetTime</c> is.</summary>
+    /// <remarks>
+    /// It goes on past the frame's start, through the frame and the wait after it, so a program
+    /// that times its own frames reads the time it waited. In a run whose frames each count a set
+    /// time (<see cref="Config.FrameSeconds"/>) it is the frame's time, so a test reads the same
+    /// time on any machine.
+    /// </remarks>
+    public static double GetTime()
+    {
+        var time = Res<Time>();
+        return time.FrameSeconds > 0 || _frameTimeTakenAt == 0
+            ? time.ElapsedSeconds
+            : time.ElapsedSeconds + Stopwatch.GetElapsedTime(_frameTimeTakenAt).TotalSeconds;
+    }
+
+    // When the frame's time was taken, which GetTime counts on from.
+    private static long _frameTimeTakenAt;
 
     /// <summary>Frames per second, smoothed over the last few frames.</summary>
     public static int GetFPS() => (int)Math.Round(Res<Time>().SmoothedFps);
+
+    /// <summary>
+    /// Processes the window's pending events, as raylib's <c>PollInputEvents</c> does, unless the
+    /// frame has already, which <see cref="WindowShouldClose"/> and <see cref="BeginDrawing"/> do.
+    /// </summary>
+    /// <remarks>
+    /// raylib built with <c>SUPPORT_CUSTOM_FRAME_CONTROL</c> leaves the polling to this call, where
+    /// the engine polls each frame as raylib's own build does, so a program written for that build
+    /// runs as it was meant to.
+    /// </remarks>
+    public static void PollInputEvents() => PumpEvents();
+
+    /// <summary>
+    /// Shows the frame drawn, as raylib's <c>SwapScreenBuffer</c> does, which <see cref="EndDrawing"/>
+    /// has done already.
+    /// </summary>
+    /// <remarks>
+    /// raylib built with <c>SUPPORT_CUSTOM_FRAME_CONTROL</c> leaves the swap to this call, where
+    /// the engine presents each frame as <see cref="EndDrawing"/> renders it, so it has nothing
+    /// left to do.
+    /// </remarks>
+    public static void SwapScreenBuffer() { }
 
     // Processes the window's events once per frame. Input keeps a key's pressed state until
     // Stage.Last, so events read here are seen by everything in the frame that follows.

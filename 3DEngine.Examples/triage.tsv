@@ -22,14 +22,12 @@ core_3d_picking	can
 core_world_screen	can
 core_window_letterbox	can
 core_window_should_close	can
-core_monitor_detector	missing	GetMonitorPhysicalHeight, GetMonitorPhysicalWidth
 core_custom_logging	can
 core_random_values	can
 core_storage_values	can
 core_vr_simulator	missing	BeginVrStereoMode, EndVrStereoMode, LoadVrStereoConfig, UnloadVrStereoConfig
 core_scissor_test	can
 core_basic_screen_manager	can
-core_custom_frame_control	missing	PollInputEvents, SwapScreenBuffer
 core_smooth_pixelperfect	can
 core_random_sequence	can
 core_automation_events	missing	ExportAutomationEventList, LoadAutomationEventList, PlayAutomationEvent, SetAutomationEventBaseFrame, SetAutomationEventList, StartAutomationEventRecording, StopAutomationEventRecording, UnloadAutomationEventList

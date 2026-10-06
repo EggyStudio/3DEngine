@@ -65,7 +65,7 @@ while (!WindowShouldClose())
 | Function | Gives |
 |---|---|
 | `GetFrameTime()` | Seconds the last frame took |
-| `GetTime()` | Seconds since the first frame |
+| `GetTime()` | Seconds since the window opened, read from the clock as it is called |
 | `GetFPS()` | Frames a second, smoothed |
 | `SetTargetFPS(fps)` | Caps the frame rate, 0 for none |
 

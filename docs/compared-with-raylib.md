@@ -57,7 +57,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 497 of the 619 functions in `raylib.h` are carried, 80 percent, counted
+- **Not all of raylib.** 501 of the 619 functions in `raylib.h` are carried, 81 percent, counted
   below. The rest are mostly what C# already has, file paths, directories, hashes, compression and
   string functions, with VR stereo, automation events, the audio processors and some image and
   shape variants, which TODO.md names with reasons.
@@ -85,6 +85,8 @@ here, with the reason.
 | The materials `LoadModel` reads from a glTF file | raylib's default material at 0, the file's from 1 | The file's from 0, and a white one of its own for a mesh with none | A model's materials are the file's, so `Materials[i]` is the file's material `i` |
 | `VertexCount` of a mesh from an OBJ file, `GenMeshSphere`, `GenMeshHemiSphere`, `GenMeshCylinder`, `GenMeshCone`, `GenMeshTorus` or `GenMeshKnot` | Three vertices of its own for each triangle, three times `triangleCount` | Vertices shared between the triangles that meet at them, as Assimp joins a file's and the generators make them | A mesh draws and collides the same with fewer vertices to send |
 | rlgl | A layer of its own, with its batch, its matrix modes and OpenGL's state | `rlBegin` to `rlEnd` with `rlVertex2f`, `rlVertex3f`, `rlTexCoord2f`, `rlNormal3f`, `rlColor4ub`, `rlColor4f`, `rlSetTexture` and `rlCheckRenderBatchLimit`, the matrix stack's `rlPushMatrix`, `rlPopMatrix`, `rlTranslatef`, `rlRotatef`, `rlScalef`, `rlMatrixMode`, `rlLoadIdentity`, `rlMultMatrixf` and `rlSetMatrixProjection`, recorded into the frame's draw list, and the switches of culling, point mode, blend factors and depth testing and writing. Its projection moves shapes, text and rlgl's vertices, and models are drawn through the camera of `BeginMode3D`. `rlOrtho`, `rlFrustum`, the viewport, the framebuffers and textures of its own, which `LoadRenderTexture`'s target with its depth stands for, wires and line width are not carried | raylib's examples call no more of it but the framebuffers, which a render texture here has the depth of already |
+| `GetMonitorPhysicalWidth`, `GetMonitorPhysicalHeight` | The monitor's own size on GLFW, and on raylib's SDL3 backend its pixels at 96 an inch times the window's scale | Its pixels at 96 an inch times the window's scale, as raylib's SDL3 backend reckons it | SDL3, which the engine stands on as that backend does, gives no monitor's own size |
+| `PollInputEvents`, `SwapScreenBuffer` | The polling and the buffer swap, which a raylib built with `SUPPORT_CUSTOM_FRAME_CONTROL` leaves to the program | The polling, once a frame, and nothing, `EndDrawing` having presented the frame | The engine polls and presents each frame as raylib's own build does, so a program written for the other runs as it was meant to |
 | `AttachAudioStreamProcessor` | Run on the audio thread as the mixer reads the stream, over its samples in the device's two channels and rate | Run on the program's thread as the stream or the music queues them, in the stream's own channels and rate | A stream's samples are queued from the program's thread here, and a processor reads the game's state as the loop does |
 | `rlSetMatrixProjection` | OpenGL's projection, depth from -1 to 1 and up the screen | A projection as `System.Numerics` makes one, depth from 0 to 1, turned for Vulkan's clip space as the camera's is | A program here makes its matrices with `System.Numerics`, `MatrixFrustum`'s counterpart among them |
 | Culling before a program sets it | Back faces left out of everything from the start | Shapes and text draw both faces, and a model the faces its material says, until `rlEnableBackfaceCulling`, `rlDisableBackfaceCulling` or `rlSetCullFace`, and then everything follows rlgl's | A double-sided glTF material, a leaf or a sheet of cloth, draws both its faces without a call, and a shape given clockwise is not lost |
@@ -137,7 +139,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 497 (80 percent) |
+| Functions of `raylib.h` carried | 619 | 501 (81 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw
