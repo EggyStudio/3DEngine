@@ -10,6 +10,7 @@ var examples = new Dictionary<string, Action>
     ["core_input_actions"] = CoreInputActions.Run,
     ["core_undo_redo"] = CoreUndoRedo.Run,
     ["core_automation_events"] = CoreAutomationEvents.Run,
+    ["core_screen_recording"] = CoreScreenRecording.Run,
     ["core_random_sequence"] = CoreRandomSequence.Run,
     ["core_basic_screen_manager"] = CoreBasicScreenManager.Run,
     ["core_storage_values"] = CoreStorageValues.Run,

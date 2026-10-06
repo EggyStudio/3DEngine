@@ -57,7 +57,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 514 of the 619 functions in `raylib.h` are carried, 83 percent, counted
+- **Not all of raylib.** 515 of the 619 functions in `raylib.h` are carried, 83 percent, counted
   below. The rest have their counterparts in C#, file paths, directories, hashes, compression,
   memory and strings, each beside its counterpart below, and a few are left out, each with its
   reason.
@@ -81,6 +81,7 @@ here, with the reason.
 | A render texture's samples | One, so what is drawn into it has hard edges | The window's, resolved into the texture, so its edges are smoothed as the window's are | The window's pipelines, made for one count of samples, draw into it as they are |
 | A shape partly clear drawn into a render texture | Its alpha blended by the same factors as its color, so alpha 0.8 over an opaque texel leaves 0.84, and the texture drawn on the window shows what is behind it there, as `core_3d_camera_split_screen`'s bar darkens over black | Alpha laid over by alpha, so the texel stays opaque | A target drawn on the window shows what was drawn into it at the coverage it was drawn with, as a layer does in a picture of several |
 | Drawing inside `BeginTextureMode` | Drawn into the target at once, so a call after `EndTextureMode` reads it | Drawn as the frame ends, before the window, each target in one pass cleared to the last `ClearBackground` inside it, with `UpdateTexture` and `UpdateTextureRec` in their places among the shapes | A frame's drawing is batched as the window's is, so `LoadImageFromTexture` reads a target as the last frame left it |
+| `LoadImageFromScreen` | OpenGL's back buffer as it stands, what has been drawn of a frame inside one, and between frames what the driver left after the swap | The last frame presented, inside a frame as well, and for the first call of a run the window's size in the last clear color | A frame is drawn on the GPU as `EndDrawing` ends it, and frames are copied from the first call on, so a program that never reads the screen does not pay for a copy each frame |
 | `LoadImageAnim` | One frame tall, the other frames after it in memory | As tall as every frame, stacked from the top | An image's pixels are always its size here, so every image call reads all of it, and a frame is a rectangle of it |
 | `ImageFormat` | The image's pixels stored in the format, which a program then reads them by | Each pixel keeps what the format keeps, and is stored as four bytes still | Every image is RGBA, the one format drawing and the GPU take as it is |
 | An image from a file without alpha, as a PNG of RGB | Kept as three bytes a pixel, so the corners `ImageRotate` adds are black | Four bytes a pixel, so they are clear | Every image is RGBA, the one format drawing and the GPU take as it is |
@@ -176,7 +177,6 @@ array or a string nothing holds.
 | `SetLoadFileDataCallback`, `SetSaveFileDataCallback`, `SetLoadFileTextCallback`, `SetSaveFileTextCallback` | The flat API reads files beside the program or in the working directory, and the asset server, which loads a level's models, textures and scenes, reads through the sources a program gives it with `AddSource`, an archive of its own among them |
 | `ExportDataAsCode`, `ExportImageAsCode`, `ExportFontAsCode`, `ExportMeshAsCode`, `ExportWaveAsCode` | They write a C header for a C program to compile its data into, where a .NET program embeds a file as a resource of its assembly or ships it beside itself |
 | `SetShapesTexture`, `GetShapesTexture`, `GetShapesTextureRectangle` | Shapes are drawn untextured, by the immediate pass's own shader, so there is no texture they are cut from |
-| `LoadImageFromScreen` | The frame is drawn on the GPU after the call returns. `TakeScreenshot` writes it once it is drawn, and `LoadImageFromTexture` reads a render texture as the last frame left it |
 | `ImageMipmaps` | An image has one level, and a texture's levels are made on the GPU by `GenTextureMipmaps` |
 | `LoadTextureCubemap` | Textures are two-dimensional, and the environment map, which `DrawSkybox` draws, stands for a skybox |
 | `GetPixelColor`, `SetPixelColor` | They read and write a pixel through a C pointer in a format, where an image here is RGBA bytes, read by `GetImageColor` and written by `ImageDrawPixel` |
@@ -198,7 +198,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 514 (83 percent) |
+| Functions of `raylib.h` carried | 619 | 515 (83 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw

@@ -35,10 +35,19 @@ internal sealed unsafe partial class GraphicsDevice
 
         int width = (int)_swapchainExtent.width, height = (int)_swapchainExtent.height;
         var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(width * height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+        CopyPresented(cmd, imageIndex, buffer);
+        return (buffer, callback, width, height);
+    }
+
+    // Copies the frame's swapchain image into a buffer as large, between the end of drawing and
+    // the present, and leaves the image in the layout it was found in.
+    private void CopyPresented(VkCommandBuffer cmd, uint imageIndex, VulkanBuffer buffer)
+    {
         var image = _swapchainImages[imageIndex];
 
         PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), _finalLayout, VkImageLayout.TransferSrcOptimal,
-            VkPipelineStageFlags2.ColorAttachmentOutput, VkAccessFlags2.ColorAttachmentWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
+            VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.TransferRead,
+            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
 
         VkBufferImageCopy region = new()
         {
@@ -53,8 +62,81 @@ internal sealed unsafe partial class GraphicsDevice
 
         PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.TransferSrcOptimal, _finalLayout,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.None, VkAccessFlags2.None));
+    }
 
-        return (buffer, callback, width, height);
+    // The window's frames, copied as each is presented from the first time a program asks for the
+    // screen, so a call between frames reads the last one. Not kept before that, since every frame
+    // would pay for a copy few programs read.
+    private VulkanBuffer? _keptScreen;
+    private VkExtent2D _keptScreenExtent;
+    private bool _keepScreen;
+    private bool _screenKept;
+
+    /// <summary>
+    /// Has every frame from the next one on copied as it is presented, for
+    /// <see cref="ReadKeptScreen"/>.
+    /// </summary>
+    /// <exception cref="NotSupportedException">The surface does not allow its images to be copied from.</exception>
+    public void KeepScreen()
+    {
+        if (!_swapchainCopyable)
+            throw new NotSupportedException("This surface does not allow its images to be copied, so the screen cannot be read.");
+        _keepScreen = true;
+    }
+
+    /// <summary>
+    /// The last frame presented since <see cref="KeepScreen"/>, as four bytes a pixel (red, green,
+    /// blue, alpha), rows from the top, or null before one has been.
+    /// </summary>
+    /// <remarks>The device is idled first, so the frame's copy has finished, which a call costs the frames in flight.</remarks>
+    internal byte[]? ReadKeptScreen(out int width, out int height)
+    {
+        (width, height) = ((int)_keptScreenExtent.width, (int)_keptScreenExtent.height);
+        if (!_screenKept || _keptScreen is not { } buffer) return null;
+        _deviceApi.vkDeviceWaitIdle().CheckResult();
+        var pixels = Map(buffer).ToArray();
+        Unmap(buffer);
+        ToRgba(pixels);
+        return pixels;
+    }
+
+    // Records the copy of this frame into the kept buffer, once the program has asked for the
+    // screen, making the buffer again when the window has changed size.
+    private void RecordKeptScreen(VkCommandBuffer cmd, uint imageIndex)
+    {
+        if (!_keepScreen || imageIndex >= _swapchainImages.Length) return;
+        if (_keptScreen is null || _keptScreenExtent.width != _swapchainExtent.width || _keptScreenExtent.height != _swapchainExtent.height)
+        {
+            if (_keptScreen is { } old)
+            {
+                // A frame still in flight may be copying into it, and a resize is rare.
+                _deviceApi.vkDeviceWaitIdle().CheckResult();
+                old.Dispose();
+            }
+            _keptScreenExtent = _swapchainExtent;
+            _keptScreen = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(_swapchainExtent.width * _swapchainExtent.height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+        }
+        CopyPresented(cmd, imageIndex, _keptScreen);
+        _screenKept = true;
+    }
+
+    private void DisposeKeptScreen()
+    {
+        _keptScreen?.Dispose();
+        _keptScreen = null;
+        (_keepScreen, _screenKept) = (false, false);
+    }
+
+    // The swapchain's pixels in RGBA order, opaque.
+    private void ToRgba(byte[] pixels)
+    {
+        var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
+        for (int i = 0; i < pixels.Length; i += 4)
+        {
+            if (bgra) (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
+            // The swapchain is composited opaque, so whatever alpha it holds is not what was seen.
+            pixels[i + 3] = 255;
+        }
     }
 
     // Waits for the frame that carried the copy, reads the pixels into RGBA order and hands them on.
@@ -65,14 +147,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             var pixels = Map(capture.Buffer).ToArray();
             Unmap(capture.Buffer);
-
-            var bgra = _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb;
-            for (int i = 0; i < pixels.Length; i += 4)
-            {
-                if (bgra) (pixels[i], pixels[i + 2]) = (pixels[i + 2], pixels[i]);
-                // The swapchain is composited opaque, so whatever alpha it holds is not what was seen.
-                pixels[i + 3] = 255;
-            }
+            ToRgba(pixels);
 
             capture.Callback(pixels, capture.Width, capture.Height);
         }

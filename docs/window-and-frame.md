@@ -163,9 +163,11 @@ Every program built on the engine takes the same flags, so one can run where not
 | `--frames N` | For N frames, then closing |
 | `--frame-time S` | With each frame S seconds long, whatever the machine takes, so a run repeats frame for frame |
 
-`TakeScreenshot("frame.png")` writes the frame being drawn to a file once it is presented. The
-`e3d` tool in the repository drives a running program from the terminal, which is how the
-examples' pictures are taken.
+`TakeScreenshot("frame.png")` writes the frame being drawn to a file once it is presented, and
+`LoadImageFromScreen()` gives the last frame presented as an image, which `core_screen_recording`
+writes into an animated GIF every few frames. Frames are kept for it from its first call on, so the
+first call gives the window in its clear color. The `e3d` tool in the repository drives a running
+program from the terminal, which is how the examples' pictures are taken.
 
 ## The app underneath
 
@@ -176,6 +178,7 @@ it over, for the ECS, plugins and resources, which run inside the same frames as
 
 - Examples: [`core_basic_window`](../3DEngine.Examples/Core/CoreBasicWindow.cs),
   [`core_window_toggles`](../3DEngine.Examples/Core/CoreWindowToggles.cs),
+  [`core_screen_recording`](../3DEngine.Examples/Core/CoreScreenRecording.cs),
   [`gui_imgui_window`](../3DEngine.Examples/Gui/GuiImGuiWindow.cs)
 - The cheatsheet's [Window and timing](../CHEATSHEET.md#window-and-timing) and
   [Frame and cameras](../CHEATSHEET.md#frame-and-cameras)

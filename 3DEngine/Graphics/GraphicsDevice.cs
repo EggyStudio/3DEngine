@@ -188,6 +188,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySyncObjects();
         Logger.Debug("Destroying swapchain resources (image views, depth buffer, command pool)...");
         DestroySwapchainResources();
+        DisposeKeptScreen();
         DestroyCompute();
         DestroySkinning();
         DisposeProbeFilter();

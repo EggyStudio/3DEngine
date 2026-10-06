@@ -49,6 +49,7 @@ core_random_sequence	3.4
 core_random_values	1.3
 core_render_texture	1.4
 core_scissor_test	0.6
+core_screen_recording	0.2
 core_smooth_pixelperfect	2.5
 core_storage_values	3.8
 core_text_file_loading	27.1

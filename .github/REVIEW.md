@@ -182,3 +182,17 @@ first call on leaves the first call with nothing to return. I can take either, o
 carried as it is. The remaining three are VR stereo, cubemap textures for `models_skybox_rendering`,
 and an XM and MOD decoder, which DESIGN.md §8 would have to allow as a dependency or the engine
 write.
+
+**Now 2, `LoadImageFromScreen` carried as decided.** Each frame is copied as it is presented from
+the first call on, so a program that never reads the screen pays nothing, and until a frame is kept
+the call gives the window's size in the last clear color, which the cheatsheet says. One part is
+otherwise than asked. A call inside a frame reads the frame before as well, because nothing of a
+frame is on the GPU before `EndDrawing`, the draw lists being rendered in `Stage.Last` and cleared
+as they are drawn, so the frame as drawn so far would mean running the render graph twice in a frame
+into a target of its own. The page keeps the difference with that reason. A test on the GPU reads
+the first call as the clear color, the second as the frame drawn, and a call inside the next frame
+as the frame before, and the render tests pass on lavapipe under the validation layer.
+`core_screen_recording` is written, 0.2% apart from raylib's picture, with a GIF writer of the
+example's own in the place of the msf_gif.h raylib's includes, and a recording made through `./e3d`
+with Ctrl and R decodes as 19 frames of the scene. 515 of 619 functions are carried, and the suite:
+1,397 passed, 0 failed, 1 skipped.

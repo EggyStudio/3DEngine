@@ -411,6 +411,7 @@ Image LoadImageAnim(string fileName, out int frames);                           
 Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames);       // The same from a GIF's bytes
 Image LoadImageFromMemory(string fileType, byte[] fileData);                           // Decode an image file's bytes
 Image LoadImageFromTexture(Texture2D texture);                                         // Read a texture or render texture back, waiting for the GPU
+Image LoadImageFromScreen();                                                           // The window as the last frame presented left it, waiting for the GPU
 bool IsImageValid(Image image);                                                        // Whether it holds pixels
 byte[] ExportImageToMemory(Image image, string fileType);                              // An image as a PNG file's bytes
 bool ExportImage(Image image, string fileName);                                        // Write a PNG file
@@ -493,6 +494,10 @@ An `Image` is RGBA bytes in memory. The `Image*` functions change the image pass
 raylib's take a pointer: shapes replace the pixels they cover, alpha included, and `ImageDraw`
 blends by the source's alpha. A changed image reaches the screen through `LoadTextureFromImage`
 or `UpdateTexture`.
+
+`LoadImageFromScreen` reads the frame before, inside a frame as well, since a frame is drawn on the
+GPU as `EndDrawing` ends it. Frames are kept from its first call on, so that first call reads the
+window's size in the last color it was cleared to.
 
 A file name is looked for as given, then beside the program, then under `source/` beside it. A file
 that cannot be read gives an invalid image or texture and a warning in the log, and drawing an

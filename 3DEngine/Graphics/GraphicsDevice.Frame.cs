@@ -58,6 +58,7 @@ internal sealed unsafe partial class GraphicsDevice
     private partial void SubmitFrame(VulkanFrameContext ctx)
     {
         var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
+        RecordKeptScreen(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
         var waitStage = VkPipelineStageFlags.ColorAttachmentOutput;

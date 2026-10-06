@@ -775,6 +775,7 @@ static class Engine.Engine3D
   static Image LoadImageAnim(string fileName, out int frames)
   static Image LoadImageAnimFromMemory(string fileType, byte[] fileData, out int frames)
   static Image LoadImageFromMemory(string fileType, byte[] fileData)
+  static Image LoadImageFromScreen()
   static Image LoadImageFromTexture(Texture2D texture)
   static Image LoadImageRaw(string fileName, int width, int height, PixelFormat format, int headerSize)
   static Key GetKeyPressed()

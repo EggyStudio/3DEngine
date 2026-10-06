@@ -296,6 +296,42 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// The window as the last frame presented left it, at the size its content is drawn at, or,
+    /// for the first call of a run, the window's size in the last color it was cleared to.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A frame is drawn on the GPU as <see cref="EndDrawing"/> ends it, so a call reads the frame
+    /// before, inside a frame as well as between frames. Frames are kept from the first call on, a
+    /// copy of each as it is presented, so the first call has none to read, and every frame after
+    /// it pays for the copy, which a program that never asks does not.
+    /// </para>
+    /// <para>
+    /// The call waits for the frames in flight to finish, as <see cref="LoadImageFromTexture"/>
+    /// does. raylib's reads OpenGL's back buffer, which after a swap holds what the driver left
+    /// there.
+    /// </para>
+    /// </remarks>
+    public static Image LoadImageFromScreen()
+    {
+        if (ComputeDevice is { } device)
+        {
+            try
+            {
+                device.KeepScreen();
+                if (device.ReadKeptScreen(out var width, out var height) is { } pixels) return new Image(pixels, width, height);
+            }
+            catch (NotSupportedException error)
+            {
+                ApiLogger.Warn($"LoadImageFromScreen: {error.Message}");
+            }
+        }
+        var clear = TryRes<ClearColor>(out var cc) ? cc : ClearColor.Black;
+        static byte Byte(float value) => (byte)Math.Clamp(MathF.Round(value * 255), 0, 255);
+        return GenImageColor(GetRenderWidth(), GetRenderHeight(), new Color(Byte(clear.R), Byte(clear.G), Byte(clear.B), 255));
+    }
+
+    /// <summary>
     /// A texture's pixels read back from the GPU, a render texture's color among them, as the
     /// frames drawn so far left it, or an invalid image when it is not on the GPU yet.
     /// </summary>
