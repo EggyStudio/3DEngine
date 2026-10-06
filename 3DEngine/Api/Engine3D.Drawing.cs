@@ -143,6 +143,10 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>An image drawing can be sent to, of one <paramref name="format"/>, as raylib's <c>LoadRenderTextureEx</c> makes one.</summary>
+    /// <remarks>A format of 16 or 32 bits a channel is drawn into as half floats or floats, so light past white is kept, and the rest as eight-bit RGBA.</remarks>
+    public static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format) => LoadRenderTexture(width, height, format);
+
     /// <summary>Frees a render texture, each image it draws into and its depth.</summary>
     public static void UnloadRenderTexture(RenderTexture2D target)
     {

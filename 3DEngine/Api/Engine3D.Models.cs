@@ -756,6 +756,19 @@ public static partial class Engine3D
         return [.. model.Materials];
     }
 
+    /// <summary>Unloads a material's five maps and its shader, which <see cref="UnloadModel"/> leaves loaded for the materials that may share them.</summary>
+    /// <remarks>
+    /// A map or shader of none is passed over, as raylib passes over its defaults. A model's own
+    /// textures, loaded with its file, are unloaded with the model, so a material of
+    /// <see cref="LoadMaterials"/> or one the program made is the one to unload this way.
+    /// </remarks>
+    public static void UnloadMaterial(ModelMaterial material)
+    {
+        foreach (var map in new[] { material.Texture, material.NormalMap, material.MetallicRoughnessMap, material.EmissiveMap, material.OcclusionMap })
+            UnloadTexture(map);
+        UnloadShader(material.Shader);
+    }
+
     /// <summary>Whether a material's maps are loaded textures, or none, so it can be drawn with.</summary>
     public static bool IsMaterialValid(ModelMaterial material)
     {

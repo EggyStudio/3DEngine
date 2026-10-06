@@ -286,6 +286,34 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
+    public void Unloading_A_Material_Unloads_Its_Maps_And_Passes_Over_Those_It_Has_None_Of()
+    {
+        var color = LoadTextureFromImage(GenImageColor(2, 2, Color.Red));
+        var glow = LoadTextureFromImage(GenImageColor(2, 2, Color.White));
+        var material = LoadMaterialDefault();
+        SetMaterialTexture(ref material, MaterialMapIndex.Albedo, color);
+        SetMaterialTexture(ref material, MaterialMapIndex.Emission, glow);
+
+        UnloadMaterial(material);
+
+        (IsTextureValid(color), IsTextureValid(glow)).Should().Be((false, false));
+        IsMaterialValid(material).Should().BeFalse("its maps are gone");
+        var unloadDefault = () => UnloadMaterial(LoadMaterialDefault());
+        unloadDefault.Should().NotThrow("a material of no maps and no shader has nothing to unload");
+    }
+
+    [Fact]
+    public void A_Render_Texture_Of_One_Format_Is_A_Target_With_Its_Depth()
+    {
+        var target = LoadRenderTextureEx(8, 4, PixelFormat.UncompressedR32G32B32A32);
+
+        target.Textures.Should().ContainSingle();
+        (target.Texture.Width, target.Texture.Height).Should().Be((8, 4));
+        target.Depth.IsValid.Should().BeTrue();
+        UnloadRenderTexture(target);
+    }
+
+    [Fact]
     public void A_Models_Points_Are_Its_Vertices()
     {
         _app.World.InitResource<DrawList>();

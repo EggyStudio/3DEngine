@@ -76,7 +76,7 @@ internal static class PngWriter
         return c;
     }).ToArray();
 
-    private static uint Crc(uint crc, ReadOnlySpan<byte> bytes)
+    internal static uint Crc(uint crc, ReadOnlySpan<byte> bytes)
     {
         foreach (var b in bytes) crc = Table[(crc ^ b) & 0xFF] ^ (crc >> 8);
         return crc;

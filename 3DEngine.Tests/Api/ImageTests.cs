@@ -428,6 +428,13 @@ public sealed class ImageTests : IDisposable
     }
 
     [Fact]
+    public void A_Files_Check_Is_The_CRC_32_Zlib_And_PNG_Reckon()
+    {
+        ComputeCRC32("123456789"u8).Should().Be(0xCBF43926u, "the check value of CRC-32");
+        ComputeCRC32([]).Should().Be(0u);
+    }
+
+    [Fact]
     public void A_Raw_File_Is_Read_After_Its_Header_In_The_Format_Given()
     {
         // Two pixels of R5G6B5 after a header of three bytes: full red, and half green with full blue
@@ -440,6 +447,19 @@ public sealed class ImageTests : IDisposable
         GetImageColor(image, 1, 0).Should().Be(new Color(0, 130, 255, 255), "32 of 63 levels of green, and all 31 of blue");
         LoadImageRaw(path, 4, 1, PixelFormat.UncompressedR5G6B5, 3).IsValid.Should().BeFalse("the file holds two pixels, not four");
         LoadImageRaw(path, 1, 1, PixelFormat.CompressedDxt1Rgb, 0).IsValid.Should().BeFalse("a compressed format is not read");
+    }
+
+    [Fact]
+    public void A_Formats_Size_Is_Its_Bits_A_Pixel_And_A_Compressed_Image_Holds_A_Block_At_Least()
+    {
+        GetPixelDataSize(4, 4, PixelFormat.UncompressedR8G8B8A8).Should().Be(64);
+        GetPixelDataSize(3, 1, PixelFormat.UncompressedR8G8B8).Should().Be(9);
+        GetPixelDataSize(2, 2, PixelFormat.UncompressedR32G32B32A32).Should().Be(64);
+        GetPixelDataSize(8, 8, PixelFormat.CompressedDxt1Rgb).Should().Be(32, "four bits a pixel");
+        GetPixelDataSize(2, 2, PixelFormat.CompressedDxt1Rgb).Should().Be(8, "one block of 4 by 4 at least");
+        GetPixelDataSize(2, 2, PixelFormat.CompressedDxt5Rgba).Should().Be(16);
+        GetPixelDataSize(16, 16, PixelFormat.CompressedAstc8x8Rgba).Should().Be(64, "two bits a pixel");
+        GetPixelDataSize(100_000, 100_000, PixelFormat.UncompressedR8G8B8A8).Should().Be(0, "past what an array holds");
     }
 
     [Fact]

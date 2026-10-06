@@ -57,10 +57,10 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 501 of the 619 functions in `raylib.h` are carried, 81 percent, counted
-  below. The rest are mostly what C# already has, file paths, directories, hashes, compression and
-  string functions, with VR stereo, automation events, the audio processors and some image and
-  shape variants, which TODO.md names with reasons.
+- **Not all of raylib.** 506 of the 619 functions in `raylib.h` are carried, 82 percent, counted
+  below. The rest have their counterparts in C#, file paths, directories, hashes, compression,
+  memory and strings, each beside its counterpart below, and a few are left out, each with its
+  reason.
 
 ## Where a call answers otherwise
 
@@ -129,6 +129,59 @@ and `MatrixLookAt` below to raymath's own arithmetic.
 | `QuaternionNlerp`, `QuaternionSlerp` | `Quaternion.Lerp`, `Quaternion.Slerp` | raymath's `QuaternionLerp`, not made of length one, is carried |
 | `QuaternionFromMatrix`, `QuaternionToMatrix` | `Quaternion.CreateFromRotationMatrix`, `Matrix4x4.CreateFromQuaternion` | |
 
+## raylib's functions C# has
+
+A program in C# does what these do with .NET's own, so they are not carried. A function that
+gives back memory a C program frees has nothing to free here, since the garbage collector frees an
+array or a string nothing holds.
+
+| raylib | C# | Where it answers otherwise |
+|---|---|---|
+| `UnloadFileData`, `UnloadFileText`, `UnloadDirectoryFiles`, `UnloadRandomSequence`, `UnloadImageColors`, `UnloadImagePalette`, `UnloadCodepoints`, `UnloadUTF8`, `UnloadTextLines`, `MemFree` | Nothing | |
+| `MemAlloc`, `MemRealloc` | `new byte[size]`, `Array.Resize(ref array, size)` | |
+| `FileRename`, `FileMove`, `FileRemove`, `FileCopy` | `File.Move`, `File.Delete`, `File.Copy` | |
+| `FileTextReplace`, `FileTextFindIndex` | `File.WriteAllText(path, File.ReadAllText(path).Replace(search, replacement))`, `File.ReadAllText(path).IndexOf(search)` | |
+| `DirectoryExists`, `IsPathFile`, `IsPathDirectory` | `Directory.Exists`, `File.Exists`, `Directory.Exists` | |
+| `GetFileExtension`, `IsFileExtension` | `Path.GetExtension`, and its result compared with `string.Equals(a, b, StringComparison.OrdinalIgnoreCase)` | raylib's `IsFileExtension` takes several extensions split by `;` |
+| `IsFileHidden` | `File.GetAttributes(path).HasFlag(FileAttributes.Hidden)` | |
+| `GetFileLength`, `GetFileModTime` | `new FileInfo(path).Length`, `File.GetLastWriteTimeUtc(path)` | A time, where raylib's is seconds since 1970, which `new DateTimeOffset(time).ToUnixTimeSeconds()` gives |
+| `GetFileName`, `GetFileNameWithoutExt`, `GetDirectoryPath`, `GetPrevDirectoryPath` | `Path.GetFileName`, `Path.GetFileNameWithoutExtension`, `Path.GetDirectoryName`, `Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(path))` | |
+| `GetWorkingDirectory`, `ChangeDirectory`, `MakeDirectory` | `Directory.GetCurrentDirectory`, `Directory.SetCurrentDirectory`, `Directory.CreateDirectory` | |
+| `IsPathAbsolute`, `IsFileNameValid` | `Path.IsPathFullyQualified`, `name.IndexOfAny(Path.GetInvalidFileNameChars()) < 0` | |
+| `LoadDirectoryFiles`, `LoadDirectoryFilesEx`, `GetDirectoryFileCount`, `GetDirectoryFileCountEx` | `Directory.GetFileSystemEntries(path)`, `Directory.GetFiles(path, "*.png", SearchOption.AllDirectories)`, and their `Length` | raylib's filter is extensions split by `;`, where a search pattern is one |
+| `CompressData`, `DecompressData` | `DeflateStream` of `System.IO.Compression` | |
+| `EncodeDataBase64`, `DecodeDataBase64` | `Convert.ToBase64String`, `Convert.FromBase64String` | |
+| `ComputeMD5`, `ComputeSHA1`, `ComputeSHA256` | `MD5.HashData`, `SHA1.HashData`, `SHA256.HashData` of `System.Security.Cryptography` | The digest as bytes, where raylib's is unsigned ints |
+| `TextCopy`, `TextIsEqual`, `TextLength`, `TextFormat` | `=`, `==`, `Length`, an interpolated string `$"Score: {score}"` | `Length` counts UTF-16 units, where raylib's counts bytes |
+| `TextSubtext`, `TextFindIndex`, `TextInsert`, `TextInsertAlloc`, `TextAppend` | `Substring`, `IndexOf`, `Insert`, `+` | |
+| `TextReplace`, `TextReplaceAlloc`, `TextRemoveSpaces` | `Replace`, `Replace(" ", "")` | |
+| `GetTextBetween`, `TextReplaceBetween`, `TextReplaceBetweenAlloc` | `IndexOf` for each end, then `Substring`, or `Remove` and `Insert` | |
+| `TextJoin`, `TextSplit`, `LoadTextLines` | `string.Join`, `Split`, `Split('\n')` | |
+| `TextToUpper`, `TextToLower` | `ToUpperInvariant`, `ToLowerInvariant` | |
+| `TextToSnake`, `TextToPascal`, `TextToCamel` | `JsonNamingPolicy.SnakeCaseLower.ConvertName`, and the words of `Split('_')` joined with their first letters raised, the first lowered again for camel | |
+| `TextToInteger`, `TextToFloat` | `int.Parse`, `float.Parse`, or `TryParse` | raylib's stops at the first character that is not a number's and gives 0 for none, where `Parse` throws and `TryParse` answers false |
+| `LoadUTF8`, `CodepointToUTF8` | `string.Concat(codepoints.Select(char.ConvertFromUtf32))`, `Encoding.UTF8.GetBytes(char.ConvertFromUtf32(codepoint))` | |
+| `GetCodepointCount`, `GetCodepoint`, `GetCodepointNext`, `GetCodepointPrevious` | `text.EnumerateRunes().Count()`, `Rune.DecodeFromUtf16(text.AsSpan(index), out var rune, out var length)`, `Rune.DecodeLastFromUtf16` | A length in UTF-16 units, where raylib's is in bytes |
+
+## Not carried
+
+| raylib | Why |
+|---|---|
+| `BeginVrStereoMode`, `EndVrStereoMode`, `LoadVrStereoConfig`, `UnloadVrStereoConfig` | VR is not in the engine's plan |
+| `LoadAutomationEventList`, `UnloadAutomationEventList`, `ExportAutomationEventList`, `SetAutomationEventList`, `SetAutomationEventBaseFrame`, `StartAutomationEventRecording`, `StopAutomationEventRecording`, `PlayAutomationEvent` | `./e3d`'s `input.*` commands drive a running program through the engine's own input, from a script, which a recording of events stands for in raylib ([Driving a program with e3d](driving-with-e3d.md)) |
+| `SetLoadFileDataCallback`, `SetSaveFileDataCallback`, `SetLoadFileTextCallback`, `SetSaveFileTextCallback` | The flat API reads files beside the program or in the working directory, and the asset server, which loads a level's models, textures and scenes, reads through the sources a program gives it with `AddSource`, an archive of its own among them |
+| `ExportDataAsCode`, `ExportImageAsCode`, `ExportFontAsCode`, `ExportMeshAsCode`, `ExportWaveAsCode` | They write a C header for a C program to compile its data into, where a .NET program embeds a file as a resource of its assembly or ships it beside itself |
+| `SetShapesTexture`, `GetShapesTexture`, `GetShapesTextureRectangle` | Shapes are drawn untextured, by the immediate pass's own shader, so there is no texture they are cut from |
+| `LoadImageFromScreen` | The frame is drawn on the GPU after the call returns. `TakeScreenshot` writes it once it is drawn, and `LoadImageFromTexture` reads a render texture as the last frame left it |
+| `ImageMipmaps` | An image has one level, and a texture's levels are made on the GPU by `GenTextureMipmaps` |
+| `LoadTextureCubemap` | Textures are two-dimensional, and the environment map, which `DrawSkybox` draws, stands for a skybox |
+| `GetPixelColor`, `SetPixelColor` | They read and write a pixel through a C pointer in a format, where an image here is RGBA bytes, read by `GetImageColor` and written by `ImageDrawPixel` |
+| `LoadFontData`, `GenImageFontAtlas`, `UnloadFontData` | A font's glyphs are kept by code point in ImGui's atlas, which the flat API's text shares, so there is no glyph data apart from a font |
+| `GenMeshTangents`, `GetShaderLocationAttrib` | The vertex layout is fixed and has no tangents, since the model pass works a normal map's frame out per pixel from how the surface changes across the screen |
+| `UpdateSound` | It writes into a sound the audio thread is playing, which the audio backend does not open to the program. An `AudioStream` is fed from the program's thread instead |
+
+`GetGlyphIndex` is above, among the calls that answer otherwise.
+
 ## Measured
 
 Taken on 2026-10-04 on an Intel Core i9-14900HX with an NVIDIA GeForce RTX 4070 Laptop GPU (driver
@@ -142,7 +195,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 501 (81 percent) |
+| Functions of `raylib.h` carried | 619 | 506 (82 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw

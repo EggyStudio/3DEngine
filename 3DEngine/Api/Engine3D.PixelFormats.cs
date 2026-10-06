@@ -72,6 +72,29 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>
+    /// The bytes <paramref name="width"/> by <paramref name="height"/> pixels take laid out in
+    /// <paramref name="format"/>, as a file of raw pixels holds them and raylib reckons them, a
+    /// compressed format by the bits a pixel of its blocks comes to.
+    /// </summary>
+    /// <returns>The size, or 0 where it passes what an array holds.</returns>
+    public static int GetPixelDataSize(int width, int height, PixelFormat format)
+    {
+        var bits = PixelSize(format) * 8 ?? format switch
+        {
+            PixelFormat.CompressedDxt3Rgba or PixelFormat.CompressedDxt5Rgba or PixelFormat.CompressedEtc2EacRgba
+                or PixelFormat.CompressedAstc4x4Rgba => 8,
+            PixelFormat.CompressedAstc8x8Rgba => 2,
+            _ => 4,
+        };
+        var bytes = (long)Math.Max(0, width) * Math.Max(0, height) * bits / 8;
+        if (bytes >= int.MaxValue) return 0;
+        // A block of 4 by 4 is the least a compressed image holds.
+        if (width < 4 && height < 4 && format >= PixelFormat.CompressedDxt1Rgb)
+            return format < PixelFormat.CompressedDxt3Rgba ? 8 : format < PixelFormat.CompressedAstc8x8Rgba ? 16 : (int)bytes;
+        return (int)bytes;
+    }
+
     // The bytes a pixel of an uncompressed format takes, or null for a compressed one.
     private static int? PixelSize(PixelFormat format) => format switch
     {

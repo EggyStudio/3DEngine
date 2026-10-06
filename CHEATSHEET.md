@@ -113,6 +113,7 @@ Matrix4x4 GetCameraMatrix(Camera3D camera);              // The camera's world t
 
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to, its depth in .Depth
 RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats); // An image of each format drawn into at once, a G-buffer, in .Textures
+RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format); // An image drawing can be sent to, of one format, floats kept past white
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
 bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
@@ -372,6 +373,7 @@ void rlDisableColorBlend();                                // Write shapes and m
 Image LoadImage(string fileName);                                                      // Read PNG, JPEG, BMP, TGA, PSD, GIF or HDR into memory
 Image LoadImageRaw(string fileName, int width, int height, PixelFormat format, int headerSize); // Read pixels alone, laid out in a format, after a header
 void ImageFormat(ref Image image, PixelFormat newFormat);                              // Keep of each pixel what a format keeps
+int GetPixelDataSize(int width, int height, PixelFormat format);                       // The bytes pixels take laid out in a format
 Image GenImageColor(int width, int height, Color color);                               // An image of one color
 Image GenImageText(int width, int height, string text);                                // Text's bytes as gray pixels, then black
 Image GenImageChecked(int width, int height, int checksX, int checksY, Color first, Color second); // A checkerboard of checksX by checksY pixel squares
@@ -639,6 +641,7 @@ void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float
 void DrawModelPoints(Model model, Vector3 position, float scale, Color tint);                                         // Its vertices as points
 void DrawModelPointsEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint); // Rotated and scaled
 ModelMaterial LoadMaterialDefault();                                                                                  // A white material with no maps
+void UnloadMaterial(ModelMaterial material);                                                                          // Unload a material's maps and shader, which UnloadModel leaves
 ModelMaterial[] LoadMaterials(string fileName);                                                                       // A model file's materials, without its meshes
 bool IsMaterialValid(ModelMaterial material);                                                                         // Whether its maps are loaded
 void SetMaterialTexture(ref ModelMaterial material, MaterialMapIndex mapType, Texture2D texture);                     // A map by raylib's name for it
@@ -952,6 +955,7 @@ string? LoadFileText(string fileName);                   // A text file's conten
 bool SaveFileText(string fileName, string text);         // Write text to a file, beside the program for a relative name
 byte[]? LoadFileData(string fileName);                   // A file's bytes, null when there is none
 bool SaveFileData(string fileName, ReadOnlySpan<byte> data); // Write bytes to a file, beside the program for a relative name
+uint ComputeCRC32(ReadOnlySpan<byte> data);              // The CRC-32 of bytes, as zlib and PNG reckon it
 void OpenURL(string url);                                // Open an http or https address in the browser
 void WaitTime(double seconds);                           // Hold the program for some seconds
 void TraceLog(LogLevel level, string text);              // A line in the engine's log, under Program

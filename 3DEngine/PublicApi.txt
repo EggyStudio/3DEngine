@@ -808,6 +808,7 @@ static class Engine.Engine3D
   static ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1f)
   static RenderTexture2D LoadRenderTexture(int width, int height)
   static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
+  static RenderTexture2D LoadRenderTextureEx(int width, int height, PixelFormat format)
   static Shader LoadComputeShader(string fileName)
   static Shader LoadComputeShaderFromMemory(string code, string name = "compute.slang")
   static Shader LoadShader(string fileName)
@@ -997,6 +998,7 @@ static class Engine.Engine3D
   static int GetMouseX()
   static int GetMouseY()
   static int GetPhysicsBodyLayer(PhysicsBody body)
+  static int GetPixelDataSize(int width, int height, PixelFormat format)
   static int GetRandomValue(int min, int max)
   static int GetRenderHeight()
   static int GetRenderWidth()
@@ -1019,6 +1021,7 @@ static class Engine.Engine3D
   static string GetMonitorName(int monitor)
   static string? LoadFileText(string fileName)
   static string[] LoadDroppedFiles()
+  static uint ComputeCRC32(ReadOnlySpan<byte> data)
   static void AddComputedState<TComputed, TSource>(Func<TSource, TComputed?> compute) where TComputed : struct, Enum where TSource : struct, Enum
   static void AddState<TState>(TState initial) where TState : struct, Enum
   static void AddSubState<TSub, TParent>(TParent whileIn, TSub initial) where TSub : struct, Enum where TParent : struct, Enum
@@ -1358,6 +1361,7 @@ static class Engine.Engine3D
   static void UnloadFont(Font font)
   static void UnloadImage(Image image)
   static void UnloadLight(LightHandle light)
+  static void UnloadMaterial(ModelMaterial material)
   static void UnloadMesh(ModelMesh mesh)
   static void UnloadModel(Model model)
   static void UnloadModelAnimation(ModelAnimation animation)

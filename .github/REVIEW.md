@@ -214,3 +214,22 @@ Shared: a script compiled again keeps the game's state, here by fields where Bev
 scene schemas, and the swap made between frames rather than on the compiler's thread, which
 BevyCSharp's ScriptHost may check for, since a swap into a stage's live list of systems was the race
 found here.
+
+**Now 5, raylib's functions not carried.** Read by kind from `coverage.py`'s list, four have an
+answer here that .NET's own library does not give, and are carried with a test and a line of the
+cheatsheet each: `LoadRenderTextureEx`, a render texture of one format through the several-format
+target of `692cefee`, `UnloadMaterial`, which unloads a material's five maps and its shader as
+raylib's does where `UnloadModel` leaves them, `GetPixelDataSize`, raylib's bits a pixel with a
+compressed format's block at least, and `ComputeCRC32`, whose .NET counterpart is in the
+`System.IO.Hashing` package, so `PngWriter`'s table serves, held to CRC-32's check value of
+`123456789`. `coverage.py` counts 506 of 619 carried, from 502. Each of the 113 left has its line in
+`docs/compared-with-raylib.md`, checked name by name against `coverage.py`'s list: a table of
+raylib's functions C# has, as raymath's has, with where each answers otherwise (a length in UTF-16
+units, a hash as bytes, a parse that throws), the files, directories, hashes, compression, Base64,
+memory, strings and code points, and the unloads the garbage collector does, and a table of those
+left out with the reason, VR, automation events, which `./e3d`'s input stands for, the file
+callbacks, which the asset server's `AddSource` stands for, the exports as C code, the shapes
+texture, `LoadImageFromScreen`, `ImageMipmaps`, the cubemap, the pixel pointers, a font's glyph
+data, the tangents and `UpdateSound`. TODO.md's entry says the count and leans on the page, and the
+page's counts follow. The examples table is unchanged by them. The suite: 1,340 passed, 0 failed, 1
+skipped.

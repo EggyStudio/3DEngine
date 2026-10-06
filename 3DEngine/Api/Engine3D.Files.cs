@@ -94,6 +94,10 @@ public static partial class Engine3D
         }
     }
 
+    /// <summary>The CRC-32 of <paramref name="data"/>, as zlib, PNG and raylib reckon it.</summary>
+    /// <remarks>.NET's own is in the <c>System.IO.Hashing</c> package, which the engine does not take for one function, and <c>PngWriter</c>'s table serves.</remarks>
+    public static uint ComputeCRC32(ReadOnlySpan<byte> data) => PngWriter.Crc(0xFFFFFFFFu, data) ^ 0xFFFFFFFFu;
+
     private static readonly ILogger ProgramLogger = Log.Category("Program");
 
     /// <summary>Writes a line to the engine's log, under the category <c>Program</c>, as raylib's <c>TraceLog</c> does.</summary>

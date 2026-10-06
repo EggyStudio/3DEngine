@@ -61,20 +61,18 @@ removed from this file, and an item that is partly done is rewritten around what
 physics, text and fonts, audio, audio streams and waves, and files
 ([CHEATSHEET.md](../CHEATSHEET.md)). What is missing:
 
-- **118 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names.
-  Most are what C# has, its strings, codepoints, files, directories, hashes, compression and freeing
-  of memory, and the exports as C code. `LoadImageFromScreen` needs the frame as drawn, which the
-  GPU has not finished when the call returns and has presented after. Images are eight bits a
-  channel with one level, which `LoadImageRaw` reads a format into and `ImageFormat` keeps what a
-  format keeps of, so `ImageMipmaps` and the raw pixel functions have nothing to do, and textures
-  are two-dimensional in one format, so cubemaps and render textures of other formats are left out.
-  Shapes are drawn untextured, and fonts keep their glyphs by codepoint in ImGui's atlas, so the
-  shapes texture, `GetGlyphIndex`, `LoadFontData` and `GenImageFontAtlas` have no meaning. The
-  vertex layout is fixed apart from the colors and second texture coordinates a mesh may carry
-  beside it, and has no tangents, for `GenMeshTangents`, `GetShaderLocationAttrib` and the
-  tangents' index of `UpdateMeshBuffer`. `UpdateSound` reaches into the audio thread, which the backend does
-  not open to the program. VR stereo and automation events (which `./e3d` stands in for) are left
-  out too.
+- **113 of raylib's 619 functions are not carried**, which `build/raylib-bench/coverage.py` names
+  and [compared-with-raylib.md](../docs/compared-with-raylib.md) answers one by one. Most have their
+  counterparts in C#, its strings, code points, files, directories, hashes, compression and freeing
+  of memory, each there beside its counterpart. The rest are left out for a reason the page gives.
+  `LoadImageFromScreen` needs the frame as drawn, which the GPU has not finished when the call
+  returns. Images have one level and textures are two-dimensional, so `ImageMipmaps` and cubemaps
+  are left out. Shapes are drawn untextured and fonts keep their glyphs by code point in ImGui's
+  atlas, so the shapes texture, `GetGlyphIndex`, `LoadFontData` and `GenImageFontAtlas` have no
+  meaning. The vertex layout has no tangents, for `GenMeshTangents` and `GetShaderLocationAttrib`,
+  and `UpdateSound` reaches into the audio thread, which the backend does not open to the program.
+  VR stereo, automation events (which `./e3d` stands in for), the file callbacks (which the asset
+  server's sources stand in for) and the exports as C code are left out too.
 
 - **Models are partial.** Skinned meshes are posed on the GPU at a frame, between frames
   (`UpdateModelAnimationAt`), between two clips (`UpdateModelAnimationBlend`) or with a clip on
