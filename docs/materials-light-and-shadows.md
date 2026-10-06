@@ -222,16 +222,18 @@ var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));
 ```
 
 A reflection is looked up where it leaves the box, so the room's walls hold still as the camera
-moves. Put the box's middle in the open, away from the room's objects, since what stands there
-fills the capture. A probe captures again by itself when a light reaching its box is switched on
-or off, moved, or brightened or dimmed by a quarter or more, so a lamp put out leaves no glow in
-the room's reflections and one flickering about its light costs nothing. `UpdateReflectionProbe`
-captures it again after the room's meshes change,
-`IsReflectionProbeReady` says whether its capture is made, `UnloadReflectionProbe` removes it, and four
-probes, the nearest the camera, reflect at once. In the ECS a probe is a `ReflectionProbe`
-component placed by its entity's `Transform`, and one in a prefab beside its room's models, as
-`games/Manor` streams its rooms in, captures again once those models have spawned, so it holds
-the room and not the sky it saw in the frame it appeared.
+moves. Put the box's middle in the open, away from the room's objects, since what stands there fills
+the capture. A probe captures again by itself when a light reaching its box is switched on or off,
+moved, or brightened or dimmed by a quarter or more, so a lamp put out leaves no glow in the room's
+reflections and one flickering about its light costs nothing. `UpdateReflectionProbe` captures it
+again after the room's meshes change, and `SetReflectionProbeRefresh(probe, 0.5f)` has it captured
+again half a second after each capture, so a door opening in the room or a thing moving through it
+is seen, each capture drawing the room a face a frame, `IsReflectionProbeReady` says whether its
+capture is made, `UnloadReflectionProbe` removes it, and four probes, the nearest the camera,
+reflect at once. In the ECS a probe is a `ReflectionProbe` component placed by its entity's
+`Transform`, and one in a prefab beside its room's models, as `games/Manor` streams its rooms in,
+captures again once those models have spawned, so it holds the room and not the sky it saw in the
+frame it appeared.
 
 ## Lights in the ECS
 

@@ -34,7 +34,7 @@ internal sealed class LightExtract : IExtractSystem
         // The probes and their captures are one object for both worlds, since extraction and the
         // passes run on the same thread.
         var probes = world.GetOrInsertResource(static () => new ReflectionProbes());
-        probes.Sync(ecs);
+        probes.Sync(ecs, world.TryGetResource<Time>(out var time) ? time.ElapsedSeconds : 0);
         renderWorld.Set(probes);
 
         var lights = renderWorld.TryGet<RenderLights>() ?? new RenderLights();

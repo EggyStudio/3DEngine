@@ -93,16 +93,6 @@ physics, text and fonts, audio, audio streams and waves, and files
 
 ### Meshes, materials and light
 
-- **A probe captures only on a change.** The model pass reflects up to 16 light entities and an
-  environment map by the material's metallic-roughness model, its diffuse light from nine spherical
-  harmonics of irradiance (RENDERING.md §3 and §4), and inside a reflection probe's box the probe's
-  capture in place of the map, both filtered on the GPU in a frame. A probe is captured in half
-  floats from the meshes the window draws, or the first render target's when it draws none, a face a
-  frame. It is captured again only when it moves, when a light reaching its box is added, removed or
-  changed past a threshold, or when `UpdateReflectionProbe` asks, and a door opening in its room is
-  not seen until then. A mesh entity and an `AnimatedModel` are drawn into the window through the
-  first camera entity without a render texture, and into each camera entity's render texture, each
-  with its shadow fitted to its own camera.
 - **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
   which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
   pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex
@@ -192,8 +182,7 @@ collide with each other. The character controller is a dynamic capsule walked to
 before each step, which slides along walls, climbs steps up to its step height (its radius unless
 set), holds slopes up to its limit, rides what moves under it, crouches and stands where there is
 room, and reports ground. A vehicle is a box held up by raycast wheels as springs, gripping,
-driving, braking and steering on the fixed step. What is missing, in the order a game meets it:
-
+driving, braking and steering on the fixed step.
 
 ### Scenes
 

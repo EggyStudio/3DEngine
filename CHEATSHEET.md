@@ -727,6 +727,7 @@ void SetAmbientLight(Color color, float intensity);                       // The
 void SetAmbientOcclusion(float intensity, float radius = 1);              // Darken that light where nearby surfaces close it off, 0 for off
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky
 void UpdateReflectionProbe(ReflectionProbeHandle probe);                   // Capture it again, after its room changed
+void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds); // Capture a probe again every that many seconds, 0 only on a change
 bool IsReflectionProbeReady(ReflectionProbeHandle probe);                  // Whether its capture is made, a face a frame and twice over
 void UnloadReflectionProbe(ReflectionProbeHandle probe);                   // Remove it
 ```

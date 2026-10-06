@@ -359,7 +359,10 @@ capture no light, its intensity 0 in the capture's lighting buffer, so its first
 lights and its second bounces that. `ReflectionProbes.Sync` keeps the lights that reached each box
 when it was last asked for, and asks again when one is added or removed, grows or dims by a quarter,
 turns color, or moves a quarter of a unit or turns past eleven degrees, so a lamp switched off is
-seen and a flickering one is not. Four probes with a capture, those whose boxes come nearest the
+seen and a flickering one is not. A probe whose `Refresh` is above 0 is captured again that many
+seconds after each capture, one pass with the last bound, while what it is wanted as stays, so it
+stays ready, and a capture a placement or a light needs goes before a refresh, the refresh of the
+probe captured longest ago first. Four probes with a capture, those whose boxes come nearest the
 camera, are bound at set 1's bindings 5 to 8 and their irradiance buffers at 10 to 13, and the
 lighting buffer carries each one's middle, intensity, half size and last mip after the
 environment's. A surface in a box takes its reflection and diffuse light from the smallest box

@@ -10,8 +10,9 @@ namespace Engine;
 /// <para>
 /// The renderer draws the frame's meshes from the probe's position into the six faces of a small
 /// cube, the first frame it sees the probe and again whenever the probe moves, changes size or
-/// <see cref="Capture"/> changes, or a light that reaches its box is added, removed or changed past
-/// a threshold, and prefilters it on the GPU as the environment map is prefiltered. A surface
+/// <see cref="Capture"/> changes, a light that reaches its box is added, removed or changed past
+/// a threshold, or <see cref="Refresh"/> seconds have passed since the last capture, and prefilters
+/// it on the GPU as the environment map is prefiltered. A surface
 /// inside the box then reflects the cube, looked up where the reflected ray leaves the box, so
 /// the walls hold still as the camera moves, and takes its diffuse light from it, where it would
 /// take them from the environment map. A surface in no box keeps the environment map.
@@ -40,12 +41,24 @@ public struct ReflectionProbe
     /// <summary>A count raised to capture the probe again, after its room has changed.</summary>
     public int Capture;
 
+    /// <summary>
+    /// Seconds after a capture finishes that the probe is captured again, so a door opening in its
+    /// room or a thing moving through it is seen, or 0 to capture it only on a change.
+    /// </summary>
+    /// <remarks>
+    /// Each capture draws the room six times, a face a frame, and is filtered in the frame of the
+    /// last, so a probe refreshed every frame costs a sixth of its room's draw each frame. A refresh
+    /// has the capture before it bound, so it is one pass where a new placement takes two.
+    /// </remarks>
+    public float Refresh;
+
     /// <summary>A probe of a box of <paramref name="size"/>, its light as captured.</summary>
     public ReflectionProbe(Vector3 size, float intensity = 1)
     {
         Size = size;
         Intensity = intensity;
         Capture = 0;
+        Refresh = 0;
     }
 }
 
@@ -76,6 +89,11 @@ internal sealed class ReflectionProbes
         // How many captures of what is wanted have finished, which reaches Passes.
         public int Passes;
 
+        // Whether a refresh asks for one more capture of what is wanted, and when the last capture
+        // finished, which the refresh counts from.
+        public bool Stale;
+        public double CapturedAt;
+
         // The lights that reached the box when it was last asked to be captured, and how many times
         // a change in them has asked again, which Wanted counts with the component's Capture.
         public List<LitBy>? Lights;
@@ -101,9 +119,9 @@ internal sealed class ReflectionProbes
 
     /// <summary>
     /// Takes the probes the ECS holds, adding new ones and forgetting those gone, and the captures
-    /// finished since the last frame.
+    /// finished since the last frame, at <paramref name="now"/> seconds into the program.
     /// </summary>
-    public void Sync(EcsWorld ecs)
+    public void Sync(EcsWorld ecs, double now)
     {
         var seen = new HashSet<int>();
         List<LitBy>? lights = null;
@@ -139,8 +157,18 @@ internal sealed class ReflectionProbes
                 known.Captured = done.As;
                 known.Capturing = false;
                 known.Done = null;
-                if (done.As == known.Wanted) known.Passes++;
+                known.CapturedAt = now;
+                if (done.As == known.Wanted)
+                {
+                    known.Passes++;
+                    known.Stale = false;
+                }
             }
+
+            // A refresh leaves what is wanted as it is, so a probe ready for its placement stays
+            // ready while it is captured again.
+            if (probe.Refresh > 0 && !known.Capturing && known.Passes >= Passes && now - known.CapturedAt >= probe.Refresh)
+                known.Stale = true;
         }
         foreach (var gone in ByEntity.Keys.Where(e => !seen.Contains(e)).ToArray()) ByEntity.Remove(gone);
     }

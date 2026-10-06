@@ -1486,7 +1486,11 @@ internal sealed class ModelRenderer : IDisposable
         if (source is null) return;
         if (_capture is null)
         {
-            var next = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes));
+            // A capture a placement or a change of lights needs comes before a refresh, and the
+            // refresh of the probe captured longest ago before the others, so a probe refreshed
+            // every frame keeps none of the rest waiting.
+            var next = probes.ByEntity.Values.FirstOrDefault(p => !p.Capturing && (p.Captured != p.Wanted || p.Passes < ReflectionProbes.Passes))
+                ?? probes.ByEntity.Values.Where(p => !p.Capturing && p.Stale).MinBy(p => p.CapturedAt);
             if (next is null) return;
             next.Capturing = true;
             var wanted = next.Wanted;

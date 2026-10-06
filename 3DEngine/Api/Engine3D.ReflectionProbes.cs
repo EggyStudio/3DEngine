@@ -34,6 +34,21 @@ public static partial class Engine3D
         return new ReflectionProbeHandle(Ecs.Handle(entity));
     }
 
+    /// <summary>
+    /// Captures a probe again every <paramref name="seconds"/> after its last capture, so a door
+    /// opening in its room or a thing moving through it is seen, or only on a change for 0, as a
+    /// probe starts.
+    /// </summary>
+    /// <remarks>
+    /// A capture draws the room a face a frame and filters it on the GPU in the frame of the last,
+    /// so a probe refreshed as often as it can be costs a sixth of its room's draw a frame. A probe
+    /// ready for its placement stays ready while it is refreshed.
+    /// </remarks>
+    public static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
+    {
+        if (Resolve(probe) is { } entity) Ecs.GetRef<ReflectionProbe>(entity).Refresh = MathF.Max(0, seconds);
+    }
+
     /// <summary>Captures a probe again, as its room is now drawn.</summary>
     public static void UpdateReflectionProbe(ReflectionProbeHandle probe)
     {

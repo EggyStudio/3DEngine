@@ -1311,6 +1311,7 @@ static class Engine.Engine3D
   static void SetPhysicsVehicleInput(PhysicsBody vehicle, float throttle, float steer, bool brake = false)
   static void SetProfileValue(string name, double value)
   static void SetRandomSeed(uint seed)
+  static void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds)
   static void SetShaderValue(Shader shader, int location, int value)
   static void SetShaderValue(Shader shader, int slot, Vector2 value)
   static void SetShaderValue(Shader shader, int slot, Vector3 value)
@@ -2409,6 +2410,7 @@ struct Engine.ReflectionProbe
   ReflectionProbe(Vector3 size, float intensity = 1f)
   Vector3 Size
   float Intensity
+  float Refresh
   int Capture
 readonly struct Engine.ReflectionProbeHandle : IEquatable<ReflectionProbeHandle>
   Entity Entity { get; init; }

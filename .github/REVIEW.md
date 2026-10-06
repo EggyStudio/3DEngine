@@ -233,3 +233,26 @@ texture, `LoadImageFromScreen`, `ImageMipmaps`, the cubemap, the pixel pointers,
 data, the tangents and `UpdateSound`. TODO.md's entry says the count and leans on the page, and the
 page's counts follow. The examples table is unchanged by them. The suite: 1,340 passed, 0 failed, 1
 skipped.
+
+**Now 6, TODO.md's order.** The first of its entries, per-entity work on the CPU, measured again
+with RENDERING.md's own run of `models_stress` without arms (`./e3d command profile` once the search
+ended): it held 410,266 entities, the count of 2026-10-04, in a frame of 19.9 ms, the example's loop
+turning every entity 9.8 ms of it, `MeshEntityDraws` 5.9 ms, the first pass copying every instance
+into the ring and finding its blocks' boxes 3.3 ms, and the model pass on the GPU 5.8 ms. Every
+entity turns each frame there, so keeping a chunk unchanged saves nothing, and the copy goes only
+when `MeshEntityDraws` writes into the renderer's mapped memory, across the two worlds, with its
+blocks' boxes, for at most the 3.3 ms of a frame that holds 410,000 entities. That is not what
+blocks a game, so the entry stays as it is and the entries after it are taken. The flat API's
+entries are answered by item 5, and "Models are partial" reaches no program here, none building an
+app without `InitWindow`.
+
+The probe's entry is closed: `ReflectionProbe.Refresh`, which `SetReflectionProbeRefresh` sets,
+captures a probe again that many seconds after each capture, so a door opening in its room or a
+thing moving through it is seen. A refresh is one pass with the last capture bound, and leaves what
+the probe is wanted as alone, so a probe ready for its placement stays ready, and a capture a
+placement or a light needs goes before a refresh, the refresh of the probe captured longest ago
+first, so one refreshed every frame keeps no other waiting. A test turns a wall's glow from red to
+blue, finds a probe captured on a change still red after 30 frames, and red turned blue once it
+refreshes, ready all the while. TODO.md's physics paragraph ended in a list of what is missing with
+nothing in it, and ends without it. The 97 render and reference tests pass on lavapipe under the
+validation layer, and the suite: 1,341 passed, 0 failed, 1 skipped.

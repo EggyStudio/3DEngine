@@ -1863,6 +1863,57 @@ public sealed class OffscreenRenderTests : IDisposable
         UnloadModel(room);
     }
 
+    [NeedsVulkanFact]
+    public void A_Probe_Refreshed_Sees_Its_Room_Change_Where_One_Captured_On_A_Change_Does_Not()
+    {
+        Open(64, 64);
+        var wall = LoadModelFromMesh(GenMeshCube(0.2f, 6, 6));
+        var room = LoadModelFromMesh(GenMeshCube(6, 6, 6));
+        var camera = new Camera3D(new Vector3(0, 0, 2), new Vector3(1, 0, 0), Vector3.UnitY, 60);
+        void Glow(Color color) => wall.Materials[0] = new ModelMaterial(Color.Black) { Emissive = color, EmissiveIntensity = 4 };
+        void Draw(int frames)
+        {
+            for (int frame = 0; frame < frames; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(room, Vector3.Zero, 1, new Color(30, 30, 30));
+                DrawModel(wall, new Vector3(2.8f, 0, 0), 1, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        // The middle of the first mip's +X face, a mirror's view of the wall.
+        Vector3 Wall()
+        {
+            var (texels, size) = ProbeFaces();
+            var at = (size * size / 2 + size / 2) * 4;
+            return new Vector3((float)texels[at], (float)texels[at + 1], (float)texels[at + 2]);
+        }
+
+        Glow(Color.Red);
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(6, 6, 6));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++) Draw(1);
+        IsReflectionProbeReady(probe).Should().BeTrue();
+        Wall().X.Should().BeGreaterThan(Wall().Z, "the wall glows red");
+
+        Glow(Color.Blue);
+        Draw(30);
+        Wall().X.Should().BeGreaterThan(Wall().Z, "a material changing asks for no capture");
+
+        SetReflectionProbeRefresh(probe, 0.0001f);
+        for (int frame = 0; frame < 60 && Wall().X >= Wall().Z; frame++)
+        {
+            Draw(1);
+            IsReflectionProbeReady(probe).Should().BeTrue("a probe ready for its placement stays ready while it is refreshed");
+        }
+        Wall().Z.Should().BeGreaterThan(Wall().X, "the refresh captured the wall as it glows now");
+        UnloadReflectionProbe(probe);
+        UnloadModel(wall);
+        UnloadModel(room);
+    }
+
     // The one probe's first mip as the GPU filtered it, its six faces' RGBA half floats, and the width of a face.
     private (Half[] Texels, int Size) ProbeFaces()
     {
