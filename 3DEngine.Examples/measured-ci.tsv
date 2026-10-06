@@ -1,0 +1,4 @@
+# Each written example's share of pixels apart from raylib's own program at the same frame, as the
+# build workflow's examples job measured it on its own device the first time, which each later run
+# is held to, failing where a pair stands more than a point above it (build/raylib-bench/compare.py
+# --against). A pair measured for the first time is listed in its run's summary, to be recorded here.

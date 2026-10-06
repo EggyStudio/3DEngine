@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Measures each written example against raylib's own program of the same name (NORM.md, N 5.2).
 
-    build/raylib-bench/compare.py <group or example>...
+    build/raylib-bench/compare.py <group, example or all>... [--record <file>] [--against <file>]
 
 raylib's example is built from the checkout build/examples-table.py reads, of the commit
 build/raylib-bench/run.sh pins, against raylib built as run.sh builds it, with its SDL3 backend,
@@ -18,6 +18,15 @@ A pair is compared as 3DEngine.Tests' reference frames are: a pixel is apart whe
 channels differs by more than 24 of 255, and the share of pixels apart is written for the example
 into 3DEngine.Examples/measured.tsv, which build/examples-table.py puts beside the example in
 .github/EXAMPLES.md. The two pictures are kept under build/raylib-bench/work/compare to look at.
+
+--record writes the shares into the file given in place of measured.tsv. --against holds each pair
+to the share the file given recorded for it on the same machine before, and the run fails where a
+pair stands more than one point above it, where it drew a frame and draws none, or where its
+pictures came to differ in size. A pair with no share recorded is measured and recorded for the
+first time, and one triage.tsv marks as moving, by the clock or the device, is left out, with its
+reason. The build workflow's examples job runs every pair so, against
+3DEngine.Examples/measured-ci.tsv, the shares its own device recorded, so two machines' drivers are
+never compared with each other.
 """
 import glob
 import importlib.util
@@ -128,10 +137,10 @@ def apart(ours, theirs):
     return differing / (a.size[0] * a.size[1])
 
 
-def read_measured():
+def read_measured(path=MEASURED):
     measured = {}
-    if os.path.exists(MEASURED):
-        with open(MEASURED, encoding="utf-8") as lines:
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as lines:
             for line in lines:
                 if line.strip() and not line.startswith("#"):
                     name, share = line.rstrip("\n").split("\t")[:2]
@@ -139,8 +148,8 @@ def read_measured():
     return measured
 
 
-def write_measured(measured):
-    with open(MEASURED, "w", encoding="utf-8") as out:
+def write_measured(measured, path=MEASURED):
+    with open(path, "w", encoding="utf-8") as out:
         out.write("# Each written example's share of pixels apart from raylib's own program at the same frame, written by\n"
                   "# build/raylib-bench/compare.py and read by build/examples-table.py. A name, then the share in percent, or a\n"
                   "# word where no share was measured: size (the two pictures are of two sizes) or none (raylib's program\n"
@@ -149,38 +158,90 @@ def write_measured(measured):
             out.write(f"{name}\t{measured[name]}\n")
 
 
+def option(name):
+    """The value given after --name, or None."""
+    arguments = sys.argv[1:]
+    return arguments[arguments.index(name) + 1] if name in arguments and arguments.index(name) + 1 < len(arguments) else None
+
+
+# How far, in points of the share, a pair may stand above the share recorded for it before a run held
+# against the record fails, room for a driver's rounding that moves from run to run.
+ROOM = 1.0
+
+
+def held(name, share, recorded):
+    """Why a pair's share fails the share recorded for it, or None where it holds."""
+    if recorded is None:
+        return None
+    if share in ("none", "size") or recorded in ("none", "size"):
+        return None if share == recorded else f"it was {recorded} and is {share}"
+    return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOM else None
+
+
 def main():
-    wanted = [a for a in sys.argv[1:] if not a.startswith("--")]
+    values = {option("--record"), option("--against")}
+    wanted = [a for a in sys.argv[1:] if not a.startswith("--") and a not in values]
     if not wanted:
         sys.exit(__doc__)
+    record, against = option("--record"), option("--against")
     commit = table.raylib_commit()
     source = table.raylib_source(commit, None)
     written = table.written_examples()
-    examples = [e for e in table.read_examples(source) if e["name"] in written and (e["group"] in wanted or e["name"] in wanted)]
+    examples = [e for e in table.read_examples(source) if e["name"] in written and ("all" in wanted or e["group"] in wanted or e["name"] in wanted)]
     if not examples:
         sys.exit("no written example in " + ", ".join(wanted))
+    recorded = read_measured(against) if against else {}
+    moving = {name: note for name, (state, note) in table.read_triage().items() if state == "moves"}
+    if against:
+        for example in [e for e in examples if e["name"] in moving]:
+            print(f"  {example['name']}: left out, {moving[example['name']]}")
+        examples = [e for e in examples if e["name"] not in moving]
     library = build_raylib(source)
     # The build ./e3d open starts, made from the checkout as it is, so no capture is of an older one.
     subprocess.run(["dotnet", "build", os.path.join(ROOT, "3DEngine.Examples"), "-v", "q", "--nologo"], check=True,
                    stdout=subprocess.DEVNULL)
     os.makedirs(OUT, exist_ok=True)
-    measured = read_measured()
+    measured = read_measured(record) if record else read_measured()
+    failures, first = [], []
     for example in examples:
         name = example["name"]
         binary = build_example(source, library, example)
         if binary is None:
+            if against and name in recorded:
+                failures.append(f"{name}: raylib's program no longer builds")
             continue
-        ours, frame = capture_ours(name)
+        try:
+            ours, frame = capture_ours(name)
+        except (subprocess.CalledProcessError, OSError, ValueError) as error:
+            print(f"  {name}: this engine's capture failed: {error}")
+            if against:
+                failures.append(f"{name}: this engine's capture failed")
+            continue
         theirs = capture_theirs(binary, example, frame)
         if theirs is None:
             measured[name] = "none"
             print(f"  {name}: raylib's program drew no frame {frame}")
-            continue
-        share = apart(ours, theirs)
-        measured[name] = "size" if share is None else f"{100 * share:.1f}"
-        print(f"  {name}: frame {frame}, " + ("the pictures are of two sizes" if share is None else f"{100 * share:.1f}% apart"))
-        write_measured(measured)
-    write_measured(measured)
+        else:
+            share = apart(ours, theirs)
+            measured[name] = "size" if share is None else f"{100 * share:.1f}"
+            print(f"  {name}: frame {frame}, " + ("the pictures are of two sizes" if share is None else f"{100 * share:.1f}% apart"))
+        if against:
+            if name not in recorded:
+                first.append(name)
+            elif (why := held(name, measured[name], recorded[name])) is not None:
+                failures.append(f"{name}: {why}")
+        write_measured(measured, record or MEASURED)
+    write_measured(measured, record or MEASURED)
+
+    if first:
+        print(f"{len(first)} pair(s) measured for the first time, recorded in {record or MEASURED} for {against}:")
+        for name in first:
+            print(f"{name}\t{measured[name]}")
+    if failures:
+        print(f"{len(failures)} pair(s) do not hold to the share recorded for them, more than {ROOM:g} point above it or no longer drawn:")
+        for failure in failures:
+            print(f"  {failure}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

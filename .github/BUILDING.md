@@ -79,6 +79,17 @@ raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.
 `--triage` starts for a new one from the functions it calls that the flat API lacks. `--check`
 fails where the table is out of date, which `build.yml` runs.
 
+`build/raylib-bench/compare.py <group, example or all>` builds raylib's own program of each written
+example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library, runs
+it and the example here to the same frame, and writes the share of pixels apart into
+`3DEngine.Examples/measured.tsv`, which the table shows. raylib's programs draw through SDL's
+offscreen driver with OpenGL, which Mesa gives on a machine with no GPU (`libegl1`, `libegl-mesa0`
+and `libgl1-mesa-dri` on Ubuntu), and the pictures are compared with Pillow (`python3-pil`).
+`build.yml` measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the shares its
+own device recorded, and fails where one stands more than a point above its share, leaving out a
+pair whose line in `triage.tsv` marks it as moving by the clock or the device. A pair it measures
+for the first time is listed in the run's summary, to be recorded in that file.
+
 `build/storm.sh <program> <png>` resizes a program a frame apart through odd sizes, minimizes and
 restores it and moves it to each monitor there is, under the validation layer, then captures a
 frame and fails unless it is drawn at the size last asked for with nothing reported. CI puts each

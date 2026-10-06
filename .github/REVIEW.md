@@ -10,15 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `586670cd`. The run of `0019d177`, read from its page: Linux and Windows pass, and
-macOS fails one test,
-`AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`, 1,371 passed, 1
-failed, 10 skipped, the heap after a hundred apps 6.61 MB above the heap after twenty against the 5
-MB allowed, where `cac05ded` had 5.87 and both leak tests failing, so `fb68cfad` mended the other,
-which is Verdict 24. The commits: a particle emitter blends a sheet's frames into the next over each
-particle's life, off by default (`9924be97`), `ParticleBlend` in its own file, N 1.2's list at 86
-(`67048763`), and `LoadTextureCubemap` makes a cube from an image's six faces in raylib's four
-layouts, found by raylib's own tests, models honor `rlDisableDepthMask`, and
+Reviewed up to `98f6d8e5`. Verdict 24's mend is in: `Shutdown` joins the threads an app's parts
+start through an `AppThreads` resource, naming in the log any not done within two seconds, the
+console's server closes the connections still open as it stops, the asset server's sixteen workers
+run on the pool where each was a long running task's thread never joined, and the headless leak test
+carries the heap after every tenth app and the threads alive after each `Shutdown` in its
+assertions, so the next macOS run says what is left, the runtime's file watcher on `source/` the one
+thing a headless app still leaves (`27f949bf`); the verdict stays open until that run. Particles can
+bounce off or end at the window's depth of the scene, off unless set, the depth of the shadow
+casters drawn at half size, measured at 0.02 ms of CPU and 0.009 ms of GPU on the particles example,
+whose sparks bounce off the ground (`f13cab78`). Three commits of moves and one mending the
+console's tests' clock take N 1.2's list to 83, N 1.3's to 1 and N 3.3's to 6 left out (`e2780345`,
+`93615075`, `98f6d8e5`).
+
+Before them, the run of `0019d177` was read from its page: Linux and Windows pass, and macOS fails
+one test, `AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`, 1,371
+passed, 1 failed, 10 skipped, the heap after a hundred apps 6.61 MB above the heap after twenty
+against the 5 MB allowed, where `cac05ded` had 5.87 and both leak tests failing, so `fb68cfad`
+mended the other, which became Verdict 24. The commits: a particle emitter blends a sheet's frames
+into the next over each particle's life, off by default (`9924be97`), `ParticleBlend` in its own
+file, N 1.2's list at 86 (`67048763`), and `LoadTextureCubemap` makes a cube from an image's six
+faces in raylib's four layouts, found by raylib's own tests, models honor `rlDisableDepthMask`, and
 `models_skybox_rendering` is written, 0.2% apart, 219 examples and 516 of 619 functions
 (`586670cd`).
 
@@ -36,17 +48,6 @@ in 17.7 ms and names two changes with their savings, as decided, and the first-u
 runtime's compiling, 629 ms in Manor's first frame run from its project and 30 ms built native, so
 the entry names packing the engine compiled ahead for each platform as the owner's to weigh
 (`f9004abf`). The owner pushed.
-
-Before them, the six rounded meshes became par_shapes' as raylib makes them, every corner matching
-raylib's within a hundred thousandth and every 37th held against a C program's print, the sphere's
-poles on z and the hemisphere open below as raylib's are (`610d6b74`). Sound, music and stream pans
-take raylib's range of -1 to 1 with the middle at 0 where they took 0 to 1, checked here against the
-pinned `raylib.h`, since raylib's own range changed from 0 to 1 after its 5.5; `audio_raw_stream` is
-a port of raylib's program, and ten of the eleven audio programs are measured, five within 2%,
-`audio_module_playing` waiting on the owner's word on a decoder (`47351deb`). The sieve's coordinate
-and the bloom example's grid end as lines of the page, each a driver's rounding, and every example
-written has its number in the table (`9ddd9f02`). With that, the seven modules were measured once
-over, the font the largest part of nearly every share left.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -188,37 +189,20 @@ Verdicts 1 to 23 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Verdict 24, the macOS heap taken apart.** The headless leak test now collects and reads the heap
-after every tenth app and counts the process's threads after each `Shutdown`, and both series ride
-in its assertions' messages, so the next macOS run says whether the 6.61 MB is a slope or a step and
-whether threads were alive as it was read. On Linux the heap goes from 11.11 MB after ten apps to
-11.18 after a hundred. `Shutdown` joins the threads the app's parts started, which an `AppThreads`
-resource starts and records, after the world's teardown has told them to stop, and names in the log
-any that did not finish within two seconds. The console's listener and its connections start through
-it, and its server closes the connections still open as it stops, since a connection's thread
-otherwise waits on a read for good. A test holds on every system that a served app with a caller
-connected leaves none alive, the caller's answered request showing its thread running without a wait
-on the clock. Looking at the threads a closed app left on Linux, by their names under `/proc`, found
-the asset server starting its sixteen async workers as long running tasks, each a thread of its own
-that ended at its first await, never joined, and they run on the pool now. The other thing a
-headless app leaves is the runtime's file watcher, started on the `source/` folder beside the tests,
-whose FSEvents stream macOS lets go of after the watcher is disposed, which neither join reaches and
-the series will show. The 5 MB stays. The suite: 1,407 passed, 0 failed, 1 skipped.
-
-**Now 3, particles meet the depth of the frame.** `ParticleEmitter.Collision`, off unless set, has
-an emitter's particles bounce off what the window shows, keeping `Bounce` of their speed into the
-surface, or end there. Where one collides, the particle node first draws the window's shadow casters
-into a depth at half its size with the occlusion pass's `DrawDepth`, and binds it with its view as
-the step's second set, one a frame in flight, the white texture standing in with collision off in
-frames none collides, and the mode and bounce ride in the capacity word's spare high bits, since the
-push block is full. A particle collides where it crossed the surface's plane, its normal from the
-depth beside it turned to the camera, from the camera's side in the step. The first test, how far it
-sat behind the surface at its pixel against how far it moved, let sparks through the ground at the
-example's grazing angle, which a probe of the ground found, and one passing behind a post still
-crosses nothing. A test throws particles at a wall from three emitters, the ones that collide with
-nothing hidden behind it, the bouncing ones back in front and the ending ones gone, and the particle
-and render tests pass on lavapipe under the validation layer. `shaders_particles` throws sparks that
-now bounce off the ground and the stones, living longer and glowing a little to the end so they are
-seen landing, and its capture throws them before it is taken. Measured on it, the depth costs the
-render graph 0.45 ms of CPU against 0.43 without, and the GPU 0.035 ms against 0.026. Colliding with
-the physics world stays a limit in TODO.md. The suite: 1,408 passed, 0 failed, 1 skipped.
+**Now 6, the measure runs in the workflow.** `compare.py` takes `all`, and with `--against` holds
+each pair to the share recorded for it: a run fails where a pair stands more than a point above it,
+where a pair that drew a frame draws none, or where raylib's program stops building or this engine's
+capture fails, each named, and `--record` writes the shares measured in place of `measured.tsv`. The
+examples job measures every pair after its captures against `3DEngine.Examples/measured-ci.tsv`,
+which starts empty, so its first run measures every pair for the first time and puts all of them in
+the run's summary to be recorded from there, its own device's shares, and installs Mesa's OpenGL,
+which raylib's programs draw through by SDL's offscreen driver, and Pillow. To find the pairs that
+move, every pair was measured twice here back to back and read beside the shares measured before:
+215 of the 219 agree within 0.3 points across the three, and four moved, both clocks by the time of
+day (0.8 and 0.7 points), `audio_raw_stream` (1.4 against 6.0) and `audio_spectrum_visualizer` (1.0)
+by the audio device. Those and the four other audio pairs whose pictures are drawn from what the
+device has played or mixed are marked `moves` in `triage.tsv` with the reason, their rows say so and
+the measure leaves them out. Tried here, a pair within a point of a share recorded below it holds,
+one recorded as drawing no frame fails the run, and one never recorded is listed to record.
+`measured.tsv` holds the second run's shares. The first run on the workflow's device will take as
+long again as its captures, about half an hour here.

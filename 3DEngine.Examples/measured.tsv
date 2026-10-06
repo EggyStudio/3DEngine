@@ -5,11 +5,11 @@
 audio_amp_envelope	14.3
 audio_mixed_processor	2.4
 audio_music_stream	2.0
-audio_raw_stream	6.0
+audio_raw_stream	1.4
 audio_sound_loading	1.1
 audio_sound_multi	0.5
 audio_sound_positioning	0.0
-audio_spectrum_visualizer	1.1
+audio_spectrum_visualizer	1.7
 audio_stream_callback	2.4
 audio_stream_effects	3.2
 core_2d_camera	1.0
@@ -60,7 +60,7 @@ core_window_letterbox	2.6
 core_window_should_close	0.7
 core_world_screen	2.1
 models_animation_blend_custom	3.2
-models_animation_blending	6.5
+models_animation_blending	6.4
 models_animation_gpu_skinning	1.3
 models_animation_timing	6.8
 models_basic_voxel	0.8
@@ -132,11 +132,11 @@ shapes_basic_shapes	0.7
 shapes_bouncing_ball	1.6
 shapes_bullet_hell	1.9
 shapes_circle_sector_drawing	3.5
-shapes_clock_of_clocks	1.6
+shapes_clock_of_clocks	2.0
 shapes_collision_area	0.7
 shapes_colors_palette	0.6
 shapes_dashed_line	0.9
-shapes_digital_clock	10.5
+shapes_digital_clock	10.7
 shapes_double_pendulum	0.8
 shapes_drag_puzzle	1.1
 shapes_easings_ball	0.0
@@ -157,7 +157,7 @@ shapes_mouse_trail	0.7
 shapes_outlines_testbed	14.3
 shapes_outlines_thickness	2.0
 shapes_penrose_tile	1.3
-shapes_pie_chart	12.9
+shapes_pie_chart	12.8
 shapes_polygon_lines	1.2
 shapes_rectangle_advanced	0.0
 shapes_rectangle_scaling	0.9

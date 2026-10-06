@@ -37,8 +37,10 @@ jobs:
 
       - run: build/fetch-slang.sh
 
+      # Mesa's OpenGL beside its Vulkan, which raylib's own programs draw through for the measure
+      # against them, and Pillow, which compares the pictures.
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp clang zlib1g-dev
+        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp clang zlib1g-dev libegl1 libegl-mesa0 libgl1-mesa-dri python3-pil
 
       # The files of raylib's own that its examples load, at the commit run.sh pins.
       - run: build/fetch-raylib-resources.sh
@@ -78,6 +80,24 @@ jobs:
             fi
           done
           exit $failed
+
+      # Every written example measured against raylib's own program of its name, raylib built as
+      # build/raylib-bench/run.sh builds it and its programs drawn by Mesa's OpenGL through SDL's
+      # offscreen driver (build/raylib-bench/compare.py). The step fails where a pair stands more
+      # than a point above the share this job's own device recorded for it in
+      # 3DEngine.Examples/measured-ci.tsv, so a change cannot quietly undo a picture brought to
+      # raylib's, and two machines' drivers are never compared. A pair measured for the first time
+      # is listed in the run's summary to be recorded there, and one whose picture moves by the
+      # clock or the device is left out with the reason its line in triage.tsv gives.
+      - name: Measure every example against raylib's program
+        run: python3 -u build/raylib-bench/compare.py all --against 3DEngine.Examples/measured-ci.tsv --record captures/measured-ci.tsv
+
+      - name: Put the shares measured in the run's summary
+        if: always()
+        run: |
+          if [ -f captures/measured-ci.tsv ]; then
+            { echo '### Shares apart from raylib, this run'; echo; echo '```'; grep -v '^#' captures/measured-ci.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       # The game under games/, built from the package as a user's is, then played offscreen. It
       # opens on the menu, Enter starts it, the player walks toward the goal, and the frame is

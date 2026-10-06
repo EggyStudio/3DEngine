@@ -2,7 +2,9 @@
 # build/examples-table.py. A line is a name, a state and a note, apart by tabs. The state is can
 # (everything it calls the flat API carries, and nobody has written it yet), part (written, leaving
 # out what the note names), missing (the note names what the flat API lacks) or n/a (the note says
-# why it is not a thing a program here does). C#'s own strings, files and memory stand in for
+# why it is not a thing a program here does), and a written one may be marked moves (the note says
+# why its picture moves by the clock or the device from run to run, and the build workflow's
+# measure against raylib leaves it out). C#'s own strings, files and memory stand in for
 # raylib's TextFormat, its file functions and MemAlloc, which count as carried. build/examples-table.py
 # --triage prints a first line for an example that has none.
 
@@ -58,13 +60,13 @@ shapes_ring_drawing	can	with ImGui in raygui's place
 shapes_circle_sector_drawing	can	with ImGui in raygui's place
 shapes_rounded_rectangle_drawing	can	with ImGui in raygui's place
 shapes_splines_drawing	can	with ImGui in raygui's place
-shapes_digital_clock	can
+shapes_digital_clock	moves	its picture the time of day, which the two programs read a moment apart
 shapes_dashed_line	can
 shapes_triangle_strip	can	with ImGui in raygui's place
 shapes_vector_angle	can
 shapes_pie_chart	can	with ImGui in raygui's place
 shapes_kaleidoscope	can	with ImGui in raygui's place
-shapes_clock_of_clocks	can
+shapes_clock_of_clocks	moves	its picture the time of day, which the two programs read a moment apart
 shapes_math_sine_cosine	can	with ImGui in raygui's place
 shapes_mouse_trail	can
 shapes_simple_particles	can
@@ -170,11 +172,14 @@ shaders_game_of_life	can	with ImGui in raygui's place
 shaders_rlgl_compute	can	with the flat API's compute functions in rlgl's place
 shaders_lights_bloom	can
 audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
-audio_music_stream	can
+audio_music_stream	moves	its bar as far as the audio device has played
 audio_sound_loading	can
 audio_sound_multi	can
 audio_sound_positioning	can
-audio_spectrum_visualizer	can
-audio_stream_callback	can
+audio_spectrum_visualizer	moves	its spectrum that of what the audio device has played
+audio_stream_callback	moves	its wave the samples the audio device has asked for
 audio_amp_envelope	can	with ImGui in raygui's place
+audio_raw_stream	moves	its wave drawn from when the audio device last asked for samples
+audio_mixed_processor	moves	its volume history that of what the audio device has mixed
+audio_stream_effects	moves	its bar as far as the audio device has played
 core_input_gamepad	can	drawn by raylib's branch for a pad named neither Xbox nor PlayStation, as the console's pad here is
