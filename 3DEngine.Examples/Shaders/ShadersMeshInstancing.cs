@@ -1,67 +1,90 @@
+// raylib's shaders_mesh_instancing example, Copyright (c) 2020-2025 seanpringle (@seanpringle), Max
+// (@moliad) and Ramon Santamaria (@raysan5), under the zlib license, written again for the flat API.
+
 using System.Numerics;
 using static Engine.Engine3D;
+using static Engine.Examples.RLights;
 
 namespace Engine.Examples;
 
-/// <summary>
-/// raylib's mesh instancing: ten thousand cubes drawn by one <c>DrawMeshInstanced</c> call, each
-/// turning on its own axis, colored by a shader that tells them apart by their instance.
-/// </summary>
 public static class ShadersMeshInstancing
 {
+    private const int MAX_INSTANCES = 10000;
+    private const float DEG2RAD = MathF.PI/180.0f;
+
     public static void Run()
     {
-        InitWindow(800, 450, "[shaders] mesh instancing");
+        const int screenWidth = 800;
+        const int screenHeight = 450;
 
-        const int Count = 10_000;
-        var shader = LoadShader("resources/shaders/instancing.slang");
-        SetShaderValue(shader, GetShaderLocation(shader, "count"), (float)Count);
-        var material = new ModelMaterial(Color.White) { Shader = shader, Roughness = 0.6f };
-        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        InitWindow(screenWidth, screenHeight, "[shaders] mesh instancing");
 
-        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.6f), Color.White, 2);
+        Camera3D camera = new(new Vector3(-125.0f, 125.0f, -125.0f), Vector3.Zero, Vector3.UnitY, 45.0f, CameraProjection.Perspective);
 
-        // A place, an axis and a speed for each cube, scattered through a ball.
-        var random = new Random(7);
-        var places = new Vector3[Count];
-        var axes = new Vector3[Count];
-        var speeds = new float[Count];
-        for (int i = 0; i < Count; i++)
+        ModelMesh cube = GenMeshCube(1.0f, 1.0f, 1.0f);
+
+        // Each cube placed and turned at random, the turn before the place
+        Matrix4x4[] transforms = new Matrix4x4[MAX_INSTANCES];
+        for (int i = 0; i < MAX_INSTANCES; i++)
         {
-            Vector3 at;
-            do at = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * 2 - Vector3.One;
-            while (at.LengthSquared() > 1);
-            places[i] = at * 50;
-            axes[i] = Vector3.Normalize(new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - new Vector3(0.5f));
-            speeds[i] = 30 + random.NextSingle() * 90;
-        }
-        var transforms = new Matrix4x4[Count];
+            // C leaves the order of a call's arguments to the compiler, and GCC, which builds the
+            // raylib program this is measured against, works them out from the last, so the place
+            // along z is drawn first. The axis below is a literal, worked out in order.
+            float z = GetRandomValue(-50, 50), y = GetRandomValue(-50, 50), x = GetRandomValue(-50, 50);
+            Matrix4x4 translation = Matrix4x4.CreateTranslation(x, y, z);
+            Vector3 axis = Vector3.Normalize(new Vector3(GetRandomValue(0, 360), GetRandomValue(0, 360), GetRandomValue(0, 360)));
+            float angle = GetRandomValue(0, 180)*DEG2RAD;
+            Matrix4x4 rotation = Matrix4x4.CreateFromAxisAngle(axis, angle);
 
-        var camera = new Camera3D(new Vector3(0, 35, 120), Vector3.Zero, Vector3.UnitY, 45);
-        var time = 0f;
+            transforms[i] = rotation*translation;
+        }
+
+        // raylib's lighting_instancing.vs and lighting.fs, written in Slang for the model pass
+        Shader shader = LoadShader("resources/shaders/slang/lighting_instancing.slang");
+        int viewLoc = GetShaderLocation(shader, "viewPos");
+
+        // Ambient light level
+        int ambientLoc = GetShaderLocation(shader, "ambient");
+        SetShaderValue(shader, ambientLoc, new Vector4(0.2f, 0.2f, 0.2f, 1.0f));
+
+        CreateLight(LIGHT_DIRECTIONAL, new Vector3(50.0f, 50.0f, 0.0f), Vector3.Zero, Color.White, shader);
+
+        // The instanced copies are drawn red with the lighting shader
+        ModelMaterial matInstances = LoadMaterialDefault() with { Shader = shader, Color = Color.Red };
+
+        // The two single cubes are drawn blue with the default material
+        ModelMaterial matDefault = LoadMaterialDefault() with { Color = Color.Blue };
+
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
-            time += GetFrameTime();
             UpdateCamera(ref camera, CameraMode.Orbital);
-            for (int i = 0; i < Count; i++)
-                transforms[i] = Matrix4x4.CreateFromAxisAngle(axes[i], float.DegreesToRadians(speeds[i] * time)) * Matrix4x4.CreateTranslation(places[i]);
+
+            // The camera's position, which the highlights are seen from
+            SetShaderValue(shader, viewLoc, camera.Position);
 
             BeginDrawing();
-            ClearBackground(Color.Black);
-            BeginMode3D(camera);
-            DrawMeshInstanced(cube.Meshes[0], material, transforms);
-            EndMode3D();
 
-            DrawRectangle(0, 0, 400, 40, new Color(0, 0, 0, 160));
-            DrawText($"{Count} cubes, one instanced draw", 10, 10, 20, Color.RayWhite);
-            DrawFPS(GetScreenWidth() - 100, 10);
+                ClearBackground(Color.RayWhite);
+
+                BeginMode3D(camera);
+
+                    DrawMesh(cube, matDefault, Matrix4x4.CreateTranslation(-10.0f, 0.0f, 0.0f));
+
+                    DrawMeshInstanced(cube, matInstances, transforms);
+
+                    DrawMesh(cube, matDefault, Matrix4x4.CreateTranslation(10.0f, 0.0f, 0.0f));
+
+                EndMode3D();
+
+                DrawFPS(10, 10);
+
             EndDrawing();
         }
 
-        UnloadModel(cube);
         UnloadShader(shader);
+
         CloseWindow();
     }
 }

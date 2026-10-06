@@ -237,7 +237,7 @@ sun is. `UnloadEnvironmentMap` goes back to the light entities alone, or to draw
 
 Each `DrawModel` is a draw of its own, and the renderer gathers draws of the same mesh and material
 into one. Where a program draws thousands of copies itself, `DrawMeshInstanced` takes all their
-transforms at once, as the `shaders_mesh_instancing` example does with ten thousand turning cubes:
+transforms at once, as the `shaders_instance_hues` example does with ten thousand turning cubes:
 
 ```csharp
 for (int i = 0; i < Count; i++)
@@ -264,7 +264,7 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
   [`models_morph_and_layers`](../3DEngine.Examples/Models/ModelsMorphAndLayers.cs),
   [`models_skybox`](../3DEngine.Examples/Models/ModelsSkybox.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
-  [`shaders_mesh_instancing`](../3DEngine.Examples/Shaders/ShadersMeshInstancing.cs),
+  [`shaders_instance_hues`](../3DEngine.Examples/Shaders/ShadersInstanceHues.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
 - The cheatsheet's [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Text and fonts](text-and-fonts.md)

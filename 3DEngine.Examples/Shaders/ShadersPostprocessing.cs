@@ -1,3 +1,6 @@
+// raylib's shaders_postprocessing example, Copyright (c) 2015-2025 Ramon Santamaria (@raysan5), under the
+// zlib license, written again for the flat API.
+
 using System.Numerics;
 using static Engine.Engine3D;
 
@@ -5,58 +8,104 @@ namespace Engine.Examples;
 
 public static class ShadersPostprocessing
 {
+    private const int MAX_POSTPRO_SHADERS = 12;
+
+    private const int FX_GRAYSCALE = 0;
+
+    private static readonly string[] postproShaderText =
+    [
+        "GRAYSCALE",
+        "POSTERIZATION",
+        "DREAM_VISION",
+        "PIXELIZER",
+        "CROSS_HATCHING",
+        "CROSS_STITCHING",
+        "PREDATOR_VIEW",
+        "SCANLINES",
+        "FISHEYE",
+        "SOBEL",
+        "BLOOM",
+        "BLUR",
+    ];
+
+    // raylib's fragment shaders of the same names, written in Slang, in the order of the names above
+    private static readonly string[] postproShaderFile =
+    [
+        "grayscale", "posterization", "dream_vision", "pixelizer", "cross_hatching", "cross_stitching",
+        "predator", "scanlines", "fisheye", "sobel", "bloom", "blur",
+    ];
+
     public static void Run()
     {
-        InitWindow(800, 450, "[shaders] postprocessing");
+        const int screenWidth = 800;
+        const int screenHeight = 450;
 
-        var wave = LoadShader("resources/shaders/wave.slang");
-        var grayscale = LoadShader("resources/shaders/grayscale.slang");
-        // All the way to gray, which holds for every frame after.
-        SetShaderValue(grayscale, 0, 1f);
-        var scene = LoadRenderTexture(380, 300);
+        SetConfigFlags(ConfigFlags.Msaa4xHint);
 
-        var camera = new Camera3D(new Vector3(6, 4, 6), Vector3.Zero, Vector3.UnitY, 45);
-        var torus = LoadModel("resources/torus.obj");
+        InitWindow(screenWidth, screenHeight, "[shaders] postprocessing");
+
+        Camera3D camera = new(new Vector3(2.0f, 3.0f, 2.0f), new Vector3(0.0f, 1.0f, 0.0f), Vector3.UnitY, 45.0f, CameraProjection.Perspective);
+
+        Model model = LoadModel("resources/models/church.obj");
+        Texture2D texture = LoadTexture("resources/models/church_diffuse.png");
+        model.Materials[0].Texture = texture;
+
+        Vector3 position = Vector3.Zero;
+
+        // Every postprocessing shader, each a fragment stage drawn with the engine's vertex stage
+        Shader[] shaders = new Shader[MAX_POSTPRO_SHADERS];
+        for (int i = 0; i < MAX_POSTPRO_SHADERS; i++) shaders[i] = LoadShader($"resources/shaders/slang/{postproShaderFile[i]}.slang");
+
+        int currentShader = FX_GRAYSCALE;
+
+        RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
 
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
             UpdateCamera(ref camera, CameraMode.Orbital);
-            var time = (float)GetTime();
 
-            BeginDrawing();
-            ClearBackground(Color.RayWhite);
+            if (IsKeyPressed(Key.Right)) currentShader++;
+            else if (IsKeyPressed(Key.Left)) currentShader--;
 
-            // The scene, drawn once into an image.
-            BeginTextureMode(scene);
-            ClearBackground(Color.SkyBlue);
-            BeginMode3D(camera);
-            DrawModel(torus, Vector3.Zero, 1, Color.White);
-            DrawGrid(10, 1);
-            EndMode3D();
+            if (currentShader >= MAX_POSTPRO_SHADERS) currentShader = 0;
+            else if (currentShader < 0) currentShader = MAX_POSTPRO_SHADERS - 1;
+
+            BeginTextureMode(target);
+                ClearBackground(Color.RayWhite);
+
+                BeginMode3D(camera);
+                    DrawModel(model, position, 0.1f, Color.White);
+                    DrawGrid(10, 1.0f);
+                EndMode3D();
             EndTextureMode();
 
-            // The same image through two shaders.
-            SetShaderValue(wave, 0, time);
-            BeginShaderMode(wave);
-            DrawTexture(scene.Texture, 10, 60, Color.White);
-            EndShaderMode();
+            BeginDrawing();
+                ClearBackground(Color.RayWhite);
 
-            BeginShaderMode(grayscale);
-            DrawTexture(scene.Texture, 410, 60, Color.White);
-            EndShaderMode();
+                // The texture through the shader chosen, drawn upright as it is stored here
+                BeginShaderMode(shaders[currentShader]);
+                    DrawTextureRec(target.Texture, new Rectangle(0, 0, target.Texture.Width, target.Texture.Height), Vector2.Zero, Color.White);
+                EndShaderMode();
 
-            DrawText("wave.slang", 10, 370, 20, Color.DarkGray);
-            DrawText("grayscale.slang", 410, 370, 20, Color.DarkGray);
-            DrawText("One scene in a render texture, drawn through two Slang shaders", 10, 20, 20, Color.DarkGray);
+                // 2D shapes and text over the texture
+                DrawRectangle(0, 9, 580, 30, Fade(Color.LightGray, 0.7f));
+
+                DrawText("(c) Church 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, Color.Gray);
+                DrawText("CURRENT POSTPRO SHADER:", 10, 15, 20, Color.Black);
+                DrawText(postproShaderText[currentShader], 330, 15, 20, Color.Red);
+                DrawText("< >", 540, 10, 30, Color.DarkBlue);
+                DrawFPS(700, 15);
             EndDrawing();
         }
 
-        UnloadShader(wave);
-        UnloadShader(grayscale);
-        UnloadRenderTexture(scene);
-        UnloadModel(torus);
+        for (int i = 0; i < MAX_POSTPRO_SHADERS; i++) UnloadShader(shaders[i]);
+
+        UnloadTexture(texture);
+        UnloadModel(model);
+        UnloadRenderTexture(target);
+
         CloseWindow();
     }
 }

@@ -107,33 +107,38 @@ public static partial class Engine3D
     }
 
     /// <summary>Makes a box centered on the origin, with a normal and texture coordinates per face.</summary>
+    /// <remarks>
+    /// Its corners, their texture coordinates and normals are raylib's, face by face in raylib's
+    /// order (front, back, top, bottom, right, left), so a texture lies on each face as it does in
+    /// raylib, which puts the first row of an image along a face's lower edge.
+    /// </remarks>
     public static ModelMesh GenMeshCube(float width, float height, float length)
     {
-        var h = new Vector3(width, height, length) / 2;
-        // Each face as its normal and two axes along it, so its corners go around counterclockwise
-        // seen from outside.
-        (Vector3 N, Vector3 U, Vector3 V)[] faces =
+        float x = width / 2, y = height / 2, z = length / 2;
+        Vector3[] corners =
         [
-            (Vector3.UnitX, -Vector3.UnitZ, Vector3.UnitY), (-Vector3.UnitX, Vector3.UnitZ, Vector3.UnitY),
-            (Vector3.UnitY, Vector3.UnitX, -Vector3.UnitZ), (-Vector3.UnitY, Vector3.UnitX, Vector3.UnitZ),
-            (Vector3.UnitZ, Vector3.UnitX, Vector3.UnitY), (-Vector3.UnitZ, -Vector3.UnitX, Vector3.UnitY),
+            new(-x, -y, z), new(x, -y, z), new(x, y, z), new(-x, y, z),
+            new(-x, -y, -z), new(-x, y, -z), new(x, y, -z), new(x, -y, -z),
+            new(-x, y, -z), new(-x, y, z), new(x, y, z), new(x, y, -z),
+            new(-x, -y, -z), new(x, -y, -z), new(x, -y, z), new(-x, -y, z),
+            new(x, -y, -z), new(x, y, -z), new(x, y, z), new(x, -y, z),
+            new(-x, -y, -z), new(-x, -y, z), new(-x, y, z), new(-x, y, -z),
         ];
+        Vector2[] uvs =
+        [
+            new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+            new(1, 0), new(1, 1), new(0, 1), new(0, 0),
+            new(0, 1), new(0, 0), new(1, 0), new(1, 1),
+            new(1, 1), new(0, 1), new(0, 0), new(1, 0),
+            new(1, 0), new(1, 1), new(0, 1), new(0, 0),
+            new(0, 0), new(1, 0), new(1, 1), new(0, 1),
+        ];
+        Vector3[] normals = [Vector3.UnitZ, -Vector3.UnitZ, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitX, -Vector3.UnitX];
 
         var vertices = new ModelVertex[24];
         var indices = new uint[36];
-        for (int f = 0; f < 6; f++)
-        {
-            var (n, u, v) = faces[f];
-            for (int c = 0; c < 4; c++)
-            {
-                var su = c is 1 or 2 ? 1f : -1f;
-                var sv = c is 2 or 3 ? 1f : -1f;
-                var p = (n + u * su + v * sv) * h;
-                vertices[f * 4 + c] = new ModelVertex(p, n, new Vector2((su + 1) / 2, 1 - (sv + 1) / 2));
-            }
-            uint b = (uint)(f * 4);
-            new uint[] { b, b + 1, b + 2, b, b + 2, b + 3 }.CopyTo(indices, f * 6);
-        }
+        for (int i = 0; i < 24; i++) vertices[i] = new ModelVertex(corners[i], normals[i / 4], uvs[i]);
+        for (uint f = 0; f < 6; f++) new[] { 4 * f, 4 * f + 1, 4 * f + 2, 4 * f, 4 * f + 2, 4 * f + 3 }.CopyTo(indices, f * 6);
         return UploadMesh(vertices, indices);
     }
 
@@ -364,10 +369,12 @@ public static partial class Engine3D
         var targets = payload.Morphs;
         var positions = new Vector3[targets.Count][];
         var normals = new Vector3[]?[targets.Count];
+        // A normal's delta turns as the normals did, by the inverse of the transform turned over.
+        var normalMatrix = Matrix4x4.Invert(world, out var inverse) ? Matrix4x4.Transpose(inverse) : world;
         for (int t = 0; t < targets.Count; t++)
         {
             positions[t] = [.. targets[t].PositionDeltas.Select(d => Vector3.TransformNormal(d, world))];
-            normals[t] = targets[t].NormalDeltas is { } n ? [.. n.Select(d => Vector3.TransformNormal(d, world))] : null;
+            normals[t] = targets[t].NormalDeltas is { } n ? [.. n.Select(d => Vector3.TransformNormal(d, normalMatrix))] : null;
         }
         return skin with
         {
@@ -736,10 +743,13 @@ public static partial class Engine3D
     // hierarchy at draw time.
     private static ModelMesh Bake(SceneMeshPayload mesh, Matrix4x4 world)
     {
+        // Normals turn by the inverse of the transform turned over, so one stays across its surface
+        // where a node scales it more one way than another, and are kept of unit length.
+        var normalMatrix = Matrix4x4.Invert(world, out var inverse) ? Matrix4x4.Transpose(inverse) : world;
         var vertices = new ModelVertex[mesh.Positions.Length];
         for (int i = 0; i < vertices.Length; i++)
         {
-            var normal = mesh.Normals is { } normals && i < normals.Length ? Vector3.TransformNormal(normals[i], world) : Vector3.UnitY;
+            var normal = mesh.Normals is { } normals && i < normals.Length ? Vector3.TransformNormal(normals[i], normalMatrix) : Vector3.UnitY;
             var uv = mesh.Uv0 is { } uvs && i < uvs.Length ? uvs[i] : Vector2.Zero;
             vertices[i] = new ModelVertex(Vector3.Transform(mesh.Positions[i], world),
                 normal == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(normal), uv);

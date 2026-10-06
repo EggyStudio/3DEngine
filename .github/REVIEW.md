@@ -10,15 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `748c5abe`. A line at one sample is drawn by OpenGL's diamond rule, through the line
-rasterization extension's Bresenham mode where the device has it, and every untextured batch moves a
-256th of a pixel down to break a tie between rows as raylib's GL does, since GL counts rows up the
-screen and Vulkan down, a test holding both ties and the reference frames unchanged; the 45 core
-examples are 25 within 2% (`2b3c23a7`). A shape drawn in 3D leaves out its back faces until a
-program switches rlgl's culling, as decided, 2D shapes and text drawing both faces and a model the
-faces its material says, with a test, so `core_3d_camera_split_screen` is 8.8% apart from 99.4%, the
-rest a render texture's alpha that raylib blends by the color's factors, a line of the page with its
-reason (`9727caac`). The 33 textures examples are 26 within 2%, `textures_image_drawing` and
+Reviewed up to `5b03dfe1`. `MeasureTextEx` counted a spacing after every character where raylib
+counts one fewer, so centered text sat half a spacing left, and measures as raylib's does,
+`text_font_sdf` and `text_input_box` being raylib's own programs from here on; the 16 text examples
+are 8 within 2%, the rest the font, Latin-1 where raylib loads ASCII, or a TrueType font rasterized
+otherwise (`6fa69925`). A model drawn before a program makes a light is unlit as raylib's is,
+texture times color with its emission, decided here on 2026-10-06, the first light turning lighting
+on as before, six of the engine's own examples making a sun and a fill, and three reference frames
+redrawn with the reason. Measuring found two faults more: Assimp's gray default material of 0.6 on a
+file naming none, where raylib's is white, so a texture on it showed at six tenths, and
+`DrawPoint3D` drawn as a cross where raylib draws a short line along z, both mended with tests.
+`models_loading` is raylib's castle in place of a torus of this engine's own, and the 31 models
+examples are 24 within 2% from 12, `models_basic_voxel` from 65.9% among them (`5b03dfe1`). No
+verdict is open.
+
+Before them, a line at one sample was drawn by OpenGL's diamond rule, through the line rasterization
+extension's Bresenham mode where the device has it, and every untextured batch moves a 256th of a
+pixel down to break a tie between rows as raylib's GL does, since GL counts rows up the screen and
+Vulkan down, a test holding both ties and the reference frames unchanged; the 45 core examples are
+25 within 2% (`2b3c23a7`). A shape drawn in 3D leaves out its back faces until a program switches
+rlgl's culling, as decided, 2D shapes and text drawing both faces and a model the faces its material
+says, with a test, so `core_3d_camera_split_screen` is 8.8% apart from 99.4%, the rest a render
+texture's alpha that raylib blends by the color's factors, a line of the page with its reason
+(`9727caac`). The 33 textures examples are 26 within 2%, `textures_image_drawing` and
 `textures_bunnymark` being raylib's own programs from here on, the benchmark kept behind `--stress`,
 and the shim turns `UpdateCamera`'s orbit by the frame's time, which the linker's wrap does not
 reach inside raylib's own file (`748c5abe`). No verdict is open.
@@ -35,21 +49,6 @@ otherwise, a one-pixel line covering half of each of its two rows here and a qua
 frame, which is the driver's (`e5812611`). The back faces of 3D shapes culled by default as raylib's
 are was decided here on 2026-10-06, 2D shapes drawn on both faces as the page says, and models left
 to their materials.
-
-Before them, each written example was measured against raylib's own program drawn to the same frame:
-`build/raylib-bench/compare.py` builds raylib's example with `shim.c` wrapped around `EndDrawing`,
-which takes raylib's screenshot at the frame named, builds the examples `./e3d open` starts, takes
-the engine's picture as `capture-example.sh` does, compares the pair as the reference frames are
-compared, and writes the share into `3DEngine.Examples/measured.tsv` and the table's `Apart` column
-(`de6038fa`). The 45 shapes examples are measured, and the first faults are mended: thick outlines
-laid their pieces over each other where raylib's meet, so eight outline calls are bands that meet,
-lie outside the edge for a negative width as raylib's do, and draw circles in raylib's 36 pieces,
-held by `OutlineTests` sampling a grid a quarter of a pixel apart (`fe255b28`). 18 of the 45 are
-past 2%, from 21, and in four of them the shapes match raylib's pixel for pixel, the share being the
-font and raygui's panel drawn as ImGui, which the page keeps. Item 6 was a fault: a crate Bepu had
-marked to sleep slept through 3 a second given by any of four calls, and every wake clears the
-candidate flag and the count (`f2d3bcf4`), which settles it. Whether `GetFontDefault` returns
-raylib's own pixel font is the owner's, put to them.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -165,36 +164,32 @@ None open.
 
 ## Replies
 
-**Now 5, text measured.** `MeasureTextEx` counted a spacing after every character, where raylib's
-counts one fewer than the characters of the longest line, so centered text sat half a spacing to
-the left. It measures as raylib's now, and `text_sprite_fonts` is 0.7% apart from 8.0% and
-`text_font_spritefont` 0.0% from 3.4%, a font of an image drawn as raylib draws it. `text_font_sdf`
-and `text_input_box` were programs of this engine's own under raylib's names and are now raylib's,
-6.1% and 1.1% apart, the first's rest the atlas, which ImGui packs where raylib's
-`GenImageFontAtlas` would and the page keeps, and the docs quote the ports. Of the 16, 8 are past
-2%, all the font, Latin-1 where raylib loads ASCII (`text_unicode_ranges`), or a TrueType font
-rasterized otherwise. The suite: 1,380 passed, 0 failed, 1 skipped.
+**Now 5, shaders measured.** `shaders_mesh_instancing` and `shaders_postprocessing` were programs of
+this engine's own under raylib's names and are raylib's now, 0.2% and 3.1% apart from 99.8% and
+72.2%. The first draws raylib's ten thousand red cubes through `lighting_instancing.slang`, which
+keeps raylib's shader's way of lighting every copy as its mesh faces before the copy is turned, and
+draws the place of each cube along z first, since GCC, which builds the raylib program it is
+measured against, works out a call's arguments from the last. The second draws the church through
+raylib's twelve post shaders, each written in Slang working in raylib's texture coordinates, which
+run up the screen for its upright render texture, and `gl_FragCoord`'s rows, counted from the
+bottom. The engine's own programs keep their names, `shaders_instance_hues` and
+`shaders_scene_passes`, which the shaders guide quotes.
 
-**Now 5, models measured, and models drawn unlit with no light.** As the word above has it, a
-model drawn before a program makes a light, with no environment map, is drawn unlit, texture times
-color with the light its material gives off, encoded with no curve so a color near white keeps its
-shade, and the first light turns lighting on as before. The engine's own examples that leaned on
-the old light make a sun and a little light from all around (`textures_render_target`,
-`physics_boxes`, `models_animation`, `models_terrain`, `models_morph_and_layers`, `shaders_model`),
-`textures_mipmaps` stays unlit since it shows a texture, and the games, the README's first program
-and the first game's steps light their own already. Three reference frames are redrawn: the skinned
-arm and the morph and layer scene with that sun and fill, so their shading still shows the bend, and
-the render texture one unlit. The comparison page's line now says only the emission, and the
-lighting guide, the models guide, the cheatsheet and RENDERING.md say the rule.
+Two faults more. `GenMeshCube` made its faces in another order with each texture upright, where
+raylib's puts an image's first row along a face's lower edge, so a texture lay otherwise on every
+face. Its corners, texture coordinates and normals are raylib's now, which a test holds against a C
+program's print, and `shaders_texture_tiling` is 0.6% apart from 11.6% and `shaders_simple_mask` 3.0%
+from 15.7%, its torus still par_shapes' to come. And a file's mesh under a node that scales it more
+one way than another had its normals turned by the node's matrix rather than its inverse turned
+over, which leans them off their surface, mended with a test. raylib leaves such normals as long as
+one over the node's scale, 39.37 for `shaders_cel_shading`'s car in inches made meters, so its
+outline, pushed along them, is that much thicker there, and that is a line on the page. The
+`materials_and_shader` reference frame is drawn again for the cube's texture, now raylib's way up.
 
-Measuring found two faults more. Assimp gives a file that names no material, as an OBJ with no MTL,
-a gray material of 0.6, where raylib's default is white, so a texture set on it showed at six tenths
-of its colors, which a test now holds. And `DrawPoint3D` was a cross where raylib draws a line a tenth
-of a unit along z, and `DrawModelPoints` drew each vertex by it where raylib draws the model in point
-mode with both faces, which it does now. `models_loading` was the engine's own torus under raylib's
-name and is raylib's castle now, 0.7% apart. Of the 31, 24 are within 2% from 12, among them
-`models_basic_voxel` from 65.9%, `models_first_person_maze` from 54.9% and `models_yaw_pitch_roll`
-from 28.6%. The 7 past it are raygui's panel and the font, `models_point_rendering`'s cloud placed by
-C's `rand()`, which is glibc's and not raylib's, and `models_procedural_decals`' vertex counts, which
-the page keeps. The suite: 1,381 passed, 0 failed, 1 skipped, and the render tests pass on lavapipe
-under the validation layer.
+Of the 36, 25 are within 2%. Of the 11 past it, `shaders_simple_mask`'s torus waits on the generated
+meshes, `shaders_cel_shading` is the normals' line, `shaders_custom_uniform` and
+`shaders_ascii_rendering` sample a target through the bilinear filter the page keeps,
+`shaders_eratosthenes_sieve` rounds a pixel's index otherwise along one diagonal, and the rest are
+raygui's panel, the font and Phong ported. The next batch makes the meshes par_shapes makes for
+raylib, sphere, hemisphere, cylinder, cone, torus and knot, as par_shapes makes them. The suite: 1,383
+passed, 0 failed, 1 skipped, and the render tests pass on lavapipe under the validation layer.

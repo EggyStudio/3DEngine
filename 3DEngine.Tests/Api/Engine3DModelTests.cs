@@ -156,6 +156,21 @@ public sealed class Engine3DModelTests : IDisposable
         Vector3.Distance(mesh.Bounds.Max, max).Should().BeLessThan(0.01f);
     }
 
+    // The front and back faces raylib's GenMeshCube(0.8, 0.8, 0.8) makes, printed by a C program
+    // built against the raylib that build/raylib-bench/run.sh pins.
+    [Fact]
+    public void A_Cube_Has_Raylibs_Corners_And_Texture_Coordinates()
+    {
+        var mesh = GenMeshCube(0.8f, 0.8f, 0.8f);
+        _app.World.Resource<MeshStore>().TryGetData(mesh.Id, out var vertices, out _).Should().BeTrue();
+        (Vector3, Vector2)[] raylibs =
+        [
+            (new(-0.4f, -0.4f, 0.4f), new(0, 0)), (new(0.4f, -0.4f, 0.4f), new(1, 0)), (new(0.4f, 0.4f, 0.4f), new(1, 1)), (new(-0.4f, 0.4f, 0.4f), new(0, 1)),
+            (new(-0.4f, -0.4f, -0.4f), new(1, 0)), (new(-0.4f, 0.4f, -0.4f), new(1, 1)), (new(0.4f, 0.4f, -0.4f), new(0, 1)), (new(0.4f, -0.4f, -0.4f), new(0, 0)),
+        ];
+        vertices.Take(8).Select(v => (v.Position, v.Uv)).Should().Equal(raylibs, "a texture lies on each face as raylib lays it");
+    }
+
     [Fact]
     public void A_Knot_Faces_Outward_Without_A_Seam()
     {
@@ -222,6 +237,37 @@ public sealed class Engine3DModelTests : IDisposable
         var bounds = GetModelBoundingBox(LoadModel(path));
         bounds.Min.X.Should().BeApproximately(5, 1e-4f, "the node is 5 units along X");
         bounds.Min.Z.Should().BeApproximately(-1, 1e-4f, "a quarter turn about Y takes the corner at +X to -Z");
+    }
+
+    [Fact]
+    public void A_Node_That_Scales_One_Way_More_Keeps_Its_Normals_Across_Their_Surface()
+    {
+        // A triangle in the plane whose normal is halfway between X and Y, under a node four times
+        // as tall, which leans the surface toward Y and so its normal toward X.
+        var bytes = new List<byte>();
+        var n = MathF.Sqrt(0.5f);
+        foreach (var f in new float[] { 0, 0, 0, 1, -1, 0, 0, 0, 1, n, n, 0, n, n, 0, n, n, 0 }) bytes.AddRange(BitConverter.GetBytes(f));
+        var json = $$$"""
+            {"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[0]}],
+             "nodes":[{"mesh":0,"scale":[1,4,1]}],
+             "meshes":[{"primitives":[{"attributes":{"POSITION":0,"NORMAL":1}}]}],
+             "buffers":[{"byteLength":72,"uri":"data:application/octet-stream;base64,{{{Convert.ToBase64String(bytes.ToArray())}}}"}],
+             "bufferViews":[{"buffer":0,"byteLength":36},{"buffer":0,"byteOffset":36,"byteLength":36}],
+             "accessors":[{"bufferView":0,"componentType":5126,"count":3,"type":"VEC3","min":[0,-1,0],"max":[1,0,1]},
+                          {"bufferView":1,"componentType":5126,"count":3,"type":"VEC3"}]}
+            """;
+        var path = Path.Combine(_folder.Path, "stretched.gltf");
+        File.WriteAllText(path, json);
+
+        var model = LoadModel(path);
+        _app.World.Resource<MeshStore>().TryGetData(model.Meshes[0].Id, out var vertices, out _).Should().BeTrue();
+        var expected = Vector3.Normalize(new Vector3(4, 1, 0));
+        foreach (var vertex in vertices)
+        {
+            vertex.Normal.X.Should().BeApproximately(expected.X, 1e-3f, "the stretched surface faces more along X");
+            vertex.Normal.Y.Should().BeApproximately(expected.Y, 1e-3f);
+            vertex.Normal.Length().Should().BeApproximately(1, 1e-4f, "a normal stays of unit length");
+        }
     }
 
     // One triangle with a material of the given glTF alpha fields.

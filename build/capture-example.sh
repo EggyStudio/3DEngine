@@ -153,8 +153,8 @@ wait
 if [ "$shot" != "$out" ]; then
   case "$example" in
     ecs_animated_models|ecs_mesh_entities|ecs_physics|models_*|physics_boxes|scenes_level|\
-    shaders_auto_exposure|shaders_bloom|shaders_particles|shaders_compute_texture|shaders_mesh_instancing|shaders_model|\
-    shaders_postprocessing|shaders_shadowmap|shaders_basic_lighting|shaders_fog_rendering|shaders_normalmap_rendering|\
+    shaders_auto_exposure|shaders_bloom|shaders_particles|shaders_compute_texture|shaders_mesh_instancing|shaders_instance_hues|shaders_model|\
+    shaders_postprocessing|shaders_scene_passes|shaders_shadowmap|shaders_basic_lighting|shaders_fog_rendering|shaders_normalmap_rendering|\
     shaders_basic_pbr|shaders_shadowmap_rendering|shaders_vertex_displacement|shaders_lights_bloom|shaders_depth_rendering|\
     shaders_raymarching_rendering|shaders_model_shader|shaders_custom_uniform|shaders_cel_shading|shaders_hybrid_rendering) kind=lossy ;;
     *) kind=lossless ;;

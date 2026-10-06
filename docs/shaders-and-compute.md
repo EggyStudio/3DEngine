@@ -17,7 +17,7 @@ message in the log.
 A shader for shapes, textures and text imports the engine's module, which gives it the vertex's
 `VertexOutput` (position, texture coordinate and color), the texture being drawn as `boundTexture`,
 and four values the program sets by slot, read as `param(slot)`. It has a fragment stage, which
-colors each pixel. The `grayscale.slang` of the `shaders_postprocessing` example:
+colors each pixel. The `grayscale.slang` of the `shaders_scene_passes` example:
 
 ```slang
 // Mixes the picture toward its brightness. param(0).x is how far, from 0 (color) to 1 (gray).
@@ -165,7 +165,7 @@ instance, as `[[vk::location(9)]] float4 color : COLOR0` and `[[vk::location(10)
 TEXCOORD1`, and hands them to `transformModelVertex` before the instance, which then gives back a
 `ModelStreamsOutput`. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted
 from 0.
-The `instancing.slang` of the `shaders_mesh_instancing` example gives each of ten thousand cubes
+The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:
 
 ```slang
@@ -294,9 +294,11 @@ makes the smaller levels again from it.
 ## See also
 
 - Examples: [`shaders_postprocessing`](../3DEngine.Examples/Shaders/ShadersPostprocessing.cs),
+  [`shaders_scene_passes`](../3DEngine.Examples/Shaders/ShadersScenePasses.cs),
   [`shaders_model`](../3DEngine.Examples/Shaders/ShadersModel.cs),
   [`shaders_lightmap_rendering`](../3DEngine.Examples/Shaders/ShadersLightmapRendering.cs),
   [`shaders_mesh_instancing`](../3DEngine.Examples/Shaders/ShadersMeshInstancing.cs),
+  [`shaders_instance_hues`](../3DEngine.Examples/Shaders/ShadersInstanceHues.cs),
   [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs),
   [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs), and the shaders
   they load in [`resources/shaders`](../3DEngine.Examples/resources/shaders)
