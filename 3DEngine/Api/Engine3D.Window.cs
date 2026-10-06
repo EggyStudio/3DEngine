@@ -17,6 +17,7 @@ public static partial class Engine3D
     /// <remarks>
     /// <see cref="Stage.Startup"/> runs on the first <see cref="BeginDrawing"/>, so plugins and
     /// behaviors added to <see cref="GetApp"/> between this call and the first frame take part in it.
+    /// It seeds the random generator from the clock, as raylib's does (<see cref="SetRandomSeed"/>).
     /// </remarks>
     /// <exception cref="InvalidOperationException">A window is open already.</exception>
     public static void InitWindow(int width, int height, string title)
@@ -31,6 +32,8 @@ public static partial class Engine3D
         _eventsPumped = false;
         _frameTimeTakenAt = 0;
         _lastFrameEnd = Stopwatch.GetTimestamp();
+        // Seeded from the clock's seconds, as raylib's is, unless the run names a seed.
+        SetRandomSeed(RunMode.Seed() ?? (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
     }
 
     /// <summary>Runs <see cref="Stage.Cleanup"/>, closes the window and frees what the app holds.</summary>

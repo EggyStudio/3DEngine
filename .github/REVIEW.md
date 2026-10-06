@@ -10,16 +10,22 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `de6038fa`. Each written example is measured against raylib's own program drawn to
+Reviewed up to `f2d3bcf4`. Each written example is measured against raylib's own program drawn to
 the same frame: `build/raylib-bench/compare.py` builds raylib's example with `shim.c` wrapped around
-`EndDrawing`, which takes raylib's screenshot at the frame named, the engine's picture is
-`capture-example.sh`'s, a pair is compared as the reference frames are, and the share goes into
-`3DEngine.Examples/measured.tsv` and the table's `Apart` column, with `--samples` or `E3D_SAMPLES`
-setting the samples a window is drawn with where its program asks for none. The 45 shapes examples
-are measured, 24 within the reference frames' 2% and 21 past it, up to 39.2% for
-`shapes_top_down_lights`, driven by a click here where raylib's program has none, and each of the 21
-is taken down next, the largest first, to a fault mended or a line of the comparison page
-(`de6038fa`). No verdict is open.
+`EndDrawing`, which takes raylib's screenshot at the frame named, builds the examples `./e3d open`
+starts, takes the engine's picture as `capture-example.sh` does, compares the pair as the reference
+frames are compared, and writes the share into `3DEngine.Examples/measured.tsv` and the table's
+`Apart` column (`de6038fa`). The 45 shapes examples are measured, and the first faults are mended:
+thick outlines laid their pieces over each other where raylib's meet, so eight outline calls are
+bands that meet, lie outside the edge for a negative width as raylib's do, and draw circles in
+raylib's 36 pieces, held by `OutlineTests` sampling a grid a quarter of a pixel apart (`fe255b28`).
+18 of the 45 are past 2%, from 21, and in four of them the shapes match raylib's pixel for pixel,
+the share being the font and raygui's panel drawn as ImGui, which the page keeps. Item 6 was a
+fault: a crate Bepu had marked to sleep slept through 3 a second given by any of four calls, and
+every wake clears the candidate flag and the count (`f2d3bcf4`), which settles it. Two things wait:
+raylib's random generator and a fixed frame time and seed for both programs of a pair are the next
+batch, and whether `GetFontDefault` returns raylib's own pixel font is the owner's, put to them. No
+verdict is open.
 
 Before them, a game's own text box places the input method's window beside it with
 `SetTextInputArea`, as an ImGui field does, read back from SDL on `text_input_box` run hidden
@@ -103,14 +109,6 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **A resting body given speed moves** (SHARED.md). BevyCSharp found a body that has rested long
-   enough to be Bepu's candidate for sleep put to sleep at the start of the next step though
-   `SetVelocity` or `ApplyImpulse` gave it speed, since Bepu decides sleep from the step before and
-   `Awake = true` on an awake body clears nothing. `PhysicsWorld.Bodies.cs` sets `Awake` the same
-   way, so a test lets a crate rest past the steps the sleep threshold asks, gives it 3 a second by
-   each call, and reads it moving in the next step. Where it sleeps instead, the body's candidacy is
-   cleared where its velocity is set, its `Activity`'s candidate flag and count of steps under the
-   threshold, and the test holds it.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -165,50 +163,25 @@ None open.
 
 ## Replies
 
-The 45 shapes examples are measured: 24 within the reference frames' 2%, and 21 past it, from 2.1%
-to 39.2%, `shapes_top_down_lights` the furthest, driven by a click here before its picture where
-raylib's program has no input, then `shapes_outlines_testbed` at 15.7%, `shapes_pie_chart` at 12.9%
-and `shapes_digital_clock` at 11.2%. Text drawn in ImGui's font where raylib draws its own, which
-the comparison page keeps, is part of every share. Each of the 21 is taken down next, the largest
-first, to a fault mended or a line of the page. The suite: 1,346 passed, 0 failed, 1 skipped.
+**Now 5, the pairs measured on the same steps.** `GetRandomValue`, `LoadRandomSequence` and the noise
+images draw from raylib's own generator now, xoshiro128** started from the seed by SplitMix64 as
+`rprand.h` has it, so `SetRandomSeed` gives raylib's values, which a test holds against numbers a C
+program printed from the pinned `rprand.h`. `InitWindow` seeds it from the clock as raylib's does, or
+from `--seed N` or `E3D_SEED`. `compare.py` gives both programs of a pair a sixtieth of a second a
+frame and the same seed, this engine's by `E3D_FRAME_TIME` and `E3D_SEED` and raylib's by the shim
+around `BeginDrawing`, `GetFrameTime`, `GetTime` and `InitWindow`, time moving on as a frame begins
+on both sides, and captures this engine's program with none of the input `capture-example.sh` gives
+some examples, as raylib's is given none.
 
-**Now 5, the shapes taken down, and Now 6.** The thick outlines laid their pieces over each other,
-where raylib's meet without overlapping, so `shapes_outlines_testbed`'s half clear color showed
-darker where two pieces crossed. `DrawTriangleLinesEx` is now the band between the triangle and the
-one made smaller about its incenter, `DrawRectangleRoundedLinesEx` lies inside the edge as the
-pinned raylib's does, and `DrawCircleSectorLinesEx` and `DrawRingLinesEx` are their arcs' bands with
-each radius or end clipped to its own half of the slice. Those four and `DrawRectangleLinesEx`,
-`DrawPolyLinesEx`, `DrawEllipseLinesEx` and `DrawCircleLinesEx` lie outside the edge for a negative
-width, as raylib's do, the polygon's width measured across a side. Every circle and ellipse is drawn
-in 36 pieces, one each ten degrees as raylib draws them at any size, and an arc asked for fewer
-pieces than one a quarter turn, or a rounded corner asked for none, takes raylib's count that keeps
-it within half a pixel. `OutlineTests` samples what each outline records on a grid a quarter of a
-pixel apart and finds no point covered twice and none on the wrong side of the edge.
-
-`compare.py` now builds the examples `./e3d open` starts before it captures, since the first run of
-this batch measured a build older than the checkout. `shapes_outlines_thickness` is 2.0% apart from
-4.4%, `shapes_outlines_testbed` 14.5% from 15.7%, the rest of it raygui's panel drawn as ImGui, and
-18 of the 45 are past 2%, from 21. Of those, the shapes of `shapes_pie_chart`,
-`shapes_ring_drawing`, `shapes_circle_sector_drawing` and `shapes_rounded_rectangle_drawing` match
-raylib's pixel for pixel, and their shares are the font and the panel, which the page and each
-row's state keep. `shapes_digital_clock` adds the wall clock. `shapes_double_pendulum`,
-`shapes_polygon_lines`, `shapes_starfield_effect` and `shapes_ball_physics` move by `GetFrameTime`,
-and the last two and `shapes_top_down_lights` place things by `GetRandomValue`, which here is .NET's
-generator, so `SetRandomSeed` gives other numbers than raylib's. The next batch carries raylib's
-generator, xoshiro128** seeded through SplitMix64, and runs both programs of a pair at a fixed frame
-time and seed, so those pairs are measured on the same steps. `shapes_top_down_lights` read 94%
-once, fully lit, its light masks drawn before the first frame lost, which six runs since have not
-repeated, and it is watched.
-
-The font is the largest single part of nearly every share. raylib's is 512 words of bits and 224
-widths in `rtext.c`, under raylib's zlib license, and `GetFontDefault` could return it while ImGui
-keeps ProggyClean, which would take most text in the 216 to raylib's pixels. The page records the
-present choice, one atlas for both, so this waits for a word here before it is done.
-
-Now 6 held: a crate resting on a floor until Bepu marked it a candidate, then given 3 a second by
-`SetLinearVelocity`, `ApplyImpulse`, `SetAngularVelocity` or `ApplyAngularImpulse`, slept through
-the next step in all four. Every wake in `PhysicsWorld.Bodies.cs`, `.Joints.cs`, `.Contacts.cs` and
-`.Vehicles.cs` now clears the candidate flag and the count of steps under the threshold, and the
-four pass. The suite: 1,376 passed, 0 failed, 1 skipped.
-
-Shared: a woken Bepu body's candidacy cleared at every wake, beside the setters BevyCSharp mended.
+The shapes past 2% are 12 of 45 from 18. `shapes_top_down_lights` is 0.6% apart from 26.9%,
+`shapes_double_pendulum` 0.8% from 5.1%, `shapes_polygon_lines` 1.1% from 4.4%,
+`shapes_starfield_effect` 1.7% from 3.6% and `shapes_ball_physics` 1.7% from 2.4%, their bullets,
+stars and boxes where raylib's are. Of the 12, eight are the font and raygui's panel drawn as ImGui,
+their shapes matching raylib's (`shapes_outlines_testbed`, `shapes_pie_chart`, `shapes_hilbert_curve`,
+`shapes_ring_drawing`, `shapes_rounded_rectangle_drawing`, `shapes_recursive_tree`,
+`shapes_circle_sector_drawing`, `shapes_easings_testbed`), `shapes_digital_clock` adds the wall
+clock, and three ask for four samples, `shapes_splines_drawing`, `shapes_math_sine_cosine` and
+`shapes_rlgl_triangle`, where the edges and lines resolve otherwise. A line of one pixel at a whole
+coordinate covers half of each of its two rows here, as a rectangle of width 1 does under GL's
+rules, and a quarter in raylib's frame from OpenGL on the same GPU, which is the driver's and is not
+taken further. The next module is core. The suite: 1,378 passed, 0 failed, 1 skipped.

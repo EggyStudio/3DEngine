@@ -159,6 +159,14 @@ public sealed class CliTests : IDisposable
             RunMode.Samples(4).Should().Be(1);
             RunMode.Arguments = () => ["game", "--samples", "2"];
             RunMode.Samples(4).Should().Be(2, "a flag is read before the variable");
+
+            RunMode.Arguments = () => ["game"];
+            RunMode.Variable = _ => null;
+            RunMode.Seed().Should().BeNull("a window seeds the generator from the clock unless asked");
+            RunMode.Variable = name => name == "E3D_SEED" ? "7" : null;
+            RunMode.Seed().Should().Be(7u);
+            RunMode.Arguments = () => ["game", "--seed", "42"];
+            RunMode.Seed().Should().Be(42u, "a flag is read before the variable");
         }
         finally
         {

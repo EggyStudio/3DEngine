@@ -5,11 +5,14 @@
 
 raylib's example is built from the checkout build/examples-table.py reads, of the commit
 build/raylib-bench/run.sh pins, against raylib built as run.sh builds it, with its SDL3 backend,
-and with PLATFORM_DESKTOP defined so a shader example loads its GLSL 330 shaders. shim.c beside it is
-linked around EndDrawing, so the program writes the frame it draws at the number this engine's
-capture of the example was taken at, by build/capture-example.sh, and ends. Both are drawn with no
-window shown, raylib's through SDL's offscreen video driver and OpenGL, this engine's offscreen
-through Vulkan.
+and with PLATFORM_DESKTOP defined so a shader example loads its GLSL 330 shaders. shim.c beside it
+is linked in, so the program writes the frame it draws at the number this engine's capture of the
+example was taken at, by build/capture-example.sh, and ends. Both programs count each frame a
+sixtieth of a second and seed raylib's generator alike, this engine's by E3D_FRAME_TIME and E3D_SEED
+and raylib's by the shim, so what moves by the frame's time or is placed at random draws the same
+frame in each. This engine's capture is given none of the input capture-example.sh gives some
+examples, as raylib's program is given none. Both are drawn with no window shown, raylib's through
+SDL's offscreen video driver and OpenGL, this engine's offscreen through Vulkan.
 
 A pair is compared as 3DEngine.Tests' reference frames are: a pixel is apart when one of its
 channels differs by more than 24 of 255, and the share of pixels apart is written for the example
@@ -28,6 +31,10 @@ WORK = os.path.join(HERE, "work")
 OUT = os.path.join(WORK, "compare")
 MEASURED = os.path.join(ROOT, "3DEngine.Examples", "measured.tsv")
 STEP = 24
+# Each frame's seconds and the random seed both programs of a pair are given, so a program that moves
+# by its frame time or places things at random draws the same frame in each.
+FRAME_TIME = 1 / 60
+SEED = 20261006
 
 sys.dont_write_bytecode = True
 _spec = importlib.util.spec_from_file_location("examples_table", os.path.join(ROOT, "build", "examples-table.py"))
@@ -60,17 +67,19 @@ def build_raylib(source):
 
 
 def build_example(source, library, example):
-    """raylib's program of the example, with the shim around EndDrawing, or None where it does not build."""
+    """raylib's program of the example, with the shim linked in, or None where it does not build."""
     binary = os.path.join(OUT, "bin", example["name"])
     os.makedirs(os.path.dirname(binary), exist_ok=True)
-    if os.path.exists(binary):
+    shim = os.path.join(HERE, "shim.c")
+    if os.path.exists(binary) and os.path.getmtime(binary) > os.path.getmtime(shim):
         return binary
     sdl = sdl_library()
     folder = os.path.join(source, "examples", example["group"])
     built = subprocess.run(["gcc", "-O2", "-DPLATFORM_DESKTOP", os.path.join(source, example["path"]), os.path.join(HERE, "shim.c"),
                             "-I", os.path.join(source, "src"), "-I", folder, "-I", os.path.join(source, "src", "external"),
                             library, f"-L{sdl}", "-l:libSDL3.so", "-lm", "-ldl", "-lpthread", f"-Wl,-rpath,{sdl}",
-                            "-Wl,--wrap=EndDrawing", "-o", binary], capture_output=True, text=True)
+                            "-Wl,--wrap=BeginDrawing,--wrap=EndDrawing,--wrap=GetFrameTime,--wrap=GetTime,--wrap=InitWindow", "-o", binary],
+                           capture_output=True, text=True)
     if built.returncode != 0:
         print(f"  {example['name']}: raylib's program does not build here: {built.stderr.strip().splitlines()[-1] if built.stderr.strip() else ''}")
         return None
@@ -81,8 +90,10 @@ def capture_ours(name):
     """This engine's capture of the example, as the README's is taken, and the frame it was taken at."""
     picture = os.path.join(OUT, name + ".ours.png")
     frame_file = os.path.join(OUT, name + ".frame")
-    # One sample a pixel unless the program asks for more, as raylib draws.
-    environment = dict(os.environ, CAPTURE_FRAME_FILE=frame_file, E3D_SAMPLES="1")
+    # One sample a pixel unless the program asks for more, as raylib draws, and no input, as raylib's
+    # program is given none.
+    environment = dict(os.environ, CAPTURE_FRAME_FILE=frame_file, CAPTURE_NO_INPUT="1", E3D_SAMPLES="1",
+                       E3D_FRAME_TIME=repr(FRAME_TIME), E3D_SEED=str(SEED))
     subprocess.run([os.path.join(ROOT, "build", "capture-example.sh"), name, picture, "--offscreen"], check=True,
                    env=environment, cwd=ROOT, stdout=subprocess.DEVNULL)
     with open(frame_file, encoding="utf-8") as text:
@@ -94,7 +105,8 @@ def capture_theirs(binary, example, frame):
     picture = os.path.join(OUT, example["name"] + ".raylib.png")
     if os.path.exists(picture):
         os.remove(picture)
-    environment = dict(os.environ, SDL_VIDEO_DRIVER="offscreen", SHOT_FRAME=str(frame), SHOT_PATH=picture)
+    environment = dict(os.environ, SDL_VIDEO_DRIVER="offscreen", SHOT_FRAME=str(frame), SHOT_PATH=picture,
+                       SHOT_FRAME_TIME=repr(FRAME_TIME), SHOT_SEED=str(SEED))
     folder = os.path.join(table.raylib_source(table.raylib_commit(), None), "examples", example["group"])
     try:
         subprocess.run([binary], cwd=folder, env=environment, timeout=120, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

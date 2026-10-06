@@ -51,6 +51,7 @@ Every program built on the engine reads these flags, or the variables beside the
 | `--frames N` | `E3D_FRAMES=N` | closes after N frames |
 | `--frame-time S` | `E3D_FRAME_TIME=S` | each frame advances time by S seconds and reads no clock, so a run steps alike on every machine |
 | `--samples N` | `E3D_SAMPLES=N` | a window is drawn with N samples a pixel where the program asks for none |
+| `--seed N` | `E3D_SEED=N` | the random generator is seeded with N as the window opens, in place of the clock |
 
 `./e3d open <example>` starts an example with `--serve` and any of the others, and the skill at
 `.claude/skills/e3d-cli/SKILL.md` covers driving it.

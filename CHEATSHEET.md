@@ -74,7 +74,7 @@ void SetProfileValue(string name, double value);         // A number of the prog
 double GetProfileAverage(string name);                   // A profiled average in milliseconds, as "work" or "gpu.models"
 void DrawProfileWindow();                                // The frame profile in an ImGui window
 
-void SetRandomSeed(uint seed);                           // Seed the generator, so a run's random values repeat
+void SetRandomSeed(uint seed);                           // Seed raylib's generator, so a run's random values repeat
 int GetRandomValue(int min, int max);                    // A whole number from min to max, both included
 int[] LoadRandomSequence(int count, int min, int max);   // That many different values from the range, empty when it holds fewer
 ```

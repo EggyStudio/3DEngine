@@ -29,6 +29,7 @@ a program given by its path, serving, and returns once it is ready:
 | `--frames N` | `E3D_FRAMES=N` | Closes after N frames |
 | `--frame-time S` | `E3D_FRAME_TIME=S` | Advances time by S seconds a frame and reads no clock, so a capture of something moving is the same on every machine |
 | `--samples N` | `E3D_SAMPLES=N` | Draws a window with N samples a pixel where its program asks for none, 1 drawing as raylib does |
+| `--seed N` | `E3D_SEED=N` | Seeds the random generator with N as the window opens, in place of the clock, so a program that sets no seed places things alike each run |
 
 A hidden or offscreen run draws everything a visible one does, so captures show the game as a
 player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close

@@ -75,6 +75,34 @@ public class ColorRandomTests
         wide.Should().BeInRange(int.MinValue, int.MaxValue);
     }
 
+    // The values raylib's rprand.h gives for these seeds, printed by a C program that includes it
+    // from the checkout build/raylib-bench/run.sh pins.
+    [Fact]
+    public void A_Seed_Gives_The_Values_Raylib_Gives_For_It()
+    {
+        SetRandomSeed(42);
+        Enumerable.Range(0, 5).Select(_ => GetRandomValue(0, 1000)).Should().Equal(797, 798, 285, 181, 433);
+        SetRandomSeed(42);
+        Enumerable.Range(0, 5).Select(_ => GetRandomValue(-50, 50)).Should().Equal(-22, -17, -3, -46, 38);
+        SetRandomSeed(7);
+        LoadRandomSequence(6, 1, 10).Should().Equal(5, 4, 3, 9, 1, 7);
+    }
+
+    [Fact]
+    public void A_Seed_Gives_Raylibs_Noise_Images()
+    {
+        SetRandomSeed(42);
+        var noise = GenImageWhiteNoise(4, 2, 0.5f);
+        Enumerable.Range(0, 8).Select(i => GetImageColor(noise, i % 4, i / 4) == Color.White ? 1 : 0)
+            .Should().Equal(1, 1, 1, 1, 1, 1, 0, 0);
+
+        // Each cell's point is darkest, so the four points raylib places are where the image is black.
+        SetRandomSeed(3);
+        var cells = GenImageCellular(16, 16, 8);
+        foreach (var (x, y) in new[] { (4, 0), (15, 5), (6, 8), (15, 10) })
+            GetImageColor(cells, x, y).R.Should().Be(0, $"raylib places a point at {x}, {y}");
+    }
+
     [Fact]
     public void A_Sequence_Holds_Different_Values_In_The_Range()
     {

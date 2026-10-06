@@ -21,8 +21,12 @@ cd "$(dirname "$0")/.."
 
 ./e3d open "$example" "$mode" --quiet
 
-# Examples that show a start screen or nothing until they are given input.
-case "$example" in
+# Examples that show a start screen or nothing until they are given input. CAPTURE_NO_INPUT leaves
+# each as it starts, as build/raylib-bench/compare.py measures them against raylib's programs, which
+# are given none.
+driven="$example"
+[ -z "${CAPTURE_NO_INPUT:-}" ] || driven=""
+case "$driven" in
   core_input_gamepad)
     # The console pad, which input.axis connects, with a stick pushed, a trigger half down and
     # a face button held through the capture.

@@ -224,7 +224,8 @@ def build(commit, examples, triage, written):
         "raylib's own program built from its source and drawn to the same frame, a pixel apart "
         "where a channel differs by more than 24 of 255, as the reference frames are compared, "
         "which `build/raylib-bench/compare.py` measures with each program at one sample a pixel "
-        "unless it asks for more.")
+        "unless it asks for more, a sixtieth of a second a frame, the same random seed and no "
+        "input.")
     out.append("")
     out.append(
         f"**{total['written']} written, {total['part']} written in part, {total['can']} can be written, "

@@ -37,9 +37,11 @@ public static partial class Engine3D
     }
 
     /// <summary>Makes an image of white and black pixels, white with the chance <paramref name="factor"/>.</summary>
+    /// <remarks>Each pixel draws a value from 0 to 99, as raylib's does, so a seed gives raylib's image.</remarks>
     public static Image GenImageWhiteNoise(int width, int height, float factor)
     {
-        return Generate(width, height, (_, _) => RandomSingle() < factor ? Color.White : Color.Black);
+        var white = (int)(factor * 100f);
+        return Generate(width, height, (_, _) => GetRandomValue(0, 99) < white ? Color.White : Color.Black);
     }
 
     /// <summary>
@@ -72,8 +74,12 @@ public static partial class Engine3D
         tileSize = Math.Max(1, tileSize);
         int across = Math.Max(1, width / tileSize), down = Math.Max(1, height / tileSize);
         var seeds = new Vector2[across * down];
+        // Its down before its across, as raylib draws them, so a seed gives raylib's cells.
         for (int i = 0; i < seeds.Length; i++)
-            seeds[i] = new Vector2(i % across * tileSize + RandomBelow(tileSize), i / across * tileSize + RandomBelow(tileSize));
+        {
+            var y = i / across * tileSize + GetRandomValue(0, tileSize - 1);
+            seeds[i] = new Vector2(i % across * tileSize + GetRandomValue(0, tileSize - 1), y);
+        }
 
         return Generate(width, height, (x, y) =>
         {

@@ -8,9 +8,9 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// The flags are <c>--serve</c>, <c>--headless</c>, <c>--offscreen</c>, <c>--hidden</c>,
-/// <c>--frames N</c>, <c>--frame-time SECONDS</c> and <c>--samples N</c>, and the variables
+/// <c>--frames N</c>, <c>--frame-time SECONDS</c>, <c>--samples N</c> and <c>--seed N</c>, and the variables
 /// <c>E3D_SERVE</c>, <c>E3D_HEADLESS</c>, <c>E3D_OFFSCREEN</c>, <c>E3D_HIDDEN</c> (any of <c>1</c>,
-/// <c>true</c>, <c>yes</c>, <c>on</c>), <c>E3D_FRAMES</c>, <c>E3D_FRAME_TIME</c> and <c>E3D_SAMPLES</c>. A flag or variable only turns a mode on, so a
+/// <c>true</c>, <c>yes</c>, <c>on</c>), <c>E3D_FRAMES</c>, <c>E3D_FRAME_TIME</c>, <c>E3D_SAMPLES</c> and <c>E3D_SEED</c>. A flag or variable only turns a mode on, so a
 /// program that sets <see cref="Config.Serve"/> itself stays served.
 /// </para>
 /// <para>
@@ -67,6 +67,22 @@ internal static class RunMode
         var at = Array.IndexOf(arguments, "--samples");
         if (at >= 0 && at + 1 < arguments.Length && int.TryParse(arguments[at + 1], out var given)) return Math.Clamp(given, 1, 8);
         return int.TryParse(Variable("E3D_SAMPLES"), out var variable) ? Math.Clamp(variable, 1, 8) : fallback;
+    }
+
+    /// <summary>
+    /// The seed <see cref="Engine3D.InitWindow"/> gives the random generator, from <c>--seed N</c>
+    /// or <c>E3D_SEED</c>, or <c>null</c> for the clock's, as raylib's takes it.
+    /// </summary>
+    /// <remarks>
+    /// build/raylib-bench/compare.py gives a pair's two programs the same, so what they place at
+    /// random is placed alike.
+    /// </remarks>
+    public static uint? Seed()
+    {
+        var arguments = Arguments();
+        var at = Array.IndexOf(arguments, "--seed");
+        if (at >= 0 && at + 1 < arguments.Length && uint.TryParse(arguments[at + 1], out var given)) return given;
+        return uint.TryParse(Variable("E3D_SEED"), out var variable) ? variable : null;
     }
 
     /// <summary><c>offscreen</c>, <c>headless</c>, <c>hidden</c> or <c>window</c>.</summary>
