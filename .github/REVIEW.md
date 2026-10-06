@@ -193,3 +193,21 @@ that ended at its first await, never joined, and they run on the pool now. The o
 headless app leaves is the runtime's file watcher, started on the `source/` folder beside the tests,
 whose FSEvents stream macOS lets go of after the watcher is disposed, which neither join reaches and
 the series will show. The 5 MB stays. The suite: 1,407 passed, 0 failed, 1 skipped.
+
+**Now 3, particles meet the depth of the frame.** `ParticleEmitter.Collision`, off unless set, has
+an emitter's particles bounce off what the window shows, keeping `Bounce` of their speed into the
+surface, or end there. Where one collides, the particle node first draws the window's shadow casters
+into a depth at half its size with the occlusion pass's `DrawDepth`, and binds it with its view as
+the step's second set, one a frame in flight, the white texture standing in with collision off in
+frames none collides, and the mode and bounce ride in the capacity word's spare high bits, since the
+push block is full. A particle collides where it crossed the surface's plane, its normal from the
+depth beside it turned to the camera, from the camera's side in the step. The first test, how far it
+sat behind the surface at its pixel against how far it moved, let sparks through the ground at the
+example's grazing angle, which a probe of the ground found, and one passing behind a post still
+crosses nothing. A test throws particles at a wall from three emitters, the ones that collide with
+nothing hidden behind it, the bouncing ones back in front and the ending ones gone, and the particle
+and render tests pass on lavapipe under the validation layer. `shaders_particles` throws sparks that
+now bounce off the ground and the stones, living longer and glowing a little to the end so they are
+seen landing, and its capture throws them before it is taken. Measured on it, the depth costs the
+render graph 0.45 ms of CPU against 0.43 without, and the GPU 0.035 ms against 0.026. Colliding with
+the physics world stays a limit in TODO.md. The suite: 1,408 passed, 0 failed, 1 skipped.

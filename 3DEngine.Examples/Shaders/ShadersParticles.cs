@@ -10,8 +10,9 @@ public static class ShadersParticles
         InitWindow(800, 450, "[shaders] particles");
 
         // A campfire at night: flames that glow through bloom, puffs of smoke that rise, slow and
-        // spread, lit by the fire's lamp and the moon, and sparks that leap from it on Space. Each
-        // is an emitter whose particles a compute shader steps.
+        // spread, lit by the fire's lamp and the moon, and sparks that leap from it on Space and
+        // bounce off the ground and the stones. Each is an emitter whose particles a compute shader
+        // steps.
         SetBloom(0.7f);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.6f)), new Color(120, 140, 190), 0.35f);
         var lamp = CreatePointLight(new Vector3(0, 1, 0), new Color(255, 150, 70), 5, range: 12);
@@ -69,17 +70,20 @@ public static class ShadersParticles
         {
             MaxParticles = 300,
             Emitting = false,
-            Life = 1.4f,
-            LifeVariation = 0.5f,
+            Life = 2.6f,
+            LifeVariation = 0.3f,
             Velocity = new Vector3(0, 5, 0),
             Spread = 40,
             SpeedVariation = 0.5f,
             Gravity = new Vector3(0, -6, 0),
             StartSize = 0.07f,
-            EndSize = 0.02f,
+            EndSize = 0.04f,
             StartColor = new Color(255, 220, 140),
-            EndColor = new Color(255, 90, 20, 0),
+            // Still glowing a little as they die, so they are seen landing and hopping.
+            EndColor = new Color(255, 70, 10, 110),
             Intensity = 6,
+            Collision = ParticleCollision.Bounce,
+            Bounce = 0.4f,
         });
 
         var ground = LoadModelFromMesh(GenMeshPlane(30, 30, 1, 1));

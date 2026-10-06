@@ -120,6 +120,22 @@ public struct ParticleEmitter
     public int Burst;
 
     /// <summary>
+    /// What the particles do where they meet the scene, bounce off or end there, which they do not
+    /// unless set.
+    /// </summary>
+    /// <remarks>
+    /// They meet the depth of the window's meshes that cast shadows, drawn at half its size through
+    /// its camera before they are stepped, so they pass through what the window does not show, what
+    /// is off screen or behind something, and through shapes drawn without a model. A particle
+    /// meets a surface where it has gone behind it by no more than it moved in the frame, so one
+    /// faster than a surface is thick may pass through it.
+    /// </remarks>
+    public ParticleCollision Collision;
+
+    /// <summary>The share of its speed into a surface a particle keeps, back out of it, when it bounces, from 0 to 1.</summary>
+    public float Bounce;
+
+    /// <summary>
     /// A small white fountain: 500 particles, 50 a second, living two seconds, rising at 3 units
     /// a second within 20 degrees of up and falling back, shrinking from 0.2 to 0.05 and fading out.
     /// </summary>
@@ -140,5 +156,6 @@ public struct ParticleEmitter
         EndColor = Color.White with { A = 0 },
         Intensity = 1,
         Blend = ParticleBlend.Additive,
+        Bounce = 0.5f,
     };
 }

@@ -2272,16 +2272,22 @@ struct Engine.Parent
 enum Engine.ParticleBlend : int
   Additive = 0
   Alpha = 1
+enum Engine.ParticleCollision : int
+  Bounce = 1
+  Die = 2
+  None = 0
 struct Engine.ParticleEmitter
   Color EndColor
   Color StartColor
   ParticleBlend Blend
+  ParticleCollision Collision
   Texture2D Texture
   Vector3 Gravity
   Vector3 Velocity
   bool BlendFrames
   bool Emitting
   bool Lit
+  float Bounce
   float Drag
   float EndSize
   float Intensity

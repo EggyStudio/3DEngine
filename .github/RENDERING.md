@@ -260,7 +260,17 @@ radius with its velocity turned within the cone and its speed and life varied by
 and a seed of the frame and the emitter. The first thread writes the colors, sizes and brightness
 into the header, which the draw reads, so nothing of an emitter is written from the CPU while a
 frame in flight reads it. A particle alive falls by gravity and slows by the emitter's drag, as an
-exponential of the step, whose bits ride in the push block's last word. The draw
+exponential of the step, whose bits ride in the push block's last word. Where an emitter collides,
+the node first draws the window's meshes that cast shadows into a depth at half the window's size,
+with `DrawDepth`, as ambient occlusion draws its own, and binds it with the view it was drawn
+through as the step's second set, one written each frame in flight, and the white texture with
+collision off in frames none collides. The step finds a particle's pixel in that depth, the
+surface there in the world through the inverse view-projection, and its normal from the texels
+beside it, turned toward the camera, and a particle that crossed that surface's plane from the
+camera's side in the step bounces off it, keeping the share of its speed into it that rides with
+the collision's two bits in the capacity word's spare high bits, or ends there. A particle already
+behind a surface, as one passing behind a post, crosses nothing. On `shaders_particles` the depth
+costs the graph about 0.03 ms of CPU and the GPU about 0.01 ms. The draw
 (`particles.slang`) imports the model pass, binds its material set with the emitter's texture as
 the base color, white without one, and the window's lights set as sets 0 and 1 and the particles
 as set 2, and draws six vertices an instance, a square facing the camera's eye that `eyeInWorld`

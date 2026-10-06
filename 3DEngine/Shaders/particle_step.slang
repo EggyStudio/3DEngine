@@ -4,6 +4,8 @@
 // within a cone and its speed and life varied by a hash of its slot and the frame. Every other
 // particle alive ages, falls under gravity and is slowed by drag, and one past its life is left dead. The first
 // thread also writes what the draw reads of the emitter into the header before the particles.
+// An emitter that collides finds where each particle lands in the window's depth of the scene and,
+// where it has gone behind a surface it was in front of, bounces it off or ends its life there.
 
 struct Particle
 {
@@ -28,9 +30,30 @@ struct StepPush
     float4 endColor;
     // x, y: the size at birth and at death. z: how bright an unlit one is. w: how it is drawn, as particles.slang unpacks it.
     float4 look;
-    // x: the first slot to start a particle in. y: how many. z: how many slots there are. w: the bits of the drag.
+    // x: the first slot to start a particle in. y: how many. z: how many slots there are, below
+    // 2^21, then two bits of what a particle does at the scene's depth and eight of the share of
+    // its speed a bounce keeps. w: the bits of the drag.
     uint4 counts;
 };
+
+// The view the scene's depth was drawn through, and whether one is bound this frame, in depth.x.
+struct ParticleView
+{
+    float4x4 viewProjection;
+    float4x4 inverseViewProjection;
+    float4 depth;
+};
+
+// The depth of the window's meshes that cast shadows, at half its size, which particles meet.
+[[vk::binding(0, 1)]]
+Sampler2D sceneDepth;
+
+[[vk::binding(1, 1)]]
+ConstantBuffer<ParticleView> view;
+
+// What a particle does where it meets the scene's depth, as ParticleCollision numbers it.
+static const uint Bounce = 1;
+static const uint Die = 2;
 
 [[vk::push_constant]]
 ConstantBuffer<StepPush> push;
@@ -57,11 +80,60 @@ float3 within(float3 around, float angle, float u, float v)
     return normalize(side * (r * cos(phi)) + up * (r * sin(phi)) + axis * z);
 }
 
+// A point of the depth texture, at uv and the depth it holds, back in world space.
+float3 surfaceAt(float2 uv, float depth)
+{
+    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, depth, 1.0));
+    return world.xyz / world.w;
+}
+
+// Where a particle moving from was to now meets the depth of the scene: the surface behind it at
+// its pixel, its normal facing the camera, and how far behind the surface's plane the particle is,
+// or false where it did not cross that plane from the camera's side this step. A particle that
+// was already behind the surface, as one passing behind a post, crosses nothing.
+bool meets(float3 was, float3 now, out float3 surface, out float3 normal, out float behind)
+{
+    surface = now;
+    normal = float3(0, 1, 0);
+    behind = 0.0;
+    float4 clip = mul(view.viewProjection, float4(now, 1.0));
+    if (clip.w <= 0.0)
+        return false;
+    float3 ndc = clip.xyz / clip.w;
+    float2 uv = ndc.xy * 0.5 + 0.5;
+    if (any(uv < 0.0) || any(uv > 1.0) || ndc.z > 1.0)
+        return false;
+    float depth = sceneDepth.SampleLevel(uv, 0).r;
+    // Nothing drawn there, or the particle still in front of what is.
+    if (depth >= 1.0 || ndc.z <= depth)
+        return false;
+    surface = surfaceAt(uv, depth);
+
+    // The surface's normal from the texels beside it, turned toward the camera, which the point
+    // on the near plane at the same pixel lies toward.
+    uint width, height;
+    sceneDepth.GetDimensions(width, height);
+    float2 texel = 1.0 / float2(width, height);
+    float2 right = uv + float2(texel.x, 0.0);
+    float2 down = uv + float2(0.0, texel.y);
+    float3 across = surfaceAt(right, sceneDepth.SampleLevel(right, 0).r) - surface;
+    float3 along = surfaceAt(down, sceneDepth.SampleLevel(down, 0).r) - surface;
+    float3 n = cross(across, along);
+    if (dot(n, n) < 1e-12)
+        return false;
+    normal = normalize(n);
+    if (dot(normal, surfaceAt(uv, 0.0) - surface) < 0.0)
+        normal = -normal;
+
+    behind = -dot(now - surface, normal);
+    return dot(was - surface, normal) >= 0.0 && behind > 0.0;
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
 {
-    uint capacity = push.counts.z;
+    uint capacity = push.counts.z & 0x1FFFFFu;
     if (id.x == 0)
     {
         slots[0] = push.startColor;
@@ -108,6 +180,27 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // Drag takes a share of the speed away each second, by the exponential so a long step does
     // not turn it back.
     float3 moved = (velocityLife.xyz + push.gravityAndLife.xyz * seconds) * exp(-asfloat(push.counts.w) * seconds);
-    slots[at] = float4(positionAge.xyz + moved * seconds, age);
+    float3 now = positionAge.xyz + moved * seconds;
+
+    uint collision = (push.counts.z >> 21u) & 3u;
+    float3 surface, normal;
+    float behind;
+    if (collision != 0u && view.depth.x > 0.5 && meets(positionAge.xyz, now, surface, normal, behind))
+    {
+        if (collision == Die)
+        {
+            slots[at + 1] = float4(0, 0, 0, 0);
+            return;
+        }
+        // The speed into the surface turned back by the share kept, and the speed along it kept,
+        // the particle lifted back out to the surface's plane where it went through, a hair in front.
+        float bounce = float((push.counts.z >> 23u) & 255u) / 255.0;
+        float into = dot(moved, normal);
+        if (into < 0.0)
+            moved -= (1.0 + bounce) * into * normal;
+        now += normal * (behind + 0.01);
+    }
+
+    slots[at] = float4(now, age);
     slots[at + 1] = float4(moved, velocityLife.w);
 }

@@ -82,6 +82,12 @@ case "$driven" in
     ./e3d command input.move 460 260 --quiet
     ./e3d command input.drag Left -100 30 30 --quiet
     ;;
+  shaders_particles)
+    # The smoke left to rise, then sparks thrown, which the shorter wait below catches coming down
+    # onto the ground and bouncing off it.
+    ./e3d command frames.wait 150 --quiet
+    ./e3d command input.key Space 1 --quiet
+    ;;
   shapes_rlgl_color_wheel)
     # A color picked near the top of the wheel, where raylib's screenshot picks one.
     ./e3d command input.click 405 104 --quiet
@@ -127,6 +133,8 @@ frames=150
 case "$example" in
   physics_boxes|ecs_physics|ecs_behaviors|models_stress|textures_bunnymark) frames=300 ;;
   models_skybox) frames=380 ;;
+  # A second and a half after the sparks were thrown, as they land.
+  shaders_particles) frames=90 ;;
   # Three quarters of the way round its orbit, where raylib's screenshot reads the text.
   text_3d_drawing) frames=450 ;;
 esac

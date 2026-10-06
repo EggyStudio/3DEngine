@@ -769,7 +769,7 @@ A `ParticleEmitter` holds the rate, the life, the velocity and the cone it is sp
 drag, the size and color at birth and at death, how bright an unlit one is, whether lights light
 it, whether it adds its light or is laid over by alpha, and a texture each particle is drawn as in
 place of a round dot, whole or as a sheet of frames played through over its life, cut or blended
-from one to the next. Its particles
+from one to the next, and whether they bounce off or end at the scene the window shows. Its particles
 are stepped by a compute shader and drawn after the window's meshes through its camera, and into
 a render texture through the camera of its `BeginMode3D`, and an entity with the component in the
 ECS is drawn the same way.

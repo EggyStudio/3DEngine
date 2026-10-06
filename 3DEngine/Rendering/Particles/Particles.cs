@@ -92,6 +92,12 @@ internal sealed class ParticleRenderer : IDisposable
     private readonly List<State> _drawn = [];
     private long _frame;
 
+    // The depth colliding particles meet, the window's meshes that cast shadows at half its size,
+    // made the first frame an emitter collides and again when the window's size changes, and let
+    // go, once no frame in flight reads it, the first frame none does.
+    private ShadowMap? _depth;
+    private readonly List<(long Frame, ShadowMap Depth)> _retiredDepths = [];
+
     /// <summary>Creates the renderer from <c>particles.slang</c>, compiled, whose third set holds the particles.</summary>
     public ParticleRenderer(ShaderProgram particles)
     {
@@ -105,8 +111,9 @@ internal sealed class ParticleRenderer : IDisposable
         _frame++;
         RetireOld();
         _drawn.Clear();
-        if (renderContext.Device is not GraphicsDevice { CanStepParticles: true } device) return;
+        if (renderContext.Device is not GraphicsDevice { CanStepParticles: true } device || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
         var frame = renderWorld.TryGet<RenderParticles>();
+        SetView(renderContext, renderWorld, device, textures, frame?.Emitters.Any(e => e.Emitter.Collision != ParticleCollision.None) == true);
         foreach (var (entity, emitter, position, burst) in frame?.Emitters ?? [])
         {
             var capacity = Math.Clamp(emitter.MaxParticles, 1, 1 << 20);
@@ -139,7 +146,7 @@ internal sealed class ParticleRenderer : IDisposable
                 Look = new Vector4(Math.Max(0, emitter.StartSize), Math.Max(0, emitter.EndSize), Math.Max(0, emitter.Intensity), Flags(emitter)),
                 First = (uint)state.Next,
                 Count = (uint)born,
-                Capacity = (uint)capacity,
+                Capacity = (uint)capacity | (uint)emitter.Collision << 21 | (uint)(Math.Clamp(emitter.Bounce, 0, 1) * 255 + 0.5f) << 23,
                 Drag = Math.Max(0, emitter.Drag),
             };
             state.Next = (state.Next + born) % capacity;
@@ -272,6 +279,42 @@ internal sealed class ParticleRenderer : IDisposable
             Release(_retired[i].State);
             _retired.RemoveAt(i);
         }
+        for (int i = _retiredDepths.Count - 1; i >= 0; i--)
+        {
+            if (_frame - _retiredDepths[i].Frame < GpuTextures.RetireFrames) continue;
+            _retiredDepths[i].Depth.Dispose();
+            _retiredDepths.RemoveAt(i);
+        }
+    }
+
+    // Draws the depth colliding particles meet and hands the step the view it was drawn through,
+    // or, with none colliding or no window view, the white texture and collision off, so the step's
+    // set always holds an image it can sample.
+    private void SetView(RenderContext renderContext, RenderWorld renderWorld, GraphicsDevice device, GpuTextures textures, bool colliding)
+    {
+        if (colliding && renderWorld.TryGet<WindowView>() is { } view && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
+            && renderWorld.TryGet<ModelRenderer>() is { } models && Matrix4x4.Invert(view.ViewProjection, out var inverse))
+        {
+            var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
+            if (_depth is null || _depth.Extent != extent)
+            {
+                if (_depth is not null) _retiredDepths.Add((_frame, _depth));
+                _depth = device.CreateDepthTarget(extent.Width, extent.Height);
+                device.Name(_depth.DepthView.Image, "Particle collision depth");
+            }
+            models.DrawDepth(renderContext, renderWorld, _depth);
+            device.SetParticleView(_depth.DepthView, _depth.Sampler,
+                new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = Vector4.UnitX });
+            return;
+        }
+
+        if (_depth is not null)
+        {
+            _retiredDepths.Add((_frame, _depth));
+            _depth = null;
+        }
+        var (white, sampler) = textures.ViewFor(device, 0);
+        device.SetParticleView(white, sampler, default);
     }
 
     private static void Release(State state)
@@ -287,6 +330,10 @@ internal sealed class ParticleRenderer : IDisposable
         foreach (var state in _emitters.Values) Release(state);
         _retired.Clear();
         _emitters.Clear();
+        foreach (var (_, depth) in _retiredDepths) depth.Dispose();
+        _retiredDepths.Clear();
+        _depth?.Dispose();
+        _depth = null;
         foreach (var pipeline in _pipelines.Values) pipeline.Dispose();
         _pipelines.Clear();
         _particleLayout?.Dispose();

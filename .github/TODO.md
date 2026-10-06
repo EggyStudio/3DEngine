@@ -120,14 +120,17 @@ physics, text and fonts, audio, audio streams and waves, and files
   lights, and each render target that draws meshes draws the map again for its own camera, with the
   point and spot lights chosen for the window's.
 
-- **Particles collide with nothing.** A `ParticleEmitter` gives off particles a compute shader
-  steps, drawn as round dots or the program's texture facing the camera after the meshes, into the
-  window, into each render texture meshes are drawn into and into a reflection probe's capture, lit
-  or giving off their own light, with a rate, a burst, a life, a velocity in a cone, gravity, drag,
-  a size and color that change over each life, and a sheet's frames played through, cut or blended
-  (RENDERING.md §3). A render texture drawn only in 2D has no camera to draw them through, those
-  laid over by alpha are sorted from the window's camera in a render texture too, and none collides
-  with the world.
+- **Particles collide with what the window shows, and nothing else.** A `ParticleEmitter` gives off
+  particles a compute shader steps, drawn as round dots or the program's texture facing the camera
+  after the meshes, into the window, into each render texture meshes are drawn into and into a
+  reflection probe's capture, lit or giving off their own light, with a rate, a burst, a life, a
+  velocity in a cone, gravity, drag, a size and color that change over each life, a sheet's frames
+  played through, cut or blended, and bouncing off or ending at the window's depth of the meshes
+  that cast shadows (RENDERING.md §3). A render texture drawn only in 2D has no camera to draw them
+  through, those laid over by alpha are sorted from the window's camera in a render texture too, and
+  a particle passes through what the window does not show, off screen or behind something, and
+  through shapes drawn without a model. Colliding with the physics world stays a limit, since raylib
+  has no particles and a game that needs that much has bodies.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
   vignette, FXAA, depth of field and motion blur.** Any of them draws the window's scene into a

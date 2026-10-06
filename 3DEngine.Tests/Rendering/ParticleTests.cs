@@ -268,6 +268,40 @@ public sealed class ParticleTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Particles_Thrown_At_A_Wall_Pass_Through_It_Bounce_Back_Off_It_Or_End_There_As_Their_Emitter_Says()
+    {
+        Open();
+        var wall = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // Red particles from in front of a gray wall, thrown straight at it, through it on the
+        // left, bouncing off it in the middle and ending at it on the right.
+        ParticleEmitter Thrown(ParticleCollision collision) => Cloud(new Color(255, 40, 20)) with
+        {
+            MaxParticles = 60, Radius = 0.3f, StartSize = 0.25f, EndSize = 0.25f,
+            Velocity = new Vector3(0, 0, -3), Spread = 0, Collision = collision, Bounce = 0.5f,
+        };
+        var through = CreateParticleEmitter(new Vector3(-1.5f, 0, 1.5f), Thrown(ParticleCollision.None));
+        var bounced = CreateParticleEmitter(new Vector3(0, 0, 1.5f), Thrown(ParticleCollision.Bounce));
+        var ended = CreateParticleEmitter(new Vector3(1.5f, 0, 1.5f), Thrown(ParticleCollision.Die));
+        foreach (var emitter in new[] { through, bounced, ended }) EmitParticles(emitter, 60);
+
+        // About a second and a half, by when every one has reached the wall, 0.8 seconds away.
+        var frame = Capture(90, () => DrawModelEx(wall, new Vector3(0, 0, -1), Vector3.UnitY, 0, new Vector3(8, 6, 0.2f), new Color(70, 70, 70)));
+        int Red(int middle)
+        {
+            var count = 0;
+            for (int y = 40; y < 80; y++)
+                for (int x = middle - 14; x <= middle + 14; x++)
+                    if (GetImageColor(frame, x, y) is var c && c.R > c.G + 100) count++;
+            return count;
+        }
+
+        Red(44).Should().Be(0, "particles that collide with nothing went through the wall and are hidden behind it");
+        Red(80).Should().BeGreaterThan(20, "particles that bounce came back off the wall and are in front of it");
+        Red(116).Should().Be(0, "particles that end at the wall are gone");
+        UnloadModel(wall);
+    }
+
+    [NeedsVulkanFact]
     public void Of_Two_Clouds_Laid_Over_By_Alpha_The_Nearer_Is_In_Front_Whichever_Was_Made_First()
     {
         Open();
