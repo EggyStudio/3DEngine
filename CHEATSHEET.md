@@ -600,14 +600,14 @@ bool IsModelValid(Model model);                                            // Wh
 BoundingBox GetModelBoundingBox(Model model);                              // The box around a model
 
 ModelMesh GenMeshCube(float width, float height, float length);            // A box
-ModelMesh GenMeshSphere(float radius, int rings, int slices);              // A sphere
+ModelMesh GenMeshSphere(float radius, int rings, int slices);              // A sphere, its poles on z as raylib's
 ModelMesh GenMeshPlane(float width, float length, int resX, int resZ);     // A flat rectangle facing up
 ModelMesh GenMeshPoly(int sides, float radius);                            // A flat regular polygon facing up
-ModelMesh GenMeshHemiSphere(float radius, int rings, int slices);          // The upper half of a sphere, closed
+ModelMesh GenMeshHemiSphere(float radius, int rings, int slices);          // The upper half of a sphere, open below
 ModelMesh GenMeshCylinder(float radius, float height, int slices);         // A closed cylinder standing on y 0
 ModelMesh GenMeshCone(float radius, float height, int slices);             // A cone standing on y 0
-ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of size / 2, standing, its tube radius of that thick
-ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot scaled by size, its tube radius / 10
+ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides);   // A ring of size / 2, standing, its tube radius of that thick, radSeg around the tube
+ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides);    // A trefoil knot scaled by size, its tube radius / 10, radSeg around the tube
 ModelMesh GenMeshHeightmap(Image heightmap, Vector3 size);                 // Terrain raised by each pixel's brightness
 ModelMesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);               // A maze, walls where pixels are white
 bool ExportMesh(ModelMesh mesh, string fileName);                          // Write a Wavefront OBJ file of its shape

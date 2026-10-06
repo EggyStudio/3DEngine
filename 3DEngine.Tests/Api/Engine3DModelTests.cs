@@ -134,7 +134,8 @@ public sealed class Engine3DModelTests : IDisposable
         "sphere" => GenMeshSphere(1, 16, 32),
         "cube" => GenMeshCube(2, 2, 2),
         "plane" => GenMeshPlane(2, 2, 4, 4),
-        _ => GenMeshKnot(1, 2, 128, 16),
+        // Sixteen pieces around the tube and 128 along it, as raylib's models_mesh_generation asks
+        _ => GenMeshKnot(1, 2, 16, 128),
     };
 
     [Theory]
@@ -169,6 +170,41 @@ public sealed class Engine3DModelTests : IDisposable
             (new(-0.4f, -0.4f, -0.4f), new(1, 0)), (new(-0.4f, 0.4f, -0.4f), new(1, 1)), (new(0.4f, 0.4f, -0.4f), new(0, 1)), (new(0.4f, -0.4f, -0.4f), new(0, 0)),
         ];
         vertices.Take(8).Select(v => (v.Position, v.Uv)).Should().Equal(raylibs, "a texture lies on each face as raylib lays it");
+    }
+
+    // Every 37th corner of each of raylib's par_shapes meshes, which a C program printed from the
+    // raylib build/raylib-bench/run.sh pins, matched in the corners of the triangles here.
+    [Theory]
+    [InlineData("sphere")]
+    [InlineData("hemisphere")]
+    [InlineData("cylinder")]
+    [InlineData("cone")]
+    [InlineData("torus")]
+    [InlineData("knot")]
+    public void A_Rounded_Mesh_Has_Raylibs_Corners_Normals_And_Texture_Coordinates(string shape)
+    {
+        var mesh = shape switch
+        {
+            "sphere" => GenMeshSphere(1, 16, 16),
+            "hemisphere" => GenMeshHemiSphere(1, 16, 16),
+            "cylinder" => GenMeshCylinder(1, 2, 16),
+            "cone" => GenMeshCone(1, 2, 16),
+            "torus" => GenMeshTorus(0.25f, 2, 16, 32),
+            _ => GenMeshKnot(1, 2, 16, 128),
+        };
+        _app.World.Resource<MeshStore>().TryGetData(mesh.Id, out var vertices, out var indices).Should().BeTrue();
+        var raylibs = File.ReadLines(Path.Combine(AppContext.BaseDirectory, "Api", "raylib-shapes.txt"))
+            .Where(line => !line.StartsWith('#')).Select(line => line.Split(' ')).Where(f => f[0] == shape).ToList();
+
+        raylibs.Should().NotBeEmpty();
+        foreach (var f in raylibs)
+        {
+            var corner = vertices[indices[int.Parse(f[1])]];
+            var n = f.Skip(2).Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            Vector3.Distance(corner.Position, new Vector3(n[0], n[1], n[2])).Should().BeLessThan(1e-4f, $"corner {f[1]} of the {shape} is where raylib's is");
+            Vector3.Distance(corner.Normal, new Vector3(n[3], n[4], n[5])).Should().BeLessThan(1e-3f, $"corner {f[1]} of the {shape} faces as raylib's");
+            Vector2.Distance(corner.Uv, new Vector2(n[6], n[7])).Should().BeLessThan(1e-4f, $"corner {f[1]} of the {shape} takes raylib's texture coordinate");
+        }
     }
 
     [Fact]

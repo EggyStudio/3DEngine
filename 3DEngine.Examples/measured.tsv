@@ -48,7 +48,7 @@ core_window_letterbox	2.6
 core_window_should_close	0.7
 core_world_screen	2.1
 models_animation_blend_custom	3.2
-models_animation_blending	6.4
+models_animation_blending	6.5
 models_animation_gpu_skinning	1.3
 models_animation_timing	6.8
 models_basic_voxel	0.8
@@ -68,12 +68,12 @@ models_loading_m3d	1.1
 models_loading_vox	1.4
 models_mesh_generation	0.5
 models_mesh_picking	0.8
-models_mesh_uv_painting	9.1
+models_mesh_uv_painting	9.0
 models_orthographic_projection	1.3
 models_point_rendering	3.5
-models_procedural_decals	3.4
+models_procedural_decals	3.0
 models_rlgl_solar_system	1.0
-models_rotating_cube	1.4
+models_rotating_cube	0.2
 models_tesseract_view	0.0
 models_textured_cube	0.8
 models_waving_cubes	0.2
@@ -88,7 +88,7 @@ shaders_deferred_rendering	1.7
 shaders_depth_rendering	0.5
 shaders_depth_writing	0.2
 shaders_eratosthenes_sieve	4.3
-shaders_fog_rendering	1.8
+shaders_fog_rendering	1.0
 shaders_game_of_life	6.8
 shaders_hot_reloading	0.9
 shaders_hybrid_rendering	0.2
@@ -107,7 +107,7 @@ shaders_rlgl_compute	0.7
 shaders_rounded_rectangle	1.0
 shaders_shadowmap_rendering	2.4
 shaders_shapes_textures	0.7
-shaders_simple_mask	3.0
+shaders_simple_mask	0.9
 shaders_spotlight_rendering	0.8
 shaders_texture_outline	1.8
 shaders_texture_rendering	1.2

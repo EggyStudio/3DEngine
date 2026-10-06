@@ -25,41 +25,81 @@ public static partial class Engine3D
     }
 
     /// <summary>Makes a cylinder standing on the XZ plane, from y 0 up to <paramref name="height"/>, closed at both ends.</summary>
+    /// <remarks>
+    /// It is par_shapes' cylinder of eight stacks and its two disks, turned and placed as raylib
+    /// turns them, so a texture lies on it as on raylib's, every point of the top cap at texture
+    /// coordinate 0 and of the bottom at 0.95. Fewer than three slices make no mesh, as raylib's.
+    /// </remarks>
     public static ModelMesh GenMeshCylinder(float radius, float height, int slices)
     {
-        var mesh = new MeshBuilder();
-        mesh.Lathe([(radius, 0, Vector2.UnitX, 1), (radius, height, Vector2.UnitX, 0)], slices);
-        mesh.Cap(radius, 0, slices, up: false);
-        mesh.Cap(radius, height, slices, up: true);
-        return mesh.Upload();
+        if (slices < 3) return default;
+        var cylinder = ParShape.Parametric((u, v) =>
+        {
+            var theta = (float)(v * 2 * ParShape.Pi);
+            return new Vector3(MathF.Sin(theta), MathF.Cos(theta), u);
+        }, slices, 8);
+        cylinder.Scale(radius, radius, height);
+        cylinder.Rotate(-MathF.PI / 2, Vector3.UnitX);
+
+        var capTop = ParShape.Disk(radius, slices, Vector3.UnitZ);
+        capTop.FillUvs(0);
+        capTop.Rotate(-MathF.PI / 2, Vector3.UnitX);
+        capTop.Rotate(float.DegreesToRadians(90), Vector3.UnitY);
+        capTop.Translate(0, height, 0);
+
+        var capBottom = ParShape.Disk(radius, slices, -Vector3.UnitZ);
+        capBottom.FillUvs(0.95f);
+        capBottom.Rotate(MathF.PI / 2, Vector3.UnitX);
+        capBottom.Rotate(float.DegreesToRadians(-90), Vector3.UnitY);
+
+        cylinder.Merge(capTop);
+        cylinder.Merge(capBottom);
+        return cylinder.Upload();
     }
 
     /// <summary>Makes a cone standing on the XZ plane, its base at y 0 and its tip at <paramref name="height"/>.</summary>
+    /// <remarks>
+    /// It is par_shapes' cone of eight stacks and a disk below it, turned as raylib turns them, so a
+    /// texture lies on it as on raylib's, every point of the base at texture coordinate 0.95. Fewer
+    /// than three slices make no mesh, as raylib's.
+    /// </remarks>
     public static ModelMesh GenMeshCone(float radius, float height, int slices)
     {
-        // The side's normal leans from the radius toward the tip by the slope of the side.
-        var slope = Vector2.Normalize(new Vector2(height, radius));
-        var mesh = new MeshBuilder();
-        mesh.Lathe([(radius, 0, slope, 1), (0, height, slope, 0)], slices);
-        mesh.Cap(radius, 0, slices, up: false);
-        return mesh.Upload();
+        if (slices < 3) return default;
+        var cone = ParShape.Parametric((u, v) =>
+        {
+            var r = 1.0f - u;
+            var theta = (float)(v * 2 * ParShape.Pi);
+            return new Vector3(r * MathF.Sin(theta), r * MathF.Cos(theta), u);
+        }, slices, 8);
+        cone.Scale(radius, radius, height);
+        cone.Rotate(-MathF.PI / 2, Vector3.UnitX);
+        cone.Rotate(MathF.PI / 2, Vector3.UnitY);
+
+        var capBottom = ParShape.Disk(radius, slices, -Vector3.UnitZ);
+        capBottom.FillUvs(0.95f);
+        capBottom.Rotate(MathF.PI / 2, Vector3.UnitX);
+
+        cone.Merge(capBottom);
+        return cone.Upload();
     }
 
-    /// <summary>Makes the upper half of a sphere, its flat side on the XZ plane and closed.</summary>
+    /// <summary>Makes the upper half of a sphere, its flat side on the XZ plane and open, its pole on the Z axis.</summary>
+    /// <remarks>
+    /// It is par_shapes' hemisphere, which raylib draws, so a texture lies on it as on raylib's.
+    /// Fewer than three rings or slices make no mesh, as raylib's.
+    /// </remarks>
     public static ModelMesh GenMeshHemiSphere(float radius, int rings, int slices)
     {
-        rings = Math.Max(1, rings);
-        var profile = new (float Radius, float Y, Vector2 Normal, float V)[rings + 1];
-        for (int r = 0; r <= rings; r++)
+        if (rings < 3 || slices < 3) return default;
+        radius = MathF.Max(0, radius);
+        var hemisphere = ParShape.Parametric((u, v) =>
         {
-            // From the equator up to the pole.
-            var (sin, cos) = MathF.SinCos(MathF.PI / 2 * r / rings);
-            profile[r] = (radius * cos, radius * sin, new Vector2(cos, sin), 1 - (float)r / rings);
-        }
-        var mesh = new MeshBuilder();
-        mesh.Lathe(profile, slices);
-        mesh.Cap(radius, 0, slices, up: false);
-        return mesh.Upload();
+            float phi = (float)(u * ParShape.Pi), theta = (float)(v * ParShape.Pi);
+            return new Vector3(MathF.Cos(theta) * MathF.Sin(phi), MathF.Sin(theta) * MathF.Sin(phi), MathF.Cos(phi));
+        }, slices, rings);
+        hemisphere.Scale(radius, radius, radius);
+        return hemisphere.Upload();
     }
 
     /// <summary>
@@ -69,30 +109,34 @@ public static partial class Engine3D
     /// </summary>
     /// <remarks>
     /// The radius is held from 0.1 to 1, and fewer than three segments or sides make no mesh, as
-    /// raylib's. Its surface is par_shapes' torus, which raylib draws, a ring of 1 scaled by half
-    /// the size.
+    /// raylib's. It is par_shapes' torus, which raylib draws, a ring of 1 scaled by half the size,
+    /// so a texture lies on it as on raylib's, <paramref name="radSeg"/> pieces around the tube and
+    /// <paramref name="sides"/> around the ring.
     /// </remarks>
     public static ModelMesh GenMeshTorus(float radius, float size, int radSeg, int sides)
     {
         if (sides < 3 || radSeg < 3) return default;
         radius = Math.Clamp(radius, 0.1f, 1.0f);
 
-        var scale = size / 2;
-        var mesh = new MeshBuilder();
-        mesh.Tube(t =>
+        var torus = ParShape.Parametric((u, v) =>
         {
-            var (sin, cos) = MathF.SinCos(t);
-            var outward = new Vector3(cos, sin, 0);
-            return (outward * scale, outward, Vector3.UnitZ);
-        }, radius * scale, radSeg, sides);
-        return mesh.Upload();
+            float theta = (float)(u * 2 * ParShape.Pi), phi = (float)(v * 2 * ParShape.Pi);
+            var beta = 1 + radius * MathF.Cos(phi);
+            return new Vector3(MathF.Cos(theta) * beta, MathF.Sin(theta) * beta, MathF.Sin(phi) * radius);
+        }, radSeg, sides);
+        torus.Scale(size / 2, size / 2, size / 2);
+        return torus.Upload();
     }
 
     /// <summary>
     /// Makes a trefoil knot as raylib's does: par_shapes' knot, about 0.8 across from its center
     /// and a tube of <paramref name="radius"/> / 10, scaled by <paramref name="size"/>.
     /// </summary>
-    /// <remarks>The radius is held from 0.5 to 3, and fewer than three segments or sides make no mesh, as raylib's.</remarks>
+    /// <remarks>
+    /// The radius is held from 0.5 to 3, and fewer than three segments or sides make no mesh, as
+    /// raylib's, which has <paramref name="radSeg"/> pieces around the tube and
+    /// <paramref name="sides"/> along the knot.
+    /// </remarks>
     public static ModelMesh GenMeshKnot(float radius, float size, int radSeg, int sides)
     {
         if (sides < 3 || radSeg < 3) return default;
@@ -100,24 +144,27 @@ public static partial class Engine3D
 
         // par_shapes' trefoil, its curve and the frame its tube is swept in, over two turns
         const float a = 0.5f, b = 0.3f, c = 0.5f;
-        var mesh = new MeshBuilder();
-        mesh.Tube(t =>
+        var d = radius * 0.1f;
+        var knot = ParShape.Parametric((uv0, uv1) =>
         {
-            var u = 2 * t;
-            var (sinU, cosU) = MathF.SinCos(u);
-            var (sin15, cos15) = MathF.SinCos(1.5f * u);
-            var r = a + b * cos15;
-            var point = new Vector3(r * cosU, r * sinU, c * sin15);
+            var u = (float)((1 - uv0) * 4 * ParShape.Pi);
+            var v = (float)(uv1 * 2 * ParShape.Pi);
+            var r = a + b * MathF.Cos(1.5f * u);
+            var point = new Vector3(r * MathF.Cos(u), r * MathF.Sin(u), c * MathF.Sin(1.5f * u));
 
-            var tangent = Vector3.Normalize(new Vector3(
-                -1.5f * b * sin15 * cosU - r * sinU,
-                -1.5f * b * sin15 * sinU + r * cosU,
-                1.5f * c * cos15));
-            var across = Vector3.Normalize(new Vector3(tangent.Y, -tangent.X, 0));
-            var up = Vector3.Cross(tangent, across);
-            return (point * size, across, up);
-        }, radius * 0.1f * size, radSeg, sides);
-        return mesh.Upload();
+            var q = Vector3.Normalize(new Vector3(
+                -1.5f * b * MathF.Sin(1.5f * u) * MathF.Cos(u) - (a + b * MathF.Cos(1.5f * u)) * MathF.Sin(u),
+                -1.5f * b * MathF.Sin(1.5f * u) * MathF.Sin(u) + (a + b * MathF.Cos(1.5f * u)) * MathF.Cos(u),
+                1.5f * c * MathF.Cos(1.5f * u)));
+            var qvn = Vector3.Normalize(new Vector3(q.Y, -q.X, 0));
+            var ww = Vector3.Cross(q, qvn);
+            return new Vector3(
+                point.X + d * (qvn.X * MathF.Cos(v) + ww.X * MathF.Sin(v)),
+                point.Y + d * (qvn.Y * MathF.Cos(v) + ww.Y * MathF.Sin(v)),
+                point.Z + d * ww.Z * MathF.Sin(v));
+        }, radSeg, sides);
+        knot.Scale(size, size, size);
+        return knot.Upload();
     }
 
     /// <summary>
@@ -328,79 +375,6 @@ public static partial class Engine3D
             if (Vector3.Dot(face, normals) < 0) (b, d) = (d, b);
             Triangle(a, b, c);
             Triangle(a, c, d);
-        }
-
-        /// <summary>
-        /// Turns a profile of rings around the Y axis: each ring's radius and height, the normal in
-        /// the plane of radius and height, and its texture row.
-        /// </summary>
-        public void Lathe(ReadOnlySpan<(float Radius, float Y, Vector2 Normal, float V)> profile, int slices)
-        {
-            slices = Math.Max(3, slices);
-            var first = (uint)_vertices.Count;
-            foreach (var (radius, y, normal, v) in profile)
-                for (int s = 0; s <= slices; s++)
-                {
-                    var (sin, cos) = MathF.SinCos(MathF.Tau * s / slices);
-                    Vertex(new Vector3(cos * radius, y, sin * radius), new Vector3(cos * normal.X, normal.Y, sin * normal.X), new Vector2((float)s / slices, v));
-                }
-
-            var row = (uint)(slices + 1);
-            for (int r = 0; r + 1 < profile.Length; r++)
-            for (int s = 0; s < slices; s++)
-            {
-                var a = first + (uint)r * row + (uint)s;
-                Quad(a, a + 1, a + row + 1, a + row);
-            }
-        }
-
-        /// <summary>Closes a ring at height <paramref name="y"/> with a flat disc facing up or down.</summary>
-        public void Cap(float radius, float y, int slices, bool up)
-        {
-            slices = Math.Max(3, slices);
-            var normal = up ? Vector3.UnitY : -Vector3.UnitY;
-            var center = Vertex(new Vector3(0, y, 0), normal, new Vector2(0.5f));
-            var first = (uint)_vertices.Count;
-            for (int s = 0; s < slices; s++)
-            {
-                var (sin, cos) = MathF.SinCos(MathF.Tau * s / slices);
-                Vertex(new Vector3(cos * radius, y, sin * radius), normal, new Vector2(0.5f + cos / 2, 0.5f + sin / 2));
-            }
-            for (int s = 0; s < slices; s++)
-            {
-                uint here = first + (uint)s, next = first + (uint)((s + 1) % slices);
-                if (up) Triangle(center, next, here);
-                else Triangle(center, here, next);
-            }
-        }
-
-        /// <summary>
-        /// Sweeps a circle of <paramref name="size"/> along a closed curve, which gives for each
-        /// parameter from 0 to 2π a point and two directions across the curve.
-        /// </summary>
-        public void Tube(Func<float, (Vector3 Point, Vector3 Across, Vector3 Up)> curve, float size, int segments, int sides)
-        {
-            segments = Math.Max(3, segments);
-            sides = Math.Max(3, sides);
-            var first = (uint)_vertices.Count;
-            for (int i = 0; i <= segments; i++)
-            {
-                var (point, across, up) = curve(MathF.Tau * (i % segments) / segments);
-                for (int j = 0; j <= sides; j++)
-                {
-                    var (sin, cos) = MathF.SinCos(MathF.Tau * j / sides);
-                    var normal = cos * across + sin * up;
-                    Vertex(point + normal * size, normal, new Vector2((float)i / segments, (float)j / sides));
-                }
-            }
-
-            var row = (uint)(sides + 1);
-            for (int i = 0; i < segments; i++)
-            for (int j = 0; j < sides; j++)
-            {
-                var a = first + (uint)i * row + (uint)j;
-                Quad(a, a + 1, a + row + 1, a + row);
-            }
         }
 
         public ModelMesh Upload() => UploadMesh([.. _vertices], [.. _indices]);

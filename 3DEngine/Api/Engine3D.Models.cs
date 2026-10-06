@@ -142,30 +142,21 @@ public static partial class Engine3D
         return UploadMesh(vertices, indices);
     }
 
-    /// <summary>Makes a sphere centered on the origin.</summary>
+    /// <summary>Makes a sphere centered on the origin, its poles on the Z axis, as raylib's is.</summary>
+    /// <remarks>
+    /// It is par_shapes' sphere, which raylib draws, so a texture wraps it as it does raylib's.
+    /// Fewer than three rings or slices make no mesh, as raylib's.
+    /// </remarks>
     public static ModelMesh GenMeshSphere(float radius, int rings, int slices)
     {
-        rings = Math.Max(2, rings);
-        slices = Math.Max(3, slices);
-        var vertices = new ModelVertex[(rings + 1) * (slices + 1)];
-        for (int r = 0; r <= rings; r++)
-        for (int s = 0; s <= slices; s++)
+        if (rings < 3 || slices < 3) return default;
+        var sphere = ParShape.Parametric((u, v) =>
         {
-            var polar = MathF.PI * r / rings;
-            var azimuth = MathF.Tau * s / slices;
-            var n = new Vector3(MathF.Sin(polar) * MathF.Cos(azimuth), MathF.Cos(polar), MathF.Sin(polar) * MathF.Sin(azimuth));
-            vertices[r * (slices + 1) + s] = new ModelVertex(n * radius, n, new Vector2((float)s / slices, (float)r / rings));
-        }
-
-        var indices = new List<uint>(rings * slices * 6);
-        for (int r = 0; r < rings; r++)
-        for (int s = 0; s < slices; s++)
-        {
-            // Counterclockwise seen from outside, the front a single-sided material draws
-            uint a = (uint)(r * (slices + 1) + s), b = a + (uint)(slices + 1);
-            indices.AddRange([a, b + 1, b, a, a + 1, b + 1]);
-        }
-        return UploadMesh(vertices, [.. indices]);
+            float phi = (float)(u * ParShape.Pi), theta = (float)(v * 2 * ParShape.Pi);
+            return new Vector3(MathF.Cos(theta) * MathF.Sin(phi), MathF.Sin(theta) * MathF.Sin(phi), MathF.Cos(phi));
+        }, slices, rings);
+        sphere.Scale(radius, radius, radius);
+        return sphere.Upload();
     }
 
     /// <summary>Makes a flat rectangle on the XZ plane, centered on the origin, facing up.</summary>
