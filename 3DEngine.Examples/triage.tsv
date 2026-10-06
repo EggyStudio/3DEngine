@@ -16,9 +16,9 @@ core_input_multitouch	can
 core_input_gestures_testbed	can
 core_input_virtual_controls	can
 core_2d_camera_platformer	can
-core_2d_camera_split_screen	can
+core_2d_camera_split_screen	can	its bars drawn into render textures keep their alpha where raylib's lower it, and its text is in ImGui's default font, as the comparison page says
 core_3d_camera_mode	can
-core_3d_camera_split_screen	can
+core_3d_camera_split_screen	can	its bars drawn into render textures keep their alpha where raylib's lower it, and its text is in ImGui's default font, as the comparison page says
 core_3d_camera_fps	can
 core_3d_picking	can
 core_world_screen	can
@@ -38,7 +38,7 @@ core_viewport_scaling	can
 core_input_actions	can
 core_directory_files	can	with ImGui in raygui's place
 core_clipboard_text	can	with ImGui in raygui's place
-core_text_file_loading	can
+core_text_file_loading	can	its text in ImGui's default font, wider than raylib's, so its lines wrap elsewhere, as the comparison page says
 core_compute_hash	can	with ImGui in raygui's place
 core_keyboard_testbed	can
 core_window_web	n/a	is about a browser's main loop, where a program here runs on the desktop
@@ -102,7 +102,7 @@ textures_fog_of_war	can
 textures_gif_player	can
 textures_image_kernel	can
 textures_image_channel	can
-textures_image_rotate	can
+textures_image_rotate	can	the corners its turn opens are clear where raylib's, of a logo with no alpha, are black, as the comparison page says
 textures_screen_buffer	can
 textures_sprite_stacking	can
 textures_cellular_automata	can
@@ -113,9 +113,9 @@ text_font_filters	can
 text_format_text	can
 text_writing_anim	can
 text_rectangle_bounds	can	with GetGlyphInfo by code point in GetGlyphIndex's place
-text_unicode_ranges	can
+text_unicode_ranges	can	its fonts load Latin-1 where raylib's load ASCII, so its atlas and its Spanish line differ, and its labels are in ImGui's default font, as the comparison page says
 text_3d_drawing	can	with GetGlyphInfo by code point in GetGlyphIndex's place
-text_codepoints_loading	can
+text_codepoints_loading	can	its counts in ImGui's default font, and its text drawn larger than its font from a bake at the size, as the comparison page says
 text_inline_styling	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_words_alignment	can
 text_strings_management	can

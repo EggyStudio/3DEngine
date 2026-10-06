@@ -316,7 +316,7 @@ public static partial class Engine3D
                 return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
                     outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), own));
         }
-        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : null;
+        return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : null;
     }
 
     /// <summary>
@@ -368,7 +368,7 @@ public static partial class Engine3D
         if (HasColorTables(path)) return LoadFontEx(fileName, fontSize, [.. Enumerable.Range(0x20, 0xE0)]);
 
         Font? BakeAt(int size) => Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear);
-        return BakeAt(fontSize) is { } font ? font.WithRebake(BakeAt) : GetFontDefault();
+        return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : GetFontDefault();
     }
 
     /// <summary>
@@ -445,7 +445,7 @@ public static partial class Engine3D
 
             var texture = LoadTextureFromImage(baked.Field);
             SetTextureFilter(texture, TextureFilter.Bilinear);
-            return new Font(texture, fontSize, fontSize, baked.Glyphs, baked.Coverage, FontType.Sdf);
+            return new Font(texture, fontSize, fontSize, baked.Glyphs, baked.Coverage, FontType.Sdf).WithWholeAdvances();
         }
     }
 

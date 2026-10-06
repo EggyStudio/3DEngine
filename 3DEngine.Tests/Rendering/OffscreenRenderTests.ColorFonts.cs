@@ -19,8 +19,9 @@ public sealed partial class OffscreenRenderTests
             DrawTextEx(font, char.ConvertFromUtf32(0x1F600), new Vector2(8, 8), 16, 0, Color.White);
         });
 
-        var top = GetImageColor(image, 16, 11);
-        var bottom = GetImageColor(image, 16, 20);
+        // The middle of each half of the emoji, sixteen pixels high from about the text's top.
+        var top = GetImageColor(image, 16, 8);
+        var bottom = GetImageColor(image, 16, 16);
         ((int)top.R).Should().BeGreaterThan(top.B + 150, $"the emoji's top half is red, not {top}");
         ((int)bottom.B).Should().BeGreaterThan(bottom.R + 150, $"and its bottom half blue, not {bottom}");
         UnloadFont(font);

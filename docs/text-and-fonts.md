@@ -51,7 +51,10 @@ UnloadFont(lato);
 A font is best baked at the size it is drawn at most. Drawn smaller, its bake is scaled down and
 stays sharp. Drawn a quarter or more past it, the font is baked again at the larger size, rounded
 up to 4 pixels, and kept for the next frame, up to eight sizes a font, so large text does not blur.
-`LoadFont(fileName)` bakes at 32 pixels, and `UnloadFont` frees every bake.
+Each glyph of a larger bake is drawn in the box and with the advance of the font's own bake scaled,
+so text lies where it would from the one bake, as raylib's does, whose advances are whole pixels at
+the size a font is loaded at, as they are here. `LoadFont(fileName)` bakes at 32 pixels, and
+`UnloadFont` frees every bake.
 
 ## Fonts drawn as images
 

@@ -5,7 +5,10 @@ namespace Engine;
 /// Drawing it at another size scales the glyphs, which blurs a bilinear atlas and blocks a
 /// point-filtered one, unless the font was loaded as <see cref="FontType.Sdf"/>. A font loaded
 /// from a file is baked again at a larger size it is drawn at, a quarter or more past its own, so
-/// large text stays sharp, and that bake is kept for the next time.
+/// large text stays sharp, and that bake is kept for the next time. Its glyphs are drawn in this
+/// bake's boxes and advances scaled, and a font loaded from a file has its advances cut to whole
+/// pixels and its glyphs a pixel higher than the atlas builder puts them, as raylib lays its text
+/// out, so a line lies where raylib's does.
 /// </remarks>
 public sealed class Font
 {
@@ -73,6 +76,30 @@ public sealed class Font
         var size = Math.Min(256, (int)MathF.Ceiling(fontSize / 4) * 4);
         if (_larger.TryGetValue(size, out var known)) return known;
         if (_larger.Count >= MaxBakes) return _larger.Values.MaxBy(f => f.BaseSize)!;
-        return Rebake(size) is { IsValid: true } baked ? _larger[size] = baked : this;
+        if (Rebake(size) is not { IsValid: true } baked) return this;
+
+        // Each glyph drawn from the larger bake's pixels into this font's box and advance scaled to
+        // the bake's size, so text lies where it does drawn from this one, as raylib's, which
+        // scales its one bake, does.
+        var scale = size / BaseSize;
+        var glyphs = (Dictionary<int, Glyph>)baked.Glyphs;
+        foreach (var (codepoint, glyph) in glyphs.ToArray())
+            if (Glyphs.TryGetValue(codepoint, out var own))
+                glyphs[codepoint] = glyph with { X0 = own.X0 * scale, Y0 = own.Y0 * scale, X1 = own.X1 * scale, Y1 = own.Y1 * scale, Advance = own.Advance * scale };
+        return _larger[size] = baked;
+    }
+
+    /// <summary>
+    /// The same font with each glyph's advance cut to whole pixels, as raylib cuts those of a font
+    /// it loads from a file, so a line of text is as long as raylib's, and each glyph a pixel
+    /// higher, since the atlas builder puts the baseline at the ascent plus one rounded down where
+    /// raylib puts it at the ascent cut to whole pixels.
+    /// </summary>
+    internal Font WithWholeAdvances()
+    {
+        var glyphs = (Dictionary<int, Glyph>)Glyphs;
+        foreach (var (codepoint, glyph) in glyphs.ToArray())
+            glyphs[codepoint] = glyph with { Advance = MathF.Floor(glyph.Advance), Y0 = glyph.Y0 - 1, Y1 = glyph.Y1 - 1 };
+        return this;
     }
 }

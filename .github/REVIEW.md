@@ -10,14 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `78d79c22`. Release notes and the documents a game's author reads give reasons and
-name no one who decided: the comparison page's row gives its reason alone, `NormTests.N_4_7` reads
-the README, the cheatsheet and `docs/` line by line, `pack.sh` leaves the two commit lines that name
-the owner out of the release notes with a warning, since history does not change,
-`PackageContentsTests` fails a package whose notes name anyone, and COMMITS.md has the rule
-(`78d79c22`), which settles item 6. The runs of `38e81c4f` and `78d79c22` fail on Windows and macOS
-in the new scripts' own tests, Linux passing, which is Verdict 29, and the examples job did not run,
-so Verdict 28 waits. The suite here: 1,434 passed, none skipped.
+Reviewed up to `2bcac3a6`. Verdict 29's causes were the tests' own: macOS ships bash 3.2, where a
+command not found in a sourced script exits 1, so the test holds the error's title to whatever code
+the step ended with; the notices test kept a carriage return on each line's last pair; and the
+missing notice is most likely .NET reading the script's UTF-8 in the console code page, said as
+likely and not certain, so both script tests read UTF-8, compare with the line end taken off, and
+the page test's lines end in Windows line ends on every system (`0ce5aac6`); the verdict settles
+with the run. An ImGui window dragged outside the game's window gets an SDL window and a swapchain
+of its own once a program turns ImGui's viewports on, off by default, offered where ImGui's own SDL
+backend offers it and so not on Wayland, drawn after the window's pass and taken by the frame's one
+submit and present, held by a test on SDL's offscreen driver on Linux (`2bcac3a6`), which settles
+item 5 and the list the owner's decisions made; items 5 and 6 are new. The suite: 1,435 passed, none
+skipped.
+
+Before them, release notes and the documents a game's author reads give reasons and name no one who
+decided: the comparison page's row gives its reason alone, `NormTests.N_4_7` reads the README, the
+cheatsheet and `docs/` line by line, `pack.sh` leaves the two commit lines that name the owner out
+of the release notes with a warning, since history does not change, `PackageContentsTests` fails a
+package whose notes name anyone, and COMMITS.md has the rule (`78d79c22`), which settles item 6. The
+runs of `38e81c4f` and `78d79c22` fail on Windows and macOS in the new scripts' own tests, Linux
+passing, which is Verdict 29, and the examples job did not run, so Verdict 28 waits. The suite here:
+1,434 passed, none skipped.
 
 Before them, Verdict 28's cause was found through GitHub's public listing of a run's jobs, which
 gives each step's conclusion and time without a sign-in: the step that failed in all three runs was
@@ -31,17 +44,6 @@ ten notices that fail nothing while `measured-ci.tsv` is empty, and `build/page.
 `test.py` under `StepScriptTests`, which N 1.4 leaves out, eleven from ten (`38e81c4f`); the verdict
 settles when an examples job passes. The owner packed 5.1 from `b43818f9`, whose pack workflow
 passed. The suite: 1,433 passed, none skipped.
-
-Before them, the runs of `6336aba6`, `b9ebd0bd` and `039bd788` passed their tests on all three
-systems, macOS at 1,398, 1,401 and 1,402 with none failed, so Verdict 27 is settled, with the note
-that the two runs before the watcher's mend passed as well, so the leak test's margin on macOS is
-thin and the next failure's series will say; no examples job names a failed capture, so Verdict 26
-is settled too. All three examples jobs fail with `Process completed with exit code 4` and nothing
-else, which is Verdict 28. Motion blur blurs each mesh entity along its own movement where
-`SetMotionBlur` is given objects, from a velocity image its moving entities are drawn into as
-instanced runs, off by default, a new reference and no old one changed, about 425,000 turning
-entities held at 60 fps against 700,000 camera-only, two slower designs measured on the way
-(`b43818f9`), which settles item 5. The suite: 1,429 passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -100,16 +102,18 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-5. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
-   an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
-   default, with a test that a viewport's window is made and closed and the editor's panels checked
-   by hand.
-6. **N 4.7 taken** (Decision 14), before item 5. `docs/compared-with-raylib.md`'s row on a render
-   texture's samples says the reason alone, without who chose it or when, and the same words are
-   looked for in the pack workflow's release notes step and by `NormTests` over `README.md`,
-   `CHEATSHEET.md` and `docs/`, which pass with no list. COMMITS.md says a message names no one who
-   decided, since the release notes are made from the messages, and `32bc8543`'s message is the kind
-   to avoid.
+5. **The public surface read whole before 6.0** (Decision 5). The table of raylib's examples is
+   written, 220 of 222, which is where Decision 5 promises the surface a game can lean on. Every
+   public type and member in `PublicApi.txt` is read against raylib's name for the same thing, the
+   cheatsheet's line for it and its neighbors, and each that answers to another name, takes its
+   arguments in another order, or stands alone where raylib has a family is renamed or reshaped
+   before the surface is promised, in commits that say what moved, the examples and games following;
+   a line of the comparison page says each difference kept with its reason. The owner says when 6.0
+   is cut, and this goes before it.
+6. **The first shares recorded from the workflow's own device.** The examples job's first green
+   run puts every pair measured for the first time into notices, which the public listing of the
+   job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
+   own, so the run after holds every pair to them and a share can only fall (item 4's measure).
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -225,51 +229,31 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Verdict 29.** Both causes are the tests' own, and the scripts give what they should. GitHub's
-annotations of the failing jobs, read without a sign-in from `/check-runs/<id>/annotations`, give
-each failure whole. On macOS the bash 3.2 macOS ships, run here in its own image, ends a sourced
-script whose command is not found with 1 where bash 5 ends it with 127, and `step.py` named that 1
-rightly, so the test holds the error's title to the code the step ended with, whatever the shell
-gave. On Windows the notices test split the output at its line feeds and kept each line's carriage
-return, so the last pair of each notice carried one. Output with Windows line ends did not lose
-the page test's notice here, and the one thing on that line no other has is its "×", which a
-Windows console's code page reads otherwise than the UTF-8 the script writes, as .NET reads a
-child's output in that code page unless told, which is the likeliest cause and not a certain one,
-since it passed on Windows at `38e81c4f`. Both
-tests now read a script's output as UTF-8, with `PYTHONIOENCODING` set for its errors, and compare
-lines with the carriage return taken off, and the page test's 100,000 lines end as Windows ends them
-on every system, so Linux reads what Windows gives. The suite: 1,434 passed, none skipped.
+**Now 4, the pairs furthest apart from raylib.** Six written examples stood 8 to 27 per cent apart
+from raylib's program with no reason on their rows, and each is traced. `textures_image_rotate`
+(19.2) turns `raylib_logo.png`, which is RGB, and raylib fills the corners the turn opens with
+zeros in the image's own format, which are opaque black, where an image here is RGBA and its zeros
+clear, which the comparison page now keeps with its reason. `core_text_file_loading` (27.1) is
+ImGui's default font, wider than raylib's, so its lines wrap elsewhere, which the page keeps under
+`GetFontDefault`. The two split screens (10.6 and 8.8) differ in their bars, which raylib blends
+into a render texture with alpha by the color's factors, so a bar at 0.8 over the opaque sky leaves
+0.84 and darkens over the black it is drawn on: ours times 0.84 is raylib's to the unit, and the 2D
+one's 245 times 0.76 its 186, which the page keeps, with their text in the default font.
+`text_unicode_ranges` loads Latin-1 where raylib loads ASCII, which the page keeps as well.
 
-**Now 5, ImGui viewports** (Decision 12). Off by default. A program sets ImGui's own
-`ImGuiConfigFlags.ViewportsEnable`, and a running session `imgui.viewports on`. `SdlImGuiViewports`
-gives ImGui the platform's callbacks over SDL windows and the renderer's over Vulkan swapchains,
-with SDL's displays as its monitors, on X11, Windows, macOS and SDL's offscreen driver, and none on
-Wayland, where no program reads or sets where its windows are, as ImGui's own SDL backend has it.
-`GraphicsDevice.Windows` makes a window's surface and swapchain in the main window's present mode
-and acquires its image as the frame draws it. The frame's one submit waits on and signals each
-window's semaphores beside the main window's, and its one present presents them all, a swapchain
-gone out of date made again before its next image. The renderer calls a node's `AfterWindowPass`
-once the window's pass has ended, where the ImGui node calls `UpdatePlatformWindows` and draws each
-viewport into its own window, with a pipeline for each pass, since the window's may be multisampled
-and a viewport's is not. With viewports on ImGui measures from the desktop, so SDL's mouse positions
-are moved by where their window is, and e3d's and a replayed recording's by where the main window is,
-and the game's own pointer takes no event from a window not its own. The cimgui in the package is
-built with its asserts, which stop the process, and two were met on the way. ImGui asks for
-`UpdatePlatformWindows` after every frame once a backend offers viewports, the flag on or off, which
-a frame the renderer skips now does as well, and a program turning the flag on between ImGui's first
-two frames, as one setting it in its first frame does, is held back a frame.
-
-A test opens an app on SDL's offscreen driver, places an ImGui window outside it, and finds a second
-SDL window of the ImGui window's size with a swapchain of that size, a captured frame of it holding
-the window's white text, and both gone when the window comes back inside. It passed here and on
-lavapipe under LunarG's layer in a container, with the GUI, offscreen and reference tests, 113 with
-no message of the layer's. It runs alone, in a collection with parallelism off, since closing the
-app quits SDL for the process, and it is skipped off Linux, since SDL's offscreen driver draws
-through `VK_EXT_headless_surface`, which the Windows and macOS jobs' devices are not known to offer.
-By hand, through `imgui.viewports` and `imgui.shot`, which writes a viewport's next frame to a file,
-`gui_imgui_window`'s Help window and the engine's Performance panel (F2), each dragged out of the
-window, had a window of their own drawn whole and were gone from the main one. Dragged back in, the
-window closed, and turned off and on again, the windows closed and came back, with no warning logged
-under the layer. The example places Help from the main viewport's corner, and its capture is taken
-again, the one kept having been taken with an ImGui settings file of an earlier session's that had
-moved Help to the right edge. The suite: 1,435 passed, none skipped.
+`text_codepoints_loading` (9.8) held a fault. Its line of glyphs drifted from raylib's along each
+line, since the atlas builder keeps a glyph's advance in fractions where raylib cuts it to whole
+pixels at the size a font is loaded at, its baseline sat a pixel lower, at the ascent plus one
+rounded down where raylib's is the ascent cut, and text drawn past a font's size from a larger bake
+was laid out by that bake's own boxes, where raylib scales its one bake. A font loaded from a file
+now has whole advances and its glyphs a pixel higher, and a larger bake is drawn in the boxes and
+advances of the font's own bake scaled, keeping its sharper pixels. Measured over all 220 pairs,
+`text_codepoints_loading` went from 9.8 to 6.0, `text_unicode_ranges` 11.2 to 9.1,
+`text_font_filters` 4.4 to 3.0, `text_font_sdf` 6.1 to 5.7 and `textures_image_text` 5.1 to 0.3, and
+no other pair moved by 0.3 points but three whose rows say they move with the clock or the audio
+device. `measured.tsv` is that run's. The reference `font_from_file` stood 9.5 per cent from raylib's
+own drawing of its three lines, a program built here against the pinned raylib, and the new frame
+stands 0.7, so it is the reference now, and the 38 reference and font tests pass on lavapipe. A
+color emoji test sampled the emoji's last row, which is a pixel higher now, and samples the middle
+of each half. Five captures are taken again, and the six rows say their reasons. The suite: 1,435
+passed, none skipped.
