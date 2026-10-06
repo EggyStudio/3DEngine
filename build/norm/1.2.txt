@@ -8,9 +8,6 @@
 3DEngine/Api/Engine3D.Collision.cs RayCollision
 3DEngine/Api/Engine3D.ConfigFlags.cs ConfigFlags
 3DEngine/Api/Engine3D.Display.cs MonitorMode
-3DEngine/Api/Engine3D.Fonts.cs Font
-3DEngine/Api/Engine3D.Fonts.cs FontType
-3DEngine/Api/Engine3D.Fonts.cs Glyph
 3DEngine/Api/Engine3D.Particles.cs ParticleEmitterHandle
 3DEngine/Api/Engine3D.Physics.cs Ray
 3DEngine/Api/Engine3D.Shaders.cs Shader

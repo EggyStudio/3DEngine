@@ -109,6 +109,17 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
+6. **The measure runs in the workflow, so a share can only fall** (N 5.2). `compare.py` measures on
+   one machine and writes `measured.tsv` by hand, so a change that moves an example away from
+   raylib's picture is seen only when someone measures again. The examples job builds raylib as
+   `run.sh` does and measures every written pair on Linux, and fails where a pair's share stands
+   more than one point above the share recorded for it, the recorded share coming from the same
+   job's device the first time it runs so the two machines' drivers are not compared with each
+   other. A pair that moves by the clock or the device, as the audio pictures do, says so in its row
+   and is left out with that reason. After it, color emoji through the TrueType reader's bitmap
+   tables is the most game-visible entry; the tonemap pass over every frame waits, since it costs
+   every program and redraws every lit reference for no fault measured, and the two gaps of "Models
+   are partial" stay described, having no user.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
