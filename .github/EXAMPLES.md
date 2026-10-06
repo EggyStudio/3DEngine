@@ -4,7 +4,7 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**212 written, 0 written in part, 0 can be written, 9 missing and 1 does not apply.** Of the 221 that apply, 212 can be written with what the flat API carries.
+**213 written, 0 written in part, 0 can be written, 8 missing and 1 does not apply.** Of the 221 that apply, 213 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
@@ -13,9 +13,9 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [Textures](#textures) | 33 | 0 | 0 | 0 | 0 |
 | [Text](#text) | 16 | 0 | 0 | 0 | 0 |
 | [Models](#models) | 29 | 0 | 0 | 3 | 0 |
-| [Shaders](#shaders) | 34 | 0 | 0 | 2 | 0 |
+| [Shaders](#shaders) | 35 | 0 | 0 | 1 | 0 |
 | [Audio](#audio) | 10 | 0 | 0 | 1 | 0 |
-| **All** | **212** | **0** | **0** | **9** | **1** |
+| **All** | **213** | **0** | **0** | **8** | **1** |
 
 ## Core
 
@@ -250,7 +250,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [`shaders_vertex_displacement`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_vertex_displacement.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_vertex_displacement.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_vertex_displacement.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersVertexDisplacement.cs) |
 | [`shaders_depth_writing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_writing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_writing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_depth_writing.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersDepthWriting.cs) |
 | [`shaders_basic_pbr`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_basic_pbr.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_basic_pbr.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_basic_pbr.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersBasicPbr.cs) |
-| [`shaders_lightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.c) |  |  | missing, a second set of texture coordinates in a mesh |
+| [`shaders_lightmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_lightmap_rendering.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_lightmap_rendering.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersLightmapRendering.cs) |
 | [`shaders_rounded_rectangle`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rounded_rectangle.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_rounded_rectangle.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_rounded_rectangle.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersRoundedRectangle.cs) |
 | [`shaders_depth_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_rendering.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_depth_rendering.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_depth_rendering.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersDepthRendering.cs) |
 | [`shaders_game_of_life`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_game_of_life.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/shaders/shaders_game_of_life.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_game_of_life.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersGameOfLife.cs), with ImGui in raygui's place |

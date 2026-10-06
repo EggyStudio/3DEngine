@@ -315,3 +315,24 @@ a plane after it is made.
 Shared: a mesh's colors and second texture coordinates as buffers of their own beside a fixed
 vertex, drawn through a second vertex stage only for a mesh that has them, so a mesh without them
 costs what it did, which BevyCSharp may read if its layout grows the same way.
+
+**Now 2, `shaders_lightmap_rendering`.** `UpdateMeshBuffer` is carried, writing into one of a
+mesh's arrays from a byte offset by raylib's index for it: positions, texture coordinates and
+normals into the mesh's vertices in place, keeping the bounds it was made with, and colors and
+second texture coordinates into their buffers. raylib's lightmap example loads a buffer of its own
+through rlgl and sets it as the plane's attribute 5, which `UpdateMeshBuffer` with index 5 stands
+in for here, since rlgl's vertex buffers are not carried. A write to colors or second coordinates a
+mesh lacks gives it both, where raylib's has no buffer to write into, and the comparison has a line
+on it. Tangents and indices, which a mesh does not keep, are left out with a warning. Two tests
+write second coordinates into a plane without them and a position into one vertex. The example's
+`lightmap` shader is in Slang, reading the lightmap as the material's metalness map at the second
+coordinate. Since a render texture is upright here, the second coordinates count down from the
+lightmap's top and the drawn lightmap keeps raylib's negative width without its negative height, so
+red lies at the plane's near left and green at its far right, as raylib's source places them.
+`GenTextureMipmaps` leaves a render texture one level, which `Engine3D.Textures.cs` says and the
+comparison has a line on, and the lightmap is drawn larger than its pixels, so the picture does not
+show it. raylib's screenshot is older than its source, with a map of 10 by 10 and its label in two
+lines where the source draws 16 by 16, so its plane stands smaller and the label reads otherwise.
+TODO.md keeps the tangents' index of `UpdateMeshBuffer` among what the layout leaves out, and the
+count carried is 502, 81 percent. The table stands at 213 written and 8 missing, the IQM reader
+next.

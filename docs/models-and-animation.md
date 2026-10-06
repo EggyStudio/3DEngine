@@ -82,7 +82,9 @@ with either carries both, the one it was not given white or zero, which adds twe
 of its vertices' thirty-two, and a mesh with neither is drawn from its vertices alone.
 
 `UpdateMeshVertices` moves a mesh's vertices later, keeping the triangles, as water or cloth
-needs. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its material, which
+needs, and `UpdateMeshBuffer` writes into one of its arrays by raylib's index for it, positions,
+texture coordinates, normals, colors or second texture coordinates, as `shaders_lightmap_rendering`
+gives a plane its second coordinates after `GenMeshPlane` has made it. `ExportMesh` writes a mesh as a Wavefront OBJ file, its shape without its material, which
 `LoadModel` reads back and any modeling program opens.
 
 ## Terrain and mazes from images

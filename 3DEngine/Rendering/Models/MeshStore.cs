@@ -167,6 +167,25 @@ internal sealed class MeshStore
         }
     }
 
+    /// <summary>Gives a loaded mesh its colors and second texture coordinates, which uploads it again with them.</summary>
+    /// <returns>Whether <paramref name="id"/> names a loaded mesh.</returns>
+    /// <exception cref="ArgumentException">A stream's count differs from the vertices'.</exception>
+    internal bool SetStreams(int id, Streams streams)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(id, out var data)) return false;
+            if (streams.Colors is { } colors && colors.Length != data.Vertices.Length)
+                throw new ArgumentException($"{colors.Length} colors for {data.Vertices.Length} vertices.", nameof(streams));
+            if (streams.Texcoords2 is { } texcoords2 && texcoords2.Length != data.Vertices.Length)
+                throw new ArgumentException($"{texcoords2.Length} second texture coordinates for {data.Vertices.Length} vertices.", nameof(streams));
+            _streams[id] = streams;
+            _uploads.RemoveAll(u => u.Id == id);
+            _uploads.Add(new Upload(id, data.Vertices, data.Indices, Skin: _skins.GetValueOrDefault(id), Streams: streams));
+            return true;
+        }
+    }
+
     /// <summary>Whether a mesh is posed on the GPU.</summary>
     internal bool IsSkinned(int id)
     {

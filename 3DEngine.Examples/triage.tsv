@@ -170,7 +170,6 @@ shaders_texture_tiling	can
 shaders_shadowmap_rendering	can
 shaders_vertex_displacement	can
 shaders_basic_pbr	can
-shaders_lightmap_rendering	missing	a second set of texture coordinates in a mesh
 shaders_rounded_rectangle	can
 shaders_depth_rendering	can
 shaders_game_of_life	can	with ImGui in raygui's place

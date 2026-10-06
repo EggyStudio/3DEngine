@@ -300,6 +300,38 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
+    public void Second_Texture_Coordinates_Written_To_A_Mesh_Without_Them_Bring_White_Colors()
+    {
+        var plane = GenMeshPlane(2, 2, 1, 1);
+
+        // The last three vertices' second coordinates, written 8 bytes in, as raylib's index 5 takes them
+        UpdateMeshBuffer(plane, 5, [1f, 0f, 0f, 1f, 1f, 1f], 8);
+
+        var streams = _app.World.Resource<MeshStore>().StreamsOf(plane.Id);
+        streams.Should().NotBeNull();
+        streams!.Texcoords2.Should().Equal(Vector2.Zero, new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1));
+        streams.Colors.Should().OnlyContain(c => c == Color.White, "a mesh given one stream carries the other at its default");
+    }
+
+    [Fact]
+    public void A_Position_Written_To_A_Mesh_Moves_That_Vertex_Alone()
+    {
+        var plane = GenMeshPlane(2, 2, 1, 1);
+        var store = _app.World.Resource<MeshStore>();
+        store.TryGetData(plane.Id, out var before, out _).Should().BeTrue();
+
+        // The second vertex's position, 12 bytes in
+        UpdateMeshBuffer(plane, 0, [5f, 6f, 7f], 12);
+        UpdateMeshBuffer(plane, 4, [0f], 0);
+
+        store.TryGetData(plane.Id, out var after, out _).Should().BeTrue();
+        after[1].Position.Should().Be(new Vector3(5, 6, 7));
+        after[1].Normal.Should().Be(before[1].Normal, "the normal shares the vertex and is left as it was");
+        after.Where((_, i) => i != 1).Should().Equal(before.Where((_, i) => i != 1));
+        store.StreamsOf(plane.Id).Should().BeNull("a write to the tangents, which a mesh does not keep, changes nothing");
+    }
+
+    [Fact]
     public void An_Exported_Mesh_Loads_Back_With_Its_Positions_And_Texture_Coordinates()
     {
         var cube = GenMeshCube(1, 2, 3);

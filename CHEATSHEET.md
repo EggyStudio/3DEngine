@@ -609,6 +609,7 @@ Mesh GetMeshComponent(ModelMesh mesh);                                     // It
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices);              // A mesh of the program's own triangles
 ModelMesh UploadMesh(ModelVertex[] vertices, uint[] indices, Color[]? colors, Vector2[]? texcoords2); // With a color and a second texture coordinate at each vertex
 void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices);           // Replace a mesh's vertices, keeping its triangles
+void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset); // Write into one of its arrays by raylib's index, 0 to 3 and 5
 void UnloadMesh(ModelMesh mesh);                                           // Free a mesh
 
 void SetEnvironmentMap(Image equirectangular, float intensity = 1);         // Light models from all around by a sky image, which smooth and metal surfaces reflect

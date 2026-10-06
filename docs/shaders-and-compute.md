@@ -283,6 +283,7 @@ makes the smaller levels again from it.
 
 - Examples: [`shaders_postprocessing`](../3DEngine.Examples/Shaders/ShadersPostprocessing.cs),
   [`shaders_model`](../3DEngine.Examples/Shaders/ShadersModel.cs),
+  [`shaders_lightmap_rendering`](../3DEngine.Examples/Shaders/ShadersLightmapRendering.cs),
   [`shaders_mesh_instancing`](../3DEngine.Examples/Shaders/ShadersMeshInstancing.cs),
   [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs),
   [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs), and the shaders

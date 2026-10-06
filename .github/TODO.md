@@ -71,8 +71,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   Shapes are drawn untextured, and fonts keep their glyphs by codepoint in ImGui's atlas, so the
   shapes texture, `GetGlyphIndex`, `LoadFontData` and `GenImageFontAtlas` have no meaning. The
   vertex layout is fixed apart from the colors and second texture coordinates a mesh may carry
-  beside it, and has no tangents, for `UpdateMeshBuffer`, `GenMeshTangents` and
-  `GetShaderLocationAttrib`. `UpdateSound` reaches into the audio thread, which the backend does
+  beside it, and has no tangents, for `GenMeshTangents`, `GetShaderLocationAttrib` and the
+  tangents' index of `UpdateMeshBuffer`. `UpdateSound` reaches into the audio thread, which the backend does
   not open to the program. VR stereo and automation events (which `./e3d` stands in for) are left
   out too.
 

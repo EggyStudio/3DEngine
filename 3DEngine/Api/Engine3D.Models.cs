@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 using StbImageSharp;
 
 namespace Engine;
@@ -191,6 +192,61 @@ public static partial class Engine3D
     public static void UpdateMeshVertices(ModelMesh mesh, ModelVertex[] vertices)
     {
         if (mesh.IsValid) Meshes.UpdateVertices(mesh.Id, vertices);
+    }
+
+    /// <summary>
+    /// Writes <paramref name="data"/> into one of a mesh's arrays, starting <paramref name="offset"/>
+    /// bytes in, by raylib's index for it: 0 its positions, 1 its texture coordinates and 2 its
+    /// normals, as floats, 3 its colors, four bytes each, and 5 its second texture coordinates.
+    /// </summary>
+    /// <remarks>
+    /// A mesh keeps its position, normal and texture coordinate together in one vertex, which the
+    /// write changes in place, keeping the bounds it was made with, as <see cref="UpdateMeshVertices"/>
+    /// does. Writing colors or second texture coordinates to a mesh without them gives it both, the
+    /// rest of each white or zero, where raylib's mesh has no buffer to write into until rlgl loads
+    /// one, as its lightmap example does. Tangents (4) and the indices (6) are not kept, so a write
+    /// to either is left out with a warning, and bytes past the array's end are left out.
+    /// </remarks>
+    public static void UpdateMeshBuffer<T>(ModelMesh mesh, int index, ReadOnlySpan<T> data, int offset) where T : unmanaged
+    {
+        if (!mesh.IsValid || !Meshes.TryGetData(mesh.Id, out var vertices, out _)) return;
+        var bytes = MemoryMarshal.AsBytes(data);
+        switch (index)
+        {
+            case 0 or 1 or 2:
+            {
+                // Where the array sits in ModelVertex, and how many bytes it has a vertex.
+                var (at, size) = index switch { 0 => (0, 12), 1 => (24, 8), _ => (12, 12) };
+                var moved = (ModelVertex[])vertices.Clone();
+                var array = new byte[moved.Length * size];
+                var packed = MemoryMarshal.AsBytes(moved.AsSpan());
+                var stride = Marshal.SizeOf<ModelVertex>();
+                for (int i = 0; i < moved.Length; i++) packed.Slice(i * stride + at, size).CopyTo(array.AsSpan(i * size));
+                if (!Write(array, bytes, offset)) return;
+                for (int i = 0; i < moved.Length; i++) array.AsSpan(i * size, size).CopyTo(packed[(i * stride + at)..]);
+                Meshes.UpdateVertices(mesh.Id, moved);
+                break;
+            }
+            case 3 or 5:
+            {
+                var streams = Meshes.StreamsOf(mesh.Id);
+                var colors = streams?.Colors is { } c ? (Color[])c.Clone() : Enumerable.Repeat(Color.White, vertices.Length).ToArray();
+                var texcoords2 = streams?.Texcoords2 is { } t ? (Vector2[])t.Clone() : new Vector2[vertices.Length];
+                var written = index == 3 ? Write(MemoryMarshal.AsBytes(colors.AsSpan()), bytes, offset) : Write(MemoryMarshal.AsBytes(texcoords2.AsSpan()), bytes, offset);
+                if (written) Meshes.SetStreams(mesh.Id, new MeshStore.Streams(colors, texcoords2));
+                break;
+            }
+            default:
+                ApiLogger.Warn($"UpdateMeshBuffer: a mesh keeps no array {index}, its positions (0), texture coordinates (1), normals (2), colors (3) and second texture coordinates (5) being those it has, so it is left as it is.");
+                break;
+        }
+
+        static bool Write(Span<byte> array, ReadOnlySpan<byte> bytes, int offset)
+        {
+            if (offset < 0 || offset >= array.Length) return false;
+            bytes[..Math.Min(bytes.Length, array.Length - offset)].CopyTo(array[offset..]);
+            return true;
+        }
     }
 
     /// <summary>Frees a mesh. Drawing it afterward draws nothing.</summary>
