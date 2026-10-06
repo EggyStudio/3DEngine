@@ -283,7 +283,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.4 | by review | by review |
 | N 2.5 | checked, `build/play-native.sh` in the workflow | checked, `build/play-native.sh` in the workflow |
 | N 2.6 | checked, `BadFileTests` | to take |
-| N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
+| N 2.7 | checked, `build/examples-on-package.sh` in the workflow | checked, `build/examples-on-package.sh` in the workflow |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
 | N 2.9 | checked, `FileHandleTests` | checked, `FileHandleTests` |
 | N 2.10 | checked, `NormTests` | checked, `NormTests` |

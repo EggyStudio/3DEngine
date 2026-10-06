@@ -72,7 +72,7 @@ public sealed partial class App : IDisposable
     /// </example>
     public App(Config? config = null)
     {
-        CurrentApp.Value = this;
+        CurrentApp.Value = new WeakReference<App>(this);
         Created?.Invoke(this);
 
         // Initialize file logger early so all subsequent logs are captured to disk.
@@ -91,15 +91,18 @@ public sealed partial class App : IDisposable
     }
     
     // The app this flow of execution made last, which the threads and tasks started after it
-    // inherit, so a line logged anywhere in an app's work can be laid to the app.
-    private static readonly AsyncLocal<App?> CurrentApp = new();
+    // inherit, so a line logged anywhere in an app's work can be laid to the app. It is held
+    // weakly, because whatever captures the flow's context keeps what is in it, and a context
+    // captured while the app lived can outlive it, as macOS's FileSystemWatcher keeps the one the
+    // script compiler's watchers start in until FSEvents lets go of their stream.
+    private static readonly AsyncLocal<WeakReference<App>?> CurrentApp = new();
 
     /// <summary>
     /// The app the current flow of execution made last, which the threads and tasks it starts
     /// inherit, or <see langword="null"/>.
     /// </summary>
     /// <remarks>The test project lays an error the engine logs to the test whose app logged it (N 3.7).</remarks>
-    internal static App? Current => CurrentApp.Value;
+    internal static App? Current => CurrentApp.Value is { } made && made.TryGetTarget(out var app) ? app : null;
 
     /// <summary>Raised on the thread that makes an app, before it builds anything.</summary>
     internal static event Action<App>? Created;

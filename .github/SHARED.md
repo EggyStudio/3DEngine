@@ -175,6 +175,7 @@ table also answers whether the two agree.
 | A system that throws in every frame is logged in full once and counted after | has (`76cdb9a`, `SystemExceptionTests`) | has (`c35472ba`), by stage, system and type, with a line at each power of ten and the totals as the app closes |
 | The followed engine's own stress programs built from its source and measured beside the engine's by a script, the numbers in a document that names the script | has (`build/bevy-stress.sh` and `build/measure-stress.sh`, `1fc9c9c`), thirteen of Bevy's stress tests, a difference placed by adding to Bevy's program what the bridge adds | has (`build/raylib-bench/run.sh`), raylib's bunnymark and a cube count beside `textures_bunnymark` and `models_stress` |
 | A script's generation unloads when it is compiled again, nothing of the process keeping its types or its registrations, held by a test that compiles twice and finds the first load context collected | to check, `BehaviorsPlugin` passing over a collectible assembly's behaviors | has (`ScriptGenerationTests`, `d7e370ed`), which found a script registered into every later app |
+| A mesh's colors and second texture coordinates as buffers of their own beside a fixed vertex, drawn through a second vertex stage only where a mesh has them, so a mesh without them costs what it did, measured | to consider, Bevy's meshes carrying their own attributes | has (`cac05ded`), the same work without them and 7 percent more with both |
 
 ### Documents
 

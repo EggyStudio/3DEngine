@@ -10,7 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `5916882f`. Three batches are read. raylib's pixel formats are carried,
+Reviewed up to `cac05ded`, and the owner pushed up to it on 2026-10-06, the first push since
+`92d30bbd`. A mesh carries a color and a second texture coordinate at each vertex in buffers of
+their own, drawn through a second vertex stage only where a mesh has them, measured as the same
+work for a mesh without them and 7 percent more for one with both, and MagicaVoxel's files are
+read as raylib reads them (`cac05ded`). The table stands at 212 written and 9 missing.
+
+The run of `cac05ded` is the first with the registry step. Its page was read from GitHub: Linux
+passed 1,309 tests, macOS failed two, both of `AppLeakTests`, which is Verdict 23 and comes
+first, and Windows was still running when this was written and is read at the next pass.
+
+Before them, three batches were read. raylib's pixel formats are carried,
 `LoadImageRaw` reading a format into four bytes a pixel and `ImageFormat` keeping what a format
 keeps (`6639650a`), its audio processors, the mixed ones on SDL3's audio thread as raylib's and a
 stream's on the program's thread as a kept difference (`0ea9401c`), and the monitor's size as
@@ -21,7 +31,7 @@ take the table to 211 written and 10 missing, the surface gains lines and loses 
 last ten rows are ordered: the voxel reader with the vertex layout decided once and measured,
 the IQM and M3D readers, deferred rendering as a target with several attachments, the skybox
 waiting on cubemaps, the module player put to the owner as a dependency, and VR, automation
-events and screen recording out as TODO.md has them. No verdict is open.
+events and screen recording out as TODO.md has them.
 
 Before them, raylib's window flags are carried, high density
 reading the monitor's pixels, transparency, unfocused, always-run and borderless (`42f3dfea`),
@@ -169,10 +179,8 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the next page says of Windows.** The registry step of `1c1a3cea` has not run on a
-   runner, since nothing after `92d30bbd` is pushed. Once it is, the reviewing session reads
-   the page and puts what is left of the 126 into a verdict here, which then comes before a
-   port. The ports go on until then.
+1. **What the page says.** Verdict 23 first, then whatever the Windows page of `cac05ded` says,
+   which the reviewing session puts here once that job has ended. The ports go on after.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -228,7 +236,17 @@ documentation by a tool stays to consider as well.
 
 Verdicts 1 to 22 are settled, and their numbers are not given again.
 
-None open.
+**23. A hundred headless apps leave 5.9 MB of heap on macOS** (N 3.5). The page of `cac05ded` has
+both of `AppLeakTests` failing on macOS, the headless hundred and the drawing hundred, with
+`heap100 - heap20` at 5.87 MB where the test allows 5, and Linux passing the same tests in the
+same run. The macOS job passed them in the run of `92d30bbd`, so a commit between the two keeps
+about 70 KB of the GC's heap for each app, and the headless hundred failing says it is held in
+the engine and not the device. The allowance is not widened (N 3.5). The holder is found as
+Verdict 12's was, a dump of the test host after the hundred read for what every app made after
+the twentieth still holds, with what the commits since `92d30bbd` gave each app in view: the
+hook's ears and `App.Created`, the schedule's table of what was thrown, `EngineLog`'s and the
+renderer's new states, and the stream buffers. If the holder is macOS's alone, the reply says
+what differs there.
 
 ## Decisions
 
@@ -272,50 +290,6 @@ None open.
 
 ## Replies
 
-**Now 2, the vertex layout and `models_loading_vox`.** The layout gains a color and a second
-texture coordinate for all three rows, each in a buffer of its own beside the fixed vertex of 32
-bytes, as raylib's `colors` and `texcoords2`. `UploadMesh` takes them after its indices, a file's
-are read with it, and a mesh with either carries both, the one it was not given white or zero,
-which adds 12 bytes to each of its vertices. A mesh with neither is drawn through `model.slang` as
-before: both its stages compile to the same SPIR-V, byte for byte, as at `5916882f`, and its
-pipeline binds the same two buffers, so the seven games, none of whose meshes has either, draw the
-same frame with the same work. `model_streams.slang` draws a mesh that has them and multiplies the
-color in, and a shader of a program's own reads them by taking `ModelStreamsOutput` in place of
-`ModelVertexOutput`, which the pass tells from the input locations its SPIR-V declares, so only
-such a shader on a mesh without them reads a default from a buffer of one element.
-
-The measures, each read through `./e3d command profile` from a program run with `E3D_SERVE=1
-E3D_HIDDEN=1`, the builds at `5916882f` and now taken in turn:
-
-- A vertex-bound frame, `GenMeshSphere(1, 256, 256)` (66,049 vertices) drawn 200 times through
-  `DrawMeshInstanced` with no frame cap, its `gpu.models` line after 600 frames, five runs each:
-  3.387 ms at `5916882f` and 3.412 ms now, the medians.
-- A sphere of as many vertices built by hand and given to `UploadMesh` without streams and with
-  both, eight runs each: 3.397 ms and 3.634 ms, 7 percent for 12 bytes on 32. Carrying a missing
-  stream as the one default read for every vertex measured slower than carrying it whole (4.51 ms
-  against 3.71 ms, four runs each), which is why one brings the other.
-- `models_stress`'s `limit` line: 369,239, 348,726 and 379,495 at `5916882f` against 379,495,
-  400,009 and 410,266 now, and three more pairs taken while another session's build held the
-  machine fell to as low as 142,834 on both.
-
-`models_point_rendering` gives its points raylib's colors through `UploadMesh`, its shader of its
-own gone with the hue it carried in a texture coordinate. `VoxModelReader` reads MagicaVoxel's
-files of versions 150 and 200 as raylib's `vox_loader.h` reads them, written again in C# under its
-MIT license, one mesh of 32-bit indices where raylib's makes several of 16, a voxel a quarter of a
-unit across with the volume rounded up to sixteen voxels each way, as raylib's is. Two tests read a
-file of two voxels and a file that is not one. `models_loading_vox` is raylib's, with its
-`voxel_lighting` shader in Slang reading the mesh's color, and its four files from raylib's
-resources. raylib's screenshot stands nearer than the camera its source sets at (10, 10, 10), where
-the knight measures the same three squares of the grid across, and its points' screenshot shows the
-100,000 two presses of Up give, which drawn here are hued as raylib's are. TODO.md's line on the
-vertex layout keeps tangents alone. The table stands at 212 written and 9 missing,
-`shaders_lightmap_rendering` next, with `UpdateMeshBuffer` for the second coordinates raylib gives
-a plane after it is made.
-
-Shared: a mesh's colors and second texture coordinates as buffers of their own beside a fixed
-vertex, drawn through a second vertex stage only for a mesh that has them, so a mesh without them
-costs what it did, which BevyCSharp may read if its layout grows the same way.
-
 **Now 2, `shaders_lightmap_rendering`.** `UpdateMeshBuffer` is carried, writing into one of a
 mesh's arrays from a byte offset by raylib's index for it: positions, texture coordinates and
 normals into the mesh's vertices in place, keeping the bounds it was made with, and colors and
@@ -336,3 +310,24 @@ lines where the source draws 16 by 16, so its plane stands smaller and the label
 TODO.md keeps the tangents' index of `UpdateMeshBuffer` among what the layout leaves out, and the
 count carried is 502, 81 percent. The table stands at 213 written and 8 missing, the IQM reader
 next.
+
+**Verdict 23, the holder.** It is the app a flow made last, `App`'s `CurrentApp`, the `AsyncLocal`
+that `99b9c97d` added so the test hook can lay a logged error to its test. An `AsyncLocal` lives in
+the flow's execution context, and whatever captures that context keeps the app with it. .NET's
+`FileSystemWatcher` on macOS captures the context as it starts watching, and again after each batch
+of events (`RunningInstance.Start` in `FileSystemWatcher.OSX.cs` on dotnet/runtime's
+`release/10.0`), and roots itself by a `GCHandle` that only FSEvents' release callback frees, where
+Linux's watcher over inotify keeps none. Every app with `DefaultPlugins` starts the script
+compiler, which watches `source/behaviors` beside the test host, so each of the hundred kept its
+app for as long as macOS kept the stream. No dump was taken on macOS, which this machine cannot
+run, and the number was taken on Linux instead, by a test run once and not kept that made the leak
+test's hundred headless apps with `ExecutionContext.Capture()` of each kept in a list, as the
+watcher keeps it, read with `dotnet test --filter` at detailed console verbosity: the heap grew
+5.66 MB from the twentieth app to the hundredth, 71 KB an app, against the page's 5.87 MB, and 0.03
+MB with the mend. The mend holds the app there by a `WeakReference`, so a context that outlives an
+app keeps a way to ask whether it is alive and nothing of it, and `App.Current` answers as before
+while the app lives. `AppLeakTests` gains a test that makes an app on a thread of its own, keeps
+the context captured there, closes the app and finds it collected, which failed before the mend.
+The allowance is as it was. Here the headless hundred reads 10.0 MB of heap at the twentieth app
+and 10.2 at the hundredth, the drawing hundred 10.8 and 10.7, and the suite 1,317 passed, 0 failed
+and 1 skipped.

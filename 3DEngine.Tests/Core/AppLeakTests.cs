@@ -61,6 +61,30 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         (resident100 - resident20).Should().BeLessThan(50, "and the process gives back what each took");
     }
 
+    [Fact]
+    public void A_Context_Captured_While_An_App_Lived_Does_Not_Keep_It_After()
+    {
+        // Made on a thread of its own, so the context it returns is the one thing that saw the app.
+        (ExecutionContext? Context, WeakReference<App>? App) made = default;
+        var thread = new Thread(() =>
+        {
+            var app = new App(Config.Default with { Headless = true });
+            // As macOS's FileSystemWatcher captures the context when it starts watching and keeps it
+            // until FSEvents lets go of the stream, which may be after the app has closed.
+            made = (ExecutionContext.Capture(), new WeakReference<App>(app));
+            app.Shutdown();
+        });
+        thread.Start();
+        thread.Join();
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+
+        made.App!.TryGetTarget(out _).Should().BeFalse("a context that outlives an app holds no more of it than a way to ask whether it is alive");
+        GC.KeepAlive(made.Context);
+    }
+
     [NeedsVulkanFact]
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()
     {
