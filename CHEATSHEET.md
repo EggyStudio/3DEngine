@@ -228,7 +228,7 @@ void DrawRectanglePro(Rectangle rec, Vector2 origin, float rotation, Color color
 void DrawRectangleGradientV(int x, int y, int width, int height, Color top, Color bottom); // Blended top to bottom
 void DrawRectangleGradientH(int x, int y, int width, int height, Color left, Color right); // Blended left to right
 void DrawRectangleGradientEx(Rectangle rec, Color topLeft, Color bottomLeft, Color bottomRight, Color topRight); // Blended between corners
-void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);            // Outline of a width, inside the edge
+void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);            // Outline of a width, inside the edge or outside
 void DrawRectangleRounded(Rectangle rec, float roundness, int segments, Color color); // Rounded corners, roundness 0 to 1
 void DrawRectangleRoundedLines(Rectangle rec, float roundness, int segments, Color color); // Its outline
 void DrawRectangleRoundedLinesEx(Rectangle rec, float roundness, int segments, float lineThick, Color color); // Its outline, thick, outside the edge

@@ -148,6 +148,9 @@ def main():
     if not examples:
         sys.exit("no written example in " + ", ".join(wanted))
     library = build_raylib(source)
+    # The build ./e3d open starts, made from the checkout as it is, so no capture is of an older one.
+    subprocess.run(["dotnet", "build", os.path.join(ROOT, "3DEngine.Examples"), "-v", "q", "--nologo"], check=True,
+                   stdout=subprocess.DEVNULL)
     os.makedirs(OUT, exist_ok=True)
     measured = read_measured()
     for example in examples:
