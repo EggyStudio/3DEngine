@@ -12,11 +12,12 @@ VertexOutput vertexMain(float3 position : POSITION, float2 uv : TEXCOORD0, float
 [shader("fragment")]
 float4 fragmentMain(VertexOutput input) : SV_Target
 {
-    // A texel with no coverage is discarded rather than blended, so the empty corners of a sprite
-    // or billboard write no depth and do not hide what is drawn behind them later. Pixels written
-    // into a render target replace what is there, clear ones too, and say so in param 0's x.
+    // In 3D a texel with no coverage is discarded rather than blended, so the empty corners of a
+    // sprite or billboard write no depth and do not hide what is drawn behind them later. In 2D it
+    // is blended as raylib blends it, which an additive or custom blend mode reads. The pass says
+    // which in param 0's x.
     float4 color = input.color * boundTexture.Sample(input.uv);
-    if (color.a <= 0.0 && param(0).x == 0.0)
+    if (color.a <= 0.0 && param(0).x != 0.0)
         discard;
     return color;
 }

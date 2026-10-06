@@ -49,7 +49,12 @@ var hue = ColorFromHSV(200, 0.7f, 0.9f);     // from hue, saturation and value
 ```
 
 A color with alpha below 255 is laid over what is behind it. `BeginBlendMode(BlendMode.Additive)`
-adds colors instead, as light does, until `EndBlendMode`.
+adds colors instead, as light does, until `EndBlendMode`. `BlendMode.Custom` combines them by the
+factors and equation `rlSetBlendFactors` sets, rlgl's, for the color and its alpha alike, and
+`BlendMode.CustomSeparate` by those `rlSetBlendFactorsSeparate` sets, the color's apart from the
+alpha's. `shapes_top_down_lights` keeps the smaller alpha of each light's mask with
+`RlBlendEquation.Min` to merge them, and `textures_magnifying_glass` replaces a render texture's
+alpha and keeps its color, so a circle of it shows.
 
 ## Text
 
@@ -134,7 +139,9 @@ until `EndScissorMode`, as a scrolling list inside a panel needs.
 ## See also
 
 - Examples: [`shapes_basic_shapes`](../3DEngine.Examples/Shapes/ShapesBasicShapes.cs),
-  [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs)
+  [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs),
+  [`shapes_top_down_lights`](../3DEngine.Examples/Shapes/ShapesTopDownLights.cs),
+  [`textures_magnifying_glass`](../3DEngine.Examples/Textures/TexturesMagnifyingGlass.cs)
 - The cheatsheet's [2D shapes](../CHEATSHEET.md#2d-shapes), [Collision](../CHEATSHEET.md#collision) and
   [Colors](../CHEATSHEET.md#colors)
 - Previous: [The window and the frame](window-and-frame.md)

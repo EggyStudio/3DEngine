@@ -370,6 +370,45 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Custom_Blend_Factors_Combine_Color_And_Alpha_As_Rlgl_Sets_Them_And_A_Clear_Texel_Is_Blended_In_2D()
+    {
+        Open(64, 16);
+        var target = LoadRenderTexture(16, 16);
+        var image = Capture(() =>
+        {
+            // The larger of each channel, rlgl's equation leaving the factors out
+            ClearBackground(Color.Black);
+            DrawRectangle(0, 0, 16, 16, new Color(100, 20, 0));
+            rlSetBlendFactors(RlBlendFactor.One, RlBlendFactor.One, RlBlendEquation.Max);
+            BeginBlendMode(BlendMode.Custom);
+            DrawRectangle(0, 0, 16, 16, new Color(50, 200, 0));
+            EndBlendMode();
+
+            // The color kept and the alpha replaced, as textures_magnifying_glass masks its view
+            BeginTextureMode(target);
+            ClearBackground(new Color(0, 0, 255));
+            BeginBlendMode(BlendMode.CustomSeparate);
+            rlSetBlendFactorsSeparate(RlBlendFactor.Zero, RlBlendFactor.One, RlBlendFactor.One, RlBlendFactor.Zero, RlBlendEquation.FuncAdd, RlBlendEquation.FuncAdd);
+            DrawRectangle(0, 0, 8, 16, new Color(255, 0, 0, 0));
+            EndBlendMode();
+            EndTextureMode();
+            DrawRectangle(16, 0, 16, 16, new Color(0, 255, 0));
+            DrawTexture(target.Texture, 16, 0, Color.White);
+
+            // A texel with no alpha adds its color in 2D, as raylib's does, where the 3D pass discards it
+            BeginBlendMode(BlendMode.AddColors);
+            DrawRectangle(32, 0, 16, 16, new Color(0, 100, 0, 0));
+            EndBlendMode();
+        });
+
+        GetImageColor(image, 8, 8).Should().Be(new Color(100, 200, 0), "the maximum of each channel");
+        GetImageColor(image, 20, 8).Should().Be(new Color(0, 255, 0), "the target's left half kept its blue and took the clear alpha, so the green shows through");
+        GetImageColor(image, 28, 8).Should().Be(new Color(0, 0, 255), "its right half is the blue it was cleared to");
+        GetImageColor(image, 40, 8).Should().Be(new Color(0, 100, 0), "the clear texel's color is added");
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void Text_Lands_Inside_The_Box_MeasureText_Gives_It()
     {
         Open(96, 48);

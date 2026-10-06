@@ -138,7 +138,7 @@ public static partial class Engine3D
     // -- Blending and scissors
 
     /// <summary>Lays the following shapes, textures and text over what is there by <paramref name="mode"/> until <see cref="EndBlendMode"/>.</summary>
-    public static void BeginBlendMode(BlendMode mode) => DrawList.SetBlend(mode);
+    public static void BeginBlendMode(BlendMode mode) => DrawList.SetBlend(mode, RlBlendFactorsFor(mode));
 
     /// <summary>Returns to laying what is drawn over by its alpha.</summary>
     public static void EndBlendMode() => DrawList.SetBlend(BlendMode.Alpha);

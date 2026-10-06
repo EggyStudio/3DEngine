@@ -204,6 +204,13 @@ internal sealed unsafe partial class GraphicsDevice
             BlendMode.AlphaPremultiply => (VkBlendFactor.One, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add),
             _ => (VkBlendFactor.SrcAlpha, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add),
         };
+        var (srcAlpha, dstAlpha, alphaOp) = (VkBlendFactor.One, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add);
+        if (desc.Blend is BlendMode.Custom or BlendMode.CustomSeparate)
+        {
+            var f = desc.Factors;
+            (srcColor, dstColor, colorOp) = (ToVkBlendFactor(f.SrcColor), ToVkBlendFactor(f.DstColor), ToVkBlendOp(f.ColorEquation));
+            (srcAlpha, dstAlpha, alphaOp) = (ToVkBlendFactor(f.SrcAlpha), ToVkBlendFactor(f.DstAlpha), ToVkBlendOp(f.AlphaEquation));
+        }
         VkPipelineColorBlendAttachmentState colorBlendAttachment = new()
         {
             colorWriteMask = VkColorComponentFlags.R | VkColorComponentFlags.G | VkColorComponentFlags.B | VkColorComponentFlags.A,
@@ -211,9 +218,9 @@ internal sealed unsafe partial class GraphicsDevice
             srcColorBlendFactor = srcColor,
             dstColorBlendFactor = dstColor,
             colorBlendOp = colorOp,
-            srcAlphaBlendFactor = VkBlendFactor.One,
-            dstAlphaBlendFactor = VkBlendFactor.OneMinusSrcAlpha,
-            alphaBlendOp = VkBlendOp.Add
+            srcAlphaBlendFactor = srcAlpha,
+            dstAlphaBlendFactor = dstAlpha,
+            alphaBlendOp = alphaOp
         };
 
         VkPipelineColorBlendStateCreateInfo colorBlend = new()
@@ -397,6 +404,31 @@ internal sealed unsafe partial class GraphicsDevice
         CompareOp.GreaterOrEqual => VkCompareOp.GreaterOrEqual,
         CompareOp.Always => VkCompareOp.Always,
         _ => VkCompareOp.Less
+    };
+
+    // rlgl's blend factors and equations, OpenGL's, as Vulkan names them.
+    private static VkBlendFactor ToVkBlendFactor(RlBlendFactor factor) => factor switch
+    {
+        RlBlendFactor.Zero => VkBlendFactor.Zero,
+        RlBlendFactor.SrcColor => VkBlendFactor.SrcColor,
+        RlBlendFactor.OneMinusSrcColor => VkBlendFactor.OneMinusSrcColor,
+        RlBlendFactor.SrcAlpha => VkBlendFactor.SrcAlpha,
+        RlBlendFactor.OneMinusSrcAlpha => VkBlendFactor.OneMinusSrcAlpha,
+        RlBlendFactor.DstAlpha => VkBlendFactor.DstAlpha,
+        RlBlendFactor.OneMinusDstAlpha => VkBlendFactor.OneMinusDstAlpha,
+        RlBlendFactor.DstColor => VkBlendFactor.DstColor,
+        RlBlendFactor.OneMinusDstColor => VkBlendFactor.OneMinusDstColor,
+        RlBlendFactor.SrcAlphaSaturate => VkBlendFactor.SrcAlphaSaturate,
+        _ => VkBlendFactor.One,
+    };
+
+    private static VkBlendOp ToVkBlendOp(RlBlendEquation equation) => equation switch
+    {
+        RlBlendEquation.Min => VkBlendOp.Min,
+        RlBlendEquation.Max => VkBlendOp.Max,
+        RlBlendEquation.FuncSubtract => VkBlendOp.Subtract,
+        RlBlendEquation.FuncReverseSubtract => VkBlendOp.ReverseSubtract,
+        _ => VkBlendOp.Add,
     };
 
     // ---- Extended draw commands ----

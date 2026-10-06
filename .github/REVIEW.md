@@ -270,3 +270,21 @@ itself after 240 frames. `core_highdpi_demo`, `core_highdpi_testbed` and `core_w
 raylib's, and `shapes_double_pendulum` asks for high density as raylib's does and is written
 whole. The table stands at 198 written, none in part and 23 missing, blend factors' and BMFont's
 two rows each next.
+
+**Now 2, blend factors' two rows.** `rlSetBlendFactors` and `rlSetBlendFactorsSeparate` are
+carried with `RlBlendFactor` and `RlBlendEquation` under rlgl's values, beside `BlendMode.Custom`
+and `BlendMode.CustomSeparate`, `rlSetBlendMode` and an `rlDrawRenderBatchActive` with nothing to
+do. The draw list keeps a custom mode's factors with each batch and the immediate pass keys its
+pipelines by them, and a custom mode combines the alpha by its factors as rlgl's does, where the
+other modes keep laying alpha over. What is drawn in a custom mode takes the factors last set,
+which is a line on the comparison, since rlgl's takes them at the next `rlSetBlendMode` and the
+first frame of `textures_magnifying_glass`, which sets them after its mode, would otherwise go
+unmasked. One call was brought to raylib's: the immediate shader discarded a texel with no alpha
+in 2D as well as 3D, which changed what `AddColors`, `SubtractColors`, `Multiplied` and the custom
+modes draw, so it discards in 3D alone, where a billboard's clear corners would write depth, and
+the flag that kept a written pixel's clear texels goes with it. `textures_blend_modes` under
+`AddColors` shows the yellow raylib's does, the foreground's clear pixels being (245, 160, 39).
+A render test takes the larger of each channel under `RlBlendEquation.Max`, keeps a target's
+color while replacing its alpha, and adds a clear texel's color. `shapes_top_down_lights` and
+`textures_magnifying_glass` are raylib's, and `raybunny.png` is fetched with the rest. The table
+stands at 200 written and 21 missing, BMFont's two rows next.

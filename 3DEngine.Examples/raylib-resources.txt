@@ -87,3 +87,4 @@ models/resources/models/obj/character.obj
 models/resources/models/obj/character.mtl
 models/resources/models/obj/character_diffuse.png
 textures/resources/road.png
+textures/resources/raybunny.png

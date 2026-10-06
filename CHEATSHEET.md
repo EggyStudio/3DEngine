@@ -113,7 +113,7 @@ bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
 void EndTextureMode();                                   // Return to the window
 
-void BeginBlendMode(BlendMode mode);                     // Lay what is drawn over by Alpha, Additive, Multiplied, AddColors, SubtractColors or AlphaPremultiply
+void BeginBlendMode(BlendMode mode);                     // Lay what is drawn over by Alpha, Additive, Multiplied, AddColors, SubtractColors, AlphaPremultiply, Custom or CustomSeparate
 void EndBlendMode();                                     // Back to Alpha
 void BeginScissorMode(int x, int y, int width, int height); // Keep shapes, textures and text to a rectangle of pixels
 void EndScissorMode();                                   // Draw over the whole window or target again
@@ -345,6 +345,10 @@ void rlDisableBackfaceCulling();                           // Draw both faces, m
 void rlSetCullFace(RlCullFace mode);                       // Which faces culling leaves out, Front or Back
 void rlEnablePointMode();                                  // Draw models as a point at each corner
 void rlDisablePointMode();                                 // Draw them filled again
+void rlSetBlendFactors(RlBlendFactor glSrcFactor, RlBlendFactor glDstFactor, RlBlendEquation glEquation); // What BlendMode.Custom combines by
+void rlSetBlendFactorsSeparate(RlBlendFactor glSrcRGB, RlBlendFactor glDstRGB, RlBlendFactor glSrcAlpha, RlBlendFactor glDstAlpha, RlBlendEquation glEqRGB, RlBlendEquation glEqAlpha); // What BlendMode.CustomSeparate combines by, color apart from alpha
+void rlSetBlendMode(BlendMode mode);                       // BeginBlendMode under rlgl's name
+void rlDrawRenderBatchActive();                            // Nothing to do, the draw list keeping each state's shapes in order
 ```
 
 ## Images and textures

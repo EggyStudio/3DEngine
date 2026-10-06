@@ -223,12 +223,11 @@ public static partial class Engine3D
         var written = Textures.Add((byte[])pixels.Clone(), width, height, TextureFilter.Point);
         TargetWrites.Add(written);
 
-        var (into, transform, depthTest, blend, scissor) = (DrawList.Target, DrawList.Transform, DrawList.DepthTest, DrawList.Blend, DrawList.Scissor);
+        var (into, transform, depthTest, blend, factors, scissor) = (DrawList.Target, DrawList.Transform, DrawList.DepthTest, DrawList.Blend, DrawList.Factors, DrawList.Scissor);
         var (shader, parameters, uniforms, textures) = (DrawList.Shader, DrawList.Params, DrawList.Uniforms, DrawList.Textures);
         DrawList.SetTarget(target.Id);
         DrawList.SetTransform(Matrix4x4.CreateOrthographicOffCenter(0, target.Width, 0, target.Height, -1, 1), depthTest: false);
-        // The engine's shader, told by param 0 to keep the clear pixels it discards elsewhere
-        DrawList.SetShader(0, default(ShaderParams).With(0, Vector4.UnitX));
+        DrawList.SetShader(0, default);
         DrawList.SetBlend(DrawList.Replace);
         DrawList.SetScissor(null);
         DrawList.SetModel(Matrix4x4.Identity);
@@ -237,7 +236,7 @@ public static partial class Engine3D
         DrawList.SetTarget(into);
         DrawList.SetTransform(transform, depthTest);
         DrawList.SetShader(shader, parameters, uniforms, textures);
-        DrawList.SetBlend(blend);
+        DrawList.SetBlend(blend, factors);
         DrawList.SetScissor(scissor);
         DrawList.SetModel(_rlTransform);
         return true;

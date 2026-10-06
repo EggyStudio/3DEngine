@@ -177,6 +177,55 @@ public static partial class Engine3D
                 Points = _rlPointMode,
             };
 
+    // The factors the custom blend modes combine by, as rlgl keeps them: one set for
+    // BlendMode.Custom, the color's and the alpha's alike, and one for BlendMode.CustomSeparate.
+    private static BlendFactors _rlBlendFactors = BlendFactors.Default;
+    private static BlendFactors _rlBlendFactorsSeparate = BlendFactors.Default;
+
+    /// <summary>
+    /// Sets the factors and the equation <see cref="BlendMode.Custom"/> combines by, for the color
+    /// and its alpha alike, as rlgl's <c>rlSetBlendFactors</c> does.
+    /// </summary>
+    /// <remarks>
+    /// What is drawn in the custom mode after this takes them, whether the mode was set before or
+    /// after, where rlgl's takes them from the next <see cref="rlSetBlendMode"/>.
+    /// </remarks>
+    public static void rlSetBlendFactors(RlBlendFactor glSrcFactor, RlBlendFactor glDstFactor, RlBlendEquation glEquation)
+    {
+        _rlBlendFactors = new BlendFactors(glSrcFactor, glDstFactor, glEquation, glSrcFactor, glDstFactor, glEquation);
+        if (DrawList.Blend == BlendMode.Custom) DrawList.SetBlend(BlendMode.Custom, _rlBlendFactors);
+    }
+
+    /// <summary>
+    /// Sets the factors and the equations <see cref="BlendMode.CustomSeparate"/> combines by, the
+    /// color's apart from the alpha's, as rlgl's <c>rlSetBlendFactorsSeparate</c> does.
+    /// </summary>
+    /// <remarks>What is drawn in the custom mode after this takes them, as <see cref="rlSetBlendFactors"/> says.</remarks>
+    public static void rlSetBlendFactorsSeparate(RlBlendFactor glSrcRGB, RlBlendFactor glDstRGB, RlBlendFactor glSrcAlpha, RlBlendFactor glDstAlpha,
+        RlBlendEquation glEqRGB, RlBlendEquation glEqAlpha)
+    {
+        _rlBlendFactorsSeparate = new BlendFactors(glSrcRGB, glDstRGB, glEqRGB, glSrcAlpha, glDstAlpha, glEqAlpha);
+        if (DrawList.Blend == BlendMode.CustomSeparate) DrawList.SetBlend(BlendMode.CustomSeparate, _rlBlendFactorsSeparate);
+    }
+
+    /// <summary>Lays what is drawn after over what is there by <paramref name="mode"/>, as <see cref="BeginBlendMode"/> does, under rlgl's name.</summary>
+    public static void rlSetBlendMode(BlendMode mode) => BeginBlendMode(mode);
+
+    /// <summary>
+    /// Draws what rlgl's batch holds before what follows, as rlgl's <c>rlDrawRenderBatchActive</c>
+    /// does, which here has nothing to do, since the draw list keeps the shapes of each state
+    /// apart and in order.
+    /// </summary>
+    public static void rlDrawRenderBatchActive() { }
+
+    // The factors a blend mode combines by, rlgl's for the custom modes and none for the rest.
+    private static BlendFactors RlBlendFactorsFor(BlendMode mode) => mode switch
+    {
+        BlendMode.Custom => _rlBlendFactors,
+        BlendMode.CustomSeparate => _rlBlendFactorsSeparate,
+        _ => default,
+    };
+
     // Sets the transform rlgl moves vertices by, which the draw list moves every shape's by.
     private static void SetRlTransform(Matrix4x4 transform)
     {
@@ -198,6 +247,7 @@ public static partial class Engine3D
     internal static void ForgetRlgl()
     {
         (_rlCulling, _rlCullFace, _rlPointMode) = (RlCulling.Unset, RlCullFace.Back, false);
+        (_rlBlendFactors, _rlBlendFactorsSeparate) = (BlendFactors.Default, BlendFactors.Default);
         RlStack.Clear();
         _rlTransform = Matrix4x4.Identity;
     }

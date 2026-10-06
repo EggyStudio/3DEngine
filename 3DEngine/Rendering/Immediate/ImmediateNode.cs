@@ -54,7 +54,7 @@ internal sealed class ImmediateRenderer : IDisposable
     private Stages? _engineStages;
     private Stages? _linearStages;
     private readonly Dictionary<int, Stages> _customStages = [];
-    private readonly Dictionary<(int Shader, int Slot, BlendMode Blend, CullMode Cull, IRenderPass Pass), IPipeline> _pipelines = [];
+    private readonly Dictionary<(int Shader, int Slot, BlendMode Blend, BlendFactors Factors, CullMode Cull, IRenderPass Pass), IPipeline> _pipelines = [];
     private readonly List<(long Frame, IDisposable Stages)> _retired = [];
     private long _frame;
     private DynamicAllocation? _vertices;
@@ -157,7 +157,9 @@ internal sealed class ImmediateRenderer : IDisposable
             pass.SetPipeline(pipeline);
             pass.SetBindGroup(pipeline, UniformSet(gfx, renderContext, renderWorld, textures, batch) ?? textures.SetFor(gfx, batch.Texture));
 
-            var push = new Push { Transform = batch.Transform, Params = batch.Params };
+            // The engine's own shader is told whether it draws in 3D, where it discards clear texels.
+            var parameters = batch.Shader == 0 ? default(ShaderParams).With(0, batch.DepthTest ? Vector4.UnitX : Vector4.Zero) : batch.Params;
+            var push = new Push { Transform = batch.Transform, Params = parameters };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed((uint)batch.IndexCount, 1, (uint)batch.FirstIndex, 0, 0);
         }
@@ -294,7 +296,7 @@ internal sealed class ImmediateRenderer : IDisposable
         // The HDR frame's pass is the only one drawn linear, so the pass in the key tells the two
         // engine stages apart.
         var stages = StagesFor(gfx, renderWorld, batch.Shader, linear, out var shader);
-        if (_pipelines.TryGetValue((shader, slot, batch.Blend, batch.Cull, renderPass), out var existing)) return existing;
+        if (_pipelines.TryGetValue((shader, slot, batch.Blend, batch.Factors, batch.Cull, renderPass), out var existing)) return existing;
 
         var desc = new GraphicsPipelineDesc(
             renderPass,
@@ -319,14 +321,15 @@ internal sealed class ImmediateRenderer : IDisposable
             DepthWriteEnabled: batch.DepthTest,
             DepthCompareOp: CompareOp.LessOrEqual,
             Topology: batch.Topology,
-            Blend: batch.Blend);
+            Blend: batch.Blend,
+            Factors: batch.Factors);
 
         // Custom shaders' pipelines are kept out of the shared cache, because they are destroyed
         // when the shader is unloaded and the cache would hand them out afterward.
         var pipeline = shader == 0 && renderWorld.TryGet<PipelineCache>() is { } cache
             ? cache.GetOrCreate(desc)
             : gfx.CreateGraphicsPipeline(desc);
-        return _pipelines[(shader, slot, batch.Blend, batch.Cull, renderPass)] = pipeline;
+        return _pipelines[(shader, slot, batch.Blend, batch.Factors, batch.Cull, renderPass)] = pipeline;
     }
 
     // The stages for a batch's shader, made on first use. A shader that is not loaded falls back
@@ -390,7 +393,7 @@ internal sealed class ImmediateRenderer : IDisposable
     public void Dispose()
     {
         foreach (var (_, disposable) in _retired) disposable.Dispose();
-        foreach (var ((shader, _, _, _, _), pipeline) in _pipelines)
+        foreach (var ((shader, _, _, _, _, _), pipeline) in _pipelines)
             if (shader != 0 && pipeline is IDisposable disposable) disposable.Dispose();
         foreach (var stages in _customStages.Values) stages.Dispose();
         foreach (var sets in _uniformSets)

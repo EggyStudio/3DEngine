@@ -61,7 +61,6 @@ shapes_recursive_tree	can	with ImGui in raygui's place
 shapes_ring_drawing	can	with ImGui in raygui's place
 shapes_circle_sector_drawing	can	with ImGui in raygui's place
 shapes_rounded_rectangle_drawing	can	with ImGui in raygui's place
-shapes_top_down_lights	missing	blend factors of the program's own (rlSetBlendFactors), which lay its lights' mask over the scene
 shapes_splines_drawing	can	with ImGui in raygui's place
 shapes_digital_clock	can
 shapes_dashed_line	can
@@ -86,7 +85,6 @@ shapes_outlines_testbed	can	with ImGui in raygui's place
 shapes_outlines_thickness	can	with ImGui in raygui's place
 shapes_polygon_lines	can
 textures_clipboard_image	can
-textures_magnifying_glass	missing	separate blend factors for color and alpha (rlSetBlendFactorsSeparate)
 textures_logo_raylib	can
 textures_srcrec_dstrec	can
 textures_image_generation	can

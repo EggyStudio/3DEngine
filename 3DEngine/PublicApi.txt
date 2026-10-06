@@ -196,6 +196,8 @@ enum Engine.BlendMode : int
   Additive = 1
   Alpha = 0
   AlphaPremultiply = 5
+  Custom = 6
+  CustomSeparate = 7
   Multiplied = 2
   SubtractColors = 4
 enum Engine.BodyKind : byte
@@ -1381,6 +1383,7 @@ static class Engine.Engine3D
   static void rlColor4ub(byte r, byte g, byte b, byte a)
   static void rlDisableBackfaceCulling()
   static void rlDisablePointMode()
+  static void rlDrawRenderBatchActive()
   static void rlEnableBackfaceCulling()
   static void rlEnablePointMode()
   static void rlEnd()
@@ -1389,6 +1392,9 @@ static class Engine.Engine3D
   static void rlPushMatrix()
   static void rlRotatef(float angle, float x, float y, float z)
   static void rlScalef(float x, float y, float z)
+  static void rlSetBlendFactors(RlBlendFactor glSrcFactor, RlBlendFactor glDstFactor, RlBlendEquation glEquation)
+  static void rlSetBlendFactorsSeparate(RlBlendFactor glSrcRGB, RlBlendFactor glDstRGB, RlBlendFactor glSrcAlpha, RlBlendFactor glDstAlpha, RlBlendEquation glEqRGB, RlBlendEquation glEqAlpha)
+  static void rlSetBlendMode(BlendMode mode)
   static void rlSetCullFace(RlCullFace mode)
   static void rlSetTexture(int id)
   static void rlTexCoord2f(float x, float y)
@@ -2380,6 +2386,24 @@ struct Engine.RigidBody
   static RigidBody Dynamic(float mass = 1f)
   static RigidBody Kinematic { get; }
   static RigidBody Static { get; }
+enum Engine.RlBlendEquation : int
+  FuncAdd = 32774
+  FuncReverseSubtract = 32779
+  FuncSubtract = 32778
+  Max = 32776
+  Min = 32775
+enum Engine.RlBlendFactor : int
+  DstAlpha = 772
+  DstColor = 774
+  One = 1
+  OneMinusDstAlpha = 773
+  OneMinusDstColor = 775
+  OneMinusSrcAlpha = 771
+  OneMinusSrcColor = 769
+  SrcAlpha = 770
+  SrcAlphaSaturate = 776
+  SrcColor = 768
+  Zero = 0
 enum Engine.RlCullFace : int
   Back = 1
   Front = 0

@@ -39,6 +39,7 @@ internal enum CompareOp
 /// <param name="Topology">How vertices are assembled into primitives. Defaults to <see cref="PrimitiveTopology.TriangleList"/>.</param>
 /// <param name="Blend">How the colors combine when <paramref name="BlendEnabled"/> is <c>true</c>, raylib's blend modes.</param>
 /// <param name="Points">Whether triangles are drawn as a point at each corner, where the device can, as rlgl's point mode draws them.</param>
+/// <param name="Factors">The factors and equations the custom blend modes combine by.</param>
 internal readonly record struct GraphicsPipelineDesc(
     IRenderPass RenderPass,
     IShader VertexShader,
@@ -55,7 +56,8 @@ internal readonly record struct GraphicsPipelineDesc(
     CompareOp DepthCompareOp = CompareOp.Less,
     PrimitiveTopology Topology = PrimitiveTopology.TriangleList,
     BlendMode Blend = BlendMode.Alpha,
-    bool Points = false);
+    bool Points = false,
+    BlendFactors Factors = default);
 
 /// <summary>Which faces a pipeline leaves out, by their winding, counterclockwise on the screen being the front.</summary>
 internal enum CullMode

@@ -22,10 +22,11 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <param name="Blend">How the run is laid over what is there.</param>
 /// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
 /// <param name="Cull">Which faces of the run's triangles are left out by their winding.</param>
+/// <param name="Factors">The factors a custom <paramref name="Blend"/> combines by, and default for the other modes.</param>
 internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
-    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None);
+    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None, BlendFactors Factors = default);
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
 internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
@@ -137,12 +138,20 @@ internal sealed class DrawList
         }
     }
 
-    /// <summary>Lays the following shapes over what is there by <paramref name="blend"/>.</summary>
-    public void SetBlend(BlendMode blend)
+    /// <summary>The factors a custom <see cref="Blend"/> combines the next recorded shapes by.</summary>
+    public BlendFactors Factors { get; private set; }
+
+    /// <summary>
+    /// Lays the following shapes over what is there by <paramref name="blend"/>, the custom modes by
+    /// <paramref name="factors"/>.
+    /// </summary>
+    public void SetBlend(BlendMode blend, BlendFactors factors = default)
     {
         using (Enter())
         {
             Blend = blend;
+            // Kept only where they are read, so batches of the other modes still join.
+            Factors = blend is BlendMode.Custom or BlendMode.CustomSeparate ? factors : default;
             Close();
         }
     }
@@ -383,6 +392,7 @@ internal sealed class DrawList
             Uniforms = null;
             Textures = null;
             Blend = BlendMode.Alpha;
+            Factors = default;
             Scissor = null;
             Cull = CullMode.None;
             (_model, _hasModel) = (Matrix4x4.Identity, false);
@@ -455,14 +465,14 @@ internal sealed class DrawList
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
-                && last.Scissor == Scissor && last.Cull == Cull && last.FirstIndex + last.IndexCount == first)
+                && last.Factors == Factors && last.Scissor == Scissor && last.Cull == Cull && last.FirstIndex + last.IndexCount == first)
             {
                 Open(topology, texture, last.IndexCount + count);
                 return;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull, Factors));
         Open(topology, texture, count);
     }
 

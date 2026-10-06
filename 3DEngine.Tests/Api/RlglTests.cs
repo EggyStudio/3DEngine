@@ -156,4 +156,27 @@ public sealed class RlglTests : IDisposable
             [(false, false, false), (true, false, false), (true, false, true), (false, true, false), (true, true, false), (false, false, false)],
             "a model keeps its material's faces until rlgl's culling is set, and then follows it");
     }
+
+    [Fact]
+    public void A_Custom_Blend_Mode_Takes_The_Factors_Last_Set_And_The_Other_Modes_None()
+    {
+        rlSetBlendFactors(RlBlendFactor.SrcAlpha, RlBlendFactor.SrcAlpha, RlBlendEquation.Min);
+        BeginBlendMode(BlendMode.Custom);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        // Set while the mode is on, as textures_magnifying_glass sets its own
+        rlSetBlendFactors(RlBlendFactor.One, RlBlendFactor.One, RlBlendEquation.Max);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        BeginBlendMode(BlendMode.CustomSeparate);
+        rlSetBlendFactorsSeparate(RlBlendFactor.Zero, RlBlendFactor.One, RlBlendFactor.One, RlBlendFactor.Zero, RlBlendEquation.FuncAdd, RlBlendEquation.FuncAdd);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlSetBlendMode(BlendMode.Additive);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        EndBlendMode();
+
+        List.Batches.Select(b => (b.Blend, b.Factors)).Should().Equal(
+            (BlendMode.Custom, new BlendFactors(RlBlendFactor.SrcAlpha, RlBlendFactor.SrcAlpha, RlBlendEquation.Min, RlBlendFactor.SrcAlpha, RlBlendFactor.SrcAlpha, RlBlendEquation.Min)),
+            (BlendMode.Custom, new BlendFactors(RlBlendFactor.One, RlBlendFactor.One, RlBlendEquation.Max, RlBlendFactor.One, RlBlendFactor.One, RlBlendEquation.Max)),
+            (BlendMode.CustomSeparate, new BlendFactors(RlBlendFactor.Zero, RlBlendFactor.One, RlBlendEquation.FuncAdd, RlBlendFactor.One, RlBlendFactor.Zero, RlBlendEquation.FuncAdd)),
+            (BlendMode.Additive, default(BlendFactors)));
+    }
 }
