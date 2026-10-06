@@ -5,7 +5,7 @@ namespace Engine;
 
 /// <summary>Writes RGBA pixels as a PNG file, with no dependency beyond the base library.</summary>
 /// <remarks>
-/// One IDAT chunk, filter type 0 on every row and zlib at the fastest level, which is what a
+/// One IDAT chunk, filter type 0 on every row and zlib at the fastest level, which a
 /// screenshot needs: correct, quick to write, and read by everything.
 /// </remarks>
 internal static class PngWriter

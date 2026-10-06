@@ -22,7 +22,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             return;
 
         // Always upload (even with zero lights) so the shader can rely on the binding
-        // existing, since the count is what the shader iterates against.
+        // existing, since the shader iterates against the count.
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
         var environment = renderWorld.TryGet<EnvironmentMap>();
         if (environment is not null)

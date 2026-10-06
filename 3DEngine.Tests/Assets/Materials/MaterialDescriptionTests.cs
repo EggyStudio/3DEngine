@@ -54,7 +54,7 @@ public class MaterialDescriptionTests
         c.AlphaMode.Should().Be(MaterialAlphaMode.Mask);
         c.AlphaCutoff.Should().Be(0.25f);
         c.DoubleSided.Should().BeTrue();
-        // texture ref is a record so equality, not reference, is what matters
+        // texture ref is a record, so it compares by value rather than by reference
         c.BaseColorTexture.Should().Be(d.BaseColorTexture);
 
         // mutating the clone must not affect the original

@@ -130,7 +130,7 @@ public class StbTextureDecoderTests
 
         var act = () => dec.DecodeAsync(ctx, TextureLoadSettings.Default, CancellationToken.None);
 
-        // Stb may throw various decode exceptions; we just want a non-success outcome.
+        // Stb may throw various decode exceptions, and the outcome only has to be a failure.
         await act.Should().ThrowAsync<Exception>();
     }
 

@@ -305,7 +305,7 @@ internal static class SceneSpawner
     private static void AttachMesh(EcsWorld ecs, int entity, SceneNode node, SceneMeshPayload mesh, SceneMaterialPayload? material,
         SceneSpawnSettings settings, SpawnContext ctx)
     {
-        // De-indexed into three vertices per triangle, which is what Mesh holds, with the
+        // De-indexed into three vertices per triangle, as Mesh holds them, with the
         // normals and first texture coordinates beside the positions when the file has them.
         var count = mesh.Indices.Length;
         var positions = new Vector3[count];

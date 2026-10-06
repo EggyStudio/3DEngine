@@ -19,7 +19,7 @@ namespace Engine;
 /// </para>
 /// <para>
 /// <b>Color space:</b> the stored values are filtered as they are, so an sRGB texture is
-/// averaged in non-linear space, which suits diffuse textures and is what most engines do
+/// averaged in non-linear space, which suits diffuse textures, as most engines average
 /// by default.
 /// HDR floats filter naturally in linear space. A future linear-aware path can branch
 /// on <see cref="TextureAsset.ColorSpace"/> if banding becomes visible.

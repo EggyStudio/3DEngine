@@ -64,8 +64,8 @@ public sealed class Scene
     /// The embedded image a material's texture path names, or null when the path names a file.
     /// </summary>
     /// <remarks>
-    /// A path of <c>*</c> and an index names one by position, which is what glTF and FBX imports
-    /// write. Some formats name an embedded image by its original file name instead, so a path
+    /// A path of <c>*</c> and an index names one by position, as glTF and FBX imports
+    /// write it. Some formats name an embedded image by its original file name instead, so a path
     /// whose file name matches one is answered too, as Assimp's own <c>GetEmbeddedTexture</c> does.
     /// </remarks>
     public SceneEmbeddedTexture? FindEmbeddedTexture(string path)

@@ -702,7 +702,7 @@ The largest costs as they were measured, in order, each with what changed:
    again first at 266,673 entities as before, afterward held 307,699, with the shadow pass recording
    for 2.3 ms in place of 5.3 ms. The GPU then took 9.8 ms for the shadow and 5.3 ms for the model
    pass, 15.1 ms of the 16.7 a frame has, so drawing fewer instances, by culling what each cascade
-   and the camera do not see, is what raises the count next.
+   and the camera do not see, raises the count next.
 6. **Every view drew every instance.** The camera, each cascade, each spot tile and each point
    face drew all of a group's instances, though the example's camera backs away to keep its grid
    in view and so leaves the grid past the 150 units the sun's cascades reach.

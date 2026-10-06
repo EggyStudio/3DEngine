@@ -7,7 +7,7 @@ namespace Engine;
 /// the program starts, pauses, seeks and stops.
 /// </summary>
 /// <remarks>
-/// As in raylib, <see cref="Engine3D.UpdateMusicStream"/> is what feeds the voice, so it is called
+/// As in raylib, <see cref="Engine3D.UpdateMusicStream"/> feeds the voice, so it is called
 /// every frame the music plays, and music left without it falls silent after half a second. Ogg
 /// Vorbis is decoded from the open file as it plays. A WAV file is read whole, since it is not
 /// compressed and reading it in pieces would save nothing.

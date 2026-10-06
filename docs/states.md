@@ -13,7 +13,7 @@ has three screens:
 /// <summary>The screens of the example, as a state the app moves between.</summary>
 public enum Screen { Title, Playing, Paused }
 // ...
-// Adding the state is what wakes the Orbiter's transition and InState methods. The other
+// Adding the state wakes the Orbiter's transition and InState methods. The other
 // examples never add it, so the behavior stays asleep there.
 GetApp().AddState(Screen.Title);
 ```
@@ -21,7 +21,7 @@ GetApp().AddState(Screen.Title);
 The flat API has the same calls: `AddState(Screen.Title)` adds it, `GetState<Screen>()` gives the
 value it is in, `IsState(Screen.Paused)` asks whether it is at one, and `SetState(Screen.Playing)`
 moves it. The example reads and moves the state from its loop through the world's resources,
-which is what those calls do:
+which those calls reach as well:
 
 ```csharp
 // A move is queued here and applied at the start of the next frame, so everything this

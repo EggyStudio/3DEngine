@@ -217,7 +217,7 @@ public class SlangCompilerTests : IDisposable
         compiled.Textures.Should().Equal(new ShaderTexture("combined", 1), new ShaderTexture("detail", 2, DescriptorType.SampledImage),
             new ShaderTexture("detailSampler", 3, DescriptorType.Sampler));
         cached.Textures.Should().Equal(compiled.Textures);
-        compiled.Bindings.Select(b => (b.Binding, b.Type)).Should().Equal(
+        compiled.Bindings!.Select(b => (b.Binding, b.Type)).Should().Equal(
             (1, DescriptorType.CombinedImageSampler), (2, DescriptorType.SampledImage), (3, DescriptorType.Sampler));
     }
 

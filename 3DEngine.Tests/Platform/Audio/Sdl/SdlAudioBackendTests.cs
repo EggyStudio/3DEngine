@@ -4,7 +4,7 @@ namespace Engine.Tests.Audio.Sdl;
 
 /// <summary>
 /// Tests for the SDL3 audio backend wiring. CI hosts typically lack an audio device,
-/// so the backend's "fail-soft" contract is what is asserted. It installs on the
+/// so the tests assert the backend's fail-soft contract. It installs on the
 /// <see cref="AudioServer"/>, leaves <see cref="IAudioBackend.IsInitialized"/> at
 /// <c>false</c> when no device is available, and turns every subsequent method call
 /// into a no-op so gameplay code never has to null-check the backend.

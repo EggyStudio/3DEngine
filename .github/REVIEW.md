@@ -273,3 +273,17 @@ own with the one drawn. The 98 render and reference tests pass on lavapipe under
 layer, which checks a descriptor's kind against the shader's. TODO.md's entry keeps its other two
 gaps, and its first entry keeps the measurement of 74e1827a with the command that made it, as you
 asked. The suite: 1,343 passed, 0 failed, 1 skipped.
+
+**Now 6, TODO.md's Prose entry, the checks STYLE.md ends with.** Run over the tree, they found no
+dash, banner, revision talk or `.ref/` path outside STYLE.md and COMMITS.md, which quote their own
+rules. The cleft forms and the things that wanted, 27 of them in comments, documentation, test
+reasons and four Markdown files, are plain statements, and the three left are people wanting things,
+as STYLE.md allows: a consumer of a plugin, a caller of the spawner and raylib's own question on
+screen. Of the spaced hyphens, two comments ported from raylib's examples used the mark,
+`ModelsDecals`' and `TexturesMagnifyingGlass`' table of blend factors, which say the same in
+sentences, and the rest are arithmetic, raylib's text on screen and a license. The colons, near 400
+lines and most of them labels, are read file by file as each is next changed, as the entry has it.
+The strict build of b0386c1e had run against a test project an earlier build without `-warnaserror`
+had left up to date, so a nullable warning in its new test reached `main`, and is mended here; the
+build before a commit is made with `--no-incremental` from now on. The suite: 1,343 passed, 0
+failed, 1 skipped.

@@ -45,7 +45,7 @@ public readonly record struct AudioVoiceParams
     /// Sample-rate ratio: <c>1.0</c> = native pitch, <c>2.0</c> = one octave up
     /// (twice as fast), <c>0.5</c> = one octave down. Backends typically clamp to a
     /// safe range (SDL3 enforces <c>[0.01, 100]</c>). Used both for pitch effects and
-    /// for Doppler when the gameplay layer wants to drive it.
+    /// for Doppler when the gameplay layer drives it.
     /// </summary>
     public float PlaybackRate { get; init; }
 

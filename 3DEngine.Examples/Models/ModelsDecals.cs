@@ -312,7 +312,7 @@ public static class ModelsDecals
                     vertices[i] = v;
                 }
 
-                // If any of them are inside, we add the triangle - we'll clip it later
+                // A triangle with any corner inside is added, and clipped later.
                 if (insideCount > 0) AddTriangleToMeshBuilder(meshBuilders[mbIndex], vertices[0], vertices[1], vertices[2]);
             }
         }

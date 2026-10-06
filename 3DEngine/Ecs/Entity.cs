@@ -5,7 +5,7 @@ namespace Engine;
 /// despawn is recognizably stale instead of naming whatever entity reuses the id.
 /// </summary>
 /// <remarks>
-/// <see cref="EcsWorld"/>'s operations take the plain <see cref="int"/> id, which is what a system
+/// <see cref="EcsWorld"/>'s operations take the plain <see cref="int"/> id, which a system
 /// iterating this frame holds. A reference kept across frames (a target, a parent, an owner) is
 /// kept as an <see cref="Entity"/> from <see cref="EcsWorld.Handle"/>, and turned back into an id
 /// with <see cref="EcsWorld.TryResolve"/> each time it is used.

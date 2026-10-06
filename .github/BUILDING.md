@@ -83,7 +83,7 @@ frame and fails unless it is drawn at the size last asked for with nothing repor
 game and five examples through one.
 
 `--offscreen` needs a Vulkan device and nothing else. Mesa's lavapipe, which runs on the CPU, is
-one (`mesa-vulkan-drivers` on Debian and Ubuntu), and is what CI renders with. The render tests in
+one (`mesa-vulkan-drivers` on Debian and Ubuntu), and CI renders with it. The render tests in
 `3DEngine.Tests/Rendering/OffscreenRenderTests.cs` draw this way and are skipped where there is
 no device.
 

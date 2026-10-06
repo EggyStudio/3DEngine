@@ -93,7 +93,7 @@ internal sealed class SceneImportSettings
     /// <summary>
     /// Which payload kinds to populate on <see cref="SceneNode.Components"/>. Defaults
     /// to <see cref="LoadPayloads.All"/>; set to a narrower mask to skip work the caller
-    /// will not consume (e.g. thumbnails want meshes only).
+    /// will not consume (thumbnails, for one, need meshes only).
     /// </summary>
     public LoadPayloads LoadPayloads { get; init; } = LoadPayloads.All;
 

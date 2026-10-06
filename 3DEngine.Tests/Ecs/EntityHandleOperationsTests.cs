@@ -31,7 +31,7 @@ public class EntityHandleOperationsTests
         ecs.Despawn(first);
         var second = ecs.Spawn();
         ecs.Add(second, new Health { Value = 9 });
-        second.Should().Be(first, "the id was reused, which is what a bare int cannot tell");
+        second.Should().Be(first, "the id was reused, which a bare int cannot tell");
 
         ecs.Has<Health>(stale).Should().BeFalse();
         ecs.TryGet<Health>(stale, out _).Should().BeFalse();

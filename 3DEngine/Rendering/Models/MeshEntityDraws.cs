@@ -368,7 +368,7 @@ internal sealed class MeshEntityDraws
         store.ChangedAfter(entity, since) || store.AddedAfter(entity, since);
 
     // Whether a chunk's entities are the ones it gathered last frame, at the same dense indices,
-    // with nothing they are drawn by changed since, so what it gathered is what it would again.
+    // with nothing they are drawn by changed since, so it would gather the same again.
     private bool Unchanged(Chunk state, int start, int end, in Frame frame)
     {
         if (!state.Keepable || state.Start != start || state.End != end || state.Generation != _generation) return false;
@@ -565,8 +565,8 @@ internal sealed class MeshEntityDraws
     }
 
     // A camera entity's view-projection and eye. The shape is its render texture's, or the
-    // window's, or with no window (an offscreen run) the size the config asked for, which is what
-    // the frames are drawn at. Assuming square there stretched every mesh entity in an offscreen
+    // window's, or with no window (an offscreen run) the size the config asked for, at which
+    // the frames are drawn. Assuming square there stretched every mesh entity in an offscreen
     // capture while the 2D drawing beside it was right.
     private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
     {

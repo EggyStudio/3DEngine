@@ -1296,7 +1296,7 @@ public sealed class OffscreenRenderTests : IDisposable
         SetShaderValueTexture(paint, GetShaderLocation(paint, "image"), texture);
         ComputeShaderDispatch(paint, 2, 2, 1);
 
-        // Drawn an eighth of its size, so the 2 by 2 level is what is sampled.
+        // Drawn an eighth of its size, so the 2 by 2 level is sampled.
         var image = Capture(() =>
         {
             ClearBackground(Color.Black);

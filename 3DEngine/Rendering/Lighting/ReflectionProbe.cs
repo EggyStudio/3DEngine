@@ -18,7 +18,7 @@ namespace Engine;
 /// take them from the environment map. A surface in no box keeps the environment map.
 /// </para>
 /// <para>
-/// What it captures is what the window draws in the frame of the capture, lit as the window is,
+/// A probe captures what the window draws in the frame of the capture, lit as the window is,
 /// so a probe is captured once its room is in the frame. A probe spawned with a scene captures
 /// again once every model under the same root entity has spawned, as a room's prefab streamed in
 /// brings its probe at once and its models a few frames later. Four probes are bound at once, those

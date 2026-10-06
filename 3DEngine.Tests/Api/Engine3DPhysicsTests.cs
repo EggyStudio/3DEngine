@@ -75,7 +75,7 @@ public sealed class Engine3DPhysicsTests : IDisposable
         hit.Body.Should().Be(floor, "a wheel's ray inside a gate's sensor reaches the ground");
         hit = GetRayCollisionPhysics(new Ray(new Vector3(3, 10, 3), -Vector3.UnitY), 20);
         hit.Hit.Should().BeTrue();
-        hit.Body.Should().Be(floor, "and from above, the floor is what the ray meets");
+        hit.Body.Should().Be(floor, "and from above, the ray meets the floor");
     }
 
     [Fact]

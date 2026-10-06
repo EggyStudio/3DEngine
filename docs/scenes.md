@@ -40,7 +40,7 @@ if (IsKeyPressed(Key.R))
 }
 ```
 
-`SceneFile` is what the two flat calls use, with a path taken as it is.
+The two flat calls use `SceneFile`, with a path taken as it is.
 
 ## Building what is saved
 

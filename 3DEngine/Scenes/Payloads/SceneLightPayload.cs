@@ -7,7 +7,7 @@ namespace Engine;
 /// <see cref="LightSpawnSystem"/> turns it into a <see cref="Light"/> on the spawned entity.
 /// </summary>
 /// <remarks>
-/// The same fields as <see cref="Light"/>, which are what the model pass reads. A reader maps what
+/// The same fields as <see cref="Light"/>, which the model pass reads. A reader maps what
 /// its format has onto them: Assimp's directional, point, spot and ambient lights map directly, and
 /// an area light becomes a point light, which is the nearest thing the model pass draws.
 /// </remarks>

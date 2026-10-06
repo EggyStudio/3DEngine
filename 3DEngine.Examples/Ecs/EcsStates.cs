@@ -12,7 +12,7 @@ public static class EcsStates
     {
         InitWindow(800, 450, "[ecs] states");
 
-        // Adding the state is what wakes the Orbiter's transition and InState methods. The other
+        // Adding the state wakes the Orbiter's transition and InState methods. The other
         // examples never add it, so the behavior stays asleep there.
         GetApp().AddState(Screen.Title);
         var world = GetApp().World;

@@ -69,13 +69,12 @@ public static class TexturesMagnifyingGlass
                     // Mask the magnifying glass view texture to a circle
                     // To make the mask affect only alpha, a CUSTOM blend mode is used with SEPARATE color/alpha functions
                     BeginBlendMode(BlendMode.CustomSeparate);
-                        // C: Color, A: Alpha, s: source (texture to draw), d: destination (texture drawn to)
-                        //   glSrcRGB: RL_ZERO      - Cs * 0 = 0  - discard source rgb because our texture's colors are not drawn at all
-                        //   glDstRGB: RL_ONE       - Cd * 1 = Cd - use destination colors unmodified
-                        //   glSrcAlpha: RL_ONE     - As * 1 = As - use source alpha unmodified
-                        //   glDstAlpha: RL_ZERO    - Ad * 0 = 0  - discard destination alpha
-                        //   glEqRGB: RL_FUNC_ADD   - Cs(0) + Cd = Cd - destination color is unmodified
-                        //   glEqAlpha: RL_FUNC_ADD - As + Ad(0) = As - destination alpha is set to source alpha
+                        // C is color and A alpha, s the source drawn and d the destination drawn into:
+                        //   source color, zero (Cs * 0 = 0), so the mask's colors are not drawn at all
+                        //   destination color, one (Cd * 1 = Cd), so the colors drawn stay as they are
+                        //   source alpha, one (As * 1 = As), so the mask's alpha is taken as it is
+                        //   destination alpha, zero (Ad * 0 = 0), so the alpha drawn is let go
+                        //   both added (Cs(0) + Cd = Cd, As + Ad(0) = As), so the color is unchanged and the alpha is the mask's
                         rlSetBlendFactorsSeparate(RlBlendFactor.Zero, RlBlendFactor.One, RlBlendFactor.One, RlBlendFactor.Zero, RlBlendEquation.FuncAdd, RlBlendEquation.FuncAdd);
                         DrawTexture(mask, 0, 0, Color.White);
                     EndBlendMode();
