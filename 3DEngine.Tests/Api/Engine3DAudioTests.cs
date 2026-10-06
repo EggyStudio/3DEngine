@@ -168,6 +168,34 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void A_Stream_With_No_Audio_Device_Takes_Two_Buffers_And_Then_Asks_For_No_More()
+    {
+        // No device to play it, as on a machine with none, where audio_spectrum_visualizer once fed
+        // its stream for ever in the loop that asks it.
+        GetApp().World.Resource<AudioServer>().SetBackend(new NullAudioBackend());
+        SetAudioStreamBufferSizeDefault(1024);
+        try
+        {
+            var stream = LoadAudioStream(44100, 16, 1);
+            PlayAudioStream(stream);
+
+            var fed = 0;
+            while (IsAudioStreamProcessed(stream) && fed < 10)
+            {
+                UpdateAudioStream(stream, new float[1024]);
+                fed++;
+            }
+
+            fed.Should().Be(2, "a stream takes two buffers, as raylib's does, which nothing plays where there is no device");
+            UnloadAudioStream(stream);
+        }
+        finally
+        {
+            SetAudioStreamBufferSizeDefault(4096);
+        }
+    }
+
+    [Fact]
     public void A_Stream_With_A_Callback_Is_Topped_Up_At_The_End_Of_A_Frame()
     {
         var stream = LoadAudioStream(8000, 32, 1);

@@ -29,7 +29,11 @@ public static partial class Engine3D
     /// <summary>Queues samples after those a stream has yet to play, interleaved, from -1 to 1.</summary>
     public static void UpdateAudioStream(AudioStream stream, ReadOnlySpan<float> samples)
     {
-        if (StreamVoice(stream) is not { } voice || Audio() is not { } audio) return;
+        if (StreamVoice(stream) is not { } voice || Audio() is not { } audio)
+        {
+            if (!stream.Unloaded) stream.Unheard += samples.Length / Math.Max(1, stream.Channels);
+            return;
+        }
         if (stream.Processors.Length == 0)
         {
             audio.QueueSamples(voice, samples);
@@ -93,8 +97,15 @@ public static partial class Engine3D
     }
 
     /// <summary>Whether a stream has played enough of what it was given to take more, as a loop feeding it asks each frame.</summary>
+    /// <remarks>
+    /// With no audio device to play it, a stream takes two buffers' worth, as raylib's takes its two
+    /// buffers, and then answers false, since nothing plays what it holds, so a loop that feeds it
+    /// while it asks ends and the program draws on in silence.
+    /// </remarks>
     public static bool IsAudioStreamProcessed(AudioStream stream) =>
-        !stream.Unloaded && Audio() is { } audio && (!stream.Voice.IsValid || audio.QueuedFrames(stream.Voice) < stream.BufferFrames);
+        !stream.Unloaded && Audio() is { } audio && (stream.Voice.IsValid
+            ? audio.QueuedFrames(stream.Voice) < stream.BufferFrames
+            : stream.Unheard < 2L * stream.BufferFrames);
 
     /// <summary>Plays a stream, from what it has been given.</summary>
     public static void PlayAudioStream(AudioStream stream)

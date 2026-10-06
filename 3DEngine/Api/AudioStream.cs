@@ -30,6 +30,11 @@ public sealed class AudioStream
     internal int BufferFrames { get; }
 
     internal AudioSource Voice { get; set; }
+
+    // The frames it was given while no audio device could play it, which nothing ever plays, as a
+    // raylib stream with no device keeps the two buffers it was given.
+    internal long Unheard { get; set; }
+
     internal bool Playing { get; set; }
     internal bool Unloaded { get; set; }
     internal float Volume { get; set; } = 1f;

@@ -10,10 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `56564fe2`. Music opens XM and MOD modules, played by a tracker player of the
-engine's own with no dependency added, readers for FastTracker 2's XM and ProTracker's MOD with its
-kin and the older Soundtracker's, following raylib's jar_xm and measured against it built from the
-pinned checkout: the same length to the frame, the first ten seconds correlating at 1.0 with a mean
+Reviewed up to `660b3bc6`. The examples job of `ac774ac9`'s run failed on one capture with no reason
+given, `audio_spectrum_visualizer`, which is Verdict 26. The owner decided six things on 2026-10-06,
+Decisions 9 to 12 and 5.1 packed from `ac774ac9`, and items 6 to 9 come of them. The warnings the
+suite repeated are gone: thirteen tests let go the texture they left, the tests reading Summit's
+level register stand-ins for its components, a missing audio device is warned of once a process, the
+Linux jobs fetch LunarG's layer of 1.4.363.0, which knows `VK_KHR_line_rasterization` and found the
+ambient occlusion renderer never disposed and a custom vertex stage fed instance rows it did not
+read, both mended, and macOS names the layer once, the page repeating only `ScheduleTests`' meant
+throw (`660b3bc6`). Music opens XM and MOD modules, played by a tracker player of the engine's own
+with no dependency added, readers for FastTracker 2's XM and ProTracker's MOD with its kin and the
+older Soundtracker's, following raylib's jar_xm and measured against it built from the pinned
+checkout: the same length to the frame, the first ten seconds correlating at 1.0 with a mean
 difference of 1e-4 of full scale, and a MOD's panning and loudness as jar_mod's to three places;
 `audio_module_playing` is written, 220 of 222 (`56564fe2`). The run of `ac774ac9` passed its tests
 on all three systems, and its examples job, which measures every pair against raylib's program for
@@ -65,9 +73,10 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the next page says.** The run of `ac774ac9` passed on all three systems, and 5.1 is the
-   owner's to pack. Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+1. **Verdict 26 first, the examples job.** The run of `ac774ac9` passed its tests on all three
+   systems and its examples job failed on one capture, which the verdict takes apart; the runs of
+   `56564fe2` and `660b3bc6` are under way. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -113,16 +122,25 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **The warnings the suite repeats, read from the page.** With the banner gone the page names
-   what the suite warns at every run: `CloseWindow: 1 texture(s) were still loaded` 13 times on each
-   system, `Scene file: no single component is called 'Orb'` 12 times, Windows'
-   `SDL_OpenAudioDevice` with no device 5 times, and on Linux 251 validation warnings that the layer
-   the workflow installs does not know `VK_KHR_line_rasterization`, with macOS's 251 of a layer
-   found twice on the runner. Each is either what its tests mean to provoke, and then those tests
-   say so where the warning is read, or a test leaving a texture loaded or a scene naming a shared
-   component by mistake, mended; and the workflow installs a validation layer that knows the
-   extension, so the lines it draws are validated, and the runner's duplicate layer is silenced
-   where the workflow sets the layer's path.
+6. **A render texture is drawn at the window's samples** (Decision 10). A render texture is made
+   at one sample where the window has four, so a scene drawn into one and put on the screen is edged
+   otherwise than the same scene drawn to the window. The owner chose on 2026-10-06 that a render
+   texture takes the window's samples unless `LoadRenderTextureEx` says otherwise, the window's four
+   samples and the bilinear filter staying as the page keeps them. A test holds a render texture's
+   samples, and a reference that changes is redrawn with the reason (N 3.5).
+7. **The engine ships compiled ahead, ReadyToRun, for each platform** (Decision 11). The
+   package's library is published ReadyToRun for each runtime identifier the package carries, in
+   `3DEngine.csproj` and `.github/workflows/pack.yml`, so a game run from its project does not spend
+   Manor's 629 ms compiling in its first frame. The package's size before and after and the first
+   frame's time with and without are in the commit, and TODO.md's cost entry follows.
+8. **Per-object motion blur** (Decision 12), after items 2 to 7. A velocity image beside the HDR
+   frame from each entity's previous transform, ECS entities blurred by their own motion and
+   flat-API draws by the camera's as today, off by default, measured on a scene that moves, with a
+   reference redrawn for it and a test of a moving entity's trail.
+9. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
+   an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
+   default, with a test that a viewport's window is made and closed and the editor's panels checked
+   by hand.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -133,7 +151,19 @@ documentation by a tool stays to consider as well.
 
 Verdicts 1 to 25 are settled, and their numbers are not given again.
 
-None open.
+26. **The examples job of `ac774ac9` fails at `audio_spectrum_visualizer: the capture failed`,
+    with no reason given.** The tests passed on all three systems, and the job that captures every
+    example and measures the pairs failed after 23 minutes on that one capture, the first run of the
+    job since the measure joined it. Two things. The capture step says what failed and why: the
+    example's exit code and the last lines of its log that are warnings or errors, in the
+    `::error::` line, as the test page carries its causes (N 6.7), since the line stands alone in
+    the run and the log is 60,000 lines. And the example runs where there is no audio device, as
+    raylib's does on such a machine: it draws its spectrum of silence and ends with the frame count
+    the capture asks for. `moves` leaves its pair out of the measure, which is right, but a capture
+    that fails is not a pair that moves. The workflow's device has no audio device, so the backend
+    is disabled there, which the Windows job warns of once a process, and the example is run here
+    with the backend disabled, `SDL_AUDIO_DRIVER` set to a driver with no device, to find what it
+    does; the runs of `56564fe2` and `660b3bc6` say whether the failure repeats.
 
 ## Decisions
 
@@ -179,28 +209,36 @@ None open.
    the page of `98f6d8e5` repeated the engine's banner, so the section counts what is logged at
    warning or error or with no level and is left out when nothing repeats.
 
+9. **`GetFontDefault` stays ImGui's ProggyClean.** The owner chose it on 2026-10-06 over raylib's
+   own pixel font, which the measure had shown to be the largest part of nearly every share left.
+   The comparison page keeps the font as a kept difference, and it is not raised again.
+
+10. **A render texture takes the window's samples.** The owner chose it on 2026-10-06, of the
+   three defaults the measure made visible, leaving the window's four samples and the bilinear
+   filter as they are, as page lines.
+
+11. **The engine ships ReadyToRun for each platform.** The owner chose it on 2026-10-06, a few
+   megabytes a platform against the first frame's compiling in a game run from its project. The
+   working session does the project and the workflow; the owner publishes.
+
+12. **Per-object motion blur and ImGui viewports are wanted, after the standing items.** The
+   owner said so on 2026-10-06, and that neither is a priority, so they are the last items of the
+   list and are taken when the rest is through.
+
 ## Replies
 
-**Now 6, the warnings the suite repeats.** CloseWindow's loaded texture came from thirteen tests
-that left one for the window to free, found by recording where each texture still loaded at a close
-was made: four cubemap tests, the four maps of the materials reference frame, five offscreen render
-tests and the rows of `BadFileTests`, which now let go what they load, the rows through a helper
-that unloads what it has checked. The 'Orb' warning came from `BadFileTests` and the Summit
-reference frame reading Summit's level without Summit's components, its start and exit skipped as
-well below the three lines the page shows, and the tests that read the level register stand-ins
-under the level's names (`SummitComponents`). Windows' audio device is warned of once a process,
-`SdlAudioBackend` logging the same failure at info after the first, so the probe for a device and
-the backend's tests on a machine with none give one warning, which a test holds. On Linux, Ubuntu
-24.04's layer, 1.3.275, predates `VK_KHR_line_rasterization`, so `build/fetch-validation-layer.sh`
-fetches the layer of LunarG's SDK 1.4.363.0, stripped to 33 MB, which both Linux jobs cache by the
-script and name alone in `VK_LAYER_PATH`, apt's layer no longer installed. Run here in the
-workflow's image, the suite passed under it at 1,420 with 251 devices validated, and it found two
-things the old layer could not. The ambient occlusion renderer was never disposed, leaving 16
-objects at `vkDestroyDevice` after its reference frame, and the renderer disposes it now. And a
-material's own vertex stage was fed every row of the instance though it read fewer, which the layer
-warns of, so a custom pipeline declares only the inputs its stage takes, read from its SPIR-V, a
-step of TODO.md's entry on vertex inputs. With both mended the run logged no message of the layer's.
-On macOS, `VK_ADD_LAYER_PATH` added the layer's folder to a search that already finds Homebrew's
-share folder, which links the same layer, and `VK_LAYER_PATH` names it alone. The page here now
-repeats only `ScheduleTests`' system that throws, twice, which it means to provoke and reads. The
-suite passed 1,422 with one skipped.
+**Verdict 26.** Run here with `SDL_AUDIO_DRIVER` naming a driver that is not there, the example
+never became ready, as on the workflow's device. Its loop feeds its stream
+`while (IsAudioStreamProcessed(audioStream))`, and with no device the stream has no voice, so
+`IsAudioStreamProcessed` answered true for ever while `UpdateAudioStream` dropped what it was given.
+A stream with no device to play it now counts what it is given and takes two buffers' worth, as
+raylib's takes its two buffers, then answers false, since nothing plays them, so the loop ends and
+the example draws the spectrum of the song's first tenth of a second, which is near silence. A test
+holds the two buffers on the null backend. raylib plays through miniaudio, which falls back to a
+null device that takes samples at the rate it would play them, so raylib's program on the same
+runner draws the song's spectrum where this draws that silence. Falling back to SDL's own dummy
+driver would do the same here, the engine's sounds, music and streams then moving on with no device
+as they do with one, and it is a change of what a player with no audio device gets, so it is the
+owner's to choose and is not made. The capture step's error now carries the script's exit code and
+its last line, and the last three lines the example logged at a warning or worse, joined in the
+annotation, tried here under `bash -e` as Actions runs it.
