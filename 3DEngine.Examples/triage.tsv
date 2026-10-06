@@ -171,7 +171,7 @@ shaders_depth_rendering	can
 shaders_game_of_life	can	with ImGui in raygui's place
 shaders_rlgl_compute	can	with the flat API's compute functions in rlgl's place
 shaders_lights_bloom	can
-audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
+audio_module_playing	moves	its bar as far as the audio device has played
 audio_music_stream	moves	its bar as far as the audio device has played
 audio_sound_loading	can
 audio_sound_multi	can

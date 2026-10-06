@@ -10,14 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a7d7e1e2`. The owner pushed `98f6d8e5`, and its run: Linux and Windows pass, 1,403
-each, and macOS passes the leak test, so Verdict 24 is settled, and fails three `StateTests` under
-N 3.7, a script generation's Startup system throwing for a `Time` no bare app has, 18 times, which
-is Verdict 25 and comes first. Verdict 24's mend: `Shutdown` joins the threads an app's parts start
-through an `AppThreads` resource, naming in the log any not done within two seconds, the console's
-server closes the connections still open as it stops, the asset server's sixteen workers run on the
-pool where each was a long running task's thread never joined, and the headless leak test carries
-the heap after every tenth app and the threads alive after each `Shutdown` in its assertions, so the
+Reviewed up to `ac774ac9`, whose run the owner pushed and all three systems pass, Linux and Windows
+1,409 each and macOS 1,389 with 10 skipped, so Verdict 25 is settled and 5.1 is packable, the first
+green run on every system since the page. Verdict 25's cause was found and is not what the verdict
+guessed: the system was `GeneratorAttributeTests`' probe, which the test loaded with `Assembly.Load`
+into the process's own context, so its module initializer put its registration on
+`GeneratedBehaviors`' process list, which skips collectible assemblies alone, and every later app
+with `EcsPlugin` ran the probe's systems, the state tests' bare apps among them, in an order of test
+classes that differs by system. The probe loads into a collectible context as a script does, the
+test builds a bare app and finds none of the probe's systems in it, as `ScriptGenerationTests` does
+after a first generation, and a throwing system is logged with its assembly (`a7842cd4`). The page
+counts a repeated line at warning, error or fatal or with no level and leaves the section out when
+nothing repeats, with a test on 2,190 banners and on one repeated error, as the owner asked
+(`ac774ac9`), and AGENTS.md's table names `docs`, `games` and `templates`, N 1.5's list empty, the
+owner having allowed it in the working session (`01f97324`). Items 4's rows and 6 are settled.
+
+Before them, the owner pushed `98f6d8e5`, whose run read: Linux and Windows pass, 1,403 each, and
+macOS passes the leak test, so Verdict 24 is settled, and fails three `StateTests` under N 3.7, a
+script generation's Startup system throwing for a `Time` no bare app has, 18 times, which became
+Verdict 25. Verdict 24's mend: `Shutdown` joins the threads an app's parts start through an
+`AppThreads` resource, naming in the log any not done within two seconds, the console's server
+closes the connections still open as it stops, the asset server's sixteen workers run on the pool
+where each was a long running task's thread never joined, and the headless leak test carries the
+heap after every tenth app and the threads alive after each `Shutdown` in its assertions, so the
 next macOS run says what is left, the runtime's file watcher on `source/` the one thing a headless
 app still leaves (`27f949bf`). Particles can bounce off or end at the window's depth of the scene,
 off unless set, the depth of the shadow casters drawn at half size, measured at 0.02 ms of CPU and
@@ -42,22 +57,7 @@ faces in raylib's four layouts, found by raylib's own tests, models honor `rlDis
 `models_skybox_rendering` is written, 0.2% apart, 219 examples and 516 of 619 functions
 (`586670cd`).
 
-Before them, raylib's eight automation functions were carried, each frame's input recorded as
-`EndDrawing` begins into raylib's text format and played back, with the engine's own key codes,
-which the page says, and `core_automation_events` is written, 1.0% apart (`3082aad5`).
-`LoadImageFromScreen` reads the last frame presented, kept from its first call on so a program that
-never reads the screen pays nothing, the first call giving the window's size in the clear color, and
-a call inside a frame reads the frame before as well, since nothing of a frame is on the GPU before
-`EndDrawing`, decided here on 2026-10-06 and kept on the page with that reason;
-`core_screen_recording` is written with a GIF writer of its own, 0.2% apart, and 515 of 619
-functions are carried (`53d99c7e`). Four types moved into files of their names, N 1.2's list at 94
-(`0019d177`). TODO.md's cost entries are measured again: the per-entity entry keeps 410,266 entities
-in 17.7 ms and names two changes with their savings, as decided, and the first-use stalls are the
-runtime's compiling, 629 ms in Manor's first frame run from its project and 30 ms built native, so
-the entry names packing the engine compiled ahead for each platform as the owner's to weigh
-(`f9004abf`). The owner pushed.
-
-The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
+The norm has 43 rules, and this engine stands at 32 checked, 2 with places listed, none to take
 and 9 by review.
 
 
@@ -67,9 +67,9 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 25 first, the script generation in bare apps on macOS.** The run of `98f6d8e5`
-   passes on Linux and Windows and on macOS fails three `StateTests`, which the verdict takes apart.
-   The run after its mend is pushed shows whether all three systems pass, and then 5.1 is packable.
+1. **What the next page says.** The run of `ac774ac9` passed on all three systems, and 5.1 is the
+   owner's to pack. Each push's run is read by the reviewing session, and a failure it names comes
+   first here.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -105,9 +105,6 @@ for a reply. In this order.
 4. **The norm's lists are paid down.** A listed file is mended when a batch next touches it, in a
    commit of its own that moves code alone, the largest first where there is a choice, and a batch
    reads the lists for the files it will touch before it starts, as BevyCSharp's list has it.
-   N 1.5's three rows, `docs`, `games` and `templates`, are the change to AGENTS.md that N 7.4
-   allows, and they wait for the owner's word in the working session, which is asked for. The
-   reviewing session does not stand in for it.
 5. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
    capture beside raylib's screenshot, read by eye, and `692cefee` built raylib's deferred program
    here to compare the same frame, which is the measure item 2 asks for and the 216 written have not
@@ -118,12 +115,16 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **The page's repeated lines count warnings and errors alone.** The owner asked on 2026-10-06,
-   the page's "Repeated most in the output" having shown the engine's banner at every app's start,
-   2,190 lines of `====`, where it was meant for the error a system logs every frame.
-   `build/test.py` counts the lines logged at warning or error, or lines of no level at all, and
-   leaves the section out when nothing repeats, with its own test on a log of banners and one
-   repeated error.
+6. **The warnings the suite repeats, read from the page.** With the banner gone the page names
+   what the suite warns at every run: `CloseWindow: 1 texture(s) were still loaded` 13 times on each
+   system, `Scene file: no single component is called 'Orb'` 12 times, Windows'
+   `SDL_OpenAudioDevice` with no device 5 times, and on Linux 251 validation warnings that the layer
+   the workflow installs does not know `VK_KHR_line_rasterization`, with macOS's 251 of a layer
+   found twice on the runner. Each is either what its tests mean to provoke, and then those tests
+   say so where the warning is read, or a test leaving a texture loaded or a scene naming a shared
+   component by mistake, mended; and the workflow installs a validation layer that knows the
+   extension, so the lines it draws are validated, and the runner's duplicate layer is silenced
+   where the workflow sets the layer's path.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -132,26 +133,10 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 24 are settled, and their numbers are not given again.
+Verdicts 1 to 25 are settled, and their numbers are not given again.
 
-25. **The run of `98f6d8e5` fails on macOS alone, in three `StateTests`, under N 3.7.** Read
-    from the page: 1,380 passed, 3 failed, 10 skipped, and in
-    `An_Entity_Spawned_On_Enter_Is_There_For_Update_In_The_Same_Frame`,
-    `An_Entity_Tied_To_A_Sub_State_Goes_When_Its_Parent_Leaves_Its_Value` and
-    `An_Entity_Tied_To_A_Value_Goes_With_Its_Children_When_The_State_Leaves_It` the engine logged 18
-    errors, each `System 'Stages_Generated_Startup_Startup' threw in stage Startup:
-    InvalidOperationException: Resource of type Time not found`. The tests make bare apps with `new
-    App()` and no plugins, so no `Time`, and that system is no code of theirs: its name is the
-    runtime behavior compiler's, so it is a script generation another test compiled, reaching apps
-    that never asked for it. Linux and Windows run the same tests and log nothing, 1,403 passed
-    each, so the generation reaches those apps only where it lives longer, and on macOS Verdict 24
-    found the file watcher's FSEvents stream let go after the collection a test waits for.
-    `d7e370ed` mended a script registered into every later app once, and this is the same fault by
-    another door. Two things. An app takes behaviors from the assemblies it was given and from no
-    generation another app compiled, whatever is still loaded, held by a test on every system that
-    compiles a script in one app, makes a bare app, and finds no system of the script's in it. And
-    the logged error names the assembly a throwing system came from, so the page says where it came
-    from without a Mac. The three tests stay as they are, bare apps being right for what they test.
+None open.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -198,32 +183,22 @@ Verdicts 1 to 24 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, N 1.5's three rows.** The owner allowed in this session that AGENTS.md be committed, and
-its own text allows since 2026-10-05 a row N 1.5 asks for, so the table of areas names `docs`,
-`games` and `templates` and N 1.5's list is empty. NORM.md's row for N 1.5 still says three wait for
-the owner, which is the reviewer's to change.
-
-**Verdict 25.** The system was no script's. `Stages_Generated_Startup_Startup` is the name the
-behavior generator gives in a build as at run time, and `Stages` is the probe of
-`GeneratorAttributeTests`, the one source in the suite with that type. That test compiled its probe
-and loaded it with `Assembly.Load`, into a context that is never let go, so the probe's module
-initializer put its registration in the process's list, which `GeneratedBehaviors.Add` keeps for an
-assembly of the program and passes over for a collectible one, and every app the suite made after it
-with `EcsPlugin` ran the probe's systems, the state tests' bare apps with no `Time` among them.
-Whether the state tests come after it is the order the collections, run side by side, reach them in,
-which differs between the three systems. The probe now loads into a collectible context, as a
-script's generation does, so the list passes it over and the test registers it into its own app
-alone, and the test then makes a bare app with `EcsPlugin` and finds none of the probe's systems in
-it, which fails with `Assembly.Load` put back. `ScriptGenerationTests` makes the same bare app after
-a script's first generation and finds none of its systems either. No other test loads what it
-compiles. The engine's rule stands as it was. An assembly loaded where it cannot be let go is part
-of the program, as a plugin a game loads is, and its behaviors go to every app, while one compiled
-at run time goes to the app that compiled it alone. A system that throws is logged with its
-assembly's name, `System 'X' from Y threw in stage Z`, so a page says where it came from.
-
-**Now 6, the page's repeated lines.** `build/test.py` counts a line logged as a warning or an error,
-or one with no level as an exception's message is, and passes over the lines logged at trace, debug
-or info, the banner among them, and the section is left out when no line repeats, as it was.
-`TestScriptTests` reads a log of 2,190 banners with a debug line beside each, whose page has no
-section, and the same log with an error logged three times beside its exception's line, which the
-section counts three times each with no banner in it.
+**Now 2, XM and MOD music.** `LoadMusicStream` and `LoadMusicStreamFromMemory` open tracker modules,
+played by a player of the engine's own with no dependency added. It has readers for FastTracker 2's
+XM and ProTracker's MOD with its kin of 4 to 32 channels and the older Soundtracker's 15 samples,
+one model for both, and a player of rows, ticks, envelopes, the effect column's effects and the
+volume column's, mixed in stereo at 48 kHz. It follows raylib's jar_xm in its frequencies, its
+effects and its mix, and plays as FastTracker 2 does where jar_xm parts from it (a volume column
+applied on every tick, ping-pong loops played forward, a sample offset counted in bytes, a retrigger
+subtracting whole volumes). Against jar_xm built from the pinned checkout, `mini1111.xm` is
+2,974,098 frames long in both, and its first ten seconds correlate at 1.0 with no lag, the mean
+difference 1e-4 of full scale and the largest 0.2 where a note starts, which jar_xm crossfades over
+8 frames and this fades out the cut note under. A MOD's channels are panned as jar_mod pans them,
+left at twice right, at its loudness to three places; jar_mod counts a song about a row shorter than
+where it comes round, and the XM rule is kept for both. raylib starts a module after counting its
+length without resetting its channels or the tick in hand, so its first tick can carry the end of
+the song, which is not copied. `build/make-test-modules.py` writes `tone.xm` and `tone.mod`, and
+tests read their pitch, the volume column, a note let go, C00, the MOD's panning, a song's end at a
+jump back, a seek and bytes that are no module. `audio_module_playing` is written, 2.9% apart, its
+bar the audio device's as `audio_music_stream`'s is, so its row says it moves, and 220 of 222
+examples are written.

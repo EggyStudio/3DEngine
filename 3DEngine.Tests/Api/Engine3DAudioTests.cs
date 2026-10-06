@@ -289,6 +289,24 @@ public sealed class Engine3DAudioTests : IDisposable
     }
 
     [Fact]
+    public void A_Tracker_Module_Opens_As_Music_As_Long_As_It_Plays_Before_It_Comes_Round()
+    {
+        var folder = Path.Combine(AppContext.BaseDirectory, "Platform", "Audio");
+        var xm = LoadMusicStream(Path.Combine(folder, "tone.xm"));
+        IsMusicValid(xm).Should().BeTrue();
+        GetMusicTimeLength(xm).Should().BeApproximately(20 * 0.12f, 1e-4f, "twenty rows of six ticks of 20 milliseconds");
+        UnloadMusicStream(xm);
+
+        var mod = LoadMusicStreamFromMemory(".mod", File.ReadAllBytes(Path.Combine(folder, "tone.mod")));
+        GetMusicTimeLength(mod).Should().BeApproximately(64 * 0.12f, 1e-4f);
+        PlayMusicStream(mod);
+        _backend.QueuedVoiceFrames(_backend.Streams.Keys.Single()).Should().BeGreaterThanOrEqualTo(24000, "half a second at 48 kHz");
+        UnloadMusicStream(mod);
+
+        IsMusicValid(LoadMusicStreamFromMemory(".xm", [1, 2, 3])).Should().BeFalse("bytes that are not a module give an empty piece");
+    }
+
+    [Fact]
     public void Music_That_Does_Not_Loop_Stops_Playing_Once_Its_Queue_Runs_Out()
     {
         var music = LoadMusicStream(WriteWav());

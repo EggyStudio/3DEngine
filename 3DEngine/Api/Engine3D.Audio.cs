@@ -302,7 +302,12 @@ public static partial class Engine3D
     private const float MusicBufferSeconds = 0.5f;
     private const int MusicChunkFrames = 4096;
 
-    /// <summary>Opens a WAV, Ogg Vorbis, MP3 or FLAC file as music, which streams from the file as it plays.</summary>
+    /// <summary>Opens a WAV, Ogg Vorbis, MP3, FLAC, XM or MOD file as music, which streams from the file as it plays.</summary>
+    /// <remarks>
+    /// An XM or MOD module, a tracker's patterns of notes and the samples they play, is read whole
+    /// and played by the engine's own player as it streams, in stereo at 48 kHz. Its length is how
+    /// long it plays before it comes back to a row it has played, as raylib measures it.
+    /// </remarks>
     /// <returns>The music, or an empty one when the file cannot be read, with the reason in the log.</returns>
     public static Music LoadMusicStream(string fileName)
     {
@@ -367,7 +372,9 @@ public static partial class Engine3D
                 ".wav" or ".wave" => new WavMusicDecoder(stream, name),
                 ".mp3" => new Mp3MusicDecoder(stream),
                 ".flac" => new FlacMusicDecoder(stream),
-                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3, FLAC)."),
+                ".xm" => TrackerMusicDecoder.Open(stream, XmReader.Read),
+                ".mod" => TrackerMusicDecoder.Open(stream, ModReader.Read),
+                var other => throw new InvalidDataException($"'{other}' is not a music format the engine reads (WAV, Ogg Vorbis, MP3, FLAC, XM, MOD)."),
             };
         }
         catch

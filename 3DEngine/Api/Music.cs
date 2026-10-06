@@ -10,7 +10,8 @@ namespace Engine;
 /// As in raylib, <see cref="Engine3D.UpdateMusicStream"/> feeds the voice, so it is called
 /// every frame the music plays, and music left without it falls silent after half a second. Ogg
 /// Vorbis is decoded from the open file as it plays. A WAV file is read whole, since it is not
-/// compressed and reading it in pieces would save nothing.
+/// compressed and reading it in pieces would save nothing, and so is an XM or MOD module, which is
+/// small and is played into samples as it streams.
 /// </remarks>
 public sealed class Music
 {

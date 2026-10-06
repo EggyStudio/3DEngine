@@ -242,6 +242,7 @@ var examples = new Dictionary<string, Action>
     ["audio_sound_multi"] = AudioSoundMulti.Run,
     ["audio_sound_positioning"] = AudioSoundPositioning.Run,
     ["audio_music_stream"] = AudioMusicStream.Run,
+    ["audio_module_playing"] = AudioModulePlaying.Run,
     ["audio_stream_callback"] = AudioStreamCallback.Run,
     ["audio_amp_envelope"] = AudioAmpEnvelope.Run,
     ["audio_spectrum_visualizer"] = AudioSpectrumVisualizer.Run,

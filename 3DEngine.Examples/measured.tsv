@@ -4,6 +4,7 @@
 # drew no such frame).
 audio_amp_envelope	14.3
 audio_mixed_processor	2.4
+audio_module_playing	2.9
 audio_music_stream	2.0
 audio_raw_stream	1.4
 audio_sound_loading	1.1

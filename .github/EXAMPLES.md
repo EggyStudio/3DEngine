@@ -4,7 +4,7 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does. `Apart` is the share of a written example's pixels apart from raylib's own program built from its source and drawn to the same frame, a pixel apart where a channel differs by more than 24 of 255, as the reference frames are compared, which `build/raylib-bench/compare.py` measures with each program at one sample a pixel unless it asks for more, a sixtieth of a second a frame, the same random seed and no input. The build workflow measures every pair again on its own device and fails where one stands more than a point above the share that device recorded for it, leaving out a pair whose row says its picture moves by the clock or the device.
 
-**219 written, 0 written in part, 0 can be written, 2 missing and 1 does not apply.** Of the 221 that apply, 219 can be written with what the flat API carries.
+**220 written, 0 written in part, 0 can be written, 1 missing and 1 does not apply.** Of the 221 that apply, 220 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
@@ -14,8 +14,8 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [Text](#text) | 16 | 0 | 0 | 0 | 0 |
 | [Models](#models) | 32 | 0 | 0 | 0 | 0 |
 | [Shaders](#shaders) | 36 | 0 | 0 | 0 | 0 |
-| [Audio](#audio) | 10 | 0 | 0 | 1 | 0 |
-| **All** | **219** | **0** | **0** | **2** | **1** |
+| [Audio](#audio) | 11 | 0 | 0 | 0 | 0 |
+| **All** | **220** | **0** | **0** | **1** | **1** |
 
 ## Core
 
@@ -262,7 +262,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 
 | Example | raylib | Here | Apart | State |
 |---|---|---|---:|---|
-| [`audio_module_playing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_module_playing.c) |  |  |  | missing, music in the XM and MOD module formats, which no decoder here reads |
+| [`audio_module_playing`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_module_playing.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_module_playing.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_module_playing.webp" width="200"/> | 2.9% | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioModulePlaying.cs), its bar as far as the audio device has played, so the build workflow's measure leaves it out |
 | [`audio_music_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_music_stream.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_music_stream.webp" width="200"/> | 2.0% | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioMusicStream.cs), its bar as far as the audio device has played, so the build workflow's measure leaves it out |
 | [`audio_raw_stream`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_raw_stream.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_raw_stream.webp" width="200"/> | 1.4% | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioRawStream.cs), its wave drawn from when the audio device last asked for samples, so the build workflow's measure leaves it out |
 | [`audio_sound_loading`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/audio/audio_sound_loading.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/audio_sound_loading.webp" width="200"/> | 1.1% | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Audio/AudioSoundLoading.cs) |

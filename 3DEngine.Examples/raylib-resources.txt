@@ -53,6 +53,7 @@ models/resources/models/obj/turret_diffuse.png
 audio/resources/sound.wav
 audio/resources/target.ogg
 audio/resources/country.mp3
+audio/resources/mini1111.xm
 shaders/resources/space.png
 shaders/resources/plasma.png
 shaders/resources/mask.png

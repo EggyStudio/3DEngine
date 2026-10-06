@@ -124,6 +124,13 @@ DrawRectangle(20, 140, (int)(400 * GetMusicTimePlayed(drone) / GetMusicTimeLengt
 
 `SeekMusicStream` moves to a time, and music takes a volume, a pitch and a pan as a sound does.
 
+A tracker module, an XM or MOD file of patterns of notes and the samples they play, opens as music
+too, and the engine's own player plays it as it streams, in stereo at 48 kHz, as raylib's
+`audio_module_playing` does with its `mini1111.xm`. Its length is how long it plays before it comes
+back to a row it has played, which for an XM is raylib's to the frame. A module plays as raylib's
+player plays it, and as FastTracker 2 does where the two part, as in ping-pong loops, which raylib's
+plays forward.
+
 ## Sound the program makes
 
 An `AudioStream` plays samples the program makes as it runs, as a synthesizer, a radio's static or

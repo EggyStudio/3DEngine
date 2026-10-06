@@ -40,6 +40,8 @@
         <None Include="Platform\Audio\*.mp3" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Platform\Audio\*.flac" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Platform\Audio\*.wav" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Platform\Audio\*.xm" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Platform\Audio\*.mod" CopyToOutputDirectory="PreserveNewest" />
         <!-- The skinned arm the examples animate, which the animation tests pose. -->
         <None Include="..\3DEngine.Examples\resources\arm.gltf" Link="resources\arm.gltf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Summit\resources\hero.gltf" Link="resources\hero.gltf" CopyToOutputDirectory="PreserveNewest" />
