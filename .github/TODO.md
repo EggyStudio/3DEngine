@@ -84,9 +84,7 @@ physics, text and fonts, audio, audio streams and waves, and files
   file's clips through `AnimatedModel`, which loads a file once and gives each entity a copy with
   skinned meshes of its own, and poses and draws it through the flat API, so only in the app
   `InitWindow` built, where a file with clips a level places through `ModelRef` plays its first on
-  a loop through one. A material the program makes draws both sides of each face unless
-  `DoubleSided` is cleared, so `GenMeshCubicmap` makes no roof over a maze's open cells as raylib's
-  does.
+  a loop through one.
 - **Color emoji and distance fields past U+FFFF are not drawn.** A coverage font loaded from a
   file is baked again at a size it is drawn at a quarter or more past its own, eight sizes at
   most, and one loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the

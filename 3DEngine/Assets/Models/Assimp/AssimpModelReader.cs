@@ -160,8 +160,11 @@ internal sealed class AssimpModelReader : ISceneReader
         };
 
         // Pre-pass: convert materials so each mesh-binding looks up the same shared payload.
+        // An OBJ's dissolve (d) is left unread, as raylib's loader leaves it, so a file whose
+        // material says d 0, as raylib's character.obj does, draws as it does in raylib.
+        var readsOpacity = !string.Equals(System.IO.Path.GetExtension(context.Path.Path), ".obj", StringComparison.OrdinalIgnoreCase);
         var materials = settings.LoadPayloads.HasFlag(LoadPayloads.Materials)
-            ? BuildMaterials(aScene)
+            ? BuildMaterials(aScene, readsOpacity)
             : Array.Empty<SceneMaterialPayload>();
 
         // The meshes are converted once, first, since aiNode.MeshIndices names them by index.
@@ -245,7 +248,7 @@ internal sealed class AssimpModelReader : ISceneReader
 
     // -- Materials
 
-    private static SceneMaterialPayload[] BuildMaterials(A.Scene aScene)
+    private static SceneMaterialPayload[] BuildMaterials(A.Scene aScene, bool readsOpacity)
     {
         if (aScene.MaterialCount == 0) return Array.Empty<SceneMaterialPayload>();
         var result = new SceneMaterialPayload[aScene.MaterialCount];
@@ -287,10 +290,10 @@ internal sealed class AssimpModelReader : ISceneReader
                 "MASK" => SceneAlphaMode.Mask,
                 "BLEND" => SceneAlphaMode.Blend,
                 "OPAQUE" => SceneAlphaMode.Opaque,
-                _ => m.HasOpacity && m.Opacity < 1f ? SceneAlphaMode.Blend : SceneAlphaMode.Opaque,
+                _ => readsOpacity && m.HasOpacity && m.Opacity < 1f ? SceneAlphaMode.Blend : SceneAlphaMode.Opaque,
             };
             var alphaCutoff = m.GetNonTextureProperty("$mat.gltf.alphaCutoff") is { } cutoff ? cutoff.GetFloatValue() : 0.5f;
-            var opacity = m.HasOpacity ? m.Opacity : 1f;
+            var opacity = readsOpacity && m.HasOpacity ? m.Opacity : 1f;
             diffuse.W = opacity * diffuse.W;
 
             // A format that does not say, as OBJ, draws both sides, as the engine always did. The

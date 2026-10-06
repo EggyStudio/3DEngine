@@ -153,7 +153,7 @@ models_rlgl_solar_system	missing	rlBegin, rlCheckRenderBatchLimit, rlColor4ub, r
 models_yaw_pitch_roll	can
 models_waving_cubes	can
 models_heightmap_rendering	can
-models_skybox_rendering	can	its sky drawn with SetEnvironmentMap and DrawSkybox from the same .hdr, as models_skybox draws one
+models_skybox_rendering	missing	LoadTextureCubemap and a material's cubemap a shader samples, since textures are two-dimensional, and a model drawn without writing depth (rlDisableDepthMask)
 models_textured_cube	missing	rlBegin, rlColor4ub, rlEnd, rlNormal3f, rlSetTexture, rlTexCoord2f, rlVertex3f
 models_animation_gpu_skinning	can
 models_bone_socket	can
@@ -162,7 +162,7 @@ models_basic_voxel	can
 models_rotating_cube	can
 models_decals	can
 models_directional_billboard	can
-models_animation_blend_custom	can	two clips blended bone by bone, an upper body's over a lower body's, which UpdateModelAnimationLayer does
+models_animation_blend_custom	can	its per-bone blend posed as a clip of one frame, which UpdateModelAnimation skins on the GPU, where raylib builds the bone matrices and skins on the CPU itself
 models_animation_blending	can	with ImGui in raygui's place
 models_animation_timing	can	with ImGui in raygui's place
 models_mesh_uv_painting	can	with ImGui in raygui's place

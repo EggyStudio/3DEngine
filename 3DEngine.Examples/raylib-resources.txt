@@ -83,3 +83,6 @@ shaders/resources/game_of_life/oscillators.png
 shaders/resources/game_of_life/puffer_train.png
 shaders/resources/game_of_life/glider_gun.png
 shaders/resources/game_of_life/breeder.png
+models/resources/models/obj/character.obj
+models/resources/models/obj/character.mtl
+models/resources/models/obj/character_diffuse.png

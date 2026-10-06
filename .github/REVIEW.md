@@ -10,13 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `579b2194`. Ten more of raylib's shaders examples are written and
+Reviewed up to `ef042886`. The rest of raylib's shaders examples and its spectrum visualizer are
+written, so no shaders example that can be written is left, raylib's `rlights.h` being the
+examples' own `RLights` as `reasings.h` is `Easings`. Three calls are raylib's, read against
+its source by the coder: `GenImagePerlinNoise` is stb_perlin's noise pixel for pixel, held by
+`ImageTests` to pixels raylib's code made, `DrawSphereWires` draws a diagonal across each face,
+and the 3D projection clips at 4000 units. Three faults are mended: `UpdateTexture` and
+`UpdateTextureRec` on a render texture never reached its image and are drawn into the target
+in their place among its shapes (`OffscreenRenderTests`), the right and middle mouse buttons
+reached ImGui swapped, and `input.drag` took `100` as a mouse button, which stopped the program
+in ImGui, so the input commands and the console's field setter take a member by its name alone
+(`CliTests`). One difference is kept on the comparison, a target drawn as the frame ends and so
+read back as the last frame left it. `shaders_rlgl_compute` keeps raylib's window of 768 by
+768, so N 4.5 leaves out 10. The table stands at 175 written, 1 in part, 7 that can be and 38
+missing. No verdict is open.
+
+Before it, ten more of raylib's shaders examples were written (`579b2194`) and
 `models_mesh_generation` is raylib's program under its name (N 5.1). `GetShaderLocation` finds
 each element of an array and each field of a struct by GLSL's name, as raylib's `rlights.h`
 finds its lights, which `SlangCompilerTests` holds, and the shader cache's entries are versioned
 so older ones compile anew. A shader that reads `gl_FragCoord` turns its row by the screen's
-height. The table stands at 164 written, 1 in part, 18 that can be and 38 missing, and the suite
-through the script at 1,225 passing. No verdict is open.
+height.
 
 Before it, six of raylib's audio examples (`141eb8eb`) and nine of its shaders
 examples (`fc8c3f9c`) are written, each shader's GLSL rewritten in Slang, and `GenMeshTorus` and
@@ -219,33 +233,28 @@ None open.
 
 ## Replies
 
-**Now 2, the rest of the shaders module.** `shaders_basic_lighting`, `shaders_fog_rendering`,
-`shaders_normalmap_rendering`, `shaders_basic_pbr`, `shaders_shadowmap_rendering`,
-`shaders_vertex_displacement`, `shaders_depth_rendering`, `shaders_lights_bloom`,
-`shaders_game_of_life` and `shaders_rlgl_compute` are raylib's, their GLSL written again in Slang,
-so no shaders example is left that can be written and is not, and `audio_spectrum_visualizer`
-with them. `shaders_rlgl_compute` asks for a window of 768 by 768, which `build/norm/4.5.txt`
-lists, so N 4.5 leaves out 10. raylib's `rlights.h` is the
-examples' own `RLights`, as `reasings.h` is `Easings`. The lighting shader for shapes drawn in 3D
-takes each face's normal from how its position changes across the screen, since the immediate
-pass's vertices carry none, and the model shaders read the material's maps the pass binds, the
-MRA map in the metallic-roughness map's place. Three calls were brought to raylib's.
-`GenImagePerlinNoise` is stb_perlin's noise, raylib's pixel for pixel, its wider side spanning
-more of it, which `ImageTests` holds against pixels raylib's own code made. `DrawSphereWires`
-draws a diagonal across each face, and the 3D projection clips at 4000 units, raylib's
-`RL_CULL_DISTANCE_FAR`, in place of 1000. Three faults were mended. `UpdateTexture` and
-`UpdateTextureRec` on a render texture never reached its image, and an upload would have come
-before the target's clear in any case, so they are drawn into the target in their place among its
-shapes, replacing what is there, alpha and all (`OffscreenRenderTests`). The right and middle
-mouse buttons reached ImGui swapped. And `input.drag` took `100` as a mouse button, since
-`Enum.TryParse` takes a number, which ImGui stopped the program over, so the input commands and
-the console's field setter take a member by its name alone (`CliTests`). One difference is kept
-and added to the comparison: drawing inside `BeginTextureMode` is drawn as the frame ends, so
-`LoadImageFromTexture` reads a target as the last frame left it, and the game of life's draw mode
-cuts its part of the world from that image where raylib draws it into a target and reads it back.
-The lit 3D captures are stored lossy, as the capture script's rule has them. The table stands at
-175 written, 1 in part, 7 that can be and 38 missing.
-
-Shared: an input command takes an enum member by name alone, since `Enum.TryParse` takes a number,
-and ImGui orders the right mouse button before the middle one where SDL orders the middle one
-first (`InputCommands.TryName`, `SdlImGuiInput.ImGuiButton`).
+**Now 2, the last models examples, so every row that can be written is.**
+`models_animation_gpu_skinning`, `models_animation_blend_custom`, `models_animation_blending`,
+`models_decals`, `models_procedural_decals` and `models_mesh_uv_painting` are raylib's, the last
+three with ImGui in raygui's place where raylib uses raygui. raylib's skinning shader is its
+fragment stage alone in Slang, since the engine poses a skinned mesh on the GPU before any vertex
+stage. The custom blend keeps raylib's per-bone blend and hands the blended poses to
+`UpdateModelAnimation` as a clip of one frame, where raylib builds the bone matrices and skins on
+the CPU itself, which its row says. The decal programs read a mesh's triangles through
+`GetMeshComponent` and give each decal triangle its face's normal, raylib's decal meshes having
+none for its unlit shader. `models_skybox_rendering` is missing rather than written with the sky
+of `SetEnvironmentMap`, since it needs `LoadTextureCubemap`, a material's cubemap a shader
+samples and a model drawn without writing depth, which TODO.md already leaves out. Three calls
+were brought to raylib's. An OBJ's dissolve is not read, as raylib's loader reads none, so
+raylib's `character.obj`, whose material says `d 0`, draws (`AssimpModelReaderTests`). A clip's
+frame count is raylib's, the frame at 0 and one each sixtieth that ends inside the clip, where it
+rounded up, so the robot's walk has raylib's 58 frames (`Engine3DAnimationTests`). And two kept
+differences are on the comparison: a glTF file's materials start at 0 here, where raylib puts a
+default material first, and a mesh from an OBJ file or a par_shapes generator shares vertices
+between triangles, where raylib's have three of their own, so the decal programs' vertex counts
+differ. `models_animation_timing` drew its keyframe marks under ImGui's progress bar, since ImGui
+draws after the flat API, and draws them through ImGui's draw list now, as the blending program
+does. CHEATSHEET.md said `DoubleSided` is true unless set and TODO.md that the cubicmap has no
+roof, both from before `DoubleSided` defaulted to false, and both are mended. The table stands at
+181 written, 1 in part, none that can be and 39 missing, so the missing come next, taken by how
+many rows each holds.

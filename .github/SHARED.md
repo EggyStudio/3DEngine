@@ -133,6 +133,7 @@ table also answers whether the two agree.
 | A command's parameter with a default may be left off, shown in brackets in its usage | to check against the command generator | has (`a3d56597`) |
 | C# typed at a running app | has in the editor (`eval`) | to consider |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
+| A command takes an enum member by its name alone, since `Enum.TryParse` takes any number as well and an undefined value reaches the engine | to check (`ConsoleWorldCommands.cs` reads gamepad buttons, axes and keys with `Enum.TryParse`) | has (`InputCommands.TryName`, `ef042886`), where a button of 100 stopped the program in ImGui |
 
 ### Tests, CI and packaging
 

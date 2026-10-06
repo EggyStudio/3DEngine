@@ -58,6 +58,28 @@ case "$example" in
   text_input_box)
     ./e3d command input.text e3d.cs --quiet
     ;;
+  models_decals)
+    # Decals clicked onto the character's face, chest and legs, the pointer left over its chest.
+    for at in "400 200" "380 260" "420 150" "400 300" "370 100"; do
+      ./e3d command input.click $at --quiet
+    done
+    ./e3d command input.move 405 230 --quiet
+    ;;
+  models_procedural_decals)
+    # Targets clicked around the torus, the pointer left over its upper left.
+    for at in "400 160" "300 220" "500 250" "420 300"; do
+      ./e3d command input.click $at --quiet
+    done
+    ./e3d command input.move 350 180 --quiet
+    ;;
+  models_mesh_uv_painting)
+    # A red stroke across the sphere, then a sky blue one picked from the palette.
+    ./e3d command input.move 430 150 --quiet
+    ./e3d command input.drag Left 120 80 30 --quiet
+    ./e3d command input.click 61 312 --quiet
+    ./e3d command input.move 460 260 --quiet
+    ./e3d command input.drag Left -100 30 30 --quiet
+    ;;
   shaders_rlgl_compute)
     # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
     ./e3d command input.wheel 16 --quiet

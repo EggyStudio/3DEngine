@@ -298,7 +298,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | checked, `NormTests`, 9 left out | checked, `NormTests`, 24 left out |
+| N 4.5 | checked, `NormTests`, 10 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | to take |

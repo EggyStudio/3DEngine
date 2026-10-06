@@ -85,11 +85,16 @@ public static class ModelsAnimationTiming
                 ImGui.SetCursorScreenPos(new Vector2(10, GetScreenHeight() - 40.0f));
                 ImGui.ProgressBar(animFrameProgress/anims[animIndex].FrameCount, new Vector2(GetScreenWidth() - 20.0f, 24), "");
 
-                ImGui.End();
-
+                // The marks go through ImGui's draw list, so they lie over the bar as raylib's do,
+                // ImGui being drawn over everything else
+                uint blue = ImGui.GetColorU32(new Vector4(Color.Blue.R/255.0f, Color.Blue.G/255.0f, Color.Blue.B/255.0f, 1.0f));
                 for (int i = 0; i < anims[animIndex].FrameCount; i++)
-                    DrawRectangle(10 + (int)(((float)(GetScreenWidth() - 20)/(float)anims[animIndex].FrameCount)*(float)i),
-                        GetScreenHeight() - 40, 1, 24, Color.Blue);
+                {
+                    int x = 10 + (int)(((float)(GetScreenWidth() - 20)/(float)anims[animIndex].FrameCount)*(float)i);
+                    ImGui.GetWindowDrawList().AddRectFilled(new Vector2(x, GetScreenHeight() - 40), new Vector2(x + 1, GetScreenHeight() - 40 + 24), blue);
+                }
+
+                ImGui.End();
 
             EndDrawing();
         }

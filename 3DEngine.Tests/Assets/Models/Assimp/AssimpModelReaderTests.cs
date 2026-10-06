@@ -113,6 +113,19 @@ public sealed class AssimpModelReaderTests : IDisposable
     }
 
     [Fact]
+    public void An_Obj_Material_Is_Opaque_Whatever_Its_Dissolve_Says()
+    {
+        // raylib's character.obj says d 0, which raylib's loader does not read.
+        File.WriteAllText(_folder.File("clear.mtl"), "newmtl Skin\nKd 0.8 0.8 0.8\nd 0.000000\n");
+        File.WriteAllText(_folder.File("clear.obj"), "mtllib clear.mtl\no Tri\nv 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl Skin\nf 1 2 3\n");
+
+        var material = new AssimpModelReader().ReadFile(_folder.File("clear.obj"), new SceneImportSettings())
+            .Traverse().SelectMany(n => n.Components).OfType<SceneMaterialPayload>().Should().ContainSingle().Subject;
+        material.BaseColorFactor.W.Should().Be(1f);
+        material.AlphaMode.Should().Be(SceneAlphaMode.Opaque);
+    }
+
+    [Fact]
     public async Task A_Model_In_A_Reader_That_Is_No_Folder_Finds_The_Material_Library_Beside_It()
     {
         // A model a program holds in memory, or embeds, has no folder for Assimp to look in, and

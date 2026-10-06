@@ -481,7 +481,9 @@ internal static class ModelSkeleton
             .GroupBy(c => c.TargetNodePath.TrimStart('/'))
             .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal);
 
-        int frames = Math.Max(1, (int)MathF.Ceiling(clip.DurationSeconds * Engine3D.AnimationFps) + 1);
+        // raylib's count, the frame at 0 and one each sixtieth of a second that ends inside the clip,
+        // so a clip whose length is not a whole number of frames leaves the last part of one out.
+        int frames = Math.Max(1, (int)(clip.DurationSeconds * Engine3D.AnimationFps) + 1);
         var poses = new Transform[frames][];
         for (int f = 0; f < frames; f++)
         {

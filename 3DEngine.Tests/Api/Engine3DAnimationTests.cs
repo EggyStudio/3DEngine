@@ -122,6 +122,26 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void A_Clip_Has_Raylibs_Count_Of_Frames_Which_Leaves_Out_A_Part_Frame_At_Its_End()
+    {
+        // The arm's clip shortened to 0.99 seconds, 59.4 sixtieths, so raylib's count is the frame
+        // at 0 and 59 more, where rounding up would add a 61st.
+        var gltf = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(Arm))!;
+        var input = gltf["animations"]![0]!["samplers"]![0]!["input"]!.GetValue<int>();
+        var view = gltf["bufferViews"]![gltf["accessors"]![input]!["bufferView"]!.GetValue<int>()]!;
+        var uri = gltf["buffers"]![0]!["uri"]!.GetValue<string>();
+        var bytes = Convert.FromBase64String(uri[(uri.IndexOf(',') + 1)..]);
+        float[] times = [0, 0.495f, 0.99f];
+        for (int i = 0; i < times.Length; i++) BitConverter.TryWriteBytes(bytes.AsSpan(view["byteOffset"]!.GetValue<int>() + i * 4), times[i]);
+        gltf["buffers"]![0]!["uri"] = "data:application/octet-stream;base64," + Convert.ToBase64String(bytes);
+        gltf["accessors"]![input]!["max"] = new System.Text.Json.Nodes.JsonArray(0.99f);
+
+        using var folder = new TestFolder("engine-clip-test-");
+        File.WriteAllText(folder.File("arm.gltf"), gltf.ToJsonString());
+        LoadModelAnimations(folder.File("arm.gltf")).Should().ContainSingle().Which.FrameCount.Should().Be(60);
+    }
+
+    [Fact]
     public void A_Clip_Is_Sampled_At_The_Animation_Rate_With_Model_Space_Poses()
     {
         var clip = LoadModelAnimations(Arm).Should().ContainSingle().Subject;
