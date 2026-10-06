@@ -44,28 +44,7 @@ public sealed partial class AssetServer
             CheckDependencyCompletion(world);
     }
 
-    private void StoreAndNotify(World world, CompletedLoad completed)
-    {
-        // Use reflection to call the generic store method for the correct asset type
-        var method = typeof(AssetServer)
-            .GetMethod(nameof(StoreTyped), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-            .MakeGenericMethod(completed.AssetType);
-        method.Invoke(null, [world, completed]);
-    }
-
-    private static void StoreTyped<T>(World world, CompletedLoad completed)
-    {
-        // Ensure Assets<T> resource exists
-        var assets = world.GetOrInsertResource(() => new Assets<T>());
-        var handle = new Handle<T>(completed.Id, completed.Path, strong: true);
-
-        bool existed = assets.Contains(completed.Id);
-        assets.Set(completed.Id, (T)completed.Asset!);
-
-        // Fire event
-        var events = Events.Get<AssetEvent<T>>(world);
-        events.Send(existed ? AssetEvent<T>.Modified(handle) : AssetEvent<T>.Added(handle));
-    }
+    private void StoreAndNotify(World world, CompletedLoad completed) => OpsFor(completed.AssetType).Store(world, completed);
 
     private void CheckDependencyCompletion(World world)
     {
@@ -78,18 +57,8 @@ public sealed partial class AssetServer
             if (!_idToPath.TryGetValue(kv.Key, out var path)) continue;
             if (!_pathToId.TryGetValue(path.ToString(), out var info)) continue;
 
-            // We fire the event via reflection for the correct type
-            var method = typeof(AssetServer)
-                .GetMethod(nameof(FireDepsLoaded), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .MakeGenericMethod(info.AssetType);
-            method.Invoke(null, [world, kv.Key, path]);
+            OpsFor(info.AssetType).SendLoadedWithDependencies(world, kv.Key, path);
         }
-    }
-
-    private static void FireDepsLoaded<T>(World world, AssetId id, AssetPath path)
-    {
-        var handle = new Handle<T>(id, path, strong: true);
-        Events.Get<AssetEvent<T>>(world).Send(AssetEvent<T>.LoadedWithDependencies(handle));
     }
 
     /// <summary>
@@ -101,17 +70,54 @@ public sealed partial class AssetServer
     {
         // Clear events for all known asset types
         foreach (var kv in _pathToId.Values)
-        {
-            var method = typeof(AssetServer)
-                .GetMethod(nameof(ClearEventsTyped), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .MakeGenericMethod(kv.AssetType);
-            method.Invoke(null, [world]);
-        }
+            OpsFor(kv.AssetType).ClearEvents(world);
     }
 
-    private static void ClearEventsTyped<T>(World world)
+    // What the frame does with an asset of one type, made where the type is known, in Load and
+    // LoadSync, so no generic method is made by reflection for it, which a native build cannot
+    // (N 2.5). A dependency loaded alongside is an object's.
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<Type, AssetTypeOps> _typeOps = new() { [typeof(object)] = new AssetTypeOps<object>() };
+
+    private void Know<T>() => _typeOps.TryAdd(typeof(T), new AssetTypeOps<T>());
+
+    private AssetTypeOps OpsFor(Type type) => _typeOps[type];
+
+    private abstract class AssetTypeOps
     {
-        if (world.TryGetResource<Events<AssetEvent<T>>>(out var events))
-            events.Clear();
+        // Puts a loaded asset into Assets<T> and sends Added, or Modified for a reload.
+        public abstract void Store(World world, CompletedLoad completed);
+
+        public abstract void SendLoadedWithDependencies(World world, AssetId id, AssetPath path);
+
+        public abstract void ClearEvents(World world);
+    }
+
+    private sealed class AssetTypeOps<T> : AssetTypeOps
+    {
+        public override void Store(World world, CompletedLoad completed)
+        {
+            // Ensure Assets<T> resource exists
+            var assets = world.GetOrInsertResource(() => new Assets<T>());
+            var handle = new Handle<T>(completed.Id, completed.Path, strong: true);
+
+            bool existed = assets.Contains(completed.Id);
+            assets.Set(completed.Id, (T)completed.Asset!);
+
+            // Fire event
+            var events = Events.Get<AssetEvent<T>>(world);
+            events.Send(existed ? AssetEvent<T>.Modified(handle) : AssetEvent<T>.Added(handle));
+        }
+
+        public override void SendLoadedWithDependencies(World world, AssetId id, AssetPath path)
+        {
+            var handle = new Handle<T>(id, path, strong: true);
+            Events.Get<AssetEvent<T>>(world).Send(AssetEvent<T>.LoadedWithDependencies(handle));
+        }
+
+        public override void ClearEvents(World world)
+        {
+            if (world.TryGetResource<Events<AssetEvent<T>>>(out var events))
+                events.Clear();
+        }
     }
 }

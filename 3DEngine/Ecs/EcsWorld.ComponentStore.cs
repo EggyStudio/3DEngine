@@ -66,6 +66,9 @@ public sealed partial class EcsWorld
             return true;
         }
 
+        /// <inheritdoc />
+        void IComponentStore.AddTo(EcsWorld world, int entity, object value) => world.Add(entity, (T)value);
+
         /// <summary>
         /// Whether the component on <paramref name="entity"/> changed since the running system last
         /// ran, or outside a system, since the frame began.

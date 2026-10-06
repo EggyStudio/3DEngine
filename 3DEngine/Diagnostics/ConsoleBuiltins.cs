@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
@@ -6,6 +7,11 @@ namespace Engine;
 /// <summary>The console commands every app has: the app, frames, the log, entities, resources and the schedule.</summary>
 internal static class ConsoleBuiltins
 {
+    // Why the console's reading of components by reflection is safe where a build is trimmed (N 2.5).
+    private const string ByReflection = "The console knows a component by its name, given at run time, and reads it by reflection as a "
+        + "debugging aid. Where a trimmed or native build has cut a type or member the program never uses, the command finds or shows "
+        + "less and says what it did not find, and nothing the program runs depends on it.";
+
     [Command("app.quit", "Asks the app to close, as the window's close button does")]
     internal static string Quit()
     {
@@ -275,12 +281,17 @@ internal static class ConsoleBuiltins
         }
 
         var value = DefaultOf(type);
-        ecs.AddBoxed(id, value);
+        if (!ecs.AddBoxed(id, value))
+        {
+            ConsoleHost.Fail("BAD_STATE", $"No entity has had a {type.Name}, and a native build cannot make a store for it while it runs.");
+            return $"no store for {type.Name}";
+        }
         return $"{type.Name} {Describe(value)}";
     }
 
     // Value types named so in the loaded assemblies, the engine's first. A component is any
     // struct, so the name is all there is to go on, and an ambiguous one is refused.
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = ByReflection)]
     private static List<Type> ComponentTypesNamed(string name)
     {
         var found = new List<Type>();
@@ -302,6 +313,8 @@ internal static class ConsoleBuiltins
     // A component as a new one should start: its static Default or Identity when it has one, else
     // a constructor whose parameters all have defaults, else the zero value. Several components
     // are wrong at zero (a Transform of scale zero, a Material that is transparent black).
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = ByReflection)]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = ByReflection)]
     private static object DefaultOf(Type type)
     {
         foreach (var name in new[] { "Default", "Identity" })
@@ -320,6 +333,7 @@ internal static class ConsoleBuiltins
     }
 
     [Command("entity.set", "Sets one field of an entity's component: entity.set <id> <Component.Field> <value>, with vectors and colors as 1,2,3 and an array's items split by ; as 0,1,0;1,0,0")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = ByReflection)]
     internal static string EntitySet(int id, string path, string value)
     {
         var ecs = ConsoleHost.Ecs;
@@ -362,6 +376,8 @@ internal static class ConsoleBuiltins
     // Reads a word as the field's type: numbers, flags, text, enums by name, vectors, quaternions
     // and colors as comma-separated numbers, and an array as its items split by semicolons, each
     // read as the element type, so a mesh's positions are 0,1,0;-1,-1,0;1,-1,0.
+    [UnconditionalSuppressMessage("AOT", "IL3050",
+        Justification = "The element type is that of an array field the component declares, so the array type is in the program.")]
     private static bool TryParse(string word, Type type, out object? value)
     {
         if (type.IsArray && type.GetElementType() is { } element)
@@ -428,6 +444,7 @@ internal static class ConsoleBuiltins
 
     // A component's public fields and properties, one level deep. Reflection is used here and
     // nowhere in the engine's hot paths, because it reads any component without a schema.
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = ByReflection)]
     private static string Describe(object? value)
     {
         if (value is null) return "{}";

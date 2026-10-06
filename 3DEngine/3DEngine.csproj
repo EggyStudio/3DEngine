@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IsAotCompatible>true</IsAotCompatible>
         <AssemblyName>3DEngine</AssemblyName>
         <RootNamespace>Engine</RootNamespace>
         <!-- The behavior, scene and command generators are compiled into the engine as well as into the

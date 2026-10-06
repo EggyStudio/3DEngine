@@ -209,7 +209,7 @@ internal sealed class AssetProcessorPipeline
         try
         {
             string json = await File.ReadAllTextAsync(path, ct);
-            return JsonSerializer.Deserialize<ProcessingCache>(json, ProcessingCache.JsonOptions) ?? new ProcessingCache();
+            return JsonSerializer.Deserialize(json, ProcessingCacheJson.Default.ProcessingCache) ?? new ProcessingCache();
         }
         catch (Exception ex)
         {
@@ -221,7 +221,7 @@ internal sealed class AssetProcessorPipeline
     private async Task SaveCacheAsync(ProcessingCache cache, CancellationToken ct)
     {
         string path = CacheFilePath;
-        string json = JsonSerializer.Serialize(cache, ProcessingCache.JsonOptions);
+        string json = JsonSerializer.Serialize(cache, ProcessingCacheJson.Default.ProcessingCache);
         await File.WriteAllTextAsync(path, json, ct);
         Logger.Debug($"Processing cache written: {cache.Hashes.Count} entries.");
     }
@@ -242,10 +242,9 @@ internal sealed class ProcessingCache
 {
     [JsonPropertyName("hashes")]
     public Dictionary<string, string> Hashes { get; set; } = new(StringComparer.Ordinal);
-
-    internal static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-        PropertyNameCaseInsensitive = true,
-    };
 }
+
+/// <summary>The cache manifest's JSON, written by the source generator so a native build reads and writes it (N 2.5).</summary>
+[JsonSourceGenerationOptions(WriteIndented = true, PropertyNameCaseInsensitive = true)]
+[JsonSerializable(typeof(ProcessingCache))]
+internal sealed partial class ProcessingCacheJson : JsonSerializerContext;

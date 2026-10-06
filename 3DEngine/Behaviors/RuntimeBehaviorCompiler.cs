@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Engine.Files.Compiler;
 using Microsoft.CodeAnalysis;
@@ -143,6 +144,7 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     }
 
     /// <inheritdoc />
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = Scripts)]
     protected override void OnAssemblyLoaded(Assembly assembly, BehaviorCompilationResult result)
     {
         // 1) Drop the previous generation's hot-reloaded systems before registering the new ones.
@@ -184,6 +186,7 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
         result.RegisteredCount = invoked;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = Scripts)]
     private static IEnumerable<Type> SafeGetTypes(Assembly asm, BehaviorCompilationResult result)
     {
         try

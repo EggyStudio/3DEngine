@@ -27,6 +27,22 @@ public class EcsWorldTests
     }
 
     [Fact]
+    public void A_Boxed_Component_Is_Added_Through_Its_Typed_Store_Or_Its_First_One_Made()
+    {
+        var ecs = new EcsWorld();
+        var (first, second) = (ecs.Spawn(), ecs.Spawn());
+        ecs.Add(first, new TestComp { A = 1 });
+
+        ecs.AddBoxed(second, new TestComp { A = 2 }).Should().BeTrue("a type with a store is added through it");
+        ecs.AddBoxed(second, new ThirdComp { C = 3 }).Should().BeTrue("and one with none makes it where the runtime makes code");
+
+        ecs.TryGet<TestComp>(second, out var added).Should().BeTrue();
+        added.A.Should().Be(2);
+        ecs.TryGet<ThirdComp>(second, out var third).Should().BeTrue();
+        third.C.Should().Be(3);
+    }
+
+    [Fact]
     public void Spawn_Assigns_FirstGeneration()
     {
         var ecs = new EcsWorld();

@@ -35,6 +35,13 @@ namespace Engine;
 /// Cameras (<see cref="A.Scene.Cameras"/>) and lights (<see cref="A.Scene.Lights"/>) are
 /// translated to <see cref="SceneCameraPayload"/> / <see cref="SceneLightPayload"/>.
 /// </para>
+/// <para>
+/// <b>Trimming:</b> a game published trimmed or native is told that the AssimpNetter assembly
+/// produced trim and AOT analysis warnings (IL2104, IL3053). They are the package's own, from
+/// code inside it that binds Assimp's native functions to delegates and marshals its structures
+/// by reflection, and this reader is where the engine calls it. A native game reads its models through it as the workflow's native run shows
+/// (<c>build/play-native.sh</c>), and the warnings stand where the publish prints them.
+/// </para>
 /// </remarks>
 internal sealed class AssimpModelReader : ISceneReader
 {

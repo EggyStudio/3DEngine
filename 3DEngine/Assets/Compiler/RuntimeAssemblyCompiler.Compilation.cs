@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -6,6 +7,11 @@ namespace Engine.Files.Compiler;
 
 internal abstract partial class RuntimeAssemblyCompiler<TResult>
 {
+    // Why reading an assembly compiled from scripts is safe where a build is trimmed (N 2.5).
+    internal const string Scripts = "The scripts are compiled while the program runs, so no trimmer has seen or cut their assembly, and a native build, "
+        + "which cannot load one, drops the compiler, BehaviorsPlugin starting it only where RuntimeFeature.IsDynamicCodeSupported. "
+        + "In a trimmed build a script naming what the trimmer cut fails to compile, with the compiler's own error.";
+
     /// <summary>
     /// Full compilation cycle: enumerate sources -> compile with Roslyn -> load into a
     /// fresh collectible <see cref="ScriptLoadContext"/> -> hand off to the domain
@@ -50,6 +56,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
 
     /// <summary>In-memory Roslyn compile of <paramref name="csFiles"/>.</summary>
     /// <returns>The loaded assembly or <see langword="null"/> on failure (errors populated on <paramref name="result"/>).</returns>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = Scripts)]
     protected Assembly? CompileWithRoslyn(List<string> csFiles, TResult result)
     {
         var syntaxTrees = new List<SyntaxTree>();

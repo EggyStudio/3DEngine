@@ -579,15 +579,28 @@ public sealed partial class EcsWorld
     }
 
     /// <summary>Adds a component given as an object, whatever its type, making its store when it has none.</summary>
+    /// <returns>Whether it was added, which it is not in a native build for a type no entity has had.</returns>
     /// <remarks>
-    /// For tools such as the console, which know a component only at run time. The typed
-    /// <see cref="Add{T}(int, T)"/> is reached through reflection, once per call, so a system's loop uses
-    /// that instead.
+    /// For tools such as the console, which know a component only at run time. A type that has a
+    /// store is added through the store's typed <see cref="Add{T}(int, T)"/>. One that has none
+    /// reaches it through reflection, which makes code for the type, so a native build, which
+    /// cannot, adds nothing of it (N 2.5).
     /// </remarks>
-    internal void AddBoxed(int entity, object value) =>
+    internal bool AddBoxed(int entity, object value)
+    {
+        IComponentStore? store;
+        lock (_stores) _stores.TryGetValue(value.GetType(), out store);
+        if (store is not null)
+        {
+            store.AddTo(this, entity, value);
+            return true;
+        }
+        if (!RuntimeFeature.IsDynamicCodeSupported) return false;
         typeof(EcsWorld).GetMethod(nameof(AddTyped), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .MakeGenericMethod(value.GetType())
             .Invoke(this, [entity, value]);
+        return true;
+    }
 
     private void AddTyped<T>(int entity, object value) => Add(entity, (T)value);
 

@@ -44,6 +44,7 @@ public sealed partial class AssetServer
 
         // Allocate ID and register
         var id = AssetId.Next();
+        Know<T>();
         _pathToId[key] = (id, typeof(T));
         _states[id] = LoadState.Loading;
         _idToPath[id] = path;
@@ -111,6 +112,7 @@ public sealed partial class AssetServer
         // Store in tracking
         var id = AssetId.Next();
         string keyStr = assetPath.ToString();
+        Know<T>();
         _pathToId[keyStr] = (id, typeof(T));
         _states[id] = LoadState.Loaded;
         _idToPath[id] = assetPath;

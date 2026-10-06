@@ -215,12 +215,16 @@ dotnet publish -c Release -r linux-x64 -p:PublishAot=true -o publish    # or win
 ImGui panel and shaders, the engine's own compiled ahead in the package and the game's own in its
 `source/.slang-cache` (`e3d shaders`, above). Behaviors, scene components and console commands
 register through code the generator writes, from module initializers, so nothing is found by a
-search the trimmer could break. The analysis warnings a publish prints come from Assimp's native
-loader, the console's field writer (`entity.set`, a tool for development) and the compiler for
+search the trimmer could break. The library is marked `IsAotCompatible`, so every build runs the
+trimmer's analysis over it and `-warnaserror` keeps it clean. The console's commands that read a
+component by reflection (`entity.add`, `entity.set`, a tool for development) and the compiler for
 behavior scripts, which loads assemblies at run time and so works only in a build that is not
-native. A native build runs the behaviors compiled into it, and leaves the compiler and Roslyn out,
-since the plugin starts it only where `RuntimeFeature.IsDynamicCodeSupported`, which the AOT
-compiler takes as false, so Pusher's executable is 11 MB in place of 37.
+native, say at their places why they are safe. A native build runs the behaviors compiled into it,
+and leaves the compiler and Roslyn out, since the plugin starts it only where
+`RuntimeFeature.IsDynamicCodeSupported`, which the AOT compiler takes as false, so Pusher's
+executable is 11 MB in place of 37. The warnings a publish prints come from the AssimpNetter
+package alone (IL2104 and IL3053), whose loader binds Assimp's native functions to delegates by
+reflection, and which a native game's models are read through all the same.
 
 ## The generator
 

@@ -339,3 +339,26 @@ dependency. Now 3 is next.
 Shared: a render target of several images, a pass described by value with its formats so pipelines
 are shared, and attachments past a shader's outputs masked from its SPIR-V, which BevyCSharp may
 read for a deferred path.
+
+**Now 3, what the trimmer cannot follow.** The library is marked `IsAotCompatible`, which runs the
+trimmer's and the AOT compiler's analysis in every build, and its build turned up 19 warnings in
+six places, each mended or said at its place. The asset server made a generic method by reflection
+for each asset type, to store a load, send its events and clear them, and a handler of the type is
+made where `Load<T>` and `LoadSync<T>` know it instead. The processing cache's JSON goes through a
+source-generated `JsonSerializerContext`. `EcsWorld.AddBoxed`, which the console's `entity.add`
+uses, adds through the type's store and its typed `Add` where the type has one, and makes the typed
+method by reflection only where the runtime makes code, a native build answering that it cannot for
+a type no entity has had, which the console reports. The console's reading and writing of
+components by name and the behavior script compiler's loading of the assembly it compiles say why
+they are safe at their places, by `UnconditionalSuppressMessage` with the reason: the console is a
+debugging aid that finds or shows less where a build cut what the program never uses, and the
+scripts' assembly is compiled while the program runs, so no trimmer saw it, and a native build
+drops the compiler. The build is clean and `-warnaserror` holds it there.
+
+A native publish of Pusher with `TrimmerSingleWarn=false` listed two more in `entity.set` that the
+build's analysis did not reach, said the same way, and the publish after them prints IL2104 and
+IL3053 for AssimpNetter alone. Those are the package's own, from its loader binding Assimp's native
+functions to delegates and marshalling its structures by reflection, and the Assimp reader's
+remarks say so once, as BUILDING.md does. Pusher published native from the package of these changes
+drew 120 frames offscreen and closed cleanly. A test adds a boxed component through its store and
+through a store made for it. The suite: 1,329 passed, 0 failed, 1 skipped.
