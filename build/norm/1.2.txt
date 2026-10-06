@@ -5,8 +5,6 @@
 3DEngine/Api/Camera3D.cs Engine3D
 3DEngine/Api/Engine3D.Animation.cs BoneInfo
 3DEngine/Api/Engine3D.Animation.cs ModelAnimation
-3DEngine/Api/Engine3D.AudioStreams.cs AudioCallback
-3DEngine/Api/Engine3D.AudioStreams.cs AudioStream
 3DEngine/Api/Engine3D.Collision.cs RayCollision
 3DEngine/Api/Engine3D.ConfigFlags.cs ConfigFlags
 3DEngine/Api/Engine3D.Display.cs MonitorMode
@@ -52,11 +50,6 @@
 3DEngine/Behaviors/BehaviorAttributes.cs WithoutAttribute
 3DEngine/Behaviors/BehaviorConditions.cs KeyModifier
 3DEngine/Core/App/Abstractions/IPlugin.cs PluginOrder
-3DEngine/Core/Input/Codes/Gamepad.cs GamepadAxis
-3DEngine/Core/Input/Codes/Gamepad.cs GamepadButton
-3DEngine/Core/Input/Codes/Gamepad.cs GamepadState
-3DEngine/Core/Input/Gestures.cs Gesture
-3DEngine/Core/Input/Input.cs TouchPoint
 3DEngine/Core/States/DespawnOnExit.cs EcsWorld
 3DEngine/Core/States/States.cs NextState
 3DEngine/Core/States/States.cs State
