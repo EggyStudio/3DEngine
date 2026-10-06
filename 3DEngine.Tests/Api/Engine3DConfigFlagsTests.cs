@@ -36,4 +36,17 @@ public sealed class Engine3DConfigFlagsTests : IDisposable
         CloseWindow();
         ConfigFor(640, 360, "after").Vsync.Should().BeFalse("CloseWindow forgets the flags");
     }
+
+    [Fact]
+    public void Density_Transparency_And_Focus_Are_Asked_Of_The_Window_As_It_Opens()
+    {
+        var plain = ConfigFor(800, 450, "plain");
+        (plain.HighPixelDensity, plain.Transparent, plain.Unfocused).Should().Be((false, false, false),
+            "raylib's window draws at its size, opaque, and takes the focus unless asked");
+
+        SetConfigFlags(ConfigFlags.WindowHighdpi | ConfigFlags.WindowTransparent | ConfigFlags.WindowUnfocused);
+        var config = ConfigFor(800, 450, "asked");
+
+        (config.HighPixelDensity, config.Transparent, config.Unfocused).Should().Be((true, true, true));
+    }
 }

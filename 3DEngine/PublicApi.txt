@@ -362,11 +362,14 @@ sealed class Engine.Config : IEquatable<Config>
   bool Fullscreen { get; init; }
   bool Headless { get; init; }
   bool Hidden { get; init; }
+  bool HighPixelDensity { get; init; }
   bool Offscreen { get; init; }
   bool Resizable { get; init; }
   bool Serve { get; init; }
   bool Topmost { get; init; }
+  bool Transparent { get; init; }
   bool Undecorated { get; init; }
+  bool Unfocused { get; init; }
   bool Vsync { get; init; }
   double FrameSeconds { get; init; }
   double HeadlessFps { get; init; }
@@ -379,16 +382,21 @@ sealed class Engine.Config : IEquatable<Config>
   static bool op_Inequality(Config? left, Config? right)
   ulong Frames { get; init; }
 enum Engine.ConfigFlags : uint
+  BorderlessWindowedMode = 32768
   FullscreenMode = 2
   Msaa4xHint = 32
   None = 0
   VsyncHint = 64
+  WindowAlwaysRun = 256
   WindowHidden = 128
+  WindowHighdpi = 8192
   WindowMaximized = 1024
   WindowMinimized = 512
   WindowResizable = 4
   WindowTopmost = 4096
+  WindowTransparent = 16
   WindowUndecorated = 8
+  WindowUnfocused = 2048
 sealed class Engine.ConsoleCommand : IEquatable<ConsoleCommand>
   ConsoleCommand(string Name, string Help, string Usage, Func<string[], string?> Run)
   Func<string[], string?> Run { get; init; }

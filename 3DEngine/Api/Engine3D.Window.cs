@@ -25,6 +25,8 @@ public static partial class Engine3D
             throw new InvalidOperationException("A window is open already. Call CloseWindow first.");
 
         _app = new App(ConfigFor(width, height, title)).AddPlugin(new DefaultPlugins());
+        // A window never shown is left its size, as fullscreen is.
+        if (_configFlags.HasFlag(ConfigFlags.BorderlessWindowedMode) && !IsWindowHidden()) ToggleBorderlessWindowed();
         _shouldClose = false;
         _eventsPumped = false;
         _lastFrameEnd = Stopwatch.GetTimestamp();

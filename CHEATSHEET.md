@@ -6,7 +6,7 @@ imports them with `using static Engine.Engine3D;`. [DESIGN.md](.github/DESIGN.md
 ## Window and timing
 
 ```csharp
-void SetConfigFlags(ConfigFlags flags);                  // Ask the next window for vsync, fullscreen, no border, topmost, maximized, hidden or 4x MSAA
+void SetConfigFlags(ConfigFlags flags);                  // Ask the next window for vsync, fullscreen, no border, topmost, high density, transparency, ...
 void SetConfigSamples(int samples);                      // Samples a pixel of the next window, 1 for none, 4 unless asked
 void SetWindowState(ConfigFlags flags);                  // Turn flags on for the open window (fullscreen, resizable, topmost, vsync, ...)
 void ClearWindowState(ConfigFlags flags);                // Turn them off
@@ -22,7 +22,7 @@ void SetWindowTitle(string title);                       // Set the window's tit
 int GetScreenWidth();                                    // Window width
 int GetScreenHeight();                                   // Window height
 bool IsWindowResized();                                  // Whether its size changed this frame
-bool IsWindowFullscreen();                               // Whether it is fullscreen
+bool IsWindowFullscreen();                               // Whether it is fullscreen, by ToggleFullscreen rather than borderless
 bool IsWindowMaximized();                                // Whether it is maximized
 bool IsWindowMinimized();                                // Whether it is minimized
 bool IsWindowFocused();                                  // Whether it has the keyboard focus

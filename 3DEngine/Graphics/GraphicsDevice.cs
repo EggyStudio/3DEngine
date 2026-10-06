@@ -258,6 +258,13 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     /// <summary>Whether frames wait for the display's refresh, set before <see cref="Initialize"/>.</summary>
     public bool Vsync { get; set; }
 
+    /// <summary>
+    /// Whether the window's frames carry their alpha to the desktop, which shows through where they
+    /// are clear, set before <see cref="Initialize"/>. Where the surface composites only opaque
+    /// frames they are presented opaque.
+    /// </summary>
+    public bool TransparentWindow { get; set; }
+
     /// <summary>The samples frames and render targets are drawn with, once the swapchain exists.</summary>
     public int Samples => (int)_samples;
     private GraphicsAdapterInfo _adapterInfo = GraphicsAdapterInfo.Unknown;

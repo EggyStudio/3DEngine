@@ -59,7 +59,8 @@ internal sealed class RendererContext : IDisposable
     /// <param name="appName">Application name embedded in the Vulkan instance.</param>
     /// <param name="samples">How many samples a pixel is drawn with, from <see cref="Config.Samples"/>.</param>
     /// <param name="vsync">Whether frames wait for the display's refresh, from <see cref="Config.Vsync"/>.</param>
-    public void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1, bool vsync = false)
+    /// <param name="transparent">Whether the window's frames carry their alpha to the desktop, from <see cref="Config.Transparent"/>.</param>
+    public void Initialize(ISurfaceSource surfaceSource, string appName = "3DEngine", int samples = 1, bool vsync = false, bool transparent = false)
     {
         if (IsInitialized) return;
 
@@ -72,6 +73,7 @@ internal sealed class RendererContext : IDisposable
         {
             device.RequestedSamples = samples;
             device.Vsync = vsync;
+            device.TransparentWindow = transparent;
         }
 
         _graphics.Initialize(surfaceSource, appName);

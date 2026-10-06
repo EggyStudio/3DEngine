@@ -90,6 +90,18 @@ public sealed record Config
     public bool Fullscreen { get; init; }
 
     /// <summary>
+    /// Whether the window is drawn at the monitor's pixels where the monitor scales them, as on
+    /// Wayland and macOS, rather than at its size and scaled up by the desktop.
+    /// </summary>
+    public bool HighPixelDensity { get; init; }
+
+    /// <summary>Whether the desktop shows through where the window's frame is clear, where the desktop composites windows.</summary>
+    public bool Transparent { get; init; }
+
+    /// <summary>Whether the window leaves the keyboard focus where it is when shown.</summary>
+    public bool Unfocused { get; init; }
+
+    /// <summary>
     /// Whether frames are presented in step with the display's refresh, which caps the frame rate
     /// at it and removes tearing. Off, frames are presented as soon as they are ready.
     /// </summary>

@@ -10,14 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d52d9651`. The last of raylib's models examples that can be written are, so every
+Reviewed up to `6673c8bd`. rlgl's vertices given one at a time and its matrix stack are carried
+as the rows call them, the matrix moving each vertex as it is recorded (`bdf197ce`), the three
+text examples that read glyphs by index are written with `GetGlyphInfo` by code point, a row
+saying why `GetGlyphIndex` is not carried (`5c89a408`), and rlgl's culling and point mode are
+states of the draw list and the model pass (`6673c8bd`), a model following rlgl's culling once
+a program sets it, as raylib's does. The audit asked for found every 2D shape, texture and text
+wound clockwise, three faces of the cube and the sphere turned inward and the plane facing
+down, and `WindingTests` holds each to rshapes.c's order, the reference frames unchanged. The
+27 lines `PublicApi.txt` gains are rlgl's names. The table stands at 194 written, 1 in part
+and 26 missing, and the suite through the script at 1,298 passing. No verdict is open.
+
+Before them, the last of raylib's models examples that can be written were written, so every
 row of the table that can be written is: 181 written, 1 in part, 39 missing and 1 that does not
 apply. `models_skybox_rendering` is missing, a cubemap being left out by design, in place of a
 program of the engine's own under its name. An OBJ's dissolve is not read, as raylib reads none,
 a model saying `d 0` having been invisible, and a clip's frame count is raylib's, the robot's
 walk at 58 frames, each with its test. Two differences are kept on the comparison, a glTF's
-materials counted from 0 and a mesh's `VertexCount` as its file has it. The missing rows come
-next by how many each holds, rlgl's immediate vertices and matrix stack first, as item 2 has it.
+materials counted from 0 and a mesh's `VertexCount` as its file has it.
 
 Before it, the rest of raylib's shaders examples and its spectrum visualizer were
 written, so no shaders example that can be written is left, raylib's `rlights.h` being the
@@ -241,67 +251,22 @@ None open.
 
 ## Replies
 
-**Now 2, rlgl's vertices and matrix stack, by the rows they hold.** The calls the rlgl rows make are
-carried under rlgl's names and no more: `rlBegin` and `rlEnd` with `RlDrawMode`'s lines, triangles
-and quads, `rlVertex2f`, `rlVertex3f`, `rlTexCoord2f`, `rlNormal3f`, `rlColor4ub`, `rlColor4f`,
-`rlSetTexture`, `rlCheckRenderBatchLimit`, and `rlPushMatrix`, `rlPopMatrix`, `rlTranslatef`,
-`rlRotatef` and `rlScalef`. The vertices go into the frame's draw list through a primitive of two,
-three or four corners, each with its own color and texture coordinate, the quads' texture the one
-`rlSetTexture` names. The matrix stack moves each vertex as it is recorded, as rlgl moves it on the
-CPU, so a custom shader sees world positions, and every shape, text and model drawn inside a push
-is moved with it, `DrawMesh` multiplying it in as raylib's does. A transform set without a push
-lasts until a camera mode begins or ends, and a frame starts with none (`RlglTests`). A pixel
-written into a render texture is drawn without it. `core_2d_camera_mouse_zoom`,
-`shapes_rlgl_color_wheel`, `shapes_rectangle_advanced`, `textures_polygon_drawing`,
-`textures_textured_curve`, `models_textured_cube` and `models_rlgl_solar_system` are raylib's.
-`shapes_rectangle_advanced` has a branch of quads for a raylib built with
-`SUPPORT_QUADS_DRAW_MODE`, which `config.h` sets and the example does not include, and which
-names a `texShapes` the file never declares, so it draws its triangles, and
-`GetShapesTexture`, which only that branch calls, is not carried. `text_3d_drawing` waits on
-`GetGlyphIndex` alone, the next gap. The comparison has a line naming what of rlgl is not carried:
-the matrix modes, `rlLoadIdentity`, `rlMultMatrixf`, the projections and the viewport, and the
-switches of depth, culling, blending, wires and line width, culling to come as a state of the
-draw list with its three rows. The table stands at 188 written, 1 in part, none that can be and
-32 missing.
-
-**Now 2, `GetGlyphIndex`'s rows.** `text_rectangle_bounds`, `text_inline_styling` and
-`text_3d_drawing` are raylib's. Each reads a glyph's advance, offset and atlas rectangle from the
-font's arrays by the index `GetGlyphIndex` gives, and a font here keeps its glyphs by code point,
-so the programs ask `GetGlyphInfo` by the code point, whose `Glyph` holds the offset, the size,
-the atlas coordinates and the advance, raylib's `recs[index].width` being its `X1 - X0`. Carrying
-`GetGlyphIndex` would mean index-ordered arrays on `Font` beside its glyphs by code point, which
-TODO.md already says have no meaning here, so it is a line on the comparison and the three rows
-say how they are written. `text_unicode_emojis` waits on BMFont's `.fnt` files alone. One call
-was brought to raylib's: ImGui gives every font a tab four spaces wide, which raylib's fonts have
-none of, so a tab drew as four spaces where raylib draws and measures it as the font's `?`, and
-the tab is left out of a font's glyphs (`FontTests`). The text programs walk raylib's UTF-8 bytes
-as raylib does, through `Rune.DecodeFromUtf8` in `GetCodepoint`'s place. The table stands at 191
-written, 1 in part and 29 missing, culling's three rows next.
-
-**Now 2, culling's three rows.** `rlEnableBackfaceCulling`, `rlDisableBackfaceCulling`,
-`rlSetCullFace` with `RlCullFace`, `rlEnablePointMode` and `rlDisablePointMode` are carried. The
-draw list keeps a cull mode with each batch, none until a program turns culling on, and the model
-pass takes a cull mode and a point mode in its pipelines' keys, a custom shader's among them. A
-model keeps its material's faces until a program sets rlgl's culling, and then follows it whatever
-its material says, as raylib's does, since `shaders_cel_shading` culls the front faces of a car
-whose glTF material is double-sided, which drawn with both faces would hide the car behind its
-outline. `WindingTests` audits the shape functions against rshapes.c, as the review asked. It
-reads back every 2D shape, texture and text call and finds each triangle counterclockwise on the
-screen, the solids counterclockwise from outside, the plane facing up, billboards facing the
-camera and both strips turning every other triangle. It found the rectangles, circles, ellipses,
-rings, polygons, rounded rectangles, textures, nine-patches, text and billboards clockwise, three
-of the cube's faces and the sphere's turned inward, the plane facing down and the strips
-alternating, and each is brought to rshapes.c's order over the same diagonal. A ring or sector
-given from the larger angle is swept from the smaller, as raylib swaps them. A render test draws
-each shape and text with culling on and finds it drawn, a clockwise triangle left out, front-face
-culling leaving out a rectangle and culling turned off drawing the clockwise triangle again, and
-another finds the solids and a billboard drawn from outside. Point mode needs the device's
-`fillModeNonSolid`, without which the model is drawn filled, and `VK_KHR_maintenance5`, enabled
-where the driver has it, makes a point one pixel where the shader writes no size.
-`models_point_rendering` gives each point a color, which the fixed vertex layout has no room for,
-so each point carries its hue in its texture coordinate for a shader to color it as `ColorFromHSV`
-does, and TODO.md's line on the layout names a mesh's colors. `shapes_rlgl_triangle` turns
-culling on as it starts, as rlgl starts with it on. The comparison's rlgl line counts culling and
-point mode as carried, and two lines say how culling starts here and that point mode draws models
-alone. The table stands at 194 written, 1 in part and 26 missing, the high-density flag's rows
-next.
+**Now 2, the window flags' rows.** `ConfigFlags` carries raylib's `WindowHighdpi`,
+`WindowTransparent`, `WindowUnfocused`, `WindowAlwaysRun` and `BorderlessWindowedMode`, under
+raylib's values. High density asks SDL3 for the monitor's pixels, so on a monitor at twice the
+density `GetRenderWidth` is twice `GetScreenWidth` and shapes, text and the mouse keep the
+window's units. Run against a headless mutter whose monitor is scaled by two, the testbed reads a
+render size of 1600 by 826 for a screen of 800 by 413, and its mouse lands where it is moved.
+Transparency asks SDL3 for a transparent window and the swapchain for premultiplied alpha, or
+the next way of compositing it the surface offers, and is opaque with a warning where there is
+none. `IsWindowState(WindowUnfocused)` answers whether the window is without the focus, as
+raylib's focus callback keeps it, and setting it leaves the focus where it is the next time the
+window is shown. `IsWindowFullscreen` and the two fullscreen flags tell `ToggleFullscreen` from
+`ToggleBorderlessWindowed`, as raylib's do. Always-run is kept and answered, and the loop goes on
+while minimized with it or without it, which the comparison has a line on, since `./e3d` drives a
+minimized window and an audio stream fed from the loop keeps playing. A `--hidden` run's window
+is never shown, whatever `ClearWindowState(WindowHidden)` asks, since `core_window_flags` shows
+itself after 240 frames. `core_highdpi_demo`, `core_highdpi_testbed` and `core_window_flags` are
+raylib's, and `shapes_double_pendulum` asks for high density as raylib's does and is written
+whole. The table stands at 198 written, none in part and 23 missing, blend factors' and BMFont's
+two rows each next.

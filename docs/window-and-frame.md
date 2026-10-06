@@ -115,11 +115,17 @@ and `ToggleBorderlessWindowed` covers the monitor with no border and no change o
 which most games offer as their fullscreen.
 
 `GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
-rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels the
-content is drawn at `GetRenderWidth` by `GetRenderHeight`, twice as many, which
-`GetWindowScaleDPI` says. A minimized window draws nothing, and the program's loop goes on as
-it was, so a game paused by the player's minimizing it pauses itself by `IsWindowMinimized`. When
-the window comes back its frames are drawn at the size it comes back at.
+rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels, with
+`ConfigFlags.WindowHighdpi` asked, the content is drawn at `GetRenderWidth` by `GetRenderHeight`,
+twice as many, which `GetWindowScaleDPI` says, while shapes, text and the mouse keep the window's
+units. Without it, on Wayland and macOS, the window is drawn at its size and the desktop scales the
+picture up, as raylib's is. `core_highdpi_demo` sets the two grids side by side.
+`ConfigFlags.WindowTransparent` lets the desktop show through where the frame is cleared to
+`Color.Blank`, where the desktop composites windows, and `ConfigFlags.WindowUnfocused` leaves the
+keyboard focus where it is as the window is shown. A minimized window draws nothing, and the
+program's loop goes on as it was, with `ConfigFlags.WindowAlwaysRun` or without it, where raylib's
+waits without it, so a game paused by the player's minimizing it pauses itself by
+`IsWindowMinimized`. When the window comes back its frames are drawn at the size it comes back at.
 
 A tool that changes only when it is used, as a level editor drawn in ImGui, calls
 `EnableEventWaiting`, after which `WindowShouldClose` waits for input or a window event before the

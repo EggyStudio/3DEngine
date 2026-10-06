@@ -285,11 +285,11 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 2.6 | checked, `BadFileTests` | to take |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | to take |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
-| N 2.9 | checked, `FileHandleTests` | to take |
-| N 2.10 | checked, `NormTests` | to take |
+| N 2.9 | checked, `FileHandleTests` | checked, `FileHandleTests` |
+| N 2.10 | checked, `NormTests` | checked, `NormTests` |
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
-| N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 4 left out |
+| N 3.3 | checked, `NormTests`, 10 left out | checked, `NormTests`, 6 left out |
 | N 3.4 | checked, `NormTests` | listed 55, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |

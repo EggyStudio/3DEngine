@@ -23,8 +23,12 @@ public static partial class Engine3D
     /// <summary>Whether the window's size changed in the events of this frame.</summary>
     public static bool IsWindowResized() => _resized;
 
-    /// <summary>Whether the window covers its monitor in fullscreen.</summary>
-    public static bool IsWindowFullscreen() => HasWindowFlag(SDL.WindowFlags.Fullscreen);
+    /// <summary>
+    /// Whether the window covers its monitor in fullscreen, by <see cref="ToggleFullscreen"/> or
+    /// the flag for it, rather than as <see cref="ToggleBorderlessWindowed"/> covers it, as raylib's
+    /// tells the two apart.
+    /// </summary>
+    public static bool IsWindowFullscreen() => HasWindowFlag(SDL.WindowFlags.Fullscreen) && !_borderless;
 
     /// <summary>Whether the window is minimized.</summary>
     public static bool IsWindowMinimized() => HasWindowFlag(SDL.WindowFlags.Minimized);
@@ -45,7 +49,12 @@ public static partial class Engine3D
     /// </remarks>
     public static void ToggleFullscreen()
     {
-        if (WindowHandle is not 0 and var w) SDL.SetWindowFullscreen(w, !IsWindowFullscreen());
+        if (WindowHandle is not 0 and var w)
+        {
+            var on = !IsWindowFullscreen();
+            _borderless = false;
+            SDL.SetWindowFullscreen(w, on);
+        }
     }
 
     /// <summary>Maximizes the window.</summary>
@@ -234,12 +243,17 @@ public static partial class Engine3D
     {
         if (WindowHandle is not 0 and var w)
         {
-            if (IsWindowFullscreen())
+            // From fullscreen it goes to borderless, as raylib's leaves fullscreen first.
+            if (_borderless && HasWindowFlag(SDL.WindowFlags.Fullscreen))
+            {
                 SDL.SetWindowFullscreen(w, false);
+                _borderless = false;
+            }
             else
             {
                 SDL.SetWindowFullscreenMode(w, IntPtr.Zero);
                 SDL.SetWindowFullscreen(w, true);
+                _borderless = true;
             }
         }
     }

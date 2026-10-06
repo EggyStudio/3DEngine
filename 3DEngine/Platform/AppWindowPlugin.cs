@@ -167,7 +167,8 @@ internal sealed class AppWindowPlugin : IPlugin
         }
 
         logger.Info($"AppWindowPlugin: Creating window \"{config.WindowData.Title}\" ({config.WindowData.Width}x{config.WindowData.Height}) with backend={config.Graphics}...");
-        var window = new AppWindow(config.WindowData, config.Graphics);
+        var window = new AppWindow(config.WindowData, config.Graphics,
+            (config.HighPixelDensity ? SDL.WindowFlags.HighPixelDensity : 0) | (config.Transparent ? SDL.WindowFlags.Transparent : 0));
         SDL.SetWindowResizable(window.Sdl.Window, config.Resizable);
         SDL.SetWindowBordered(window.Sdl.Window, !config.Undecorated);
         SDL.SetWindowAlwaysOnTop(window.Sdl.Window, config.Topmost);
@@ -179,6 +180,7 @@ internal sealed class AppWindowPlugin : IPlugin
         else
         {
             logger.Info($"Showing window with command: {config.WindowCommand}");
+            if (config.Unfocused) SDL.SetHint(SDL.Hints.WindowActivateWhenShown, "0");
             window.Show(config.WindowCommand);
             if (config.Fullscreen) SDL.SetWindowFullscreen(window.Sdl.Window, true);
         }

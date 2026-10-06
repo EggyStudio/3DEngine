@@ -26,6 +26,31 @@ public enum ConfigFlags : uint
     WindowTopmost = 0x00001000,
     /// <summary>Four samples a pixel, which the engine draws with unless <see cref="Engine3D.SetConfigSamples"/> says otherwise.</summary>
     Msaa4xHint = 0x00000020,
+    /// <summary>
+    /// Let the desktop show through where the window is drawn clear, as <c>ClearBackground(Color.Blank)</c>
+    /// leaves it, where the desktop composites windows. Asked before the window opens.
+    /// </summary>
+    WindowTransparent = 0x00000010,
+    /// <summary>Keep the program's loop going while the window is minimized, as the engine's loop always goes on.</summary>
+    WindowAlwaysRun = 0x00000100,
+    /// <summary>
+    /// Leave the keyboard focus where it is when the window is shown. <see cref="Engine3D.IsWindowState"/>
+    /// answers whether the window is without the focus, as raylib's does.
+    /// </summary>
+    WindowUnfocused = 0x00000800,
+    /// <summary>
+    /// Draw at the monitor's pixels on one that scales them, so a monitor at twice the density
+    /// draws twice as many each way, which <see cref="Engine3D.GetRenderWidth"/> gives. Asked
+    /// before the window opens.
+    /// </summary>
+    /// <remarks>
+    /// Without it, on Wayland and macOS, the window is drawn at its size and the desktop scales the
+    /// picture up. On Windows and X11, which size a window in pixels, the engine enlarges the window
+    /// by the monitor's scale and draws it at those pixels either way.
+    /// </remarks>
+    WindowHighdpi = 0x00002000,
+    /// <summary>Cover the monitor with the window, borderless, at the desktop's display mode, as <see cref="Engine3D.ToggleBorderlessWindowed"/> does.</summary>
+    BorderlessWindowedMode = 0x00008000,
 }
 
 public static partial class Engine3D
@@ -48,8 +73,12 @@ public static partial class Engine3D
     {
         var flags = _configFlags;
         var config = Config.Default.WithWindow(title, width, height);
+        _alwaysRun = flags.HasFlag(ConfigFlags.WindowAlwaysRun);
         return config with
         {
+            HighPixelDensity = flags.HasFlag(ConfigFlags.WindowHighdpi),
+            Transparent = flags.HasFlag(ConfigFlags.WindowTransparent),
+            Unfocused = flags.HasFlag(ConfigFlags.WindowUnfocused),
             Samples = _configSamples ?? (flags.HasFlag(ConfigFlags.Msaa4xHint) ? 4 : config.Samples),
             Vsync = flags.HasFlag(ConfigFlags.VsyncHint),
             Fullscreen = flags.HasFlag(ConfigFlags.FullscreenMode),
@@ -63,11 +92,15 @@ public static partial class Engine3D
         };
     }
 
-    /// <summary>Turns flags on for the open window: fullscreen, resizable, undecorated, hidden, minimized, maximized, topmost or vsync.</summary>
+    /// <summary>
+    /// Turns flags on for the open window: fullscreen, borderless windowed, resizable, undecorated,
+    /// hidden, minimized, maximized, topmost, unfocused, always run or vsync.
+    /// </summary>
     /// <remarks>
     /// Vsync changes with the next frame, which makes the swapchain again with the present mode for
-    /// it, as a settings screen needs. MSAA is chosen as the window opens and is left as it is, which
-    /// the log says.
+    /// it, as a settings screen needs. MSAA, high density and transparency are chosen as the window
+    /// opens and are left as they are, which the log says. Unfocused leaves the focus where it is
+    /// the next time the window is shown, rather than taking it away now.
     /// </remarks>
     public static void SetWindowState(ConfigFlags flags) => ChangeWindowState(flags, on: true);
 
@@ -82,7 +115,8 @@ public static partial class Engine3D
         var config = TryRes<Config>(out var c) ? c : null;
         bool Has(ConfigFlags flag) => flag switch
         {
-            ConfigFlags.FullscreenMode => (sdl & SDL.WindowFlags.Fullscreen) != 0,
+            ConfigFlags.FullscreenMode => IsWindowFullscreen(),
+            ConfigFlags.BorderlessWindowedMode => (sdl & SDL.WindowFlags.Fullscreen) != 0 && _borderless,
             ConfigFlags.WindowResizable => (sdl & SDL.WindowFlags.Resizable) != 0,
             ConfigFlags.WindowUndecorated => (sdl & SDL.WindowFlags.Borderless) != 0,
             ConfigFlags.WindowHidden => (sdl & SDL.WindowFlags.Hidden) != 0,
@@ -91,6 +125,10 @@ public static partial class Engine3D
             ConfigFlags.WindowTopmost => (sdl & SDL.WindowFlags.AlwaysOnTop) != 0,
             ConfigFlags.VsyncHint => TryRes<SurfaceResize>(out var surface) ? surface.Vsync : config?.Vsync == true,
             ConfigFlags.Msaa4xHint => config?.Samples > 1,
+            ConfigFlags.WindowHighdpi => (sdl & SDL.WindowFlags.HighPixelDensity) != 0,
+            ConfigFlags.WindowTransparent => (sdl & SDL.WindowFlags.Transparent) != 0,
+            ConfigFlags.WindowUnfocused => (sdl & SDL.WindowFlags.InputFocus) == 0,
+            ConfigFlags.WindowAlwaysRun => _alwaysRun,
             _ => false,
         };
         foreach (var flag in Enum.GetValues<ConfigFlags>())
@@ -102,15 +140,20 @@ public static partial class Engine3D
     {
         // An offscreen run makes its images again too, with no window to change.
         if (flags.HasFlag(ConfigFlags.VsyncHint) && TryRes<SurfaceResize>(out var surface)) surface.RequestVsync(on);
+        if (flags.HasFlag(ConfigFlags.WindowAlwaysRun)) _alwaysRun = on;
+        // A window shown after this takes the focus or leaves it, as the hint says when it is shown.
+        if (flags.HasFlag(ConfigFlags.WindowUnfocused)) SDL.SetHint(SDL.Hints.WindowActivateWhenShown, on ? "0" : "1");
         if (WindowHandle is not (not 0 and var w)) return;
-        if (flags.HasFlag(ConfigFlags.FullscreenMode)) SDL.SetWindowFullscreen(w, on);
+        if (flags.HasFlag(ConfigFlags.FullscreenMode) && IsWindowFullscreen() != on) ToggleFullscreen();
+        if (flags.HasFlag(ConfigFlags.BorderlessWindowedMode) && IsWindowState(ConfigFlags.BorderlessWindowedMode) != on) ToggleBorderlessWindowed();
         if (flags.HasFlag(ConfigFlags.WindowResizable)) SDL.SetWindowResizable(w, on);
         if (flags.HasFlag(ConfigFlags.WindowUndecorated)) SDL.SetWindowBordered(w, !on);
         if (flags.HasFlag(ConfigFlags.WindowTopmost)) SDL.SetWindowAlwaysOnTop(w, on);
         if (flags.HasFlag(ConfigFlags.WindowHidden))
         {
             if (on) SDL.HideWindow(w);
-            else SDL.ShowWindow(w);
+            // A --hidden run's window is never shown, whatever the program asks.
+            else if (!(TryRes<Config>(out var running) && running.Hidden)) SDL.ShowWindow(w);
         }
         if (flags.HasFlag(ConfigFlags.WindowMinimized))
         {
@@ -124,11 +167,20 @@ public static partial class Engine3D
         }
         if (flags.HasFlag(ConfigFlags.Msaa4xHint))
             ApiLogger.Warn("MSAA is chosen as the window opens, and SetWindowState and ClearWindowState leave it as it is.");
+        if ((flags & (ConfigFlags.WindowHighdpi | ConfigFlags.WindowTransparent)) != 0)
+            ApiLogger.Warn("High density and transparency are chosen as the window opens, and SetWindowState and ClearWindowState leave them as they are.");
     }
+
+    // Whether the program asked for its loop to go on while minimized, which it does either way,
+    // and whether the window covers the monitor by ToggleBorderlessWindowed rather than ToggleFullscreen.
+    private static bool _alwaysRun;
+    private static bool _borderless;
 
     private static void ForgetConfigFlags()
     {
         _configFlags = ConfigFlags.None;
         _configSamples = null;
+        (_alwaysRun, _borderless) = (false, false);
+        SDL.ResetHint(SDL.Hints.WindowActivateWhenShown);
     }
 }

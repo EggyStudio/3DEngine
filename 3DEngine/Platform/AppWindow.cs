@@ -38,10 +38,11 @@ internal sealed class AppWindow
     /// <summary>Creates a new window with the specified properties and graphics backend.</summary>
     /// <param name="windowData">Window title and size.</param>
     /// <param name="backend">Graphics backend to use.</param>
-    public AppWindow(WindowData windowData, GraphicsBackend backend)
+    /// <param name="flags">SDL's window flags asked beside those the engine sets, as high pixel density or transparency.</param>
+    public AppWindow(WindowData windowData, GraphicsBackend backend, SDL.WindowFlags flags = 0)
     {
         var useVulkan = backend == GraphicsBackend.Vulkan;
-        Sdl = new(windowData.Title, windowData.Width, windowData.Height, useVulkan);
+        Sdl = new(windowData.Title, windowData.Width, windowData.Height, useVulkan, flags);
     }
 
     /// <summary>Creates a new window with the specified properties using the SDL software renderer.</summary>

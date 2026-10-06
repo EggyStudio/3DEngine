@@ -118,7 +118,7 @@ internal sealed class RenderPlugin : IPlugin
             Logger.Info("RenderPlugin: Vulkan backend selected, initializing the graphics context against the SDL window...");
             // Grab the ISurfaceSource that AppWindowPlugin inserted
             var surface = app.World.Resource<ISurfaceSource>();
-            renderer.Context.Initialize(surface, cfg.WindowData.Title, cfg.Samples, cfg.Vsync);
+            renderer.Context.Initialize(surface, cfg.WindowData.Title, cfg.Samples, cfg.Vsync, cfg.Transparent);
 
             // Seed RenderSurfaceInfo with current window size
             var surfaceInfo = new RenderSurfaceInfo { Width = window.Sdl.Width, Height = window.Sdl.Height };

@@ -29,8 +29,7 @@ public static class ShapesDoublePendulum
         const int screenWidth = 800;
         const int screenHeight = 450;
 
-        // raylib's asks for FLAG_WINDOW_HIGHDPI here, which the flat API does not carry, and which
-        // draws nothing differently on a monitor at a scale of one.
+        SetConfigFlags(ConfigFlags.WindowHighdpi);
         InitWindow(screenWidth, screenHeight, "[shapes] double pendulum");
 
         float l1 = 15.0f, m1 = 0.2f, theta1 = (MathF.PI/180)*170, w1 = 0;

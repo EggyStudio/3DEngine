@@ -45,7 +45,12 @@ internal sealed class SdlWindow
     public (int W, int H) Size => (Width, Height);
 
     /// <summary>Creates a new SDL window. If useVulkan is true, no SDL renderer is created and the window uses the Vulkan flag.</summary>
-    public SdlWindow(string title, int width, int height, bool useVulkan = false)
+    /// <param name="title">The window's title.</param>
+    /// <param name="width">The window's width.</param>
+    /// <param name="height">The window's height.</param>
+    /// <param name="useVulkan">Whether the window is drawn into through Vulkan rather than SDL's renderer.</param>
+    /// <param name="flags">SDL's window flags asked beside those the engine sets, as high pixel density or transparency.</param>
+    public SdlWindow(string title, int width, int height, bool useVulkan = false, SDL.WindowFlags flags = 0)
     {
         var logger = Log.Category("Engine.Application");
         Title = title;
@@ -65,8 +70,7 @@ internal sealed class SdlWindow
         if (useVulkan)
         {
             logger.Info($"Creating SDL Vulkan window: \"{title}\" ({width}x{height})...");
-            var flags = SDL.WindowFlags.Resizable | SDL.WindowFlags.Vulkan | SDL.WindowFlags.Hidden;
-            var window = SDL.CreateWindow(title, width, height, flags);
+            var window = SDL.CreateWindow(title, width, height, flags | SDL.WindowFlags.Resizable | SDL.WindowFlags.Vulkan | SDL.WindowFlags.Hidden);
             if (window == IntPtr.Zero)
             {
                 var err = SDL.GetError();
@@ -81,7 +85,7 @@ internal sealed class SdlWindow
         else
         {
             logger.Info($"Creating SDL window + software renderer: \"{title}\" ({width}x{height})...");
-            if (!SDL.CreateWindowAndRenderer(title, width, height, SDL.WindowFlags.Resizable | SDL.WindowFlags.Hidden, out var window, out var renderer))
+            if (!SDL.CreateWindowAndRenderer(title, width, height, flags | SDL.WindowFlags.Resizable | SDL.WindowFlags.Hidden, out var window, out var renderer))
             {
                 var err = SDL.GetError();
                 logger.Error($"Window/renderer creation failed: {err}");

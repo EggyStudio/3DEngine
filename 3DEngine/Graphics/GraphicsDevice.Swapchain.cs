@@ -51,7 +51,7 @@ internal sealed unsafe partial class GraphicsDevice
             imageUsage = VkImageUsageFlags.ColorAttachment
                          | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0),
             preTransform = support.Capabilities.currentTransform,
-            compositeAlpha = VkCompositeAlphaFlagsKHR.Opaque,
+            compositeAlpha = ChooseCompositeAlpha(support.Capabilities.supportedCompositeAlpha),
             presentMode = presentMode,
             clipped = true,
             oldSwapchain = _swapchain
@@ -97,6 +97,18 @@ internal sealed unsafe partial class GraphicsDevice
         CreateCommandPoolAndBuffers();
         CreatePresentSemaphores();
         Logger.Debug("Swapchain resource creation complete.");
+    }
+
+    // Opaque, or for a transparent window the first way of carrying alpha the surface offers,
+    // premultiplied before the rest, since a frame's colors are blended over its clear color as
+    // raylib's are, which leaves an opaque shape over a clear background premultiplied.
+    private VkCompositeAlphaFlagsKHR ChooseCompositeAlpha(VkCompositeAlphaFlagsKHR supported)
+    {
+        if (!TransparentWindow) return VkCompositeAlphaFlagsKHR.Opaque;
+        foreach (var mode in new[] { VkCompositeAlphaFlagsKHR.PreMultiplied, VkCompositeAlphaFlagsKHR.PostMultiplied, VkCompositeAlphaFlagsKHR.Inherit })
+            if ((supported & mode) != 0) return mode;
+        Logger.Warn("The window's surface composites only opaque frames, so the window is drawn opaque.");
+        return VkCompositeAlphaFlagsKHR.Opaque;
     }
 
     /// <summary>Destroys all swapchain-related resources including image views, depth buffer, and command pool.</summary>
