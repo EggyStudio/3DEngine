@@ -7,14 +7,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 dotnet build 3DEngine.slnx -c Release
-# The engine compiled ahead, ReadyToRun, for each system the package runs on, the same library with
-# its machine code beside its IL, which the package carries in runtimes/<rid>/lib and the host takes
-# for the system it starts on, so a game run from its project does not compile the engine's code in
-# its first frames. Crossgen compiles for every system from this one.
-rm -rf build/readytorun
-for rid in linux-x64 linux-arm64 win-x64 win-arm64 osx-x64 osx-arm64; do
-  dotnet publish 3DEngine/3DEngine.csproj -c Release -r "$rid" --self-contained false -p:PublishReadyToRun=true -o "build/readytorun/$rid" > /dev/null
-done
 rm -rf build/shader-cache
 ./e3d shaders 3DEngine/Shaders build/shader-cache
 # A release passes its version, which build/version.sh works out, as the pack workflow does. A pack

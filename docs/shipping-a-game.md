@@ -32,7 +32,9 @@ repository by `build/pack.sh`, through a `nuget.config` naming that folder, as
 ## One native executable
 
 `dotnet publish` makes the folder a player runs, with the .NET runtime in it, or one native
-executable through native AOT, which starts at once and needs nothing installed:
+executable through native AOT, which starts at once and needs nothing installed. Either compiles
+the engine ahead with the game, `-p:PublishReadyToRun=true` for the folder, so a player's first
+frames are not spent compiling it:
 
 ```bash
 dotnet publish -c Release -r linux-x64 -p:PublishAot=true -o publish    # or win-x64, osx-arm64

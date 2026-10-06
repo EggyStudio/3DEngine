@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Reflection.PortableExecutable;
 using FluentAssertions;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -9,9 +8,9 @@ namespace Engine.Tests.Package;
 
 /// <summary>
 /// The newest engine package in build/package, as <c>build/pack.sh</c> made it, opened and read for
-/// what a game built on it needs: the engine, compiled ahead for each system it runs on beside its
-/// portable code, its generator, its documentation, its compiled shaders, its readme, license,
-/// notices and release notes, and a native library from its dependencies for each system. The pack workflow runs these before a package is offered.
+/// what a game built on it needs: the engine, its generator, its documentation, its compiled
+/// shaders, its readme, license, notices and release notes, and a native library from its
+/// dependencies for each system it runs on. The pack workflow runs these before a package is offered.
 /// </summary>
 public sealed class PackageContentsTests
 {
@@ -57,27 +56,6 @@ public sealed class PackageContentsTests
         var notices = Read(package, "THIRD-PARTY-NOTICES.md");
         foreach (var (id, _) in Dependencies(spec))
             notices.Should().Contain(id, $"{id} is a dependency of the package, so the notices name it");
-    }
-
-    [NeedsPackageFact]
-    public void The_Package_Carries_The_Engine_Compiled_Ahead_For_Each_System_It_Runs_On()
-    {
-        using var package = Open();
-        foreach (var rid in Runtimes())
-        {
-            var entry = $"runtimes/{rid}/lib/net10.0/3DEngine.dll";
-            Entries(package).Should().Contain(entry, $"a game run from its project on {rid} takes the engine compiled ahead");
-            using var bytes = new MemoryStream();
-            using (var stream = package.GetEntry(entry)!.Open()) stream.CopyTo(bytes);
-            bytes.Position = 0;
-            using var image = new PEReader(bytes);
-            image.PEHeaders.CorHeader!.ManagedNativeHeaderDirectory.Size.Should().BePositive($"{entry} is ReadyToRun, its machine code beside its IL");
-            // ReadyToRun marks the system an image is for in its machine, the architecture's number
-            // crossed with one for the system, 0 for Windows, 0x7B79 for Linux and 0x4644 for macOS.
-            var architecture = rid.EndsWith("arm64", StringComparison.Ordinal) ? 0xAA64 : 0x8664;
-            var system = rid.StartsWith("linux", StringComparison.Ordinal) ? 0x7B79 : rid.StartsWith("osx", StringComparison.Ordinal) ? 0x4644 : 0;
-            ((int)image.PEHeaders.CoffHeader.Machine).Should().Be(architecture ^ system, $"{entry} is compiled for {rid}");
-        }
     }
 
     [NeedsPackageFact]

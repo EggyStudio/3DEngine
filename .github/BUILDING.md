@@ -122,15 +122,12 @@ seconds, naming `SDL_VIDEO_DRIVER=x11` as what avoids it.
 ## The package
 
 ```bash
-build/pack.sh        # Release build, ReadyToRun for each system, `e3d shaders` into build/shader-cache, then dotnet pack
+build/pack.sh        # Release build, `e3d shaders` into build/shader-cache, then dotnet pack
 ```
 
 The package lands in `build/package` and carries:
 
 - the library, with SDL3's native libraries through the `SDL3-CS.Native` dependency;
-- the library compiled ahead (ReadyToRun) for each of the six systems, in `runtimes/<rid>/lib`,
-  published by `pack.sh` from the one machine, which the host takes for the system it starts on,
-  so a game run from its project does not compile the engine's code in its first frames;
 - the built-in shaders, as content files that land in `source/shaders` beside a game's program;
 - those shaders compiled to SPIR-V by `e3d shaders`, landing in `source/.slang-cache`, so a game
   loads them with no `slangc` of its own;

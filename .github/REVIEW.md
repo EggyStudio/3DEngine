@@ -10,18 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `039bd788`. A render texture takes the window's samples unless `LoadRenderTextureEx`
-is given one, the two passes drawing into a one-sample target through pipelines of its own count,
-with a test and no reference changed, and where no audio device opens the backend goes to SDL's
-dummy driver, warned of once a process, `IsAudioDeviceReady` true there as raylib's is on its null
-device, with a test that names a missing driver, so `audio_spectrum_visualizer` draws the song's
-spectrum with no device, which settles item 6 (`b9ebd0bd`). A directory of scripts is watched once a
-process by `DirectoryWatches`, shared by the compilers that watch it and let go with the last, with
-a test that a second app on the directory adds no watcher, and the leak test's heap and thread
-series are on lines of their own so the page carries them whole, where one line of a hundred counts
-was cut at 240 characters (`039bd788`); Verdict 27 settles when the macOS run of it passes, and
-Verdict 26 when an examples job passes the capture, `56564fe2`'s having failed on it before the mend
-as expected. The suite: 1,427 passed, none skipped.
+Reviewed up to `039bd788`. ReadyToRun shipped in the commit after it and comes out again, the owner
+having reversed Decision 11 at 20:50 on the measured numbers, which item 6 carries out. A render
+texture takes the window's samples unless `LoadRenderTextureEx` is given one, the two passes drawing
+into a one-sample target through pipelines of its own count, with a test and no reference changed,
+and where no audio device opens the backend goes to SDL's dummy driver, warned of once a process,
+`IsAudioDeviceReady` true there as raylib's is on its null device, with a test that names a missing
+driver, so `audio_spectrum_visualizer` draws the song's spectrum with no device, which settles item
+6 (`b9ebd0bd`). A directory of scripts is watched once a process by `DirectoryWatches`, shared by
+the compilers that watch it and let go with the last, with a test that a second app on the directory
+adds no watcher, and the leak test's heap and thread series are on lines of their own so the page
+carries them whole, where one line of a hundred counts was cut at 240 characters (`039bd788`);
+Verdict 27 settles when the macOS run of it passes, and Verdict 26 when an examples job passes the
+capture, `56564fe2`'s having failed on it before the mend as expected. The suite: 1,427 passed, none
+skipped.
 
 Before them, Verdict 26's cause was found, a loop that never ended, a stream with no device
 answering `IsAudioStreamProcessed` true for ever, mended with a test on the null backend, and a
@@ -118,11 +120,13 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **The engine ships compiled ahead, ReadyToRun, for each platform** (Decision 11). The
-   package's library is published ReadyToRun for each runtime identifier the package carries, in
-   `3DEngine.csproj` and `.github/workflows/pack.yml`, so a game run from its project does not spend
-   Manor's 629 ms compiling in its first frame. The package's size before and after and the first
-   frame's time with and without are in the commit, and TODO.md's cost entry follows.
+6. **ReadyToRun comes out of the package again** (Decision 11, reversed). `build/pack.sh`,
+   `3DEngine.csproj`, `pack.yml` and the package test go back to the portable library alone, so the
+   package is 1.3 MB again, in a commit of its own that says the owner's reason. TODO.md's cost
+   entry keeps the measurement, 14.9 MB against about 65 ms on the worst early frame, and says that
+   `PublishReadyToRun` or NativeAOT in the author's own project is the way a shipped game compiles
+   the engine ahead, which `docs/shipping-a-game.md` says in one line where it says how a game is
+   published.
 7. **Per-object motion blur** (Decision 12), after items 2 to 6. A velocity image beside the HDR
    frame from each entity's previous transform, ECS entities blurred by their own motion and
    flat-API draws by the camera's as today, off by default, measured on a scene that moves, with a
@@ -223,9 +227,13 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
    three defaults the measure made visible, leaving the window's four samples and the bilinear
    filter as they are, as page lines.
 
-11. **The engine ships ReadyToRun for each platform.** The owner chose it on 2026-10-06, a few
-   megabytes a platform against the first frame's compiling in a game run from its project. The
-   working session does the project and the workflow; the owner publishes.
+11. **The package ships no ReadyToRun images, the author's own publish being the way.** The owner
+   chose ReadyToRun per platform at 19:45 on 2026-10-06 on a figure of 629 ms of compiling in a
+   game's first frame, which was CPU time across threads and not what a player waits, and reversed
+   it at 20:50 on the measure the commit after `039bd788` made: the package 14.9 MB from 1.3, the
+   worst early frame about 140 ms from about 205, and no difference for a game its author publishes
+   with `PublishReadyToRun` or NativeAOT. The measurement stays in TODO.md's cost entry, and
+   `docs/shipping-a-game.md` says in a line how a shipped game compiles the engine ahead.
 
 12. **Per-object motion blur and ImGui viewports are wanted, after the standing items.** The
    owner said so on 2026-10-06, and that neither is a priority, so they are the last items of the
@@ -252,3 +260,10 @@ startup stage ended at 0.44 s against 0.58, and the slowest of the first sixty f
 by its machine, whose number ReadyToRun crosses with one for the system. `pack.yml` packs through
 `pack.sh` as it did, so its step gains the publishing and a comment, and TODO.md's cost entry says
 what is left and these measures. The owner publishes.
+
+**Now 6, ReadyToRun out again** (Decision 11, reversed). `build/pack.sh`, `3DEngine.csproj`,
+`pack.yml`, the package test, `.gitignore` and BUILDING.md are back as they were before it, the
+package packed here 1.25 MB with no `runtimes` folder of its own, and its tests pass. TODO.md's cost
+entry keeps the measure and says the owner's choice, and `docs/shipping-a-game.md` says in a line
+that publishing with `-p:PublishReadyToRun=true` or native AOT compiles the engine ahead with the
+game.
