@@ -28,7 +28,7 @@ public static partial class Engine3D
         _inFrame = true;
         _target = default;
         _shader = default;
-        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
         ResetRlgl();
         Profile("program.update", update);
         _drawingStart = Stopwatch.GetTimestamp();
@@ -124,7 +124,7 @@ public static partial class Engine3D
     {
         _target = target;
         DrawList.SetTarget(target.Texture.Id);
-        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
     }
 
     /// <summary>Returns drawing to the window.</summary>
@@ -132,7 +132,7 @@ public static partial class Engine3D
     {
         _target = default;
         DrawList.SetTarget(0);
-        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
     }
 
     // -- Blending and scissors
@@ -177,8 +177,9 @@ public static partial class Engine3D
     {
         var (width, height) = DrawingSize();
         var aspect = (float)width / Math.Max(1, height);
-        var viewProjection = camera.View * camera.ProjectionMatrix(aspect);
-        DrawList.SetTransform(viewProjection, depthTest: true);
+        var projection = camera.ProjectionMatrix(aspect);
+        var viewProjection = camera.View * projection;
+        SetRlCamera(camera.View, projection, depthTest: true);
         ResetRlglUnlessPushed();
         _camera3D = camera;
         var mode3D = World.GetOrInsertResource(static () => new Mode3DCamera());
@@ -193,7 +194,7 @@ public static partial class Engine3D
     public static void EndMode3D()
     {
         _camera3D = null;
-        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
         ResetRlglUnlessPushed();
     }
 

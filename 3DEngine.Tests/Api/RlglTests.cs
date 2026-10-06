@@ -179,4 +179,48 @@ public sealed class RlglTests : IDisposable
             (BlendMode.CustomSeparate, new BlendFactors(RlBlendFactor.Zero, RlBlendFactor.One, RlBlendEquation.FuncAdd, RlBlendFactor.One, RlBlendFactor.Zero, RlBlendEquation.FuncAdd)),
             (BlendMode.Additive, default(BlendFactors)));
     }
+
+    [Fact]
+    public void The_Projection_Mode_Keeps_Its_Own_Stack_And_The_Modelview_Loads_The_Identity_Over_The_View()
+    {
+        var turned = Matrix4x4.CreateScale(1, -1, 1);
+        var portal = Matrix4x4.CreatePerspectiveOffCenter(-1, 1, -1, 1, 0.05f, 100);
+        rlMatrixMode(RlMatrixMode.Projection);
+        rlLoadIdentity();
+        rlMatrixMode(RlMatrixMode.Modelview);
+        rlLoadIdentity();
+        List.Transform.Should().Be(turned, "the identity projection is turned for Vulkan, as the camera's is");
+
+        rlMatrixMode(RlMatrixMode.Projection);
+        rlPushMatrix();
+        rlSetMatrixProjection(portal);
+        rlMatrixMode(RlMatrixMode.Modelview);
+        List.Transform.Should().Be(portal * turned);
+
+        rlMultMatrixf([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 3, 4, 1]);
+        DrawLine3D(Vector3.Zero, Vector3.UnitX, Color.White);
+        Vertices.ToArray().Select(v => v.Position).Should().Equal([new Vector3(2, 3, 4), new Vector3(3, 3, 4)], "the matrix multiplied in moves what is drawn after");
+
+        rlMatrixMode(RlMatrixMode.Projection);
+        rlPopMatrix();
+        rlMatrixMode(RlMatrixMode.Modelview);
+        List.Transform.Should().Be(turned, "the projection pushed comes back");
+    }
+
+    [Fact]
+    public void The_Depth_Test_Is_A_Switch_Of_Its_Own_And_The_Mask_Outlasts_The_Frame()
+    {
+        rlEnableDepthTest();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlDisableDepthMask();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlDisableDepthTest();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+
+        List.Batches.Select(b => (b.DepthTest, b.DepthMask)).Should().Equal((true, true), (true, false), (false, false));
+
+        List.Clear();
+        ResetRlgl();
+        List.DepthMask.Should().BeFalse("rlgl's depth mask is kept from frame to frame");
+    }
 }

@@ -273,7 +273,17 @@ clockwise is not drawn. `rlSetCullFace(RlCullFace.Front)` leaves out the front f
 normals, and `rlDisableBackfaceCulling` draws both. Until a program calls one of them, shapes
 draw both faces and a model the faces its material says, where rlgl culls back faces from the
 start. Between `rlEnablePointMode` and `rlDisablePointMode` a model is drawn as a point at each
-corner of its triangles. rlgl's switches of depth and blending are not carried, as
+corner of its triangles.
+
+rlgl's matrix modes are carried for a projection of a program's own. In
+`rlMatrixMode(RlMatrixMode.Projection)`, `rlPushMatrix` and `rlPopMatrix` keep and restore the
+projection `rlSetMatrixProjection` sets, and back in `RlMatrixMode.Modelview`, `rlLoadIdentity`
+and `rlMultMatrixf` set the view.
+`textures_portal_window` draws a second scene through an off-center frustum built from the eye
+and the corners of an arch, so it lines up with the arch from wherever the camera stands, with
+`rlEnableDepthTest` and `rlDisableDepthTest` around it as `BeginMode3D` and `EndMode3D` turn
+the test on and off. `rlDisableDepthMask` tests what follows against the depth without writing
+its own. Models are drawn through the camera of `BeginMode3D` whatever rlgl's projection is, as
 [compared with raylib](compared-with-raylib.md) says.
 
 ## See also
@@ -286,7 +296,8 @@ corner of its triangles. rlgl's switches of depth and blending are not carried, 
   [`models_rlgl_solar_system`](../3DEngine.Examples/Models/ModelsRlglSolarSystem.cs),
   [`shapes_rlgl_triangle`](../3DEngine.Examples/Shapes/ShapesRlglTriangle.cs),
   [`models_point_rendering`](../3DEngine.Examples/Models/ModelsPointRendering.cs),
-  [`shaders_cel_shading`](../3DEngine.Examples/Shaders/ShadersCelShading.cs)
+  [`shaders_cel_shading`](../3DEngine.Examples/Shaders/ShadersCelShading.cs),
+  [`textures_portal_window`](../3DEngine.Examples/Textures/TexturesPortalWindow.cs)
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
   [3D shapes](../CHEATSHEET.md#3d-shapes), [rlgl](../CHEATSHEET.md#rlgl) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)

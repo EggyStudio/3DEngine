@@ -409,6 +409,48 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Shader_Writes_The_Depth_2D_Is_Tested_Against_Once_The_Test_Is_On_And_The_Mask_Keeps_It_From_Being_Written()
+    {
+        Open(48, 16);
+        // The depth of each pixel one less its red, so a red shape is nearest and a black one farthest
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            struct Output { float4 color : SV_Target; float depth : SV_Depth; };
+
+            [shader("fragment")]
+            Output fragmentMain(VertexOutput input)
+            {
+                Output output;
+                output.color = input.color;
+                output.depth = 1.0 - input.color.r;
+                return output;
+            }
+            """, "depth.slang");
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            rlEnableDepthTest();
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 16, 16, new Color(255, 0, 0));
+            DrawRectangle(16, 0, 16, 16, new Color(0, 0, 255));
+            rlDisableDepthMask();
+            DrawRectangle(32, 0, 16, 16, new Color(255, 0, 0));
+            rlEnableDepthMask();
+            EndShaderMode();
+            // Shapes in 2D lie halfway into the depth
+            DrawRectangle(0, 0, 48, 16, Color.White);
+            rlDisableDepthTest();
+        });
+
+        GetImageColor(image, 8, 8).Should().Be(new Color(255, 0, 0), "the red square's depth is nearer than the white one's, which the test leaves out");
+        GetImageColor(image, 24, 8).Should().Be(Color.White, "the blue square's depth is the farthest, so the white one passes");
+        GetImageColor(image, 40, 8).Should().Be(Color.White, "with the mask off the red square drew without writing its depth");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void Text_Lands_Inside_The_Box_MeasureText_Gives_It()
     {
         Open(96, 48);

@@ -26,14 +26,14 @@ public static partial class Engine3D
     /// <summary>Draws the following 2D calls through <paramref name="camera"/>, in world units, until <see cref="EndMode2D"/>.</summary>
     public static void BeginMode2D(Camera2D camera)
     {
-        DrawList.SetTransform(camera.Matrix * ScreenTransform(), depthTest: false);
+        SetRlCamera(camera.Matrix, ScreenTransform(), depthTest: false);
         ResetRlglUnlessPushed();
     }
 
     /// <summary>Returns to drawing in screen pixels.</summary>
     public static void EndMode2D()
     {
-        DrawList.SetTransform(ScreenTransform(), depthTest: false);
+        SetRlCamera(Matrix4x4.Identity, ScreenTransform(), depthTest: false);
         ResetRlglUnlessPushed();
     }
 

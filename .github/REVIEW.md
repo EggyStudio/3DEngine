@@ -299,3 +299,22 @@ the second's emojis and messages taken from raylib's bytes into C# strings, its 
 `text_rectangle_bounds`' own, and the nine font files are fetched with the rest. The table stands
 at 202 written and 19 missing, the rows with a gap of one each next, depth written by a shader's
 two first.
+
+**Now 2, the depth rows.** `rlEnableDepthTest` and `rlDisableDepthTest` switch the draw list's
+depth test, in 2D as well as 3D, which `BeginMode3D` and `EndMode3D` turn on and off as raylib's
+do, and `rlEnableDepthMask` and `rlDisableDepthMask` keep a depth tested shape from writing its
+depth, kept from frame to frame as rlgl's state is. An immediate shader writes depth through
+`SV_Depth`, which a render test reads back in 2D with the test on and the mask off. rlgl's
+matrix modes are carried for `textures_portal_window`: `rlMatrixMode`, `rlLoadIdentity`,
+`rlMultMatrixf` and `rlSetMatrixProjection`, rlgl's projection kept apart from the view a camera
+mode sets, its own stack in its mode, and a projection taken as `System.Numerics` makes one and
+turned for Vulkan's clip space as the camera's is, which the comparison has a line on. Its
+projection moves shapes, text and rlgl's vertices, and models stay with the camera of
+`BeginMode3D`, as the rlgl line says. `shaders_depth_writing`, `shaders_hybrid_rendering` and
+`textures_portal_window` are raylib's, the first two's render texture with a depth of its own
+from `LoadRenderTexture` in place of rlgl's framebuffer calls. Their pictures differ from the
+screenshots beside them for a known reason: raylib's shaders write depth from the color's blue
+since `54ccb18e` (2023) and `6820ff61` (2025), where they wrote the pixel's own depth when the
+screenshots were taken, and the ports follow raylib's source as it is, which their shaders say.
+The table stands at 205 written and 16 missing. `models_skybox_rendering` waits on cubemaps,
+and a model drawn without writing depth with them.

@@ -59,6 +59,13 @@ EndShaderMode();
 so one shader draws with several in a frame, and a value set once holds for every frame after.
 `LoadShaderFromMemory` compiles source from a string rather than a file.
 
+A shader may write the depth of each pixel as well as its color, returning a struct with a
+`float depth : SV_Depth` beside its `SV_Target`. What is drawn after is tested against that
+depth, in 3D and in 2D once `rlEnableDepthTest` turns the test on outside a 3D mode.
+`shaders_hybrid_rendering` raymarches a scene across a rectangle, each pixel's depth how far its
+ray went, and rasterizes cubes into the same target after it, and `shaders_depth_writing` turns
+the test around.
+
 ## Values by name
 
 A shader may declare its own uniforms and textures at the top level, which the program finds by

@@ -349,6 +349,14 @@ void rlSetBlendFactors(RlBlendFactor glSrcFactor, RlBlendFactor glDstFactor, RlB
 void rlSetBlendFactorsSeparate(RlBlendFactor glSrcRGB, RlBlendFactor glDstRGB, RlBlendFactor glSrcAlpha, RlBlendFactor glDstAlpha, RlBlendEquation glEqRGB, RlBlendEquation glEqAlpha); // What BlendMode.CustomSeparate combines by, color apart from alpha
 void rlSetBlendMode(BlendMode mode);                       // BeginBlendMode under rlgl's name
 void rlDrawRenderBatchActive();                            // Nothing to do, the draw list keeping each state's shapes in order
+void rlMatrixMode(RlMatrixMode mode);                      // Have the calls after change the Modelview or the Projection
+void rlLoadIdentity();                                     // That matrix to the identity
+void rlMultMatrixf(ReadOnlySpan<float> matf);              // Multiply sixteen values in, in raymath's order
+void rlSetMatrixProjection(Matrix4x4 proj);                // The projection, as System.Numerics makes one
+void rlEnableDepthTest();                                  // Test what is drawn after against the depth, in 2D too
+void rlDisableDepthTest();                                 // Draw over whatever the depth
+void rlEnableDepthMask();                                  // Write the depth of what passes the test
+void rlDisableDepthMask();                                 // Test against the depth without writing it
 ```
 
 ## Images and textures

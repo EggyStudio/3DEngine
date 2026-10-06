@@ -10,7 +10,7 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <summary>A run of vertices in the <see cref="DrawList"/> drawn with one pipeline and one transform.</summary>
 /// <param name="Topology">Whether the vertices are lines or triangles.</param>
 /// <param name="Transform">Model to clip space, in <c>System.Numerics</c> order (row vectors).</param>
-/// <param name="DepthTest">Whether the run is tested against and writes the depth buffer.</param>
+/// <param name="DepthTest">Whether the run is tested against the depth buffer, and writes it unless <paramref name="DepthMask"/> is off.</param>
 /// <param name="FirstIndex">Where the run's indices start in <see cref="DrawList.Indices"/>.</param>
 /// <param name="IndexCount">How many indices the run draws, two a line and three a triangle.</param>
 /// <param name="Texture">The <see cref="TextureStore"/> id the run samples, or 0 for plain white.</param>
@@ -23,10 +23,12 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <param name="Scissor">The pixels of the target the run is kept to, or null for all of them.</param>
 /// <param name="Cull">Which faces of the run's triangles are left out by their winding.</param>
 /// <param name="Factors">The factors a custom <paramref name="Blend"/> combines by, and default for the other modes.</param>
+/// <param name="DepthMask">Whether a depth tested run writes the depth it passes with.</param>
 internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
-    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None, BlendFactors Factors = default);
+    BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None, BlendFactors Factors = default,
+    bool DepthMask = true);
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
 internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
@@ -249,6 +251,29 @@ internal sealed class DrawList
         }
     }
 
+    /// <summary>Tests the following shapes against the depth buffer, or not, keeping the transform.</summary>
+    public void SetDepthTest(bool depthTest)
+    {
+        using (Enter())
+        {
+            DepthTest = depthTest;
+            Close();
+        }
+    }
+
+    /// <summary>Whether the next depth tested shapes write the depth they pass with, true until a program turns it off.</summary>
+    public bool DepthMask { get; private set; } = true;
+
+    /// <summary>Writes the depth of the following depth tested shapes, or leaves the depth buffer as it is.</summary>
+    public void SetDepthMask(bool depthMask)
+    {
+        using (Enter())
+        {
+            DepthMask = depthMask;
+            Close();
+        }
+    }
+
     // The model transform the following shapes' positions are moved by as they are recorded, as
     // rlgl moves each vertex by its matrix stack, and whether it is anything but the identity.
     private Matrix4x4 _model = Matrix4x4.Identity;
@@ -393,6 +418,7 @@ internal sealed class DrawList
             Textures = null;
             Blend = BlendMode.Alpha;
             Factors = default;
+            DepthMask = true;
             Scissor = null;
             Cull = CullMode.None;
             (_model, _hasModel) = (Matrix4x4.Identity, false);
@@ -465,14 +491,15 @@ internal sealed class DrawList
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
-                && last.Factors == Factors && last.Scissor == Scissor && last.Cull == Cull && last.FirstIndex + last.IndexCount == first)
+                && last.Factors == Factors && last.DepthMask == DepthMask && last.Scissor == Scissor && last.Cull == Cull
+                && last.FirstIndex + last.IndexCount == first)
             {
                 Open(topology, texture, last.IndexCount + count);
                 return;
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull, Factors));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull, Factors, DepthMask));
         Open(topology, texture, count);
     }
 

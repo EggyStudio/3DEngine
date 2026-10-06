@@ -19,32 +19,147 @@ public static partial class Engine3D
     private static Vector2 _rlTexCoord;
     private static int _rlTexture;
 
-    /// <summary>
-    /// Keeps the current transform, which <see cref="rlPopMatrix"/> returns to, as rlgl's
-    /// <c>rlPushMatrix</c> does. The shapes, text and models drawn until then are moved by the
-    /// transforms set in between.
-    /// </summary>
-    public static void rlPushMatrix() => RlStack.Push(_rlTransform);
+    // rlgl's projection and the view a camera mode set, which the draw list's transform is made
+    // of, the view first, and which of rlgl's matrices the calls after rlMatrixMode change. The
+    // model transform the stack builds moves each vertex as it is recorded.
+    private static Matrix4x4 _rlView = Matrix4x4.Identity;
+    private static Matrix4x4 _rlProjection = Matrix4x4.Identity;
+    private static RlMatrixMode _rlMatrixMode = RlMatrixMode.Modelview;
+    private static readonly Stack<Matrix4x4> RlProjectionStack = new();
 
-    /// <summary>Returns to the transform the last <see cref="rlPushMatrix"/> kept.</summary>
+    // Vulkan's clip space points down where a System.Numerics projection's points up, which the
+    // camera's projection turns as well.
+    private static readonly Matrix4x4 RlClipFlip = Matrix4x4.CreateScale(1, -1, 1);
+
+    /// <summary>
+    /// Has the matrix calls after this change <paramref name="mode"/>'s matrix, rlgl's modelview,
+    /// which moves what is drawn, or its projection, as rlgl's <c>rlMatrixMode</c> does.
+    /// </summary>
+    /// <remarks>
+    /// The projection moves the shapes, text and rlgl's vertices drawn after it. Models are drawn
+    /// through the camera of <see cref="BeginMode3D"/>, whatever rlgl's projection is.
+    /// </remarks>
+    public static void rlMatrixMode(RlMatrixMode mode) => _rlMatrixMode = mode;
+
+    /// <summary>
+    /// Keeps the current transform, or the projection in its mode, which <see cref="rlPopMatrix"/>
+    /// returns to, as rlgl's <c>rlPushMatrix</c> does. The shapes, text and models drawn until then
+    /// are moved by the transforms set in between.
+    /// </summary>
+    public static void rlPushMatrix()
+    {
+        if (_rlMatrixMode == RlMatrixMode.Projection) RlProjectionStack.Push(_rlProjection);
+        else RlStack.Push(_rlTransform);
+    }
+
+    /// <summary>Returns to the transform, or the projection in its mode, the last <see cref="rlPushMatrix"/> kept.</summary>
     public static void rlPopMatrix()
     {
-        if (RlStack.TryPop(out var kept)) SetRlTransform(kept);
+        if (_rlMatrixMode == RlMatrixMode.Projection)
+        {
+            if (RlProjectionStack.TryPop(out var projection)) SetRlProjection(projection);
+        }
+        else if (RlStack.TryPop(out var kept)) SetRlTransform(kept);
     }
 
     /// <summary>Moves what is drawn after by (<paramref name="x"/>, <paramref name="y"/>, <paramref name="z"/>), within the transforms set before, as rlgl's <c>rlTranslatef</c> does.</summary>
-    public static void rlTranslatef(float x, float y, float z) => SetRlTransform(Matrix4x4.CreateTranslation(x, y, z) * _rlTransform);
+    public static void rlTranslatef(float x, float y, float z) => MultiplyRlMatrix(Matrix4x4.CreateTranslation(x, y, z));
 
     /// <summary>Turns what is drawn after by <paramref name="angle"/> degrees about the axis (<paramref name="x"/>, <paramref name="y"/>, <paramref name="z"/>), within the transforms set before.</summary>
     public static void rlRotatef(float angle, float x, float y, float z)
     {
         var axis = new Vector3(x, y, z);
         if (axis.LengthSquared() == 0) return;
-        SetRlTransform(Matrix4x4.CreateFromAxisAngle(Vector3.Normalize(axis), float.DegreesToRadians(angle)) * _rlTransform);
+        MultiplyRlMatrix(Matrix4x4.CreateFromAxisAngle(Vector3.Normalize(axis), float.DegreesToRadians(angle)));
     }
 
     /// <summary>Scales what is drawn after by (<paramref name="x"/>, <paramref name="y"/>, <paramref name="z"/>), within the transforms set before.</summary>
-    public static void rlScalef(float x, float y, float z) => SetRlTransform(Matrix4x4.CreateScale(x, y, z) * _rlTransform);
+    public static void rlScalef(float x, float y, float z) => MultiplyRlMatrix(Matrix4x4.CreateScale(x, y, z));
+
+    /// <summary>
+    /// Makes the modelview, the view with the transforms after it, or the projection in its mode,
+    /// the identity, as rlgl's <c>rlLoadIdentity</c> does.
+    /// </summary>
+    public static void rlLoadIdentity()
+    {
+        if (_rlMatrixMode == RlMatrixMode.Projection)
+        {
+            SetRlProjection(RlClipFlip);
+            return;
+        }
+        SetRlTransform(Matrix4x4.Identity);
+        _rlView = Matrix4x4.Identity;
+        DrawList.SetTransform(_rlProjection, DrawList.DepthTest);
+    }
+
+    /// <summary>
+    /// Multiplies the matrix of the mode in by sixteen values, in raymath's order, as rlgl's
+    /// <c>rlMultMatrixf</c> does, what is drawn after moved by them first.
+    /// </summary>
+    /// <remarks>raymath's order is a <see cref="Matrix4x4"/>'s fields from <c>M11</c> to <c>M44</c> a row at a time.</remarks>
+    /// <exception cref="ArgumentException">There are fewer than sixteen values.</exception>
+    public static void rlMultMatrixf(ReadOnlySpan<float> matf)
+    {
+        if (matf.Length < 16) throw new ArgumentException("A matrix is sixteen values.", nameof(matf));
+        MultiplyRlMatrix(new Matrix4x4(matf[0], matf[1], matf[2], matf[3], matf[4], matf[5], matf[6], matf[7],
+            matf[8], matf[9], matf[10], matf[11], matf[12], matf[13], matf[14], matf[15]));
+    }
+
+    /// <summary>
+    /// Sets the projection what is drawn after is seen through, as rlgl's <c>rlSetMatrixProjection</c>
+    /// does, a projection as <see cref="Matrix4x4.CreatePerspectiveOffCenter(float, float, float, float, float, float)"/>
+    /// makes one, depth from 0 to 1.
+    /// </summary>
+    public static void rlSetMatrixProjection(Matrix4x4 proj) => SetRlProjection(proj * RlClipFlip);
+
+    /// <summary>Tests what is drawn after against the depth drawn before, as rlgl's <c>rlEnableDepthTest</c> does, in 2D as well as 3D.</summary>
+    /// <remarks><see cref="BeginMode3D"/> turns the test on and <see cref="EndMode3D"/> turns it off, as raylib's do.</remarks>
+    public static void rlEnableDepthTest() => DrawList.SetDepthTest(true);
+
+    /// <summary>Draws what follows over what is there whatever its depth, as rlgl's <c>rlDisableDepthTest</c> does.</summary>
+    public static void rlDisableDepthTest() => DrawList.SetDepthTest(false);
+
+    /// <summary>Writes the depth of what is drawn after with the test on, as rlgl's <c>rlEnableDepthMask</c> does, and as the engine does until it is turned off.</summary>
+    public static void rlEnableDepthMask()
+    {
+        _rlDepthMask = true;
+        DrawList.SetDepthMask(true);
+    }
+
+    /// <summary>
+    /// Tests what is drawn after against the depth there without writing its own, as rlgl's
+    /// <c>rlDisableDepthMask</c> does, for shapes, text and rlgl's vertices.
+    /// </summary>
+    public static void rlDisableDepthMask()
+    {
+        _rlDepthMask = false;
+        DrawList.SetDepthMask(false);
+    }
+
+    // Whether depth tested shapes write their depth, kept from frame to frame as rlgl's is.
+    private static bool _rlDepthMask = true;
+
+    // Changes the matrix rlMatrixMode chose by m, which moves what is drawn before what it held, as
+    // rlgl multiplies it in.
+    private static void MultiplyRlMatrix(Matrix4x4 m)
+    {
+        if (_rlMatrixMode == RlMatrixMode.Projection) SetRlProjection(m * _rlProjection);
+        else SetRlTransform(m * _rlTransform);
+    }
+
+    // Sets the view and the projection a camera mode draws through, and whether it is depth
+    // tested, as raylib's modes load rlgl's modelview and projection.
+    private static void SetRlCamera(Matrix4x4 view, Matrix4x4 projection, bool depthTest)
+    {
+        (_rlView, _rlProjection) = (view, projection);
+        DrawList.SetTransform(view * projection, depthTest);
+    }
+
+    private static void SetRlProjection(Matrix4x4 projection)
+    {
+        _rlProjection = projection;
+        DrawList.SetTransform(_rlView * projection, DrawList.DepthTest);
+    }
 
     /// <summary>Starts giving vertices one at a time, joined as <paramref name="mode"/> says, until <see cref="rlEnd"/>.</summary>
     /// <remarks>
@@ -157,9 +272,13 @@ public static partial class Engine3D
     /// <summary>Draws the models drawn after filled again.</summary>
     public static void rlDisablePointMode() => _rlPointMode = false;
 
-    // The faces the draw list leaves out of shapes: none until a program turns culling on.
-    private static void ApplyRlCulling() =>
+    // The faces the draw list leaves out of shapes, none until a program turns culling on, and
+    // whether depth tested shapes write their depth.
+    private static void ApplyRlCulling()
+    {
         DrawList.SetCull(_rlCulling == RlCulling.Enabled ? (_rlCullFace == RlCullFace.Front ? CullMode.Front : CullMode.Back) : CullMode.None);
+        DrawList.SetDepthMask(_rlDepthMask);
+    }
 
     // Whether a program has set rlgl's culling, after which a model's faces are culled as rlgl
     // culls them, whatever its material says, as raylib's are.
@@ -238,6 +357,8 @@ public static partial class Engine3D
     internal static void ResetRlgl()
     {
         RlStack.Clear();
+        RlProjectionStack.Clear();
+        _rlMatrixMode = RlMatrixMode.Modelview;
         SetRlTransform(Matrix4x4.Identity);
         (_rlMode, _rlCornerCount, _rlColor, _rlTexCoord, _rlTexture) = (null, 0, Color.White, Vector2.Zero, 0);
         ApplyRlCulling();
@@ -248,6 +369,10 @@ public static partial class Engine3D
     {
         (_rlCulling, _rlCullFace, _rlPointMode) = (RlCulling.Unset, RlCullFace.Back, false);
         (_rlBlendFactors, _rlBlendFactorsSeparate) = (BlendFactors.Default, BlendFactors.Default);
+        _rlDepthMask = true;
+        RlProjectionStack.Clear();
+        _rlMatrixMode = RlMatrixMode.Modelview;
+        (_rlView, _rlProjection) = (Matrix4x4.Identity, Matrix4x4.Identity);
         RlStack.Clear();
         _rlTransform = Matrix4x4.Identity;
     }
