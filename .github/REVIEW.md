@@ -263,3 +263,17 @@ the matrix modes, `rlLoadIdentity`, `rlMultMatrixf`, the projections and the vie
 switches of depth, culling, blending, wires and line width, culling to come as a state of the
 draw list with its three rows. The table stands at 188 written, 1 in part, none that can be and
 32 missing.
+
+**Now 2, `GetGlyphIndex`'s rows.** `text_rectangle_bounds`, `text_inline_styling` and
+`text_3d_drawing` are raylib's. Each reads a glyph's advance, offset and atlas rectangle from the
+font's arrays by the index `GetGlyphIndex` gives, and a font here keeps its glyphs by code point,
+so the programs ask `GetGlyphInfo` by the code point, whose `Glyph` holds the offset, the size,
+the atlas coordinates and the advance, raylib's `recs[index].width` being its `X1 - X0`. Carrying
+`GetGlyphIndex` would mean index-ordered arrays on `Font` beside its glyphs by code point, which
+TODO.md already says have no meaning here, so it is a line on the comparison and the three rows
+say how they are written. `text_unicode_emojis` waits on BMFont's `.fnt` files alone. One call
+was brought to raylib's: ImGui gives every font a tab four spaces wide, which raylib's fonts have
+none of, so a tab drew as four spaces where raylib draws and measures it as the font's `?`, and
+the tab is left out of a font's glyphs (`FontTests`). The text programs walk raylib's UTF-8 bytes
+as raylib does, through `Rune.DecodeFromUtf8` in `GetCodepoint`'s place. The table stands at 191
+written, 1 in part and 29 missing, culling's three rows next.

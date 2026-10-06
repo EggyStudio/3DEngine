@@ -102,6 +102,8 @@ frames=150
 case "$example" in
   physics_boxes|ecs_physics|ecs_behaviors|models_stress|textures_bunnymark) frames=300 ;;
   models_skybox) frames=380 ;;
+  # Three quarters of the way round its orbit, where raylib's screenshot reads the text.
+  text_3d_drawing) frames=450 ;;
 esac
 # A device drawing on the CPU, as CI's does, can take minutes over the slowest examples' frames.
 ./e3d command frames.wait "$frames" --quiet --timeout 600

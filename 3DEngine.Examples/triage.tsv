@@ -124,12 +124,12 @@ text_font_filters	can
 text_font_loading	missing	BMFont's .fnt files
 text_format_text	can
 text_writing_anim	can
-text_rectangle_bounds	missing	GetGlyphIndex
-text_unicode_emojis	missing	GetGlyphIndex, BMFont's .fnt files
+text_rectangle_bounds	can	with GetGlyphInfo by code point in GetGlyphIndex's place
+text_unicode_emojis	missing	BMFont's .fnt files
 text_unicode_ranges	can
-text_3d_drawing	missing	GetGlyphIndex
+text_3d_drawing	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_codepoints_loading	can
-text_inline_styling	missing	GetGlyphIndex
+text_inline_styling	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_words_alignment	can
 text_strings_management	can
 models_loading_iqm	missing	an IQM file's skeleton and clips, since LoadModel and LoadModelAnimations read IQM through Assimp, whose importer takes the mesh alone

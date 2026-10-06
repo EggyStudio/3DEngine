@@ -109,6 +109,8 @@ public class FontTests
             fromMemory.Glyphs['A'].Should().Be(fromFile.Glyphs['A'], "the same bytes bake the same glyphs");
             Engine3D.GetGlyphInfo(fromMemory, 'A').Should().Be(fromFile.Glyphs['A']);
             Engine3D.GetGlyphInfo(fromMemory, 0x4E00).Should().Be(fromFile.Glyphs['?'], "Latin-1 has no CJK, and raylib answers with the '?' glyph");
+            fromFile.Glyphs.Should().NotContainKey('\t', "ImGui's tab four spaces wide is left out, as raylib's fonts have no tab");
+            Engine3D.GetGlyphInfo(fromFile, '\t').Should().Be(fromFile.Glyphs['?']);
             var rec = Engine3D.GetGlyphAtlasRec(fromMemory, 'A');
             (rec.Width, rec.Height).Should().Match<(float W, float H)>(s => s.W > 0 && s.H > 0);
             Engine3D.LoadFontFromMemory(".png", [1, 2, 3], 24, null).Should().BeSameAs(Engine3D.GetFontDefault());

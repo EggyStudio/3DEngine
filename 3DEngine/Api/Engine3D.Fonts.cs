@@ -823,13 +823,16 @@ public static partial class Engine3D
             // Colored:1, Visible:1, Codepoint:30 bitfield as three separate fields and so reads
             // every field after it from the wrong place. The C struct is one uint of bits, then
             // AdvanceX, X0, Y0, X1, Y1, U0, V0, U1, V1, 40 bytes in all.
+            // ImGui gives every font a tab four spaces wide, which raylib's fonts have none of, so
+            // it is left out and a tab is drawn and measured as a glyph the font lacks, the '?'.
             var glyphs = new Dictionary<int, Glyph>();
             var record = (byte*)imFont.Glyphs.Data;
             for (int i = 0; i < imFont.Glyphs.Size; i++, record += 40)
             {
                 var bits = *(uint*)record;
                 var f = (float*)(record + 4);
-                glyphs[(int)(bits >> 2)] = new Glyph(f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[0]);
+                if ((int)(bits >> 2) != '\t')
+                    glyphs[(int)(bits >> 2)] = new Glyph(f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[0]);
             }
             return (new Image(rgba, width, height), imFont.FontSize, glyphs);
         }
