@@ -62,6 +62,12 @@ internal sealed class ModelDrawList
     /// <summary>The runs of finished instances recorded this frame, which mesh entities fill.</summary>
     internal IReadOnlyList<InstanceGroup> Groups => _groups;
 
+    /// <summary>
+    /// The mesh entities that moved since the frame before, with where each was then, which
+    /// per-object motion blur draws as their movement. Recorded only while it is on.
+    /// </summary>
+    internal MovingDraws Moving { get; } = new();
+
     /// <summary>Whether nothing is recorded this frame, neither a draw nor a group.</summary>
     public bool IsEmpty => _draws.Count == 0 && _groups.Count == 0;
 
@@ -123,6 +129,7 @@ internal sealed class ModelDrawList
         {
             _draws.Clear();
             _groups.Clear();
+            Moving.Clear();
         }
     }
 }
@@ -201,5 +208,101 @@ internal sealed class InstanceGroup
         var all = new ModelRenderer.Instance[Count];
         CopyTo(all);
         return all;
+    }
+}
+
+/// <summary>
+/// The mesh entities that moved since the frame before, by mesh, each as its world now and then,
+/// which per-object motion blur draws as one run of instances a mesh.
+/// </summary>
+/// <remarks>
+/// The entities are found in ranges, a thread each, and each range keeps lists of its own by mesh,
+/// which the pass reads mesh by mesh. The lists are kept from frame to frame and emptied, so a frame
+/// of moving entities allocates nothing.
+/// </remarks>
+internal sealed class MovingDraws
+{
+    /// <summary>One range's moving entities by mesh.</summary>
+    internal sealed class Part
+    {
+        private readonly Dictionary<int, List<MovingInstance>> _byMesh = [];
+
+        public int Count { get; private set; }
+
+        public IReadOnlyDictionary<int, List<MovingInstance>> ByMesh => _byMesh;
+
+        /// <summary>The list mesh <paramref name="mesh"/>'s moving entities are added to.</summary>
+        public List<MovingInstance> Of(int mesh)
+        {
+            if (!_byMesh.TryGetValue(mesh, out var list)) _byMesh[mesh] = list = [];
+            return list;
+        }
+
+        /// <summary>Adds an entity's movement to its mesh's list.</summary>
+        public void Add(List<MovingInstance> list, in MovingInstance instance)
+        {
+            list.Add(instance);
+            Count++;
+        }
+
+        public void Clear()
+        {
+            if (Count == 0) return;
+            foreach (var list in _byMesh.Values) list.Clear();
+            Count = 0;
+        }
+    }
+
+    private readonly List<Part> _parts = [];
+    private readonly HashSet<int> _meshes = [];
+
+    /// <summary>How many entities moved this frame.</summary>
+    public int Count
+    {
+        get
+        {
+            var count = 0;
+            foreach (var part in _parts) count += part.Count;
+            return count;
+        }
+    }
+
+    /// <summary>Range <paramref name="index"/>'s lists, which <see cref="EnsureParts"/> made.</summary>
+    public Part this[int index] => _parts[index];
+
+    /// <summary>Makes sure there are <paramref name="parts"/> ranges' lists, before the threads fill them.</summary>
+    public void EnsureParts(int parts)
+    {
+        while (_parts.Count < parts) _parts.Add(new Part());
+    }
+
+    /// <summary>Each mesh some entity of moved this frame, with its lists in range order.</summary>
+    public IEnumerable<(int Mesh, IEnumerable<List<MovingInstance>> Runs)> ByMesh()
+    {
+        _meshes.Clear();
+        foreach (var part in _parts)
+            foreach (var (mesh, list) in part.ByMesh)
+                if (list.Count > 0) _meshes.Add(mesh);
+        foreach (var mesh in _meshes)
+            yield return (mesh, _parts.Where(part => part.ByMesh.TryGetValue(mesh, out var list) && list.Count > 0).Select(part => part.ByMesh[mesh]));
+    }
+
+    /// <summary>Empties every list, keeping them for the next frame.</summary>
+    public void Clear()
+    {
+        foreach (var part in _parts) part.Clear();
+    }
+}
+
+/// <summary>A moving entity's world now and the frame before, three rows each, as the model pass writes a world and velocity.slang reads it.</summary>
+[StructLayout(LayoutKind.Sequential)]
+internal struct MovingInstance
+{
+    public Vector4 NowX, NowY, NowZ, ThenX, ThenY, ThenZ;
+
+    public MovingInstance(in Matrix4x4 now, in Matrix4x4 then)
+    {
+        (NowX, NowY, NowZ) = (new(now.M11, now.M21, now.M31, now.M41), new(now.M12, now.M22, now.M32, now.M42), new(now.M13, now.M23, now.M33, now.M43));
+        (ThenX, ThenY, ThenZ) = (new(then.M11, then.M21, then.M31, then.M41), new(then.M12, then.M22, then.M32, then.M42), new(then.M13, then.M23, then.M33, then.M43));
     }
 }

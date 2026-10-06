@@ -1336,6 +1336,7 @@ static class Engine.Engine3D
   static void SetModelMeshMaterial(Model model, int meshId, int materialId)
   static void SetModelMorphWeight(Model model, string target, float weight)
   static void SetMotionBlur(float amount)
+  static void SetMotionBlur(float amount, bool objects)
   static void SetMouseCursor(MouseCursor cursor)
   static void SetMouseOffset(int offsetX, int offsetY)
   static void SetMousePosition(int x, int y)

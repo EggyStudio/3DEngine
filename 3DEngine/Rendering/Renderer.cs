@@ -81,7 +81,8 @@ internal sealed class Renderer : IDisposable
         var fxaa = server.LoadSync<ShaderProgram>("shaders/fxaa.slang");
         var exposure = server.LoadSync<ShaderProgram>("shaders/exposure.slang");
         RenderWorld.Set(new BloomRenderer(bloom, composite, fxaa, exposure,
-            server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang")));
+            server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang"),
+            server.LoadSync<ShaderProgram>("shaders/velocity.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 

@@ -187,6 +187,47 @@ public sealed class FrameEffectsTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Per_Object_Motion_Blur_Smears_A_Mesh_Entity_Along_Its_Own_Path_Under_A_Still_Camera()
+    {
+        Open();
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        // A white square entity sliding three tenths of a unit a frame, about seven pixels, past a
+        // camera that stays where it is, drawn through the camera of BeginMode3D.
+        var square = ecs.Spawn();
+        ecs.Add(square, new Mesh([new(-0.75f, -0.75f, 0), new(0.75f, -0.75f, 0), new(0.75f, 0.75f, 0), new(-0.75f, -0.75f, 0), new(0.75f, 0.75f, 0), new(-0.75f, 0.75f, 0)]));
+        ecs.Add(square, new Material(Vector4.One));
+        ecs.Add(square, new Transform(Vector3.Zero));
+        Action scene = () =>
+        {
+            ecs.GetRef<Transform>(square).Position.X += 0.3f;
+            ClearBackground(Color.Black);
+            BeginMode3D(_camera);
+            EndMode3D();
+        };
+        // The same frames each time, the capture taken as the square passes the middle.
+        Image Slide()
+        {
+            ecs.GetRef<Transform>(square).Position = new Vector3(-1.5f, 0, 0);
+            for (int i = 0; i < 3; i++)
+            {
+                BeginDrawing();
+                scene();
+                EndDrawing();
+            }
+            return Capture(scene);
+        }
+
+        SetMotionBlur(1);
+        var camera = Slide();
+        SetMotionBlur(1, objects: true);
+        var own = Slide();
+
+        Soft(camera, 60, 0, 160).Should().BeLessThanOrEqualTo(4, "with the camera still, the camera's movement blurs nothing");
+        Soft(own, 60, 0, 160).Should().BeGreaterThan(6, "the square's own movement smears its sides along its path");
+        Soft(own, 20, 0, 160).Should().Be(0, "above the square there is nothing to smear");
+    }
+
+    [NeedsVulkanFact]
     public void Each_Curve_Brings_White_Light_To_Its_Own_Shade()
     {
         Open();

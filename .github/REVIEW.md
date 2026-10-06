@@ -10,20 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `039bd788`. ReadyToRun shipped in the commit after it and comes out again, the owner
-having reversed Decision 11 at 20:50 on the measured numbers, which item 6 carries out. A render
-texture takes the window's samples unless `LoadRenderTextureEx` is given one, the two passes drawing
-into a one-sample target through pipelines of its own count, with a test and no reference changed,
-and where no audio device opens the backend goes to SDL's dummy driver, warned of once a process,
-`IsAudioDeviceReady` true there as raylib's is on its null device, with a test that names a missing
-driver, so `audio_spectrum_visualizer` draws the song's spectrum with no device, which settles item
-6 (`b9ebd0bd`). A directory of scripts is watched once a process by `DirectoryWatches`, shared by
-the compilers that watch it and let go with the last, with a test that a second app on the directory
-adds no watcher, and the leak test's heap and thread series are on lines of their own so the page
-carries them whole, where one line of a hundred counts was cut at 240 characters (`039bd788`);
-Verdict 27 settles when the macOS run of it passes, and Verdict 26 when an examples job passes the
-capture, `56564fe2`'s having failed on it before the mend as expected. The suite: 1,427 passed, none
-skipped.
+Reviewed up to `32bc8543`. ReadyToRun went into the package, six images under `runtimes/` for 14.9
+MB from 1.3, measured on Manor run from its project at about 140 ms on the worst early frame from
+about 205 (`c1f6c4cf`), and came out again on the owner's word of 20:50, the measurement kept in
+TODO.md's cost entry and `docs/shipping-a-game.md` saying the author's own `PublishReadyToRun` is
+the way (`32bc8543`), which settles item 6. Three commits of moves alone empty N 1.2's list, 83 to
+0, and N 1.3's, every public type in a file of its name and `AssimpModelReader.cs` in partial files
+of its own, each move checked line by line (`700701b5`, `2d5c111d`, `640bc301`), which settles item
+4, the lists left holding only what is left out with its reason. That was the restructuring pass the
+owner chose not to have when the norm was adopted, done as moves alone with the suite green, and it
+stands, said here rather than as a verdict. The suite: 1,428 passed, none skipped.
+
+Before them, a render texture came to take the window's samples unless `LoadRenderTextureEx` is
+given one, the two passes drawing into a one-sample target through pipelines of its own count, with
+a test and no reference changed, and where no audio device opens the backend goes to SDL's dummy
+driver, warned of once a process, `IsAudioDeviceReady` true there as raylib's is on its null device,
+with a test that names a missing driver, so `audio_spectrum_visualizer` draws the song's spectrum
+with no device, which settles item 6 (`b9ebd0bd`). A directory of scripts is watched once a process
+by `DirectoryWatches`, shared by the compilers that watch it and let go with the last, with a test
+that a second app on the directory adds no watcher, and the leak test's heap and thread series are
+on lines of their own so the page carries them whole, where one line of a hundred counts was cut at
+240 characters (`039bd788`); Verdict 27 settles when the macOS run of it passes, and Verdict 26 when
+an examples job passes the capture, `56564fe2`'s having failed on it before the mend as expected.
+The suite: 1,427 passed, none skipped.
 
 Before them, Verdict 26's cause was found, a loop that never ended, a stream with no device
 answering `IsAudioStreamProcessed` true for ever, mended with a test on the null backend, and a
@@ -46,22 +55,7 @@ loudness as jar_mod's to three places; `audio_module_playing` is written, 220 of
 The run of `ac774ac9` passed its tests on all three systems, and its examples job, which measures
 every pair against raylib's program for the first time, is still running.
 
-Before them, the owner pushed `ac774ac9`, whose run passed on all three systems, Linux and Windows
-1,409 each and macOS 1,389 with 10 skipped, so Verdict 25 is settled and 5.1 is packable, the first
-green run on every system since the page. Verdict 25's cause was found and is not what the verdict
-guessed: the system was `GeneratorAttributeTests`' probe, which the test loaded with `Assembly.Load`
-into the process's own context, so its module initializer put its registration on
-`GeneratedBehaviors`' process list, which skips collectible assemblies alone, and every later app
-with `EcsPlugin` ran the probe's systems, the state tests' bare apps among them, in an order of test
-classes that differs by system. The probe loads into a collectible context as a script does, the
-test builds a bare app and finds none of the probe's systems in it, as `ScriptGenerationTests` does
-after a first generation, and a throwing system is logged with its assembly (`a7842cd4`). The page
-counts a repeated line at warning, error or fatal or with no level and leaves the section out when
-nothing repeats, with a test on 2,190 banners and on one repeated error, as the owner asked
-(`ac774ac9`), and AGENTS.md's table names `docs`, `games` and `templates`, N 1.5's list empty, the
-owner having allowed it in the working session (`01f97324`). Items 4's rows and 6 are settled.
-
-The norm has 43 rules, and this engine stands at 32 checked, 2 with places listed, none to take
+The norm has 43 rules, and this engine stands at 34 checked, none with places listed, none to take
 and 9 by review.
 
 
@@ -107,10 +101,7 @@ for a reply. In this order.
    and the comparison does not.
 3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
-4. **The norm's lists are paid down.** A listed file is mended when a batch next touches it, in a
-   commit of its own that moves code alone, the largest first where there is a choice, and a batch
-   reads the lists for the files it will touch before it starts, as BevyCSharp's list has it.
-5. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
+4. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
    capture beside raylib's screenshot, read by eye, and `692cefee` built raylib's deferred program
    here to compare the same frame, which is the measure item 2 asks for and the 216 written have not
    had. A module at a time: raylib's examples built from the checkout `run.sh` pins, each run to the
@@ -120,18 +111,11 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **ReadyToRun comes out of the package again** (Decision 11, reversed). `build/pack.sh`,
-   `3DEngine.csproj`, `pack.yml` and the package test go back to the portable library alone, so the
-   package is 1.3 MB again, in a commit of its own that says the owner's reason. TODO.md's cost
-   entry keeps the measurement, 14.9 MB against about 65 ms on the worst early frame, and says that
-   `PublishReadyToRun` or NativeAOT in the author's own project is the way a shipped game compiles
-   the engine ahead, which `docs/shipping-a-game.md` says in one line where it says how a game is
-   published.
-7. **Per-object motion blur** (Decision 12), after items 2 to 6. A velocity image beside the HDR
+5. **Per-object motion blur** (Decision 12), after items 2 to 4. A velocity image beside the HDR
    frame from each entity's previous transform, ECS entities blurred by their own motion and
    flat-API draws by the camera's as today, off by default, measured on a scene that moves, with a
    reference redrawn for it and a test of a moving entity's trail.
-8. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
+6. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
    an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
    default, with a test that a viewport's window is made and closed and the editor's panels checked
    by hand.
@@ -247,23 +231,21 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 7, ReadyToRun** (Decision 11). `build/pack.sh` publishes the library ReadyToRun for linux, win
-and osx on x64 and arm64 from the one machine, crossgen compiling for every system from this one,
-about 18 seconds each, and `3DEngine.csproj` packs each into `runtimes/<rid>/lib/net10.0` beside the
-portable library, which the host takes for the system it starts on. A game built from the package
-here loads `runtimes/linux-x64/lib/net10.0/3DEngine.dll`, read from the process's maps. The package
-is 14.9 MB where it was 1.3 MB, each image about 5 MB against 1.8 MB of IL. Measured on Manor built
-from its project, the same build with the portable library put in the image's place and then the
-image, five runs of sixty frames offscreen each way: launch to exit 1,732 ms against 2,003, the
-startup stage ended at 0.44 s against 0.58, and the slowest of the first sixty frames 140 ms against
-205, three runs each. A test of the package finds each image ReadyToRun and compiled for its system,
-by its machine, whose number ReadyToRun crosses with one for the system. `pack.yml` packs through
-`pack.sh` as it did, so its step gains the publishing and a comment, and TODO.md's cost entry says
-what is left and these measures. The owner publishes.
-
-**Now 6, ReadyToRun out again** (Decision 11, reversed). `build/pack.sh`, `3DEngine.csproj`,
-`pack.yml`, the package test, `.gitignore` and BUILDING.md are back as they were before it, the
-package packed here 1.25 MB with no `runtimes` folder of its own, and its tests pass. TODO.md's cost
-entry keeps the measure and says the owner's choice, and `docs/shipping-a-game.md` says in a line
-that publishing with `-p:PublishReadyToRun=true` or native AOT compiles the engine ahead with the
-game.
+**Now 7, per-object motion blur** (Decision 12). `SetMotionBlur(amount, objects: true)` blurs each
+mesh entity along its own movement, `SetMotionBlur(amount)` keeping to the camera's as it did. With
+it on, `MeshEntityDraws` finds the entities whose world matrix differs from the frame before's, in
+ranges of 4096 on threads of their own as its gather runs, each range keeping its moving entities in
+lists by mesh, an entity first drawn this frame or with another mesh than before having no movement.
+`MotionVelocity` copies each mesh's lists as one run of instances of the world now and then into a
+buffer of the frame's own and draws them with `velocity.slang` into a half-float image of the HDR
+frame's size, a fragment dropped behind the scene's depth, and `motion_blur.slang` reads that
+movement in place of the camera's where it is written. A model drawn with `DrawModel` and a skinned
+mesh's limbs blur by the camera alone, which the docs say. Measured in `models_stress`, where every
+entity turns each frame, the frame held about 425,000 entities at sixty frames a second with it on,
+410,266 and 441,035 in two runs, against about 700,000 with the camera's alone; the first form, a
+draw an entity sorted through a comparer, held 123,000, and finding the entities on one thread
+297,000. A test slides a square entity past a still camera and finds its sides smeared with it on
+and one soft pixel without, and `motion_blur.png` is a new reference, a red cube entity sliding
+beside a still blue one and a floor drawn with `DrawModel`, the cube smeared and the rest sharp. No
+other reference changed. Under LunarG's layer in the workflow's image the suite logged no message of
+the layer's.

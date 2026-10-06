@@ -229,6 +229,8 @@ internal sealed class MeshEntityDraws
             var frame = new Frame(ecs.GetStorePublic<Mesh>(), ecs.GetStorePublic<Material>(), ecs.GetStorePublic<GlobalTransform>(),
                 ecs.GetStorePublic<Transform>(), meshes, assets, textures, ChangeTicks.Since(ecs.FrameStart), keep);
             Gather(frame, count);
+            if (world.TryGetResource<FrameEffects>(out var effects) && effects is { MotionBlur: > 0, MotionBlurObjects: true })
+                RecordMoving(frame, count, draws);
             for (int index = 0; index < cameras.Count; index++)
                 DrawThrough(index, cameras[index].ViewProjection, cameras[index].Eye, cameras[index].Target, draws);
             if (_lookCount > MaxLooks || _groups.Count > MaxLooks) Forget();
@@ -244,6 +246,56 @@ internal sealed class MeshEntityDraws
                 _meshes.Remove(positions);
             }
             Forget();
+        }
+    }
+
+    // Each entity's world matrix when it was last drawn, with the frame and the mesh it was drawn
+    // with, by entity id, which per-object motion blur finds the moving entities by.
+    private Matrix4x4[] _placed = [];
+    private long[] _placedFrame = [];
+    private int[] _placedMesh = [];
+
+    // Records each mesh entity whose world matrix differs from the frame before's, with that matrix,
+    // for per-object motion blur, which alone reads them, so a frame without it pays nothing here.
+    // An entity first drawn this frame, or with another mesh than the frame before, has no movement.
+    // The entities are taken in ranges of a chunk's size, a thread each, each into lists of its own
+    // and each writing only its own entities' places.
+    private void RecordMoving(Frame frame, int count, ModelDrawList draws)
+    {
+        if (_placed.Length < _kept.Length)
+        {
+            var from = _placed.Length;
+            Array.Resize(ref _placed, _kept.Length);
+            Array.Resize(ref _placedFrame, _kept.Length);
+            Array.Resize(ref _placedMesh, _kept.Length);
+            // Never drawn, which no frame's number before this one matches.
+            Array.Fill(_placedFrame, -2, from, _kept.Length - from);
+        }
+        var parts = (count + ChunkSize - 1) / ChunkSize;
+        draws.Moving.EnsureParts(parts);
+        if (parts == 1) RecordMovingRange(frame, 0, count, draws.Moving[0]);
+        else Parallel.For(0, parts, part => RecordMovingRange(frame, part * ChunkSize, Math.Min(count, (part + 1) * ChunkSize), draws.Moving[part]));
+    }
+
+    private void RecordMovingRange(in Frame frame, int start, int end, MovingDraws.Part into)
+    {
+        var entities = frame.Meshes.EntitiesArray;
+        // Entities of one mesh are mostly side by side, so the list of the last one's mesh is kept.
+        var (lastMesh, list) = (-1, (List<MovingInstance>?)null);
+        for (int i = start; i < end; i++)
+        {
+            var entity = entities[i];
+            var kept = _kept[entity];
+            if (kept.Generation != _generation) continue;
+            var placed = frame.Globals.TryGet(entity, out var global) ? global.Matrix
+                : frame.Locals.TryGet(entity, out var local) ? TransformPropagation.ToMatrix(local)
+                : Matrix4x4.Identity;
+            if (_placedFrame[entity] == _frame - 1 && _placedMesh[entity] == kept.Mesh && _placed[entity] != placed)
+            {
+                if (kept.Mesh != lastMesh) (lastMesh, list) = (kept.Mesh, into.Of(kept.Mesh));
+                into.Add(list!, new MovingInstance(placed, _placed[entity]));
+            }
+            (_placed[entity], _placedFrame[entity], _placedMesh[entity]) = (placed, _frame, kept.Mesh);
         }
     }
 

@@ -120,9 +120,28 @@ public static partial class Engine3D
     /// off with 0.
     /// </summary>
     /// <remarks>
-    /// Only the camera's movement is known, so a thing moving across a still camera stays sharp,
+    /// Only the camera's movement is blurred along, so a thing moving across a still camera stays
+    /// sharp, unless <see cref="SetMotionBlur(float, bool)"/> blurs mesh entities by their own too,
     /// and a cut to another camera blurs nothing in its first frame, as long as the camera moved
     /// less than a tenth of the picture.
     /// </remarks>
-    public static void SetMotionBlur(float amount) => Effects.MotionBlur = Math.Clamp(amount, 0, 1);
+    public static void SetMotionBlur(float amount) => SetMotionBlur(amount, objects: false);
+
+    /// <summary>
+    /// Blurs the window's frame along the camera's movement since the frame before and, with
+    /// <paramref name="objects"/>, each mesh entity along its own, an <paramref name="amount"/> of
+    /// that movement, or turns it off with 0.
+    /// </summary>
+    /// <remarks>
+    /// An entity's movement is read from where its transform put it the frame before, so a mesh
+    /// entity crossing a still camera blurs along its path. A model drawn with <c>DrawModel</c> has
+    /// no frame before to be read from and blurs by the camera's movement alone, as do a skinned
+    /// mesh's limbs, which move its vertices rather than its transform. It costs a draw of each
+    /// entity that moved into an image of the window's size.
+    /// </remarks>
+    public static void SetMotionBlur(float amount, bool objects)
+    {
+        Effects.MotionBlur = Math.Clamp(amount, 0, 1);
+        Effects.MotionBlurObjects = objects;
+    }
 }

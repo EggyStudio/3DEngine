@@ -106,6 +106,7 @@ internal sealed class BloomRenderer : IDisposable
     private readonly DescriptorSetLayoutBinding[] _lensBindings;
     private IShader? _dofVertex, _dofFragment, _blurVertex, _blurFragment;
     private IDescriptorSetLayout? _lensLayout;
+    private readonly MotionVelocity _velocity;
     // The image the composite reads this frame, the scene or the last lens pass's, and the camera
     // of the frame before with the frame it was seen in, which motion blur measures movement from.
     private IImageView? _shown;
@@ -137,7 +138,12 @@ internal sealed class BloomRenderer : IDisposable
         // passes' targets once one is on, and their sets by the image they read with the depth.
         public Dictionary<IImageView, IDescriptorSet[]> CompositeFrom { get; } = new() { [scene.ColorView] = composite };
         public RenderTarget[]? Lens { get; set; }
-        public Dictionary<(IImageView Source, bool Exact), IDescriptorSet> LensFrom { get; } = [];
+        public Dictionary<(IImageView Source, bool Exact, IImageView? Velocity), IDescriptorSet> LensFrom { get; } = [];
+
+        // The moving entities' movement, drawn with per-object blur on, and the set it reads the
+        // scene's depth through, made the first frame one moves.
+        public RenderTarget? Velocity { get; set; }
+        public IDescriptorSet? VelocityDepth { get; set; }
 
         // The 8-bit frame the composite draws into for FXAA to read, made the first frame FXAA is on.
         public RenderTarget? Shown { get; set; }
@@ -160,6 +166,8 @@ internal sealed class BloomRenderer : IDisposable
             foreach (var set in LensFrom.Values) set.Dispose();
             if (Lens is not null)
                 foreach (var target in Lens) target.Dispose();
+            VelocityDepth?.Dispose();
+            Velocity?.Dispose();
             Measure.Dispose();
             ShownSet?.Dispose();
             Shown?.Dispose();
@@ -170,12 +178,14 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Creates the renderer from <c>bloom.slang</c>, <c>composite.slang</c>, <c>fxaa.slang</c>,
-    /// <c>exposure.slang</c>, <c>dof.slang</c> and <c>motion_blur.slang</c>, compiled.
+    /// <c>exposure.slang</c>, <c>dof.slang</c>, <c>motion_blur.slang</c> and <c>velocity.slang</c>, compiled.
     /// </summary>
     public BloomRenderer(ShaderProgram bloom, ShaderProgram composite, ShaderProgram fxaa, ShaderProgram exposure,
-        ShaderProgram dof, ShaderProgram motionBlur)
+        ShaderProgram dof, ShaderProgram motionBlur, ShaderProgram velocity)
     {
-        (_dofVertexSpv, _dofFragmentSpv, _lensBindings) = (dof.Vertex, dof.Fragment, dof.LayoutOf(0));
+        // One layout for both lens passes, the blur's reading the moving entities' movement too.
+        (_dofVertexSpv, _dofFragmentSpv, _lensBindings) = (dof.Vertex, dof.Fragment, ShaderProgram.Merge(dof.LayoutOf(0), motionBlur.LayoutOf(0)));
+        _velocity = new MotionVelocity(velocity);
         (_blurVertexSpv, _blurFragmentSpv) = (motionBlur.Vertex, motionBlur.Fragment);
         (_exposureVertexSpv, _exposureFragmentSpv, _exposureBindings) = (exposure.Vertex, exposure.Fragment, exposure.LayoutOf(0));
         (_bloomVertexSpv, _bloomFragmentSpv, _bloomBindings) = (bloom.Vertex, bloom.Fragment, bloom.LayoutOf(0));
@@ -318,9 +328,10 @@ internal sealed class BloomRenderer : IDisposable
 
     /// <summary>
     /// Blurs the HDR frame by its depth of field and the camera's movement as <paramref name="effects"/>
-    /// says, in passes of their own that the composite then reads in place of the scene.
+    /// says, and by each moving mesh entity's own with per-object blur on, in passes of their own
+    /// that the composite then reads in place of the scene.
     /// </summary>
-    public void Lens(RenderContext renderContext, FrameEffects effects, WindowView? view)
+    public void Lens(RenderContext renderContext, RenderWorld renderWorld, FrameEffects effects, WindowView? view)
     {
         // The camera of the frame before, kept only from the frame before this one, so a frame after
         // others drawn without the HDR frame does not blur by a movement long past.
@@ -350,7 +361,16 @@ internal sealed class BloomRenderer : IDisposable
         {
             // This frame's clip space to the world and on through the camera of the frame before,
             // as System.Numerics multiplies a row vector.
-            var push = new BlurPush { Reprojection = inverse * last!.Value, Amount = new Vector4(effects.MotionBlur, 0.1f, 0, 0) };
+            // The mesh entities that moved, each drawn as its own movement, where per-object blur is on.
+            var own = false;
+            if (effects.MotionBlurObjects && renderWorld.TryGet<ModelDrawList>() is { Moving.Count: > 0 } models
+                && renderWorld.TryGet<GpuMeshes>() is { } meshes)
+            {
+                EnsureVelocity(device, sized);
+                _velocity.Draw(renderContext, device, sized.Velocity!, sized.VelocityDepth!, meshes, models.Moving, view.ViewProjection, last!.Value);
+                own = true;
+            }
+            var push = new BlurPush { Reprojection = inverse * last!.Value, Amount = new Vector4(effects.MotionBlur, 0.1f, own ? 1 : 0, 0) };
             Pass(renderContext, lens[1], LoadOp.Clear, _blur!, LensSet(device, sized, source, exact: false), push);
             source = lens[1].ColorView;
         }
@@ -377,15 +397,32 @@ internal sealed class BloomRenderer : IDisposable
     // neither has, and the depth of field reads color as it is too, since a tap whose depth is the
     // background's and whose filtered color takes in a sharp thing beside it spread that thing in
     // faint copies round itself.
+    // The moving entities' movement is read at binding 2 once it has been drawn, and the image read
+    // in its place before then, which the blur is told not to read.
     private IDescriptorSet LensSet(GraphicsDevice device, Sized sized, IImageView source, bool exact)
     {
-        if (sized.LensFrom.TryGetValue((source, exact), out var set)) return set;
-        _depthSampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
-            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+        var velocity = sized.Velocity?.ColorView;
+        if (sized.LensFrom.TryGetValue((source, exact, velocity), out var set)) return set;
+        _depthSampler ??= DepthSampler(device);
         set = device.CreateDescriptorSet(_lensLayout!);
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(source, exact ? _depthSampler : _sampler!, 0));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 1));
-        return sized.LensFrom[(source, exact)] = set;
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(velocity ?? source, _depthSampler, 2));
+        return sized.LensFrom[(source, exact, velocity)] = set;
+    }
+
+    private static ISampler DepthSampler(GraphicsDevice device) => device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
+        SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+
+    // The image the moving entities' movement is drawn into, the HDR frame's size, and the set its
+    // pass reads the scene's depth through, made the first frame an entity moves with it on.
+    private void EnsureVelocity(GraphicsDevice device, Sized sized)
+    {
+        if (sized.Velocity is not null) return;
+        _depthSampler ??= DepthSampler(device);
+        sized.Velocity = device.CreateRenderTarget(sized.Extent.Width, sized.Extent.Height, ImageFormat.R16G16B16A16_Float, depth: false, multisampled: false);
+        sized.VelocityDepth = device.CreateDescriptorSet(_velocity.Layout(device));
+        device.UpdateDescriptorSet(sized.VelocityDepth, null, new CombinedImageSamplerBinding(sized.Scene.DepthView!, _depthSampler, 0));
     }
 
     // The composite's sets reading an image, one for each of the two adapted exposures.
@@ -545,6 +582,7 @@ internal sealed class BloomRenderer : IDisposable
         _dofFragment?.Dispose();
         _blurVertex?.Dispose();
         _blurFragment?.Dispose();
+        _velocity.Dispose();
         _lensLayout?.Dispose();
         _measured?.Dispose();
         if (_adapted is not null)
@@ -621,7 +659,7 @@ internal sealed class BloomNode : INode
         if (effects is { AutoExposure: true }) renderer.Adapt(renderContext, effects);
         // The depth of field and motion blur, run with bloom alone too, so motion blur knows the
         // camera of the frame before once it is turned on.
-        renderer.Lens(renderContext, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
+        renderer.Lens(renderContext, renderWorld, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
         // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
         if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, bloom, effects);
     }

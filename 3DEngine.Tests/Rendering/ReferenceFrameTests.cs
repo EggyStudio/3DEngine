@@ -447,6 +447,61 @@ public sealed class ReferenceFrameTests : IDisposable
         UnloadModel(cube);
     }
 
+    // A cube of six faces, two triangles each, with their normals, as a mesh entity holds one.
+    private static (Vector3[] Positions, Vector3[] Normals) CubeTriangles(float size)
+    {
+        var half = size / 2;
+        var positions = new List<Vector3>();
+        var normals = new List<Vector3>();
+        foreach (var normal in new[] { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ })
+        {
+            // Two axes across the face, turned so its corners go round counterclockwise seen from outside.
+            var across = MathF.Abs(normal.Y) > 0.5f ? Vector3.UnitX : Vector3.UnitY;
+            var up = Vector3.Cross(normal, across);
+            Vector3 Corner(float a, float b) => (normal + across * a + up * b) * half;
+            foreach (var corner in new[] { Corner(-1, -1), Corner(1, -1), Corner(1, 1), Corner(-1, -1), Corner(1, 1), Corner(-1, 1) })
+            {
+                positions.Add(corner);
+                normals.Add(normal);
+            }
+        }
+        return ([.. positions], [.. normals]);
+    }
+
+    [NeedsVulkanFact]
+    public void Per_Object_Motion_Blur_Matches_Its_Reference()
+    {
+        // A red cube entity sliding a quarter of a unit a frame past a still camera, smeared along
+        // its path, beside a blue one standing still and a floor drawn with DrawModel, both sharp.
+        Open(256, 160);
+        SetMotionBlur(1, objects: true);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.5f, -1, -0.4f)), Color.White, 1.2f);
+        SetAmbientLight(new Color(150, 170, 200), 0.35f);
+        var ground = LoadModelFromMesh(GenMeshPlane(20, 20, 1, 1));
+        var ecs = GetApp().World.Resource<EcsWorld>();
+        var (positions, normals) = CubeTriangles(1.2f);
+        var moving = ecs.Spawn();
+        ecs.Add(moving, new Mesh(positions, normals));
+        ecs.Add(moving, new Material(new Vector4(0.85f, 0.15f, 0.1f, 1)));
+        ecs.Add(moving, new Transform(new Vector3(-1.75f, 0.6f, 0.5f)));
+        var still = ecs.Spawn();
+        ecs.Add(still, new Mesh(positions, normals));
+        ecs.Add(still, new Material(new Vector4(0.15f, 0.3f, 0.85f, 1)));
+        ecs.Add(still, new Transform(new Vector3(1.5f, 0.6f, -1)));
+        var camera = new Camera3D(new Vector3(0, 3, 7), new Vector3(0, 0.5f, 0), Vector3.UnitY, 45);
+
+        var frame = Capture(() =>
+        {
+            ecs.GetRef<Transform>(moving).Position.X += 0.25f;
+            ClearBackground(new Color(90, 120, 160));
+            BeginMode3D(camera);
+            DrawModel(ground, Vector3.Zero, 1, new Color(200, 200, 190));
+            EndMode3D();
+        }, settle: 3);
+        Matches(frame, "motion_blur");
+        UnloadModel(ground);
+    }
+
     [NeedsVulkanFact]
     public void Particles_Match_Their_Reference()
     {

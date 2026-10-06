@@ -740,6 +740,7 @@ void SetVignette(float intensity, float radius = 0.5f);                    // Da
 void SetFxaa(bool enabled);                                                // Smooth the edges multisampling leaves
 void SetDepthOfField(float focusDistance, float focusRange, float blur);   // Blur what is out of focus, 0 for none
 void SetMotionBlur(float amount);                                          // Blur along the camera's movement, 0.5 as a shutter, 0 for none
+void SetMotionBlur(float amount, bool objects);                            // The same, and each mesh entity along its own movement with objects
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 void SetAmbientOcclusion(float intensity, float radius = 1);              // Darken that light where nearby surfaces close it off, 0 for off

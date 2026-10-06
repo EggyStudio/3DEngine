@@ -525,16 +525,22 @@ target's resolved depth unfiltered and working back to the world through the inv
 camera (`WindowView`, which `CameraExtract` sets from `MeshEntityDraws.WindowCamera`). The depth of
 field (`dof.slang`) gives each pixel a blur from its distance to the eye against the focus, and
 gathers 32 taps on a golden-angle spiral out to the widest blur, a tap counting once its own blur
-reaches past it and a tap behind the pixel counting no wider than the pixel's own, so a blurred thing
-in front spreads over what is sharp behind it and not the other way. It reads color unfiltered too,
-and a pixel's distance is the nearest of the 3 by 3 texels round it, since multisampling leaves a
-thing's edge pixels its color and the depth of what is behind, which spread as faint copies of the
+reaches past it and a tap behind the pixel counting no wider than the pixel's own, so a blurred
+thing in front spreads over what is sharp behind it and not the other way. It reads color unfiltered
+too, and a pixel's distance is the nearest of the 3 by 3 texels round it, since multisampling leaves
+a thing's edge pixels its color and the depth of what is behind, which spread as faint copies of the
 edge otherwise. Motion blur (`motion_blur.slang`) puts each pixel's point through the camera of the
 frame before (the inverse view-projection times last frame's, one matrix in the push constants), and
 averages twelve taps along the way it moved, scaled by the amount and held to a tenth of the
 picture, taking the fastest of eight movements around it so a near thing's edge smears over the
-background beside it. Only the camera's movement is known, so a thing moving across a still camera
-stays sharp, and a frame after others drawn without the HDR frame blurs nothing.
+background beside it. With `objects`, the mesh entities whose world matrix differs from the frame
+before's, which `MeshEntityDraws` finds in ranges of 4096 on threads of their own, are drawn by
+`velocity.slang` into a half-float image of the HDR frame's size, each mesh's as one run of
+instances of its world now and then, a fragment dropped behind the scene's depth, and the blur reads
+that movement in place of the camera's where it is written. A model drawn with `DrawModel` and a
+skinned mesh's limbs blur by the camera alone, and a frame after others drawn without the HDR frame
+blurs nothing. In `models_stress`, where every entity turns each frame, the frame held about 425,000
+entities at sixty frames a second with it on and about 700,000 with the camera's alone.
 
 `SetAmbientOcclusion` turns on the `ambient_occlusion` node, after `shadows` and before every
 pass that lights the window's meshes, whether or not the frame goes through the HDR target

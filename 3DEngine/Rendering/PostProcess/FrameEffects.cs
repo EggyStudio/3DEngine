@@ -63,6 +63,9 @@ internal sealed class FrameEffects
     /// <summary>The share of the camera's movement in a frame blurred along, 0 for no motion blur and 0.5 as a film camera's shutter.</summary>
     public float MotionBlur { get; set; }
 
+    /// <summary>Whether motion blur blurs each mesh entity by its own movement as well as the camera's.</summary>
+    public bool MotionBlurObjects { get; set; }
+
     /// <summary>Whether any effect is away from its default, which draws the frame through the HDR target.</summary>
     public bool Active => Exposure != 1 || AutoExposure || Tonemap != Tonemap.Engine || Contrast != 1 || Saturation != 1
                           || Tint != Color.White || Vignette > 0 || Fxaa || FocusBlur > 0 || MotionBlur > 0;

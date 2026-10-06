@@ -113,9 +113,12 @@ if (IsKeyPressed(Key.D)) SetDepthOfField(8.3f, 2, (focus = !focus) ? 0.025f : 0)
 if (IsKeyPressed(Key.M)) SetMotionBlur((blur = !blur) ? 0.6f : 0);
 ```
 
-The depth of field and motion blur work from the depth of what is drawn inside `BeginMode3D`, so
-the text and interface drawn after stay sharp. Motion blur knows the camera's movement alone, so a
-thing moving past a still camera stays sharp.
+The depth of field and motion blur work from the depth of what is drawn inside `BeginMode3D`, so the
+text and interface drawn after stay sharp. `SetMotionBlur(amount)` knows the camera's movement
+alone, so a thing moving past a still camera stays sharp, and `SetMotionBlur(amount, objects: true)`
+blurs each mesh entity along its own movement too, read from where its transform put it the frame
+before. A model drawn with `DrawModel` has no frame before to read and blurs by the camera's
+movement, and so do a skinned mesh's limbs, which move its vertices rather than its transform.
 
 An exposure that follows the scene brings a dim room up and a sunlit field down, over a second or
 so, as an eye does, and `SetExposure` then multiplies what it chooses. The `shaders_auto_exposure`
