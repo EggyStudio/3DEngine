@@ -184,3 +184,33 @@ theirs, as N 3.6 has it.
 
 Shared: an environment filtered from a cube rather than from its equirectangular image's mips, which
 BevyCSharp's Bevy does from a cubemap.
+
+**Now 4, a script compiled again keeps the game where it was.** A compile still runs on the file
+watcher's timer, and leaves the new generation pending, which `App.BeginFrame` swaps in before any
+stage runs, as it applies the state transitions between stages: the last generation's systems out,
+the new one's in, and every component and resource of a type the last generation declared made again
+as the new generation's type of the same name (`ReloadedScripts`). The swap ran on the timer's
+thread before, into the live list of the stage running, which `RunSequential` walks as a span, so a
+reload in the middle of a frame could skip a system or run one twice. A field kept keeps its value,
+one added starts as the new type's constructor leaves it, an engine or .NET value, an `Entity` among
+them, is carried as it is, one of the script's own types is made again the same way, an enum by its
+value's name, and an array or a `List<T>` element by element. A component or resource whose type the
+new generation no longer declares is removed, and the empty store of each old type is forgotten, its
+static cache slot and release with it, so nothing of the world keeps the old generation loaded. A
+state machine is the program's, on its own enum, which a reload leaves as it is. Deleting every
+script swaps in no generation, dropping the last one's systems and what it declared. BevyCSharp's
+`16c4c1e` writes each component as a scene does and reads it into the new type, through its schemas;
+this engine has no schema for a script's plain fields, so the carry goes by the fields themselves,
+by reflection on the scripts' assemblies alone, said at its place for the trimmer. A test spawns a
+counter behavior from a script's startup, with an entity, an enum, an array, a list of the script's
+own struct, a component of a type the second version drops and a resource of the script's own,
+counts five frames, rewrites the script to count in tens with its enum's values in another order and
+a field more on each type, and finds the counter at 15, the entity, the mood by name, the array and
+the list carried, the dropped component gone, the resource's value kept and its new field as its
+initializer left it, and the first generation collected. With the carry left out the test finds two
+`Counter` types. The suite: 1,336 passed, 0 failed, 1 skipped.
+
+Shared: a script compiled again keeps the game's state, here by fields where BevyCSharp goes by its
+scene schemas, and the swap made between frames rather than on the compiler's thread, which
+BevyCSharp's ScriptHost may check for, since a swap into a stage's live list of systems was the race
+found here.

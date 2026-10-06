@@ -23,15 +23,14 @@ namespace Engine;
 /// + per-behavior system files for hot-loaded scripts.
 /// </para>
 /// <para>
-/// Every successful compile evicts any prior generation of dynamic systems via
-/// <see cref="App.RemoveSystemsBySource"/> (using <see cref="SourceTag"/>), then invokes the
-/// generated <c>[GeneratedBehaviorRegistration]</c> method discovered on the new assembly under a
-/// <see cref="SystemRegistrationSourceScope"/> so newly added descriptors inherit the same tag.
-/// </para>
-/// <para>
-/// Behavior structs in a recompiled assembly are <em>new</em> CLR types in a fresh load context,
-/// so any entity components of the previous generation's struct type are stranded in the ECS
-/// until a re-spawn.
+/// A compile runs on the file watcher's timer and leaves the new generation pending, and
+/// <see cref="ApplyPending"/> swaps it in on the main thread between frames, where no stage is
+/// running its systems: the prior generation's systems are evicted via
+/// <see cref="App.RemoveSystemsBySource"/> (using <see cref="SourceTag"/>), the generated
+/// <c>[GeneratedBehaviorRegistration]</c> methods of the new assembly are invoked under a
+/// <see cref="SystemRegistrationSourceScope"/> so newly added descriptors inherit the same tag,
+/// and the components and resources of the prior generation's types are carried onto the new
+/// generation's (<see cref="ReloadedScripts"/>), so the game goes on where it was.
 /// </para>
 /// </remarks>
 internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<BehaviorCompilationResult>
@@ -39,6 +38,14 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     private static readonly ILogger Logger = Log.Category("Engine.Behaviors.HotReload");
 
     private readonly App _app;
+
+    // The generation compiled and not yet swapped in, null in Next where the scripts were all
+    // deleted, set on the watcher's timer and taken on the main thread.
+    private (bool Waiting, Assembly? Next) _pending;
+    private readonly Lock _pendingLock = new();
+
+    // The generation whose systems are registered, which the next one's carry reads from.
+    private Assembly? _running;
 
     /// <summary>Provenance tag applied to every system descriptor registered by this compiler.</summary>
     /// <remarks>Used by <see cref="App.RemoveSystemsBySource"/> to drop the previous generation on swap.</remarks>
@@ -83,13 +90,12 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     /// <inheritdoc />
     protected override void OnNoSourceFiles(BehaviorCompilationResult result)
     {
-        // Empty scripts directory => evict any prior dynamic generation so behaviors can be removed by deleting files.
-        var removed = _app.RemoveSystemsBySource(SourceTag);
+        // An empty scripts directory evicts the prior generation, so behaviors are removed by
+        // deleting their files.
+        lock (_pendingLock) _pending = (true, null);
         result.Success = true;
         result.RegisteredCount = 0;
-        result.Message = removed > 0
-            ? $"No script files found; unregistered {removed} dynamic behavior system(s)."
-            : "No script files found.";
+        result.Message = "No script files found.";
     }
 
     /// <inheritdoc />
@@ -144,46 +150,64 @@ internal sealed class RuntimeBehaviorCompiler : RuntimeAssemblyCompiler<Behavior
     }
 
     /// <inheritdoc />
-    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = Scripts)]
     protected override void OnAssemblyLoaded(Assembly assembly, BehaviorCompilationResult result)
     {
-        // 1) Drop the previous generation's hot-reloaded systems before registering the new ones.
+        result.RegisteredCount = Registrations(assembly, result).Count;
+        lock (_pendingLock) _pending = (true, assembly);
+    }
+
+    /// <summary>
+    /// Swaps in the generation compiled since the last call, if any: the prior generation's systems
+    /// out, the new one's in, and the prior generation's components and resources carried onto the
+    /// new one's types. Called on the main thread before the first frame and between frames.
+    /// </summary>
+    internal void ApplyPending()
+    {
+        (bool Waiting, Assembly? Next) pending;
+        lock (_pendingLock) (pending, _pending) = (_pending, default);
+        if (!pending.Waiting) return;
+
         var removed = _app.RemoveSystemsBySource(SourceTag);
         if (removed > 0)
             Logger.Debug($"Hot-reload: removed {removed} previous dynamic behavior system(s).");
 
-        // 2) Discover and invoke every [GeneratedBehaviorRegistration]-tagged static method.
-        //    The ambient SystemRegistrationSourceScope auto-tags new descriptors with SourceTag
-        //    so the next swap can evict them.
-        int invoked = 0;
-        var attrType = typeof(GeneratedBehaviorRegistrationAttribute);
-        var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-
-        using (new SystemRegistrationSourceScope(SourceTag))
+        if (pending.Next is { } next)
         {
-            foreach (var type in SafeGetTypes(assembly, result))
-            {
-                foreach (var m in type.GetMethods(bindingFlags))
+            var result = new BehaviorCompilationResult();
+            using (new SystemRegistrationSourceScope(SourceTag))
+                foreach (var register in Registrations(next, result))
                 {
-                    if (m.GetCustomAttributes(attrType, inherit: false).Length == 0) continue;
-                    var ps = m.GetParameters();
-                    if (ps.Length == 1 && ps[0].ParameterType == typeof(App))
+                    try
                     {
-                        try
-                        {
-                            m.Invoke(null, [_app]);
-                            invoked++;
-                        }
-                        catch (Exception ex)
-                        {
-                            result.Warnings.Add($"Failed to invoke {type.Name}.{m.Name}: {ex.Message}");
-                        }
+                        register.Invoke(null, [_app]);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Failed to invoke {register.DeclaringType?.Name}.{register.Name}: {(ex.InnerException ?? ex).Message}");
                     }
                 }
-            }
         }
 
-        result.RegisteredCount = invoked;
+        if (_running is { } previous)
+        {
+            var carried = ReloadedScripts.Carry(_app.World, previous, pending.Next);
+            if (carried != default)
+                Logger.Info($"Hot-reload: carried {carried.Components} component(s) and {carried.Resources} resource(s) onto the new scripts, and dropped {carried.Dropped} whose types they no longer declare.");
+        }
+        _running = pending.Next;
+    }
+
+    // Every [GeneratedBehaviorRegistration] method of a generation, each taking the app.
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = Scripts)]
+    private static List<MethodInfo> Registrations(Assembly assembly, BehaviorCompilationResult result)
+    {
+        var found = new List<MethodInfo>();
+        foreach (var type in SafeGetTypes(assembly, result))
+            foreach (var m in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                if (m.GetCustomAttributes(typeof(GeneratedBehaviorRegistrationAttribute), inherit: false).Length > 0
+                    && m.GetParameters() is [{ ParameterType: var parameter }] && parameter == typeof(App))
+                    found.Add(m);
+        return found;
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = Scripts)]

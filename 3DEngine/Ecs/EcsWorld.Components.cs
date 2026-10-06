@@ -32,8 +32,9 @@ public sealed partial class EcsWorld : IDisposable
 
     // One release per component type this world made a store for, run when it is disposed or
     // collected. The cache arrays are static and outlive every world, so without this each world
-    // made in a process kept all its component data alive for good.
-    private readonly List<Action<int>> _cacheReleases = [];
+    // made in a process kept all its component data alive for good. Keyed by the type, so a store
+    // forgotten while the world runs gives up its release too, which names the type.
+    private readonly Dictionary<Type, Action<int>> _cacheReleases = [];
     private int _released;
 
     /// <summary>
@@ -63,7 +64,7 @@ public sealed partial class EcsWorld : IDisposable
     {
         if (Interlocked.Exchange(ref _released, 1) == 1) return;
         Action<int>[] releases;
-        lock (_cacheReleases) releases = [.. _cacheReleases];
+        lock (_cacheReleases) releases = [.. _cacheReleases.Values];
         foreach (var release in releases) release(WorldId);
     }
 
@@ -107,7 +108,7 @@ public sealed partial class EcsWorld : IDisposable
             var created = new ComponentStore<T>(_frame);
             _stores[typeof(T)] = created;
             _storeList.Add(created);
-            lock (_cacheReleases) _cacheReleases.Add(StoreCache<T>.Release);
+            lock (_cacheReleases) _cacheReleases[typeof(T)] = StoreCache<T>.Release;
             SetStoreCache(created);
             return created;
         }

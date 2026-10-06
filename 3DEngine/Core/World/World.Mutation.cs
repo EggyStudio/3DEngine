@@ -11,6 +11,25 @@ public sealed partial class World
         Interlocked.Increment(ref _resourceVersion);
     }
 
+    /// <summary>Inserts or replaces a resource of <paramref name="value"/>'s own type, known only while the program runs.</summary>
+    /// <remarks>For a script compiled again, whose resources move onto the types it declares them as anew.</remarks>
+    internal void InsertResourceBoxed(object value)
+    {
+        _resources[value.GetType()] = value;
+        Interlocked.Increment(ref _resourceVersion);
+    }
+
+    /// <summary>Removes the resource of <paramref name="type"/>, disposing nothing, since its value is carried elsewhere.</summary>
+    internal bool RemoveResource(Type type)
+    {
+        var removed = _resources.TryRemove(type, out _);
+        if (removed) Interlocked.Increment(ref _resourceVersion);
+        return removed;
+    }
+
+    /// <summary>The resource of <paramref name="type"/>, or <c>null</c>.</summary>
+    internal object? ResourceOf(Type type) => _resources.TryGetValue(type, out var value) ? value : null;
+
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or inserts <paramref name="value"/> and returns it.
     /// Atomic, so callers on several threads are safe.

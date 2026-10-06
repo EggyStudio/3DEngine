@@ -72,6 +72,7 @@ internal sealed class BehaviorsPlugin : IPlugin
             Logger.Info($"BehaviorsPlugin: Starting RuntimeBehaviorCompiler at '{ScriptsDirectory}'.");
             var compiler = new RuntimeBehaviorCompiler(app, DynamicSourceTag).WatchDirectory(ScriptsDirectory);
             var initial = compiler.Start();
+            compiler.ApplyPending();
             Logger.Info($"  Initial behavior compile: {initial.Message} ({initial.RegisteredCount} system(s)).");
             foreach (var err in initial.Errors)
                 Logger.Error($"    {err.FileName}({err.Line},{err.Column}): {err.Message}");
@@ -83,7 +84,8 @@ internal sealed class BehaviorsPlugin : IPlugin
                     Logger.Error($"    {err.FileName}({err.Line},{err.Column}): {err.Message}");
             };
 
-            // Expose for tests / diagnostics; dispose on Cleanup stage.
+            // Expose for tests / diagnostics, and for App.BeginFrame, which swaps a recompiled
+            // generation in between frames; dispose on Cleanup stage.
             app.World.InsertResource(compiler);
             app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ =>
             {

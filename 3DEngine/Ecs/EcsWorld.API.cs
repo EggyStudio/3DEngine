@@ -604,6 +604,36 @@ public sealed partial class EcsWorld
 
     private void AddTyped<T>(int entity, object value) => Add(entity, (T)value);
 
+    /// <summary>Takes <paramref name="entity"/>'s component of <paramref name="type"/> away, disposing nothing, since its value is carried elsewhere.</summary>
+    /// <returns>Whether the entity had one.</returns>
+    /// <remarks>For a script compiled again, whose components move onto the types it declares them as anew.</remarks>
+    internal bool RemoveBoxed(int entity, Type type)
+    {
+        IComponentStore? store;
+        lock (_stores) _stores.TryGetValue(type, out store);
+        return store is not null && store.TryRemove(entity, out _);
+    }
+
+    /// <summary>
+    /// Forgets the store of <paramref name="type"/>, which holds no component, as though no entity
+    /// had ever had one, so nothing of the world keeps the type, and the assembly declaring it, alive.
+    /// </summary>
+    /// <returns>Whether there was an empty store to forget.</returns>
+    /// <remarks>For a script compiled again, whose last generation's types the world would otherwise keep loaded for good.</remarks>
+    internal bool ForgetStore(Type type)
+    {
+        Action<int>? release;
+        lock (_stores)
+        {
+            if (!_stores.TryGetValue(type, out var store) || store.Count > 0) return false;
+            _stores.Remove(type);
+            _storeList.Remove(store);
+            lock (_cacheReleases) _cacheReleases.Remove(type, out release);
+        }
+        release?.Invoke(WorldId);
+        return true;
+    }
+
     /// <summary>How many entities have a component of <paramref name="type"/>.</summary>
     internal int CountOf(Type type)
     {

@@ -67,6 +67,11 @@ public sealed partial class App
     {
         Startup();
 
+        // A script compiled again since the last frame, swapped in before any stage runs a system
+        // of either generation.
+        if (World.TryGetResource<RuntimeBehaviorCompiler>(out var scripts))
+            scripts.ApplyPending();
+
         _frameCount++;
         if (_frameCount <= 3 || _frameCount % 1000 == 0)
             Logger.FrameTrace($"Frame #{_frameCount} begin");

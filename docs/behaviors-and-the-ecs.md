@@ -190,11 +190,15 @@ public static void Won(BehaviorContext ctx)
 ## Scripts changed while the game runs
 
 A behavior in a `.cs` file under `source/behaviors` is compiled by the running game, through Roslyn,
-and compiled again within a second of being saved, its systems replacing the last version's. A
-program run from a project's build folder watches the project's own `source/behaviors`, so a script
-is saved where it is written, and one run anywhere else watches the folder beside it. A script uses
-the engine and the game's own components and resources. `games/Swarm` keeps its numbers in one, so a
-wave is tuned while it is fought:
+and compiled again within a second of being saved, its systems replacing the last version's between
+two frames. The game goes on where it was, since each entity's behavior, and every other component
+and resource the script declares, is made again as the new version's type, a field kept keeping its
+value, so a counter keeps counting and an entity a behavior keeps is still the one it kept. A field
+added starts as the new version leaves it, and a type the new version no longer declares is taken
+off its entities. A program run from a project's build folder watches the project's own
+`source/behaviors`, so a script is saved where it is written, and one run anywhere else watches the
+folder beside it. A script uses the engine and the game's own components and resources.
+`games/Swarm` keeps its numbers in one, so a wave is tuned while it is fought:
 
 ```csharp
 [Behavior]
