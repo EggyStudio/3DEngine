@@ -5,7 +5,6 @@
 3DEngine/Api/Camera3D.cs Engine3D
 3DEngine/Api/Engine3D.Animation.cs BoneInfo
 3DEngine/Api/Engine3D.Animation.cs ModelAnimation
-3DEngine/Api/Engine3D.Audio.cs Music
 3DEngine/Api/Engine3D.AudioStreams.cs AudioCallback
 3DEngine/Api/Engine3D.AudioStreams.cs AudioStream
 3DEngine/Api/Engine3D.Collision.cs RayCollision
@@ -15,14 +14,8 @@
 3DEngine/Api/Engine3D.Fonts.cs Font
 3DEngine/Api/Engine3D.Fonts.cs FontType
 3DEngine/Api/Engine3D.Fonts.cs Glyph
-3DEngine/Api/Engine3D.Lights.cs LightHandle
-3DEngine/Api/Engine3D.Models.cs BoundingBox
-3DEngine/Api/Engine3D.Models.cs Model
-3DEngine/Api/Engine3D.Models.cs ModelMaterial
-3DEngine/Api/Engine3D.Models.cs ModelMesh
 3DEngine/Api/Engine3D.Particles.cs ParticleEmitterHandle
 3DEngine/Api/Engine3D.Physics.cs Ray
-3DEngine/Api/Engine3D.ReflectionProbes.cs ReflectionProbeHandle
 3DEngine/Api/Engine3D.Shaders.cs Shader
 3DEngine/Api/Engine3D.Textures.cs Image
 3DEngine/Api/Engine3D.Textures.cs NPatchInfo
