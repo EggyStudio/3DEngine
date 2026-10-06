@@ -220,3 +220,10 @@ compiles. The engine's rule stands as it was. An assembly loaded where it cannot
 of the program, as a plugin a game loads is, and its behaviors go to every app, while one compiled
 at run time goes to the app that compiled it alone. A system that throws is logged with its
 assembly's name, `System 'X' from Y threw in stage Z`, so a page says where it came from.
+
+**Now 6, the page's repeated lines.** `build/test.py` counts a line logged as a warning or an error,
+or one with no level as an exception's message is, and passes over the lines logged at trace, debug
+or info, the banner among them, and the section is left out when no line repeats, as it was.
+`TestScriptTests` reads a log of 2,190 banners with a debug line beside each, whose page has no
+section, and the same log with an error logged three times beside its exception's line, which the
+section counts three times each with no banner in it.

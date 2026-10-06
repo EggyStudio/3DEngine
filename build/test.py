@@ -13,10 +13,11 @@ own under the same limits, so a part that is lost costs only its own tests. A pa
 whose filter is the negation of the others, so no test falls between two parts.
 
 The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
-and the lines the output repeated most. It ends the log between two marking lines, and is written
-to TestResults/digest.md and digest.json. Under GitHub Actions it is also the job's summary, with
-a cause an error annotation. What the processes print goes to TestResults/output*.txt, and the log
-has a line for each process. It exits 0 when every test passed and no process was lost.
+and the lines logged as warnings or errors, or with no level, that the output repeated most, left
+out when none repeats. It ends the log between two marking lines, and is written to
+TestResults/digest.md and digest.json. Under GitHub Actions it is also the job's summary, with a
+cause an error annotation. What the processes print goes to TestResults/output*.txt, and the log has
+a line for each process. It exits 0 when every test passed and no process was lost.
 """
 
 import argparse
@@ -334,13 +335,26 @@ def frame_of(line):
     return f"{match.group(1)} in {os.path.basename(match.group(2).replace(chr(92), '/'))}:{match.group(3)}" if match else text
 
 
+# A line the engine logged, after the seconds it was logged at, and its level.
+LOGGED = re.compile(r"^(?:\[\s*[\d.]+s\]\s*)?\[(TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\s*\]")
+
+
 def repeated_lines(texts):
-    """The lines the output repeated most, as one count for lines that differ only in their numbers."""
+    """
+    The lines the output repeated most, as one count for lines that differ only in their numbers.
+    Only a line logged as a warning or an error counts, or one with no level, as an exception's
+    message is, since a line logged below them repeats by design: each app's start logs the
+    engine's banner, which filled the section with 2,190 lines of it where a system that throws in
+    every frame was to be seen.
+    """
     counts, first = Counter(), {}
     for text in texts:
         for line in text.splitlines():
             stripped = line.strip()
             if len(stripped) < 12 or stripped.startswith("at ") or re.match(r"^(Passed|Failed|Skipped) ", stripped) or stripped.startswith("[xUnit.net"):
+                continue
+            logged = LOGGED.match(stripped)
+            if logged and logged.group(1) in ("TRACE", "DEBUG", "INFO"):
                 continue
             key = re.sub(r"\d+", "#", re.sub(r"^\[\s*[\d.]+s\]\s*", "", stripped))
             counts[key] += 1

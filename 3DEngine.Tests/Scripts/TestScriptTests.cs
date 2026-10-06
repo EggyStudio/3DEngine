@@ -77,6 +77,36 @@ public sealed class TestScriptTests : IDisposable
         File.ReadAllText(_folder.File("summary.md")).Should().Contain("500 failed, of 12 causes", "the page is the job's summary");
     }
 
+    [NeedsPythonFact]
+    public void The_Repeated_Lines_Are_Warnings_Errors_And_Lines_Of_No_Level_And_None_Leaves_The_Section_Out()
+    {
+        File.WriteAllText(_folder.File("results.trx"),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\"><Results>"
+            + "<UnitTestResult testName=\"Engine.Tests.Area.Class.Test\" outcome=\"Passed\" /></Results></TestRun>");
+        // The engine's banner, as each app's start logs it, and an info line of no use repeated.
+        var banners = new StringBuilder();
+        for (int i = 0; i < 2190; i++)
+            banners.AppendLine($"[ {i * 0.016:0.0000}s] [INFO ] [Engine] {new string('=', 56)}")
+                .AppendLine($"[ {i * 0.016:0.0000}s] [DEBUG] [Engine.Assets] read asset {i} of the level");
+        File.WriteAllText(_folder.File("output.txt"), banners.ToString());
+
+        Script("--read", _folder.Path);
+        File.ReadAllText(_folder.File("digest.md")).Should().NotContain("Repeated most", "no line logged as a warning or an error repeated");
+
+        var errors = new StringBuilder(banners.ToString());
+        for (int frame = 0; frame < 3; frame++)
+            errors.AppendLine($"[ {frame * 0.016:0.0000}s] [ERROR] [Engine.Schedule] System 'Spin' from Game threw on frame {frame}")
+                .AppendLine("System.InvalidOperationException: the spin has no wheel");
+        File.WriteAllText(_folder.File("output.txt"), errors.ToString());
+
+        Script("--read", _folder.Path);
+        var page = File.ReadAllText(_folder.File("digest.md"));
+        page.Should().Contain("### Repeated most in the output")
+            .And.Contain("- 3 × `[ 0.0000s] [ERROR] [Engine.Schedule] System 'Spin' from Game threw on frame 0`")
+            .And.Contain("- 3 × `System.InvalidOperationException: the spin has no wheel`", "a line with no level, as an exception's, counts as well")
+            .And.NotContain("====").And.NotContain("read asset");
+    }
+
     [NeedsPythonTheory]
     [InlineData("hang", "ended at its time limit")]
     [InlineData("grow", "ended at its memory limit")]
