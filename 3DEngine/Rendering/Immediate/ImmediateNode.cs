@@ -159,13 +159,24 @@ internal sealed class ImmediateRenderer : IDisposable
 
             // The engine's own shader is told whether it draws in 3D, where it discards clear texels.
             var parameters = batch.Shader == 0 ? default(ShaderParams).With(0, batch.DepthTest ? Vector4.UnitX : Vector4.Zero) : batch.Params;
-            var push = new Push { Transform = batch.Transform, Params = parameters };
+            var transform = batch.Texture == 0 ? batch.Transform * RowNudge(pass.Extent.Height) : batch.Transform;
+            var push = new Push { Transform = transform, Params = parameters };
             pass.PushConstants(pipeline, ShaderStageFlags.All, 0, MemoryMarshal.AsBytes(new ReadOnlySpan<Push>(in push)));
             pass.DrawIndexed((uint)batch.IndexCount, 1, (uint)batch.FirstIndex, 0, 0);
         }
         // The passes drawn after in the same render pass expect the whole target.
         if (scissor is not null) SetScissor(pass, null);
     }
+
+    // raylib's OpenGL counts rows up the screen and Vulkan counts them down, so the two break a tie
+    // between rows the other way round. A line on the boundary between two rows is drawn on the
+    // lower in raylib and the upper here, and a pixel whose middle is on a shape's lower edge is
+    // filled there and its upper edge here. Moving everything a 256th of a pixel down the screen,
+    // after its transform, breaks each tie as raylib's does and changes no pixel further than that
+    // from one. Columns are counted the same way by both. A textured run is left where it is, since
+    // a texture filtered between its texels would take a 256th of the next row's color.
+    private static Matrix4x4 RowNudge(uint height) =>
+        height == 0 ? Matrix4x4.Identity : Matrix4x4.Identity with { M42 = 2f / (256f * height) };
 
     // Keeps drawing to a rectangle clipped to the pass, or to the whole of it for null.
     private static void SetScissor(TrackedRenderPass pass, ScissorRect? scissor)

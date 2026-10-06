@@ -70,6 +70,30 @@ public sealed partial class OffscreenRenderTests : IDisposable
         GetImageColor(image, 56, 16).Should().Be(new Color(0, 0, 255));
     }
 
+    // raylib's OpenGL takes the row below a line on the boundary between two rows, and the column
+    // left of one between two columns, which a grid drawn at whole coordinates shows, and fills a
+    // row whose middle is on a shape's lower edge and not one whose middle is on its upper edge.
+    [NeedsVulkanFact]
+    public void A_Tie_Between_Two_Rows_Of_Pixels_Is_Broken_As_Raylib_Breaks_It()
+    {
+        Open(32, 32, samples: 1);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            DrawLine(0, 10, 16, 10, Color.White);
+            DrawLine(20, 0, 20, 32, Color.White);
+            DrawRectangleRec(new Rectangle(2, 20.5f, 8, 4), Color.Red);
+        });
+
+        GetImageColor(image, 5, 10).Should().Be(Color.White, "the row below the line is drawn");
+        GetImageColor(image, 5, 9).Should().Be(Color.Black, "the row above it is not");
+        GetImageColor(image, 19, 25).Should().Be(Color.White, "the column left of an upright line is drawn");
+        GetImageColor(image, 20, 25).Should().Be(Color.Black);
+        GetImageColor(image, 5, 20).Should().Be(Color.Black, "a row whose middle is on the upper edge is left");
+        GetImageColor(image, 5, 24).Should().Be(Color.Red, "a row whose middle is on the lower edge is filled");
+    }
+
     [NeedsVulkanFact]
     public void Dashes_Thick_Circles_Ellipses_And_Blended_Triangles_Cover_What_They_Should()
     {

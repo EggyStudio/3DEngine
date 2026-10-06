@@ -13,6 +13,12 @@ internal sealed unsafe partial class GraphicsDevice
     public bool CanDrawPoints { get; private set; }
 
     /// <summary>
+    /// Whether lines are drawn by the diamond rule OpenGL draws raylib's lines by, which needs a line
+    /// rasterization extension with its bresenhamLines.
+    /// </summary>
+    public bool CanDrawBresenhamLines { get; private set; }
+
+    /// <summary>
     /// Whether a pipeline can blend and mask each color attachment of its own, which needs the
     /// device's independentBlend, so a target of several images keeps those past a shader's outputs.
     /// </summary>
@@ -65,8 +71,11 @@ internal sealed unsafe partial class GraphicsDevice
         var maintenance5 = Utf8(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
         var hasMaintenance5 = HasDeviceExtension(maintenance5);
         if (hasMaintenance5) extensionNames.Add(maintenance5);
-        Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
-        using var deviceExts = new VkStringArray(extensionNames);
+        // A line takes the pixels OpenGL's would, raylib's being drawn by the rule its diamonds
+        // give, where the driver has the extension, which every desktop driver in use and lavapipe
+        // do. Without it a line is the driver's own.
+        var lineRasterization = new[] { Utf8(VK_KHR_LINE_RASTERIZATION_EXTENSION_NAME), Utf8(VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME) }
+            .FirstOrDefault(HasDeviceExtension);
 
         // A compute shader's RWTexture2D carries no format of its own, as Slang writes it, which
         // these let it read and write, on every desktop driver that has them.
@@ -89,21 +98,27 @@ internal sealed unsafe partial class GraphicsDevice
         // through the draw parameters, so the capability it declares needs this on.
         // Passes begin with dynamic rendering, and barriers are synchronization2's, both core in
         // Vulkan 1.3, which every desktop driver in use and lavapipe have.
-        var vulkan13 = new VkPhysicalDeviceVulkan13Features();
+        var lines = new VkPhysicalDeviceLineRasterizationFeatures();
+        var vulkan13 = new VkPhysicalDeviceVulkan13Features { pNext = lineRasterization is null ? null : &lines };
         var vulkan11 = new VkPhysicalDeviceVulkan11Features { pNext = &vulkan13 };
         var supported2 = new VkPhysicalDeviceFeatures2 { pNext = &vulkan11 };
         _instanceApi.vkGetPhysicalDeviceFeatures2(_physicalDevice, &supported2);
         if (!vulkan13.dynamicRendering || !vulkan13.synchronization2)
             throw new InvalidOperationException("The GPU's driver lacks Vulkan 1.3's dynamic rendering or synchronization2, which the engine draws with.");
-        var enabledMaintenance5 = new VkPhysicalDeviceMaintenance5Features { maintenance5 = true };
+        CanDrawBresenhamLines = lineRasterization is not null && lines.bresenhamLines;
+        if (CanDrawBresenhamLines) extensionNames.Add(lineRasterization!);
+        var enabledLines = new VkPhysicalDeviceLineRasterizationFeatures { bresenhamLines = true };
+        var enabledMaintenance5 = new VkPhysicalDeviceMaintenance5Features { maintenance5 = true, pNext = CanDrawBresenhamLines ? &enabledLines : null };
         var enabled13 = new VkPhysicalDeviceVulkan13Features
         {
-            pNext = hasMaintenance5 ? &enabledMaintenance5 : null,
+            pNext = hasMaintenance5 ? &enabledMaintenance5 : CanDrawBresenhamLines ? &enabledLines : null,
             dynamicRendering = true,
             synchronization2 = true,
         };
         var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled13, shaderDrawParameters = vulkan11.shaderDrawParameters };
 
+        Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
+        using var deviceExts = new VkStringArray(extensionNames);
         VkDeviceCreateInfo createInfo = new()
         {
             pNext = &enabled11,

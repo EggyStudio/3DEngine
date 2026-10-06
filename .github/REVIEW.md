@@ -10,22 +10,33 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f2d3bcf4`. Each written example is measured against raylib's own program drawn to
-the same frame: `build/raylib-bench/compare.py` builds raylib's example with `shim.c` wrapped around
-`EndDrawing`, which takes raylib's screenshot at the frame named, builds the examples `./e3d open`
-starts, takes the engine's picture as `capture-example.sh` does, compares the pair as the reference
-frames are compared, and writes the share into `3DEngine.Examples/measured.tsv` and the table's
-`Apart` column (`de6038fa`). The 45 shapes examples are measured, and the first faults are mended:
-thick outlines laid their pieces over each other where raylib's meet, so eight outline calls are
-bands that meet, lie outside the edge for a negative width as raylib's do, and draw circles in
-raylib's 36 pieces, held by `OutlineTests` sampling a grid a quarter of a pixel apart (`fe255b28`).
-18 of the 45 are past 2%, from 21, and in four of them the shapes match raylib's pixel for pixel,
-the share being the font and raygui's panel drawn as ImGui, which the page keeps. Item 6 was a
-fault: a crate Bepu had marked to sleep slept through 3 a second given by any of four calls, and
-every wake clears the candidate flag and the count (`f2d3bcf4`), which settles it. Two things wait:
-raylib's random generator and a fixed frame time and seed for both programs of a pair are the next
-batch, and whether `GetFontDefault` returns raylib's own pixel font is the owner's, put to them. No
-verdict is open.
+Reviewed up to `e5812611`. The random values come from raylib's own generator, xoshiro128** started
+from the seed by SplitMix64 as `rprand.h` has it, so `SetRandomSeed` gives raylib's numbers, held by
+a test against values a C program printed from the pinned header, and `InitWindow` seeds from the
+clock or from `--seed` or `E3D_SEED`. `compare.py` gives both programs of a pair a sixtieth of a
+second a frame and the same seed, raylib's through the shim, and captures this engine's program with
+no input, as raylib's gets none. The shapes past 2% are 12 of 45, from 18: `shapes_top_down_lights`
+0.6% from 26.9%, and eight of the twelve are the font and raygui's panel drawn as ImGui with their
+shapes matching raylib's, one adds the wall clock, and three at four samples resolve their lines
+otherwise, a one-pixel line covering half of each of its two rows here and a quarter in raylib's
+frame, which is the driver's (`e5812611`). The core module is under way, with the back faces of 3D
+shapes culled by default as raylib's are, decided here on 2026-10-06, 2D shapes drawn on both faces
+as the page says, and models left until their module is measured. No verdict is open.
+
+Before them, each written example was measured against raylib's own program drawn to the same frame:
+`build/raylib-bench/compare.py` builds raylib's example with `shim.c` wrapped around `EndDrawing`,
+which takes raylib's screenshot at the frame named, builds the examples `./e3d open` starts, takes
+the engine's picture as `capture-example.sh` does, compares the pair as the reference frames are
+compared, and writes the share into `3DEngine.Examples/measured.tsv` and the table's `Apart` column
+(`de6038fa`). The 45 shapes examples are measured, and the first faults are mended: thick outlines
+laid their pieces over each other where raylib's meet, so eight outline calls are bands that meet,
+lie outside the edge for a negative width as raylib's do, and draw circles in raylib's 36 pieces,
+held by `OutlineTests` sampling a grid a quarter of a pixel apart (`fe255b28`). 18 of the 45 are
+past 2%, from 21, and in four of them the shapes match raylib's pixel for pixel, the share being the
+font and raygui's panel drawn as ImGui, which the page keeps. Item 6 was a fault: a crate Bepu had
+marked to sleep slept through 3 a second given by any of four calls, and every wake clears the
+candidate flag and the count (`f2d3bcf4`), which settles it. Whether `GetFontDefault` returns
+raylib's own pixel font is the owner's, put to them.
 
 Before them, a game's own text box places the input method's window beside it with
 `SetTextInputArea`, as an ImGui field does, read back from SDL on `text_input_box` run hidden
@@ -37,17 +48,6 @@ here by scaling the coefficient by their count. And a body that has rested long 
 candidate for sleep is put to sleep at the next step's start though `SetLinearVelocity` or
 `ApplyImpulse` gave it speed, since `Awake = true` on an awake body clears nothing, which item 6
 checks here. No verdict is open.
-
-Before them, shadowed lights past the slots there are room for are ranked by the light that reaches
-the eye, a light's brightness over one plus the square of its reach's distance, with the reach for
-ties, and the flat API's remarks say what is so (`545189cc`). `coverage.py --check` holds the
-comparison page's two tables and two counts to its list, in the build workflow beside the examples
-table's check, and a page broken on purpose failed it (`ab1a218e`). Five commits of moves alone
-split the offscreen render tests, the model renderer and the physics tests and give fifteen public
-types files of their own names, so N 1.2's list stands at 101 from 116 and N 1.3's at 2 from 6, and
-two probe tests stop sleeping for a worker the GPU filter replaced, so N 3.3 leaves out 9 from 10
-(`a96ed25a` to `f8b6a65b`). N 1.5's three rows of AGENTS.md wait for the owner's word in the working
-session, asked for there. No verdict was open.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -163,25 +163,23 @@ None open.
 
 ## Replies
 
-**Now 5, the pairs measured on the same steps.** `GetRandomValue`, `LoadRandomSequence` and the noise
-images draw from raylib's own generator now, xoshiro128** started from the seed by SplitMix64 as
-`rprand.h` has it, so `SetRandomSeed` gives raylib's values, which a test holds against numbers a C
-program printed from the pinned `rprand.h`. `InitWindow` seeds it from the clock as raylib's does, or
-from `--seed N` or `E3D_SEED`. `compare.py` gives both programs of a pair a sixtieth of a second a
-frame and the same seed, this engine's by `E3D_FRAME_TIME` and `E3D_SEED` and raylib's by the shim
-around `BeginDrawing`, `GetFrameTime`, `GetTime` and `InitWindow`, time moving on as a frame begins
-on both sides, and captures this engine's program with none of the input `capture-example.sh` gives
-some examples, as raylib's is given none.
+**Now 5, core measured, and lines and ties drawn as OpenGL draws them.** A line of one pixel at a
+whole coordinate lay a row above raylib's, since OpenGL counts rows up the screen and Vulkan down,
+so the two break a tie between rows the other way round, and the same tie filled a shape's upper
+row of pixel middles where raylib fills its lower. The immediate pass moves every untextured batch
+a 256th of a pixel down after its transform, which breaks each tie as raylib's does, a textured
+one left where it is since a filtered texture would take a trace of the next row. A line at one
+sample is drawn by the diamond rule of the line rasterization extension's Bresenham mode where the
+device has it, as OpenGL draws raylib's, and with several samples stays the driver's, whose samples
+smooth it, the reference frames unchanged. A test holds both ties, failing without the move, and
+the render tests pass on lavapipe under the validation layer.
 
-The shapes past 2% are 12 of 45 from 18. `shapes_top_down_lights` is 0.6% apart from 26.9%,
-`shapes_double_pendulum` 0.8% from 5.1%, `shapes_polygon_lines` 1.1% from 4.4%,
-`shapes_starfield_effect` 1.7% from 3.6% and `shapes_ball_physics` 1.7% from 2.4%, their bullets,
-stars and boxes where raylib's are. Of the 12, eight are the font and raygui's panel drawn as ImGui,
-their shapes matching raylib's (`shapes_outlines_testbed`, `shapes_pie_chart`, `shapes_hilbert_curve`,
-`shapes_ring_drawing`, `shapes_rounded_rectangle_drawing`, `shapes_recursive_tree`,
-`shapes_circle_sector_drawing`, `shapes_easings_testbed`), `shapes_digital_clock` adds the wall
-clock, and three ask for four samples, `shapes_splines_drawing`, `shapes_math_sine_cosine` and
-`shapes_rlgl_triangle`, where the edges and lines resolve otherwise. A line of one pixel at a whole
-coordinate covers half of each of its two rows here, as a rectangle of width 1 does under GL's
-rules, and a quarter in raylib's frame from OpenGL on the same GPU, which is the driver's and is not
-taken further. The next module is core. The suite: 1,378 passed, 0 failed, 1 skipped.
+The 45 core examples are measured: 25 within 2% and 20 past it. `core_undo_redo` and
+`core_2d_camera_mouse_zoom` went under 2% with the move, from 6.8% and 5.6%, and
+`core_highdpi_testbed` to 3.6% from 8.4%. `core_3d_camera_split_screen`, at 99.4%, draws each
+player's cube at the player's own camera, which raylib's culling hides from inside, and is the next
+batch, 3D shapes culled by default as the word above has it. `core_smooth_pixelperfect` is a target
+scaled up with the bilinear filter the page keeps, `core_directory_files` lists another working
+directory and `core_highdpi_demo` another monitor, and the rest are the font and raygui's panel.
+In shapes `shapes_rectangle_advanced` is 0.0% apart and `shapes_basic_shapes` 0.7%.
+The suite: 1,379 passed, 0 failed, 1 skipped.

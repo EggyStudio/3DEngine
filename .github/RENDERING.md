@@ -135,6 +135,15 @@ it. A batch recorded inside `BeginScissorMode` carries its rectangle, clipped to
 the pass sets the scissor to it and back to the whole target after its last batch. A texel with no
 coverage is discarded, so a sprite's empty corners write no depth.
 
+A line drawn at one sample a pixel takes the pixels OpenGL's would, by the diamond rule of the
+line rasterization extension's Bresenham mode, where the device has it, so a grid lands where
+raylib's does. With several samples a line stays the driver's, whose samples smooth it. OpenGL
+counts rows up the screen and Vulkan down, so the two break a tie between rows the other way round,
+a line on the boundary between two rows drawn on the lower in raylib and a pixel whose middle is on
+a shape's lower edge filled there. The pass moves every untextured batch a 256th of a pixel down
+the screen after its transform, which breaks each tie as raylib's does. A textured batch is left
+where it is, since a texture filtered between its texels would take a trace of the next row.
+
 Textures loaded through the flat API go into `TextureStore`, and `GpuTexturesPrepare` uploads them
 before the graph runs, keeps one image, view, sampler and descriptor set per texture for every pass
 that samples them, and destroys an unloaded or replaced texture's objects four frames later, once

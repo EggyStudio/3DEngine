@@ -184,8 +184,13 @@ internal sealed unsafe partial class GraphicsDevice
             pScissors = &scissor
         };
 
+        // Lines of one sample a pixel by the diamond rule, as OpenGL draws raylib's, where the device
+        // has it. With several samples they stay the driver's, whose edges the samples smooth, where
+        // the rule would fill every sample of each pixel it takes.
+        VkPipelineRasterizationLineStateCreateInfo lineState = new() { lineRasterizationMode = VkLineRasterizationMode.Bresenham };
         VkPipelineRasterizationStateCreateInfo rasterizer = new()
         {
+            pNext = desc.Topology == PrimitiveTopology.LineList && CanDrawBresenhamLines && pass.Samples == VkSampleCountFlags.Count1 ? &lineState : null,
             polygonMode = desc.Points && CanDrawPoints ? VkPolygonMode.Point : VkPolygonMode.Fill,
             cullMode = desc.Cull switch { CullMode.Back => VkCullModeFlags.Back, CullMode.Front => VkCullModeFlags.Front, _ => VkCullModeFlags.None },
             frontFace = VkFrontFace.CounterClockwise,
