@@ -193,15 +193,26 @@ internal sealed class ParticleRenderer : IDisposable
     /// of its first <c>BeginMode3D</c>, or the one its meshes were drawn through, and one drawn only
     /// in 2D has none.
     /// </remarks>
-    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target = 0)
+    public void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target = 0) =>
+        Draw(pass, renderPass, renderContext, renderWorld, target, null, Vector3.Zero);
+
+    /// <summary>
+    /// Draws the frame's particles through <paramref name="through"/> from <paramref name="eye"/>,
+    /// lit by <paramref name="target"/>'s lights, as a reflection probe's face draws them, or as
+    /// <paramref name="target"/>'s camera sees them where <paramref name="through"/> is <c>null</c>.
+    /// </summary>
+    internal void Draw(TrackedRenderPass pass, IRenderPass renderPass, RenderContext renderContext, RenderWorld renderWorld, int target,
+        Matrix4x4? through, Vector3 eye)
     {
         if (_drawn.Count == 0 || renderWorld.TryGet<RenderParticles>() is not { } frame) return;
         if (renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<GpuTextures>() is not { } textures) return;
         // A target's camera is the one BeginMode3D drew into it through, or for a camera entity's
         // texture the one its meshes were drawn through.
-        var (camera, eye) = target == 0 ? (frame.ViewProjection, frame.Eye)
+        var (camera, from) = through is not null ? (through, eye)
+            : target == 0 ? (frame.ViewProjection, frame.Eye)
             : frame.Targets.TryGetValue(target, out var flat) ? (flat.ViewProjection, flat.Eye)
             : renderWorld.TryGet<ModelDrawList>()?.ViewProjectionOf(target) is { } own ? (own, EyeOf(own)) : ((Matrix4x4?)null, Vector3.Zero);
+        eye = from;
         if (camera is not { } viewProjection) return;
         var gfx = renderContext.Device;
         _vertex ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));

@@ -268,8 +268,9 @@ the sort sets a flag in the header, by which the draw reads each instance's part
 sorted keys. `TargetsNode` draws them into each render target after
 its meshes, with its own lights, since the step runs before the targets, through the camera of the
 target's first `BeginMode3D`, which `Mode3DCamera.Targets` keeps, or the one its meshes were drawn
-through for a camera entity's texture. A target drawn only in 2D has no camera for them, and probe
-captures have none.
+through for a camera entity's texture. A target drawn only in 2D has no camera for them. A
+reflection probe's capture draws them into each face after its meshes, through the face from the
+probe's middle, lit by the capture's lights, so a fire in a room glows in its metal.
 
 ## 4. Lights and shadows
 

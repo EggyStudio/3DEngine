@@ -1521,6 +1521,9 @@ internal sealed class ModelRenderer : IDisposable
         pass.SetViewport(0, 0, target.Extent.Width, target.Extent.Height, 0, 1);
         pass.SetScissor(0, 0, target.Extent.Width, target.Extent.Height);
         Draw(pass, target.RenderPass, renderContext, renderWorld, source.Value, capture.ViewProjections[face], ProbeCaptureLights);
+        // The particles over the meshes, through the face from the probe's middle, lit as the meshes are.
+        renderWorld.TryGet<ParticleRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, ProbeCaptureLights,
+            capture.ViewProjections[face], capture.Wanted.Position);
         pass.EndRenderPass();
         if (capture.Next < 6) return;
 

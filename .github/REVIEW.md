@@ -287,3 +287,13 @@ The strict build of b0386c1e had run against a test project an earlier build wit
 had left up to date, so a nullable warning in its new test reached `main`, and is mended here; the
 build before a commit is made with `--no-incremental` from now on. The suite: 1,343 passed, 0
 failed, 1 skipped.
+
+**Now 6, particles in a probe's capture.** Each face of a capture draws the frame's particles after
+its meshes, through the face's view-projection from the probe's middle and lit by the capture's
+lights, through an overload of `ParticleRenderer.Draw` that takes the view and the eye where the
+others look a target's camera up, so a fire in a room glows in its metal. A test fills a dark room
+with a red cloud toward the probe's +X face and reads that face back red, which it reads near black
+with the draw left out. TODO.md's entry is named for what it keeps, particles colliding with nothing
+and a sheet's frames not blended, and RENDERING.md, the guide and the API's remarks say a capture
+holds particles. The 110 render, reference and particle tests pass on lavapipe under the validation
+layer, and the suite: 1,344 passed, 0 failed, 1 skipped.

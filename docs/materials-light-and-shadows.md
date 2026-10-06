@@ -214,8 +214,8 @@ around it, and a render texture is drawn without it. `games/Manor` turns it on f
 ## Rooms that reflect themselves
 
 Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces
-reflect what is around its middle instead, captured from the meshes the window draws, or a render
-texture's when the window draws none, over the frames after it is made, a face a frame. The `models_reflection_probe` example puts one in a room of three colored walls:
+reflect what is around its middle instead, captured from the meshes and particles the window
+draws, or a render texture's when the window draws none, over the frames after it is made, a face a frame. The `models_reflection_probe` example puts one in a room of three colored walls:
 
 ```csharp
 var probe = CreateReflectionProbe(new Vector3(0, 3, 0), new Vector3(10, 6, 10));

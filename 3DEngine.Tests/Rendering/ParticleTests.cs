@@ -83,6 +83,27 @@ public sealed class ParticleTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Reflection_Probe_Captures_The_Particles_Around_It()
+    {
+        Open();
+        var room = LoadModelFromMesh(GenMeshCube(6, 6, 6));
+        room.Materials[0] = new ModelMaterial(new Color(20, 20, 20)) { DoubleSided = true };
+        var cloud = CreateParticleEmitter(new Vector3(2, 0, 0), Cloud(new Color(255, 30, 30)) with { Radius = 0.4f });
+        EmitParticles(cloud, 400);
+        var probe = CreateReflectionProbe(Vector3.Zero, new Vector3(6, 6, 6));
+        for (int frame = 0; frame < 120 && !IsReflectionProbeReady(probe); frame++) Capture(1, () => DrawModel(room, Vector3.Zero, 1, Color.White));
+        IsReflectionProbeReady(probe).Should().BeTrue();
+
+        // The middle of the first mip's +X face, a mirror's view of the cloud.
+        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
+        var texels = ((GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!).ReadCubeFaces(map);
+        var at = ((int)map.Size * (int)map.Size / 2 + (int)map.Size / 2) * 4;
+        ((float)texels[at]).Should().BeGreaterThan(4 * (float)texels[at + 2], "the probe sees the red cloud between it and the wall");
+        UnloadReflectionProbe(probe);
+        UnloadModel(room);
+    }
+
+    [NeedsVulkanFact]
     public void A_Stream_Rises_At_Its_Velocity_And_Fades_As_It_Dies()
     {
         Open();
