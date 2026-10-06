@@ -1,50 +1,5 @@
 namespace Engine;
 
-/// <summary>
-/// Marks a static method as a console command. The source generator registers it at assembly
-/// load, so it is a line in the console, a verb for <c>e3d command</c> and an entry in
-/// <c>e3d list</c> at once.
-/// </summary>
-/// <remarks>
-/// The method returns a <see cref="string"/> (the answer) or nothing, and its parameters are
-/// <see cref="string"/>, <see cref="bool"/>, <see cref="int"/>, <see cref="long"/>,
-/// <see cref="float"/> or <see cref="double"/>, read from the words after the name. A single
-/// string parameter takes the rest of the line, spaces and all. A word that does not parse is
-/// answered with a sentence rather than an exception.
-/// </remarks>
-/// <example>
-/// <code>
-/// [Command("enemy.spawn", "Spawns enemies: enemy.spawn &lt;count&gt;")]
-/// internal static string Spawn(int count) => $"spawned {count}";
-/// </code>
-/// </example>
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class CommandAttribute(string name = "", string help = "") : Attribute
-{
-    /// <summary>The name typed to run the command. Defaults to the method's name in lower case.</summary>
-    public string Name { get; } = name;
-
-    /// <summary>One sentence saying what the command does and how it is called.</summary>
-    public string Help { get; } = help;
-}
-
-/// <summary>One parameter of a command, for <c>e3d list</c>.</summary>
-/// <param name="Name">The parameter's name.</param>
-/// <param name="Kind">How the word is read: <c>text</c>, <c>flag</c>, <c>whole</c>, <c>long</c>, <c>single</c> or <c>number</c>.</param>
-/// <param name="TakesLine">Whether the parameter takes the rest of the line.</param>
-public readonly record struct CommandParameter(string Name, string Kind, bool TakesLine = false);
-
-/// <summary>A registered console command.</summary>
-/// <param name="Name">The name typed to run it.</param>
-/// <param name="Help">What it does.</param>
-/// <param name="Usage">Its parameters, as <c>&lt;name&gt;</c> words.</param>
-/// <param name="Run">Runs it with the words after the name, and returns its answer.</param>
-public sealed record ConsoleCommand(string Name, string Help, string Usage, Func<string[], string?> Run)
-{
-    /// <summary>The parameters, as the generator described them.</summary>
-    public IReadOnlyList<CommandParameter> Parameters { get; init; } = [];
-}
-
 /// <summary>Every console command this process has registered, by name.</summary>
 public static class ConsoleCommands
 {
