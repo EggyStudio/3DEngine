@@ -1,3 +1,6 @@
+// raylib's text_font_sdf example, Copyright (c) 2015-2025 Ramon Santamaria (@raysan5), under the zlib
+// license, written again for the flat API.
+
 using System.Numerics;
 using static Engine.Engine3D;
 
@@ -7,37 +10,74 @@ public static class TextFontSdf
 {
     public static void Run()
     {
-        InitWindow(800, 450, "[text] font sdf");
+        const int screenWidth = 800;
+        const int screenHeight = 450;
 
-        // The same font baked at 32 pixels twice, once as coverage and once as a distance field.
-        const string Message = "Signed Distance Fields";
-        var plain = LoadFontEx("resources/fonts/Lato-Regular.ttf", 32);
-        var sdf = LoadFontEx("resources/fonts/Lato-Regular.ttf", 32, null, FontType.Sdf);
-        var fontSize = 96f;
+        InitWindow(screenWidth, screenHeight, "[text] font sdf");
+
+        const string msg = "Signed Distance Fields";
+
+        // The 95 characters of ASCII, which raylib's font data is made for. raylib builds each font
+        // from the file's glyph data and an atlas of its own, and the flat API bakes one in a call,
+        // the distance field drawn sharp by the engine's own text shader where raylib's example
+        // loads one of its own.
+        int[] ascii = Enumerable.Range(32, 95).ToArray();
+        Font fontDefault = LoadFontEx("resources/anonymous_pro_bold.ttf", 16, ascii, FontType.Default);
+        Font fontSDF = LoadFontEx("resources/anonymous_pro_bold.ttf", 16, ascii, FontType.Sdf);
+        SetTextureFilter(fontSDF.Texture, TextureFilter.Bilinear);
+
+        Vector2 fontPosition = new(40, screenHeight/2.0f - 50);
+        Vector2 textSize = Vector2.Zero;
+        float fontSize = 16.0f;
+        int currentFont = 0;            // 0 the default font, 1 the distance field
 
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
-            fontSize = Math.Clamp(fontSize + GetMouseWheelMove() * 8, 8, 240);
-            var useSdf = !IsKeyDown(Key.Space);
-            var font = useSdf ? sdf : plain;
-            var size = MeasureTextEx(font, Message, fontSize, 0);
+            fontSize += GetMouseWheelMove()*8.0f;
+
+            if (fontSize < 6) fontSize = 6;
+
+            if (IsKeyDown(Key.Space)) currentFont = 1;
+            else currentFont = 0;
+
+            if (currentFont == 0) textSize = MeasureTextEx(fontDefault, msg, fontSize, 0);
+            else textSize = MeasureTextEx(fontSDF, msg, fontSize, 0);
+
+            fontPosition.X = (float)GetScreenWidth()/2 - textSize.X/2;
+            fontPosition.Y = (float)GetScreenHeight()/2 - textSize.Y/2 + 80;
 
             BeginDrawing();
-            ClearBackground(Color.RayWhite);
 
-            DrawTextEx(font, Message, new Vector2((GetScreenWidth() - size.X) / 2, (GetScreenHeight() - size.Y) / 2 - 40), fontSize, 0, Color.Black);
-            DrawTextEx(sdf, "Both fonts are baked at 32 pixels", new Vector2(20, 330), 20, 0, Color.DarkGray);
-            DrawTextEx(useSdf ? sdf : plain, useSdf ? "Distance field, one bake at every size" : "Coverage, baked again at each size", new Vector2(20, 360), 32, 0,
-                useSdf ? Color.DarkGreen : Color.Maroon);
-            DrawText($"Size {fontSize:0}, mouse wheel to change, hold space for the coverage font", 20, 410, 20, Color.Gray);
+                ClearBackground(Color.RayWhite);
+
+                if (currentFont == 1)
+                {
+                    DrawTextEx(fontSDF, msg, fontPosition, fontSize, 0, Color.Black);
+                    DrawTexture(fontSDF.Texture, 10, 10, Color.Black);
+                }
+                else
+                {
+                    DrawTextEx(fontDefault, msg, fontPosition, fontSize, 0, Color.Black);
+                    DrawTexture(fontDefault.Texture, 10, 10, Color.Black);
+                }
+
+                if (currentFont == 1) DrawText("SDF!", 320, 20, 80, Color.Red);
+                else DrawText("default font", 315, 40, 30, Color.Gray);
+
+                DrawText("FONT SIZE: 16.0", GetScreenWidth() - 240, 20, 20, Color.DarkGray);
+                DrawText($"RENDER SIZE: {fontSize:00.00}", GetScreenWidth() - 240, 50, 20, Color.DarkGray);
+                DrawText("Use MOUSE WHEEL to SCALE TEXT!", GetScreenWidth() - 240, 90, 10, Color.DarkGray);
+
+                DrawText("HOLD SPACE to USE SDF FONT VERSION!", 340, GetScreenHeight() - 30, 20, Color.Maroon);
 
             EndDrawing();
         }
 
-        UnloadFont(plain);
-        UnloadFont(sdf);
+        UnloadFont(fontDefault);
+        UnloadFont(fontSDF);
+
         CloseWindow();
     }
 }

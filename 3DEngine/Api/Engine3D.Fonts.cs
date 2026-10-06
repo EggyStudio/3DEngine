@@ -829,20 +829,25 @@ public static partial class Engine3D
         // Measured in the bake it is drawn from, whose glyphs advance by their own whole pixels.
         font = font.ForSize(fontSize);
         var scale = fontSize / font.BaseSize;
+        // As raylib measures it, the widest line's glyphs and the spacing between the characters
+        // of the line with the most, one fewer than it has, which the last character is not
+        // followed by.
         float width = 0, line = 0;
-        var lines = 1;
+        int lines = 1, characters = 0, most = 0;
         foreach (var rune in text.EnumerateRunes())
         {
             if (rune.Value == '\n')
             {
                 width = Math.Max(width, line);
                 line = 0;
+                characters = 0;
                 lines++;
                 continue;
             }
-            if (TryGetGlyph(font, rune.Value, out var g)) line += g.Advance * scale + spacing;
+            most = Math.Max(most, ++characters);
+            if (TryGetGlyph(font, rune.Value, out var g)) line += g.Advance;
         }
-        return new Vector2(Math.Max(width, line), (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
+        return new Vector2(Math.Max(width, line) * scale + (most - 1) * spacing, (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
     }
 
     // Bakes the atlas, then copies its pixels into a texture, so nothing of ImGui's is kept for the font.

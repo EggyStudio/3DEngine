@@ -5,6 +5,7 @@ core/resources/ps3.png
 core/resources/xbox.png
 core/resources/text_file.txt
 text/resources/custom_mecha.png
+text/resources/anonymous_pro_bold.ttf
 text/resources/custom_alagard.png
 text/resources/custom_jupiter_crash.png
 text/resources/sprite_fonts/alagard.png

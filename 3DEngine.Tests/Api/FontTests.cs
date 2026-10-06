@@ -152,7 +152,7 @@ public class FontTests
             font.Glyphs['A'].Advance.Should().Be(3);
             font.Glyphs['B'].Advance.Should().Be(4);
             Engine3D.GetGlyphAtlasRec(font, 'B').Should().Be(new Rectangle(7, 1, 4, 5));
-            Engine3D.MeasureTextEx(font, "AB", 5, 1).X.Should().Be(3 + 1 + 4 + 1);
+            Engine3D.MeasureTextEx(font, "AB", 5, 1).X.Should().Be(3 + 1 + 4, "the spacing goes between the characters, as raylib measures it");
             Engine3D.GetImageColor(font.Atlas, 0, 0).A.Should().Be(0, "the key becomes clear");
         }
         finally

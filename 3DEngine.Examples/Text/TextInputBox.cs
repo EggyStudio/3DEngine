@@ -1,44 +1,89 @@
+// raylib's text_input_box example, Copyright (c) 2017-2025 Ramon Santamaria (@raysan5), under the zlib
+// license, written again for the flat API.
+
 using static Engine.Engine3D;
 
 namespace Engine.Examples;
 
 public static class TextInputBox
 {
+    private const int MAX_INPUT_CHARS = 9;
+
     public static void Run()
     {
-        InitWindow(800, 450, "[text] input box");
+        const int screenWidth = 800;
+        const int screenHeight = 450;
 
-        const int MaxLength = 24;
-        var name = "";
-        var framesCounter = 0;
-        var lastKey = Key.Unknown;
+        InitWindow(screenWidth, screenHeight, "[text] input box");
+
+        string name = "";
+        int letterCount = 0;
+
+        Rectangle textBox = new(screenWidth/2.0f - 100, 180, 225, 50);
+        bool mouseOnText = false;
+
+        int framesCounter = 0;
+
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
-            // Every character typed this frame, in order, then Backspace to remove one.
-            for (var c = GetCharPressed(); c != 0; c = GetCharPressed())
-                if (c >= 32 && name.Length < MaxLength)
-                    name += char.ConvertFromUtf32(c);
-            if (IsKeyPressed(Key.Backspace) && name.Length > 0)
-                name = name[..^1];
-            for (var key = GetKeyPressed(); key != Key.Unknown; key = GetKeyPressed())
-                lastKey = key;
-            framesCounter++;
+            if (CheckCollisionPointRec(GetMousePosition(), textBox)) mouseOnText = true;
+            else mouseOnText = false;
+
+            if (mouseOnText)
+            {
+                SetMouseCursor(MouseCursor.IBeam);
+
+                // Every character typed this frame, in order, those from space to '}' kept
+                int key = GetCharPressed();
+                while (key > 0)
+                {
+                    if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
+                    {
+                        name += (char)key;
+                        letterCount++;
+                    }
+
+                    key = GetCharPressed();
+                }
+
+                if (IsKeyPressed(Key.Backspace))
+                {
+                    letterCount--;
+                    if (letterCount < 0) letterCount = 0;
+                    name = name[..letterCount];
+                }
+            }
+            else SetMouseCursor(MouseCursor.Default);
+
+            if (mouseOnText) framesCounter++;
+            else framesCounter = 0;
 
             BeginDrawing();
-            ClearBackground(Color.RayWhite);
 
-            DrawText("Type a name. Backspace removes a letter.", 240, 140, 20, Color.Gray);
-            DrawRectangle(200, 180, 400, 50, Color.LightGray);
-            DrawRectangleLines(200, 180, 400, 50, Color.Red);
-            DrawText(name, 210, 192, 30, Color.Maroon);
+                ClearBackground(Color.RayWhite);
 
-            // A blinking caret after the text, while there is room for more.
-            if (name.Length < MaxLength && framesCounter / 20 % 2 == 0)
-                DrawText("_", 212 + MeasureText(name, 30), 194, 30, Color.Maroon);
+                DrawText("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, Color.Gray);
 
-            DrawText($"{name.Length}/{MaxLength} characters, last key {lastKey}", 200, 250, 20, Color.DarkGray);
+                DrawRectangleRec(textBox, Color.LightGray);
+                if (mouseOnText) DrawRectangleLines((int)textBox.X, (int)textBox.Y, (int)textBox.Width, (int)textBox.Height, Color.Red);
+                else DrawRectangleLines((int)textBox.X, (int)textBox.Y, (int)textBox.Width, (int)textBox.Height, Color.DarkGray);
+
+                DrawText(name, (int)textBox.X + 5, (int)textBox.Y + 8, 40, Color.Maroon);
+
+                DrawText($"INPUT CHARS: {letterCount}/{MAX_INPUT_CHARS}", 315, 250, 20, Color.DarkGray);
+
+                if (mouseOnText)
+                {
+                    if (letterCount < MAX_INPUT_CHARS)
+                    {
+                        // A blinking underscore
+                        if (((framesCounter/20)%2) == 0) DrawText("_", (int)textBox.X + 8 + MeasureText(name, 40), (int)textBox.Y + 12, 40, Color.Maroon);
+                    }
+                    else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, Color.Gray);
+                }
+
             EndDrawing();
         }
 

@@ -60,6 +60,9 @@ case "$driven" in
     ./e3d command input.touch 0 270 250 600 --quiet >/dev/null 2>&1 &
     ;;
   text_input_box)
+    # The pointer over the box, which takes typing only then, and a name typed.
+    ./e3d command input.move 410 205 --quiet
+    ./e3d command frames.wait 2 --quiet
     ./e3d command input.text e3d.cs --quiet
     ;;
   models_decals)

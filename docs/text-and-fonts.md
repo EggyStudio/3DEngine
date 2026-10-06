@@ -107,26 +107,36 @@ the keyboard's layout applied, and 0 when there are no more. Keys that type
 nothing, as Backspace and the arrows, are read as keys. The `text_input_box` example:
 
 ```csharp
-// Every character typed this frame, in order, then Backspace to remove one.
-for (var c = GetCharPressed(); c != 0; c = GetCharPressed())
-    if (c >= 32 && name.Length < MaxLength)
-        name += char.ConvertFromUtf32(c);
-if (IsKeyPressed(Key.Backspace) && name.Length > 0)
-    name = name[..^1];
-// ...
-DrawRectangle(200, 180, 400, 50, Color.LightGray);
-DrawRectangleLines(200, 180, 400, 50, Color.Red);
-DrawText(name, 210, 192, 30, Color.Maroon);
+// Every character typed this frame, in order, those from space to '}' kept
+int key = GetCharPressed();
+while (key > 0)
+{
+    if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
+    {
+        name += (char)key;
+        letterCount++;
+    }
 
-// A blinking caret after the text, while there is room for more.
-if (name.Length < MaxLength && framesCounter / 20 % 2 == 0)
-    DrawText("_", 212 + MeasureText(name, 30), 194, 30, Color.Maroon);
+    key = GetCharPressed();
+}
+
+if (IsKeyPressed(Key.Backspace))
+{
+    letterCount--;
+    if (letterCount < 0) letterCount = 0;
+    name = name[..letterCount];
+}
+// ...
+DrawText(name, (int)textBox.X + 5, (int)textBox.Y + 8, 40, Color.Maroon);
+
+// A blinking underscore
+if (((framesCounter/20)%2) == 0) DrawText("_", (int)textBox.X + 8 + MeasureText(name, 40), (int)textBox.Y + 12, 40, Color.Maroon);
 ```
 
 A language composed from several keys, as Japanese or Chinese, is typed in the input method's
-window, which `SetTextInputArea(new Rectangle(200, 180, 400, 50))` places beside the box the text
-lands in, the caret's distance from its left as the second argument, so the candidates show where
-the player is looking. An ImGui text field places it by itself.
+window, which `SetTextInputArea(textBox)` places beside the box the text lands in, the caret's
+distance from its left as the second argument, so the candidates show where the player is looking.
+An ImGui text field places it by itself.
 
 A character is an `int` code point rather than a `char`, since one past U+FFFF takes two of C#'s
 `char`s, which `char.ConvertFromUtf32` makes. `GetKeyPressed` reads keys the same way, one call
@@ -138,16 +148,18 @@ instead, which reads typing itself.
 A font baked as a signed distance field records how far each pixel is from a character's edge
 rather than how much of it is covered, so one bake draws sharp edges at any size without baking
 again. `FontType.Sdf` asks for one. The `text_font_sdf` example bakes the same font both ways at
-32 pixels and draws it at the size the mouse wheel sets:
+16 pixels, and draws the distance field while the space bar is held, at the size the mouse wheel
+sets:
 
 ```csharp
-// The same font baked at 32 pixels twice, once as coverage and once as a distance field.
-const string Message = "Signed Distance Fields";
-var plain = LoadFontEx("resources/fonts/Lato-Regular.ttf", 32);
-var sdf = LoadFontEx("resources/fonts/Lato-Regular.ttf", 32, null, FontType.Sdf);
+// The 95 characters of ASCII, which raylib's font data is made for.
+int[] ascii = Enumerable.Range(32, 95).ToArray();
+Font fontDefault = LoadFontEx("resources/anonymous_pro_bold.ttf", 16, ascii, FontType.Default);
+Font fontSDF = LoadFontEx("resources/anonymous_pro_bold.ttf", 16, ascii, FontType.Sdf);
+SetTextureFilter(fontSDF.Texture, TextureFilter.Bilinear);
 ```
 
-The codepoints given as `null` mean Latin-1, as `LoadFontEx` without them does. A distance field
+Codepoints given as `null` mean Latin-1, as `LoadFontEx` without them does. A distance field
 font suits text that changes size every frame, as a title that grows in or a label in a world that
 zooms, where the coverage font would bake again at each new size.
 

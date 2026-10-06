@@ -10,18 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `e5812611`. The random values come from raylib's own generator, xoshiro128** started
-from the seed by SplitMix64 as `rprand.h` has it, so `SetRandomSeed` gives raylib's numbers, held by
-a test against values a C program printed from the pinned header, and `InitWindow` seeds from the
-clock or from `--seed` or `E3D_SEED`. `compare.py` gives both programs of a pair a sixtieth of a
-second a frame and the same seed, raylib's through the shim, and captures this engine's program with
-no input, as raylib's gets none. The shapes past 2% are 12 of 45, from 18: `shapes_top_down_lights`
+Reviewed up to `748c5abe`. A line at one sample is drawn by OpenGL's diamond rule, through the line
+rasterization extension's Bresenham mode where the device has it, and every untextured batch moves a
+256th of a pixel down to break a tie between rows as raylib's GL does, since GL counts rows up the
+screen and Vulkan down, a test holding both ties and the reference frames unchanged; the 45 core
+examples are 25 within 2% (`2b3c23a7`). A shape drawn in 3D leaves out its back faces until a
+program switches rlgl's culling, as decided, 2D shapes and text drawing both faces and a model the
+faces its material says, with a test, so `core_3d_camera_split_screen` is 8.8% apart from 99.4%, the
+rest a render texture's alpha that raylib blends by the color's factors, a line of the page with its
+reason (`9727caac`). The 33 textures examples are 26 within 2%, `textures_image_drawing` and
+`textures_bunnymark` being raylib's own programs from here on, the benchmark kept behind `--stress`,
+and the shim turns `UpdateCamera`'s orbit by the frame's time, which the linker's wrap does not
+reach inside raylib's own file (`748c5abe`). No verdict is open.
+
+Before them, the random values came from raylib's own generator, xoshiro128** started from the seed
+by SplitMix64 as `rprand.h` has it, so `SetRandomSeed` gives raylib's numbers, held by a test
+against values a C program printed from the pinned header, and `InitWindow` seeds from the clock or
+from `--seed` or `E3D_SEED`. `compare.py` gives both programs of a pair a sixtieth of a second a
+frame and the same seed, raylib's through the shim, and captures this engine's program with no
+input, as raylib's gets none. The shapes past 2% are 12 of 45, from 18: `shapes_top_down_lights`
 0.6% from 26.9%, and eight of the twelve are the font and raygui's panel drawn as ImGui with their
 shapes matching raylib's, one adds the wall clock, and three at four samples resolve their lines
 otherwise, a one-pixel line covering half of each of its two rows here and a quarter in raylib's
-frame, which is the driver's (`e5812611`). The core module is under way, with the back faces of 3D
-shapes culled by default as raylib's are, decided here on 2026-10-06, 2D shapes drawn on both faces
-as the page says, and models left until their module is measured. No verdict is open.
+frame, which is the driver's (`e5812611`). The back faces of 3D shapes culled by default as raylib's
+are was decided here on 2026-10-06, 2D shapes drawn on both faces as the page says, and models left
+to their materials.
 
 Before them, each written example was measured against raylib's own program drawn to the same frame:
 `build/raylib-bench/compare.py` builds raylib's example with `shim.c` wrapped around `EndDrawing`,
@@ -37,17 +50,6 @@ font and raygui's panel drawn as ImGui, which the page keeps. Item 6 was a fault
 marked to sleep slept through 3 a second given by any of four calls, and every wake clears the
 candidate flag and the count (`f2d3bcf4`), which settles it. Whether `GetFontDefault` returns
 raylib's own pixel font is the owner's, put to them.
-
-Before them, a game's own text box places the input method's window beside it with
-`SetTextInputArea`, as an ImGui field does, read back from SDL on `text_input_box` run hidden
-(`134d4f3d`), RENDERING.md's order of work names what is built (`fd9af099`), and the README's status
-points at the comparison page for the functions left out (`16bd04ef`). BevyCSharp's kinematic batch
-found two things in Bepu that this engine has the same code for. A convex manifold's friction is
-shared among its contacts, so a box on four corners slid a quarter as rough, which `ed0f3aa6` mended
-here by scaling the coefficient by their count. And a body that has rested long enough to be a
-candidate for sleep is put to sleep at the next step's start though `SetLinearVelocity` or
-`ApplyImpulse` gave it speed, since `Awake = true` on an awake body clears nothing, which item 6
-checks here. No verdict is open.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -163,47 +165,12 @@ None open.
 
 ## Replies
 
-**Now 5, core measured, and lines and ties drawn as OpenGL draws them.** A line of one pixel at a
-whole coordinate lay a row above raylib's, since OpenGL counts rows up the screen and Vulkan down,
-so the two break a tie between rows the other way round, and the same tie filled a shape's upper
-row of pixel middles where raylib fills its lower. The immediate pass moves every untextured batch
-a 256th of a pixel down after its transform, which breaks each tie as raylib's does, a textured
-one left where it is since a filtered texture would take a trace of the next row. A line at one
-sample is drawn by the diamond rule of the line rasterization extension's Bresenham mode where the
-device has it, as OpenGL draws raylib's, and with several samples stays the driver's, whose samples
-smooth it, the reference frames unchanged. A test holds both ties, failing without the move, and
-the render tests pass on lavapipe under the validation layer.
-
-The 45 core examples are measured: 25 within 2% and 20 past it. `core_undo_redo` and
-`core_2d_camera_mouse_zoom` went under 2% with the move, from 6.8% and 5.6%, and
-`core_highdpi_testbed` to 3.6% from 8.4%. `core_3d_camera_split_screen`, at 99.4%, draws each
-player's cube at the player's own camera, which raylib's culling hides from inside, and is the next
-batch, 3D shapes culled by default as the word above has it. `core_smooth_pixelperfect` is a target
-scaled up with the bilinear filter the page keeps, `core_directory_files` lists another working
-directory and `core_highdpi_demo` another monitor, and the rest are the font and raygui's panel.
-In shapes `shapes_rectangle_advanced` is 0.0% apart and `shapes_basic_shapes` 0.7%.
-The suite: 1,379 passed, 0 failed, 1 skipped.
-
-**Now 5, 3D shapes culled as rlgl culls them.** As the word on the culling question has it, a shape
-drawn inside `BeginMode3D` leaves out its back faces until a program switches rlgl's culling, so a
-cube drawn around the camera is hollow seen from within, while 2D shapes and text draw both faces
-and a model the faces its material says. A test draws a cube at the camera's place, finds it
-hollow and a clockwise 2D triangle drawn, and the cube filled once `rlDisableBackfaceCulling` is
-called. `core_3d_camera_split_screen` is 8.8% apart from 99.4%, its scene matching raylib's, and
-the rest is a bar partly clear drawn into a render texture, whose alpha raylib blends by the
-color's factors so the black behind shows through, where alpha here is laid over by alpha and the
-texture stays opaque. That is a new line on the comparison page with its reason, and the culling
-line there says the three cases. The suite: 1,380 passed, 0 failed, 1 skipped, and the render
-tests pass on lavapipe under the validation layer.
-
-**Now 5, textures measured.** The 33 textures examples are 26 within 2% and 7 past it.
-`textures_image_drawing` was a program of this engine's own under raylib's name and is now raylib's,
-the cat drawn into the parrots and the font's text over them, 0.9% apart from 60.9%.
-`textures_bunnymark` was the benchmark and is now raylib's program, 0.7% apart, the benchmark kept
-behind `--stress`, which `run.sh` passes. `UpdateCamera`'s orbit reads the frame's time inside
-raylib's own file, where the linker's wrap does not reach, so the shim turns it by the frame's
-time the example reads, and `textures_framebuffer_rendering` is 1.8% apart from 5.4%. Of the 7,
-`textures_image_rotate` is the black corners of an image without alpha, `textures_image_channel` and
-`textures_portal_window` are textures drawn scaled with the bilinear filter, all three lines the
-page keeps, `textures_image_text` is a TrueType font rasterized otherwise, and the rest are the
-font. The suite: 1,380 passed, 0 failed, 1 skipped.
+**Now 5, text measured.** `MeasureTextEx` counted a spacing after every character, where raylib's
+counts one fewer than the characters of the longest line, so centered text sat half a spacing to
+the left. It measures as raylib's now, and `text_sprite_fonts` is 0.7% apart from 8.0% and
+`text_font_spritefont` 0.0% from 3.4%, a font of an image drawn as raylib draws it. `text_font_sdf`
+and `text_input_box` were programs of this engine's own under raylib's names and are now raylib's,
+6.1% and 1.1% apart, the first's rest the atlas, which ImGui packs where raylib's
+`GenImageFontAtlas` would and the page keeps, and the docs quote the ports. Of the 16, 8 are past
+2%, all the font, Latin-1 where raylib loads ASCII (`text_unicode_ranges`), or a TrueType font
+rasterized otherwise. The suite: 1,380 passed, 0 failed, 1 skipped.
