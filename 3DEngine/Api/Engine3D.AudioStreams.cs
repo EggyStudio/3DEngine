@@ -36,6 +36,15 @@ public sealed class AudioStream
     internal float Pitch { get; set; } = 1f;
     internal float Pan { get; set; } = 0.5f;
     internal AudioCallback? Callback { get; set; }
+
+    // What runs over each piece of samples the stream queues, in order, replaced as a whole.
+    internal AudioCallback[] Processors { get; set; } = [];
+
+    // Runs the processors over samples about to be queued, which they change in place.
+    internal void Process(Span<float> samples)
+    {
+        foreach (var processor in Processors) processor(samples);
+    }
 }
 
 /// <summary>Fills a buffer with an audio stream's next samples, interleaved, from -1 to 1.</summary>
@@ -70,7 +79,59 @@ public static partial class Engine3D
     /// <summary>Queues samples after those a stream has yet to play, interleaved, from -1 to 1.</summary>
     public static void UpdateAudioStream(AudioStream stream, ReadOnlySpan<float> samples)
     {
-        if (StreamVoice(stream) is { } voice && Audio() is { } audio) audio.QueueSamples(voice, samples);
+        if (StreamVoice(stream) is not { } voice || Audio() is not { } audio) return;
+        if (stream.Processors.Length == 0)
+        {
+            audio.QueueSamples(voice, samples);
+            return;
+        }
+        var processed = samples.ToArray();
+        stream.Process(processed);
+        audio.QueueSamples(voice, processed);
+    }
+
+    /// <summary>
+    /// Runs <paramref name="processor"/> over every piece of samples the stream plays after this,
+    /// after those attached before it, as raylib's <c>AttachAudioStreamProcessor</c> does, a
+    /// piece of music's through its <see cref="Music.Stream"/>.
+    /// </summary>
+    /// <remarks>
+    /// The samples are interleaved in the stream's own channels and rate, and are processed on the
+    /// main thread as the stream queues them, where raylib's are processed on the audio thread as
+    /// the mixer reads them, in the device's two channels and rate.
+    /// </remarks>
+    public static void AttachAudioStreamProcessor(AudioStream stream, AudioCallback processor) =>
+        stream.Processors = [.. stream.Processors, processor];
+
+    /// <summary>Stops running <paramref name="processor"/> over a stream's samples.</summary>
+    public static void DetachAudioStreamProcessor(AudioStream stream, AudioCallback processor)
+    {
+        var at = Array.IndexOf(stream.Processors, processor);
+        if (at >= 0) stream.Processors = [.. stream.Processors[..at], .. stream.Processors[(at + 1)..]];
+    }
+
+    // What runs over the mixed samples the device plays, which the audio server hands to its backend.
+    private static readonly List<AudioCallback> MixedProcessors = [];
+
+    /// <summary>
+    /// Runs <paramref name="processor"/> over every piece of mixed samples the device plays, after
+    /// those attached before it, as raylib's <c>AttachAudioMixedProcessor</c> does.
+    /// </summary>
+    /// <remarks>
+    /// It runs on the audio thread, as raylib's does, over samples interleaved in the device's
+    /// channels, two on most, so what it shares with the program's own thread is shared with care.
+    /// </remarks>
+    public static void AttachAudioMixedProcessor(AudioCallback processor)
+    {
+        MixedProcessors.Add(processor);
+        Audio()?.SetMixedProcessors([.. MixedProcessors]);
+    }
+
+    /// <summary>Stops running <paramref name="processor"/> over the mixed samples.</summary>
+    public static void DetachAudioMixedProcessor(AudioCallback processor)
+    {
+        MixedProcessors.Remove(processor);
+        Audio()?.SetMixedProcessors([.. MixedProcessors]);
     }
 
     /// <summary>Queues 16-bit samples after those a stream has yet to play, interleaved.</summary>
@@ -166,6 +227,7 @@ public static partial class Engine3D
             while (audio.QueuedFrames(stream.Voice) < stream.BufferFrames)
             {
                 callback(chunk);
+                stream.Process(chunk);
                 audio.QueueSamples(stream.Voice, chunk);
             }
         }

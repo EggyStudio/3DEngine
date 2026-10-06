@@ -1020,6 +1020,8 @@ static class Engine.Engine3D
   static void AddSubState<TSub, TParent>(TParent whileIn, TSub initial) where TSub : struct, Enum where TParent : struct, Enum
   static void ApplyPhysicsImpulse(PhysicsBody body, Vector3 impulse)
   static void ApplyPhysicsImpulseAt(PhysicsBody body, Vector3 impulse, Vector3 point)
+  static void AttachAudioMixedProcessor(AudioCallback processor)
+  static void AttachAudioStreamProcessor(AudioStream stream, AudioCallback processor)
   static void BeginBlendMode(BlendMode mode)
   static void BeginDrawing()
   static void BeginMode2D(Camera2D camera)
@@ -1041,6 +1043,8 @@ static class Engine.Engine3D
   static void ComputeShaderDispatch(Shader shader, int groupsX, int groupsY, int groupsZ)
   static void DestroyPhysicsBody(PhysicsBody body)
   static void DestroyPhysicsJoint(PhysicsJoint joint)
+  static void DetachAudioMixedProcessor(AudioCallback processor)
+  static void DetachAudioStreamProcessor(AudioStream stream, AudioCallback processor)
   static void DisableCursor()
   static void DisableEventWaiting()
   static void DrawBillboard(Camera3D camera, Texture2D texture, Vector3 position, float size, Color tint)
@@ -1572,6 +1576,7 @@ interface Engine.IAudioBackend : IDisposable
   void Initialize()
   void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples)
   void SetListenerPosition(Vector3 position)
+  void SetMixedProcessors(AudioCallback[] processors)
   void SetVoiceLooping(int voiceId, bool looping)
   void SetVoicePan(int voiceId, float pan)
   void SetVoicePaused(int voiceId, bool paused)
@@ -2127,6 +2132,7 @@ enum Engine.MouseCursor : int
   ResizeNS = 6
   ResizeNWSE = 7
 sealed class Engine.Music
+  AudioStream Stream { get; }
   bool IsValid { get; }
   bool Looping { get; set; }
 readonly struct Engine.NPatchInfo : IEquatable<NPatchInfo>

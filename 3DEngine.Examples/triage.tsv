@@ -182,8 +182,6 @@ shaders_lights_bloom	can
 audio_module_playing	missing	music in the XM and MOD module formats, which no decoder here reads
 audio_music_stream	can
 audio_sound_loading	can
-audio_mixed_processor	missing	AttachAudioMixedProcessor, DetachAudioMixedProcessor
-audio_stream_effects	missing	AttachAudioStreamProcessor, DetachAudioStreamProcessor
 audio_sound_multi	can
 audio_sound_positioning	can
 audio_spectrum_visualizer	can

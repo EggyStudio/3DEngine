@@ -270,3 +270,17 @@ is read by neither, with a warning. TODO.md's line on images is rewritten around
 and the count of raylib's functions carried is 493, 80 percent. Two tests read a raw file and
 format a pixel through each format. `textures_raw_data` and `textures_image_processing` are
 raylib's. The table stands at 207 written and 14 missing, the audio processors' two rows next.
+
+**Now 2, the audio processors' two rows.** `AttachAudioMixedProcessor` and
+`DetachAudioMixedProcessor` run over the mix the device plays on SDL3's postmix callback, on the
+audio thread, as raylib's run, the call made with a function pointer, since SDL3-CS hands the
+buffer over as an array it cannot size, and the processors kept as a whole array replaced on each
+change, which the audio thread reads without a lock. `AttachAudioStreamProcessor` and
+`DetachAudioStreamProcessor` run over what a stream or a piece of music queues, on the program's
+thread and in the stream's own channels, where raylib's run on the audio thread in the device's,
+which the comparison has a line on, and `Music` has the `Stream` raylib's programs attach them to.
+Running against the device here, `audio_mixed_processor`'s volume history fills as its music
+plays. Two tests run processors over what a stream and a piece of music queue and hand the mixed
+ones to the backend in order. TODO.md keeps `UpdateSound` alone of the audio thread's functions,
+and the count carried is 497. `audio_mixed_processor` and `audio_stream_effects` are raylib's.
+The table stands at 209 written and 12 missing, each row a gap of its own.

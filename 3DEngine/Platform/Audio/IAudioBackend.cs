@@ -142,6 +142,13 @@ public interface IAudioBackend : IDisposable
     long QueuedVoiceFrames(int voiceId) => 0;
 
     /// <summary>
+    /// Runs <paramref name="processors"/> in order over every buffer of mixed samples the device
+    /// plays, interleaved floats in the device's channels, on the audio thread, as raylib's
+    /// <c>AttachAudioMixedProcessor</c> runs its own. None, the default, runs nothing.
+    /// </summary>
+    void SetMixedProcessors(AudioCallback[] processors) { }
+
+    /// <summary>
     /// Pumps backend bookkeeping (3D recompute, voice recycling). Called once per frame
     /// by <see cref="AudioUpdateSystem"/>; backends may also do this internally on their
     /// own thread.

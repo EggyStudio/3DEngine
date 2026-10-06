@@ -54,6 +54,8 @@ public sealed class Engine3DAudioTests : IDisposable
         public void QueueVoiceSamples(int voiceId, ReadOnlySpan<float> samples) => Streams[voiceId].AddRange(samples);
         public long QueuedVoiceFrames(int voiceId) => Streams.TryGetValue(voiceId, out var queued) && Voices.ContainsKey(voiceId) ? queued.Count / StreamChannels[voiceId] : 0;
         public void Play(int voiceId, int frames) => Streams[voiceId].RemoveRange(0, Math.Min(Streams[voiceId].Count, frames * StreamChannels[voiceId]));
+        public AudioCallback[] Mixed = [];
+        public void SetMixedProcessors(AudioCallback[] processors) => Mixed = processors;
         public void Update() { }
         public void Dispose() { }
     }
@@ -379,5 +381,42 @@ public sealed class Engine3DAudioTests : IDisposable
         SetMusicPan(music, 0.25f);
         _backend.Pans[voice].Should().Be(-0.5f);
         UnloadMusicStream(music);
+    }
+
+    [Fact]
+    public void A_Streams_Processors_Run_In_Order_Over_What_It_Queues_Until_Detached_And_Musics_Through_Its_Stream()
+    {
+        var stream = LoadAudioStream(8000, 32, 1);
+        AudioCallback twice = samples => { foreach (ref var s in samples) s *= 2; };
+        AudioCallback plusOne = samples => { foreach (ref var s in samples) s += 1; };
+        AttachAudioStreamProcessor(stream, twice);
+        AttachAudioStreamProcessor(stream, plusOne);
+
+        UpdateAudioStream(stream, [1f, 2f]);
+        DetachAudioStreamProcessor(stream, twice);
+        UpdateAudioStream(stream, [1f]);
+
+        _backend.Streams.Values.Single().Should().Equal([3f, 5f, 2f], "each processor in the order attached, and one detached no more");
+
+        var music = LoadMusicStream(WriteWav());
+        AttachAudioStreamProcessor(music.Stream, samples => samples.Fill(0.25f));
+        PlayMusicStream(music);
+        _backend.Streams.Values.Last().Should().OnlyContain(s => s == 0.25f, "the music's silence passes through its stream's processor");
+        UnloadMusicStream(music);
+    }
+
+    [Fact]
+    public void Mixed_Processors_Reach_The_Backend_In_Order_And_Leave_It_When_Detached()
+    {
+        AudioCallback first = _ => { }, second = _ => { };
+
+        AttachAudioMixedProcessor(first);
+        AttachAudioMixedProcessor(second);
+        _backend.Mixed.Should().Equal(first, second);
+
+        DetachAudioMixedProcessor(first);
+        _backend.Mixed.Should().Equal(second);
+        DetachAudioMixedProcessor(second);
+        _backend.Mixed.Should().BeEmpty();
     }
 }

@@ -97,6 +97,19 @@ public sealed class AudioServer : IDisposable
         }
     }
 
+    // What runs over the mixed samples, given again to a backend that replaces the one before.
+    private AudioCallback[] _mixedProcessors = [];
+
+    /// <summary>Runs <paramref name="processors"/> over the mixed samples the device plays, as <see cref="IAudioBackend.SetMixedProcessors"/> says.</summary>
+    internal void SetMixedProcessors(AudioCallback[] processors)
+    {
+        lock (_lock)
+        {
+            _mixedProcessors = processors;
+            _backend.SetMixedProcessors(processors);
+        }
+    }
+
     /// <summary>Replaces the active backend. Disposes the previous one.</summary>
     internal void SetBackend(IAudioBackend backend)
     {
@@ -108,6 +121,7 @@ public sealed class AudioServer : IDisposable
             _backend = backend;
             if (!_backend.IsInitialized) _backend.Initialize();
             _backend.SetListenerPosition(_listenerPosition);
+            if (_mixedProcessors.Length > 0) _backend.SetMixedProcessors(_mixedProcessors);
         }
         previous?.Dispose();
         Logger.Info($"AudioServer: backend set to '{backend.BackendId}'.");

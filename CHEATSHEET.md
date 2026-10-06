@@ -889,6 +889,10 @@ void SetAudioStreamPitch(AudioStream stream, float pitch);   // Speed, where 1 i
 void SetAudioStreamPan(AudioStream stream, float pan);       // Balance, 0 left, 0.5 middle, 1 right
 void SetAudioStreamBufferSizeDefault(int size);           // Frames a new stream keeps queued before asking for more (4096)
 void SetAudioStreamCallback(AudioStream stream, AudioCallback? callback); // Feed it from a callback at each frame's end
+void AttachAudioStreamProcessor(AudioStream stream, AudioCallback processor); // Change what it queues, after the processors before (music.Stream for music)
+void DetachAudioStreamProcessor(AudioStream stream, AudioCallback processor); // Stop changing it
+void AttachAudioMixedProcessor(AudioCallback processor);  // Change the mixed samples the device plays, on the audio thread
+void DetachAudioMixedProcessor(AudioCallback processor);  // Stop changing them
 ```
 
 A sound is decoded whole when it loads. Music is read from its file half a second ahead of what

@@ -156,6 +156,14 @@ program's own thread, so it reads the game's state as any code in the loop does,
 4096 frames queued, about a tenth of a second, which `SetAudioStreamBufferSizeDefault` changes for
 the streams made after it.
 
+A processor changes samples on their way to the speakers. `AttachAudioStreamProcessor` runs one
+over everything a stream queues, in the stream's own channels, a piece of music's through its
+`Stream`, and `audio_stream_effects` filters its music to its low notes and echoes it a second
+later that way. `AttachAudioMixedProcessor` runs one over the mix the device plays, every sound and
+stream together, on the audio thread, so a value it shares with the loop is a single field, as the
+volume history `audio_mixed_processor` draws is. Each runs after those attached before it, until
+it is detached.
+
 ## Sound in a 3D world
 
 A game built on the ECS can place a sound in the world, so it is louder near the listener and

@@ -18,7 +18,15 @@ public sealed class Music
     {
         Decoder = decoder;
         Name = name;
+        Stream = new AudioStream(decoder?.SampleRate ?? 44100, decoder?.Channels ?? 2, 0);
     }
+
+    /// <summary>
+    /// The stream the music plays on, raylib's <c>music.stream</c>, to attach processors to with
+    /// <see cref="Engine3D.AttachAudioStreamProcessor"/>.
+    /// </summary>
+    /// <remarks>The music itself is played with the music functions, which feed this stream's processors.</remarks>
+    public AudioStream Stream { get; }
 
     internal IMusicDecoder? Decoder { get; }
 
@@ -205,6 +213,7 @@ public static partial class Engine3D
     {
         if (!GetApp().HasPlugin<SoundsPlugin>())
             GetApp().AddPlugin(new SoundsPlugin());
+        if (MixedProcessors.Count > 0) Audio()?.SetMixedProcessors([.. MixedProcessors]);
     }
 
     /// <summary>Stops every sound and music the flat API started.</summary>
@@ -476,6 +485,7 @@ public static partial class Engine3D
                 read = decoder.Read(buffer);
                 if (read == 0) return;
             }
+            music.Stream.Process(buffer.AsSpan(0, read));
             audio.QueueSamples(music.Voice, buffer.AsSpan(0, read));
             music.FramesQueued += read / decoder.Channels;
         }
