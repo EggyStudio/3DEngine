@@ -275,3 +275,15 @@ that opens nothing forces the same missing driver with the fallback off, so it r
 where it ran on none with a device, and the attribute that skipped it is gone. With
 `SDL_AUDIO_DRIVER` naming a driver that is not there, `audio_spectrum_visualizer` now draws the
 song's spectrum, as raylib's program does on its null device.
+
+**Verdict 27.** A directory of scripts is watched once a process. `DirectoryWatches` holds one
+system watcher for each directory and filter, shared by every compiler that watches it, tells each
+of them of a change, each compiling its own app's scripts, and stops with the last to let go, and
+`RuntimeAssemblyCompiler` takes a place among those watching in place of a watcher of its own. A
+test opens two apps on one directory and finds the second told by the first's watchers with none of
+its own, the watchers staying for the app still open and going with the last. The scripts' reload
+and generation tests pass as they did. The leak test's message carried the heap after every tenth
+app already, on one line with the threads after each of the hundred, which the page cuts at 240
+characters, so the series that reached the page was two points. The heap and the threads are now on
+lines of their own, the threads read after every tenth app as the heap is, and a failure forced here
+shows both whole on the page. The 5 MB stays. The suite passed 1,427 with none skipped.

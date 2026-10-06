@@ -51,8 +51,8 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult> : IDisposable
     /// <summary>File system paths of user-added assemblies .</summary>
     protected readonly List<string> _userAssemblyPaths = [];
 
-    /// <summary>Active <see cref="FileSystemWatcher"/> instances.</summary>
-    protected readonly List<FileSystemWatcher> _watchers = [];
+    /// <summary>The compiler's places among those watching its directories, which <see cref="DirectoryWatches"/> shares.</summary>
+    protected readonly List<IDisposable> _watchers = [];
 
     /// <summary>Serializes <see cref="CompileAndLoad"/> across debounce-timer threads and manual <see cref="Recompile"/>.</summary>
     protected readonly Lock _compileLock = new();

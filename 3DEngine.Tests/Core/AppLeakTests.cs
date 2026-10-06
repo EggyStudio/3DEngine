@@ -23,10 +23,12 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // What a hundred apps left: the process's resident memory and the GC's heap after twenty and
     // after a hundred, in megabytes, and the series a failure is read by on a machine no one here
     // has, the heap after every tenth app where it is collected that often and the threads the
-    // process has after each shutdown.
+    // process has after every tenth shutdown.
     private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, string Heaps, string Threads)
     {
-        public string Series => $"heap after every ten apps (MB): {Heaps}; threads after each app: {Threads}";
+        // A line each, the heap's first, since the test page shows a message's first lines and cuts
+        // each at its width, which a series on one line with the rest ran past.
+        public string Series => $"{Environment.NewLine}the heap after every ten apps in MB, {Heaps}{Environment.NewLine}the threads after every ten apps, {Threads}{Environment.NewLine}";
     }
 
     // Makes and closes an app of the given config a hundred times. The first twenty warm the pools
@@ -38,7 +40,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     {
         double residentAt20 = 0, heapAt20 = 0;
         var heaps = new List<string>();
-        var threads = new List<int>();
+        var threads = new List<string>();
         for (int i = 1; i <= 100; i++)
         {
             var app = new App(config);
@@ -46,9 +48,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             app.BeginFrame();
             app.EndFrame();
             app.Shutdown();
-            using (var process = System.Diagnostics.Process.GetCurrentProcess()) threads.Add(process.Threads.Count);
-
             if (i % 10 != 0) continue;
+            using (var process = System.Diagnostics.Process.GetCurrentProcess()) threads.Add($"{i}: {process.Threads.Count}");
             // Resident memory is read before any collection, since memory a closed app gives back
             // only to a finalizer is held until a full collection comes, which a program that
             // allocates little on the GC's heap may not see for hundreds of apps.
@@ -61,7 +62,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             heaps.Add($"{i}: {heap:0.00}");
             output.WriteLine($"{i,3} apps: heap {heap:0.00} MB");
             if (i == 20) (residentAt20, heapAt20) = (resident, heap);
-            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), string.Join(" ", threads));
+            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), string.Join(", ", threads));
         }
         throw new InvalidOperationException("unreachable");
     }

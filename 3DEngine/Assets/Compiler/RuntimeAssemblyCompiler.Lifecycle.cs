@@ -8,23 +8,10 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
     {
         var result = CompileAndLoad();
 
+        // Each directory is watched once a process, shared with the other compilers watching it.
         foreach (var dir in _scriptDirectories)
-        {
             foreach (var ext in WatchedExtensions)
-            {
-                var watcher = new FileSystemWatcher(dir, ext)
-                {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime,
-                    IncludeSubdirectories = true,
-                    EnableRaisingEvents = true,
-                };
-                watcher.Changed += OnFileChanged;
-                watcher.Created += OnFileChanged;
-                watcher.Deleted += OnFileChanged;
-                watcher.Renamed += OnFileRenamed;
-                _watchers.Add(watcher);
-            }
-        }
+                _watchers.Add(DirectoryWatches.Start(dir, ext, OnFileChanged, OnFileRenamed));
 
         return result;
     }
@@ -44,12 +31,7 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
     public void Dispose()
     {
         _debounceTimer?.Dispose();
-        foreach (var w in _watchers)
-        {
-            w.EnableRaisingEvents = false;
-            w.Dispose();
-        }
-
+        foreach (var w in _watchers) w.Dispose();
         _watchers.Clear();
         UnloadCurrent();
         OnDispose();
