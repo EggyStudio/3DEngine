@@ -49,7 +49,7 @@ Any program built on the engine takes the same flags (`--serve`, `--headless`, `
 |---|---|
 | `app.quit` | closes the app, as its close button does (`./e3d stop` does this and waits) |
 | `frames.wait <n>` | answers once n more frames have run |
-| `shot <path>` | writes the next frame to a PNG and answers once it is written (`./e3d shot <path>`) |
+| `shot <path>` | writes the frame being drawn to a PNG and answers once it is written, with the frame's number (`./e3d shot <path>`) |
 | `log.tail <n>` | the last n lines logged (`./e3d logs -n <n>`) |
 | `entity.count`, `entity.list <limit>`, `entity.get <id>` | entities with their names, parents and component types, and one entity's fields |
 | `entity.find <name>` | the id of the first entity with that name |

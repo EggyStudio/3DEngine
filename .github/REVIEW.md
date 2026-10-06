@@ -10,16 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c890b169`. Shadowed lights past the slots there are room for are ranked by the light
-that reaches the eye, a light's brightness over one plus the square of its reach's distance, with
-the reach for ties, and the flat API's remarks say what is so (`545189cc`). `coverage.py --check`
-holds the comparison page's two tables and two counts to its list, in the build workflow beside the
-examples table's check, and a page broken on purpose failed it (`ab1a218e`). Five commits of moves
-alone split the offscreen render tests, the model renderer and the physics tests and give fifteen
-public types files of their own names, so N 1.2's list stands at 101 from 116 and N 1.3's at 2 from
-6, and two probe tests stop sleeping for a worker the GPU filter replaced, so N 3.3 leaves out 9
-from 10 (`a96ed25a` to `f8b6a65b`). N 1.5's three rows of AGENTS.md wait for the owner's word in the
-working session, asked for there. Item 5 is settled. No verdict is open.
+Reviewed up to `134d4f3d`. A game's own text box places the input method's window beside it with
+`SetTextInputArea`, as an ImGui field does, read back from SDL on `text_input_box` run hidden
+(`134d4f3d`), RENDERING.md's order of work names what is built (`fd9af099`), and the README's status
+points at the comparison page for the functions left out (`16bd04ef`). BevyCSharp's kinematic batch
+found two things in Bepu that this engine has the same code for. A convex manifold's friction is
+shared among its contacts, so a box on four corners slid a quarter as rough, which `ed0f3aa6` mended
+here by scaling the coefficient by their count. And a body that has rested long enough to be a
+candidate for sleep is put to sleep at the next step's start though `SetLinearVelocity` or
+`ApplyImpulse` gave it speed, since `Awake = true` on an awake body clears nothing, which item 6
+checks here. No verdict is open.
+
+Before them, shadowed lights past the slots there are room for are ranked by the light that reaches
+the eye, a light's brightness over one plus the square of its reach's distance, with the reach for
+ties, and the flat API's remarks say what is so (`545189cc`). `coverage.py --check` holds the
+comparison page's two tables and two counts to its list, in the build workflow beside the examples
+table's check, and a page broken on purpose failed it (`ab1a218e`). Five commits of moves alone
+split the offscreen render tests, the model renderer and the physics tests and give fifteen public
+types files of their own names, so N 1.2's list stands at 101 from 116 and N 1.3's at 2 from 6, and
+two probe tests stop sleeping for a worker the GPU filter replaced, so N 3.3 leaves out 9 from 10
+(`a96ed25a` to `f8b6a65b`). N 1.5's three rows of AGENTS.md wait for the owner's word in the working
+session, asked for there. No verdict was open.
 
 Before them, the environment map is filtered on the GPU by the probe's stages, from a cube that
 weighs each direction by its solid angle, a 4096 map in 10 ms where it took 917, with a test holding
@@ -33,14 +44,6 @@ declared apart are laid out and bound as such (`b0386c1e`), and STYLE.md's check
 tree, with a nullable warning that reached `main` under an incremental build mended (`2b39ddd2`),
 and a probe's capture draws the frame's particles after its meshes, so a fire glows in a room's
 metal (`d46c829a`). No verdict was open.
-
-Before them, a reflection probe's capture is filtered on the GPU in the frame that draws its sixth
-face, with nothing read back, and its reference frame is redrawn with the reason measured, the CPU
-filter having overweighted the poles of its equirectangular image, a fault the environment map's
-filter shared (`3f597c01`). `./e3d eval` compiles C# against the running program and runs it between
-frames, four tests and no trim warning (`075c5b3c`). A scene spawn hands back every load it took,
-where `SceneSpawner.Spawn` loaded textures nothing held (`2094e704`), which closes TODO.md's Scenes
-entry. No verdict was open.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -102,6 +105,14 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
+6. **A resting body given speed moves** (SHARED.md). BevyCSharp found a body that has rested long
+   enough to be Bepu's candidate for sleep put to sleep at the start of the next step though
+   `SetVelocity` or `ApplyImpulse` gave it speed, since Bepu decides sleep from the step before and
+   `Awake = true` on an awake body clears nothing. `PhysicsWorld.Bodies.cs` sets `Awake` the same
+   way, so a test lets a crate rest past the steps the sleep threshold asks, gives it 3 a second by
+   each call, and reads it moving in the next step. Where it sleeps instead, the body's candidacy is
+   cleared where its velocity is set, its `Activity`'s candidate flag and count of steps under the
+   threshold, and the test holds it.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -156,12 +167,24 @@ None open.
 
 ## Replies
 
-**(d), the input method's window beside a game's own text box.** `SetTextInputArea(area, cursor)`
-sets the window's text input area, as `SdlImGuiIme` does for an ImGui field, an empty area clearing
-it, so a language composed from several keys shows its candidates beside the box a program reads
-`GetCharPressed` into. On `text_input_box` run hidden, `./e3d eval` set it and read SDL's area back
-as 40, 180, 225 and 50 with the caret at 12, and 0 after it was cleared, and a test with no window
-holds what was set. The typed text section of the text guide has a paragraph on it, the cheatsheet
-its line and TODO.md's Input paragraph the call where it said a game's text had no place to give
-one. The suite: 1,346 passed, 0 failed, 1 skipped. Item 5, the 216 pictures against raylib's own
-programs, is next.
+**Now 5, the pictures against raylib's own programs, the measure and its first module.**
+`build/raylib-bench/compare.py <group or example>...` builds raylib's example from the checkout
+`examples-table.py` reads, against raylib as `run.sh` builds it with its SDL3 backend, with
+`PLATFORM_DESKTOP` defined so a shader example loads its GLSL 330 shaders, and with `shim.c` linked
+around `EndDrawing` by the linker's `--wrap`: at the frame named, it draws the batch, takes raylib's
+own screenshot and ends. This engine's picture is `capture-example.sh`'s, as the README's is taken,
+and `shot` answers with the number of the frame it captured, the time counted at the top of the
+frame it is asked in, so raylib's program is run to the same frame. A pair is compared as the
+reference frames are, a pixel apart past 24 of 255 in a channel, and the share goes into
+`3DEngine.Examples/measured.tsv`, which `examples-table.py` writes into an `Apart` column of the
+table. raylib draws with one sample unless a program asks for four, and edges smoothed here stood
+for most of the difference of the first pair, 2.1% apart at four samples and 1.3% at one, so
+`--samples N`, or `E3D_SAMPLES`, sets the samples a window is drawn with where its program asks for
+none, the program's flag or `SetConfigSamples` still deciding, and the measure runs at one.
+
+The 45 shapes examples are measured: 24 within the reference frames' 2%, and 21 past it, from 2.1%
+to 39.2%, `shapes_top_down_lights` the furthest, driven by a click here before its picture where
+raylib's program has no input, then `shapes_outlines_testbed` at 15.7%, `shapes_pie_chart` at 12.9%
+and `shapes_digital_clock` at 11.2%. Text drawn in ImGui's font where raylib draws its own, which
+the comparison page keeps, is part of every share. Each of the 21 is taken down next, the largest
+first, to a fault mended or a line of the page. The suite: 1,346 passed, 0 failed, 1 skipped.

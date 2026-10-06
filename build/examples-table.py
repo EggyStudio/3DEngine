@@ -23,6 +23,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TABLE = os.path.join(ROOT, ".github", "EXAMPLES.md")
 TRIAGE = os.path.join(ROOT, "3DEngine.Examples", "triage.tsv")
+MEASURED = os.path.join(ROOT, "3DEngine.Examples", "measured.tsv")
 EXAMPLES = os.path.join(ROOT, "3DEngine.Examples")
 CAPTURES = os.path.join(ROOT, ".github", "assets", "examples")
 
@@ -89,6 +90,18 @@ def read_triage():
                 sys.exit(f"triage.tsv:{number}: {parts[0]} is {parts[1]} and says nothing about why")
             triage[parts[0]] = (parts[1], parts[2] if len(parts) > 2 else "")
     return triage
+
+
+def read_measured():
+    """Each measured example's share of pixels apart from raylib's frame, by name, as build/raylib-bench/compare.py wrote it."""
+    measured = {}
+    if os.path.exists(MEASURED):
+        with open(MEASURED, encoding="utf-8") as lines:
+            for line in lines:
+                if line.strip() and not line.startswith("#"):
+                    name, share = line.rstrip("\n").split("\t")[:2]
+                    measured[name] = share
+    return measured
 
 
 def written_examples():
@@ -161,6 +174,7 @@ def triage_line(source, example, api, have):
 
 
 def build(commit, examples, triage, written):
+    measured = read_measured()
     names = {example["name"] for example in examples}
     unknown = sorted(set(triage) - names)
     if unknown:
@@ -206,7 +220,11 @@ def build(commit, examples, triage, written):
         "`written in part` names what it leaves out. One that `can be written` calls only what the "
         "flat API carries and waits for its turn. One that is `missing` names the functions it "
         "calls that the flat API lacks, and one that `does not apply` says why it is not a thing "
-        "a program here does.")
+        "a program here does. `Apart` is the share of a written example's pixels apart from "
+        "raylib's own program built from its source and drawn to the same frame, a pixel apart "
+        "where a channel differs by more than 24 of 255, as the reference frames are compared, "
+        "which `build/raylib-bench/compare.py` measures with each program at one sample a pixel "
+        "unless it asks for more.")
     out.append("")
     out.append(
         f"**{total['written']} written, {total['part']} written in part, {total['can']} can be written, "
@@ -222,7 +240,7 @@ def build(commit, examples, triage, written):
     out.append(f"| **All** | **{total['written']}** | **{total['part']}** | **{total['can']}** | **{total['missing']}** | **{total['n/a']}** |")
 
     for group in groups:
-        out += ["", f"## {GROUPS.get(group, group)}", "", "| Example | raylib | Here | State |", "|---|---|---|---|"]
+        out += ["", f"## {GROUPS.get(group, group)}", "", "| Example | raylib | Here | Apart | State |", "|---|---|---|---:|---|"]
         for example in (e for e in examples if e["group"] == group):
             name = example["name"]
             source = f"https://github.com/raysan5/raylib/blob/{commit}/{example['path']}"
@@ -238,7 +256,9 @@ def build(commit, examples, triage, written):
                 theirs = ""
             if example["note"]:
                 state += f", {example['note']}"
-            out.append(f"| [`{name}`]({source}) | {theirs} | {here} | {state} |")
+            share = measured.get(name, "") if example["state"] in ("written", "part") else ""
+            apart = {"size": "of two sizes", "none": "no frame"}.get(share, f"{share}%" if share else "")
+            out.append(f"| [`{name}`]({source}) | {theirs} | {here} | {apart} | {state} |")
 
     out += ["", "## This engine's own", ""]
     out.append(

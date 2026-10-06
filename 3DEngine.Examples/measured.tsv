@@ -1,0 +1,49 @@
+# Each written example's share of pixels apart from raylib's own program at the same frame, written by
+# build/raylib-bench/compare.py and read by build/examples-table.py. A name, then the share in percent, or a
+# word where no share was measured: size (the two pictures are of two sizes) or none (raylib's program
+# drew no such frame).
+shapes_ball_physics	2.4
+shapes_basic_shapes	1.3
+shapes_bouncing_ball	1.6
+shapes_bullet_hell	2.1
+shapes_circle_sector_drawing	3.7
+shapes_clock_of_clocks	1.3
+shapes_collision_area	0.7
+shapes_colors_palette	0.6
+shapes_dashed_line	0.9
+shapes_digital_clock	11.2
+shapes_double_pendulum	4.0
+shapes_drag_puzzle	1.3
+shapes_easings_ball	0.0
+shapes_easings_box	0.7
+shapes_easings_rectangles	0.0
+shapes_easings_testbed	3.7
+shapes_ellipse_collision	1.5
+shapes_following_eyes	0.2
+shapes_hilbert_curve	4.7
+shapes_kaleidoscope	1.1
+shapes_lines_bezier	1.1
+shapes_lines_drawing	0.4
+shapes_logo_raylib	0.7
+shapes_logo_raylib_anim	0.0
+shapes_math_angle_rotation	1.0
+shapes_math_sine_cosine	3.1
+shapes_mouse_trail	0.7
+shapes_outlines_testbed	15.7
+shapes_outlines_thickness	4.4
+shapes_penrose_tile	1.3
+shapes_pie_chart	12.9
+shapes_polygon_lines	3.5
+shapes_rectangle_advanced	1.0
+shapes_rectangle_scaling	0.9
+shapes_recursive_tree	4.1
+shapes_ring_drawing	4.8
+shapes_rlgl_color_wheel	3.0
+shapes_rlgl_triangle	2.7
+shapes_rounded_rectangle_drawing	4.3
+shapes_simple_particles	1.8
+shapes_splines_drawing	3.0
+shapes_starfield_effect	3.8
+shapes_top_down_lights	39.2
+shapes_triangle_strip	1.2
+shapes_vector_angle	2.0

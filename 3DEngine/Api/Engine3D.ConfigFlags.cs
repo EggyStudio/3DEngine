@@ -79,7 +79,7 @@ public static partial class Engine3D
             HighPixelDensity = flags.HasFlag(ConfigFlags.WindowHighdpi),
             Transparent = flags.HasFlag(ConfigFlags.WindowTransparent),
             Unfocused = flags.HasFlag(ConfigFlags.WindowUnfocused),
-            Samples = _configSamples ?? (flags.HasFlag(ConfigFlags.Msaa4xHint) ? 4 : config.Samples),
+            Samples = _configSamples ?? (flags.HasFlag(ConfigFlags.Msaa4xHint) ? 4 : RunMode.Samples(config.Samples)),
             Vsync = flags.HasFlag(ConfigFlags.VsyncHint),
             Fullscreen = flags.HasFlag(ConfigFlags.FullscreenMode),
             Undecorated = flags.HasFlag(ConfigFlags.WindowUndecorated),

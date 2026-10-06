@@ -130,7 +130,9 @@ case "$out" in
   *.webp) shot="${out%.webp}.png" ;;
   *) shot="$out" ;;
 esac
-./e3d shot "$shot" --quiet --timeout 120
+answer=$(./e3d shot "$shot" --timeout 120)
+# The number of the frame captured, for build/raylib-bench/compare.py to run raylib's program to.
+[ -z "${CAPTURE_FRAME_FILE:-}" ] || echo "${answer##* }" > "$CAPTURE_FRAME_FILE"
 ./e3d stop --quiet
 wait
 

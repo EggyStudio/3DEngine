@@ -28,6 +28,7 @@ a program given by its path, serving, and returns once it is ready:
 | `--headless` | `E3D_HEADLESS=1` | Has no window and no renderer, frames paced at 60 a second |
 | `--frames N` | `E3D_FRAMES=N` | Closes after N frames |
 | `--frame-time S` | `E3D_FRAME_TIME=S` | Advances time by S seconds a frame and reads no clock, so a capture of something moving is the same on every machine |
+| `--samples N` | `E3D_SAMPLES=N` | Draws a window with N samples a pixel where its program asks for none, 1 drawing as raylib does |
 
 A hidden or offscreen run draws everything a visible one does, so captures show the game as a
 player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close
@@ -85,7 +86,7 @@ through the engine itself, so they reach a hidden or offscreen program that no d
 ./e3d command input.drag Left 200 0 10              # drag right with the left button
 ./e3d command input.text "Player One"               # type into the game and ImGui
 ./e3d command input.button 0 South 30               # press a gamepad's south button
-./e3d shot after.png                                # the next frame, as a PNG
+./e3d shot after.png                                # the frame being drawn, as a PNG, with its number
 ```
 
 `input.key` and `input.click` answer once the input is released, so a `shot` after them sees what
