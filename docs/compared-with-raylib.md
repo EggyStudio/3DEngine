@@ -57,7 +57,7 @@ machine, with the command that measures it again.
 - **Younger and less proven.** raylib has more than a decade of users and ports behind it, and this engine
   is early, used for small games, with its own list of what is missing in
   [TODO.md](../.github/TODO.md).
-- **Not all of raylib.** 506 of the 619 functions in `raylib.h` are carried, 82 percent, counted
+- **Not all of raylib.** 514 of the 619 functions in `raylib.h` are carried, 83 percent, counted
   below. The rest have their counterparts in C#, file paths, directories, hashes, compression,
   memory and strings, each beside its counterpart below, and a few are left out, each with its
   reason.
@@ -71,6 +71,7 @@ here, with the reason.
 | Call | raylib | 3DEngine | Why |
 |---|---|---|---|
 | `GetGamepadAxisMovement` on a trigger | -1 at rest to 1 | 0 at rest to 1 | SDL3 reads a trigger from 0, and a trigger that rests at 0 needs no shifting to be read |
+| `AutomationEvent` and the file `ExportAutomationEventList` writes | Keys, mouse buttons and gamepad buttons by raylib's codes, an event's type a number raylib keeps to itself, and its four parameters an array | Keys by `Key`, which SDL's scancodes number, buttons by `MouseButton` and `GamepadButton`, the type an `AutomationEventType` numbered as raylib's, and the parameters `Param0` to `Param3`, so a file of raylib's plays its frames and types here and not its keys | A recorded key is the `Key` a program reads, and a list is a class, so the list `SetAutomationEventList` is given is the one recording adds to |
 | A render texture drawn with `DrawTextureRec` or `DrawTexturePro` | Stored bottom up, as OpenGL draws, and drawn with its height negative to turn it upright | Stored top down, as Vulkan draws and an image is read, and drawn as it is | A target read back with `LoadImageFromTexture` is the right way up, as any texture is |
 | `MouseButton.X1` and `X2` | `MOUSE_BUTTON_SIDE` and `MOUSE_BUTTON_EXTRA`, beside forward and back | Named as SDL3 names them, with no forward and back | SDL3, raylib's backend on the desktop as well, reports two extra buttons |
 | `GetFontDefault` | raylib's own pixel font | ImGui's, ProggyClean | One atlas serves ImGui and the flat API's text |
@@ -172,7 +173,6 @@ array or a string nothing holds.
 | raylib | Why |
 |---|---|
 | `BeginVrStereoMode`, `EndVrStereoMode`, `LoadVrStereoConfig`, `UnloadVrStereoConfig` | VR is not in the engine's plan |
-| `LoadAutomationEventList`, `UnloadAutomationEventList`, `ExportAutomationEventList`, `SetAutomationEventList`, `SetAutomationEventBaseFrame`, `StartAutomationEventRecording`, `StopAutomationEventRecording`, `PlayAutomationEvent` | `./e3d`'s `input.*` commands drive a running program through the engine's own input, from a script, which a recording of events stands for in raylib ([Driving a program with e3d](driving-with-e3d.md)) |
 | `SetLoadFileDataCallback`, `SetSaveFileDataCallback`, `SetLoadFileTextCallback`, `SetSaveFileTextCallback` | The flat API reads files beside the program or in the working directory, and the asset server, which loads a level's models, textures and scenes, reads through the sources a program gives it with `AddSource`, an archive of its own among them |
 | `ExportDataAsCode`, `ExportImageAsCode`, `ExportFontAsCode`, `ExportMeshAsCode`, `ExportWaveAsCode` | They write a C header for a C program to compile its data into, where a .NET program embeds a file as a resource of its assembly or ships it beside itself |
 | `SetShapesTexture`, `GetShapesTexture`, `GetShapesTextureRectangle` | Shapes are drawn untextured, by the immediate pass's own shader, so there is no texture they are cut from |
@@ -198,7 +198,7 @@ sixtieth of a second, then halving the gap to within about 3 percent.
 |---|---|---|
 | Sprites, `textures_bunnymark` (32 by 32, one texture, each a `DrawTexture`) | 141,882 in each of three runs | 212,822 to 243,226 over three |
 | Cubes turning each frame (`DrawModelEx` each in raylib, mesh entities in `models_stress`) | 6,403 in each of two runs | 294,024 to 314,537 over two |
-| Functions of `raylib.h` carried | 619 | 506 (82 percent) |
+| Functions of `raylib.h` carried | 619 | 514 (83 percent) |
 
 raylib's counts repeat exactly from run to run, and this engine's move by about a tenth, with
 .NET's compiler and garbage collector in the frame. The cubes are not like for like. raylib's default shader draws them unlit with no shadow, one draw

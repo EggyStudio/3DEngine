@@ -46,6 +46,9 @@ public static partial class Engine3D
             throw new InvalidOperationException("EndDrawing was called without BeginDrawing.");
 
         var drawing = Stopwatch.GetElapsedTime(_drawingStart);
+        // The frame's input is recorded before the frame ends and clears its presses, as raylib
+        // records at the start of its EndDrawing.
+        RecordAutomationFrame();
         GetApp().EndFrame();
         ForgetTargetWrites();
         // The draw list is cleared as the frame is rendered, and what a program draws before the

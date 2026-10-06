@@ -121,6 +121,10 @@ public sealed class GamepadState
     // raylib keeps one last button for all of them.
     private static long _pressOrder;
 
+    // The held and released buttons as they stand, which automation recording reads.
+    internal IReadOnlyCollection<GamepadButton> ButtonsDown => _down;
+    internal IReadOnlyCollection<GamepadButton> ButtonsReleased => _released;
+
     internal void SetButton(GamepadButton button, bool isDown)
     {
         if (isDown)

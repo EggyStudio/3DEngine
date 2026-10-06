@@ -22,6 +22,7 @@ core_3d_camera_free	0.6
 core_3d_camera_mode	0.7
 core_3d_camera_split_screen	8.8
 core_3d_picking	1.3
+core_automation_events	1.0
 core_basic_screen_manager	2.3
 core_basic_window	0.6
 core_clipboard_text	12.2

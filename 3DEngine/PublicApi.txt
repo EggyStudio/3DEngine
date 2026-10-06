@@ -167,6 +167,50 @@ readonly struct Engine.AudioVoiceParams : IEquatable<AudioVoiceParams>
   static AudioVoiceParams Default { get; }
   static bool op_Equality(AudioVoiceParams left, AudioVoiceParams right)
   static bool op_Inequality(AudioVoiceParams left, AudioVoiceParams right)
+readonly struct Engine.AutomationEvent : IEquatable<AutomationEvent>
+  AutomationEvent(int Frame, AutomationEventType Type, int Param0 = 0, int Param1 = 0, int Param2 = 0, int Param3 = 0)
+  AutomationEventType Type { get; init; }
+  bool Equals(AutomationEvent other)
+  int Frame { get; init; }
+  int Param0 { get; init; }
+  int Param1 { get; init; }
+  int Param2 { get; init; }
+  int Param3 { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(AutomationEvent left, AutomationEvent right)
+  static bool op_Inequality(AutomationEvent left, AutomationEvent right)
+  void Deconstruct(out int Frame, out AutomationEventType Type, out int Param0, out int Param1, out int Param2, out int Param3)
+sealed class Engine.AutomationEventList
+  AutomationEvent[] Events { get; }
+  int Capacity { get; }
+  int Count { get; }
+enum Engine.AutomationEventType : int
+  ActionSetTargetFps = 23
+  ActionTakeScreenshot = 22
+  InputGamepadAxisMotion = 13
+  InputGamepadButtonDown = 12
+  InputGamepadButtonUp = 11
+  InputGamepadConnect = 9
+  InputGamepadDisconnect = 10
+  InputGesture = 17
+  InputKeyDown = 2
+  InputKeyPressed = 3
+  InputKeyReleased = 4
+  InputKeyUp = 1
+  InputMouseButtonDown = 6
+  InputMouseButtonUp = 5
+  InputMousePosition = 7
+  InputMouseWheelMotion = 8
+  InputTouchDown = 15
+  InputTouchPosition = 16
+  InputTouchUp = 14
+  None = 0
+  WindowClose = 18
+  WindowMaximize = 19
+  WindowMinimize = 20
+  WindowResize = 21
 sealed class Engine.BehaviorAttribute : Attribute
   BehaviorAttribute()
 static class Engine.BehaviorConditions
@@ -682,6 +726,7 @@ static class Engine.Engine3D
   const int AnimationFps = 60
   static App GetApp()
   static AudioStream LoadAudioStream(int sampleRate, int sampleSize, int channels)
+  static AutomationEventList LoadAutomationEventList(string? fileName)
   static BoundingBox GetMeshBoundingBox(ModelMesh mesh)
   static BoundingBox GetModelBoundingBox(Model model)
   static Color ColorAlpha(Color color, float alpha)
@@ -889,6 +934,7 @@ static class Engine.Engine3D
   static bool CheckCollisionRecs(Rectangle a, Rectangle b)
   static bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2)
   static bool ColorIsEqual(Color col1, Color col2)
+  static bool ExportAutomationEventList(AutomationEventList list, string fileName)
   static bool ExportImage(Image image, string fileName)
   static bool ExportMesh(ModelMesh mesh, string fileName)
   static bool ExportWave(Wave wave, string fileName)
@@ -1237,6 +1283,7 @@ static class Engine.Engine3D
   static void PauseMusicStream(Music music)
   static void PauseSound(Sound sound)
   static void PlayAudioStream(AudioStream stream)
+  static void PlayAutomationEvent(AutomationEvent automationEvent)
   static void PlayMusicStream(Music music)
   static void PlaySound(Sound sound)
   static void PollInputEvents()
@@ -1256,6 +1303,8 @@ static class Engine.Engine3D
   static void SetAudioStreamPitch(AudioStream stream, float pitch)
   static void SetAudioStreamVolume(AudioStream stream, float volume)
   static void SetAutoExposure(bool enabled, float min = 0.25f, float max = 4f, float speed = 2f)
+  static void SetAutomationEventBaseFrame(int frame)
+  static void SetAutomationEventList(AutomationEventList list)
   static void SetBloom(float intensity, float threshold = 1f)
   static void SetClipboardText(string text)
   static void SetColorGrading(float contrast, float saturation, Color tint)
@@ -1349,7 +1398,9 @@ static class Engine.Engine3D
   static void SetWindowState(ConfigFlags flags)
   static void SetWindowTitle(string title)
   static void ShowCursor()
+  static void StartAutomationEventRecording()
   static void StopAudioStream(AudioStream stream)
+  static void StopAutomationEventRecording()
   static void StopMusicStream(Music music)
   static void StopSound(Sound sound)
   static void SwapScreenBuffer()
@@ -1358,6 +1409,7 @@ static class Engine.Engine3D
   static void ToggleFullscreen()
   static void TraceLog(LogLevel level, string text)
   static void UnloadAudioStream(AudioStream stream)
+  static void UnloadAutomationEventList(AutomationEventList list)
   static void UnloadDroppedFiles()
   static void UnloadEnvironmentMap()
   static void UnloadFont(Font font)

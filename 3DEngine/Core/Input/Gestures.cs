@@ -59,7 +59,7 @@ public sealed class Gestures
     internal Gesture Enabled { get; set; } = (Gesture)0x3FF;
 
     /// <summary>The gesture this frame, <see cref="Gesture.None"/> when there is none or it is not enabled.</summary>
-    public Gesture Current { get; private set; }
+    public Gesture Current { get; internal set; }
 
     /// <summary>How long the current hold has lasted, in seconds.</summary>
     internal float HoldSeconds { get; private set; }

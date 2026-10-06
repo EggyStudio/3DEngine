@@ -10,7 +10,18 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0f26acf3`. The 36 shaders examples are 25 within 2%. `shaders_mesh_instancing` and
+Reviewed up to `9ddd9f02`. The six rounded meshes are par_shapes' as raylib makes them, every corner
+matching raylib's within a hundred thousandth and every 37th held against a C program's print, the
+sphere's poles on z and the hemisphere open below as raylib's are (`610d6b74`). Sound, music and
+stream pans take raylib's range of -1 to 1 with the middle at 0 where they took 0 to 1, checked here
+against the pinned `raylib.h`, since raylib's own range changed from 0 to 1 after its 5.5;
+`audio_raw_stream` is a port of raylib's program, and ten of the eleven audio programs are measured,
+five within 2%, `audio_module_playing` waiting on the owner's word on a decoder (`47351deb`). The
+sieve's coordinate and the bloom example's grid end as lines of the page, each a driver's rounding,
+and every example written has its number in the table (`9ddd9f02`). With that, the seven modules are
+measured once over, and the font is the largest part of nearly every share left. No verdict is open.
+
+Before them, the 36 shaders examples were measured, 25 within 2%. `shaders_mesh_instancing` and
 `shaders_postprocessing` were programs of this engine's own under raylib's names and are raylib's,
 0.2% and 3.1% apart from 99.8% and 72.2%, the second through raylib's twelve post shaders written in
 Slang, and the engine's own keep names of their own, which the shaders guide quotes. Two faults more
@@ -19,8 +30,7 @@ raylib lays an image's first row along a face's lower edge, held against a C pro
 mesh under a node scaled more one way than another had its normals turned by the node's matrix
 rather than its inverse turned over. raylib leaving such normals one over the scale long, so a cel
 outline is thicker there, is a line of the page, and the `materials_and_shader` reference is drawn
-again for the cube's texture (`0f26acf3`). The meshes par_shapes makes for raylib are the next
-batch. No verdict is open.
+again for the cube's texture (`0f26acf3`).
 
 Before them, `MeasureTextEx` counted a spacing after every character where raylib counts one fewer,
 so centered text sat half a spacing left, and measures as raylib's does, `text_font_sdf` and
@@ -34,19 +44,6 @@ none, where raylib's is white, so a texture on it showed at six tenths, and `Dra
 cross where raylib draws a short line along z, both mended with tests. `models_loading` is raylib's
 castle in place of a torus of this engine's own, and the 31 models examples are 24 within 2% from
 12, `models_basic_voxel` from 65.9% among them (`5b03dfe1`). No verdict is open.
-
-Before them, a line at one sample was drawn by OpenGL's diamond rule, through the line rasterization
-extension's Bresenham mode where the device has it, and every untextured batch moves a 256th of a
-pixel down to break a tie between rows as raylib's GL does, since GL counts rows up the screen and
-Vulkan down, a test holding both ties and the reference frames unchanged; the 45 core examples are
-25 within 2% (`2b3c23a7`). A shape drawn in 3D leaves out its back faces until a program switches
-rlgl's culling, as decided, 2D shapes and text drawing both faces and a model the faces its material
-says, with a test, so `core_3d_camera_split_screen` is 8.8% apart from 99.4%, the rest a render
-texture's alpha that raylib blends by the color's factors, a line of the page with its reason
-(`9727caac`). The 33 textures examples are 26 within 2%, `textures_image_drawing` and
-`textures_bunnymark` being raylib's own programs from here on, the benchmark kept behind `--stress`,
-and the shim turns `UpdateCamera`'s orbit by the frame's time, which the linker's wrap does not
-reach inside raylib's own file (`748c5abe`). No verdict is open.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -162,42 +159,26 @@ None open.
 
 ## Replies
 
-**Now 5, the rounded meshes made as raylib makes them.** `GenMeshSphere`, `GenMeshHemiSphere`,
-`GenMeshCylinder`, `GenMeshCone`, `GenMeshTorus` and `GenMeshKnot` were the engine's own lathes and
-tubes, laid out otherwise than the par_shapes surfaces raylib makes them from, so a texture wrapped
-them otherwise. `ParShape` carries as much of par_shapes as raylib uses: a surface over a grid with
-the grid's texture coordinate at each point, normals averaged across seams by par_shapes' weld,
-its scale, turn, move and merge, and its disk, whose turn about an axis of no length raylib's caps
-depend on. Every corner of the six matches the meshes raylib makes, position, normal and texture
-coordinate, within a hundred thousandth, and a test holds every 37th of them against a C program's
-print. The sphere's poles are on z as raylib's are, the hemisphere is open below as raylib's is,
-and a torus' or a knot's `radSeg` counts the pieces around its tube, as raylib's does, which
-`shaders_model`'s knot now asks as such. `shaders_simple_mask` is 0.9% apart from 3.0%,
-`models_rotating_cube` 0.2% from 1.4% and `shaders_fog_rendering` 1.0% from 1.8%. The suite: 1,389
-passed, 0 failed, 1 skipped, and the render and model tests pass on lavapipe under the validation
-layer. Audio is the module left.
+**Now 2, automation events carried.** With every row that can be written written, the five missing
+hold one example each, and the eight automation functions were the largest gap that needed no
+decision. `LoadAutomationEventList`, `UnloadAutomationEventList`, `ExportAutomationEventList`,
+`SetAutomationEventList`, `SetAutomationEventBaseFrame`, `StartAutomationEventRecording`,
+`StopAutomationEventRecording` and `PlayAutomationEvent` do what raylib's do. Each frame's input is
+recorded as `EndDrawing` begins, a held key an event in every frame and another when it comes up,
+the pointer, wheel, fingers and a pad's axes when they move, into raylib's text format, and playing
+an event sets the input it records for the frame it is played in, ImGui's included. Keys are written
+by the engine's own codes, which the comparison page says, so a file of raylib's plays its frames
+and types here and not its keys. `core_automation_events` is written, 1.0% apart from raylib's
+picture, and a run recorded with S and played with A through `./e3d` in a hidden window moves the
+player as recorded. 514 of 619 functions are carried, and the suite: 1,396 passed, 0 failed, 1
+skipped.
 
-**Now 5, audio measured.** Ten of raylib's eleven audio programs are written, `audio_module_playing`
-waiting on a decoder for XM and MOD, and five are within 2% of raylib's picture. The fault found was
-that `SetSoundPan`, `SetMusicPan` and `SetAudioStreamPan` took 0 to 1 with the middle at 0.5, where
-raylib's take -1 to 1 with the middle at 0, so `audio_music_stream` and `audio_sound_positioning`,
-which pass raylib's values, played raylib's middle and everything left of it at the far left, and
-the right half spread across both sides. They take raylib's range now, held at either side as raylib
-holds it, and the law between the sides was already the equal power raylib's cubic comes close to.
-`audio_raw_stream` was a program of this engine's own under raylib's name and is now a port of
-raylib's, its buffer filled whenever `IsAudioStreamProcessed` says so, with the arrows for frequency
-and pan. What is left apart is the font, raygui in `audio_amp_envelope` (14.3%), and in
-`audio_raw_stream` (6.0%) and `audio_mixed_processor` (2.4%) a picture drawn from when the device
-last asked for samples, which is the clock on both sides and moves from run to run. The suite: 1,390
-passed, 0 failed, 1 skipped.
-
-**Now 5, the sieve and the bloom grid explained.** Each ends as a line of the comparison page, since
-both come from how a driver rounds. `shaders_eratosthenes_sieve` (4.3%) differs only below its
-quad's diagonal, on 44 of the 50 rows of pixels where its coordinate times 1000 is exactly whole,
-row 22's being 950. raylib's floors it to 949, because OpenGL's interpolation comes out a hair under
-in that triangle, where Vulkan's here lands on it in both. Turning the quad's triangles so each
-starts from the vertex OpenGL's would start from changed nothing, so it is not the provoking vertex.
-`shaders_lights_bloom` (3.2%) draws `DrawGrid` in its floor's plane, and raylib's lines across the
-screen are dashed where OpenGL's depth for a line comes out behind the floor's, where ours draw
-whole at the same one sample and the same `LessOrEqual`. The rest of it is the font. Every example
-written now has its number in the table.
+**A question on `LoadImageFromScreen`**, which `core_screen_recording` needs beside a GIF writer of
+its own, as raylib's example includes msf_gif. A call made in the loop comes after the last frame
+was presented, and a presented swapchain image cannot be read, so the frame has to be copied before
+it is presented. Keeping a copy every frame makes every program pay for what few read, which
+DESIGN.md §5's "every query would pay for what few keep" argues against, and keeping copies from the
+first call on leaves the first call with nothing to return. I can take either, or leave it not
+carried as it is. The remaining three are VR stereo, cubemap textures for `models_skybox_rendering`,
+and an XM and MOD decoder, which DESIGN.md §8 would have to allow as a dependency or the engine
+write.

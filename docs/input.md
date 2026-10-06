@@ -206,12 +206,37 @@ if (ctx.Input.KeyPressed(Key.Space)) Spawn(ctx, 100);
 tested without a person at it. The `core_input_gamepad` example is captured that way, with a pad
 that is not there. The [Driving a program with e3d](driving-with-e3d.md) page covers it.
 
+## Recording and playing input
+
+A program records its own input with raylib's automation events, a demo played back or a bug
+written down as the player made it. Each frame's input is recorded as `EndDrawing` begins, a key
+held being an event in every frame it is held and another when it comes up, and the pointer, the
+wheel, a finger and a gamepad's axes an event when they move:
+
+```csharp
+AutomationEventList events = LoadAutomationEventList(null);    // empty, to record into
+SetAutomationEventList(events);
+SetAutomationEventBaseFrame(0);
+StartAutomationEventRecording();
+// ... frames played
+StopAutomationEventRecording();
+ExportAutomationEventList(events, "run.rae");
+```
+
+`PlayAutomationEvent` sets what an event records as if it had happened in this frame, so a program
+plays a frame's events before it reads its input, each event's `Frame` saying which frame it
+belongs to. A key played down stays down until its event of coming up is played, as a held key
+does. The `core_automation_events` example records a run of its platformer with S and plays it
+back with A. Keys are written by the engine's own codes, the `Key` a program reads, so a file
+recorded by raylib's own program plays its frames and types here but not its keys.
+
 ## See also
 
 - Examples: [`core_input_gamepad`](../3DEngine.Examples/Core/CoreInputGamepad.cs),
   [`core_input_gestures`](../3DEngine.Examples/Core/CoreInputGestures.cs),
   [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs),
   [`core_drop_files`](../3DEngine.Examples/Core/CoreDropFiles.cs),
+  [`core_automation_events`](../3DEngine.Examples/Core/CoreAutomationEvents.cs),
   [`text_input_box`](../3DEngine.Examples/Text/TextInputBox.cs)
 - The cheatsheet's [Input](../CHEATSHEET.md#input)
 - Previous: [Audio](audio.md)

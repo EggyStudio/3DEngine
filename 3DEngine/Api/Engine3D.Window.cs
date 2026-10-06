@@ -52,6 +52,7 @@ public static partial class Engine3D
         _app = null;
         ForgetConfigFlags();
         ForgetRlgl();
+        ForgetAutomation();
         MixedProcessors.Clear();
         _ambient = Entity.None;
     }

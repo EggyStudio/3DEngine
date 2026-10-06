@@ -200,6 +200,15 @@ Vector3 GetGamepadAccelerometer(int gamepad);                          // Accele
 int GetGamepadTouchCount(int gamepad);                                 // Fingers on its touchpad
 Vector2 GetGamepadTouchPosition(int gamepad, int index);               // Where one is, 0 to 1 across and down
 void SetGamepadLight(int gamepad, Color color);                        // Color its light bar
+
+AutomationEventList LoadAutomationEventList(string? fileName);         // Events from a file, or an empty list to record into with null
+void UnloadAutomationEventList(AutomationEventList list);              // Let it go, stopping recording into it
+bool ExportAutomationEventList(AutomationEventList list, string fileName); // Write its events in raylib's text format
+void SetAutomationEventList(AutomationEventList list);                 // The list recording adds to
+void SetAutomationEventBaseFrame(int frame);                           // The frame number recording counts on from
+void StartAutomationEventRecording();                                  // Record each frame's input as EndDrawing begins
+void StopAutomationEventRecording();                                   // Stop recording
+void PlayAutomationEvent(AutomationEvent automationEvent);             // Set the input it records as if it happened now
 ```
 
 Pads are indexed in the order they connected. Buttons are named by position (`South`, `East`,

@@ -192,6 +192,13 @@ public sealed class Input
     /// <summary>The gamepad at <paramref name="index"/>, or <c>null</c> when fewer are connected.</summary>
     internal GamepadState? Gamepad(int index) => (uint)index < (uint)_gamepads.Count ? _gamepads[index] : null;
 
+    // The held and released sets as they stand, which automation recording reads at the end of a
+    // frame, as raylib's reads its key and button states.
+    internal IReadOnlyCollection<Key> KeysDown => _keysDown;
+    internal IReadOnlyCollection<Key> KeysReleased => _keysReleased;
+    internal IReadOnlyCollection<MouseButton> MouseButtonsDown => _mouseDown;
+    internal IReadOnlyCollection<MouseButton> MouseButtonsReleased => _mouseReleased;
+
     // -- Mutation, internal, for the platform backends alone
 
     /// <summary>
@@ -319,6 +326,13 @@ public sealed class Input
     {
         MouseDeltaX += dx;
         MouseDeltaY += dy;
+    }
+
+    /// <summary>Sets this frame's scroll wheel input, as an automation event played back does.</summary>
+    internal void SetWheel(float x, float y)
+    {
+        WheelX = x;
+        WheelY = y;
     }
 
     /// <summary>Accumulates scroll wheel input for this frame.</summary>
