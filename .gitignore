@@ -28,6 +28,8 @@ msbuild.log
 # The templates as build/pack.sh packs them, with the version written in.
 /build/templates/
 /build/shader-cache/
+# build/pack.sh publishes the engine ReadyToRun for each system into build/readytorun.
+/build/readytorun/
 # What an app launched by `e3d open` writes, so its output can be read after it is gone.
 /build/sessions/
 # What CI and build/play-game.sh capture and log, kept as a run's artifact.

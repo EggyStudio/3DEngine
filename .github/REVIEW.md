@@ -10,14 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6336aba6`. Verdict 26's cause was a loop that never ended, a stream with no device
+Reviewed up to `039bd788`. A render texture takes the window's samples unless `LoadRenderTextureEx`
+is given one, the two passes drawing into a one-sample target through pipelines of its own count,
+with a test and no reference changed, and where no audio device opens the backend goes to SDL's
+dummy driver, warned of once a process, `IsAudioDeviceReady` true there as raylib's is on its null
+device, with a test that names a missing driver, so `audio_spectrum_visualizer` draws the song's
+spectrum with no device, which settles item 6 (`b9ebd0bd`). A directory of scripts is watched once a
+process by `DirectoryWatches`, shared by the compilers that watch it and let go with the last, with
+a test that a second app on the directory adds no watcher, and the leak test's heap and thread
+series are on lines of their own so the page carries them whole, where one line of a hundred counts
+was cut at 240 characters (`039bd788`); Verdict 27 settles when the macOS run of it passes, and
+Verdict 26 when an examples job passes the capture, `56564fe2`'s having failed on it before the mend
+as expected. The suite: 1,427 passed, none skipped.
+
+Before them, Verdict 26's cause was found, a loop that never ended, a stream with no device
 answering `IsAudioStreamProcessed` true for ever, mended with a test on the null backend, and a
 failed capture's error carries the exit code, the script's last line and the example's last three
 lines at a warning or worse (`6336aba6`); the verdict settles when a run's examples job passes the
 capture. The run of `660b3bc6` failed the headless leak test on macOS again, by 6.09 MB against 5
-where `ac774ac9` passed, with its threads constant through the hundred apps, which is Verdict 27.
-The owner decided six things on 2026-10-06, Decisions 9 to 12 and 5.1 packed from `ac774ac9`, and
-items 6 to 9 come of them. The warnings the suite repeated are gone: thirteen tests let go the
+where `ac774ac9` passed, with its threads constant through the hundred apps, which became Verdict
+27. The owner decided six things on 2026-10-06, Decisions 9 to 12 and 5.1 packed from `ac774ac9`,
+and items 6 to 9 come of them. The warnings the suite repeated are gone: thirteen tests let go the
 texture they left, the tests reading Summit's level register stand-ins for its components, a missing
 audio device is warned of once a process, the Linux jobs fetch LunarG's layer of 1.4.363.0, which
 knows `VK_KHR_line_rasterization` and found the ambient occlusion renderer never disposed and a
@@ -45,27 +58,6 @@ counts a repeated line at warning, error or fatal or with no level and leaves th
 nothing repeats, with a test on 2,190 banners and on one repeated error, as the owner asked
 (`ac774ac9`), and AGENTS.md's table names `docs`, `games` and `templates`, N 1.5's list empty, the
 owner having allowed it in the working session (`01f97324`). Items 4's rows and 6 are settled.
-
-Before them, the owner pushed `98f6d8e5`, whose run read: Linux and Windows pass, 1,403 each, and
-macOS passes the leak test, so Verdict 24 is settled, and fails three `StateTests` under N 3.7, a
-script generation's Startup system throwing for a `Time` no bare app has, 18 times, which became
-Verdict 25. Verdict 24's mend: `Shutdown` joins the threads an app's parts start through an
-`AppThreads` resource, naming in the log any not done within two seconds, the console's server
-closes the connections still open as it stops, the asset server's sixteen workers run on the pool
-where each was a long running task's thread never joined, and the headless leak test carries the
-heap after every tenth app and the threads alive after each `Shutdown` in its assertions, so the
-next macOS run says what is left, the runtime's file watcher on `source/` the one thing a headless
-app still leaves (`27f949bf`). Particles can bounce off or end at the window's depth of the scene,
-off unless set, the depth of the shadow casters drawn at half size, measured at 0.02 ms of CPU and
-0.009 ms of GPU on the particles example, whose sparks bounce off the ground (`f13cab78`). Three
-commits of moves and one mending the console's tests' clock take N 1.2's list to 83, N 1.3's to 1
-and N 3.3's to 6 left out (`e2780345`, `93615075`, `98f6d8e5`). Since then item 6 is settled: the
-build workflow measures every pair against raylib's program after its captures, against
-`measured-ci.tsv` from the job's own device, failing where a pair stands more than a point above its
-share or draws no frame, the eight pairs that move by the clock or the audio device left out with
-their reason (`6e87257f`); and fonts draw their color emoji, read by the engine's TrueType reader
-from PNG bitmaps or colored layers, with two generated test fonts and a GPU test, sequences, COLR
-version 1 and sbix kept in TODO.md (`a7d7e1e2`).
 
 The norm has 43 rules, and this engine stands at 32 checked, 2 with places listed, none to take
 and 9 by review.
@@ -126,26 +118,16 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-6. **A render texture is drawn at the window's samples** (Decision 10). A render texture is made
-   at one sample where the window has four, so a scene drawn into one and put on the screen is edged
-   otherwise than the same scene drawn to the window. The owner chose on 2026-10-06 that a render
-   texture takes the window's samples unless `LoadRenderTextureEx` says otherwise, the window's four
-   samples and the bilinear filter staying as the page keeps them. A test holds a render texture's
-   samples, and a reference that changes is redrawn with the reason (N 3.5). With it, Decision 13:
-   where no audio device opens, the backend falls back to SDL's dummy driver, which takes samples in
-   real time, so sounds, music and streams advance as raylib's do through miniaudio's null device,
-   with a test on a machine with no device that a stream's position moves and `IsAudioDeviceReady`
-   says what it says in raylib.
-7. **The engine ships compiled ahead, ReadyToRun, for each platform** (Decision 11). The
+6. **The engine ships compiled ahead, ReadyToRun, for each platform** (Decision 11). The
    package's library is published ReadyToRun for each runtime identifier the package carries, in
    `3DEngine.csproj` and `.github/workflows/pack.yml`, so a game run from its project does not spend
    Manor's 629 ms compiling in its first frame. The package's size before and after and the first
    frame's time with and without are in the commit, and TODO.md's cost entry follows.
-8. **Per-object motion blur** (Decision 12), after items 2 to 7. A velocity image beside the HDR
+7. **Per-object motion blur** (Decision 12), after items 2 to 6. A velocity image beside the HDR
    frame from each entity's previous transform, ECS entities blurred by their own motion and
    flat-API draws by the camera's as today, off by default, measured on a scene that moves, with a
    reference redrawn for it and a test of a moving entity's trail.
-9. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
+8. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
    an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
    default, with a test that a viewport's window is made and closed and the editor's panels checked
    by hand.
@@ -257,33 +239,16 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 6, a render texture's samples and audio with no device** (Decisions 10 and 13). A render
-texture was already drawn at the window's samples and resolved, as the comparison page said, so the
-first half is a test and the choice. `LoadRenderTextureEx(width, height, format, samples)` makes one
-at one sample where it is given one, the target's upload carrying it to `CreateRenderTarget`, and
-the immediate and model passes draw into it through pipelines of its own count. A test draws a
-circle and an unlit model into a render texture of each kind and finds the circle's edge blended in
-the window's and none blended in the other. No reference changed, since every target drawn before is
-drawn as it was. The page's row says the owner's reason where it gave the pipelines' as one. For the
-second half, where no audio device opens, `SdlAudioBackend` opens SDL's dummy driver, named over
-what the environment names, which takes samples at the rate a device would play them, as raylib's
-goes to miniaudio's null device, and warns once a process that it has. `IsAudioDeviceReady` answers
-whether the backend opened a device, true on the dummy one, as raylib's is on its null device. A
-test names a driver that is not there and finds the backend on `dummy` with a stream's queue going
-down, waiting on SDL's thread, which N 3.3's list now names with that reason. The test of a backend
-that opens nothing forces the same missing driver with the fallback off, so it runs on every machine
-where it ran on none with a device, and the attribute that skipped it is gone. With
-`SDL_AUDIO_DRIVER` naming a driver that is not there, `audio_spectrum_visualizer` now draws the
-song's spectrum, as raylib's program does on its null device.
-
-**Verdict 27.** A directory of scripts is watched once a process. `DirectoryWatches` holds one
-system watcher for each directory and filter, shared by every compiler that watches it, tells each
-of them of a change, each compiling its own app's scripts, and stops with the last to let go, and
-`RuntimeAssemblyCompiler` takes a place among those watching in place of a watcher of its own. A
-test opens two apps on one directory and finds the second told by the first's watchers with none of
-its own, the watchers staying for the app still open and going with the last. The scripts' reload
-and generation tests pass as they did. The leak test's message carried the heap after every tenth
-app already, on one line with the threads after each of the hundred, which the page cuts at 240
-characters, so the series that reached the page was two points. The heap and the threads are now on
-lines of their own, the threads read after every tenth app as the heap is, and a failure forced here
-shows both whole on the page. The 5 MB stays. The suite passed 1,427 with none skipped.
+**Now 7, ReadyToRun** (Decision 11). `build/pack.sh` publishes the library ReadyToRun for linux, win
+and osx on x64 and arm64 from the one machine, crossgen compiling for every system from this one,
+about 18 seconds each, and `3DEngine.csproj` packs each into `runtimes/<rid>/lib/net10.0` beside the
+portable library, which the host takes for the system it starts on. A game built from the package
+here loads `runtimes/linux-x64/lib/net10.0/3DEngine.dll`, read from the process's maps. The package
+is 14.9 MB where it was 1.3 MB, each image about 5 MB against 1.8 MB of IL. Measured on Manor built
+from its project, the same build with the portable library put in the image's place and then the
+image, five runs of sixty frames offscreen each way: launch to exit 1,732 ms against 2,003, the
+startup stage ended at 0.44 s against 0.58, and the slowest of the first sixty frames 140 ms against
+205, three runs each. A test of the package finds each image ReadyToRun and compiled for its system,
+by its machine, whose number ReadyToRun crosses with one for the system. `pack.yml` packs through
+`pack.sh` as it did, so its step gains the publishing and a comment, and TODO.md's cost entry says
+what is left and these measures. The owner publishes.

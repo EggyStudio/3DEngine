@@ -63,9 +63,12 @@ removed from this file, and an item that is partly done is rewritten around what
   holding 23 to 27 ms of the runtime compiling the code of a thing's first use, the first probe
   capture's and the first point shadows' among them. Natively the first frame shown takes 30 ms, and
   the first texture's memory, 11 ms, is taken before it. What is left belongs to the compiler a
-  player's build does not have, and would go by packing the engine compiled ahead (ReadyToRun) for
-  each platform beside its portable code, a copy of a few megabytes each, so a game run from its
-  project compiles only its own code.
+  player's build does not have. The package carries the engine compiled ahead (ReadyToRun) for each
+  of its six systems beside its portable code, about 5 MB each, the package 14.9 MB where it was
+  1.3 MB, so a game run from its project compiles its own code and its other dependencies' alone.
+  Run from its project on Linux, Manor ended its startup stage at 0.44 s where it had at 0.58 and
+  drew its sixtieth frame by 1.58 s where it had by 1.85, its slowest of the first sixty frames
+  140 ms where it was 205.
 
 ### The flat API
 

@@ -43,11 +43,14 @@ jobs:
         id: version
         run: echo "version=$(build/version.sh)" >> "$GITHUB_OUTPUT"
 
+      # The engine is packed with its portable code and, for each of the six systems it runs on,
+      # compiled ahead (ReadyToRun), which pack.sh publishes from here for all of them.
       - run: build/pack.sh "${{ steps.version.outputs.version }}"
 
-      # What the package holds, read from the .nupkg before it is offered: the engine, its
-      # generator, documentation, compiled shaders, readme, license, notices and release notes,
-      # and its dependencies' native libraries for each system BUILDING.md claims.
+      # What the package holds, read from the .nupkg before it is offered: the engine and its
+      # compiled-ahead images, its generator, documentation, compiled shaders, readme, license,
+      # notices and release notes, and its dependencies' native libraries for each system
+      # BUILDING.md claims.
       - name: Check what the package holds
         env:
           E3D_REQUIRE_PACKAGE: '1'
