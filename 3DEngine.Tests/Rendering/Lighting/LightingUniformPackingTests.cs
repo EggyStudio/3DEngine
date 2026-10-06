@@ -63,8 +63,8 @@ public class LightingUniformPackingTests
         var afterIrradiance = afterSpots + 9 * 16;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.ProbeCount)).Should().Be(afterIrradiance);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Probes)).Should().Be(afterIrradiance + 16);
-        Marshal.SizeOf<ProbeUboEntry>().Should().Be(11 * 16, "a probe is its middle, its size and nine coefficients");
-        var afterProbes = afterIrradiance + 16 + LightingUboPacker.MaxProbes * 11 * 16;
+        Marshal.SizeOf<ProbeUboEntry>().Should().Be(2 * 16, "a probe is its middle and its size, its irradiance in a buffer the GPU writes");
+        var afterProbes = afterIrradiance + 16 + LightingUboPacker.MaxProbes * 2 * 16;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Output)).Should().Be(afterProbes);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.AmbientOcclusion)).Should().Be(afterProbes + 16);
         LightingUboPacker.SizeBytes.Should().Be(afterProbes + 32, "the output flag and the occlusion flag come last");

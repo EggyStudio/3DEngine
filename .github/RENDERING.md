@@ -330,28 +330,35 @@ left out of the shadow map (`ModelDraw.CastsShadow`).
 A `ReflectionProbe` entity, which `CreateReflectionProbe` makes, is a box whose surfaces reflect
 what is around its middle rather than the environment map. `ProbeNode`, after the window's shadow
 and before its passes, captures the first probe out of date, one face a frame. The window's batches,
-or the first render target's when the window draws no meshes, are drawn through six views of a
-right angle from the probe's middle into half-float render targets of 64 texels
-(`ModelRenderer.Draw` with a view-projection pushed in place of each batch's), lit by the window's
-lighting buffer with its output flag set, so the light stays linear and as bright as it was drawn,
-cleared to the window's clear color in linear light, and read back once the frame has finished on
-the GPU, when its frame slot comes round three frames later (`GraphicsDevice.RequestReadback`), so
-no frame waits for it. A worker thread maps each direction
-to the face looking most nearly along it, through that face's own view-projection, and prefilters
-the result as an environment map of faces 32 texels wide with its irradiance
-(`EnvironmentMap.FromCapture`). A probe is captured twice, the second time with the first bound,
-so the metal in its room reflects the room in the capture rather than the sky. A probe whose map
-is of an earlier placement or of lights since changed gives a capture no light, its intensity 0
-in the capture's lighting buffer, so its first pass sees only the lights and its second bounces
-that. `ReflectionProbes.Sync` keeps the lights that reached each box when it was last asked for,
-and asks again when one is added or removed, grows or dims by a quarter, turns color, or moves a
-quarter of a unit or turns past eleven degrees, so a lamp switched off is seen and a flickering
-one is not. Four probes with a
-capture, those whose boxes come nearest the camera, are bound at set 1's bindings 5 to 8, and the
-lighting buffer carries each one's middle, intensity, half size, last mip and nine coefficients
-after the environment's. A surface in a box takes its reflection and diffuse light from the
-smallest box holding it, the reflection looked up where the reflected ray leaves the box (box
-projection), and a surface in none keeps the environment map.
+or the first render target's when the window draws no meshes, are drawn through six views of a right
+angle from the probe's middle into half-float render targets of 64 texels (`ModelRenderer.Draw` with
+a view-projection pushed in place of each batch's), lit by the window's lighting buffer with its
+output flag set, so the light stays linear and as bright as it was drawn, cleared to the window's
+clear color in linear light. The frame that draws the sixth face filters them on the GPU after it
+(`GraphicsDevice.RecordProbeFilter`), so a capture costs that frame's work and nothing is read back.
+`probe_gather.slang` fills a cube of faces 64 texels wide, each texel reading the face that looks
+most nearly along it through that face's own view-projection, and `probe_mips.slang` makes its mips,
+each texel the average of four. `probe_prefilter.slang` writes the probe's cube of faces 32 texels
+wide (`ProbeMap`), mip 0 for a mirror read from the gathered cube's level of the same width, and
+each mip after by GGX over 64 samples, each read from the gathered level its solid angle covers, as
+the environment map is filtered. `probe_irradiance.slang` projects the gathered cube's level 16
+texels wide onto the nine harmonics in one group of 64 threads, into a storage buffer of the probe's
+own. The gathered cube is one, shared by every capture, since two filters never run in one frame.
+The faces are gathered into a cube rather than the equirectangular image an environment map is
+filtered from, since the image's rows near a pole hold one direction many times over and its mips,
+which average rows alike, give a light there the weight of a row, where a cube's texels differ in
+solid angle by a factor of about five at most. A probe is captured twice, the second time with the
+first bound, so the metal in its room reflects the room in the capture rather than the sky. A probe
+whose map is of an earlier placement or of lights since changed gives a capture no light, its
+intensity 0 in the capture's lighting buffer, so its first pass sees only the lights and its second
+bounces that. `ReflectionProbes.Sync` keeps the lights that reached each box when it was last asked
+for, and asks again when one is added or removed, grows or dims by a quarter, turns color, or moves
+a quarter of a unit or turns past eleven degrees, so a lamp switched off is seen and a flickering
+one is not. Four probes with a capture, those whose boxes come nearest the camera, are bound at set
+1's bindings 5 to 8 and their irradiance buffers at 10 to 13, and the lighting buffer carries each
+one's middle, intensity, half size and last mip after the environment's. A surface in a box takes
+its reflection and diffuse light from the smallest box holding it, the reflection looked up where
+the reflected ray leaves the box (box projection), and a surface in none keeps the environment map.
 
 The first directional light with `CastsShadows` set casts the frame's one shadow, in three cascades.
 `ShadowFit` cuts each view's camera out to 150 units into slices ending at 12, 45 and 150

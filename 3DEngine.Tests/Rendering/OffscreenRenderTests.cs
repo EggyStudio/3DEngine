@@ -1814,14 +1814,12 @@ public sealed class OffscreenRenderTests : IDisposable
             EndTextureMode();
             ClearBackground(Color.Black);
             EndDrawing();
-            // The capture is read back and prefiltered on a worker, outside the frame loop.
-            Thread.Sleep(5);
         }
         IsReflectionProbeReady(probe).Should().BeTrue("a probe captures the meshes a render texture draws when the window draws none");
 
-        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
-        var texel = (map.Size * map.Size / 2 + map.Size / 2) * 4;
-        ((float)map.Texels[texel]).Should().BeGreaterThan(2 * (float)map.Texels[texel + 2], "the capture holds the red room");
+        var (texels, size) = ProbeFaces();
+        var texel = (size * size / 2 + size / 2) * 4;
+        ((float)texels[texel]).Should().BeGreaterThan(2 * (float)texels[texel + 2], "the capture holds the red room");
         UnloadReflectionProbe(probe);
         UnloadRenderTexture(target);
         UnloadModel(room);
@@ -1853,18 +1851,24 @@ public sealed class OffscreenRenderTests : IDisposable
             BeginDrawing();
             Draw();
             EndDrawing();
-            // The capture is read back and prefiltered on a worker, outside the frame loop.
-            Thread.Sleep(5);
         }
         IsReflectionProbeReady(probe).Should().BeTrue();
 
-        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
         // The first mip's +X face, a mirror's view of the glowing wall.
-        var bright = (float)map.Texels[(map.Size * map.Size / 2 + map.Size / 2) * 4];
+        var (texels, size) = ProbeFaces();
+        var bright = (float)texels[(size * size / 2 + size / 2) * 4];
         bright.Should().BeGreaterThan(8, "a capture in half floats holds the light as it was drawn, where eight bits at a quarter exposure held 6.4 at most");
         UnloadReflectionProbe(probe);
         UnloadModel(wall);
         UnloadModel(room);
+    }
+
+    // The one probe's first mip as the GPU filtered it, its six faces' RGBA half floats, and the width of a face.
+    private (Half[] Texels, int Size) ProbeFaces()
+    {
+        var map = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single().Map!;
+        var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+        return (device.ReadProbeFaces(map), (int)map.Size);
     }
 
     [NeedsVulkanFact]

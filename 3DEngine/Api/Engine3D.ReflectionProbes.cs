@@ -19,9 +19,10 @@ public static partial class Engine3D
     /// the environment map.
     /// </summary>
     /// <remarks>
-    /// The probe is captured from the meshes the window draws, in the first frame that draws any,
-    /// and is ready a frame or two later, once the capture is read back and prefiltered. Until
-    /// then surfaces in the box reflect the environment map. It captures again by itself when a
+    /// The probe is captured from the meshes the window draws, from the first frame that draws any,
+    /// a face a frame, and filtered on the GPU in the frame that draws its sixth. It is captured
+    /// twice, so it is ready twelve frames later. Until it has a capture, surfaces in the box
+    /// reflect the environment map. It captures again by itself when a
     /// light reaching its box is added, removed or changed past a flicker, and
     /// <see cref="UpdateReflectionProbe"/> captures it again after its room's meshes change.
     /// </remarks>

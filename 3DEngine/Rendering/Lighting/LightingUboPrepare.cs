@@ -84,7 +84,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     // The probes with a capture to reflect, the four whose boxes come nearest the eye, written into
-    // the buffer by slot and named for the model pass, which binds each one's cube at its slot.
+    // the buffer by slot and named for the model pass, which binds each one's cube and irradiance at
+    // its slot.
     private static void BindProbes(RenderWorld renderWorld, ref LightingUbo ubo, System.Numerics.Vector3? eye)
     {
         var bound = renderWorld.TryGet<BoundProbes>() ?? new BoundProbes();
@@ -104,7 +105,6 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             ref var entry = ref ubo.Probes[i];
             entry.CenterAndIntensity = new System.Numerics.Vector4(probe.Captured?.Position ?? probe.Position, probe.Intensity);
             entry.HalfSizeAndMip = new System.Numerics.Vector4(probe.HalfSize, map.MipLevels - 1);
-            for (int c = 0; c < 9; c++) entry.Irradiance[c] = new System.Numerics.Vector4(map.Irradiance[c], 0);
         }
     }
 

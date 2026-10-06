@@ -116,12 +116,12 @@ public struct Light
 };
 
 // One reflection probe, as ProbeUboEntry holds it: the middle of its box, where it was captured
-// from, and its intensity, half the box's size and its cube's last mip, and its irradiance.
+// from, and its intensity, and half the box's size and its cube's last mip. Its irradiance is in
+// the buffer of its slot, which the GPU writes as it filters the capture.
 public struct Probe
 {
     public float4 centerAndIntensity;
     public float4 halfSizeAndMip;
-    public float4 irradiance[9];
 };
 
 // Laid out as LightingUbo is. The count, the shadowed light's index or -1, how many cascades it
@@ -197,6 +197,17 @@ public SamplerCube probeMap3;
 // ao.slang, or a white texture where no occlusion is worked out.
 [[vk::binding(9, 1)]]
 public Sampler2D ambientOcclusionMap;
+
+// The bound reflection probes' irradiance, nine coefficients in xyz each, as the environment's in
+// the lighting buffer, or zeros.
+[[vk::binding(10, 1)]]
+public StructuredBuffer<float4> probeIrradiance0;
+[[vk::binding(11, 1)]]
+public StructuredBuffer<float4> probeIrradiance1;
+[[vk::binding(12, 1)]]
+public StructuredBuffer<float4> probeIrradiance2;
+[[vk::binding(13, 1)]]
+public StructuredBuffer<float4> probeIrradiance3;
 
 // The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
 // has no occlusion. The map is half the window's size, so a pixel reads it at half its position.
@@ -568,6 +579,20 @@ float3 harmonics(float4 c[9], float3 n)
     return max(sum, float3(0.0));
 }
 
+// A bound probe's irradiance from the buffer of its slot.
+float3 probeIrradiance(int i, float3 n)
+{
+    float4 c[9];
+    for (int k = 0; k < 9; k++)
+    {
+        if (i == 0) c[k] = probeIrradiance0[k];
+        else if (i == 1) c[k] = probeIrradiance1[k];
+        else if (i == 2) c[k] = probeIrradiance2[k];
+        else c[k] = probeIrradiance3[k];
+    }
+    return harmonics(c, n);
+}
+
 // The bound probe whose box holds a point, the smallest where boxes overlap, or -1. A point a
 // hundredth past a wall of the box still counts, so a room's wall built on the box's wall is in it
 // everywhere rather than in it and out of it pixel by pixel.
@@ -672,7 +697,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     {
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
         float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
-        float3 around = harmonics(lighting.probes[probe].irradiance, n);
+        float3 around = probeIrradiance(probe, n);
         color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
     }
     else if (environment)

@@ -160,50 +160,6 @@ internal sealed class EnvironmentMap
         return new EnvironmentMap(faceSize, mips, texels, intensity, skySize, Resampled(source, skySize), source.Irradiance());
     }
 
-    /// <summary>
-    /// Makes a map from six square frames drawn from <paramref name="eye"/>, each eight bytes a
-    /// pixel of linear light in half floats, rows from the top, through the view-projection beside
-    /// it, as a <see cref="ReflectionProbe"/> captures its room.
-    /// </summary>
-    /// <remarks>
-    /// Each direction is read from the frame whose view looks most nearly along it, through that
-    /// view's own projection, so the faces may be drawn with any orientation.
-    /// </remarks>
-    internal static EnvironmentMap FromCapture(byte[][] faces, int size, Matrix4x4[] viewProjections, Vector3 eye, int faceSize = 32)
-    {
-        int width = 4 * size, height = 2 * size;
-        var forwards = new Vector3[6];
-        for (int f = 0; f < 6; f++)
-        {
-            // The way a view looks, the point in the middle of its far plane less its eye.
-            Matrix4x4.Invert(viewProjections[f], out var inverse);
-            var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
-            forwards[f] = Vector3.Normalize(new Vector3(far.X, far.Y, far.Z) / far.W - eye);
-        }
-
-        var pixels = new Vector3[width * height];
-        Parallel.For(0, height, y =>
-        {
-            var theta = (y + 0.5f) / height * MathF.PI;
-            for (int x = 0; x < width; x++)
-            {
-                var phi = ((x + 0.5f) / width - 0.5f) * 2 * MathF.PI;
-                var d = new Vector3(MathF.Sin(theta) * MathF.Sin(phi), MathF.Cos(theta), -MathF.Sin(theta) * MathF.Cos(phi));
-                int face = 0;
-                for (int f = 1; f < 6; f++)
-                    if (Vector3.Dot(forwards[f], d) > Vector3.Dot(forwards[face], d)) face = f;
-                var clip = Vector4.Transform(new Vector4(eye + d, 1), viewProjections[face]);
-                int px = Math.Clamp((int)((clip.X / clip.W + 1) / 2 * size), 0, size - 1);
-                int py = Math.Clamp((int)((clip.Y / clip.W + 1) / 2 * size), 0, size - 1);
-                var texel = MemoryMarshal.Cast<byte, Half>(faces[face].AsSpan((py * size + px) * 8, 6));
-                // A surface lit past what a half float holds comes back as infinity, kept finite
-                // so the prefilter's sums stay numbers.
-                pixels[y * width + x] = Vector3.Min(new Vector3((float)texel[0], (float)texel[1], (float)texel[2]), new Vector3(65504));
-            }
-        });
-        return FromLinear(pixels, width, height, 1, faceSize);
-    }
-
     /// <summary>The nine real spherical harmonics of bands 0 to 2 in a direction, in <see cref="Irradiance"/>'s order.</summary>
     internal static void Harmonics(Vector3 d, Span<float> y)
     {

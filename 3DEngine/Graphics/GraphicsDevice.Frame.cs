@@ -20,7 +20,6 @@ internal sealed unsafe partial class GraphicsDevice
         // previous frame, so they are disposed now.
         FlushDeferredStagingBuffers(_currentFrame);
         RetireUploads();
-        FinishReadbacks(_currentFrame);
 
         uint imageIndex;
         var result = VkResult.Success;
@@ -58,7 +57,6 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="ctx">The frame context returned by <see cref="BeginFrameInternal"/>.</param>
     private partial void SubmitFrame(VulkanFrameContext ctx)
     {
-        var readbacks = RecordReadbacks(ctx.CommandBufferHandle);
         var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
@@ -89,8 +87,6 @@ internal sealed unsafe partial class GraphicsDevice
 
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
-        if (readbacks is not null)
-            QueueReadbacks(readbacks);
 
         if (_offscreen)
         {

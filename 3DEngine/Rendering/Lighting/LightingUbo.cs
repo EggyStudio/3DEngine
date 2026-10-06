@@ -100,9 +100,6 @@ internal struct ProbeUboEntry
 
     /// <summary>xyz: half the box's size. w: the last mip of its cube.</summary>
     public Vector4 HalfSizeAndMip;
-
-    /// <summary>The capture's irradiance in xyz, nine coefficients, as the environment's.</summary>
-    public IrradianceArray Irradiance;
 }
 
 /// <summary>Fixed-size storage for the bound reflection probes.</summary>

@@ -11,7 +11,7 @@ namespace Engine;
 /// The renderer draws the frame's meshes from the probe's position into the six faces of a small
 /// cube, the first frame it sees the probe and again whenever the probe moves, changes size or
 /// <see cref="Capture"/> changes, or a light that reaches its box is added, removed or changed past
-/// a threshold, and prefilters it as it does the environment map. A surface
+/// a threshold, and prefilters it on the GPU as the environment map is prefiltered. A surface
 /// inside the box then reflects the cube, looked up where the reflected ray leaves the box, so
 /// the walls hold still as the camera moves, and takes its diffuse light from it, where it would
 /// take them from the environment map. A surface in no box keeps the environment map.
@@ -81,9 +81,9 @@ internal sealed class ReflectionProbes
         public List<LitBy>? Lights;
         public int Relit;
 
-        // The prefiltered capture, and a finished one the thread that built it hands over, which
+        // The prefiltered capture on the GPU, and a finished one the renderer hands over, which
         // Sync takes on the main thread.
-        public EnvironmentMap? Map;
+        public ProbeMap? Map;
         public volatile Capture? Done;
 
         /// <summary>Whether the probe has a map to reflect.</summary>
@@ -96,8 +96,8 @@ internal sealed class ReflectionProbes
     /// <summary>One light as it reached a probe's box: its entity, kind, color times intensity, place, aim and range.</summary>
     public readonly record struct LitBy(int Entity, LightKind Kind, Vector3 Light, Vector3 Position, Vector3 Forward, float Range);
 
-    /// <summary>A capture finished on a worker thread, and what it was captured as.</summary>
-    public sealed record Capture(EnvironmentMap Map, (Vector3 Position, Vector3 Size, int Capture) As);
+    /// <summary>A capture filtered on the GPU, and what it was captured as.</summary>
+    public sealed record Capture(ProbeMap Map, (Vector3 Position, Vector3 Size, int Capture) As);
 
     /// <summary>
     /// Takes the probes the ECS holds, adding new ones and forgetting those gone, and the captures

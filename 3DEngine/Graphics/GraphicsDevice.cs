@@ -178,7 +178,6 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         FlushUploads();
         _deviceApi.vkDeviceWaitIdle();
         RetireUploads(all: true);
-        for (int slot = 0; slot < MaxFramesInFlight; slot++) FinishReadbacks(slot, drop: true);
         DestroyTimestamps();
 
         // Flush all deferred staging buffers
@@ -191,6 +190,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySwapchainResources();
         DestroyCompute();
         DestroySkinning();
+        DisposeProbeFilter();
         DestroyParticles();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();
