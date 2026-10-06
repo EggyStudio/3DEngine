@@ -37,10 +37,20 @@ jobs:
 
       - run: build/fetch-slang.sh
 
+      # The validation layer from LunarG's SDK, as the tests take it, since the image's own predates
+      # VK_KHR_line_rasterization, which lavapipe offers.
+      - uses: actions/cache@v6
+        with:
+          path: build/tools/vulkan-layer
+          key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
+
       # Mesa's OpenGL beside its Vulkan, which raylib's own programs draw through for the measure
       # against them, and Pillow, which compares the pictures.
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers webp clang zlib1g-dev libegl1 libegl-mesa0 libgl1-mesa-dri python3-pil
+        run: |
+          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 webp clang zlib1g-dev libegl1 libegl-mesa0 libgl1-mesa-dri python3-pil
+          build/fetch-validation-layer.sh
+          echo "VK_LAYER_PATH=$PWD/build/tools/vulkan-layer/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
 
       # The files of raylib's own that its examples load, at the commit run.sh pins.
       - run: build/fetch-raylib-resources.sh

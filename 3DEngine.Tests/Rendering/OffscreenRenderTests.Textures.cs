@@ -344,6 +344,7 @@ public sealed partial class OffscreenRenderTests
         (middle.R < 10 && middle.G > 230 && middle.B < 10).Should().BeTrue($"the yellow base color times cyan is green, not {middle}");
         UnloadModel(cube);
         UnloadShader(shader);
+        UnloadTexture(cyan);
     }
 
     [NeedsVulkanFact]

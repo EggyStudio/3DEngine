@@ -39,25 +39,39 @@ public sealed class BadFileTests : IDisposable
     // A font other than the default one, which a font that fails to load falls back to.
     private static bool OwnFont(Font font) => IsFontValid(font) && font.Texture.Id != GetFontDefault().Texture.Id;
 
+    // Whether what a loader gave back is usable, which is then let go, so the window closes with
+    // nothing of the test's still loaded.
+    private static bool Usable<T>(T resource, Func<T, bool> usable, Action<T> unload)
+    {
+        var answer = usable(resource);
+        unload(resource);
+        return answer;
+    }
+
+    private static void UnloadMaterials(ModelMaterial[] materials)
+    {
+        foreach (var material in materials) UnloadMaterial(material);
+    }
+
     private static readonly (string Name, string Extension, string Good, Func<string, bool> LoadsUsable, string[] Refuses)[] Loaders =
     [
         ("LoadImage", ".png", "3DEngine.Examples/resources/checker.png", f => IsImageValid(LoadImage(f)), Refused),
         ("LoadImageAnim", ".png", "3DEngine.Examples/resources/checker.png", f => IsImageValid(LoadImageAnim(f, out _)), Refused),
-        ("LoadTexture", ".png", "3DEngine.Examples/resources/logo.png", f => IsTextureValid(LoadTexture(f)), Refused),
-        ("LoadModel", ".obj", "3DEngine.Examples/resources/torus.obj", f => LoadModel(f) is var m && IsModelValid(m) && m.Meshes.Length > 0, Refused),
-        ("LoadModel glTF", ".gltf", "3DEngine.Examples/resources/arm.gltf", f => LoadModel(f) is var m && IsModelValid(m) && m.Meshes.Length > 0, Refused),
-        ("LoadModelAnimations", ".gltf", "3DEngine.Examples/resources/arm.gltf", f => LoadModelAnimations(f).Length > 0, Refused),
-        ("LoadMaterials", ".obj", "3DEngine.Examples/resources/torus.obj", f => LoadMaterials(f).Length > 0, Refused),
-        ("LoadFont", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => OwnFont(LoadFont(f)), Refused),
-        ("LoadFontEx", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => OwnFont(LoadFontEx(f, 24)), Refused),
-        ("LoadFontEx codepoints", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => OwnFont(LoadFontEx(f, 24, [65, 66, 0x1F600])), Refused),
-        ("LoadFontEx distance field", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => OwnFont(LoadFontEx(f, 24, null, FontType.Sdf)), Refused),
-        ("LoadSound", ".wav", "3DEngine.Examples/resources/coin.wav", f => IsSoundValid(LoadSound(f)), Refused),
-        ("LoadSound Ogg", ".ogg", "3DEngine.Examples/resources/drone.ogg", f => IsSoundValid(LoadSound(f)), Refused),
+        ("LoadTexture", ".png", "3DEngine.Examples/resources/logo.png", f => Usable(LoadTexture(f), IsTextureValid, UnloadTexture), Refused),
+        ("LoadModel", ".obj", "3DEngine.Examples/resources/torus.obj", f => Usable(LoadModel(f), m => IsModelValid(m) && m.Meshes.Length > 0, UnloadModel), Refused),
+        ("LoadModel glTF", ".gltf", "3DEngine.Examples/resources/arm.gltf", f => Usable(LoadModel(f), m => IsModelValid(m) && m.Meshes.Length > 0, UnloadModel), Refused),
+        ("LoadModelAnimations", ".gltf", "3DEngine.Examples/resources/arm.gltf", f => Usable(LoadModelAnimations(f), a => a.Length > 0, UnloadModelAnimations), Refused),
+        ("LoadMaterials", ".obj", "3DEngine.Examples/resources/torus.obj", f => Usable(LoadMaterials(f), m => m.Length > 0, UnloadMaterials), Refused),
+        ("LoadFont", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => Usable(LoadFont(f), OwnFont, UnloadFont), Refused),
+        ("LoadFontEx", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => Usable(LoadFontEx(f, 24), OwnFont, UnloadFont), Refused),
+        ("LoadFontEx codepoints", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => Usable(LoadFontEx(f, 24, [65, 66, 0x1F600]), OwnFont, UnloadFont), Refused),
+        ("LoadFontEx distance field", ".ttf", "3DEngine.Examples/resources/fonts/Lato-Regular.ttf", f => Usable(LoadFontEx(f, 24, null, FontType.Sdf), OwnFont, UnloadFont), Refused),
+        ("LoadSound", ".wav", "3DEngine.Examples/resources/coin.wav", f => Usable(LoadSound(f), IsSoundValid, UnloadSound), Refused),
+        ("LoadSound Ogg", ".ogg", "3DEngine.Examples/resources/drone.ogg", f => Usable(LoadSound(f), IsSoundValid, UnloadSound), Refused),
         ("LoadWave", ".wav", "3DEngine.Examples/resources/coin.wav", f => IsWaveValid(LoadWave(f)), Refused),
-        ("LoadMusicStream", ".ogg", "3DEngine.Examples/resources/drone.ogg", f => IsMusicValid(LoadMusicStream(f)), Refused),
-        ("LoadShader", ".slang", "3DEngine.Examples/resources/shaders/grayscale.slang", f => IsShaderValid(LoadShader(f)), Refused),
-        ("LoadComputeShader", ".slang", "3DEngine.Examples/resources/shaders/plasma.slang", f => IsShaderValid(LoadComputeShader(f)), Refused),
+        ("LoadMusicStream", ".ogg", "3DEngine.Examples/resources/drone.ogg", f => Usable(LoadMusicStream(f), IsMusicValid, UnloadMusicStream), Refused),
+        ("LoadShader", ".slang", "3DEngine.Examples/resources/shaders/grayscale.slang", f => Usable(LoadShader(f), IsShaderValid, UnloadShader), Refused),
+        ("LoadComputeShader", ".slang", "3DEngine.Examples/resources/shaders/plasma.slang", f => Usable(LoadComputeShader(f), IsShaderValid, UnloadShader), Refused),
         ("LoadScene", ".json", "games/Summit/resources/level.json", f => LoadScene(f).Count > 0, Refused),
         ("LoadFileText", ".txt", "3DEngine.Examples/resources/torus.mtl", f => LoadFileText(f) is not null, ["missing"]),
         ("LoadFileData", ".bin", "3DEngine.Examples/resources/coin.wav", f => LoadFileData(f) is not null, ["missing"]),
@@ -168,6 +182,7 @@ public sealed class BadFileTests : IDisposable
     {
         var config = Config.Default.WithWindow("bad files", 160, 120) with { Headless = true, Offscreen = true };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        Scenes.SummitComponents.Register();
         BeginDrawing();
 
         var wrong = new List<string>();

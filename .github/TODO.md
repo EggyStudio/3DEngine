@@ -111,8 +111,9 @@ physics, text and fonts, audio, audio streams and waves, and files
 - **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
   which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
   pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex
-  inputs are still written beside each pipeline for the engine's fixed formats, and a render texture
-  is written only where the GPU can store to the window's format.
+  inputs are still written beside each pipeline for the engine's fixed formats, a material's own
+  vertex stage fed those of them it takes, read from its SPIR-V, and a render texture is written
+  only where the GPU can store to the window's format.
 - **One directional, ten spot and twelve point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, ten such spot lights shadow their cones in the map's

@@ -274,6 +274,8 @@ public sealed partial class OffscreenRenderTests
 
         GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "yellow times cyan is green");
         UnloadShader(shader);
+        UnloadTexture(yellow);
+        UnloadTexture(cyan);
     }
 
     [NeedsVulkanFact]
@@ -308,6 +310,8 @@ public sealed partial class OffscreenRenderTests
 
         GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "yellow times cyan is green, the texture read through its own sampler");
         UnloadShader(shader);
+        UnloadTexture(yellow);
+        UnloadTexture(cyan);
     }
 
     [NeedsVulkanFact]
@@ -341,6 +345,7 @@ public sealed partial class OffscreenRenderTests
 
         GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "cyan times green is green");
         UnloadShader(shader);
+        UnloadTexture(cyan);
     }
 
     [NeedsVulkanFact]

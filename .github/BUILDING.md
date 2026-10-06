@@ -271,22 +271,23 @@ Assimp natively, and `PackageContentsTests` fails a package where one of them is
 
 Linux is where the engine is developed and tested, and `.github/workflows/test.yml`, which
 `build.yml` runs for every push, builds and tests it on all three. Ubuntu 24.04, named rather than
-the newest so lavapipe and the validation layer change only in a commit, draws on lavapipe. Windows
-draws on lavapipe too, from Mesa's Windows build, with LunarG's loader and validation layer, and
-macOS draws on its GPU through MoltenVK, with the loader and the layer from Homebrew. On each the
-render tests and the reference frames run under the validation layer, `E3D_REQUIRE_VULKAN` and
-`E3D_REQUIRE_VALIDATION` failing them where the device or the layer does not start rather than
-letting them skip, and `build/play-game.sh Pusher` builds a game from the package and draws 300
-frames of it offscreen, failing on an error the layer reports. Each job runs its tests through
-`build/test.py`, whose page ends the step's log and is the job's summary. Each cause is also an
-error annotation with its whole entry, and a notice has the page's head and the lines repeated
-most, since a reader who is not signed in to GitHub reads a run's annotations and nothing else,
-so a red run says what failed to whoever opens it. A last job, `digest`, puts the
-three pages into one, each cause with the systems it was seen on. Each job has a time limit.
-Each builds with `-warnaserror`, so
-a warning fails the commit that wrote it, and a warning that is right to keep is turned off where
-it arises, with its reason. A Vulkan instance asks for portability devices where the loader offers
-them, and a device of the portability subset, as MoltenVK is, has the subset enabled.
+the newest so lavapipe changes only in a commit, draws on lavapipe, under the validation layer of
+LunarG's SDK at the version `build/fetch-validation-layer.sh` pins, since Ubuntu's own predates an
+extension lavapipe offers. Windows draws on lavapipe too, from Mesa's Windows build, with LunarG's
+loader and validation layer, and macOS draws on its GPU through MoltenVK, with the loader and the
+layer from Homebrew. On each the render tests and the reference frames run under the validation
+layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
+does not start rather than letting them skip, and `build/play-game.sh Pusher` builds a game from the
+package and draws 300 frames of it offscreen, failing on an error the layer reports. Each job runs
+its tests through `build/test.py`, whose page ends the step's log and is the job's summary. Each
+cause is also an error annotation with its whole entry, and a notice has the page's head and the
+lines repeated most, since a reader who is not signed in to GitHub reads a run's annotations and
+nothing else, so a red run says what failed to whoever opens it. A last job, `digest`, puts the
+three pages into one, each cause with the systems it was seen on. Each job has a time limit. Each
+builds with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is right
+to keep is turned off where it arises, with its reason. A Vulkan instance asks for portability
+devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
+the subset enabled.
 
 On Linux, `build.yml` then checks the package as a player and a reader meet it.
 `build/play-native.sh Pusher` publishes the game as native code from the package and draws 300

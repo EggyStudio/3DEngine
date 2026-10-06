@@ -268,6 +268,8 @@ public sealed class ReferenceFrameTests : IDisposable
         UnloadModel(sphere);
         UnloadModel(shaded);
         UnloadShader(shader);
+        // A model unloads its meshes and not the textures its materials name, as raylib's does.
+        foreach (var texture in new[] { checker, bumps, glow, roughness }) UnloadTexture(texture);
     }
 
     [NeedsVulkanFact]
@@ -620,6 +622,7 @@ public sealed class ReferenceFrameTests : IDisposable
         // The level of games/Summit, as the game draws its island with the steps and the house
         // beyond, through its own light, sky and bloom.
         Open(320, 180);
+        Tests.Scenes.SummitComponents.Register();
         LoadScene("resources/level.json");
         CreateDirectionalLight(new Vector3(-0.5f, -1, -0.35f), new Color(255, 244, 225), 1.6f, castsShadows: true);
         CreatePointLight(new Vector3(12, 8.6f, -38), new Color(255, 200, 150), 2.5f, range: 9, castsShadows: true);

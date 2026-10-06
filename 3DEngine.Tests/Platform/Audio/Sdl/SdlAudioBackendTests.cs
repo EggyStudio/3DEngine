@@ -30,6 +30,35 @@ public class SdlAudioBackendTests
         backend.Dispose();
     }
 
+    [Fact]
+    public void A_Machine_With_No_Audio_Device_Is_Warned_Of_Once_A_Process()
+    {
+        // A message of its own, since the probe for a device and other tests open audio in this process too.
+        var message = $"SdlAudioBackend: SDL_OpenAudioDevice failed: 'no device {Guid.NewGuid():N}', so the backend is disabled.";
+        var heard = new Heard();
+        var logger = Log.Factory.CreateLogger("Engine.Sound.Sdl").UseProvider(heard);
+        try
+        {
+            SdlAudioBackend.WarnOnce(message);
+            SdlAudioBackend.WarnOnce(message);
+        }
+        finally
+        {
+            logger.RemoveProvider(heard);
+        }
+
+        heard.Lines.Where(line => line.Message.StartsWith(message, StringComparison.Ordinal)).Select(line => line.Level)
+            .Should().Equal([LogLevel.Warning, LogLevel.Info], "every app a machine with no audio device opens fails the same way, which a log says once");
+    }
+
+    // Hears what one category logs, from any thread, for as long as it is added.
+    private sealed class Heard : ILoggerProvider
+    {
+        public System.Collections.Concurrent.ConcurrentQueue<(LogLevel Level, string Message)> Lines { get; } = new();
+
+        public void Log(LogLevel level, string category, string message, Exception? exception = null) => Lines.Enqueue((level, message));
+    }
+
     [NeedsNoAudioDeviceFact]
     public void Method_Calls_Are_Safe_When_Backend_Failed_To_Initialise()
     {

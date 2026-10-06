@@ -46,6 +46,19 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
 {
     private static readonly ILogger Logger = Log.Category("Engine.Sound.Sdl");
 
+    // The failures to open audio this process has warned of, by their message, so a machine with no
+    // audio device says so once however many apps open audio on it, and after that at info.
+    private static readonly HashSet<string> Warned = [];
+
+    /// <summary>Logs a failure to open audio as a warning the first time this process meets it, and as info after.</summary>
+    internal static void WarnOnce(string message)
+    {
+        bool first;
+        lock (Warned) first = Warned.Add(message);
+        if (first) Logger.Warn(message);
+        else Logger.Info(message + " As before in this process.");
+    }
+
     /// <summary>One queued buffer worth of float samples we try to keep in flight per looped voice.</summary>
     private const int LoopRefillBytesThreshold = 4 * 4096;
 
@@ -157,7 +170,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                 {
                     if (!SDL.InitSubSystem(SDL.InitFlags.Audio))
                     {
-                        Logger.Warn($"SdlAudioBackend: SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}', so the backend is disabled.");
+                        WarnOnce($"SdlAudioBackend: SDL_InitSubSystem(Audio) failed: '{SDL.GetError()}', so the backend is disabled.");
                         return;
                     }
                     _ownsAudioSubsystem = true;
@@ -173,7 +186,7 @@ internal sealed partial class SdlAudioBackend : IAudioBackend
                 _device = SDL.OpenAudioDevice(SDL.AudioDeviceDefaultPlayback, in desired);
                 if (_device == 0)
                 {
-                    Logger.Warn($"SdlAudioBackend: SDL_OpenAudioDevice failed: '{SDL.GetError()}', so the backend is disabled.");
+                    WarnOnce($"SdlAudioBackend: SDL_OpenAudioDevice failed: '{SDL.GetError()}', so the backend is disabled.");
                     if (_ownsAudioSubsystem) { SDL.QuitSubSystem(SDL.InitFlags.Audio); _ownsAudioSubsystem = false; }
                     return;
                 }

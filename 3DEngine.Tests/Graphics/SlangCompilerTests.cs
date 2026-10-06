@@ -49,7 +49,7 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
-    public void A_Stage_Says_How_Many_Input_Locations_It_Reads()
+    public void A_Stage_Says_Which_Input_Locations_It_Reads()
     {
         var program = new SlangLoader(_folder.Path).Compile("""
             struct Output { float4 position : SV_Position; float4 color : COLOR0; float2 uv : TEXCOORD0; };
@@ -76,6 +76,7 @@ public class SlangCompilerTests : IDisposable
         program.InputLocations(ShaderStage.Vertex).Should().Be(6);
         program.InputLocations(ShaderStage.Fragment).Should().Be(2);
         program.InputLocations(ShaderStage.Compute).Should().Be(0);
+        ShaderProgram.InputLocationSet(program.Vertex).Should().BeEquivalentTo([0, 5], "the locations between are not read, so a pipeline feeds them nothing");
         ShaderProgram.OutputLocations(program.Fragment).Should().Be(1, "the fragment stage writes one color");
         ShaderProgram.OutputLocations(program.Vertex).Should().Be(2, "and the vertex stage the color and the coordinate beside the built-in position");
     }

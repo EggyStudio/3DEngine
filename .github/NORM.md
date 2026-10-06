@@ -275,7 +275,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | listed 83, `NormTests` | listed 279, `NormTests` |
 | N 1.3 | listed 1, `NormTests` | listed 18, `NormTests`, 11 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 10 left out | listed 91, `NormTests`, 22 left out |
+| N 1.4 | checked, `NormTests`, 10 left out | listed 90, `NormTests`, 22 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |

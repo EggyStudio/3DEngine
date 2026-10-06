@@ -122,12 +122,18 @@ internal sealed class ShaderProgram
     /// <summary>One past the highest location a stage writes an output at, for a fragment stage the color attachments it writes, or 0 for one that writes none.</summary>
     internal static int OutputLocations(ReadOnlySpan<byte> spirv) => Locations(spirv, storageClass: 3);
 
+    /// <summary>The locations a stage takes inputs at, so a pipeline feeds those alone.</summary>
+    internal static IReadOnlySet<int> InputLocationSet(ReadOnlySpan<byte> spirv) => LocationSet(spirv, storageClass: 1);
+
     // One past the highest location of a variable of the storage class, Input or Output.
-    private static int Locations(ReadOnlySpan<byte> spirv, uint storageClass)
+    private static int Locations(ReadOnlySpan<byte> spirv, uint storageClass) => LocationSet(spirv, storageClass).DefaultIfEmpty(-1).Max() + 1;
+
+    // The locations of the variables of the storage class that have one, which a built-in lacks.
+    private static HashSet<int> LocationSet(ReadOnlySpan<byte> spirv, uint storageClass)
     {
         const uint magic = 0x07230203, opVariable = 59, opDecorate = 71, location = 30;
         var words = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(spirv);
-        if (words.Length < 5 || words[0] != magic) return 0;
+        if (words.Length < 5 || words[0] != magic) return [];
         var locations = new Dictionary<uint, uint>();
         var inputs = new List<uint>();
         // After the five words of the header, each instruction's first word holds its length in
@@ -140,6 +146,6 @@ internal sealed class ShaderProgram
             if (opcode == opDecorate && length >= 4 && words[at + 2] == location) locations[words[at + 1]] = words[at + 3];
             else if (opcode == opVariable && length >= 4 && words[at + 3] == storageClass) inputs.Add(words[at + 2]);
         }
-        return inputs.Select(id => locations.TryGetValue(id, out var at) ? (int)at + 1 : 0).DefaultIfEmpty(0).Max();
+        return [.. inputs.Where(locations.ContainsKey).Select(id => (int)locations[id])];
     }
 }

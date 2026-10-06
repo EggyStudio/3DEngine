@@ -10,7 +10,16 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ac774ac9`, whose run the owner pushed and all three systems pass, Linux and Windows
+Reviewed up to `56564fe2`. Music opens XM and MOD modules, played by a tracker player of the
+engine's own with no dependency added, readers for FastTracker 2's XM and ProTracker's MOD with its
+kin and the older Soundtracker's, following raylib's jar_xm and measured against it built from the
+pinned checkout: the same length to the frame, the first ten seconds correlating at 1.0 with a mean
+difference of 1e-4 of full scale, and a MOD's panning and loudness as jar_mod's to three places;
+`audio_module_playing` is written, 220 of 222 (`56564fe2`). The run of `ac774ac9` passed its tests
+on all three systems, and its examples job, which measures every pair against raylib's program for
+the first time, is still running.
+
+Before them, the owner pushed `ac774ac9`, whose run passed on all three systems, Linux and Windows
 1,409 each and macOS 1,389 with 10 skipped, so Verdict 25 is settled and 5.1 is packable, the first
 green run on every system since the page. Verdict 25's cause was found and is not what the verdict
 guessed: the system was `GeneratorAttributeTests`' probe, which the test loaded with `Assembly.Load`
@@ -45,17 +54,6 @@ share or draws no frame, the eight pairs that move by the clock or the audio dev
 their reason (`6e87257f`); and fonts draw their color emoji, read by the engine's TrueType reader
 from PNG bitmaps or colored layers, with two generated test fonts and a GPU test, sequences, COLR
 version 1 and sbix kept in TODO.md (`a7d7e1e2`).
-
-Before them, the run of `0019d177` was read from its page: Linux and Windows pass, and macOS fails
-one test, `AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`, 1,371
-passed, 1 failed, 10 skipped, the heap after a hundred apps 6.61 MB above the heap after twenty
-against the 5 MB allowed, where `cac05ded` had 5.87 and both leak tests failing, so `fb68cfad`
-mended the other, which became Verdict 24. The commits: a particle emitter blends a sheet's frames
-into the next over each particle's life, off by default (`9924be97`), `ParticleBlend` in its own
-file, N 1.2's list at 86 (`67048763`), and `LoadTextureCubemap` makes a cube from an image's six
-faces in raylib's four layouts, found by raylib's own tests, models honor `rlDisableDepthMask`, and
-`models_skybox_rendering` is written, 0.2% apart, 219 examples and 516 of 619 functions
-(`586670cd`).
 
 The norm has 43 rules, and this engine stands at 32 checked, 2 with places listed, none to take
 and 9 by review.
@@ -183,22 +181,26 @@ None open.
 
 ## Replies
 
-**Now 2, XM and MOD music.** `LoadMusicStream` and `LoadMusicStreamFromMemory` open tracker modules,
-played by a player of the engine's own with no dependency added. It has readers for FastTracker 2's
-XM and ProTracker's MOD with its kin of 4 to 32 channels and the older Soundtracker's 15 samples,
-one model for both, and a player of rows, ticks, envelopes, the effect column's effects and the
-volume column's, mixed in stereo at 48 kHz. It follows raylib's jar_xm in its frequencies, its
-effects and its mix, and plays as FastTracker 2 does where jar_xm parts from it (a volume column
-applied on every tick, ping-pong loops played forward, a sample offset counted in bytes, a retrigger
-subtracting whole volumes). Against jar_xm built from the pinned checkout, `mini1111.xm` is
-2,974,098 frames long in both, and its first ten seconds correlate at 1.0 with no lag, the mean
-difference 1e-4 of full scale and the largest 0.2 where a note starts, which jar_xm crossfades over
-8 frames and this fades out the cut note under. A MOD's channels are panned as jar_mod pans them,
-left at twice right, at its loudness to three places; jar_mod counts a song about a row shorter than
-where it comes round, and the XM rule is kept for both. raylib starts a module after counting its
-length without resetting its channels or the tick in hand, so its first tick can carry the end of
-the song, which is not copied. `build/make-test-modules.py` writes `tone.xm` and `tone.mod`, and
-tests read their pitch, the volume column, a note let go, C00, the MOD's panning, a song's end at a
-jump back, a seek and bytes that are no module. `audio_module_playing` is written, 2.9% apart, its
-bar the audio device's as `audio_music_stream`'s is, so its row says it moves, and 220 of 222
-examples are written.
+**Now 6, the warnings the suite repeats.** CloseWindow's loaded texture came from thirteen tests
+that left one for the window to free, found by recording where each texture still loaded at a close
+was made: four cubemap tests, the four maps of the materials reference frame, five offscreen render
+tests and the rows of `BadFileTests`, which now let go what they load, the rows through a helper
+that unloads what it has checked. The 'Orb' warning came from `BadFileTests` and the Summit
+reference frame reading Summit's level without Summit's components, its start and exit skipped as
+well below the three lines the page shows, and the tests that read the level register stand-ins
+under the level's names (`SummitComponents`). Windows' audio device is warned of once a process,
+`SdlAudioBackend` logging the same failure at info after the first, so the probe for a device and
+the backend's tests on a machine with none give one warning, which a test holds. On Linux, Ubuntu
+24.04's layer, 1.3.275, predates `VK_KHR_line_rasterization`, so `build/fetch-validation-layer.sh`
+fetches the layer of LunarG's SDK 1.4.363.0, stripped to 33 MB, which both Linux jobs cache by the
+script and name alone in `VK_LAYER_PATH`, apt's layer no longer installed. Run here in the
+workflow's image, the suite passed under it at 1,420 with 251 devices validated, and it found two
+things the old layer could not. The ambient occlusion renderer was never disposed, leaving 16
+objects at `vkDestroyDevice` after its reference frame, and the renderer disposes it now. And a
+material's own vertex stage was fed every row of the instance though it read fewer, which the layer
+warns of, so a custom pipeline declares only the inputs its stage takes, read from its SPIR-V, a
+step of TODO.md's entry on vertex inputs. With both mended the run logged no message of the layer's.
+On macOS, `VK_ADD_LAYER_PATH` added the layer's folder to a search that already finds Homebrew's
+share folder, which links the same layer, and `VK_LAYER_PATH` names it alone. The page here now
+repeats only `ScheduleTests`' system that throws, twice, which it means to provoke and reads. The
+suite passed 1,422 with one skipped.

@@ -367,6 +367,7 @@ public sealed partial class OffscreenRenderTests
         solid.Should().BeLessThan((byte)(hole / 3), "the solid half shadows the wall");
         UnloadModel(square);
         UnloadModel(wall);
+        UnloadTexture(texture);
     }
 
     [NeedsVulkanFact]

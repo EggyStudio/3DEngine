@@ -314,6 +314,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<ParticleRenderer>()?.Dispose();
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
+        RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

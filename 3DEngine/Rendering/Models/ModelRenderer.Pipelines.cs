@@ -37,9 +37,12 @@ internal sealed partial class ModelRenderer
         if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams, depth), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
+        // A vertex stage of the shader's own is fed the inputs it takes and no others, which a
+        // stage that reads less than the instance's every row would leave unread.
+        var inputs = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex) ? ShaderProgram.InputLocationSet(vertex) : null;
         return _customPipelines[(id, renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
-            blend: blend, streams: streams, depth: depth);
+            blend: blend, streams: streams, depth: depth, inputs: inputs);
     }
 
     // A material's own shader's stages, and whether it reads a mesh's colors and second texture
@@ -248,7 +251,7 @@ internal sealed partial class ModelRenderer
 
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
-        Streams streams = Streams.None, bool blend = true, bool depth = true)
+        Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -274,7 +277,7 @@ internal sealed partial class ModelRenderer
                     new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
                 ],
             ],
-            VertexAttributes:
+            VertexAttributes: ((VertexInputAttributeDesc[])
             [
                 new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
                 new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12),
@@ -285,7 +288,8 @@ internal sealed partial class ModelRenderer
                     new VertexInputAttributeDesc(9, 2, VertexFormat.UNormR8G8B8A8, 0),
                     new VertexInputAttributeDesc(10, 3, VertexFormat.Float2, 0),
                 ],
-            ],
+            ])
+            .Where(attribute => inputs is null || inputs.Contains((int)attribute.Location)).ToArray(),
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.

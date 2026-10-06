@@ -15,9 +15,9 @@ on:
 
 jobs:
   linux:
-    # Named rather than ubuntu-latest, since lavapipe and the validation layer come from the
-    # image's packages, and the label moving to a new release would change them under the tests
-    # with no commit to show for it. Moving to the next release is a commit of its own.
+    # Named rather than ubuntu-latest, since lavapipe comes from the image's packages, and the label
+    # moving to a new release would change it under the tests with no commit to show for it. Moving
+    # to the next release is a commit of its own.
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -35,8 +35,19 @@ jobs:
 
       - run: build/fetch-slang.sh
 
+      # The validation layer from LunarG's SDK, at the version build/fetch-validation-layer.sh pins,
+      # since the image's own predates VK_KHR_line_rasterization, which lavapipe offers, and warned at
+      # every device the suite opened. It is named alone in VK_LAYER_PATH, so no other copy is found.
+      - uses: actions/cache@v6
+        with:
+          path: build/tools/vulkan-layer
+          key: vulkan-layer-${{ runner.os }}-${{ hashFiles('build/fetch-validation-layer.sh') }}
+
       - name: Install lavapipe, a Vulkan device on the CPU, and the validation layer
-        run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1 vulkan-validationlayers
+        run: |
+          sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers libvulkan1
+          build/fetch-validation-layer.sh
+          echo "VK_LAYER_PATH=$PWD/build/tools/vulkan-layer/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
@@ -172,7 +183,10 @@ jobs:
       - run: build/fetch-slang.sh
 
       # MoltenVK, the loader and the validation layer from Homebrew, the loader found by the dynamic
-      # linker's fallback path, where .NET looks for it, and MoltenVK and the layer named to it.
+      # linker's fallback path, where .NET looks for it, and MoltenVK and the layer named to it. The
+      # layer's folder is the one the loader searches, in VK_LAYER_PATH, since Homebrew's loader also
+      # searches Homebrew's share folder, which links the same layer, and adding the folder to its
+      # search found the layer twice at every instance.
       - name: Install MoltenVK, the Vulkan loader and the validation layer
         run: |
           brew install molten-vk vulkan-loader vulkan-validationlayers
@@ -180,7 +194,7 @@ jobs:
           echo "DYLD_FALLBACK_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
           echo "VK_DRIVER_FILES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
           echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
-          echo "VK_ADD_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
+          echo "VK_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 

@@ -50,6 +50,7 @@ public sealed class CubemapTests : IDisposable
 
         (cube.Width, cube.Height).Should().Be((4, 4));
         FacesOf(cube).Should().Equal(FaceColors);
+        UnloadTexture(cube);
     }
 
     [Fact]
@@ -58,6 +59,7 @@ public sealed class CubemapTests : IDisposable
         var cube = LoadTextureCubemap(Laid(3, 4, [(1, 1), (1, 3), (1, 0), (1, 2), (0, 1), (2, 1)]), CubemapLayout.AutoDetect);
 
         FacesOf(cube).Should().Equal(FaceColors);
+        UnloadTexture(cube);
     }
 
     [Fact]
@@ -71,6 +73,7 @@ public sealed class CubemapTests : IDisposable
         {
             var faces = new Image(uploads.Single(u => u.Id == cube.Id).Rgba!, 4, 24);
             Enumerable.Range(0, 6).Select(face => GetImageColor(faces, 2, 4 * face + 2)).Should().Equal(FaceColors);
+            UnloadTexture(cube);
         }
     }
 
@@ -82,6 +85,7 @@ public sealed class CubemapTests : IDisposable
         // A cross named as such is read as one whatever its shape says.
         var cube = LoadTextureCubemap(Laid(4, 3, [(2, 1), (0, 1), (1, 0), (1, 2), (1, 1), (3, 1)]), CubemapLayout.CrossFourByThree);
         FacesOf(cube).Should().Equal(FaceColors);
+        UnloadTexture(cube);
     }
 
     [Fact]

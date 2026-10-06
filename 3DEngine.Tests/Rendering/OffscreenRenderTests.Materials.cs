@@ -319,6 +319,7 @@ public sealed partial class OffscreenRenderTests
         var solid = GetImageColor(image, 38, 32);
         (hole.R > 40 && hole.B < 10).Should().BeTrue($"the wall shows through the cut-out half unmixed, not {hole}");
         (solid.B > 40 && solid.R < 10).Should().BeTrue($"the masked half is solid blue, not {solid}");
+        UnloadTexture(texture);
     }
 
     [NeedsVulkanFact]
@@ -331,6 +332,7 @@ public sealed partial class OffscreenRenderTests
 
         var middle = GetImageColor(image, 32, 32);
         (middle.R > 40 && middle.B > 40).Should().BeTrue($"the half-clear texture mixes blue with the red behind, not {middle}");
+        UnloadTexture(texture);
     }
 
     // A triangle around the origin wound counterclockwise seen from +Z, glTF's front, with a
