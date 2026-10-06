@@ -124,10 +124,10 @@ public class ScheduleTests
         lines.Where(line => line.Exception is not null).Select(line => line.Exception!.GetType())
             .Should().Equal([typeof(InvalidOperationException), typeof(ArgumentException)], "each type's first is logged whole, once");
         lines.Select(line => line.Message[(line.Message.IndexOf(name, StringComparison.Ordinal) + name.Length)..]).Should().Equal(
-            "' threw in stage Update",
+            "' from Engine.Tests threw in stage Update",
             "' has thrown InvalidOperationException in stage Update 10 times, the last: frame 10 failed",
             "' has thrown InvalidOperationException in stage Update 100 times, the last: frame 100 failed",
-            "' threw in stage Update",
+            "' from Engine.Tests threw in stage Update",
             "' threw InvalidOperationException in stage Update 996 times in all",
             "' threw ArgumentException in stage Update 4 times in all");
         lines.Should().OnlyContain(line => line.Level == LogLevel.Error);

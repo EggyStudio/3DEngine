@@ -49,6 +49,11 @@ public sealed class ScriptGenerationTests : IDisposable
             first.IsAlive.Should().BeTrue("the script was compiled and its system ran");
             GeneratedBehaviors.All.Should().NotContain(register => register.Method.Module.Assembly.IsCollectible,
                 "the script's compiler registers it into its own app, and the process's list would keep it for every app after");
+            var bare = new App();
+            new EcsPlugin().Build(bare);
+            bare.Schedule.Systems().Should().NotContain(system => system.System.Method.Module.Assembly.IsCollectible,
+                "an app made after, bare with no Time, takes no system of the script the first app compiled");
+            bare.Shutdown();
 
             File.WriteAllText(_folder.File("Thrower.cs"), Script(exception + "Again", throws: false));
             app.World.Resource<RuntimeBehaviorCompiler>().Recompile().Success.Should().BeTrue();

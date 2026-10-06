@@ -9,6 +9,13 @@ public sealed partial class Schedule
             return _systemsByStage[stage].Select(system => system.Name).ToArray();
     }
 
+    /// <summary>Every system registered, each stage's in the order they run.</summary>
+    internal IReadOnlyList<SystemDescriptor> Systems()
+    {
+        lock (_lock)
+            return [.. _systemsByStage.Values.SelectMany(systems => systems)];
+    }
+
     /// <summary>Returns the number of systems registered to the given stage.</summary>
     /// <param name="stage">The <see cref="Stage"/> to query.</param>
     /// <returns>The count of systems in the specified stage.</returns>

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -21,9 +22,8 @@ namespace Engine.Tests.Behaviors;
 [Trait("Category", "Integration")]
 public class GeneratorAttributeTests
 {
-    // One source with a use of every attribute. Each method counts its runs in Probe, but only in
-    // the app this test made, since another test's app scans loaded assemblies for behaviors and
-    // would run these as well.
+    // One source with a use of every attribute. Each method counts its runs in Probe, and only in
+    // the app this test made.
     private const string Source = """
         using Engine;
 
@@ -286,6 +286,15 @@ public class GeneratorAttributeTests
         app.Shutdown();
         Runs("Cleanup").Should().Be(1, "[OnCleanup] runs when the app shuts down");
 
+        // An app made after, bare as the state tests make theirs with no Time, takes none of the
+        // probe's behaviors, whose startup system would throw for the Time it lacks.
+        GeneratedBehaviors.All.Should().NotContain(registration => registration.Method.Module.Assembly == assembly);
+        var bare = new App();
+        new EcsPlugin().Build(bare);
+        bare.Schedule.Systems().Should().NotContain(system => system.System.Method.Module.Assembly == assembly,
+            "an app takes the behaviors of the program's assemblies and of no assembly a test compiled for its own app");
+        bare.Shutdown();
+
         ConsoleCommands.Run("probe.ping").Should().Be("pong", "[Command] puts the method in the console's catalog");
         ConsoleCommands.Find("notacommand").Should().BeNull("a method without [Command] is not one");
         SceneComponents.Find("GeneratorProbe.Marker").Should().NotBeNull("[SceneComponent] registers the type for scene files");
@@ -293,7 +302,11 @@ public class GeneratorAttributeTests
     }
 
     // Runs every generator over Source, emits the result and loads it, running its module
-    // initializers, where the command and scene component generators register what they found.
+    // initializers, where the command and scene component generators register what they found. It
+    // loads into a context that can be let go, as a script compiled while an app runs does, so the
+    // process's list of behaviors passes its registration over and the test registers it into its
+    // own app alone. Loaded with Assembly.Load, it registered its behaviors into every app the
+    // suite made after, which on macOS reached the state tests' bare apps.
     private static Assembly CompileAndLoad()
     {
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
@@ -311,7 +324,8 @@ public class GeneratorAttributeTests
         using var image = new MemoryStream();
         var emitted = output.Emit(image);
         emitted.Success.Should().BeTrue(string.Join("\n", emitted.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
-        var assembly = Assembly.Load(image.ToArray());
+        image.Position = 0;
+        var assembly = new AssemblyLoadContext(compilation.AssemblyName, isCollectible: true).LoadFromStream(image);
         RuntimeHelpers.RunModuleConstructor(assembly.ManifestModule.ModuleHandle);
         return assembly;
     }

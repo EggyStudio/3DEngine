@@ -202,3 +202,21 @@ Verdicts 1 to 24 are settled, and their numbers are not given again.
 its own text allows since 2026-10-05 a row N 1.5 asks for, so the table of areas names `docs`,
 `games` and `templates` and N 1.5's list is empty. NORM.md's row for N 1.5 still says three wait for
 the owner, which is the reviewer's to change.
+
+**Verdict 25.** The system was no script's. `Stages_Generated_Startup_Startup` is the name the
+behavior generator gives in a build as at run time, and `Stages` is the probe of
+`GeneratorAttributeTests`, the one source in the suite with that type. That test compiled its probe
+and loaded it with `Assembly.Load`, into a context that is never let go, so the probe's module
+initializer put its registration in the process's list, which `GeneratedBehaviors.Add` keeps for an
+assembly of the program and passes over for a collectible one, and every app the suite made after it
+with `EcsPlugin` ran the probe's systems, the state tests' bare apps with no `Time` among them.
+Whether the state tests come after it is the order the collections, run side by side, reach them in,
+which differs between the three systems. The probe now loads into a collectible context, as a
+script's generation does, so the list passes it over and the test registers it into its own app
+alone, and the test then makes a bare app with `EcsPlugin` and finds none of the probe's systems in
+it, which fails with `Assembly.Load` put back. `ScriptGenerationTests` makes the same bare app after
+a script's first generation and finds none of its systems either. No other test loads what it
+compiles. The engine's rule stands as it was. An assembly loaded where it cannot be let go is part
+of the program, as a plugin a game loads is, and its behaviors go to every app, while one compiled
+at run time goes to the app that compiled it alone. A system that throws is logged with its
+assembly's name, `System 'X' from Y threw in stage Z`, so a page says where it came from.

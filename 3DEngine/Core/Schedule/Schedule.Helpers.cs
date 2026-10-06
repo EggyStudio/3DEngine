@@ -214,7 +214,7 @@ public sealed partial class Schedule
         }
         catch (Exception ex)
         {
-            ReportThrown(stage, desc.Name, ex);
+            ReportThrown(stage, desc, ex);
         }
         finally
         {
@@ -233,9 +233,12 @@ public sealed partial class Schedule
     private readonly Dictionary<(Stage Stage, string System, string Exception), long> _thrown = [];
 
     // Logs an exception a system threw: whole the first time that system throws that type in that
-    // stage, and after that a line at the 10th, the 100th, the 1,000th and so on.
-    private void ReportThrown(Stage stage, string system, Exception ex)
+    // stage, and after that a line at the 10th, the 100th, the 1,000th and so on. The whole line
+    // names the assembly the system's code is in, so a system that reached an app it was not
+    // written for, as a probe one test compiled once did, says where it came from.
+    private void ReportThrown(Stage stage, SystemDescriptor desc, Exception ex)
     {
+        var system = desc.Name;
         long count;
         lock (_thrown)
         {
@@ -244,7 +247,7 @@ public sealed partial class Schedule
             _thrown[key] = ++count;
         }
         if (count == 1)
-            Logger.Error($"System '{system}' threw in stage {stage}", ex);
+            Logger.Error($"System '{system}' from {desc.System.Method.Module.Assembly.GetName().Name} threw in stage {stage}", ex);
         else if (IsPowerOfTen(count))
             Logger.Error($"System '{system}' has thrown {ex.GetType().Name} in stage {stage} {count:N0} times, the last: {ex.Message}");
     }
