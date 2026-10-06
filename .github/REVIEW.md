@@ -169,3 +169,30 @@ failed, 1 skipped, the set-layout test taught the four buffers.
 Shared: a reflection probe's capture filtered on the GPU with nothing read back, which BevyCSharp
 has from Bevy's filter of a cubemap, and the mips of an equirectangular image overweighting a pole,
 which either engine's filter from such an image may have.
+
+**Now 4, C# typed at a running program.** `./e3d eval <code>` and `./e3d eval -f <file.cs>` compile
+C# against the running app and run it on the main thread between frames, as the `eval` command every
+app has, so `e3d command eval` and `e3d list` have it too. A fragment is a program's top-level
+statements, compiled with an example's usings and the flat API, and with `world`, `ecs` and `app` in
+scope, so a file may begin with usings, await, and declare local functions and types after its
+statements. A last expression with no semicolon answers with its value, as C# Interactive does, a
+collection by its first 50 items and a value with no text of its own by its fields, as `entity.get`
+shows a component. A fragment is compiled against every assembly the process has loaded, so a game's
+own types are in reach, into a collectible load context let go after its run, and the references are
+read once for the process through the cache the script compiler had, moved to a class both use. Code
+that does not compile fails with `EVAL_COMPILE_FAILED` and the compiler's first errors by line and
+column, and code that throws with `EVAL_THREW` and the exception's type and message, its stack in
+the log. The first fragment held its frame for about two seconds while Roslyn's own code was
+compiled, and each after for about 150 ms, measured with `profile.slowest` on
+`models_reflection_probe`. A native build refuses before compiling, behind
+`RuntimeFeature.IsDynamicCodeSupported`, and the build stays free of trim warnings. It runs any code
+with the app's rights, which are those of the user who owns the session file, as the guide and the
+skill say. The skill and `docs/driving-with-e3d.md` have a passage on it, the README a line, and
+TODO.md's entry goes. Four tests run fragments against a world: an expression, statements that
+change the world and a value shown by its fields, a file with a using, an await, a local function
+and a record, and a compile error and an exception refused with their codes. The suite: 1,333
+passed, 0 failed, 1 skipped.
+
+Shared: C# typed at a running app, in the library here where BevyCSharp keeps it in its editor, as
+top-level statements with the last bare expression as the answer, which SHARED.md's row to consider
+may record as had by both.

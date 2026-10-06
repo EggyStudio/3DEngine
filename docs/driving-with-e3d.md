@@ -123,6 +123,28 @@ Commands run on the main thread between frames, so they read and change the worl
 does. A game gives itself a cheat, a level skip or a report of its own state this way, and a test
 script calls them.
 
+## C# typed at a running program
+
+`./e3d eval` compiles C# against the running program and runs it on the main thread between
+frames, for what no command was written for. The world is `world`, the ECS `ecs` and the app
+`app`, with the namespaces an example's file has, the flat API among them. A last expression with
+no semicolon answers with its value:
+
+```bash
+./e3d eval 'ecs.EntityCount'
+./e3d eval 'ecs.Query<Transform>().Select(row => row.Item2.Position)'
+./e3d eval 'var e = ecs.Spawn(); ecs.Add(e, new Transform(new Vector3(0, 5, 0))); e'
+./e3d eval 'SetTargetFPS(30)'
+./e3d eval -f look.cs
+```
+
+A file is a program's top-level statements, as a `Program.cs` is, so it may begin with using
+directives and declare local functions and types after its statements, and the game's own types
+are in reach. A fragment that does not compile is refused with the compiler's errors and their
+lines, and one that throws with the exception's type and message, its stack in the log. The first
+fragment holds its frame for about two seconds while the compiler starts, and each after for
+about 150 milliseconds. A native build has no compiler and refuses it.
+
 ## Scripts and agents
 
 Every verb takes `--json` and prints one envelope with `success`, the answer under `data`, and any
@@ -143,7 +165,8 @@ same way. An AI agent working on a game drives it through the same commands, whi
 [`.claude/skills/e3d-cli/SKILL.md`](../.claude/skills/e3d-cli/SKILL.md) teaches.
 
 The socket listens on 127.0.0.1 alone, and each request carries a token from a session file only
-the program's user can read.
+the program's user can read. `eval` runs any code with the program's rights, which are that user's
+own.
 
 ## See also
 

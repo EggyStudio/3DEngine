@@ -79,6 +79,8 @@ internal static class Help
                                              flags: --headless, --offscreen, --hidden, --frames <n>
               e3d list                       the commands the app answers
               e3d command <name> [args]      run one (alias: cmd)
+              e3d eval <code>                compile C# against the running app and run it
+              e3d eval -f <file.cs>          the same for a file
               e3d shot <path.png>            capture the window
               e3d logs [-n <lines>]          the app's log
               e3d stop                       close the app

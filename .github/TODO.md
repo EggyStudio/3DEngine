@@ -272,7 +272,3 @@ checks at the end of STYLE.md report what is left.
   `build.yml` captures every example and plays every game on Linux alone, so a game's input,
   sound and a window are not tried on the other two, and the Windows and macOS jobs had not run
   when they were written.
-- **The command line has no evaluator.** `./e3d` lists, runs commands, drives input (keyboard,
-  text, mouse and gamepads, reaching ImGui as well) and captures, spawns and despawns entities,
-  adds components and writes their fields, arrays among them, and a game adds commands with
-  `[Command]`, but C# cannot be typed at a running app.

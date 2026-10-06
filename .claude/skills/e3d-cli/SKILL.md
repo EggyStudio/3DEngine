@@ -79,6 +79,18 @@ internal static string Spawn(int count) { /* ConsoleHost.Ecs, ConsoleHost.World 
 
 Commands run between frames on the main thread, so they may read and change the world.
 
+For what no command covers, `./e3d eval` compiles C# against the running app and runs it there,
+with `world`, `ecs` and `app` in scope and the flat API imported. A last expression with no
+semicolon is the answer, and `-f <file.cs>` sends a file of top-level statements:
+
+```bash
+./e3d eval 'ecs.Query<Transform>().Select(row => row.Item2.Position)'
+./e3d eval 'var e = ecs.Spawn(); ecs.Add(e, new Transform(new Vector3(0, 5, 0))); e'
+```
+
+A fragment that does not compile fails with `EVAL_COMPILE_FAILED` and the compiler's errors by
+line, one that throws with `EVAL_THREW`, and the first holds its frame for about two seconds.
+
 ## Input goes through the engine, not the desktop
 
 `input.*` writes into the engine's `Input` and hands keys, text and mouse events to ImGui, so it
@@ -136,4 +148,5 @@ A change to the engine needs the examples rebuilt before `e3d open` shows it, wh
 
 The socket listens on 127.0.0.1 only, on a port the system picks, and every request carries a
 token from the session file, which only its owner can read. Session files live in
-`~/.local/share/3DEngine/sessions` (or `E3D_SESSIONS`).
+`~/.local/share/3DEngine/sessions` (or `E3D_SESSIONS`). `eval` runs any code with the app's
+rights, which are those of the user who owns that file.

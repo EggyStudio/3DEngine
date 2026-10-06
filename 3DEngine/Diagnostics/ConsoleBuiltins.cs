@@ -445,7 +445,7 @@ internal static class ConsoleBuiltins
     // A component's public fields and properties, one level deep. Reflection is used here and
     // nowhere in the engine's hot paths, because it reads any component without a schema.
     [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = ByReflection)]
-    private static string Describe(object? value)
+    internal static string Describe(object? value)
     {
         if (value is null) return "{}";
         var type = value.GetType();

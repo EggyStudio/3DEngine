@@ -221,7 +221,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Behaviors and the ECS](https://github.com/EggyStudio/3DEngine/blob/main/docs/behaviors-and-the-ecs.md) | Behaviors, stages, spawning entities, filters, and the world from the loop |
 | [States](https://github.com/EggyStudio/3DEngine/blob/main/docs/states.md) | Screens and modes as a state, behaviors that follow it, and states within states |
 | [Scenes](https://github.com/EggyStudio/3DEngine/blob/main/docs/scenes.md) | Saving and loading levels, the file, a program's own components, and scenes inside scenes |
-| [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log and commands of its own |
+| [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log, commands of its own and C# typed at it |
 | [Shipping a game](https://github.com/EggyStudio/3DEngine/blob/main/docs/shipping-a-game.md) | A game of its own on the package, and one native executable a player runs |
 | [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md) | What is the same as raylib, what this engine adds, what it costs, and what was measured |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
@@ -235,6 +235,7 @@ without opening a visible window:
 ./e3d open models_loading --offscreen  # renders, with no window and no display needed
 ./e3d command entity.count
 ./e3d command input.key W 40           # input through the engine
+./e3d eval 'ecs.Query<Transform>().Count()'  # C# compiled against the running world
 ./e3d shot after.png                   # the next frame, as a PNG
 ./e3d stop
 ```

@@ -75,6 +75,29 @@ internal static class Verbs
         return Output.Print(options, CliClient.Send(session, "run", Line(arguments), options.Timeout));
     }
 
+    /// <summary>Runs C# in the app, typed after the verb or read from a file named by <c>-f</c>.</summary>
+    public static int Eval(Options options, string[] arguments)
+    {
+        if (arguments.Length == 0)
+            return Output.Refuse(options, "eval", "BAD_ARGUMENT", "What should run? e3d eval <code>, or e3d eval -f <file.cs>.");
+
+        string code;
+        if (arguments[0] is "-f" or "--file")
+        {
+            if (arguments.Length != 2)
+                return Output.Refuse(options, "eval", "BAD_ARGUMENT", "Name one file: e3d eval -f <file.cs>.");
+            // Read here rather than by the app, whose working folder may be another.
+            if (!File.Exists(arguments[1]))
+                return Output.Refuse(options, "eval", "NOT_FOUND", $"There is no file '{arguments[1]}'.");
+            code = File.ReadAllText(arguments[1]);
+        }
+        else code = string.Join(" ", arguments);
+
+        if (Sessions.Pick(options, "eval", out var refusal) is not { } session) return Output.Print(options, refusal);
+        // Quoted whole, so the app hands the command the code as it was written, quotes and all.
+        return Output.Print(options, CliClient.Send(session, "run", $"eval {Quoted(code)}", options.Timeout));
+    }
+
     public static int Shot(Options options, string[] arguments)
     {
         if (arguments.Length == 0)
@@ -136,5 +159,8 @@ internal static class Verbs
 
     // Words back into a line the app splits again, quoting any that hold spaces.
     private static string Line(string[] words) => string.Join(" ", words.Select(word =>
-        word.Length > 0 && !word.Any(char.IsWhiteSpace) ? word : $"\"{word.Replace("\\", "\\\\").Replace("\"", "\\\"")}\""));
+        word.Length > 0 && !word.Any(char.IsWhiteSpace) ? word : Quoted(word)));
+
+    // Text in quotes, with its own quotes and backslashes escaped, as the app's console takes it.
+    private static string Quoted(string text) => $"\"{text.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
 }

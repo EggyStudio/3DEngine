@@ -11,6 +11,7 @@ return rest[0] switch
     "status" => Verbs.Status(options),
     "list" => Verbs.List(options),
     "command" or "cmd" => Verbs.Command(options, rest[1..]),
+    "eval" => Verbs.Eval(options, rest[1..]),
     "shot" or "screenshot" => Verbs.Shot(options, rest[1..]),
     "stop" => Verbs.Stop(options),
     "open" => Launch.Open(options, rest[1..]),
