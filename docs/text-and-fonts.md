@@ -68,6 +68,17 @@ The gap before the first glyph is the space between glyphs, and the gap above th
 space between rows. The atlas is point filtered, so the font drawn at a whole multiple of its size
 stays sharp pixels.
 
+A font made with AngelCode's BMFont, a `.fnt` file in its text form with the images of its pages
+beside it, is read by `LoadFont` as well, its pages stacked into one atlas and its size its line
+height, as raylib reads it. A page of gray alone is the glyphs' coverage, drawn white so the text
+takes its tint. `text_font_loading` draws one beside the TrueType font it was made from, and
+`text_unicode_emojis` draws emojis, Chinese, Japanese and Korean from three:
+
+```csharp
+Font fontBm = LoadFont("resources/pixantiqua.fnt"); // Requires "resources/pixantiqua.png"
+DrawTextEx(fontBm, "BMFont", new Vector2(20, 100), fontBm.BaseSize, 2, Color.Maroon);
+```
+
 ## Characters past Latin-1
 
 A font holds only the characters it was baked with. Text in Greek, Cyrillic or another script, or

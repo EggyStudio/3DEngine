@@ -88,3 +88,12 @@ models/resources/models/obj/character.mtl
 models/resources/models/obj/character_diffuse.png
 textures/resources/road.png
 textures/resources/raybunny.png
+text/resources/pixantiqua.fnt
+text/resources/pixantiqua.png
+text/resources/pixantiqua.ttf
+text/resources/dejavu.fnt
+text/resources/dejavu.png
+text/resources/noto_cjk.fnt
+text/resources/noto_cjk.png
+text/resources/symbola.fnt
+text/resources/symbola.png

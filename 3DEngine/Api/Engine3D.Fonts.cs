@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
+using StbImageSharp;
 
 namespace Engine;
 
@@ -154,13 +155,124 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// Loads a TrueType or OpenType font at 32 pixels, or a font drawn as an image, a PNG whose
-    /// glyphs are separated by magenta from the space on, as raylib's <c>LoadFont</c> reads one.
+    /// Loads a TrueType or OpenType font at 32 pixels, a font drawn as an image, a PNG whose
+    /// glyphs are separated by magenta from the space on, or a BMFont <c>.fnt</c> file with the
+    /// images of its pages beside it, as raylib's <c>LoadFont</c> reads each.
     /// </summary>
-    public static Font LoadFont(string fileName) =>
-        Path.GetExtension(fileName).ToLowerInvariant() is ".png" or ".bmp" or ".tga" or ".gif" or ".jpg"
-            ? LoadFontFromImage(LoadImage(fileName), Color.Magenta, 32)
-            : LoadFontEx(fileName, 32);
+    /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
+    public static Font LoadFont(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".png" or ".bmp" or ".tga" or ".gif" or ".jpg" => LoadFontFromImage(LoadImage(fileName), Color.Magenta, 32),
+        ".fnt" => LoadBMFont(fileName),
+        _ => LoadFontEx(fileName, 32),
+    };
+
+    // A font AngelCode's BMFont wrote in its text form: a line of the sizes common to every page, a
+    // line naming each page's image, beside the file, and a line for each character, where it is in
+    // its page and where it sits from the pen. The pages are stacked into one atlas, as raylib
+    // stacks them, its height the line height, and a page of gray alone is the glyphs' coverage,
+    // drawn white, as raylib reads one.
+    private static Font LoadBMFont(string fileName)
+    {
+        var path = ResolveFile(fileName);
+        if (path is null)
+        {
+            ApiLogger.Warn($"LoadFont: '{fileName}' was not found beside the program or in the working directory. Using the default font.");
+            return GetFontDefault();
+        }
+        string[] lines;
+        try
+        {
+            lines = File.ReadAllLines(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ApiLogger.Warn($"LoadFont: '{fileName}' could not be read, {ex.Message}. Using the default font.");
+            return GetFontDefault();
+        }
+
+        int lineHeight = 0, pageWidth = 0, pageHeight = 0, pageCount = 1;
+        var pageFiles = new Dictionary<int, string>();
+        var chars = new List<Dictionary<string, string>>();
+        foreach (var line in lines)
+        {
+            var tag = line.Split(' ', 2)[0];
+            var fields = BMFontFields(line);
+            int Int(string key) => fields.TryGetValue(key, out var v) && int.TryParse(v, out var n) ? n : 0;
+            switch (tag)
+            {
+                case "common":
+                    (lineHeight, pageWidth, pageHeight, pageCount) = (Int("lineHeight"), Int("scaleW"), Int("scaleH"), Math.Max(1, Int("pages")));
+                    break;
+                case "page" when fields.TryGetValue("file", out var file):
+                    pageFiles[Int("id")] = file;
+                    break;
+                case "char":
+                    chars.Add(fields);
+                    break;
+            }
+        }
+        if (lineHeight <= 0 || pageWidth <= 0 || pageHeight <= 0 || pageFiles.Count == 0)
+        {
+            ApiLogger.Warn($"LoadFont: '{fileName}' has no line height, page size or page in its BMFont lines. Using the default font.");
+            return GetFontDefault();
+        }
+
+        var atlasData = new byte[pageWidth * pageHeight * pageCount * 4];
+        var directory = Path.GetDirectoryName(path) ?? "";
+        for (int page = 0; page < pageCount; page++)
+        {
+            if (!pageFiles.TryGetValue(page, out var file)) continue;
+            ImageResult image;
+            try
+            {
+                using var stream = File.OpenRead(Path.Combine(directory, file));
+                image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
+            {
+                ApiLogger.Warn($"LoadFont: page '{file}' of '{fileName}' could not be read, {ex.Message}. Using the default font.");
+                return GetFontDefault();
+            }
+            var gray = image.SourceComp is ColorComponents.Grey;
+            for (int y = 0; y < Math.Min(image.Height, pageHeight); y++)
+            for (int x = 0; x < Math.Min(image.Width, pageWidth); x++)
+            {
+                var from = (y * image.Width + x) * 4;
+                var to = ((page * pageHeight + y) * pageWidth + x) * 4;
+                if (gray)
+                    (atlasData[to], atlasData[to + 1], atlasData[to + 2], atlasData[to + 3]) = (255, 255, 255, image.Data[from]);
+                else
+                    image.Data.AsSpan(from, 4).CopyTo(atlasData.AsSpan(to));
+            }
+        }
+
+        float atlasWidth = pageWidth, atlasHeight = pageHeight * pageCount;
+        var glyphs = new Dictionary<int, Glyph>();
+        foreach (var c in chars)
+        {
+            int Int(string key) => c.TryGetValue(key, out var v) && int.TryParse(v, out var n) ? n : 0;
+            var (x, y, width, height) = (Int("x"), Int("y") + Int("page") * pageHeight, Int("width"), Int("height"));
+            var (offsetX, offsetY) = (Int("xoffset"), Int("yoffset"));
+            glyphs[Int("id")] = new Glyph(offsetX, offsetY, offsetX + width, offsetY + height,
+                x / atlasWidth, y / atlasHeight, (x + width) / atlasWidth, (y + height) / atlasHeight, Int("xadvance"));
+        }
+
+        var atlas = new Image(atlasData, pageWidth, pageHeight * pageCount);
+        return new Font(LoadTextureFromImage(atlas), lineHeight, lineHeight, glyphs, atlas);
+    }
+
+    // A BMFont line's key=value fields, a value in quotes where it may hold spaces.
+    private static Dictionary<string, string> BMFontFields(string line)
+    {
+        var fields = new Dictionary<string, string>();
+        foreach (System.Text.RegularExpressions.Match m in BMFontField().Matches(line))
+            fields[m.Groups["key"].Value] = m.Groups["value"].Value.Trim('"');
+        return fields;
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex("""(?<key>\w+)=(?<value>"[^"]*"|\S+)""")]
+    private static partial System.Text.RegularExpressions.Regex BMFontField();
 
     /// <summary>
     /// Makes a font from an image of its glyphs, as a pixel-art game draws one, each glyph a run of

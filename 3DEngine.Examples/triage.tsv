@@ -115,11 +115,9 @@ textures_portal_window	missing	the depth test turned off and on, and a projectio
 text_sprite_fonts	can
 text_font_spritefont	can
 text_font_filters	can
-text_font_loading	missing	BMFont's .fnt files
 text_format_text	can
 text_writing_anim	can
 text_rectangle_bounds	can	with GetGlyphInfo by code point in GetGlyphIndex's place
-text_unicode_emojis	missing	BMFont's .fnt files
 text_unicode_ranges	can
 text_3d_drawing	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_codepoints_loading	can

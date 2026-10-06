@@ -92,6 +92,12 @@ case "$example" in
     # The glass over the red parrot's head, where raylib's screenshot holds it.
     ./e3d command input.move 510 150 --quiet
     ;;
+  text_unicode_emojis)
+    # An emoji in the middle of the third row picked, so its message shows, as raylib's screenshot has one.
+    ./e3d command input.move 385 265 --quiet
+    ./e3d command frames.wait 3 --quiet
+    ./e3d command input.click 385 265 --quiet
+    ;;
   shaders_rlgl_compute)
     # A brush of 24 drawn across the grid in a loop, which the capture's wait lets grow.
     ./e3d command input.wheel 16 --quiet

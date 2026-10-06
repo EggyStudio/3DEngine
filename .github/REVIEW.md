@@ -288,3 +288,14 @@ A render test takes the larger of each channel under `RlBlendEquation.Max`, keep
 color while replacing its alpha, and adds a clear texel's color. `shapes_top_down_lights` and
 `textures_magnifying_glass` are raylib's, and `raybunny.png` is fetched with the rest. The table
 stands at 200 written and 21 missing, BMFont's two rows next.
+
+**Now 2, BMFont's two rows.** `LoadFont` reads a `.fnt` file in BMFont's text form, as raylib's
+does: its pages stacked into one atlas, each character placed from its page and offsets, the
+line height taken for the font's size, and a page of gray alone, as `pixantiqua.png` is, drawn
+white with its gray as coverage, which StbImageSharp's source components tell. A test writes a
+gray page and a page of color and finds the two stacked, a character past U+FFFF on the second,
+and the gray page's coverage white. `text_font_loading` and `text_unicode_emojis` are raylib's,
+the second's emojis and messages taken from raylib's bytes into C# strings, its boxed text
+`text_rectangle_bounds`' own, and the nine font files are fetched with the rest. The table stands
+at 202 written and 19 missing, the rows with a gap of one each next, depth written by a shader's
+two first.

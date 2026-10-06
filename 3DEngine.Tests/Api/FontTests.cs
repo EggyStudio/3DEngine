@@ -252,4 +252,83 @@ public class FontTests
         var y = Math.Clamp((int)(v * image.Height), 0, image.Height - 1);
         return image.Data[(y * image.Width + x) * 4 + 3];
     }
+
+    [Fact]
+    public void A_BMFont_File_Stacks_Its_Pages_Into_One_Atlas_A_Gray_Page_Drawn_White_And_Places_Each_Character()
+    {
+        using var folder = new TestFolder("engine-bmfont-");
+        // A gray page with one pixel of coverage, and a page of color with one red pixel half clear
+        var gray = new byte[16];
+        gray[0] = 200;
+        File.WriteAllBytes(Path.Combine(folder.Path, "gray.png"), GrayPng(gray, 4, 4));
+        var rgba = new byte[64];
+        ((byte[])[255, 0, 0, 128]).CopyTo(rgba, ((1 * 4) + 2) * 4);
+        PngWriter.Write(Path.Combine(folder.Path, "color page.png"), rgba, 4, 4);
+        File.WriteAllText(Path.Combine(folder.Path, "test.fnt"), """
+            info face="Test" size=8 bold=0 italic=0
+            common lineHeight=10 base=8 scaleW=4 scaleH=4 pages=2 packed=0
+            page id=0 file="gray.png"
+            page id=1 file="color page.png"
+            chars count=2
+            char id=65     x=0  y=0  width=2  height=3  xoffset=1  yoffset=2  xadvance=4  page=0  chnl=15
+            char id=128512 x=2  y=1  width=2  height=2  xoffset=0  yoffset=-1 xadvance=5  page=1  chnl=15
+            """);
+
+        var app = new App();
+        app.World.InitResource<TextureStore>();
+        Engine3D.UseApp(app);
+        try
+        {
+            var font = Engine3D.LoadFont(Path.Combine(folder.Path, "test.fnt"));
+
+            (font.BaseSize, font.LineHeight).Should().Be((10f, 10f), "raylib takes the line height for the font's size");
+            (font.Atlas.Width, font.Atlas.Height).Should().Be((4, 8), "the two pages stacked");
+            font.Glyphs['A'].Should().Be(new Glyph(1, 2, 3, 5, 0, 0, 0.5f, 3 / 8f, 4));
+            font.Glyphs[0x1F600].Should().Be(new Glyph(0, -1, 2, 1, 0.5f, 5 / 8f, 1, 7 / 8f, 5), "the second page's characters sit below the first's");
+            Engine3D.GetImageColor(font.Atlas, 0, 0).Should().Be(new Color(255, 255, 255, 200), "a gray page's coverage is drawn white");
+            Engine3D.GetImageColor(font.Atlas, 1, 0).Should().Be(new Color(255, 255, 255, 0));
+            Engine3D.GetImageColor(font.Atlas, 2, 5).Should().Be(new Color(255, 0, 0, 128), "a page of color is kept as it is");
+            Engine3D.UnloadFont(font);
+        }
+        finally
+        {
+            Engine3D.UseApp(null);
+        }
+    }
+
+    // A PNG of one gray channel, which PngWriter, writing four, does not make.
+    private static byte[] GrayPng(byte[] pixels, int width, int height)
+    {
+        static void Chunk(Stream stream, string type, byte[] data)
+        {
+            var typed = System.Text.Encoding.ASCII.GetBytes(type).Concat(data).ToArray();
+            stream.Write(BitConverter.GetBytes(System.Buffers.Binary.BinaryPrimitives.ReverseEndianness(data.Length)));
+            stream.Write(typed);
+            var crc = 0xFFFFFFFFu;
+            foreach (var b in typed)
+            {
+                crc ^= b;
+                for (int k = 0; k < 8; k++) crc = (crc & 1) != 0 ? 0xEDB88320u ^ (crc >> 1) : crc >> 1;
+            }
+            stream.Write(BitConverter.GetBytes(System.Buffers.Binary.BinaryPrimitives.ReverseEndianness(~crc)));
+        }
+        using var png = new MemoryStream();
+        png.Write([0x89, (byte)'P', (byte)'N', (byte)'G', 0x0D, 0x0A, 0x1A, 0x0A]);
+        var header = new byte[13];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(header, width);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(header.AsSpan(4), height);
+        header[8] = 8;  // bits per channel
+        header[9] = 0;  // gray
+        Chunk(png, "IHDR", header);
+        using var compressed = new MemoryStream();
+        using (var zlib = new System.IO.Compression.ZLibStream(compressed, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
+            for (int y = 0; y < height; y++)
+            {
+                zlib.WriteByte(0);
+                zlib.Write(pixels, y * width, width);
+            }
+        Chunk(png, "IDAT", compressed.ToArray());
+        Chunk(png, "IEND", []);
+        return png.ToArray();
+    }
 }
