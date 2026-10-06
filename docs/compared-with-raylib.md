@@ -124,6 +124,7 @@ another name or takes another shape, it is here with the reason.
 | `Camera`, raylib's other name for `Camera3D` | `Camera3D` alone | `Camera` is the component a camera entity holds in the ECS, whose components have Bevy's names |
 | `Mesh` | `ModelMesh`, a handle to a mesh's buffers on the GPU | `Mesh` is the component a mesh entity holds, and raylib's holds its arrays on the CPU, where a mesh here keeps its vertices on the GPU |
 | `Material` | `ModelMaterial`, a color, maps and the model pass's values | `Material` is the component a mesh entity holds, and a model's material here is drawn by the model pass rather than by a shader and its maps |
+| `Transform`'s `translation` | `Position` | `Transform` is also the component an entity is placed by, whose fields scene files name and the sibling engine's `Transform` names the same, so a level saved before reads as it did |
 | `Vector2`, `Vector3`, `Vector4`, `Matrix`, `Quaternion` | `System.Numerics`' `Vector2`, `Vector3`, `Vector4`, `Matrix4x4` and `Quaternion` | They are C#'s own, which the runtime computes with SIMD |
 | `FilePathList` | `string[]` | An array keeps its count |
 | A pointer and its count, as `DrawLineStrip(points, pointCount, color)` | One array or span, `DrawLineStrip(points, color)` | An array or a span knows its length |

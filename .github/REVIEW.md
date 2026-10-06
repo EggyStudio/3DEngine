@@ -277,3 +277,8 @@ some arguments. One more is the next batch: the ECS `Transform`'s `Position`, wh
 the render tests pass on lavapipe under the layer, 107 of them. The surface lost and reshaped lines
 (`PublicApi.txt`, 69 in and 61 out), which Decision 5 puts to the owner to number. The suite:
 1,436 passed, none skipped.
+
+**Now 5, the ECS `Transform`.** Kept as `Position`, with its reason on the comparison page:
+BevyCSharp's `Transform` names the field the same, and the levels and prefabs of the games, which
+`SaveScene` writes and `LoadScene` reads, store it by that name, so renaming it would leave every
+saved level unread. With it, every name the reading found is raylib's or on the page with its reason.
