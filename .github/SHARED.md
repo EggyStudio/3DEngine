@@ -76,7 +76,7 @@ table also answers whether the two agree.
 | Sub-states and computed states, declared on the enum | has (`16c4c1e`) | has (`eca05448`) |
 | A system run on a move from one value to a particular other | taken at `66a5b4d` | has (`OnTransition`, `3ca94c66`) |
 | An entity that lives as long as a state holds a value | has (`DespawnOnExit`) | taken at `8a96917c` |
-| A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`) | to take |
+| A script compiled again while a game runs keeps the state the game was in | has (`16c4c1e`), by its scene schemas | has (`2d506d4b`), by the fields themselves |
 
 ### Physics
 
@@ -178,7 +178,7 @@ table also answers whether the two agree.
 | A mesh's colors and second texture coordinates as buffers of their own beside a fixed vertex, drawn through a second vertex stage only where a mesh has them, so a mesh without them costs what it did, measured | to consider, Bevy's meshes carrying their own attributes | has (`cac05ded`), the same work without them and 7 percent more with both |
 | Every text file has LF ends in every checkout, by `.gitattributes`, so a test that reads a page or a script reads the same lines on Windows | has (`5264257`), after its first page failed two tests on Windows for CRLF | has (`1c1a3cea`), after its page showed a test reading no code blocks on Windows |
 | A render target of several images of their own formats, a pass described by its formats so targets alike share pipelines, and a shader's outputs read from its SPIR-V to mask the rest | to consider, Bevy's deferred pipeline having its own | has (`692cefee`), up to four images with one depth |
-| A reflection probe's capture filtered on the GPU with nothing read back, and a filter of an equirectangular image weighting its poles as their area | has, by Bevy's filter of a cubemap; to check for an image's poles | has (`3f597c01`), the environment map's CPU filter still to mend (REVIEW.md, item 3) |
+| A reflection probe's capture filtered on the GPU with nothing read back, and a filter of an equirectangular image weighting its poles as their area | has, by Bevy's filter of a cubemap; to check for an image's poles | has (`3f597c01`, and the environment map's at `c5b4c7d9`, from a cube weighing each direction by its solid angle) |
 
 ### Documents
 
@@ -195,3 +195,5 @@ table also answers whether the two agree.
 | A first game told from an empty folder a step at a time, each step a whole program the workflow builds and runs and the page is held to | to take, where `docs/making-a-game.md` describes a finished one | has (`docs/first-game.md`, `d5d2578d`) |
 | The rules both engines keep are numbered in one file, each with its reason and a check named for it, and a list of what does not yet keep a rule that only gets shorter | taken at `e7d788a`, `NormTests` over 13 rules with 8 lists | taken at `9decca1d`, `NormTests` over 12 rules with 9 lists |
 | Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | taken at `e673197a`, at raylib's 800 by 450 |
+| A script compiled again is swapped in between frames, on the thread that runs the stages, with the retired generation's systems out before the new one's run | has, the watcher raising a flag that a system of the main thread acts on, and the retired systems marked and skipped (`ScriptWatcher`, `App.RemoveSystemsBySource`) | has (`2d506d4b`), where the swap on the compiler's thread could skip a system or run one twice |
+| The build before a commit runs with `--no-incremental` when it checks for warnings, since an incremental build passes over a project an earlier build without `-warnaserror` left up to date | to take, with N 6.1 (REVIEW.md, item 5) | has (`2b39ddd2`), after a nullable warning reached `main` |

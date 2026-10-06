@@ -48,6 +48,27 @@ public class ShadowLayoutTests
                     .Should().BeFalse($"faces {a} and {b} are apart");
     }
 
+    // A spot light with a reach of 2 at a place, of a brightness.
+    private static RenderLight Spot(Vector3 at, float brightness) =>
+        new() { Kind = LightKind.Spot, Position = at, EmittedColor = new Vector3(brightness), Range = 2, CastsShadows = true };
+
+    [Fact]
+    public void Shadowed_Lights_Are_Ranked_By_The_Light_That_Reaches_The_Eye()
+    {
+        // A candle the eye stands in, a lamp of forty times its light whose reach is 3 units off, and
+        // the same lamp twice as far.
+        var lights = new List<RenderLight> { Spot(new Vector3(0, 0, -1), 0.5f), Spot(new Vector3(0, 0, -5), 20), Spot(new Vector3(0, 0, -10), 20) };
+
+        LightingUboPrepare.Rank(lights, [0, 1, 2], Vector3.Zero, null, 150).Should().Equal([1, 0, 2],
+            "20 over 1 + 3 squared beats the candle's 0.5, which beats 20 over 1 + 8 squared");
+        LightingUboPrepare.Rank([Spot(new Vector3(0, 0, -5), 1), Spot(new Vector3(0, 0, -3), 1)], [0, 1], Vector3.Zero, null, 150)
+            .Should().Equal([1, 0], "of two alike, the one whose reach comes nearer reaches the eye the brighter");
+
+        var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY) * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);
+        LightingUboPrepare.Rank([Spot(new Vector3(0, 0, 10), 100), Spot(new Vector3(0, 0, -10), 1)], [0, 1], Vector3.Zero, camera, 150)
+            .Should().Equal([1, 0], "a light the camera sees comes before a brighter one behind it");
+    }
+
     [Fact]
     public void A_Light_Behind_The_Camera_Is_Out_Of_View()
     {

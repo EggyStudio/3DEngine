@@ -106,11 +106,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, ten such spot lights shadow their cones in the map's
   last tile, and twelve such point lights shadow all around them (RENDERING.md §4), those the camera
-  sees ranked first and then by how near their reach comes, the first two spots and four points
-  with the most texels. `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default).
-  An eleventh spot or a thirteenth point light casts none, the ranking does not weigh a light's
-  brightness or how much of the picture it lights, and each render target that draws meshes draws
-  the map again for its own camera, with the point and spot lights chosen for the window's.
+  sees ranked first and then by the light that reaches the eye, its brightness over one plus the
+  square of how far its reach is, the first two spots and four points with the most texels.
+  `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default). An eleventh spot or a
+  thirteenth point light casts none, the ranking does not weigh how much of the picture a light
+  lights, and each render target that draws meshes draws the map again for its own camera, with the
+  point and spot lights chosen for the window's.
 
 - **Particles collide with nothing, and blend no frames of a sheet.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

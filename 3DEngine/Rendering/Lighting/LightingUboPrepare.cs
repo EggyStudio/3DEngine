@@ -202,10 +202,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     // The lights that cast shadows, or null when none does or no mesh is drawn. Past the spot and
-    // point lights there is room for, those that matter most to the view are taken and ranked, a
-    // light whose reach the camera sees before one behind it, then the one whose reach comes nearest
-    // the eye, so a level of many torches shadows those in front of the camera, the nearest with
-    // the most texels.
+    // point lights there is room for, those that matter most to the view are taken and ranked
+    // (Rank), so a level of many torches shadows those in front of the camera, the brightest
+    // there with the most texels.
     private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count, System.Numerics.Vector3? eye,
         System.Numerics.Matrix4x4? camera)
     {
@@ -226,19 +225,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (light.Kind == LightKind.Point) pointCandidates.Add(i);
         }
 
-        // How far a light's reach is from the eye, 0 inside it, and the distance itself for a light
-        // with no range. A stable sort keeps the order lights were made in among equals.
-        float Reach(int i)
-        {
-            var light = lights.All[i];
-            if (eye is not { } at) return 0;
-            var away = System.Numerics.Vector3.Distance(light.Position, at);
-            return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
-        }
-        bool Seen(int i) => camera is not { } view
-                            || InView(view, lights.All[i].Position, lights.All[i].Range > 0 ? lights.All[i].Range : distance);
-        var spotLights = spotCandidates.OrderBy(i => Seen(i) ? 0 : 1).ThenBy(Reach).Take(ShadowFit.MaxSpotLights).ToList();
-        var points = pointCandidates.OrderBy(i => Seen(i) ? 0 : 1).ThenBy(Reach).Take(ShadowFit.MaxPointLights)
+        var spotLights = Rank(lights.All, spotCandidates, eye, camera, distance).Take(ShadowFit.MaxSpotLights).ToList();
+        var points = Rank(lights.All, pointCandidates, eye, camera, distance).Take(ShadowFit.MaxPointLights)
             .Select(i => (i, ShadowFit.FitPoint(lights.All[i].Position, lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
@@ -252,6 +240,39 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 spots.Add((i, viewProjection, texel));
         }
         return new ShadowCasters(sun >= 0 ? lights.All[sun].Direction : null, sun, distance, tileSize, spots, points);
+    }
+
+    /// <summary>
+    /// The candidates in the order they matter to the view, best first: a light whose reach the
+    /// camera sees before one behind it, then the one whose light reaching the eye is greatest,
+    /// its brightness over one plus the square of how far its reach is from the eye, then the one
+    /// whose reach comes nearest.
+    /// </summary>
+    /// <remarks>
+    /// A dim candle by the camera thus gives way to a lamp of forty times its light a few units
+    /// on, where reach alone gave the candle the slot. A stable sort keeps the order lights were
+    /// made in among equals.
+    /// </remarks>
+    internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates, System.Numerics.Vector3? eye,
+        System.Numerics.Matrix4x4? camera, float distance)
+    {
+        // How far a light's reach is from the eye, 0 inside it, and the distance itself for a light
+        // with no range.
+        float Reach(int i)
+        {
+            var light = lights[i];
+            if (eye is not { } at) return 0;
+            var away = System.Numerics.Vector3.Distance(light.Position, at);
+            return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
+        }
+        float Reaching(int i)
+        {
+            var light = lights[i].EmittedColor;
+            var reach = Reach(i);
+            return (0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z) / (1 + reach * reach);
+        }
+        bool Seen(int i) => camera is not { } view || InView(view, lights[i].Position, lights[i].Range > 0 ? lights[i].Range : distance);
+        return candidates.OrderBy(i => Seen(i) ? 0 : 1).ThenByDescending(Reaching).ThenBy(Reach);
     }
 }
 

@@ -170,7 +170,7 @@ what other models hide from it. The first directional light that casts shadows c
 out to 150 units from the camera and sharpest near it. `SetShadowDistance` brings that in for a
 small scene, which sharpens it, or out for a wide one. Ten spot lights and twelve point lights that
 cast shadows cast theirs too, a point light's all around it, those the camera sees first and then
-those whose reach comes nearest it, so a level of a dozen torches shadows each. The ones that
+those whose light reaches the camera brightest, so a level of a dozen torches shadows each. The ones that
 matter most get the sharpest shadows: past four, the first two spot lights and the first four
 point lights keep their texels, and the rest share theirs at half the width.
 

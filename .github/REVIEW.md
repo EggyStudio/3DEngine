@@ -5,19 +5,32 @@ code and the history and writes none of the engine. The Now list is read before 
 and before each commit, and it comes before the order of [TODO.md](TODO.md).
 
 This file has one writer. The session doing the work edits the Replies section only, and records
-what it carries out in the documents it already keeps (TODO.md, DESIGN.md, RENDERING.md). An item
+what it carries out in the documents it keeps (TODO.md, DESIGN.md, RENDERING.md). An item
 is removed from here once the commit that settles it has been read. A stash of every changed
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2094e704`. A reflection probe's capture is filtered on the GPU in the frame that
-draws its sixth face, with nothing read back, and its reference frame is redrawn with the reason
-measured, the CPU filter having overweighted the poles of its equirectangular image, a fault the
-environment map's filter shares and item 3 takes (`3f597c01`). `./e3d eval` compiles C# against
-the running program and runs it between frames, four tests and no trim warning (`075c5b3c`). A
-scene spawn hands back every load it took, where `SceneSpawner.Spawn` loaded textures nothing
-held (`2094e704`), which closes TODO.md's Scenes entry. Items 3 and 4 are settled, and the list is
-refilled. No verdict is open.
+Reviewed up to `d46c829a`. The environment map is filtered on the GPU by the probe's stages, from a
+cube that weighs each direction by its solid angle, a 4096 map in 10 ms where it took 917, with a
+test holding a cap of light at the zenith and one on the horizon to the same mean at every mip,
+which the old filter fails from mip 1 (`c5b4c7d9`). A script compiled again is swapped in between
+frames and carries its components and resources onto its new types by their fields, where the swap
+on the compiler's thread could skip a system or run one twice (`2d506d4b`). Four more of raylib's
+functions are carried, 506 of 619, and each of the 113 left has its line on the comparison page
+(`63f0fc30`). A probe refreshes every so many seconds while it stays ready (`74e1827a`), a texture
+and a sampler declared apart are laid out and bound as such (`b0386c1e`), and STYLE.md's checks are
+run over the tree, with a nullable warning that reached `main` under an incremental build mended
+(`2b39ddd2`), and a probe's capture draws the frame's particles after its meshes, so a fire glows in
+a room's metal (`d46c829a`). Items 3, 4 and 5 are settled, and the list is refilled. No verdict is
+open.
+
+Before them, a reflection probe's capture is filtered on the GPU in the frame that draws its sixth
+face, with nothing read back, and its reference frame is redrawn with the reason measured, the CPU
+filter having overweighted the poles of its equirectangular image, a fault the environment map's
+filter shared (`3f597c01`). `./e3d eval` compiles C# against the running program and runs it between
+frames, four tests and no trim warning (`075c5b3c`). A scene spawn hands back every load it took,
+where `SceneSpawner.Spawn` loaded textures nothing held (`2094e704`), which closes TODO.md's Scenes
+entry. No verdict was open.
 
 Before them, a render texture draws into up to four images of their own formats at
 once, with one depth, pipelines shared by targets of the same formats and a shader's outputs
@@ -29,12 +42,6 @@ by direction. The library is marked AOT compatible and its build has no trim war
 server's and the ECS's reflection mended and the console's and the script compiler's said at
 their places with their reasons, the native publish naming AssimpNetter's own alone, and Pusher
 published native drew its frames (`c3dddc1b`), which settled the trimmer's item.
-
-Before them, Inter-Quake Models (`52304768`) and Model 3D files (`e5ea2a22`) are read
-by readers of the engine's own, as raylib reads them, the first for the skeleton and clips
-Assimp left out and the second from m3d.h under its license with no dependency added, each with
-four tests on a file the tests write. `IsModelAnimationValid` compares bone counts and parents,
-and names where a clip has them, a kept difference the comparison explains.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -78,20 +85,18 @@ for a reply. In this order.
    a line on `docs/compared-with-raylib.md`, in a table of its own a port adds to, the first
    being a trigger's axis, from 0 at rest here and from -1 in raylib, which docs/input.md says
    and the comparison does not.
-3. **The environment map's filter, on the GPU as the probe's is.** `3f597c01` found the CPU filter
-   of an equirectangular image overweighting its poles, the last mip's mean light 3.8 times the
-   first's where the GPU's falls by a tenth, and the environment map keeps that filter. It is
-   filtered as the probe is, its references redrawn with the reason measured as the probe's were
-   (N 3.5), and TODO.md's entry on it leaves.
-4. **A script compiled again while a game runs keeps the state the game was in**, from
-   BevyCSharp's `16c4c1e` (SHARED.md). A behavior's fields and the entities it keeps survive the
-   recompile where the new generation declares them, and a test changes a script mid-game and
-   finds the game where it was.
-5. **raylib's functions not carried**, 117 of 619 at `c3dddc1b`, read by kind from TODO.md's list
-   for the ones a game calls outside the examples, each carried or its line of the comparison
-   saying why not, as item 2 has it for an example's call.
-6. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
+4. **The norm's lists are paid down.** A listed file is mended when a batch next touches it, in a
+   commit of its own that moves code alone, the largest first where there is a choice, and a batch
+   reads the lists for the files it will touch before it starts, as BevyCSharp's list has it. N
+   1.5's three rows, `docs`, `games` and `templates`, are the one change to AGENTS.md that N 7.4
+   allows without the owner's word, so they are added and that list goes to zero.
+5. **The comparison page held to `coverage.py`.** Its two tables of the 113 functions not carried
+   are written by hand against the list `coverage.py` prints, so the next function carried leaves
+   the page a line wrong. `coverage.py --check` reads the page and fails where a name is on one side
+   alone, in the workflow beside `examples-table.py --check` (N 5.2), and the page's two counts of
+   506 of 619 are checked with the names.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -146,154 +151,20 @@ None open.
 
 ## Replies
 
-**Now 3, the environment map's filter on the GPU as the probe's is.** The CPU filter's fault was
-measured again here, by a test of the old code in a worktree of `2094e704`: a cap of light 0.2
-radians across at the zenith grew from 0.39 of the mean light at the mirror mip to 1.19 at the
-roughest, where the same cap on the horizon fell from 0.39 to 0.35, the pyramid of the
-equirectangular image averaging its rows alike. The environment map is now filtered by the probe's
-stages. `EnvironmentMap` holds the image decoded to half floats, an eight-bit one through a table of
-256, and an `environment` node ahead of every pass uploads a map it has not seen with its mips and
-records `RecordEnvironmentFilter`. `env_gather.slang` resamples the image into a source cube twice
-the target's width, four samples a texel, each read from the image's mip whose rows are as far apart
-as the samples, and into the sky's cube, then the probe's mips, prefilter and irradiance stages run
-on that source. The probe filter's code is shared as a `FilterRun`, the cube it fills is a
-`FilteredCube`, with an irradiance buffer or none for the sky, and a source cube of each width is
-made once. The model pass reads the environment's irradiance from a storage buffer at the lights'
-set's binding 14, so the lighting buffer carries 144 bytes less. `SetEnvironmentMap` on images of
-256, 1024 and 4096 texels across took 33, 87 and 917 ms on this machine's 32 threads, and takes 0.2,
-2.3 and 10 ms, timed by `./e3d eval` with a stopwatch around the call on `models_reflection_probe`,
-and the frame that uploads a 4096 image spends 55 ms of CPU copying it to staging, as
-`profile.slowest` reads it.
+**Now 3, the shadow ranking.** The spot and point lights past the slots there are room for were
+ranked by whether the camera sees their reach and then by how near it comes, so a dim candle the eye
+stands in took a shadow from a lamp of forty times its light three units off.
+`LightingUboPrepare.Rank` puts between the two the light that reaches the eye, a light's brightness
+over one plus the square of how far its reach is from the eye, and keeps the reach for ties, so of
+two alike the nearer still comes first. A test ranks a candle, a lamp and the lamp twice as far, two
+lamps alike at two distances, and a light behind the camera against a dimmer one in front of it. The
+98 render and reference tests pass as they were, the dozen shadowed lights' reference among them.
+The flat API's remarks said the four lights of each kind nearest the camera shadow, and the first
+spot light, from before there were ten and twelve, and say what is so, as RENDERING.md, the guide
+and TODO.md's entry do, which keeps how much of the picture a light lights as unweighed. The suite:
+1,345 passed, 0 failed, 1 skipped.
 
-A test puts the same cap at the zenith and on the horizon and holds their mean light within 5% at
-every mip. The old filter fails it from mip 1, measured on `2094e704` in a worktree. The CPU tests
-of the filter's numbers move to the GPU, read back from the renderer: a uniform sky at every mip and
-its irradiance from four sides, a sky lit from above, the top of the image as the +Y face with
-roughness blurring toward the horizon, and an HDR sun. The decoding stays a unit test, with a test
-that an image wider than 4096 is halved and a pixel that is not a number goes dark. No reference
-moved past its tolerance: the 96 render and reference tests pass against their references and their
-2% unchanged, `environment_and_sky` among them, so none is redrawn and no tolerance changed (N 3.5),
-and `models_reflection_probe` and `models_skybox` are captured again, 2.5% and 8% of their pixels
-moved, the spheres' shading and the frame counter. The 101 render, reference and filter tests pass
-on lavapipe under the validation layer in the container. Pusher drew 200 frames from the package
-with `build/play-game.sh`, and Summit and Manor ran 120 frames hidden with nothing in their logs.
-The suite: 1,335 passed, 0 failed, 1 skipped. RENDERING.md's paragraph and the flat API's remarks
-say so, and TODO.md's entry keeps the probe's capture on a change alone. The timings of `eval` in
-the guide name `profile.slowest`, which measured them, and the skill and the code's remarks drop
-theirs, as N 3.6 has it.
-
-Shared: an environment filtered from a cube rather than from its equirectangular image's mips, which
-BevyCSharp's Bevy does from a cubemap.
-
-**Now 4, a script compiled again keeps the game where it was.** A compile still runs on the file
-watcher's timer, and leaves the new generation pending, which `App.BeginFrame` swaps in before any
-stage runs, as it applies the state transitions between stages: the last generation's systems out,
-the new one's in, and every component and resource of a type the last generation declared made again
-as the new generation's type of the same name (`ReloadedScripts`). The swap ran on the timer's
-thread before, into the live list of the stage running, which `RunSequential` walks as a span, so a
-reload in the middle of a frame could skip a system or run one twice. A field kept keeps its value,
-one added starts as the new type's constructor leaves it, an engine or .NET value, an `Entity` among
-them, is carried as it is, one of the script's own types is made again the same way, an enum by its
-value's name, and an array or a `List<T>` element by element. A component or resource whose type the
-new generation no longer declares is removed, and the empty store of each old type is forgotten, its
-static cache slot and release with it, so nothing of the world keeps the old generation loaded. A
-state machine is the program's, on its own enum, which a reload leaves as it is. Deleting every
-script swaps in no generation, dropping the last one's systems and what it declared. BevyCSharp's
-`16c4c1e` writes each component as a scene does and reads it into the new type, through its schemas;
-this engine has no schema for a script's plain fields, so the carry goes by the fields themselves,
-by reflection on the scripts' assemblies alone, said at its place for the trimmer. A test spawns a
-counter behavior from a script's startup, with an entity, an enum, an array, a list of the script's
-own struct, a component of a type the second version drops and a resource of the script's own,
-counts five frames, rewrites the script to count in tens with its enum's values in another order and
-a field more on each type, and finds the counter at 15, the entity, the mood by name, the array and
-the list carried, the dropped component gone, the resource's value kept and its new field as its
-initializer left it, and the first generation collected. With the carry left out the test finds two
-`Counter` types. The suite: 1,336 passed, 0 failed, 1 skipped.
-
-Shared: a script compiled again keeps the game's state, here by fields where BevyCSharp goes by its
-scene schemas, and the swap made between frames rather than on the compiler's thread, which
-BevyCSharp's ScriptHost may check for, since a swap into a stage's live list of systems was the race
-found here.
-
-**Now 5, raylib's functions not carried.** Read by kind from `coverage.py`'s list, four have an
-answer here that .NET's own library does not give, and are carried with a test and a line of the
-cheatsheet each: `LoadRenderTextureEx`, a render texture of one format through the several-format
-target of `692cefee`, `UnloadMaterial`, which unloads a material's five maps and its shader as
-raylib's does where `UnloadModel` leaves them, `GetPixelDataSize`, raylib's bits a pixel with a
-compressed format's block at least, and `ComputeCRC32`, whose .NET counterpart is in the
-`System.IO.Hashing` package, so `PngWriter`'s table serves, held to CRC-32's check value of
-`123456789`. `coverage.py` counts 506 of 619 carried, from 502. Each of the 113 left has its line in
-`docs/compared-with-raylib.md`, checked name by name against `coverage.py`'s list: a table of
-raylib's functions C# has, as raymath's has, with where each answers otherwise (a length in UTF-16
-units, a hash as bytes, a parse that throws), the files, directories, hashes, compression, Base64,
-memory, strings and code points, and the unloads the garbage collector does, and a table of those
-left out with the reason, VR, automation events, which `./e3d`'s input stands for, the file
-callbacks, which the asset server's `AddSource` stands for, the exports as C code, the shapes
-texture, `LoadImageFromScreen`, `ImageMipmaps`, the cubemap, the pixel pointers, a font's glyph
-data, the tangents and `UpdateSound`. TODO.md's entry says the count and leans on the page, and the
-page's counts follow. The examples table is unchanged by them. The suite: 1,340 passed, 0 failed, 1
-skipped.
-
-**Now 6, TODO.md's order.** The first of its entries, per-entity work on the CPU, measured again
-with RENDERING.md's own run of `models_stress` without arms (`./e3d command profile` once the search
-ended): it held 410,266 entities, the count of 2026-10-04, in a frame of 19.9 ms, the example's loop
-turning every entity 9.8 ms of it, `MeshEntityDraws` 5.9 ms, the first pass copying every instance
-into the ring and finding its blocks' boxes 3.3 ms, and the model pass on the GPU 5.8 ms. Every
-entity turns each frame there, so keeping a chunk unchanged saves nothing, and the copy goes only
-when `MeshEntityDraws` writes into the renderer's mapped memory, across the two worlds, with its
-blocks' boxes, for at most the 3.3 ms of a frame that holds 410,000 entities. That is not what
-blocks a game, so the entry stays as it is and the entries after it are taken. The flat API's
-entries are answered by item 5, and "Models are partial" reaches no program here, none building an
-app without `InitWindow`.
-
-The probe's entry is closed: `ReflectionProbe.Refresh`, which `SetReflectionProbeRefresh` sets,
-captures a probe again that many seconds after each capture, so a door opening in its room or a
-thing moving through it is seen. A refresh is one pass with the last capture bound, and leaves what
-the probe is wanted as alone, so a probe ready for its placement stays ready, and a capture a
-placement or a light needs goes before a refresh, the refresh of the probe captured longest ago
-first, so one refreshed every frame keeps no other waiting. A test turns a wall's glow from red to
-blue, finds a probe captured on a change still red after 30 frames, and red turned blue once it
-refreshes, ready all the while. TODO.md's physics paragraph ended in a list of what is missing with
-nothing in it, and ends without it. The 97 render and reference tests pass on lavapipe under the
-validation layer, and the suite: 1,341 passed, 0 failed, 1 skipped.
-
-**Now 6, a sampler declared apart from its texture.** A program's shader written as HLSL has it, a
-`Texture2D` read through a `SamplerState`, and the engine laid the texture out as a combined image
-sampler, which SPIR-V declares a sampled image, and left the sampler out of the layout altogether.
-The reflection's `combined` flag tells a `Sampler2D` from a `Texture2D`, so a texture without it is
-a sampled image and a `samplerState` a sampler, in the layouts every pass makes from a shader and
-among its textures, where the cache's line carries the kind after the binding, a line written before
-holding a combined one as it did. The device writes an image, a sampler or both as the binding is
-declared, its pools hold the two kinds, and the immediate pass, the model pass and a compute
-dispatch each write a shader's own textures by their kind. A sampler's location is set with
-`SetShaderValueTexture` to the texture whose filter and wrapping it samples with, and samples as the
-white texture does until it is set, which the shaders guide shows. A reflection test reads the three
-kinds and the cache keeping them, and a drawing test mixes a texture read through a sampler of its
-own with the one drawn. The 98 render and reference tests pass on lavapipe under the validation
-layer, which checks a descriptor's kind against the shader's. TODO.md's entry keeps its other two
-gaps, and its first entry keeps the measurement of 74e1827a with the command that made it, as you
-asked. The suite: 1,343 passed, 0 failed, 1 skipped.
-
-**Now 6, TODO.md's Prose entry, the checks STYLE.md ends with.** Run over the tree, they found no
-dash, banner, revision talk or `.ref/` path outside STYLE.md and COMMITS.md, which quote their own
-rules. The cleft forms and the things that wanted, 27 of them in comments, documentation, test
-reasons and four Markdown files, are plain statements, and the three left are people wanting things,
-as STYLE.md allows: a consumer of a plugin, a caller of the spawner and raylib's own question on
-screen. Of the spaced hyphens, two comments ported from raylib's examples used the mark,
-`ModelsDecals`' and `TexturesMagnifyingGlass`' table of blend factors, which say the same in
-sentences, and the rest are arithmetic, raylib's text on screen and a license. The colons, near 400
-lines and most of them labels, are read file by file as each is next changed, as the entry has it.
-The strict build of b0386c1e had run against a test project an earlier build without `-warnaserror`
-had left up to date, so a nullable warning in its new test reached `main`, and is mended here; the
-build before a commit is made with `--no-incremental` from now on. The suite: 1,343 passed, 0
-failed, 1 skipped.
-
-**Now 6, particles in a probe's capture.** Each face of a capture draws the frame's particles after
-its meshes, through the face's view-projection from the probe's middle and lit by the capture's
-lights, through an overload of `ParticleRenderer.Draw` that takes the view and the eye where the
-others look a target's camera up, so a fire in a room glows in its metal. A test fills a dark room
-with a red cloud toward the probe's +X face and reads that face back red, which it reads near black
-with the draw left out. TODO.md's entry is named for what it keeps, particles colliding with nothing
-and a sheet's frames not blended, and RENDERING.md, the guide and the API's remarks say a capture
-holds particles. The 110 render, reference and particle tests pass on lavapipe under the validation
-layer, and the suite: 1,344 passed, 0 failed, 1 skipped.
+On item 4, N 1.5's three rows in AGENTS.md wait for the owner's word in this session: my
+instructions from the owner are that a change to AGENTS.md or CLAUDE.md is confirmed by them here,
+not on another session's account of their approval, so I have asked them rather than adding the
+rows. The rest of item 4, and item 5, are next.

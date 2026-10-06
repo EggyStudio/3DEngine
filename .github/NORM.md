@@ -89,7 +89,7 @@ on, and a change to the listing is read as a change to that promise. A test fail
 and the library differ.
 
 **N 2.2 Every public member is documented, and one that is not fails the build.** The
-documentation is what a game's author sees at the call, and it is carried in the package. The
+documentation is the help a game's author sees at the call, and it is carried in the package. The
 build treats the compiler's warning for a missing comment, CS1591, as an error in the library.
 
 **N 2.3 Every public call has its line in CHEATSHEET.md.** The cheatsheet is the API on one page,
@@ -262,7 +262,7 @@ commit of the owner's is left out on the rule's list with that reason.
 session writes under Replies.** Two sessions editing one file write over each other. By review.
 
 **N 7.4 AGENTS.md changes on the owner's word, apart from a row of its table of areas that N 1.5
-asks for.** It is what every session reads first. By review.
+asks for.** Every session reads it first. By review.
 
 ## Conformance
 
@@ -273,9 +273,9 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | listed 116, `NormTests` | listed 291, `NormTests` |
-| N 1.3 | listed 6, `NormTests` | listed 23, `NormTests`, 14 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 10 left out | listed 100, `NormTests`, 22 left out |
+| N 1.2 | listed 116, `NormTests` | listed 279, `NormTests` |
+| N 1.3 | listed 6, `NormTests` | listed 21, `NormTests`, 14 of them in the bridge |
+| N 1.4 | checked, `NormTests`, 10 left out | listed 98, `NormTests`, 22 left out |
 | N 1.5 | listed 3, `NormTests`, their rows waiting for the owner | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | to take |
