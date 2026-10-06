@@ -44,9 +44,10 @@ public sealed class TestScriptTests : IDisposable
         results.Append("</Results></TestRun>");
         File.WriteAllText(_folder.File("results.trx"), results.ToString());
 
+        // Each line ended as on Windows, whose output the page is read from as well.
         var output = new StringBuilder();
         for (int i = 0; i < 100_000; i++)
-            output.AppendLine(i % 5 < 3 ? $"[ {i * 0.016:0.0000}s] [ERROR] [Engine.Schedule] A system threw on frame {i}" : $"[INFO ] read asset {i} of the level");
+            output.Append(i % 5 < 3 ? $"[ {i * 0.016:0.0000}s] [ERROR] [Engine.Schedule] A system threw on frame {i}" : $"[INFO ] read asset {i} of the level").Append("\r\n");
         File.WriteAllText(_folder.File("output.txt"), output.ToString());
 
         var (exit, _) = Script("--read", _folder.Path);
@@ -68,7 +69,7 @@ public sealed class TestScriptTests : IDisposable
         // As a run on GitHub gives them, where the annotations are all a reader who is not signed
         // in sees: ten errors, each a cause whole, and a notice with the head and the repeated lines.
         var (_, annotated) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") }, "--read", _folder.Path);
-        var lines = annotated.Split('\n');
+        var lines = Lines(annotated);
         var errors = lines.Where(line => line.StartsWith("::error ", StringComparison.Ordinal)).ToList();
         errors.Should().HaveCount(10);
         errors.Should().OnlyContain(line => line.Contains("%0Aat Engine.", StringComparison.Ordinal) && line.Contains("`Engine.Tests.Area.Class", StringComparison.Ordinal),
@@ -132,7 +133,7 @@ public sealed class TestScriptTests : IDisposable
 
     private static (int Exit, string Log) Script(Dictionary<string, string> environment, params string[] arguments)
     {
-        var start = new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Root, RedirectStandardOutput = true, RedirectStandardError = true };
+        var start = Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Root, RedirectStandardOutput = true, RedirectStandardError = true });
         start.ArgumentList.Add(Path.Combine("build", "test.py"));
         var rest = arguments.AsSpan();
         if (!arguments[0].StartsWith("--", StringComparison.Ordinal))
@@ -151,4 +152,18 @@ public sealed class TestScriptTests : IDisposable
         script.WaitForExit(120_000).Should().BeTrue("the script ends its processes at their limits");
         return (script.ExitCode, log.Result + errors.Result);
     }
+
+    /// <summary>
+    /// A Python script's output read as the UTF-8 the scripts write, where a Windows console's own
+    /// code page would read the page's "×" as other characters.
+    /// </summary>
+    internal static ProcessStartInfo Utf8(ProcessStartInfo start)
+    {
+        start.StandardOutputEncoding = start.StandardErrorEncoding = new UTF8Encoding(false);
+        start.Environment["PYTHONIOENCODING"] = "utf-8";
+        return start;
+    }
+
+    /// <summary>A script's output as lines, each without the carriage return Windows ends it with.</summary>
+    internal static string[] Lines(string output) => output.Split('\n').Select(line => line.TrimEnd('\r')).ToArray();
 }

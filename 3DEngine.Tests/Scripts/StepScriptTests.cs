@@ -64,7 +64,7 @@ public sealed class StepScriptTests : IDisposable
 
         exit.Should().Be(4, "the step ends with the code of the command that failed");
         log.Should().Contain("fine").And.NotContain("never", "what the step prints is passed on as it comes, and it ends at the first command that fails");
-        var error = log.Split('\n').Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
+        var error = TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error ", StringComparison.Ordinal)).Subject;
         error.Should().StartWith("::error title=Build and walk the first-person game from the package%3A exit code 4::",
             "the step is named as the workflow names it");
         error.Should().Contain("`status=$(sh -c 'echo \"error [NO_SESSION] No app is serving.\" >&2; exit 4')` on line 6 of the step ended with exit code 4.")
@@ -86,7 +86,7 @@ public sealed class StepScriptTests : IDisposable
         File.WriteAllText(_folder.File("said.sh"), "echo \"::error::Manor: the autopilot did not find every lantern\"\nexit 1\n");
         (exit, log, _) = Step(_folder.File("said.sh"));
         exit.Should().Be(1);
-        log.Split('\n').Should().ContainSingle(line => line.StartsWith("::error", StringComparison.Ordinal), "the step said what failed itself");
+        TestScriptTests.Lines(log).Should().ContainSingle(line => line.StartsWith("::error", StringComparison.Ordinal), "the step said what failed itself");
 
         File.WriteAllText(_folder.File("passes.sh"), "echo walked\n");
         (exit, log, _) = Step(_folder.File("passes.sh"));
@@ -98,9 +98,11 @@ public sealed class StepScriptTests : IDisposable
     public void A_Step_Not_In_The_Workflow_Is_Named_By_Its_First_Line_And_One_With_No_Name_As_GitHub_Names_It()
     {
         File.WriteAllText(_folder.File("slang.sh"), "build/fetch-slang.sh\n");
+        // No such command is found, whose code is the shell's, 127 from bash 5 and 1 from the bash
+        // 3.2 macOS has, so the error is held to saying the one the step ended with.
         var (exit, log, _) = Step(_folder.File("slang.sh"));
-        exit.Should().Be(127, "no such command is found");
-        log.Should().Contain("::error title=Run build/fetch-slang.sh%3A exit code 127::");
+        exit.Should().NotBe(0);
+        log.Should().Contain($"::error title=Run build/fetch-slang.sh%3A exit code {exit}::");
 
         File.WriteAllText(_folder.File("elsewhere.sh"), "echo first\nexit 5\n");
         (_, log, _) = Step(_folder.File("elsewhere.sh"));
@@ -114,7 +116,7 @@ public sealed class StepScriptTests : IDisposable
         var program = "import compare\n"
                       + $"names = [{string.Join(", ", names.Select(n => $"'{n}'"))}]\n"
                       + "compare.notices(names, {name: '1.5' for name in names})\n";
-        var start = new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Path.Combine(Root, "build", "raylib-bench"), RedirectStandardOutput = true, RedirectStandardError = true };
+        var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Path.Combine(Root, "build", "raylib-bench"), RedirectStandardOutput = true, RedirectStandardError = true });
         start.ArgumentList.Add("-c");
         start.ArgumentList.Add(program);
         start.Environment["GITHUB_ACTIONS"] = "true";
@@ -125,7 +127,7 @@ public sealed class StepScriptTests : IDisposable
         python.WaitForExit(60_000).Should().BeTrue();
         python.ExitCode.Should().Be(0, errors.Result);
 
-        var notices = output.Result.Split('\n').Where(line => line.StartsWith("::notice ", StringComparison.Ordinal)).ToList();
+        var notices = TestScriptTests.Lines(output.Result).Where(line => line.StartsWith("::notice ", StringComparison.Ordinal)).ToList();
         notices.Should().HaveCount(10, "GitHub shows ten notices of a step");
         notices[0].Should().StartWith("::notice title=Measured for the first time%2C 1 of 10::shapes_example_0\t1.5%0A");
         var pairs = notices.SelectMany(line => line[(line.IndexOf("::", 9, StringComparison.Ordinal) + 2)..].Split("%0A")).ToList();
@@ -137,7 +139,7 @@ public sealed class StepScriptTests : IDisposable
     private (int Exit, string Log, string Summary) Step(string script)
     {
         File.WriteAllText(_folder.File("build.yml"), Workflow);
-        var start = new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = _folder.Path, RedirectStandardOutput = true, RedirectStandardError = true };
+        var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = _folder.Path, RedirectStandardOutput = true, RedirectStandardError = true });
         foreach (var argument in new[] { Path.Combine(Root, "build", "step.py"), script, "--workflow", _folder.File("build.yml"), "--sessions", _folder.File("sessions") })
             start.ArgumentList.Add(argument);
         start.Environment["GITHUB_ACTIONS"] = "true";

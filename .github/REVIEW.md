@@ -10,18 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `38e81c4f`. Verdict 28's cause was found through GitHub's public listing of a run's
-jobs, which gives each step's conclusion and time without a sign-in: the step that failed in all
-three runs was the first-person game's walk, where each pad press held two frames and the runner
-drew Manor's menu under 5 frames a second, so the first press went past Settings to Quit and the
-game quit itself, `e3d` answering 4 for an app it could not reach. Presses are held one frame with a
-check that the walk began, every step of the examples job runs through `build/step.py`, which gives
-a step that fails silently an `::error::` naming the step, the command, its code, the last lines and
-the session logs' warnings, `e3d` writes its errors on stderr, the pairs measured for the first time
-are at most ten notices that fail nothing while `measured-ci.tsv` is empty, and `build/page.py` is
-shared with `test.py` under `StepScriptTests`, which N 1.4 leaves out, eleven from ten (`38e81c4f`);
-the verdict settles when an examples job passes. The owner packed 5.1 from `b43818f9`, whose pack
-workflow passed. The suite: 1,433 passed, none skipped.
+Reviewed up to `78d79c22`. Release notes and the documents a game's author reads give reasons and
+name no one who decided: the comparison page's row gives its reason alone, `NormTests.N_4_7` reads
+the README, the cheatsheet and `docs/` line by line, `pack.sh` leaves the two commit lines that name
+the owner out of the release notes with a warning, since history does not change,
+`PackageContentsTests` fails a package whose notes name anyone, and COMMITS.md has the rule
+(`78d79c22`), which settles item 6. The runs of `38e81c4f` and `78d79c22` fail on Windows and macOS
+in the new scripts' own tests, Linux passing, which is Verdict 29, and the examples job did not run,
+so Verdict 28 waits. The suite here: 1,434 passed, none skipped.
+
+Before them, Verdict 28's cause was found through GitHub's public listing of a run's jobs, which
+gives each step's conclusion and time without a sign-in: the step that failed in all three runs was
+the first-person game's walk, where each pad press held two frames and the runner drew Manor's menu
+under 5 frames a second, so the first press went past Settings to Quit and the game quit itself,
+`e3d` answering 4 for an app it could not reach. Presses are held one frame with a check that the
+walk began, every step of the examples job runs through `build/step.py`, which gives a step that
+fails silently an `::error::` naming the step, the command, its code, the last lines and the session
+logs' warnings, `e3d` writes its errors on stderr, the pairs measured for the first time are at most
+ten notices that fail nothing while `measured-ci.tsv` is empty, and `build/page.py` is shared with
+`test.py` under `StepScriptTests`, which N 1.4 leaves out, eleven from ten (`38e81c4f`); the verdict
+settles when an examples job passes. The owner packed 5.1 from `b43818f9`, whose pack workflow
+passed. The suite: 1,433 passed, none skipped.
 
 Before them, the runs of `6336aba6`, `b9ebd0bd` and `039bd788` passed their tests on all three
 systems, macOS at 1,398, 1,401 and 1,402 with none failed, so Verdict 27 is settled, with the note
@@ -34,18 +43,7 @@ instanced runs, off by default, a new reference and no old one changed, about 42
 entities held at 60 fps against 700,000 camera-only, two slower designs measured on the way
 (`b43818f9`), which settles item 5. The suite: 1,429 passed, none skipped.
 
-Before them, ReadyToRun went into the package, six images under `runtimes/` for 14.9 MB from 1.3,
-measured on Manor run from its project at about 140 ms on the worst early frame from about 205
-(`c1f6c4cf`), and came out again on the owner's word of 20:50, the measurement kept in TODO.md's
-cost entry and `docs/shipping-a-game.md` saying the author's own `PublishReadyToRun` is the way
-(`32bc8543`), which settles item 6. Three commits of moves alone empty N 1.2's list, 83 to 0, and
-N 1.3's, every public type in a file of its name and `AssimpModelReader.cs` in partial files of its
-own, each move checked line by line (`700701b5`, `2d5c111d`, `640bc301`), which settles item 4, the
-lists left holding only what is left out with its reason. That was the restructuring pass the owner
-chose not to have when the norm was adopted, done as moves alone with the suite green, and it
-stands, said here rather than as a verdict. The suite: 1,428 passed, none skipped.
-
-The norm has 44 rules, and this engine stands at 34 checked, none with places listed, one to take
+The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
 
@@ -55,9 +53,11 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 28 first, the examples job's bare exit code.** Three examples jobs in a row end with
-   `exit code 4` and no page, which the verdict takes apart; the tests pass on all three systems.
-   Each push's run is read by the reviewing session, and a failure it names comes first here.
+1. **Verdict 29 first, the scripts' tests on Windows and macOS, then Verdict 28's examples job.**
+   Two runs fail in `StepScriptTests` and `TestScriptTests` off Linux; the run after the mend shows
+   whether all three systems pass and whether the examples job, which did not run, passes its
+   first-person walk. Each push's run is read by the reviewing session, and a failure it names comes
+   first here.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -136,6 +136,19 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
     result does not fail the job. Found in the workflow's own image, where the coder ran the job's
     steps before.
 
+29. **The runs of `38e81c4f` and `78d79c22` fail on Windows and macOS in the tests of the new
+    scripts, and pass on Linux.** Read from the pages. On macOS, `StepScriptTests`' test of a step
+    not in the workflow expects exit 127 for a command that is not found and gets 1, both runs. On
+    Windows, `TestScriptTests` finds the pairs measured for the first time unequal to the 219 it
+    expects, both runs, and at `78d79c22` its page of 500 failures beside 100,000 lines finds no
+    `::notice` line saying `500 failed` and `60,000 ×`. Three faults of `build/step.py` and
+    `build/page.py` on the systems the scripts were not run on: a shell's code for a missing command
+    is the shell's, so the test accepts what the system's shell gives or the script maps it to one
+    code; and lines read on Windows end in a carriage return and a line feed, so pairs and repeated
+    lines are compared with the line end taken off, which is where both page failures point. Each is
+    reproduced by feeding the scripts a file with Windows line ends and by asking the shell the
+    system has, and the two systems' pages are read again after.
+
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -212,16 +225,17 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 6, N 4.7** (Decision 14). `docs/compared-with-raylib.md`'s row on a render texture's samples
-gives the reason alone. `NormTests.N_4_7` looks line by line over `README.md`, `CHEATSHEET.md` and
-`docs/` for "the owner" and "the reviewing session" in any case and for "REVIEW.md", and passes
-with no list. The release notes are written by `build/pack.sh`, which the pack workflow runs, from
-the messages since the version was raised, and two of those name the owner already, `32bc8543`'s
-and the one on N 7.2's check, which no commit can change, so failing the pack on them would hold
-every pack until the version is raised again. `pack.sh` leaves a line with the same words out of
-the notes and says each, as a warning in the workflow, and `PackageContentsTests`, which the pack
-workflow runs on the package before offering it, fails a package whose notes still hold one.
-Packed here, the two lines were left out and 114 kept. COMMITS.md says the sentence names no one
-who decided or asked and gives the reason, with `32bc8543`'s as the example, and the helper this
-session commits through refuses a sentence with the words. NORM.md's table can say N 4.7 is
-checked, by `NormTests` and the package's test. The suite: 1,434 passed, none skipped.
+**Verdict 29.** Both causes are the tests' own, and the scripts give what they should. GitHub's
+annotations of the failing jobs, read without a sign-in from `/check-runs/<id>/annotations`, give
+each failure whole. On macOS the bash 3.2 macOS ships, run here in its own image, ends a sourced
+script whose command is not found with 1 where bash 5 ends it with 127, and `step.py` named that 1
+rightly, so the test holds the error's title to the code the step ended with, whatever the shell
+gave. On Windows the notices test split the output at its line feeds and kept each line's carriage
+return, so the last pair of each notice carried one. Output with Windows line ends did not lose
+the page test's notice here, and the one thing on that line no other has is its "×", which a
+Windows console's code page reads otherwise than the UTF-8 the script writes, as .NET reads a
+child's output in that code page unless told, which is the likeliest cause and not a certain one,
+since it passed on Windows at `38e81c4f`. Both
+tests now read a script's output as UTF-8, with `PYTHONIOENCODING` set for its errors, and compare
+lines with the carriage return taken off, and the page test's 100,000 lines end as Windows ends them
+on every system, so Linux reads what Windows gives. The suite: 1,434 passed, none skipped.
