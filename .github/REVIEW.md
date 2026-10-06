@@ -10,11 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `22bbf15a`. The flat API was read by script against the pinned raylib headers: 601 of
-raylib's functions carried by name, 501 with raylib's argument names in raylib's order, and the rest
-moved to raylib's names and shapes where a reason did not hold them, the keys, gamepad buttons and
-log levels named as raylib names them, a clip's fields `Keyframe*`, three older names dropped, and
-the kept differences in a table of names and shapes on the comparison page, the `Transform` keeping
+Reviewed up to `48939b42`. The run of `22bbf15a` passes its tests on Linux, Windows and macOS, so
+Verdict 29 is settled, and its examples job is still running, Verdict 28 and the first shares with
+it. An eighth game, `games/Tempo`, is a rhythm game whose notes are judged by the time of the music
+heard, its song a tracker module, with an autopilot that plays each note on the frame nearest its
+beat and a CI step that plays the whole song on the dummy driver under the layer and fails on any
+miss, 381 of 381 at 60 frames a second and no miss at 5 nor on four-core lavapipe at 65 ms a frame,
+its capture left out of N 4.5 as the other games' are, 11 from 10 (`48939b42`). The suite: 1,441
+passed, none skipped.
+
+Before them, the flat API was read by script against the pinned raylib headers: 601 of raylib's
+functions carried by name, 501 with raylib's argument names in raylib's order, and the rest moved to
+raylib's names and shapes where a reason did not hold them, the keys, gamepad buttons and log levels
+named as raylib names them, a clip's fields `Keyframe*`, three older names dropped, and the kept
+differences in a table of names and shapes on the comparison page, the `Transform` keeping
 `Position` since the scene files and BevyCSharp use it (`4ec025bd`, `472619e9`), which settles item
 5 and leaves `PublicApi.txt` changed by 69 lines in and 61 out, the owner's to number as 6.0 before
 the next pack. Every example 3.5 to 7 per cent from raylib gives its reason, and the cel shading
@@ -35,19 +44,6 @@ scales its one bake, mended and measured over all 220 pairs, `textures_image_tex
 the `font_from_file` reference 9.5 to 0.7 per cent from raylib's own drawing, so it is retaken
 (`20bf8c72`). The suite: 1,435 passed, none skipped. Item 5, the surface read whole, is under way.
 
-Before them, Verdict 29's causes were found to be the tests' own: macOS ships bash 3.2, where a
-command not found in a sourced script exits 1, so the test holds the error's title to whatever code
-the step ended with; the notices test kept a carriage return on each line's last pair; and the
-missing notice is most likely .NET reading the script's UTF-8 in the console code page, said as
-likely and not certain, so both script tests read UTF-8, compare with the line end taken off, and
-the page test's lines end in Windows line ends on every system (`0ce5aac6`); the verdict settles
-with the run. An ImGui window dragged outside the game's window gets an SDL window and a swapchain
-of its own once a program turns ImGui's viewports on, off by default, offered where ImGui's own SDL
-backend offers it and so not on Wayland, drawn after the window's pass and taken by the frame's one
-submit and present, held by a test on SDL's offscreen driver on Linux (`2bcac3a6`), which settles
-item 5 and the list the owner's decisions made; items 5 and 6 are new. The suite: 1,435 passed, none
-skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -58,11 +54,10 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 29 first, the scripts' tests on Windows and macOS, then Verdict 28's examples job.**
-   Two runs fail in `StepScriptTests` and `TestScriptTests` off Linux; the run after the mend shows
-   whether all three systems pass and whether the examples job, which did not run, passes its
-   first-person walk. Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+1. **Verdict 28's examples job, and the first shares.** The run of `22bbf15a` passed its tests on
+   all three systems, and its examples job is running; when it ends green, Verdict 28 settles and
+   its notices hold the pairs measured for the first time, which item 4 records. Each push's run is
+   read by the reviewing session, and a failure it names comes first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
 3. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
@@ -87,7 +82,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 27 are settled, and their numbers are not given again.
+Verdicts 1 to 27 and 29 are settled, and their numbers are not given again.
 
 28. **The examples job ends with `Process completed with exit code 4` and nothing else, three
     runs in a row.** The jobs of `6336aba6`, `b9ebd0bd` and `039bd788` each fail so, after the
@@ -104,20 +99,6 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
     artifact need a signed-in reader, and until `measured-ci.tsv` is recorded the measure's own
     result does not fail the job. Found in the workflow's own image, where the coder ran the job's
     steps before.
-
-29. **The runs of `38e81c4f` and `78d79c22` fail on Windows and macOS in the tests of the new
-    scripts, and pass on Linux.** Read from the pages. On macOS, `StepScriptTests`' test of a step
-    not in the workflow expects exit 127 for a command that is not found and gets 1, both runs. On
-    Windows, `TestScriptTests` finds the pairs measured for the first time unequal to the 219 it
-    expects, both runs, and at `78d79c22` its page of 500 failures beside 100,000 lines finds no
-    `::notice` line saying `500 failed` and `60,000 ×`. Three faults of `build/step.py` and
-    `build/page.py` on the systems the scripts were not run on: a shell's code for a missing command
-    is the shell's, so the test accepts what the system's shell gives or the script maps it to one
-    code; and lines read on Windows end in a carriage return and a line feed, so pairs and repeated
-    lines are compared with the line end taken off, which is where both page failures point. Each is
-    reproduced by feeding the scripts a file with Windows line ends and by asking the shell the
-    system has, and the two systems' pages are read again after.
-
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -194,27 +175,21 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 2, a game of a kind none of the seven is.** `games/Tempo` is a rhythm game, notes coming
-down four lanes of a road to a line where D, F, J and K or the pad's buttons play each, a note
-played within 50 ms of its beat perfect, within 100 good and within 150 bad, and one left past
-that missed. Its song is a ProTracker module of samples synthesized by `make-music.py` beside it,
-which writes the chart from the same rows, so each note is at the time its row is heard. The game
-keeps time by `GetMusicTimePlayed` and not by its frames, so a slow frame judges a note as late as
-it was played, and it falls back to the frames' time once the music has run out or where no audio
-device opens. The road's sides light up as loud as the music heard, measured by a processor on the
-music's stream and kept by the time each window of samples plays, since a processor sees samples
-up to half a second before they are heard. Sparks bloom from each note played, with grades, a
-combo, a pause, an offset for speakers that play late and a best score kept in files. Its
-autopilot plays each note on the frame nearest its beat, and the step that plays the song through
-on the dummy driver under the layer fails on a single miss. The step runs at the runner's own rate
-as the other games' do, since the song's time is the music's and a fixed frame time would not move
-it. Here the song played through 381 of 381 perfect at 60 frames a second, on the dummy driver as
-well, with no miss at 5 frames a second, and with no miss and no validation error on lavapipe under
-the layer kept to four cores, at 65 ms a frame. It is soaked and put through the resize storm with
-the others, its capture and a paragraph are in the README, and `docs/audio.md` says how a game
-keeps time by its music. Its capture is at its own window's size and left out of N 4.5's as the
-other games' are, which makes 11 left out where NORM.md's table says 10. The suite: 1,440 passed,
-none skipped.
-
-**Verdict 29.** The run of `22bbf15a` passes the tests on Linux, Windows and macOS. Its examples
-job was still capturing when this was written.
+**Now 2, TODO's entry on text, emoji sequences.** A sequence a color font joins into one picture is
+drawn as that picture: a family, a flag, a skin tone, a keycap, the rainbow flag and a subdivision
+flag. `GlyphSubstitution` reads a font's GSUB table and applies its `ccmp` feature's lookups in the
+table's order, single, multiple and ligature substitutions and the contextual and chained
+contextual ones in their three formats, through extensions. While matching it passes over a default
+ignorable character such as U+FE0F where that does not match itself, as HarfBuzz does, since a
+font's ligature for a keycap or the rainbow flag leaves out the U+FE0F the text has inside it. Text
+in a font the engine's reader draws some of is shaped in runs of those characters and the joiners
+and selectors between them. The glyphs the font can make of the characters asked for are found by
+following its substitutions and baked with them under keys past U+10FFFF, so `LoadCodepoints` of
+the text is enough, and a joiner or selector left over is not drawn, as a shaper hides it. Text
+outside those runs is drawn a character at a time as before, so nothing changes for a text font.
+Read here with Twemoji, of bitmaps, and Segoe UI Emoji, of layers: every sequence each font holds
+joins, Segoe drawing a family as the three parts it is made of and a subdivision flag as the black
+flag, having none of its own. Three tests on the test font, which `make-color-test-fonts.py` gives a
+ligature and a chained context, and the 117 render and font tests pass on lavapipe under the layer.
+The comparison page, `docs/text-and-fonts.md` and TODO.md say so. The suite: 1,443 passed, none
+skipped.

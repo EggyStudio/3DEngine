@@ -112,21 +112,24 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// An atlas with the characters past U+FFFF a font file has drawn into a strip below it, at the
-    /// size and on the baseline the atlas builder puts the rest at, which takes the builder's
-    /// scale, a pixel height of ascent to descent, and its ascent rounded up a pixel.
+    /// An atlas with the glyphs a font file's own reader draws, by their keys, drawn into a strip
+    /// below it, at the size and on the baseline the atlas builder puts the rest at, which takes the
+    /// builder's scale, a pixel height of ascent to descent, and its ascent rounded up a pixel.
     /// </summary>
+    /// <remarks>
+    /// A glyph's key is its character's code point, or a key past U+10FFFF for a glyph a sequence of
+    /// characters is joined into (<see cref="JoinedKey"/>).
+    /// </remarks>
     private static (Image Image, float Size, Dictionary<int, Glyph> Glyphs) WithBeyondPlane(
-        (Image Image, float Size, Dictionary<int, Glyph> Glyphs) baked, TrueTypeFont outlines, int size, int[] codepoints)
+        (Image Image, float Size, Dictionary<int, Glyph> Glyphs) baked, TrueTypeFont outlines, int size, (int Key, int Glyph)[] wanted)
     {
         var scale = size / (float)(outlines.Ascent - outlines.Descent);
         var baseline = MathF.Round(MathF.Floor(outlines.Ascent * scale + 1));
         // Each glyph's pixels, its own colors where it has them, and its outline's coverage in white
         // otherwise, which the text's color tints as it does the atlas builder's glyphs.
         var drawn = new List<(int Codepoint, byte[] Rgba, int Width, int Height, int Left, int Top, float Advance)>();
-        foreach (var codepoint in codepoints)
+        foreach (var (codepoint, glyph) in wanted)
         {
-            var glyph = outlines.GlyphIndex(codepoint);
             if (glyph == 0) continue;
             var advance = outlines.Advance(glyph) * scale;
             if (outlines.Color(glyph, scale) is { } c) drawn.Add((codepoint, c.Rgba, c.Width, c.Height, c.Left, c.Top, advance));

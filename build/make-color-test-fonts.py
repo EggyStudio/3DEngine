@@ -4,7 +4,10 @@ their colors are known. 1000 units to the em, ascender 800 and descender -200, e
 
 bitmaps.ttf holds its glyphs as PNG images (CBDT and CBLC) and no outlines, as color emoji fonts
 built like Noto Color Emoji do, at one size of 8 pixels to the em: U+1F600 is red over blue, its top
-half red, standing on the baseline, and U+2600 green, a character of the first plane in color.
+half red, standing on the baseline, and U+2600 green, a character of the first plane in color. Its
+GSUB table joins U+1F600, the zero width joiner and U+2600 into a yellow glyph, as Noto Color Emoji
+joins a family, and turns U+2600 before U+FE0F into the same glyph by a chained context, as Segoe UI
+Emoji chooses its glyphs. The joiner and U+FE0F have no image and no width.
 
 layers.ttf holds outlines and colors them by layers (COLR version 0 with CPAL), as Segoe UI Emoji
 does: U+1F600's outline is a square, drawn in color as a red left half and a blue right half, each
@@ -38,9 +41,10 @@ def simple(contours):
     return out
 
 
-def font(path, glyph_count, codes, extra):
-    """A font of the common tables for glyph_count glyphs mapped from codes, and the extra tables."""
-    hmtx = b"".join(struct.pack(">Hh", 1000, 0) for _ in range(glyph_count))
+def font(path, glyph_count, codes, extra, advances=None):
+    """A font of the common tables for glyph_count glyphs mapped from codes, and the extra tables,
+    each glyph 1000 wide unless advances gives its width."""
+    hmtx = b"".join(struct.pack(">Hh", (advances or {}).get(g, 1000), 0) for g in range(glyph_count))
     head = struct.pack(">IIIIHHqqhhhhHHhhh", 0x00010000, 0x00010000, 0, 0x5F0F3CF5, 0, 1000, 0, 0,
                        0, -200, 1000, 800, 0, 8, 2, 1, 0)
     hhea = struct.pack(">IhhhHhhhhhhhhhhhH", 0x00010000, 800, -200, 0, 1000, 0, 0, 1000, 1, 0, 0, 0, 0, 0, 0, 0, glyph_count)
@@ -63,22 +67,49 @@ def font(path, glyph_count, codes, extra):
 
 here = os.path.join(os.path.dirname(__file__), "..", "3DEngine.Tests", "Api")
 
-# bitmaps.ttf: glyph 1 U+1F600, glyph 2 U+2600, each 8 by 8 at 8 pixels to the em, standing on the
-# baseline (bearing 0 across and 8 up), advancing 8.
-red, blue, green = (255, 0, 0, 255), (0, 0, 255, 255), (0, 255, 0, 255)
-images = [png(8, 8, [[red] * 8] * 4 + [[blue] * 8] * 4), png(8, 8, [[green] * 8] * 8)]
+def gsub(lookups, ccmp):
+    """A GSUB table of the default script whose ccmp feature applies the lookups numbered in ccmp,
+    each lookup a type and one subtable."""
+    language = struct.pack(">HHHH", 0, 0xFFFF, 1, 0)
+    script = struct.pack(">HH", 4, 0) + language
+    scripts = struct.pack(">H4sH", 1, b"DFLT", 8) + script
+    feature = struct.pack(">HH", 0, len(ccmp)) + b"".join(struct.pack(">H", l) for l in ccmp)
+    features = struct.pack(">H4sH", 1, b"ccmp", 8) + feature
+    tables = [struct.pack(">HHHH", kind, 0, 1, 8) + sub for kind, sub in lookups]
+    at, offsets = 2 + 2 * len(tables), []
+    for t in tables: offsets.append(at); at += len(t)
+    lookup_list = struct.pack(">H", len(tables)) + b"".join(struct.pack(">H", o) for o in offsets) + b"".join(tables)
+    return (struct.pack(">IHHH", 0x00010000, 10, 10 + len(scripts), 10 + len(scripts) + len(features))
+            + scripts + features + lookup_list)
+
+
+def coverage(glyph):
+    return struct.pack(">HHH", 1, 1, glyph)
+
+
+# bitmaps.ttf: glyph 1 U+1F600, glyph 2 U+2600 and glyph 3 the glyph they join into, each 8 by 8 at
+# 8 pixels to the em, standing on the baseline (bearing 0 across and 8 up), advancing 8, and glyphs
+# 4 and 5 the joiner and U+FE0F, with no image.
+red, blue, green, yellow = (255, 0, 0, 255), (0, 0, 255, 255), (0, 255, 0, 255), (255, 255, 0, 255)
+images = [png(8, 8, [[red] * 8] * 4 + [[blue] * 8] * 4), png(8, 8, [[green] * 8] * 8), png(8, 8, [[yellow] * 8] * 8), b"", b""]
 cbdt = struct.pack(">HH", 3, 0)
 offsets = []
 for image in images:
     offsets.append(len(cbdt))
-    cbdt += struct.pack(">BBbbB", 8, 8, 0, 8, 8) + struct.pack(">I", len(image)) + image
+    if image: cbdt += struct.pack(">BBbbB", 8, 8, 0, 8, 8) + struct.pack(">I", len(image)) + image
 offsets.append(len(cbdt))
 index = struct.pack(">HHI", 1, 17, 0) + b"".join(struct.pack(">I", o) for o in offsets)
-array = struct.pack(">HHI", 1, 2, 8)
+array = struct.pack(">HHI", 1, 5, 8)
 metrics = struct.pack(">bbBbbbbbbbbb", 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-size = struct.pack(">IIII", 8 + 48, len(array) + len(index), 1, 0) + metrics + metrics + struct.pack(">HHBBBb", 1, 2, 8, 8, 32, 1)
+size = struct.pack(">IIII", 8 + 48, len(array) + len(index), 1, 0) + metrics + metrics + struct.pack(">HHBBBb", 1, 5, 8, 8, 32, 1)
 cblc = struct.pack(">HHI", 3, 0, 1) + size + array + index
-font(os.path.join(here, "bitmaps.ttf"), 3, [(0x1F600, 1), (0x2600, 2)], {b"CBDT": cbdt, b"CBLC": cblc})
+# Lookup 0 joins glyphs 1, 4 and 2 into 3. Lookup 1 applies lookup 2, which turns 2 into 3, to a 2
+# that 5 follows.
+ligature = struct.pack(">HHHH", 1, 8, 1, 14) + coverage(1) + struct.pack(">HH", 1, 4) + struct.pack(">HHHH", 3, 3, 4, 2)
+chained = struct.pack(">HHHHHHHHH", 3, 0, 1, 18, 1, 24, 1, 0, 2) + coverage(2) + coverage(5)
+single = struct.pack(">HHHH", 2, 8, 1, 3) + coverage(2)
+font(os.path.join(here, "bitmaps.ttf"), 6, [(0x1F600, 1), (0x2600, 2), (0x200D, 4), (0xFE0F, 5)],
+     {b"CBDT": cbdt, b"CBLC": cblc, b"GSUB": gsub([(4, ligature), (6, chained), (1, single)], [0, 1])}, {4: 0, 5: 0})
 
 # layers.ttf: glyph 1 'A', glyph 2 U+1F600's square, glyphs 3 and 4 its left and right halves.
 glyphs = [

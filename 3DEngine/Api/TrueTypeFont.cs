@@ -24,6 +24,10 @@ namespace Engine;
 /// of them alone draws its outlines in one color.
 /// </para>
 /// <para>
+/// A sequence the font joins into one glyph, as a family of emoji or a flag, is read from its GSUB
+/// table by <see cref="GlyphSubstitution"/>.
+/// </para>
+/// <para>
 /// A glyph is rasterized by accumulating, for each edge, the signed area it covers in each pixel it
 /// crosses, then summing along the rows, as font-rs does, which gives exact coverage for the
 /// flattened outline and fills by the nonzero rule TrueType draws with.
@@ -61,6 +65,7 @@ internal sealed class TrueTypeFont
         _loca = tables.GetValueOrDefault("loca");
         if (tables.TryGetValue("CBLC", out var cblc) && tables.TryGetValue("CBDT", out var cbdt)) (_cblc, _cbdt) = (cblc, cbdt);
         if (tables.TryGetValue("COLR", out var colr) && tables.TryGetValue("CPAL", out var cpal)) (_colr, _cpal) = (colr, cpal);
+        if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
 
         // The richest map the file has, every plane's before the first plane's.
         var cmap = tables["cmap"];
@@ -72,6 +77,12 @@ internal sealed class TrueTypeFont
             if (U16(subtable) == 4 && (platform == 0 || platform == 3 && encoding == 1)) _cmap4 = subtable;
         }
     }
+
+    /// <summary>
+    /// The substitutions the font makes to join a sequence of characters into one glyph, as an
+    /// emoji font joins a family or a flag, or null where it makes none.
+    /// </summary>
+    public GlyphSubstitution? Joins { get; }
 
     /// <summary>Whether the font has TrueType outlines, where one of color bitmaps alone has none.</summary>
     public bool HasOutlines => _glyf != 0 && _loca != 0;

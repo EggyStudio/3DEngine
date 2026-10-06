@@ -283,7 +283,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | checked, `NormTests` | listed 229, `NormTests` |
 | N 1.3 | checked, `NormTests` | listed 17, `NormTests`, 11 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 11 left out | listed 88, `NormTests`, 22 left out |
+| N 1.4 | checked, `NormTests`, 11 left out | listed 88, `NormTests`, 23 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
@@ -306,7 +306,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | checked, `NormTests`, 10 left out | checked, `NormTests`, 24 left out |
+| N 4.5 | checked, `NormTests`, 11 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |

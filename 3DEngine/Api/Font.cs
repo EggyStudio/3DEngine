@@ -35,6 +35,10 @@ public sealed class Font
     public float LineHeight { get; }
 
     /// <summary>The glyphs, by code point.</summary>
+    /// <remarks>
+    /// A glyph a sequence of characters is joined into, as an emoji font joins a family or a flag, is
+    /// kept under a key past U+10FFFF, the last code point, which no character has.
+    /// </remarks>
     public IReadOnlyDictionary<int, Glyph> Glyphs { get; }
 
     /// <summary>How the glyphs were baked.</summary>
@@ -47,6 +51,18 @@ public sealed class Font
 
     /// <summary>Whether the font has an atlas to draw from.</summary>
     public bool IsValid => Texture.IsValid && Glyphs.Count > 0;
+
+    // The font's reader and the characters it draws itself, where the font joins sequences of them
+    // into glyphs of their own, as an emoji font joins a family or a flag, which text is shaped by
+    // before it is drawn.
+    internal (TrueTypeFont Reader, HashSet<int> Drawn)? Joining { get; private set; }
+
+    // The same font, shaping its text by the reader's substitutions.
+    internal Font WithJoining((TrueTypeFont Reader, HashSet<int> Drawn)? joining)
+    {
+        Joining = joining;
+        return this;
+    }
 
     // Bakes the font's file again at a size, for a font loaded from one, and the bakes made, by size.
     internal Func<int, Font?>? Rebake { get; private set; }

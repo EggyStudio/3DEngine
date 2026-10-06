@@ -87,6 +87,51 @@ public sealed class ColorFontTests : IDisposable
     }
 
     [Fact]
+    public void A_Sequence_The_Font_Joins_Is_Drawn_As_The_One_Glyph_It_Joins_Into()
+    {
+        // The face, the zero width joiner and the sun, which the font's ligature joins into its
+        // yellow glyph 3, as an emoji font joins a family from its people.
+        const string Joined = "\U0001F600\u200D\u2600";
+        var font = LoadFontEx(Bitmaps, 8, LoadCodepoints(Joined));
+
+        TextKeys(font, Joined).Should().Equal(JoinedKey(3));
+        AtlasPixel(font, JoinedKey(3), 0.5f, 0.5f).Should().Be(new Color(255, 255, 0, 255), "the glyph joined into is baked with the characters asked for");
+        MeasureTextEx(font, Joined, 8, 0).X.Should().Be(8, "one glyph 8 wide, where the face and the sun apart are 16");
+        var image = ImageTextEx(font, Joined, 8, 0, Color.White);
+        GetImageColor(image, 4, 4).Should().Be(new Color(255, 255, 0, 255));
+        UnloadImage(image);
+
+        TextKeys(font, "\U0001F600\u2600").Should().Equal([0x1F600, 0x2600], "without the joiner they are two characters");
+        TextKeys(font, "\U0001F600\u200D\U0001F600").Should().Equal([0x1F600, 0x1F600],
+            "a sequence the font has no ligature for is its characters, the joiner left between them hidden as a shaper hides it");
+        MeasureTextEx(font, "\U0001F600\u200D\U0001F600", 8, 0).X.Should().Be(16);
+        UnloadFont(font);
+    }
+
+    [Fact]
+    public void A_Chained_Context_Chooses_A_Glyph_By_The_Character_After_It()
+    {
+        // The sun before U+FE0F is turned into glyph 3 by a rule that looks ahead, as Segoe UI
+        // Emoji chooses a glyph by the selector after it.
+        var font = LoadFontEx(Bitmaps, 8, LoadCodepoints("\u2600\uFE0F"));
+
+        TextKeys(font, "\u2600\uFE0F").Should().Equal([JoinedKey(3)], "the selector chose the glyph and is not drawn");
+        TextKeys(font, "\u2600").Should().Equal([0x2600], "with nothing after it the sun keeps its own glyph");
+        TextKeys(font, "a\u2600\uFE0F b").Should().Equal('a', JoinedKey(3), ' ', 'b');
+        UnloadFont(font);
+    }
+
+    [Fact]
+    public void A_Font_With_No_Substitutions_Draws_Each_Character_As_Itself()
+    {
+        var font = LoadFontEx(Layers, 40, ['A', 0x1F600, 0x200D]);
+
+        font.Joining.Should().BeNull("the font has no GSUB table");
+        TextKeys(font, "\U0001F600\u200D\U0001F600").Should().Equal(0x1F600, 0x200D, 0x1F600);
+        UnloadFont(font);
+    }
+
+    [Fact]
     public void A_Layered_Font_Draws_Its_Colored_Characters_In_Color_And_The_Rest_As_Coverage()
     {
         var font = LoadFontEx(Layers, 40, ['A', 0x1F600]);

@@ -306,15 +306,22 @@ public static partial class Engine3D
         var ranges = GlyphRanges(asked.Except(own));
         if (ranges.Length == 1) ranges = GlyphRanges([' ']);
 
+        // The glyphs the font joins the characters asked for into, as an emoji font joins a family or
+        // a flag, drawn by the reader too, and text drawn in the font shaped into them.
+        var joined = outlines is null ? [] : JoinedGlyphs(outlines, asked);
+        (int Key, int Glyph)[] wanted = outlines is null ? []
+            : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Select(g => (JoinedKey(g), g))];
+        (TrueTypeFont, HashSet<int>)? joining = joined.Length > 0 ? (outlines!, own.ToHashSet()) : null;
+
         // The atlas reads the ranges when it builds, after the font is added, so they stay pinned
         // until the bake is done.
         Font? BakeAt(int size)
         {
             if (outlines is { HasOutlines: false } bitmaps)
-                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, bitmaps, Math.Max(4, size), own));
+                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, bitmaps, Math.Max(4, size), wanted))?.WithJoining(joining);
             fixed (ushort* pinned = ranges)
                 return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
-                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), own));
+                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining);
         }
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : null;
     }
@@ -511,14 +518,14 @@ public static partial class Engine3D
             ? new Vector3(x - origin.X + position.X, y - origin.Y + position.Y, 0)
             : new Vector3(Vector2.Transform(new Vector2(x, y) - origin, turn) + position, 0);
         var pen = Vector2.Zero;
-        foreach (var rune in text.EnumerateRunes())
+        foreach (var key in TextKeys(font, text))
         {
-            if (rune.Value == '\n')
+            if (key == '\n')
             {
                 pen = new Vector2(0, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
-            if (!TryGetGlyph(font, rune.Value, out var g)) continue;
+            if (!TryGetGlyph(font, key, out var g)) continue;
 
             if (g.X1 > g.X0 && g.Y1 > g.Y0)
             {
@@ -567,14 +574,14 @@ public static partial class Engine3D
 
         var scale = fontSize / font.BaseSize;
         var pen = position;
-        foreach (var rune in text.EnumerateRunes())
+        foreach (var key in TextKeys(font, text))
         {
-            if (rune.Value == '\n')
+            if (key == '\n')
             {
                 pen = new Vector2(position.X, pen.Y + LineAdvance(font, fontSize));
                 continue;
             }
-            if (!TryGetGlyph(font, rune.Value, out var g)) continue;
+            if (!TryGetGlyph(font, key, out var g)) continue;
             if (g.X1 > g.X0 && g.Y1 > g.Y0)
             {
                 var source = new Rectangle(g.U0 * font.Atlas.Width, g.V0 * font.Atlas.Height,
@@ -699,9 +706,9 @@ public static partial class Engine3D
         // followed by.
         float width = 0, line = 0;
         int lines = 1, characters = 0, most = 0;
-        foreach (var rune in text.EnumerateRunes())
+        foreach (var key in TextKeys(font, text))
         {
-            if (rune.Value == '\n')
+            if (key == '\n')
             {
                 width = Math.Max(width, line);
                 line = 0;
@@ -710,7 +717,7 @@ public static partial class Engine3D
                 continue;
             }
             most = Math.Max(most, ++characters);
-            if (TryGetGlyph(font, rune.Value, out var g)) line += g.Advance;
+            if (TryGetGlyph(font, key, out var g)) line += g.Advance;
         }
         return new Vector2(Math.Max(width, line) * scale + (most - 1) * spacing, (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
     }
