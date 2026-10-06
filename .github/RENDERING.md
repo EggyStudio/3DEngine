@@ -773,10 +773,8 @@ run to run, with the runtime's compiler and collector in the frame.
 
 ## Order of work
 
-1. Normals and one directional light.
-2. Assimp models with textures, and the material struct.
-3. Dynamic rendering and synchronization2, done.
-4. Tonemapping, as a full-screen pass over a render target, in place of the curve at the end of the
-   model pass, done for the HDR frame with bloom on (§5).
-5. Shadow cascades, then point and spot shadows.
-6. Bloom and FXAA, done.
+Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
+shadow cascades with point and spot shadows, and bloom and FXAA are built, in that order. What is
+left of the order is tonemapping as a full-screen pass in every frame, in place of the curve at the
+end of the model pass, which runs there while every effect over the frame is off and over the HDR
+frame while any is on (§5).
