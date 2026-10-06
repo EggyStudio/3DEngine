@@ -133,7 +133,7 @@ public static partial class Engine3D
         public AudioSource Voice;
         public float Volume = 1f;
         public float Pitch = 1f;
-        public float Pan = 0.5f;
+        public float Pan;
     }
 
     private static readonly ConditionalWeakTable<Sound, SoundState> SoundStates = new();
@@ -242,7 +242,7 @@ public static partial class Engine3D
         {
             Volume = Math.Max(state.Volume, 1e-6f),
             Pannable = true,
-            Pan = state.Pan * 2 - 1,
+            Pan = state.Pan,
         });
         if (state.Pitch != 1f) state.Voice.SetPlaybackRate(state.Pitch);
     }
@@ -286,14 +286,14 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// Sets a sound's balance, as raylib's 0 (left) to 1 (right) with 0.5 in the middle, for this
+    /// Sets a sound's balance, as raylib's -1 (left) to 1 (right) with 0 in the middle, for this
     /// play and the next.
     /// </summary>
     public static void SetSoundPan(Sound sound, float pan)
     {
         var state = SoundStates.GetOrCreateValue(sound);
-        state.Pan = Math.Clamp(pan, 0f, 1f);
-        state.Voice.SetPan(state.Pan * 2 - 1);
+        state.Pan = Math.Clamp(pan, -1f, 1f);
+        state.Voice.SetPan(state.Pan);
     }
 
     // -- Music
@@ -474,11 +474,11 @@ public static partial class Engine3D
         music.Voice.SetPlaybackRate(music.Pitch);
     }
 
-    /// <summary>Sets a piece of music's balance, as raylib's 0 (left) to 1 (right) with 0.5 in the middle.</summary>
+    /// <summary>Sets a piece of music's balance, as raylib's -1 (left) to 1 (right) with 0 in the middle.</summary>
     public static void SetMusicPan(Music music, float pan)
     {
-        music.Pan = Math.Clamp(pan, 0f, 1f);
-        music.Voice.SetPan(music.Pan * 2 - 1);
+        music.Pan = Math.Clamp(pan, -1f, 1f);
+        music.Voice.SetPan(music.Pan);
     }
 
     /// <summary>A piece of music's length in seconds.</summary>
@@ -506,7 +506,7 @@ public static partial class Engine3D
             Volume = Math.Max(music.Volume, 1e-6f),
             PlaybackRate = music.Pitch,
             Pannable = true,
-            Pan = music.Pan * 2 - 1,
+            Pan = music.Pan,
         });
         (music.StartFrame, music.FramesQueued, music.Paused, music.Ended) = (frame, 0, false, false);
         UpdateMusicStream(music);

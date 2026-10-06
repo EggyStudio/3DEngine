@@ -176,3 +176,17 @@ and a torus' or a knot's `radSeg` counts the pieces around its tube, as raylib's
 `models_rotating_cube` 0.2% from 1.4% and `shaders_fog_rendering` 1.0% from 1.8%. The suite: 1,389
 passed, 0 failed, 1 skipped, and the render and model tests pass on lavapipe under the validation
 layer. Audio is the module left.
+
+**Now 5, audio measured.** Ten of raylib's eleven audio programs are written, `audio_module_playing`
+waiting on a decoder for XM and MOD, and five are within 2% of raylib's picture. The fault found:
+`SetSoundPan`, `SetMusicPan` and `SetAudioStreamPan` took 0 to 1 with the middle at 0.5, where
+raylib's take -1 to 1 with the middle at 0, so `audio_music_stream` and `audio_sound_positioning`,
+which pass raylib's values, played raylib's middle and everything left of it at the far left, and
+the right half spread across both sides. They take raylib's range now, held at either side as raylib
+holds it, and the law between the sides was already the equal power raylib's cubic comes close to.
+`audio_raw_stream` was a program of this engine's own under raylib's name and is now a port of
+raylib's, its buffer filled whenever `IsAudioStreamProcessed` says so, with the arrows for frequency
+and pan. What is left apart is the font, raygui in `audio_amp_envelope` (14.3%), and in
+`audio_raw_stream` (6.0%) and `audio_mixed_processor` (2.4%) a picture drawn from when the device
+last asked for samples, which is the clock on both sides and moves from run to run. The suite:
+1,390 passed, 0 failed, 1 skipped.

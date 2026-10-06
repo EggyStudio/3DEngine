@@ -34,7 +34,7 @@ public sealed class AudioStream
     internal bool Unloaded { get; set; }
     internal float Volume { get; set; } = 1f;
     internal float Pitch { get; set; } = 1f;
-    internal float Pan { get; set; } = 0.5f;
+    internal float Pan { get; set; }
     internal AudioCallback? Callback { get; set; }
 
     // What runs over each piece of samples the stream queues, in order, replaced as a whole.
@@ -189,11 +189,11 @@ public static partial class Engine3D
         stream.Voice.SetPlaybackRate(stream.Pitch);
     }
 
-    /// <summary>Sets a stream's balance, as raylib's 0 (left) to 1 (right) with 0.5 in the middle.</summary>
+    /// <summary>Sets a stream's balance, as raylib's -1 (left) to 1 (right) with 0 in the middle.</summary>
     public static void SetAudioStreamPan(AudioStream stream, float pan)
     {
-        stream.Pan = Math.Clamp(pan, 0f, 1f);
-        stream.Voice.SetPan(stream.Pan * 2 - 1);
+        stream.Pan = Math.Clamp(pan, -1f, 1f);
+        stream.Voice.SetPan(stream.Pan);
     }
 
     /// <summary>How many frames a stream made after this keeps waiting to be heard before it asks for more, 4096 to begin with.</summary>
@@ -244,7 +244,7 @@ public static partial class Engine3D
             Volume = Math.Max(stream.Volume, 1e-6f),
             PlaybackRate = stream.Pitch,
             Pannable = true,
-            Pan = stream.Pan * 2 - 1,
+            Pan = stream.Pan,
         });
         if (!voice.IsValid) return null;
         voice.SetPaused(!stream.Playing);

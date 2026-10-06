@@ -2,6 +2,16 @@
 # build/raylib-bench/compare.py and read by build/examples-table.py. A name, then the share in percent, or a
 # word where no share was measured: size (the two pictures are of two sizes) or none (raylib's program
 # drew no such frame).
+audio_amp_envelope	14.3
+audio_mixed_processor	2.4
+audio_music_stream	2.0
+audio_raw_stream	6.0
+audio_sound_loading	1.1
+audio_sound_multi	0.5
+audio_sound_positioning	0.0
+audio_spectrum_visualizer	1.1
+audio_stream_callback	2.4
+audio_stream_effects	3.2
 core_2d_camera	1.0
 core_2d_camera_mouse_zoom	1.8
 core_2d_camera_platformer	0.9

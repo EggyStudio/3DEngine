@@ -52,12 +52,12 @@ if (IsMouseButtonPressed(MouseButton.Left)) PlaySound(shots[next++ % shots.Lengt
 An alias copies no samples, so four of them cost four handles, and `UnloadSoundAlias` stops one.
 
 Each sound has a volume from 0 to 1, a pitch where 1 is as recorded and 2 an octave up, and a pan
-from 0 at the left to 1 at the right. They hold for the play under way and the plays after it:
+from -1 at the left to 1 at the right. They hold for the play under way and the plays after it:
 
 ```csharp
 SetSoundVolume(step, 0.6f);
 SetSoundPitch(step, 0.9f + GetRandomValue(0, 20) / 100f);   // each footstep a little different
-SetSoundPan(step, 0.5f);
+SetSoundPan(step, 0.0f);
 PlaySound(step);
 ```
 
@@ -129,27 +129,33 @@ DrawRectangle(20, 140, (int)(400 * GetMusicTimePlayed(drone) / GetMusicTimeLengt
 An `AudioStream` plays samples the program makes as it runs, as a synthesizer, a radio's static or
 an engine whose note follows its speed. The program either gives it samples whenever
 `IsAudioStreamProcessed` says it has played enough to take more, or hands it a callback, which the
-end of each frame calls for as many samples as keep it fed. The `audio_raw_stream` example plays a
-sine wave whose pitch follows the mouse:
+end of each frame calls for as many samples as keep it fed. The `audio_raw_stream` example gives a
+sine wave a piece at a time, changing its frequency only where a wave ends so the sound never jumps:
 
 ```csharp
-// A sine wave made as it plays, its pitch following the mouse across the window.
-const int SampleRate = 44100;
-var stream = LoadAudioStream(SampleRate, 32, 1);
-var frequency = 440f;
-var phase = 0.0;
-// ...
-SetAudioStreamCallback(stream, samples =>
-{
-    for (int i = 0; i < samples.Length; i++)
-    {
-        samples[i] = 0.3f * MathF.Sin((float)phase);
-        phase = (phase + 2 * Math.PI * frequency / SampleRate) % (2 * Math.PI);
-    }
-    // ...
-});
+SetAudioStreamBufferSizeDefault(BUFFER_SIZE);
+float[] buffer = new float[BUFFER_SIZE];
+AudioStream stream = LoadAudioStream(SAMPLE_RATE, 32, 1);
 PlayAudioStream(stream);
+// ...
+if (IsAudioStreamProcessed(stream))
+{
+    for (int i = 0; i < BUFFER_SIZE; i++)
+    {
+        int wavelength = SAMPLE_RATE/sineFrequency;
+        buffer[i] = MathF.Sin(2*MathF.PI*sineIndex/wavelength);
+        sineIndex++;
+        if (sineIndex >= wavelength)
+        {
+            sineFrequency = newSineFrequency;
+            sineIndex = 0;
+        }
+    }
+    UpdateAudioStream(stream, buffer);
+}
 ```
+
+`audio_stream_callback` makes the same waves through `SetAudioStreamCallback` instead.
 
 Samples are interleaved, a frame of one for each channel, from -1 to 1. The callback runs on the
 program's own thread, so it reads the game's state as any code in the loop does, and a stream keeps
@@ -184,7 +190,8 @@ The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and 
 ## See also
 
 - Examples: [`audio_sound`](../3DEngine.Examples/Audio/AudioSound.cs),
-  [`audio_raw_stream`](../3DEngine.Examples/Audio/AudioRawStream.cs)
+  [`audio_raw_stream`](../3DEngine.Examples/Audio/AudioRawStream.cs),
+  [`audio_stream_callback`](../3DEngine.Examples/Audio/AudioStreamCallback.cs)
 - The cheatsheet's [Audio](../CHEATSHEET.md#audio)
 - Previous: [Shaders and compute](shaders-and-compute.md)
 - Next: [Input](input.md)

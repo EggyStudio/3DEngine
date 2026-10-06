@@ -50,7 +50,7 @@ public sealed class Music
 
     internal float Pitch { get; set; } = 1f;
 
-    internal float Pan { get; set; } = 0.5f;
+    internal float Pan { get; set; }
 
     internal bool Paused { get; set; }
 

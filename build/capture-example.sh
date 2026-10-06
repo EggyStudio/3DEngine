@@ -43,11 +43,6 @@ case "$driven" in
       ./e3d command input.drop "/home/player/game/$file" --quiet
     done
     ;;
-  audio_raw_stream)
-    # The pitch dragged up from 440 Hz, so the wave drawn is the one the stream was given.
-    ./e3d command input.move 600 200 --quiet
-    ./e3d command input.drag Left 10 0 3 --quiet
-    ;;
   core_input_gestures)
     # A tap, then swipes right and up with the mouse, each starting with a tap of its own, then a
     # finger held through the capture. A double tap is left out, since two commands do not

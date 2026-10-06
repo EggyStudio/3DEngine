@@ -860,7 +860,7 @@ void ResumeSound(Sound sound);                            // Resume
 bool IsSoundPlaying(Sound sound);                         // Whether it is playing
 void SetSoundVolume(Sound sound, float volume);           // Volume (0 to 1), now and for the next play
 void SetSoundPitch(Sound sound, float pitch);             // Speed, where 1 is as recorded
-void SetSoundPan(Sound sound, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
+void SetSoundPan(Sound sound, float pan);                 // Balance, -1 left, 0 middle, 1 right
 
 Wave LoadWave(string fileName);                           // A sound file's samples in memory, to cut, convert and write
 Wave LoadWaveFromMemory(string fileType, byte[] fileData); // The same from a file's bytes, by its type (".ogg")
@@ -887,7 +887,7 @@ void SeekMusicStream(Music music, float position);        // Move to a time in s
 bool IsMusicStreamPlaying(Music music);                   // Whether it is playing
 void SetMusicVolume(Music music, float volume);           // Volume (0 to 1)
 void SetMusicPitch(Music music, float pitch);             // Speed, where 1 is as recorded
-void SetMusicPan(Music music, float pan);                 // Balance, 0 left, 0.5 middle, 1 right
+void SetMusicPan(Music music, float pan);                 // Balance, -1 left, 0 middle, 1 right
 float GetMusicTimeLength(Music music);                    // Length in seconds
 float GetMusicTimePlayed(Music music);                    // How far into it the music heard is, in seconds
 
@@ -903,7 +903,7 @@ void StopAudioStream(AudioStream stream);                 // Stop, dropping what
 bool IsAudioStreamPlaying(AudioStream stream);            // Whether it is playing
 void SetAudioStreamVolume(AudioStream stream, float volume); // Volume (0 to 1)
 void SetAudioStreamPitch(AudioStream stream, float pitch);   // Speed, where 1 is its sample rate
-void SetAudioStreamPan(AudioStream stream, float pan);       // Balance, 0 left, 0.5 middle, 1 right
+void SetAudioStreamPan(AudioStream stream, float pan);       // Balance, -1 left, 0 middle, 1 right
 void SetAudioStreamBufferSizeDefault(int size);           // Frames a new stream keeps queued before asking for more (4096)
 void SetAudioStreamCallback(AudioStream stream, AudioCallback? callback); // Feed it from a callback at each frame's end
 void AttachAudioStreamProcessor(AudioStream stream, AudioCallback processor); // Change what it queues, after the processors before (music.Stream for music)
