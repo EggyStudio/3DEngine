@@ -52,6 +52,9 @@ internal sealed class RenderTarget : IDisposable
     /// <summary>The target's size in pixels.</summary>
     public Extent2D Extent { get; }
 
+    /// <summary>The views of the color images past the first, for a target that draws into several at once, in the order of its formats.</summary>
+    public IReadOnlyList<IImageView> MoreColorViews { get; init; } = [];
+
     /// <summary>
     /// Whether a pass has drawn into the target, before which its images hold nothing to keep, so
     /// its first pass clears it whatever was asked.
@@ -80,8 +83,22 @@ internal sealed unsafe partial class GraphicsDevice
     /// with no depth and one sample is a level of the bloom chain. Only a target in the window's
     /// format has an sRGB view and is a storage image.
     /// </remarks>
-    public RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true)
+    public RenderTarget CreateRenderTarget(uint width, uint height, ImageFormat format, bool depth = true, bool multisampled = true) =>
+        CreateRenderTarget(width, height, [format], depth, multisampled);
+
+    /// <summary>
+    /// Creates a target that draws into an image of each of <paramref name="formats"/> at once, the
+    /// first of them as <see cref="CreateRenderTarget(uint, uint, ImageFormat, bool, bool)"/> makes
+    /// it and the rest beside it, as a G-buffer is, a fragment stage writing each from its output
+    /// at the same index.
+    /// </summary>
+    /// <exception cref="ArgumentException">There are no formats, or more than <see cref="MaxColorAttachments"/>.</exception>
+    /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
+    public RenderTarget CreateRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth = true, bool multisampled = true)
     {
+        if (formats.Length is 0 or > MaxColorAttachments)
+            throw new ArgumentException($"A target draws into 1 to {MaxColorAttachments} images, not {formats.Length}.", nameof(formats));
+        var format = formats[0];
         if (!IsInitialized) throw new InvalidOperationException("Graphics device not initialized");
         width = Math.Max(1, width);
         height = Math.Max(1, height);
@@ -116,6 +133,27 @@ internal sealed unsafe partial class GraphicsDevice
             : default;
         var resolvedDepthView = msaa && depth ? TargetView(resolvedDepth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
 
+        // The images past the first, each sampled as the first is and drawn through a multisampled
+        // image of its own when the first is.
+        var more = new (VkFormat Format, VkImage Image, VulkanImage Owner, VkImageView View, VkImage Msaa, VkDeviceMemory MsaaMemory, VkImageView MsaaView)[formats.Length - 1];
+        for (int i = 0; i < more.Length; i++)
+        {
+            var moreFormat = formats[i + 1] == ImageFormat.Undefined ? _swapchainFormat : ToVkFormat(formats[i + 1]);
+            var (image, memory) = TargetImage(moreFormat, width, height,
+                VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc);
+            var owner = new VulkanImage(this, image, memory,
+                new ImageDesc(new Extent2D(width, height), formats[i + 1] == ImageFormat.Undefined ? ImageFormat.B8G8R8A8_UNorm : formats[i + 1],
+                    ImageUsage.ColorAttachment | ImageUsage.Sampled));
+            TransitionImageLayout(owner, VkImageLayout.Undefined, VkImageLayout.ShaderReadOnlyOptimal, VkImageAspectFlags.Color);
+            var (msaaImage, msaaImageMemory) = msaa ? TargetImage(moreFormat, width, height, VkImageUsageFlags.ColorAttachment, samples: samples) : default;
+            more[i] = (moreFormat, image, owner, TargetView(image, moreFormat, VkImageAspectFlags.Color), msaaImage, msaaImageMemory,
+                msaa ? TargetView(msaaImage, moreFormat, VkImageAspectFlags.Color) : default);
+        }
+        var moreAttachments = more.Select(m => msaa
+            ? (new Attachment(m.Msaa, m.MsaaView, VkImageAspectFlags.Color, 0, VkImageLayout.ColorAttachmentOptimal),
+               new Attachment(m.Image, m.View, VkImageAspectFlags.Color, 0, VkImageLayout.ShaderReadOnlyOptimal))
+            : (new Attachment(m.Image, m.View, VkImageAspectFlags.Color, 0, VkImageLayout.ShaderReadOnlyOptimal), default(Attachment))).ToArray();
+
         // The depth is stored with multisampling too, since NVIDIA's driver writes nothing to the
         // resolve of a depth that is not stored.
         var sampled = VkImageLayout.ShaderReadOnlyOptimal;
@@ -124,10 +162,10 @@ internal sealed unsafe partial class GraphicsDevice
                 new Attachment(msaaColor, msaaView, VkImageAspectFlags.Color, 0, VkImageLayout.ColorAttachmentOptimal),
                 new Attachment(color, colorView, VkImageAspectFlags.Color, 0, sampled),
                 new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, VkImageLayout.DepthStencilAttachmentOptimal),
-                new Attachment(resolvedDepth, resolvedDepthView, VkImageAspectFlags.Depth, 0, sampled))
+                new Attachment(resolvedDepth, resolvedDepthView, VkImageAspectFlags.Depth, 0, sampled)) { More = moreAttachments }
             : new VulkanFramebuffer(
                 new Attachment(color, colorView, VkImageAspectFlags.Color, 0, sampled), default,
-                new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, sampled), default);
+                new Attachment(depthImage, depthView, VkImageAspectFlags.Depth, 0, sampled), default) { More = moreAttachments };
 
         var colorImage = new VulkanImage(this, color, colorMemory,
             new ImageDesc(new Extent2D(width, height), window ? ImageFormat.B8G8R8A8_UNorm : format,
@@ -142,7 +180,7 @@ internal sealed unsafe partial class GraphicsDevice
             : null;
 
         return new RenderTarget(
-            new VulkanRenderPass(vkFormat, depth ? VkFormat.D32Sfloat : VkFormat.Undefined, samples),
+            new VulkanRenderPass(vkFormat, depth ? VkFormat.D32Sfloat : VkFormat.Undefined, samples) { More = MoreFormats.Of([.. more.Select(m => m.Format)]) },
             framebuffer,
             new VulkanImageView(this, colorImage, colorView),
             new VulkanImageView(this, colorImage, srgbView),
@@ -167,7 +205,19 @@ internal sealed unsafe partial class GraphicsDevice
                 _deviceApi.vkDestroyImageView(colorView);
                 colorImage.Dispose();
                 sampledDepth?.Dispose();
-            });
+                foreach (var m in more)
+                {
+                    _deviceApi.vkDestroyImageView(m.View);
+                    m.Owner.Dispose();
+                    if (!msaa) continue;
+                    _deviceApi.vkDestroyImageView(m.MsaaView);
+                    _deviceApi.vkDestroyImage(m.Msaa);
+                    _deviceApi.vkFreeMemory(m.MsaaMemory);
+                }
+            })
+        {
+            MoreColorViews = [.. more.Select(m => (IImageView)new VulkanImageView(this, m.Owner, m.View))],
+        };
     }
 
     // The sRGB format of the same class, for a view that decodes a UNORM image when sampled.

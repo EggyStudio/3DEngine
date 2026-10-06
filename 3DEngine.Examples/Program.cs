@@ -213,6 +213,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_game_of_life"] = ShadersGameOfLife.Run,
     ["shaders_rlgl_compute"] = ShadersRlglCompute.Run,
     ["shaders_lightmap_rendering"] = ShadersLightmapRendering.Run,
+    ["shaders_deferred_rendering"] = ShadersDeferredRendering.Run,
     ["core_input_gestures"] = CoreInputGestures.Run,
     ["text_fonts"] = TextFonts.Run,
     ["text_input_box"] = TextInputBox.Run,

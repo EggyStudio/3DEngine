@@ -264,6 +264,23 @@ internal sealed class DrawList
     /// <summary>Whether the next depth tested shapes write the depth they pass with, true until a program turns it off.</summary>
     public bool DepthMask { get; private set; } = true;
 
+    /// <summary>
+    /// Whether the next shapes are blended by <see cref="Blend"/>, true until a program turns it
+    /// off, after which they are written as they are, alpha and all, as rlgl's
+    /// <c>rlDisableColorBlend</c> draws them.
+    /// </summary>
+    public bool ColorBlend { get; private set; } = true;
+
+    /// <summary>Blends the following shapes by the blend mode, or writes them as they are.</summary>
+    public void SetColorBlend(bool colorBlend)
+    {
+        using (Enter())
+        {
+            ColorBlend = colorBlend;
+            Close();
+        }
+    }
+
     /// <summary>Writes the depth of the following depth tested shapes, or leaves the depth buffer as it is.</summary>
     public void SetDepthMask(bool depthMask)
     {
@@ -419,6 +436,7 @@ internal sealed class DrawList
             Blend = BlendMode.Alpha;
             Factors = default;
             DepthMask = true;
+            ColorBlend = true;
             Scissor = null;
             Cull = CullMode.None;
             (_model, _hasModel) = (Matrix4x4.Identity, false);
@@ -485,12 +503,13 @@ internal sealed class DrawList
 
         // A batch that matches the last one closed, as after a transform set to what it was, extends it.
         Close();
+        var blend = ColorBlend ? Blend : Replace;
         if (_batches.Count > 0)
         {
             var last = _batches[^1];
             if (last.Topology == topology && last.DepthTest == DepthTest && last.Transform == Transform
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
-                && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == Blend
+                && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == blend
                 && last.Factors == Factors && last.DepthMask == DepthMask && last.Scissor == Scissor && last.Cull == Cull
                 && last.FirstIndex + last.IndexCount == first)
             {
@@ -499,7 +518,7 @@ internal sealed class DrawList
             }
         }
 
-        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, Blend, Scissor, Cull, Factors, DepthMask));
+        _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, blend, Scissor, Cull, Factors, DepthMask));
         Open(topology, texture, count);
     }
 

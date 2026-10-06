@@ -10,7 +10,14 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fb68cfad`. Windows passed every test in the run of `cac05ded`, 1,309 of them in five
+Reviewed up to `e5ea2a22`. Inter-Quake Models (`52304768`) and Model 3D files (`e5ea2a22`) are read
+by readers of the engine's own, as raylib reads them, the first for the skeleton and clips
+Assimp left out and the second from m3d.h under its license with no dependency added, each with
+four tests on a file the tests write. `IsModelAnimationValid` compares bone counts and parents,
+and names where a clip has them, a kept difference the comparison explains. The table stands at
+215 written and 6 missing. No verdict is open.
+
+Before them, Windows passed every test in the run of `cac05ded`, 1,309 of them in five
 minutes at 1,020 MB, so the registry step of `1c1a3cea` gave it its device and the 126 failures of
 the runs before are gone, and the job that joins the three pages ran and wrote one. macOS failed
 the two of `AppLeakTests`, and `fb68cfad` has the holder: `App.CurrentApp`, the `AsyncLocal` the
@@ -19,8 +26,7 @@ script compiler's watchers kept every app. The app is held weakly, with a test t
 before the mend, the number reproduced on Linux by capturing the context on purpose, 5.66 MB
 against the page's 5.87, and the allowance unchanged, which settles Verdict 23. `UpdateMeshBuffer`
 is carried by raylib's index and `shaders_lightmap_rendering` is written (`6c0b07ca`), the table
-at 213 written and 8 missing. No verdict is open. Once `fb68cfad` is pushed and the next run
-passes on macOS, 5.1 can be packed.
+at 213 written and 8 missing.
 
 Before them, the owner pushed up to `cac05ded` on 2026-10-06, the first push since `92d30bbd`.
 A mesh carries a color and a second texture coordinate at each vertex in buffers of
@@ -288,41 +294,48 @@ None open.
 
 ## Replies
 
-**Now 2, `models_loading_iqm`.** Inter-Quake Models are read by a reader of the engine's own, as
-raylib's `LoadIQM` and `LoadModelAnimationsIQM` read them, where Assimp's took the mesh without its
-skeleton. `LoadModel` reads an IQM's meshes into a scene with each joint a node under its parent
-and each mesh's skin, so its bones are found by name as a glTF's are, each triangle's corners taken
-in the reverse of the file's order as raylib takes them. `LoadModelAnimations` reads an IQM's clips
-at the file's own frames, as raylib counts them, whatever rate the file gives, each bone posed in
-the model's space, its bones named by the file's joints, or not named in a file of clips alone.
-`IsModelAnimationValid` compared names and parents where raylib's compares the bone counts alone,
-so a clip that names no bones, as `guyanim.iqm` names none, did not fit. It compares the counts and
-each bone's parent, and the names where the clip has them, and the comparison has a line on it,
-since a clip of another skeleton with as many bones would move the model's bones by the wrong ones.
-Three tests read a file a test writes, a triangle on two joints with a clip of two frames, for its
-turned corners, skin and inverse binds, its clip's poses in the model's space, and a file that is
-not one or is cut short, and a fourth poses a model loaded from it by the clip of a file of clips
-alone. `models_loading_iqm` is raylib's, with its three files from raylib's resources. The guy is
-shaded by the engine's light where raylib's is drawn unlit, which the comparison has a line on, and
-the orbital camera stands elsewhere than in raylib's screenshot. The table stands at 214 written
-and 7 missing, the M3D reader next.
+**Now 2, `shaders_deferred_rendering`, and render textures of several images.** A render texture
+loaded with up to four `PixelFormat`s draws into an image of each at once, as a G-buffer is drawn
+into, with one depth, `LoadRenderTexture(width, height, formats)`, and `RenderTexture2D.Textures`
+holds the images in the order of the formats. A format of 16 or 32 bits a channel is half floats or
+floats, so a position or a normal outside 0 to 1 is kept, and each image is multisampled and
+resolved as a target's one image is. Underneath, a pass describes its images past the first by
+value, so targets of the same formats share their pipelines, the framebuffer carries their images
+and resolves, a pass begins and ends with every one of them, and a pipeline names each format and
+blends each alike. An image past the outputs a fragment stage writes, read from its SPIR-V beside
+the input count of `cac05ded`, is masked, through the device's independentBlend where it has it, so
+the model pass's and the immediate pass's own shaders draw into such a target and fill only its
+first. The images past the first are textures of their own, retired with the target as its depth
+is, and `LoadImageFromTexture` reads them, a half float or a float given as a byte from 0 to 1,
+where `ReadPixels` copied four bytes a pixel whatever the format. rlgl's `rlEnableColorBlend` and
+`rlDisableColorBlend` are carried as draw-list state for shapes and models alike, kept from frame
+to frame as rlgl's culling is, since raylib's G-buffer pass turns blending off so a color's alpha
+holds its specular strength.
 
-**Now 2, `models_loading_m3d`.** Model 3D files are read by a reader of the engine's own, written
-again from `m3d.h` under its MIT license, as raylib's `LoadM3D` and `LoadModelAnimationsM3D` read
-them, the Assimp carried reading none. The binary form is read, its body inflated by .NET's own
-`ZLibStream`, so no dependency is added, with its color map, texture coordinates, vertices,
-skeleton and skins, materials, triangles, actions and inlined textures, and its text form, voxels,
-shapes and labels left out with a message. `LoadModel` makes a mesh of each run of faces of one
-material, three vertices of its own to a face as raylib's has, scaled by the file's scale, texture
-coordinates counted from the bottom and normals made from the faces where the file gives none, with
-raylib's colors and raylib's last bone, `NO BONE`, that holds every vertex no bone holds.
-`LoadModelAnimations` poses each action every 17 milliseconds as raylib samples it, through m3d's
-`m3d_pose`, a position blended in a line and an orientation by m3d's approximation of a turn. Three
-tests read a file a test writes, a triangle on two bones with an action whose second frame falls
-halfway to its key, and a fourth poses a model loaded from it. `models_loading_m3d` is raylib's,
-with `cesium_man.m3d` from raylib's resources and its `DrawModelSkeleton` over the model's bones
-and a clip's poses. raylib's screenshot shows the skeleton with SPACE held, which drawn here with
-SPACE held through `./e3d` stands as raylib's does, and the capture shows the model. The
-comparison's line on a file's materials names Model 3D beside glTF, raylib's loader putting its
-default material first for both. The table stands at 215 written and 6 missing, deferred rendering
-next.
+`shaders_deferred_rendering` is raylib's, its `gbuffer` shader written in Slang for the model pass
+with three outputs and its `deferred_shading` shader for the immediate pass reading the three
+images and the depth. The depth the shading writes stands in for the `rlBlitFramebuffer` that
+copies the G-buffer's depth into the window's, so the light spheres drawn after are hidden behind
+the scene, and C's `rand` is glibc's, so the cubes stand where raylib's example built on Linux puts
+them. raylib's screenshot, made with the example's first version in 2023 (`3645244f`), shows white
+where nothing was drawn, where its shaders of 2023 and of the pinned commit alike shade an empty
+pixel of the G-buffer black. The example at the pinned commit was built here against raylib's SDL3
+backend as `build/raylib-bench/run.sh` builds raylib, with `-DPLATFORM_DESKTOP` so it loads its
+GLSL 330 shaders, and run with `SDL_VIDEO_DRIVER=offscreen` on NVIDIA's OpenGL 3.3, a
+`TakeScreenshot` after 30 frames: its frame is black there as ours is, with the same cubes, lights
+and light spheres, and its position, normal and color views match ours. Two tests draw into a
+target of several images and read each back, a shader's two outputs into the first two images with
+the third kept at its clear and alpha unblended, and a model shader's half floats read back from 0
+to 1; one more turns blending off and on for shapes and models, and the output count has its line
+in the input count's test. The validation layer on lavapipe, in an Ubuntu 24.04 container with
+`ENGINE_VULKAN_VALIDATION=1` and `E3D_REQUIRE_VULKAN=1`, found the masked image needed the device's
+independentBlend, which is enabled where the device has it, and with it reports nothing over
+`OffscreenRenderTests` and `ReferenceFrameTests`, 96 passed. The suite here: 1,328 passed, 0
+failed, 1 skipped. The table stands at 216 written and 5 missing, each of them out by your
+direction: the skybox while cubemaps are, VR, automation events and screen recording as TODO.md has
+them, and `audio_module_playing`, which waits on the owner's word on a module player as a
+dependency. Now 3 is next.
+
+Shared: a render target of several images, a pass described by value with its formats so pipelines
+are shared, and attachments past a shader's outputs masked from its SPIR-V, which BevyCSharp may
+read for a deferred path.

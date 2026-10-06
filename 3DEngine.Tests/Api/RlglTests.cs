@@ -223,4 +223,28 @@ public sealed class RlglTests : IDisposable
         ResetRlgl();
         List.DepthMask.Should().BeFalse("rlgl's depth mask is kept from frame to frame");
     }
+
+    [Fact]
+    public void Blending_Off_Writes_Shapes_And_Models_As_They_Are_From_Frame_To_Frame()
+    {
+        _app.World.InitResource<ModelDrawList>();
+        var mesh = new ModelMesh(1, 3, 1, default);
+        BeginBlendMode(BlendMode.Additive);
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        rlDisableColorBlend();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        DrawMesh(mesh, new ModelMaterial(Color.White), Matrix4x4.Identity);
+
+        List.Batches.Select(b => b.Blend).Should().Equal([BlendMode.Additive, DrawList.Replace], "a shape is written as it is, whatever the blend mode");
+        _app.World.Resource<ModelDrawList>().Draws.ToArray().Single().ColorBlend.Should().BeFalse("and so is a model");
+
+        List.Clear();
+        ResetRlgl();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+        List.Batches.Single().Blend.Should().Be(DrawList.Replace, "rlgl's blending is kept from frame to frame");
+
+        rlEnableColorBlend();
+        DrawRectangle(8, 0, 4, 4, Color.White);
+        List.Batches[^1].Blend.Should().Be(BlendMode.Alpha);
+    }
 }

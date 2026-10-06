@@ -116,6 +116,7 @@ internal sealed class ModelRenderer : IDisposable
         public int Group;
         public CullMode Cull;
         public bool Points;
+        public bool Blend;
         // World to clip space, pushed for the call, the camera's that its draws were recorded through.
         public Matrix4x4 ViewProjection;
         // What the shadow pass draws it with: nothing, a solid shadow, or one its material cuts out.
@@ -142,7 +143,7 @@ internal sealed class ModelRenderer : IDisposable
     private IShader? _fragmentShader;
     // The model pass's own pipelines, by the pass they draw in, since the window's and a target's
     // can differ in format.
-    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, Streams Streams), IPipeline> _pipelines = [];
+    private readonly Dictionary<(IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams), IPipeline> _pipelines = [];
 
     // How a pipeline reads a mesh's colors and second texture coordinates beside its vertices: not
     // at all, a vertex at a time from the mesh, which has both where it has either, or once from a
@@ -231,7 +232,7 @@ internal sealed class ModelRenderer : IDisposable
     // Past this many instances the segments are copied on several threads, since one thread
     // writing tens of megabytes into mapped memory took most of the shadow pass's recording.
     private const int ParallelCopyInstances = 16384;
-    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection), int> _batchOf = [];
+    private readonly Dictionary<(int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection), int> _batchOf = [];
 
     // Each view's batches, the window's at 0 and each render target's by its id, with where their
     // instances are and the blocks they are culled by, made once a frame by whichever of its
@@ -311,7 +312,7 @@ internal sealed class ModelRenderer : IDisposable
     // The modules of the program's own shaders, by ShaderStore id, and their pipelines by the pass
     // they draw in.
     private readonly Dictionary<int, (IShader Vertex, IShader Fragment, bool ReadsStreams)> _custom = [];
-    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, Streams Streams), IPipeline> _customPipelines = [];
+    private readonly Dictionary<(int Shader, IRenderPass Pass, CullMode Cull, bool Points, bool Blend, Streams Streams), IPipeline> _customPipelines = [];
 
     // Descriptor sets for draws with a shader of their own: a list per frame slot, handed out in
     // order each frame and kept for the next time the slot comes round.
@@ -383,8 +384,8 @@ internal sealed class ModelRenderer : IDisposable
                 ? meshStreams == Streams.PerVertex ? Streams.PerVertex : Streams.None
                 : CustomModules(gfx, draw.Shader, program).ReadsStreams ? meshStreams : Streams.None;
             var wanted = program is null
-                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, streams)
-                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, streams);
+                ? Pipeline(gfx, renderPass, renderWorld, batch.Cull, batch.Points, batch.Blend, streams)
+                : CustomPipeline(gfx, renderPass, renderWorld, draw.Shader, program, batch.Cull, batch.Points, batch.Blend, streams);
             if (!ReferenceEquals(wanted, pipeline))
             {
                 pipeline = wanted;
@@ -511,7 +512,7 @@ internal sealed class ModelRenderer : IDisposable
             _batches[index] = _batches[index] with { Group = g, Count = (uint)group.Count };
         }
 
-        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4));
+        var last = (Mesh: -1, Set: (IDescriptorSet?)null, Faces: (CullMode.None, false, true), Shadow: ShadowKind.None, ViewProjection: default(Matrix4x4));
         var lastBatch = -1;
         for (int i = 0; i < draws.Length; i++)
         {
@@ -554,23 +555,24 @@ internal sealed class ModelRenderer : IDisposable
             && a.CastsShadow == b.CastsShadow && a.AlphaMode == b.AlphaMode && a.IsTranslucent == b.IsTranslucent
             && a.Texture == b.Texture && a.NormalMap == b.NormalMap && a.MetallicRoughnessMap == b.MetallicRoughnessMap
             && a.EmissiveMap == b.EmissiveMap && a.OcclusionMap == b.OcclusionMap
+            && a.CullFront == b.CullFront && a.Points == b.Points && a.ColorBlend == b.ColorBlend
             && ReferenceEquals(a.Uniforms, b.Uniforms) && ReferenceEquals(a.ShaderTextures, b.ShaderTextures);
     }
 
     // Marks a translucent draw until the opaque batches are made.
     private const int Translucent = -2;
 
-    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points) faces, ShadowKind shadow, in Matrix4x4 viewProjection)
+    private int AddBatch(GpuMeshes.Entry mesh, IDescriptorSet? set, int custom, (CullMode Cull, bool Points, bool Blend) faces, ShadowKind shadow, in Matrix4x4 viewProjection)
     {
         _batches.Add(new Batch
         {
-            Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Shadow = shadow, ViewProjection = viewProjection,
+            Mesh = mesh, Set = set, Custom = custom, Group = -1, Cull = faces.Cull, Points = faces.Points, Blend = faces.Blend, Shadow = shadow, ViewProjection = viewProjection,
             Count = custom >= 0 ? 1u : 0u,
         });
         return _batches.Count - 1;
     }
 
-    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection) key)
+    private int Join(GpuMeshes.Entry mesh, (int Mesh, IDescriptorSet? Set, (CullMode Cull, bool Points, bool Blend) Faces, ShadowKind Shadow, Matrix4x4 ViewProjection) key)
     {
         if (!_batchOf.TryGetValue(key, out var index))
             _batchOf[key] = index = AddBatch(mesh, key.Set, -1, key.Faces, key.Shadow, key.ViewProjection);
@@ -977,15 +979,16 @@ internal sealed class ModelRenderer : IDisposable
 
     // Which faces of a draw are left out and whether it is drawn as points: none for a
     // double-sided material or a pass that culls nothing, and otherwise the back or the front ones.
-    private static (CullMode Cull, bool Points) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
-        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points);
+    private static (CullMode Cull, bool Points, bool Blend) FacesOf(in ModelDraw draw, bool cullBackFaces) =>
+        (!cullBackFaces || draw.DoubleSided ? CullMode.None : draw.CullFront ? CullMode.Front : CullMode.Back, draw.Points, draw.ColorBlend);
 
     // The model pass's own pipeline, drawing both sides of each face or leaving the back or the
-    // front ones out, filled or as points, through model_streams.slang for a mesh with streams.
+    // front ones out, filled or as points, blended or written as they are, through
+    // model_streams.slang for a mesh with streams.
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, CullMode cull = CullMode.None, bool points = false,
-        Streams streams = Streams.None)
+        bool blend = true, Streams streams = Streams.None)
     {
-        if (_pipelines.TryGetValue((renderPass, cull, points, streams), out var made)) return made;
+        if (_pipelines.TryGetValue((renderPass, cull, points, blend, streams), out var made)) return made;
 
         _vertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
         _fragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _fragmentSpv));
@@ -993,20 +996,20 @@ internal sealed class ModelRenderer : IDisposable
             ? (_vertexShader, _fragmentShader)
             : (_streamsVertexShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, _streamsVertexSpv)),
                _streamsFragmentShader ??= gfx.CreateShader(new ShaderDesc(ShaderStage.Fragment, _streamsFragmentSpv)));
-        return _pipelines[(renderPass, cull, points, streams)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
-            streams: streams);
+        return _pipelines[(renderPass, cull, points, blend, streams)] = MakePipeline(gfx, renderPass, renderWorld, vertex, fragment, cull, points: points,
+            blend: blend, streams: streams);
     }
 
     // A material's own shader's pipeline, which leaves faces out as the model pass's own does.
     private IPipeline CustomPipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, int id, ShaderProgram program,
-        CullMode cull = CullMode.None, bool points = false, Streams streams = Streams.None)
+        CullMode cull = CullMode.None, bool points = false, bool blend = true, Streams streams = Streams.None)
     {
-        if (_customPipelines.TryGetValue((id, renderPass, cull, points, streams), out var made)) return made;
+        if (_customPipelines.TryGetValue((id, renderPass, cull, points, blend, streams), out var made)) return made;
 
         var modules = CustomModules(gfx, id, program);
-        return _customPipelines[(id, renderPass, cull, points, streams)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
+        return _customPipelines[(id, renderPass, cull, points, blend, streams)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
-            streams: streams);
+            blend: blend, streams: streams);
     }
 
     // A material's own shader's stages, and whether it reads a mesh's colors and second texture
@@ -1215,7 +1218,7 @@ internal sealed class ModelRenderer : IDisposable
 
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
-        Streams streams = Streams.None)
+        Streams streams = Streams.None, bool blend = true)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -1224,7 +1227,7 @@ internal sealed class ModelRenderer : IDisposable
             renderPass,
             vertex,
             fragment,
-            BlendEnabled: true,
+            BlendEnabled: blend,
             Cull: cull,
             Points: points,
             // The mesh's vertices at binding 0, and the instances at binding 1, rows of four floats

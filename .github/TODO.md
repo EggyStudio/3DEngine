@@ -136,11 +136,11 @@ physics, text and fonts, audio, audio streams and waves, and files
   vignette, FXAA, depth of field and motion blur.** Any of them draws the window's scene into a
   half-float target and brings it into the window in one pass, after passes of their own for the
   depth of field and motion blur (RENDERING.md §5). With all of them off the tonemap still runs at
-  the end of the model pass, render targets stay eight bits, a shader of the program's own inside
-  `BeginMode3D` is read as linear in the HDR frame, and motion blur knows only the camera's movement
-  and not a thing's own. Ambient occlusion darkens the window's light from all around, from a depth
-  of the meshes that cast shadows drawn at half size, so a mesh that casts none closes nothing off,
-  and render textures and probe captures are drawn without it.
+  the end of the model pass, render targets loaded without formats stay eight bits, a shader of the
+  program's own inside `BeginMode3D` is read as linear in the HDR frame, and motion blur knows only
+  the camera's movement and not a thing's own. Ambient occlusion darkens the window's light from all
+  around, from a depth of the meshes that cast shadows drawn at half size, so a mesh that casts none
+  closes nothing off, and render textures and probe captures are drawn without it.
 
 ### The device
 

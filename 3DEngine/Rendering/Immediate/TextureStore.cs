@@ -72,8 +72,12 @@ internal sealed class TextureStore
     /// Where <paramref name="Rgba"/>, <paramref name="Width"/> by <paramref name="Height"/> pixels,
     /// goes in a texture already on the GPU, or null when it is the whole texture.
     /// </param>
+    /// <param name="Formats">The formats of a render target that draws into several textures at once, or null for one in the window's format.</param>
+    /// <param name="ColorOf">The render target whose color past its first the texture samples, or 0 when it is not one's.</param>
+    /// <param name="ColorIndex">Which of that target's colors, from 1.</param>
     public sealed record Upload(int Id, byte[]? Rgba, int Width, int Height, TextureFilter Filter, bool Target = false, bool Mipmaps = false,
-        int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null);
+        int DepthOf = 0, TextureWrap Wrap = TextureWrap.Repeat, (int X, int Y)? Offset = null, ImageFormat[]? Formats = null,
+        int ColorOf = 0, int ColorIndex = 0);
 
     private readonly object _gate = new();
     private readonly Dictionary<int, (int Width, int Height, TextureFilter Filter, bool Mipmaps, TextureWrap Wrap)> _live = [];
@@ -138,8 +142,11 @@ internal sealed class TextureStore
         lock (_gate) return _live.TryGetValue(id, out var texture) && texture.Mipmaps;
     }
 
-    /// <summary>Queues a render target of the given size and returns its id, which is also its texture's id.</summary>
-    internal int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear)
+    /// <summary>
+    /// Queues a render target of the given size and returns its id, which is also its texture's id,
+    /// the texture of its first format where it draws into one of each of <paramref name="formats"/>.
+    /// </summary>
+    internal int AddTarget(int width, int height, TextureFilter filter = TextureFilter.Bilinear, ImageFormat[]? formats = null)
     {
         if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width), "A render target needs a size.");
         lock (_gate)
@@ -147,7 +154,23 @@ internal sealed class TextureStore
             var id = _next++;
             _live[id] = (width, height, filter, false, TextureWrap.Repeat);
             _targets.Add(id);
-            _uploads.Add(new Upload(id, null, width, height, filter, Target: true));
+            _uploads.Add(new Upload(id, null, width, height, filter, Target: true, Formats: formats));
+            return id;
+        }
+    }
+
+    /// <summary>
+    /// Queues a texture that samples color <paramref name="index"/>, from 1, of render target
+    /// <paramref name="target"/>, one that draws into several at once, and returns its id.
+    /// </summary>
+    internal int AddTargetColor(int target, int index)
+    {
+        lock (_gate)
+        {
+            if (!_live.TryGetValue(target, out var color)) throw new ArgumentException("No render target has that id.", nameof(target));
+            var id = _next++;
+            _live[id] = (color.Width, color.Height, color.Filter, false, TextureWrap.Repeat);
+            _uploads.Add(new Upload(id, null, color.Width, color.Height, color.Filter, ColorOf: target, ColorIndex: index));
             return id;
         }
     }

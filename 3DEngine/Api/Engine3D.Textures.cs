@@ -32,6 +32,18 @@ public readonly record struct RenderTexture2D(Texture2D Texture, Texture2D Depth
 {
     /// <summary>Whether this names a render texture that was loaded.</summary>
     public bool IsValid => Texture.IsValid;
+
+    private readonly Texture2D[]? _textures;
+
+    /// <summary>
+    /// Every texture the target draws into, in the order of the formats it was loaded with,
+    /// <see cref="Texture"/> first, and that one alone for a target loaded without formats.
+    /// </summary>
+    public IReadOnlyList<Texture2D> Textures
+    {
+        get => _textures ?? [Texture];
+        init => _textures = [.. value];
+    }
 }
 
 /// <summary>How <see cref="Engine3D.DrawTextureNPatch"/> cuts a texture: into nine patches, or three across or down.</summary>

@@ -271,6 +271,7 @@ internal sealed unsafe partial class GraphicsDevice
         ImageFormat.R8G8B8A8_Srgb => VkFormat.R8G8B8A8Srgb,
         ImageFormat.B8G8R8A8_Srgb => VkFormat.B8G8R8A8Srgb,
         ImageFormat.R16G16B16A16_Float => VkFormat.R16G16B16A16Sfloat,
+        ImageFormat.R32G32B32A32_Float => VkFormat.R32G32B32A32Sfloat,
         _ => VkFormat.Undefined
     };
 

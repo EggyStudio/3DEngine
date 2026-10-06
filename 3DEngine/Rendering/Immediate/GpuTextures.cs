@@ -20,18 +20,19 @@ internal sealed class GpuTextures : IDisposable
     public const int RetireFrames = 4;
 
     // A render target's image and views belong to its RenderTarget, so Image is null for one, and
-    // for a target's depth, whose view the target owns too. SrgbView is the same pixels decoded
+    // for a target's depth and its colors past the first, whose views the target owns too, the
+    // target being Of. SrgbView is the same pixels decoded
     // from sRGB when sampled, which the model pass reads a base color through, since it lights in
     // linear space.
     private sealed record Entry(IImage? Image, IImageView View, IImageView SrgbView, ISampler Sampler, IDescriptorSet Set, RenderTarget? Target = null,
-        int DepthOf = 0)
+        int Of = 0)
     {
         // The first level alone, which a compute shader writes a mipmapped image through, made
         // when one first does. A copy made for a new sampler shares it, since the image is the same.
         public IImageView? FirstLevel { get; set; }
 
         public IDisposable[] Owned => Target is not null ? [Set, Sampler, Target]
-            : DepthOf != 0 ? [Set, Sampler]
+            : Of != 0 ? [Set, Sampler]
             : FirstLevel is not null ? [Set, Sampler, FirstLevel, SrgbView, View, Image!]
             : [Set, Sampler, SrgbView, View, Image!];
     }
@@ -77,9 +78,11 @@ internal sealed class GpuTextures : IDisposable
         return (image, entry.FirstLevel ??= device.CreateFirstLevelView(image));
     }
 
-    /// <summary>The image of texture <paramref name="id"/>, a render target's color among them, or null for one not on the GPU yet.</summary>
+    /// <summary>The image of texture <paramref name="id"/>, a render target's colors among them and not its depth, or null for one not on the GPU yet.</summary>
     internal IImage? ImageFor(int id) =>
-        id != 0 && _entries.TryGetValue(id, out var entry) ? entry.Image ?? entry.Target?.ColorView.Image : null;
+        id != 0 && _entries.TryGetValue(id, out var entry)
+            ? entry.Image ?? entry.Target?.ColorView.Image ?? (entry.Of != 0 && entry.View.Image.Description.Format != ImageFormat.D32_Float ? entry.View.Image : null)
+            : null;
 
     /// <summary>The render target of texture <paramref name="id"/>, or <c>null</c> when it is not one.</summary>
     public RenderTarget? TargetFor(int id) => _entries.TryGetValue(id, out var entry) ? entry.Target : null;
@@ -96,12 +99,12 @@ internal sealed class GpuTextures : IDisposable
             {
                 if (!_entries.Remove(id, out var gone)) continue;
                 Retire(gone.Owned);
-                // A target's depth goes with it, since the view it samples does.
+                // A target's depth and colors go with it, since the views they sample do.
                 if (gone.Target is not null)
-                    foreach (var (depthId, depth) in _entries.Where(e => e.Value.DepthOf == id).ToList())
+                    foreach (var (ownedId, owned) in _entries.Where(e => e.Value.Of == id).ToList())
                     {
-                        _entries.Remove(depthId);
-                        Retire(depth.Owned);
+                        _entries.Remove(ownedId);
+                        Retire(owned.Owned);
                     }
             }
 
@@ -112,7 +115,9 @@ internal sealed class GpuTextures : IDisposable
                 if (upload.Target)
                 {
                     if (gfx is not GraphicsDevice device) continue;
-                    var target = device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
+                    var target = upload.Formats is { } formats
+                        ? device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height, formats)
+                        : device.CreateRenderTarget((uint)upload.Width, (uint)upload.Height);
                     var targetSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, target.ColorView, target.SrgbColorView, targetSampler, CreateSet(gfx, target.ColorView, targetSampler), target);
                     device.Name(target.ColorView.Image, $"Render texture {upload.Id}");
@@ -125,7 +130,18 @@ internal sealed class GpuTextures : IDisposable
                     if (!_entries.TryGetValue(upload.DepthOf, out var owner) || owner.Target is not { } depthTarget) continue;
                     var depthSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
                     _entries[upload.Id] = new Entry(null, depthTarget.DepthView!, depthTarget.DepthView!, depthSampler,
-                        CreateSet(gfx, depthTarget.DepthView!, depthSampler), DepthOf: upload.DepthOf);
+                        CreateSet(gfx, depthTarget.DepthView!, depthSampler), Of: upload.DepthOf);
+                    if (existing is not null) Retire(existing.Owned);
+                    continue;
+                }
+
+                if (upload.ColorOf != 0)
+                {
+                    if (!_entries.TryGetValue(upload.ColorOf, out var owner) || owner.Target is not { } colorTarget
+                        || upload.ColorIndex < 1 || upload.ColorIndex > colorTarget.MoreColorViews.Count) continue;
+                    var view = colorTarget.MoreColorViews[upload.ColorIndex - 1];
+                    var colorSampler = CreateSampler(gfx, upload.Filter, upload.Wrap);
+                    _entries[upload.Id] = new Entry(null, view, view, colorSampler, CreateSet(gfx, view, colorSampler), Of: upload.ColorOf);
                     if (existing is not null) Retire(existing.Owned);
                     continue;
                 }

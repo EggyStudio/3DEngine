@@ -178,15 +178,23 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <remarks>
     /// The device is idled first, so a call costs the frames in flight, which a program reading
-    /// a render texture back to save it can take.
+    /// a render texture back to save it can take. An image of half floats or floats, as a
+    /// G-buffer's, is read at its own size and given as four bytes a pixel, each channel from 0 to
+    /// 1 as a byte, as every image here is.
     /// </remarks>
     internal byte[] ReadPixels(IImage image)
     {
         var vkImage = (VulkanImage)image;
         var extent = vkImage.Description.Extent;
+        var bytesPerPixel = vkImage.Description.Format switch
+        {
+            ImageFormat.R16G16B16A16_Float => 8,
+            ImageFormat.R32G32B32A32_Float => 16,
+            _ => 4,
+        };
         FlushUploads();
         _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * 4), BufferUsage.TransferDst, CpuAccessMode.Read));
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)(extent.Width * extent.Height * bytesPerPixel), BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
             var cmd = BeginSingleTimeCommands();
@@ -203,6 +211,7 @@ internal sealed unsafe partial class GraphicsDevice
             EndSingleTimeCommands(cmd);
 
             var pixels = Map(buffer).ToArray();
+            if (bytesPerPixel != 4) return ToBytes(pixels, bytesPerPixel);
             // A render target's color is the window's format, which may hold blue first.
             if (vkImage.Description.Format == ImageFormat.B8G8R8A8_UNorm && _swapchainFormat is VkFormat.B8G8R8A8Unorm or VkFormat.B8G8R8A8Srgb)
                 for (int i = 0; i < pixels.Length; i += 4)
@@ -213,5 +222,20 @@ internal sealed unsafe partial class GraphicsDevice
         {
             buffer.Dispose();
         }
+    }
+
+    // Channels of half floats or floats as bytes, each clamped to 0 to 1.
+    private static byte[] ToBytes(ReadOnlySpan<byte> wide, int bytesPerPixel)
+    {
+        var channels = wide.Length / (bytesPerPixel / 4);
+        var bytes = new byte[channels];
+        for (int c = 0; c < channels; c++)
+        {
+            float value = bytesPerPixel == 8
+                ? (float)System.Buffers.Binary.BinaryPrimitives.ReadHalfLittleEndian(wide[(c * 2)..])
+                : System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(wide[(c * 4)..]);
+            bytes[c] = (byte)MathF.Round(Math.Clamp(float.IsNaN(value) ? 0 : value, 0, 1) * 255);
+        }
+        return bytes;
     }
 }

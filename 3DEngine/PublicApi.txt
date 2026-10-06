@@ -807,6 +807,7 @@ static class Engine.Engine3D
   static Rectangle GetImageAlphaBorder(Image image, float threshold)
   static ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1f)
   static RenderTexture2D LoadRenderTexture(int width, int height)
+  static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
   static Shader LoadComputeShader(string fileName)
   static Shader LoadComputeShaderFromMemory(string code, string name = "compute.slang")
   static Shader LoadShader(string fileName)
@@ -1394,11 +1395,13 @@ static class Engine.Engine3D
   static void rlColor4f(float r, float g, float b, float a)
   static void rlColor4ub(byte r, byte g, byte b, byte a)
   static void rlDisableBackfaceCulling()
+  static void rlDisableColorBlend()
   static void rlDisableDepthMask()
   static void rlDisableDepthTest()
   static void rlDisablePointMode()
   static void rlDrawRenderBatchActive()
   static void rlEnableBackfaceCulling()
+  static void rlEnableColorBlend()
   static void rlEnableDepthMask()
   static void rlEnableDepthTest()
   static void rlEnablePointMode()
@@ -2415,6 +2418,7 @@ readonly struct Engine.ReflectionProbeHandle : IEquatable<ReflectionProbeHandle>
   static bool op_Inequality(ReflectionProbeHandle left, ReflectionProbeHandle right)
   void Deconstruct(out Entity Entity)
 readonly struct Engine.RenderTexture2D : IEquatable<RenderTexture2D>
+  IReadOnlyList<Texture2D> Textures { get; init; }
   RenderTexture2D(Texture2D Texture, Texture2D Depth = default)
   Texture2D Depth { get; init; }
   Texture2D Texture { get; init; }

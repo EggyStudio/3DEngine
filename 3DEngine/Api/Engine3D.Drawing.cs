@@ -101,10 +101,53 @@ public static partial class Engine3D
         return new RenderTexture2D(new Texture2D(id, width, height), new Texture2D(depth, width, height));
     }
 
-    /// <summary>Frees a render texture and its depth.</summary>
+    /// <summary>
+    /// Makes an image of <paramref name="width"/> by <paramref name="height"/> pixels for each of
+    /// <paramref name="formats"/>, up to four, that drawing is sent to at once, as a G-buffer is
+    /// drawn into, with one depth to sample as <see cref="RenderTexture2D.Depth"/>. A shader writes
+    /// each from its output of the same index, <c>SV_Target0</c> into the first, and
+    /// <see cref="RenderTexture2D.Textures"/> are the images in the order of the formats.
+    /// </summary>
+    /// <remarks>
+    /// raylib builds such a target from rlgl's framebuffers, which are not carried. Each image has
+    /// four channels, of eight bits for a format of eight bits a channel or fewer, and of half floats
+    /// and floats for one of 16 and 32 bits, so a position or a normal outside 0 to 1 is kept. A
+    /// shader with fewer outputs than the images leaves those past them as they are, and a
+    /// compressed format is drawn into as eight-bit RGBA, with a warning.
+    /// </remarks>
+    /// <exception cref="ArgumentException">There are no formats, or more than four.</exception>
+    public static RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats)
+    {
+        if (formats.Length is 0 or > 4) throw new ArgumentException($"A render texture draws into 1 to 4 images, not {formats.Length}.", nameof(formats));
+        (width, height) = (Math.Max(1, width), Math.Max(1, height));
+        var id = Textures.AddTarget(width, height, formats: [.. formats.Select(TargetFormat)]);
+        var depth = Textures.AddTargetDepth(id);
+        Texture2D[] textures = [new Texture2D(id, width, height), .. Enumerable.Range(1, formats.Length - 1)
+            .Select(index => new Texture2D(Textures.AddTargetColor(id, index), width, height))];
+        return new RenderTexture2D(textures[0], new Texture2D(depth, width, height)) { Textures = textures };
+
+        static Engine.ImageFormat TargetFormat(PixelFormat format)
+        {
+            switch (format)
+            {
+                case PixelFormat.UncompressedR32 or PixelFormat.UncompressedR32G32B32 or PixelFormat.UncompressedR32G32B32A32:
+                    return Engine.ImageFormat.R32G32B32A32_Float;
+                case PixelFormat.UncompressedR16 or PixelFormat.UncompressedR16G16B16 or PixelFormat.UncompressedR16G16B16A16:
+                    return Engine.ImageFormat.R16G16B16A16_Float;
+                case >= PixelFormat.CompressedDxt1Rgb:
+                    ApiLogger.Warn($"LoadRenderTexture: a render texture is not drawn into in {format}, so it is eight-bit RGBA.");
+                    return Engine.ImageFormat.R8G8B8A8_UNorm;
+                default:
+                    return Engine.ImageFormat.R8G8B8A8_UNorm;
+            }
+        }
+    }
+
+    /// <summary>Frees a render texture, each image it draws into and its depth.</summary>
     public static void UnloadRenderTexture(RenderTexture2D target)
     {
         if (target.Depth.IsValid) UnloadTexture(target.Depth);
+        foreach (var texture in target.Textures.Skip(1)) UnloadTexture(texture);
         UnloadTexture(target.Texture);
     }
 

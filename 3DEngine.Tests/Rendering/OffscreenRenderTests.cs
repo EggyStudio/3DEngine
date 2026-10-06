@@ -972,6 +972,99 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Render_Texture_Of_Several_Images_Takes_Each_Output_Of_A_Shader_Into_Its_Own()
+    {
+        Open(32, 32);
+        var target = LoadRenderTexture(8, 4, PixelFormat.UncompressedR8G8B8A8, PixelFormat.UncompressedR8G8B8A8, PixelFormat.UncompressedR8G8B8A8);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            struct TwoOutputs
+            {
+                float4 first : SV_Target0;
+                float4 second : SV_Target1;
+            };
+
+            [shader("fragment")]
+            TwoOutputs fragmentMain(VertexOutput input)
+            {
+                TwoOutputs output;
+                output.first = float4(1.0, 0.0, 0.0, 1.0);
+                output.second = float4(0.0, 1.0, 0.0, 0.6);
+                return output;
+            }
+            """, "two.slang");
+        Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Blue);
+            rlDisableColorBlend();
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 4, 4, Color.White);
+            EndShaderMode();
+            rlEnableColorBlend();
+            EndTextureMode();
+            ClearBackground(Color.Black);
+        }, "several");
+
+        target.Textures.Should().HaveCount(3);
+        var (first, second, third) = (LoadImageFromTexture(target.Textures[0]), LoadImageFromTexture(target.Textures[1]), LoadImageFromTexture(target.Textures[2]));
+        GetImageColor(first, 1, 1).Should().Be(new Color(255, 0, 0, 255), "the first output goes into the first image");
+        GetImageColor(second, 1, 1).Should().Be(new Color(0, 255, 0, 153), "the second into the second, its alpha kept with blending off");
+        GetImageColor(third, 1, 1).Should().Be(Color.Blue, "and an image past the shader's outputs keeps its clear");
+        GetImageColor(second, 6, 2).Should().Be(Color.Blue, "every image is cleared to the one color");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadShader(shader);
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Model_Shader_Writes_Half_Floats_Into_A_G_Buffer_Read_Back_From_0_To_1()
+    {
+        Open(32, 32);
+        var target = LoadRenderTexture(16, 16, PixelFormat.UncompressedR16G16B16, PixelFormat.UncompressedR8G8B8A8);
+        var shader = LoadShaderFromMemory("""
+            import modelpass;
+
+            struct GBuffer
+            {
+                float4 position : SV_Target0;
+                float4 albedo : SV_Target1;
+            };
+
+            [shader("fragment")]
+            GBuffer fragmentMain(ModelVertexOutput input)
+            {
+                GBuffer output;
+                output.position = float4(0.25, 0.5, 2.0, 1.0);
+                output.albedo = float4(1.0, 1.0, 0.0, 1.0);
+                return output;
+            }
+            """, "gbuffer.slang");
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        cube.Materials[0].Shader = shader;
+        Capture(() =>
+        {
+            BeginTextureMode(target);
+            ClearBackground(Color.Blank);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 45));
+            DrawModel(cube, Vector3.Zero, 1, Color.White);
+            EndMode3D();
+            EndTextureMode();
+            ClearBackground(Color.Black);
+        }, "gbuffer");
+
+        GetImageColor(LoadImageFromTexture(target.Textures[0]), 8, 8).Should().Be(new Color(64, 128, 255, 255),
+            "a half float reads back from 0 to 1 as a byte, 2 as 1");
+        GetImageColor(LoadImageFromTexture(target.Textures[1]), 8, 8).Should().Be(new Color(255, 255, 0, 255));
+        GetImageColor(LoadImageFromTexture(target.Textures[0]), 0, 0).Should().Be(Color.Blank, "where the cube is not, the clear");
+        GraphicsDevice.ValidationErrors.Count.Should().Be(_validationErrorsBefore);
+        UnloadModel(cube);
+        UnloadShader(shader);
+        UnloadRenderTexture(target);
+    }
+
+    [NeedsVulkanFact]
     public void A_Render_Texture_And_A_Texture_Read_Back_As_Images()
     {
         Open(32, 32);

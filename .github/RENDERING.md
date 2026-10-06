@@ -424,6 +424,14 @@ window's pass, clearing it first and leaving its color image ready to sample. Th
 registered in `GpuTextures` under the target's texture id, so `DrawTexture` samples it like a
 loaded texture.
 
+A target loaded with formats draws into up to four color images at once, as a G-buffer is drawn
+into, each with its multisampled image and resolve, in eight-bit RGBA, half floats or floats. The
+pass describes them by value (`VulkanRenderPass.More`), so two targets of the same formats share
+their pipelines, and a pipeline names each format and blends each alike, leaving an image past the
+outputs its fragment stage writes (read from its SPIR-V) as it is, so the model pass's and the
+immediate pass's own shaders draw into such a target and fill only its first. The images past the
+first are textures of their own under ids of their own, retired with the target as its depth is.
+
 A target's depth is kept to sample as well, under a texture id of its own (`RenderTexture2D.Depth`).
 With one sample the depth image drawn into is stored and sampled. With more, the pass resolves the
 multisampled depth into a single-sampled image by each pixel's first sample, the one depth resolve

@@ -12,6 +12,12 @@ internal sealed unsafe partial class GraphicsDevice
     /// <summary>Whether a pipeline can draw triangles as points at their corners, which needs the device's fillModeNonSolid.</summary>
     public bool CanDrawPoints { get; private set; }
 
+    /// <summary>
+    /// Whether a pipeline can blend and mask each color attachment of its own, which needs the
+    /// device's independentBlend, so a target of several images keeps those past a shader's outputs.
+    /// </summary>
+    public bool CanBlendEachAttachment { get; private set; }
+
     /// <summary>Required Vulkan device extensions (currently just <c>VK_KHR_swapchain</c>).</summary>
     private static readonly string[] DeviceExtensions =
     {
@@ -68,12 +74,15 @@ internal sealed unsafe partial class GraphicsDevice
         CanWriteImages = supported.shaderStorageImageReadWithoutFormat && supported.shaderStorageImageWriteWithoutFormat;
         // Triangles drawn as points, as rlgl's point mode draws a model, where the driver has it.
         CanDrawPoints = supported.fillModeNonSolid;
+        // Each image of a target of several masked apart, which every desktop driver and lavapipe have.
+        CanBlendEachAttachment = supported.independentBlend;
         VkPhysicalDeviceFeatures features = new()
         {
             samplerAnisotropy = true,
             shaderStorageImageReadWithoutFormat = CanWriteImages,
             shaderStorageImageWriteWithoutFormat = CanWriteImages,
             fillModeNonSolid = CanDrawPoints,
+            independentBlend = CanBlendEachAttachment,
         };
 
         // A shader reading SV_InstanceID counts from the draw's first instance, which Slang reads

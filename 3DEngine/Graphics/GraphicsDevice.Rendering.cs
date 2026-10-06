@@ -18,6 +18,30 @@ internal sealed unsafe partial class GraphicsDevice
     {
         /// <summary>Whether the pass has a depth attachment and no color one, as a shadow map's has.</summary>
         internal bool DepthOnly => ColorFormat == VkFormat.Undefined;
+
+        /// <summary>The formats of the color attachments past the first, for a target that draws into several at once.</summary>
+        internal MoreFormats More { get; init; }
+
+        /// <summary>How many color attachments the pass draws into.</summary>
+        internal int ColorCount => DepthOnly ? 0 : 1 + More.Count;
+
+        /// <summary>The format of color attachment <paramref name="index"/>.</summary>
+        internal VkFormat ColorFormatAt(int index) => index == 0 ? ColorFormat : More[index - 1];
+    }
+
+    /// <summary>The most color attachments a pass draws into, the four every Vulkan device allows.</summary>
+    internal const int MaxColorAttachments = 4;
+
+    /// <summary>Up to three formats of color attachments past a pass's first, compared by value as the pass is.</summary>
+    internal readonly record struct MoreFormats(VkFormat First = VkFormat.Undefined, VkFormat Second = VkFormat.Undefined, VkFormat Third = VkFormat.Undefined)
+    {
+        internal int Count => First == VkFormat.Undefined ? 0 : Second == VkFormat.Undefined ? 1 : Third == VkFormat.Undefined ? 2 : 3;
+
+        internal VkFormat this[int index] => index switch { 0 => First, 1 => Second, _ => Third };
+
+        internal static MoreFormats Of(ReadOnlySpan<VkFormat> formats) => new(
+            formats.Length > 0 ? formats[0] : VkFormat.Undefined, formats.Length > 1 ? formats[1] : VkFormat.Undefined,
+            formats.Length > 2 ? formats[2] : VkFormat.Undefined);
     }
 
     /// <summary>
@@ -46,6 +70,14 @@ internal sealed unsafe partial class GraphicsDevice
         internal Attachment Resolve { get; } = resolve;
         internal Attachment Depth { get; } = depth;
         internal Attachment DepthResolve { get; } = depthResolve;
+
+        /// <summary>The color attachments past the first, each with its resolve, for a target that draws into several at once.</summary>
+        internal (Attachment Color, Attachment Resolve)[] More { get; init; } = [];
+
+        /// <summary>Every image of the pass, the colors and their resolves first, then the depth and its resolve.</summary>
+        internal Attachment[] All => _all ??= [Color, Resolve, .. More.SelectMany(m => new[] { m.Color, m.Resolve }), Depth, DepthResolve];
+
+        private Attachment[]? _all;
     }
 
     // Every stage a pass's attachments are written or read at, before a pass and after it. A
@@ -70,9 +102,10 @@ internal sealed unsafe partial class GraphicsDevice
         if (framebuffer is not VulkanFramebuffer fb)
             throw new ArgumentException("Framebuffer must originate from this GraphicsDevice.", nameof(framebuffer));
 
-        var toDrawn = stackalloc VkImageMemoryBarrier2[4];
+        var attachments = fb.All;
+        var toDrawn = stackalloc VkImageMemoryBarrier2[attachments.Length];
         uint count = 0;
-        foreach (var a in (ReadOnlySpan<Attachment>)[fb.Color, fb.Resolve, fb.Depth, fb.DepthResolve])
+        foreach (var a in attachments)
             if (a.Exists)
                 toDrawn[count++] = ImageBarrier(a.Image, a.Range, clear is null ? a.Final : VkImageLayout.Undefined, a.Drawn,
                     AttachmentStages | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer,
@@ -83,17 +116,24 @@ internal sealed unsafe partial class GraphicsDevice
 
         var load = clear is null ? VkAttachmentLoadOp.Load : VkAttachmentLoadOp.Clear;
         var c = clear ?? default;
-        var color = new VkRenderingAttachmentInfo
+        // Every color attachment cleared to the one color, as raylib's clear does every draw buffer.
+        var colorCount = fb.Color.Exists ? 1 + fb.More.Length : 0;
+        var colors = stackalloc VkRenderingAttachmentInfo[Math.Max(1, colorCount)];
+        for (int i = 0; i < colorCount; i++)
         {
-            imageView = fb.Color.View,
-            imageLayout = VkImageLayout.ColorAttachmentOptimal,
-            resolveMode = fb.Resolve.Exists ? VkResolveModeFlags.Average : VkResolveModeFlags.None,
-            resolveImageView = fb.Resolve.View,
-            resolveImageLayout = VkImageLayout.ColorAttachmentOptimal,
-            loadOp = load,
-            storeOp = fb.Color.Store ? VkAttachmentStoreOp.Store : VkAttachmentStoreOp.DontCare,
-            clearValue = new VkClearValue(new VkClearColorValue(c.R, c.G, c.B, c.A)),
-        };
+            var (color, resolve) = i == 0 ? (fb.Color, fb.Resolve) : fb.More[i - 1];
+            colors[i] = new VkRenderingAttachmentInfo
+            {
+                imageView = color.View,
+                imageLayout = VkImageLayout.ColorAttachmentOptimal,
+                resolveMode = resolve.Exists ? VkResolveModeFlags.Average : VkResolveModeFlags.None,
+                resolveImageView = resolve.View,
+                resolveImageLayout = VkImageLayout.ColorAttachmentOptimal,
+                loadOp = load,
+                storeOp = color.Store ? VkAttachmentStoreOp.Store : VkAttachmentStoreOp.DontCare,
+                clearValue = new VkClearValue(new VkClearColorValue(c.R, c.G, c.B, c.A)),
+            };
+        }
         // The first sample is the one resolve every device supports for depth.
         var depth = new VkRenderingAttachmentInfo
         {
@@ -110,8 +150,8 @@ internal sealed unsafe partial class GraphicsDevice
         {
             renderArea = new VkRect2D(new VkOffset2D(0, 0), new VkExtent2D(extent.Width, extent.Height)),
             layerCount = 1,
-            colorAttachmentCount = fb.Color.Exists ? 1u : 0u,
-            pColorAttachments = fb.Color.Exists ? &color : null,
+            colorAttachmentCount = (uint)colorCount,
+            pColorAttachments = colorCount > 0 ? colors : null,
             pDepthAttachment = fb.Depth.Exists ? &depth : null,
         };
         _deviceApi.vkCmdBeginRendering(vkCmd.Handle, &info);
@@ -135,9 +175,10 @@ internal sealed unsafe partial class GraphicsDevice
         if (_activeFramebuffer is not { } fb) return;
         _activeFramebuffer = null;
 
-        var toFinal = stackalloc VkImageMemoryBarrier2[4];
+        var attachments = fb.All;
+        var toFinal = stackalloc VkImageMemoryBarrier2[attachments.Length];
         uint count = 0;
-        foreach (var a in (ReadOnlySpan<Attachment>)[fb.Color, fb.Resolve, fb.Depth, fb.DepthResolve])
+        foreach (var a in attachments)
             if (a.Exists && a.Final != a.Drawn)
             {
                 var (stage, access) = a.Final switch

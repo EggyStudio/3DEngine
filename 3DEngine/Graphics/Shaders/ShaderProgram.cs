@@ -117,9 +117,15 @@ internal sealed class ShaderProgram
     /// </remarks>
     public int InputLocations(ShaderStage stage) => Stages.TryGetValue(stage, out var spirv) ? InputLocations(spirv) : 0;
 
-    internal static int InputLocations(ReadOnlySpan<byte> spirv)
+    internal static int InputLocations(ReadOnlySpan<byte> spirv) => Locations(spirv, storageClass: 1);
+
+    /// <summary>One past the highest location a stage writes an output at, for a fragment stage the color attachments it writes, or 0 for one that writes none.</summary>
+    internal static int OutputLocations(ReadOnlySpan<byte> spirv) => Locations(spirv, storageClass: 3);
+
+    // One past the highest location of a variable of the storage class, Input or Output.
+    private static int Locations(ReadOnlySpan<byte> spirv, uint storageClass)
     {
-        const uint magic = 0x07230203, opVariable = 59, opDecorate = 71, location = 30, input = 1;
+        const uint magic = 0x07230203, opVariable = 59, opDecorate = 71, location = 30;
         var words = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, uint>(spirv);
         if (words.Length < 5 || words[0] != magic) return 0;
         var locations = new Dictionary<uint, uint>();
@@ -132,7 +138,7 @@ internal sealed class ShaderProgram
             if (length == 0 || length > words.Length - at) break;
             var opcode = words[at] & 0xffff;
             if (opcode == opDecorate && length >= 4 && words[at + 2] == location) locations[words[at + 1]] = words[at + 3];
-            else if (opcode == opVariable && length >= 4 && words[at + 3] == input) inputs.Add(words[at + 2]);
+            else if (opcode == opVariable && length >= 4 && words[at + 3] == storageClass) inputs.Add(words[at + 2]);
         }
         return inputs.Select(id => locations.TryGetValue(id, out var at) ? (int)at + 1 : 0).DefaultIfEmpty(0).Max();
     }

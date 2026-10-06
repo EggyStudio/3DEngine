@@ -29,11 +29,12 @@ namespace Engine;
 /// <param name="CastsShadow">Whether the mesh is drawn into the shadow map, which a sky around the camera is not.</param>
 /// <param name="CullFront">Whether the front faces are left out in place of the back ones, where any are, as rlgl's rlSetCullFace sets.</param>
 /// <param name="Points">Whether the triangles are drawn as a point at each corner, as rlgl's point mode draws them.</param>
+/// <param name="ColorBlend">Whether the draw is blended with what is behind it by its alpha, which rlgl's rlDisableColorBlend turns off, so it is written as it is.</param>
 internal readonly record struct ModelDraw(int Mesh, Matrix4x4 World, Matrix4x4 ViewProjection, Color Color, int Texture, int Target = 0,
     int Shader = 0, byte[]? Uniforms = null, float Metallic = 0, float Roughness = 0.5f, int NormalMap = 0, float NormalScale = 1,
     int MetallicRoughnessMap = 0, Vector3 Emission = default, int EmissiveMap = 0, int OcclusionMap = 0, float OcclusionStrength = 1,
     MaterialAlphaMode AlphaMode = MaterialAlphaMode.Blend, float AlphaCutoff = 0.5f, bool TextureTranslucent = false,
-    bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false)
+    bool DoubleSided = true, int[]? ShaderTextures = null, bool CastsShadow = true, bool CullFront = false, bool Points = false, bool ColorBlend = true)
 {
     /// <summary>
     /// Whether what is behind shows through, so the draw comes after the opaque ones, in order:

@@ -164,6 +164,20 @@ painting drawn into it a stroke a frame builds up, as `shapes_double_pendulum`'s
 new one starts transparent black. A camera entity in the ECS draws the scene's mesh entities into a
 texture the same way when its `Target` is set.
 
+A render texture loaded with up to four `PixelFormat`s draws into an image of each at once, as a
+deferred renderer's G-buffer is drawn into, a shader writing each from its output of the same
+index, `SV_Target0` into the first, and `Textures` holds them in the order of the formats. One of
+16 or 32 bits a channel keeps half floats or floats, so a position or a normal outside 0 to 1 is
+kept. The `shaders_deferred_rendering` example draws the scene's positions, normals and colors into
+three and lights them in a pass over the screen, with `rlDisableColorBlend` so a color's alpha holds
+its specular strength:
+
+```csharp
+var gBuffer = LoadRenderTexture(800, 450,
+    PixelFormat.UncompressedR16G16B16, PixelFormat.UncompressedR16G16B16, PixelFormat.UncompressedR8G8B8A8);
+SetShaderValueTexture(deferredShader, GetShaderLocation(deferredShader, "gPosition"), gBuffer.Textures[0]);
+```
+
 ## Particles
 
 Smoke, sparks, dust and fire are particles: small squares facing the camera, given off by an

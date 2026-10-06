@@ -112,6 +112,7 @@ bool IsPointInFrontOfCamera(Vector3 position, Camera3D camera); // Whether the p
 Matrix4x4 GetCameraMatrix(Camera3D camera);              // The camera's world to view transform
 
 RenderTexture2D LoadRenderTexture(int width, int height); // An image drawing can be sent to, its depth in .Depth
+RenderTexture2D LoadRenderTexture(int width, int height, params PixelFormat[] formats); // An image of each format drawn into at once, a G-buffer, in .Textures
 void UnloadRenderTexture(RenderTexture2D target);        // Free it
 bool IsRenderTextureValid(RenderTexture2D target);       // Whether it is loaded
 void BeginTextureMode(RenderTexture2D target);           // Draw into the image until EndTextureMode
@@ -361,6 +362,8 @@ void rlEnableDepthTest();                                  // Test what is drawn
 void rlDisableDepthTest();                                 // Draw over whatever the depth
 void rlEnableDepthMask();                                  // Write the depth of what passes the test
 void rlDisableDepthMask();                                 // Test against the depth without writing it
+void rlEnableColorBlend();                                 // Blend what is drawn after by the blend mode again
+void rlDisableColorBlend();                                // Write shapes and models as they are, alpha and all
 ```
 
 ## Images and textures

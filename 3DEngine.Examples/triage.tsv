@@ -163,7 +163,6 @@ shaders_hot_reloading	can	a shader read again when its file changes, which LoadS
 shaders_multi_sample2d	can
 shaders_normalmap_rendering	can
 shaders_spotlight_rendering	can
-shaders_deferred_rendering	missing	a target with several attachments, as a G-buffer is
 shaders_texture_tiling	can
 shaders_shadowmap_rendering	can
 shaders_vertex_displacement	can

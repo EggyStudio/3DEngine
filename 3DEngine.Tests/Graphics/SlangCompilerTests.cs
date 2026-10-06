@@ -76,6 +76,8 @@ public class SlangCompilerTests : IDisposable
         program.InputLocations(ShaderStage.Vertex).Should().Be(6);
         program.InputLocations(ShaderStage.Fragment).Should().Be(2);
         program.InputLocations(ShaderStage.Compute).Should().Be(0);
+        ShaderProgram.OutputLocations(program.Fragment).Should().Be(1, "the fragment stage writes one color");
+        ShaderProgram.OutputLocations(program.Vertex).Should().Be(2, "and the vertex stage the color and the coordinate beside the built-in position");
     }
 
     [NeedsSlangFact]

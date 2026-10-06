@@ -272,28 +272,52 @@ public static partial class Engine3D
     /// <summary>Draws the models drawn after filled again.</summary>
     public static void rlDisablePointMode() => _rlPointMode = false;
 
-    // The faces the draw list leaves out of shapes, none until a program turns culling on, and
-    // whether depth tested shapes write their depth.
+    // Whether what is drawn is blended, as OpenGL's GL_BLEND, kept from frame to frame as rlgl's
+    // state is.
+    private static bool _rlColorBlend = true;
+
+    /// <summary>Blends what is drawn after by the blend mode again, as rlgl's <c>rlEnableColorBlend</c> does.</summary>
+    public static void rlEnableColorBlend()
+    {
+        _rlColorBlend = true;
+        DrawList.SetColorBlend(true);
+    }
+
+    /// <summary>
+    /// Writes what is drawn after as it is, its alpha with it, shapes and models alike, as rlgl's
+    /// <c>rlDisableColorBlend</c> does, so a texture of a G-buffer keeps in its alpha what a
+    /// shader puts there.
+    /// </summary>
+    public static void rlDisableColorBlend()
+    {
+        _rlColorBlend = false;
+        DrawList.SetColorBlend(false);
+    }
+
+    // The faces the draw list leaves out of shapes, none until a program turns culling on,
+    // whether depth tested shapes write their depth, and whether shapes are blended.
     private static void ApplyRlCulling()
     {
         DrawList.SetCull(_rlCulling == RlCulling.Enabled ? (_rlCullFace == RlCullFace.Front ? CullMode.Front : CullMode.Back) : CullMode.None);
         DrawList.SetDepthMask(_rlDepthMask);
+        DrawList.SetColorBlend(_rlColorBlend);
     }
 
     // Whether a program has set rlgl's culling, after which a model's faces are culled as rlgl
     // culls them, whatever its material says, as raylib's are.
     private static bool RlCullingSet => _rlCulling != RlCulling.Unset || _rlCullFace != RlCullFace.Back;
 
-    // A model's draw with the faces rlgl's culling leaves out, once a program has set it, and
-    // drawn as points in point mode.
+    // A model's draw with the faces rlgl's culling leaves out, once a program has set it, drawn as
+    // points in point mode, and written as it is with blending off.
     private static ModelDraw WithRlState(ModelDraw draw) =>
-        !RlCullingSet && !_rlPointMode
+        !RlCullingSet && !_rlPointMode && _rlColorBlend
             ? draw
             : draw with
             {
                 DoubleSided = RlCullingSet ? _rlCulling == RlCulling.Disabled : draw.DoubleSided,
                 CullFront = _rlCullFace == RlCullFace.Front,
                 Points = _rlPointMode,
+                ColorBlend = _rlColorBlend,
             };
 
     // The factors the custom blend modes combine by, as rlgl keeps them: one set for
@@ -369,7 +393,7 @@ public static partial class Engine3D
     {
         (_rlCulling, _rlCullFace, _rlPointMode) = (RlCulling.Unset, RlCullFace.Back, false);
         (_rlBlendFactors, _rlBlendFactorsSeparate) = (BlendFactors.Default, BlendFactors.Default);
-        _rlDepthMask = true;
+        (_rlDepthMask, _rlColorBlend) = (true, true);
         RlProjectionStack.Clear();
         _rlMatrixMode = RlMatrixMode.Modelview;
         (_rlView, _rlProjection) = (Matrix4x4.Identity, Matrix4x4.Identity);

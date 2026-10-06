@@ -17,6 +17,9 @@ internal sealed unsafe partial class GraphicsDevice
         /// <summary>The underlying Vulkan shader module handle.</summary>
         internal VkShaderModule Module;
 
+        /// <summary>How many color attachments a fragment stage writes, one past its highest output location.</summary>
+        internal int Outputs { get; }
+
         /// <summary>Creates a new Vulkan shader wrapper.</summary>
         /// <param name="device">The owning graphics device.</param>
         /// <param name="desc">The shader creation descriptor.</param>
@@ -26,6 +29,7 @@ internal sealed unsafe partial class GraphicsDevice
             _device = device;
             Description = desc;
             Module = module;
+            Outputs = desc.Stage == ShaderStage.Fragment ? ShaderProgram.OutputLocations(desc.Bytecode.Span) : 0;
         }
 
         /// <inheritdoc />
@@ -211,22 +215,32 @@ internal sealed unsafe partial class GraphicsDevice
             (srcColor, dstColor, colorOp) = (ToVkBlendFactor(f.SrcColor), ToVkBlendFactor(f.DstColor), ToVkBlendOp(f.ColorEquation));
             (srcAlpha, dstAlpha, alphaOp) = (ToVkBlendFactor(f.SrcAlpha), ToVkBlendFactor(f.DstAlpha), ToVkBlendOp(f.AlphaEquation));
         }
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = new()
+        // Each color attachment blended alike, and one past those the fragment stage writes left
+        // as it is, so a shader of one output draws into a target of several without filling the
+        // rest with what it never wrote. A device without independentBlend takes one state for
+        // every attachment, and there the rest hold what the driver writes for an output never given.
+        var colorCount = pass.ColorCount;
+        var colorBlendAttachments = stackalloc VkPipelineColorBlendAttachmentState[Math.Max(1, colorCount)];
+        for (int i = 0; i < colorCount; i++)
         {
-            colorWriteMask = VkColorComponentFlags.R | VkColorComponentFlags.G | VkColorComponentFlags.B | VkColorComponentFlags.A,
-            blendEnable = desc.BlendEnabled,
-            srcColorBlendFactor = srcColor,
-            dstColorBlendFactor = dstColor,
-            colorBlendOp = colorOp,
-            srcAlphaBlendFactor = srcAlpha,
-            dstAlphaBlendFactor = dstAlpha,
-            alphaBlendOp = alphaOp
-        };
+            var written = i == 0 || fs is null || i < fs.Outputs || !CanBlendEachAttachment;
+            colorBlendAttachments[i] = new VkPipelineColorBlendAttachmentState
+            {
+                colorWriteMask = written ? VkColorComponentFlags.R | VkColorComponentFlags.G | VkColorComponentFlags.B | VkColorComponentFlags.A : 0,
+                blendEnable = desc.BlendEnabled && written,
+                srcColorBlendFactor = srcColor,
+                dstColorBlendFactor = dstColor,
+                colorBlendOp = colorOp,
+                srcAlphaBlendFactor = srcAlpha,
+                dstAlphaBlendFactor = dstAlpha,
+                alphaBlendOp = alphaOp
+            };
+        }
 
         VkPipelineColorBlendStateCreateInfo colorBlend = new()
         {
-            attachmentCount = depthOnly ? 0u : 1u,
-            pAttachments = depthOnly ? null : &colorBlendAttachment
+            attachmentCount = (uint)colorCount,
+            pAttachments = colorCount > 0 ? colorBlendAttachments : null
         };
 
         // Depth-stencil state
@@ -294,11 +308,12 @@ internal sealed unsafe partial class GraphicsDevice
 
         // Drawn by dynamic rendering, so the pipeline names the formats it writes rather than a
         // render pass.
-        var colorFormat = pass.ColorFormat;
+        var colorFormats = stackalloc VkFormat[Math.Max(1, colorCount)];
+        for (int i = 0; i < colorCount; i++) colorFormats[i] = pass.ColorFormatAt(i);
         var rendering = new VkPipelineRenderingCreateInfo
         {
-            colorAttachmentCount = depthOnly ? 0u : 1u,
-            pColorAttachmentFormats = depthOnly ? null : &colorFormat,
+            colorAttachmentCount = (uint)colorCount,
+            pColorAttachmentFormats = colorCount > 0 ? colorFormats : null,
             depthAttachmentFormat = pass.DepthFormat,
         };
         VkGraphicsPipelineCreateInfo pipelineInfo = new()
