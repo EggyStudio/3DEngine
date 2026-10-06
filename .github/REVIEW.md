@@ -10,15 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `cac05ded`, and the owner pushed up to it on 2026-10-06, the first push since
-`92d30bbd`. A mesh carries a color and a second texture coordinate at each vertex in buffers of
+Reviewed up to `fb68cfad`. Windows passed every test in the run of `cac05ded`, 1,309 of them in five
+minutes at 1,020 MB, so the registry step of `1c1a3cea` gave it its device and the 126 failures of
+the runs before are gone, and the job that joins the three pages ran and wrote one. macOS failed
+the two of `AppLeakTests`, and `fb68cfad` has the holder: `App.CurrentApp`, the `AsyncLocal` the
+hook of N 3.7 added, which macOS's `FileSystemWatcher` keeps in the context it captures, so the
+script compiler's watchers kept every app. The app is held weakly, with a test that failed
+before the mend, the number reproduced on Linux by capturing the context on purpose, 5.66 MB
+against the page's 5.87, and the allowance unchanged, which settles Verdict 23. `UpdateMeshBuffer`
+is carried by raylib's index and `shaders_lightmap_rendering` is written (`6c0b07ca`), the table
+at 213 written and 8 missing. No verdict is open. Once `fb68cfad` is pushed and the next run
+passes on macOS, 5.1 can be packed.
+
+Before them, the owner pushed up to `cac05ded` on 2026-10-06, the first push since `92d30bbd`.
+A mesh carries a color and a second texture coordinate at each vertex in buffers of
 their own, drawn through a second vertex stage only where a mesh has them, measured as the same
 work for a mesh without them and 7 percent more for one with both, and MagicaVoxel's files are
 read as raylib reads them (`cac05ded`). The table stands at 212 written and 9 missing.
-
-The run of `cac05ded` is the first with the registry step. Its page was read from GitHub: Linux
-passed 1,309 tests, macOS failed two, both of `AppLeakTests`, which is Verdict 23 and comes
-first, and Windows was still running when this was written and is read at the next pass.
 
 Before them, three batches were read. raylib's pixel formats are carried,
 `LoadImageRaw` reading a format into four bytes a pixel and `ImageFormat` keeping what a format
@@ -179,8 +187,8 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the page says.** Verdict 23 first, then whatever the Windows page of `cac05ded` says,
-   which the reviewing session puts here once that job has ended. The ports go on after.
+1. **What the next page says.** The run after `fb68cfad` is pushed shows whether macOS passes
+   `AppLeakTests`, which the reviewing session reads and says here. The ports go on meanwhile.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -234,19 +242,9 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 22 are settled, and their numbers are not given again.
+Verdicts 1 to 23 are settled, and their numbers are not given again.
 
-**23. A hundred headless apps leave 5.9 MB of heap on macOS** (N 3.5). The page of `cac05ded` has
-both of `AppLeakTests` failing on macOS, the headless hundred and the drawing hundred, with
-`heap100 - heap20` at 5.87 MB where the test allows 5, and Linux passing the same tests in the
-same run. The macOS job passed them in the run of `92d30bbd`, so a commit between the two keeps
-about 70 KB of the GC's heap for each app, and the headless hundred failing says it is held in
-the engine and not the device. The allowance is not widened (N 3.5). The holder is found as
-Verdict 12's was, a dump of the test host after the hundred read for what every app made after
-the twentieth still holds, with what the commits since `92d30bbd` gave each app in view: the
-hook's ears and `App.Created`, the schedule's table of what was thrown, `EngineLog`'s and the
-renderer's new states, and the stream buffers. If the holder is macOS's alone, the reply says
-what differs there.
+None open.
 
 ## Decisions
 
@@ -290,44 +288,21 @@ what differs there.
 
 ## Replies
 
-**Now 2, `shaders_lightmap_rendering`.** `UpdateMeshBuffer` is carried, writing into one of a
-mesh's arrays from a byte offset by raylib's index for it: positions, texture coordinates and
-normals into the mesh's vertices in place, keeping the bounds it was made with, and colors and
-second texture coordinates into their buffers. raylib's lightmap example loads a buffer of its own
-through rlgl and sets it as the plane's attribute 5, which `UpdateMeshBuffer` with index 5 stands
-in for here, since rlgl's vertex buffers are not carried. A write to colors or second coordinates a
-mesh lacks gives it both, where raylib's has no buffer to write into, and the comparison has a line
-on it. Tangents and indices, which a mesh does not keep, are left out with a warning. Two tests
-write second coordinates into a plane without them and a position into one vertex. The example's
-`lightmap` shader is in Slang, reading the lightmap as the material's metalness map at the second
-coordinate. Since a render texture is upright here, the second coordinates count down from the
-lightmap's top and the drawn lightmap keeps raylib's negative width without its negative height, so
-red lies at the plane's near left and green at its far right, as raylib's source places them.
-`GenTextureMipmaps` leaves a render texture one level, which `Engine3D.Textures.cs` says and the
-comparison has a line on, and the lightmap is drawn larger than its pixels, so the picture does not
-show it. raylib's screenshot is older than its source, with a map of 10 by 10 and its label in two
-lines where the source draws 16 by 16, so its plane stands smaller and the label reads otherwise.
-TODO.md keeps the tangents' index of `UpdateMeshBuffer` among what the layout leaves out, and the
-count carried is 502, 81 percent. The table stands at 213 written and 8 missing, the IQM reader
-next.
-
-**Verdict 23, the holder.** It is the app a flow made last, `App`'s `CurrentApp`, the `AsyncLocal`
-that `99b9c97d` added so the test hook can lay a logged error to its test. An `AsyncLocal` lives in
-the flow's execution context, and whatever captures that context keeps the app with it. .NET's
-`FileSystemWatcher` on macOS captures the context as it starts watching, and again after each batch
-of events (`RunningInstance.Start` in `FileSystemWatcher.OSX.cs` on dotnet/runtime's
-`release/10.0`), and roots itself by a `GCHandle` that only FSEvents' release callback frees, where
-Linux's watcher over inotify keeps none. Every app with `DefaultPlugins` starts the script
-compiler, which watches `source/behaviors` beside the test host, so each of the hundred kept its
-app for as long as macOS kept the stream. No dump was taken on macOS, which this machine cannot
-run, and the number was taken on Linux instead, by a test run once and not kept that made the leak
-test's hundred headless apps with `ExecutionContext.Capture()` of each kept in a list, as the
-watcher keeps it, read with `dotnet test --filter` at detailed console verbosity: the heap grew
-5.66 MB from the twentieth app to the hundredth, 71 KB an app, against the page's 5.87 MB, and 0.03
-MB with the mend. The mend holds the app there by a `WeakReference`, so a context that outlives an
-app keeps a way to ask whether it is alive and nothing of it, and `App.Current` answers as before
-while the app lives. `AppLeakTests` gains a test that makes an app on a thread of its own, keeps
-the context captured there, closes the app and finds it collected, which failed before the mend.
-The allowance is as it was. Here the headless hundred reads 10.0 MB of heap at the twentieth app
-and 10.2 at the hundredth, the drawing hundred 10.8 and 10.7, and the suite 1,317 passed, 0 failed
-and 1 skipped.
+**Now 2, `models_loading_iqm`.** Inter-Quake Models are read by a reader of the engine's own, as
+raylib's `LoadIQM` and `LoadModelAnimationsIQM` read them, where Assimp's took the mesh without its
+skeleton. `LoadModel` reads an IQM's meshes into a scene with each joint a node under its parent
+and each mesh's skin, so its bones are found by name as a glTF's are, each triangle's corners taken
+in the reverse of the file's order as raylib takes them. `LoadModelAnimations` reads an IQM's clips
+at the file's own frames, as raylib counts them, whatever rate the file gives, each bone posed in
+the model's space, its bones named by the file's joints, or not named in a file of clips alone.
+`IsModelAnimationValid` compared names and parents where raylib's compares the bone counts alone,
+so a clip that names no bones, as `guyanim.iqm` names none, did not fit. It compares the counts and
+each bone's parent, and the names where the clip has them, and the comparison has a line on it,
+since a clip of another skeleton with as many bones would move the model's bones by the wrong ones.
+Three tests read a file a test writes, a triangle on two joints with a clip of two frames, for its
+turned corners, skin and inverse binds, its clip's poses in the model's space, and a file that is
+not one or is cut short, and a fourth poses a model loaded from it by the clip of a file of clips
+alone. `models_loading_iqm` is raylib's, with its three files from raylib's resources. The guy is
+shaded by the engine's light where raylib's is drawn unlit, which the comparison has a line on, and
+the orbital camera stands elsewhere than in raylib's screenshot. The table stands at 214 written
+and 7 missing, the M3D reader next.

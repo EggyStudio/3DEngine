@@ -119,7 +119,6 @@ text_codepoints_loading	can
 text_inline_styling	can	with GetGlyphInfo by code point in GetGlyphIndex's place
 text_words_alignment	can
 text_strings_management	can
-models_loading_iqm	missing	an IQM file's skeleton and clips, since LoadModel and LoadModelAnimations read IQM through Assimp, whose importer takes the mesh alone
 models_billboard_rendering	can
 models_box_collisions	can
 models_cubicmap_rendering	can

@@ -72,8 +72,15 @@ public static partial class Engine3D
     /// sampled into poses at <see cref="AnimationFps"/> frames a second.
     /// </summary>
     /// <returns>The clips, or none when the file cannot be read or has none, with the reason in the log.</returns>
+    /// <remarks>
+    /// An Inter-Quake Model's clips keep the file's own frames, as raylib reads them, whatever rate
+    /// the file gives. A file of clips alone names no bones, so its clips fit a model of as many
+    /// bones under the same parents (<see cref="IsModelAnimationValid"/>).
+    /// </remarks>
     public static ModelAnimation[] LoadModelAnimations(string fileName)
     {
+        if (Path.GetExtension(fileName).Equals(".iqm", StringComparison.OrdinalIgnoreCase))
+            return ReadModelFile(fileName, "LoadModelAnimations", (data, _) => IqmModelReader.ReadAnimations(data)) ?? [];
         if (ReadModelScene(fileName, "LoadModelAnimations") is not { } scene) return [];
 
         var bones = ModelSkeleton.Bones(scene);
@@ -357,10 +364,27 @@ public static partial class Engine3D
         return posed;
     }
 
-    /// <summary>Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has, by name and in order.</summary>
-    public static bool IsModelAnimationValid(Model model, ModelAnimation animation) =>
-        model.Bones.Length > 0 ? model.Bones.AsSpan().SequenceEqual(animation.Bones)
-            : animation.Bones.Length == 0 && animation.MorphChannels.Length > 0 && model.Skins.Any(s => s.MorphNames.Length > 0);
+    /// <summary>
+    /// Whether <paramref name="animation"/> moves the bones <paramref name="model"/> has: as many,
+    /// each under the same parent, and each by the same name where the clip names its bones.
+    /// </summary>
+    /// <remarks>
+    /// raylib compares the counts alone. A clip of another skeleton with as many bones would move
+    /// the model's bones by the wrong ones, so the parents are compared too, and the names where an
+    /// IQM file of clips alone does not leave them out.
+    /// </remarks>
+    public static bool IsModelAnimationValid(Model model, ModelAnimation animation)
+    {
+        if (model.Bones.Length == 0)
+            return animation.Bones.Length == 0 && animation.MorphChannels.Length > 0 && model.Skins.Any(s => s.MorphNames.Length > 0);
+        if (model.Bones.Length != animation.Bones.Length) return false;
+        for (int b = 0; b < model.Bones.Length; b++)
+        {
+            var (bone, moved) = (model.Bones[b], animation.Bones[b]);
+            if (bone.Parent != moved.Parent || (moved.Name.Length > 0 && moved.Name != bone.Name)) return false;
+        }
+        return true;
+    }
 
     /// <summary>Lets go of a clip. It holds no GPU objects, so this is for symmetry with raylib.</summary>
     public static void UnloadModelAnimation(ModelAnimation animation) { }
@@ -368,8 +392,22 @@ public static partial class Engine3D
     /// <summary>Lets go of clips. They hold no GPU objects, so this is for symmetry with raylib.</summary>
     public static void UnloadModelAnimations(ModelAnimation[] animations) { }
 
-    // A model file as Assimp reads it, or null with the reason logged.
-    private static Scene? ReadModelScene(string fileName, string caller)
+    // A model file as Assimp reads it, or null with the reason logged. MagicaVoxel's files and
+    // Inter-Quake Models are read here, as raylib reads them itself, where Assimp reads an IQM's
+    // mesh without its skeleton.
+    private static Scene? ReadModelScene(string fileName, string caller) =>
+        ReadModelFile(fileName, caller, (data, path) => Path.GetExtension(path).ToLowerInvariant() switch
+        {
+            ".vox" => VoxModelReader.Read(data, Path.GetFileNameWithoutExtension(path)),
+            ".iqm" => IqmModelReader.Read(data, Path.GetFileNameWithoutExtension(path)),
+            _ => new AssimpModelReader().ReadFile(path, new SceneImportSettings()),
+        });
+
+    private delegate T ModelFileReader<T>(ReadOnlySpan<byte> data, string path);
+
+    // What a reader makes of a model file found beside the program or in the working directory, or
+    // null with the reason logged.
+    private static T? ReadModelFile<T>(string fileName, string caller, ModelFileReader<T> read) where T : class
     {
         var path = ResolveFile(fileName);
         if (path is null)
@@ -380,10 +418,9 @@ public static partial class Engine3D
 
         try
         {
-            // MagicaVoxel's files are read here, as raylib reads them itself, and the rest by Assimp.
-            if (Path.GetExtension(path).Equals(".vox", StringComparison.OrdinalIgnoreCase))
-                return VoxModelReader.Read(File.ReadAllBytes(path), Path.GetFileNameWithoutExtension(path));
-            return new AssimpModelReader().ReadFile(path, new SceneImportSettings());
+            // Assimp reads the file itself, so only the readers of this engine's own are given its bytes.
+            var data = Path.GetExtension(path).ToLowerInvariant() is ".vox" or ".iqm" ? File.ReadAllBytes(path) : [];
+            return read(data, path);
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or Assimp.AssimpException)
         {

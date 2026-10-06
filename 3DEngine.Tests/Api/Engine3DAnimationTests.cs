@@ -215,6 +215,27 @@ public sealed class Engine3DAnimationTests : IDisposable
     }
 
     [Fact]
+    public void An_Iqm_Clip_That_Names_No_Bones_Poses_A_Model_Of_The_Same_Skeleton()
+    {
+        using var folder = new TestFolder("engine-iqm-");
+        var (modelPath, clipPath) = (Path.Combine(folder.Path, "tri.iqm"), Path.Combine(folder.Path, "wave.iqm"));
+        File.WriteAllBytes(modelPath, Engine.Tests.Assets.Models.IqmModelReaderTests.Triangle());
+        File.WriteAllBytes(clipPath, Engine.Tests.Assets.Models.IqmModelReaderTests.Triangle(joints: false, mesh: false));
+
+        var model = LoadModel(modelPath);
+        var clip = LoadModelAnimations(clipPath).Single();
+        model.Bones.Should().Equal(new BoneInfo("root", -1), new BoneInfo("tip", 0));
+
+        IsModelAnimationValid(model, clip).Should().BeTrue("as many bones under the same parents, the clip naming none");
+        UpdateModelAnimation(model, clip, 1);
+        Positions(model)[2].Y.Should().BeApproximately(2, 1e-4f, "the corner the tip holds rises with it");
+        Positions(model)[0].Should().Be(Vector3.Zero, "and the root's stay");
+
+        var other = new ModelAnimation { Bones = [new BoneInfo("", -1), new BoneInfo("", -1)], FramePoses = [[Transform.Identity, Transform.Identity]] };
+        IsModelAnimationValid(model, other).Should().BeFalse("a bone under another parent is another skeleton's");
+    }
+
+    [Fact]
     public void A_Clip_Of_Other_Bones_Leaves_The_Model_As_It_Is()
     {
         var model = LoadModel(Arm);

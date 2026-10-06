@@ -98,6 +98,9 @@ text/resources/noto_cjk.png
 text/resources/symbola.fnt
 text/resources/symbola.png
 textures/resources/fudesumi.raw
+models/resources/models/iqm/guy.iqm
+models/resources/models/iqm/guyanim.iqm
+models/resources/models/iqm/guytex.png
 models/resources/models/vox/chr_knight.vox
 models/resources/models/vox/chr_sword.vox
 models/resources/models/vox/monu9.vox

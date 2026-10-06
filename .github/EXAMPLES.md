@@ -4,7 +4,7 @@ raylib has 222 examples at the commit `build/raylib-bench/run.sh` pins, [`30fa67
 
 An example written here is a program in `3DEngine.Examples` under raylib's name, in a window of 800 by 450 with raylib's scene, opened by `dotnet run --project 3DEngine.Examples -- <name>` or `./e3d open 3DEngine.Examples <name>`, and its capture stands beside the screenshot raylib keeps next to its source. One `written in part` names what it leaves out. One that `can be written` calls only what the flat API carries and waits for its turn. One that is `missing` names the functions it calls that the flat API lacks, and one that `does not apply` says why it is not a thing a program here does.
 
-**213 written, 0 written in part, 0 can be written, 8 missing and 1 does not apply.** Of the 221 that apply, 213 can be written with what the flat API carries.
+**214 written, 0 written in part, 0 can be written, 7 missing and 1 does not apply.** Of the 221 that apply, 214 can be written with what the flat API carries.
 
 | Group | Written | Written in part | Can be written | Missing | Does not apply |
 |---|---:|---:|---:|---:|---:|
@@ -12,10 +12,10 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 | [Shapes](#shapes) | 45 | 0 | 0 | 0 | 0 |
 | [Textures](#textures) | 33 | 0 | 0 | 0 | 0 |
 | [Text](#text) | 16 | 0 | 0 | 0 | 0 |
-| [Models](#models) | 29 | 0 | 0 | 3 | 0 |
+| [Models](#models) | 30 | 0 | 0 | 2 | 0 |
 | [Shaders](#shaders) | 35 | 0 | 0 | 1 | 0 |
 | [Audio](#audio) | 10 | 0 | 0 | 1 | 0 |
-| **All** | **213** | **0** | **0** | **8** | **1** |
+| **All** | **214** | **0** | **0** | **7** | **1** |
 
 ## Core
 
@@ -184,7 +184,7 @@ An example written here is a program in `3DEngine.Examples` under raylib's name,
 
 | Example | raylib | Here | State |
 |---|---|---|---|
-| [`models_loading_iqm`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_iqm.c) |  |  | missing, an IQM file's skeleton and clips, since LoadModel and LoadModelAnimations read IQM through Assimp, whose importer takes the mesh alone |
+| [`models_loading_iqm`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_iqm.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_loading_iqm.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_loading_iqm.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsLoadingIqm.cs) |
 | [`models_billboard_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_billboard_rendering.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_billboard_rendering.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_billboard_rendering.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsBillboardRendering.cs) |
 | [`models_box_collisions`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_box_collisions.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_box_collisions.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_box_collisions.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsBoxCollisions.cs) |
 | [`models_cubicmap_rendering`](https://github.com/raysan5/raylib/blob/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_cubicmap_rendering.c) | <img src="https://raw.githubusercontent.com/raysan5/raylib/30fa673ef2fa137588cf8b5732c65d76d86c1570/examples/models/models_cubicmap_rendering.png" width="200"/> | <img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/models_cubicmap_rendering.webp" width="200"/> | [written](https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Models/ModelsCubicmapRendering.cs) |
