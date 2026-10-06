@@ -3,4 +3,3 @@
 3DEngine/Api/Engine3D.Fonts.cs
 3DEngine/Api/Engine3D.Models.cs
 3DEngine/Assets/Models/Assimp/AssimpModelReader.cs
-3DEngine/Rendering/Models/ModelNode.cs
