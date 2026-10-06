@@ -118,7 +118,9 @@ Every verb prints a readable answer, or with `--json` one envelope:
 
 Exit codes: `0` ok, `2` bad arguments or an unknown command, `4` nothing to talk to (no session,
 or no renderer for a capture), `6` the command failed. A failure carries a code in `errors[0].code`
-(`NO_SESSION`, `AMBIGUOUS_SESSION`, `UNKNOWN_COMMAND`, `NO_RENDERER`, `TIMEOUT`).
+(`NO_SESSION`, `AMBIGUOUS_SESSION`, `UNKNOWN_COMMAND`, `NO_RENDERER`, `TIMEOUT`). Without `--json`
+an error is a line `error [CODE] message` on standard error, so `status=$(./e3d command ...)` takes
+no error into the variable and the error still shows.
 
 ## More than one app
 

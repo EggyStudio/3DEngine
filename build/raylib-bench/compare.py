@@ -24,9 +24,12 @@ to the share the file given recorded for it on the same machine before, and the 
 pair stands more than one point above it, where it drew a frame and draws none, or where its
 pictures came to differ in size. A pair with no share recorded is measured and recorded for the
 first time, and one triage.tsv marks as moving, by the clock or the device, is left out, with its
-reason. The build workflow's examples job runs every pair so, against
+reason. Where the file holds no share at all, as before its first run is recorded, what would fail
+is said and the run does not fail. The build workflow's examples job runs every pair so, against
 3DEngine.Examples/measured-ci.tsv, the shares its own device recorded, so two machines' drivers are
-never compared with each other.
+never compared with each other. Under GitHub Actions the pairs measured for the first time are
+notices as well, at most ten, which a reader not signed in sees where the run's summary and its
+files need a sign-in.
 """
 import glob
 import importlib.util
@@ -46,6 +49,9 @@ FRAME_TIME = 1 / 60
 SEED = 20261006
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(ROOT, "build"))
+from page import ANNOTATIONS, annotate
+
 _spec = importlib.util.spec_from_file_location("examples_table", os.path.join(ROOT, "build", "examples-table.py"))
 table = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(table)
@@ -178,6 +184,15 @@ def held(name, share, recorded):
     return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOM else None
 
 
+def notices(names, measured):
+    """The pairs measured for the first time as notices, each name with its share, shared out among
+    as few notices as hold them and no more than GitHub shows."""
+    size = -(-len(names) // ANNOTATIONS)
+    parts = [names[i:i + size] for i in range(0, len(names), size)] if names else []
+    for index, part in enumerate(parts, 1):
+        annotate("notice", f"Measured for the first time, {index} of {len(parts)}", [f"{name}\t{measured[name]}" for name in part])
+
+
 def main():
     values = {option("--record"), option("--against")}
     wanted = [a for a in sys.argv[1:] if not a.startswith("--") and a not in values]
@@ -237,10 +252,14 @@ def main():
         print(f"{len(first)} pair(s) measured for the first time, recorded in {record or MEASURED} for {against}:")
         for name in first:
             print(f"{name}\t{measured[name]}")
+        notices(first, measured)
     if failures:
         print(f"{len(failures)} pair(s) do not hold to the share recorded for them, more than {ROOM:g} point above it or no longer drawn:")
         for failure in failures:
             print(f"  {failure}")
+        if against and not recorded:
+            print(f"{against} holds no share yet, so the run does not fail until it is recorded.")
+            return
         sys.exit(1)
 
 

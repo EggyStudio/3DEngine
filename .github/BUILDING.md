@@ -295,4 +295,7 @@ frames of it under the layer, so a type the library reaches by reflection that t
 compiler left out fails there. The native compiler needs clang and zlib's headers, which the
 workflow installs beside lavapipe. `build/examples-on-package.sh` builds every example in a
 project of its own outside the repository, on the package alone with warnings as errors, as a
-reader copying one into a game of their own builds it.
+reader copying one into a game of their own builds it. Each step of that job runs its script
+through `build/step.py`, as GitHub's bash would run it, and a step that fails without an error of
+its own is given one, naming the step, the command that failed with its exit code, the step's last
+lines and the last lines at a warning or worse of each session log it wrote.

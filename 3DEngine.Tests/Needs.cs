@@ -191,3 +191,17 @@ public sealed class NeedsPythonTheoryAttribute : TheoryAttribute
         if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
     }
 }
+
+/// <summary>
+/// Skipped on Windows, or where neither <c>python3</c> nor <c>python</c> runs, for a script that
+/// runs a step in bash, which only the Linux jobs do.
+/// </summary>
+/// <remarks>The <c>bash</c> a Windows runner finds first may be WSL's, which runs no step here.</remarks>
+public sealed class NeedsPythonAndBashFactAttribute : FactAttribute
+{
+    public NeedsPythonAndBashFactAttribute()
+    {
+        if (OperatingSystem.IsWindows()) Skip = "The steps build/step.py runs are run on Linux alone.";
+        else if (Probes.Python.Value is null) Skip = "Neither python3 nor python runs here.";
+    }
+}

@@ -31,9 +31,11 @@ internal static class Output
                 return success ? Exit.Ok : Exit.For(code);
             }
 
+            // On standard error, so a script that takes an answer into a variable, as
+            // status=$(e3d command ...) does, still shows why there is none.
             if (!success && root.TryGetProperty("errors", out var errors))
                 foreach (var error in errors.EnumerateArray())
-                    Console.WriteLine($"error [{Text(error, "code")}] {Text(error, "message")}");
+                    Console.Error.WriteLine($"error [{Text(error, "code")}] {Text(error, "message")}");
 
             if (!options.Quiet && root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object)
             {

@@ -10,15 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `32bc8543`. ReadyToRun went into the package, six images under `runtimes/` for 14.9
-MB from 1.3, measured on Manor run from its project at about 140 ms on the worst early frame from
-about 205 (`c1f6c4cf`), and came out again on the owner's word of 20:50, the measurement kept in
-TODO.md's cost entry and `docs/shipping-a-game.md` saying the author's own `PublishReadyToRun` is
-the way (`32bc8543`), which settles item 6. Three commits of moves alone empty N 1.2's list, 83 to
-0, and N 1.3's, every public type in a file of its name and `AssimpModelReader.cs` in partial files
-of its own, each move checked line by line (`700701b5`, `2d5c111d`, `640bc301`), which settles item
-4, the lists left holding only what is left out with its reason. That was the restructuring pass the
-owner chose not to have when the norm was adopted, done as moves alone with the suite green, and it
+Reviewed up to `b43818f9`. The runs of `6336aba6`, `b9ebd0bd` and `039bd788` pass their tests on all
+three systems, macOS at 1,398, 1,401 and 1,402 with none failed, so Verdict 27 is settled, with the
+note that the two runs before the watcher's mend passed as well, so the leak test's margin on macOS
+is thin and the next failure's series will say; no examples job names a failed capture, so Verdict
+26 is settled too. All three examples jobs fail with `Process completed with exit code 4` and
+nothing else, which is Verdict 28. Motion blur blurs each mesh entity along its own movement where
+`SetMotionBlur` is given objects, from a velocity image its moving entities are drawn into as
+instanced runs, off by default, a new reference and no old one changed, about 425,000 turning
+entities held at 60 fps against 700,000 camera-only, two slower designs measured on the way
+(`b43818f9`), which settles item 5. The suite: 1,429 passed, none skipped.
+
+Before them, ReadyToRun went into the package, six images under `runtimes/` for 14.9 MB from 1.3,
+measured on Manor run from its project at about 140 ms on the worst early frame from about 205
+(`c1f6c4cf`), and came out again on the owner's word of 20:50, the measurement kept in TODO.md's
+cost entry and `docs/shipping-a-game.md` saying the author's own `PublishReadyToRun` is the way
+(`32bc8543`), which settles item 6. Three commits of moves alone empty N 1.2's list, 83 to 0, and
+N 1.3's, every public type in a file of its name and `AssimpModelReader.cs` in partial files of its
+own, each move checked line by line (`700701b5`, `2d5c111d`, `640bc301`), which settles item 4, the
+lists left holding only what is left out with its reason. That was the restructuring pass the owner
+chose not to have when the norm was adopted, done as moves alone with the suite green, and it
 stands, said here rather than as a verdict. The suite: 1,428 passed, none skipped.
 
 Before them, a render texture came to take the window's samples unless `LoadRenderTextureEx` is
@@ -34,27 +45,6 @@ on lines of their own so the page carries them whole, where one line of a hundre
 an examples job passes the capture, `56564fe2`'s having failed on it before the mend as expected.
 The suite: 1,427 passed, none skipped.
 
-Before them, Verdict 26's cause was found, a loop that never ended, a stream with no device
-answering `IsAudioStreamProcessed` true for ever, mended with a test on the null backend, and a
-failed capture's error carries the exit code, the script's last line and the example's last three
-lines at a warning or worse (`6336aba6`); the verdict settles when a run's examples job passes the
-capture. The run of `660b3bc6` failed the headless leak test on macOS again, by 6.09 MB against 5
-where `ac774ac9` passed, with its threads constant through the hundred apps, which became Verdict
-27. The owner decided six things on 2026-10-06, Decisions 9 to 12 and 5.1 packed from `ac774ac9`,
-and items 6 to 9 come of them. The warnings the suite repeated are gone: thirteen tests let go the
-texture they left, the tests reading Summit's level register stand-ins for its components, a missing
-audio device is warned of once a process, the Linux jobs fetch LunarG's layer of 1.4.363.0, which
-knows `VK_KHR_line_rasterization` and found the ambient occlusion renderer never disposed and a
-custom vertex stage fed instance rows it did not read, both mended, and macOS names the layer once,
-the page repeating only `ScheduleTests`' meant throw (`660b3bc6`). Music opens XM and MOD modules,
-played by a tracker player of the engine's own with no dependency added, readers for FastTracker 2's
-XM and ProTracker's MOD with its kin and the older Soundtracker's, following raylib's jar_xm and
-measured against it built from the pinned checkout: the same length to the frame, the first ten
-seconds correlating at 1.0 with a mean difference of 1e-4 of full scale, and a MOD's panning and
-loudness as jar_mod's to three places; `audio_module_playing` is written, 220 of 222 (`56564fe2`).
-The run of `ac774ac9` passed its tests on all three systems, and its examples job, which measures
-every pair against raylib's program for the first time, is still running.
-
 The norm has 43 rules, and this engine stands at 34 checked, none with places listed, none to take
 and 9 by review.
 
@@ -65,10 +55,9 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 27 first, the macOS heap again, and Verdict 26's capture on the next examples job.**
-   The run of `660b3bc6` failed the headless leak test on macOS by 6.09 MB with its threads
-   constant, and `56564fe2`'s examples job is still measuring; the run after both mends shows
-   whether all three systems and the examples pass.
+1. **Verdict 28 first, the examples job's bare exit code.** Three examples jobs in a row end with
+   `exit code 4` and no page, which the verdict takes apart; the tests pass on all three systems.
+   Each push's run is read by the reviewing session, and a failure it names comes first here.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -111,11 +100,7 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-5. **Per-object motion blur** (Decision 12), after items 2 to 4. A velocity image beside the HDR
-   frame from each entity's previous transform, ECS entities blurred by their own motion and
-   flat-API draws by the camera's as today, off by default, measured on a scene that moves, with a
-   reference redrawn for it and a test of a moving entity's trail.
-6. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
+5. **ImGui viewports** (Decision 12), last. An ImGui window dragged outside the main window gets
    an SDL window and a Vulkan swapchain of its own, through ImGui's viewport interface, off by
    default, with a test that a viewport's window is made and closed and the editor's panels checked
    by hand.
@@ -127,37 +112,23 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 25 are settled, and their numbers are not given again.
+Verdicts 1 to 27 are settled, and their numbers are not given again.
 
-26. **The examples job of `ac774ac9` fails at `audio_spectrum_visualizer: the capture failed`,
-    with no reason given.** The tests passed on all three systems, and the job that captures every
-    example and measures the pairs failed after 23 minutes on that one capture, the first run of the
-    job since the measure joined it. Two things. The capture step says what failed and why: the
-    example's exit code and the last lines of its log that are warnings or errors, in the
-    `::error::` line, as the test page carries its causes (N 6.7), since the line stands alone in
-    the run and the log is 60,000 lines. And the example runs where there is no audio device, as
-    raylib's does on such a machine: it draws its spectrum of silence and ends with the frame count
-    the capture asks for. `moves` leaves its pair out of the measure, which is right, but a capture
-    that fails is not a pair that moves. The workflow's device has no audio device, so the backend
-    is disabled there, which the Windows job warns of once a process, and the example is run here
-    with the backend disabled, `SDL_AUDIO_DRIVER` set to a driver with no device, to find what it
-    does; the runs of `56564fe2` and `660b3bc6` say whether the failure repeats.
-
-27. **The run of `660b3bc6` fails the headless leak test on macOS again, with its series read.**
-    The GC's heap after a hundred headless apps stands 6.09 MB above the heap after twenty, 56.49 to
-    62.58, against the 5 MB allowed, where `ac774ac9` passed and `0019d177` measured 6.61, and the
-    process's threads stand at 31 to 33 through all hundred apps, so Verdict 24's joins hold and the
-    threads are not it. On Linux the same test grows 0.07 MB, so the 6 MB is macOS's, 75 KB an app,
-    and the test's threshold sits at its edge there. What a headless app still makes once an app and
-    macOS lets go of later than the others is the `FileSystemWatcher` `BehaviorsPlugin` starts on
-    `source/behaviors` for each extension it watches (`RuntimeAssemblyCompiler.Lifecycle.cs`), an
-    FSEvents stream whose managed side, its buffers and its handle, lives until the stream is
-    released on a thread of the system's, after the collection the test waits for. A directory is
-    watched once a process, shared by the apps that compile from it and let go with the last, so a
-    hundred apps make one stream and one watcher's worth of heap, held by a test that a second app
-    on the same directory makes no second watcher; the series then says whether anything else grows.
-    The 5 MB stays, N 3.5, and the heap after every tenth app rides in the message on every system,
-    since the two points it carried say less than the slope would.
+28. **The examples job ends with `Process completed with exit code 4` and nothing else, three
+    runs in a row.** The jobs of `6336aba6`, `b9ebd0bd` and `039bd788` each fail so, after the
+    captures, the measure, the games and the README's walk, and no `::error::` names a capture, a
+    pair or a game, so what failed and in which step is in a log nobody reads, which is the state
+    the test page was made to end (N 6.7). None of `compare.py`, `capture-example.sh` or
+    `play-game.sh` exits with 4, so the code is some program's own, `e3d`'s or `dotnet`'s. Two
+    things. The examples job gets what the test job has: each step that runs a program ends with a
+    page or an `::error::` saying the step, the program, its exit code and its last lines at a
+    warning or worse, and `build/test.py`'s page tests cover the examples' script where one is
+    shared, so a bare exit code cannot end a job again. And the measure's first run leaves its
+    shares where they can be read without a sign-in: the pairs measured for the first time go into
+    `::notice::` lines as well as the summary, at most ten of them, since the summary and the
+    artifact need a signed-in reader, and until `measured-ci.tsv` is recorded the measure's own
+    result does not fail the job. Found in the workflow's own image, where the coder ran the job's
+    steps before.
 
 ## Decisions
 
@@ -231,21 +202,30 @@ Verdicts 1 to 25 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 7, per-object motion blur** (Decision 12). `SetMotionBlur(amount, objects: true)` blurs each
-mesh entity along its own movement, `SetMotionBlur(amount)` keeping to the camera's as it did. With
-it on, `MeshEntityDraws` finds the entities whose world matrix differs from the frame before's, in
-ranges of 4096 on threads of their own as its gather runs, each range keeping its moving entities in
-lists by mesh, an entity first drawn this frame or with another mesh than before having no movement.
-`MotionVelocity` copies each mesh's lists as one run of instances of the world now and then into a
-buffer of the frame's own and draws them with `velocity.slang` into a half-float image of the HDR
-frame's size, a fragment dropped behind the scene's depth, and `motion_blur.slang` reads that
-movement in place of the camera's where it is written. A model drawn with `DrawModel` and a skinned
-mesh's limbs blur by the camera alone, which the docs say. Measured in `models_stress`, where every
-entity turns each frame, the frame held about 425,000 entities at sixty frames a second with it on,
-410,266 and 441,035 in two runs, against about 700,000 with the camera's alone; the first form, a
-draw an entity sorted through a comparer, held 123,000, and finding the entities on one thread
-297,000. A test slides a square entity past a still camera and finds its sides smeared with it on
-and one soft pixel without, and `motion_blur.png` is a new reference, a red cube entity sliding
-beside a still blue one and a floor drawn with `DrawModel`, the cube smeared and the rest sharp. No
-other reference changed. Under LunarG's layer in the workflow's image the suite logged no message of
-the layer's.
+**Verdict 28.** The step that failed in all three runs was the first-person walk, the steps after
+it skipped, the captures, the measure and the four games before it having passed, which GitHub's
+jobs listing (`/actions/runs/<id>/jobs`) gives without a sign-in, each step with its conclusion and
+its times. The step failed 19 to 25 seconds in, and 4 is `e3d`'s code for an app it cannot talk to.
+Manor quit itself. Each press of the pad was held two frames, and ImGui moves again along a
+direction held 0.198 seconds, its repeat delay of 0.275 times 0.72 for moving, which two frames pass
+on a runner drawing the title under five a second, so the first press went past Settings to Quit
+and the second chose it. Run in the workflow's image held to four processors, the step ended with
+code 4 after 22 seconds, and on this machine with each frame fixed at a quarter second Manor shut at
+the second press and opened Settings at a sixtieth. Each press is now held a frame, which reaches
+the walk with vertical sync off at both frame times, and the step names the screen it ended on
+where it is not the walk. In the image at four processors the step now passes in 294 seconds, the
+six lanterns found and the layer silent. Three things keep a bare code from ending a job again. `e3d` writes an
+error on standard error, so `status=$(./e3d command manor.status)` no longer takes it into the
+variable. Each step of the examples job runs its script through `build/step.py`, the job's shell,
+in bash as GitHub's own runs it, and a step that fails with no error of its own is given one naming
+the step as the workflow does, the command that failed with its line and code, the step's last
+lines, and each session log's last lines at a warning or worse. The failing run in the image gave
+"Build and walk the first-person game from the package: exit code 4", `./e3d command input.button 0
+"$1" 2 --quiet` on line 6, and `error [SESSION_CLOSING] The app shut down`. `build/page.py` holds
+what the test page and these share, the width a line is cut to, the escaping and the annotations,
+and `StepScriptTests` holds the step's error, a function's, a step that says its own, and the
+notices to their forms and limits. The measure's pairs measured for the first time are notices
+too, shared among at most ten, every pair with its share, and where `measured-ci.tsv` holds no
+share the measure says what would fail and passes. `StepScriptTests` is in `Scripts` beside
+`TestScriptTests` and on N 1.4's list with it, eleven left out where NORM.md's table says ten. The
+suite: 1,433 passed, none skipped.

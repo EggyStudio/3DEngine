@@ -19,9 +19,16 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
+  # Each step's script runs in bash as GitHub's own shell runs it, through build/step.py, which gives
+  # a step that fails having said nothing an error naming the step, the command that failed with its
+  # exit code, the step's last lines and the session logs' last lines at a warning or worse (NORM.md,
+  # N 6.7), where a command whose answer went into a variable ended the step with its code alone.
   examples:
     needs: test
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: python3 build/step.py {0}
     steps:
       - uses: actions/checkout@v7
 
@@ -106,8 +113,10 @@ jobs:
       # than a point above the share this job's own device recorded for it in
       # 3DEngine.Examples/measured-ci.tsv, so a change cannot quietly undo a picture brought to
       # raylib's, and two machines' drivers are never compared. A pair measured for the first time
-      # is listed in the run's summary to be recorded there, and one whose picture moves by the
-      # clock or the device is left out with the reason its line in triage.tsv gives.
+      # is listed in the run's summary and in notices, at most ten, which a reader not signed in
+      # sees, to be recorded there, and until the file holds a share the step fails on none. One
+      # whose picture moves by the clock or the device is left out with the reason its line in
+      # triage.tsv gives.
       - name: Measure every example against raylib's program
         run: python3 -u build/raylib-bench/compare.py all --against 3DEngine.Examples/measured-ci.tsv --record captures/measured-ci.tsv
 
@@ -273,8 +282,16 @@ jobs:
           rm -f games/Manor/bin/Debug/net10.0/manor-settings.txt
           ./e3d open games/Manor/bin/Debug/net10.0/Manor --offscreen --quiet
           ./e3d command frames.wait 60 --quiet
-          pad() { ./e3d command input.button 0 "$1" 2 --quiet; ./e3d command frames.wait 4 --quiet; }
+          # Each press held a frame, since ImGui moves again along a direction held a fifth of a
+          # second, which two frames pass on a runner drawing the title under five a second, and a
+          # first press so moved twice went past Settings to Quit.
+          pad() { ./e3d command input.button 0 "$1" 1 --quiet; ./e3d command frames.wait 4 --quiet; }
           pad DpadDown; pad South; pad DpadDown; pad DpadDown; pad South; pad East; pad DpadUp; pad South
+          screen=$(./e3d command manor.status)
+          case "$screen" in
+            Play*) ;;
+            *) echo "::error::Manor: the pad's way through Settings to a walk ended on another screen, $screen"; ./e3d stop --quiet; exit 1 ;;
+          esac
           ./e3d command manor.autopilot true --quiet
           ./e3d command frames.wait 300 --quiet --timeout 600
           ./e3d shot captures/manor.png --quiet
