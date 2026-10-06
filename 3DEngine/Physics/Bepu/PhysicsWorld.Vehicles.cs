@@ -221,7 +221,7 @@ public sealed partial class PhysicsWorld
         turning -= (Vector3.Dot(turning, forward) * forward + Vector3.Dot(turning, right) * right) * settle;
         if (grounded == 0) turning += Vector3.Cross(up, Vector3.UnitY) * 2 * dt;
         body.Velocity.Angular = turning;
-        if (!body.Awake) body.Awake = true;
+        Wake(body);
     }
 
     private static bool Drives(VehicleDrive drive, int wheel, int count) => drive switch

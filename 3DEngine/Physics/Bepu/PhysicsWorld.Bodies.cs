@@ -101,7 +101,7 @@ public sealed partial class PhysicsWorld
             var bh = new BodyHandle(body.Handle);
             var br = Simulation.Bodies.GetBodyReference(bh);
             br.Pose.Position = position - Origin(body.Handle, br.Pose.Orientation);
-            br.Awake = true;
+            Wake(br);
             br.UpdateBounds();
             // A teleport, so it is not blended into.
             _previousPoses.Remove(body.Handle);
@@ -126,7 +126,7 @@ public sealed partial class PhysicsWorld
             var origin = br.Pose.Position + Origin(body.Handle, br.Pose.Orientation);
             br.Pose.Orientation = rotation;
             br.Pose.Position = origin - Origin(body.Handle, rotation);
-            br.Awake = true;
+            Wake(br);
             br.UpdateBounds();
             _previousPoses.Remove(body.Handle);
         }
@@ -152,7 +152,7 @@ public sealed partial class PhysicsWorld
         if (body.Kind == BodyKind.Static) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         br.Velocity.Linear = velocity;
-        br.Awake = true;
+        Wake(br);
     }
 
     /// <inheritdoc />
@@ -182,7 +182,7 @@ public sealed partial class PhysicsWorld
         if (body.Kind == BodyKind.Static) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         br.Velocity.Angular = velocity;
-        br.Awake = true;
+        Wake(br);
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public sealed partial class PhysicsWorld
         var half = MathF.Acos(Math.Clamp(turn.W, -1f, 1f));
         var sin = MathF.Sin(half);
         reference.Velocity.Angular = sin > 1e-6f ? new Vector3(turn.X, turn.Y, turn.Z) / sin * (2 * half / seconds) : Vector3.Zero;
-        reference.Awake = true;
+        Wake(reference);
     }
 
     // -- Forces / impulses
@@ -213,7 +213,7 @@ public sealed partial class PhysicsWorld
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         br.ApplyImpulse(impulse, offsetFromCenter);
-        br.Awake = true;
+        Wake(br);
     }
 
     /// <summary>
@@ -225,7 +225,7 @@ public sealed partial class PhysicsWorld
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         br.ApplyImpulse(impulse, point - br.Pose.Position);
-        br.Awake = true;
+        Wake(br);
     }
 
     /// <summary>How fast a point of a body moves, its own velocity and the turn about its center of mass at that point.</summary>
@@ -242,7 +242,7 @@ public sealed partial class PhysicsWorld
         if (body.Kind != BodyKind.Dynamic) return;
         var br = Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle));
         br.ApplyAngularImpulse(impulse);
-        br.Awake = true;
+        Wake(br);
     }
 
     // -- Sleep state
@@ -255,7 +255,19 @@ public sealed partial class PhysicsWorld
     internal void Wake(PhysicsBody body)
     {
         if (body.Kind == BodyKind.Static) return;
-        Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+        Wake(Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)));
+    }
+
+    // Wakes a body and starts its count of steps at rest again. Bepu marks a body that has rested
+    // long enough as a candidate to sleep as a step ends and puts candidates to sleep as the next
+    // begins, which waking a body still awake does not undo, so a body moved or given speed between
+    // the two would sleep through it.
+    private static void Wake(BodyReference body)
+    {
+        body.Awake = true;
+        ref var activity = ref body.Activity;
+        activity.SleepCandidate = false;
+        activity.TimestepsUnderThresholdCount = 0;
     }
 
     /// <inheritdoc />

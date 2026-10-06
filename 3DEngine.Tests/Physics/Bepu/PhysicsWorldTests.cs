@@ -81,6 +81,39 @@ public class PhysicsWorldTests
         body.IsValid.Should().BeFalse();
     }
 
+    // Bepu marks a body that has rested long enough as a candidate to sleep as a step ends, and puts
+    // a candidate to sleep as the next begins, so a body given speed in between keeps it only where
+    // the candidacy is cleared with the speed.
+    [Theory]
+    [InlineData("velocity")]
+    [InlineData("impulse")]
+    [InlineData("angular velocity")]
+    [InlineData("angular impulse")]
+    public void A_Crate_About_To_Sleep_On_A_Floor_Moves_With_The_Speed_It_Is_Given(string given)
+    {
+        using var w = NewWorld();
+        w.CreateGroundPlane();
+        var crate = w.CreateBox(new Vector3(0, 0.5f, 0), new Vector3(0.5f));
+        var activity = () => w.Simulation.Bodies.GetBodyReference(new BepuPhysics.BodyHandle(crate.Handle)).Activity;
+        for (int i = 0; i < 600 && !activity().SleepCandidate; i++) w.Step(1f / 60f);
+        activity().SleepCandidate.Should().BeTrue("a crate at rest for the steps the sleep threshold asks is a candidate to sleep");
+        crate.IsAwake.Should().BeTrue("a candidate is put to sleep as the next step begins");
+        var resting = crate.Position;
+
+        switch (given)
+        {
+            case "velocity": crate.SetLinearVelocity(new Vector3(3, 0, 0)); break;
+            case "impulse": crate.ApplyImpulse(new Vector3(3, 0, 0)); break;
+            case "angular velocity": crate.SetAngularVelocity(new Vector3(0, 3, 0)); break;
+            case "angular impulse": crate.ApplyAngularImpulse(new Vector3(0, 3, 0)); break;
+        }
+        w.Step(1f / 60f);
+
+        crate.IsAwake.Should().BeTrue($"a crate given {given} is no longer at rest");
+        if (given.StartsWith("angular")) crate.AngularVelocity.Y.Should().BeGreaterThan(1f, "it turns in the next step");
+        else crate.Position.X.Should().BeGreaterThan(resting.X + 0.01f, "it moves in the next step");
+    }
+
     [Fact]
     public void Set_LinearVelocity_Wakes_Body_And_Persists_Across_Step()
     {

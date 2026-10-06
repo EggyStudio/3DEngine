@@ -137,7 +137,7 @@ public sealed partial class PhysicsWorld
         if (collidable.Mobility != CollidableMobility.Dynamic || change == Vector3.Zero) return;
         var body = Simulation.Bodies[collidable.BodyHandle];
         body.Velocity.Linear += change;
-        body.Awake = true;
+        Wake(body);
     }
 
     private readonly TriggerFlags _triggerFlags = new();
@@ -182,7 +182,7 @@ public sealed partial class PhysicsWorld
                 if (layer == a || layer == b) _woken.Add(handle);
             }
         }
-        foreach (var handle in _woken) Simulation.Awakener.AwakenBody(handle);
+        foreach (var handle in _woken) Wake(Simulation.Bodies.GetBodyReference(handle));
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public sealed partial class PhysicsWorld
         if (!Exists(body)) return;
         if (body.Kind != BodyKind.Static)
         {
-            Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+            Wake(Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)));
             return;
         }
 
@@ -220,7 +220,7 @@ public sealed partial class PhysicsWorld
         _woken.Clear();
         Simulation.BroadPhase.GetOverlaps(bounds.Min, bounds.Max, BufferPool, ref sleepers);
         foreach (var handle in _woken)
-            if (Simulation.Bodies.BodyExists(handle)) Simulation.Awakener.AwakenBody(handle);
+            if (Simulation.Bodies.BodyExists(handle)) Wake(Simulation.Bodies.GetBodyReference(handle));
     }
 
     private struct SleepingBodies : BepuUtilities.IBreakableForEach<CollidableReference>
@@ -296,7 +296,7 @@ public sealed partial class PhysicsWorld
         }
         if (_impulses.TryGetValue(key, out var rested)) return rested;
         foreach (var body in new[] { a, b })
-            if (body.Kind != BodyKind.Static) Simulation.Awakener.AwakenBody(new BodyHandle(body.Handle));
+            if (body.Kind != BodyKind.Static) Wake(Simulation.Bodies.GetBodyReference(new BodyHandle(body.Handle)));
         return 0;
     }
 

@@ -112,8 +112,8 @@ public sealed partial class PhysicsWorld
                 SpringSettings = JointSpring,
             });
         }
-        a.Awake = true;
-        b.Awake = true;
+        Wake(a);
+        Wake(b);
     }
 
     /// <summary>Joins two bodies at a point in the world, about which they turn only around <paramref name="axis"/>, as a door on its hinge.</summary>
@@ -185,8 +185,8 @@ public sealed partial class PhysicsWorld
             Settings = new MotorSettings(Math.Max(0, maximumTorque), 1e-4f),
         });
         var (a, b) = (Simulation.Bodies[parts.A], Simulation.Bodies[parts.B]);
-        a.Awake = true;
-        b.Awake = true;
+        Wake(a);
+        Wake(b);
     }
 
     /// <summary>Takes a hinge's limit and motor away, leaving it free to turn.</summary>
@@ -332,8 +332,8 @@ public sealed partial class PhysicsWorld
     private void WakeSlider(SliderParts parts)
     {
         var (a, b) = (Simulation.Bodies[parts.A], Simulation.Bodies[parts.B]);
-        a.Awake = true;
-        b.Awake = true;
+        Wake(a);
+        Wake(b);
     }
 
     private SliderParts SliderOf(PhysicsJoint slider) =>
@@ -417,8 +417,8 @@ public sealed partial class PhysicsWorld
     private PhysicsJoint Add<T>(BodyReference a, BodyReference b, T constraint) where T : unmanaged, ITwoBodyConstraintDescription<T>
     {
         // A joined pair is woken, so a sleeping body starts obeying its new joint.
-        a.Awake = true;
-        b.Awake = true;
+        Wake(a);
+        Wake(b);
         var handle = Simulation.Solver.Add(a.Handle, b.Handle, constraint).Value;
         // A handle is given out again once its joint went with a destroyed body, whose parts are
         // forgotten here, before the new joint's are kept.
