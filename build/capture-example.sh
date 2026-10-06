@@ -88,6 +88,11 @@ case "$driven" in
     # A color picked near the top of the wheel, where raylib's screenshot picks one.
     ./e3d command input.click 405 104 --quiet
     ;;
+  textures_bunnymark)
+    # The button held for ten frames, a hundred bunnies a frame, as raylib's screenshot has a crowd.
+    ./e3d command input.move 400 225 --quiet
+    ./e3d command input.drag Left 0 0 10 --quiet
+    ;;
   shapes_top_down_lights)
     # The first light dragged near the middle, where raylib's screenshot has it.
     ./e3d command input.click 410 270 --quiet

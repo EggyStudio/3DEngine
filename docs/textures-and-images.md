@@ -68,24 +68,27 @@ beyond it, repeated, clamped to the edge or mirrored.
 ## Generating and editing images
 
 Images are made and changed on the CPU, where every pixel can be read, then uploaded once. The
-`textures_image_drawing` example builds a picture from a gradient, shapes and another image:
+`textures_image_drawing` example crops, flips and scales one picture, draws it into another, then
+draws shapes and text over the result:
 
 ```csharp
-// An image is pixels in memory. It is edited on the CPU and uploaded once as a texture.
-var image = GenImageGradientLinear(400, 300, 45, Color.DarkBlue, Color.SkyBlue);
-ImageDrawRectangleLines(ref image, new Rectangle(0, 0, 400, 300), 4, Color.RayWhite);
-ImageDrawCircle(ref image, 300, 90, 50, Color.Gold);
-ImageDrawCircleLines(ref image, 300, 90, 60, Color.Orange);
-ImageDrawRectangle(ref image, 40, 200, 140, 60, Color.Maroon);
+Image cat = LoadImage("resources/cat.png");
+ImageCrop(ref cat, new Rectangle(100, 10, 280, 380));
+ImageFlipHorizontal(ref cat);
+ImageResize(ref cat, 150, 200);
 
-// Another image, made smaller, turned and tinted, drawn into the first with its alpha.
-var logo = LoadImage("resources/logo.png");
-ImageResize(ref logo, 96, 96);
-ImageRotateCW(ref logo);
-ImageColorTint(ref logo, Color.RayWhite.Fade(0.85f));
-ImageDraw(ref image, logo, new Rectangle(0, 0, logo.Width, logo.Height), new Rectangle(230, 170, 120, 120), Color.White);
+Image parrots = LoadImage("resources/parrots.png");
 
-var texture = LoadTextureFromImage(image);
+// The cat drawn over the parrots half as large again, and the result cropped.
+ImageDrawImagePro(ref parrots, cat, new Rectangle(0, 0, cat.Width, cat.Height),
+    new Rectangle(30, 40, cat.Width*1.5f, cat.Height*1.5f), Vector2.Zero, 0.0f, Color.White);
+ImageCrop(ref parrots, new Rectangle(0, 50, parrots.Width, parrots.Height - 100));
+ImageDrawCircleLines(ref parrots, 10, 10, 5, Color.RayWhite);
+
+Font font = LoadFont("resources/custom_jupiter_crash.png");
+ImageDrawTextEx(ref parrots, font, "PARROTS & CAT", new Vector2(300, 230), font.BaseSize, -2, Color.White);
+
+Texture2D texture = LoadTextureFromImage(parrots);
 ```
 
 An image function that changes the image takes it by `ref`, and one that makes a new image returns
@@ -136,8 +139,9 @@ page draws a scene into a texture with `BeginTextureMode`.
 ## Many sprites
 
 Drawing a texture costs little, and the immediate pass draws every sprite of one texture in one
-call. The `textures_bunnymark` example finds how many sprites a frame holds at 60 frames a second
-on the machine it runs on, which is over a hundred thousand on a desktop GPU.
+call. The `textures_bunnymark` example adds a hundred bunnies while the mouse button is held, and
+run with `--stress` finds how many sprites a frame holds at 60 frames a second on the machine it
+runs on, which is over a hundred thousand on a desktop GPU.
 
 ## See also
 

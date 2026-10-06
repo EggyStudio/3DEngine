@@ -195,3 +195,15 @@ color's factors so the black behind shows through, where alpha here is laid over
 texture stays opaque. That is a new line on the comparison page with its reason, and the culling
 line there says the three cases. The suite: 1,380 passed, 0 failed, 1 skipped, and the render
 tests pass on lavapipe under the validation layer.
+
+**Now 5, textures measured.** The 33 textures examples are 26 within 2% and 7 past it.
+`textures_image_drawing` was a program of this engine's own under raylib's name and is now raylib's,
+the cat drawn into the parrots and the font's text over them, 0.9% apart from 60.9%.
+`textures_bunnymark` was the benchmark and is now raylib's program, 0.7% apart, the benchmark kept
+behind `--stress`, which `run.sh` passes. `UpdateCamera`'s orbit reads the frame's time inside
+raylib's own file, where the linker's wrap does not reach, so the shim turns it by the frame's
+time the example reads, and `textures_framebuffer_rendering` is 1.8% apart from 5.4%. Of the 7,
+`textures_image_rotate` is the black corners of an image without alpha, `textures_image_channel` and
+`textures_portal_window` are textures drawn scaled with the bilinear filter, all three lines the
+page keeps, `textures_image_text` is a TrueType font rasterized otherwise, and the rest are the
+font. The suite: 1,380 passed, 0 failed, 1 skipped.

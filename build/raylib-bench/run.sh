@@ -33,7 +33,10 @@ echo "raylib $raylib_commit"
 echo "3DEngine $(git rev-parse --short HEAD)"
 dotnet build -c Release 3DEngine.Examples -v q >/dev/null
 for example in textures_bunnymark models_stress; do
-  ./e3d open 3DEngine.Examples/bin/Release/net10.0/3DEngine.Examples "$example" --hidden --quiet
+  # The bunnymark is raylib's own program unless asked for its benchmark.
+  stress=""
+  [ "$example" != textures_bunnymark ] || stress="--stress"
+  ./e3d open 3DEngine.Examples/bin/Release/net10.0/3DEngine.Examples "$example" $stress --hidden --quiet
   until ./e3d command profile 2>/dev/null | grep -qE '^limit [1-9]'; do sleep 2; done
   echo "  $example: $(./e3d command profile | grep '^limit')"
   ./e3d stop --quiet

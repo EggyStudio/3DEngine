@@ -1,3 +1,6 @@
+// raylib's textures_image_drawing example, Copyright (c) 2016-2025 Ramon Santamaria (@raysan5), under the
+// zlib license, written again for the flat API.
+
 using System.Numerics;
 using static Engine.Engine3D;
 
@@ -7,47 +10,57 @@ public static class TexturesImageDrawing
 {
     public static void Run()
     {
-        InitWindow(800, 450, "[textures] image drawing");
+        const int screenWidth = 800;
+        const int screenHeight = 450;
 
-        // An image is pixels in memory. It is edited on the CPU and uploaded once as a texture.
-        var image = GenImageGradientLinear(400, 300, 45, Color.DarkBlue, Color.SkyBlue);
-        ImageDrawRectangleLines(ref image, new Rectangle(0, 0, 400, 300), 4, Color.RayWhite);
-        ImageDrawCircle(ref image, 300, 90, 50, Color.Gold);
-        ImageDrawCircleLines(ref image, 300, 90, 60, Color.Orange);
-        ImageDrawRectangle(ref image, 40, 200, 140, 60, Color.Maroon);
-        for (int i = 0; i < 10; i++)
-            ImageDrawLine(ref image, 20, 20 + i * 12, 220, 120 - i * 8, Color.Lime);
+        InitWindow(screenWidth, screenHeight, "[textures] image drawing");
 
-        // Another image, made smaller, turned and tinted, drawn into the first with its alpha.
-        var logo = LoadImage("resources/logo.png");
-        ImageResize(ref logo, 96, 96);
-        ImageRotateCW(ref logo);
-        ImageColorTint(ref logo, Color.RayWhite.Fade(0.85f));
-        ImageDraw(ref image, logo, new Rectangle(0, 0, logo.Width, logo.Height), new Rectangle(230, 170, 120, 120), Color.White);
+        // Images are edited in memory, then made one texture on the GPU.
+        Image cat = LoadImage("resources/cat.png");
+        ImageCrop(ref cat, new Rectangle(100, 10, 280, 380));
+        ImageFlipHorizontal(ref cat);
+        ImageResize(ref cat, 150, 200);
 
-        // The same picture, cropped, mirrored and adjusted, beside it.
-        var detail = ImageFromImage(image, new Rectangle(200, 20, 200, 160));
-        ImageFlipHorizontal(ref detail);
-        ImageColorGrayscale(ref detail);
-        ImageColorContrast(ref detail, 40);
-        ImageResizeNN(ref detail, 300, 240);
+        Image parrots = LoadImage("resources/parrots.png");
 
-        var texture = LoadTextureFromImage(image);
-        var detailTexture = LoadTextureFromImage(detail);
+        // The cat drawn over the parrots half as large again, and the result cropped.
+        ImageDrawImagePro(ref parrots, cat, new Rectangle(0, 0, cat.Width, cat.Height),
+            new Rectangle(30, 40, cat.Width*1.5f, cat.Height*1.5f), Vector2.Zero, 0.0f, Color.White);
+        ImageCrop(ref parrots, new Rectangle(0, 50, parrots.Width, parrots.Height - 100));
+
+        ImageDrawPixel(ref parrots, 10, 10, Color.RayWhite);
+        ImageDrawCircleLines(ref parrots, 10, 10, 5, Color.RayWhite);
+        ImageDrawRectangle(ref parrots, 5, 20, 10, 10, Color.RayWhite);
+
+        UnloadImage(cat);
+
+        // Text drawn into the image in a font of its own, let go once drawn.
+        Font font = LoadFont("resources/custom_jupiter_crash.png");
+        ImageDrawTextEx(ref parrots, font, "PARROTS & CAT", new Vector2(300, 230), font.BaseSize, -2, Color.White);
+        UnloadFont(font);
+
+        Texture2D texture = LoadTextureFromImage(parrots);
+        UnloadImage(parrots);
+
         SetTargetFPS(60);
 
         while (!WindowShouldClose())
         {
             BeginDrawing();
-            ClearBackground(Color.RayWhite);
-            DrawTexture(texture, 40, 90, Color.White);
-            DrawTexture(detailTexture, 470, 120, Color.White);
-            DrawText("Drawn into images on the CPU, then uploaded as textures.", 40, 40, 20, Color.DarkGray);
+
+                ClearBackground(Color.RayWhite);
+
+                DrawTexture(texture, screenWidth/2 - texture.Width/2, screenHeight/2 - texture.Height/2 - 40, Color.White);
+                DrawRectangleLines(screenWidth/2 - texture.Width/2, screenHeight/2 - texture.Height/2 - 40, texture.Width, texture.Height, Color.DarkGray);
+
+                DrawText("We are drawing only one texture from various images composed!", 240, 350, 10, Color.DarkGray);
+                DrawText("Source images have been cropped, scaled, flipped and copied one over the other.", 190, 370, 10, Color.DarkGray);
+
             EndDrawing();
         }
 
         UnloadTexture(texture);
-        UnloadTexture(detailTexture);
+
         CloseWindow();
     }
 }

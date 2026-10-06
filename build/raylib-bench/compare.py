@@ -78,7 +78,7 @@ def build_example(source, library, example):
     built = subprocess.run(["gcc", "-O2", "-DPLATFORM_DESKTOP", os.path.join(source, example["path"]), os.path.join(HERE, "shim.c"),
                             "-I", os.path.join(source, "src"), "-I", folder, "-I", os.path.join(source, "src", "external"),
                             library, f"-L{sdl}", "-l:libSDL3.so", "-lm", "-ldl", "-lpthread", f"-Wl,-rpath,{sdl}",
-                            "-Wl,--wrap=BeginDrawing,--wrap=EndDrawing,--wrap=GetFrameTime,--wrap=GetTime,--wrap=InitWindow", "-o", binary],
+                            "-Wl,--wrap=BeginDrawing,--wrap=EndDrawing,--wrap=GetFrameTime,--wrap=GetTime,--wrap=InitWindow,--wrap=UpdateCamera", "-o", binary],
                            capture_output=True, text=True)
     if built.returncode != 0:
         print(f"  {example['name']}: raylib's program does not build here: {built.stderr.strip().splitlines()[-1] if built.stderr.strip() else ''}")

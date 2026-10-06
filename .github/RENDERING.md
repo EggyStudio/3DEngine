@@ -550,8 +550,8 @@ of it, and `SetProfileValue` adds a program's own numbers to it.
 Two examples grow what they draw until a frame takes longer than a sixtieth of a second, then
 narrow in on the largest count that held to within about 3 percent (`StressRamp`):
 
-- `textures_bunnymark`, raylib's bunnymark, 32 by 32 sprites of one texture bouncing around the
-  window, each a `DrawTexture` call.
+- `textures_bunnymark --stress`, raylib's bunnymark as the benchmark, 32 by 32 sprites of one
+  texture bouncing around the window, each a `DrawTexture` call.
 - `models_stress`, cube entities in four materials turning on a grid, under a sun with a shadow and
   two point lights, beside eight skinned arms, each its own model on its own frame.
   `E3D_STRESS_ARMS=0` leaves the arms out.
