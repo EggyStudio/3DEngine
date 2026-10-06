@@ -3,66 +3,6 @@ using StbImageSharp;
 
 namespace Engine;
 
-/// <summary>Pixels in memory, four bytes each (red, green, blue, alpha), rows from the top.</summary>
-/// <remarks>An image lives in managed memory and is collected like any array, so <see cref="Engine3D.UnloadImage"/> does nothing.</remarks>
-public readonly record struct Image(byte[] Data, int Width, int Height)
-{
-    /// <summary>Whether the image holds pixels.</summary>
-    public bool IsValid => Data is { Length: > 0 } && Width > 0 && Height > 0;
-}
-
-/// <summary>A texture on the GPU, by its id in the <see cref="TextureStore"/>, with its size.</summary>
-/// <remarks>A default texture has id 0 and is not loaded. Drawing it draws nothing.</remarks>
-public readonly record struct Texture2D(int Id, int Width, int Height)
-{
-    /// <summary>Whether this names a texture that was loaded.</summary>
-    public bool IsValid => Id > 0;
-
-    /// <summary>How many mip levels the texture has: one until <see cref="Engine3D.GenTextureMipmaps"/> makes the rest.</summary>
-    public int Mipmaps { get; init; } = 1;
-}
-
-/// <summary>An image drawing can be sent to with <see cref="Engine3D.BeginTextureMode"/>, and drawn afterward through <see cref="TextureAsset"/>.</summary>
-/// <param name="Texture">The color drawn.</param>
-/// <param name="Depth">
-/// The depth drawn, in red, from 0 at the camera's near plane to 1 at its far one, and 1 where
-/// nothing was drawn, for a shader that fogs, outlines or softens by distance.
-/// </param>
-public readonly record struct RenderTexture2D(Texture2D Texture, Texture2D Depth = default)
-{
-    /// <summary>Whether this names a render texture that was loaded.</summary>
-    public bool IsValid => Texture.IsValid;
-
-    private readonly Texture2D[]? _textures;
-
-    /// <summary>
-    /// Every texture the target draws into, in the order of the formats it was loaded with,
-    /// <see cref="Texture"/> first, and that one alone for a target loaded without formats.
-    /// </summary>
-    public IReadOnlyList<Texture2D> Textures
-    {
-        get => _textures ?? [Texture];
-        init => _textures = [.. value];
-    }
-}
-
-/// <summary>How <see cref="Engine3D.DrawTextureNPatch"/> cuts a texture: into nine patches, or three across or down.</summary>
-public enum NPatchLayout
-{
-    /// <summary>Corners kept at their size, edges stretched along their length and the middle both ways.</summary>
-    NinePatch,
-    /// <summary>A top and a bottom kept at their height, and the part between stretched down.</summary>
-    ThreePatchVertical,
-    /// <summary>A left and a right kept at their width, and the part between stretched across.</summary>
-    ThreePatchHorizontal,
-}
-
-/// <summary>
-/// The part of a texture <see cref="Engine3D.DrawTextureNPatch"/> draws, and how far in from each
-/// of its edges the borders that keep their size reach, in pixels.
-/// </summary>
-public readonly record struct NPatchInfo(Rectangle Source, int Left, int Top, int Right, int Bottom, NPatchLayout Layout = NPatchLayout.NinePatch);
-
 public static partial class Engine3D
 {
     private static readonly ILogger ApiLogger = Log.Category("Engine.Api");

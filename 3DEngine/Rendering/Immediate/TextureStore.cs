@@ -1,42 +1,5 @@
 namespace Engine;
 
-/// <summary>How a texture is sampled between its pixels.</summary>
-public enum TextureFilter
-{
-    /// <summary>The nearest pixel, so pixel art stays sharp.</summary>
-    Point,
-
-    /// <summary>A blend of the four nearest pixels, in the nearest mip level where there are mip levels.</summary>
-    Bilinear,
-
-    /// <summary>Bilinear, blended as well between the two nearest mip levels, so a texture drawn smaller and smaller shows no step between them.</summary>
-    Trilinear,
-
-    /// <summary>Trilinear, with up to 4 samples along the direction a slanted texture is squashed in, so it stays sharp at a glancing angle.</summary>
-    Anisotropic4x,
-
-    /// <summary>Trilinear, with up to 8 samples along the squashed direction.</summary>
-    Anisotropic8x,
-
-    /// <summary>Trilinear, with up to 16 samples along the squashed direction, or as many as the device allows.</summary>
-    Anisotropic16x,
-}
-
-/// <summary>What a texture shows past its edges, where a texture coordinate leaves 0 to 1.</summary>
-/// <remarks>
-/// raylib's mirror clamp is left out, since Vulkan has it only where the device turns on a feature
-/// for it.
-/// </remarks>
-public enum TextureWrap
-{
-    /// <summary>The texture again, tiled, as a floor of repeated tiles is drawn.</summary>
-    Repeat,
-    /// <summary>The edge pixel stretched on, so a sprite's edge does not take color from its far side.</summary>
-    Clamp,
-    /// <summary>The texture again, mirrored across each edge.</summary>
-    MirrorRepeat,
-}
-
 /// <summary>
 /// The textures the flat API has loaded, by id. Holds what is waiting to reach the GPU, and the
 /// ids that have been unloaded, until <see cref="ImmediateNode"/> takes them on the render thread.

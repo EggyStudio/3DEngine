@@ -14,11 +14,6 @@
 3DEngine/Api/Engine3D.Particles.cs ParticleEmitterHandle
 3DEngine/Api/Engine3D.Physics.cs Ray
 3DEngine/Api/Engine3D.Shaders.cs Shader
-3DEngine/Api/Engine3D.Textures.cs Image
-3DEngine/Api/Engine3D.Textures.cs NPatchInfo
-3DEngine/Api/Engine3D.Textures.cs NPatchLayout
-3DEngine/Api/Engine3D.Textures.cs RenderTexture2D
-3DEngine/Api/Engine3D.Textures.cs Texture2D
 3DEngine/Api/Engine3D.Waves.cs Wave
 3DEngine/Assets/Abstractions/IAssetReader.cs IAssetWatcher
 3DEngine/Assets/Data/AssetEvent.cs AssetEventKind
@@ -77,8 +72,6 @@
 3DEngine/Physics/PhysicsTypes.cs PhysicsMaterial
 3DEngine/Physics/PhysicsTypes.cs PhysicsRayCollision
 3DEngine/Platform/Audio/AudioSource.cs AudioListener
-3DEngine/Rendering/Immediate/TextureStore.cs TextureFilter
-3DEngine/Rendering/Immediate/TextureStore.cs TextureWrap
 3DEngine/Rendering/Lighting/Light.cs LightKind
 3DEngine/Rendering/Models/MeshStore.cs ModelVertex
 3DEngine/Rendering/PostProcess/FrameEffects.cs Tonemap
