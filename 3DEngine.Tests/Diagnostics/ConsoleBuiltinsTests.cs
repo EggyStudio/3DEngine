@@ -57,6 +57,7 @@ public class ConsoleBuiltinsTests
         values["entities"].Should().Be(2);
         values["entityIds"].Should().Be(4, "three ids were given out, the despawned one free to be given again");
         values["heap"].Should().BePositive();
+        values["resident"].Should().BeGreaterThan(values["managed"], "the process holds its managed memory and more");
         values.Should().NotContainKey("buffers", "with no renderer there is no device to read");
     }
 

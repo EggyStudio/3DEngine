@@ -67,10 +67,15 @@ is drawn, raylib's 800 by 450 for an example, which `build/webp.sh` encodes at q
 
 `build/soak.sh <game> <program> <seconds>` plays one of the games through `./e3d` as a player left at
 it would, restarting its level and spawning and clearing what it spawns, and reads `memory.collect`
-every ten seconds into `build/soak/<game>.csv`, and `build/soak-check.py` fails when anything it holds
-(the managed heap, the GPU's buffers, images, descriptor sets, pipelines and memory, the entities and
-their ids) climbs past what it reached earlier in the run by more than a little. CI plays the four
-games for two minutes at once this way, and a ten-minute run of each holds level on the desktop.
+every ten seconds into `build/soak/<game>.csv`, on a clock of its own beside the play, so a slow
+device whose turns take minutes still gives a reading every ten seconds, and draws the game at 320
+by 180, which lets a device drawing on its CPU play more of it. `build/soak-check.py` fails when
+anything it holds (the managed heap, the GPU's buffers, images, descriptor sets, pipelines and
+memory, the entities and their ids) rises at its least in the second half of the run past its least
+in the first by more than a little, as a leak does and a level streamed in and let go does not, or
+a game could not be played through, naming the game, what climbed with its numbers or the command
+that ended its soak, and the process's resident memory. CI plays every game for two minutes at once
+this way, and a ten-minute run of each holds level on the desktop.
 
 `build/examples-table.py` writes `.github/EXAMPLES.md`, a row for each of raylib's examples, from
 the `examples_list.txt` of the raylib `build/raylib-bench/run.sh` pins, fetched once under
@@ -80,7 +85,8 @@ raylib's name, and otherwise its state is its line in `3DEngine.Examples/triage.
 fails where the table is out of date, which `build.yml` runs.
 
 `build/raylib-bench/compare.py <group, example or all>` builds raylib's own program of each written
-example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library, runs
+example, as `run.sh` builds raylib, with SDL3's headers and the engine package's SDL3 library, linked
+under the name a program loads it by (`libSDL3.so.0`, which the package does not bring), runs
 it and the example here to the same frame, and writes the share of pixels apart into
 `3DEngine.Examples/measured.tsv`, which the table shows. raylib's programs draw through SDL's
 offscreen driver with OpenGL, which Mesa gives on a machine with no GPU (`libegl1`, `libegl-mesa0`
@@ -88,7 +94,8 @@ and `libgl1-mesa-dri` on Ubuntu), and the pictures are compared with Pillow (`py
 `build.yml` measures every pair with `--against 3DEngine.Examples/measured-ci.tsv`, the shares its
 own device recorded, and fails where one stands more than a point above its share, leaving out a
 pair whose line in `triage.tsv` marks it as moving by the clock or the device. A pair it measures
-for the first time is listed in the run's summary, to be recorded in that file.
+for the first time is listed in the run's summary, to be recorded in that file. A run where raylib's
+programs drew no frame for any pair records nothing and fails, saying why the first drew none.
 
 `build/storm.sh <program> <png>` resizes a program a frame apart through odd sizes, minimizes and
 restores it and moves it to each monitor there is, under the validation layer, then captures a

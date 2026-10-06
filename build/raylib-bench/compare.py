@@ -22,7 +22,8 @@ into 3DEngine.Examples/measured.tsv, which build/examples-table.py puts beside t
 --record writes the shares into the file given in place of measured.tsv. --against holds each pair
 to the share the file given recorded for it on the same machine before, and the run fails where a
 pair stands more than one point above it, where it drew a frame and draws none, or where its
-pictures came to differ in size. A pair with no share recorded is measured and recorded for the
+pictures came to differ in size. A run in which raylib's programs drew no frame for any pair, as
+where they cannot start, records nothing and fails, saying why the first drew none. A pair with no share recorded is measured and recorded for the
 first time, and one triage.tsv marks as moving, by the clock or the device, is left out, with its
 reason. Where the file holds no share at all, as before its first run is recorded, what would fail
 is said and the run does not fail. The build workflow's examples job runs every pair so, against
@@ -31,9 +32,9 @@ never compared with each other. Under GitHub Actions the pairs measured for the 
 notices as well, at most ten, which a reader not signed in sees where the run's summary and its
 files need a sign-in.
 """
-import glob
 import importlib.util
 import os
+import re
 import subprocess
 import sys
 
@@ -58,11 +59,25 @@ _spec.loader.exec_module(table)
 
 
 def sdl_library():
-    """The folder of the SDL3 library the engine's package brings, which raylib is linked against."""
-    found = sorted(glob.glob(os.path.expanduser("~/.nuget/packages/sdl3-cs.native/*/runtimes/linux-x64/native/libSDL3.so")))
-    if not found:
-        sys.exit("no libSDL3.so under ~/.nuget/packages/sdl3-cs.native; build the solution first")
-    return os.path.dirname(found[-1])
+    """A folder holding the SDL3 library of the version the engine references, which raylib is linked
+    against, under its own name and the name a program built against it loads it by, libSDL3.so.0.
+    The package brings the first alone, so a program linked to the package's folder loads whatever
+    SDL3 the system has, and on a machine with none, as the workflow's runner is, fails to start."""
+    with open(os.path.join(ROOT, "3DEngine", "3DEngine.csproj"), encoding="utf-8") as project:
+        version = re.search(r'Include="SDL3-CS\.Native" Version="([^"]+)"', project.read()).group(1)
+    library = os.path.expanduser(f"~/.nuget/packages/sdl3-cs.native/{version.lower()}/runtimes/linux-x64/native/libSDL3.so")
+    if not os.path.exists(library):
+        sys.exit(f"no {library}; build the solution first")
+    folder = os.path.join(WORK, "sdl-library")
+    os.makedirs(folder, exist_ok=True)
+    for name in ("libSDL3.so", "libSDL3.so.0"):
+        link = os.path.join(folder, name)
+        if os.path.islink(link) and os.readlink(link) == library:
+            continue
+        if os.path.lexists(link):
+            os.remove(link)
+        os.symlink(library, link)
+    return folder
 
 
 def build_raylib(source):
@@ -86,7 +101,8 @@ def build_example(source, library, example):
     binary = os.path.join(OUT, "bin", example["name"])
     os.makedirs(os.path.dirname(binary), exist_ok=True)
     shim = os.path.join(HERE, "shim.c")
-    if os.path.exists(binary) and os.path.getmtime(binary) > os.path.getmtime(shim):
+    # Built again when the shim or the way this script builds it has changed since.
+    if os.path.exists(binary) and os.path.getmtime(binary) > max(os.path.getmtime(shim), os.path.getmtime(__file__)):
         return binary
     sdl = sdl_library()
     folder = os.path.join(source, "examples", example["group"])
@@ -116,7 +132,8 @@ def capture_ours(name):
 
 
 def capture_theirs(binary, example, frame):
-    """raylib's frame of the same number, or None where the program ended or hung before it."""
+    """raylib's frame of the same number, or None where the program ended or hung before it, and
+    why it drew none: its exit code and its last lines."""
     picture = os.path.join(OUT, example["name"] + ".raylib.png")
     if os.path.exists(picture):
         os.remove(picture)
@@ -124,10 +141,15 @@ def capture_theirs(binary, example, frame):
                        SHOT_FRAME_TIME=repr(FRAME_TIME), SHOT_SEED=str(SEED))
     folder = os.path.join(table.raylib_source(table.raylib_commit(), None), "examples", example["group"])
     try:
-        subprocess.run([binary], cwd=folder, env=environment, timeout=120, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        ran = subprocess.run([binary], cwd=folder, env=environment, timeout=120, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             text=True, errors="replace")
     except subprocess.TimeoutExpired:
-        return None
-    return picture if os.path.exists(picture) else None
+        return None, ["it ran past 120 seconds without its frame"]
+    if os.path.exists(picture):
+        return picture, []
+    # A program that ended without its frame says why in its last lines, which a library it could
+    # not load, or a window it could not open, is.
+    return None, [f"it ended with {ran.returncode}"] + ran.stdout.strip().splitlines()[-LAST_LINES:]
 
 
 def apart(ours, theirs):
@@ -170,6 +192,9 @@ def option(name):
     return arguments[arguments.index(name) + 1] if name in arguments and arguments.index(name) + 1 < len(arguments) else None
 
 
+# How many of the last lines of raylib's program are kept to say why it drew no frame.
+LAST_LINES = 4
+
 # How far, in points of the share, a pair may stand above the share recorded for it before a run held
 # against the record fails, room for a driver's rounding that moves from run to run.
 ROOM = 1.0
@@ -182,6 +207,14 @@ def held(name, share, recorded):
     if share in ("none", "size") or recorded in ("none", "size"):
         return None if share == recorded else f"it was {recorded} and is {share}"
     return f"{share}% apart where {recorded}% was recorded" if float(share) > float(recorded) + ROOM else None
+
+
+def nothing_drawn(blind, count):
+    """What fails a run in which raylib's programs drew no frame for any of its count pairs, given the
+    first pair's name and why it drew none."""
+    name, why = blind
+    return ([f"raylib's program drew no frame for any of the {count} pairs, so the measure saw nothing and records nothing.",
+             f"The first, {name}, drew none because:"] + [f"  {line}" for line in why])
 
 
 def notices(names, measured):
@@ -218,6 +251,10 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     measured = read_measured(record) if record else read_measured()
     failures, first = [], []
+    # Whether any of raylib's programs drew its frame, and why the first that drew none did not. A
+    # run where none drew is a measure that sees nothing, as on a machine where raylib's programs
+    # cannot start, so it records nothing and fails.
+    drew, blind = False, None
     for example in examples:
         name = example["name"]
         binary = build_example(source, library, example)
@@ -232,11 +269,13 @@ def main():
             if against:
                 failures.append(f"{name}: this engine's capture failed")
             continue
-        theirs = capture_theirs(binary, example, frame)
+        theirs, why = capture_theirs(binary, example, frame)
         if theirs is None:
             measured[name] = "none"
-            print(f"  {name}: raylib's program drew no frame {frame}")
+            print(f"  {name}: raylib's program drew no frame {frame}, " + "; ".join(why[:2]))
+            blind = blind or (name, why)
         else:
+            drew = True
             share = apart(ours, theirs)
             measured[name] = "size" if share is None else f"{100 * share:.1f}"
             print(f"  {name}: frame {frame}, " + ("the pictures are of two sizes" if share is None else f"{100 * share:.1f}% apart"))
@@ -245,7 +284,13 @@ def main():
                 first.append(name)
             elif (why := held(name, measured[name], recorded[name])) is not None:
                 failures.append(f"{name}: {why}")
-        write_measured(measured, record or MEASURED)
+        if drew:
+            write_measured(measured, record or MEASURED)
+    if not drew and blind is not None:
+        lines = nothing_drawn(blind, len(examples))
+        print("\n".join(lines))
+        annotate("error", "No frame from raylib's programs", lines)
+        sys.exit(1)
     write_measured(measured, record or MEASURED)
 
     if first:

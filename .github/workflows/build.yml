@@ -423,20 +423,21 @@ jobs:
 
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
-      # leveling off (build/soak-check.py), as a leak does.
+      # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
+      # names the game, what climbed with its numbers or the command that ended it, and its log's
+      # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
+          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo)
           pids=()
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo; do
+          for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
           done
-          failed=0
-          for pid in "${pids[@]}"; do wait "$pid" || failed=1; done
+          for i in "${!pids[@]}"; do wait "${pids[$i]}" || echo "the soak of ${games[$i]} ended early"; done
           cat captures/soak-*.log
           cp build/soak/*.csv captures/
-          python3 build/soak-check.py build/soak/*.csv || failed=1
-          if [ "$failed" = 1 ]; then echo "::error::a game grew, or could not be played, over two minutes"; exit 1; fi
+          python3 build/soak-check.py build/soak/*.csv
 
       # Each game and a handful of examples resized, minimized and restored while they draw, under
       # the validation layer, then captured at the size last asked for (build/storm.sh).

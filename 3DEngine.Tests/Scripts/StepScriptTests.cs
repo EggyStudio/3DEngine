@@ -110,6 +110,31 @@ public sealed class StepScriptTests : IDisposable
     }
 
     [NeedsPythonFact]
+    public void A_Measure_Where_Raylib_Drew_No_Frame_For_Any_Pair_Says_Why_The_First_Drew_None()
+    {
+        // The examples job of 22bbf15a, where every program failed to load SDL and every pair was
+        // recorded as having no frame (REVIEW.md, Verdict 31).
+        var program = "import compare\n"
+                      + "print('\\n'.join(compare.nothing_drawn(('core_basic_window', ['it ended with 127', "
+                      + "'error while loading shared libraries: libSDL3.so.0: cannot open shared object file']), 221)))\n";
+        var start = TestScriptTests.Utf8(new ProcessStartInfo(Probes.Python.Value!) { WorkingDirectory = Path.Combine(Root, "build", "raylib-bench"), RedirectStandardOutput = true, RedirectStandardError = true });
+        start.ArgumentList.Add("-c");
+        start.ArgumentList.Add(program);
+        start.Environment["PYTHONDONTWRITEBYTECODE"] = "1";
+        using var python = Process.Start(start)!;
+        var output = python.StandardOutput.ReadToEndAsync();
+        var errors = python.StandardError.ReadToEndAsync();
+        python.WaitForExit(60_000).Should().BeTrue();
+        python.ExitCode.Should().Be(0, errors.Result);
+
+        TestScriptTests.Lines(output.Result.TrimEnd()).Should().Equal(
+            "raylib's program drew no frame for any of the 221 pairs, so the measure saw nothing and records nothing.",
+            "The first, core_basic_window, drew none because:",
+            "  it ended with 127",
+            "  error while loading shared libraries: libSDL3.so.0: cannot open shared object file");
+    }
+
+    [NeedsPythonFact]
     public void The_Pairs_Measured_For_The_First_Time_Are_No_More_Than_Ten_Notices_Holding_Every_Pair()
     {
         var names = Enumerable.Range(0, 215).Select(i => $"shapes_example_{i}").ToArray();

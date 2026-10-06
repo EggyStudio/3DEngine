@@ -158,14 +158,14 @@ internal static class ConsoleBuiltins
         }
     }
 
-    [Command("memory", "What the program holds, as name and number pairs: managed memory, entities, the asset server's assets, and the GPU's buffers, images, descriptor sets, pipelines and memory")]
+    [Command("memory", "What the program holds, as name and number pairs: managed memory, the process's resident memory, entities, the asset server's assets, and the GPU's buffers, images, descriptor sets, pipelines and memory")]
     internal static string Memory()
     {
         // Read as the program left them, without a collection, so a climb shows as it happens and
         // a reader can force one with its own spacing between reads.
         var managed = GC.GetTotalMemory(forceFullCollection: false);
         var heap = GC.GetGCMemoryInfo().HeapSizeBytes;
-        var line = $"managed {managed} heap {heap} gen2 {GC.CollectionCount(2)}";
+        var line = $"managed {managed} heap {heap} gen2 {GC.CollectionCount(2)} resident {Environment.WorkingSet}";
         if (ConsoleHost.World?.TryGetResource<EcsWorld>(out var ecs) == true)
             line += $" entities {ecs.EntityCount} entityIds {ecs.EntityIdRange}";
         // The files the asset server knows, which a level that lets nothing go climbs by as it streams.
