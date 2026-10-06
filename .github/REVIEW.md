@@ -10,16 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9ddd9f02`. The six rounded meshes are par_shapes' as raylib makes them, every corner
-matching raylib's within a hundred thousandth and every 37th held against a C program's print, the
-sphere's poles on z and the hemisphere open below as raylib's are (`610d6b74`). Sound, music and
-stream pans take raylib's range of -1 to 1 with the middle at 0 where they took 0 to 1, checked here
-against the pinned `raylib.h`, since raylib's own range changed from 0 to 1 after its 5.5;
-`audio_raw_stream` is a port of raylib's program, and ten of the eleven audio programs are measured,
-five within 2%, `audio_module_playing` waiting on the owner's word on a decoder (`47351deb`). The
-sieve's coordinate and the bloom example's grid end as lines of the page, each a driver's rounding,
-and every example written has its number in the table (`9ddd9f02`). With that, the seven modules are
-measured once over, and the font is the largest part of nearly every share left. No verdict is open.
+Reviewed up to `f9004abf`. raylib's eight automation functions are carried, each frame's input
+recorded as `EndDrawing` begins into raylib's text format and played back, with the engine's own key
+codes, which the page says, and `core_automation_events` is written, 1.0% apart (`3082aad5`).
+`LoadImageFromScreen` reads the last frame presented, kept from its first call on so a program that
+never reads the screen pays nothing, the first call giving the window's size in the clear color, and
+a call inside a frame reads the frame before as well, since nothing of a frame is on the GPU before
+`EndDrawing`, decided here on 2026-10-06 and kept on the page with that reason;
+`core_screen_recording` is written with a GIF writer of its own, 0.2% apart, and 515 of 619
+functions are carried (`53d99c7e`). Four types moved into files of their names, N 1.2's list at 94
+(`0019d177`). TODO.md's cost entries are measured again: the per-entity entry keeps 410,266 entities
+in 17.7 ms and names two changes with their savings, as decided, and the first-use stalls are the
+runtime's compiling, 629 ms in Manor's first frame run from its project and 30 ms built native, so
+the entry names packing the engine compiled ahead for each platform as the owner's to weigh
+(`f9004abf`). The owner pushed, and the run of `0019d177` is under way. No verdict is open.
+
+Before them, the six rounded meshes became par_shapes' as raylib makes them, every corner matching
+raylib's within a hundred thousandth and every 37th held against a C program's print, the sphere's
+poles on z and the hemisphere open below as raylib's are (`610d6b74`). Sound, music and stream pans
+take raylib's range of -1 to 1 with the middle at 0 where they took 0 to 1, checked here against the
+pinned `raylib.h`, since raylib's own range changed from 0 to 1 after its 5.5; `audio_raw_stream` is
+a port of raylib's program, and ten of the eleven audio programs are measured, five within 2%,
+`audio_module_playing` waiting on the owner's word on a decoder (`47351deb`). The sieve's coordinate
+and the bloom example's grid end as lines of the page, each a driver's rounding, and every example
+written has its number in the table (`9ddd9f02`). With that, the seven modules were measured once
+over, the font the largest part of nearly every share left.
 
 Before them, the 36 shaders examples were measured, 25 within 2%. `shaders_mesh_instancing` and
 `shaders_postprocessing` were programs of this engine's own under raylib's names and are raylib's,
@@ -31,19 +46,6 @@ mesh under a node scaled more one way than another had its normals turned by the
 rather than its inverse turned over. raylib leaving such normals one over the scale long, so a cel
 outline is thicker there, is a line of the page, and the `materials_and_shader` reference is drawn
 again for the cube's texture (`0f26acf3`).
-
-Before them, `MeasureTextEx` counted a spacing after every character where raylib counts one fewer,
-so centered text sat half a spacing left, and measures as raylib's does, `text_font_sdf` and
-`text_input_box` being raylib's own programs from here on; the 16 text examples are 8 within 2%, the
-rest the font, Latin-1 where raylib loads ASCII, or a TrueType font rasterized otherwise
-(`6fa69925`). A model drawn before a program makes a light is unlit as raylib's is, texture times
-color with its emission, decided here on 2026-10-06, the first light turning lighting on as before,
-six of the engine's own examples making a sun and a fill, and three reference frames redrawn with
-the reason. Measuring found two faults more: Assimp's gray default material of 0.6 on a file naming
-none, where raylib's is white, so a texture on it showed at six tenths, and `DrawPoint3D` drawn as a
-cross where raylib draws a short line along z, both mended with tests. `models_loading` is raylib's
-castle in place of a torus of this engine's own, and the 31 models examples are 24 within 2% from
-12, `models_basic_voxel` from 65.9% among them (`5b03dfe1`). No verdict is open.
 
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
@@ -159,53 +161,13 @@ None open.
 
 ## Replies
 
-**Now 2, automation events carried.** With every row that can be written written, the five missing
-hold one example each, and the eight automation functions were the largest gap that needed no
-decision. `LoadAutomationEventList`, `UnloadAutomationEventList`, `ExportAutomationEventList`,
-`SetAutomationEventList`, `SetAutomationEventBaseFrame`, `StartAutomationEventRecording`,
-`StopAutomationEventRecording` and `PlayAutomationEvent` do what raylib's do. Each frame's input is
-recorded as `EndDrawing` begins, a held key an event in every frame and another when it comes up,
-the pointer, wheel, fingers and a pad's axes when they move, into raylib's text format, and playing
-an event sets the input it records for the frame it is played in, ImGui's included. Keys are written
-by the engine's own codes, which the comparison page says, so a file of raylib's plays its frames
-and types here and not its keys. `core_automation_events` is written, 1.0% apart from raylib's
-picture, and a run recorded with S and played with A through `./e3d` in a hidden window moves the
-player as recorded. 514 of 619 functions are carried, and the suite: 1,396 passed, 0 failed, 1
-skipped.
-
-**A question on `LoadImageFromScreen`**, which `core_screen_recording` needs beside a GIF writer of
-its own, as raylib's example includes msf_gif. A call made in the loop comes after the last frame
-was presented, and a presented swapchain image cannot be read, so the frame has to be copied before
-it is presented. Keeping a copy every frame makes every program pay for what few read, which
-DESIGN.md §5's "every query would pay for what few keep" argues against, and keeping copies from the
-first call on leaves the first call with nothing to return. I can take either, or leave it not
-carried as it is. The remaining three are VR stereo, cubemap textures for `models_skybox_rendering`,
-and an XM and MOD decoder, which DESIGN.md §8 would have to allow as a dependency or the engine
-write.
-
-**Now 2, `LoadImageFromScreen` carried as decided.** Each frame is copied as it is presented from
-the first call on, so a program that never reads the screen pays nothing, and until a frame is kept
-the call gives the window's size in the last clear color, which the cheatsheet says. One part is
-otherwise than asked. A call inside a frame reads the frame before as well, because nothing of a
-frame is on the GPU before `EndDrawing`, the draw lists being rendered in `Stage.Last` and cleared
-as they are drawn, so the frame as drawn so far would mean running the render graph twice in a frame
-into a target of its own. The page keeps the difference with that reason. A test on the GPU reads
-the first call as the clear color, the second as the frame drawn, and a call inside the next frame
-as the frame before, and the render tests pass on lavapipe under the validation layer.
-`core_screen_recording` is written, 0.2% apart from raylib's picture, with a GIF writer of the
-example's own in the place of the msf_gif.h raylib's includes, and a recording made through `./e3d`
-with Ctrl and R decodes as 19 frames of the scene. 515 of 619 functions are carried, and the suite:
-1,397 passed, 0 failed, 1 skipped.
-
-**Now 3, TODO.md's cost entries measured again.** The per-entity entry keeps its fresh run, 410,266
-entities in a 17.7 ms frame with the command that made it, and names the two changes and what each
-would save, as decided. The one-time hitches were measured frame by frame, with a trace of each
-frame's costs, pipeline creation, device memory and the runtime's compiling, kept out of the commit.
-They are the compiler's. Manor's first shown frame spends 629 ms compiling across its threads and
-its first probe and point shadows 23 to 27 ms each, while the nine pipelines it makes take under 1.5
-ms together and the first memory, 11 ms, comes before the first frame. Built native, as a player
-gets it, the first frame shown takes 30 ms and the autopilot's minute-long walk is 18 ms at worst,
-against 57 ms for the build `dotnet run` makes, so there is nothing of them to mend in the engine's
-frame. The entry now says so, with the run that measured it, and names packing the engine compiled
-ahead (ReadyToRun) for each platform as what would take the rest from a game run from its project,
-at a few megabytes a platform, which is the owner's to weigh.
+**Now 3, a particle sheet's frames blend.** TODO.md's particle entry had two gaps, and the smaller
+is mended: `ParticleEmitter.BlendFrames` mixes each frame of a sheet with the next by how far the
+particle's life is through the frame's share, so smoke rolling through a few frames turns smoothly,
+where a sheet of drawn frames keeps its cuts, the default. The vertex stage passes the next frame's
+coordinate and the share beside `ModelVertexOutput`, and the fragment stage samples both under a
+branch on the emitter's setting, which every pixel of the draw shares, so the second sample keeps
+its derivatives. A test draws two particles born together, the one blending showing some of the next
+frame's blue and the other none, and the particle and reference tests pass on lavapipe under the
+validation layer. The entry keeps particles colliding with the world. The suite: 1,398 passed, 0
+failed, 1 skipped.

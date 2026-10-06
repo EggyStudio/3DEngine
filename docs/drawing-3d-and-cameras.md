@@ -222,7 +222,8 @@ Texture = smoke,
 
 A texture can also be a sheet of frames, `TextureColumns` across and `TextureRows` down, which
 each particle plays through over its life, left to right and then down, as a flame or an explosion
-drawn frame by frame is. A texture is the program's, loaded with `LoadTexture`, so a scene file
+drawn frame by frame is. With `BlendFrames` set each frame blends into the next over its share of
+the life, so smoke rolling through a few frames turns smoothly. A texture is the program's, loaded with `LoadTexture`, so a scene file
 does not hold it. Its sparks
 do not stream and are thrown out a hundred and twenty at a time:
 

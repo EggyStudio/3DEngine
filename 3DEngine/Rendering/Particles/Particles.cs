@@ -166,15 +166,16 @@ internal sealed class ParticleRenderer : IDisposable
         return BitConverter.Int32BitsToSingle((int)((mixed & 0x007FFFFFu) | 0x3F800000u));
     }
 
-    // Whether it is lit, whether it is textured, and the sheet's columns and rows less one, packed
-    // into one float as an integer below 2^18, which a float holds exactly, since the push block
-    // has no room left. particles.slang unpacks it.
+    // Whether it is lit, whether it is textured, the sheet's columns and rows less one, and whether
+    // its frames blend, packed into one float as an integer below 2^19, which a float holds exactly,
+    // since the push block has no room left. particles.slang unpacks it.
     private static float Flags(in ParticleEmitter emitter)
     {
         var columns = Math.Clamp(emitter.TextureColumns, 1, 256) - 1;
         var rows = Math.Clamp(emitter.TextureRows, 1, 256) - 1;
         var textured = emitter.Texture.IsValid;
-        return (emitter.Lit ? 1 : 0) | (textured ? 2 : 0) | (textured ? columns << 2 | rows << 10 : 0);
+        return (emitter.Lit ? 1 : 0) | (textured ? 2 : 0) | (textured ? columns << 2 | rows << 10 : 0)
+            | (textured && emitter.BlendFrames ? 1 << 18 : 0);
     }
 
     private static Vector4 Linear(Color color) =>

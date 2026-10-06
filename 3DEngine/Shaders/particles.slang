@@ -19,14 +19,29 @@ static const uint Header = 4;
 static const float2 corners[6] = { float2(-1, -1), float2(1, -1), float2(1, 1), float2(-1, -1), float2(1, 1), float2(-1, 1) };
 
 // How the emitter is drawn, which Particles.cs packs into the look's last value: bit 0 lit, bit 1
-// textured, then the texture's columns and rows of frames, less one, eight bits each.
+// textured, then the texture's columns and rows of frames, less one, eight bits each, and bit 18
+// whether a sheet's frames blend.
 bool isLit(float4 look) { return (uint(look.w) & 1u) != 0u; }
 bool isTextured(float4 look) { return (uint(look.w) & 2u) != 0u; }
 uint2 sheet(float4 look) { return uint2(((uint(look.w) >> 2u) & 255u) + 1u, ((uint(look.w) >> 10u) & 255u) + 1u); }
+bool blendsFrames(float4 look) { return (uint(look.w) & (1u << 18u)) != 0u; }
+
+// What every particle's square gives the fragment stage, with the next frame of a sheet and how
+// far the particle is from this frame to it, which a sheet whose frames blend mixes.
+struct ParticleOutput
+{
+    ModelVertexOutput base;
+    float2 nextUv : TEXCOORD3;
+    nointerpolation float blend : TEXCOORD4;
+};
+
+// Where a corner of the square falls on one frame of a sheet, left to right and then down.
+float2 frameUv(uint frame, uint2 frames, float2 uv) { return (float2(frame % frames.x, frame / frames.x) + uv) / float2(frames); }
 
 [shader("vertex")]
-ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_InstanceID)
+ParticleOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_InstanceID)
 {
+    ParticleOutput particleOutput = (ParticleOutput)0;
     ModelVertexOutput output = (ModelVertexOutput)0;
     // Sorted, the instance is the sorted key's particle, drawn far to near.
     uint capacity = uint(slots[3].x);
@@ -37,7 +52,8 @@ ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Insta
     if (velocityLife.w <= 0.0)
     {
         output.position = float4(0, 0, 0, 1);
-        return output;
+        particleOutput.base = output;
+        return particleOutput;
     }
 
     float t = saturate(positionAge.w / velocityLife.w);
@@ -61,25 +77,37 @@ ModelVertexOutput vertexMain(uint vertex : SV_VertexID, uint instance : SV_Insta
     if (isTextured(look))
     {
         uint2 frames = sheet(look);
-        uint frame = min(uint(t * float(frames.x * frames.y)), frames.x * frames.y - 1u);
-        output.uv = (float2(frame % frames.x, frame / frames.x) + output.uv) / float2(frames);
+        uint count = frames.x * frames.y;
+        float played = t * float(count);
+        uint frame = min(uint(played), count - 1u);
+        float2 corner01 = output.uv;
+        output.uv = frameUv(frame, frames, corner01);
+        // The last frame has none after it, and is held.
+        particleOutput.nextUv = frameUv(min(frame + 1u, count - 1u), frames, corner01);
+        particleOutput.blend = blendsFrames(look) ? saturate(played - float(frame)) : 0.0;
     }
     output.toEye = eye.w == 0.0 ? eye.xyz : eye.xyz - output.world;
     output.color = lerp(slots[0], slots[1], t);
     // Not metallic, wholly rough, with no normal map or occlusion.
     output.factors = float4(0, 1, 0, 0);
-    return output;
+    particleOutput.base = output;
+    return particleOutput;
 }
 
 [shader("fragment")]
-float4 fragmentMain(ModelVertexOutput input) : SV_Target
+float4 fragmentMain(ParticleOutput particle) : SV_Target
 {
+    ModelVertexOutput input = particle.base;
     float4 look = slots[2];
     float3 color = input.color.rgb;
     float alpha = input.color.a;
     if (isTextured(look))
     {
         float4 texel = boundTexture.Sample(input.uv);
+        // On the emitter's setting, the same for every particle of the draw, so both samples are
+        // taken in control flow every pixel shares.
+        if (blendsFrames(look))
+            texel = lerp(texel, boundTexture.Sample(particle.nextUv), particle.blend);
         color *= texel.rgb;
         alpha *= texel.a;
     }

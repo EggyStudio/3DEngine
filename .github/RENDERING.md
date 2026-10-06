@@ -263,9 +263,11 @@ the base color, white without one, and the window's lights set as sets 0 and 1 a
 as set 2, and draws six vertices an instance, a square facing the camera's eye that `eyeInWorld`
 finds from the view-projection, after the window's meshes into the window or the HDR frame, depth
 tested and not written, added or laid over by alpha. The square is a round dot, or the texture
-tinted where the emitter has one, whole or the frame of a sheet the share of the life gone picks.
-The look's last value packs whether it is lit and textured and the sheet's columns and rows into
-an integer a float holds exactly, since the push block has no room left.
+tinted where the emitter has one, whole or the frame of a sheet the share of the life gone picks,
+mixed with the next frame by how far the life is through its own where the emitter blends them,
+the branch on the emitter's setting so both samples are taken where every pixel takes them.
+The look's last value packs whether it is lit and textured, the sheet's columns and rows and
+whether they blend into an integer a float holds exactly, since the push block has no room left.
 A lit particle goes through `lit` as a rough surface facing the camera and an unlit one through
 `toDisplay`, so both follow the HDR frame's output flag. Emitters laid over by alpha are drawn after
 the additive ones, from the farthest from the camera's eye to the nearest by where each emitter is.

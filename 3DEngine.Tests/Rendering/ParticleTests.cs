@@ -238,6 +238,36 @@ public sealed class ParticleTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void A_Sheet_Whose_Frames_Blend_Mixes_In_The_Next_Frame_As_A_Life_Goes_On()
+    {
+        Open();
+        // Red then blue, over a life of two seconds, on two particles born together, the left one
+        // blending its frames and the right one not.
+        var image = GenImageColor(16, 8, Color.Blue);
+        ImageDrawRectangle(ref image, 0, 0, 8, 8, Color.Red);
+        var texture = LoadTextureFromImage(image);
+        ParticleEmitter Sheet(bool blend) => Cloud(Color.White) with
+        {
+            MaxParticles = 1, Radius = 0, StartSize = 1, EndSize = 1, Life = 2, LifeVariation = 0,
+            Texture = texture, TextureColumns = 2, TextureRows = 1, BlendFrames = blend,
+        };
+        var blended = CreateParticleEmitter(new Vector3(-1, 0, 0), Sheet(blend: true));
+        var cut = CreateParticleEmitter(new Vector3(1, 0, 0), Sheet(blend: false));
+        EmitParticles(blended, 1);
+        EmitParticles(cut, 1);
+        // About 0.3 seconds old, three tenths of the way through the first frame's share.
+        GetApp().World.Resource<Time>().FrameSeconds = 0.1;
+        var frame = Capture(3);
+        var mixed = GetImageColor(frame, 56, 60);
+        var held = GetImageColor(frame, 104, 60);
+
+        ((int)held.R).Should().BeGreaterThan(held.B + 100, $"a sheet that does not blend shows its first frame alone, not {held}");
+        ((int)mixed.B).Should().BeGreaterThan(held.B + 40, $"one that blends has some of the next frame's blue in it, not {mixed} beside {held}");
+        ((int)mixed.R).Should().BeGreaterThan(mixed.B, $"and is still more of the first frame than of the next, not {mixed}");
+        UnloadTexture(texture);
+    }
+
+    [NeedsVulkanFact]
     public void Of_Two_Clouds_Laid_Over_By_Alpha_The_Nearer_Is_In_Front_Whichever_Was_Made_First()
     {
         Open();

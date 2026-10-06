@@ -2272,6 +2272,7 @@ struct Engine.ParticleEmitter
   Texture2D Texture
   Vector3 Gravity
   Vector3 Velocity
+  bool BlendFrames
   bool Emitting
   bool Lit
   float Drag

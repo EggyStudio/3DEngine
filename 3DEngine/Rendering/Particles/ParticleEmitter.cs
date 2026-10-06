@@ -119,6 +119,13 @@ public struct ParticleEmitter
     /// <summary>How many rows of frames <see cref="Texture"/> holds, 0 or 1 for one.</summary>
     public int TextureRows;
 
+    /// <summary>
+    /// Whether a sheet's frames blend from one into the next over each frame's share of a life, as
+    /// smoke that rolls is drawn smooth from a few frames, in place of each frame shown whole until
+    /// the next replaces it, as a sheet of drawn frames is meant to be seen.
+    /// </summary>
+    public bool BlendFrames;
+
     /// <summary>Particles to give off at once in the next frame, beside the rate, which drawing them clears.</summary>
     public int Burst;
 
