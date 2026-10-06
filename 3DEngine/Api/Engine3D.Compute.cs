@@ -225,7 +225,7 @@ public static partial class Engine3D
 
         if (!ComputePipelines.TryGetValue(shader.Id, out var pipeline))
             ComputePipelines[shader.Id] = pipeline = device.CreateComputePipeline(spirv, program.UniformSize, [.. program.Buffers.Select(b => b.Binding)],
-                [.. program.Images.Select(i => i.Binding)], [.. program.Textures.Select(t => t.Binding)]);
+                [.. program.Images.Select(i => i.Binding)], [.. program.Textures.Select(t => (t.Binding, t.Type))]);
         device.Dispatch(pipeline, UniformValues.GetValueOrDefault(shader.Id) ?? [], buffers, (uint)groupsX, (uint)groupsY, (uint)groupsZ, images, textures);
     }
 

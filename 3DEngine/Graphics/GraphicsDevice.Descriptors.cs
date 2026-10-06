@@ -89,20 +89,23 @@ internal sealed unsafe partial class GraphicsDevice
     // Makes another pool of the same size, the one new sets come from.
     private void AddDescriptorPool()
     {
-        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers and 1024 storage buffers, maxSets=4096)...");
-        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[4];
+        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers, 1024 storage buffers and 1024 each of images and samplers apart, maxSets=4096)...");
+        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[6];
         poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
         // A model pass set holds five maps, so samplers run out first.
         poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 16384);
         poolSizes[2] = new VkDescriptorPoolSize(VkDescriptorType.UniformBufferDynamic, 4096);
         // For the storage buffers a drawing shader reads, which few draws have.
         poolSizes[3] = new VkDescriptorPoolSize(VkDescriptorType.StorageBuffer, 1024);
+        // For a program's shaders that declare a texture and its sampler apart, which few do.
+        poolSizes[4] = new VkDescriptorPoolSize(VkDescriptorType.SampledImage, 1024);
+        poolSizes[5] = new VkDescriptorPoolSize(VkDescriptorType.Sampler, 1024);
 
         VkDescriptorPoolCreateInfo poolInfo = new()
         {
             flags = VkDescriptorPoolCreateFlags.FreeDescriptorSet,
             maxSets = 4096,
-            poolSizeCount = 4,
+            poolSizeCount = 6,
             pPoolSizes = poolSizes
         };
 
@@ -169,15 +172,7 @@ internal sealed unsafe partial class GraphicsDevice
             vkBindings[i] = new VkDescriptorSetLayoutBinding
             {
                 binding = bindings[i].Binding,
-                descriptorType = bindings[i].Type switch
-                {
-                    DescriptorType.UniformBuffer => VkDescriptorType.UniformBuffer,
-                    DescriptorType.CombinedImageSampler => VkDescriptorType.CombinedImageSampler,
-                    DescriptorType.UniformBufferDynamic => VkDescriptorType.UniformBufferDynamic,
-                    DescriptorType.StorageBuffer => VkDescriptorType.StorageBuffer,
-                    DescriptorType.StorageImage => VkDescriptorType.StorageImage,
-                    _ => throw new ArgumentOutOfRangeException()
-                },
+                descriptorType = ToVkDescriptorType(bindings[i].Type),
                 descriptorCount = bindings[i].Count,
                 stageFlags = ToVkShaderStageFlags(bindings[i].Stages)
             };
@@ -281,19 +276,13 @@ internal sealed unsafe partial class GraphicsDevice
             if (sb.Sampler is not GraphicsDevice.VulkanSampler vkSampler)
                 throw new ArgumentException("Sampler was not created by this device.", nameof(samplerBinding));
 
-            imageInfos[0] = new VkDescriptorImageInfo
-            {
-                imageLayout = VkImageLayout.ShaderReadOnlyOptimal,
-                imageView = vkView.View,
-                sampler = vkSampler.Sampler
-            };
-
+            imageInfos[0] = ImageInfo(sb.Type, vkView.View, vkSampler.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             writes[writeCount++] = new VkWriteDescriptorSet
             {
                 dstSet = vkSet.Handle,
                 dstBinding = sb.Binding,
                 descriptorCount = 1,
-                descriptorType = VkDescriptorType.CombinedImageSampler,
+                descriptorType = ToVkDescriptorType(sb.Type),
                 pImageInfo = &imageInfos[0]
             };
         }
@@ -306,6 +295,27 @@ internal sealed unsafe partial class GraphicsDevice
 
     void IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet descriptorSet, in UniformBufferBinding? uniformBinding, in CombinedImageSamplerBinding? samplerBinding)
         => UpdateDescriptorSet(descriptorSet, uniformBinding, samplerBinding);
+
+    private static VkDescriptorType ToVkDescriptorType(DescriptorType type) => type switch
+    {
+        DescriptorType.UniformBuffer => VkDescriptorType.UniformBuffer,
+        DescriptorType.CombinedImageSampler => VkDescriptorType.CombinedImageSampler,
+        DescriptorType.UniformBufferDynamic => VkDescriptorType.UniformBufferDynamic,
+        DescriptorType.StorageBuffer => VkDescriptorType.StorageBuffer,
+        DescriptorType.StorageImage => VkDescriptorType.StorageImage,
+        DescriptorType.SampledImage => VkDescriptorType.SampledImage,
+        DescriptorType.Sampler => VkDescriptorType.Sampler,
+        _ => throw new ArgumentOutOfRangeException(nameof(type)),
+    };
+
+    // A texture's descriptor as its binding is declared: the image and the sampler, the image
+    // alone, or the sampler alone, since Vulkan reads only what the type names.
+    private static VkDescriptorImageInfo ImageInfo(DescriptorType type, VkImageView view, VkSampler sampler, VkImageLayout layout) => type switch
+    {
+        DescriptorType.SampledImage => new VkDescriptorImageInfo { imageView = view, imageLayout = layout },
+        DescriptorType.Sampler => new VkDescriptorImageInfo { sampler = sampler },
+        _ => new VkDescriptorImageInfo { imageView = view, sampler = sampler, imageLayout = layout },
+    };
 
     /// <inheritdoc />
     public void UpdateDescriptorSet(IDescriptorSet descriptorSet, in StorageBufferBinding storageBinding)

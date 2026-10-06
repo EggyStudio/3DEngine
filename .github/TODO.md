@@ -17,16 +17,20 @@ removed from this file, and an item that is partly done is rewritten around what
 ### Cost
 
 - **Per-entity work on the CPU bounds a frame** (RENDERING.md §6, measured by `textures_bunnymark`
-  and `models_stress`). Mesh entities write their instances on several threads straight into
-  groups the pass copies into its ring on several threads, and each view draws the blocks of 64
-  instances it sees. A frame holds about 410,000, of which `MeshEntityDraws` takes 5.6 ms and the
-  program's loop turning them most of the rest, while the GPU takes 5.1 ms for the model pass. A
-  chunk of 4096 entities none of which changed keeps the instances it gathered the frame before,
-  so 400,000 standing still take 2.4 ms in place of 6.0, but every instance is still copied into
-  the ring each frame and a culled block with them, and one entity moving gathers its whole chunk
-  again. A frame holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the
-  example's loop, the upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the
-  three.
+  and `models_stress`). Mesh entities write their instances on several threads straight into groups
+  the pass copies into its ring on several threads, and each view draws the blocks of 64 instances
+  it sees. `models_stress` without its arms held 410,266 on 2026-10-06 (`E3D_STRESS_ARMS=0`, the
+  Release build opened offscreen and `./e3d command profile` read once the search ended, as
+  RENDERING.md §6 runs it), in a frame of 19.9 ms: the program's loop turning every entity 9.8 ms,
+  `MeshEntityDraws` 5.9 ms, the first pass copying the instances into the ring and boxing their
+  blocks 3.3 ms, and the GPU 5.8 ms for the model pass. Every entity turns each frame there, so a
+  chunk kept from the frame before saves nothing, and the copy goes only if `MeshEntityDraws` writes
+  into the renderer's mapped memory, across the two worlds, for at most the 3.3 ms. A chunk of 4096
+  entities none of which changed keeps the instances it gathered the frame before, so 400,000
+  standing still take 2.4 ms in place of 6.0, but every instance is still copied into the ring each
+  frame and a culled block with them, and one entity moving gathers its whole chunk again. A frame
+  holds about 243,000 sprites, each `DrawTexture` about 48 nanoseconds with the example's loop, the
+  upload 3.0 ms and the GPU 6.3 ms, so what is left is shared between the three.
 
 - **A crowd's physics is mostly its characters' controllers.** The step runs on four workers once
   500 bodies are awake (`PhysicsSettings.ThreadedAbove`), in Bepu's deterministic mode with the
@@ -96,9 +100,8 @@ physics, text and fonts, audio, audio streams and waves, and files
 - **Vertex inputs are written by hand.** A dispatch runs a compute shader over storage buffers,
   which the CPU reads back and drawing shaders read, and textures it writes and samples, and every
   pass's descriptor set layouts are read from its shaders' reflection (RENDERING.md §1). The vertex
-  inputs are still written beside each pipeline for the engine's fixed formats, a sampler declared
-  apart from its texture is not bound, and a render texture is written only where the GPU can
-  store to the window's format.
+  inputs are still written beside each pipeline for the engine's fixed formats, and a render texture
+  is written only where the GPU can store to the window's format.
 - **One directional, ten spot and twelve point lights cast shadows.** The first directional light
   with `CastsShadows` set shadows what each view's camera sees within 150 units, or the distance
   `SetShadowDistance` sets, in three cascades, ten such spot lights shadow their cones in the map's

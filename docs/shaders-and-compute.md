@@ -88,6 +88,18 @@ SetShaderValueTexture(shader, detail, noise);
 `SetShaderValueMatrix` sets a `float4x4` the same way. A name is looked up once, before the loop,
 and the location kept.
 
+A texture may be declared apart from its sampler, as HLSL writes it, a `Texture2D` read through a
+`SamplerState`. The sampler has a location of its own, set with `SetShaderValueTexture` to the
+texture whose filter and wrapping it samples with, and it samples as the white texture of an
+untextured draw does, nearest and repeating, until it is set:
+
+```slang
+Texture2D detail;
+SamplerState detailSampler;
+// ...
+return detail.Sample(detailSampler, input.uv);
+```
+
 ## A shader for a model
 
 A model takes a shader through its material, `model.Materials[0].Shader = shader`. Such a shader

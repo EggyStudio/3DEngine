@@ -256,3 +256,20 @@ blue, finds a probe captured on a change still red after 30 frames, and red turn
 refreshes, ready all the while. TODO.md's physics paragraph ended in a list of what is missing with
 nothing in it, and ends without it. The 97 render and reference tests pass on lavapipe under the
 validation layer, and the suite: 1,341 passed, 0 failed, 1 skipped.
+
+**Now 6, a sampler declared apart from its texture.** A program's shader written as HLSL has it, a
+`Texture2D` read through a `SamplerState`, and the engine laid the texture out as a combined image
+sampler, which SPIR-V declares a sampled image, and left the sampler out of the layout altogether.
+The reflection's `combined` flag tells a `Sampler2D` from a `Texture2D`, so a texture without it is
+a sampled image and a `samplerState` a sampler, in the layouts every pass makes from a shader and
+among its textures, where the cache's line carries the kind after the binding, a line written before
+holding a combined one as it did. The device writes an image, a sampler or both as the binding is
+declared, its pools hold the two kinds, and the immediate pass, the model pass and a compute
+dispatch each write a shader's own textures by their kind. A sampler's location is set with
+`SetShaderValueTexture` to the texture whose filter and wrapping it samples with, and samples as the
+white texture does until it is set, which the shaders guide shows. A reflection test reads the three
+kinds and the cache keeping them, and a drawing test mixes a texture read through a sampler of its
+own with the one drawn. The 98 render and reference tests pass on lavapipe under the validation
+layer, which checks a descriptor's kind against the shader's. TODO.md's entry keeps its other two
+gaps, and its first entry keeps the measurement of 74e1827a with the command that made it, as you
+asked. The suite: 1,343 passed, 0 failed, 1 skipped.

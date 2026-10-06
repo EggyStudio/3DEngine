@@ -16,6 +16,10 @@ internal enum DescriptorType
     StorageBuffer,
     /// <summary>Storage image, which a shader declares as a <c>RWTexture2D</c> and writes.</summary>
     StorageImage,
+    /// <summary>A texture a shader declares as a <c>Texture2D</c>, read through a sampler declared apart from it.</summary>
+    SampledImage,
+    /// <summary>A sampler a shader declares on its own, as a <c>SamplerState</c>.</summary>
+    Sampler,
 }
 
 /// <summary>Describes a single binding within a descriptor set layout.</summary>
@@ -38,8 +42,13 @@ internal readonly record struct UniformBufferBinding(IBuffer Buffer, uint Bindin
 /// <param name="Binding">Shader binding slot index.</param>
 internal readonly record struct StorageBufferBinding(IBuffer Buffer, uint Binding);
 
-/// <summary>Binding descriptor for a combined image sampler within a descriptor set.</summary>
+/// <summary>Binding descriptor for a texture and its sampler within a descriptor set.</summary>
 /// <param name="ImageView">The image view providing the texture data.</param>
 /// <param name="Sampler">The sampler defining filtering and addressing modes.</param>
 /// <param name="Binding">Shader binding slot index.</param>
-internal readonly record struct CombinedImageSamplerBinding(IImageView ImageView, ISampler Sampler, uint Binding);
+/// <param name="Type">
+/// How the shader declares the binding: both as a combined image sampler, the image alone as a
+/// <see cref="DescriptorType.SampledImage"/>, or the sampler alone as a <see cref="DescriptorType.Sampler"/>.
+/// </param>
+internal readonly record struct CombinedImageSamplerBinding(IImageView ImageView, ISampler Sampler, uint Binding,
+    DescriptorType Type = DescriptorType.CombinedImageSampler);

@@ -8,7 +8,8 @@ internal sealed class ComputePipeline : IDisposable
     private readonly Action _dispose;
 
     internal ComputePipeline(VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout setLayout, int uniformSize,
-        IReadOnlyList<int> bufferBindings, Action dispose, IReadOnlyList<int>? imageBindings = null, IReadOnlyList<int>? textureBindings = null)
+        IReadOnlyList<int> bufferBindings, Action dispose, IReadOnlyList<int>? imageBindings = null,
+        IReadOnlyList<(int Binding, DescriptorType Type)>? textureBindings = null)
     {
         ImageBindings = imageBindings ?? [];
         TextureBindings = textureBindings ?? [];
@@ -33,8 +34,8 @@ internal sealed class ComputePipeline : IDisposable
     /// <summary>The bindings of the images the shader writes.</summary>
     public IReadOnlyList<int> ImageBindings { get; }
 
-    /// <summary>The bindings of the textures the shader samples.</summary>
-    public IReadOnlyList<int> TextureBindings { get; }
+    /// <summary>The bindings of the textures the shader samples, and of the samplers it declares apart, each with how it is declared.</summary>
+    public IReadOnlyList<(int Binding, DescriptorType Type)> TextureBindings { get; }
 
     /// <inheritdoc />
     public void Dispose() => _dispose();
@@ -56,7 +57,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// <param name="textureBindings">The bindings of the textures it samples.</param>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
     public ComputePipeline CreateComputePipeline(ReadOnlySpan<byte> spirv, int uniformSize, IReadOnlyList<int> bufferBindings,
-        IReadOnlyList<int>? imageBindings = null, IReadOnlyList<int>? textureBindings = null)
+        IReadOnlyList<int>? imageBindings = null, IReadOnlyList<(int Binding, DescriptorType Type)>? textureBindings = null)
     {
         if (!IsInitialized) throw new InvalidOperationException("Graphics device not initialized");
         imageBindings ??= [];
@@ -71,8 +72,8 @@ internal sealed unsafe partial class GraphicsDevice
             bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.StorageBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         foreach (var binding in imageBindings)
             bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.StorageImage, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        foreach (var binding in textureBindings)
-            bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        foreach (var (binding, type) in textureBindings)
+            bindings[b++] = new VkDescriptorSetLayoutBinding { binding = (uint)binding, descriptorType = ToVkDescriptorType(type), descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         var setInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = (uint)count, pBindings = bindings };
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out VkDescriptorSetLayout createdSetLayout).CheckResult();
         var setLayout = createdSetLayout;
@@ -163,12 +164,14 @@ internal sealed unsafe partial class GraphicsDevice
 
             // A pool of one set for each dispatch, freed with it, since dispatches come and go
             // at the program's pace rather than the frame's.
-            var sizes = stackalloc VkDescriptorPoolSize[4];
+            var sizes = stackalloc VkDescriptorPoolSize[6];
             sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)Math.Max(1, buffers.Count) };
             sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
             sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = (uint)Math.Max(1, images.Count) };
             sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
-            var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 4, pPoolSizes = sizes };
+            sizes[4] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = (uint)Math.Max(1, textures.Count) };
+            sizes[5] = new VkDescriptorPoolSize { type = VkDescriptorType.Sampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
+            var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 6, pPoolSizes = sizes };
             _deviceApi.vkCreateDescriptorPool(&descriptorPoolInfo, null, out VkDescriptorPool pool).CheckResult();
             var setLayout = pipeline.SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
@@ -204,8 +207,11 @@ internal sealed unsafe partial class GraphicsDevice
             }
             foreach (var (binding, view, sampler) in textures)
             {
-                imageInfos[wi] = new VkDescriptorImageInfo { imageView = ((VulkanImageView)view).View, sampler = ((VulkanSampler)sampler).Sampler, imageLayout = VkImageLayout.ShaderReadOnlyOptimal };
-                writes[w++] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfos[wi++] };
+                var type = DescriptorType.CombinedImageSampler;
+                foreach (var declared in pipeline.TextureBindings)
+                    if (declared.Binding == binding) type = declared.Type;
+                imageInfos[wi] = ImageInfo(type, ((VulkanImageView)view).View, ((VulkanSampler)sampler).Sampler, VkImageLayout.ShaderReadOnlyOptimal);
+                writes[w++] = new VkWriteDescriptorSet { dstSet = set, dstBinding = (uint)binding, descriptorCount = 1, descriptorType = ToVkDescriptorType(type), pImageInfo = &imageInfos[wi++] };
             }
             _deviceApi.vkUpdateDescriptorSets((uint)w, writes, 0, null);
 

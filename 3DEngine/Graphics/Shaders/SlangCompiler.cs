@@ -195,8 +195,16 @@ internal static partial class SlangCompiler
         return null;
     }
 
-    /// <summary>The textures a shader samples in its first descriptor set, by name and binding, from slangc's reflection JSON.</summary>
-    /// <remarks>Its engine module's own are among them, and each pass tells them from the shader's own by binding.</remarks>
+    /// <summary>
+    /// The textures a shader samples in its first descriptor set, by name and binding, from slangc's
+    /// reflection JSON, with the samplers it declares apart from them.
+    /// </summary>
+    /// <remarks>
+    /// Its engine module's own are among them, and each pass tells them from the shader's own by
+    /// binding. A <c>Sampler2D</c> is a combined image sampler, a <c>Texture2D</c> a sampled image
+    /// and a <c>SamplerState</c> a sampler, which the passes bind the sampler of the texture set at
+    /// its location, so a program sets which texture's filter it reads by.
+    /// </remarks>
     internal static IReadOnlyList<ShaderTexture> TexturesOf(string? reflectionJson) =>
         ResourcesOf(reflectionJson, Resource.Texture);
 
@@ -214,9 +222,9 @@ internal static partial class SlangCompiler
     /// Every descriptor a stage declares, in every set, by name, set, binding and kind, from slangc's
     /// reflection JSON, which a pipeline's descriptor set layouts are made from rather than typed
     /// beside it. A constant buffer is a uniform buffer, a structured or byte address buffer a
-    /// storage buffer, a texture written to a storage image and one sampled a combined image
-    /// sampler. A sampler declared on its own is left out, since the engine binds a texture and its
-    /// sampler together.
+    /// storage buffer, a texture written to a storage image, one sampled with its sampler a
+    /// combined image sampler, one sampled through a sampler declared apart a sampled image, and
+    /// that sampler a sampler.
     /// </summary>
     internal static IReadOnlyList<ShaderBinding> BindingsOf(string? reflectionJson)
     {
@@ -236,7 +244,9 @@ internal static partial class SlangCompiler
                     => DescriptorType.StorageBuffer,
                 "resource" when type.TryGetProperty("access", out var access) && access.GetString() is "readWrite" or "write"
                     => DescriptorType.StorageImage,
-                "resource" => DescriptorType.CombinedImageSampler,
+                "resource" when type.TryGetProperty("combined", out var combined) && combined.GetBoolean() => DescriptorType.CombinedImageSampler,
+                "resource" => DescriptorType.SampledImage,
+                "samplerState" => DescriptorType.Sampler,
                 _ => null,
             };
             if (kind is not { } found) continue;
@@ -271,13 +281,22 @@ internal static partial class SlangCompiler
             if (!parameter.TryGetProperty("binding", out var binding) ||
                 binding.GetProperty("kind").GetString() != "descriptorTableSlot" ||
                 (binding.TryGetProperty("space", out var space) && space.GetInt32() != 0) ||
-                !parameter.TryGetProperty("type", out var type) || type.GetProperty("kind").GetString() != "resource")
+                !parameter.TryGetProperty("type", out var type))
                 continue;
+            var name = parameter.GetProperty("name").GetString()!;
+            var index = binding.GetProperty("index").GetInt32();
+            if (type.GetProperty("kind").GetString() == "samplerState")
+            {
+                if (kind == Resource.Texture) textures.Add(new ShaderTexture(name, index, DescriptorType.Sampler));
+                continue;
+            }
+            if (type.GetProperty("kind").GetString() != "resource") continue;
             var shape = type.TryGetProperty("baseShape", out var baseShape) ? baseShape.GetString() : null;
             var written = type.TryGetProperty("access", out var access) && access.GetString() is "readWrite" or "write";
             var found = shape is "structuredBuffer" or "byteAddressBuffer" ? Resource.Buffer : written ? Resource.Image : Resource.Texture;
             if (found != kind) continue;
-            textures.Add(new ShaderTexture(parameter.GetProperty("name").GetString()!, binding.GetProperty("index").GetInt32()));
+            var combined = type.TryGetProperty("combined", out var flag) && flag.GetBoolean();
+            textures.Add(new ShaderTexture(name, index, found != Resource.Texture || combined ? DescriptorType.CombinedImageSampler : DescriptorType.SampledImage));
         }
         return textures;
     }
@@ -287,8 +306,12 @@ internal static partial class SlangCompiler
     private static string WriteUniforms(IReadOnlyList<ShaderUniform> uniforms) =>
         string.Concat(uniforms.Select(u => $"{u.Name} {u.Offset} {u.Size}\n"));
 
+    // A texture's line carries how it is declared after its binding, where one combined with its
+    // sampler, all a cache written before samplers apart has, has nothing there.
     private static string WriteTextures(IReadOnlyList<ShaderTexture> textures) =>
-        string.Concat(textures.Select(t => $"texture {t.Name} {t.Binding}\n"));
+        string.Concat(textures.Select(t => t.Type == DescriptorType.CombinedImageSampler
+            ? $"texture {t.Name} {t.Binding}\n"
+            : $"texture {t.Name} {t.Binding} {t.Type}\n"));
 
     private static string WriteBuffers(IReadOnlyList<ShaderTexture> buffers) =>
         string.Concat(buffers.Select(b => $"buffer {b.Name} {b.Binding}\n"));
@@ -305,8 +328,9 @@ internal static partial class SlangCompiler
     private static IReadOnlyList<ShaderTexture> ReadResources(string text, string kind) =>
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Split(' '))
-            .Where(parts => parts.Length == 3 && parts[0] == kind && !IsNumber(parts[1]))
-            .Select(parts => new ShaderTexture(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
+            .Where(parts => parts.Length is 3 or 4 && parts[0] == kind && !IsNumber(parts[1]))
+            .Select(parts => new ShaderTexture(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture),
+                parts.Length == 4 ? Enum.Parse<DescriptorType>(parts[3]) : DescriptorType.CombinedImageSampler))
             .ToArray();
 
     // A uniform's line is its name and two numbers, and a resource's its kind, its name and a
@@ -506,5 +530,9 @@ internal readonly record struct ShaderBinding(string Name, int Set, int Binding,
 /// <summary>A uniform a shader declares at the top level: where it sits in its constant buffer, in bytes.</summary>
 internal readonly record struct ShaderUniform(string Name, int Offset, int Size);
 
-/// <summary>A texture a shader samples, or a storage buffer a compute shader uses, by its name and its binding in the first descriptor set.</summary>
-internal readonly record struct ShaderTexture(string Name, int Binding);
+/// <summary>
+/// A texture a shader samples, a sampler it declares apart from its texture, or a storage buffer or
+/// image a compute shader uses, by its name and its binding in the first descriptor set, and for a
+/// texture or a sampler how it is declared.
+/// </summary>
+internal readonly record struct ShaderTexture(string Name, int Binding, DescriptorType Type = DescriptorType.CombinedImageSampler);

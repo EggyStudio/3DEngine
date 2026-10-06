@@ -1200,7 +1200,7 @@ internal sealed class ModelRenderer : IDisposable
                 if (program.Textures[i] == texture) index = i;
             var id = draw.ShaderTextures is { } ids && index >= 0 && index < ids.Length ? ids[index] : 0;
             var (view, sampler) = textures.ViewFor(gfx, id);
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, sampler, (uint)texture.Binding));
+            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(view, sampler, (uint)texture.Binding, texture.Type));
         }
         ImmediateRenderer.BindBuffers(gfx, renderWorld, set, program, draw.ShaderTextures, ref _noBuffer);
         return set;

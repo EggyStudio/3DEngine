@@ -779,6 +779,40 @@ public sealed class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void An_Immediate_Shader_Reads_A_Texture_Through_A_Sampler_Declared_Apart_From_It()
+    {
+        Open(64, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            Texture2D detail;
+            SamplerState detailSampler;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return boundTexture.Sample(input.uv) * detail.Sample(detailSampler, input.uv);
+            }
+            """, "apart.slang");
+        var yellow = LoadTextureFromImage(GenImageColor(2, 2, new Color(255, 255, 0)));
+        var cyan = LoadTextureFromImage(GenImageColor(2, 2, new Color(0, 255, 255)));
+        (GetShaderLocation(shader, "detail"), GetShaderLocation(shader, "detailSampler")).Should().NotBe((-1, -1));
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            SetShaderValueTexture(shader, GetShaderLocation(shader, "detail"), cyan);
+            SetShaderValueTexture(shader, GetShaderLocation(shader, "detailSampler"), cyan);
+            DrawTexturePro(yellow, new Rectangle(0, 0, 2, 2), new Rectangle(0, 0, 32, 32), Vector2.Zero, 0, Color.White);
+            EndShaderMode();
+        }, "immediate apart");
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(0, 255, 0), "yellow times cyan is green, the texture read through its own sampler");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void An_Immediate_Shader_With_Uniforms_And_A_Texture_Of_Its_Own_Reads_Both()
     {
         Open(32, 32);

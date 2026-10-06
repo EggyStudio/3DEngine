@@ -197,6 +197,31 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Texture_And_Its_Sampler_Declared_Apart_Are_Reflected_As_Such_And_Kept_In_The_Cache()
+    {
+        const string apart = """
+            [[vk::binding(1, 0)]] Sampler2D combined;
+            [[vk::binding(2, 0)]] Texture2D detail;
+            [[vk::binding(3, 0)]] SamplerState detailSampler;
+
+            [shader("fragment")]
+            float4 fragmentMain(float2 uv : TEXCOORD0) : SV_Target
+            {
+                return combined.Sample(uv) * detail.Sample(detailSampler, uv);
+            }
+            """;
+
+        var compiled = SlangCompiler.CompileStage(apart, "apart.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path);
+        var cached = SlangCompiler.CompileStage(apart, "apart.slang", "fragmentMain", ShaderStage.Fragment, _folder.Path, null, compiler: null);
+
+        compiled.Textures.Should().Equal(new ShaderTexture("combined", 1), new ShaderTexture("detail", 2, DescriptorType.SampledImage),
+            new ShaderTexture("detailSampler", 3, DescriptorType.Sampler));
+        cached.Textures.Should().Equal(compiled.Textures);
+        compiled.Bindings.Select(b => (b.Binding, b.Type)).Should().Equal(
+            (1, DescriptorType.CombinedImageSampler), (2, DescriptorType.SampledImage), (3, DescriptorType.Sampler));
+    }
+
+    [NeedsSlangFact]
     public void Top_Level_Uniforms_Are_Reflected_And_Kept_In_The_Cache()
     {
         const string withUniforms = """
