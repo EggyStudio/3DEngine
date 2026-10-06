@@ -20,13 +20,25 @@ namespace Engine.Tests.Core;
 [Trait("Category", "Integration")]
 public sealed class AppLeakTests(ITestOutputHelper output)
 {
-    // Makes and closes an app of the given config a hundred times, and returns the process's
-    // resident memory and the GC's heap after twenty and after a hundred, in megabytes. The first
-    // twenty warm the pools and the threads that stay for the process, which a hundred then
-    // should not add to.
-    private (double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100) Cycle(Config config, Func<App, App>? plugins = null)
+    // What a hundred apps left: the process's resident memory and the GC's heap after twenty and
+    // after a hundred, in megabytes, and the series a failure is read by on a machine no one here
+    // has, the heap after every tenth app where it is collected that often and the threads the
+    // process has after each shutdown.
+    private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, string Heaps, string Threads)
+    {
+        public string Series => $"heap after every ten apps (MB): {Heaps}; threads after each app: {Threads}";
+    }
+
+    // Makes and closes an app of the given config a hundred times. The first twenty warm the pools
+    // and the threads that stay for the process, which a hundred then should not add to. With
+    // heapEveryTen the heap is collected and read after every tenth app, where otherwise it is
+    // after the twentieth and the hundredth alone, so memory that only a finalizer gives back is
+    // left to pile up between them for the resident reading to see.
+    private Cycled Cycle(Config config, Func<App, App>? plugins = null, bool heapEveryTen = false)
     {
         double residentAt20 = 0, heapAt20 = 0;
+        var heaps = new List<string>();
+        var threads = new List<int>();
         for (int i = 1; i <= 100; i++)
         {
             var app = new App(config);
@@ -34,6 +46,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             app.BeginFrame();
             app.EndFrame();
             app.Shutdown();
+            using (var process = System.Diagnostics.Process.GetCurrentProcess()) threads.Add(process.Threads.Count);
 
             if (i % 10 != 0) continue;
             // Resident memory is read before any collection, since memory a closed app gives back
@@ -41,13 +54,14 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // allocates little on the GC's heap may not see for hundreds of apps.
             var resident = Environment.WorkingSet / 1e6;
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
-            if (i != 20 && i != 100) continue;
+            if (!heapEveryTen && i != 20 && i != 100) continue;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             var heap = GC.GetTotalMemory(forceFullCollection: true) / 1e6;
-            output.WriteLine($"{i,3} apps: heap {heap:0.0} MB");
+            heaps.Add($"{i}: {heap:0.00}");
+            output.WriteLine($"{i,3} apps: heap {heap:0.00} MB");
             if (i == 20) (residentAt20, heapAt20) = (resident, heap);
-            if (i == 100) return (residentAt20, resident, heapAt20, heap);
+            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), string.Join(" ", threads));
         }
         throw new InvalidOperationException("unreachable");
     }
@@ -55,10 +69,13 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     [Fact]
     public void A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()
     {
-        var (resident20, resident100, heap20, heap100) = Cycle(Config.Default with { Headless = true });
+        // The heap read every ten apps, so a failure says whether it grew by a slope, an app's worth
+        // at a time, or by a step the runtime took once, and the threads after each app whether a
+        // closed app's threads were still alive when the heap was read.
+        var cycled = Cycle(Config.Default with { Headless = true }, heapEveryTen: true);
 
-        (heap100 - heap20).Should().BeLessThan(5, "the GC's heap holds nothing of a closed app");
-        (resident100 - resident20).Should().BeLessThan(50, "and the process gives back what each took");
+        (cycled.HeapAt100 - cycled.HeapAt20).Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
+        (cycled.ResidentAt100 - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, {cycled.Series}");
     }
 
     [Fact]
@@ -89,7 +106,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()
     {
         var config = Config.Default.WithWindow("leak", 64, 64) with { Headless = true, Offscreen = true };
-        var (resident20, resident100, heap20, heap100) = Cycle(config, app =>
+        var cycled = Cycle(config, app =>
         {
             app.AddPlugin(new DefaultPlugins());
             // Shapes, text, a cube and a model, each of which makes its pipeline on the device.
@@ -112,8 +129,8 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             return app;
         });
 
-        (heap100 - heap20).Should().BeLessThan(5, "the GC's heap holds nothing of a closed app");
-        (resident100 - resident20).Should().BeLessThan(50, "and the process gives back what each took, its pipelines included");
+        (cycled.HeapAt100 - cycled.HeapAt20).Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
+        (cycled.ResidentAt100 - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, its pipelines included, {cycled.Series}");
     }
 }
 

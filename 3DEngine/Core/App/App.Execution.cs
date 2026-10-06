@@ -122,7 +122,12 @@ public sealed partial class App
             loop.Shutdown();
         }
 
+        // The threads the app's parts started, which their teardown has told to stop, are waited
+        // for once the world is gone, so nothing of the app runs after this returns.
+        var threads = World.TryGetResource<AppThreads>(out var started) ? started : null;
         World.Dispose();
+        if (threads?.JoinAll() is { Count: > 0 } alive)
+            Logger.Warn($"Shutdown: {alive.Count} thread(s) of the app did not finish within {AppThreads.Patience.TotalSeconds:0} seconds each: {string.Join(", ", alive)}.");
         Logger.Info("Cleanup stage complete. Application shutdown finished.");
     }
 }

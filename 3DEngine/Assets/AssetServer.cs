@@ -98,17 +98,16 @@ public sealed partial class AssetServer : IDisposable
     {
         int count = workerCount ?? Math.Max(2, Environment.ProcessorCount / 2);
         _workers = new Task[count];
+        // On the thread pool, since each worker awaits the queue from its first line. Started as
+        // long running, each took a thread of its own that ended at that first await, unjoined,
+        // sixteen threads an app on a machine of thirty-two.
         for (int i = 0; i < count; i++)
         {
             int id = i;
-            _workers[i] = Task.Factory.StartNew(
-                () => WorkerLoop(id, _cts.Token),
-                _cts.Token,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default).Unwrap();
+            _workers[i] = Task.Run(() => WorkerLoop(id, _cts.Token), _cts.Token);
         }
 
-        Logger.Info($"AssetServer created with {count} worker thread(s).");
+        Logger.Info($"AssetServer created with {count} worker(s).");
     }
 
     /// <summary>Returns a snapshot of all tracked asset paths and their load states.</summary>

@@ -36,7 +36,7 @@ internal sealed class CliPlugin : IPlugin
         if (!config.Serve) return;
 
         ConsoleLog.TeeConsole();
-        _server = new CliServer(_queue);
+        _server = new CliServer(_queue, app.World.GetOrInsertResource(static () => new AppThreads()));
         CliSessionFile.Write(Describe(app, "starting", 0));
         Console.WriteLine($"[e3d] serving on 127.0.0.1:{_server.Port}. Drive it with e3d status, e3d list, e3d command <name>.");
 

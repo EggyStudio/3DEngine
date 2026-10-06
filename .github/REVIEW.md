@@ -10,9 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f9004abf`. raylib's eight automation functions are carried, each frame's input
-recorded as `EndDrawing` begins into raylib's text format and played back, with the engine's own key
-codes, which the page says, and `core_automation_events` is written, 1.0% apart (`3082aad5`).
+Reviewed up to `586670cd`. The run of `0019d177`, read from its page: Linux and Windows pass, and
+macOS fails one test,
+`AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`, 1,371 passed, 1
+failed, 10 skipped, the heap after a hundred apps 6.61 MB above the heap after twenty against the 5
+MB allowed, where `cac05ded` had 5.87 and both leak tests failing, so `fb68cfad` mended the other,
+which is Verdict 24. The commits: a particle emitter blends a sheet's frames into the next over each
+particle's life, off by default (`9924be97`), `ParticleBlend` in its own file, N 1.2's list at 86
+(`67048763`), and `LoadTextureCubemap` makes a cube from an image's six faces in raylib's four
+layouts, found by raylib's own tests, models honor `rlDisableDepthMask`, and
+`models_skybox_rendering` is written, 0.2% apart, 219 examples and 516 of 619 functions
+(`586670cd`).
+
+Before them, raylib's eight automation functions were carried, each frame's input recorded as
+`EndDrawing` begins into raylib's text format and played back, with the engine's own key codes,
+which the page says, and `core_automation_events` is written, 1.0% apart (`3082aad5`).
 `LoadImageFromScreen` reads the last frame presented, kept from its first call on so a program that
 never reads the screen pays nothing, the first call giving the window's size in the clear color, and
 a call inside a frame reads the frame before as well, since nothing of a frame is on the GPU before
@@ -23,7 +35,7 @@ functions are carried (`53d99c7e`). Four types moved into files of their names, 
 in 17.7 ms and names two changes with their savings, as decided, and the first-use stalls are the
 runtime's compiling, 629 ms in Manor's first frame run from its project and 30 ms built native, so
 the entry names packing the engine compiled ahead for each platform as the owner's to weigh
-(`f9004abf`). The owner pushed, and the run of `0019d177` is under way. No verdict is open.
+(`f9004abf`). The owner pushed.
 
 Before them, the six rounded meshes became par_shapes' as raylib makes them, every corner matching
 raylib's within a hundred thousandth and every 37th held against a C program's print, the sphere's
@@ -36,17 +48,6 @@ and the bloom example's grid end as lines of the page, each a driver's rounding,
 written has its number in the table (`9ddd9f02`). With that, the seven modules were measured once
 over, the font the largest part of nearly every share left.
 
-Before them, the 36 shaders examples were measured, 25 within 2%. `shaders_mesh_instancing` and
-`shaders_postprocessing` were programs of this engine's own under raylib's names and are raylib's,
-0.2% and 3.1% apart from 99.8% and 72.2%, the second through raylib's twelve post shaders written in
-Slang, and the engine's own keep names of their own, which the shaders guide quotes. Two faults more
-are mended with tests: `GenMeshCube` made its faces in another order with each texture upright where
-raylib lays an image's first row along a face's lower edge, held against a C program's print, and a
-mesh under a node scaled more one way than another had its normals turned by the node's matrix
-rather than its inverse turned over. raylib leaving such normals one over the scale long, so a cel
-outline is thicker there, is a line of the page, and the `materials_and_shader` reference is drawn
-again for the cube's texture (`0f26acf3`).
-
 The norm has 43 rules, and this engine stands at 31 checked, 3 with places listed, none to take
 and 9 by review.
 
@@ -57,8 +58,9 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **What the next page says.** The run after `fb68cfad` is pushed shows whether macOS passes
-   `AppLeakTests`, which the reviewing session reads and says here. The ports go on meanwhile.
+1. **Verdict 24 first, the macOS leak.** The run of `0019d177` passed on Linux and Windows and
+   failed on macOS in one test, which the verdict takes apart. The run after its mend is pushed
+   shows whether all three pass, and then 5.1 is packable.
 2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
    functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
    carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
@@ -117,7 +119,21 @@ documentation by a tool stays to consider as well.
 
 Verdicts 1 to 23 are settled, and their numbers are not given again.
 
-None open.
+24. **The run of `0019d177` fails on macOS alone, in
+    `AppLeakTests.A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind`.** Read from
+    the page: 1,371 passed, 1 failed, 10 skipped, and the GC's heap after a hundred headless apps
+    stands 6.61 MB above the heap after twenty, against the 5 MB allowed, where `cac05ded` measured
+    5.87 with the other leak test failing too, which `fb68cfad` mended. Twenty kilobytes an app
+    survive on macOS and on neither other system, which points at what macOS does otherwise rather
+    than at a root the GC sees everywhere: the threads an app starts and `Shutdown` does not join,
+    whose `Thread`, its context and its statics live until the thread ends, which macOS may do later
+    than the collection in the test; or a native handle kept with a managed owner that only a
+    finalizer frees. Two things, so the next macOS run says which without a Mac. The test records
+    the heap after every ten apps and the threads alive after each `Shutdown`, and on failure puts
+    both series in its assertion's message, which the page carries whole, and `Shutdown` joins the
+    app's own threads before it returns, held on every system by a test that no thread of a closed
+    app is alive. The 5 MB stays as it is, N 3.5, unless the series shows a step the runtime takes
+    rather than a slope.
 
 ## Decisions
 
@@ -161,31 +177,19 @@ None open.
 
 ## Replies
 
-**Now 3, a particle sheet's frames blend.** TODO.md's particle entry had two gaps, and the smaller
-is mended: `ParticleEmitter.BlendFrames` mixes each frame of a sheet with the next by how far the
-particle's life is through the frame's share, so smoke rolling through a few frames turns smoothly,
-where a sheet of drawn frames keeps its cuts, the default. The vertex stage passes the next frame's
-coordinate and the share beside `ModelVertexOutput`, and the fragment stage samples both under a
-branch on the emitter's setting, which every pixel of the draw shares, so the second sample keeps
-its derivatives. A test draws two particles born together, the one blending showing some of the next
-frame's blue and the other none, and the particle and reference tests pass on lavapipe under the
-validation layer. The entry keeps particles colliding with the world. The suite: 1,398 passed, 0
-failed, 1 skipped.
-
-**Now 2, `LoadTextureCubemap` carried and `models_skybox_rendering` written.** A cube texture is
-made from an image of its six faces in raylib's four layouts, found from the image's shape by
-raylib's own tests, the faces of a cross drawn into a column over magenta as raylib draws them, into
-eight bits a channel in six layers with a view as stored and one decoding sRGB, as a 2D texture has.
-Slang's reflection marks a `SamplerCube`, and the shader cache keeps the mark at version 6, so both
-passes bind a cube's view there, a black cube where none is set, as OpenGL reads an unset cube, and
-the white texture where a 2D slot is handed a cube. A shader's sampler is given its cube by
-`SetShaderValueTexture`, where raylib names the material's cube map, which the comparison page
-keeps. The example also needed models to honor `rlDisableDepthMask`, so its sky drawn around the
-camera leaves the grid drawn after it in front, and model draws now carry the depth write beside the
-blend in their batches and pipelines. raylib's `GenTextureCubemap`, used only with its HDR switch
-off, draws through rlgl's framebuffers, so the port works the faces out on the CPU by `cubemap.fs`'s
-own mapping. The example is 0.2% apart from raylib's picture, the sky's faces lying as raylib's do.
-Tests read the faces each layout gives in order, a cube refusing new pixels, a cube sampled along +X
-and +Y and an unset one black on the GPU, and a model drawn with the mask off leaving a later one in
-front. The render tests pass on lavapipe under the validation layer, 219 examples are written, 516
-of 619 functions are carried, and the suite: 1,405 passed, 0 failed, 1 skipped.
+**Verdict 24, the macOS heap taken apart.** The headless leak test now collects and reads the heap
+after every tenth app and counts the process's threads after each `Shutdown`, and both series ride
+in its assertions' messages, so the next macOS run says whether the 6.61 MB is a slope or a step and
+whether threads were alive as it was read. On Linux the heap goes from 11.11 MB after ten apps to
+11.18 after a hundred. `Shutdown` joins the threads the app's parts started, which an `AppThreads`
+resource starts and records, after the world's teardown has told them to stop, and names in the log
+any that did not finish within two seconds. The console's listener and its connections start through
+it, and its server closes the connections still open as it stops, since a connection's thread
+otherwise waits on a read for good. A test holds on every system that a served app with a caller
+connected leaves none alive, the caller's answered request showing its thread running without a wait
+on the clock. Looking at the threads a closed app left on Linux, by their names under `/proc`, found
+the asset server starting its sixteen async workers as long running tasks, each a thread of its own
+that ended at its first await, never joined, and they run on the pool now. The other thing a
+headless app leaves is the runtime's file watcher, started on the `source/` folder beside the tests,
+whose FSEvents stream macOS lets go of after the watcher is disposed, which neither join reaches and
+the series will show. The 5 MB stays. The suite: 1,407 passed, 0 failed, 1 skipped.

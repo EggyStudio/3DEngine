@@ -61,7 +61,7 @@ public sealed class CliTests : IDisposable
         ecs.Spawn();
 
         var queue = new CliQueue();
-        using var server = new CliServer(queue);
+        using var server = new CliServer(queue, new AppThreads());
         var session = new CliSession(Environment.ProcessId, server.Port, server.Token, "", "test", "test", "headless",
             DateTimeOffset.UtcNow, false, "ready", 0, DateTimeOffset.UtcNow);
 
@@ -88,7 +88,7 @@ public sealed class CliTests : IDisposable
     public void The_App_Waits_For_An_Answer_As_Long_As_The_Request_Says()
     {
         // A queue nobody pumps, so the answer never comes and the wait is all there is to see.
-        using var server = new CliServer(new CliQueue());
+        using var server = new CliServer(new CliQueue(), new AppThreads());
         using var caller = new System.Net.Sockets.TcpClient("127.0.0.1", server.Port) { ReceiveTimeout = 20_000 };
         using var stream = caller.GetStream();
         using var writer = new StreamWriter(stream) { AutoFlush = true, NewLine = "\n" };
@@ -105,7 +105,7 @@ public sealed class CliTests : IDisposable
     [Fact]
     public void A_Request_With_The_Wrong_Token_Is_Refused()
     {
-        using var server = new CliServer(new CliQueue());
+        using var server = new CliServer(new CliQueue(), new AppThreads());
         var session = new CliSession(Environment.ProcessId, server.Port, "wrong", "", "test", "test", "headless",
             DateTimeOffset.UtcNow, false, "ready", 0, DateTimeOffset.UtcNow);
 

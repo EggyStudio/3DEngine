@@ -22,16 +22,22 @@ internal sealed class CliServer : IDisposable
 
     private readonly CliQueue _queue;
     private readonly TcpListener _listener;
+    private readonly AppThreads _threads;
     private volatile bool _stopping;
 
-    public CliServer(CliQueue queue)
+    // The connections open, closed as the server stops, so the threads reading them end and the
+    // app's shutdown can join them.
+    private readonly HashSet<TcpClient> _callers = [];
+
+    public CliServer(CliQueue queue, AppThreads threads)
     {
         _queue = queue;
+        _threads = threads;
         _listener = new TcpListener(IPAddress.Loopback, 0);
         _listener.Start();
         Port = ((IPEndPoint)_listener.LocalEndpoint).Port;
         Token = Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
-        new Thread(Accept) { IsBackground = true, Name = "e3d-cli-accept" }.Start();
+        _threads.Start("e3d-cli-accept", Accept);
     }
 
     public int Port { get; }
@@ -52,7 +58,16 @@ internal sealed class CliServer : IDisposable
                 return;
             }
 
-            new Thread(() => Serve(caller)) { IsBackground = true, Name = "e3d-cli-connection" }.Start();
+            lock (_callers)
+            {
+                if (_stopping)
+                {
+                    caller.Dispose();
+                    return;
+                }
+                _callers.Add(caller);
+            }
+            _threads.Start("e3d-cli-connection", () => Serve(caller));
         }
     }
 
@@ -75,7 +90,12 @@ internal sealed class CliServer : IDisposable
             }
             catch (Exception error) when (error is IOException or SocketException or ObjectDisposedException)
             {
-                // The caller hung up, which is an ordinary way for a connection to end.
+                // The caller hung up, or the server closed the connection as it stopped, which are
+                // the ordinary ways for one to end.
+            }
+            finally
+            {
+                lock (_callers) _callers.Remove(caller);
             }
         }
     }
@@ -122,5 +142,12 @@ internal sealed class CliServer : IDisposable
         _stopping = true;
         try { _listener.Stop(); }
         catch (SocketException) { }
+        // A connection's thread waits on a read until the caller writes or hangs up, so the
+        // connections still open are closed for it.
+        lock (_callers)
+        {
+            foreach (var caller in _callers) caller.Dispose();
+            _callers.Clear();
+        }
     }
 }
