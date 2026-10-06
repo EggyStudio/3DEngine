@@ -8,7 +8,6 @@
 3DEngine/Api/Engine3D.AudioStreams.cs AudioCallback
 3DEngine/Api/Engine3D.AudioStreams.cs AudioStream
 3DEngine/Api/Engine3D.Collision.cs RayCollision
-3DEngine/Api/Engine3D.Compute.cs ShaderBuffer
 3DEngine/Api/Engine3D.ConfigFlags.cs ConfigFlags
 3DEngine/Api/Engine3D.Display.cs MonitorMode
 3DEngine/Api/Engine3D.Fonts.cs Font
@@ -85,18 +84,12 @@
 3DEngine/Physics/PhysicsTypes.cs PhysicsMaterial
 3DEngine/Physics/PhysicsTypes.cs PhysicsRayCollision
 3DEngine/Platform/Audio/AudioSource.cs AudioListener
-3DEngine/Platform/Audio/IAudioBackend.cs AudioVoiceParams
-3DEngine/Platform/Audio/IAudioBackend.cs ISpatialAudioProcessor
-3DEngine/Platform/Audio/IAudioBackend.cs SpatialContext
-3DEngine/Platform/Audio/IAudioBackend.cs SpatialResult
 3DEngine/Rendering/Immediate/TextureStore.cs TextureFilter
 3DEngine/Rendering/Immediate/TextureStore.cs TextureWrap
 3DEngine/Rendering/Lighting/Light.cs LightKind
 3DEngine/Rendering/Models/MeshStore.cs ModelVertex
 3DEngine/Rendering/Particles/ParticleEmitter.cs ParticleBlend
 3DEngine/Rendering/PostProcess/FrameEffects.cs Tonemap
-3DEngine/Scenes/Scene.cs SceneCoordinateSystem
-3DEngine/Scenes/Scene.cs SceneEmbeddedTexture
 3DEngine/Scenes/SceneFile.cs ISceneCodec
 3DEngine/Scenes/SceneFile.cs ModelRef
 3DEngine/Scenes/SceneFile.cs SceneCodec
@@ -107,4 +100,3 @@
 3DEngine/Scenes/SceneFile.cs SceneRef
 3DEngine/Scenes/SceneFile.cs SceneWriteContext
 3DEngine/Scenes/ScenePurpose.cs ScenePurposeMask
-3DEngine/Scenes/SceneSpawner.cs SceneSpawnSettings
