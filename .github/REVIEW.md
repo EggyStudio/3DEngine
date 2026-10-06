@@ -10,7 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `20bf8c72`. The six pairs furthest from raylib with no reason on their rows are
+Reviewed up to `22bbf15a`. The flat API was read by script against the pinned raylib headers: 601 of
+raylib's functions carried by name, 501 with raylib's argument names in raylib's order, and the rest
+moved to raylib's names and shapes where a reason did not hold them, the keys, gamepad buttons and
+log levels named as raylib names them, a clip's fields `Keyframe*`, three older names dropped, and
+the kept differences in a table of names and shapes on the comparison page, the `Transform` keeping
+`Position` since the scene files and BevyCSharp use it (`4ec025bd`, `472619e9`), which settles item
+5 and leaves `PublicApi.txt` changed by 69 lines in and 61 out, the owner's to number as 6.0 before
+the next pack. Every example 3.5 to 7 per cent from raylib gives its reason, and the cel shading
+outline is pushed as far as raylib's long normals push it (`3267be95`). raylib's VR stereo is
+carried and `core_vr_simulator` written, 221 of 222, the last not applying, which settles item 2 as
+the measure of what is written (`1e26d438`), and models draw through each eye and keep to the
+scissor (`22bbf15a`). The owner pushed, and the run of `22bbf15a` is under way. The suite: 1,440
+passed, none skipped.
+
+Before them, the six pairs furthest from raylib were traced: with no reason on their rows are
 traced: five are kept differences with their reasons on the page and the rows, an RGB logo's corners
 opaque where RGBA's are clear, ImGui's wider font wrapping lines elsewhere, raylib blending alpha
 into a render texture by the color's factors so a bar darkens over black, ours times 0.84 being
@@ -34,15 +48,6 @@ submit and present, held by a test on SDL's offscreen driver on Linux (`2bcac3a6
 item 5 and the list the owner's decisions made; items 5 and 6 are new. The suite: 1,435 passed, none
 skipped.
 
-Before them, release notes and the documents a game's author reads give reasons and name no one who
-decided: the comparison page's row gives its reason alone, `NormTests.N_4_7` reads the README, the
-cheatsheet and `docs/` line by line, `pack.sh` leaves the two commit lines that name the owner out
-of the release notes with a warning, since history does not change, `PackageContentsTests` fails a
-package whose notes name anyone, and COMMITS.md has the rule (`78d79c22`), which settles item 6. The
-runs of `38e81c4f` and `78d79c22` fail on Windows and macOS in the new scripts' own tests, Linux
-passing, which is Verdict 29, and the examples job did not run, so Verdict 28 waits. The suite here:
-1,434 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -58,39 +63,9 @@ for a reply. In this order.
    whether all three systems pass and whether the examples job, which did not run, passes its
    first-person walk. Each push's run is read by the reviewing session, and a failure it names comes
    first here.
-2. **raylib's own examples, one by one, as the measure** (N 5.2). `coverage.py` counts raylib's
-   functions, 491 of 619 carried, and nothing counts its examples, of which 45 programs here
-   carry a few. BevyCSharp holds itself to Bevy's 421 examples in a table a script writes from
-   Bevy's own list, and writing them one by one found faults no test had. The same here: a table
-   of every example in the `examples/` folder of the raylib checkout `build/raylib-bench/run.sh`
-   pins, made by a script, each row saying whether it is written, written in part, can be written
-   with what the flat API has, is missing something, or does not apply, with the count at its
-   head. An example written keeps raylib's name, its window of 800 by 450 and its scene, is
-   opened by name and captured as the others are, and its picture is set beside the screenshot
-   raylib keeps next to each example's source. A function it calls that the flat API lacks is
-   carried, or its row says why not, which is TODO.md's entry on the 128 functions taken from
-   the side a program meets them. A picture that differs from raylib's for no known reason is
-   taken down to the smallest program that still differs and explained before the pass goes
-   on. Many a batch, a module at a time, and it is the item to come back to whenever the others
-   are through.
-
-   What C# has of its own, strings, files and memory, covers raylib's helpers for them, so their
-   examples can be written. rlgl's matrix stack and its vertices one at a time are missing and
-   not out of reach, since a raylib program turns a drawn shape with the one and draws a shape
-   of its own with the other. Once the rows that can be written are, the missing are taken by
-   how many rows each holds, as BevyCSharp takes its gaps.
-
-   Two things go with the ports. A program of this engine's own that answers a raylib example
-   under another name takes raylib's name once it is read against raylib's source (N 5.1), as
-   `shapes_basic_2d` may be `shapes_basic_shapes`, `shapes_basic_3d` `models_geometric_shapes`,
-   `audio_sound` `audio_sound_loading` and `models_terrain` `models_heightmap_rendering`. And a
-   call that answers otherwise than raylib's of the same name, where the difference is kept, is
-   a line on `docs/compared-with-raylib.md`, in a table of its own a port adds to, the first
-   being a trigger's axis, from 0 at rest here and from -1 in raylib, which docs/input.md says
-   and the comparison does not.
-3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
-4. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
+3. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
    capture beside raylib's screenshot, read by eye, and `692cefee` built raylib's deferred program
    here to compare the same frame, which is the measure item 2 asks for and the 216 written have not
    had. A module at a time: raylib's examples built from the checkout `run.sh` pins, each run to the
@@ -100,18 +75,10 @@ for a reply. In this order.
    that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
    page where the difference is kept, a trigger's axis being the first. The share each pair differs
    by is written by the script into the table, so the number is measured again on each run.
-5. **The public surface read whole before 6.0** (Decision 5). The table of raylib's examples is
-   written, 220 of 222, which is where Decision 5 promises the surface a game can lean on. Every
-   public type and member in `PublicApi.txt` is read against raylib's name for the same thing, the
-   cheatsheet's line for it and its neighbors, and each that answers to another name, takes its
-   arguments in another order, or stands alone where raylib has a family is renamed or reshaped
-   before the surface is promised, in commits that say what moved, the examples and games following;
-   a line of the comparison page says each difference kept with its reason. The owner says when 6.0
-   is cut, and this goes before it.
-6. **The first shares recorded from the workflow's own device.** The examples job's first green
+4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
-   own, so the run after holds every pair to them and a share can only fall (item 4's measure).
+   own, so the run after holds every pair to them and a share can only fall (item 3's measure).
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -227,95 +194,27 @@ Verdicts 1 to 27 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 5, the public surface read against raylib, first batch** (Decision 5). Read by scripts kept
-in the session, every function of the flat API against `raylib.h`, `raymath.h`, `rcamera.h` and
-`rlgl.h` at the pinned commit, which is raylib 6.1-dev, by name, by its arguments' names and order
-and by their types, and every struct's fields and enum's members against raylib's. 601 of raylib's
-functions are carried by name, 501 with raylib's argument names in raylib's order; of the rest one
-pair took its arguments in another order, one took another shape, one another type, and the others
-differ in an argument's name or take a C pointer and its count as one array. What moved, to raylib's:
-
-- `DrawCapsule` and `DrawCapsuleWires` take rings before slices, as raylib 6 does, where they kept
-  raylib 5's order.
-- `ImageDrawRectangleLines(dst, posX, posY, width, height, color)` is raylib's, a pixel wide, where
-  it had the shape of `ImageDrawRectangleLinesEx`, which stays.
-- `ImageColorContrast` takes an int, as raylib's does.
-- `GetMouseRay`, `ImageDraw` and `GetSplinePointBezierQuad`, raylib's older names for
-  `GetScreenToWorldRay`, `ImageDrawImagePro` and `GetSplinePointBezierQuadratic`, which are carried,
-  are gone from the surface. `ImageDraw` stays inside the engine, which draws text and cube faces
-  into images with it, and the skies the examples, games and docs drew with it are
-  `ImageDrawImage`, which copies a whole image as it did, so no picture moved.
-- `ModelAnimation`'s `FrameCount`, `FramePoses` and `FrameMorphWeights` are `KeyframeCount`,
-  `KeyframePoses` and `KeyframeMorphWeights`, and a model's `Bones` and `BindPose` are in its
-  `Skeleton`, a `ModelSkeleton`, as raylib 6 holds them. The engine's own helper of that name is
-  `SceneBones`.
-- `Sound` and `Music` have raylib's `FrameCount`.
-- `LogLevel` has raylib's `All` and `None` around its levels, numbered as raylib's, and `Critical`
-  is `Fatal`, as the log already printed it, so `SetTraceLogLevel(LogLevel.None)` silences the
-  console as `LOG_NONE` does, with a test.
-- `Key`'s members raylib names otherwise take raylib's names, `Zero` to `Nine`, `LeftShift` and the
-  other modifiers, `Equal`, `NumLock`, `KbMenu`, `KpSubtract`, `KpAdd`, `KpEqual`, `Back` and `Null`,
-  their values SDL's scancodes as before.
-- `GamepadButton`'s members are raylib's, `RightFaceDown` for A or the cross, the directional pad
-  `LeftFaceUp` and so on, the shoulders `LeftTrigger1` and `RightTrigger1`, the sticks' buttons
-  `LeftThumb` and `RightThumb`, and `MiddleLeft`, `Middle` and `MiddleRight`, their values SDL's.
-  The workflow's pad presses, `build/soak.sh`, the capture script, the games, the docs and the e3d
-  skill follow, and Manor's walk through Settings with the new names reaches the walk here.
-- `TextureWrap.MirrorClamp` is carried, Vulkan 1.2's feature for it turned on where the device has
-  it, with a test, and `ConfigFlags` has `WindowMousePassthrough` and `InterlacedHint`, warned of
-  and doing nothing, as raylib's SDL backend does.
-
-Kept, each with its reason in a new section of the comparison page, Names and shapes: `Key` and
-`LogLevel` for raylib's enum names, `Camera3D` alone and `ModelMesh` and `ModelMaterial`, since
-`Camera`, `Mesh` and `Material` are the ECS components' names, `System.Numerics`' types,
-`string[]`, an array for a pointer and its count, `UploadMesh` of vertices, `SetShaderValue`'s
-overloads, `TraceLog`'s text, `UnloadDroppedFiles()`, `null` for no button, the triggers as axes
-alone, a model's pose kept on the GPU, a clip's own bones, `DrawModelPoints`, `DrawModelPointsEx`
-and `UnloadModelAnimation` carried from raylib 5.5, which raylib 6 left out, and C#'s names for
-some arguments. One more is the next batch: the ECS `Transform`'s `Position`, which raylib's
-`Transform` and Bevy's both call `translation`. The games build from a package packed here, and
-the render tests pass on lavapipe under the layer, 107 of them. The surface lost and reshaped lines
-(`PublicApi.txt`, 69 in and 61 out), which Decision 5 puts to the owner to number. The suite:
-1,436 passed, none skipped.
-
-**Now 5, the ECS `Transform`.** Kept as `Position`, with its reason on the comparison page.
-BevyCSharp's `Transform` names the field the same, and the levels and prefabs of the games, which
-`SaveScene` writes and `LoadScene` reads, store it by that name, so renaming it would leave every
-saved level unread. With it, every name the reading found is raylib's or on the page with its reason.
-
-**Now 4, the next pairs.** Of the written examples 3.5 to 7 per cent apart from raylib's program,
-every one now says its reason on its row. Most differ in their text, drawn in ImGui's default font,
-and the rest in what the comparison page keeps already: a model's textures filtered bilinear before
-a program sets a filter, and texture coordinates falling on whole numbers of a shader's scale,
-which OpenGL rounds otherwise, in the sieve and the ASCII renderer. `shaders_cel_shading` drew no
-outline, since raylib's glTF normals under a node that scales are as long as one over its scale,
-39.37 for this car in inches, as the page says, so raylib's 0.005 pushes its hull 0.197, where a
-unit normal here pushed it 0.005, inside the car. The port pushes it by 0.005 over 0.0254 with a
-comment saying why, and the pair went from 4.1 to 1.5 per cent apart; its capture is taken again.
-
-**Now 2, the last example.** `core_vr_simulator` is written, which makes 221 of 222, the one left
-being the browser's main loop. Its row had said VR was not in the engine's plan, which a working
-session wrote and nobody decided. `LoadVrStereoConfig` works each eye's projection, offset and the
-lens's parameters out from a `VrDeviceInfo` as raylib's does, the projections the engine's own with
-depth from 0 to 1, and between `BeginVrStereoMode` and `EndVrStereoMode` a `BeginMode3D` records its
-3D through the left eye, squeezed into the left half of clip space and kept to the left half's
-pixels, and `EndMode3D` records the same batches again through the right eye into the right half,
-sharing their vertices, as rlgl draws each batch once an eye with a viewport of half the target.
-A model drawn inside it is drawn once, through the camera, since the model pass draws a target
-through one camera, which the comparison page says. The example bends the stereo picture through
-raylib's distortion shader written in Slang, and stands 2.3 per cent apart from raylib's program,
-its FPS counter's font. Tests check the config against numbers worked from raylib's code for the
-example's headset, and that the cube is drawn in the middle of each half with stereo on, in the
-middle alone with it off, and 2D after it over both halves, which pass on lavapipe under the layer.
-`coverage.py` counts 520 of 619 carried. The suite: 1,438 passed, none skipped.
-
-**Models in stereo and in scissor mode.** A model drawn inside `BeginVrStereoMode` took the left
-eye's squeezed camera and was drawn in the left half alone, spilling past it, where the comparison
-page said it was drawn once through the camera. The model pass now keeps each batch to a scissor
-its draws carry, so a model drawn in stereo is recorded again for the right eye into the right half,
-as the shapes are, and a model drawn inside `BeginScissorMode` is kept to the rectangle, as raylib's
-scissor keeps all it draws, where models were left out of it. A probe's face and the shadows ignore
-the scissor. The ECS's mesh entities and particles are drawn once, through the camera, which the
-page says. Two tests, a model in each half of a stereo frame and a wall kept to a scissor's half,
-and the 110 render and reference tests pass on lavapipe under the layer. The suite: 1,440 passed,
+**Now 2, a game of a kind none of the seven is.** `games/Tempo` is a rhythm game, notes coming
+down four lanes of a road to a line where D, F, J and K or the pad's buttons play each, a note
+played within 50 ms of its beat perfect, within 100 good and within 150 bad, and one left past
+that missed. Its song is a ProTracker module of samples synthesized by `make-music.py` beside it,
+which writes the chart from the same rows, so each note is at the time its row is heard. The game
+keeps time by `GetMusicTimePlayed` and not by its frames, so a slow frame judges a note as late as
+it was played, and it falls back to the frames' time once the music has run out or where no audio
+device opens. The road's sides light up as loud as the music heard, measured by a processor on the
+music's stream and kept by the time each window of samples plays, since a processor sees samples
+up to half a second before they are heard. Sparks bloom from each note played, with grades, a
+combo, a pause, an offset for speakers that play late and a best score kept in files. Its
+autopilot plays each note on the frame nearest its beat, and the step that plays the song through
+on the dummy driver under the layer fails on a single miss. The step runs at the runner's own rate
+as the other games' do, since the song's time is the music's and a fixed frame time would not move
+it. Here the song played through 381 of 381 perfect at 60 frames a second, on the dummy driver as
+well, with no miss at 5 frames a second, and with no miss and no validation error on lavapipe under
+the layer kept to four cores, at 65 ms a frame. It is soaked and put through the resize storm with
+the others, its capture and a paragraph are in the README, and `docs/audio.md` says how a game
+keeps time by its music. Its capture is at its own window's size and left out of N 4.5's as the
+other games' are, which makes 11 left out where NORM.md's table says 10. The suite: 1,440 passed,
 none skipped.
+
+**Verdict 29.** The run of `22bbf15a` passes the tests on Linux, Windows and macOS. Its examples
+job was still capturing when this was written.

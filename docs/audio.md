@@ -133,6 +133,19 @@ back to a row it has played, which for an XM is raylib's to the frame. A module 
 player plays it, and as FastTracker 2 does where the two part, as in ping-pong loops, which raylib's
 plays forward.
 
+A game played to its music, as a rhythm game is, keeps its time by `GetMusicTimePlayed` rather than
+by adding up `GetFrameTime`. That is the time of the music heard, so it holds still while the music
+is paused or runs dry on a slow machine, and a note is judged against the beat the player hears.
+`games/Tempo` plays its song this way. A processor on the music's `Stream` sees samples up to half
+a second before they are heard, so Tempo keeps the loudness it measures by the time each window of
+samples plays, and reads it back at the time `GetMusicTimePlayed` gives:
+
+```csharp
+// The level of the window of 512 frames being heard.
+var window = (int)(time * music.Stream.SampleRate / LevelWindow);
+return window >= 0 && window < levels.Count ? levels[window] : 0;
+```
+
 ## Sound the program makes
 
 An `AudioStream` plays samples the program makes as it runs, as a synthesizer, a radio's static or
@@ -201,6 +214,7 @@ The [Behaviors and the ECS](behaviors-and-the-ecs.md) page covers behaviors and 
 - Examples: [`audio_sound`](../3DEngine.Examples/Audio/AudioSound.cs),
   [`audio_raw_stream`](../3DEngine.Examples/Audio/AudioRawStream.cs),
   [`audio_stream_callback`](../3DEngine.Examples/Audio/AudioStreamCallback.cs)
+- The game [`games/Tempo`](../games/Tempo/Program.cs), played to its music's time
 - The cheatsheet's [Audio](../CHEATSHEET.md#audio)
 - Previous: [Shaders and compute](shaders-and-compute.md)
 - Next: [Input](input.md)

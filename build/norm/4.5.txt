@@ -9,3 +9,4 @@ shapes_math_angle_rotation 720x400	raylib's example asks for a window of 720 by 
 summit 960x540	a game, captured at its own window's size
 swarm 1280x720	a game, captured at its own window's size
 tactics 1280x720	a game, captured at its own window's size
+tempo 1280x720	a game, captured at its own window's size

@@ -383,13 +383,51 @@ jobs:
             exit 1
           fi
 
+      # The rhythm game from the same package, whose autopilot plays the song through on SDL's
+      # dummy audio driver. The game keeps time by the music heard and not by its frames, so each
+      # note is played on the frame nearest its beat and judged within its windows however fast
+      # the runner draws.
+      - name: Build and play the rhythm game from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Tempo --force-evaluate
+          dotnet build games/Tempo --no-restore
+          rm -f games/Tempo/bin/Debug/net10.0/tempo-best.txt games/Tempo/bin/Debug/net10.0/tempo-offset.txt
+          ./e3d open games/Tempo/bin/Debug/net10.0/Tempo --offscreen --quiet
+          ./e3d command frames.wait 30 --quiet
+          ./e3d command tempo.autopilot true --quiet
+          ./e3d command input.key Enter 2 --quiet
+          # Captured eight seconds into the song by the music's time, which no runner's speed moves.
+          for i in $(seq 1 300); do
+            ./e3d command tempo.status | awk '{ exit !($1 == "Play" && $3 >= 8) }' && break
+            ./e3d command frames.wait 5 --quiet --timeout 600
+          done
+          ./e3d shot captures/tempo.png --quiet
+          build/webp.sh captures/tempo.png captures/tempo.webp lossy
+          status=""
+          for i in $(seq 1 60); do
+            status=$(./e3d command tempo.status)
+            case "$status" in Results*) break ;; *) ./e3d command frames.wait 60 --quiet --timeout 600 ;; esac
+          done
+          echo "$status"
+          ./e3d stop --quiet
+          case "$status" in
+            Results*"miss 0 "*) ;;
+            *) echo "::error::Tempo: the autopilot did not play every note of the song within its windows, $status"; exit 1 ;;
+          esac
+          if grep -F '[Vulkan.Validation]' build/sessions/Tempo.log | grep -F 'Validation Error'; then
+            echo "::error::Tempo: the validation layer reported an error"
+            exit 1
+          fi
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off (build/soak-check.py), as a leak does.
       - name: Play each game a while and check nothing it holds grows
         run: |
           pids=()
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
             pids+=($!)
           done
@@ -408,7 +446,7 @@ jobs:
           for program in games/Pusher/bin/Debug/net10.0/Pusher games/Hopper/bin/Debug/net10.0/Hopper \
                          games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
                          games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
-                         games/Tactics/bin/Debug/net10.0/Tactics \
+                         games/Tactics/bin/Debug/net10.0/Tactics games/Tempo/bin/Debug/net10.0/Tempo \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done
