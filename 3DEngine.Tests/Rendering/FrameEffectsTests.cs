@@ -191,6 +191,9 @@ public sealed class FrameEffectsTests : IDisposable
     {
         Open();
         var sphere = LoadModelFromMesh(GenMeshSphere(0.8f, 16, 16));
+        // A light pointing away from the camera's side, so the sphere's light takes the curve lit
+        // colors take, where a scene with no light draws its colors as they are.
+        CreateDirectionalLight(new Vector3(0, 0, 1), Color.White);
         int Shade(Tonemap curve)
         {
             SetTonemap(curve);

@@ -101,16 +101,16 @@ public sealed partial class OffscreenRenderTests
             EndMode3D();
         }
 
-        // Under the fixed light, and then with one light entity pointing away from the camera's
+        // Unlit with no light, and then with one light entity pointing away from the camera's
         // side of the cube, so only the emission reaches it.
-        var fixedLight = Capture(Draw, "fixed");
+        var unlit = Capture(Draw, "unlit");
         var ecs = GetApp().World.Resource<EcsWorld>();
         var away = ecs.Spawn();
         ecs.Add(away, Light.Directional(Vector3.One, 1));
         ecs.Add(away, new Transform(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI), Vector3.One));
         var dark = Capture(Draw, "dark");
 
-        foreach (var image in new[] { fixedLight, dark })
+        foreach (var image in new[] { unlit, dark })
         {
             Linear(GetImageColor(image, 32, 32).R).Should().BeApproximately(0.5f, 0.03f, "a black cube gives off half of red's light");
             GetImageColor(image, 32, 32).G.Should().BeLessThan(5);

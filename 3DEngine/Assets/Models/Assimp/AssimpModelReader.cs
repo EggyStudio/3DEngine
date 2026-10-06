@@ -255,6 +255,9 @@ internal sealed class AssimpModelReader : ISceneReader
 
     // -- Materials
 
+    // Assimp's AI_DEFAULT_MATERIAL_NAME, the name of the material it adds to a file that has none.
+    private const string AssimpDefaultMaterial = "DefaultMaterial";
+
     private static SceneMaterialPayload[] BuildMaterials(A.Scene aScene, bool readsOpacity)
     {
         if (aScene.MaterialCount == 0) return Array.Empty<SceneMaterialPayload>();
@@ -267,7 +270,10 @@ internal sealed class AssimpModelReader : ISceneReader
             // AssimpNetter exposes colors as System.Numerics.Vector4 directly. PBR-aware files
             // (glTF imported via Assimp, FBX from PBR exporters) populate metallic/roughness/
             // emissive too via $mat.* properties.
-            var diffuse = m.HasColorDiffuse ? m.ColorDiffuse : Vector4.One;
+            // The material Assimp adds to a file that names none, as an OBJ with no MTL, is gray
+            // (0.6), and raylib's default for such a file is white, so the texture a program sets
+            // on it shows its own colors.
+            var diffuse = m.HasColorDiffuse && m.Name != AssimpDefaultMaterial ? m.ColorDiffuse : Vector4.One;
             // glTF's own factors where the file has them. A Phong material has no metal, and its
             // shininess (0 to 1000) stands in for smoothness.
             float metallic = TryGetFloat(m, "$mat.metallicFactor", 0f);

@@ -29,7 +29,7 @@ needs an offline toolchain beyond `slangc`.
 - **The immediate pass** (§2) draws the shapes and textures the flat API records.
 - **The model pass** (§3) draws the meshes `DrawModel` records and every mesh entity, which
   `MeshEntityDraws` records through each camera entity, lit by the light entities or, with
-  none, by one fixed light (§4).
+  none, drawn unlit as raylib draws them (§4).
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 - **A frame profile** of the schedule's stages, the renderer's steps and each pass on the CPU and
   the GPU, with two stress examples that find how much a frame holds (§6).
@@ -163,8 +163,9 @@ in a second vertex buffer stepped per instance (`ModelRenderer.Instance`, `Model
 shader), holding the world matrix as three rows of a 3x4 (the rotation for normals and the
 translation for world positions) and the material's factors. The camera's view-projection is a
 push constant for the batch (`modelPush`), as a light's is in the shadow pass, so draws recorded
-through two cameras are batched apart. `model.slang` shades by the frame's lights, or by one fixed light
-from above over an ambient floor when the world has none, which is how the flat API's models look.
+through two cameras are batched apart. `model.slang` shades by the frame's lights, or when the
+world has none and no environment draws the color unlit, texture times color with the light the
+material gives off, as raylib's default shader draws a model.
 `model.slang` is built on the `modelpass` module, which a model shader of the program's own imports
 too. A draw with one is drawn by a pipeline made from it, and its uniforms, copied when the draw
 was recorded, reach it in a uniform buffer at binding 0 of the first descriptor set, where Slang
@@ -310,9 +311,9 @@ the program's own that works out a color itself.
 
 The sum goes through a tonemap that leaves the brightest channel alone up to 0.9, bends it smoothly
 toward 1 past that, and scales the other two channels with it. A sum past one keeps its hue where a
-clamp per channel turns it white, and a color below the bend is unchanged. The fixed light of a
-world with no light entities goes through the same curve, with no highlight, so a model looks the
-same lit by its first light entity as by the fixed light. With bloom off the curve runs at the end
+clamp per channel turns it white, and a color below the bend is unchanged. A world with no light
+entities and no environment draws its models unlit, encoded with no curve, so a color near white
+keeps its shade as raylib's does. With bloom off the curve runs at the end
 of the model pass. With bloom on, the window's view writes linear light into the HDR frame instead
 (a flag in its lighting buffer, `output.x`, which `toDisplay` reads), and the curve runs once over
 the frame in the composite (§5), from the module `color.slang` both import.
@@ -338,7 +339,7 @@ spherical harmonics of bands 0 to 2, each band scaled by its share of a cosine l
 and Hanrahan), so a surface takes the light of the whole half of the sky it faces. The cube is set
 1's binding 2, a black cube when there is none, the irradiance a storage buffer at binding 14,
 zeros when there is none, and the lighting buffer carries the map's intensity and its last mip.
-With a map set the fixed light is not used, whether or not there are light entities.
+With a map set models are lit by it, whether or not there are light entities.
 
 The filter writes a second cube for the sky, at a quarter of the image's width a face up to 512
 texels, resampled with no prefiltering, at set 1's binding 3. `DrawSkybox` records a model draw

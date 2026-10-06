@@ -36,8 +36,9 @@ gave it is the program's to unload. `GetModelBoundingBox` gives the box around a
 `DrawBoundingBox` draws and the collision functions test against.
 
 `DrawModelWires` draws a model's triangle edges, which shows how finely a mesh is made. Models are
-lit by one fixed light from above until the program makes lights of its own, which the
-[Materials, light and shadows](materials-light-and-shadows.md) page covers.
+drawn unlit, their color and texture as they are, as raylib draws them, until the program makes
+lights of its own, which the [Materials, light and shadows](materials-light-and-shadows.md) page
+covers.
 
 ## Meshes the program makes
 
@@ -230,7 +231,7 @@ DrawSkybox();
 ```
 
 `SetEnvironmentMap("sky.hdr")` loads a Radiance file, which keeps light brighter than white, as the
-sun is. `UnloadEnvironmentMap` goes back to the fixed light.
+sun is. `UnloadEnvironmentMap` goes back to the light entities alone, or to drawing unlit with none.
 
 ## Many copies of one mesh
 

@@ -54,7 +54,7 @@ public sealed partial class OffscreenRenderTests
     {
         Open(64, 64);
         // The red room around a mirror ball, lit by a lamp inside it, and a dim sun, so the scene
-        // has a light left when the lamp goes out rather than the fixed light of none.
+        // has a light left when the lamp goes out rather than being drawn unlit with none.
         var lamp = CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
         CreateDirectionalLight(-Vector3.UnitY, Color.White, 0.05f);
         var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));

@@ -575,21 +575,19 @@ public static partial class Engine3D
     public static void DrawModelPoints(Model model, Vector3 position, float scale, Color tint) =>
         DrawModelPointsEx(model, position, Vector3.UnitY, 0, new Vector3(scale), tint);
 
-    /// <summary>Draws each of a model's vertices as a point, rotated (degrees) and scaled.</summary>
-    /// <remarks>A vertex shared by several triangles is drawn once, from the mesh's arrays each call.</remarks>
+    /// <summary>Draws a model as a point at each corner of its triangles, rotated (degrees) and scaled.</summary>
+    /// <remarks>
+    /// As raylib's, the model is drawn in point mode with both faces, and the point mode and culling
+    /// it had are put back after. A device that cannot draw triangles as points draws it filled.
+    /// </remarks>
     public static void DrawModelPointsEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
     {
-        var axis = rotationAxis == Vector3.Zero ? Vector3.UnitY : Vector3.Normalize(rotationAxis);
-        var world = model.Transform * Matrix4x4.CreateScale(scale)
-                    * Matrix4x4.CreateFromAxisAngle(axis, float.DegreesToRadians(rotationAngle))
-                    * Matrix4x4.CreateTranslation(position);
-        for (int index = 0; index < model.Meshes.Length; index++)
-        {
-            if (!Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out _)) continue;
-            if (model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin)
-                vertices = PoseOnCpu(skin, joints);
-            foreach (var vertex in vertices) DrawPoint3D(Vector3.Transform(vertex.Position, world), tint);
-        }
+        var (pointMode, culling) = (_rlPointMode, _rlCulling);
+        rlEnablePointMode();
+        rlDisableBackfaceCulling();
+        DrawModelEx(model, position, rotationAxis, rotationAngle, scale, tint);
+        (_rlPointMode, _rlCulling) = (pointMode, culling);
+        ApplyRlCulling();
     }
 
     /// <summary>A white material with no maps, as a model made from a mesh starts with.</summary>

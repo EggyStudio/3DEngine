@@ -174,3 +174,27 @@ and `text_input_box` were programs of this engine's own under raylib's names and
 `GenImageFontAtlas` would and the page keeps, and the docs quote the ports. Of the 16, 8 are past
 2%, all the font, Latin-1 where raylib loads ASCII (`text_unicode_ranges`), or a TrueType font
 rasterized otherwise. The suite: 1,380 passed, 0 failed, 1 skipped.
+
+**Now 5, models measured, and models drawn unlit with no light.** As the word above has it, a
+model drawn before a program makes a light, with no environment map, is drawn unlit, texture times
+color with the light its material gives off, encoded with no curve so a color near white keeps its
+shade, and the first light turns lighting on as before. The engine's own examples that leaned on
+the old light make a sun and a little light from all around (`textures_render_target`,
+`physics_boxes`, `models_animation`, `models_terrain`, `models_morph_and_layers`, `shaders_model`),
+`textures_mipmaps` stays unlit since it shows a texture, and the games, the README's first program
+and the first game's steps light their own already. Three reference frames are redrawn: the skinned
+arm and the morph and layer scene with that sun and fill, so their shading still shows the bend, and
+the render texture one unlit. The comparison page's line now says only the emission, and the
+lighting guide, the models guide, the cheatsheet and RENDERING.md say the rule.
+
+Measuring found two faults more. Assimp gives a file that names no material, as an OBJ with no MTL,
+a gray material of 0.6, where raylib's default is white, so a texture set on it showed at six tenths
+of its colors, which a test now holds. And `DrawPoint3D` was a cross where raylib draws a line a tenth
+of a unit along z, and `DrawModelPoints` drew each vertex by it where raylib draws the model in point
+mode with both faces, which it does now. `models_loading` was the engine's own torus under raylib's
+name and is raylib's castle now, 0.7% apart. Of the 31, 24 are within 2% from 12, among them
+`models_basic_voxel` from 65.9%, `models_first_person_maze` from 54.9% and `models_yaw_pitch_roll`
+from 28.6%. The 7 past it are raygui's panel and the font, `models_point_rendering`'s cloud placed by
+C's `rand()`, which is glibc's and not raylib's, and `models_procedural_decals`' vertex counts, which
+the page keeps. The suite: 1,381 passed, 0 failed, 1 skipped, and the render tests pass on lavapipe
+under the validation layer.

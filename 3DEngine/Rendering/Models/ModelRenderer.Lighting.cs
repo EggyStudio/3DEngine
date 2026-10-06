@@ -9,7 +9,7 @@ internal sealed partial class ModelRenderer
     // The lights of this frame as one view sees them, the window's at 0, as a descriptor set: one
     // of the sets of this frame's slot of a ring, a slot per frame in flight so a set the GPU may
     // still read is never written, or a set over an empty buffer when there are no lights and no
-    // environment, which the shader reads as "use the fixed light". Binding 0 holds the view's
+    // environment, which the shader reads as "draw unlit". Binding 0 holds the view's
     // lighting buffer, with its own cascades, binding 1 the shadow map when the view has a shadow,
     // and the white texture otherwise, binding 2 the environment map and binding 3 its sky, or a
     // black cube for each, and binding 4 the point lights' faces, or a stand-in, so all are always

@@ -81,14 +81,9 @@ public static partial class Engine3D
         }
     }
 
-    /// <summary>Draws a point, as a short cross three lines wide, since a line of no length draws nothing.</summary>
-    public static void DrawPoint3D(Vector3 position, Color color)
-    {
-        const float Half = 0.01f;
-        DrawList.Line(position - Vector3.UnitX * Half, position + Vector3.UnitX * Half, color);
-        DrawList.Line(position - Vector3.UnitY * Half, position + Vector3.UnitY * Half, color);
-        DrawList.Line(position - Vector3.UnitZ * Half, position + Vector3.UnitZ * Half, color);
-    }
+    /// <summary>Draws a point, as raylib's does, a line from it a tenth of a unit along z, since a line of no length draws nothing.</summary>
+    public static void DrawPoint3D(Vector3 position, Color color) =>
+        DrawList.Line(position, position + new Vector3(0, 0, 0.1f), color);
 
     /// <summary>Draws a ray as a line from where it starts, a hundred units along it.</summary>
     public static void DrawRay(Ray ray, Color color)

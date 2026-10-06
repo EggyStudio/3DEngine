@@ -10,9 +10,10 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// The surface follows glTF's metallic-roughness model, which every format Assimp reads is mapped
-/// onto. It shows under light entities. The fixed light of a world with none shows the color, the
-/// texture and the normal map only. The color and the texture are sRGB, as raylib's colors are,
-/// and the model pass decodes them to light them in linear space. The maps are linear.
+/// onto. It shows under light entities. A world with none draws the color and the texture unlit,
+/// as raylib does, with the light the material gives off. The color and the texture are sRGB, as
+/// raylib's colors are, and the model pass decodes them to light them in linear space. The maps
+/// are linear.
 /// </remarks>
 public record struct ModelMaterial(Color Color, Texture2D Texture = default)
 {

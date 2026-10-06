@@ -9,6 +9,10 @@ public static class TexturesRenderTarget
     {
         InitWindow(800, 450, "[textures] render target");
 
+        // Lit from above over a little light from all around, where models are drawn unlit with none.
+        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+        SetAmbientLight(Color.White, 0.35f);
+
         // A 3D scene drawn into an image each frame, then drawn three times as a texture.
         var target = LoadRenderTexture(320, 240);
         var camera = new Camera3D(new Vector3(5, 4, 5), Vector3.Zero, Vector3.UnitY, 45);

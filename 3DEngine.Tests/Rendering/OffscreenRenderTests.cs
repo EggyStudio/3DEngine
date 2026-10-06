@@ -164,7 +164,7 @@ public sealed partial class OffscreenRenderTests : IDisposable
     }
 
     [NeedsVulkanFact]
-    public void A_Cube_Is_Lit_Through_The_Camera_And_The_Background_Is_Cleared()
+    public void A_Cube_With_No_Light_Is_Drawn_Unlit_Through_The_Camera_And_The_Background_Is_Cleared()
     {
         Open(64, 64);
         var camera = new Camera3D(new Vector3(0, 0, 4), Vector3.Zero, Vector3.UnitY, 45);
@@ -179,9 +179,7 @@ public sealed partial class OffscreenRenderTests : IDisposable
         });
 
         GetImageColor(image, 2, 2).Should().Be(new Color(0, 255, 0));
-        var center = GetImageColor(image, 32, 32);
-        (center.R == center.G && center.G == center.B).Should().BeTrue("a white cube is shaded gray, not tinted");
-        center.R.Should().BeInRange(60, 254, "the face toward the camera is lit by the fixed light, not black and not full white");
+        GetImageColor(image, 32, 32).Should().Be(Color.White, "with no light made a model is drawn unlit, its color as it is, as raylib draws it");
         UnloadModel(cube);
     }
 

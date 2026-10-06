@@ -243,6 +243,16 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
+    public void An_Obj_That_Names_No_Material_Is_White_As_Raylibs_Default_Material_Is()
+    {
+        var path = Path.Combine(_folder.Path, "bare.obj");
+        File.WriteAllText(path, "v 0 0 0\nv 1 0 0\nv 0 1 0\nvt 0 0\nvt 1 0\nvt 0 1\nf 1/1 2/2 3/3\n");
+
+        LoadModel(path).Materials[0].Color.Should().Be(Color.White,
+            "the material Assimp adds to a file that names none is gray, where raylib's default is white, so a texture set on it shows its own colors");
+    }
+
+    [Fact]
     public void A_Files_Alpha_Mode_And_Cutoff_Reach_The_Material()
     {
         LoadModel(WriteTriangleWithMaterial("""{"alphaMode":"MASK","alphaCutoff":0.3}""")).Materials[0]
@@ -314,17 +324,19 @@ public sealed class Engine3DModelTests : IDisposable
     }
 
     [Fact]
-    public void A_Models_Points_Are_Its_Vertices()
+    public void A_Models_Points_Are_Its_Triangles_Corners_In_Point_Mode_As_Raylibs_Are()
     {
         _app.World.InitResource<DrawList>();
+        _app.World.InitResource<ModelDrawList>();
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        var drawList = _app.World.Resource<DrawList>();
+        var draws = _app.World.Resource<ModelDrawList>();
 
         DrawModelPoints(cube, Vector3.Zero, 1, Color.Red);
+        DrawModel(cube, Vector3.Zero, 1, Color.Red);
 
-        drawList.Vertices.Length.Should().BeGreaterThan(0);
-        drawList.Vertices.ToArray().Select(v => v.Position).Should().OnlyContain(p => MathF.Abs(p.X) <= 0.52f && MathF.Abs(p.Y) <= 0.52f && MathF.Abs(p.Z) <= 0.52f,
-            "every point is at a vertex of the unit cube");
+        draws.Draws.Should().HaveCount(2);
+        draws.Draws[0].Should().Match<ModelDraw>(d => d.Points && d.DoubleSided, "the model is drawn in point mode with both faces, as raylib's is");
+        draws.Draws[1].Points.Should().BeFalse("point mode is put back as it was after");
     }
 
     [Fact]

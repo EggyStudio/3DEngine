@@ -9,6 +9,10 @@ public static class PhysicsBoxes
     {
         InitWindow(800, 450, "[physics] boxes");
 
+        // Lit from above over a little light from all around, where models are drawn unlit with none.
+        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+        SetAmbientLight(Color.White, 0.35f);
+
         var camera = new Camera3D(new Vector3(8, 7, 12), new Vector3(0, 1, 0), Vector3.UnitY, 45);
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var floor = LoadModelFromMesh(GenMeshCube(16, 1, 16));

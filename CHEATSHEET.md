@@ -314,7 +314,7 @@ void DrawSphereEx(Vector3 center, float radius, int rings, int slices, Color col
 void DrawSphereWires(Vector3 center, float radius, int rings, int slices, Color color);         // Sphere as lines, a diagonal across each face
 void DrawPlane(Vector3 center, Vector2 size, Color color);                                      // Rectangle on the XZ plane
 void DrawGrid(int slices, float spacing);                                                       // Grid on the XZ plane
-void DrawPoint3D(Vector3 position, Color color);                                                // A point, as a small cross
+void DrawPoint3D(Vector3 position, Color color);                                                // A point, as raylib's, a short line along z
 void DrawRay(Ray ray, Color color);                                                             // A ray, a hundred units of it
 void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color); // A circle turned about an axis
 void DrawTriangleStrip3D(ReadOnlySpan<Vector3> points, Color color);                            // A strip of triangles
@@ -620,7 +620,7 @@ void UnloadMesh(ModelMesh mesh);                                           // Fr
 
 void SetEnvironmentMap(Image equirectangular, float intensity = 1);         // Light models from all around by a sky image, which smooth and metal surfaces reflect
 bool SetEnvironmentMap(string fileName, float intensity = 1);              // The same from a file, a Radiance .hdr keeping light past white
-void UnloadEnvironmentMap();                                               // Back to the fixed light, or the light entities alone
+void UnloadEnvironmentMap();                                               // Back to the light entities alone, or unlit with none
 void DrawSkybox();                                                         // Draw the environment map as the sky, inside BeginMode3D
 void DrawSkybox(Color tint);                                               // The same, tinted
 
@@ -660,8 +660,9 @@ mesh, with `Metallic`, `Roughness`, a `NormalMap` and its `NormalScale`, a `Meta
 as glTF packs one, an `Emissive` color with its `EmissiveIntensity` and `EmissiveMap`, and an
 `OcclusionMap` with its `OcclusionStrength`, an `AlphaMode` (`Blend` by default, `Mask` below
 its `AlphaCutoff`, or `Opaque`) and `DoubleSided` (false by default), both of which a glTF file sets,
-and `CastsShadows` (true by default), false for a glow that leaves no shadow. Models are lit by one fixed light from above, unless
-the ECS holds `Light` entities, and draw through the camera `BeginMode3D` set.
+and `CastsShadows` (true by default), false for a glow that leaves no shadow. Models are drawn
+unlit, as raylib draws them, until the ECS holds `Light` entities, and draw through the camera
+`BeginMode3D` set.
 
 ## States
 
@@ -733,8 +734,9 @@ bool IsReflectionProbeReady(ReflectionProbeHandle probe);                  // Wh
 void UnloadReflectionProbe(ReflectionProbeHandle probe);                   // Remove it
 ```
 
-With no lights, models are lit by one fixed light from above. Lights are `Light` entities in the
-ECS, so lights made here and light entities of a program's own light the same models.
+With no lights, models are drawn unlit, their color and texture as they are, as raylib draws them.
+Lights are `Light` entities in the ECS, so lights made here and light entities of a program's own
+light the same models.
 
 ## Particles
 

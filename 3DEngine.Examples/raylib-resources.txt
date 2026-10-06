@@ -107,3 +107,5 @@ models/resources/models/vox/chr_knight.vox
 models/resources/models/vox/chr_sword.vox
 models/resources/models/vox/monu9.vox
 models/resources/models/vox/fez.vox
+models/resources/models/obj/castle.obj
+models/resources/models/obj/castle_diffuse.png

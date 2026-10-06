@@ -18,9 +18,7 @@ public float3 linearToSrgb(float3 c)
 
 // Brings light past 1 back under it. The brightest channel is left alone up to 0.9 and bends
 // smoothly toward 1 past it, and the other two are scaled with it, so a bright orange light stays
-// orange where a clamp per channel turns it white. Below the bend the color is unchanged, so a
-// model looks the same lit by its first light entity as by the fixed light, which goes through
-// the same curve.
+// orange where a clamp per channel turns it white. Below the bend the color is unchanged.
 public float3 tonemap(float3 color)
 {
     static const float knee = 0.9;

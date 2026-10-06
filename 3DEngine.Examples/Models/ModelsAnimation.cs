@@ -9,6 +9,10 @@ public static class ModelsAnimation
     {
         InitWindow(800, 450, "[models] animation");
 
+        // Lit from above over a little light from all around, where models are drawn unlit with none.
+        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+        SetAmbientLight(Color.White, 0.35f);
+
         var camera = new Camera3D(new Vector3(2.5f, 2, 3.5f), new Vector3(0, 1, 0), Vector3.UnitY, 45);
 
         // A skinned arm and its clip from the same glTF. build/make-arm-gltf.py writes it.

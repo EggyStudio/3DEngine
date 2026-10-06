@@ -279,6 +279,10 @@ public sealed class ReferenceFrameTests : IDisposable
         var bend = LoadModelAnimations(arm)[0];
         UpdateModelAnimation(model, bend, bend.FrameCount / 2);
         var camera = new Camera3D(new Vector3(2, 2, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+        // Lit from above over a floor of light from all around, so the bend shows in the shading
+        // where a model drawn with no light is flat.
+        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+        SetAmbientLight(Color.White, 0.35f);
 
         var frame = Capture(() =>
         {
@@ -543,6 +547,10 @@ public sealed class ReferenceFrameTests : IDisposable
         var clips = LoadModelAnimations(heroFile);
         UpdateModelAnimationLayer(hero, clips.Single(c => c.Name == "run"), 0.15f, clips.Single(c => c.Name == "jump"), 0, "ArmL");
         var camera = new Camera3D(new Vector3(0, 1.4f, 5), new Vector3(0, 1, 0), Vector3.UnitY, 45);
+        // Lit from above over a floor of light from all around, so the raised part and the arm
+        // show in the shading where a model drawn with no light is flat.
+        CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+        SetAmbientLight(Color.White, 0.35f);
 
         var frame = Capture(() =>
         {

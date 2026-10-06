@@ -660,24 +660,27 @@ float3 ambientReflected(float3 f0, float roughness, float nv)
     return f0 * ab.x + ab.y;
 }
 
+// A color as it is, given sRGB-encoded for the frame with no tonemap to bend it, or linear for
+// the HDR frame, as raylib's default shader draws a model, its texture times its color, so a
+// color near white is not bent by the curve the lit colors take.
+public float3 unlit(float3 albedo)
+{
+    return lighting.output.x > 0.0 ? albedo : linearToSrgb(albedo);
+}
+
 // A linear color lit at this point, given sRGB-encoded for the frame. With light entities it is
 // each light reflected by the material's metallic-roughness model, the shadowed light cut by its
-// shadow map and the light from all around darkened by its occlusion map. With none it is one
-// fixed light from above over an ambient floor and no highlight, which is how the flat API's
-// models look. Either adds the light the material gives off, and goes through the same tonemap
-// and encoding.
+// shadow map and the light from all around darkened by its occlusion map, adding the light the
+// material gives off, through the tonemap and the encoding. With no light and no environment it
+// is the color unlit, as raylib draws a model before a program makes a light, with the light the
+// material gives off added.
 public float3 lit(float3 albedo, ModelVertexOutput input)
 {
     float3 n = surfaceNormal(input);
     int probe = probeAt(input.world);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;
     if (lighting.count == 0 && !environment)
-    {
-        float3 toLight = normalize(float3(0.4, 1.0, 0.3));
-        // The ramp from 0.35 to 1 the light had when the pass worked in sRGB, raised to 2.2 so it
-        // encodes back to the same shades and the flat API's models look as they did.
-        return toDisplay(albedo * pow(0.35 + 0.65 * max(dot(n, toLight), 0.0), 2.2) + emitted(input));
-    }
+        return unlit(albedo + emitted(input));
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
     float metallic = saturate(materialMetallic(input) * packed.b);

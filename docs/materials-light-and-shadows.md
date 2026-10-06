@@ -130,8 +130,17 @@ exposure catches up.
 
 ## Lights
 
-A world with no lights is lit by one fixed light from above, so a model shows as soon as it is
-drawn. The first light a program makes replaces it. There are four kinds:
+A world with no lights draws its models unlit, their color and texture as they are, as raylib
+draws them, with the light a material gives off. The first light a program makes turns lighting
+on, and a scene that should look lit from the start makes one, often a sun and a little light
+from all around:
+
+```csharp
+CreateDirectionalLight(new Vector3(-0.4f, -1, -0.3f), Color.White, 0.65f);
+SetAmbientLight(Color.White, 0.35f);
+```
+
+There are four kinds:
 
 | Call | Lights |
 |---|---|
@@ -192,7 +201,8 @@ DrawSphere(lampAt, 0.12f, new Color(255, 230, 190));
 
 `SetEnvironmentMap` lights models from every side by a sky image, so a smooth surface reflects the
 sky and a rough one takes its colors. The
-[Models and animation](models-and-animation.md#a-sky-around-the-world) page loads one. With a map set the fixed light goes, whether or not there are lights.
+[Models and animation](models-and-animation.md#a-sky-around-the-world) page loads one. With a map
+set models are lit by it, whether or not there are lights.
 
 ## Darker corners
 
