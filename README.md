@@ -231,6 +231,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Driving a program with e3d](https://github.com/EggyStudio/3DEngine/blob/main/docs/driving-with-e3d.md) | Asking a running program about its world, input, captures, the log, commands of its own and C# typed at it |
 | [Shipping a game](https://github.com/EggyStudio/3DEngine/blob/main/docs/shipping-a-game.md) | A game of its own on the package, and one native executable a player runs |
 | [Compared with raylib](https://github.com/EggyStudio/3DEngine/blob/main/docs/compared-with-raylib.md) | What is the same as raylib, what this engine adds, what it costs, and what was measured |
+| [Moving from 5.1 to 6.0](https://github.com/EggyStudio/3DEngine/blob/main/docs/upgrading.md) | What a game written for 5.1 writes for 6.0, name by name, raylib's names for keys, buttons and log levels among them |
 | [CHEATSHEET.md](https://github.com/EggyStudio/3DEngine/blob/main/CHEATSHEET.md) | Every function of the flat API on one line |
 
 ## Driving a running app

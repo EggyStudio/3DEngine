@@ -98,20 +98,26 @@ public sealed class NeedsOpenFilesFactAttribute : FactAttribute
 }
 
 /// <summary>
-/// Skipped where the checkout does not hold the commit N 7.2 reads the messages from, as a copy of
-/// the files alone or a checkout of the last commit only, which the workflow makes.
+/// Skipped where the checkout does not hold the commit a test reads, as a copy of the files alone or
+/// a checkout of the last commit only, which the workflow makes. With no commit named it is the one
+/// N 7.2 reads the messages from.
 /// </summary>
 public sealed class NeedsHistoryFactAttribute : FactAttribute
 {
-    public NeedsHistoryFactAttribute()
+    public NeedsHistoryFactAttribute() : this(NormTests.MessagesFrom, "from which N 7.2 reads the messages")
+    {
+    }
+
+    /// <summary>Skipped where the checkout does not hold <paramref name="commit"/>, the skip saying what the test reads from it in <paramref name="read"/>.</summary>
+    public NeedsHistoryFactAttribute(string commit, string read)
     {
         try
         {
-            NormTests.Git("rev-parse", "--verify", "--quiet", NormTests.MessagesFrom + "^{commit}");
+            NormTests.Git("rev-parse", "--verify", "--quiet", commit + "^{commit}");
         }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
         {
-            Skip = $"This checkout does not hold commit {NormTests.MessagesFrom}, from which N 7.2 reads the messages, or git is not on PATH.";
+            Skip = $"This checkout does not hold commit {commit}, {read}, or git is not on PATH.";
         }
     }
 }

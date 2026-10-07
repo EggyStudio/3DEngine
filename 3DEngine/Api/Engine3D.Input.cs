@@ -26,7 +26,7 @@ public static partial class Engine3D
 
     /// <summary>
     /// The next key pressed this frame, in the order pressed, or <see cref="Key.Null"/> when
-    /// none is left. Each call takes one, so a loop calls it until it answers Unknown.
+    /// none is left. Each call takes one, so a loop calls it until it answers Null.
     /// </summary>
     public static Key GetKeyPressed() => Input.TakeKey();
 

@@ -10,18 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `a4f31573`. Every C# block of the guides builds on the packed package in the examples
-job, 138 blocks of fifteen pages: `build/docs-on-package.py` sorts a block's lines by what they
-declare, types into a namespace, members into a class and statements into a method inside a loop run
-once, after the lines a `<!-- compiled with: -->` comment before the fence gives, leaves out a block
+Reviewed up to `1c848a20`. Verdict 33's cause was e3d's: on Windows it added its `cmd.exe /c start`
+line to `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that
+cmd.exe keeps, `start` took the escaped title for the program and the log's path was none; the line
+goes to cmd.exe as written through `Arguments`, `drive-game.sh` keeps e3d's answer as JSON and fails
+with its code, its sentence and the last five lines of the log it names, and a path that is not
+there is refused with `NOT_FOUND` where e3d died making a folder from it. For Verdict 32 the
+offscreen test reads the heap every ten apps, the macOS job installs `dotnet-gcdump`, and both leak
+tests count the heap's objects by type after the twentieth app and the hundredth, a failure naming
+the five types that grew most; on the way the session read that the scripts' shared watch of Verdict
+27 is let go with the last app watching, so a hundred apps made one after another make a hundred
+FSEvents streams, which the census's answer is read against first (`1c848a20`). Both verdicts wait
+for the Windows and macOS jobs, and the session is on item 4. BevyCSharp's `bcs` gives cmd.exe its
+start line the same way, which is its item 4. The suite: 1,462 passed, none skipped.
+
+Before them, every C# block of the guides came to build on the packed package in the examples job,
+138 blocks of fifteen pages: `build/docs-on-package.py` sorts a block's lines by what they declare,
+types into a namespace, members into a class and statements into a method inside a loop run once,
+after the lines a `<!-- compiled with: -->` comment before the fence gives, leaves out a block
 marked `<!-- not compiled: -->` with its reason, and says an error at the page's line as an
 annotation, with `DocsScriptTests` feeding it a good, a stale and a skipped block, which settles
 item 4. Its first run found three faults: the spatial sound the audio guide teaches had been
 internal since `82b1feb4` and is public again as `BehaviorSounds.PlaySpatialSound`, two lines added
 to `PublicApi.txt` and none lost; the states guide and the cheatsheet named a `Screen.Menu` the
 page's enum lacks; and five fragments no compiler reads are written as their code (`a4f31573`).
-N 1.4 leaves out 13. The session works on, the owner having set it no limit, and Verdicts 32 and 33
-come before item 5. The suite: 1,462 passed, none skipped.
+N 1.4 leaves out 13. The suite: 1,462 passed, none skipped.
 
 Before them, Windows and macOS came to follow the README in a new project and build and run every
 step of the first game after their games, each as a step of its own with its own error, the paths
@@ -35,15 +48,6 @@ failed one test, the offscreen hundred of `AppLeakTests` with the heap up by 7 M
 32; Windows passed its suite and then every game failed to open through `e3d` with no reason on the
 page, which is Verdict 33; the README walk and the first game ran on neither system behind those
 failures, and the examples job was skipped, so Verdicts 30 and 31 wait.
-
-Before them, an OpenType font of CFF outlines came to draw its characters past U+FFFF from its Type
-2 charstrings, CID-keyed fonts among them, checked against STIX Two Math and Noto Sans CJK and by
-the scan of 444 fonts (`3c72e321`); the games' errors on Windows and macOS name the system as a
-reader knows it (`eb5f95f5`); a font that joins sequences shapes a string once and draws it again
-from what it kept (`d9e5bac2`); and a twentieth reference frame compares color text whole, paints,
-joined bitmaps and tinted layers, TODO.md's testing entry naming the twenty (`f5a102d6`). TODO.md's
-text entry is down to text shaped whole, which stays described. Item 4 is new. The suite: 1,461
-passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -119,8 +123,15 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     step. And the cause is found on macOS, by reading which types grew between the twentieth app and
     the hundredth, a `dotnet-gcdump` or `GC.GetGCMemoryInfo` in the job for the failing test; the
     one macOS-only thing the tests name, the context macOS's `FileSystemWatcher` keeps until
-    FSEvents lets go of its stream, is a place to look and not the cause. Settled when the macOS job
-    passes the test.
+    FSEvents lets go of its stream, is a place to look and not the cause. Mended for the reading at
+    `1c848a20`: the offscreen test reads the heap every ten apps, the macOS job installs
+    `dotnet-gcdump` and names it in `E3D_GCDUMP`, and both leak tests count the heap's objects by
+    type after the twentieth app and the hundredth, a failure's message naming the five types that
+    grew most and the output thirty; on Linux the census found 0.1 MB of reflection's caches and the
+    runtime's strings. The session read on the way that the scripts' shared watch of Verdict 27 is
+    let go with the last app watching it, so a hundred apps made one after another make a hundred
+    FSEvents streams, and `039bd788`'s one stream holds for apps that overlap; the census's answer
+    is read against that first. Settled when the macOS job passes the test.
 
 33. **The run of `913e78e0` fails on Windows in every game's opening, and the page says no more
     than `did not open`.** Read from the page: the suite passed there, 1,452 with 9 skipped,
@@ -135,7 +146,13 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     sentence, and the last lines of the log e3d names, read from that path, which N 6.7 asks of a
     failure; and the cause is found with the run of the mend, the eight failing alike pointing at
     what they share, the session a game serves and e3d waits for on Windows, and not at a game.
-    Settled when the Windows job plays the eight games.
+    Mended at `1c848a20`: the cause was e3d's, which on Windows added its `cmd.exe /c start` line to
+    `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that cmd.exe
+    keeps, `start` took the escaped title for the program and the log's path was none; the line goes
+    to cmd.exe as written through `Arguments`, the script keeps e3d's answer as JSON and fails with
+    its code, its sentence and the last five lines of the log it names, and a path that is not there
+    is refused with `NOT_FOUND` where e3d died making the log's folder from it. Unproven until a
+    Windows job runs. Settled when the Windows job plays the eight games.
 
 ## Decisions
 
@@ -213,27 +230,20 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Verdict 33, every game's opening on Windows.** The cause is e3d's. On Windows it starts a program
-through `cmd.exe /c start`, and the line was added to `ArgumentList` as one argument, which .NET
-quotes as a program's argument is, each quote inside escaped with a backslash. cmd.exe reads no
-backslash as an escape, so `start` took `\"e3d\"` for the program to run and the log's path was no
-path, which is why no log was where the script looked. The line goes to cmd.exe as written now,
-through `Arguments`. No machine here runs Windows, so the next Windows job is the proof. The
-script keeps e3d's answer to `open` as JSON and fails with its code and sentence and the last five
-lines of the log it names, read from that path, through `cygpath` on Windows, and perl's JSON
-module reads the answer, which Git's bash, macOS and Linux all have. Trying that found a fault of
-e3d's own. A program's path that does not exist was taken for an example's name, and e3d died
-making a folder for its log from the path. It is refused with `NOT_FOUND` now.
-
-**Verdict 32, the offscreen hundred on macOS.** The offscreen test reads the heap every ten apps.
-For the cause, the macOS job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, and the leak
-tests count the heap's objects by type after their twentieth app and their hundredth, the tool run
-on the test's own process. A failure's message has a line of the five types that grew most, with how
-many more there are and about how many KB, and the test's output has thirty. The first census is
-taken before the twentieth reading, so what it keeps is in both readings. Here a census takes half a
-second, and over a hundred apps it finds nothing grown but reflection's caches and the runtime's
-strings, 0.1 MB. One thing was read on the way. The scripts' watch from Verdict 27 is let go with the
-last app watching it, so a hundred apps made one after another still make a hundred FSEvents
-streams, and `039bd788`'s sentence that they make one holds for apps that overlap. Whether that is
-what grows is for the census to say, and nothing is changed for it before then. The suite: 1,462
-passed, none skipped.
+**Now 4, the page for a game moving from 5.1 to 6.0.** `docs/upgrading.md` counts from 5.1.116,
+the package packed at `b43818f9`, and has a row for every name lost since, saying what a game wrote
+and what it writes. The two changes that still compile come first, capsules taking rings before
+slices, which a call written for 5.1 draws with the two swapped, and the log levels numbered from
+`All` to `None` as raylib numbers them, so a level kept as a number is one higher. Then come the
+three functions with the calls that do their work, `ImageColorContrast` taking a whole number and
+`ImageDrawRectangleLines` taking raylib's arguments, the 26 keys, the 15 gamepad buttons,
+`Critical` as `Fatal`, the skeleton and the keyframes, and what was added. The README links it.
+`UpgradingTests` reads `PublicApi.txt` at `b43818f9` from git and as it is now, and fails naming
+each lost type or member the page lacks in code, as `Type.Member`, or by its name alone for the
+flat API. Taking four rows out had it name those four. A reordered call loses its line as well, so
+`DrawCapsule` is held too. It needs the commit in the checkout, as N 7.2's test does, and the
+workflow's shallow checkout skips both. A `git fetch --depth=1 origin b43818f9` in the Linux job
+would hold the page there as well, if it is wanted. `NeedsHistoryFact` takes the commit and what is
+read from it. A sweep for the old names found two left, `GetKeyPressed`'s summary saying it answers
+`Unknown` and RENDERING.md naming `FrameMorphWeights`, and both are mended. N 1.4 leaves out 14 now.
+The suite: 1,470 passed, none skipped.

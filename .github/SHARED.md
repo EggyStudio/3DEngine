@@ -130,6 +130,7 @@ table also answers whether the two agree.
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | A field holding an array written from the terminal, its items split by semicolons | taken at `678d860` | has (`3cab9d9d`) |
 | Files dropped on the window reach the program, and a command pretends a drop | has the messages, `input.drop` taken at `678d860` | has (`input.drop`, `eca234f9`) |
+| A command line that starts a program through `cmd.exe /c start` on Windows gives cmd.exe the line as written, since a line added to `ArgumentList` has each inner quote escaped with a backslash that cmd.exe keeps, so `start` takes the escaped title for the program | to take (REVIEW.md, item 4), `bcs` adding the line to `ArgumentList` in `Launch.cs` | taken at `1c848a20` (`e3d`), found by Verdict 33 |
 | A command's parameter with a default may be left off, shown in brackets in its usage | taken at `678d860`, `[name]` in the usage and `optional` in the schema | has (`a3d56597`) |
 | C# typed at a running app | has in the editor (`eval`) | has (`e3d eval`, `075c5b3c`), compiled against the running program and run between frames |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |

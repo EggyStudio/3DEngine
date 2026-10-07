@@ -1,6 +1,7 @@
 # N 1.4, a test file outside the folder of the area it tests, the test project's root among them.
 3DEngine.Tests/Docs/DocumentLinkTests.cs	tests the documents, which are no area of the library
 3DEngine.Tests/Docs/FirstGameTests.cs	tests the documents, which are no area of the library
+3DEngine.Tests/Docs/UpgradingTests.cs	tests the documents, which are no area of the library
 3DEngine.Tests/LoggedErrors.cs	shared by the tests, at the root as N 1.4 has it
 3DEngine.Tests/LoggedErrorsTests.cs	tests the hook beside it, at the root as N 1.4 has it
 3DEngine.Tests/Needs.cs	shared by the tests, at the root as N 1.4 has it

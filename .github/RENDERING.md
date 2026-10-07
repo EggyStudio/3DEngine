@@ -247,7 +247,7 @@ normal) target after target, and each frame's weights follow the joints' matrice
 buffer, with a push constant of the joint and target counts. `skin.slang` moves a vertex toward its
 targets before the joints move it. A mesh with targets and no skeleton is given a skin of one joint
 that never moves, so it takes the same path. A clip's weight channels are sampled with its bones
-(`ModelAnimation.FrameMorphWeights`), and `SetModelMorphWeight` poses the model again as its bones
+(`ModelAnimation.KeyframeMorphWeights`), and `SetModelMorphWeight` poses the model again as its bones
 were last posed. A clip played on part of the skeleton (`UpdateModelAnimationLayer`) takes each
 bone's pose relative to its parent from the second clip from a bone down, and composes it onto
 where the first clip puts that bone's parent.
