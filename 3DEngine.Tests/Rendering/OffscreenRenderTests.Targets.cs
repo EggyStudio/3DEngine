@@ -480,6 +480,62 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
+    public void A_Vertex_Stage_Of_The_Programs_Own_Is_Fed_Each_Input_By_Its_Semantic_In_Any_Order()
+    {
+        // The same cube through a stage in the engine's order and one that takes its inputs in
+        // another, the mesh's color first, which was fed the position where it read the color.
+        Open(64, 32);
+        var plain = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("vertex")]
+            ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0, ModelInstance instance)
+            {
+                return transformModelVertex(position, normal, uv, instance);
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelVertexOutput input) : SV_Target
+            {
+                return float4(input.normal * 0.5 + 0.5, 1);
+            }
+            """, "plain.slang");
+        var shuffled = LoadShaderFromMemory("""
+            import modelpass;
+
+            [shader("vertex")]
+            ModelStreamsOutput vertexMain(float4 color : COLOR0, float2 uv : TEXCOORD0, ModelInstance instance, float3 normal : NORMAL, float3 position : POSITION)
+            {
+                return transformModelVertex(position, normal, uv, color, float2(0, 0), instance);
+            }
+
+            [shader("fragment")]
+            float4 fragmentMain(ModelStreamsOutput input) : SV_Target
+            {
+                return float4((input.base.normal * 0.5 + 0.5) * input.vertexColor.rgb, 1);
+            }
+            """, "shuffled.slang");
+        var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY, 2, CameraProjection.Orthographic));
+            DrawMesh(cube.Meshes[0], new ModelMaterial(Color.White) { Shader = plain }, Matrix4x4.CreateTranslation(-1, 0, 0));
+            DrawMesh(cube.Meshes[0], new ModelMaterial(Color.White) { Shader = shuffled }, Matrix4x4.CreateTranslation(1, 0, 0));
+            EndMode3D();
+        }, "semantics");
+
+        var front = GetImageColor(image, 16, 16);
+        (front.R, front.G, front.B).Should().Match<(byte R, byte G, byte B)>(c => c.R >= 126 && c.R <= 129 && c.G >= 126 && c.G <= 129 && c.B == 255,
+            "the cube's front faces the camera, its normal +Z");
+        GetImageColor(image, 48, 16).Should().Be(front, "the shuffled stage reads the same vertex, white where the mesh has no colors");
+        UnloadModel(cube);
+        UnloadShader(plain);
+        UnloadShader(shuffled);
+    }
+
+    [NeedsVulkanFact]
     public void Instanced_Copies_Of_A_Mesh_With_Its_Own_Shader_Are_Told_Apart_By_Their_Instance_Counted_From_Zero()
     {
         Open(64, 16);

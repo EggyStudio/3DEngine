@@ -80,11 +80,13 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
         var buffers = new Dictionary<string, ShaderTexture>();
         var images = new Dictionary<string, ShaderTexture>();
         var bindings = new Dictionary<(int Set, int Binding), (ShaderBinding Binding, ShaderStageFlags Stages)>();
+        IReadOnlyList<ShaderInput> vertexInputs = [];
         foreach (var (entryPoint, stage) in EntryPoints(source))
         {
             var compiled = SlangCompiler.CompileStage(source, fileName, entryPoint, stage, CacheDirectory, ImportDirectory,
                 SlangCompiler.CompilerPath, defines ?? []);
             stages[stage] = compiled.Spirv;
+            if (stage == ShaderStage.Vertex) vertexInputs = compiled.Inputs ?? [];
             // Both stages see the same top-level uniforms, laid out the same.
             foreach (var uniform in compiled.Uniforms) uniforms[uniform.Name] = uniform;
             foreach (var texture in compiled.Textures ?? []) textures[texture.Name] = texture;
@@ -103,7 +105,7 @@ internal sealed partial class SlangLoader : IAssetLoader<ShaderProgram>
                 $"'{fileName}' has no function marked [shader(\"vertex\")], [shader(\"fragment\")] or [shader(\"compute\")].");
 
         return new ShaderProgram(fileName, stages, [.. uniforms.Values.OrderBy(u => u.Offset)], [.. textures.Values.OrderBy(t => t.Binding)],
-            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)], [.. bindings.Values]);
+            [.. buffers.Values.OrderBy(b => b.Binding)], [.. images.Values.OrderBy(i => i.Binding)], [.. bindings.Values], vertexInputs);
     }
 
     /// <summary>

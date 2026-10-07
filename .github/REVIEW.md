@@ -10,25 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `fa93e70c`. TODO.md's text entry, item 2, gains cursive attachment:
-`GlyphPositioning` reads GPOS's type 3 as HarfBuzz applies it to a run read right to left, the glyph
-before giving up its advance past its exit, this one's advance ending at its entry, the child the
-lookup's right-to-left flag names moved up or down to meet its parent and carried with it when the
-run is placed, the Arabic plan taking `curs`; `build/make-color-test-fonts.py` writes
-`arabic-cursive.ttf`, arabic.ttf with a `curs` lookup, and a test finds every glyph of four words
-where HarfBuzz 14.6 puts it, three behs stepping down 20 a letter, the lookup passing over a mark,
-the other branch of the flag matched in a run not kept; the guide, the comparison page and the entry
-say so (`fa93e70c`). The entry has left a letter and its mark composed into one character, which
-needs a table of Unicode's compositions since `string.Normalize` gives text back unchanged under
-invariant globalization and is taken next; Latin kerning and ligatures, which would make a line
-measure otherwise than raylib's where the guide promises it does not, the owner's to decide; and
-Devanagari's shaping, a shaper of its own. Item 3's crash reproduces in the engine's own build: one
-fixed-offset read of the reflection lights' sun color after the lamp loop in the ray-query branch
-turns a passing shader into a crashing one, an arithmetic change there does not, LLVM's
-optimizations off change nothing, the fault a null pointer used as a buffer, and a small C program
-with one or two queries, a uniform read after them and divergent lanes does not show it, so
-`spirv-reduce` is cutting the engine's SPIR-V down with the engine as the crash test. The suite:
-1,533 passed.
+Reviewed up to `6f0ff47e`. The text entry's next gap is closed: before a line is shaped, a character
+and the mark right after it become the one character Unicode has for both where the font has it, as
+HarfBuzz does, so e and a combining acute draw and measure as the font's é and not as e and a
+missing glyph; text with no character at U+0300 or above is skipped and text with nothing to compose
+is handed back without a copy; `string.Normalize` gives text back unchanged under invariant
+globalization, so the engine carries its own table, `UnicodeCompositions`, written by
+`build/make-compositions.py` from Unicode 16.0, 1,714 pairs built as every composition start against
+every mark NFC makes one character of, with Hangul's syllables by Unicode's formula; a test holds
+every Latin letter with every combining diacritical mark to the platform's NFC, which caught a
+singleton spelling and a double mark missing from the first table; the guide and the comparison page
+say so (`6f0ff47e`). The entry has left Latin kerning and ligatures, the owner's to decide, and
+Devanagari. Next in TODO.md's order is the vertex inputs entry, with RENDERING.md's first section
+corrected where it still says a sampler declared apart from its texture is not bound, untrue since
+`b0386c1e`; item 3's `spirv-reduce` run is past step 300 with the module down from 124 KB to 74 KB.
+The suite: 1,535 passed.
+
+Before them, TODO.md's text entry, item 2, came to gain cursive attachment: `GlyphPositioning` reads
+GPOS's type 3 as HarfBuzz applies it to a run read right to left, the glyph before giving up its
+advance past its exit, this one's advance ending at its entry, the child the lookup's right-to-left
+flag names moved up or down to meet its parent and carried with it when the run is placed, the
+Arabic plan taking `curs`; `build/make-color-test-fonts.py` writes `arabic-cursive.ttf`, arabic.ttf
+with a `curs` lookup, and a test finds every glyph of four words where HarfBuzz 14.6 puts it, three
+behs stepping down 20 a letter, the lookup passing over a mark, the other branch of the flag matched
+in a run not kept; the guide, the comparison page and the entry say so (`fa93e70c`). The entry has
+left a letter and its mark composed into one character, which needs a table of Unicode's
+compositions since `string.Normalize` gives text back unchanged under invariant globalization and is
+taken next; Latin kerning and ligatures, which would make a line measure otherwise than raylib's
+where the guide promises it does not, the owner's to decide; and Devanagari's shaping, a shaper of
+its own. Item 3's crash reproduces in the engine's own build, one fixed-offset read of the
+reflection lights' sun color after the lamp loop in the ray-query branch turning a passing shader
+into a crashing one, the fault a null pointer used as a buffer, which a small C program does not
+show. The suite: 1,533 passed.
 
 Before them, TODO.md's models entry, item 2, came to close its gap for bodies: a body made from a
 model the GPU posed takes the pose, `CreatePhysicsStaticModel` and `CreatePhysicsConvexHull` reading
@@ -39,22 +52,6 @@ passing on lavapipe under validation; and a mesh or hull collider on an entity a
 draws, which waited without a word since the copy puts no meshes in the world, is refused once with
 a warning naming the entity, with a test; the entry is rewritten around the gap left, the copy's
 meshes in the world (`9350ffca`). The suite: 1,532 passed.
-
-Before them, the six Windows games came to have one cause, in e3d, read from the annotations of the
-Windows job of `06b702a1`: on Windows `e3d open` starts the game through cmd.exe's `start` and finds
-it by its name, and its first look could come before cmd.exe had made the game, so a look that found
-none answered the game as exited; Summit, Tempo, Sumo and Jelly were answered so while they went on
-to load and serve, their logs read by the script at that moment ending within a second of their
-start or empty, and a session left serving came up beside Wordfall's and Slide's, so
-`wordfall.status` and `window.size` were refused with code 2, `AMBIGUOUS_SESSION`, as was the stop
-at each script's end, leaving those games running in turn; the Lato pattern was a coincidence of the
-order the games ran in, and the font sentence is retracted. Mended: e3d reads whether cmd.exe still
-runs before looking for the game, since `start` returns once the game is made, so a game not found
-while cmd.exe runs is waited for and one not found after it ended has gone, checked with a scratch
-program started through a shell that makes it 300 milliseconds later, answered gone at the first
-look before the mend and found at 300 after; and `drive-game.sh` sends every command and stop to the
-game it plays by name through `E3D_NAME`, a refused command's error carrying e3d's code and
-sentence, Wordfall playing through with Slide left serving (`63581f04`). The suite: 1,530 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -329,22 +326,24 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the text entry, its next gap a letter and its mark composed:
+TODO.md's order, the vertex inputs entry:
 
-- **Composed where the font has the character.** Before a line is shaped, each character and the
-  mark right after it are put together into the one character Unicode has for both where the font
-  has that character, as HarfBuzz composes them, so e and a combining acute are drawn and measured
-  as the font's é and not as e and its `?`, and a mark joins what the marks before it made of
-  their letter. Text with no character from U+0300 on is passed by, and text with nothing to
-  compose is read once and handed back uncopied.
-- **The engine's own table.** `string.Normalize` gives text back unchanged under invariant
-  globalization, checked in a program built that way, so `build/make-compositions.py` writes
-  `UnicodeCompositions`, 1,714 pairs of Unicode 16.0, each a character a composition starts from or
-  makes and a mark NFC makes one character of, so a mark that is another's canonical spelling, as
-  U+0340, or two at once, as U+0344, and a mark stored before one that comes first canonically are
-  in it, with Hangul's syllables by Unicode's formula. A test holds every Latin letter with every
-  combining diacritical mark to the platform's NFC, which found U+0340 and U+0344 missing from the
-  first table.
-- **Documents.** The text guide, the raylib comparison with a row of its own, and TODO.md.
-- The suite: 1,535 passed.
+- **Inputs fed by their semantics.** The reflection now gives each input of a vertex stage by its
+  semantic and the location Slang gave it, each field of a struct at its own and system values
+  left out, kept in the cache as lines of their own. The model and immediate passes write each
+  attribute of their vertex formats once with its semantic (`VertexStream`), and a vertex stage of
+  a program's own is fed each at the location its semantic has, so it may take the mesh's color
+  before its position, and needs no `[[vk::location]]` for the color and the second coordinates,
+  which the shader guide had a program write. A stage that takes an input no stream gives is named
+  in a warning once. A stage whose inputs carry no semantic, or one cached before inputs were kept,
+  is fed at the engine's own locations as before.
+- **Tests.** One compiles a stage taking its inputs out of order, a struct's rows among them, and
+  finds each location by its semantic, again from the cache. A render test draws a cube through a
+  stage in the engine's order and one taking the color first and the position last, and finds the
+  two alike; with the names ignored the second is drawn wrong. Lavapipe under the validation layer
+  passed the render, reference and compiler tests, 141.
+- **What the entry has left.** A compute shader writes a render texture only where the GPU stores
+  the window's format. RENDERING.md §1 also said a sampler declared apart from its texture is not
+  bound, untrue since `b0386c1e`, and says so no more.
+- The suite: 1,537 passed.
 

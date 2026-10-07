@@ -171,10 +171,11 @@ does, encodes its result with `toDisplay`.
 
 A model shader may have a vertex stage of its own, which takes the mesh's position, normal and
 texture coordinate with a `ModelInstance`, hands them to `transformModelVertex` and changes what
-it gives back. One that reads the mesh's color and second texture coordinate takes them after the
-instance, as `[[vk::location(9)]] float4 color : COLOR0` and `[[vk::location(10)]] float2 uv2 :
-TEXCOORD1`, and hands them to `transformModelVertex` before the instance, which then gives back a
-`ModelStreamsOutput`. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted
+it gives back. One that reads the mesh's color and second texture coordinate takes them as
+`float4 color : COLOR0` and `float2 uv2 : TEXCOORD1` and hands them to `transformModelVertex`
+before the instance, which then gives back a `ModelStreamsOutput`. Each input is fed by its
+semantic, `POSITION`, `NORMAL`, `TEXCOORD0`, `COLOR0` and `TEXCOORD1`, so a stage may take them in
+any order, and one that takes an input no stream gives is named in a warning. With `DrawMeshInstanced`, `SV_InstanceID` tells the copies apart, counted
 from 0.
 The `instancing.slang` of the `shaders_instance_hues` example gives each of ten thousand cubes
 its own hue:

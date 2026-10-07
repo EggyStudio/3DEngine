@@ -102,7 +102,7 @@ internal static partial class SlangCompiler
         {
             var described = File.Exists(uniformsFile) ? File.ReadAllText(uniformsFile) : "";
             return new SlangStage(File.ReadAllBytes(cached), ReadUniforms(described), ReadTextures(described), ReadBuffers(described), ReadImages(described),
-                ReadBindings(described));
+                ReadBindings(described), ReadInputs(described));
         }
 
         if (compiler is null)
@@ -116,6 +116,7 @@ internal static partial class SlangCompiler
         var buffers = BuffersOf(reflection);
         var images = ImagesOf(reflection);
         var bindings = BindingsOf(reflection);
+        var inputs = InputsOf(reflection);
 
         if (cached is not null)
         {
@@ -123,11 +124,12 @@ internal static partial class SlangCompiler
             // Written beside and moved into place, so a reader never sees half an entry. The
             // uniforms go first, so an entry whose SPIR-V is there has them too.
             WriteAtomically(uniformsFile!, System.Text.Encoding.UTF8.GetBytes(
-                WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers) + WriteImages(images) + WriteBindings(bindings)));
+                WriteUniforms(uniforms) + WriteTextures(textures) + WriteBuffers(buffers) + WriteImages(images) + WriteBindings(bindings)
+                + WriteInputs(inputs)));
             WriteAtomically(cached, bytecode);
         }
 
-        return new SlangStage(bytecode, uniforms, textures, buffers, images, bindings);
+        return new SlangStage(bytecode, uniforms, textures, buffers, images, bindings, inputs);
     }
 
     // Writes a cache file beside its path under a name of this writer's own, then moves it into
@@ -288,6 +290,57 @@ internal static partial class SlangCompiler
         }
         return bindings;
     }
+
+    /// <summary>
+    /// The inputs a vertex stage takes, each by its semantic, its name and number as one word such
+    /// as <c>TEXCOORD1</c>, and the location Slang gave it, each field of a struct at its own, from
+    /// slangc's reflection JSON. A system value, as <c>SV_InstanceID</c>, is no input of a stream.
+    /// </summary>
+    /// <remarks>
+    /// Empty for a stage of another kind, and where an input has no semantic, so a pass feeds that
+    /// stage by the engine's fixed locations, as it fed every stage before.
+    /// </remarks>
+    internal static IReadOnlyList<ShaderInput> InputsOf(string? reflectionJson)
+    {
+        if (string.IsNullOrEmpty(reflectionJson)) return [];
+        using var document = System.Text.Json.JsonDocument.Parse(reflectionJson);
+        var inputs = new List<ShaderInput>();
+        if (!document.RootElement.TryGetProperty("entryPoints", out var entryPoints)) return inputs;
+        foreach (var entryPoint in entryPoints.EnumerateArray())
+        {
+            if (!entryPoint.TryGetProperty("stage", out var stage) || stage.GetString() != "vertex" || !entryPoint.TryGetProperty("parameters", out var parameters))
+                continue;
+            foreach (var parameter in parameters.EnumerateArray())
+                if (!Gather(parameter, 0)) return [];
+        }
+        return inputs;
+
+        // An input, or each field of a struct of them, at its location counted from where the
+        // struct holding it begins. False where an input has no semantic.
+        bool Gather(System.Text.Json.JsonElement input, int from)
+        {
+            if (!input.TryGetProperty("binding", out var binding) || binding.GetProperty("kind").GetString() != "varyingInput") return true;
+            var location = from + binding.GetProperty("index").GetInt32();
+            if (input.TryGetProperty("type", out var type) && type.GetProperty("kind").GetString() == "struct" && type.TryGetProperty("fields", out var fields))
+                return fields.EnumerateArray().All(field => Gather(field, location));
+            if (!input.TryGetProperty("semanticName", out var name)) return false;
+            var number = input.TryGetProperty("semanticIndex", out var index) ? index.GetInt32() : 0;
+            inputs.Add(new ShaderInput($"{name.GetString()!.ToUpperInvariant()}{number}", location));
+            return true;
+        }
+    }
+
+    // An input's line is "input", its semantic and its location, its second word never a number,
+    // which tells it from a uniform's.
+    private static string WriteInputs(IReadOnlyList<ShaderInput> inputs) =>
+        string.Concat(inputs.Select(i => $"input {i.Semantic} {i.Location}\n"));
+
+    private static IReadOnlyList<ShaderInput> ReadInputs(string text) =>
+        text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split(' '))
+            .Where(parts => parts.Length == 3 && parts[0] == "input" && !IsNumber(parts[1]) && IsNumber(parts[2]))
+            .Select(parts => new ShaderInput(parts[1], int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture)))
+            .ToArray();
 
     // A binding's line is "binding", its name, its set, its index and its kind.
     private static string WriteBindings(IReadOnlyList<ShaderBinding> bindings) =>
@@ -561,7 +614,11 @@ internal static partial class SlangCompiler
 
 /// <summary>One stage compiled by <see cref="SlangCompiler"/>: its SPIR-V, its top-level uniforms and the descriptors it declares.</summary>
 internal sealed record SlangStage(byte[] Spirv, IReadOnlyList<ShaderUniform> Uniforms, IReadOnlyList<ShaderTexture>? Textures = null,
-    IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null);
+    IReadOnlyList<ShaderTexture>? Buffers = null, IReadOnlyList<ShaderTexture>? Images = null, IReadOnlyList<ShaderBinding>? Bindings = null,
+    IReadOnlyList<ShaderInput>? Inputs = null);
+
+/// <summary>An input a vertex stage takes, by its semantic, as <c>TEXCOORD1</c>, and the location it is read at.</summary>
+internal readonly record struct ShaderInput(string Semantic, int Location);
 
 /// <summary>A descriptor a shader declares, by its name, its set, its binding in the set and its kind.</summary>
 internal readonly record struct ShaderBinding(string Name, int Set, int Binding, DescriptorType Type);

@@ -47,6 +47,33 @@ internal readonly record struct VertexInputBindingDesc(uint Binding, uint Stride
 /// <param name="Offset">Byte offset within the vertex.</param>
 internal readonly record struct VertexInputAttributeDesc(uint Location, uint Binding, VertexFormat Format, uint Offset);
 
+/// <summary>An attribute of one of the engine's vertex formats, with the semantic a shader names it by, as <c>NORMAL0</c>.</summary>
+/// <param name="Semantic">The semantic, its name and number as one word.</param>
+/// <param name="Attribute">The attribute, at the location the engine's own shaders read it at.</param>
+internal readonly record struct VertexStream(string Semantic, VertexInputAttributeDesc Attribute)
+{
+    /// <summary>
+    /// The attributes a vertex stage is fed: each stream the stage names by its semantic, at the
+    /// location Slang gave it, where <paramref name="named"/> holds the stage's inputs, and where it
+    /// holds none, each stream at its own location, those the stage reads where
+    /// <paramref name="read"/> says which.
+    /// </summary>
+    /// <param name="streams">The streams of the pass's vertices.</param>
+    /// <param name="named">The stage's inputs by semantic, empty where they are not known so.</param>
+    /// <param name="read">The locations the stage reads, or null for every stream.</param>
+    /// <param name="missing">The semantics the stage names that no stream gives, which it reads as zero.</param>
+    public static VertexInputAttributeDesc[] Placed(IEnumerable<VertexStream> streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? read,
+        out string[] missing)
+    {
+        missing = [];
+        if (named.Count == 0)
+            return [.. streams.Select(s => s.Attribute).Where(a => read is null || read.Contains((int)a.Location))];
+        var given = streams.ToDictionary(s => s.Semantic, s => s.Attribute);
+        missing = [.. named.Where(input => !given.ContainsKey(input.Semantic)).Select(input => input.Semantic)];
+        return [.. named.Where(input => given.ContainsKey(input.Semantic)).Select(input => given[input.Semantic] with { Location = (uint)input.Location })];
+    }
+}
+
 /// <summary>Describes a push constant range accessible from specified shader stages.</summary>
 /// <param name="StageFlags">Shader stages that can access this range.</param>
 /// <param name="Offset">Byte offset of the range.</param>

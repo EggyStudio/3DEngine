@@ -320,6 +320,30 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void A_Vertex_Stages_Inputs_Are_Reflected_By_Semantic_And_Kept_In_The_Cache()
+    {
+        // Declared out of the engine's order, a struct's fields each with a semantic of its own and
+        // a system value that no stream feeds.
+        const string shuffled = """
+            struct Rows { float4 first : ROW_FIRST; float4 second : ROW_SECOND; };
+
+            [shader("vertex")]
+            float4 vertexMain(float2 uv : TEXCOORD0, Rows rows, float3 position : POSITION, float2 second : TEXCOORD1, uint id : SV_InstanceID) : SV_Position
+            {
+                return float4(position + rows.first.xyz + rows.second.xyz, uv.x + second.y + id);
+            }
+            """;
+
+        var compiled = SlangCompiler.CompileStage(shuffled, "shuffled.slang", "vertexMain", ShaderStage.Vertex, _folder.Path);
+        var cached = SlangCompiler.CompileStage(shuffled, "shuffled.slang", "vertexMain", ShaderStage.Vertex, _folder.Path, null, compiler: null);
+
+        compiled.Inputs.Should().Equal(new ShaderInput("TEXCOORD0", 0), new ShaderInput("ROW_FIRST0", 1), new ShaderInput("ROW_SECOND0", 2),
+            new ShaderInput("POSITION0", 3), new ShaderInput("TEXCOORD1", 4));
+        cached.Inputs.Should().Equal(compiled.Inputs);
+        cached.Uniforms.Should().BeEmpty("an input's line is not read as a uniform's");
+    }
+
+    [NeedsSlangFact]
     public void A_Texture_And_Its_Sampler_Declared_Apart_Are_Reflected_As_Such_And_Kept_In_The_Cache()
     {
         const string apart = """

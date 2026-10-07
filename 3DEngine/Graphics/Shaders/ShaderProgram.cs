@@ -17,10 +17,12 @@ internal sealed class ShaderProgram
     /// <param name="buffers">The storage buffers its compute stage uses in the first descriptor set, by name and binding.</param>
     /// <param name="images">The images its compute stage writes in the first descriptor set, by name and binding.</param>
     /// <param name="bindings">Every descriptor its stages declare, in every set, with the stages that declare it.</param>
+    /// <param name="vertexInputs">The inputs its vertex stage takes by their semantics, none where they are not known so.</param>
     public ShaderProgram(string name, IReadOnlyDictionary<ShaderStage, byte[]> stages, IReadOnlyList<ShaderUniform>? uniforms = null,
         IReadOnlyList<ShaderTexture>? textures = null, IReadOnlyList<ShaderTexture>? buffers = null, IReadOnlyList<ShaderTexture>? images = null,
-        IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)>? bindings = null)
+        IReadOnlyList<(ShaderBinding Binding, ShaderStageFlags Stages)>? bindings = null, IReadOnlyList<ShaderInput>? vertexInputs = null)
     {
+        VertexInputs = vertexInputs ?? [];
         Bindings = bindings ?? [];
         Buffers = buffers ?? [];
         Images = images ?? [];
@@ -30,6 +32,14 @@ internal sealed class ShaderProgram
         Textures = textures ?? [];
         UniformSize = Uniforms.Count == 0 ? 0 : (Uniforms.Max(u => u.Offset + u.Size) + 15) / 16 * 16;
     }
+
+    /// <summary>
+    /// The inputs the vertex stage takes, each by its semantic and the location Slang gave it, so a
+    /// pass feeds each stream of its vertices where the stage reads it, whatever order the stage
+    /// declares them in. Empty where the stage has an input with no semantic, or there is no vertex
+    /// stage, when a pass feeds it by the engine's fixed locations.
+    /// </summary>
+    public IReadOnlyList<ShaderInput> VertexInputs { get; }
 
     /// <summary>The uniforms the program declares at the top level, which a program sets by name.</summary>
     public IReadOnlyList<ShaderUniform> Uniforms { get; }

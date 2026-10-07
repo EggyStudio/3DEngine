@@ -301,6 +301,26 @@ internal sealed class ImmediateRenderer : IDisposable
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 
+    // The vertex's three attributes, each read by its semantic by a vertex stage of the shader's
+    // own, with a warning once for a stage that reads one the vertex does not give.
+    private VertexInputAttributeDesc[] Placed(RenderWorld renderWorld, int shader)
+    {
+        var program = shader != 0 ? renderWorld.TryGet<ShaderStore>()?.Get(shader) : null;
+        var placed = VertexStream.Placed(
+        [
+            new("POSITION0", new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0)),
+            new("TEXCOORD0", new VertexInputAttributeDesc(1, 0, VertexFormat.Float2, 12)),
+            new("COLOR0", new VertexInputAttributeDesc(2, 0, VertexFormat.UNormR8G8B8A8, 20)),
+        ], program is not null && program.Stages.ContainsKey(ShaderStage.Vertex) ? program.VertexInputs : [], null, out var missing);
+        if (missing.Length > 0 && _unfed.Add(program!.Name))
+            Log.Category("Engine.Rendering").Warn($"'{program.Name}': its vertex stage takes {string.Join(", ", missing)}, which no vertex of a shape gives. " +
+                                                  "A shape's vertices give POSITION, TEXCOORD0 and COLOR0.");
+        return placed;
+    }
+
+    // The shaders whose missing inputs were warned of, each once.
+    private readonly HashSet<string> _unfed = [];
+
     private IPipeline Pipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, DrawBatch batch, bool linear)
     {
         var slot = (batch.Topology == PrimitiveTopology.LineList ? 2 : 0) + (batch.DepthTest ? 1 : 0);
@@ -316,12 +336,7 @@ internal sealed class ImmediateRenderer : IDisposable
             BlendEnabled: batch.Blend != DrawList.Replace,
             Cull: batch.Cull,
             VertexBindings: [new VertexInputBindingDesc(0, (uint)Marshal.SizeOf<ImmediateVertex>())],
-            VertexAttributes:
-            [
-                new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
-                new VertexInputAttributeDesc(1, 0, VertexFormat.Float2, 12),
-                new VertexInputAttributeDesc(2, 0, VertexFormat.UNormR8G8B8A8, 20),
-            ],
+            VertexAttributes: Placed(renderWorld, shader),
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.All, 0, (uint)Marshal.SizeOf<Push>())],
             // A shader with textures or storage buffers of its own reads them through a layout of its own.
             DescriptorSetLayouts: shader != 0 && renderWorld.TryGet<ShaderStore>()?.Get(shader) is { } program

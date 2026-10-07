@@ -38,11 +38,13 @@ internal sealed partial class ModelRenderer
 
         var modules = CustomModules(gfx, id, program);
         // A vertex stage of the shader's own is fed the inputs it takes and no others, which a
-        // stage that reads less than the instance's every row would leave unread.
-        var inputs = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex) ? ShaderProgram.InputLocationSet(vertex) : null;
+        // stage that reads less than the instance's every row would leave unread, each by its
+        // semantic where the reflection names them and otherwise at the location it reads.
+        var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
         return _customPipelines[(id, renderPass, cull, points, blend, streams, depth)] = MakePipeline(gfx, renderPass, renderWorld, modules.Vertex, modules.Fragment, cull,
             material: program.OwnTextures(PassTextures).Count > 0 || program.Buffers.Count > 0 ? SetsFor(gfx, id, program).Layout : null, points: points,
-            blend: blend, streams: streams, depth: depth, inputs: inputs);
+            blend: blend, streams: streams, depth: depth, inputs: own ? ShaderProgram.InputLocationSet(vertex) : null,
+            named: own ? program.VertexInputs : [], shaderName: program.Name);
     }
 
     // A material's own shader's stages, and whether it reads a mesh's colors and second texture
@@ -54,7 +56,9 @@ internal sealed partial class ModelRenderer
         if (_custom.TryGetValue(id, out var modules)) return modules;
         var own = program.Stages.TryGetValue(ShaderStage.Vertex, out var vertex);
         var reads = own
-            ? program.InputLocations(ShaderStage.Vertex) > _plainVertexInputs
+            ? program.VertexInputs.Count > 0
+                ? program.VertexInputs.Any(input => input.Semantic is "COLOR0" or "TEXCOORD1")
+                : program.InputLocations(ShaderStage.Vertex) > _plainVertexInputs
             : program.InputLocations(ShaderStage.Fragment) > _plainFragmentInputs;
         return _custom[id] = (
             gfx.CreateShader(new ShaderDesc(ShaderStage.Vertex, own ? vertex! : reads ? _streamsVertexSpv : _vertexSpv)),
@@ -249,9 +253,42 @@ internal sealed partial class ModelRenderer
         return _shaderSets[shader] = new ShaderSets(gfx.CreateDescriptorSetLayout(bindings));
     }
 
+    // The model pass's streams by the semantics its shaders name them by: the mesh's vertex, the
+    // instance's rows from location 3 in ModelInstance's order, and with streams the mesh's colors
+    // and second texture coordinates.
+    private static readonly string[] InstanceRows = ["INSTANCE_WORLDX0", "INSTANCE_WORLDY0", "INSTANCE_WORLDZ0", "INSTANCE_COLOR0", "INSTANCE_EMISSION0", "INSTANCE_FACTORS0"];
+
+    // The attributes a pipeline of the pass is fed, the stage's inputs placed by their semantics
+    // where it names them, with a warning once for a stage that reads one no stream gives.
+    private VertexInputAttributeDesc[] Placed(int rows, Streams streams, IReadOnlyList<ShaderInput> named, IReadOnlySet<int>? inputs, string? shaderName)
+    {
+        VertexStream[] given =
+        [
+            new("POSITION0", new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0)),
+            new("NORMAL0", new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12)),
+            new("TEXCOORD0", new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24)),
+            .. Enumerable.Range(0, rows).Select(row => new VertexStream(InstanceRows[row], new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16)))),
+            .. streams == Streams.None ? Array.Empty<VertexStream>() :
+            [
+                new("COLOR0", new VertexInputAttributeDesc(9, 2, VertexFormat.UNormR8G8B8A8, 0)),
+                new("TEXCOORD1", new VertexInputAttributeDesc(10, 3, VertexFormat.Float2, 0)),
+            ],
+        ];
+        var placed = VertexStream.Placed(given, named, inputs, out var missing);
+        if (missing.Length > 0 && shaderName is not null && _unfed.Add(shaderName))
+            Logger.Warn($"'{shaderName}': its vertex stage takes {string.Join(", ", missing)}, which no stream of a model gives. " +
+                        "A model's vertices give POSITION, NORMAL, TEXCOORD0, COLOR0, TEXCOORD1 and a ModelInstance.");
+        return placed;
+    }
+
+    // The shaders whose missing inputs were warned of, each once.
+    private readonly HashSet<string> _unfed = [];
+    private static readonly ILogger Logger = Log.Category("Engine.Models");
+
     private IPipeline MakePipeline(IGraphicsDevice gfx, IRenderPass renderPass, RenderWorld renderWorld, IShader vertex, IShader? fragment,
         CullMode cull = CullMode.None, IDescriptorSetLayout? material = null, bool shadow = false, bool points = false,
-        Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null)
+        Streams streams = Streams.None, bool blend = true, bool depth = true, IReadOnlySet<int>? inputs = null, IReadOnlyList<ShaderInput>? named = null,
+        string? shaderName = null)
     {
         // The shadow pass reads the instance's first five rows, to its emission. Both push the
         // view-projection they draw through.
@@ -277,19 +314,7 @@ internal sealed partial class ModelRenderer
                     new VertexInputBindingDesc(3, streams == Streams.PerVertex ? 8u : 0u),
                 ],
             ],
-            VertexAttributes: ((VertexInputAttributeDesc[])
-            [
-                new VertexInputAttributeDesc(0, 0, VertexFormat.Float3, 0),
-                new VertexInputAttributeDesc(1, 0, VertexFormat.Float3, 12),
-                new VertexInputAttributeDesc(2, 0, VertexFormat.Float2, 24),
-                .. Enumerable.Range(0, rows).Select(row => new VertexInputAttributeDesc((uint)(3 + row), 1, VertexFormat.Float4, (uint)(row * 16))),
-                .. streams == Streams.None ? Array.Empty<VertexInputAttributeDesc>() :
-                [
-                    new VertexInputAttributeDesc(9, 2, VertexFormat.UNormR8G8B8A8, 0),
-                    new VertexInputAttributeDesc(10, 3, VertexFormat.Float2, 0),
-                ],
-            ])
-            .Where(attribute => inputs is null || inputs.Contains((int)attribute.Location)).ToArray(),
+            VertexAttributes: Placed(rows, streams, named ?? [], inputs, shaderName),
             PushConstantRanges: [new PushConstantRange(ShaderStageFlags.Vertex, 0, 64)],
             // The material's set, with uniforms at binding 0 and its five maps after, then the
             // frame's lights at binding 0 of the second and the shadow map at binding 1.
