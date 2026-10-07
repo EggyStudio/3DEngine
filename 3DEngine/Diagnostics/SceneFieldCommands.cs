@@ -43,7 +43,7 @@ internal static class SceneFieldCommands
         };
         if (gi.Screen is { } screen)
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
-                      + $"{3.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
+                      + $"{5.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
         var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
         // The frame before at half the window's size in half floats, its mips a third more, and its
         // depth beside it in floats.

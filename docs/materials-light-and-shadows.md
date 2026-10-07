@@ -303,9 +303,9 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 16, 64 | every 16 pixels | 0.70 MB | 0.24 ms |
-| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.76 MB | 0.30 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.72 MB | 0.43 ms |
+| `Low` | 2 | 16, 64 | every 16 pixels | 0.73 MB | 0.27 ms |
+| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.80 MB | 0.31 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.81 MB | 0.44 ms |
 
 A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, with as
 much again while a cascade is built.
@@ -334,8 +334,9 @@ take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 M
 them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
 rays here seldom leave the field, reads the same within its noise of 0.03 ms. A reflection lights
 what it meets with the point and spot lights unshadowed, a mesh that moves bounces light as the
-gray box the field holds it as, and the screen's probes are traced again each frame and not blended
-over time, so the light may crawl a little as the camera moves. A render texture and a reflection
+gray box the field holds it as, and the light near the camera is blended with the frame before's so
+it holds still as the camera moves, which makes it follow a light that changes some five frames
+behind. A render texture and a reflection
 probe's faces take the light that bounced from the world's probes alone, as the frame before left
 them, and where the window draws no model, as a game that draws its scene into a texture at a low
 size and shows the texture, the field follows the first texture's camera and holds its models.

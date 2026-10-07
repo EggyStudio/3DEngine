@@ -209,6 +209,64 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void The_Light_That_Bounces_Holds_Still_As_The_Camera_Slides()
+    {
+        // A Cornell box the camera slides across a hundredth of a unit a frame, the picture's change
+        // from frame to frame with light bouncing set against its change with none. The screen's
+        // probes stand on whatever surface each tile's middle shows, so as the camera slides they
+        // slide over the surfaces and their light changes with them, which blending each with the
+        // frame before's where its surface was holds still.
+        double Change(GlobalIllumination quality)
+        {
+            Open();
+            SetGlobalIllumination(quality);
+            CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
+            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            var shots = new List<string>();
+            for (int frame = 0; frame < 50; frame++)
+            {
+                var x = frame < 30 ? 0 : (frame - 30) * 0.01f;
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(new Camera3D(new Vector3(x, 2.5f, 8), new Vector3(x, 2.4f, 0), Vector3.UnitY, 45));
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+                DrawModelEx(slab, new Vector3(0, 5.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+                DrawModelEx(slab, new Vector3(0, 2.5f, -3.15f), Vector3.UnitY, 0, new Vector3(6, 5, 0.3f), Color.White);
+                DrawModelEx(slab, new Vector3(-3.15f, 2.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 5, 6), new Color(200, 30, 30));
+                DrawModelEx(slab, new Vector3(3.15f, 2.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 5, 6), new Color(30, 200, 30));
+                DrawModelEx(slab, new Vector3(-1, 1, -0.5f), Vector3.UnitY, 20, new Vector3(1.5f, 2, 1.5f), Color.White);
+                EndMode3D();
+                if (frame >= 36) shots.Add(Path.Combine(_folder.Path, $"{_captures++}.png"));
+                if (frame >= 36) TakeScreenshot(shots[^1]);
+                EndDrawing();
+            }
+            UnloadModel(slab);
+            CloseWindow();
+            UseApp(null);
+            var changes = new List<double>();
+            for (int i = 1; i < shots.Count - 2; i++)
+            {
+                var (a, b) = (LoadImage(shots[i - 1]), LoadImage(shots[i]));
+                double sum = 0;
+                int n = 0;
+                for (int y = 8; y < 88; y++)
+                    for (int x = 16; x < 144; x++, n += 3)
+                    {
+                        var (p, q) = (GetImageColor(a, x, y), GetImageColor(b, x, y));
+                        sum += Math.Abs(p.R - q.R) + Math.Abs(p.G - q.G) + Math.Abs(p.B - q.B);
+                    }
+                changes.Add(sum / n);
+            }
+            return changes.Average();
+        }
+
+        var still = Change(GlobalIllumination.Off);
+        var bouncing = Change(GlobalIllumination.Low);
+        (bouncing - still).Should().BeLessThan(0.5, $"the light that bounced moves little more than the picture, {bouncing:0.00} against {still:0.00} levels a frame");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Polished_Floor_Reflects_A_Red_Block_On_It_Through_The_Window_Where_Light_Bounces()
     {
         Open();

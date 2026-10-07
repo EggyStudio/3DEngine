@@ -75,6 +75,10 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
 
     private GpuIllumination? _gi;
     private GpuScreenProbes? _screen;
+
+    // The window's camera the screen's probes were last placed through, which their blend finds a
+    // probe's place in the frame before by, or null where the probes were laid out again since.
+    private (Matrix4x4 ViewProjection, Vector3 Eye)? _lastScreen;
     private GpuReflectionHistory? _history;
     private GpuRayScene? _rays;
     private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
@@ -186,6 +190,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
                 _screen = device.CreateScreenProbes(width, height, tile);
+                _lastScreen = null;
             }
             var bytes = new byte[GpuScreenProbes.ViewBytes];
             // The matrices as they lie in memory, which the shaders, reading them column-major,
@@ -197,12 +202,19 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             (floats[36], floats[37], floats[38]) = (tile, _screen.Across, _screen.Down);
             (floats[40], floats[41], floats[42], floats[43]) = (intervals[0].End / 2, _gi.Probes, ProbeSpacing, cascades);
             (floats[44], floats[45], floats[46], floats[47]) = (depth.Extent.Width, depth.Extent.Height, width, height);
+            if (_lastScreen is { } last)
+            {
+                MemoryMarshal.Write(bytes.AsSpan(192), last.ViewProjection);
+                (floats[64], floats[65], floats[66], floats[67]) = (last.Eye.X, last.Eye.Y, last.Eye.Z, 1);
+            }
             _retired.Add((_frame, device.RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes)));
+            _lastScreen = (window.ViewProjection, window.Eye);
         }
         else if (_screen is not null)
         {
             _retired.Add((_frame, _screen));
             _screen = null;
+            _lastScreen = null;
         }
 
         // The window's meshes for the device's ray tracing, which a reflection the field misses is
@@ -297,7 +309,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         if (_screen is not null) _retired.Add((_frame, _screen));
         if (_history is not null) _retired.Add((_frame, _history));
         if (_rays is not null) _retired.Add((_frame, _rays));
-        (_gi, _screen, _history, _rays) = (null, null, null, null);
+        (_gi, _screen, _history, _rays, _lastScreen) = (null, null, null, null, null);
         HistoryViewProjection = null;
     }
 

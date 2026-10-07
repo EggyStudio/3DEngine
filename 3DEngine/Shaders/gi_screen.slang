@@ -12,22 +12,6 @@
 import gi;
 import scenefield;
 
-struct ScreenView
-{
-    // World to clip space, and back, as the window's camera has it this frame.
-    float4x4 viewProjection;
-    float4x4 inverseViewProjection;
-    // xyz: the eye.
-    float4 eye;
-    // x: a tile's pixels along each side. y: the probes across. z: the probes down. w: unused.
-    float4 grid;
-    // x: where the first interval ends. y: the world's probes along each side. z: their spacing in
-    // cells. w: how many cascades the world's probes have.
-    float4 trace;
-    // xy: the depth's texels across and down. zw: the window's pixels across and down.
-    float4 sizes;
-};
-
 [[vk::binding(0, 0)]]
 Sampler2D depth;
 

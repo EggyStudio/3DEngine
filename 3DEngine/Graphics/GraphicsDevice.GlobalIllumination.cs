@@ -71,8 +71,13 @@ internal sealed class GpuScreenProbes : IDisposable
     private readonly Action _dispose;
 
     internal GpuScreenProbes(int across, int down, int tile, IImage irradiance, IImageView irradianceView, IImage geometry, IImageView geometryView,
-        ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView)
+        ISampler sampler, IBuffer view, Action dispose, IImage blended, IImageView blendedView, IImage history, IImageView historyView,
+        IImage lastGeometry, IImageView lastGeometryView)
     {
+        History = history;
+        HistoryView = historyView;
+        LastGeometry = lastGeometry;
+        LastGeometryView = lastGeometryView;
         Blended = blended;
         BlendedView = blendedView;
         Across = across;
@@ -111,14 +116,24 @@ internal sealed class GpuScreenProbes : IDisposable
     /// <summary>The light arriving at each probe's surface blended with its neighbors' on like surfaces, which the model pass reads.</summary>
     public IImageView BlendedView { get; }
 
+    internal IImage History { get; }
+
+    /// <summary>The blended light of the frame before, copied from <see cref="BlendedView"/>, which the next frame's blend takes in.</summary>
+    public IImageView HistoryView { get; }
+
+    internal IImage LastGeometry { get; }
+
+    /// <summary>The probes' surfaces of the frame before, copied from <see cref="GeometryView"/>, which tell where its light may be taken.</summary>
+    public IImageView LastGeometryView { get; }
+
     /// <summary>A sampler that reads a texel as it is.</summary>
     public ISampler Sampler { get; }
 
     /// <summary>The view the probes were placed through, as <c>gi_screen.slang</c>'s <c>ScreenView</c>.</summary>
     public IBuffer View { get; }
 
-    /// <summary>The bytes of <see cref="View"/>.</summary>
-    public const int ViewBytes = 2 * 64 + 4 * 16;
+    /// <summary>The bytes of <see cref="View"/>: this frame's camera and its inverse, four rows of the probes' layout, and the frame before's camera and eye.</summary>
+    public const int ViewBytes = 3 * 64 + 5 * 16;
 
     /// <inheritdoc />
     public void Dispose() => _dispose();
@@ -195,7 +210,8 @@ internal sealed unsafe partial class GraphicsDevice
         {
             if (_giStages[FilterStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
             var (trace, merge, ambient, screen, filter) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4]);
-            _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+            _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 16);
             _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
                 VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -532,24 +548,31 @@ internal sealed unsafe partial class GraphicsDevice
     {
         var across = (int)((width + tile - 1) / tile);
         var down = (int)((height + tile - 1) / tile);
-        var desc = new ImageDesc(new Extent2D((uint)across, (uint)down), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage | ImageUsage.TransferDst);
+        var desc = new ImageDesc(new Extent2D((uint)across, (uint)down), ImageFormat.R16G16B16A16_Float,
+            ImageUsage.Sampled | ImageUsage.Storage | ImageUsage.TransferDst | ImageUsage.TransferSrc);
         var irradiance = CreateImage(desc);
         var geometry = CreateImage(desc);
         var blended = CreateImage(desc);
+        var history = CreateImage(desc);
+        var lastGeometry = CreateImage(desc);
         var irradianceView = CreateImageView(irradiance);
         var geometryView = CreateImageView(geometry);
         var blendedView = CreateImageView(blended);
+        var historyView = CreateImageView(history);
+        var lastGeometryView = CreateImageView(lastGeometry);
         Name(irradiance, "Screen probes' light");
         Name(geometry, "Screen probes' surfaces");
         Name(blended, "Screen probes' light, blended");
+        Name(history, "Screen probes' light, the frame before");
+        Name(lastGeometry, "Screen probes' surfaces, the frame before");
         var view = CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
-        // Both images hold nothing, ready to be sampled, until the first frame places the probes.
+        // Every image holds nothing, ready to be sampled, until the first frame places the probes.
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        VkImage[] images = [((VulkanImage)irradiance).Image, ((VulkanImage)geometry).Image, ((VulkanImage)blended).Image];
+        VkImage[] images = [.. new[] { irradiance, geometry, blended, history, lastGeometry }.Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
         var none = new VkClearColorValue(0f, 0f, 0f, 0f);
@@ -557,19 +580,16 @@ internal sealed unsafe partial class GraphicsDevice
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead))]);
         EndSingleTimeCommands(cmd);
-        foreach (var image in new[] { irradiance, geometry, blended }) ((VulkanImage)image).Layout = VkImageLayout.ShaderReadOnlyOptimal;
+        foreach (var image in new[] { irradiance, geometry, blended, history, lastGeometry }) ((VulkanImage)image).Layout = VkImageLayout.ShaderReadOnlyOptimal;
 
         return new GpuScreenProbes(across, down, tile, irradiance, irradianceView, geometry, geometryView, sampler, view, () =>
         {
             sampler.Dispose();
             view.Dispose();
-            irradianceView.Dispose();
-            geometryView.Dispose();
-            blendedView.Dispose();
-            irradiance.Dispose();
-            geometry.Dispose();
-            blended.Dispose();
-        }, blended, blendedView);
+            foreach (var made in new IDisposable[] { irradianceView, geometryView, blendedView, historyView, lastGeometryView,
+                         irradiance, geometry, blended, history, lastGeometry })
+                made.Dispose();
+        }, blended, blendedView, history, historyView, lastGeometry, lastGeometryView);
     }
 
     /// <summary>
@@ -589,9 +609,11 @@ internal sealed unsafe partial class GraphicsDevice
         fixed (byte* data = bytes)
             _deviceApi.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)screen.View).Buffer, 0, (ulong)bytes.Length, data);
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead);
-        VkImage[] images = [((VulkanImage)screen.Irradiance).Image, ((VulkanImage)screen.Geometry).Image, ((VulkanImage)screen.Blended).Image];
+        VkImage[] images = [.. new[] { screen.Irradiance, screen.Geometry, screen.Blended, screen.History, screen.LastGeometry }
+            .Select(image => ((VulkanImage)image).Image)];
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
-            readers, VkAccessFlags2.ShaderRead, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite))]);
+            readers | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
+            VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead))]);
 
         var set = run.Set(ScreenStage);
         run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)depth).View, depthSampler, VkImageLayout.ShaderReadOnlyOptimal);
@@ -619,13 +641,30 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(blend, 0, VkDescriptorType.SampledImage, ((VulkanImageView)screen.IrradianceView).View, null, VkImageLayout.General);
         run.Image(blend, 1, VkDescriptorType.SampledImage, ((VulkanImageView)screen.GeometryView).View, null, VkImageLayout.General);
         run.Image(blend, 2, VkDescriptorType.StorageImage, ((VulkanImageView)screen.BlendedView).View, null, VkImageLayout.General);
+        run.Image(blend, 3, VkDescriptorType.SampledImage, ((VulkanImageView)screen.HistoryView).View, null, VkImageLayout.General);
+        run.Image(blend, 4, VkDescriptorType.SampledImage, ((VulkanImageView)screen.LastGeometryView).View, null, VkImageLayout.General);
+        run.Buffer(blend, 5, VkDescriptorType.UniformBuffer, screen.View);
+        run.Image(blend, 6, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)depth).View, depthSampler, VkImageLayout.ShaderReadOnlyOptimal);
         var (filterPipeline, filterLayout, _) = GiStages[FilterStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, filterPipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, filterLayout, 0, 1, &blend, 0, null);
         _deviceApi.vkCmdDispatch(cmd, (uint)(screen.Across + 7) / 8, (uint)(screen.Down + 7) / 8, 1);
 
+        // This frame's blended light and surfaces kept for the next frame's blend.
+        MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead,
+            VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite);
+        var region = new VkImageCopy
+        {
+            srcSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            dstSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+            extent = new VkExtent3D((uint)screen.Across, (uint)screen.Down, 1),
+        };
+        _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Blended).Image, VkImageLayout.General, ((VulkanImage)screen.History).Image, VkImageLayout.General, 1, &region);
+        _deviceApi.vkCmdCopyImage(cmd, ((VulkanImage)screen.Geometry).Image, VkImageLayout.General, ((VulkanImage)screen.LastGeometry).Image, VkImageLayout.General, 1, &region);
+
         PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
-            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead))]);
+            VkPipelineStageFlags2.ComputeShader | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderWrite | VkAccessFlags2.TransferWrite | VkAccessFlags2.TransferRead,
+            readers, VkAccessFlags2.ShaderRead))]);
         return run;
     }
 

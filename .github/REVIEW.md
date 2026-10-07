@@ -10,7 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1be7c8ee`. TODO.md's light-bounce entry, item 2, its gap of lamps casting no shadow
+Reviewed up to `7ffcde68`. Item 5 is settled by its sentences, the code kept: apps alive at the same
+time share one watch of their scripts' directories, and apps made one after another each watch
+again, since the leak test's own record shows macOS's heap rising and falling by 6 MB every thirty
+apps with a census finding 0.25 MB more alive from the twentieth app to the hundredth, so the
+FSEvents streams are given back, and a watch kept for the whole process would outlive the
+directories it watches, the suite's deleted test folders among them (`3af649ca`). The light-bounce
+entry, item 2, closes its gap of render textures and probe captures drawn without the field: a
+render target and a reflection probe's faces bind the world's probes and the field, their buffers
+taking the window's cascades with the screen probes and the reflections off, a target drawn before
+the bounce reading the frame before's probes; a window that draws no mesh, as a game that draws its
+scene into a texture and shows the texture alone, gave the field no camera and no meshes, and the
+field follows the first target's camera and holds the targets' meshes; a test draws a room lit by a
+glowing panel into a texture the window shows, lit with the panel on and black with it off where it
+was drawn in its own colors either way; on lavapipe under validation 138 passed and 1 skipped
+(`7ffcde68`). Measured for the next gap, with the camera sliding a hundredth of a unit a frame
+through the Cornell box the picture changes 0.49 levels a frame with the bounce off, 1.26 at `Low`
+and 0.73 at `High`, so the screen probes add up to 0.8 levels of crawl a frame, and blending them
+over time is next. Item 3's reduction stands at 45 KB. The suite: 1,540 passed.
+
+Before them, TODO.md's light-bounce entry, item 2, came to close its gap of lamps casting no shadow
 in the bounce, which was one of three leaks: a closed room of slabs 0.6 thick with the camera inside
 and a shadow-casting lamp over the roof or under the floor read 239 and 247 of 255 with the bounce
 on and 0 with it off; probe-ray hits were lit by every lamp unshadowed, a coarser cascade's ray was
@@ -26,9 +45,7 @@ reflections still lighting what they hit with lamps unshadowed, which the docs s
 on the RTX 4070 at four cascades reads 0.24, 0.30 and 0.43 ms at the three qualities where it read
 0.21, 0.32 and 0.40, within the noise, the guide's table taking the new readings where its old ones
 had gone stale; on lavapipe under validation the bounce, reference, render and field tests gave 137
-passed and 1 skipped (`1be7c8ee`). Item 3's reduction had died at step 457, each validation
-container mounting the scratch folder with a label that took it from the reducing one, and runs
-again from the 63 KB module with the shared label. The suite: 1,539 passed.
+passed and 1 skipped (`1be7c8ee`). The suite: 1,539 passed.
 
 Before them, TODO.md's shadows entry, item 2, came in: the spot and point lights given shadow maps
 were ranked for the window's camera alone, so a render target looking elsewhere got the window's
@@ -40,20 +57,6 @@ sees, RENDERING.md's fourth section and the guide updated (`eee89446`). The entr
 eleventh spot or a thirteenth point light casting no shadow, a ranking that does not weigh how much
 of the picture a light covers, which stays unless asked for, and each render target drawing the
 cascades and the spot tile again for its own camera. The suite: 1,538 passed.
-
-Before them, TODO.md's vertex inputs entry, item 2, came in: the reflection gives each input of a
-vertex stage by its semantic and its Slang location, the cache keeping them as lines of their own;
-the model and immediate passes write each attribute of their vertex formats once with its semantic
-(`VertexStream`), and a program's own vertex stage is fed each input at its semantic's location, so
-it declares its inputs in any order and the guide's instruction to put `COLOR0` and `TEXCOORD1` at
-locations of their own is gone; an input no stream supplies gets a warning once a shader, and a
-stage with no semantics, or one cached before the change, is fed at the old fixed locations; a
-reflection and cache test takes inputs out of order and rows of a struct, and a render test draws a
-cube through a stage taking color first and position last and matches the engine's order, drawn
-wrong when the names are ignored, 141 render, reference and compiler tests passing on lavapipe under
-validation; RENDERING.md's first section says a sampler declared apart from its texture is bound, as
-it has been since `b0386c1e` (`57f0785f`). The entry has left a compute shader writing a render
-texture only where the GPU stores the window's format. The suite: 1,537 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -88,15 +91,6 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-5. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
-   watch is one stream for the process, which holds for apps that overlap, while the watch is let go
-   with the last app watching it, so a hundred apps made one after another make a hundred FSEvents
-   streams on macOS, read on the way to Verdict 32. The watch is kept for the process once made, or
-   the sentence says what holds, whichever the macOS leak test's census argues for. The larger
-   things BevyCSharp has and this engine lacks (saves, data in files of its own, files that outlive
-   a renamed type, C# typed at a running app) stay `to consider` in [SHARED.md](SHARED.md), as the
-   owner decided, and BevyCSharp's cheatsheet written from documentation by a tool stays to consider
-   as well.
 
 ## Verdicts
 
@@ -328,17 +322,30 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 5, the scripts' shared watch: the sentences change, and the watch is still let go.
+TODO.md's order, the light-bounce entry, its gap of the screen's probes not blended over time:
 
-- **What holds.** Apps that live at the same time share one watch of their scripts' directory.
-  Apps made one after another, each closed before the next, still watch it once each, the last to
-  close letting it go, which "once a process" hid. `DirectoryWatches`' remarks, the compiler's
-  comment and the test's summary now say so.
-- **Why it is let go.** The macOS leak test's own record, in `AppLeakTests`, has macOS's heap
-  rising and falling back by 6 MB every thirty apps while a census found 0.25 MB more alive at the
-  hundredth app than at the twentieth, so the streams are given back as the system lets them go. A
-  watch kept for the process would outlive the directory it watches, as the suite's test folders
-  deleted after their tests, so keeping it trades a churn the heap recovers from for watches on
-  directories that are gone.
-- The suite: 1,539 passed.
+- **Blended with the frame before.** After the 5 by 5 filter each screen probe is blended with the
+  frame before's, a fifth of this frame's light to four fifths of theirs. The probe's point is read
+  from the window's depth, as `gi_screen.slang` placed it, found in the frame before through that
+  frame's camera, which the view buffer now carries with its eye, and the four probes then around it
+  blended where each stood on a surface alike in normal and distance. The frame's blended light and
+  surfaces are copied into two images after the filter for the next frame. A probe whose surface
+  the frame before did not show, and every probe on the first frame or after the probes are laid
+  out again, takes this frame's light alone. `ScreenView` moves into `gi.slang` for the two shaders
+  to share, and the model pass's SPIR-V is byte for byte the same in both builds.
+- **Measured.** With the camera sliding a hundredth of a unit a frame through a Cornell box at
+  `Low`, the bounce adds 0.27 levels a frame to the picture's change where it added 1.34 with the
+  history off, against 0.48 with no bounce, which a test holds under 0.5, passing on lavapipe as
+  well. It costs some 0.03 ms, within the noise, and two images of the probes' size, which
+  `gi.state` now counts. The guide's table takes 0.27, 0.31 and 0.44 ms and 0.73, 2.80 and 6.81 MB.
+  The light near the camera follows a light that changes some five frames late, which the guide,
+  RENDERING.md and TODO.md say.
+- **Checked.** Every reference frame passed, and lavapipe under the validation layer passed the
+  bounce, reference, render, field and probe tests, 139 and 1 skipped.
+- **What the entry has left.** The reflections light what they meet with the lamps unshadowed, a
+  skinned or moving mesh is the gray box around it, and the field misses a closed mesh much thinner
+  than a cell and puts a wedge under an open one's edges. The entries after it record limits more
+  than gaps, so tell me which of them to take, or I take the field's skinned meshes next, from the
+  GPU's posed vertices, and item 3 meanwhile.
+- The suite: 1,541 passed.
 

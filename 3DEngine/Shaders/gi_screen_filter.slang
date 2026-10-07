@@ -1,7 +1,13 @@
 // Blends each screen probe's light with the probes around it that stand on a surface like its own,
 // a thread a probe, five by five of them, each weighed by how near it is and how alike its normal and
 // its distance from the eye are to the probe's, so the few rays each probe sends average over many
-// and the tiles the window is cut into do not show.
+// and the tiles the window is cut into do not show. Then with what the probes of the frame before
+// held where the probe's surface was, a fifth of this frame's to four fifths of theirs, so the light
+// does not crawl as the probes slide over the surfaces when the camera moves: the probe's point is
+// found from the window's depth, its place in the frame before through that frame's camera, and the
+// four probes of the frame before around it blended where each stood on a like surface. A probe
+// whose surface the frame before did not show takes this frame's light alone.
+import gi;
 
 // The light each probe's rays summed, and each probe's surface, as gi_screen.slang left them.
 [[vk::binding(0, 0)]]
@@ -12,6 +18,80 @@ Texture2D<float4> geometry;
 
 [[vk::binding(2, 0)]] [format("rgba16f")]
 RWTexture2D<float4> blended;
+
+// The light blended and the surfaces of the frame before, as this pass and gi_screen.slang left
+// them, and copied after each frame.
+[[vk::binding(3, 0)]]
+Texture2D<float4> history;
+
+[[vk::binding(4, 0)]]
+Texture2D<float4> lastGeometry;
+
+[[vk::binding(5, 0)]]
+ConstantBuffer<ScreenView> view;
+
+[[vk::binding(6, 0)]]
+Sampler2D depth;
+
+// How much of a probe's light this frame's rays give where the frame before's probes held it.
+static const float Fresh = 0.2;
+
+// The spatial blend of a probe's light with its like neighbors', or its own where it holds none.
+float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface)
+{
+    float4 sum = float4(0.0);
+    for (int y = -2; y <= 2; y++)
+        for (int x = -2; x <= 2; x++)
+        {
+            int2 at = clamp(int2(id) + int2(x, y), int2(0), int2(int(across) - 1, int(down) - 1));
+            float4 light = irradiance.Load(int3(at, 0));
+            float4 other = geometry.Load(int3(at, 0));
+            if (light.a < 0.5 || other.w < 0.0)
+                continue;
+            float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
+                         * exp(-abs(other.w - surface.w) / (0.02 * surface.w + 0.05));
+            sum += float4(light.rgb, 1.0) * weight;
+        }
+    return float4(sum.rgb / max(sum.w, 1e-5), 1.0);
+}
+
+// The frame before's light at the probe's surface, with in a how much of the four probes around
+// its place then stood on a surface like it, or 0 where the frame before showed none of it.
+float4 earlier(uint2 id, uint across, uint down, float4 surface)
+{
+    if (view.last.w < 0.5)
+        return float4(0.0);
+    // The point the probe stands on, from the depth's texel under its tile's middle, as
+    // gi_screen.slang placed it.
+    float2 pixel = min((float2(id) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
+    float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
+    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, depth.SampleLevel(uv, 0).r, 1.0));
+    float3 p = world.xyz / world.w;
+
+    float4 clip = mul(view.lastViewProjection, float4(p, 1.0));
+    if (clip.w <= 1e-5)
+        return float4(0.0);
+    float2 then = (clip.xy / clip.w * 0.5 + 0.5) * view.sizes.zw / view.grid.x - 0.5;
+    int2 base = int2(floor(then));
+    float2 f = then - float2(base);
+    float expected = distance(p, view.last.xyz);
+    float3 sum = float3(0.0);
+    float weights = 0.0;
+    for (int corner = 0; corner < 4; corner++)
+    {
+        int2 at = base + int2(corner & 1, corner >> 1);
+        if (any(at < int2(0)) || at.x >= int(across) || at.y >= int(down))
+            continue;
+        float4 before = lastGeometry.Load(int3(at, 0));
+        if (before.w < 0.0 || dot(before.xyz, surface.xyz) < 0.9 || abs(before.w - expected) > 0.03 * expected + 0.05)
+            continue;
+        float2 lerps = lerp(1.0 - f, f, float2(corner & 1, corner >> 1));
+        float weight = lerps.x * lerps.y;
+        sum += history.Load(int3(at, 0)).rgb * weight;
+        weights += weight;
+    }
+    return weights > 1e-4 ? float4(sum / weights, weights) : float4(0.0);
+}
 
 [shader("compute")]
 [numthreads(8, 8, 1)]
@@ -28,18 +108,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         blended[id.xy] = own;
         return;
     }
-    float4 sum = float4(0.0);
-    for (int y = -2; y <= 2; y++)
-        for (int x = -2; x <= 2; x++)
-        {
-            int2 at = clamp(int2(id.xy) + int2(x, y), int2(0), int2(int(across) - 1, int(down) - 1));
-            float4 light = irradiance.Load(int3(at, 0));
-            float4 other = geometry.Load(int3(at, 0));
-            if (light.a < 0.5 || other.w < 0.0)
-                continue;
-            float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
-                         * exp(-abs(other.w - surface.w) / (0.02 * surface.w + 0.05));
-            sum += float4(light.rgb, 1.0) * weight;
-        }
-    blended[id.xy] = float4(sum.rgb / max(sum.w, 1e-5), 1.0);
+    float4 now = spatial(id.xy, across, down, own, surface);
+    // Where the frame before's probes cover the place in part, as at the edge of what it showed,
+    // this frame's light counts for the rest.
+    float4 before = earlier(id.xy, across, down, surface);
+    float fresh = lerp(1.0, Fresh, saturate(before.a));
+    blended[id.xy] = float4(lerp(before.rgb, now.rgb, fresh), 1.0);
 }

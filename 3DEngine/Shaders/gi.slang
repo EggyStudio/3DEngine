@@ -85,6 +85,29 @@ public struct SplitPicture : IPicture
     public float4 sampleAt(float2 uv, float lod) { return image.SampleLevel(sampler, uv, lod); }
 }
 
+// The view the screen's probes are placed through, which gi_screen.slang traces them through and
+// gi_screen_filter.slang blends them through.
+public struct ScreenView
+{
+    // World to clip space, and back, as the window's camera has it this frame.
+    public float4x4 viewProjection;
+    public float4x4 inverseViewProjection;
+    // xyz: the eye.
+    public float4 eye;
+    // x: a tile's pixels along each side. y: the probes across. z: the probes down. w: unused.
+    public float4 grid;
+    // x: where the first interval ends. y: the world's probes along each side. z: their spacing in
+    // cells. w: how many cascades the world's probes have.
+    public float4 trace;
+    // xy: the depth's texels across and down. zw: the window's pixels across and down.
+    public float4 sizes;
+    // World to clip space as the frame before had it, which a probe's place then is found through.
+    public float4x4 lastViewProjection;
+    // xyz: the frame before's eye. w: 1 where the probes of the frame before may be read, as they
+    // may not be on the first frame or the first after the probes were laid out again.
+    public float4 last;
+};
+
 // A camera's matrices and eye, which a ray is traced through its depth with.
 public struct ScreenCamera
 {
