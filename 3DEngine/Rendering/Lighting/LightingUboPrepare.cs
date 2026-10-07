@@ -69,7 +69,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
                 windowUbo.Reflection = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
-                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, 0, 0, 0);
+                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.Rays is null ? 0 : 1, 0, 0);
             }
         }
         var binding = Upload(allocator, in windowUbo);

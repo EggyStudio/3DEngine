@@ -575,6 +575,21 @@ While light bounces the window's scene is drawn through the HDR frame, and after
 the frame's scene is copied at half size into an image with its mips, and the window's half-size
 depth beside it (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
 
+Where the device traces rays (`VK_KHR_ray_query` with its acceleration structures, turned on at
+start where the driver has them, `GraphicsDevice.CanQueryRays`), the model pass is built a second
+time with `RAY_QUERY` defined (`SlangLoader`'s variants, which `e3d shaders` compiles into a
+program's cache too), and its lights' set holds the window's meshes as the GPU's rays see them
+(`GraphicsDevice.RayQuery`). Each mesh the field gathered, the skinned left out, gets a
+bottom-level structure from its triangles the first frame it is drawn, its corners kept in one
+buffer, and at `High` the top-level structure of every copy is built again each frame with each
+copy's color and light given off, written into one of a ring of buffers a frame in flight. A
+reflection whose ray the field misses traces it there, and the triangle it meets, its face from the
+corners turned toward the ray, is lit by the lamps, the sun through a second ray, and the bounced
+light or the sky (`rayReflection` in `lights.slang`). A device that draws on its CPU leaves ray
+queries off: lavapipe of Mesa 25.2 crashed in the model pass's fragment stage at its first ray
+query, any-hit alone included, where the structures it built without a word from the validation
+layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: point and spot lights cast no shadow in the bounce, a moving
 mesh bounces light as the gray box the field holds it as, the screen's probes are not blended over
@@ -937,7 +952,7 @@ run to run, with the runtime's compiler and collector in the frame.
 Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
 shadow cascades with point and spot shadows, bloom and FXAA, the scene's distance field, and light
 that bounces as Radiance Cascades over it with glossy reflections traced through the depth and the
-field are built, in that order. What is left of the order is a ray-query path for what the field
-misses, and tonemapping as a full-screen pass in every frame, in place
+field and the GPU's own rays for what the field misses are built, in that order. What is left of
+the order is tonemapping as a full-screen pass in every frame, in place
 of the curve at the end of the model pass, which runs there while every effect over the frame is off
 and over the HDR frame while any is on (§5).

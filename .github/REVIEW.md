@@ -10,23 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `06b702a1`. Verdict 38's two things are in `BadFileTests`, to be read on the next
-macOS job: both cases, the readers' and the ECS's, wait for a file's message through up to six
-hundred frames with five milliseconds of sleep after each, three seconds and more of the worker's
-time where sixty frames gave 300, the sleep one N 3.3's list holds for this file and its reason so
-the wait reads no clock, a first try with a stopwatch having been caught by N 3.3's test; and a case
-that fails says the first three lines the log held at warning or above since it began, or that it
-held none, so the page tells late from never from misnamed, every reader naming the file within the
-first frames on the working machine (`06b702a1`). The Windows job of `4db6fe46` failed the same two
-tests at 20:56, the Cornell frame at 3.3% and the offscreen leak test's host dying twice; the run of
-`6a2d916e`, the first with Verdict 37's mends, had Linux green and macOS through every test and
-playing the games at 21:10, the bad file cases passing there and the Cornell frame within 5%, which
-settles Verdict 38, and its Windows job through every test but one at 21:23, the Cornell frame
-within 5% and the offscreen leak test's host dying again at the ninetieth app and the ninety-first,
-with the dump unnamed on the page, which Verdict 37 takes up as its fourth part; the owner pushed
-`06b702a1`, whose run was in progress at 21:28. The ray-query batch's crash under lavapipe is in
-building the acceleration structures and not in tracing them, a fault in code the driver compiles
-with no symbols, which is dug into before the batch lands. The suite: 1,527 passed.
+Reviewed up to `0ad8636f`. Verdict 37's fourth part is in, to be read on the next Windows job: the
+leak test's line for each app, which the page's account of a lost process carries as its last
+progress line, says what the process held after the app before, the ledger's Vulkan objects of each
+kind, the process's handles and on Windows its GDI and USER objects through `GetGuiResources`, of
+which a process may hold ten thousand each, so a death at the ninetieth app says on the page what
+had climbed by the eighty-ninth, the output after every tenth app giving the same; and the Windows
+job registers Windows' own minidumps for `testhost.exe` through the `LocalDumps` key into
+`TestResults/dumps`, which the runner lists on the page and the job uploads, so a host the runtime's
+`createdump` leaves no dump for still leaves Windows'; on the working machine the line after a
+hundred apps reads 0 of every kind and 192 handles where it read 175 after the first (`0ad8636f`).
+The run of `06b702a1` had Linux green and macOS through its tests and playing the games at 21:37,
+its Windows job in the tests. The ray-query batch is next, its lavapipe crash traced to a null
+pointer in code the driver compiles, which splitting a helper of `gi.slang` alone brings on, so the
+model pass without ray queries stays as it is and the ray-query path gets a lamp loop of its own,
+off on CPU devices. The suite: 1,527 passed, the reply's 1,528 counting a test not in the tree.
+
+Before them, Verdict 38's two things came into `BadFileTests`: both cases, the readers' and the
+ECS's, wait for a file's message through up to six hundred frames with five milliseconds of sleep
+after each, three seconds and more of the worker's time where sixty frames gave 300, the sleep one
+N 3.3's list holds for this file and its reason so the wait reads no clock, a first try with a
+stopwatch having been caught by N 3.3's test; and a case that fails says the first three lines the
+log held at warning or above since it began, or that it held none, so the page tells late from never
+from misnamed, every reader naming the file within the first frames on the working machine
+(`06b702a1`). The Windows job of `4db6fe46` failed the same two tests at 20:56, the Cornell frame at
+3.3% and the offscreen leak test's host dying twice; the run of `6a2d916e`, the first with Verdict
+37's mends, had Linux green and macOS through every test and playing the games at 21:10, the bad
+file cases passing there and the Cornell frame within 5%, which settles Verdict 38, and its Windows
+job through every test but one at 21:23, the Cornell frame within 5% and the offscreen leak test's
+host dying again at the ninetieth app and the ninety-first, with the dump unnamed on the page, which
+Verdict 37 takes up as its fourth part; the owner pushed `06b702a1`, whose run was in progress at
+21:28. The suite: 1,527 passed.
 
 Before them, Verdict 37's three things came in: a process-wide ledger counts the Vulkan objects of
 each kind every device makes and destroys, images, buffers, memory, pipelines, descriptor pools and
@@ -47,23 +61,6 @@ passing, which settles Verdict 36, the two left being `BadFileTests`' two `Model
 38, and the Cornell frame at 2.6%, within the 5% of `6a2d916e`; its Windows job was in the tests at
 20:39 and meets Verdict 37 before its mends. The suite: 1,527 passed; lavapipe under validation ran
 the whole suite, 1,509 passed and 16 skipped.
-
-Before them, Verdict 36 came to be mended: the lights' set binds its seventeen images apart from two
-samplers they share, one blending between texels and levels and one reading the nearest texel, so
-the model pass's fragment stage reads seven samplers, the material's five maps and the two, where it
-read twenty-two; the field's and the bounce's helpers take an `IVolume` or an `IPicture`, which
-`Sampler3D` and `Sampler2D` conform to by an extension and a `SplitVolume` of an image and a shared
-sampler satisfies, so the compute kernels compile as they were; `ModelRenderer` writes each binding
-as the shader declares it; the device reads `maxPerStageDescriptorSamplers` and
-`maxPerStageDescriptorSampledImages` when it is made, logs them and refuses a pipeline whose stage
-reads more, with the stage, the count and the limit (`GraphicsDevice.Limits`); a test compiles every
-built-in shader with a fragment stage and holds its stages to Metal's sixteen; and the array
-uniform's cause was not the macOS compiler but a shader's values kept in statics keyed by its id,
-which every app's shader store gives from 1 again, so an app's first shader found an earlier app's
-block of sixteen bytes, the values kept since with the shader store through a
-`ConditionalWeakTable`, with a test across two apps and an error that says the uniform's size and
-offset and the block's size (`4db6fe46`). The suite: 1,527 passed; lavapipe under validation ran the
-whole suite, 1,509 passed and 16 skipped where it has no device.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -213,7 +210,8 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     so a count climbing toward a limit shows before the death; and where `createdump` leaves
     nothing, the job turns on Windows' own dumps for the test host through the `LocalDumps` key into
     the same folder, read as a `.dmp` by `dotnet-dump` or WinDbg, so the death's own stack is on the
-    artifacts. Settled when a Windows job passes both tests.
+    artifacts. Mended at `0ad8636f`, the progress line carrying the ledger, the handles and the GUI
+    objects, and Windows' own dumps kept. Settled when a Windows job passes both tests.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -307,14 +305,39 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 37's fourth part is in, to be read on the next Windows job. The leak test's line for each
-app, which the page's account of a lost process carries as its last progress line, says what the
-process held after the app before: the ledger's Vulkan objects of each kind, the process's handles,
-and on Windows its GDI and USER objects through `GetGuiResources`, of which a process may hold ten
-thousand each, so a death at app 90 says on the page what had climbed by app 89. The output after
-every tenth app gives the same. The Windows job registers Windows' own minidumps for
-`testhost.exe` through the `LocalDumps` key, into `TestResults/dumps`, which the runner lists on the
-page and the job uploads, so a host the runtime's `createdump` leaves no dump for still leaves
-Windows'. Here the line after a hundred apps reads 0 of every kind and 192 handles, where it read
-175 after the first. The suite: 1,528 passed.
+Item 2's ray-query path is in, the last of phase three:
+
+- **Device.** `VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses are
+  turned on where the driver has them, and the log says so.
+- **Shader build.** The model pass is compiled a second time with `RAY_QUERY` defined, `slangc`'s
+  `-D` now part of a cache entry's key, and `e3d shaders` compiles that build into a program's
+  cache beside the plain one. Its lights' set holds the GPU's rays' scene at bindings 28 to 30, a
+  new `AccelerationStructure` descriptor kind.
+- **Scene.** `GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field
+  gathered, the skinned left out, the first frame it is drawn, from its corners kept in one buffer.
+  At `High` the top-level structure of every copy is built again each frame, with each copy's color
+  and light given off in one of a ring of buffers, a buffer for each frame in flight. Every object
+  is in the ledger as Verdict 37 counts them.
+- **Tracing.** A reflection whose ray the field misses traces it through the GPU's rays, and the
+  triangle it meets is lit by the lamps, the sun through a second ray, and the bounce or the sky.
+- **Commands.** `gi.rays off` and `on` switch the path in a running program, and `gi.state` says
+  how many copies of how many meshes the rays see and the memory they take.
+- **Measured.** In `shaders_reflections` at `High` on the RTX 4070, frame rate unlimited: 8 copies
+  of 6 meshes in 1.23 MB. `global_illumination` reads 0.49 ms with the rays and 0.46 to 0.47
+  without, the top-level rebuild. `hdr_scene` reads 0.32 to 0.34 against 0.29 to 0.35, within its
+  noise, the hall's rays seldom leaving the field.
+- **Test.** A mirror shows a green block twenty-five units behind the camera, past the field's one
+  cascade, at `High` (23.6, 133.3, 30.2), where `Medium` shows the gray of the ambient light. The
+  test needs ray queries and is skipped with its reason elsewhere.
+- **Lavapipe.** A device that draws on its CPU leaves ray queries off. Lavapipe of Mesa 25.2
+  crashed the test host in the model pass's fragment stage at its first ray query, an any-hit
+  query alone included, though the structures it built in a test of their own passed the
+  validation layer. So CI tests this path nowhere, and the RTX 4070 alone draws it.
+- **Lavapipe, a second fault.** The model pass built without ray queries also crashed lavapipe at
+  the glossy frame when `directLight`'s lamp loop moved into a function of its own. The fault was a
+  null pointer read from a table in its compiled shader, bisected to that one change and not run
+  down. That code keeps the shape lavapipe draws, the ray-query build has a lamp loop of its own,
+  and TODO.md says so.
+- The suite: 1,528 passed. Lavapipe under validation ran the whole suite, 1,509 passed and 17
+  skipped.
 

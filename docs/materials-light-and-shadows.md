@@ -319,7 +319,18 @@ does a surface as it grows rough, the traced reflection fading out from a roughn
 The frame is drawn through the HDR frame while light bounces, so the frame before is there to read.
 In `shaders_reflections` at `Medium`, the scene's pass takes 0.29 ms of the GPU with its floor
 polished and 0.20 ms with it rough, as `./e3d command profile` names it `hdr_scene`, with the frame
-rate unlimited as above. Point and spot lights cast no shadow in the light that bounces,
+rate unlimited as above.
+
+At `High`, where the GPU traces rays itself (`VK_KHR_ray_query`), a reflection the field misses,
+past its cascades or too thin for its cells, is traced through the GPU's own rays against the
+meshes' triangles, and the surface it meets reflects its color lit by the sun, through a second
+ray toward it, the lamps, and the light that bounced where the probes reach or the sky where they
+do not. A device that draws on its CPU, as lavapipe does, leaves this off and traces through the
+field alone. `./e3d command gi.rays off` turns it off in a running program and `gi.rays on` back
+on, and `gi.state` says how many copies of how many meshes the GPU's rays see and the memory they
+take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 MB, and building
+them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
+rays here seldom leave the field, reads the same within its noise of 0.03 ms. Point and spot lights cast no shadow in the light that bounces,
 a mesh that moves bounces light as the gray box the field holds it as, the screen's probes are traced
 again each frame and not blended over time, so the light may crawl a little as the camera moves, and
 render textures and probe captures are drawn without it. `Config.GlobalIllumination` sets the same

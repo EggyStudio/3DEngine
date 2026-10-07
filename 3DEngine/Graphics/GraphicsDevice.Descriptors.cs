@@ -92,7 +92,7 @@ internal sealed unsafe partial class GraphicsDevice
     private void AddDescriptorPool()
     {
         Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers, 1024 storage buffers, 16384 images and 4096 samplers apart, maxSets=4096)...");
-        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[6];
+        VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[7];
         poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
         // A model pass set holds five maps, so samplers run out first.
         poolSizes[1] = new VkDescriptorPoolSize(VkDescriptorType.CombinedImageSampler, 16384);
@@ -103,12 +103,15 @@ internal sealed unsafe partial class GraphicsDevice
         // apart, and a program's shaders that declare a texture and its sampler apart.
         poolSizes[4] = new VkDescriptorPoolSize(VkDescriptorType.SampledImage, 16384);
         poolSizes[5] = new VkDescriptorPoolSize(VkDescriptorType.Sampler, 4096);
+        // The scene's triangles in the model pass's lights' set, a set of which each frame and
+        // target makes, where the device traces rays.
+        poolSizes[6] = new VkDescriptorPoolSize(VkDescriptorType.AccelerationStructureKHR, 1024);
 
         VkDescriptorPoolCreateInfo poolInfo = new()
         {
             flags = VkDescriptorPoolCreateFlags.FreeDescriptorSet,
             maxSets = 4096,
-            poolSizeCount = 6,
+            poolSizeCount = CanQueryRays ? 7u : 6u,
             pPoolSizes = poolSizes
         };
 
@@ -319,6 +322,7 @@ internal sealed unsafe partial class GraphicsDevice
         DescriptorType.StorageImage => VkDescriptorType.StorageImage,
         DescriptorType.SampledImage => VkDescriptorType.SampledImage,
         DescriptorType.Sampler => VkDescriptorType.Sampler,
+        DescriptorType.AccelerationStructure => VkDescriptorType.AccelerationStructureKHR,
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 

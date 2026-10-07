@@ -60,6 +60,18 @@ public sealed class NeedsVulkanTheoryAttribute : TheoryAttribute
     }
 }
 
+/// <summary>Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and where the device traces no rays from a shader.</summary>
+public sealed class NeedsRayQueryFactAttribute : FactAttribute
+{
+    public NeedsRayQueryFactAttribute()
+    {
+        if (new NeedsVulkanFactAttribute().Skip is { } skip) Skip = skip;
+        else if (!Probes.RayQuery.Value)
+            Skip = "The Vulkan device here traces no rays from a shader. It lacks VK_KHR_ray_query or VK_KHR_acceleration_structure, "
+                   + "or draws on its CPU, where the engine leaves them off.";
+    }
+}
+
 /// <summary>Skipped where SDL opens no audio device, not even its dummy driver's.</summary>
 public sealed class NeedsAudioDeviceFactAttribute : FactAttribute
 {
@@ -140,6 +152,15 @@ internal static class Probes
     });
 
     public static readonly Lazy<bool> Vulkan = new(() => VulkanError.Value is null);
+
+    // Whether the device traces rays from a shader, which its probe says once it has started.
+    public static readonly Lazy<bool> RayQuery = new(() =>
+    {
+        if (!Vulkan.Value) return false;
+        using var device = new GraphicsDevice();
+        device.Initialize(new OffscreenSurface(1, 1), "probe");
+        return device.CanQueryRays;
+    });
 
     // The name Python runs by, python3 where it is, as on Linux and macOS, and python on Windows.
     public static readonly Lazy<string?> Python = new(() =>

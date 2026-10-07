@@ -51,7 +51,21 @@ internal static class SceneFieldCommands
             : (window.Extent.Width / 2) * (window.Extent.Height / 2) * (8 * 4 / 3.0 + 4) / 1024 / 1024;
         lines.Add($"reflections below roughness {GlobalIlluminationRenderer.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
                   + $"then the field, the frame before kept in {history:0.00} MB");
+        if (gi.Rays is { } traced)
+            lines.Add($"what the field misses through the device's rays, {traced.Count} copies of {traced.Meshes.Count} meshes in {traced.Bytes / 1024.0 / 1024.0:0.00} MB");
         return string.Join("\n", lines);
+    }
+
+    [Command("gi.rays", "Whether High traces what the scene's distance field misses through the device's own ray tracing, where it has it: gi.rays <on|off>")]
+    internal static string Rays(string state)
+    {
+        if (!ConsoleHost.World!.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            return "no light bounces, which SetGlobalIllumination turns on";
+        settings.RaysOff = state is "off" or "0" or "false";
+        var device = ConsoleHost.World!.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };
+        return settings.RaysOff ? "High traces through the field alone"
+            : device ? "High traces what the field misses through the device's rays"
+            : "the device traces no rays, so High traces through the field alone";
     }
 
     [Command("field.state", "Where each cascade of the scene's distance field lies, how many meshes are still in it, and what this frame stamped")]

@@ -22,6 +22,12 @@ internal sealed unsafe partial class GraphicsDevice
     public bool CanMirrorClamp { get; private set; }
 
     /// <summary>
+    /// Whether a shader traces rays through acceleration structures of the scene's triangles
+    /// (<c>VK_KHR_ray_query</c>), which the device turns on where the driver has it.
+    /// </summary>
+    public bool CanQueryRays { get; private set; }
+
+    /// <summary>
     /// Whether a pipeline can blend and mask each color attachment of its own, which needs the
     /// device's independentBlend, so a target of several images keeps those past a shader's outputs.
     /// </summary>
@@ -102,7 +108,21 @@ internal sealed unsafe partial class GraphicsDevice
         // Passes begin with dynamic rendering, and barriers are synchronization2's, both core in
         // Vulkan 1.3, which every desktop driver in use and lavapipe have.
         var lines = new VkPhysicalDeviceLineRasterizationFeatures();
-        var vulkan13 = new VkPhysicalDeviceVulkan13Features { pNext = lineRasterization is null ? null : &lines };
+        // The GPU's own ray tracing from a shader, where the driver has the three extensions it
+        // takes, which a reflection the scene's distance field misses is traced with at the top
+        // quality. Every desktop driver with ray tracing and lavapipe since Mesa 25 have them.
+        var rayExtensions = new[]
+        {
+            Utf8(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME), Utf8(VK_KHR_RAY_QUERY_EXTENSION_NAME),
+            Utf8(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME),
+        };
+        var rayQuery = new VkPhysicalDeviceRayQueryFeaturesKHR { pNext = lineRasterization is null ? null : &lines };
+        var structures = new VkPhysicalDeviceAccelerationStructureFeaturesKHR { pNext = &rayQuery };
+        var hasRayExtensions = rayExtensions.All(HasDeviceExtension);
+        var vulkan13 = new VkPhysicalDeviceVulkan13Features
+        {
+            pNext = hasRayExtensions ? &structures : lineRasterization is null ? null : &lines,
+        };
         var vulkan12 = new VkPhysicalDeviceVulkan12Features { pNext = &vulkan13 };
         var vulkan11 = new VkPhysicalDeviceVulkan11Features { pNext = &vulkan12 };
         var supported2 = new VkPhysicalDeviceFeatures2 { pNext = &vulkan11 };
@@ -111,19 +131,40 @@ internal sealed unsafe partial class GraphicsDevice
             throw new InvalidOperationException("The GPU's driver lacks Vulkan 1.3's dynamic rendering or synchronization2, which the engine draws with.");
         CanDrawBresenhamLines = lineRasterization is not null && lines.bresenhamLines;
         if (CanDrawBresenhamLines) extensionNames.Add(lineRasterization!);
+        // Left off on a device that draws on its CPU: lavapipe of Mesa 25.2 crashes in the model
+        // pass's fragment stage at its first ray query, any-hit alone included, where the same
+        // structures, which it builds without a word from the validation layer, trace on a GPU.
+        _instanceApi.vkGetPhysicalDeviceProperties(_physicalDevice, out var device);
+        var onCpu = device.deviceType == VkPhysicalDeviceType.Cpu;
+        CanQueryRays = hasRayExtensions && structures.accelerationStructure && rayQuery.rayQuery && vulkan12.bufferDeviceAddress && !onCpu;
+        if (CanQueryRays) extensionNames.AddRange(rayExtensions);
         var enabledLines = new VkPhysicalDeviceLineRasterizationFeatures { bresenhamLines = true };
         var enabledMaintenance5 = new VkPhysicalDeviceMaintenance5Features { maintenance5 = true, pNext = CanDrawBresenhamLines ? &enabledLines : null };
+        var enabledRayQuery = new VkPhysicalDeviceRayQueryFeaturesKHR
+        {
+            rayQuery = true,
+            pNext = hasMaintenance5 ? &enabledMaintenance5 : CanDrawBresenhamLines ? &enabledLines : null,
+        };
+        var enabledStructures = new VkPhysicalDeviceAccelerationStructureFeaturesKHR { accelerationStructure = true, pNext = &enabledRayQuery };
         var enabled13 = new VkPhysicalDeviceVulkan13Features
         {
-            pNext = hasMaintenance5 ? &enabledMaintenance5 : CanDrawBresenhamLines ? &enabledLines : null,
+            pNext = CanQueryRays ? &enabledStructures : hasMaintenance5 ? &enabledMaintenance5 : CanDrawBresenhamLines ? &enabledLines : null,
             dynamicRendering = true,
             synchronization2 = true,
         };
         CanMirrorClamp = vulkan12.samplerMirrorClampToEdge;
-        var enabled12 = new VkPhysicalDeviceVulkan12Features { pNext = &enabled13, samplerMirrorClampToEdge = CanMirrorClamp };
+        var enabled12 = new VkPhysicalDeviceVulkan12Features
+        {
+            pNext = &enabled13,
+            samplerMirrorClampToEdge = CanMirrorClamp,
+            bufferDeviceAddress = CanQueryRays,
+        };
         var enabled11 = new VkPhysicalDeviceVulkan11Features { pNext = &enabled12, shaderDrawParameters = vulkan11.shaderDrawParameters };
 
         Logger.Debug($"Enabling device extensions: {string.Join(", ", extensionNames)}");
+        Logger.Info(CanQueryRays ? "Ray queries: on"
+            : hasRayExtensions && onCpu ? "Ray queries: off, on a device that draws on its CPU, whose ray queries crash in the model pass"
+            : "Ray queries: off, the driver lacks them");
         using var deviceExts = new VkStringArray(extensionNames);
         VkDeviceCreateInfo createInfo = new()
         {

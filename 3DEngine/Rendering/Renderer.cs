@@ -60,6 +60,19 @@ internal sealed class Renderer : IDisposable
         Graph.AddNode("main_pass", new MainPassNode());
 
         var model = server.LoadSync<ShaderProgram>("shaders/model.slang");
+        // Where the device traces rays, the model pass built to trace a reflection the scene's
+        // distance field misses, or the plain one where the build is not in the cache and there
+        // is no compiler to make it.
+        if (Context.Graphics is GraphicsDevice { CanQueryRays: true })
+            try
+            {
+                var loader = new SlangLoader();
+                model = loader.Compile(File.ReadAllText(Path.Combine(loader.ImportDirectory, "model.slang")), "model.slang", ["RAY_QUERY"]);
+            }
+            catch (Exception e) when (e is InvalidOperationException or IOException)
+            {
+                Logger.Warn($"The model pass traces no rays, its build for them not made: {e.Message}");
+            }
         var immediate = server.LoadSync<ShaderProgram>("shaders/immediate.slang");
         var shadow = server.LoadSync<ShaderProgram>("shaders/shadow.slang");
         if (Context.Graphics is GraphicsDevice device)

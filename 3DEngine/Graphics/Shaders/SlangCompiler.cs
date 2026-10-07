@@ -82,9 +82,17 @@ internal static partial class SlangCompiler
         CompileStage(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, CompilerPath);
 
     internal static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage,
-        string? cacheDirectory, string? importDirectory, string? compiler)
+        string? cacheDirectory, string? importDirectory, string? compiler) =>
+        CompileStage(source, fileName, entryPoint, stage, cacheDirectory, importDirectory, compiler, []);
+
+    /// <summary>
+    /// The same, with <paramref name="defines"/> defined for the source and every module it
+    /// imports, as a second build of a shader for a capability some devices lack is compiled.
+    /// </summary>
+    internal static SlangStage CompileStage(string source, string fileName, string entryPoint, ShaderStage stage,
+        string? cacheDirectory, string? importDirectory, string? compiler, IReadOnlyList<string> defines)
     {
-        var key = CacheKey(source, entryPoint, stage, importDirectory);
+        var key = CacheKey(source, entryPoint, stage, importDirectory, defines);
         var cached = cacheDirectory is null
             ? null
             : Path.Combine(cacheDirectory, $"{Path.GetFileNameWithoutExtension(fileName)}.{entryPoint}.{key}.spv");
@@ -102,7 +110,7 @@ internal static partial class SlangCompiler
                 $"'{fileName}' ({entryPoint}) is not in the shader cache and slangc was not found. " +
                 "Put slangc on PATH or name it in ENGINE_SLANGC, which build/fetch-slang.sh does in a checkout.");
 
-        var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory);
+        var (bytecode, reflection) = Run(compiler, source, fileName, entryPoint, stage, importDirectory, defines);
         var uniforms = UniformsOf(reflection);
         var textures = TexturesOf(reflection);
         var buffers = BuffersOf(reflection);
@@ -263,6 +271,8 @@ internal static partial class SlangCompiler
             DescriptorType? kind = type.GetProperty("kind").GetString() switch
             {
                 "constantBuffer" => DescriptorType.UniformBuffer,
+                "resource" when type.TryGetProperty("baseShape", out var structure) && structure.GetString() == "accelerationStructure"
+                    => DescriptorType.AccelerationStructure,
                 "resource" when type.TryGetProperty("baseShape", out var shape) && shape.GetString() is "structuredBuffer" or "byteAddressBuffer"
                     => DescriptorType.StorageBuffer,
                 "resource" when type.TryGetProperty("access", out var access) && access.GetString() is "readWrite" or "write"
@@ -371,7 +381,7 @@ internal static partial class SlangCompiler
     private static bool IsNumber(string word) => int.TryParse(word, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out _);
 
     private static (byte[] Spirv, string? Reflection) Run(string compiler, string source, string fileName, string entryPoint, ShaderStage stage,
-        string? importDirectory)
+        string? importDirectory, IReadOnlyList<string> defines)
     {
         // slangc reads files rather than standard input, and the source may not exist on disk at
         // all (an asset read from memory), so it is written to a directory of its own.
@@ -392,6 +402,8 @@ internal static partial class SlangCompiler
             info.ArgumentList.Add(input);
             foreach (var argument in Arguments.Split(' '))
                 info.ArgumentList.Add(argument);
+            foreach (var define in defines)
+                info.ArgumentList.Add("-D" + define);
             info.ArgumentList.Add("-entry");
             info.ArgumentList.Add(entryPoint);
             info.ArgumentList.Add("-stage");
@@ -428,13 +440,15 @@ internal static partial class SlangCompiler
         }
     }
 
-    private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory)
+    private static string CacheKey(string source, string entryPoint, ShaderStage stage, string? importDirectory, IReadOnlyList<string> defines)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         // The version names what an entry holds, so entries from before uniforms, then textures,
         // then every binding, then each element and field of a uniform, then whether a texture is
         // a cube were cached beside the SPIR-V are compiled again rather than read without them.
         hash.AppendData(Encoding.UTF8.GetBytes($"entries 6\n{Arguments}\n{entryPoint}\n{stage}\n"));
+        // A build with defines is another entry, and one with none keeps the key it had.
+        if (defines.Count > 0) hash.AppendData(Encoding.UTF8.GetBytes($"defines {string.Join(' ', defines)}\n"));
         hash.AppendData(Encoding.UTF8.GetBytes(source));
 
         foreach (var (path, bytes) in ImportedFiles(source, importDirectory))

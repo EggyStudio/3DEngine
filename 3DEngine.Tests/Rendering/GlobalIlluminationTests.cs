@@ -232,6 +232,40 @@ public sealed class GlobalIlluminationTests : IDisposable
         UnloadModel(panel);
     }
 
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void A_Mirror_Reflects_A_Block_Past_The_Field_Through_The_Devices_Rays_At_High()
+    {
+        var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        // One cascade of the field, which reaches some five units behind the camera, and a green
+        // block twenty-five behind it, which a ray through the field never meets, so only the
+        // device's own rays, which High traces, find it in the mirror.
+        SetSceneField(1, 0.15f, 1);
+        SetAmbientLight(Color.White, 0.3f);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.2f, -1, 0.3f)), Color.White, 2);
+        var mirror = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        mirror.Materials[0] = new ModelMaterial(new Color(240, 240, 240)) { Metallic = 1, Roughness = 0.02f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        void Draw()
+        {
+            DrawModelEx(mirror, new Vector3(0, 1.2f, -1.5f), Vector3.UnitY, 0, new Vector3(4, 3, 0.2f), Color.White);
+            DrawModelEx(block, new Vector3(0, 1.2f, 25), Vector3.UnitY, 0, new Vector3(8, 8, 1), new Color(30, 200, 40));
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        var field = Capture(Draw);
+        SetGlobalIllumination(GlobalIllumination.High);
+        var traced = Capture(Draw);
+
+        var middle = Mean(traced, 70, 40, 20, 16);
+        var bare = Mean(field, 70, 40, 20, 16);
+        (middle.Y - middle.X).Should().BeGreaterThan(60, $"the mirror shows the green block the device's rays found, {middle}");
+        (bare.Y - bare.X).Should().BeLessThan(10, $"where the field alone, which never reaches it, shows the gray light from all around, {bare}");
+        UnloadModel(mirror);
+        UnloadModel(block);
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void A_Mirror_Reflects_A_Block_Behind_The_Camera_Through_The_Field()

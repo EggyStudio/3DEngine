@@ -57,6 +57,18 @@ internal sealed class SceneFieldRenderer : IDisposable
     private readonly Dictionary<ModelVertex[], uint[]> _indices = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box> _bounds = new(ReferenceEqualityComparer.Instance);
     private readonly List<(SceneFieldPlan.Instance, bool)> _drawn = [];
+
+    /// <summary>The meshes drawn into the window this frame that cast shadows, each with whether it is skinned, as the field gathered them.</summary>
+    internal IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> Drawn => _drawn;
+
+    /// <summary>The corners of a mesh drawn this frame, three a triangle in its own space, or null for one not drawn.</summary>
+    internal Vector3[]? CornersOf(ModelVertex[] vertices)
+    {
+        if (!_indices.TryGetValue(vertices, out var indices)) return null;
+        var corners = new Vector3[indices.Length / 3 * 3];
+        for (int i = 0; i < corners.Length; i++) corners[i] = vertices[indices[i]].Position;
+        return corners;
+    }
     private ModelRenderer.Instance[] _groupInstances = [];
 
     /// <summary>The plan of the field being built, or null where none is.</summary>

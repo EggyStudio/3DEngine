@@ -197,7 +197,20 @@ internal sealed partial class ModelRenderer
         device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, ReflectFieldBinding));
         device.UpdateDescriptorSet(set, null, Lit(field.AlbedoView, field.Sampler, ReflectAlbedoBinding));
         device.UpdateDescriptorSet(set, null, Lit(field.GlowView, field.Sampler, ReflectGlowBinding));
+        // The window's meshes for the device's ray tracing, or a scene of none, where the model
+        // pass was built to trace rays.
+        if (TracesRays) device.BindRayScene(set, RaySceneBinding, bounced?.Rays ?? (_noRays ??= device.CreateRayScene()));
     }
+
+    // Where lightset.slang binds the window's meshes for the device's ray tracing, the copies'
+    // colors and the meshes' corners, in the model pass built to trace rays.
+    private const uint RaySceneBinding = 28;
+
+    // A scene of no meshes, bound where the model pass traces rays and none are built.
+    private GpuRayScene? _noRays;
+
+    /// <summary>Whether the model pass was built to trace rays, its lights' set holding the window's meshes for the device's ray tracing.</summary>
+    internal bool TracesRays => _lightsBindings.Any(b => b.Type == DescriptorType.AccelerationStructure);
 
     // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after
     // it, and the environment's.

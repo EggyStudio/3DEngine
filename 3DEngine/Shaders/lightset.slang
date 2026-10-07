@@ -81,7 +81,8 @@ public struct Lighting
     // which none is traced, the probes and the environment reflecting alone. z: the steps through
     // the window's depth. w: 1 when reflectHistory holds the frame before.
     public float4 reflection;
-    // x: how far a reflection is traced through the window's depth. yzw: unused.
+    // x: how far a reflection is traced through the window's depth. y: 1 when a reflection the
+    // field misses is traced through rayScene, where the device traces rays. zw: unused.
     public float4 reflectionReach;
 };
 
@@ -190,3 +191,27 @@ public SamplerState lightLinear;
 
 [[vk::binding(27, 1)]]
 public SamplerState lightNearest;
+
+#if defined(RAY_QUERY)
+// Where the device traces rays: the window's meshes as its ray tracing sees them, each drawn copy's
+// color, light given off and where its mesh's corners lie, and every mesh's corners in its own
+// space, which a reflection the scene's distance field misses is traced and shaded through.
+[[vk::binding(28, 1)]]
+public RaytracingAccelerationStructure rayScene;
+
+public struct RaySurface
+{
+    // rgb: the copy's color, linear.
+    public float4 color;
+    // rgb: the light it gives off, linear.
+    public float4 emission;
+    // x: its mesh's first corner in rayCorners. yzw: unused.
+    public uint4 corners;
+};
+
+[[vk::binding(29, 1)]]
+public StructuredBuffer<RaySurface> raySurfaces;
+
+[[vk::binding(30, 1)]]
+public StructuredBuffer<float4> rayCorners;
+#endif

@@ -20,6 +20,8 @@ internal enum DescriptorType
     SampledImage,
     /// <summary>A sampler a shader declares on its own, as a <c>SamplerState</c>.</summary>
     Sampler,
+    /// <summary>The scene's triangles as the GPU traces rays through them, which a shader declares as a <c>RaytracingAccelerationStructure</c>.</summary>
+    AccelerationStructure,
 }
 
 /// <summary>Describes a single binding within a descriptor set layout.</summary>

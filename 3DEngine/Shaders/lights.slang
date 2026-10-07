@@ -353,7 +353,86 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         return float4(lerp(shaded, seen, edge * shown), 1.0);
     }
     float t = traceField(SplitVolume(reflectField, lightLinear), bouncedField, start, r, left, 1e5);
-    if (t < 0.0)
-        return float4(0.0);
-    return float4(shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), start + r * t, probes, spacing, cascades), 1.0);
+    if (t >= 0.0)
+        return float4(shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), start + r * t, probes, spacing, cascades), 1.0);
+#if defined(RAY_QUERY)
+    // What the field misses, past its cascades or too thin for its cells, the GPU's own rays find.
+    if (lighting.reflectionReach.y > 0.0)
+        return rayReflection(start, r);
+#endif
+    return float4(0.0);
 }
+
+#if defined(RAY_QUERY)
+// Whether a ray from p along way meets any of the window's meshes.
+bool rayBlocked(float3 p, float3 way)
+{
+    RayQuery<RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
+    RayDesc ray;
+    ray.Origin = p;
+    ray.Direction = way;
+    ray.TMin = 0.0;
+    ray.TMax = 1e4;
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.Proceed();
+    return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
+}
+
+// The light the first of the window's meshes a ray from p along way meets sends back along it,
+// through the device's ray tracing: the copy's color over pi times the sun's light where a second
+// ray toward the sun gets through, the lamps' unshadowed, and the light that bounced to it where a
+// cascade of probes holds it or the light from all around where none does, with the light it gives
+// off, and a 1, or a 0 where it meets none.
+float4 rayReflection(float3 p, float3 way)
+{
+    RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
+    RayDesc ray;
+    ray.Origin = p;
+    ray.Direction = way;
+    ray.TMin = 0.0;
+    ray.TMax = 1e4;
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.Proceed();
+    if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
+        return float4(0.0);
+
+    // The triangle's face, from its mesh's corners into the world, turned toward the ray.
+    RaySurface surface = raySurfaces[query.CommittedInstanceID()];
+    uint corner = surface.corners.x + query.CommittedPrimitiveIndex() * 3u;
+    float3 a = rayCorners[corner].xyz, b = rayCorners[corner + 1u].xyz, c = rayCorners[corner + 2u].xyz;
+    float3 n = normalize(mul(cross(b - a, c - a), (float3x3)query.CommittedWorldToObject3x4()));
+    if (dot(n, way) > 0.0)
+        n = -n;
+    float3 hit = p + way * query.CommittedRayT();
+
+    // The lamps, unshadowed, falling off as directLight has them. The loop is its own here rather
+    // than a function directLight calls too, since the model pass reshaped by that, with no ray
+    // query in it, crashed lavapipe at its reflections.
+    float3 arrived = float3(0.0);
+    for (int i = 0; i < min(int(reflectLights.counts.x), 16); i++)
+    {
+        GiLight light = reflectLights.lights[i];
+        float3 toLight = light.positionAndKind.xyz - hit;
+        float distance2 = max(dot(toLight, toLight), 1e-4);
+        float3 toward = toLight * rsqrt(distance2);
+        float reaching = max(dot(n, toward), 0.0) / distance2;
+        float range = light.directionAndRange.w;
+        if (range > 0.0)
+        {
+            float edge = saturate(1.0 - pow(distance2 / (range * range), 2.0));
+            reaching *= edge * edge;
+        }
+        if (int(light.positionAndKind.w) == 2)
+            reaching *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-toward, light.directionAndRange.xyz));
+        arrived += light.colorAndShadow.rgb * reaching;
+    }
+    float3 l = reflectLights.sunDirection.xyz;
+    if (reflectLights.sunDirection.w > 0.5 && dot(n, l) > 0.0 && !rayBlocked(hit + n * 0.01, l))
+        arrived += reflectLights.sunColor.rgb * dot(n, l);
+    if (fieldCascade(bouncedField, hit, 1.0) >= 0 && fieldCascade(bouncedField, hit, 1.0) < int(lighting.indirect.w))
+        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
+    else
+        arrived += lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * Pi : reflectLights.sky.rgb * Pi;
+    return float4(surface.color.rgb / Pi * arrived + surface.emission.rgb, 1.0);
+}
+#endif

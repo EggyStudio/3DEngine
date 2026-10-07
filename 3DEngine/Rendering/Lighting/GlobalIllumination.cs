@@ -25,16 +25,19 @@ internal sealed class GlobalIlluminationSettings
 {
     /// <summary>The quality, <see cref="GlobalIllumination.Off"/> for none.</summary>
     public GlobalIllumination Quality { get; set; }
+
+    /// <summary>Whether High leaves the device's ray tracing alone, as <c>gi.rays off</c> sets it, so what it costs can be measured.</summary>
+    public bool RaysOff { get; set; }
 }
 
 /// <summary>
 /// The probes the model pass reads the window's bounced light from this frame, over the field they
 /// were traced through, and the screen's probes, which it reads first where one stands near, with
-/// what a glossy surface traces its reflection through: the window's depth, and its scene the
-/// frame before where one was kept.
+/// what a glossy surface traces its reflection through: the window's depth, its scene the frame
+/// before where one was kept, and its meshes for the device's ray tracing where it traces rays.
 /// </summary>
 internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen,
-    WindowDepth? Depth = null, GpuReflectionHistory? History = null);
+    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null);
 
 /// <summary>
 /// The light that bounces between surfaces, as cascades of light probes over the scene's distance
@@ -73,6 +76,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     private GpuIllumination? _gi;
     private GpuScreenProbes? _screen;
     private GpuReflectionHistory? _history;
+    private GpuRayScene? _rays;
     private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
     private CubeMap? _black;
     private long _frame;
@@ -89,6 +93,12 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// reflection looks a surface up in that picture by, or null where none is kept.
     /// </summary>
     internal Matrix4x4? HistoryViewProjection { get; private set; }
+
+    /// <summary>
+    /// The window's meshes for the device's ray tracing, built each frame at the top quality where
+    /// the device and the model pass trace rays, or null where none are.
+    /// </summary>
+    internal GpuRayScene? Rays => _rays;
 
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
@@ -194,7 +204,26 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _retired.Add((_frame, _screen));
             _screen = null;
         }
-        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history));
+
+        // The window's meshes for the device's ray tracing, which a reflection the field misses is
+        // traced through, at the top quality where the device and the model pass trace rays, a
+        // skinned mesh, whose posed shape no vertices on the CPU hold, left out.
+        if (quality == GlobalIllumination.High && device.CanQueryRays && renderWorld.TryGet<ModelRenderer>() is { TracesRays: true }
+            && !renderWorld.TryGet<GlobalIlluminationSettings>()!.RaysOff
+            && renderWorld.TryGet<SceneFieldRenderer>() is { } fields)
+        {
+            _rays ??= device.CreateRayScene();
+            var copies = new List<RayInstance>(fields.Drawn.Count);
+            foreach (var (instance, skinned) in fields.Drawn)
+                if (!skinned) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission));
+            _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh))));
+        }
+        else if (_rays is not null)
+        {
+            _retired.Add((_frame, _rays));
+            _rays = null;
+        }
+        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays));
     }
 
     /// <summary>
@@ -266,7 +295,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         if (_gi is not null) _retired.Add((_frame, _gi));
         if (_screen is not null) _retired.Add((_frame, _screen));
         if (_history is not null) _retired.Add((_frame, _history));
-        (_gi, _screen, _history) = (null, null, null);
+        if (_rays is not null) _retired.Add((_frame, _rays));
+        (_gi, _screen, _history, _rays) = (null, null, null, null);
         HistoryViewProjection = null;
     }
 
@@ -278,6 +308,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _gi?.Dispose();
         _screen?.Dispose();
         _history?.Dispose();
+        _rays?.Dispose();
         _black?.Dispose();
     }
 }

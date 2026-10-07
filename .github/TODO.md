@@ -137,15 +137,19 @@ physics, text and fonts, audio, audio streams and waves, and files
   lights, and each render target that draws meshes draws the map again for its own camera, with the
   point and spot lights chosen for the window's.
 
-- **Light bounces and glossy surfaces reflect, through the field alone.** The scene's distance
-  field (`SetSceneField`), the light that bounces through it (`SetGlobalIllumination`), Radiance
-  Cascades of world probes with probes on the screen for the near light, and glossy reflections
-  traced through the window's depth and the field are built (RENDERING.md §4). The ray-query path,
-  which would find through the GPU's own ray tracing what the field is too coarse for, is not made.
-  In the bounce point and spot lights cast no shadow, a skinned or moving mesh is the gray box
-  around it, and the screen's probes are not blended over time. Render textures and probe captures
-  are drawn without the field. In the field a closed mesh much thinner than a cell is not there,
-  and an open mesh such as a ground plane puts a narrow wedge below its edges inside.
+- **Light bounces and glossy surfaces reflect.** The scene's distance field (`SetSceneField`), the
+  light that bounces through it (`SetGlobalIllumination`), Radiance Cascades of world probes with
+  probes on the screen for the near light, glossy reflections traced through the window's depth and
+  the field, and at `High` the GPU's own rays for what the field misses are built (RENDERING.md §4).
+  A device that draws on its CPU traces no rays, since lavapipe crashed at a ray query in the model
+  pass, so CI tests the ray-query path nowhere and the laptop's RTX 4070 alone draws it. The bounce
+  itself traces through the field alone, with no ray query. Lavapipe also crashed at the reflections
+  of the model pass built without ray queries when the lamps' loop moved into a function of its own,
+  reading a null pointer in its compiled shader, which was not run down, so that code is kept in the
+  shape lavapipe draws. In the bounce point and spot lights cast no shadow, a skinned or moving mesh
+  is the gray box around it, and the screen's probes are not blended over time. Render textures and
+  probe captures are drawn without the field. In the field a closed mesh much thinner than a cell is
+  not there, and an open mesh such as a ground plane puts a narrow wedge below its edges inside.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

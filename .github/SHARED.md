@@ -82,7 +82,7 @@ table also answers whether the two agree.
 
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
-| A body and a collider are components a scene file holds | has (`99ec076`) | has (`606cb3bf`) |
+| A body and a collider are components a scene file holds | has (`99ec076`), a static body under a parent put where its parents put it since `28a54cd` | has (`606cb3bf`) |
 | A character that walls stop, that slides, steps and holds slopes | taken at `f2ac0cd` | has (`b9f280b2`) |
 | Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
 | A character crouches and stands from its component's height, and its step height is set there | taken at `d5e68ad` | has (`52579d98`) |
@@ -152,7 +152,7 @@ table also answers whether the two agree.
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | taken at `109711a`, `games/Swarm` | has (`games/Swarm`, `3c9c7ac8`) |
 | A feature-test program putting every feature on one map, a capsule character on test courses, an admin panel and a console drawn in the interface, a crash log beside the executable and a portable native build for testers | to take (REVIEW.md, items 3 to 6), the program in at `ca13f97`, the player at `9ba00a4`, the course at `c8509aa` and the render gallery at `e1f6ece`, `8cf909f`, `edd577c` and `6a19213` | to consider |
-| Well-known graphics scenes fetched on demand as asset packs from the repository's releases, a manifest a scene and a script making the pack, nothing checked in | to take (REVIEW.md, item 3), Intel Sponza at 1K first | to consider |
+| Well-known graphics scenes fetched on demand as asset packs from the repository's releases, a manifest a scene and a script making the pack, nothing checked in | taken at `c27fad0`, `9d1154a` and `02dab48`, Intel Sponza's pack made at 1K and awaiting its release, the meshlets and the workflow to take (REVIEW.md, item 3) | to consider |
 | A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | taken at `cdbce22`, `build/soak.sh` and `soak-check.py`, four leaks found | has (`build/soak.sh`, `044d2396`) |
 | An app made and closed a hundred times in one test holds no more than it held after ten, read before any collection, the rule a soak keeps for a game kept for an app's whole life | taken at `360669e` and `070e5e0`, `AppLeakTests` judging the heap's floor with a census of its types, and `ScriptCompilationMemoryTests` | taken at `c06ec659`, `AppLeakTests`, the growth being the script compiler's references read at every app's start, the floor and the census at `596535ce` |
 | Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | taken at `ff1ebcf` and `97df8fd`, `BadFileTests` and the loaders answering with a problem naming the file | has (`BadFileTests`, `3442e2cd`) |

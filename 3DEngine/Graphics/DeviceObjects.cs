@@ -16,6 +16,7 @@ internal static class DeviceObjects
         Pipeline,
         DescriptorPool,
         DescriptorSet,
+        AccelerationStructure,
     }
 
     private static readonly long[] Counts = new long[Enum.GetValues<Kind>().Length];
