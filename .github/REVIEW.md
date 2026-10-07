@@ -10,26 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1b4edb7e`. The ray-query path is in, the last of phase three, which settles item 2,
-the list renumbered, and Decision 16's three phases have shipped with their numbers: the device
-turns on `VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses where the
-driver has them and logs it; the model pass is compiled a second time with `RAY_QUERY` defined,
-`slangc`'s `-D` part of a cache entry's key and `e3d shaders` compiling both builds, that build's
-lights' set holding the rays' scene at bindings 28 to 30 through a new `AccelerationStructure`
-descriptor kind; `GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field
-gathered, the skinned left out, the first frame it is drawn, and at `High` the top-level structure
-of every copy again each frame with each copy's color and light given off in a ring of buffers,
-every object in the ledger; a reflection whose ray the field misses traces it through the GPU's
-rays, the triangle it meets lit by the lamps, the sun through a second ray and the bounce or the
-sky; `gi.rays` switches the path in a running program and `gi.state` says the copies, the meshes and
-the memory; measured in `shaders_reflections` at `High` on the RTX 4070 with the frame rate
-unlimited, 8 copies of 6 meshes in 1.23 MB, the bounce's pass at 0.49 ms with the rays against 0.46
-to 0.47 without, the top-level rebuild, and the scene's pass within its noise; a test has a mirror
-show a block twenty-five units behind the camera, past the field's one cascade, at `High`, skipped
-with its reason where the device traces no rays (`1b4edb7e`). A device that draws on its CPU leaves
-ray queries off, lavapipe of Mesa 25.2 crashing the test host at the first ray query in a fragment
-stage though its structures passed the validation layer, so CI draws this path nowhere and the RTX
-4070 alone does; and the model pass without ray queries crashed lavapipe at the glossy frame when
+Reviewed up to `045ce46e`. TODO.md's order, item 2, begins with the models' entry: an entity's
+`AnimatedModel` played only in the app the flat API ran against, the one `InitWindow` built, and an
+app a program built itself warned and drew nothing; `AnimatedModelDraws` is given its app by the
+render plugin, makes the flat API run against it while it loads, poses and records where another app
+or none is the flat API's, and gives it back after, with a test that plays an entity's clip through
+its own app while the flat API runs against none and then against another and finds it given back
+each time; the entry's other gap stands, a mesh posed on the GPU keeping its vertices at rest on the
+CPU, so a collider made from it is at rest (`045ce46e`). Verdict 33's six games are taken next. For
+item 3 the reproductions and the reports' text go into the repository with TODO.md pointing at them,
+and the filing on Mesa's tracker is the owner's, done under their account. The suite: 1,529 passed.
+
+Before them, the ray-query path came in, the last of phase three, which settled its item, the list
+renumbered, and Decision 16's three phases have shipped with their numbers: the device turns on
+`VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses where the driver has
+them and logs it; the model pass is compiled a second time with `RAY_QUERY` defined, `slangc`'s `-D`
+part of a cache entry's key and `e3d shaders` compiling both builds, that build's lights' set
+holding the rays' scene at bindings 28 to 30 through a new `AccelerationStructure` descriptor kind;
+`GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field gathered, the
+skinned left out, the first frame it is drawn, and at `High` the top-level structure of every copy
+again each frame with each copy's color and light given off in a ring of buffers, every object in
+the ledger; a reflection whose ray the field misses traces it through the GPU's rays, the triangle
+it meets lit by the lamps, the sun through a second ray and the bounce or the sky; `gi.rays`
+switches the path in a running program and `gi.state` says the copies, the meshes and the memory;
+measured in `shaders_reflections` at `High` on the RTX 4070 with the frame rate unlimited, 8 copies
+of 6 meshes in 1.23 MB, the bounce's pass at 0.49 ms with the rays against 0.46 to 0.47 without, the
+top-level rebuild, and the scene's pass within its noise; a test has a mirror show a block
+twenty-five units behind the camera, past the field's one cascade, at `High`, skipped with its
+reason where the device traces no rays (`1b4edb7e`). A device that draws on its CPU leaves ray
+queries off, lavapipe of Mesa 25.2 crashing the test host at the first ray query in a fragment stage
+though its structures passed the validation layer, so CI draws this path nowhere and the RTX 4070
+alone does; and the model pass without ray queries crashed lavapipe at the glossy frame when
 `directLight`'s lamp loop moved into a function of its own, a null pointer read from a table in the
 compiled shader, so that code keeps the shape lavapipe draws, the ray-query build has a lamp loop of
 its own and TODO.md says so, which item 3 takes to Mesa. The run of `06b702a1` had its Windows job
@@ -52,22 +63,6 @@ Windows'; on the working machine the line after a hundred apps reads 0 of every 
 where it read 175 after the first (`0ad8636f`). The run of `06b702a1` had Linux green and macOS
 through its tests and playing the games at 21:37, its Windows job in the tests. The suite: 1,527
 passed, the reply's 1,528 counting a test not in the tree.
-
-Before them, Verdict 38's two things came into `BadFileTests`: both cases, the readers' and the
-ECS's, wait for a file's message through up to six hundred frames with five milliseconds of sleep
-after each, three seconds and more of the worker's time where sixty frames gave 300, the sleep one
-N 3.3's list holds for this file and its reason so the wait reads no clock, a first try with a
-stopwatch having been caught by N 3.3's test; and a case that fails says the first three lines the
-log held at warning or above since it began, or that it held none, so the page tells late from never
-from misnamed, every reader naming the file within the first frames on the working machine
-(`06b702a1`). The Windows job of `4db6fe46` failed the same two tests at 20:56, the Cornell frame at
-3.3% and the offscreen leak test's host dying twice; the run of `6a2d916e`, the first with Verdict
-37's mends, had Linux green and macOS through every test and playing the games at 21:10, the bad
-file cases passing there and the Cornell frame within 5%, which settles Verdict 38, and its Windows
-job through every test but one at 21:23, the Cornell frame within 5% and the offscreen leak test's
-host dying again at the ninetieth app and the ninety-first, with the dump unnamed on the page, which
-Verdict 37 takes up as its fourth part; the owner pushed `06b702a1`, whose run was in progress at
-21:28. The suite: 1,527 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -92,7 +87,8 @@ for a reply. In this order.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
    a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
    fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
-   Mesa 25.2 and reported to Mesa with the reproduction, TODO.md linking the reports, so the model
+   Mesa 25.2 and the report's text written beside each in the repository and TODO.md pointing at
+   them, the filing on Mesa's tracker the owner's since it is done under their account, so the model
    pass is held in a shape around a driver's fault only as long as it must be, and the ray-query
    path is drawn on CPU devices once the fault is mended upstream.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
@@ -328,14 +324,3 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     hybrid that ghosts when things move.
 
 ## Replies
-
-Item 3, TODO.md's order, begins with its first entry that has work left, the models'. An entity's
-`AnimatedModel` played only in the app the flat API ran against, the one `InitWindow` built, and
-an app a program built itself warned and drew nothing. `AnimatedModelDraws` is given its app by
-the render plugin, makes the flat API run against it while it loads, poses and records where
-another app or none is the one the flat API runs against, and gives it back after. A test plays an
-entity's clip through its own app while the flat API runs against none and then against another,
-and finds the flat API given back each time. The entry's other gap stands: a mesh posed on the GPU
-keeps its vertices at rest on the CPU, so a collider made from it is at rest. The suite: 1,529
-passed.
-

@@ -56,6 +56,31 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public void A_Served_Program_That_Closes_Before_It_Is_Ready_Says_So_At_Warning()
+    {
+        // A program that ends of its own in its startup, as one whose loop ends at once does, which
+        // e3d's account of a failed opening then tells from a death in native code, which logs
+        // nothing.
+        var previous = CliSessionFile.Directory;
+        CliSessionFile.Directory = _folder.Path;
+        try
+        {
+            var before = ConsoleLog.Written;
+            var app = new App(Config.Default with { Headless = true, Serve = true });
+            app.AddPlugin(new CliPlugin());
+            app.Shutdown();
+
+            ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before)))
+                .Should().Contain(l => l.Level == LogLevel.Warning && l.Text.Contains("closing before it was ready for e3d"));
+            CliSessionFile.All().Should().BeEmpty("its session file is gone with it");
+        }
+        finally
+        {
+            CliSessionFile.Directory = previous;
+        }
+    }
+
+    [Fact]
     public async Task A_Request_Over_The_Socket_Is_Answered_Between_Frames()
     {
         var app = new App();

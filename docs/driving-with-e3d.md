@@ -117,7 +117,10 @@ wait on a device that draws slowly needs.
 
 `./e3d logs -n 50` gives the program's last fifty lines, from its own log, so a shader that did not
 compile, a file that was not found or an exception is read from the terminal. When `./e3d open`
-fails with `NOT_READY`, it prints the tail of the log, which says why.
+fails with `NOT_READY`, it prints the tail of the log, which says why, and where the program had
+already exited, its exit code and what a crash's code means, an access violation or a signal, since
+a program that dies in native code logs nothing of it. A program that closes of its own before it
+was ready logs a warning saying so.
 
 ## Commands of a game's own
 

@@ -23,8 +23,12 @@ internal sealed class CliPlugin : IPlugin
     private const ulong Beat = 30;
     private static readonly DateTimeOffset Started = DateTimeOffset.UtcNow;
 
+    private static readonly ILogger Logger = Log.Category("Engine.Cli");
+
     private readonly CliQueue _queue = new();
     private CliServer? _server;
+    private bool _ready;
+    private ulong _frame;
 
     /// <inheritdoc />
     public int Order => PluginOrder.Late;
@@ -41,7 +45,11 @@ internal sealed class CliPlugin : IPlugin
         Console.WriteLine($"[e3d] serving on 127.0.0.1:{_server.Port}. Drive it with e3d status, e3d list, e3d command <name>.");
 
         // Ready once a frame has run, because nothing can be asked before there is a frame to answer in.
-        app.AddSystem(Stage.Startup, new SystemDescriptor(world => CliSessionFile.Write(Describe(app, "ready", CliDispatch.Frame(world))), "Cli.Ready")
+        app.AddSystem(Stage.Startup, new SystemDescriptor(world =>
+            {
+                CliSessionFile.Write(Describe(app, "ready", CliDispatch.Frame(world)));
+                _ready = true;
+            }, "Cli.Ready")
             .MainThreadOnly());
         app.AddSystem(Stage.First, new SystemDescriptor(world => Tick(app, world), "Cli.Serve").MainThreadOnly());
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(_ => Close(), "Cli.Close").MainThreadOnly());
@@ -50,7 +58,7 @@ internal sealed class CliPlugin : IPlugin
 
     private void Tick(App app, World world)
     {
-        var frame = CliDispatch.Frame(world);
+        var frame = _frame = CliDispatch.Frame(world);
         ConsoleLog.Frame = frame;
         if (world.TryGetResource<SyntheticInput>(out var synthetic) && world.TryGetResource<Input>(out var input))
             synthetic.Update(input, frame);
@@ -64,6 +72,11 @@ internal sealed class CliPlugin : IPlugin
     private void Close()
     {
         if (_server is null) return;
+        // A program that ends of its own before it was ready says so, so e3d's account of an
+        // opening that failed tells an exit the program chose, which logs this, from a death in
+        // native code, which logs nothing.
+        if (!_ready)
+            Logger.Warn($"The program is closing before it was ready for e3d, at frame {_frame}, of its own and not by a crash.");
         _queue.Abandon();
         _server.Dispose();
         _server = null;

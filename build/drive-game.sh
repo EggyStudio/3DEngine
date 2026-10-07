@@ -43,12 +43,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Where a game that dies in native code leaves its dump, Windows' own in the job, which names
+# each dump after the program's file.
+dumps="${E3D_DUMPS:-3DEngine.Tests/TestResults/dumps}"
 fail() {
   # The budget's error has been said, and the command its stop ended says nothing more.
   [ -e "$expired" ] && exit 1
-  local warnings=""
-  [ -f "$log" ] && warnings=$(grep -E '\[(WARN |ERROR|FATAL)\]' "$log" | tail -n 3 | tr '\n' ' ' || true)
-  echo "::error title=$game on $system::$game: $1. ${warnings}" >&3
+  # The log's last lines whatever their level, since a game that died in native code logged no
+  # warning, and the dumps it left.
+  local ending="" left=""
+  [ -f "$log" ] && ending=$(tail -n 3 "$log" | tr -s '\r\n' '  ' | sed 's/ *$//; s/\.$//')
+  [ -d "$dumps" ] && left=$(ls "$dumps" 2> /dev/null | grep -i "^$game" | tr '\n' ' ' | sed 's/ *$//' || true)
+  echo "::error title=$game on $system::$game: $1.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
   exit 1
 }
 cmd() { ./e3d command "$@" --quiet --timeout 600 || fail "./e3d command $* ended with $?"; }
@@ -102,7 +108,7 @@ if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --json > 
   if [ -n "$named" ] && command -v cygpath > /dev/null; then named=$(cygpath -u "$named"); fi
   ending=""
   [ -n "$named" ] && [ -f "$named" ] && ending=$(tail -n 5 "$named" | tr -s '\r\n' '  ' | sed 's/ *$//')
-  # The log's lines are said here whole, so fail's warnings from it are left out.
+  # The log's lines are said here whole, so fail's from it are left out.
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
