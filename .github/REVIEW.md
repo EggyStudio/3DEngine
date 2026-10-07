@@ -10,8 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `be170635`. No font file stops the program: all 444 fonts of the machine load, the
-eight that killed the process on the atlas builder's assertions refused with a reason, CFF2-only and
+Reviewed up to `f5a102d6`. An OpenType font of CFF outlines draws its characters past U+FFFF from
+its Type 2 charstrings, CID-keyed fonts among them, checked against STIX Two Math and Noto Sans CJK
+and by the scan of 444 fonts (`3c72e321`); the games' errors on Windows and macOS name the system as
+a reader knows it (`eb5f95f5`); a font that joins sequences shapes a string once and draws it again
+from what it kept (`d9e5bac2`); and a twentieth reference frame compares color text whole, paints,
+joined bitmaps and tinted layers, TODO.md's testing entry naming the twenty (`f5a102d6`). TODO.md's
+text entry is down to text shaped whole, which stays described. Item 4 is new. The suite: 1,461
+passed, none skipped.
+
+Before them, no font file came to stop the program: all 444 fonts of the machine load, the eight
+that killed the process on the atlas builder's assertions refused with a reason, CFF2-only and
 bitmap-only fonts asked for as SDF, or given their first mapped character where the builder knew
 none, and a collection is read as its first font (`d19cee7b`). Windows and macOS play every game
 through `e3d` as Linux does, each asserting its walk, lap, match or score, a failing game with its
@@ -26,22 +35,6 @@ enters a value, or at the first transition a rule answers true for, `DespawnOnEn
 `DespawnWhen` beside `DespawnOnExit`, both acting in the frame of the transition since the
 transition is the engine's own, where BevyCSharp asks its rule the frame after, with a test each and
 the states guide (`acdd8fcb`), which settles item 4. The suite: 1,453 passed, none skipped.
-
-Before them, Verdict 31's cause was found: on the runner raylib's programs died at once for want of
-`libSDL3.so.0`, the machine here having loaded Fedora's SDL3 all along, so `compare.py` links them
-to the package's library under the name they load it by, rebuilds a program when its script changes,
-says each failed program's code and last lines, and fails recording nothing when no pair drew.
-Verdict 30's: on four cores nothing grew, but seven games ended with two to four readings where six
-were needed, a 240-frame turn taking two minutes, so the soak reads on its own ten-second clock at
-320 by 180, each half is judged by its least, and a failing game gets its own error with its measure
-(`b5a63f44`); both settle with the run. The thirteen pairs 1.5 to 3.5 per cent apart each say why,
-measured again with the cause taken away, bilinear reads, a render texture's samples, a color
-texture filtered in linear light, and the font, so every written example has a share under 1.5 or
-its reason, which settles item 3 (`36e0874d`). Windows and macOS play the rhythm game through `e3d`,
-whose `open` could never have started a program on Windows, waiting on `cmd.exe`'s pid, mended there
-untested until the run (`23e6c9b1`). COLR version 1's paints are drawn, and a font with no character
-the atlas builder knows is baked by the reader alone where it stopped the process (`56f405a5`). The
-suite: 1,450 passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -63,6 +56,12 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
+4. **The README's walk and the first game's steps on Windows and macOS.** The examples job
+   follows the README in a new project and builds and runs every step of the first game on Linux
+   alone, where a newcomer on Windows is the common case and the two systems found what Linux did
+   not four times today. The test jobs of Windows and macOS run `build/readme-walk.sh` and the first
+   game's steps from the package as they play the games, each failing step with its own error on the
+   page, the minutes added said in the commit, and a step that cannot run on a system says why.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -174,26 +173,14 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 2, TODO's entry on text, CFF outlines past U+FFFF.** An OpenType font of CFF outlines draws
-its characters past U+FFFF, which the reader read only from TrueType's. `CompactFontOutlines` reads
-the CFF table's Type 2 charstrings, their local and global subroutines, hints skipped, the flex
-curves, and a CID-keyed font's local subroutines by the font dictionary each glyph's range names,
-each cubic cut in eight as the quadratics are. Read here with STIX Two Math's bold, italic, fraktur
-and double-struck letters, which sit on the baseline beside the builder's, and Noto Sans CJK's
-collection's characters of Extension B. All 444 fonts of the desktop load again with it, the CFF
-fonts among them reaching the reader through the scan's mathematical letter. A test font of CFF, a
-square drawn by a global subroutine after a move carrying the glyph's width, which
-`make-color-test-fonts.py` writes, and a test. The entry keeps text shaped only in emoji. The suite:
-1,460 passed, none skipped.
-
-**Text a font joins, shaped once.** A font whose sequences join shaped its text again at each draw,
-which a program does every frame, so each font keeps the keys of the last few hundred strings it
-shaped and draws them again from there, a font with no sequences reading its text a character at a
-time as before. A line of the sequence test holds it. The suite: 1,460 passed, none skipped.
-
-**TODO's entry on testing, color text compared whole.** A reference frame of the test fonts' color
-glyphs drawn as text: paints of a gradient and a moved square, a sequence the bitmap font joins
-into its one glyph beside the sun alone, and layers beside a letter of no color, tinted by the
-text's color. Drawn on lavapipe under the layer, where it passes with the reference in place, and
-on this desktop's GPU, within the 2 per cent. The entry counted sixteen scenes where nineteen were
-compared, and says twenty and names them. The suite: 1,461 passed, none skipped.
+**Now 4, the README and the first game on Windows and macOS.** Both test jobs follow the README in
+a new project (`build/readme-walk.sh`) and build and run every step of the first game
+(`build/first-game.sh`) from the package after playing the games, each a step of its own, so a
+failing one has its own error on the page. Writing a path into a file or a variable does not turn
+it into Windows' form as an argument is, so each script writes the package's folder into
+`nuget.config`, the template's parameter and `DOTNET_CLI_HOME` through `cygpath -m` where Git's
+bash runs, and the README walk takes its own temporary folder in place of `$RUNNER_TEMP`, whose
+backslashes Git's bash reads otherwise. Here the walk takes 33 seconds and the eight steps 56, so a
+runner, restoring from nuget.org and installing the templates, likely adds three to five minutes to
+each job. The script tests hold both to what macOS's bash and BSD's tools read. Neither has run on
+either system until the push.

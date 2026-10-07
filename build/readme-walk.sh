@@ -14,6 +14,10 @@ package="$(cd "$1" && pwd)"
 work="${2:-$(mktemp -d)}"
 
 # The first fenced block of a language in a page.
+# A path as dotnet reads it on every system, Windows' own form where Git's bash runs, since a path
+# written into a file or a variable is not turned into one there as an argument is.
+native() { if command -v cygpath > /dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
+
 block() { awk -v fence="\`\`\`$2" '$0 == fence { inside = 1; next } /^```/ { if (inside) exit } inside' "$1"; }
 
 # Thirty frames with no window, failing on an error in the log.
@@ -30,7 +34,7 @@ mkdir -p "$work" && cd "$work"
 rm -rf Hello HelloEcs Plain dotnet-home
 
 # The templates go into a list of the walk's own rather than the user's.
-export DOTNET_CLI_HOME="$work/dotnet-home"
+export DOTNET_CLI_HOME="$(native "$work/dotnet-home")"
 templates="$(ls -t "$package"/3DEngine.Templates.*.nupkg | head -1)"
 
 # The README's three commands, with the templates from the folder, the project told where the
@@ -40,10 +44,10 @@ grep -qx 'dotnet new install 3DEngine.Templates' <<< "$commands"
 grep -q '^dotnet new 3dengine ' <<< "$commands"
 grep -qx 'dotnet run' <<< "$commands"
 dotnet new install "$templates"
-eval "$(grep '^dotnet new 3dengine ' <<< "$commands" | sed "s#dotnet new 3dengine \([^&]*\)#dotnet new 3dengine \1 --package-folder '$package' #")"
+eval "$(grep '^dotnet new 3dengine ' <<< "$commands" | sed "s#dotnet new 3dengine \([^&]*\)#dotnet new 3dengine \1 --package-folder '$(native "$package")' #")"
 run "the flat template's program"
 cd "$work"
-dotnet new 3dengine-ecs -n HelloEcs --package-folder "$package"
+dotnet new 3dengine-ecs -n HelloEcs --package-folder "$(native "$package")"
 cd HelloEcs
 run "the behaviors template's program"
 grep -q "Hot-reload\|RuntimeBehaviorCompiler" run.log
@@ -52,7 +56,7 @@ grep -q "Hot-reload\|RuntimeBehaviorCompiler" run.log
 cd "$work"
 dotnet new console -n Plain -o Plain
 cd Plain
-block "$building" xml | sed "s#path/to/3DEngine/build/package#$package#" > nuget.config
+block "$building" xml | sed "s#path/to/3DEngine/build/package#$(native "$package")#" > nuget.config
 # The line for a package built from a checkout, which names its version.
 eval "$(grep -m1 '^dotnet add package 3DEngine --version' "$building")"
 block "$readme" csharp > Program.cs

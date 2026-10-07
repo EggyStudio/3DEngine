@@ -14,6 +14,10 @@ work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 mkdir -p .github/assets/first-game
 
+# A path as dotnet reads it on every system, Windows' own form where Git's bash runs, since a path
+# written into a file or a variable is not turned into one there as an argument is.
+native() { if command -v cygpath > /dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
+
 for step in games/FirstGame/steps/*.cs; do
   n="$(basename "$step" .cs)"
   project="$work/Coins"
@@ -21,7 +25,7 @@ for step in games/FirstGame/steps/*.cs; do
   mkdir -p "$project"
   cp games/FirstGame/Coins.csproj "$project/"
   cp -r games/FirstGame/resources "$project/"
-  sed "s#../../build/package#$root/build/package#" games/FirstGame/nuget.config > "$project/nuget.config"
+  sed "s#../../build/package#$(native "$root")/build/package#" games/FirstGame/nuget.config > "$project/nuget.config"
   cp "$step" "$project/Program.cs"
   echo "step $n"
   dotnet build "$project" -v q --nologo | grep -E "error|rror\(s\)" || true

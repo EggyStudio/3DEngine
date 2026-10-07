@@ -157,6 +157,14 @@ jobs:
           done
           exit $failed
 
+      # The README's commands in a new project and every step of the game docs/first-game.md makes,
+      # from the same package, as a newcomer on this system follows them.
+      - name: Follow the README in a new project
+        run: build/readme-walk.sh build/package
+
+      - name: Build and run every step of the first game
+        run: build/first-game.sh
+
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7
         if: always()
@@ -231,6 +239,14 @@ jobs:
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
+
+      # The README's commands in a new project and every step of the game docs/first-game.md makes,
+      # from the same package, as a newcomer on this system follows them.
+      - name: Follow the README in a new project
+        run: build/readme-walk.sh build/package
+
+      - name: Build and run every step of the first game
+        run: build/first-game.sh
 
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7
