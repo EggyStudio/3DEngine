@@ -23,6 +23,9 @@ case "$(uname -s)" in
   *) system=$(uname -s) ;;
 esac
 log="build/sessions/$game.log"
+# Every command and stop goes to the game played here by its name, so a program an earlier game left
+# serving neither makes them ambiguous nor takes the stop meant for this one.
+export E3D_NAME="$game"
 # The script's own output, which an error is written to, so one said inside $(ask ...) reaches the
 # page and not the variable.
 exec 3>&1
@@ -57,10 +60,13 @@ fail() {
   echo "::error title=$game on $system::$game: $1.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
   exit 1
 }
-cmd() { ./e3d command "$@" --quiet --timeout 600 || fail "./e3d command $* ended with $?"; }
+# A command e3d refuses fails with its code and sentence, which it writes to standard error, kept in
+# a file for the error.
+said="captures/$name-said.txt"
+cmd() { ./e3d command "$@" --quiet --timeout 600 2> "$said" || fail "./e3d command $* ended with $?, $(head -n 1 "$said")"; }
 ask() {
   local answer
-  answer=$(./e3d command "$1" --timeout 600) || fail "./e3d command $1 ended with $?"
+  answer=$(./e3d command "$1" --timeout 600 2> "$said") || fail "./e3d command $1 ended with $?, $(head -n 1 "$said")"
   printf '%s\n' "$answer" > "$last"
   printf '%s\n' "$answer"
 }

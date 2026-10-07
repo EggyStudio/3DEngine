@@ -197,10 +197,26 @@ internal static class Launch
         {
             get
             {
-                if (_program is null && OperatingSystem.IsWindows()) _program = Find();
-                try { return _program is { } program ? !program.HasExited : false; }
-                catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception) { return false; }
+                if (_program is null && OperatingSystem.IsWindows())
+                {
+                    // Whether cmd.exe still runs is read before the program is looked for. Its start
+                    // returns once the program is made, so a program not found while cmd.exe ran may
+                    // not be made yet, and one not found after it ended has already gone. Read the
+                    // other way, the first look came before cmd.exe had made the program, and a game
+                    // was answered as exited while it went on to serve, its session then making the
+                    // next game's commands ambiguous.
+                    var starting = Running(started);
+                    _program = Find();
+                    if (_program is null) return starting;
+                }
+                return _program is { } program && Running(program);
             }
+        }
+
+        private static bool Running(Process process)
+        {
+            try { return !process.HasExited; }
+            catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception) { return false; }
         }
 
         public int? ExitCode
