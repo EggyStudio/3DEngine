@@ -165,6 +165,20 @@ public sealed class ColorFontTests : IDisposable
     }
 
     [Fact]
+    public void A_Distance_Field_Font_Holds_A_Character_Past_U_FFFF_From_Its_Outline()
+    {
+        // U+1F600's outline in layers.ttf is a square, from 100 to 900 across and 0 to 800 up.
+        var font = LoadFontEx(Layers, 32, ['A', 0x1F600], FontType.Sdf);
+
+        font.Type.Should().Be(FontType.Sdf);
+        font.Glyphs.Should().ContainKey(0x1F600, "the reader rasterizes it into the bake the distances are measured in");
+        AtlasPixel(font, 0x1F600, 0.5f, 0.5f).A.Should().BeGreaterThan(200, "the square's middle is well inside it");
+        var corner = AtlasPixel(font, 0x1F600, 0.02f, 0.02f);
+        corner.A.Should().BeLessThan(128, "the glyph's box is grown past the outline to hold the distances outside it");
+        UnloadFont(font);
+    }
+
+    [Fact]
     public void A_Layered_Font_Draws_Its_Colored_Characters_In_Color_And_The_Rest_As_Coverage()
     {
         var font = LoadFontEx(Layers, 40, ['A', 0x1F600]);

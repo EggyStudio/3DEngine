@@ -100,9 +100,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   skinned meshes of its own, and poses and draws it through the flat API, so only in the app
   `InitWindow` built, where a file with clips a level places through `ModelRef` plays its first on
   a loop through one.
-- **Text is shaped only in emoji, and distance fields past U+FFFF are not drawn.** A coverage font
-  loaded from a file is baked again at a size it is drawn at a quarter or more past its own, eight
-  sizes at most, and one loaded as `FontType.Sdf` stays sharp at any size. A font has Latin-1 or the
+- **Text is shaped only in emoji.** A coverage font loaded from a file is baked again at a size it
+  is drawn at a quarter or more past its own, eight sizes at most, and one loaded as `FontType.Sdf`
+  stays sharp at any size, its characters past U+FFFF as their outlines. A font has Latin-1 or the
   characters it was asked for, those past U+FFFF drawn by the engine's own TrueType reader into the
   same atlas, since ImGui's names characters in 16 bits, and a color font's colored characters in
   their colors, from its bitmaps (CBDT), its layers (COLR version 0) or its paints (COLR version 1,
@@ -110,8 +110,8 @@ physics, text and fonts, audio, audio streams and waves, and files
   as that picture, the font's `ccmp` substitutions applied to each run of the characters the reader
   draws (`GlyphSubstitution`). Text outside those runs is drawn a character at a time, so a text
   font's ligatures, its positioning (GPOS) and the shaping a script such as Arabic or Devanagari
-  needs are not made. Apple's bitmaps (sbix) are not read, a font of CFF outlines gives none past
-  U+FFFF, and a distance field font none either.
+  needs are not made. Apple's bitmaps (sbix) are not read, and a font of CFF outlines gives no
+  characters past U+FFFF.
 
 ### Meshes, materials and light
 

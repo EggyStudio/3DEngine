@@ -10,32 +10,40 @@ public static partial class Engine3D
     /// <summary>
     /// Bakes a font file's glyphs as a distance field at <paramref name="fontSize"/> pixels, with
     /// the characters in <paramref name="ranges"/> (pinned pairs ending in zero), or the Latin-1
-    /// ones when it is zero.
+    /// ones when it is zero, and those <paramref name="extend"/> draws into the bake at its size,
+    /// by the atlas builder unless <paramref name="builder"/> is false.
     /// </summary>
-    internal static unsafe (Image Field, Image Coverage, Dictionary<int, Glyph> Glyphs)? BakeDistanceField(string path, int fontSize, IntPtr ranges)
+    internal static unsafe (Image Field, Image Coverage, Dictionary<int, Glyph> Glyphs)? BakeDistanceField(string path, int fontSize, IntPtr ranges,
+        bool builder = true,
+        Func<(Image Image, float Size, Dictionary<int, Glyph> Glyphs), int, (Image Image, float Size, Dictionary<int, Glyph> Glyphs)>? extend = null)
     {
         // Glyphs past 64 pixels have detail enough at a smaller factor, and a smaller atlas.
         var factor = fontSize <= 64 ? 4 : fontSize <= 128 ? 2 : 1;
-        var config = ImGuiNative.ImFontConfig_ImFontConfig();
-        try
+        (Image Image, float Size, Dictionary<int, Glyph> Glyphs)? baked = (new Image([], 1024, 0), fontSize * factor, []);
+        if (builder)
         {
-            // One texel of the bake to one pixel of the glyph, so a glyph's corners and its
-            // texture coordinates grow by the same padding.
-            config->OversampleH = 1;
-            config->OversampleV = 1;
-            var baked = BakeAtlas(atlas =>
+            var config = ImGuiNative.ImFontConfig_ImFontConfig();
+            try
             {
-                // Room between glyphs for the distances on both sides of each.
-                atlas.TexGlyphPadding = 2 * SdfPadding * factor;
-                return atlas.AddFontFromFileTTF(path, fontSize * factor, new ImFontConfigPtr(config),
-                    ranges == IntPtr.Zero ? atlas.GetGlyphRangesDefault() : ranges);
-            });
-            return baked is { } b ? DistanceFieldAtlas(b.Image, b.Glyphs, factor) : null;
+                // One texel of the bake to one pixel of the glyph, so a glyph's corners and its
+                // texture coordinates grow by the same padding.
+                config->OversampleH = 1;
+                config->OversampleV = 1;
+                baked = BakeAtlas(atlas =>
+                {
+                    // Room between glyphs for the distances on both sides of each.
+                    atlas.TexGlyphPadding = 2 * SdfPadding * factor;
+                    return atlas.AddFontFromFileTTF(path, fontSize * factor, new ImFontConfigPtr(config),
+                        ranges == IntPtr.Zero ? atlas.GetGlyphRangesDefault() : ranges);
+                });
+            }
+            finally
+            {
+                ImGuiNative.ImFontConfig_destroy(config);
+            }
         }
-        finally
-        {
-            ImGuiNative.ImFontConfig_destroy(config);
-        }
+        if (baked is { } b && extend is not null) baked = extend(b, fontSize * factor);
+        return baked is { Image.Height: > 0 } done ? DistanceFieldAtlas(done.Image, done.Glyphs, factor) : null;
     }
 
     // How far past each glyph's edge, in pixels of the bake, its distances reach, which raylib's
@@ -119,10 +127,12 @@ public static partial class Engine3D
     /// </summary>
     /// <remarks>
     /// A glyph's key is its character's code point, or a key past U+10FFFF for a glyph a sequence of
-    /// characters is joined into (<see cref="JoinedKey"/>).
+    /// characters is joined into (<see cref="JoinedKey"/>). With <paramref name="coverage"/> a color
+    /// glyph is drawn as its outline's coverage, for a distance field.
     /// </remarks>
     private static (Image Image, float Size, Dictionary<int, Glyph> Glyphs) WithBeyondPlane(
-        (Image Image, float Size, Dictionary<int, Glyph> Glyphs) baked, TrueTypeFont outlines, int size, (int Key, int Glyph)[] wanted)
+        (Image Image, float Size, Dictionary<int, Glyph> Glyphs) baked, TrueTypeFont outlines, int size, (int Key, int Glyph)[] wanted,
+        bool coverage = false)
     {
         var scale = size / (float)(outlines.Ascent - outlines.Descent);
         var baseline = MathF.Round(MathF.Floor(outlines.Ascent * scale + 1));
@@ -133,7 +143,7 @@ public static partial class Engine3D
         {
             if (glyph == 0) continue;
             var advance = outlines.Advance(glyph) * scale;
-            if (outlines.Color(glyph, scale) is { } c) drawn.Add((codepoint, c.Rgba, c.Width, c.Height, c.Left, c.Top, advance));
+            if (!coverage && outlines.Color(glyph, scale) is { } c) drawn.Add((codepoint, c.Rgba, c.Width, c.Height, c.Left, c.Top, advance));
             else if (outlines.Rasterize(glyph, scale) is { } r)
             {
                 var white = new byte[r.Alpha.Length * 4];

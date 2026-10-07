@@ -190,9 +190,11 @@ Font fontSDF = LoadFontEx("resources/anonymous_pro_bold.ttf", 16, ascii, FontTyp
 SetTextureFilter(fontSDF.Texture, TextureFilter.Bilinear);
 ```
 
-Codepoints given as `null` mean Latin-1, as `LoadFontEx` without them does. A distance field
-font suits text that changes size every frame, as a title that grows in or a label in a world that
-zooms, where the coverage font would bake again at each new size.
+Codepoints given as `null` mean Latin-1, as `LoadFontEx` without them does. Characters past
+U+FFFF are baked from the font's outlines too, and a color emoji as its outline's shape, since a
+distance field holds a shape and no colors. A distance field font suits text that changes size
+every frame, as a title that grows in or a label in a world that zooms, where the coverage font
+would bake again at each new size.
 
 ## Turned text and text in textures
 

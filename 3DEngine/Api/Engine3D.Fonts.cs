@@ -398,12 +398,13 @@ public static partial class Engine3D
     /// </para>
     /// <para>
     /// A color font's colored characters, emoji, are drawn by the reader in their colors, whichever
-    /// plane they are in: from its bitmaps, as Noto Color Emoji and Twemoji hold them, scaled from
-    /// the size nearest above, or from its layers, as Segoe UI Emoji holds them. A font of bitmaps
-    /// alone is baked by the reader whole. Text drawn in white shows them as they are, and another
-    /// color tints them. Each is one character, so a sequence a font joins into one picture, a
-    /// family, a flag or a skin tone, is drawn as its characters apart, and the gradients of a
-    /// COLR version 1 font are not read.
+    /// plane they are in: from its bitmaps, as Twemoji holds them, scaled from the size nearest
+    /// above, from its layers, as Segoe UI Emoji holds them, or from its paints of gradients and
+    /// transforms, as Noto Color Emoji holds them. A font of bitmaps alone, or one with none of the
+    /// other characters asked for, is baked by the reader whole. Text drawn in white shows them as
+    /// they are, and another color tints them. A sequence the font joins into one picture, a family,
+    /// a flag or a skin tone, is drawn as that picture, and the pictures the characters asked for
+    /// can be joined into are baked with them.
     /// </para>
     /// </remarks>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
@@ -429,6 +430,9 @@ public static partial class Engine3D
     /// <para>
     /// The glyphs are rasterized at four times the size and their distances measured there, so
     /// thin strokes and corners keep their shape, and loading takes longer than a coverage bake.
+    /// Characters past U+FFFF are rasterized by the engine's own TrueType reader into the same bake,
+    /// as their coverage, a color glyph's outline without its colors, since a distance field holds
+    /// a shape alone.
     /// </para>
     /// </remarks>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
@@ -439,17 +443,35 @@ public static partial class Engine3D
 
         if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
 
+        // Characters past U+FFFF, which the atlas builder cannot name, from the font's outlines.
+        var beyond = codepoints?.Where(c => c is > 0xFFFF and <= 0x10FFFF).Distinct().Order().ToArray() ?? [];
+        var outlines = beyond.Length > 0 ? TrueTypeFont.Read(File.ReadAllBytes(path)) : null;
+        if (beyond.Length > 0 && outlines is not { HasOutlines: true })
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
+        (int Key, int Glyph)[] wanted = outlines is { HasOutlines: true }
+            ? [.. beyond.Select(c => (c, outlines.GlyphIndex(c))).Where(g => g.Item2 != 0)]
+            : [];
+
         var ranges = codepoints is null ? null : GlyphRanges(codepoints);
         if (ranges is { Length: 1 })
         {
-            ApiLogger.Warn("LoadFontEx: no code points below U+10000 were given. Using the default font.");
-            return GetFontDefault();
+            if (wanted.Length == 0)
+            {
+                ApiLogger.Warn("LoadFontEx: none of the code points given are in the font. Using the default font.");
+                return GetFontDefault();
+            }
+            // A space beside them, for the line and baseline the builder gives.
+            ranges = GlyphRanges([' ']);
         }
+        // The builder stops the program on a font in which it finds none of its characters, so the
+        // reader bakes such a font alone.
+        var builderFinds = outlines is null || codepoints!.Where(c => c <= 0xFFFF).Append(' ').Any(c => outlines.GlyphIndex(c) != 0);
 
         fontSize = Math.Max(4, fontSize);
         fixed (ushort* pinned = ranges)
         {
-            if (BakeDistanceField(path, fontSize, ranges is null ? IntPtr.Zero : (IntPtr)pinned) is not { } baked)
+            if (BakeDistanceField(path, fontSize, ranges is null ? IntPtr.Zero : (IntPtr)pinned, builderFinds,
+                    wanted.Length == 0 ? null : (baked, size) => WithBeyondPlane(baked, outlines!, size, wanted, coverage: true)) is not { } baked)
             {
                 ApiLogger.Warn("A font could not be baked.");
                 return GetFontDefault();

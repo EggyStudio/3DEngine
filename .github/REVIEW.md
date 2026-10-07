@@ -10,11 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `65c80c4b`. The examples job of `22bbf15a` ran through its captures, its measure and
-every game's step, the first-person walk among them, which settles Verdict 28, and failed at the
-soak, `a game grew, or could not be played, over two minutes`, with no game named, which is Verdict
-30; and the measure's notices list every pair with `none`, raylib's program having drawn no frame on
-the workflow's device, so the measure is blind there and nothing is recorded, which is Verdict 31. A
+Reviewed up to `56f405a5`. Verdict 31's cause: on the runner raylib's programs died at once for want
+of `libSDL3.so.0`, the machine here having loaded Fedora's SDL3 all along, so `compare.py` links
+them to the package's library under the name they load it by, rebuilds a program when its script
+changes, says each failed program's code and last lines, and fails recording nothing when no pair
+drew. Verdict 30's: on four cores nothing grew, but seven games ended with two to four readings
+where six were needed, a 240-frame turn taking two minutes, so the soak reads on its own ten-second
+clock at 320 by 180, each half is judged by its least, and a failing game gets its own error with
+its measure (`b5a63f44`); both settle with the run. The thirteen pairs 1.5 to 3.5 per cent apart
+each say why, measured again with the cause taken away, bilinear reads, a render texture's samples,
+a color texture filtered in linear light, and the font, so every written example has a share under
+1.5 or its reason, which settles item 3 (`36e0874d`). Windows and macOS play the rhythm game through
+`e3d`, whose `open` could never have started a program on Windows, waiting on `cmd.exe`'s pid,
+mended there untested until the run (`23e6c9b1`). COLR version 1's paints are drawn, and a font with
+no character the atlas builder knows is baked by the reader alone where it stopped the process
+(`56f405a5`). The suite: 1,450 passed, none skipped.
+
+Before them, the examples job of `22bbf15a` ran through its captures, its measure and every game's
+step, the first-person walk among them, which settles Verdict 28, and failed at the soak, `a game
+grew, or could not be played, over two minutes`, with no game named, which is Verdict 30; and the
+measure's notices list every pair with `none`, raylib's program having drawn no frame on the
+workflow's device, so the measure is blind there and nothing is recorded, which is Verdict 31. A
 sequence a color font joins into one picture, a family, a flag, a skin tone or a keycap, is drawn as
 that picture by the font's own GSUB `ccmp` lookups, the default ignorables passed over as HarfBuzz
 passes them, read with Twemoji and Segoe UI Emoji (`65c80c4b`). The suite: 1,443 passed, none
@@ -27,20 +43,6 @@ nearest its beat and a CI step that plays the whole song on the dummy driver und
 fails on any miss, 381 of 381 at 60 frames a second and no miss at 5 nor on four-core lavapipe at 65
 ms a frame, its capture left out of N 4.5 as the other games' are, 11 from 10 (`48939b42`). The
 suite: 1,441 passed, none skipped.
-
-Before them, the flat API was read by script against the pinned raylib headers: 601 of raylib's
-functions carried by name, 501 with raylib's argument names in raylib's order, and the rest moved to
-raylib's names and shapes where a reason did not hold them, the keys, gamepad buttons and log levels
-named as raylib names them, a clip's fields `Keyframe*`, three older names dropped, and the kept
-differences in a table of names and shapes on the comparison page, the `Transform` keeping
-`Position` since the scene files and BevyCSharp use it (`4ec025bd`, `472619e9`), which settles item
-5 and leaves `PublicApi.txt` changed by 69 lines in and 61 out, the owner's to number as 6.0 before
-the next pack. Every example 3.5 to 7 per cent from raylib gives its reason, and the cel shading
-outline is pushed as far as raylib's long normals push it (`3267be95`). raylib's VR stereo is
-carried and `core_vr_simulator` written, 221 of 222, the last not applying, which settles item 2 as
-the measure of what is written (`1e26d438`), and models draw through each eye and keep to the
-scissor (`22bbf15a`). The owner pushed, and the run of `22bbf15a` is under way. The suite: 1,440
-passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -58,20 +60,14 @@ for a reply. In this order.
    run is read by the reviewing session, and a failure it names comes first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
-3. **Every picture measured against raylib's own program** (N 5.2). The table sets each example's
-   capture beside raylib's screenshot, read by eye, and `692cefee` built raylib's deferred program
-   here to compare the same frame, which is the measure item 2 asks for and the 216 written have not
-   had. A module at a time: raylib's examples built from the checkout `run.sh` pins, each run to the
-   frame the capture here is taken at, with a shim around `EndDrawing` that takes the screenshot and
-   closes, and each pair compared as the reference tests compare their frames, by the share of
-   pixels that differ past the tolerance. A pair that differs is taken down to the smallest program
-   that still differs, as item 2 has it, and ends as a fault mended or as a line of the comparison
-   page where the difference is kept, a trigger's axis being the first. The share each pair differs
-   by is written by the script into the table, so the number is measured again on each run.
-4. **The first shares recorded from the workflow's own device.** The examples job's first green
+3. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
-   own, so the run after holds every pair to them and a share can only fall (item 3's measure).
+   own, so the run after holds every pair to them and a share can only fall.
+4. **An entity that goes as a state is entered, and one that goes by a rule over the transition**
+   (SHARED.md), from BevyCSharp's `ea00b97`. `DespawnOnExit` is here; Bevy's `DespawnOnEnter` and a
+   `DespawnWhen` taking a rule over the transition are the same mechanism the other way, small
+   beside it, with a test each in `StateTests` and a line of the states guide.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -183,77 +179,11 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Verdict 31, raylib's programs drew no frame on the runner.** Found in the workflow's image, Ubuntu
-24.04 with the job's packages, by running `core_basic_window`'s program as `compare.py` runs it,
-which ended at once with `error while loading shared libraries: libSDL3.so.0`. The engine's package
-brings `libSDL3.so`, whose name inside is `libSDL3.so.0`, and the runner has no SDL3 of its own, so
-a program linked against the package's folder could not start. Here they had loaded the desktop's
-own SDL3 from `/usr/lib64` all along. `compare.py` links them against a folder holding the
-package's library under both names, of the version the engine's project references rather than the
-newest in the cache, and builds a program again when the script that builds it changes. With it,
-`core_basic_window` draws its frame in the image through SDL's offscreen driver on Mesa's llvmpipe,
-and four pairs measured here keep the shares they had. A program that ends without its frame says
-its exit code and its last lines, and a run where none drew for any pair records nothing and fails
-saying why the first drew none, with a test of what it says. Item 4 waits on the next run's notices.
-
-**Verdict 30, the soak.** Run in the workflow's conditions, the eight games at once on four cores
-with lavapipe, nothing grew. Seven of the eight ended their two minutes with two to four readings,
-under the six the check judges, since a reading was taken after each turn and a turn of 240 frames
-took two minutes there, a frame or two a second. `soak.sh` reads on a clock of its own beside the
-turns, which the program answers between frames while a turn waits on them, and draws each game at
-320 by 180, since a soak reads what the program holds and not its picture. So on four cores every
-game gives 12 readings and two to five times the turns. One still failed, Manor's buffers, whose
-most rose from 572 to 618 while its least held at 521 to 540 and its last reading was 569. Its
-walk streams rooms of more cells and fewer in and out, and two minutes there cover part of the
-route, where the desktop's cover it all. A leak raises a value's least as well as its most, so
-`soak-check.py` judges each half by its least, with the same slack, and on four cores every game
-holds by it, as on the desktop, where all eight give 13 readings and hold. It names each game that
-fails in an error annotation of its own: the value that climbed with its two leasts and its bound,
-or the command that ended the game's soak with its exit code, which `soak.sh` writes beside its
-readings, with the last warnings of the game's log, and the process's resident memory at the first
-reading kept and at the last, which `memory` reports. Four tests, one of them Manor's swing, and
-the step's own line that named no game is gone. The test joins the script tests left out of N 1.4,
-12 where NORM.md's table says 11. The suite: 1,448 passed, none skipped.
-
-**Now 3, the pairs from 1.5 to 3.5 per cent apart.** The thirteen pairs in that span with no reason
-are traced, each measured again with its cause taken away, and each row says what it is. Three
-answer to defaults the comparison page keeps. `core_vr_simulator`'s distortion reads its stereo
-picture from a render texture filtered bilinear, 2.3 per cent apart and 0.2 with `Point`.
-`textures_portal_window`'s portal is the same, 2.6 and 1.9, the rest its text. And
-`shaders_postprocessing` asks for four samples, which its render texture takes here where raylib's
-has one, 3.1 and 1.4 with one sample, the rest its text. `shaders_lightmap_rendering`'s model reads
-its color texture decoded from sRGB and filters it in linear light, which thins its dark lines, 1.6
-apart and 0.4 filtered as stored, and the comparison page gains a row for it. The other nine are
-their text in ImGui's default font, wholly or for most of what differs, the cel shading's outline
-beside it. The examples are as they were, the changes that took each cause away measured once and
-put back.
-
-**Now 2, TODO's entry on CI off Linux.** A game is played through `./e3d` on Windows and macOS,
-`build/drive-game.sh` after the Pusher step in `test.yml`: Tempo from the package, offscreen under
-the layer, its autopilot playing the song through on the music's clock and the run failing on a
-note missed, so a game's input, its sound and the session `./e3d` drives are tried there. Reading
-`e3d open` for it found it could not have opened a program on Windows. It starts one through
-`cmd.exe`'s `start`, so the pid it waits on is `cmd.exe`'s, which ends at once, and it gave up with
-the program reported as ended before it was ready. And a path without the `.exe` a Windows build
-gives was taken for an example's name. On Windows it finds the session by the program's name,
-which a session carries, and the time it began, and whether the program still runs by its process
-of that name begun since, and it adds the `.exe`. Linux keeps the pid. None of it has run on
-Windows or macOS, so the next run's two jobs say whether it holds. Here the script plays the song
-through with no note missed, the layer's check aside, which this desktop has no layer for.
-
-**Now 2, TODO's entry on text, COLR version 1.** A color font's paints are drawn, so Noto Color
-Emoji's current build, the one Fedora installs and Google Fonts serves, and Segoe UI Emoji's
-gradients draw in their colors, where the first drew its outlines in one color. `ColorPaint` draws
-a glyph's graph of paints into an image the size of its clip box: layers laid over each other, an
-outline filling what is under it with a solid color or a linear, radial or sweep gradient padded,
-repeated or reflected past its stops, the transforms, translations, scales, rotations and skews
-moving what is under them, another color glyph in place, and two paints composited by the Porter
-and Duff and separable blend modes, those of hue, saturation, color and luminosity laying the
-source over. A variable font is drawn at its default. Read here with Noto Color Emoji and Segoe UI
-Emoji, faces, a party popper, a rainbow, a globe and a gem among them, as they look elsewhere. A
-test font of paints, a gradient under a square moved by a translation in a clip box, which
-`make-color-test-fonts.py` writes, and two tests. Writing them found a font in which the atlas
-builder finds none of its characters, as one asked only for emoji with no space of its own, stopping
-the program on an assertion of ImGui's. Such a font is baked by the engine's reader alone, as a font
-of bitmaps is. The 119 render and font tests pass on lavapipe under the layer. The suite: 1,450
-passed, none skipped.
+**Now 2, TODO's entry on text, distance fields past U+FFFF.** A font loaded as `FontType.Sdf` holds
+its characters past U+FFFF, rasterized by the engine's reader into the bake at four times the size
+before the distances are measured, a color emoji as its outline's shape, where they were left out,
+the atlas builder naming characters in 16 bits. A font of none but such characters is baked by the
+reader alone, as the coverage fonts are. `LoadFontEx`'s remarks said a joined sequence drew as its
+characters apart and COLR version 1 was not read, and say what is drawn. A test, and the entry
+keeps text shaped only in emoji, sbix, and CFF outlines past U+FFFF. The 120 render and font tests
+pass on lavapipe under the layer. The suite: 1,451 passed, none skipped.

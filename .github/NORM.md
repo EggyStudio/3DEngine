@@ -283,7 +283,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | checked, `NormTests` | listed 228, `NormTests` |
 | N 1.3 | checked, `NormTests` | listed 16, `NormTests`, 10 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 11 left out | listed 87, `NormTests`, 23 left out |
+| N 1.4 | checked, `NormTests`, 12 left out | listed 87, `NormTests`, 23 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
