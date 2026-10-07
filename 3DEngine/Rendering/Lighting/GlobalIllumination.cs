@@ -200,17 +200,19 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>
     /// Keeps <paramref name="scene"/>, the window's scene the HDR frame drew this frame at
     /// <paramref name="extent"/>, for the reflections of the frame after, once the model pass has
-    /// read the frame before's, made again where the window's size changed.
+    /// read the frame before's, with the window's depth beside it, made again where the window's size
+    /// changed.
     /// </summary>
     public void KeepFrame(RenderContext renderContext, RenderWorld renderWorld, IImageView scene, Extent2D extent)
     {
-        if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<WindowView>() is not { } window) return;
+        if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<WindowView>() is not { } window
+            || renderWorld.TryGet<WindowDepth>() is not { } depth) return;
         if (_history is null || _history.Window != extent)
         {
             if (_history is not null) _retired.Add((_frame, _history));
             _history = device.CreateReflectionHistory(extent.Width, extent.Height);
         }
-        device.RecordKeepFrame(renderContext.CommandBuffer, scene, _history);
+        device.RecordKeepFrame(renderContext.CommandBuffer, scene, depth.View, _history);
         HistoryViewProjection = window.ViewProjection;
     }
 

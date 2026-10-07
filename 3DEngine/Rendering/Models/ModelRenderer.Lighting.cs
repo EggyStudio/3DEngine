@@ -122,9 +122,10 @@ internal sealed partial class ModelRenderer
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from: the
-    // field, its colors and light, the lights, the window's depth and its scene the frame before.
+    // field, its colors and light, the lights, the window's depth, and its scene and depth the
+    // frame before.
     private const uint ReflectFieldBinding = 19, ReflectAlbedoBinding = 20, ReflectGlowBinding = 21, ReflectLightsBinding = 22,
-        ReflectDepthBinding = 23, ReflectHistoryBinding = 24;
+        ReflectDepthBinding = 23, ReflectHistoryBinding = 24, ReflectHistoryDepthBinding = 25;
 
     // A field of one cell and no cascade, screen probes of one probe holding nothing and lights of
     // none, bound where no light bounces, since the set must hold them.
@@ -144,6 +145,8 @@ internal sealed partial class ModelRenderer
         var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depthView, depthSampler, ReflectDepthBinding));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(historyView, historySampler, ReflectHistoryBinding));
+        var (historyDepthView, historyDepthSampler) = bounced?.History is { } held ? (held.DepthView, held.DepthSampler) : (_noScreen.BlendedView, _noScreen.Sampler);
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(historyDepthView, historyDepthSampler, ReflectHistoryDepthBinding));
         GpuSceneField field;
         if (bounced is not null)
         {

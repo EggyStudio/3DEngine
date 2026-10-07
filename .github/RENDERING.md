@@ -560,13 +560,14 @@ quality, spaced more finely near the surface, and the step it meets a surface in
 times (`traceScreen` in `gi.slang`, which the screen probes trace through too). The surface it meets
 is looked up in the frame before's picture through the camera of the frame before, its level of
 blur by the roughness, and blended toward the field's shading of the same point at the picture's
-edge. A ray that leaves the picture or meets nothing on it is traced on through the field, and the
+edge, and where the frame before's depth there held a point away from the hit, something in front
+of the surface then, the field's shading is taken in its place. A ray that leaves the picture or meets nothing on it is traced on through the field, and the
 surface it meets there is shaded as a probe's ray shades one. Where it meets nothing, the probe's or
 the environment's reflection stands, as it does for a surface as it grows rough, the traced
 reflection fading from a roughness of 0.25 to 0.5, and the ambient lights' specular fades with it.
 While light bounces the window's scene is drawn through the HDR frame, and after the model pass
-the frame's scene is copied at half size into an image with its mips
-(`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
+the frame's scene is copied at half size into an image with its mips, and the window's half-size
+depth beside it (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: point and spot lights cast no shadow in the bounce, a moving

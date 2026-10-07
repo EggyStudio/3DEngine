@@ -337,11 +337,20 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         float2 uv = last.xy / max(last.w, 1e-4) * 0.5 + 0.5;
         if (lighting.reflection.w <= 0.0 || last.w <= 1e-4 || any(uv < 0.0) || any(uv > 1.0))
             return float4(shaded, 1.0);
+        // Whether the frame before showed this surface there, its depth holding a point near the
+        // hit, or something in front of it, which the reflection would show in its place.
+        ScreenCamera before;
+        before.viewProjection = lighting.reflectLastViewProjection;
+        before.inverseViewProjection = lighting.reflectLastInverseViewProjection;
+        before.eye = eye;
+        float3 then = screenWorld(before, uv, reflectHistoryDepth.SampleLevel(uv, 0).r);
+        float near = 0.05 + 0.02 * distance(eye, hit);
+        float shown = 1.0 - smoothstep(near, near * 3.0, distance(then, hit));
         // The picture's light, blurred down its mips as the surface is rough, and the field's
-        // shading where the picture ends.
+        // shading where the picture ends or did not show the surface.
         float edge = saturate(min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)) * 12.0);
         float3 seen = reflectHistory.SampleLevel(uv, saturate(roughness / lighting.reflection.y) * 4.0).rgb;
-        return float4(lerp(shaded, seen, edge), 1.0);
+        return float4(lerp(shaded, seen, edge * shown), 1.0);
     }
     float t = traceField(reflectField, bouncedField, start, r, left, 1e5);
     if (t < 0.0)

@@ -143,12 +143,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   traced through the window's depth and the field are built (RENDERING.md §4). The ray-query path,
   which would find through the GPU's own ray tracing what the field is too coarse for, is not made.
   In the bounce point and spot lights cast no shadow, a skinned or moving mesh is the gray box
-  around it, and the screen's probes are not blended over time. A reflection that meets a surface
-  on the screen reads the frame before's picture with no depth of it, so where something hid that
-  surface the frame before, the reflection shows what hid it for a frame. Render textures and probe
-  captures are drawn without the field. In the field a closed mesh much thinner
-  than a cell is not there, and an open mesh such as a ground plane puts a narrow wedge below its
-  edges inside.
+  around it, and the screen's probes are not blended over time. Render textures and probe captures
+  are drawn without the field. In the field a closed mesh much thinner than a cell is not there,
+  and an open mesh such as a ground plane puts a narrow wedge below its edges inside.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

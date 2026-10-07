@@ -191,6 +191,49 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Reflection_Of_A_Surface_The_Frame_Before_Hid_Shows_The_Surface_And_Not_What_Hid_It()
+    {
+        Open();
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.5f)), Color.White, 2);
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        floor.Materials[0] = new ModelMaterial(new Color(30, 30, 30)) { Metallic = 1, Roughness = 0.05f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // A red block on a mirror of a floor, and a green panel in front of the camera that hides
+        // the foot of the block's face the floor reflects, but not the floor, until the frame it
+        // is taken away, whose reflection reads the picture of the frame before, which showed the
+        // panel there.
+        void Draw(bool hidden)
+        {
+            DrawModelEx(floor, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(8, 0.2f, 8), Color.White);
+            DrawModelEx(block, new Vector3(0, 0.75f, 0), Vector3.UnitY, 0, new Vector3(1, 1.5f, 1), new Color(220, 30, 30));
+            if (hidden) DrawModelEx(panel, new Vector3(0, 1.15f, 3), Vector3.UnitY, 0, new Vector3(0.6f, 0.4f, 0.05f), new Color(30, 220, 30));
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var path = Path.Combine(_folder.Path, "uncovered.png");
+        for (int frame = 0; frame < 40 && !File.Exists(path); frame++)
+        {
+            var uncovered = frame >= SceneFieldPlan.SettleFrames + 10;
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+            Draw(!uncovered);
+            EndMode3D();
+            if (frame == SceneFieldPlan.SettleFrames + 10) TakeScreenshot(path);
+            EndDrawing();
+        }
+        var frameAfter = LoadImage(path);
+
+        var mirrored = Mean(frameAfter, 74, 84, 12, 6);
+        mirrored.X.Should().BeGreaterThan(mirrored.Y + 20, $"the floor reflects the red block, not the green panel the frame before showed, {mirrored}");
+        UnloadModel(floor);
+        UnloadModel(block);
+        UnloadModel(panel);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Mirror_Reflects_A_Block_Behind_The_Camera_Through_The_Field()
     {
         Open();

@@ -70,12 +70,13 @@ public struct Lighting
     // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
     // screenLight and screenSurfaces, are read before the world's.
     public float4 screen;
-    // The window's camera this frame, world to clip space and back, and the frame before's, which
-    // a glossy surface's reflection is traced through the window's depth with and looked up in the
-    // frame before's picture by.
+    // The window's camera this frame, world to clip space and back, and the frame before's, both
+    // ways, which a glossy surface's reflection is traced through the window's depth with and
+    // looked up in the frame before's picture by.
     public float4x4 reflectViewProjection;
     public float4x4 reflectInverseViewProjection;
     public float4x4 reflectLastViewProjection;
+    public float4x4 reflectLastInverseViewProjection;
     // x: 1 when a glossy surface traces its reflection, the window's alone. y: the roughness from
     // which none is traced, the probes and the environment reflecting alone. z: the steps through
     // the window's depth. w: 1 when reflectHistory holds the frame before.
@@ -175,3 +176,8 @@ public Sampler2D reflectDepth;
 // which a reflection that meets a surface on the screen reads that surface's light from.
 [[vk::binding(24, 1)]]
 public Sampler2D reflectHistory;
+
+// The window's depth at half its size the frame before, beside its picture, which says whether the
+// picture showed the surface a reflection met there or something in front of it.
+[[vk::binding(25, 1)]]
+public Sampler2D reflectHistoryDepth;

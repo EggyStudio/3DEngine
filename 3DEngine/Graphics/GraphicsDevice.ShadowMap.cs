@@ -72,8 +72,9 @@ internal sealed unsafe partial class GraphicsDevice
         height = Math.Max(1, height);
         layers = Math.Max(1, layers);
 
+        // A transfer's source too, as the window's depth is copied for the reflections of the frame after.
         var (depth, depthMemory) = TargetImage(VkFormat.D32Sfloat, width, height,
-            VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled, layers: layers);
+            VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc, layers: layers);
         var depthView = TargetView(depth, VkFormat.D32Sfloat, VkImageAspectFlags.Depth, layers: layers);
         var layerViews = new VkImageView[layers];
         for (uint l = 0; l < layers; l++)

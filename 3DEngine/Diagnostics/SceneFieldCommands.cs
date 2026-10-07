@@ -45,9 +45,10 @@ internal static class SceneFieldCommands
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
                       + $"{3.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
         var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
-        // The frame before at half the window's size in half floats, its mips a third more.
+        // The frame before at half the window's size in half floats, its mips a third more, and its
+        // depth beside it in floats.
         var history = gi.HistoryViewProjection is null || renderer.RenderWorld.TryGet<SwapchainTarget>() is not { } window ? 0
-            : (window.Extent.Width / 2) * (window.Extent.Height / 2) * 8 * 4 / 3.0 / 1024 / 1024;
+            : (window.Extent.Width / 2) * (window.Extent.Height / 2) * (8 * 4 / 3.0 + 4) / 1024 / 1024;
         lines.Add($"reflections below roughness {GlobalIlluminationRenderer.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
                   + $"then the field, the frame before kept in {history:0.00} MB");
         return string.Join("\n", lines);

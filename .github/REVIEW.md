@@ -10,24 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `80227981`. Glossy surfaces reflect, the first part of phase three: a fragment under
-a roughness of 0.5 traces its mirror ray in the model pass, where it has its own normal and
-roughness, through the window's half-size depth of this frame in 12, 16 or 24 steps by the quality
-and five halvings (`traceScreen` in `gi.slang`, which the screen probes share), a surface met on the
-screen reflecting the frame before's picture through the frame before's camera, blurred down its
-mips by the roughness and faded toward the field's shading at the picture's edge, the window drawn
-through the HDR frame while light bounces and its scene copied at half size with mips after the
-model pass (`RecordKeepFrame`); a ray that leaves the picture or meets nothing on it goes on through
-the field, its hit shaded with the cascades' light; a miss, and a surface growing rough from 0.25 to
-0.5, leaves the probe's or the environment's reflection, the ambient lights' specular fading the
-same way; `shaders_reflections` with its 800 by 450 capture, the `reflections` frame, a test of a
+Reviewed up to `09419080`. Verdict 35 is settled: N 1.3's test counts the Slang shaders of the
+library, the tests and the examples as it counts their C#, and the model pass shader comes to 411
+lines, the lights' descriptor set, its structs and its bindings, in `lightset.slang`, which
+`modelpass` passes on to a program's shader as before, and what reads the set in `lights.slang`,
+each light's arrival, the shadow maps, the specular model, the probes and the environment, the
+bounced light and the traced reflection, imported without being passed on so a program's shader sees
+no new names, after a first try that exported them clashed with `pbr.slang`'s `PI`; every shader of
+the examples, the games and the templates that imports `modelpass` compiles, and no Slang file is
+over 800 lines, so N 1.3's list stays empty (`09419080`). The owner pushed, and the runs of
+`80227981` and `09419080` were in progress at 19:45, the first with the Windows mends of `5057c3cb`.
+The ray-query batch with the frame before's depth is next. The suite: 1,524 passed; lavapipe under
+validation passed its 52 frame, bounce and compiler tests.
+
+Before them, glossy surfaces came to reflect, the first part of phase three: a fragment under a
+roughness of 0.5 traces its mirror ray in the model pass, where it has its own normal and roughness,
+through the window's half-size depth of this frame in 12, 16 or 24 steps by the quality and five
+halvings (`traceScreen` in `gi.slang`, which the screen probes share), a surface met on the screen
+reflecting the frame before's picture through the frame before's camera, blurred down its mips by
+the roughness and faded toward the field's shading at the picture's edge, the window drawn through
+the HDR frame while light bounces and its scene copied at half size with mips after the model pass
+(`RecordKeepFrame`); a ray that leaves the picture or meets nothing on it goes on through the field,
+its hit shaded with the cascades' light; a miss, and a surface growing rough from 0.25 to 0.5,
+leaves the probe's or the environment's reflection, the ambient lights' specular fading the same
+way; `shaders_reflections` with its 800 by 450 capture, the `reflections` frame, a test of a
 polished floor reflecting a red block and one of a mirror showing a block behind the camera through
 the field alone, and the guide's numbers with the command that took them, the scene's pass at 0.29
 ms with the floor polished and 0.20 ms with it rough at `Medium` on the RTX 4070 (`80227981`). The
 frame before is kept with no depth, so a surface hidden in it shows what hid it for a frame, which
-item 2 takes with the ray-query path. Verdict 35 is written: the model pass shader stands at 917
-lines, and N 1.3's test counts the C# alone. The suite: 1,524 passed; lavapipe under validation
-passed its 61 reference, field, bounce, reflection, particle, occlusion and bloom tests.
+item 2 takes with the ray-query path. The suite: 1,524 passed; lavapipe under validation passed its
+61 reference, field, bounce, reflection, particle, occlusion and bloom tests.
 
 Before them, light came to bounce between surfaces through the field as hybrid Radiance Cascades,
 phase two of Decision 16, which settled its item, the list renumbered: `SetGlobalIllumination` and
@@ -58,28 +70,6 @@ table of the three qualities measured on the RTX 4070 with the frame rate unlimi
 110 of the job's 180 minutes (`5057c3cb`), unproven until a push. The suite: 1,521 passed; lavapipe
 under validation passed its 54 reference, field, bounce, particle and occlusion tests.
 
-Before them, a signed distance field of the scene came to stand around the camera, phase one of
-Decision 16: `SetSceneField` and `Config.SceneField` build it from the shadow-casting meshes in
-cascades of 64 cells a side, each twice as coarse and as wide as the one before, in one 3D image of
-half floats with a uniform buffer saying where each lies; a cascade is rebuilt when the eye passes
-its grid of eight cells or a still mesh comes or goes, the budget's number a frame, finest first; a
-build is a workgroup a triangle taking each cell within four of it by an atomic minimum of its
-distance in 1024ths of a cell above a bit for in front, and a mesh that moves or is skinned is
-stamped as its box into bricks each frame; three faults of sign found by reading the field back are
-mended and held by tests, the nearer of two meshes winning a cell, a triangle claiming a cell only
-within 60 degrees of straight behind it, and a plane's open edges a narrow wedge; `ao.slang` reads
-occlusion through the field beside the screen's and traces the sun's soft contact shadow, which the
-model pass applies to the shadowed sun, and particles collide with the field where it holds them and
-with the depth elsewhere, which closes that TODO entry; `field.show`, `field.state` and
-`field.rebuild`, two reference frames, the `shaders_scene_field` example, the guide's section,
-RENDERING.md's, and the costs from an RTX 4070 on the comparison page, stamping 0.014 ms, the finest
-cascade 0.25 ms to build and the occlusion pass 0.073 ms where it took 0.036 (`f2d99b65`), which
-settled its item. The field's kernels and its sampling module are plain Slang over buffers and one
-image, which the bridge can compile as they are once BevyCSharp reads the field. The suite: 1,514
-passed, none skipped. The Windows job of `3afcc4d0` was cancelled at the job's 180 minutes in the
-games' step at 18:31 with nothing on the page, which Verdict 33 reads as the opening's answer read
-through `$(...)` while the game e3d started holds the pipe, as BevyCSharp's step hung the same day.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -90,12 +80,11 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **The next run's Windows job, Verdicts 33, 30 and 31.** Verdict 33's third part is mended at
-   `5057c3cb` and proved by the first Windows job to play the twelve games; the Windows jobs of
-   `0c19c335`, `6412daca`, `38f68412` and `90681ba8` end at their 180 minutes as `3afcc4d0`'s did
-   and are not read; the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs
-   once a run's three test jobs pass. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
+1. **The runs of `80227981` and `09419080`, Verdicts 33, 30 and 31.** Both were in progress at
+   19:45, the first runs with the Windows mends of `5057c3cb`; a Windows job that plays the twelve
+   games settles Verdict 33, and the examples job, which carries the guides' blocks and Verdicts 30
+   and 31, runs once a run's three test jobs pass. Each push's run is read by the reviewing session,
+   and a failure it names comes first here.
 2. **Phase 3: specular, its glossy reflections in.** A fragment under a roughness of 0.5 traces
    its mirror ray through the window's depth and on through the field, reading the frame before's
    picture or the cascades' light, the probes and the environment the fallback as it grows rough
@@ -121,7 +110,7 @@ for a reply. In this order.
 
 ## Verdicts
 
-Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
+Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -194,15 +183,6 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
     machine. Clearing the inherit flag of e3d's own handles before it starts `cmd.exe`, offered in
     the reply, is not asked for while nothing waits on them. Unproven until a push. Settled when a
     Windows job plays the twelve games.
-
-35. **`modelpass.slang` has 917 lines, and N 1.3's test counts the C# alone.** Read from the
-    tree at `80227981`: the model pass shader grew by its reflections to 917 lines, over the 800
-    N 1.3 allows a source file, and `NormTests.N_1_3` reads the `.cs` files of the library, the
-    tests and the examples, so the 110 Slang files are outside it, where BevyCSharp's test counts
-    its Rust bridge beside its C#. Two things: the test counts the Slang shaders as it counts the
-    library's C#; and the shader comes under 800, its reflections or its lighting moved into a
-    module as `gi.slang` is, or is listed in `build/norm/1.3.txt` with its reason and the
-    Conformance row says so. Settled when the test counts the shaders and passes.
 
 ## Decisions
 
@@ -297,13 +277,15 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
 
 ## Replies
 
-Verdict 35 is mended. `NormTests.N_1_3` counts the Slang shaders of the library, the tests and the
-examples as it counts their C#, and `modelpass.slang` comes to 411 lines. The lights' descriptor
-set, its structs and its bindings went into `lightset.slang`, which `modelpass` passes on to a
-program's own model shader as before, and what reads the set went into `lights.slang`: each
-light's arrival, the shadow maps, the specular model, the probes and the environment, and the light
-that bounced and the traced reflection. `modelpass` imports `lights` without passing it on, so a
-program's shader sees no more names than it did, which `pbr.slang`'s own `PI` showed matters. Every
-shader of the examples, the games and the templates that imports `modelpass` compiles, and no Slang
-file is over 800 lines, so nothing is listed.
+Item 2's frame before's depth is in, ahead of the ray-query path. After the model pass the window's
+half-size depth is copied beside the half-size picture (`RecordKeepFrame`), and a reflection that
+meets a surface on the screen reads the depth there through the frame before's camera, both ways,
+the lighting buffer carrying its inverse too. Where the point that depth held is farther from the
+hit than five hundredths and a fiftieth of the distance from the eye, the field's shading of the hit
+stands in for the picture, so a surface something hid in that frame reflects as the field holds it.
+A test has a green panel hide the foot of a red block from the camera until the frame it is taken
+away, whose floor reflects red, (4.7, 63.4, 4.7) green with the check taken out. The occlusion
+pass's depth is a transfer's source for the copy, and `gi.state` counts the depth in the frame
+kept's memory. TODO.md's line on it is gone. The suite: 1,525 passed; lavapipe under validation
+passed its 44 frame, bounce, field and occlusion tests.
 

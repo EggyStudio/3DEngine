@@ -106,6 +106,9 @@ internal struct LightingUbo
     /// <summary>The window's camera the frame before, which a reflection looks the surface it met up in the frame before's picture by.</summary>
     public Matrix4x4 ReflectLastViewProjection;
 
+    /// <summary>Its clip space back to the world, for the surface the frame before's depth held where a reflection looks.</summary>
+    public Matrix4x4 ReflectLastInverseViewProjection;
+
     /// <summary>
     /// x: 1 when a glossy surface traces its reflection, the window's alone. y: the roughness from
     /// which none is traced. z: the steps through the window's depth. w: 1 when the frame before's
