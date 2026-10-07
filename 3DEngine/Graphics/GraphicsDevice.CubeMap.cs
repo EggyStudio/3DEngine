@@ -137,6 +137,7 @@ internal sealed unsafe partial class GraphicsDevice
             initialLayout = VkImageLayout.Undefined,
         };
         _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
@@ -144,6 +145,7 @@ internal sealed unsafe partial class GraphicsDevice
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
 
         var staging = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)bytes.Length, BufferUsage.TransferSrc, CpuAccessMode.Write));

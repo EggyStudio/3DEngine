@@ -315,7 +315,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
-| N 6.2 | checked, `test.yml` | to take, `macos-latest` in the matrix at `6528ea2`, checked at its first green job |
+| N 6.2 | checked, `test.yml` | checked, `test.yml`, the macOS job green at `156d2ce` |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |

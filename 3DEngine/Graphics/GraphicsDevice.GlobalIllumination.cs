@@ -183,7 +183,32 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Whether the probes' shaders have been given, so light can bounce.</summary>
-    public bool CanBounceLight => _giStages[FilterStage].Pipeline.Handle != 0;
+    public bool CanBounceLight => _giSpirv is not null;
+
+    // The probes' kernels as InitializeGlobalIllumination was given them, made into pipelines the
+    // first time a frame traces the probes, so an app whose light never bounces compiles none.
+    private byte[][]? _giSpirv;
+
+    private ComputeStage[] GiStages
+    {
+        get
+        {
+            if (_giStages[FilterStage].Pipeline.Handle != 0 || _giSpirv is not { } spirv) return _giStages;
+            var (trace, merge, ambient, screen, filter) = (spirv[0], spirv[1], spirv[2], spirv[3], spirv[4]);
+            _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+            _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.UniformBuffer], 16);
+            _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler], (uint)sizeof(IlluminationTrace));
+            _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
+                VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 32);
+            _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+            return _giStages;
+        }
+    }
 
     /// <summary>
     /// Makes the probes' pipelines from <c>gi_trace.slang</c>, <c>gi_merge.slang</c>,
@@ -193,17 +218,7 @@ internal sealed unsafe partial class GraphicsDevice
         ReadOnlySpan<byte> filter)
     {
         if (!IsInitialized || CanBounceLight) return;
-        _giStages[FilterStage] = MakeComputeStage(filter, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
-        _giStages[ScreenStage] = MakeComputeStage(screen, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
-            VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
-            VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-            VkDescriptorType.UniformBuffer], 16);
-        _giStages[TraceStage] = MakeComputeStage(trace, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
-            VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
-            VkDescriptorType.StorageImage, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler], (uint)sizeof(IlluminationTrace));
-        _giStages[MergeStage] = MakeComputeStage(merge, [VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
-            VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler], 32);
-        _giStages[AmbientStage] = MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage], 16);
+        _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray()];
     }
 
     /// <summary>
@@ -262,7 +277,9 @@ internal sealed unsafe partial class GraphicsDevice
                 foreach (var (image, memory, view) in radiance.Concat(merged))
                 {
                     _deviceApi.vkDestroyImageView(view);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
                     _deviceApi.vkDestroyImage(image);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                     _deviceApi.vkFreeMemory(memory);
                 }
             });
@@ -285,6 +302,7 @@ internal sealed unsafe partial class GraphicsDevice
             initialLayout = VkImageLayout.Undefined,
         };
         _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
@@ -292,6 +310,7 @@ internal sealed unsafe partial class GraphicsDevice
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
         var viewInfo = new VkImageViewCreateInfo
         {
@@ -587,7 +606,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(set, 9, VkDescriptorType.StorageImage, ((VulkanImageView)screen.GeometryView).View, null, VkImageLayout.General);
         run.Buffer(set, 10, VkDescriptorType.UniformBuffer, screen.View);
         ReadOnlySpan<uint> push = [(uint)gi.Texels[0], 0, 0, 0];
-        var (pipeline, layout, _) = _giStages[ScreenStage];
+        var (pipeline, layout, _) = GiStages[ScreenStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
         fixed (uint* p = push)
@@ -600,7 +619,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Image(blend, 0, VkDescriptorType.SampledImage, ((VulkanImageView)screen.IrradianceView).View, null, VkImageLayout.General);
         run.Image(blend, 1, VkDescriptorType.SampledImage, ((VulkanImageView)screen.GeometryView).View, null, VkImageLayout.General);
         run.Image(blend, 2, VkDescriptorType.StorageImage, ((VulkanImageView)screen.BlendedView).View, null, VkImageLayout.General);
-        var (filterPipeline, filterLayout, _) = _giStages[FilterStage];
+        var (filterPipeline, filterLayout, _) = GiStages[FilterStage];
         _deviceApi.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, filterPipeline);
         _deviceApi.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, filterLayout, 0, 1, &blend, 0, null);
         _deviceApi.vkCmdDispatch(cmd, (uint)(screen.Across + 7) / 8, (uint)(screen.Down + 7) / 8, 1);
@@ -663,13 +682,14 @@ internal sealed unsafe partial class GraphicsDevice
             sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.SampledImage, descriptorCount = 2 * sets };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = sets, poolSizeCount = 4, pPoolSizes = sizes };
             device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         }
 
         public VkCommandBuffer Commands { get; }
 
         public VkDescriptorSet Set(int stage)
         {
-            var layout = _device._giStages[stage].SetLayout;
+            var layout = _device.GiStages[stage].SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _pool, descriptorSetCount = 1, pSetLayouts = &layout };
             VkDescriptorSet set;
             _device._deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
@@ -693,7 +713,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         public void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint groups)
         {
-            var (pipeline, layout, _) = _device._giStages[stage];
+            var (pipeline, layout, _) = _device.GiStages[stage];
             _device._deviceApi.vkCmdBindPipeline(Commands, VkPipelineBindPoint.Compute, pipeline);
             _device._deviceApi.vkCmdBindDescriptorSets(Commands, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
             fixed (byte* p = push)
@@ -701,7 +721,11 @@ internal sealed unsafe partial class GraphicsDevice
             _device._deviceApi.vkCmdDispatch(Commands, Math.Max(1, groups), 1, 1);
         }
 
-        public void Dispose() => _device._deviceApi.vkDestroyDescriptorPool(_pool);
+        public void Dispose()
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
+            _device._deviceApi.vkDestroyDescriptorPool(_pool);
+        }
     }
 
     // Runs before the device goes.
@@ -709,10 +733,12 @@ internal sealed unsafe partial class GraphicsDevice
     {
         foreach (var (pipeline, layout, setLayout) in _giStages.Where(s => s.Pipeline.Handle != 0))
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
             _deviceApi.vkDestroyPipeline(pipeline);
             _deviceApi.vkDestroyPipelineLayout(layout);
             _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
         }
         Array.Clear(_giStages);
+        _giSpirv = null;
     }
 }

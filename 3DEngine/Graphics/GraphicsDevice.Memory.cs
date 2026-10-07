@@ -99,6 +99,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         VkMemoryAllocateInfo info = new() { allocationSize = size, memoryTypeIndex = type };
         _deviceApi.vkAllocateMemory(&info, null, out VkDeviceMemory memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         var block = new MemoryBlock { Memory = memory, Size = size };
         block.Free.Add((0, size));
         // Mapped once for good, since a block holds many buffers and Vulkan maps memory once.
@@ -139,6 +140,7 @@ internal sealed unsafe partial class GraphicsDevice
             var blocks = _memoryBlocks.Values.First(b => b.Contains(block));
             if (!block.Dedicated && blocks.Count(b => !b.Dedicated) == 1) return;
             blocks.Remove(block);
+            DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             _deviceApi.vkFreeMemory(block.Memory);
             block.Memory = default;
         }
@@ -151,6 +153,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             foreach (var block in _memoryBlocks.Values.SelectMany(b => b))
             {
+                DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _deviceApi.vkFreeMemory(block.Memory);
                 block.Memory = default;
             }

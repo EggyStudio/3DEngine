@@ -144,6 +144,7 @@ internal sealed unsafe partial class GraphicsDevice
         sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 2 * MaxFramesInFlight };
         var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = MaxFramesInFlight, poolSizeCount = 2, pPoolSizes = sizes };
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _particleViewPool).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _particleViewPool, descriptorSetCount = 1, pSetLayouts = &viewLayout };
@@ -235,6 +236,7 @@ internal sealed unsafe partial class GraphicsDevice
                 layout = pipelineLayout,
             };
             _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _deviceApi.vkDestroyShaderModule(module);
         return (pipeline, pipelineLayout);
@@ -254,6 +256,7 @@ internal sealed unsafe partial class GraphicsDevice
         var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 1 };
         var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 1, pPoolSizes = &size };
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         var layout = _particleSetLayout;
         var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &layout };
         VkDescriptorSet set;
@@ -265,6 +268,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         return new GpuParticles(buffer, capacity, set, () =>
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
             _deviceApi.vkDestroyDescriptorPool(pool);
             buffer.Dispose();
         });
@@ -344,14 +348,26 @@ internal sealed unsafe partial class GraphicsDevice
     // Runs before the device goes.
     private void DestroyParticles()
     {
-        if (_sortPipeline.Handle != 0) _deviceApi.vkDestroyPipeline(_sortPipeline);
+        if (_sortPipeline.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
+            _deviceApi.vkDestroyPipeline(_sortPipeline);
+        }
         if (_sortLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_sortLayout);
         _sortPipeline = default;
         _sortLayout = default;
-        if (_particlePipeline.Handle != 0) _deviceApi.vkDestroyPipeline(_particlePipeline);
+        if (_particlePipeline.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
+            _deviceApi.vkDestroyPipeline(_particlePipeline);
+        }
         if (_particleLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_particleLayout);
         if (_particleSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleSetLayout);
-        if (_particleViewPool.Handle != 0) _deviceApi.vkDestroyDescriptorPool(_particleViewPool);
+        if (_particleViewPool.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
+            _deviceApi.vkDestroyDescriptorPool(_particleViewPool);
+        }
         if (_particleViewLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_particleViewLayout);
         for (int i = 0; i < MaxFramesInFlight; i++)
         {

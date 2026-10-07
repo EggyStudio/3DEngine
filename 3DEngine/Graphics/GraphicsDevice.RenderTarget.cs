@@ -193,13 +193,17 @@ internal sealed unsafe partial class GraphicsDevice
                 if (msaa)
                 {
                     _deviceApi.vkDestroyImageView(msaaView);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
                     _deviceApi.vkDestroyImage(msaaColor);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                     _deviceApi.vkFreeMemory(msaaMemory);
                 }
                 if (msaa && depth)
                 {
                     _deviceApi.vkDestroyImageView(resolvedDepthView);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
                     _deviceApi.vkDestroyImage(depthImage);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                     _deviceApi.vkFreeMemory(depthMemory);
                 }
                 _deviceApi.vkDestroyImageView(colorView);
@@ -211,7 +215,9 @@ internal sealed unsafe partial class GraphicsDevice
                     m.Owner.Dispose();
                     if (!msaa) continue;
                     _deviceApi.vkDestroyImageView(m.MsaaView);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
                     _deviceApi.vkDestroyImage(m.Msaa);
+                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                     _deviceApi.vkFreeMemory(m.MsaaMemory);
                 }
             })
@@ -257,6 +263,7 @@ internal sealed unsafe partial class GraphicsDevice
             initialLayout = VkImageLayout.Undefined,
         };
         _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
@@ -264,6 +271,7 @@ internal sealed unsafe partial class GraphicsDevice
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
         return (image, memory);
     }

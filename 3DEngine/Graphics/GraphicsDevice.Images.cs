@@ -46,12 +46,14 @@ internal sealed unsafe partial class GraphicsDevice
         {
             if (Image.Handle != 0)
             {
+                DeviceObjects.Gone(DeviceObjects.Kind.Image);
                 _device._deviceApi.vkDestroyImage(Image);
                 Image = default;
                 Interlocked.Decrement(ref _device._liveImages);
             }
             if (Memory.Handle != 0)
             {
+                DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _device._deviceApi.vkFreeMemory(Memory);
                 Memory = default;
             }
@@ -156,6 +158,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkCreateImage(&imageInfo, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements req);
 
         var slice = AllocateMemory(req, VkMemoryPropertyFlags.DeviceLocal, image: true);

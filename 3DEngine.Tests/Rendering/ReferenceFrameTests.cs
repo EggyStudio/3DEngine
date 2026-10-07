@@ -82,7 +82,10 @@ public sealed partial class ReferenceFrameTests : IDisposable
     }
 
     // Compares a frame with the reference of its name, writing the reference when there is none.
-    private static void Matches(Image frame, string name, [CallerFilePath] string source = "")
+    private static void Matches(Image frame, string name, [CallerFilePath] string source = "") => Matches(frame, name, DifferingShare, source);
+
+    // The same, allowing a share of its own where a frame's own reason is given beside the call.
+    private static void Matches(Image frame, string name, double allowed, [CallerFilePath] string source = "")
     {
         var reference = Path.Combine(Path.GetDirectoryName(source)!, "References", name + ".png");
         if (!File.Exists(reference) || Environment.GetEnvironmentVariable("E3D_WRITE_REFERENCES") == "1")
@@ -107,12 +110,36 @@ public sealed partial class ReferenceFrameTests : IDisposable
             }
 
         var share = (double)differing / (frame.Width * frame.Height);
-        if (share <= DifferingShare) return;
+        if (share <= allowed) return;
         var failures = Path.Combine(AppContext.BaseDirectory, "reference-failures");
         Directory.CreateDirectory(failures);
         ExportImage(frame, Path.Combine(failures, name + ".png"));
         ExportImage(difference, Path.Combine(failures, name + ".difference.png"));
-        Assert.Fail($"{share:P1} of the pixels differ from {reference}, more than {DifferingShare:P0}. The frame and its difference are in {failures}.");
+        Assert.Fail($"{share:P1} of the pixels differ from {reference}, more than {allowed:P0}, {WhereDiffering(difference)}. "
+                    + $"The frame and its difference are in {failures}.");
+    }
+
+    // Where a frame's differing pixels lie, the rows and columns they fall within, and the eighths
+    // of the frame across and down that hold the most of them, so a page that shows no images says
+    // which part of the picture a device draws apart.
+    private static string WhereDiffering(Image difference)
+    {
+        int top = difference.Height, bottom = -1, left = difference.Width, right = -1;
+        var tiles = new int[8, 8];
+        for (int y = 0; y < difference.Height; y++)
+            for (int x = 0; x < difference.Width; x++)
+            {
+                if (GetImageColor(difference, x, y).R == 0) continue;
+                (top, bottom, left, right) = (Math.Min(top, y), Math.Max(bottom, y), Math.Min(left, x), Math.Max(right, x));
+                tiles[y * 8 / difference.Height, x * 8 / difference.Width]++;
+            }
+        var tileWidth = difference.Width / 8.0;
+        var tileHeight = difference.Height / 8.0;
+        var most = Enumerable.Range(0, 64).Select(t => (Row: t / 8, Column: t % 8, Count: tiles[t / 8, t % 8]))
+            .Where(t => t.Count > 0).OrderByDescending(t => t.Count).Take(3)
+            .Select(t => $"{t.Count} in rows {(int)(t.Row * tileHeight)} to {(int)((t.Row + 1) * tileHeight) - 1} "
+                         + $"and columns {(int)(t.Column * tileWidth)} to {(int)((t.Column + 1) * tileWidth) - 1}");
+        return $"within rows {top} to {bottom} and columns {left} to {right}, the most {string.Join(", ", most)}";
     }
 
     [NeedsVulkanFact]

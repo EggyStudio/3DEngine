@@ -115,7 +115,7 @@ table also answers whether the two agree.
 | A model file with animation clips placed in a level plays, where its meshes would stand at rest | to check | has (`ba328b18`) |
 | What a level loaded through its references is let go once nothing uses it | has, Bevy counting its handles | has (`4e765797`) |
 | A renamed or reshaped type still reads its old files | has (`FormerName`, `DataVersion`) | to consider |
-| A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`) | to consider |
+| A saved game laid over the scenes it started from | has (`SaveGame`, `Persistent<T>`), a file read over its default since `0f0f461` so a field a later version adds keeps its default | to consider |
 | Data in files of its own, referred to by an id that survives a rename | has (`[DataAsset]`, `DataRef<T>`) | to consider |
 | A message after a load, so a game builds once what a file does not hold | has (`3ab5b22`) | to consider, with saves |
 
@@ -151,7 +151,7 @@ table also answers whether the two agree.
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
 | A game written in behaviors alone, with hundreds of entities, played by CI and profiled | taken at `109711a`, `games/Swarm` | has (`games/Swarm`, `3c9c7ac8`) |
-| A feature-test program putting every feature on one map, a capsule character on test courses, an admin panel and a console drawn in the interface, a crash log beside the executable and a portable native build for testers | to take (REVIEW.md, items 3 to 7), the program in at `ca13f97`, the player at `9ba00a4`, the course at `c8509aa` and the gallery's wall and box at `e1f6ece` | to consider |
+| A feature-test program putting every feature on one map, a capsule character on test courses, an admin panel and a console drawn in the interface, a crash log beside the executable and a portable native build for testers | to take (REVIEW.md, items 3 to 7), the program in at `ca13f97`, the player at `9ba00a4`, the course at `c8509aa`, the gallery's wall and box at `e1f6ece`, the light hall at `8cf909f` and the effects page at `edd577c` | to consider |
 | Well-known graphics scenes fetched on demand as asset packs from the repository's releases, a manifest a scene and a script making the pack, nothing checked in | to take (REVIEW.md, item 4), Intel Sponza at 1K first | to consider |
 | A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | taken at `cdbce22`, `build/soak.sh` and `soak-check.py`, four leaks found | has (`build/soak.sh`, `044d2396`) |
 | An app made and closed a hundred times in one test holds no more than it held after ten, read before any collection, the rule a soak keeps for a game kept for an app's whole life | taken at `360669e` and `070e5e0`, `AppLeakTests` judging the heap's floor with a census of its types, and `ScriptCompilationMemoryTests` | taken at `c06ec659`, `AppLeakTests`, the growth being the script compiler's references read at every app's start, the floor and the census at `596535ce` |

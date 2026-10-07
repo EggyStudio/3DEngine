@@ -10,19 +10,35 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `c4f248fd`. A reflection reads the frame before's depth beside its picture: after the
-model pass the window's half-size depth is copied with the half-size scene (`RecordKeepFrame`), a
+Reviewed up to `4db6fe46`. Verdict 36 is mended, to be proved by a macOS job: the lights' set binds
+its seventeen images apart from two samplers they share, one blending between texels and levels and
+one reading the nearest texel, so the model pass's fragment stage reads seven samplers, the
+material's five maps and the two, where it read twenty-two; the field's and the bounce's helpers
+take an `IVolume` or an `IPicture`, which `Sampler3D` and `Sampler2D` conform to by an extension and
+a `SplitVolume` of an image and a shared sampler satisfies, so the compute kernels compile as they
+were; `ModelRenderer` writes each binding as the shader declares it; the device reads
+`maxPerStageDescriptorSamplers` and `maxPerStageDescriptorSampledImages` when it is made, logs them
+and refuses a pipeline whose stage reads more, with the stage, the count and the limit
+(`GraphicsDevice.Limits`); a test compiles every built-in shader with a fragment stage and holds its
+stages to Metal's sixteen; and the array uniform's cause was not the macOS compiler but a shader's
+values kept in statics keyed by its id, which every app's shader store gives from 1 again, so an
+app's first shader found an earlier app's block of sixteen bytes, the values kept since with the
+shader store through a `ConditionalWeakTable`, with a test across two apps and an error that says
+the uniform's size and offset and the block's size (`4db6fe46`). The Windows jobs of `80227981` and
+`c4f248fd` failed in the tests, the Cornell box frame and the offscreen leak test, which is Verdict
+37. The suite: 1,527 passed; lavapipe under validation ran the whole suite, 1,509 passed and 16
+skipped where it has no device.
+
+Before them, a reflection came to read the frame before's depth beside its picture: after the model
+pass the window's half-size depth is copied with the half-size scene (`RecordKeepFrame`), a
 reflection that meets a surface on the screen rebuilds the point that depth held there through the
 frame before's camera, whose inverse the lighting buffer carries too, and where that point is
 farther from the hit than five hundredths and a fiftieth of the distance from the eye, the field's
 shading stands in for the picture, so a surface something hid in that frame reflects as the field
 holds it; a test has a green panel hide the foot of a red block until the frame it is taken away,
 whose floor reflects red where it reflected green; `gi.state` counts the depth in the frame kept's
-memory and TODO.md's line is gone (`c4f248fd`). The runs of `80227981` and `09419080` failed on
-macOS in 103 tests, the model pass asking 22 sampler bindings a stage where the device allows 16,
-and in the array uniform case, which is Verdict 36 and comes before the ray-query path; their
-Windows jobs were in the tests at 19:52 with the mends of `5057c3cb`. The suite: 1,525 passed;
-lavapipe under validation passed its 44 frame, bounce, field and occlusion tests.
+memory and TODO.md's line is gone (`c4f248fd`). The suite: 1,525 passed; lavapipe under validation
+passed its 44 frame, bounce, field and occlusion tests.
 
 Before them, Verdict 35 came to be settled: N 1.3's test counts the Slang shaders of the library,
 the tests and the examples as it counts their C#, and the model pass shader comes to 411 lines, the
@@ -36,24 +52,6 @@ N 1.3's list stays empty (`09419080`). The owner pushed, and the runs of `802279
 were in progress at 19:45, the first with the Windows mends of `5057c3cb`. The suite: 1,524 passed;
 lavapipe under validation passed its 52 frame, bounce and compiler tests.
 
-Before them, glossy surfaces came to reflect, the first part of phase three: a fragment under a
-roughness of 0.5 traces its mirror ray in the model pass, where it has its own normal and roughness,
-through the window's half-size depth of this frame in 12, 16 or 24 steps by the quality and five
-halvings (`traceScreen` in `gi.slang`, which the screen probes share), a surface met on the screen
-reflecting the frame before's picture through the frame before's camera, blurred down its mips by
-the roughness and faded toward the field's shading at the picture's edge, the window drawn through
-the HDR frame while light bounces and its scene copied at half size with mips after the model pass
-(`RecordKeepFrame`); a ray that leaves the picture or meets nothing on it goes on through the field,
-its hit shaded with the cascades' light; a miss, and a surface growing rough from 0.25 to 0.5,
-leaves the probe's or the environment's reflection, the ambient lights' specular fading the same
-way; `shaders_reflections` with its 800 by 450 capture, the `reflections` frame, a test of a
-polished floor reflecting a red block and one of a mirror showing a block behind the camera through
-the field alone, and the guide's numbers with the command that took them, the scene's pass at 0.29
-ms with the floor polished and 0.20 ms with it rough at `Medium` on the RTX 4070 (`80227981`). The
-frame before is kept with no depth, so a surface hidden in it shows what hid it for a frame, which
-item 2 takes with the ray-query path. The suite: 1,524 passed; lavapipe under validation passed its
-61 reference, field, bounce, reflection, particle, occlusion and bloom tests.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -64,14 +62,15 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 36 first, the macOS jobs, then the Windows jobs.** The runs of `80227981` and
-   `09419080` failed on macOS in 103 tests, the model pass asking 22 sampler bindings a stage where
-   the device allows 16, and in the array uniform case, Verdict 36, so its mend comes before the
-   ray-query batch; their Windows jobs were in the tests at 19:52 with the mends of `5057c3cb`, and
-   a Windows job that plays the twelve games settles Verdict 33; the examples job, which carries the
-   guides' blocks and Verdicts 30 and 31, runs once a run's three test jobs pass, which none will
-   before Verdict 36 is mended. Each push's run is read by the reviewing session, and a failure it
-   names comes first here.
+1. **Verdicts 36 and 37 first, then the Windows jobs' games.** The runs of `80227981`, `09419080`
+   and `c4f248fd` failed on macOS in 103 tests, Verdict 36, mended at `4db6fe46` and proved by the
+   next macOS job once the owner pushes; the Windows jobs of `80227981` and `c4f248fd` failed in the
+   tests, the Cornell box frame at 3.3% and the offscreen leak test, which crashed the test host in
+   one run and grew 58 MB in the other, Verdict 37, before the ray-query batch; `09419080`'s Windows
+   job was in the tests at 20:17. A Windows job that plays the twelve games settles Verdict 33, and
+   the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a run's
+   three test jobs pass. Each push's run is read by the reviewing session, and a failure it names
+   comes first here.
 2. **Phase 3: specular, the ray-query path left.** Glossy reflections are in (`80227981`) with
    the frame before's depth beside its picture (`c4f248fd`). Left: a hardware ray-query path through
    Vulkan's ray query extension for the field's misses where the GPU has it, behind the same quality
@@ -187,7 +186,36 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
     array uniform written at sixteen bytes a value throws `Destination is too short` in
     `WriteUniform` on macOS alone, where the uniform's offset and size pass the block's size, so the
     error says the three numbers and the cause is found in the macOS compiler's reflection or the
-    block it lays out, the test having passed there at `90681ba8`. Settled when a macOS job passes.
+    block it lays out, the test having passed there at `90681ba8`. Mended at `4db6fe46`: seventeen
+    images bound apart from two shared samplers, seven samplers a fragment stage where there were
+    twenty-two, the device reading its two limits and refusing a pipeline past them, a test holding
+    every built-in fragment stage to sixteen, and the array uniform's values kept with the shader
+    store rather than in statics keyed by an id every app's store gives again, which the macOS test
+    order showed. The run of `c4f248fd` failed on macOS the same way before the mend. Settled when a
+    macOS job passes.
+
+37. **The Windows jobs of `80227981` and `c4f248fd` fail the Cornell box frame and the offscreen
+    leak test.** Read from the pages: 1,505 passed, 2 failed, 12 skipped and 1 without a result at
+    `80227981`, where the offscreen leak test crashed the test host, in the whole suite after 13
+    minutes and again in the Core part after 5, its output ending at an app's `Startup stage
+    complete`; and 1,507 passed, 2 failed, 12 skipped at `c4f248fd`, where the same test ran through
+    and found the process holding 58 MB more after a hundred apps than after twenty, against 50, the
+    heap flat at 32.17 MB from the thirtieth app on and the threads steady, so what grows is native,
+    what each app leaves in the device or the driver since the field, the bounce and the reflections
+    gave an app images, buffers, pipelines and descriptor sets of their own. In both runs the
+    `cornell_box` frame differs by 3.3% of its pixels from the reference, over the 2% allowed, where
+    the Linux job's lavapipe matches it and the laptop drew it, so the two lavapipes draw the bounce
+    apart. The Windows job of `3afcc4d0` passed every test at 15:31, and the hot reload test that
+    failed once at `80227981` passed at `c4f248fd`, so it is watched and not mended. Three things:
+    the leak test counts the device's objects, images, buffers, pipelines and descriptor sets, after
+    the twentieth app and the hundredth as the soak counts a game's, and names the kinds that grew,
+    so the native growth is read on the page; a test host that dies leaves a minidump,
+    `DOTNET_DbgEnableMiniDump` with the dump under the runner's temp among the artifacts, and the
+    step says which app the test was at from its output; and the frame comparison's notice says
+    where the differing pixels lie, the rows and columns they fall in, so the bounce's difference
+    between the two lavapipes is read from the page, after which the frame is matched on both, by a
+    step made deterministic or by a share set from the two with its reason beside it. Settled when a
+    Windows job passes both tests.
 
 ## Decisions
 
@@ -282,30 +310,30 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
 
 ## Replies
 
-Verdict 36 is mended, to be proved by the next macOS job:
+Verdict 37's three things are in, to be read on the next Windows job:
 
-- **The sampler count.** The lights' set binds its seventeen images apart from two samplers they
-  share, one blending between texels and levels and one reading the nearest texel, so the model
-  pass's fragment stage reads seven samplers, the material's five maps and the two, where it read
-  twenty-two. The field's and the bounce's helpers in `scenefield.slang` and `gi.slang` take an
-  `IVolume` or an `IPicture`, which `Sampler3D` and `Sampler2D` conform to by an extension, so the
-  compute kernels compile as they were and the model pass passes a `SplitVolume`, an image and a
-  shared sampler. `ModelRenderer` writes each binding of the set as the shader declares it, the
-  image alone or the sampler alone, through one helper.
-- **The limits.** The device reads `maxPerStageDescriptorSamplers` and
-  `maxPerStageDescriptorSampledImages` when it is made, logs them, and refuses a graphics pipeline,
-  or a program's compute pipeline, whose stage reads more, with a sentence giving the stage, the
-  count and the limit (`GraphicsDevice.Limits`).
-- **A test that holds it everywhere.** Every built-in shader with a fragment stage is compiled and
-  its stages counted against Metal's sixteen, which twenty-two failed before.
-- **The array uniform.** The cause was not the macOS compiler. A shader's set values, its uniform
-  block among them, lived in statics keyed by the shader's id, and every app's shader store gives
-  ids from 1 again, so the first shader of an app found the block an earlier app's shader of that id
-  left, and a block of sixteen bytes could not take an array of three, in the order the tests ran
-  on macOS. The values live with the shader store now, an app's own. A test leaves a shader of one
-  float in one app and sets an array in the next app's shader of the same id, and fails on the old
-  statics with `Destination is too short`. A write that does not fit says the uniform's size and
-  offset and the block's size.
+- **What a closed app leaves.** A process-wide ledger counts the Vulkan objects of each kind every
+  device makes and destroys, images, buffers, memory, pipelines, descriptor pools and descriptor
+  sets (`DeviceObjects`, at each create and destroy), and the offscreen leak test prints it after
+  every tenth app and fails naming the kinds alive after the hundredth app beyond the twentieth. On
+  the RTX 4070 and on lavapipe every kind stands at 0 after each app, so on these two no Vulkan
+  object outlives its device, and what grew on Windows is the driver's own memory unless that
+  job's ledger says otherwise. Under lavapipe here the process grew 220 MB over the eighty apps
+  with glibc's arenas left free and 13 MB with the Linux job's two, the ledger at 0 throughout.
+  The field's three kernels and the bounce's five are made into pipelines the first time a frame
+  builds a field or traces probes, where every app made them at its start, so an app that uses
+  neither, as the leak test's, compiles eight pipelines fewer in the driver.
+- **A test host that dies.** `build/test.py` runs the tests with `DOTNET_DbgEnableMiniDump`, a
+  minidump going to `TestResults/dumps`, which every job uploads with its results, and the page's
+  account of a lost process names the dump and the last progress line a test printed. The leak
+  test prints `[leak test] app N of 100` as it goes, so the page says which app it was at. The
+  script's own test has its stand-in die after such a line with a dump and reads both on the page.
+- **Where a frame differs.** A reference frame that does not match says the rows and columns its
+  differing pixels fall within and the three eighths of the frame across and down that hold the
+  most of them. The `cornell_box` frame allows 5% with its reason beside it. Its bounce rays meet
+  the box's edges and the lamp's patch on the ceiling at grazing angles, which a device's compiler
+  rounds either way, sixteen rays a probe carrying each such ray far, and the Windows lavapipe drew
+  3.3% apart where the Linux one drew about 1.3%.
 - The suite: 1,527 passed. Lavapipe under validation ran the whole suite, 1,509 passed and 16
-  skipped where it has no device for them.
+  skipped.
 

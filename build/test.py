@@ -7,8 +7,10 @@
 
 The suite runs whole, as one process, held to a time and a memory. A process that ends by itself,
 passing or failing, is read from its results file. One that is lost, by a crash, a hang, its time
-or its memory, is said first on the page, and the suite runs again in parts, each a process of its
-own under the same limits, so a part that is lost costs only its own tests. A part is a name after
+or its memory, is said first on the page, with how far a test that prints its progress, as
+`[leak test] app 37 of 100`, had got, and the minidump a test host that died left in
+TestResults/dumps, and the suite runs again in parts, each a process of its own under the same
+limits, so a part that is lost costs only its own tests. A part is a name after
 `Engine.Tests.` that holds thirty tests or more, as `Rendering`, and everything else is one more,
 whose filter is the negation of the others, so no test falls between two parts.
 
@@ -67,6 +69,8 @@ class Process:
         self.running = []         # the tests it was in, where the blame collector says
         self.after = None         # the last test to end before it was lost
         self.last_lines = []
+        self.progress = None      # the last line a test printed of how far it had got, as "[leak test] app 37 of 100"
+        self.dumps = []           # the minidumps a lost test host left
         self.counts = Counter()
 
     def summary(self):
@@ -94,7 +98,13 @@ def run(dotnet, process, args, results):
     started = time.monotonic()
     with open(output_path, "w", encoding="utf-8", errors="replace") as output:
         options = {"start_new_session": True} if os.name != "nt" else {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-        child = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT, cwd=ROOT, **options)
+        # A test host that dies leaves a minidump of itself in the results, which the jobs upload
+        # with them, so a crash in native code, a driver's, can be read where the page cannot say it.
+        dumps = os.path.join(results, "dumps")
+        os.makedirs(dumps, exist_ok=True)
+        environment = dict(os.environ, DOTNET_DbgEnableMiniDump="1", DOTNET_DbgMiniDumpType="1",
+                           DOTNET_DbgMiniDumpName=os.path.join(dumps, "%e-%p.dmp"))
+        child = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT, cwd=ROOT, env=environment, **options)
         limit_seconds = args.timeout_minutes * 60
         while child.poll() is None:
             time.sleep(0.25)
@@ -122,6 +132,9 @@ def run(dotnet, process, args, results):
         process.running = tests_running(text)
         process.after = last_ended(text)
         process.last_lines = last_lines(text)
+        progress = re.findall(r"^\[[a-z][^\]]*\] .+$", text, re.M)
+        process.progress = progress[-1].strip()[:LINE_WIDTH] if progress else None
+        process.dumps = sorted(os.listdir(dumps))
     return process
 
 
@@ -398,7 +411,8 @@ def digest(results_dir, processes, listed, seconds):
         "passed": outcomes["Passed"], "failed": outcomes["Failed"], "skipped": outcomes["NotExecuted"], "no_result": no_result,
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
         "processes": [{"label": p.label, "lost": p.lost, "seconds": round(p.seconds), "peak_mb": p.peak_mb, "exit_code": p.exit_code,
-                       "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary()} for p in processes],
+                       "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(),
+                       "progress": p.progress, "dumps": p.dumps} for p in processes],
         "causes": sorted(causes.values(), key=lambda c: (-c["count"], c["key"])),
         "repeated": repeated_lines(read_text(path) for path in outputs),
     }
@@ -428,6 +442,10 @@ def lost_entry(p):
         lines.append("In " + ", ".join(f"`{t}`" for t in p["running"]))
     elif p.get("after"):
         lines.append(f"After `{p['after']}`, the last test to end")
+    if p.get("progress"):
+        lines.append(f"The test had got as far as `{p['progress']}`")
+    if p.get("dumps"):
+        lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
     return lines + p["last_lines"]
 
 
@@ -442,6 +460,10 @@ def page(d):
             lines.append("In " + ", ".join(f"`{t}`" for t in p["running"]))
         elif p.get("after"):
             lines.append(f"After `{p['after']}`, the last test to end")
+        if p.get("progress"):
+            lines.append(f"The test had got as far as `{p['progress']}`")
+        if p.get("dumps"):
+            lines.append(f"It left the minidump `{'`, `'.join(p['dumps'])}` among the results, under `dumps`")
         lines.append("Its last lines:")
         lines += ["    " + line for line in p["last_lines"]]
         lines.append("")

@@ -93,6 +93,7 @@ internal sealed unsafe partial class GraphicsDevice
                 layout = _skinLayout,
             };
             _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _skinPipeline = pipeline;
         _deviceApi.vkDestroyShaderModule(module);
@@ -135,6 +136,7 @@ internal sealed unsafe partial class GraphicsDevice
         var size = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = (uint)(ring * SkinBindings) };
         var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = (uint)ring, poolSizeCount = 1, pPoolSizes = &size };
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
 
         var sets = new VkDescriptorSet[ring];
         var layout = _skinSetLayout;
@@ -160,6 +162,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         return new GpuSkin(output, count, rows, sets, () =>
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
             _deviceApi.vkDestroyDescriptorPool(pool);
             foreach (var row in rows) row.Dispose();
             morphBuffer.Dispose();
@@ -206,7 +209,11 @@ internal sealed unsafe partial class GraphicsDevice
     // Runs before the device goes.
     private void DestroySkinning()
     {
-        if (_skinPipeline.Handle != 0) _deviceApi.vkDestroyPipeline(_skinPipeline);
+        if (_skinPipeline.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
+            _deviceApi.vkDestroyPipeline(_skinPipeline);
+        }
         if (_skinLayout.Handle != 0) _deviceApi.vkDestroyPipelineLayout(_skinLayout);
         if (_skinSetLayout.Handle != 0) _deviceApi.vkDestroyDescriptorSetLayout(_skinSetLayout);
         _skinPipeline = default;

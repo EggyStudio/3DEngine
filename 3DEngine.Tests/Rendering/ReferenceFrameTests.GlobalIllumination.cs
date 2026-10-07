@@ -35,7 +35,12 @@ public sealed partial class ReferenceFrameTests
             DrawModelEx(panel, new Vector3(0, 4.97f, 0), Vector3.UnitY, 0, new Vector3(1.6f, 0.06f, 1.6f), Color.White);
             EndMode3D();
         }, settle: SceneFieldPlan.SettleFrames + 10);
-        Matches(frame, "cornell_box");
+        // The bounce's rays meet the box's edges and the lamp's bright patch on the ceiling at
+        // grazing angles, where a hit rounds one way on one device's compiler and the other on
+        // another's, and sixteen rays a probe carry each such ray's light far. The Windows job's
+        // lavapipe drew 3.3% of the pixels apart from this reference at c4f248fd, where the
+        // Linux job's drew 1.3%, so the frame allows 5%.
+        Matches(frame, "cornell_box", 0.05);
         UnloadModel(slab);
         UnloadModel(panel);
     }

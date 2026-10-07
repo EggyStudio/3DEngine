@@ -125,6 +125,9 @@ public sealed class TestScriptTests : IDisposable
             .And.Contain(line => line.StartsWith("- Rendering: 40 passed", StringComparison.Ordinal))
             .And.Contain(line => line.StartsWith("- everything else: 5 passed", StringComparison.Ordinal));
         log.TrimEnd().Should().EndWith("end of the page " + new string('=', 30), "the page ends the log");
+        if (mode == "die")
+            page.Should().Contain("The test had got as far as `[leak test] app 37 of 100`", "a test's own progress says where a crash came")
+                .And.Contain("It left the minidump `testhost-4242.dmp` among the results, under `dumps`");
     }
 
     // Runs build/test.py with the arguments given, the first being E3D_STANDIN's value where it

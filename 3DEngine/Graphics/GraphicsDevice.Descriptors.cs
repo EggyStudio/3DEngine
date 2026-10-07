@@ -37,6 +37,7 @@ internal sealed unsafe partial class GraphicsDevice
             _pool = pool;
             Handle = handle;
             Interlocked.Increment(ref device._liveDescriptorSets);
+            DeviceObjects.Made(DeviceObjects.Kind.DescriptorSet);
         }
 
         /// <inheritdoc />
@@ -47,6 +48,7 @@ internal sealed unsafe partial class GraphicsDevice
             {
                 var set = Handle;
                 _device._deviceApi.vkFreeDescriptorSets(_pool, 1, &set);
+                DeviceObjects.Gone(DeviceObjects.Kind.DescriptorSet);
             }
             if (Handle.Handle != 0) Interlocked.Decrement(ref _device._liveDescriptorSets);
             Handle = default;
@@ -111,6 +113,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out var pool).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         _descriptorPools.Add(pool);
     }
 
@@ -118,7 +121,13 @@ internal sealed unsafe partial class GraphicsDevice
     private void DestroyDescriptorResources()
     {
         Logger.Debug("Destroying descriptor resources (pool + layout)...");
-        foreach (var pool in _descriptorPools) _deviceApi.vkDestroyDescriptorPool(pool);
+        foreach (var pool in _descriptorPools)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
+            _deviceApi.vkDestroyDescriptorPool(pool);
+        }
+        // The sets still in them went with them.
+        DeviceObjects.Gone(DeviceObjects.Kind.DescriptorSet, Volatile.Read(ref _liveDescriptorSets));
         _descriptorPools.Clear();
         if (_cameraSetLayout.Handle != 0)
         {

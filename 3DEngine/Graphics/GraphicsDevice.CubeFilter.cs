@@ -146,6 +146,7 @@ internal sealed unsafe partial class GraphicsDevice
                 layout = layout,
             };
             _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &pipeline).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         _deviceApi.vkDestroyShaderModule(module);
         return new ComputeStage(pipeline, layout, setLayout);
@@ -170,6 +171,7 @@ internal sealed unsafe partial class GraphicsDevice
             initialLayout = VkImageLayout.Undefined,
         };
         _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
@@ -177,6 +179,7 @@ internal sealed unsafe partial class GraphicsDevice
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
 
         VkImageView View(VkImageViewType type, uint firstLevel, uint levels)
@@ -341,6 +344,7 @@ internal sealed unsafe partial class GraphicsDevice
             sizes[3] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 2 };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 48, poolSizeCount = 4, pPoolSizes = sizes };
             device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         }
 
         public void Holds(IDisposable held) => _held.Add(held);
@@ -464,6 +468,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         public void Dispose()
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
             _device._deviceApi.vkDestroyDescriptorPool(_pool);
             foreach (var held in _held) held.Dispose();
         }
@@ -532,6 +537,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         foreach (var (pipeline, layout, setLayout) in _filterStages.Where(s => s.Pipeline.Handle != 0))
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
             _deviceApi.vkDestroyPipeline(pipeline);
             _deviceApi.vkDestroyPipelineLayout(layout);
             _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
@@ -540,7 +546,9 @@ internal sealed unsafe partial class GraphicsDevice
         {
             foreach (var level in source.Levels) _deviceApi.vkDestroyImageView(level);
             _deviceApi.vkDestroyImageView(source.Cube);
+            DeviceObjects.Gone(DeviceObjects.Kind.Image);
             _deviceApi.vkDestroyImage(source.Image);
+            DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             _deviceApi.vkFreeMemory(source.Memory);
         }
         _filterSources.Clear();

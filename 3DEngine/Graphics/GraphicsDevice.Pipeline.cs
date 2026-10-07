@@ -72,6 +72,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             if (Pipeline.Handle != 0)
             {
+                DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
                 _device._deviceApi.vkDestroyPipeline(Pipeline);
                 Pipeline = default;
                 Interlocked.Decrement(ref _device._livePipelines);
@@ -340,6 +341,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         VkPipeline pipeline;
         _deviceApi.vkCreateGraphicsPipelines(default, 1, &pipelineInfo, null, &pipeline).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         return new VulkanGraphicsPipeline(this, pipeline, layout);
     }
 

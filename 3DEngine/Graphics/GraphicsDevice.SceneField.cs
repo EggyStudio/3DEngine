@@ -101,7 +101,27 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>Whether the field's shaders have been given, so a field can be built.</summary>
-    public bool CanBuildSceneField => _fieldStages[StampStage].Pipeline.Handle != 0;
+    public bool CanBuildSceneField => _fieldSpirv is not null;
+
+    // The field's kernels as InitializeSceneField was given them, made into pipelines the first
+    // time a frame builds the field, so an app that never builds one compiles none of them.
+    private byte[][]? _fieldSpirv;
+
+    private ComputeStage[] FieldStages
+    {
+        get
+        {
+            if (_fieldStages[StampStage].Pipeline.Handle != 0 || _fieldSpirv is not { } spirv) return _fieldStages;
+            _fieldStages[SplatStage] = MakeComputeStage(spirv[0], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
+            _fieldStages[ResolveStage] = MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
+                VkDescriptorType.StorageImage], 16);
+            _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer], 16);
+            return _fieldStages;
+        }
+    }
 
     /// <summary>
     /// The distance a cell of a cleared field holds, which reads as nothing near, in world units,
@@ -113,12 +133,7 @@ internal sealed unsafe partial class GraphicsDevice
     public void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
     {
         if (!IsInitialized || CanBuildSceneField) return;
-        _fieldStages[SplatStage] = MakeComputeStage(splat, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
-            VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
-        _fieldStages[ResolveStage] = MakeComputeStage(resolve, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
-            VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
-        _fieldStages[StampStage] = MakeComputeStage(stamp,
-            [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer], 16);
+        _fieldSpirv = [splat.ToArray(), resolve.ToArray(), stamp.ToArray()];
     }
 
     /// <summary>
@@ -198,7 +213,9 @@ internal sealed unsafe partial class GraphicsDevice
                 _deviceApi.vkDestroyImageView(glowView);
                 glowOwner.Dispose();
                 _deviceApi.vkDestroyImageView(stillView);
+                DeviceObjects.Gone(DeviceObjects.Kind.Image);
                 _deviceApi.vkDestroyImage(still);
+                DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _deviceApi.vkFreeMemory(stillMemory);
             }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView));
     }
@@ -221,6 +238,7 @@ internal sealed unsafe partial class GraphicsDevice
             initialLayout = VkImageLayout.Undefined,
         };
         _deviceApi.vkCreateImage(&info, null, out VkImage image).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(image, out VkMemoryRequirements requirements);
         var allocation = new VkMemoryAllocateInfo
         {
@@ -228,6 +246,7 @@ internal sealed unsafe partial class GraphicsDevice
             memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
         };
         _deviceApi.vkAllocateMemory(&allocation, null, out VkDeviceMemory memory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(image, memory, 0).CheckResult();
         var viewInfo = new VkImageViewCreateInfo
         {
@@ -470,13 +489,14 @@ internal sealed unsafe partial class GraphicsDevice
             sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 2, poolSizeCount = 3, pPoolSizes = sizes };
             device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
         }
 
         public VkCommandBuffer Commands { get; }
 
         public VkDescriptorSet Set(int stage)
         {
-            var layout = _device._fieldStages[stage].SetLayout;
+            var layout = _device.FieldStages[stage].SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = _pool, descriptorSetCount = 1, pSetLayouts = &layout };
             VkDescriptorSet set;
             _device._deviceApi.vkAllocateDescriptorSets(&allocInfo, &set).CheckResult();
@@ -500,7 +520,7 @@ internal sealed unsafe partial class GraphicsDevice
 
         public void Dispatch(int stage, VkDescriptorSet set, ReadOnlySpan<byte> push, uint x, uint y, uint z)
         {
-            var (pipeline, layout, _) = _device._fieldStages[stage];
+            var (pipeline, layout, _) = _device.FieldStages[stage];
             _device._deviceApi.vkCmdBindPipeline(Commands, VkPipelineBindPoint.Compute, pipeline);
             _device._deviceApi.vkCmdBindDescriptorSets(Commands, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
             fixed (byte* p = push)
@@ -508,7 +528,11 @@ internal sealed unsafe partial class GraphicsDevice
             _device._deviceApi.vkCmdDispatch(Commands, Math.Max(1, x), Math.Max(1, y), Math.Max(1, z));
         }
 
-        public void Dispose() => _device._deviceApi.vkDestroyDescriptorPool(_pool);
+        public void Dispose()
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
+            _device._deviceApi.vkDestroyDescriptorPool(_pool);
+        }
     }
 
     // Runs before the device goes.
@@ -516,10 +540,12 @@ internal sealed unsafe partial class GraphicsDevice
     {
         foreach (var (pipeline, layout, setLayout) in _fieldStages.Where(s => s.Pipeline.Handle != 0))
         {
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
             _deviceApi.vkDestroyPipeline(pipeline);
             _deviceApi.vkDestroyPipelineLayout(layout);
             _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
         }
         Array.Clear(_fieldStages);
+        _fieldSpirv = null;
     }
 }

@@ -100,6 +100,7 @@ internal sealed unsafe partial class GraphicsDevice
                 layout = layout,
             };
             _deviceApi.vkCreateComputePipelines(default, 1, &info, null, &createdPipeline).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Pipeline);
         }
         var pipeline = createdPipeline;
         _deviceApi.vkDestroyShaderModule(module);
@@ -113,6 +114,7 @@ internal sealed unsafe partial class GraphicsDevice
                 // A dispatch still running may use it.
                 WaitForComputeLocked();
             }
+            DeviceObjects.Gone(DeviceObjects.Kind.Pipeline);
             _deviceApi.vkDestroyPipeline(pipeline);
             _deviceApi.vkDestroyPipelineLayout(layout);
             _deviceApi.vkDestroyDescriptorSetLayout(setLayout);
@@ -174,6 +176,7 @@ internal sealed unsafe partial class GraphicsDevice
             sizes[5] = new VkDescriptorPoolSize { type = VkDescriptorType.Sampler, descriptorCount = (uint)Math.Max(1, textures.Count) };
             var descriptorPoolInfo = new VkDescriptorPoolCreateInfo { maxSets = 1, poolSizeCount = 6, pPoolSizes = sizes };
             _deviceApi.vkCreateDescriptorPool(&descriptorPoolInfo, null, out VkDescriptorPool pool).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.DescriptorPool);
             var setLayout = pipeline.SetLayout;
             var allocInfo = new VkDescriptorSetAllocateInfo { descriptorPool = pool, descriptorSetCount = 1, pSetLayouts = &setLayout };
             VkDescriptorSet set;
@@ -301,6 +304,7 @@ internal sealed unsafe partial class GraphicsDevice
 
             _deviceApi.vkDestroyFence(fence);
             _deviceApi.vkFreeCommandBuffers(_computePool, 1, &commands);
+            DeviceObjects.Gone(DeviceObjects.Kind.DescriptorPool);
             _deviceApi.vkDestroyDescriptorPool(pool);
             uniforms?.Dispose();
             _computeInFlight.RemoveAt(i--);

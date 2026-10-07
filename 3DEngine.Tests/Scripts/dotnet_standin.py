@@ -3,7 +3,8 @@
 
 Its tests are 40 under Rendering, 35 under Api and 5 of NormTests. Asked for them with
 --list-tests it lists them. Asked to run them with no filter, as the suite whole, it does what
-E3D_STANDIN says: hang, grow until it is ended, or die with exit code 134. With a filter, as a
+E3D_STANDIN says: hang, grow until it is ended, or die with exit code 134, leaving a minidump where
+the runtime is asked to. With a filter, as a
 part, it passes the tests the filter takes and writes their results file.
 """
 
@@ -52,6 +53,12 @@ def main():
                     held.append(b"x" * (10 * 1024 * 1024))
                 time.sleep(0.05)
         elif mode == "die":
+            # How far a test had got, and the minidump the runtime leaves where it is asked to.
+            print("[leak test] app 37 of 100", flush=True)
+            dump = os.environ.get("DOTNET_DbgMiniDumpName")
+            if dump:
+                with open(dump.replace("%e", "testhost").replace("%p", "4242"), "wb") as f:
+                    f.write(b"MDMP")
             print("the last words of a process about to die", flush=True)
             os._exit(134)
 

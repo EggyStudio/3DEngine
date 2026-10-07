@@ -49,6 +49,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             if (Buffer.Handle != 0)
             {
+                DeviceObjects.Gone(DeviceObjects.Kind.Buffer);
                 _device._deviceApi.vkDestroyBuffer(Buffer);
                 Buffer = default;
                 Interlocked.Decrement(ref _device._liveBuffers);
@@ -94,6 +95,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkCreateBuffer(&bufferInfo, null, out VkBuffer buffer).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Buffer);
 
         _deviceApi.vkGetBufferMemoryRequirements(buffer, out VkMemoryRequirements requirements);
 

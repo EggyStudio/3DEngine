@@ -121,23 +121,43 @@ internal sealed unsafe partial class GraphicsDevice
         if (_depthImageView.Handle != 0)
             _deviceApi.vkDestroyImageView(_depthImageView);
         if (_depthImage.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Image);
             _deviceApi.vkDestroyImage(_depthImage);
+        }
         if (_depthImageMemory.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             _deviceApi.vkFreeMemory(_depthImageMemory);
+        }
         if (_msaaColorView.Handle != 0)
             _deviceApi.vkDestroyImageView(_msaaColorView);
         if (_msaaColorImage.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Image);
             _deviceApi.vkDestroyImage(_msaaColorImage);
+        }
         if (_msaaColorMemory.Handle != 0)
+        {
+            DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             _deviceApi.vkFreeMemory(_msaaColorMemory);
+        }
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
         if (_offscreen)
         {
             foreach (var image in _swapchainImages)
-                if (image.Handle != 0) _deviceApi.vkDestroyImage(image);
+                if (image.Handle != 0)
+                {
+                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
+                    _deviceApi.vkDestroyImage(image);
+                }
             foreach (var memory in _offscreenMemory)
-                if (memory.Handle != 0) _deviceApi.vkFreeMemory(memory);
+                if (memory.Handle != 0)
+                {
+                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
+                    _deviceApi.vkFreeMemory(memory);
+                }
             _offscreenMemory = [];
         }
         if (_commandPool.Handle != 0)
@@ -196,6 +216,7 @@ internal sealed unsafe partial class GraphicsDevice
                 initialLayout = VkImageLayout.Undefined,
             };
             _deviceApi.vkCreateImage(&info, null, out _swapchainImages[i]).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Image);
             _deviceApi.vkGetImageMemoryRequirements(_swapchainImages[i], out VkMemoryRequirements req);
             VkMemoryAllocateInfo alloc = new()
             {
@@ -203,6 +224,7 @@ internal sealed unsafe partial class GraphicsDevice
                 memoryTypeIndex = FindMemoryType(req.memoryTypeBits, VkMemoryPropertyFlags.DeviceLocal),
             };
             _deviceApi.vkAllocateMemory(&alloc, null, out _offscreenMemory[i]).CheckResult();
+            DeviceObjects.Made(DeviceObjects.Kind.Memory);
             _deviceApi.vkBindImageMemory(_swapchainImages[i], _offscreenMemory[i], 0).CheckResult();
         }
         Logger.Info($"Offscreen frames: {MaxFramesInFlight} images of {width}x{height}, no window.");
@@ -294,6 +316,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkCreateImage(&imageInfo, null, out _depthImage).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Image);
         _deviceApi.vkGetImageMemoryRequirements(_depthImage, out VkMemoryRequirements req);
 
         VkMemoryAllocateInfo allocInfo = new()
@@ -303,6 +326,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkAllocateMemory(&allocInfo, null, out _depthImageMemory).CheckResult();
+        DeviceObjects.Made(DeviceObjects.Kind.Memory);
         _deviceApi.vkBindImageMemory(_depthImage, _depthImageMemory, 0).CheckResult();
 
         VkImageViewCreateInfo viewInfo = new()

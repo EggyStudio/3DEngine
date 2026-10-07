@@ -26,7 +26,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // from the twentieth app to the hundredth where a census of the heap could be taken, and the
     // threads the process has after every tenth shutdown.
     private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, IReadOnlyList<(int Apps, double Heap)> HeapEveryTen,
-        string Heaps, string? Grown, string Threads)
+        string Heaps, string? Grown, string Threads, string? DeviceObjectsGrown = null)
     {
         // How far the heap's floor rose, the least of the readings from the twentieth app to the
         // fiftieth against the least from the seventieth to the hundredth. A leak raises the floor
@@ -41,6 +41,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // the rest ran past.
         public string Series => $"{Environment.NewLine}the heap after every ten apps in MB, {Heaps}{Environment.NewLine}" +
             (Grown is null ? "" : $"grown from the twentieth app to the hundredth, {Grown}{Environment.NewLine}") +
+            $"the Vulkan objects alive after the hundredth app beside the twentieth, {DeviceObjectsGrown ?? "none more"}{Environment.NewLine}" +
             $"the threads after every ten apps, {Threads}{Environment.NewLine}";
     }
 
@@ -55,12 +56,16 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     {
         double residentAt20 = 0, heapAt20 = 0;
         HeapCensus? censusAt20 = null;
+        IReadOnlyDictionary<DeviceObjects.Kind, long>? objectsAt20 = null;
         string? grown = null;
         var heaps = new List<string>();
         var everyTen = new List<(int Apps, double Heap)>();
         var threads = new List<string>();
         for (int i = 1; i <= 100; i++)
         {
+            // Printed as it goes, where the test's own output is shown only once it ends, so a test
+            // host lost partway says from its last lines which app it was at.
+            Console.WriteLine($"[leak test] app {i} of 100");
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
             app.BeginFrame();
@@ -73,6 +78,11 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // allocates little on the GC's heap may not see for hundreds of apps.
             var resident = Environment.WorkingSet / 1e6;
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
+            // The Vulkan objects every device made and none destroyed, which a closed app's device
+            // should leave none of, so a native growth is told from the driver's own.
+            var objects = DeviceObjects.Now();
+            output.WriteLine($"{i,3} apps: alive {string.Join(", ", objects.Select(o => $"{o.Value} {o.Key}"))}");
+            if (i == 20) objectsAt20 = objects;
             if (!heapEveryTen && i != 20 && i != 100) continue;
             // The census of the twentieth app is taken before its heap is read, so what it keeps
             // is in both readings and not in what the test compares, and the hundredth's after.
@@ -94,7 +104,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 grown = census is null ? $"no census, {failure}" : census.GrownSince(censusAt20, 5);
                 if (census is not null) output.WriteLine($"grown from the twentieth app to the hundredth, {census.GrownSince(censusAt20, 30)}");
             }
-            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), grown, string.Join(", ", threads));
+            if (i == 100)
+                return new Cycled(residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), grown, string.Join(", ", threads),
+                    DeviceObjects.GrownSince(objectsAt20!));
         }
         throw new InvalidOperationException("unreachable");
     }
@@ -165,6 +177,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         });
 
         cycled.FloorRise.Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
+        cycled.DeviceObjectsGrown.Should().BeNull($"no Vulkan object a closed app made outlives its device, {cycled.Series}");
         (cycled.ResidentAt100 - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, its pipelines included, {cycled.Series}");
     }
 }
