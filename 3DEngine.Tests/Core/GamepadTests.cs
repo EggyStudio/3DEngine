@@ -96,8 +96,28 @@ public class GamepadTests
         var input = new Input();
 
         SyntheticInput.Pad(input, 0)!.Id.Should().Be(SyntheticInput.ConsolePadId);
-        SyntheticInput.Pad(input, 1).Should().BeNull();
         input.Gamepads.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void The_Console_Makes_Pads_Up_To_The_One_Named_As_A_Second_Player_Is_Driven()
+    {
+        var input = new Input();
+
+        SyntheticInput.Pad(input, 1)!.Id.Should().Be(SyntheticInput.ConsolePadId + 1, "the second player's pad, with the first made before it");
+        input.Gamepad(0)!.Id.Should().Be(SyntheticInput.ConsolePadId);
+        SyntheticInput.Pad(input, 4).Should().BeNull("raylib reads four pads");
+        input.Gamepads.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void A_Console_Pad_Comes_After_A_Real_One()
+    {
+        var input = new Input();
+        input.ConnectGamepad(10, "Real", 0);
+
+        SyntheticInput.Pad(input, 0)!.Name.Should().Be("Real");
+        SyntheticInput.Pad(input, 1)!.Name.Should().Be("Console gamepad 2");
     }
 
     [Fact]

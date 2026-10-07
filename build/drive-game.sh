@@ -4,7 +4,7 @@
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
 # runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo>
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo>
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -163,6 +163,32 @@ case "$game" in
     done
     echo "$status"
     case "$status" in Results*"miss 0 "*) ;; *) fail "the autopilot did not play every note of the song within its windows, $status" ;; esac
+    ;;
+  Sumo)
+    # The second player's pad starts the match and rolls its marble, the first player's key
+    # rolls theirs, and both then play themselves until one has won. Each is held 15 frames, which
+    # on a device drawing at the slowest frame the game steps whole, a twentieth of a second, rolls
+    # a marble less than half the ring, and at sixty frames a second a fifth of a unit.
+    cmd input.button 1 RightFaceDown 2
+    cmd frames.wait 200
+    before=$(ask sumo.status)
+    cmd input.key D 15
+    cmd input.axis 1 LeftX 1
+    cmd frames.wait 15
+    cmd input.axis 1 LeftX 0
+    after=$(ask sumo.status)
+    echo "$before / $after"
+    first=$(moved "$before" "$after" p1)
+    second=$(moved "$before" "$after" p2)
+    awk -v a="$first" -v b="$second" 'BEGIN { exit !(a > 0.1 && b > 0.1) }' || fail "a key and the second pad did not roll both marbles, $before then $after"
+    cmd sumo.autopilot true
+    status=""
+    for i in $(seq 1 60); do
+      status=$(ask sumo.status)
+      case "$status" in Won*) break ;; *) cmd frames.wait 300 ;; esac
+    done
+    echo "$status"
+    case "$status" in Won*) ;; *) fail "the match the marbles play themselves did not end, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

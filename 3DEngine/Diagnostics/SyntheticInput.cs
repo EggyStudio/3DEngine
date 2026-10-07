@@ -54,12 +54,25 @@ internal sealed class SyntheticInput
         }));
     }
 
-    /// <summary>The id of the pad the console makes when no real one is connected.</summary>
+    /// <summary>The id of the first pad the console makes where no real one is connected, the next one more.</summary>
     public const uint ConsolePadId = 0xC0FFEE;
 
-    /// <summary>The gamepad at <paramref name="index"/>, or a console pad made for index 0 when none is connected.</summary>
-    public static GamepadState? Pad(Input input, int index) =>
-        input.Gamepad(index) ?? (index == 0 && input.Gamepads.Count == 0 ? input.ConnectGamepad(ConsolePadId, "Console gamepad", 0) : null);
+    // The pads the console makes at most, the four raylib reads.
+    internal const int ConsolePads = 4;
+
+    /// <summary>
+    /// The gamepad at <paramref name="index"/>, with console pads made up to it where fewer are
+    /// connected, so a second player's pad is driven as the first's is, or null past the fourth.
+    /// </summary>
+    public static GamepadState? Pad(Input input, int index)
+    {
+        if (input.Gamepad(index) is { } pad) return pad;
+        if (index is < 0 or >= ConsolePads) return null;
+        for (var id = ConsolePadId; input.Gamepads.Count <= index; id++)
+            if (input.Gamepads.All(p => p.Id != id))
+                input.ConnectGamepad(id, input.Gamepads.Count == 0 ? "Console gamepad" : $"Console gamepad {input.Gamepads.Count + 1}", 0);
+        return input.Gamepad(index);
+    }
 
     /// <summary>Holds a gamepad button for <paramref name="frames"/> frames.</summary>
     public void PadButton(Input input, GamepadState pad, GamepadButton button, ulong frame, int frames)
@@ -222,7 +235,7 @@ internal static class InputCommands
         return $"dragged {which} by {dx}, {dy}";
     }
 
-    [Command("input.button", "Holds a gamepad button for some frames, on a console pad when none is connected: input.button <pad> <button> <frames>")]
+    [Command("input.button", "Holds a gamepad button for some frames, on console pads made up to the one named where fewer are connected: input.button <pad> <button> <frames>")]
     internal static string PadButton(int pad, string button, int frames)
     {
         if (!TryName<GamepadButton>(button, out var which))
@@ -234,7 +247,7 @@ internal static class InputCommands
         var (input, synthetic, frame) = Parts();
         if (SyntheticInput.Pad(input, pad) is not { } state)
         {
-            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}.");
+            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}, and the console makes pads 0 to {SyntheticInput.ConsolePads - 1}.");
             return $"no gamepad at {pad}";
         }
 
@@ -243,7 +256,7 @@ internal static class InputCommands
         return $"held {which} on {state.Name} for {Math.Max(1, frames)} frame(s)";
     }
 
-    [Command("input.axis", "Sets a gamepad axis until it is set again, on a console pad when none is connected: input.axis <pad> <axis> <value>")]
+    [Command("input.axis", "Sets a gamepad axis until it is set again, on console pads made up to the one named where fewer are connected: input.axis <pad> <axis> <value>")]
     internal static string PadAxis(int pad, string axis, float value)
     {
         if (!TryName<GamepadAxis>(axis, out var which))
@@ -254,7 +267,7 @@ internal static class InputCommands
 
         if (SyntheticInput.Pad(Parts().Input, pad) is not { } state)
         {
-            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}.");
+            ConsoleHost.Fail("BAD_ARGUMENT", $"No gamepad is connected at {pad}, and the console makes pads 0 to {SyntheticInput.ConsolePads - 1}.");
             return $"no gamepad at {pad}";
         }
 

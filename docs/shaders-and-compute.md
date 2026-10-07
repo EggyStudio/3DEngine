@@ -324,6 +324,8 @@ makes the smaller levels again from it.
   [`shaders_compute_life`](../3DEngine.Examples/Shaders/ShadersComputeLife.cs),
   [`shaders_compute_texture`](../3DEngine.Examples/Shaders/ShadersComputeTexture.cs), and the shaders
   they load in [`resources/shaders`](../3DEngine.Examples/resources/shaders)
+- The game [`games/Sumo`](../games/Sumo/Program.cs), whose marbles, crowd and floor are drawn by
+  shaders of its own and whose floor a compute shader paints each frame
 - The cheatsheet's [Shaders](../CHEATSHEET.md#shaders) and [Compute](../CHEATSHEET.md#compute)
 - Previous: [Materials, light and shadows](materials-light-and-shadows.md)
 - Next: [Audio](audio.md)

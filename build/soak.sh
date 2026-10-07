@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -47,6 +47,7 @@ case "$name" in
   manor) cmd input.button 0 RightFaceDown 2; cmd manor.autopilot true ;;
   tactics) cmd tactics.new 1; cmd tactics.autopilot true ;;
   tempo) cmd tempo.autopilot true; key Enter 2 ;;
+  sumo) cmd sumo.autopilot true; key Enter 2 ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -87,6 +88,13 @@ turn() {
     tempo)
       # The autopilot plays the song, paused and played on now and then, and Enter plays it again
       # once its results show, the music and what was measured of it started afresh.
+      wait_frames 240
+      if (( i % 3 == 2 )); then key P 2; wait_frames 20; key P 2; fi
+      key Enter 2 ;;
+    sumo)
+      # The marbles play themselves round after round, each round setting them back and its
+      # bumps sending ripples and dust, paused now and then, and Enter starts a match again once
+      # one is won.
       wait_frames 240
       if (( i % 3 == 2 )); then key P 2; wait_frames 20; key P 2; fi
       key Enter 2 ;;

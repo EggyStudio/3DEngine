@@ -427,6 +427,52 @@ jobs:
             exit 1
           fi
 
+      # The game of two players from the same package. The second player's pad starts the match
+      # and rolls its marble as the first player's key rolls theirs, both views are drawn into
+      # render textures with the game's own shaders and its compute shader painting the floor, and
+      # the marbles then play themselves until one has won.
+      - name: Build and play the game of two players from the package
+        env:
+          ENGINE_VULKAN_VALIDATION: '1'
+        run: |
+          dotnet restore games/Sumo --force-evaluate
+          dotnet build games/Sumo --no-restore
+          ./e3d open games/Sumo/bin/Debug/net10.0/Sumo --offscreen --quiet
+          ./e3d command frames.wait 30 --quiet
+          ./e3d command input.button 1 RightFaceDown 2 --quiet
+          ./e3d command frames.wait 200 --quiet --timeout 600
+          before=$(./e3d command sumo.status)
+          ./e3d command input.key D 15 --quiet --timeout 600
+          ./e3d command input.axis 1 LeftX 1 --quiet
+          ./e3d command frames.wait 15 --quiet --timeout 600
+          ./e3d command input.axis 1 LeftX 0 --quiet
+          after=$(./e3d command sumo.status)
+          echo "$before / $after"
+          ./e3d command sumo.autopilot true --quiet
+          ./e3d command frames.wait 240 --quiet --timeout 600
+          ./e3d shot captures/sumo.png --quiet
+          build/webp.sh captures/sumo.png captures/sumo.webp lossy
+          status=""
+          for i in $(seq 1 60); do
+            status=$(./e3d command sumo.status)
+            case "$status" in Won*) break ;; *) ./e3d command frames.wait 300 --quiet --timeout 600 ;; esac
+          done
+          echo "$status"
+          ./e3d stop --quiet
+          # Whether a marble's x, y and z after the word moved more than a tenth of a unit between
+          # the two, a key or a stick held 15 frames rolling it a fifth of a unit at sixty frames
+          # a second and less than half the ring at the slowest frame the game steps whole.
+          moved() { printf '%s\n%s\n' "$before" "$after" | awk -v word="$1" '{ for (i = 1; i <= NF; i++) if ($i == word) for (j = 1; j <= 3; j++) p[NR, j] = $(i + j) } END { for (k = 1; k <= 3; k++) { d = p[2, k] - p[1, k]; s += d * d }; exit !(sqrt(s) > 0.1) }'; }
+          moved p1 && moved p2 || { echo "::error::Sumo: a key and the second pad did not roll both marbles, $before then $after"; exit 1; }
+          case "$status" in
+            Won*) ;;
+            *) echo "::error::Sumo: the match the marbles play themselves did not end, $status"; exit 1 ;;
+          esac
+          if grep -F '[Vulkan.Validation]' build/sessions/Sumo.log | grep -F 'Validation Error'; then
+            echo "::error::Sumo: the validation layer reported an error"
+            exit 1
+          fi
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
@@ -434,7 +480,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo)
+          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -454,6 +500,7 @@ jobs:
                          games/Summit/bin/Debug/net10.0/Summit games/Swarm/bin/Debug/net10.0/Swarm \
                          games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
                          games/Tactics/bin/Debug/net10.0/Tactics games/Tempo/bin/Debug/net10.0/Tempo \
+                         games/Sumo/bin/Debug/net10.0/Sumo \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

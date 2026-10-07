@@ -392,6 +392,8 @@ grid after it shows in front. Models are drawn through the camera of `BeginMode3
   [`shaders_cel_shading`](../3DEngine.Examples/Shaders/ShadersCelShading.cs),
   [`textures_portal_window`](../3DEngine.Examples/Textures/TexturesPortalWindow.cs),
   [`core_vr_simulator`](../3DEngine.Examples/Core/CoreVrSimulator.cs)
+- The game [`games/Sumo`](../games/Sumo/Program.cs), its window split between two cameras, each
+  drawing into a render texture of its own
 - The cheatsheet's [Frame and cameras](../CHEATSHEET.md#frame-and-cameras),
   [3D shapes](../CHEATSHEET.md#3d-shapes), [rlgl](../CHEATSHEET.md#rlgl) and [Particles](../CHEATSHEET.md#particles)
 - Previous: [Drawing in 2D](drawing-2d.md)

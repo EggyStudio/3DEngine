@@ -236,3 +236,22 @@ it, so `UpgradingTests` runs there on every push. A shallow clone of this reposi
 that way held the commit, read `PublicApi.txt` at it and kept its history at one commit. BUILDING.md
 says so, and the skip's sentence stays for a checkout without it. Nothing that builds changed, and
 the norm's tests pass.
+
+**Now 2, a ninth game of a kind none of the eight is.** `games/Sumo` is for two players on one
+screen, two marbles on a ring of clay each trying to knock the other off, first to three. It uses
+what no game did. The window is split between two cameras, each drawing into a render texture of
+its own with shadows, particles and billboards, and the second player plays on pad 1 or the arrow
+keys. Shaders of the game's own draw the marbles, the ring's floor and a crowd of 321 in one
+instanced draw, a compute shader paints the floor each frame from a storage buffer of the last
+eight bumps, and the score and the screens' words are in a distance field font. Its first run
+found a fault of e3d's. `input.button` and `input.axis` made a console pad at 0 alone, so no second
+player could be driven, and they make pads up to the one named now, four at most, after any real
+pad, with two tests. Its other faults were its own. A key held 60 frames on lavapipe's slow frames
+was three seconds of game time and rolled a marble off the ring, so each input is held 15 frames,
+and two autopilots circled for minutes, so a round lasts 30 seconds at most, the marble nearer the
+middle taking the point. The Linux job plays it from the package and captures it, the soak and the
+resize storm take it, and `drive-game.sh` plays it on Windows and macOS, where the second pad
+starts the match and rolls its marble, a key rolls the first, and the autopilot plays a match out.
+Here, on lavapipe under the validation layer in the workflow's image, it played through with no
+validation error, the soak held level and the storm left it drawing. N 4.5 lists its capture with
+the games'. The suite: 1,472 passed, none skipped.

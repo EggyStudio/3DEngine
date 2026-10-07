@@ -141,7 +141,7 @@ raylib's own examples, and what is written of it here, is a row of
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersAutoExposure.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_auto_exposure.webp" width="400"/></a><br>`shaders_auto_exposure` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Swarm/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/swarm.webp" width="400"/></a><br>`games/Swarm` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersParticles.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="400"/></a><br>`shaders_particles` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Rally/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/rally.webp" width="400"/></a><br>`games/Rally` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Manor/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/></a><br>`games/Manor` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tactics/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tactics.webp" width="400"/></a><br>`games/Tactics` |
-| <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | |
+| <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Sumo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/sumo.webp" width="400"/></a><br>`games/Sumo` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -178,7 +178,13 @@ is a tracker module and its chart the notes of the module's rows, both written b
 it, and it keeps time by the music heard, so a slow frame judges a note as late as it was played.
 The road's sides light up as loud as the music is, measured by a processor on the music's stream,
 and each note played throws sparks that bloom, with grades, a combo, a pause, an offset for
-speakers that play late and a best score kept in a file. BUILDING.md says how they are built.
+speakers that play late and a best score kept in a file. `games/Sumo` is for two players on one
+screen, two marbles on a ring each trying to knock the other off: the window split in two, each
+half a render texture drawn through its player's camera, the second player on a second gamepad or
+the arrow keys, the marbles drawn by a shader of the game's own, the floor painted each frame by
+a compute shader with a ripple from each bump, a crowd of hundreds in one instanced draw, numbers
+over the marbles as billboards and the score in a distance field font. BUILDING.md says how they
+are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 
