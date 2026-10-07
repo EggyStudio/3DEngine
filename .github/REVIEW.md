@@ -342,3 +342,10 @@ skipped.
 sent and put them on the page. It writes UTF-8 now, as it already did on Linux and macOS. Two
 comments of the code carried over from the modules said `want`, and say what happens instead. The
 suite: 1,475 passed, none skipped.
+
+**The games timed on lavapipe.** Every game played by `drive-game.sh` in the workflow's image, on
+lavapipe under the validation layer and held to four cores as a runner is, passed, and took, its
+build included, Hopper 10 seconds, Summit 31, Tactics 43, Tempo 68, Rally 88, Jelly 93, Slide 95,
+Pusher 100, Sumo 124, Swarm 142, Wordfall 156 and Manor 356, 22 minutes in all. Manor's walk is at
+the six minutes the budget gave, so each game has twelve in the workflow, and the Windows job 180
+minutes, for a runner slower than the desktop these were timed on.
