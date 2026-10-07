@@ -10,20 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1840cbb5`. Verdict 33's new part is in, to be read on the next Windows job: `e3d
-open` holds the process it started, on Windows the program found by its name and start time, and a
-program that dies before it is ready is answered with its exit code and what it means, an access
-violation, a fail-fast, a .NET exception no one caught, or on the other systems the signal, the code
-in the answer's data too; a served app that closes of its own before it is ready logs a warning
-saying so, so a log ending in lines of information alone means a native death; `drive-game.sh`'s
-error carries the log's last three lines whatever their level and names any dump the game left; and
-the Windows job's `LocalDumps` key covers every process, twenty dumps kept in `TestResults/dumps`;
-on the working machine programs exiting 3, by SIGSEGV and 0 are answered with those codes, a test
-closes a served app before ready and finds the warning, and Pusher plays through the script
-(`1840cbb5`). A pattern for the six: five of them load Lato through `LoadFontEx` at 48, 64 or 128,
-Hopper, which plays, loads it at 32, and Summit loads no font, so the dumps should say whether the
-font atlas is the cause. TODO.md's order and item 3's reproductions are taken while the run comes.
-The suite: 1,530 passed.
+Reviewed up to `63581f04`. The six Windows games had one cause, in e3d, read from the annotations of
+the Windows job of `06b702a1`: on Windows `e3d open` starts the game through cmd.exe's `start` and
+finds it by its name, and its first look could come before cmd.exe had made the game, so a look that
+found none answered the game as exited; Summit, Tempo, Sumo and Jelly were answered so while they
+went on to load and serve, their logs read by the script at that moment ending within a second of
+their start or empty, and a session left serving came up beside Wordfall's and Slide's, so
+`wordfall.status` and `window.size` were refused with code 2, `AMBIGUOUS_SESSION`, as was the stop
+at each script's end, leaving those games running in turn; the Lato pattern was a coincidence of the
+order the games ran in, and the font sentence is retracted. Mended: e3d reads whether cmd.exe still
+runs before looking for the game, since `start` returns once the game is made, so a game not found
+while cmd.exe runs is waited for and one not found after it ended has gone, checked with a scratch
+program started through a shell that makes it 300 milliseconds later, answered gone at the first
+look before the mend and found at 300 after; and `drive-game.sh` sends every command and stop to the
+game it plays by name through `E3D_NAME`, a refused command's error carrying e3d's code and
+sentence, Wordfall playing through with Slide left serving (`63581f04`). The reply for `1840cbb5`
+was written over by a rewrite of this file as it was committed, which is why it came by message
+alone. TODO.md's models entry is next, bodies made from a GPU-posed model taking the pose and an
+`AnimatedModel` entity's mesh or hull collider refused with a warning where it waited in silence,
+then item 3's reproductions. The suite: 1,530 passed.
+
+Before them, Verdict 33's new part came in: `e3d open` holds the process it started, on Windows the
+program found by its name and start time, and a program that dies before it is ready is answered
+with its exit code and what it means, an access violation, a fail-fast, a .NET exception no one
+caught, or on the other systems the signal, the code in the answer's data too; a served app that
+closes of its own before it is ready logs a warning saying so, so a log ending in lines of
+information alone means a native death; `drive-game.sh`'s error carries the log's last three lines
+whatever their level and names any dump the game left; and the Windows job's `LocalDumps` key covers
+every process, twenty dumps kept in `TestResults/dumps`; on the working machine programs exiting 3,
+by SIGSEGV and 0 are answered with those codes, a test closes a served app before ready and finds
+the warning, and Pusher plays through the script (`1840cbb5`). The suite: 1,530 passed.
 
 Before them, TODO.md's order, item 2, came to begin with the models' entry: an entity's
 `AnimatedModel` played only in the app the flat API ran against, the one `InitWindow` built, and an
@@ -35,36 +51,6 @@ each time; the entry's other gap stands, a mesh posed on the GPU keeping its ver
 CPU, so a collider made from it is at rest (`045ce46e`). For item 3 the reproductions and the
 reports' text go into the repository with TODO.md pointing at them, and the filing on Mesa's tracker
 is the owner's, done under their account. The suite: 1,529 passed.
-
-Before them, the ray-query path came in, the last of phase three, which settled its item, the list
-renumbered, and Decision 16's three phases have shipped with their numbers: the device turns on
-`VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses where the driver has
-them and logs it; the model pass is compiled a second time with `RAY_QUERY` defined, `slangc`'s `-D`
-part of a cache entry's key and `e3d shaders` compiling both builds, that build's lights' set
-holding the rays' scene at bindings 28 to 30 through a new `AccelerationStructure` descriptor kind;
-`GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field gathered, the
-skinned left out, the first frame it is drawn, and at `High` the top-level structure of every copy
-again each frame with each copy's color and light given off in a ring of buffers, every object in
-the ledger; a reflection whose ray the field misses traces it through the GPU's rays, the triangle
-it meets lit by the lamps, the sun through a second ray and the bounce or the sky; `gi.rays`
-switches the path in a running program and `gi.state` says the copies, the meshes and the memory;
-measured in `shaders_reflections` at `High` on the RTX 4070 with the frame rate unlimited, 8 copies
-of 6 meshes in 1.23 MB, the bounce's pass at 0.49 ms with the rays against 0.46 to 0.47 without, the
-top-level rebuild, and the scene's pass within its noise; a test has a mirror show a block
-twenty-five units behind the camera, past the field's one cascade, at `High`, skipped with its
-reason where the device traces no rays (`1b4edb7e`). A device that draws on its CPU leaves ray
-queries off, lavapipe of Mesa 25.2 crashing the test host at the first ray query in a fragment stage
-though its structures passed the validation layer, so CI draws this path nowhere and the RTX 4070
-alone does; and the model pass without ray queries crashed lavapipe at the glossy frame when
-`directLight`'s lamp loop moved into a function of its own, a null pointer read from a table in the
-compiled shader, so that code keeps the shape lavapipe draws, the ray-query build has a lamp loop of
-its own and TODO.md says so, which item 3 takes to Mesa. The run of `06b702a1` had its Windows job
-pass every test, the offscreen leak test among them, and play the games, so that test's death is
-intermittent and Verdict 37's readings tell when it next comes; the games' step ended at 21:46 with
-six of the twelve played and six failed, Summit, Tempo, Sumo and Jelly exiting before they were
-ready and Slide and Wordfall dying after they opened, their logs ending in lines of information
-alone, which Verdict 33 takes up. The suite: 1,528 passed; lavapipe under validation ran the whole
-suite, 1,509 passed and 17 skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -80,12 +66,12 @@ for a reply. In this order.
    every test and played six of the twelve games; Summit, Tempo, Sumo and Jelly exited before they
    were ready and Slide and Wordfall died after they opened, each page line ending in lines of
    information alone, so the reason is unread, Verdict 33's new part, whose three mends are in at
-   `1840cbb5` and read on the next Windows job once the owner pushes, with five of the six loading
-   Lato through `LoadFontEx` at 48 or more as the pattern to test; its macOS job was still playing
-   the games at 21:48. The examples job, which carries the guides' blocks and Verdicts 30 and 31,
-   runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
-   when the leak test's host next dies. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
+   `1840cbb5` and read on the next Windows job once the owner pushes, the cause e3d's own look for
+   the game on Windows before cmd.exe had made it, mended at `63581f04`; its macOS job was still
+   playing the games at 21:48. The examples job, which carries the guides' blocks and Verdicts 30
+   and 31, runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what
+   climbs when the leak test's host next dies. Each push's run is read by the reviewing session, and
+   a failure it names comes first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
@@ -198,9 +184,15 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     lines say, their shared cause first, five of the six being the five newest games and Summit the
     sixth. Mended at `1840cbb5`, the exit code and its meaning in e3d's answer, a warning from an
     app closing of its own, the log's last three lines and the dumps in the script's error, and
-    Windows' dumps for every process; five of the six load Lato through `LoadFontEx` at 48 or more
-    where Hopper, which plays, loads it at 32, the first pattern to test. Settled when a Windows job
-    plays the twelve games.
+    Windows' dumps for every process; the Lato pattern a coincidence of the order the games ran in.
+    The cause was e3d's own: on Windows its first look for the game by name could come before
+    cmd.exe had made it, and a look that found none answered the game as exited, so four games were
+    answered so while they went on to serve, and the sessions they left made two later games'
+    commands and stops ambiguous, code 2. Mended at `63581f04`, e3d reading whether cmd.exe still
+    runs before looking, so a game not found while it runs is waited for and one not found after it
+    ended has gone, and the script sending every command and stop to its game by name through
+    `E3D_NAME`, a refused command's error carrying e3d's code and sentence. Settled when a Windows
+    job plays the twelve games.
 
 37. **The Windows jobs of `80227981` and `c4f248fd` fail the Cornell box frame and the offscreen
     leak test.** Read from the pages: 1,505 passed, 2 failed, 12 skipped and 1 without a result at
@@ -333,23 +325,18 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Verdict 33, the cause of the six, read from the annotations of the Windows job of `06b702a1`:
+TODO.md's order, the models' entry, its gap a body made from a posed model:
 
-- **One cause, in e3d.** On Windows `e3d open` starts the game through cmd.exe's `start` and finds
-  the game by its name. Its first look could come before cmd.exe had made the game, and a look
-  that found none answered the game as exited. Summit, Tempo, Sumo and Jelly were answered `exited
-  before it was ready` while they went on to load and serve, which is why their logs, read by the
-  script at that moment, ended within a second of their start or were empty. Tempo's or Sumo's
-  session then came up beside Wordfall's and Slide's, so `wordfall.status` and `window.size` were
-  refused with code 2, `AMBIGUOUS_SESSION`, and the stop as each script ended was refused the same
-  way, leaving those games running in turn. The Lato lead in the last reply was wrong.
-- **The mend.** Whether cmd.exe still runs is read before the game is looked for. Its `start`
-  returns once the game is made, so a game not found while cmd.exe runs is waited for, and one not
-  found after it ended has gone. A scratch program that starts a program as cmd.exe does, through a
-  shell that makes it in the background 300 ms later and ends, answered `gone` at the first look
-  before the mend, and after it found the program at 300 ms and saw it end.
-- **The script.** `build/drive-game.sh` sends every command and stop to the game it plays by name
-  (`E3D_NAME`), so a program an earlier game left serving neither makes them ambiguous nor takes
-  the stop meant for this one, and a refused command's error carries e3d's code and sentence, as an
-  opening's does. Wordfall played through with Slide left serving.
-- The suite: 1,530 passed.
+- **Bodies take the pose.** `CreatePhysicsStaticModel` and `CreatePhysicsConvexHull` read each mesh
+  the GPU posed from the joints it was handed, as the wires were read already, through one helper,
+  `Posed`, where they read the vertices the mesh keeps at rest. A test poses the arm on the GPU in
+  an offscreen app and finds a ray down beside the shoulder meeting the bent forearm in both bodies,
+  and with the rest vertices read it meets nothing. It passed on lavapipe under the validation layer.
+- **An `AnimatedModel` entity's mesh or hull collider.** The copy an `AnimatedModel` draws puts no
+  meshes in the world, so such a collider waited for triangles that never came and said nothing.
+  It is refused once with a warning naming the entity and saying a capsule or a box is shaped by
+  its size, where nothing under the entity could bring meshes, and a test finds the warning once.
+  `Collider.Mesh`, `Collider.ConvexHull` and `docs/physics.md` say so, and TODO.md's entry is
+  rewritten around that gap, the copy's meshes in the world.
+- The suite: 1,532 passed.
+

@@ -175,6 +175,39 @@ public sealed class Engine3DAnimationTests : IDisposable
         bent[foot].Should().Be(rest[foot], "the shoulder's box does not move");
     }
 
+    [NeedsVulkanFact]
+    public void A_Body_Made_From_A_Model_The_Gpu_Posed_Is_Shaped_As_It_Is_Drawn()
+    {
+        // The GPU poses a skinned mesh and its vertices here stay at rest, which a body made from it
+        // read, so an arm bent at its elbow was solid where it had stood upright.
+        var app = new App(Config.Default.WithWindow("posed", 64, 64) with { Headless = true, Offscreen = true }).AddPlugin(new DefaultPlugins());
+        UseApp(app);
+        try
+        {
+            var model = LoadModel(Arm);
+            var clip = LoadModelAnimations(Arm)[0];
+            UpdateModelAnimation(model, clip, clip.KeyframeCount - 1);
+            model.GpuPoses.Should().NotBeEmpty("the renderer poses the arm on the GPU");
+
+            // Bent, the forearm lies along -X between y 0.8 and 1.2, where upright nothing is, its
+            // top sloping down to the elbow, whose ring both bones hold.
+            CreatePhysicsStaticModel(model, Vector3.Zero);
+            var level = GetRayCollisionPhysics(new Ray(new Vector3(-0.6f, 5, 0), -Vector3.UnitY), 10);
+            level.Hit.Should().BeTrue("the level's body has the forearm where it is drawn");
+            level.Point.Y.Should().BeInRange(0.8f, 1.2f);
+
+            CreatePhysicsConvexHull(model, new Vector3(10, 0, 0));
+            var hull = GetRayCollisionPhysics(new Ray(new Vector3(9.4f, 5, 0), -Vector3.UnitY), 10);
+            hull.Hit.Should().BeTrue("and so has the hull");
+            hull.Point.Y.Should().BeInRange(0.8f, 1.2f);
+        }
+        finally
+        {
+            UseApp(null);
+            app.Shutdown();
+        }
+    }
+
     [Fact]
     public void A_Bone_Named_As_A_Mesh_Node_Before_It_Is_Found_As_The_Bone()
     {

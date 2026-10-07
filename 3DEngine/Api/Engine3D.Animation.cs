@@ -310,6 +310,13 @@ public static partial class Engine3D
         return moved;
     }
 
+    // A model's mesh's vertices as it was last posed. A mesh the GPU poses keeps its vertices at
+    // rest, so they are posed here from the joints it was handed, and any other mesh's are its own.
+    internal static ModelVertex[] Posed(Model model, int index, ModelVertex[] vertices) =>
+        model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin
+            ? PoseOnCpu(skin, joints)
+            : vertices;
+
     // A skinned mesh's vertices moved from their rest by its joints, on the CPU.
     internal static ModelVertex[] PoseOnCpu(SkinnedMesh skin, Matrix4x4[] joints)
     {

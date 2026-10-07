@@ -554,8 +554,7 @@ public static partial class Engine3D
             var mesh = model.Meshes[index];
             if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
             // A mesh the GPU poses keeps its vertices at rest, so its wires are posed here.
-            if (model.GpuPoses.TryGetValue(index, out var joints) && model.Skins.FirstOrDefault(s => s.Mesh == index) is { } skin)
-                vertices = PoseOnCpu(skin, joints);
+            vertices = Posed(model, index, vertices);
             edges.Clear();
             for (int i = 0; i < indices.Length; i += 3)
                 for (int k = 0; k < 3; k++)

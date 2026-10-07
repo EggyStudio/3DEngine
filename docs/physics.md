@@ -49,7 +49,7 @@ foreach (var (body, _) in boxes) DestroyPhysicsBody(body);
 
 The other shapes are `CreatePhysicsSphere` and `CreatePhysicsCapsule`, and
 `CreatePhysicsStaticModel` makes level geometry from a model's own triangles, so a loaded level is
-solid where it is drawn. A box the program moves itself, as a lift or a moving platform, is
+solid where it is drawn, and a skinned model as it was last posed. A box the program moves itself, as a lift or a moving platform, is
 `CreatePhysicsKinematicBox`, which pushes what it meets and is not pushed back. It is moved by its
 velocity, so what stands on it rides along, where setting its position each frame jumps it to
 the place and leaves a rider behind or pushed through it. `games/Summit`'s lift heads for where it
@@ -106,7 +106,8 @@ DrawModel(cone, Vector3.Zero, 1, new Color(80, 130, 220));
 ```
 
 In the ECS, `Collider.ConvexHull` beside a `RigidBody` makes the same from the entity's meshes and
-those below it.
+those below it. An `AnimatedModel` puts no meshes in the world, so an entity it draws is given a
+capsule or a box, and a mesh or a hull on it is refused with a warning saying so.
 
 ## Pushing and moving
 

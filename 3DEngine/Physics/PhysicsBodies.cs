@@ -54,13 +54,21 @@ internal static class PhysicsBodies
             if (collider.Shape == ColliderShape.Mesh)
             {
                 // Made once the meshes are there, which a model loading under the entity is not yet.
-                if (TrianglesUnder(ecs, entity, placed) is not { } triangles) continue;
+                if (TrianglesUnder(ecs, entity, placed) is not { } triangles)
+                {
+                    NoneComing(ecs, entity, collider);
+                    continue;
+                }
                 body = physics.CreateStaticMesh(position, triangles.Vertices, triangles.Indices, entityId: entity);
                 rotation = Quaternion.Identity;
             }
             else if (collider.Shape == ColliderShape.ConvexHull)
             {
-                if (TrianglesUnder(ecs, entity, placed) is not { } triangles) continue;
+                if (TrianglesUnder(ecs, entity, placed) is not { } triangles)
+                {
+                    NoneComing(ecs, entity, collider);
+                    continue;
+                }
                 // The triangles come placed about the entity and turned with it, and the hull is
                 // made unturned, then turned with the entity below.
                 var unturn = Quaternion.Inverse(rotation);
@@ -159,6 +167,17 @@ internal static class PhysicsBodies
     // The triangles of the meshes of an entity and its descendants, turned and scaled into the world
     // about the entity's place, which the body is made at, or null when there are none. A triangle
     // collides from the side its corners go around clockwise, so a mesh's are turned over.
+    // An entity drawn by its AnimatedModel is drawn from a model of its own that the world holds no
+    // meshes of, so the triangles a mesh or a hull collider waits for never come where nothing under
+    // the entity may bring them. It is refused once with the reason, where it waited unsaid.
+    private static void NoneComing(EcsWorld ecs, int entity, Collider collider)
+    {
+        if (!ecs.Has<AnimatedModel>(entity) || ecs.ChildrenOf(entity).Count > 0) return;
+        Log.Category("Engine.Physics").Warn($"Collider: entity {entity} is drawn by its AnimatedModel, which gives the world no meshes, " +
+            $"so its {collider.Shape} collider has no triangles and it has no body. A capsule or a box is shaped by its size.");
+        ecs.Add(entity, new NoBody());
+    }
+
     private static (Vector3[] Vertices, int[] Indices)? TrianglesUnder(EcsWorld ecs, int entity, Matrix4x4 world)
     {
         var vertices = new List<Vector3>();

@@ -184,6 +184,30 @@ public class PhysicsBodiesTests
     }
 
     [Fact]
+    public void A_Mesh_Collider_On_An_Animated_Model_Is_Refused_Once_With_The_Reason()
+    {
+        // An AnimatedModel is drawn from a model of its own and gives the world no meshes, so the
+        // collider waited for triangles that never came and said nothing.
+        var world = NewWorld();
+        var ecs = world.Resource<EcsWorld>();
+        var hero = ecs.Spawn();
+        ecs.Add(hero, new Transform(Vector3.Zero));
+        ecs.Add(hero, new AnimatedModel("hero.gltf", "walk"));
+        ecs.Add(hero, Collider.ConvexHull);
+        ecs.Add(hero, RigidBody.Dynamic());
+
+        var before = ConsoleLog.Written;
+        PhysicsBodies.Run(world);
+        PhysicsBodies.Run(world);
+
+        ecs.Has<PhysicsBody>(hero).Should().BeFalse();
+        ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before)))
+            .Count(l => l.Level == LogLevel.Warning && l.Text.Contains($"entity {hero} is drawn by its AnimatedModel"))
+            .Should().Be(1, "it is said once, and the entity is not tried again");
+        world.Resource<PhysicsWorld>().Dispose();
+    }
+
+    [Fact]
     public void A_Scene_Files_Slider_Runs_Along_The_Joint_Entitys_Up_Between_Its_Limits_By_Its_Motor()
     {
         var authoring = new EcsWorld();

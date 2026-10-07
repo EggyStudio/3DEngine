@@ -41,18 +41,22 @@ public static partial class Engine3D
     /// <paramref name="position"/> and scaled as <c>DrawModel</c> places it, for level geometry
     /// a box does not fit.
     /// </summary>
-    /// <remarks>A mesh collides only with bodies that move, and a triangle only from its front, the side its winding faces.</remarks>
+    /// <remarks>
+    /// A mesh collides only with bodies that move, and a triangle only from its front, the side its
+    /// winding faces. A skinned model is shaped as it was last posed and drawn, and stays so when it
+    /// is posed again.
+    /// </remarks>
     /// <returns>The body, or an invalid one when the model has no triangles, with the reason in the log.</returns>
     public static PhysicsBody CreatePhysicsStaticModel(Model model, Vector3 position, float scale = 1)
     {
         var world = model.Transform * Matrix4x4.CreateScale(scale);
         var points = new List<Vector3>();
         var triangles = new List<int>();
-        foreach (var mesh in model.Meshes)
+        for (int index = 0; index < model.Meshes.Length; index++)
         {
-            if (!Meshes.TryGetData(mesh.Id, out var vertices, out var indices)) continue;
+            if (!Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out var indices)) continue;
             var first = points.Count;
-            foreach (var vertex in vertices) points.Add(Vector3.Transform(vertex.Position, world));
+            foreach (var vertex in Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
             // A model's front faces wind counterclockwise and Bepu's clockwise, so each triangle is
             // turned over.
             for (int i = 0; i + 2 < indices.Length; i += 3)
@@ -79,16 +83,17 @@ public static partial class Engine3D
     /// <remarks>
     /// The body's position and rotation are where the model is drawn, as
     /// <c>DrawModelEx(model, GetPhysicsBodyPosition(body), ...)</c> draws it, and it turns about its
-    /// center of mass. A hollow in the model is filled, so a cup holds nothing.
+    /// center of mass. A hollow in the model is filled, so a cup holds nothing. A skinned model is
+    /// shaped as it was last posed and drawn.
     /// </remarks>
     /// <returns>The body, or an invalid one when the model's vertices hold nothing, with the reason in the log.</returns>
     public static PhysicsBody CreatePhysicsConvexHull(Model model, Vector3 position, float mass = 1, float scale = 1)
     {
         var world = model.Transform * Matrix4x4.CreateScale(scale);
         var points = new HashSet<Vector3>();
-        foreach (var mesh in model.Meshes)
-            if (Meshes.TryGetData(mesh.Id, out var vertices, out _))
-                foreach (var vertex in vertices) points.Add(Vector3.Transform(vertex.Position, world));
+        for (int index = 0; index < model.Meshes.Length; index++)
+            if (Meshes.TryGetData(model.Meshes[index].Id, out var vertices, out _))
+                foreach (var vertex in Posed(model, index, vertices)) points.Add(Vector3.Transform(vertex.Position, world));
         try
         {
             return Physics.CreateConvexHull(position, [.. points], mass);
