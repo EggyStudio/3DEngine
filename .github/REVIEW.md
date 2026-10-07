@@ -214,3 +214,16 @@ readings, with the last warnings of the game's log, and the process's resident m
 reading kept and at the last, which `memory` reports. Four tests, one of them Manor's swing, and
 the step's own line that named no game is gone. The test joins the script tests left out of N 1.4,
 12 where NORM.md's table says 11. The suite: 1,448 passed, none skipped.
+
+**Now 3, the pairs from 1.5 to 3.5 per cent apart.** The thirteen pairs in that span with no reason
+are traced, each measured again with its cause taken away, and each row says what it is. Three
+answer to defaults the comparison page keeps. `core_vr_simulator`'s distortion reads its stereo
+picture from a render texture filtered bilinear, 2.3 per cent apart and 0.2 with `Point`.
+`textures_portal_window`'s portal is the same, 2.6 and 1.9, the rest its text. And
+`shaders_postprocessing` asks for four samples, which its render texture takes here where raylib's
+has one, 3.1 and 1.4 with one sample, the rest its text. `shaders_lightmap_rendering`'s model reads
+its color texture decoded from sRGB and filters it in linear light, which thins its dark lines, 1.6
+apart and 0.4 filtered as stored, and the comparison page gains a row for it. The other nine are
+their text in ImGui's default font, wholly or for most of what differs, the cel shading's outline
+beside it. The examples are as they were, the changes that took each cause away measured once and
+put back.

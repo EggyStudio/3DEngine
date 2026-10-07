@@ -81,6 +81,8 @@ shapes_ellipse_collision	can
 shapes_outlines_testbed	can	with ImGui in raygui's place
 shapes_outlines_thickness	can	with ImGui in raygui's place
 shapes_polygon_lines	can
+shapes_rlgl_triangle	can	two thirds of it its text in ImGui's default font, as the comparison page says, and the rest the edges of the triangle and its handles at the four samples the example asks for
+shapes_rlgl_color_wheel	can	most of it its text in ImGui's default font, as the comparison page says
 textures_clipboard_image	can
 textures_logo_raylib	can
 textures_srcrec_dstrec	can
@@ -106,6 +108,8 @@ textures_screen_buffer	can
 textures_sprite_stacking	can
 textures_cellular_automata	can
 textures_framebuffer_rendering	can
+textures_raw_data	can	its text in ImGui's default font, as the comparison page says
+textures_portal_window	can	its portal drawn from a render texture filtered bilinear where raylib's takes the nearest texel until a program sets a filter, 1.9% apart with Point, and its text in ImGui's default font, as the comparison page says
 text_sprite_fonts	can
 text_font_spritefont	can
 text_font_filters	can
@@ -170,6 +174,10 @@ shaders_depth_rendering	can
 shaders_game_of_life	can	with ImGui in raygui's place
 shaders_rlgl_compute	can	with the flat API's compute functions in rlgl's place
 shaders_lights_bloom	can
+shaders_postprocessing	can	its scene drawn into a render texture at the window's four samples, which the example asks for, where raylib's render texture has one, 1.4% apart with one sample, and its text in ImGui's default font, as the comparison page says
+shaders_deferred_rendering	can	two thirds of it its text in ImGui's default font, as the comparison page says
+shaders_lightmap_rendering	can	its model's color texture filtered in linear light, as the model pass reads it, which thins its dark lines, 0.4% apart filtered as stored, as the comparison page says
+shaders_cel_shading	can	its outline pushed out by 0.005 over 0.0254, as far as raylib's long glTF normals push it, and its text in ImGui's default font, as the comparison page says
 audio_module_playing	moves	its bar as far as the audio device has played
 audio_music_stream	moves	its bar as far as the audio device has played
 audio_sound_loading	can
@@ -186,5 +194,10 @@ core_custom_frame_control	can	its text in ImGui's default font, as the compariso
 core_window_flags	can	its text in ImGui's default font, as the comparison page says
 core_highdpi_demo	can	its text in ImGui's default font, as the comparison page says
 core_highdpi_testbed	can	its text in ImGui's default font, as the comparison page says
+core_vr_simulator	can	its stereo picture read through raylib's distortion shader filtered bilinear where raylib's takes the nearest texel until a program sets a filter, 0.2% apart with Point, as the comparison page says
+core_3d_camera_first_person	can	its text in ImGui's default font, as the comparison page says
+core_2d_camera_mouse_zoom	can	most of it its text in ImGui's default font, as the comparison page says
 models_point_rendering	can	its text in ImGui's default font, as the comparison page says
+models_loading_iqm	can	its text in ImGui's default font, as the comparison page says
 text_font_sdf	can	its labels in ImGui's default font, as the comparison page says
+text_unicode_emojis	can	its text in ImGui's default font, as the comparison page says
