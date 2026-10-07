@@ -6,6 +6,12 @@
 // stops there. One that meets nothing brings back nothing and lets what lies beyond through, but
 // in the last cascade, where it brings back the light from all around. A probe inside a mesh sends
 // nothing, which the merge reads as a probe to pass over.
+//
+// A ray is marched from its probe, and one that meets a surface before its interval begins is
+// blocked, dark and letting nothing through. Marched from where the interval begins, a ray of a
+// probe a little above a floor started under it and brought back the light under the floor, which
+// a probe of the cascade below, whose own ray never reached the floor, took for the light beyond,
+// so a lamp under a room's floor or over its roof lit the room through it.
 import gi;
 import scenefield;
 
@@ -79,11 +85,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     }
 
     float3 way = fromOctahedron((float2(texel) + 0.5) / float(texels));
-    float t = traceField(sceneField, fieldInfo, origin, way, push.interval.x, push.interval.y);
+    float t = traceField(sceneField, fieldInfo, origin, way, 0.0, push.interval.y);
+    if (t >= 0.0 && t < push.interval.x)
+    {
+        radiance[written] = float4(0.0);
+        return;
+    }
     if (t >= 0.0)
     {
-        radiance[written] = float4(shadeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, origin + way * t,
-            float(probes), push.interval.z, push.interval.w), 0.0);
+        radiance[written] = float4(shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, origin + way * t,
+            float(probes), push.interval.z, push.interval.w, true), 0.0);
         return;
     }
     if (push.cascade.w != 0u)

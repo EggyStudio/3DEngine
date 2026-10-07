@@ -10,8 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `57f0785f`. TODO.md's vertex inputs entry, item 2: the reflection gives each input of
-a vertex stage by its semantic and its Slang location, the cache keeping them as lines of their own;
+Reviewed up to `eee89446`. TODO.md's shadows entry, item 2: the spot and point lights given shadow
+maps were ranked for the window's camera alone, so a render target looking elsewhere got the
+window's choice and a light its own camera alone saw cast no shadow there; the ranking runs over
+every camera the frame draws meshes through, the window's and each target's, a light any camera sees
+first, then the greatest light reaching any eye, then the reach nearest any eye, the same order as
+before where the window stands alone, with a unit test of a bright light behind the window and a dim
+one a target sees, RENDERING.md's fourth section and the guide updated (`eee89446`). The entry has
+left an eleventh spot or a thirteenth point light casting no shadow, a ranking that does not weigh
+how much of the picture a light covers, which stays unless asked for, and each render target drawing
+the cascades and the spot tile again for its own camera. The GI entry's gaps are next, and item 3's
+reduction runs on at 63 KB. The suite: 1,538 passed.
+
+Before them, TODO.md's vertex inputs entry, item 2, came in: the reflection gives each input of a
+vertex stage by its semantic and its Slang location, the cache keeping them as lines of their own;
 the model and immediate passes write each attribute of their vertex formats once with its semantic
 (`VertexStream`), and a program's own vertex stage is fed each input at its semantic's location, so
 it declares its inputs in any order and the guide's instruction to put `COLOR0` and `TEXCOORD1` at
@@ -22,8 +34,7 @@ cube through a stage taking color first and position last and matches the engine
 wrong when the names are ignored, 141 render, reference and compiler tests passing on lavapipe under
 validation; RENDERING.md's first section says a sampler declared apart from its texture is bound, as
 it has been since `b0386c1e` (`57f0785f`). The entry has left a compute shader writing a render
-texture only where the GPU stores the window's format. The shadows entry is next, and item 3's
-reduction is past step 530 with the SPIR-V down to 63 KB. The suite: 1,537 passed.
+texture only where the GPU stores the window's format. The suite: 1,537 passed.
 
 Before them, the text entry's next gap came to be closed: before a line is shaped, a character and
 the mark right after it become the one character Unicode has for both where the font has it, as
@@ -37,23 +48,6 @@ every Latin letter with every combining diacritical mark to the platform's NFC, 
 singleton spelling and a double mark missing from the first table; the guide and the comparison page
 say so (`6f0ff47e`). The entry has left Latin kerning and ligatures, the owner's to decide, and
 Devanagari. The suite: 1,535 passed.
-
-Before them, TODO.md's text entry, item 2, came to gain cursive attachment: `GlyphPositioning` reads
-GPOS's type 3 as HarfBuzz applies it to a run read right to left, the glyph before giving up its
-advance past its exit, this one's advance ending at its entry, the child the lookup's right-to-left
-flag names moved up or down to meet its parent and carried with it when the run is placed, the
-Arabic plan taking `curs`; `build/make-color-test-fonts.py` writes `arabic-cursive.ttf`, arabic.ttf
-with a `curs` lookup, and a test finds every glyph of four words where HarfBuzz 14.6 puts it, three
-behs stepping down 20 a letter, the lookup passing over a mark, the other branch of the flag matched
-in a run not kept; the guide, the comparison page and the entry say so (`fa93e70c`). The entry has
-left a letter and its mark composed into one character, which needs a table of Unicode's
-compositions since `string.Normalize` gives text back unchanged under invariant globalization and is
-taken next; Latin kerning and ligatures, which would make a line measure otherwise than raylib's
-where the guide promises it does not, the owner's to decide; and Devanagari's shaping, a shaper of
-its own. Item 3's crash reproduces in the engine's own build, one fixed-offset read of the
-reflection lights' sun color after the lamp loop in the ray-query branch turning a passing shader
-into a crashing one, the fault a null pointer used as a buffer, which a small C program does not
-show. The suite: 1,533 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -328,17 +322,36 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the shadows entry, its gap of the render targets' lights:
+TODO.md's order, the light-bounce entry, its gap of point and spot lights casting no shadow in the
+bounce, which turned out to be one of three leaks:
 
-- **Ranked for every view.** The spot and point lights that get shadow maps were ranked for the
-  window's camera alone, and a render target looking elsewhere had the window's, so a light only its
-  camera saw cast nothing there. `LightingUboPrepare.Rank` now takes every camera the frame draws
-  meshes through, the window's and each render target's: a light any of them sees first, then the
-  one whose light reaching any eye is greatest, then the one whose reach comes nearest any eye. The
-  window alone ranks as before. A test ranks a bright light behind the window and a dim one a
-  target's camera sees, the bright one first for the window alone and the dim one first for both.
-- **Documents.** RENDERING.md §4, the materials guide and TODO.md, whose entry keeps its limits: an
-  eleventh spot or thirteenth point light casts none, the ranking weighs no share of the picture,
-  and each render target draws the cascades and the spot tile again for its own camera.
-- The suite: 1,538 passed.
+- **What leaked.** A closed room of slabs 0.6 thick, the camera inside and a lamp that casts
+  shadows over its roof or under its floor, read 239 and 247 of 255 with light bouncing and 0
+  without, nearly what the lamp gives unshadowed. Three paths, found by forcing each shut in the
+  staged shaders: the probes' rays lit every surface with the lamps unshadowed; a ray of a coarser
+  cascade is traced from where its interval begins, so one of a probe a little above the floor
+  started under it and brought back the light there, which a probe of the cascade below whose own
+  ray never reached the floor took for the light beyond; and a surface a ray meets blended the
+  probes around it with no regard for a wall between.
+- **The mends.** A lamp that casts shadows lights a surface a probe's ray meets only where a march
+  through the field toward it gets through (`hiddenLampLight`), its flag now sent to the bounce. A
+  probe's ray is marched from the probe, and one meeting a surface before its interval begins is
+  blocked, dark. The world's probes blend at a hit only the probes in front of it that it sees
+  (`bouncedSeenAt`). The screen's probes keep the plain blend, since a march to each probe at their
+  hits cost 0.10 to 0.15 ms and left 3 levels without it. The room reads 1.4 and 3.4, which a test
+  holds under 8.
+- **The model pass is byte for byte the same.** `directLight`, `shadeHit` and `bouncedAt`, which its
+  reflections call, are untouched, and its SPIR-V compiled in both builds matches the commit
+  before's, so lavapipe's second fault is left as it stands. The reflections light what they meet
+  with the lamps unshadowed, which the documents say.
+- **Cost.** In `shaders_cornell_box` on the RTX 4070 with the frame rate unlimited, `Low`, `Medium`
+  and `High` at four cascades took 0.21, 0.32 and 0.40 ms with the commit before's shaders and 0.24,
+  0.30 and 0.43 with these, within the noise of 0.03 ms. The guide's table, measured when it was
+  written at 0.19, 0.27 and 0.34, takes the new readings.
+- **Checked.** Every reference frame passed, and lavapipe under the validation layer passed the
+  light-bounce, reference, render and field tests, 137 and 1 skipped, the ray-query test.
+- **Item 3's reduction** was stopped at step 457 when a validation container mounted the scratch
+  folder with `:Z`, which relabeled it away from the reducing container, and goes on from the
+  63 KB it had reached.
+- The suite: 1,539 passed.
 

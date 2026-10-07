@@ -286,8 +286,9 @@ It is traced through the scene's distance field, which it turns on at four casca
 one before's and tracing the light from twice as far (Radiance Cascades), and a probe for every few
 pixels of the window that traces the near light through the window's depth first. Nothing is baked,
 so every light and every mesh may move. The light a surface sends on is its material's color, its
-texture's average, times the sun's light where the field lets it through, the point and spot lights'
-unshadowed, and what bounced to it the frame before, so light bounces again each frame, with the
+texture's average, times the sun's light where the field lets it through, the point and spot
+lights', each that casts shadows only where the field lets it through too, and what bounced to it
+the frame before, so light bounces again each frame, with the
 light it gives off, so an emissive mesh lights its room. The light from all around, the environment
 map's, the ambient lights' and a reflection probe's, reaches a surface only through what a ray that
 meets nothing brings back, so a room is lit by the sky through its windows and dark where no light
@@ -302,9 +303,9 @@ gives the rest, `High` measured with the example's field at four cascades
 
 | Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
 |---|---|---|---|---|---|
-| `Low` | 2 | 16, 64 | every 16 pixels | 0.70 MB | 0.19 ms |
-| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.76 MB | 0.27 ms |
-| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.72 MB | 0.34 ms |
+| `Low` | 2 | 16, 64 | every 16 pixels | 0.70 MB | 0.24 ms |
+| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.76 MB | 0.30 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.72 MB | 0.43 ms |
 
 A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, with as
 much again while a cascade is built.
@@ -331,8 +332,9 @@ field alone. `./e3d command gi.rays off` turns it off in a running program and `
 on, and `gi.state` says how many copies of how many meshes the GPU's rays see and the memory they
 take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 MB, and building
 them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
-rays here seldom leave the field, reads the same within its noise of 0.03 ms. Point and spot lights cast no shadow in the light that bounces,
-a mesh that moves bounces light as the gray box the field holds it as, the screen's probes are traced
+rays here seldom leave the field, reads the same within its noise of 0.03 ms. A reflection lights
+what it meets with the point and spot lights unshadowed, a mesh that moves bounces light as the
+gray box the field holds it as, the screen's probes are traced
 again each frame and not blended over time, so the light may crawl a little as the camera moves, and
 render textures and probe captures are drawn without it. `Config.GlobalIllumination` sets the same
 for an app made from a `Config`.

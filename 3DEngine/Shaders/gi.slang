@@ -316,6 +316,101 @@ public float3 bouncedAt<V : IVolume>(V cubes, SceneFieldInfo info, float3 p, flo
     return weights > 1e-5 ? sum / weights : float3(0.0);
 }
 
+// The light that bounced to a surface at p facing n, as bouncedAt gives it, from those of the eight
+// probes around it the surface sees: in front of its plane, with nothing the field holds between,
+// so a probe under a floor or beyond a wall lends the light it sees there to no surface on this
+// side. A probe behind the plane is passed over with no march, since the surface itself stands
+// between, where bouncedAt lends it a little, which the blend raised to all of it wherever every
+// probe in front was hidden. The probes' passes take it, where the model pass's reflections keep
+// bouncedAt.
+public float3 bouncedSeenAt<V : IVolume>(V field, SceneFieldInfo info, V cubes, float3 p, float3 n, float probes, float spacing, float cascades)
+{
+    int c = fieldCascade(info, p, 1.0);
+    if (c < 0 || c >= int(cascades))
+        return float3(0.0);
+    float4 oc = info.cascades[c].originAndCell;
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    int3 base = int3(floor(q));
+    float3 f = q - float3(base);
+    float3 n2 = n * n;
+    float3 from = p + n * oc.w;
+    float3 sum = float3(0.0);
+    float weights = 0.0;
+    for (int corner = 0; corner < 8; corner++)
+    {
+        int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
+        int3 at = min(base + offset, int3(int(probes) - 1));
+        float3 lerps = lerp(1.0 - f, f, float3(offset));
+        float3 probe = oc.xyz + (float3(at) + 0.5) * (oc.w * spacing);
+        if (dot(probe - p, n) <= 0.0 || !seesThrough(field, info, from, probe, oc.w * 0.5))
+            continue;
+        float3 light = float3(0.0);
+        float valid = 0.0;
+        for (int axis = 0; axis < 3; axis++)
+        {
+            int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
+            float4 texel = cubes.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z));
+            light += texel.rgb * n2[axis];
+            valid = max(valid, texel.a);
+        }
+        float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
+        sum += light * weight;
+        weights += weight;
+    }
+    return weights > 1e-5 ? sum / weights : float3(0.0);
+}
+
+// The light the lamps that cast shadows would send a surface at p facing n but for what the field
+// holds between them, each found by a march toward the lamp from a cell and a half off the
+// surface, stopping two cells short of the lamp so its own fitting does not hide it. The falloff
+// is directLight's, written again here, since that loop is kept in the shape lavapipe draws the
+// model pass in.
+public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
+{
+    float3 hidden = float3(0.0);
+    float cell = fieldCell(info, p);
+    for (int i = 0; i < min(int(lights.counts.x), 16); i++)
+    {
+        GiLight light = lights.lights[i];
+        if (light.colorAndShadow.w < 0.5)
+            continue;
+        float3 toLight = light.positionAndKind.xyz - p;
+        float distance2 = max(dot(toLight, toLight), 1e-4);
+        float3 l = toLight * rsqrt(distance2);
+        float result = max(dot(n, l), 0.0) / distance2;
+        float range = light.directionAndRange.w;
+        if (range > 0.0)
+        {
+            float edge = saturate(1.0 - pow(distance2 / (range * range), 2.0));
+            result *= edge * edge;
+        }
+        if (int(light.positionAndKind.w) == 2)
+            result *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-l, light.directionAndRange.xyz));
+        if (result > 0.0 && !seesThrough(field, info, p + n * (cell * 1.5), light.positionAndKind.xyz, cell * 2.0))
+            hidden += light.colorAndShadow.rgb * result;
+    }
+    return hidden;
+}
+
+// The light a surface the field holds at p sends back along a probe's ray that met it, as
+// shadeHit gives it, with the lamps that cast shadows hidden where the field stands between, so
+// a lamp's light does not bounce off the far side of a wall, and where seen is set the light
+// that bounced to it from the probes it sees alone (bouncedSeenAt). The world's probes set it,
+// since every surface's light comes to them. The screen's probes, whose rays are many and short,
+// do not: marching to the probes at each of their hits cost 0.10 to 0.15 ms of the bounce's 0.3
+// to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held 3 levels of
+// its light without it, where it held 247 before either. The model pass's reflections call
+// shadeHit, which marches toward neither.
+public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
+    float3 p, float probes, float spacing, float cascades, bool seen)
+{
+    float3 n = fieldNormal(field, info, p);
+    float3 color = surfaceAlbedo(albedo, info, p);
+    float3 bounced = seen ? bouncedSeenAt(field, info, cubes, p, n, probes, spacing, cascades) : bouncedAt(cubes, info, p, n, probes, spacing, cascades);
+    float3 arrived = directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n) + bounced * lights.counts.z;
+    return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
+}
+
 // The light a surface the field holds at p sends back along a ray that met it: its color over pi
 // times the light that reaches it, the sun's and the lights' and, at the share given, the light
 // that bounced to it the frame before, with the light it gives off.

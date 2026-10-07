@@ -281,7 +281,8 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             {
                 PositionAndKind = new Vector4(light.Position, (int)light.Kind),
                 DirectionAndRange = new Vector4(light.Direction, light.Range),
-                ColorAndShadow = new Vector4(light.EmittedColor, 0),
+                // w: 1 for a light that casts shadows, which the probes' rays march toward.
+                ColorAndShadow = new Vector4(light.EmittedColor, light.CastsShadows ? 1 : 0),
                 Cone = new Vector4(light.CosInner, light.CosOuter, 0, 0),
             };
         }

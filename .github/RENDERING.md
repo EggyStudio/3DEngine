@@ -534,9 +534,16 @@ below stops (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two
 adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four, no more cascades than the
 field has. A ray that meets a surface brings back its painted color over pi times the light that
 reaches it, the sun's where a trace toward the sun through the field gets through, the point and
-spot lights' unshadowed, and the light that bounced to it the frame before, with the light it gives
-off (`gi.slang`). A ray of the last cascade that meets nothing brings back the environment map, or
-the ambient lights' color, and one of any other cascade lets the light from beyond through.
+spot lights', each that casts shadows only where a trace toward it gets through too
+(`hiddenLampLight`), and the light that bounced to it the frame before, blended from the probes
+around it that it sees, a trace through the field to each in front of it (`bouncedSeenAt`), with
+the light it gives off (`shadeProbeHit` in `gi.slang`). A ray is traced from its probe, and one
+that meets a surface before its interval begins is blocked, dark, so a probe a little above a floor
+does not bring back the light under it for the cascade below to take. A ray of the last cascade
+that meets nothing brings back the environment map, or the ambient lights' color, and one of any
+other cascade lets the light from beyond through. The three closed a room to a lamp over its roof
+or under its floor, which lit it before nearly as brightly as the lamp unshadowed, at a cost within
+the noise of 0.03 ms in `shaders_cornell_box`.
 
 The cascades are merged from the last down (`gi_merge.slang`). A texel whose ray met nothing adds
 the cascade above's texels inside its own, blended between the eight probes of the cascade above
@@ -595,8 +602,11 @@ query, any-hit alone included, where the structures it built without a word from
 layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
 
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
-`shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: point and spot lights cast no shadow in the bounce, a moving
-mesh bounces light as the gray box the field holds it as, the screen's probes are not blended over
+`shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
+screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
+0.15 ms there and leaked 3 levels of a lamp's light without it, the reflections light what they meet
+with the point and spot lights unshadowed, a moving mesh bounces light as the gray box the field
+holds it as, the screen's probes are not blended over
 time, so the light may crawl a little as the camera moves, and render textures and probe captures
 are drawn without it.
 

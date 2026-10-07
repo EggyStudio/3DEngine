@@ -149,8 +149,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   itself traces through the field alone, with no ray query. Lavapipe also crashed at the reflections
   of the model pass built without ray queries when the lamps' loop moved into a function of its own,
   reading a null pointer in its compiled shader, which was not run down, so that code is kept in the
-  shape lavapipe draws. In the bounce point and spot lights cast no shadow, a skinned or moving mesh
-  is the gray box around it, and the screen's probes are not blended over time. Render textures and
+  shape lavapipe draws. In the bounce a point or spot light that casts shadows lights a surface only
+  where the field lets it through, a probe's ray that meets a surface before its interval is
+  blocked, and the world's probes take bounced light from the probes they see, so a closed room is
+  dark to a lamp outside it. The screen's probes blend every probe around what they meet, the
+  reflections light it with the lamps unshadowed, a skinned or moving mesh is the gray box around
+  it, and the screen's probes are not blended over time. Render textures and
   probe captures are drawn without the field. In the field a closed mesh much thinner than a cell is
   not there, and an open mesh such as a ground plane puts a narrow wedge below its edges inside.
 

@@ -219,12 +219,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 hit;
             float leftAt;
             if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
-                light = shadeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, hit, view.trace.y, view.trace.z, view.trace.w);
+                light = shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, hit, view.trace.y, view.trace.z, view.trace.w, false);
             else
             {
                 float t = leftAt < length ? traceField(sceneField, fieldInfo, start, way, leftAt, length) : -1.0;
                 light = t >= 0.0
-                    ? shadeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, start + way * t, view.trace.y, view.trace.z, view.trace.w)
+                    ? shadeProbeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, start + way * t, view.trace.y, view.trace.z, view.trace.w, false)
                     : beyond(p, n, way, seen).rgb;
             }
             sum += light * max(dot(way, n), 0.0);

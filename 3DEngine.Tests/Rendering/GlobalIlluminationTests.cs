@@ -62,15 +62,15 @@ public sealed class GlobalIlluminationTests : IDisposable
     }
 
     // Draws frames until the field has settled and been built and the light has bounced a few
-    // times, the last of them captured.
-    private Image Capture(Action draw)
+    // times, the last of them captured, through the camera given or one looking at the middle.
+    private Image Capture(Action draw, Camera3D? camera = null)
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < 40 && !File.Exists(path); frame++)
         {
             BeginDrawing();
             ClearBackground(Color.Black);
-            BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+            BeginMode3D(camera ?? new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
             draw();
             EndMode3D();
             if (frame == SceneFieldPlan.SettleFrames + 10) TakeScreenshot(path);
@@ -230,6 +230,40 @@ public sealed class GlobalIlluminationTests : IDisposable
         UnloadModel(floor);
         UnloadModel(block);
         UnloadModel(panel);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Lamp_That_Casts_Shadows_Bounces_No_Light_Into_A_Room_Its_Walls_Close_It_Out_Of()
+    {
+        // A closed room of slabs 0.6 thick, the camera inside facing a wall, and a lamp that casts
+        // shadows over its roof or under its floor, so none of its light reaches inside. The
+        // probes' rays lit the room's walls with it as if the roof were not there, a ray of a probe
+        // above the floor that started past it brought back the light under it, and probes beyond
+        // the walls lent theirs, which lit the room nearly as brightly as the lamp would unshadowed.
+        foreach (var lampY in new[] { 5f, -2f })
+        {
+            Open();
+            CreatePointLight(new Vector3(0, lampY, 0), Color.White, 20, range: 14, castsShadows: true);
+            var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+            const float thick = 0.6f, wide = 4 + 2 * thick;
+            void Draw()
+            {
+                DrawModelEx(slab, new Vector3(0, -thick / 2, 0), Vector3.UnitY, 0, new Vector3(wide, thick, wide), Color.White);
+                DrawModelEx(slab, new Vector3(0, 3 + thick / 2, 0), Vector3.UnitY, 0, new Vector3(wide, thick, wide), Color.White);
+                DrawModelEx(slab, new Vector3(-2 - thick / 2, 1.5f, 0), Vector3.UnitY, 0, new Vector3(thick, 3, wide), Color.White);
+                DrawModelEx(slab, new Vector3(2 + thick / 2, 1.5f, 0), Vector3.UnitY, 0, new Vector3(thick, 3, wide), Color.White);
+                DrawModelEx(slab, new Vector3(0, 1.5f, -2 - thick / 2), Vector3.UnitY, 0, new Vector3(4, 3, thick), Color.White);
+                DrawModelEx(slab, new Vector3(0, 1.5f, 2 + thick / 2), Vector3.UnitY, 0, new Vector3(4, 3, thick), Color.White);
+            }
+            SetGlobalIllumination(GlobalIllumination.Medium);
+            var room = Mean(Capture(Draw, new Camera3D(new Vector3(0, 1.5f, 1.5f), new Vector3(0, 1.5f, -2), Vector3.UnitY, 70)), 20, 16, 120, 64);
+
+            room.Length().Should().BeLessThan(8, $"none of the lamp's light at {lampY} up reaches the room, bounced or not, {room}");
+            UnloadModel(slab);
+            CloseWindow();
+            UseApp(null);
+        }
     }
 
     [NeedsRayQueryFact]
