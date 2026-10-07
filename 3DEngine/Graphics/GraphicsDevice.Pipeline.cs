@@ -273,6 +273,7 @@ internal sealed unsafe partial class GraphicsDevice
         VkDescriptorSetLayout* setLayouts = stackalloc VkDescriptorSetLayout[maxSetLayouts];
         if (desc.DescriptorSetLayouts is { Length: > 0 } customLayouts)
         {
+            CheckStageLimits(customLayouts.OfType<VulkanDescriptorSetLayout>().SelectMany(layout => layout.Bindings), "a pipeline");
             setLayoutCount = customLayouts.Length;
             for (int i = 0; i < setLayoutCount; i++)
             {

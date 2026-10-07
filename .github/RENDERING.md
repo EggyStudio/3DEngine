@@ -308,9 +308,15 @@ probe's middle, lit by the capture's lights, so a fire in a room glows in its me
 ## 4. Lights and shadows
 
 `LightExtract` copies every `Light` entity into the render world, and `LightingUboPrepare` packs up
-to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set
-from a ring of one per frame in flight. A `Light` is a kind (directional, point, spot or ambient),
-a color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
+to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set from
+a ring of one per frame in flight. The set's images, seventeen of them, are bound apart from two
+samplers they share, one blending and one reading the nearest texel, since Metal allows a stage
+sixteen samplers and a combined image sampler counts as one, so the model pass's fragment stage
+reads seven with the material's five maps and a program's shader has nine left. The device reads its
+limits of samplers and images a stage when it starts and refuses a pipeline past them with a
+sentence of the counts (`GraphicsDevice.Limits`), where the driver would draw nothing, and a test
+holds every built-in shader to sixteen. A `Light` is a kind (directional, point, spot or ambient), a
+color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
 `lights.slang`, which `modelpass.slang` imports beside the set it reads (`lightset.slang`), adds
 each light by Lambert's cosine: a directional light by its direction, an ambient light everywhere
 alike, and a point or spot by the square of the distance, brought smoothly to nothing at its range

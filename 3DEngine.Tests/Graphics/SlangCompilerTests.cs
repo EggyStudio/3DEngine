@@ -125,24 +125,55 @@ public class SlangCompilerTests : IDisposable
     }
 
     [NeedsSlangFact]
+    public void No_Stage_Of_A_Built_In_Shader_Reads_More_Samplers_Than_Metal_Allows_A_Stage()
+    {
+        // Metal allows a stage sixteen samplers, which MoltenVK reports as
+        // maxPerStageDescriptorSamplers, and a combined image sampler counts as one, so a pass of
+        // more textures than that reads them through a few samplers bound apart, as the model
+        // pass's lights' set does. Every other device allows more, so this is where it is held.
+        var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
+        var loader = new SlangLoader(_folder.Path, shaders);
+        var over = new List<string>();
+        foreach (var file in Directory.GetFiles(shaders, "*.slang").Order(StringComparer.Ordinal))
+        {
+            var source = File.ReadAllText(file);
+            if (!SlangLoader.EntryPoints(source).Any(e => e.Stage == ShaderStage.Fragment)) continue;
+            var program = loader.Compile(source, Path.GetFileName(file));
+            var bindings = program.Bindings.Select(b => new DescriptorSetLayoutBinding((uint)b.Binding.Binding, b.Binding.Type, b.Stages)).ToArray();
+            foreach (var stage in new[] { ShaderStageFlags.Vertex, ShaderStageFlags.Fragment })
+                if (GraphicsDevice.OverLimits(stage.ToString(), bindings.Where(b => b.Stages.HasFlag(stage)), 16, 128, Path.GetFileName(file)) is { } refusal)
+                    over.Add(refusal);
+        }
+        over.Should().BeEmpty();
+
+        // And a stage past it is refused with the counts.
+        var many = Enumerable.Range(0, 22).Select(i => new DescriptorSetLayoutBinding((uint)i, DescriptorType.CombinedImageSampler, ShaderStageFlags.Fragment));
+        GraphicsDevice.OverLimits("fragment", many, 16, 128, "a pipeline").Should()
+            .StartWith("The fragment stage of a pipeline reads 22 samplers, and this GPU allows a stage 16.");
+    }
+
+    [NeedsSlangFact]
     public void The_Model_Pass_Sets_Are_Read_From_Its_Shader()
     {
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         var program = new SlangLoader(_folder.Path, shaders).Compile(File.ReadAllText(Path.Combine(shaders, "model.slang")), "model.slang");
 
         var lights = program.LayoutOf(1);
-        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 18 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b),
+        lights.Select(b => b.Binding).Should().Equal(Enumerable.Range(0, 20 + 2 * LightingUboPacker.MaxProbes).Select(b => (uint)b),
             "the lighting buffer, the shadow maps, the environment and sky, the probes' cubes, the occlusion, the probes' and the environment's irradiance, "
             + "the light that bounced in the world's probes, the field they lie in, and the screen's probes and their surfaces, "
-            + "and what a reflection is traced through, the field, its colors and light, the lights, the window's depth, and its frame before and that frame's depth");
+            + "what a reflection is traced through, the field, its colors and light, the lights, the window's depth, and its frame before and that frame's depth, "
+            + "and the two samplers the set's images are read through");
         lights[0].Type.Should().Be(DescriptorType.UniformBuffer);
-        lights.Skip(1).Take(5 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.CombinedImageSampler);
+        // Images alone, read through the set's two samplers, since Metal allows a stage sixteen.
+        lights.Skip(1).Take(5 + LightingUboPacker.MaxProbes).Should().OnlyContain(b => b.Type == DescriptorType.SampledImage);
         lights.Skip(6 + LightingUboPacker.MaxProbes).Take(1 + LightingUboPacker.MaxProbes).Should()
             .OnlyContain(b => b.Type == DescriptorType.StorageBuffer, "the GPU writes the irradiance");
-        lights.Skip(7 + 2 * LightingUboPacker.MaxProbes).Select(b => b.Type).Should().Equal(DescriptorType.CombinedImageSampler,
-            DescriptorType.UniformBuffer, DescriptorType.CombinedImageSampler, DescriptorType.CombinedImageSampler,
-            DescriptorType.CombinedImageSampler, DescriptorType.CombinedImageSampler, DescriptorType.CombinedImageSampler,
-            DescriptorType.UniformBuffer, DescriptorType.CombinedImageSampler, DescriptorType.CombinedImageSampler, DescriptorType.CombinedImageSampler);
+        lights.Skip(7 + 2 * LightingUboPacker.MaxProbes).Select(b => b.Type).Should().Equal(DescriptorType.SampledImage,
+            DescriptorType.UniformBuffer, DescriptorType.SampledImage, DescriptorType.SampledImage,
+            DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
+            DescriptorType.UniformBuffer, DescriptorType.SampledImage, DescriptorType.SampledImage, DescriptorType.SampledImage,
+            DescriptorType.Sampler, DescriptorType.Sampler);
         lights.Should().OnlyContain(b => b.Stages.HasFlag(ShaderStageFlags.Fragment));
         program.LayoutOf(0).Select(b => b.Binding).Should().Equal([1u, 2u, 3u, 4u, 5u], "the material's five maps");
 

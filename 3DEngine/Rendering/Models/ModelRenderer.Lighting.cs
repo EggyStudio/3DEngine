@@ -29,20 +29,21 @@ internal sealed partial class ModelRenderer
                 gfx.Unmap(_noLightsBuffer);
                 _noLights = gfx.CreateDescriptorSet(LightsLayout(gfx));
                 gfx.UpdateDescriptorSet(_noLights, new UniformBufferBinding(_noLightsBuffer, 0, 0, (ulong)LightingUboPacker.SizeBytes),
-                    new CombinedImageSamplerBinding(white, whiteSampler, 1));
-                gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
+                    Lit(white, whiteSampler, 1));
+                gfx.UpdateDescriptorSet(_noLights, null, Lit(white, whiteSampler, AmbientOcclusionBinding));
                 if (BlackCube(gfx) is { } black)
                     for (uint b = 2; b < 5 + LightingUboPacker.MaxProbes; b++)
-                        if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(black.View, black.Sampler, b));
+                        if (b != 4) gfx.UpdateDescriptorSet(_noLights, null, Lit(black.View, black.Sampler, b));
                 for (uint s = 0; s < LightingUboPacker.MaxProbes; s++)
                     gfx.UpdateDescriptorSet(_noLights, new StorageBufferBinding(NoIrradiance(gfx), ProbeIrradianceBinding + s));
                 gfx.UpdateDescriptorSet(_noLights, new StorageBufferBinding(NoIrradiance(gfx), EnvironmentIrradianceBinding));
                 if (gfx is GraphicsDevice stub)
                 {
                     var none = NoPointShadowMap(stub);
-                    gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(none.DepthView, none.Sampler, 4));
+                    gfx.UpdateDescriptorSet(_noLights, null, Lit(none.DepthView, none.Sampler, 4));
                     BindBounced(stub, _noLights, null);
                 }
+                BindSamplers(gfx, _noLights, white);
             }
             return _noLights;
         }
@@ -68,32 +69,33 @@ internal sealed partial class ModelRenderer
             ? (own.Binding, own.Shadow)
             : (frame.Binding, renderWorld.TryGet<FrameShadow>());
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
-            ? new CombinedImageSamplerBinding(map.DepthView, map.Sampler, 1)
-            : new CombinedImageSamplerBinding(white, whiteSampler, 1));
+            ? Lit(map.DepthView, map.Sampler, 1)
+            : Lit(white, whiteSampler, 1));
         // The window's occlusion for the window's view, which alone has its buffer say to read it.
         gfx.UpdateDescriptorSet(set, null, target == 0 && renderWorld.TryGet<AmbientOcclusionImage>() is { } occlusion
-            ? new CombinedImageSamplerBinding(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
-            : new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
+            ? Lit(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
+            : Lit(white, whiteSampler, AmbientOcclusionBinding));
         // And the light that bounced, likewise the window's alone.
         if (gfx is GraphicsDevice bouncing) BindBounced(bouncing, set, target == 0 ? renderWorld.TryGet<IlluminationBinding>() : null);
+        BindSamplers(gfx, set, white);
         // The environment as the frame's filter left it, or black and no light where it has none.
         var environment = frame.HasEnvironment && _environmentSource is not null
             && ReferenceEquals(renderWorld.TryGet<EnvironmentMap>(), _environmentSource) ? _environment : null;
         if (environment is not null && _sky is not null)
         {
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(environment.View, environment.Sampler, 2));
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_sky.View, _sky.Sampler, 3));
+            gfx.UpdateDescriptorSet(set, null, Lit(environment.View, environment.Sampler, 2));
+            gfx.UpdateDescriptorSet(set, null, Lit(_sky.View, _sky.Sampler, 3));
         }
         else if (BlackCube(gfx) is { } none)
         {
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(none.View, none.Sampler, 2));
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(none.View, none.Sampler, 3));
+            gfx.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, 2));
+            gfx.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, 3));
         }
         gfx.UpdateDescriptorSet(set, new StorageBufferBinding(environment?.Irradiance ?? NoIrradiance(gfx), EnvironmentIrradianceBinding));
         if (gfx is GraphicsDevice device)
         {
             var points = shadow is { PointLights.Count: > 0 } ? PointShadowMap(device, shadow.PointFaceSize) : NoPointShadowMap(device);
-            gfx.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(points.DepthView, points.Sampler, 4));
+            gfx.UpdateDescriptorSet(set, null, Lit(points.DepthView, points.Sampler, 4));
 
             // Each bound probe's cube and irradiance at its slot, and the black cube and zeros past them.
             var slots = renderWorld.TryGet<BoundProbes>()?.Slots ?? [];
@@ -102,8 +104,8 @@ internal sealed partial class ModelRenderer
             {
                 var probeMap = s < slots.Count ? slots[s].Map : null;
                 gfx.UpdateDescriptorSet(set, null, probeMap is not null
-                    ? new CombinedImageSamplerBinding(probeMap.View, probeMap.Sampler, (uint)(5 + s))
-                    : new CombinedImageSamplerBinding(black.View, black.Sampler, (uint)(5 + s)));
+                    ? Lit(probeMap.View, probeMap.Sampler, (uint)(5 + s))
+                    : Lit(black.View, black.Sampler, (uint)(5 + s)));
                 gfx.UpdateDescriptorSet(set, new StorageBufferBinding(probeMap?.Irradiance ?? NoIrradiance(gfx), ProbeIrradianceBinding + (uint)s));
             }
             ForgetProbeMaps(renderWorld);
@@ -112,6 +114,36 @@ internal sealed partial class ModelRenderer
             for (uint s = 0; s < LightingUboPacker.MaxProbes; s++)
                 gfx.UpdateDescriptorSet(set, new StorageBufferBinding(NoIrradiance(gfx), ProbeIrradianceBinding + s));
         return set;
+    }
+
+    // Where lightset.slang binds the two samplers every image of the set is read through.
+    private const uint LinearSamplerBinding = 26, NearestSamplerBinding = 27;
+
+    // The two samplers, one blending between texels and levels and one reading the nearest
+    // texel, made the first time a set binds them.
+    private ISampler? _lightLinear, _lightNearest;
+
+    private void BindSamplers(IGraphicsDevice gfx, IDescriptorSet set, IImageView any)
+    {
+        _lightLinear ??= gfx.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
+            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, MipFilter: SamplerFilter.Linear));
+        _lightNearest ??= gfx.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
+            SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
+        gfx.UpdateDescriptorSet(set, null, Lit(any, _lightLinear, LinearSamplerBinding));
+        gfx.UpdateDescriptorSet(set, null, Lit(any, _lightNearest, NearestSamplerBinding));
+    }
+
+    // The bindings of the lights' set by number, as the model pass declares each.
+    private Dictionary<uint, DescriptorType>? _lightsTypes;
+
+    // A texture or sampler of the lights' set written as the model pass declares its binding: the
+    // image alone where the image is read through the set's shared samplers, and the sampler alone
+    // for one of those, since a stage may have no more than sixteen samplers on Metal.
+    private CombinedImageSamplerBinding Lit(IImageView view, ISampler sampler, uint binding)
+    {
+        _lightsTypes ??= _lightsBindings.ToDictionary(b => b.Binding, b => b.Type);
+        return new CombinedImageSamplerBinding(view, sampler, binding,
+            _lightsTypes.TryGetValue(binding, out var type) ? type : DescriptorType.CombinedImageSampler);
     }
 
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
@@ -138,33 +170,33 @@ internal sealed partial class ModelRenderer
     private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced)
     {
         var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.BlendedView, screen.Sampler, ScreenLightBinding));
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
+        device.UpdateDescriptorSet(set, null, Lit(screen.BlendedView, screen.Sampler, ScreenLightBinding));
+        device.UpdateDescriptorSet(set, null, Lit(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
         _noScreen ??= device.CreateScreenProbes(1, 1, 1);
         var (depthView, depthSampler) = bounced?.Depth is { } depth ? (depth.View, depth.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depthView, depthSampler, ReflectDepthBinding));
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(historyView, historySampler, ReflectHistoryBinding));
+        device.UpdateDescriptorSet(set, null, Lit(depthView, depthSampler, ReflectDepthBinding));
+        device.UpdateDescriptorSet(set, null, Lit(historyView, historySampler, ReflectHistoryBinding));
         var (historyDepthView, historyDepthSampler) = bounced?.History is { } held ? (held.DepthView, held.DepthSampler) : (_noScreen.BlendedView, _noScreen.Sampler);
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(historyDepthView, historyDepthSampler, ReflectHistoryDepthBinding));
+        device.UpdateDescriptorSet(set, null, Lit(historyDepthView, historyDepthSampler, ReflectHistoryDepthBinding));
         GpuSceneField field;
         if (bounced is not null)
         {
             field = bounced.Field;
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Probes.Lights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         else
         {
             field = _noBounce ??= device.CreateSceneField(1, 1);
             _noGiLights ??= device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
-            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, BouncedLightBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, ReflectFieldBinding));
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.AlbedoView, field.Sampler, ReflectAlbedoBinding));
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.GlowView, field.Sampler, ReflectGlowBinding));
+        device.UpdateDescriptorSet(set, null, Lit(field.View, field.Sampler, ReflectFieldBinding));
+        device.UpdateDescriptorSet(set, null, Lit(field.AlbedoView, field.Sampler, ReflectAlbedoBinding));
+        device.UpdateDescriptorSet(set, null, Lit(field.GlowView, field.Sampler, ReflectGlowBinding));
     }
 
     // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after

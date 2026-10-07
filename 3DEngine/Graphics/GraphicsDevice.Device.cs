@@ -145,6 +145,8 @@ internal sealed unsafe partial class GraphicsDevice
 
         // Made directly for the same reason as the instance's table: GetApi's cache outlives the device.
         _deviceApi = new VkDeviceApi(_instanceApi, _device);
+        var (samplers, images) = StageLimits;
+        Logger.Info($"A shader stage may read {samplers} samplers and {images} images.");
 
         Logger.Debug("Retrieving graphics and present device queues...");
         _deviceApi.vkGetDeviceQueue(_graphicsQueueFamily, 0, out _graphicsQueue);

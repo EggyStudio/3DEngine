@@ -6,6 +6,38 @@
 // size of 0 and is passed over.
 module scenefield;
 
+// A 3D image a pass reads the field, its colors or the bounced light through: sampled between
+// texels at a level, or a texel loaded as it is. A pass that binds its images with their samplers
+// passes them as they are, and the model pass, which binds its images apart from a few samplers
+// they share, since a stage may have no more than sixteen samplers on Metal, passes a SplitVolume.
+public interface IVolume
+{
+    public float4 sampleAt(float3 uvw, float lod);
+    public float4 loadAt(int3 texel);
+}
+
+public extension Sampler3D : IVolume
+{
+    public float4 sampleAt(float3 uvw, float lod) { return this.SampleLevel(uvw, lod); }
+    public float4 loadAt(int3 texel) { return this.Load(int4(texel, 0)); }
+}
+
+// An image and the sampler it is read through, bound apart.
+public struct SplitVolume : IVolume
+{
+    public Texture3D image;
+    public SamplerState sampler;
+
+    public __init(Texture3D image, SamplerState sampler)
+    {
+        this.image = image;
+        this.sampler = sampler;
+    }
+
+    public float4 sampleAt(float3 uvw, float lod) { return image.SampleLevel(sampler, uvw, lod); }
+    public float4 loadAt(int3 texel) { return image.Load(int4(texel, 0)); }
+}
+
 public struct FieldCascade
 {
     // xyz: the world position of the cascade's corner, its first cell's least corner. w: the
@@ -47,18 +79,18 @@ public int fieldCascade(SceneFieldInfo info, float3 p, float margin)
 // The distance from p to the nearest surface in cascade i, in world units, blended between the
 // eight cells around it, each read no nearer a side than half a cell, so cascades stacked in the
 // texture do not bleed into each other.
-public float fieldDistanceIn(Sampler3D field, SceneFieldInfo info, int i, float3 p)
+public float fieldDistanceIn<V : IVolume>(V field, SceneFieldInfo info, int i, float3 p)
 {
     float4 oc = info.cascades[i].originAndCell;
     float size = info.counts.y;
     float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
     float3 uvw = float3(cell.xy / size, (cell.z + float(i) * size) / (size * info.counts.x));
-    return field.SampleLevel(uvw, 0).r;
+    return field.sampleAt(uvw, 0).r;
 }
 
 // The distance from p to the nearest surface, from the finest cascade around it, or far where none
 // holds it.
-public float fieldDistance(Sampler3D field, SceneFieldInfo info, float3 p)
+public float fieldDistance<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.0);
     return i < 0 ? 1e6 : fieldDistanceIn(field, info, i, p);
@@ -66,7 +98,7 @@ public float fieldDistance(Sampler3D field, SceneFieldInfo info, float3 p)
 
 // The way out from the nearest surface at p, the field's gradient across half a cell, or up where
 // the field is flat or holds nothing there.
-public float3 fieldNormal(Sampler3D field, SceneFieldInfo info, float3 p)
+public float3 fieldNormal<V : IVolume>(V field, SceneFieldInfo info, float3 p)
 {
     int i = fieldCascade(info, p, 1.5);
     if (i < 0)

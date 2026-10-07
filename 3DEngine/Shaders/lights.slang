@@ -65,7 +65,7 @@ public float cascadeReached(int c, float3 world, float3 n, float2 texel, out flo
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.0005 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+            reached += p.z - 0.0005 <= shadowMap.SampleLevel(lightNearest, uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
     return reached / 9.0;
 }
 
@@ -132,7 +132,7 @@ public float spotLightReaching(float3 world, float3 n, float3 lightPosition, int
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.00002 <= shadowMap.SampleLevel(uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
+            reached += p.z - 0.00002 <= shadowMap.SampleLevel(lightNearest, uv + float2(x, y) * texel, 0.0).r ? 1.0 : 0.0;
     return reached / 9.0;
 }
 
@@ -174,7 +174,7 @@ public float pointLightReaching(float3 world, float3 n, float3 lightPosition, in
     float reached = 0.0;
     for (int y = -1; y <= 1; y++)
         for (int x = -1; x <= 1; x++)
-            reached += p.z - 0.00002 <= pointShadowMap.SampleLevel(float3(uv + float2(x, y) * texel, layer), 0.0).r ? 1.0 : 0.0;
+            reached += p.z - 0.00002 <= pointShadowMap.SampleLevel(lightNearest, float3(uv + float2(x, y) * texel, layer), 0.0).r ? 1.0 : 0.0;
     return reached / 9.0;
 }
 
@@ -259,10 +259,10 @@ public int probeAt(float3 p)
 // A probe's cube along a direction at a mip, by its slot.
 public float3 probeSample(int i, float3 direction, float mip)
 {
-    if (i == 0) return probeMap0.SampleLevel(direction, mip).rgb;
-    if (i == 1) return probeMap1.SampleLevel(direction, mip).rgb;
-    if (i == 2) return probeMap2.SampleLevel(direction, mip).rgb;
-    return probeMap3.SampleLevel(direction, mip).rgb;
+    if (i == 0) return probeMap0.SampleLevel(lightLinear, direction, mip).rgb;
+    if (i == 1) return probeMap1.SampleLevel(lightLinear, direction, mip).rgb;
+    if (i == 2) return probeMap2.SampleLevel(lightLinear, direction, mip).rgb;
+    return probeMap3.SampleLevel(lightLinear, direction, mip).rgb;
 }
 
 // The way into a probe's cube that a ray from p along r meets the box's wall, from the middle the
@@ -307,7 +307,7 @@ public float3 bounced(float3 p, float3 n)
     int c = fieldCascade(bouncedField, p, 1.0);
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
-    return bouncedAt(bouncedLight, bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+    return bouncedAt(SplitVolume(bouncedLight, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
 }
 
 // The light a glossy surface at p facing n reflects along r, traced through the window's depth and
@@ -330,9 +330,9 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
     camera.eye = eye;
     float3 hit;
     float left;
-    if (traceScreen(reflectDepth, camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left))
+    if (traceScreen(SplitPicture(reflectDepth, lightNearest), camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left))
     {
-        float3 shaded = shadeHit(reflectField, bouncedField, reflectAlbedo, reflectGlow, reflectLights, bouncedLight, hit, probes, spacing, cascades);
+        float3 shaded = shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), hit, probes, spacing, cascades);
         float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));
         float2 uv = last.xy / max(last.w, 1e-4) * 0.5 + 0.5;
         if (lighting.reflection.w <= 0.0 || last.w <= 1e-4 || any(uv < 0.0) || any(uv > 1.0))
@@ -343,17 +343,17 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
         before.viewProjection = lighting.reflectLastViewProjection;
         before.inverseViewProjection = lighting.reflectLastInverseViewProjection;
         before.eye = eye;
-        float3 then = screenWorld(before, uv, reflectHistoryDepth.SampleLevel(uv, 0).r);
+        float3 then = screenWorld(before, uv, reflectHistoryDepth.SampleLevel(lightNearest, uv, 0).r);
         float near = 0.05 + 0.02 * distance(eye, hit);
         float shown = 1.0 - smoothstep(near, near * 3.0, distance(then, hit));
         // The picture's light, blurred down its mips as the surface is rough, and the field's
         // shading where the picture ends or did not show the surface.
         float edge = saturate(min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)) * 12.0);
-        float3 seen = reflectHistory.SampleLevel(uv, saturate(roughness / lighting.reflection.y) * 4.0).rgb;
+        float3 seen = reflectHistory.SampleLevel(lightLinear, uv, saturate(roughness / lighting.reflection.y) * 4.0).rgb;
         return float4(lerp(shaded, seen, edge * shown), 1.0);
     }
-    float t = traceField(reflectField, bouncedField, start, r, left, 1e5);
+    float t = traceField(SplitVolume(reflectField, lightLinear), bouncedField, start, r, left, 1e5);
     if (t < 0.0)
         return float4(0.0);
-    return float4(shadeHit(reflectField, bouncedField, reflectAlbedo, reflectGlow, reflectLights, bouncedLight, start + r * t, probes, spacing, cascades), 1.0);
+    return float4(shadeHit(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), start + r * t, probes, spacing, cascades), 1.0);
 }

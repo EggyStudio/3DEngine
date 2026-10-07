@@ -63,6 +63,7 @@ internal sealed unsafe partial class GraphicsDevice
         imageBindings ??= [];
         textureBindings ??= [];
 
+        CheckComputeLimits(textureBindings.Select(t => t.Type), "a compute shader");
         var count = bufferBindings.Count + imageBindings.Count + textureBindings.Count + (uniformSize > 0 ? 1 : 0);
         var bindings = stackalloc VkDescriptorSetLayoutBinding[Math.Max(1, count)];
         int b = 0;

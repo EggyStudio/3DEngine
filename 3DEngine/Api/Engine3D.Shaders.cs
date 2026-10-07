@@ -4,10 +4,25 @@ namespace Engine;
 
 public static partial class Engine3D
 {
-    private static readonly Dictionary<int, ShaderParams> ShaderValues = [];
+    // What a program set on its shaders, by id, which belongs to the app whose shader store gave
+    // the ids, so an app made after another, whose store gives ids from 1 again, finds none of the
+    // other's values under them, as a uniform block of another shader's size once was found.
+    private sealed class ShaderState
+    {
+        public readonly Dictionary<int, ShaderParams> Values = [];
+        public readonly Dictionary<int, byte[]> Uniforms = [];
+        public readonly Dictionary<int, int[]> Textures = [];
+        public readonly Dictionary<int, int[]> Images = [];
+    }
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ShaderStore, ShaderState> ShaderStates = new();
+
+    private static ShaderState ShadersSet => ShaderStates.GetValue(Res<ShaderStore>(), static _ => new ShaderState());
+
+    private static Dictionary<int, ShaderParams> ShaderValues => ShadersSet.Values;
 
     // The values of each shader's named uniforms, as the bytes of its constant buffer.
-    private static readonly Dictionary<int, byte[]> UniformValues = [];
+    private static Dictionary<int, byte[]> UniformValues => ShadersSet.Uniforms;
 
     // Locations of named uniforms start here, past the immediate pass's four slots, so one
     // SetShaderValue serves both, and those of textures further on.
@@ -16,9 +31,9 @@ public static partial class Engine3D
     private const int ImageLocationBase = 1 << 22;
 
     // The texture each of a shader's textures is set to, by its index in ShaderProgram.Textures, 0 for none.
-    private static readonly Dictionary<int, int[]> TextureValues = [];
+    private static Dictionary<int, int[]> TextureValues => ShadersSet.Textures;
     // The texture each of a compute shader's images is set to, by its index in ShaderProgram.Images.
-    private static readonly Dictionary<int, int[]> ImageValues = [];
+    private static Dictionary<int, int[]> ImageValues => ShadersSet.Images;
     private static Shader _shader;
 
     // -- Custom shaders. A shader is a Slang file that imports the engine's module and defines
@@ -203,7 +218,11 @@ public static partial class Engine3D
         if (index < 0 || index >= program.Uniforms.Count) return;
         var uniform = program.Uniforms[index];
         if (!UniformValues.TryGetValue(shader.Id, out var block)) UniformValues[shader.Id] = block = new byte[program.UniformSize];
-        value[..Math.Min(value.Length, uniform.Size)].CopyTo(block.AsSpan(uniform.Offset));
+        var written = Math.Min(value.Length, uniform.Size);
+        if (uniform.Offset + written > block.Length)
+            throw new InvalidOperationException($"'{uniform.Name}' of '{program.Name}' is {uniform.Size} bytes at offset {uniform.Offset}, "
+                                                + $"past the end of its uniform block of {block.Length} bytes.");
+        value[..written].CopyTo(block.AsSpan(uniform.Offset));
         // Inside the shader's mode, what is drawn after takes the new values.
         if (_shader == shader) DrawList.SetShader(shader.Id, ShaderValues.GetValueOrDefault(shader.Id), UniformSnapshot(shader), TextureSnapshot(shader));
     }

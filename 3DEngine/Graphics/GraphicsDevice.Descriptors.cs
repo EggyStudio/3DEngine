@@ -89,7 +89,7 @@ internal sealed unsafe partial class GraphicsDevice
     // Makes another pool of the same size, the one new sets come from.
     private void AddDescriptorPool()
     {
-        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers, 1024 storage buffers and 1024 each of images and samplers apart, maxSets=4096)...");
+        Logger.Debug($"Creating descriptor pool {_descriptorPools.Count + 1} (4096 UBOs, 4096 dynamic UBOs, 16384 samplers, 1024 storage buffers, 16384 images and 4096 samplers apart, maxSets=4096)...");
         VkDescriptorPoolSize* poolSizes = stackalloc VkDescriptorPoolSize[6];
         poolSizes[0] = new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer, 4096);
         // A model pass set holds five maps, so samplers run out first.
@@ -97,9 +97,10 @@ internal sealed unsafe partial class GraphicsDevice
         poolSizes[2] = new VkDescriptorPoolSize(VkDescriptorType.UniformBufferDynamic, 4096);
         // For the storage buffers a drawing shader reads, which few draws have.
         poolSizes[3] = new VkDescriptorPoolSize(VkDescriptorType.StorageBuffer, 1024);
-        // For a program's shaders that declare a texture and its sampler apart, which few do.
-        poolSizes[4] = new VkDescriptorPoolSize(VkDescriptorType.SampledImage, 1024);
-        poolSizes[5] = new VkDescriptorPoolSize(VkDescriptorType.Sampler, 1024);
+        // For the model pass's lights' sets, which read their images through two samplers bound
+        // apart, and a program's shaders that declare a texture and its sampler apart.
+        poolSizes[4] = new VkDescriptorPoolSize(VkDescriptorType.SampledImage, 16384);
+        poolSizes[5] = new VkDescriptorPoolSize(VkDescriptorType.Sampler, 4096);
 
         VkDescriptorPoolCreateInfo poolInfo = new()
         {
@@ -144,11 +145,15 @@ internal sealed unsafe partial class GraphicsDevice
         private readonly GraphicsDevice _device;
         internal VkDescriptorSetLayout Handle;
 
-        public VulkanDescriptorSetLayout(GraphicsDevice device, VkDescriptorSetLayout handle)
+        public VulkanDescriptorSetLayout(GraphicsDevice device, VkDescriptorSetLayout handle, DescriptorSetLayoutBinding[] bindings)
         {
             _device = device;
             Handle = handle;
+            Bindings = bindings;
         }
+
+        /// <summary>The bindings it was made with, which a pipeline's stages are counted from.</summary>
+        internal DescriptorSetLayoutBinding[] Bindings { get; }
 
         public void Dispose()
         {
@@ -185,7 +190,7 @@ internal sealed unsafe partial class GraphicsDevice
         };
 
         _deviceApi.vkCreateDescriptorSetLayout(&layoutInfo, null, out VkDescriptorSetLayout layout).CheckResult();
-        return new VulkanDescriptorSetLayout(this, layout);
+        return new VulkanDescriptorSetLayout(this, layout, [.. bindings]);
     }
 
     /// <inheritdoc />

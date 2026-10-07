@@ -10,18 +10,31 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `09419080`. Verdict 35 is settled: N 1.3's test counts the Slang shaders of the
-library, the tests and the examples as it counts their C#, and the model pass shader comes to 411
-lines, the lights' descriptor set, its structs and its bindings, in `lightset.slang`, which
-`modelpass` passes on to a program's shader as before, and what reads the set in `lights.slang`,
-each light's arrival, the shadow maps, the specular model, the probes and the environment, the
-bounced light and the traced reflection, imported without being passed on so a program's shader sees
-no new names, after a first try that exported them clashed with `pbr.slang`'s `PI`; every shader of
-the examples, the games and the templates that imports `modelpass` compiles, and no Slang file is
-over 800 lines, so N 1.3's list stays empty (`09419080`). The owner pushed, and the runs of
-`80227981` and `09419080` were in progress at 19:45, the first with the Windows mends of `5057c3cb`.
-The ray-query batch with the frame before's depth is next. The suite: 1,524 passed; lavapipe under
-validation passed its 52 frame, bounce and compiler tests.
+Reviewed up to `c4f248fd`. A reflection reads the frame before's depth beside its picture: after the
+model pass the window's half-size depth is copied with the half-size scene (`RecordKeepFrame`), a
+reflection that meets a surface on the screen rebuilds the point that depth held there through the
+frame before's camera, whose inverse the lighting buffer carries too, and where that point is
+farther from the hit than five hundredths and a fiftieth of the distance from the eye, the field's
+shading stands in for the picture, so a surface something hid in that frame reflects as the field
+holds it; a test has a green panel hide the foot of a red block until the frame it is taken away,
+whose floor reflects red where it reflected green; `gi.state` counts the depth in the frame kept's
+memory and TODO.md's line is gone (`c4f248fd`). The runs of `80227981` and `09419080` failed on
+macOS in 103 tests, the model pass asking 22 sampler bindings a stage where the device allows 16,
+and in the array uniform case, which is Verdict 36 and comes before the ray-query path; their
+Windows jobs were in the tests at 19:52 with the mends of `5057c3cb`. The suite: 1,525 passed;
+lavapipe under validation passed its 44 frame, bounce, field and occlusion tests.
+
+Before them, Verdict 35 came to be settled: N 1.3's test counts the Slang shaders of the library,
+the tests and the examples as it counts their C#, and the model pass shader comes to 411 lines, the
+lights' descriptor set, its structs and its bindings, in `lightset.slang`, which `modelpass` passes
+on to a program's shader as before, and what reads the set in `lights.slang`, each light's arrival,
+the shadow maps, the specular model, the probes and the environment, the bounced light and the
+traced reflection, imported without being passed on so a program's shader sees no new names, after a
+first try that exported them clashed with `pbr.slang`'s `PI`; every shader of the examples, the
+games and the templates that imports `modelpass` compiles, and no Slang file is over 800 lines, so
+N 1.3's list stays empty (`09419080`). The owner pushed, and the runs of `80227981` and `09419080`
+were in progress at 19:45, the first with the Windows mends of `5057c3cb`. The suite: 1,524 passed;
+lavapipe under validation passed its 52 frame, bounce and compiler tests.
 
 Before them, glossy surfaces came to reflect, the first part of phase three: a fragment under a
 roughness of 0.5 traces its mirror ray in the model pass, where it has its own normal and roughness,
@@ -41,35 +54,6 @@ frame before is kept with no depth, so a surface hidden in it shows what hid it 
 item 2 takes with the ray-query path. The suite: 1,524 passed; lavapipe under validation passed its
 61 reference, field, bounce, reflection, particle, occlusion and bloom tests.
 
-Before them, light came to bounce between surfaces through the field as hybrid Radiance Cascades,
-phase two of Decision 16, which settled its item, the list renumbered: `SetGlobalIllumination` and
-`Config.GlobalIllumination` take `Off`, `Low`, `Medium` or `High` and turn the field on at four
-cascades where it is off; a cascade of world probes lies every eight cells of the field's cascade of
-the same number, each tracing an octahedron of directions over its interval, the first from the
-probe to twice the spacing and each after from its spacing to twice that, `Low` at 4 by 4 and 8 by 8
-directions, `Medium` adding 16 by 16, `High` 8 by 8 then 16 by 16 in four cascades; the splat's
-second dispatch paints each cell its nearest triangle's color and the light it gives off, a hit
-sends on that color under the sun where the field reaches it, the unshadowed point and spot lights
-and the frame before's bounce, and a miss in the last cascade brings back the environment map; the
-merge runs far to near and passes over an upper probe the field hides from the lower; six faces of
-irradiance a probe feed the next frame's bounce and the model pass's fallback; screen probes every
-16, 12 or 8 pixels trace the first interval again on the occlusion pass's half-size depth, 16 rays
-over the hemisphere through the depth and then the field, filtered 5 by 5 by normal and distance,
-standing on texel middles since NVIDIA and lavapipe round a boundary apart; the model pass blends
-the four around a pixel in place of the diffuse light of the environment map, the ambient lights and
-the reflection probes; the halves are packed through `PackHalf2x16` by `spirv_asm`, since `f32tof16`
-declared capabilities lavapipe's validation rejects; a double-sided sheet thinner than a cell gets a
-second bit in the cell's word and half a cell of thickness, so rays stop at Manor's floors, with a
-test and `scene_field_cascade` written again; `shaders_cornell_box` with its 800 by 450 capture, the
-`cornell_box` and `lit_room` frames, four tests of the bounce and two of the frames, the guide's
-table of the three qualities measured on the RTX 4070 with the frame rate unlimited through
-`profile` and `gi.state`, 0.19 ms and 0.70 MB at `Low`, 0.27 ms and 2.76 MB at `Medium`, 0.34 ms and
-6.72 MB at `High`, the comparison page, the cheat sheet's line and the listing (`3e00ac64`). Verdict
-33's third part is mended in a commit of its own: the opening's answer goes to
-`captures/<game>-opened.json`, the watcher starts before the opening and the Windows games' step has
-110 of the job's 180 minutes (`5057c3cb`), unproven until a push. The suite: 1,521 passed; lavapipe
-under validation passed its 54 reference, field, bounce, particle and occlusion tests.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -80,18 +64,18 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **The runs of `80227981` and `09419080`, Verdicts 33, 30 and 31.** Both were in progress at
-   19:45, the first runs with the Windows mends of `5057c3cb`; a Windows job that plays the twelve
-   games settles Verdict 33, and the examples job, which carries the guides' blocks and Verdicts 30
-   and 31, runs once a run's three test jobs pass. Each push's run is read by the reviewing session,
-   and a failure it names comes first here.
-2. **Phase 3: specular, its glossy reflections in.** A fragment under a roughness of 0.5 traces
-   its mirror ray through the window's depth and on through the field, reading the frame before's
-   picture or the cascades' light, the probes and the environment the fallback as it grows rough
-   (`80227981`). Left: a hardware ray-query path through Vulkan's ray query extension for the
-   field's misses where the GPU has it, behind the same quality tier, measured; and the frame
-   before's depth kept beside its picture, so a surface hidden in that frame reflects the field's
-   shading and not what hid it, which TODO.md records until then.
+1. **Verdict 36 first, the macOS jobs, then the Windows jobs.** The runs of `80227981` and
+   `09419080` failed on macOS in 103 tests, the model pass asking 22 sampler bindings a stage where
+   the device allows 16, and in the array uniform case, Verdict 36, so its mend comes before the
+   ray-query batch; their Windows jobs were in the tests at 19:52 with the mends of `5057c3cb`, and
+   a Windows job that plays the twelve games settles Verdict 33; the examples job, which carries the
+   guides' blocks and Verdicts 30 and 31, runs once a run's three test jobs pass, which none will
+   before Verdict 36 is mended. Each push's run is read by the reviewing session, and a failure it
+   names comes first here.
+2. **Phase 3: specular, the ray-query path left.** Glossy reflections are in (`80227981`) with
+   the frame before's depth beside its picture (`c4f248fd`). Left: a hardware ray-query path through
+   Vulkan's ray query extension for the field's misses where the GPU has it, behind the same quality
+   tier, the model pass built with a define where the device has the extension, measured.
 3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
@@ -183,6 +167,27 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
     machine. Clearing the inherit flag of e3d's own handles before it starts `cmd.exe`, offered in
     the reply, is not asked for while nothing waits on them. Unproven until a push. Settled when a
     Windows job plays the twelve games.
+
+36. **The macOS jobs of `80227981` and `09419080` fail 103 tests: the model pass asks 22 sampler
+    bindings a stage, and the device allows 16.** Read from the pages: 1,388 passed, 103 failed, 13
+    skipped, the same on both; the validation layer says at every `vkCreatePipelineLayout` that the
+    per-stage sampler bindings, 22, exceed `maxPerStageDescriptorSamplers`, 16, and N 3.7 fails
+    every test that draws, the reference frames, the field's, the bounce's and the offscreen leak
+    test among them. The macOS job of `90681ba8` passed at 17:23, so the count crossed 16 with phase
+    two, whose set added the bounced light, the screen's probes and the field's three images, and
+    phase three added the frame before's picture and depth, nineteen samplers in `lightset.slang`
+    beside the material's own; lavapipe and the RTX 4070 allow more and showed nothing. Metal gives
+    a stage sixteen samplers, a limit no setting lifts, so the mend is in the layout: the set's
+    images are bound as sampled images with a few shared sampler states, linear, nearest and the
+    shadow comparison, since Vulkan and Metal count images apart from samplers and allow far more of
+    them, or the images that share a sampler become an array; and the engine reads
+    `maxPerStageDescriptorSamplers` and `maxPerStageDescriptorSampledImages` at start and refuses a
+    layout past them with a sentence, so a Mac without the validation layer says what is wrong
+    rather than drawing nothing. Beside it, one test of its own: `OffscreenRenderTests`' case of an
+    array uniform written at sixteen bytes a value throws `Destination is too short` in
+    `WriteUniform` on macOS alone, where the uniform's offset and size pass the block's size, so the
+    error says the three numbers and the cause is found in the macOS compiler's reflection or the
+    block it lays out, the test having passed there at `90681ba8`. Settled when a macOS job passes.
 
 ## Decisions
 
@@ -277,15 +282,30 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
 
 ## Replies
 
-Item 2's frame before's depth is in, ahead of the ray-query path. After the model pass the window's
-half-size depth is copied beside the half-size picture (`RecordKeepFrame`), and a reflection that
-meets a surface on the screen reads the depth there through the frame before's camera, both ways,
-the lighting buffer carrying its inverse too. Where the point that depth held is farther from the
-hit than five hundredths and a fiftieth of the distance from the eye, the field's shading of the hit
-stands in for the picture, so a surface something hid in that frame reflects as the field holds it.
-A test has a green panel hide the foot of a red block from the camera until the frame it is taken
-away, whose floor reflects red, (4.7, 63.4, 4.7) green with the check taken out. The occlusion
-pass's depth is a transfer's source for the copy, and `gi.state` counts the depth in the frame
-kept's memory. TODO.md's line on it is gone. The suite: 1,525 passed; lavapipe under validation
-passed its 44 frame, bounce, field and occlusion tests.
+Verdict 36 is mended, to be proved by the next macOS job:
+
+- **The sampler count.** The lights' set binds its seventeen images apart from two samplers they
+  share, one blending between texels and levels and one reading the nearest texel, so the model
+  pass's fragment stage reads seven samplers, the material's five maps and the two, where it read
+  twenty-two. The field's and the bounce's helpers in `scenefield.slang` and `gi.slang` take an
+  `IVolume` or an `IPicture`, which `Sampler3D` and `Sampler2D` conform to by an extension, so the
+  compute kernels compile as they were and the model pass passes a `SplitVolume`, an image and a
+  shared sampler. `ModelRenderer` writes each binding of the set as the shader declares it, the
+  image alone or the sampler alone, through one helper.
+- **The limits.** The device reads `maxPerStageDescriptorSamplers` and
+  `maxPerStageDescriptorSampledImages` when it is made, logs them, and refuses a graphics pipeline,
+  or a program's compute pipeline, whose stage reads more, with a sentence giving the stage, the
+  count and the limit (`GraphicsDevice.Limits`).
+- **A test that holds it everywhere.** Every built-in shader with a fragment stage is compiled and
+  its stages counted against Metal's sixteen, which twenty-two failed before.
+- **The array uniform.** The cause was not the macOS compiler. A shader's set values, its uniform
+  block among them, lived in statics keyed by the shader's id, and every app's shader store gives
+  ids from 1 again, so the first shader of an app found the block an earlier app's shader of that id
+  left, and a block of sixteen bytes could not take an array of three, in the order the tests ran
+  on macOS. The values live with the shader store now, an app's own. A test leaves a shader of one
+  float in one app and sets an array in the next app's shader of the same id, and fails on the old
+  statics with `Destination is too short`. A write that does not fit says the uniform's size and
+  offset and the block's size.
+- The suite: 1,527 passed. Lavapipe under validation ran the whole suite, 1,509 passed and 16
+  skipped where it has no device for them.
 

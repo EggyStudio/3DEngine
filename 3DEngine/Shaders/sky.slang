@@ -14,6 +14,6 @@ ModelVertexOutput vertexMain(float3 position : POSITION, float3 normal : NORMAL,
 [shader("fragment")]
 float4 fragmentMain(ModelVertexOutput input) : SV_Target
 {
-    float3 sky = skyMap.SampleLevel(-input.toEye, 0).rgb * lighting.environment.x;
+    float3 sky = skyMap.SampleLevel(lightLinear, -input.toEye, 0).rgb * lighting.environment.x;
     return float4(toDisplay(sky * input.color.rgb), 1.0);
 }

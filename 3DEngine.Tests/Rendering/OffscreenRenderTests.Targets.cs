@@ -169,6 +169,56 @@ public sealed partial class OffscreenRenderTests
     }
 
     [NeedsVulkanFact]
+    public void A_Shaders_Values_Belong_To_Its_App_So_The_Next_Apps_Shader_Of_The_Same_Id_Starts_Afresh()
+    {
+        // An app that leaves a shader of one float loaded when it closes, and the next app, whose
+        // first shader takes the same id and an array of three, whose values once went into the
+        // first shader's block of sixteen bytes and did not fit, as the order the tests ran in on
+        // macOS showed.
+        Open(32, 32);
+        var single = LoadShaderFromMemory("""
+            import engine;
+
+            uniform float level;
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return float4(level, 0.0, 0.0, 1.0);
+            }
+            """, "single.slang");
+        SetShaderValue(single, GetShaderLocation(single, "level"), 0.5f);
+        CloseWindow();
+        UseApp(null);
+
+        Open(32, 32);
+        var shader = LoadShaderFromMemory("""
+            import engine;
+
+            uniform float channels[3];
+
+            [shader("fragment")]
+            float4 fragmentMain(VertexOutput input) : SV_Target
+            {
+                return float4(channels[0], channels[1], channels[2], 1.0);
+            }
+            """, "array.slang");
+        shader.Id.Should().Be(single.Id, "the new app's store gives ids from 1 again");
+        SetShaderValueV(shader, GetShaderLocation(shader, "channels"), [1f, 0f, 1f]);
+
+        var image = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginShaderMode(shader);
+            DrawRectangle(0, 0, 32, 32, Color.White);
+            EndShaderMode();
+        });
+
+        GetImageColor(image, 16, 16).Should().Be(new Color(255, 0, 255), "the array's values went into a block of its own shader's size");
+        UnloadShader(shader);
+    }
+
+    [NeedsVulkanFact]
     public void A_Render_Texture_Drawn_Into_Before_BeginDrawing_Is_Drawn_In_That_Frame()
     {
         // raylib's examples draw into a render texture between frames, before BeginDrawing, flat

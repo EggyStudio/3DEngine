@@ -147,7 +147,7 @@ public float screenOcclusion(ModelVertexOutput input)
         return 1.0;
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
-    return ambientOcclusionMap.SampleLevel(input.position.xy * 0.5 / float2(width, height), 0).r;
+    return ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).r;
 }
 
 // The share of the sun's light its contact shadows through the scene's distance field let reach
@@ -158,7 +158,7 @@ public float sunContact(ModelVertexOutput input)
         return 1.0;
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
-    return ambientOcclusionMap.SampleLevel(input.position.xy * 0.5 / float2(width, height), 0).g;
+    return ambientOcclusionMap.SampleLevel(lightLinear, input.position.xy * 0.5 / float2(width, height), 0).g;
 }
 
 public struct ModelVertexOutput
@@ -380,7 +380,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     else if (environment)
     {
         float lastMip = lighting.environment.y;
-        float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;
+        float3 reflected = environmentMap.SampleLevel(lightLinear, reflect(-v, n), roughness * lastMip).rgb;
         float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
         color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * specularShare * (1.0 - gloss));
     }

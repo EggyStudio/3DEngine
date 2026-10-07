@@ -90,35 +90,35 @@ public ConstantBuffer<Lighting> lighting;
 
 // The depths the shadowed light sees, or a white texture, which reads as nothing in shadow.
 [[vk::binding(1, 1)]]
-public Sampler2D shadowMap;
+public Texture2D shadowMap;
 
 // The light from all around, prefiltered by roughness down its mips, or a black cube for none.
 [[vk::binding(2, 1)]]
-public SamplerCube environmentMap;
+public TextureCube environmentMap;
 
 // The same light unfiltered, at about its image's resolution, which sky.slang draws as a backdrop,
 // or a black cube for none.
 [[vk::binding(3, 1)]]
-public SamplerCube skyMap;
+public TextureCube skyMap;
 
 // The depths each shadowed point light sees, a layer for each of its six faces.
 [[vk::binding(4, 1)]]
-public Sampler2DArray pointShadowMap;
+public Texture2DArray pointShadowMap;
 
 // The bound reflection probes' cubes, prefiltered as the environment map is, or black cubes.
 [[vk::binding(5, 1)]]
-public SamplerCube probeMap0;
+public TextureCube probeMap0;
 [[vk::binding(6, 1)]]
-public SamplerCube probeMap1;
+public TextureCube probeMap1;
 [[vk::binding(7, 1)]]
-public SamplerCube probeMap2;
+public TextureCube probeMap2;
 [[vk::binding(8, 1)]]
-public SamplerCube probeMap3;
+public TextureCube probeMap3;
 
 // How much of the light from all around reaches each pixel of the window, at half its size, from
 // ao.slang, or a white texture where no occlusion is worked out.
 [[vk::binding(9, 1)]]
-public Sampler2D ambientOcclusionMap;
+public Texture2D ambientOcclusionMap;
 
 // The bound reflection probes' irradiance over pi, nine spherical harmonic coefficients in xyz
 // each, which the filter that made each probe's cube wrote, or zeros.
@@ -139,7 +139,7 @@ public StructuredBuffer<float4> environmentIrradianceBuffer;
 // gathers it, and where the scene's distance field it was traced through lies, which the probes
 // lie in, or a field of nothing where light does not bounce.
 [[vk::binding(15, 1)]]
-public Sampler3D bouncedLight;
+public Texture3D bouncedLight;
 
 [[vk::binding(16, 1)]]
 public ConstantBuffer<SceneFieldInfo> bouncedField;
@@ -148,36 +148,45 @@ public ConstantBuffer<SceneFieldInfo> bouncedField;
 // it, and each probe's surface's normal and distance from the eye, a texel a probe of the tiles
 // the window is cut into, as gi_screen.slang leaves them, or zeros where light does not bounce.
 [[vk::binding(17, 1)]]
-public Sampler2D screenLight;
+public Texture2D screenLight;
 
 [[vk::binding(18, 1)]]
-public Sampler2D screenSurfaces;
+public Texture2D screenSurfaces;
 
 // The scene's distance field, its surfaces' colors and the light they give off, and the lights
 // that light them, which a reflection is traced through past the window's depth and shaded from,
 // or a field of nothing where light does not bounce.
 [[vk::binding(19, 1)]]
-public Sampler3D reflectField;
+public Texture3D reflectField;
 
 [[vk::binding(20, 1)]]
-public Sampler3D reflectAlbedo;
+public Texture3D reflectAlbedo;
 
 [[vk::binding(21, 1)]]
-public Sampler3D reflectGlow;
+public Texture3D reflectGlow;
 
 [[vk::binding(22, 1)]]
 public ConstantBuffer<GiLights> reflectLights;
 
 // The window's depth at half its size this frame, which a reflection is traced through first.
 [[vk::binding(23, 1)]]
-public Sampler2D reflectDepth;
+public Texture2D reflectDepth;
 
 // The window's scene as the frame before drew it, in linear light at half its size with its mips,
 // which a reflection that meets a surface on the screen reads that surface's light from.
 [[vk::binding(24, 1)]]
-public Sampler2D reflectHistory;
+public Texture2D reflectHistory;
 
 // The window's depth at half its size the frame before, beside its picture, which says whether the
 // picture showed the surface a reflection met there or something in front of it.
 [[vk::binding(25, 1)]]
-public Sampler2D reflectHistoryDepth;
+public Texture2D reflectHistoryDepth;
+
+// The two samplers every image of the set is read through, one blending between texels and
+// levels and one reading the nearest texel, bound apart from the images, since a stage may have
+// no more than sixteen samplers on Metal and the set's images alone are seventeen.
+[[vk::binding(26, 1)]]
+public SamplerState lightLinear;
+
+[[vk::binding(27, 1)]]
+public SamplerState lightNearest;

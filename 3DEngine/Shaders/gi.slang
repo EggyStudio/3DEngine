@@ -59,6 +59,32 @@ public struct GiLights
     public GiLight lights[16];
 };
 
+// A 2D image a ray is traced through as a depth, as IVolume is for the field's images.
+public interface IPicture
+{
+    public float4 sampleAt(float2 uv, float lod);
+}
+
+public extension Sampler2D : IPicture
+{
+    public float4 sampleAt(float2 uv, float lod) { return this.SampleLevel(uv, lod); }
+}
+
+// An image and the sampler it is read through, bound apart.
+public struct SplitPicture : IPicture
+{
+    public Texture2D image;
+    public SamplerState sampler;
+
+    public __init(Texture2D image, SamplerState sampler)
+    {
+        this.image = image;
+        this.sampler = sampler;
+    }
+
+    public float4 sampleAt(float2 uv, float lod) { return image.SampleLevel(sampler, uv, lod); }
+}
+
 // A camera's matrices and eye, which a ray is traced through its depth with.
 public struct ScreenCamera
 {
@@ -77,7 +103,7 @@ public float3 screenWorld(ScreenCamera camera, float2 uv, float d)
 
 // Where a point projects onto a depth image, in xy, and its depth there, in z, and in w the depth
 // the image holds there, or false where it lies behind the eye or off the picture.
-bool onScreen(Sampler2D depth, ScreenCamera camera, float3 q, out float4 at)
+bool onScreen<P : IPicture>(P depth, ScreenCamera camera, float3 q, out float4 at)
 {
     at = float4(0.0);
     float4 clip = mul(camera.viewProjection, float4(q, 1.0));
@@ -87,7 +113,7 @@ bool onScreen(Sampler2D depth, ScreenCamera camera, float3 q, out float4 at)
     float2 uv = ndc.xy * 0.5 + 0.5;
     if (any(uv < 0.0) || any(uv > 1.0))
         return false;
-    at = float4(uv, ndc.z, depth.SampleLevel(uv, 0).r);
+    at = float4(uv, ndc.z, depth.sampleAt(uv, 0).r);
     return true;
 }
 
@@ -96,7 +122,7 @@ bool onScreen(Sampler2D depth, ScreenCamera camera, float3 q, out float4 at)
 // picture or met nothing on it. A point behind the depth counts as on the surface while it is
 // within two steps of it, or a quarter of a unit, so a ray passing behind a thing in front does
 // not stop there, and the step it met the surface in is halved five times to find where.
-public bool traceScreen(Sampler2D depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
+public bool traceScreen<P : IPicture>(P depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
 {
     hit = p;
     left = length;
@@ -143,7 +169,7 @@ public bool traceScreen(Sampler2D depth, ScreenCamera camera, float3 p, float3 w
 // Where a ray from origin along way first comes within a tenth of a cell of a surface between
 // tMin and tMax, through the finest cascade that holds each point along it, or -1 where it reaches
 // tMax first or leaves every cascade.
-public float traceField(Sampler3D field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
+public float traceField<V : IVolume>(V field, SceneFieldInfo info, float3 origin, float3 way, float tMin, float tMax)
 {
     float t = tMin;
     for (int i = 0; i < 64 && t < tMax; i++)
@@ -164,7 +190,7 @@ public float traceField(Sampler3D field, SceneFieldInfo info, float3 origin, flo
 // A color of the field at p, the cells' colors blended and divided by how much of them a surface
 // painted, so a cell no surface painted lends nothing, or gray where none around p is painted, as
 // at a mesh that moved, which the field holds as a box with no color.
-public float3 surfaceAlbedo(Sampler3D albedo, SceneFieldInfo info, float3 p)
+public float3 surfaceAlbedo<V : IVolume>(V albedo, SceneFieldInfo info, float3 p)
 {
     int c = fieldCascade(info, p, 1.0);
     if (c < 0)
@@ -173,12 +199,12 @@ public float3 surfaceAlbedo(Sampler3D albedo, SceneFieldInfo info, float3 p)
     float size = info.counts.y;
     float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
     float3 uvw = float3(cell.xy / size, (cell.z + float(c) * size) / (size * info.counts.x));
-    float4 painted = albedo.SampleLevel(uvw, 0);
+    float4 painted = albedo.sampleAt(uvw, 0);
     return painted.a > 0.05 ? painted.rgb / painted.a : float3(0.5);
 }
 
 // The light the field's surfaces give off at p, blended as their colors are.
-public float3 surfaceGlow(Sampler3D glow, Sampler3D albedo, SceneFieldInfo info, float3 p)
+public float3 surfaceGlow<V : IVolume>(V glow, V albedo, SceneFieldInfo info, float3 p)
 {
     int c = fieldCascade(info, p, 1.0);
     if (c < 0)
@@ -187,13 +213,13 @@ public float3 surfaceGlow(Sampler3D glow, Sampler3D albedo, SceneFieldInfo info,
     float size = info.counts.y;
     float3 cell = clamp((p - oc.xyz) / oc.w, 0.5, size - 0.5);
     float3 uvw = float3(cell.xy / size, (cell.z + float(c) * size) / (size * info.counts.x));
-    float coverage = albedo.SampleLevel(uvw, 0).a;
-    return coverage > 0.05 ? glow.SampleLevel(uvw, 0).rgb / coverage : float3(0.0);
+    float coverage = albedo.sampleAt(uvw, 0).a;
+    return coverage > 0.05 ? glow.sampleAt(uvw, 0).rgb / coverage : float3(0.0);
 }
 
 // The light that reaches a surface at p facing n from the sun, where the field lets it through,
 // and from each point and spot light, unshadowed, falling off as the model pass has it.
-public float3 directLight(Sampler3D field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
+public float3 directLight<V : IVolume>(V field, SceneFieldInfo info, GiLights lights, float3 p, float3 n)
 {
     float3 arrived = float3(0.0);
     if (lights.sunDirection.w > 0.5)
@@ -245,7 +271,7 @@ public float probeFacing(float3 p, float3 n, float3 probe)
 
 // Whether nothing the field holds stands between a and b, clearance kept clear at either end for
 // the surfaces a and b lie near.
-public bool seesThrough(Sampler3D field, SceneFieldInfo info, float3 a, float3 b, float clearance)
+public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, float3 b, float clearance)
 {
     float3 toward = b - a;
     float length = length(toward);
@@ -256,7 +282,7 @@ public bool seesThrough(Sampler3D field, SceneFieldInfo info, float3 a, float3 b
 // of the finest cascade around it that the probes reach, each weighed by how near it is and how
 // squarely it stands in front of the surface, a probe inside a mesh passed over, the three faces n
 // looks toward weighed by the square of n along each, or none where no cascade of probes holds p.
-public float3 bouncedAt(Sampler3D cubes, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+public float3 bouncedAt<V : IVolume>(V cubes, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
 {
     int c = fieldCascade(info, p, 1.0);
     if (c < 0 || c >= int(cascades))
@@ -279,7 +305,7 @@ public float3 bouncedAt(Sampler3D cubes, SceneFieldInfo info, float3 p, float3 n
         for (int axis = 0; axis < 3; axis++)
         {
             int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
-            float4 texel = cubes.Load(int4(face * int(probes) + at.x, at.y, c * int(probes) + at.z, 0));
+            float4 texel = cubes.loadAt(int3(face * int(probes) + at.x, at.y, c * int(probes) + at.z));
             light += texel.rgb * n2[axis];
             valid = max(valid, texel.a);
         }
@@ -293,7 +319,7 @@ public float3 bouncedAt(Sampler3D cubes, SceneFieldInfo info, float3 p, float3 n
 // The light a surface the field holds at p sends back along a ray that met it: its color over pi
 // times the light that reaches it, the sun's and the lights' and, at the share given, the light
 // that bounced to it the frame before, with the light it gives off.
-public float3 shadeHit(Sampler3D field, SceneFieldInfo info, Sampler3D albedo, Sampler3D glow, GiLights lights, Sampler3D cubes,
+public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
     float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
