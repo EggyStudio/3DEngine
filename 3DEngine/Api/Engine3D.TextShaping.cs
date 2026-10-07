@@ -38,13 +38,20 @@ public static partial class Engine3D
         }
     }
 
-    // The plan of a font's features for Arabic: composing and the local forms at every glyph, the
-    // isolated, final, medial and initial forms at the letters in those positions, then the required
-    // ligatures and the contextual alternates, or null where the font has none of the four forms.
+    // The plan of a font's features for Arabic, in HarfBuzz's stages: composing and the local forms
+    // at every glyph, the isolated, final, medial and initial forms each at the letters in that
+    // position, the required ligatures, the contextual alternates, then the marks' positional forms
+    // and the ligatures a text font makes, or null where the font has none of the four forms.
     private static GlyphSubstitution.Plan? ArabicPlan(GlyphSubstitution table) =>
         table.PlanFor("arab", ("isol", 1), ("fina", 2), ("medi", 4), ("init", 8)) is null ? null
-            : table.PlanFor("arab", ("ccmp", 0), ("locl", 0), ("isol", (byte)ArabicJoining.Form.Isolated), ("fina", (byte)ArabicJoining.Form.Final),
-                ("medi", (byte)ArabicJoining.Form.Medial), ("init", (byte)ArabicJoining.Form.Initial), ("rlig", 0), ("calt", 0));
+            : table.PlanInStages("arab", [("ccmp", 0), ("locl", 0)], [("isol", (byte)ArabicJoining.Form.Isolated)], [("fina", (byte)ArabicJoining.Form.Final)],
+                [("medi", (byte)ArabicJoining.Form.Medial)], [("init", (byte)ArabicJoining.Form.Initial)], [("rlig", 0)], [("rclt", 0), ("calt", 0)],
+                [("mset", 0), ("liga", 0), ("clig", 0)]);
+
+    // The plan of a font's positions for Arabic: the marks above and below put on their letters and
+    // on each other, and the distances and the kerning between letters, all at every glyph.
+    private static GlyphLayout.Plan? ArabicPositions(GlyphPositioning table) =>
+        table.PlanFor("arab", ("abvm", 0), ("blwm", 0), ("dist", 0), ("kern", 0), ("mark", 0), ("mkmk", 0));
 
     /// <summary>
     /// The keys of the glyphs text is drawn with in a font, in the order they are drawn from left to
@@ -55,9 +62,10 @@ public static partial class Engine3D
     /// <remarks>
     /// <para>
     /// A line with a character read right to left, Hebrew or Arabic, is shaped in the order it is
-    /// stored, a run of Arabic by its letters' forms where the font shapes Arabic, then put in the
-    /// order it is shown (<see cref="TextDirection"/>), and kept with the font as shaped text is,
-    /// and a line of none is drawn in the order it is stored, as raylib draws it.
+    /// stored, a run of Arabic by its letters' forms where the font shapes Arabic and its marks and
+    /// pairs placed where the font positions them (<see cref="PlacedKeys"/>), then put in the order
+    /// it is shown (<see cref="TextDirection"/>), and kept with the font as shaped text is, and a
+    /// line of none is drawn in the order it is stored, as raylib draws it.
     /// </para>
     /// <para>
     /// A run is made of the characters the reader draws, the joiner (U+200D), the variation
@@ -65,16 +73,22 @@ public static partial class Engine3D
     /// character those selectors or the keycap follow, as the digit of a keycap does.
     /// </para>
     /// </remarks>
-    internal static IEnumerable<int> TextKeys(Font font, string text)
+    internal static IEnumerable<int> TextKeys(Font font, string text) => PlacedKeys(font, text).Select(placed => placed.Key);
+
+    /// <summary>
+    /// The keys <see cref="TextKeys"/> gives, each with where shaping put its glyph, which only the
+    /// positions a font gives a run of Arabic move from where its pen and its own advance put it.
+    /// </summary>
+    internal static IEnumerable<PlacedKey> PlacedKeys(Font font, string text)
     {
         if (TextDirection.HasRightToLeft(text))
-            return font.ShapedText(text, t => [.. t.Split('\n').SelectMany((line, i) => i == 0 ? ShapeLine(font, line) : ShapeLine(font, line).Prepend('\n'))]);
-        return font.Joining is { } joining ? font.ShapedText(text, t => ShapeText(font, joining, t)) : Runes(text);
+            return font.ShapedText(text, t => [.. t.Split('\n').SelectMany((line, i) => i == 0 ? ShapeLine(font, line) : ShapeLine(font, line).Prepend(new PlacedKey('\n')))]);
+        return font.Joining is { } joining ? font.ShapedText(text, t => [.. ShapeText(font, joining, t).Select(key => new PlacedKey(key))]) : Runes(text);
     }
 
-    private static IEnumerable<int> Runes(string text)
+    private static IEnumerable<PlacedKey> Runes(string text)
     {
-        foreach (var rune in text.EnumerateRunes()) yield return rune.Value;
+        foreach (var rune in text.EnumerateRunes()) yield return new PlacedKey(rune.Value);
     }
 
     // Text as the keys of its glyphs, each run of the characters the reader draws shaped.

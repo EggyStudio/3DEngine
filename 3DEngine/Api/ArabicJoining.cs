@@ -10,8 +10,9 @@ namespace Engine;
 /// <remarks>
 /// The joining types are Unicode 16's (ArabicShaping.txt) for the Arabic script's blocks, U+0600 to
 /// U+06FF, U+0750 to U+077F and U+0870 to U+08FF, the zero width joiner joining both ways as the
-/// tatweel does, a mark or a format character transparent, and every other character joining
-/// nothing. The presentation forms are the isolated, final, initial and medial forms of Unicode's
+/// tatweel does, a mark or a format character transparent but for those the file says join
+/// nothing, the zero width non-joiner (U+200C), the isolates and Arabic's signs that span digits
+/// among them, and every other character joining nothing. The presentation forms are the isolated, final, initial and medial forms of Unicode's
 /// two blocks of them, U+FB50 to U+FDFF and U+FE70 to U+FEFF, by their compatibility decompositions,
 /// with the eight forms of lam joined to an alef.
 /// </remarks>
@@ -26,7 +27,7 @@ internal static class ArabicJoining
     // The characters that join on their right, both ways, or make the letters beside them join, in order.
     private static readonly (int First, int Last, Joining Type)[] Types =
     [
-        (0x0620, 0x0620, Joining.Dual), (0x0622, 0x0625, Joining.Right), (0x0626, 0x0626, Joining.Dual),
+        (0x0600, 0x0605, Joining.None), (0x0620, 0x0620, Joining.Dual), (0x0622, 0x0625, Joining.Right), (0x0626, 0x0626, Joining.Dual),
         (0x0627, 0x0627, Joining.Right), (0x0628, 0x0628, Joining.Dual), (0x0629, 0x0629, Joining.Right),
         (0x062A, 0x062E, Joining.Dual), (0x062F, 0x0632, Joining.Right), (0x0633, 0x063F, Joining.Dual),
         (0x0640, 0x0640, Joining.Causing), (0x0641, 0x0647, Joining.Dual), (0x0648, 0x0648, Joining.Right),
@@ -35,16 +36,16 @@ internal static class ArabicJoining
         (0x069A, 0x06BF, Joining.Dual), (0x06C0, 0x06C0, Joining.Right), (0x06C1, 0x06C2, Joining.Dual),
         (0x06C3, 0x06CB, Joining.Right), (0x06CC, 0x06CC, Joining.Dual), (0x06CD, 0x06CD, Joining.Right),
         (0x06CE, 0x06CE, Joining.Dual), (0x06CF, 0x06CF, Joining.Right), (0x06D0, 0x06D1, Joining.Dual),
-        (0x06D2, 0x06D3, Joining.Right), (0x06D5, 0x06D5, Joining.Right), (0x06EE, 0x06EF, Joining.Right),
+        (0x06D2, 0x06D3, Joining.Right), (0x06D5, 0x06D5, Joining.Right), (0x06DD, 0x06DD, Joining.None), (0x06EE, 0x06EF, Joining.Right),
         (0x06FA, 0x06FC, Joining.Dual), (0x06FF, 0x06FF, Joining.Dual), (0x0750, 0x0758, Joining.Dual),
         (0x0759, 0x075B, Joining.Right), (0x075C, 0x076A, Joining.Dual), (0x076B, 0x076C, Joining.Right),
         (0x076D, 0x0770, Joining.Dual), (0x0771, 0x0771, Joining.Right), (0x0772, 0x0772, Joining.Dual),
         (0x0773, 0x0774, Joining.Right), (0x0775, 0x0777, Joining.Dual), (0x0778, 0x0779, Joining.Right),
         (0x077A, 0x077F, Joining.Dual), (0x0870, 0x0882, Joining.Right), (0x0883, 0x0885, Joining.Causing),
         (0x0886, 0x0886, Joining.Dual), (0x0889, 0x088D, Joining.Dual), (0x088E, 0x088E, Joining.Right),
-        (0x08A0, 0x08A9, Joining.Dual), (0x08AA, 0x08AC, Joining.Right), (0x08AE, 0x08AE, Joining.Right),
+        (0x0890, 0x0891, Joining.None), (0x08A0, 0x08A9, Joining.Dual), (0x08AA, 0x08AC, Joining.Right), (0x08AE, 0x08AE, Joining.Right),
         (0x08AF, 0x08B0, Joining.Dual), (0x08B1, 0x08B2, Joining.Right), (0x08B3, 0x08B8, Joining.Dual),
-        (0x08B9, 0x08B9, Joining.Right), (0x08BA, 0x08C8, Joining.Dual),
+        (0x08B9, 0x08B9, Joining.Right), (0x08BA, 0x08C8, Joining.Dual), (0x08E2, 0x08E2, Joining.None),
     ];
 
     // A letter and its isolated, final, initial and medial presentation forms, 0 for a form it has not.
@@ -94,6 +95,7 @@ internal static class ArabicJoining
     public static Joining TypeOf(int c)
     {
         if (c == 0x200D) return Joining.Causing;
+        if (c is 0x200C or (>= 0x2066 and <= 0x2069)) return Joining.None;
         int lo = 0, hi = Types.Length - 1;
         while (lo <= hi)
         {

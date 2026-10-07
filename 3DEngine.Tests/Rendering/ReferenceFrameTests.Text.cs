@@ -95,4 +95,30 @@ public sealed partial class ReferenceFrameTests
         UnloadFont(substituting);
         UnloadFont(forms);
     }
+
+    [NeedsVulkanFact]
+    public void Arabic_Marks_Match_Their_Reference()
+    {
+        // The test font with positions: fatha, kasra and shadda put on beh by their anchors, fatha on
+        // shadda over it, fatha on lam's stem of lam-alef and kasra under alef's, alef kerned away
+        // from beh and lam raised before beh, and the same marks in the font with no positions,
+        // drawn after their letters at their own places.
+        Open(256, 160);
+        string Font(string name) => Path.Combine(AppContext.BaseDirectory, "Api", name);
+        const string Letters = "بالَِّ ";
+        var marks = LoadFontEx(Font("arabic-marks.ttf"), 24, LoadCodepoints(Letters));
+        var unplaced = LoadFontEx(Font("arabic.ttf"), 24, LoadCodepoints(Letters));
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.RayWhite);
+            DrawTextEx(marks, "بَ بِ بَّ", new Vector2(10, 20), 24, 0, Color.DarkBlue);
+            DrawTextEx(marks, "لَا لاِ", new Vector2(10, 60), 24, 0, Color.Maroon);
+            DrawTextEx(marks, "اب لب", new Vector2(10, 95), 24, 0, Color.DarkGreen);
+            DrawTextEx(unplaced, "بَ لَا", new Vector2(10, 125), 24, 0, Color.Black);
+        });
+        Matches(frame, "arabic_marks");
+        UnloadFont(marks);
+        UnloadFont(unplaced);
+    }
 }

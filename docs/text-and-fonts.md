@@ -172,11 +172,19 @@ DrawTextEx(arabic, Peace, new Vector2(20, 380), 32, 0, Color.DarkGreen);
 
 The forms are the font's own, its substitutions for the Arabic script, the `isol`, `fina`, `medi`
 and `init` features of its GSUB table, then its required ligatures (`rlig`), which join lam and
-alef, and its contextual alternates (`calt`), and the glyphs they make of the letters a font is
-loaded with are baked with it, so `LoadCodepoints` of the text is enough. A font with no
-substitutions for Arabic, as an older one, is drawn with the presentation forms Unicode encodes for
-the letters where it maps them. A mark, a vowel above or below its letter, is drawn after its
-letter where the font's glyph of it lies, and not yet moved to fit the letter's form.
+alef, its contextual alternates (`calt`) and its ligatures (`liga`), applied in the stages HarfBuzz
+applies them in, and the glyphs they make of the letters a font is loaded with are baked with it,
+so `LoadCodepoints` of the text is enough. A font with no substitutions for Arabic, as an older
+one, is drawn with the presentation forms Unicode encodes for the letters where it maps them.
+
+A mark, a vowel above or below its letter, is put on the letter where the font's GPOS table
+anchors it (`mark`), on its own letter of a lam-alef, and on another mark, as fatha on shadda
+(`mkmk`), and the font's kerning (`kern`) moves the letters of a pair apart or together. A
+letter's marks are shaped in the order HarfBuzz puts them in, shadda before the vowel written with
+it, whatever order the text stores them in. A font with no positions draws a mark after its letter
+where the font's glyph of it lies. Text in other scripts is drawn a character at a time with
+raylib's advances, so a Latin font's kerning and ligatures are not made, and a line measures as it
+does in raylib.
 
 ## Typed text
 

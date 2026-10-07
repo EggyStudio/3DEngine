@@ -40,6 +40,8 @@ public sealed class ArabicTextTests : IDisposable
             "a mark between two letters is passed over");
         FormsOf(Beh + "ـ").Should().Equal([ArabicJoining.Form.Initial, ArabicJoining.Form.None], "the tatweel joins both ways and takes no form");
         FormsOf(Beh + " " + Beh).Should().Equal([ArabicJoining.Form.Isolated, ArabicJoining.Form.None, ArabicJoining.Form.Isolated]);
+        FormsOf(Beh + "\u200C" + Beh).Should().Equal([ArabicJoining.Form.Isolated, ArabicJoining.Form.None, ArabicJoining.Form.Isolated],
+            "the zero width non-joiner is a format character that joins nothing, as Persian writes a word's parts apart");
     }
 
     [Fact]

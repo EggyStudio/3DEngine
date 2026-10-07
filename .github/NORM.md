@@ -283,16 +283,16 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 191, `NormTests` |
+| N 1.2 | checked, `NormTests` | listed 188, `NormTests` |
 | N 1.3 | checked, `NormTests` | listed 11, `NormTests`, 8 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 14 left out | listed 86, `NormTests`, 28 left out |
+| N 1.4 | checked, `NormTests`, 14 left out | listed 81, `NormTests`, 28 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | checked, `PublicSurfaceTests` and `PublicApi.txt` |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
 | N 2.4 | by review | by review |
 | N 2.5 | checked, `build/play-native.sh` in the workflow | checked, `build/play-native.sh` in the workflow |
-| N 2.6 | checked, `BadFileTests` | to take (REVIEW.md, item 4), `BadFileTests` in place and the loaders a game calls throwing |
+| N 2.6 | checked, `BadFileTests` | checked, `BadFileTests` |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | checked, `build/examples-on-package.sh` in the workflow |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
 | N 2.9 | checked, `FileHandleTests` | checked, `FileHandleTests` |
@@ -300,7 +300,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
 | N 3.3 | checked, `NormTests`, 7 left out | checked, `NormTests`, 6 left out |
-| N 3.4 | checked, `NormTests` | listed 52, `NormTests` |
+| N 3.4 | checked, `NormTests` | listed 43, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
 | N 3.7 | checked, `FailOnLoggedErrors` | checked, `FailOnLoggedErrors` |

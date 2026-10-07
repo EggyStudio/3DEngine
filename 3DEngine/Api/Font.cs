@@ -57,11 +57,11 @@ public sealed class Font
     // before it is drawn.
     internal (TrueTypeFont Reader, HashSet<int> Drawn)? Joining { get; private set; }
 
-    // Text shaped by the font's substitutions, by the string, since a program draws the same text
-    // each frame. A few hundred are kept, and all let go past that.
-    private readonly Dictionary<string, int[]> _shaped = [];
+    // Text shaped by the font's substitutions and positions, by the string, since a program draws
+    // the same text each frame. A few hundred are kept, and all let go past that.
+    private readonly Dictionary<string, PlacedKey[]> _shaped = [];
 
-    internal int[] ShapedText(string text, Func<string, int[]> shape)
+    internal PlacedKey[] ShapedText(string text, Func<string, PlacedKey[]> shape)
     {
         if (_shaped.TryGetValue(text, out var keys)) return keys;
         if (_shaped.Count >= 256) _shaped.Clear();
@@ -77,10 +77,11 @@ public sealed class Font
 
     /// <summary>
     /// How a font shapes Arabic: by its reader's substitutions under the <c>arab</c> script, the
-    /// forms they make past the letters' own baked with it, or, where <see cref="Plan"/> is null,
-    /// by the presentation forms Unicode encodes, which it maps and was baked with.
+    /// forms they make past the letters' own baked with it, and its positions where
+    /// <see cref="Positions"/> is set, or, where <see cref="Plan"/> is null, by the presentation
+    /// forms Unicode encodes, which it maps and was baked with.
     /// </summary>
-    internal sealed record ArabicShaping(TrueTypeFont? Reader, GlyphSubstitution.Plan? Plan);
+    internal sealed record ArabicShaping(TrueTypeFont? Reader, GlyphLayout.Plan? Plan, GlyphLayout.Plan? Positions = null);
 
     // How the font shapes Arabic, null where none was asked for or it can shape none.
     internal ArabicShaping? Arabic { get; private set; }

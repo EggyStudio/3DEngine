@@ -10,8 +10,26 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `3afcc4d0`. The Linux job fetches `b43818f9` alone, so the upgrading page's test runs
-on every push (`5dca5694`), which settles item 4, and no name lost since 5.1 is written in the other
+Reviewed up to `6412daca`. Text read right to left is drawn and measured in the order it is read:
+`TextDirection` is a reduced UAX #9 over grapheme clusters, each line a paragraph of its first
+strong letter's direction, the weak types, the neutrals and the levels resolved by the rules' names,
+trailing white space at the paragraph's level, the runs reversed from the highest level down,
+mirrored brackets turned, embeddings and isolates passed over, and `TextKeys` orders a line only
+where it holds a character read right to left, so Latin takes the path it took and measures as
+raylib's (`0c19c335`). Arabic is joined: a run of Arabic clusters at one level is shaped in stored
+order and then reordered, `ArabicJoining` holding Unicode 16's joining types, the forms and the
+presentation forms with the eight lam-alef, `GlyphSubstitution` applying plans of features under a
+script with a mask a position, lookup flags honored through GDEF's classes and filtering sets, a
+font without the positional features drawn by the presentation forms it maps, with two test fonts
+from `make-color-test-fonts.py`, a reference frame each, and 25 of the machine's Arabic fonts
+joining through `e3d eval` (`6412daca`); batch three, marks and pairs through GPOS, is under way.
+The runs: macOS passed the leak test at `3afcc4d0`, `0c19c335` and `6412daca`, which settles Verdict
+32; the three Windows jobs were in the games' step at 16:40; Linux passed the first two and failed
+one test at `6412daca`, a race of the shader cache under parallel tests, which is Verdict 34; the
+examples job waits on Windows. The suite: 1,492 passed, none skipped.
+
+Before them, the Linux job came to fetch `b43818f9` alone, so the upgrading page's test runs on
+every push (`5dca5694`), which settles item 4, and no name lost since 5.1 is written in the other
 documents, held by a second test that found `ImageDraw` in the cheatsheet (`8f3d456d`). Four games
 of kinds none of the eight was came in. Sumo, two players on one screen split between two cameras
 drawing into render textures, with shaders of its own and a floor painted by a compute shader, found
@@ -43,20 +61,6 @@ by the new count. A sweep mended two stale names, `GetKeyPressed`'s summary and 
 `FrameMorphWeights`. N 1.4 leaves out 14 (`2a81d369`), which settles item 4. The suite: 1,470
 passed, none skipped.
 
-Before them, Verdict 33's cause was found to be e3d's: on Windows it added its `cmd.exe /c start`
-line to `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that
-cmd.exe keeps, `start` took the escaped title for the program and the log's path was none; the line
-goes to cmd.exe as written through `Arguments`, `drive-game.sh` keeps e3d's answer as JSON and fails
-with its code, its sentence and the last five lines of the log it names, and a path that is not
-there is refused with `NOT_FOUND` where e3d died making a folder from it. For Verdict 32 the
-offscreen test reads the heap every ten apps, the macOS job installs `dotnet-gcdump`, and both leak
-tests count the heap's objects by type after the twentieth app and the hundredth, a failure naming
-the five types that grew most; on the way the session read that the scripts' shared watch of Verdict
-27 is let go with the last app watching, so a hundred apps made one after another make a hundred
-FSEvents streams, which the census's answer is read against first (`1c848a20`). Both verdicts wait
-for the Windows and macOS jobs. BevyCSharp's `bcs` gives cmd.exe its start line the same way, which
-is its item 4. The suite: 1,462 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -67,11 +71,12 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 30 to 33 first, the run of `3afcc4d0`.** The run of `1c848a20` is read into
-   Verdicts 32 and 33, and the run of `3afcc4d0`, in its Windows and macOS suites at 15:36, is the
-   proof of their mends; its examples job, which carries the guides' blocks and Verdicts 30 and 31,
-   runs once the three test jobs pass. Each push's run is read by the reviewing session, and a
-   failure it names comes first here.
+1. **Verdicts 30, 31, 33 and 34 first, the runs of `3afcc4d0`, `0c19c335` and `6412daca`.** macOS
+   passed all three, so Verdict 32 is settled; the three Windows jobs were in the games' step at
+   16:40, Verdict 33's proof; Linux failed `6412daca` in the shader cache's race, Verdict 34; the
+   examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a run's three
+   test jobs pass. Each push's run is read by the reviewing session, and a failure it names comes
+   first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
 3. **The first shares recorded from the workflow's own device.** The examples job's first green
@@ -97,7 +102,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 29 are settled, and their numbers are not given again.
+Verdicts 1 to 29 and 32 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -124,35 +129,6 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
 
-32. **The run of `913e78e0` fails on macOS alone, in the offscreen hundred of `AppLeakTests`.**
-    Read from the page: 1,434 passed, 1 failed, 10 skipped, and the test that makes and closes a
-    drawing app a hundred times found the GC's heap at 65.3 MB after the hundredth app against 58.2
-    MB after the twentieth, 7.1 MB over eighty apps against a cap of 5, about 90 KB an app if it is
-    a slope, the threads level at 31 to 33 throughout. Linux and Windows pass the same test, and the
-    headless hundred passes on macOS, so a closed app that drew leaves something on the managed heap
-    on macOS that it leaves nowhere else, and the test's two readings cannot tell a slope from a
-    step. Two things. The offscreen test reads the heap every ten apps as the headless one does
-    (`heapEveryTen`), so the page says whether the heap grew by an app's worth at a time or in one
-    step. And the cause is found on macOS, by reading which types grew between the twentieth app and
-    the hundredth, a `dotnet-gcdump` or `GC.GetGCMemoryInfo` in the job for the failing test; the
-    one macOS-only thing the tests name, the context macOS's `FileSystemWatcher` keeps until
-    FSEvents lets go of its stream, is a place to look and not the cause. Mended for the reading at
-    `1c848a20`: the offscreen test reads the heap every ten apps, the macOS job installs
-    `dotnet-gcdump` and names it in `E3D_GCDUMP`, and both leak tests count the heap's objects by
-    type after the twentieth app and the hundredth, a failure's message naming the five types that
-    grew most and the output thirty; on Linux the census found 0.1 MB of reflection's caches and the
-    runtime's strings. The session read on the way that the scripts' shared watch of Verdict 27 is
-    let go with the last app watching it, so a hundred apps made one after another make a hundred
-    FSEvents streams, and `039bd788`'s one stream holds for apps that overlap; the census's answer
-    is read against that first. The run of `1c848a20` answered the reading: the heap every ten apps
-    rose and fell back, 61.8, 64.9, 67.7, 61.0, 64.5, 67.0, 60.7, 64.1 and 67.2 MB from the
-    twentieth app, three steps up and one down with no slope under them, and the census found 0.25
-    MB more alive at the hundredth, all strings, so no closed app is kept and the two readings had
-    fallen on a trough and a crest; both leak tests judge how far the heap's floor rose, the least
-    reading from the twentieth app to the fiftieth against the least from the seventieth to the
-    hundredth (`596535ce`), which the run of `3afcc4d0` tries. Settled when the macOS job passes the
-    test.
-
 33. **The run of `913e78e0` fails on Windows in every game's opening, and the page says no more
     than `did not open`.** Read from the page: the suite passed there, 1,452 with 9 skipped,
     `build/play-game.sh` drew Pusher from the package under the validation layer, and then
@@ -177,8 +153,21 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     which a watcher stops it and one error says how far it got by its last status, the games after
     it played on, the errors written to the script's own output so one said inside `$(ask ...)`
     reaches the page (`596535ce`); the twelve games timed on lavapipe gave each twelve minutes and
-    the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. Settled
-    when the Windows job plays the eight games.
+    the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. The
+    Windows jobs of `3afcc4d0`, `0c19c335` and `6412daca` were in the games' step at 16:40, each
+    with 180 minutes. Settled when the Windows job plays the twelve games.
+
+34. **The Linux job of `6412daca` fails one test in the shader cache, a race of two writers.**
+    Read from the page: 1,485 passed, 1 failed, 6 skipped, and `RendererSmokeTests`' frame with null
+    graphics ended in `FileNotFoundException` at `SlangCompiler.WriteAtomically`, the file
+    `velocity.vertexMain.<key>.uniforms`. The writer puts the bytes in `<path>.partial` and moves it
+    over the path, and two tests compiling the same shader at once write the same partial file, so
+    the second's move finds the first's gone; the key is the source's, so both would have written
+    the same bytes. Nothing of batch two's, which added tests beside the ones that raced. Two
+    things. The partial file takes a name unique to its writer, and the move over the path tolerates
+    a winner, keeping what is there when the target exists, as the engine's other atomic writers do;
+    and a test compiles one shader from two threads a hundred times against one cache. Settled when
+    a Linux job passes.
 
 ## Decisions
 
@@ -261,52 +250,37 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, batch one, text read right to left.** A line with a letter of a script written right to
-left is drawn and measured in the order it is read, by a reduced bidirectional algorithm in
-`TextDirection`. Each line is a paragraph whose direction is its first strong letter's, the weak
-types are resolved by W1 to W7, the neutrals by N1 and N2 and the levels by I1 and I2, trailing
-white space goes back to the paragraph's level, and the runs are reversed from the highest level
-down. A line is reversed by grapheme clusters, as .NET's `StringInfo` finds them, so a letter keeps
-its marks after it and a joined emoji sequence, a flag or a keycap its own order, and a mirrored
-character is turned where it is read right to left. The explicit embeddings, overrides and isolates
-are passed over and paired brackets resolved as other neutrals are. `TextKeys` orders such a line
-before it keys or shapes it and keeps the result with the font as shaped text is kept, and a line
-with no character read right to left takes the path it took, so Latin draws and measures as
-raylib's does. `make-color-test-fonts.py` writes `rtl.ttf`, alef, bet and gimel as bars of three
-heights, a mark of no width, digits, brackets and a Latin letter, the other fonts it writes coming
-out byte for byte the same. Twelve tests hold the rules on strings and the font's keys, measure and
-pixels, and a reference frame, `right_to_left`, draws a line of Hebrew, a run of it in a line read
-left to right, a number in it, brackets turned in it and a mark on its letter. The reference
-frames, these tests among them, pass on lavapipe under the validation layer in the workflow's
-image. The text frames moved to `ReferenceFrameTests.Text.cs`, ahead of the next two batches' frames,
-which the file would not have held under N 1.3. The text guide has a section on it, the cheatsheet
-a sentence, the comparison page a row, since raylib draws such a line in the order it is stored,
-and TODO.md's entry says what is left. The suite: 1,488 passed, none skipped.
-
-**Now 4, batch two, Arabic joined.** A run of Arabic is shaped in the order it is stored and then put
-in the order it is shown, so each letter takes its form by the letters beside it. A line is cut
-into grapheme clusters with their levels, a run of Arabic clusters at one level is shaped together,
-each glyph keeping its cluster, and the clusters are reversed for display with their glyphs in
-order. `ArabicJoining` holds Unicode 16's joining types for the Arabic script's blocks, the form
-each letter takes, and the presentation forms by their compatibility decompositions with the eight
-lam-alef. `GlyphSubstitution` applies plans now. A plan is the features asked for under a script,
-the `arab` script or the default one, each lookup with the mask of the positions it is applied at.
-The run is a list of `ShapedGlyph`, glyph, cluster, mask and whether it is default ignorable, a
-lookup's flags honored by the GDEF table's classes, mark attachment classes and mark filtering sets,
-a ligature taking its first component's cluster and the marks it passed over staying after it. The
-emoji keep their `ccmp` plan and their behavior, the font tests passing unchanged. Arabic's plan is
-`ccmp`, `locl`, `isol`, `fina`, `medi`, `init`, `rlig` and `calt`, where the font has the positional
-features, the forms they can reach from the letters asked for baked by the reader as joined emoji
-glyphs are, and a font without them is drawn by the presentation forms it maps, which are asked for
-with the letters. `make-color-test-fonts.py` writes `arabic.ttf`, with its own GSUB under `arab`, a
-lam-alef that ignores marks and a GDEF table, and `arabic-forms.ttf`, with presentation forms and no
-GSUB, both read by fontTools and shaped by HarfBuzz to the glyphs the tests expect. Twenty-five
-Arabic fonts of this machine, Noto Naskh, Vazirmatn, Tahoma and Segoe UI among them, loaded and drew
-an Arabic phrase through `e3d eval` with nothing failing, each joining where its forms differ in
-width. Noto Naskh's keys for a phrase were HarfBuzz's glyphs one for one, apart from a mark coming
-after its letter where HarfBuzz puts it before, as the text's drawing needs. A reference frame,
-`arabic_joined`, draws joined words, lam-alef alone and after a letter, a mark on the ligature, and
-the same words by presentation forms, and the text tests and every reference frame pass on lavapipe
-under the validation layer. Marks are drawn where their glyphs lie, which batch three moves. The
-guide, the cheatsheet, the comparison row and TODO.md's entry say so. The suite: 1,492 passed, none
-skipped.
+**Now 4, batch three, marks and pairs placed.** A run of Arabic is positioned by the font's GPOS
+table after its substitutions, so a mark is put on its letter and a pair is kerned, and the rest of
+the text is drawn as before, a character at a time with raylib's advances. What GSUB and GPOS share,
+the scripts, features, lookups, flags, GDEF classes and contexts, moved into `GlyphLayout`, which
+`GlyphSubstitution` and the new `GlyphPositioning` extend, so the contextual positionings are the
+contextual substitutions' code. `GlyphPositioning` reads single and pair adjustments, the pair in
+both formats, marks on a base, on a ligature's component and on another mark, the contexts and the
+extension, value records' placements and advance and anchors' points, device tables and cursive
+attachment left out. A ligature numbers the marks it passes over by the component they followed, so
+a mark goes on its own letter of lam-alef. A shaped line's keys carry where each glyph is drawn from
+the pen and how far it moves it (`PlacedKey`), which `DrawTextPro`, `ImageDrawTextEx` and
+`MeasureTextEx` read, a mark of the GDEF table advancing nothing, as HarfBuzz zeroes it. Comparing
+with HarfBuzz on seven fonts of this machine, Noto Naskh, Noto Sans Arabic, PakType Naskh,
+Vazirmatn, Arial, Times and Segoe UI, found three more things, each mended. HarfBuzz sorts a
+letter's marks by combining class with shadda moved first and the modifying hamzas put before the
+rest (UTR #53), so fatha is put on shadda whatever order the text stores them in, which `ArabicMarks`
+does. It applies Arabic's features in stages, the forms before the ligatures made of them, and
+`liga`, `clig`, `rclt` and `mset` with them, Arial's and Times's Allah being `liga`, so a plan can
+be staged (`PlanInStages`). And batch two read the zero width non-joiner as transparent where
+ArabicShaping.txt says it joins nothing, as it does the isolates and Arabic's signs that span
+digits. After those, 52 words in Arabic, Persian and Urdu, with harakat and without, shaped 328
+times on those fonts, came out as HarfBuzz's glyphs at HarfBuzz's positions in the font's units,
+unit for unit, but for a joiner HarfBuzz keeps as a glyph of no width, which the engine leaves out. `make-color-test-fonts.py` writes
+`arabic-marks.ttf`, `arabic.ttf` with kasra, shadda and a GPOS table holding each lookup type the
+reader takes, a mark lookup inside an extension, read by fontTools and shaped by HarfBuzz to the
+places the tests expect, the other fonts it writes coming out byte for byte the same. Six tests hold
+the places, the order of marks and a mark drawn into an image, one holds the non-joiner, and a
+reference frame, `arabic_marks`, draws marks on letters, on lam-alef and on each other, the kerned
+and raised pairs, and the same marks in the font with no positions. The twenty-five Arabic fonts of
+this machine drew a phrase with harakat through `e3d eval` with nothing failing, a beh with shadda
+and fatha measuring as one with none, and Noto Naskh's and Arial's basmala read as HarfBuzz draws
+them. The guide, the cheatsheet, the comparison row and TODO.md's entry say what is placed and what
+is left, cursive attachment and a letter composed with its mark. With this the three batches of
+Decision 15 are in. The suite: 1,503 passed, none skipped.

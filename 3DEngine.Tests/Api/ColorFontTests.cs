@@ -232,7 +232,7 @@ public sealed class ColorFontTests : IDisposable
         var font = LoadFontEx(Bitmaps, 8, LoadCodepoints(Joined));
 
         TextKeys(font, Joined).Should().Equal(JoinedKey(3));
-        TextKeys(font, Joined).Should().BeSameAs(TextKeys(font, Joined), "text drawn again is shaped once and kept");
+        PlacedKeys(font, Joined).Should().BeSameAs(PlacedKeys(font, Joined), "text drawn again is shaped once and kept");
         AtlasPixel(font, JoinedKey(3), 0.5f, 0.5f).Should().Be(new Color(255, 255, 0, 255), "the glyph joined into is baked with the characters asked for");
         MeasureTextEx(font, Joined, 8, 0).X.Should().Be(8, "one glyph 8 wide, where the face and the sun apart are 16");
         var image = ImageTextEx(font, Joined, 8, 0, Color.White);

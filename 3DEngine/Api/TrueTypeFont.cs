@@ -69,7 +69,9 @@ internal sealed class TrueTypeFont
         if (tables.TryGetValue("CBLC", out var cblc) && tables.TryGetValue("CBDT", out var cbdt)) (_cblc, _cbdt) = (cblc, cbdt);
         if (tables.TryGetValue("COLR", out var colr) && tables.TryGetValue("CPAL", out var cpal)) (_colr, _cpal) = (colr, cpal);
         _sbix = tables.GetValueOrDefault("sbix");
-        if (tables.TryGetValue("GSUB", out var gsub)) Substitutions = GlyphSubstitution.Read(data, gsub, tables.TryGetValue("GDEF", out var gdef) ? gdef : -1);
+        var gdef = tables.TryGetValue("GDEF", out var classes) ? classes : -1;
+        if (tables.TryGetValue("GSUB", out var gsub)) Substitutions = GlyphSubstitution.Read(data, gsub, gdef);
+        if (tables.TryGetValue("GPOS", out var gpos)) Positions = GlyphPositioning.Read(data, gpos, gdef);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
         if (_glyf == 0 && tables.TryGetValue("CFF ", out var cff)) _cff = CompactFontOutlines.Read(data, cff);
 
@@ -78,6 +80,9 @@ internal sealed class TrueTypeFont
 
     /// <summary>The font's GSUB table, with the glyph classes of its GDEF table, or null where it has none.</summary>
     public GlyphSubstitution? Substitutions { get; }
+
+    /// <summary>The font's GPOS table, with the glyph classes of its GDEF table, or null where it has none.</summary>
+    public GlyphPositioning? Positions { get; }
 
     /// <summary>
     /// The substitutions the font makes to join a sequence of characters into one glyph, as an

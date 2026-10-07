@@ -41,6 +41,14 @@ glyphs of their own in those positions, and alef a final one, each a bar its adv
 medi 500 and fina 700, and rlig joins lam's initial or medial glyph and alef's final one into the
 isolated or final lam-alef, 900 wide, passing over a mark between them as the lookup's flag says.
 
+arabic-marks.ttf is arabic.ttf with kasra (U+0650), a mark under the letter, and shadda (U+0651), a
+mark over it, and a GPOS table under the arab script, as a text font of Arabic positions its
+harakat. Its mark feature puts fatha, kasra and shadda on anchors of each letter, through an
+extension, and on each letter of lam-alef, lam's above its right stem and alef's above its left,
+and its mkmk feature puts fatha on shadda. Its kern feature moves alef before beh 200 to the
+right, the pair by its glyphs, alef's final glyph before beh 100, the pair by their classes, and
+lam's initial glyph 100 up before beh's final one, by a chained context.
+
 arabic-forms.ttf has no substitutions, as an older font of Arabic has none, and maps the same three
 letters and their presentation forms, beh's four, alef's two and lam's four, the isolated and final
 lam-alef and the space, each a glyph of its own, so text in it is drawn by those forms."""
@@ -291,7 +299,8 @@ def ligatures(first_to_rules):
 
 def gsub_of(script, features, lookups):
     """A GSUB table of one script, whose default language system has the features, each (tag,
-    lookups), and the lookups, each (type, flag, subtable)."""
+    lookups), and the lookups, each (type, flag, subtable), or a GPOS table, whose header and lists
+    are a GSUB's."""
     language = struct.pack(">HHH", 0, 0xFFFF, len(features)) + b"".join(struct.pack(">H", i) for i in range(len(features)))
     script_table = struct.pack(">HH", 4, 0) + language
     scripts = struct.pack(">H4sH", 1, script, 8) + script_table
@@ -345,6 +354,97 @@ gdef = struct.pack(">IHHHH", 0x00010000, 12, 0, 0, 0) + class_def
 font(os.path.join(here, "arabic.ttf"), 15, [(0x0628, 1), (0x0627, 2), (0x0644, 3), (0x064E, 4), (0x20, 5)],
      {b"glyf": glyf, b"loca": loca, b"GSUB": gsub_of(b"arab", features, lookups), b"GDEF": gdef},
      {2: 600, 4: 0, 5: 500, 6: 700, 7: 500, 8: 600, 9: 700, 10: 700, 11: 500, 12: 600, 13: 900, 14: 900})
+
+# arabic-marks.ttf: arabic.ttf's glyphs and 15 kasra and 16 shadda.
+def cover(glyphs):
+    return struct.pack(">HH", 1, len(glyphs)) + b"".join(struct.pack(">H", g) for g in glyphs)
+
+
+def anchor(x, y):
+    return struct.pack(">Hhh", 1, x, y)
+
+
+def offsets_then(header_size, parts):
+    """The offsets of parts laid one after another past a header of header_size bytes, and the parts."""
+    at, out = header_size, []
+    for part in parts: out.append(at); at += len(part)
+    return out, b"".join(parts)
+
+
+def mark_array(marks):
+    """A mark array of (class, x, y) each, its anchors after its records."""
+    offsets, anchors = offsets_then(2 + 4 * len(marks), [anchor(x, y) for _, x, y in marks])
+    return struct.pack(">H", len(marks)) + b"".join(struct.pack(">HH", c, o) for (c, _, _), o in zip(marks, offsets)) + anchors
+
+
+def anchor_rows(rows):
+    """Rows of anchors, (x, y) each or None, one offset to each from the table's start."""
+    flat = [a for row in rows for a in row]
+    offsets, anchors = offsets_then(2 + 2 * len(flat), [anchor(*a) for a in flat if a])
+    it = iter(offsets)
+    return struct.pack(">H", len(rows)) + b"".join(struct.pack(">H", next(it) if a else 0) for a in flat) + anchors
+
+
+def mark_attachment(marks, mark_glyphs, targets, rows, classes):
+    """A mark-to-base or mark-to-mark subtable: marks (class, x, y) for mark_glyphs, and rows of
+    anchors, one for each class, for the target glyphs."""
+    parts = [cover(mark_glyphs), cover(targets), mark_array(marks), anchor_rows(rows)]
+    o, body = offsets_then(12, parts)
+    return struct.pack(">HHHHHH", 1, o[0], o[1], classes, o[2], o[3]) + body
+
+
+def ligature_attachment(marks, mark_glyphs, ligatures, components, classes):
+    """A mark-to-ligature subtable, each ligature's components a row of anchors."""
+    attaches = [anchor_rows(rows) for rows in components]
+    o, body = offsets_then(2 + 2 * len(attaches), attaches)
+    array = struct.pack(">H", len(attaches)) + b"".join(struct.pack(">H", x) for x in o) + body
+    parts = [cover(mark_glyphs), cover(ligatures), mark_array(marks), array]
+    o, body = offsets_then(12, parts)
+    return struct.pack(">HHHHHH", 1, o[0], o[1], classes, o[2], o[3]) + body
+
+
+above, below = 0, 1
+bases = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12]
+tops = {1: 300, 2: 500, 3: 500, 6: 350, 7: 250, 8: 300, 9: 400, 10: 350, 11: 250, 12: 300}
+mark_base = mark_attachment([(above, -500, 650), (below, -500, -100), (above, -500, 650)], [4, 15, 16], bases,
+                            [[(tops[g], 850 if g in (2, 9) else 800), (tops[g], -50)] for g in bases], 2)
+mark_ligature = ligature_attachment([(above, -500, 650), (below, -500, -100), (above, -500, 650)], [4, 15, 16], [13, 14],
+                                    [[[(700, 950), (700, -50)], [(200, 950), (200, -50)]]] * 2, 2)
+mark_mark = mark_attachment([(above, -500, 650)], [4], [16], [[(-500, 850)]], 1)
+# The pairs: alef then beh by their glyphs, alef's final glyph then beh by their classes, each
+# moving the first, as a font moves the glyph before a pair read right to left.
+pair_glyphs = (struct.pack(">HHHHHH", 1, 12, 0x05, 0, 1, 12 + len(cover([2]))) + cover([2])
+               + struct.pack(">HHhh", 1, 1, 200, 200))
+class1 = struct.pack(">HHHH", 1, 9, 1, 1)
+class2 = struct.pack(">HHHH", 1, 1, 1, 1)
+pair_classes_header = 16 + 2 * 2 * 2 * 2
+pair_classes = (struct.pack(">HHHHHHHH", 2, pair_classes_header, 0x05, 0, pair_classes_header + 6, pair_classes_header + 14, 2, 2)
+                + struct.pack(">hhhhhhhh", 0, 0, 0, 0, 0, 0, 100, 100) + cover([9]) + class1 + class2)
+raised = struct.pack(">HHHh", 1, 8, 0x02, 100) + cover([12])
+chain = struct.pack(">HHHHHH", 3, 0, 1, 18, 1, 24) + struct.pack(">HHH", 1, 0, 6) + cover([12]) + cover([6])
+gpos_lookups = [
+    (9, 0, struct.pack(">HHI", 1, 4, 8) + mark_base),
+    (5, 0, mark_ligature),
+    (6, 0, mark_mark),
+    (2, 0, pair_glyphs),
+    (2, 0, pair_classes),
+    (8, 0, chain),
+    (1, 0, raised),
+]
+glyphs = glyphs + [simple([[(-650, -250), (-650, -170), (-350, -170), (-350, -250)]]),
+                   simple([[(-700, 680), (-700, 800), (-300, 800), (-300, 680)]])]
+glyf = b"".join(glyphs)
+loca, at = b"", 0
+for g in glyphs: loca += struct.pack(">I", at); at += len(g)
+loca += struct.pack(">I", at)
+classes = [(1, 3, 1), (4, 4, 3), (5, 12, 1), (13, 14, 2), (15, 16, 3)]
+class_def = struct.pack(">HH", 2, len(classes)) + b"".join(struct.pack(">HHH", *c) for c in classes)
+gdef = struct.pack(">IHHHH", 0x00010000, 12, 0, 0, 0) + class_def
+font(os.path.join(here, "arabic-marks.ttf"), 17,
+     [(0x0628, 1), (0x0627, 2), (0x0644, 3), (0x064E, 4), (0x20, 5), (0x0650, 15), (0x0651, 16)],
+     {b"glyf": glyf, b"loca": loca, b"GSUB": gsub_of(b"arab", features, lookups), b"GDEF": gdef,
+      b"GPOS": gsub_of(b"arab", [(b"kern", [3, 4, 5]), (b"mark", [0, 1]), (b"mkmk", [2])], gpos_lookups)},
+     {2: 600, 4: 0, 5: 500, 6: 700, 7: 500, 8: 600, 9: 700, 10: 700, 11: 500, 12: 600, 13: 900, 14: 900, 15: 0, 16: 0})
 
 # arabic-forms.ttf: the letters and their presentation forms, each a glyph of its own, the same
 # shapes as arabic.ttf's by position, and no GSUB.

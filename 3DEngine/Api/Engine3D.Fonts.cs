@@ -284,8 +284,8 @@ public static partial class Engine3D
 
         // Arabic's letters are shaped by the font's own substitutions under the arab script where it
         // has the features that choose a letter's form, those forms baked by the reader as joined
-        // glyphs are, and otherwise by the presentation forms Unicode encodes for them, asked for
-        // with them where the font maps them.
+        // glyphs are, and placed by its positions where it has them, and otherwise by the
+        // presentation forms Unicode encodes for them, asked for with them where the font maps them.
         var letters = asked.Where(ArabicJoining.Joins).ToArray();
         var arabicPlan = letters.Length > 0 && outlines?.Substitutions is { } table ? ArabicPlan(table) : null;
         var byForms = false;
@@ -295,7 +295,8 @@ public static partial class Engine3D
             asked = [.. asked.Concat(forms).Distinct().Order()];
             byForms = forms.Length > 0;
         }
-        Font.ArabicShaping? arabic = arabicPlan is not null ? new(outlines, arabicPlan) : byForms ? new(null, null) : null;
+        Font.ArabicShaping? arabic = arabicPlan is not null ? new(outlines, arabicPlan, outlines!.Positions is { } gpos ? ArabicPositions(gpos) : null)
+            : byForms ? new(null, null) : null;
 
         var own = outlines is null ? []
             : outlines.HasOutlines ? [.. asked.Where(c => c > 0xFFFF || outlines.HasColor(outlines.GlyphIndex(c)))]
@@ -559,7 +560,7 @@ public static partial class Engine3D
             ? new Vector3(x - origin.X + position.X, y - origin.Y + position.Y, 0)
             : new Vector3(Vector2.Transform(new Vector2(x, y) - origin, turn) + position, 0);
         var pen = Vector2.Zero;
-        foreach (var key in TextKeys(font, text))
+        foreach (var (key, offset, advance) in PlacedKeys(font, text))
         {
             if (key == '\n')
             {
@@ -571,11 +572,12 @@ public static partial class Engine3D
             if (g.X1 > g.X0 && g.Y1 > g.Y0)
             {
                 // Glyph corners are relative to the top of the line, so the text hangs from position.
-                var (x0, y0, x1, y1) = (pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, pen.X + g.X1 * scale, pen.Y + g.Y1 * scale);
+                var at = pen + offset * scale;
+                var (x0, y0, x1, y1) = (at.X + g.X0 * scale, at.Y + g.Y0 * scale, at.X + g.X1 * scale, at.Y + g.Y1 * scale);
                 DrawList.TexturedQuad(Corner(x0, y0), Corner(x0, y1), Corner(x1, y1), Corner(x1, y0),
                     new(g.U0, g.V0), new(g.U0, g.V1), new(g.U1, g.V1), new(g.U1, g.V0), tint, font.Texture.Id);
             }
-            pen.X += g.Advance * scale + spacing;
+            pen.X += (advance ?? g.Advance) * scale + spacing;
         }
 
         if (sdf) DrawList.SetShader(0, default);
@@ -615,7 +617,7 @@ public static partial class Engine3D
 
         var scale = fontSize / font.BaseSize;
         var pen = position;
-        foreach (var key in TextKeys(font, text))
+        foreach (var (key, offset, advance) in PlacedKeys(font, text))
         {
             if (key == '\n')
             {
@@ -627,10 +629,11 @@ public static partial class Engine3D
             {
                 var source = new Rectangle(g.U0 * font.Atlas.Width, g.V0 * font.Atlas.Height,
                     (g.U1 - g.U0) * font.Atlas.Width, (g.V1 - g.V0) * font.Atlas.Height);
-                var target = new Rectangle(pen.X + g.X0 * scale, pen.Y + g.Y0 * scale, (g.X1 - g.X0) * scale, (g.Y1 - g.Y0) * scale);
+                var at = pen + offset * scale;
+                var target = new Rectangle(at.X + g.X0 * scale, at.Y + g.Y0 * scale, (g.X1 - g.X0) * scale, (g.Y1 - g.Y0) * scale);
                 ImageDraw(ref dst, font.Atlas, source, target, tint);
             }
-            pen.X += g.Advance * scale + spacing;
+            pen.X += (advance ?? g.Advance) * scale + spacing;
         }
     }
 
@@ -747,7 +750,7 @@ public static partial class Engine3D
         // followed by.
         float width = 0, line = 0;
         int lines = 1, characters = 0, most = 0;
-        foreach (var key in TextKeys(font, text))
+        foreach (var (key, _, advance) in PlacedKeys(font, text))
         {
             if (key == '\n')
             {
@@ -758,7 +761,7 @@ public static partial class Engine3D
                 continue;
             }
             most = Math.Max(most, ++characters);
-            if (TryGetGlyph(font, key, out var g)) line += g.Advance;
+            if (TryGetGlyph(font, key, out var g)) line += advance ?? g.Advance;
         }
         return new Vector2(Math.Max(width, line) * scale + (most - 1) * spacing, (lines - 1) * LineAdvance(font, fontSize) + font.LineHeight * scale);
     }
