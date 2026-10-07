@@ -87,7 +87,8 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    timeout-minutes: 75
+    # Room for eleven games played on lavapipe at six minutes each at most, after the suite.
+    timeout-minutes: 150
     defaults:
       run:
         shell: bash
@@ -153,8 +154,12 @@ jobs:
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are
       # tried on this system too. A game that fails says why in an error of its own, naming the
-      # system, and the rest are played still.
+      # system, and the rest are played still. Each has six minutes, past which it is stopped and
+      # its error says how far it got, so a slow device names the game it is slow at, where the job's
+      # time otherwise ran out with the games still playing and nothing on the page.
       - name: Play every game from the package through e3d
+        env:
+          DRIVE_MINUTES: '6'
         run: |
           failed=0
           for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do
@@ -192,7 +197,8 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    timeout-minutes: 45
+    # Room for eleven games at six minutes each at most, after the suite.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
 
@@ -244,8 +250,12 @@ jobs:
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are
       # tried on this system too. A game that fails says why in an error of its own, naming the
-      # system, and the rest are played still.
+      # system, and the rest are played still. Each has six minutes, past which it is stopped and
+      # its error says how far it got, so a slow device names the game it is slow at, where the job's
+      # time otherwise ran out with the games still playing and nothing on the page.
       - name: Play every game from the package through e3d
+        env:
+          DRIVE_MINUTES: '6'
         run: |
           failed=0
           for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do

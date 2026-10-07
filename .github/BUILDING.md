@@ -289,7 +289,8 @@ package and draws 300 frames of it offscreen, failing on an error the layer repo
 macOS `build/drive-game.sh <game>` then plays each of the eleven games through `./e3d`, offscreen at
 480 by 270, as the examples job plays them on Linux, each asserting its walk or its win, so a game's
 input, its sound and the session `./e3d` drives are tried there, and a game that fails says why in
-an error annotation naming the system. They then follow the README in a new project
+an error annotation naming the system. Each game has six minutes there (`DRIVE_MINUTES`), past
+which it is stopped and its error says how far it got by its last status. They then follow the README in a new project
 (`build/readme-walk.sh`) and build and run every step of the first game (`build/first-game.sh`)
 from the same package, as a newcomer on either system does. Each job runs
 its tests through `build/test.py`, whose page ends the step's log and is the job's summary. Each

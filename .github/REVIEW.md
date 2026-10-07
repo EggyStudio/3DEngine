@@ -299,3 +299,22 @@ clicks and holds a finger, asserting each, then lets the autopilot play a game o
 about 1,800 frames. The Linux job runs that script and captures the game, and the soak and the
 storm take it. On lavapipe under the validation layer it played through with no validation error,
 and the soak held level. The suite: 1,475 passed, none skipped.
+
+**Verdicts 32 and 33, read from the run of `1c848a20`.** macOS failed the offscreen hundred again,
+by 5.40 MB, and its series answers the verdict's question. The heap read every ten apps rose and fell
+back, 61.77, 64.85, 67.69, 61.01, 64.53, 67.00, 60.66, 64.08 and 67.16 MB from the twentieth app,
+three steps up and one down, with no slope under it, and the census found only 0.25 MB more alive at
+the hundredth than at the twentieth, all of it strings. So no closed app is kept, and the test's two
+readings fell on a trough and a crest by chance. Both leak tests now judge how far the heap's floor
+rose, the least reading from the twentieth app to the fiftieth against the least from the seventieth
+to the hundredth, which a leak raises with every reading and a heap that rises and falls back
+leaves level, as the soak's check judges a game by each half's least. On the series above that is
+0.35 MB down. Windows ran out of its 75 minutes in the step that plays the games, with no game's
+error on the page, so each game opened where every one had failed to, and then the eight did not
+finish in the time left. `drive-game.sh` gives each game a budget, `DRIVE_MINUTES`, six in the
+workflow and eight elsewhere, past which a watcher stops the game and one error says how far it got
+by its last status, and the games after it are played. A game of a minute's budget here ended so,
+63 seconds in, with the status it had reached. Its errors are written to the script's own output,
+since one said inside `$(ask ...)` went into the variable and never reached the page. The Windows
+job has 150 minutes and the macOS job 90, room for eleven games at six minutes each. The suite:
+1,475 passed, none skipped.

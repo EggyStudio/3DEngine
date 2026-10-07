@@ -25,8 +25,17 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     // has, the heap after every tenth app where it is collected that often, the types that grew
     // from the twentieth app to the hundredth where a census of the heap could be taken, and the
     // threads the process has after every tenth shutdown.
-    private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, string Heaps, string? Grown, string Threads)
+    private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, IReadOnlyList<(int Apps, double Heap)> HeapEveryTen,
+        string Heaps, string? Grown, string Threads)
     {
+        // How far the heap's floor rose, the least of the readings from the twentieth app to the
+        // fiftieth against the least from the seventieth to the hundredth. A leak raises the floor
+        // as it raises every reading, where a heap that rises and falls back, as macOS's did by 6 MB
+        // every thirty apps while a census found 0.25 MB more alive, leaves it where it was, and
+        // the two readings it was judged by before fell on its crest and its trough by chance.
+        public double FloorRise =>
+            HeapEveryTen.Where(r => r.Apps >= 70).Min(r => r.Heap) - HeapEveryTen.Where(r => r.Apps is >= 20 and <= 50).Min(r => r.Heap);
+
         // A line each, the heap's first and the types after it, since the test page shows a
         // message's first five lines and cuts each at its width, which a series on one line with
         // the rest ran past.
@@ -48,6 +57,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         HeapCensus? censusAt20 = null;
         string? grown = null;
         var heaps = new List<string>();
+        var everyTen = new List<(int Apps, double Heap)>();
         var threads = new List<string>();
         for (int i = 1; i <= 100; i++)
         {
@@ -75,6 +85,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             GC.WaitForPendingFinalizers();
             var heap = GC.GetTotalMemory(forceFullCollection: true) / 1e6;
             heaps.Add($"{i}: {heap:0.00}");
+            everyTen.Add((i, heap));
             output.WriteLine($"{i,3} apps: heap {heap:0.00} MB");
             if (i == 20) (residentAt20, heapAt20) = (resident, heap);
             if (censusAt20 is not null && i == 100)
@@ -83,7 +94,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
                 grown = census is null ? $"no census, {failure}" : census.GrownSince(censusAt20, 5);
                 if (census is not null) output.WriteLine($"grown from the twentieth app to the hundredth, {census.GrownSince(censusAt20, 30)}");
             }
-            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), grown, string.Join(", ", threads));
+            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, everyTen, string.Join(", ", heaps), grown, string.Join(", ", threads));
         }
         throw new InvalidOperationException("unreachable");
     }
@@ -96,7 +107,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         // closed app's threads were still alive when the heap was read.
         var cycled = Cycle(Config.Default with { Headless = true }, heapEveryTen: true);
 
-        (cycled.HeapAt100 - cycled.HeapAt20).Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
+        cycled.FloorRise.Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
         (cycled.ResidentAt100 - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, {cycled.Series}");
     }
 
@@ -153,7 +164,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             return app;
         });
 
-        (cycled.HeapAt100 - cycled.HeapAt20).Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
+        cycled.FloorRise.Should().BeLessThan(5, $"the GC's heap holds nothing of a closed app, {cycled.Series}");
         (cycled.ResidentAt100 - cycled.ResidentAt20).Should().BeLessThan(50, $"and the process gives back what each took, its pipelines included, {cycled.Series}");
     }
 }

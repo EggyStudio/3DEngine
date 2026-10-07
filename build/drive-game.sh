@@ -23,16 +23,41 @@ case "$(uname -s)" in
   *) system=$(uname -s) ;;
 esac
 log="build/sessions/$game.log"
+# The script's own output, which an error is written to, so one said inside $(ask ...) reaches the
+# page and not the variable.
+exec 3>&1
+
+# Each game has a budget of minutes, DRIVE_MINUTES or eight, past which it is stopped and an error
+# names how far it got by its last status, so a slow device says which game it is slow at and the
+# games after it are still played. The game's last status is kept in a file for that error.
+minutes="${DRIVE_MINUTES:-8}"
+last="captures/$name-last-status.txt"
+expired="captures/$name-expired"
+finished="captures/$name-finished"
+rm -f "$last" "$expired" "$finished"
+restore=""
+cleanup() {
+  : > "$finished"
+  if [ -n "$restore" ]; then eval "$restore"; fi
+  ./e3d stop --quiet > /dev/null 2>&1 || true
+}
+trap cleanup EXIT
 
 fail() {
+  # The budget's error has been said, and the command its stop ended says nothing more.
+  [ -e "$expired" ] && exit 1
   local warnings=""
   [ -f "$log" ] && warnings=$(grep -E '\[(WARN |ERROR|FATAL)\]' "$log" | tail -n 3 | tr '\n' ' ' || true)
-  echo "::error title=$game on $system::$game: $1. ${warnings}"
-  ./e3d stop --quiet > /dev/null 2>&1 || true
+  echo "::error title=$game on $system::$game: $1. ${warnings}" >&3
   exit 1
 }
 cmd() { ./e3d command "$@" --quiet --timeout 600 || fail "./e3d command $* ended with $?"; }
-ask() { ./e3d command "$1" --timeout 600 || fail "./e3d command $1 ended with $?"; }
+ask() {
+  local answer
+  answer=$(./e3d command "$1" --timeout 600) || fail "./e3d command $1 ended with $?"
+  printf '%s\n' "$answer" > "$last"
+  printf '%s\n' "$answer"
+}
 # How far apart two points of two status lines are, each the numbers after a word.
 moved() {
   printf '%s\n%s\n' "$1" "$2" | awk -v word="$3" '
@@ -64,7 +89,16 @@ if ! answer=$(ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen 
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
-trap './e3d stop --quiet > /dev/null 2>&1 || true' EXIT
+# The budget is kept by a watcher that wakes every five seconds, so it ends soon after the game does.
+(
+  for (( waited = 0; waited < minutes * 60; waited += 5 )); do
+    sleep 5
+    [ -e "$finished" ] && exit 0
+  done
+  : > "$expired"
+  echo "::error title=$game on $system::$game: was not played through in $(( minutes * 60 )) seconds on $system, as far as $(cat "$last" 2> /dev/null || echo "its opening")" >&3
+  ./e3d stop --quiet > /dev/null 2>&1 || true
+) &
 cmd window.size 480 270
 cmd frames.wait 30
 
@@ -108,7 +142,7 @@ case "$game" in
     # The script changed while the game runs is compiled again, with perl, which macOS and Windows'
     # Git bash both have, the change taken back after.
     perl -pi -e 's/tuning\.EnemySpeed = 1;/tuning.EnemySpeed = 0.5f;/' games/Swarm/source/behaviors/Tune.cs
-    trap 'perl -pi -e "s/tuning\.EnemySpeed = 0\.5f;/tuning.EnemySpeed = 1;/" games/Swarm/source/behaviors/Tune.cs; ./e3d stop --quiet > /dev/null 2>&1 || true' EXIT
+    restore='perl -pi -e "s/tuning\.EnemySpeed = 0\.5f;/tuning.EnemySpeed = 1;/" games/Swarm/source/behaviors/Tune.cs'
     cmd frames.wait 300
     grep -q "Hot-reload behaviors: Compiled" "$log" || fail "the script changed while it ran was not compiled again"
     ;;
