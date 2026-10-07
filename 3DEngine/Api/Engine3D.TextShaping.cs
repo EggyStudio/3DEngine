@@ -49,9 +49,10 @@ public static partial class Engine3D
                 [("mset", 0), ("liga", 0), ("clig", 0)]);
 
     // The plan of a font's positions for Arabic: the marks above and below put on their letters and
-    // on each other, and the distances and the kerning between letters, all at every glyph.
+    // on each other, the distances and the kerning between letters, and each letter joined to the
+    // next by its exit and that one's entry, all at every glyph.
     private static GlyphLayout.Plan? ArabicPositions(GlyphPositioning table) =>
-        table.PlanFor("arab", ("abvm", 0), ("blwm", 0), ("dist", 0), ("kern", 0), ("mark", 0), ("mkmk", 0));
+        table.PlanFor("arab", ("abvm", 0), ("blwm", 0), ("curs", 0), ("dist", 0), ("kern", 0), ("mark", 0), ("mkmk", 0));
 
     /// <summary>
     /// The keys of the glyphs text is drawn with in a font, in the order they are drawn from left to

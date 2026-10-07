@@ -13,8 +13,15 @@ namespace Engine;
 /// and marks put on a base, on a ligature's component and on another mark, and the contextual and
 /// chained contextual positionings, reached directly or through an extension. A value record's
 /// placements and its horizontal advance are taken and its device tables left aside, so a font of
-/// variations is positioned as its default instance is drawn. A cursive attachment, which joins a
-/// letter's exit to the next one's entry as Nastaliq is written, is not made.
+/// variations is positioned as its default instance is drawn.
+/// </para>
+/// <para>
+/// A cursive attachment joins a letter's exit to the entry of the next one the lookup does not pass
+/// over, as Nastaliq is written, read right to left, as the runs of Arabic it positions are: the
+/// glyph before gives up its advance past its exit and this one's advance ends at its entry, and
+/// across the line the glyph the lookup's right-to-left flag makes the child, the first where it is
+/// set, is moved to meet the other and carried with it (<see cref="ShapedGlyph.Cursive"/>), as
+/// HarfBuzz joins them.
 /// </para>
 /// <para>
 /// A mark is put on the glyph before it that is no mark, or on the mark before it, as HarfBuzz
@@ -25,21 +32,23 @@ namespace Engine;
 /// </remarks>
 internal sealed class GlyphPositioning : GlyphLayout
 {
-    private GlyphPositioning(byte[] data, int gpos, int gdef) : base(data, gpos, gdef)
-    {
-    }
+    // A glyph's own advance, in the font's units, which a cursive attachment sets anew.
+    private readonly Func<int, int> _advance;
+
+    private GlyphPositioning(byte[] data, int gpos, int gdef, Func<int, int> advance) : base(data, gpos, gdef) => _advance = advance;
 
     private protected override int ContextType => 7;
 
     /// <summary>
     /// Reads the GPOS table at <paramref name="gpos"/>, with the GDEF table at <paramref name="gdef"/>
-    /// for the glyph classes, -1 where the font has none, or null where the table cannot be read.
+    /// for the glyph classes, -1 where the font has none, and each glyph's own advance from
+    /// <paramref name="advance"/>, or null where the table cannot be read.
     /// </summary>
-    public static GlyphPositioning? Read(byte[] data, int gpos, int gdef = -1)
+    public static GlyphPositioning? Read(byte[] data, int gpos, int gdef, Func<int, int> advance)
     {
         try
         {
-            return new GlyphPositioning(data, gpos, gdef);
+            return new GlyphPositioning(data, gpos, gdef, advance);
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -65,6 +74,8 @@ internal sealed class GlyphPositioning : GlyphLayout
             }
             case 2 when Coverage(sub + U16(sub + 2), glyph) is { } index:
                 return Pair(format, sub, index, run, at, flags);
+            case 3 when format == 1 && Coverage(sub + U16(sub + 2), glyph) is { } index:
+                return Cursive(sub, index, run, at, flags);
             case 4 or 5 or 6 when format == 1 && Coverage(sub + U16(sub + 2), glyph) is { } mark:
                 return Attach(type, sub, mark, run, at, flags);
             default:
@@ -115,6 +126,52 @@ internal sealed class GlyphPositioning : GlyphLayout
             else return record;
         }
         return null;
+    }
+
+    // A glyph's entry joined to the exit of the glyph before it the lookup does not pass over. Read
+    // right to left, the glyph before is moved right by what lies past its exit and its advance cut
+    // by as much, and this one's advance is set to end at its entry. The child, the glyph before
+    // where the lookup's right-to-left flag is set and this one where not, is moved up or down to
+    // meet its parent, and a chain the child was joined by before is turned to end at the new parent,
+    // so the whole of it moves with it.
+    private int? Cursive(int sub, int index, List<ShapedGlyph> run, int at, (int Value, int MarkSet) flags)
+    {
+        var count = U16(sub + 4);
+        if (index >= count) return null;
+        var entry = U16(sub + 6 + index * 4);
+        if (entry == 0) return null;
+        var before = at - 1;
+        while (before >= 0 && (Skips(flags, run[before].Glyph) || run[before].Ignorable)) before--;
+        if (before < 0 || Coverage(sub + U16(sub + 2), run[before].Glyph) is not { } previous || previous >= count) return null;
+        var exit = U16(sub + 6 + previous * 4 + 2);
+        if (exit == 0) return null;
+        var (exitX, exitY) = Anchor(sub + exit);
+        var (entryX, entryY) = Anchor(sub + entry);
+
+        var past = exitX + run[before].X;
+        run[before] = run[before] with { X = run[before].X - past, Advance = run[before].Advance - past };
+        run[at] = run[at] with { Advance = entryX + run[at].X - _advance(run[at].Glyph) };
+
+        var rightToLeft = (flags.Value & 1) != 0;
+        var (child, parent) = rightToLeft ? (before, at) : (at, before);
+        Unchain(run, child, parent);
+        run[child] = run[child] with { Y = rightToLeft ? entryY - exitY : exitY - entryY, Cursive = parent - child };
+        // A parent joined to the child before is let go, so the two do not hang on each other.
+        if (run[parent].Cursive == child - parent) run[parent] = run[parent] with { Y = 0, Cursive = 0 };
+        return at + 1;
+    }
+
+    // Turns the chain a glyph was joined by before toward it, each glyph along it now hanging on the
+    // one that hung on it, so the chain moves with the glyph's new parent, stopping at that parent.
+    private static void Unchain(List<ShapedGlyph> run, int glyph, int parent)
+    {
+        var chain = run[glyph].Cursive;
+        if (chain == 0) return;
+        run[glyph] = run[glyph] with { Cursive = 0 };
+        var next = glyph + chain;
+        if (next == parent || next < 0 || next >= run.Count) return;
+        Unchain(run, next, parent);
+        run[next] = run[next] with { Y = -run[glyph].Y, Cursive = -chain };
     }
 
     // A mark put on the glyph it follows: on the base or the ligature before it, passing over the

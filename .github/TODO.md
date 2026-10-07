@@ -114,11 +114,11 @@ physics, text and fonts, audio, audio streams and waves, and files
   read, by a reduced bidirectional algorithm with no explicit embeddings (`TextDirection`), and a
   run of Arabic is joined, each letter given its form by the letters beside it (`ArabicJoining`),
   through the font's GSUB under the `arab` script with the lookups' flags and the GDEF classes, or
-  by the presentation forms the font maps, and its marks are put on their letters and its pairs
-  kerned by the font's GPOS (`GlyphPositioning`). A cursive attachment, which Nastaliq is written
-  by, is not made, nor is a letter and its mark composed into the one character Unicode has for
-  both, and the rest of the text is drawn a character at a time, so a Latin font's ligatures and
-  kerning and the shaping Devanagari needs are not made.
+  by the presentation forms the font maps, and its marks are put on their letters, its pairs
+  kerned and each letter joined to the next by its exit and that one's entry, as Nastaliq is
+  written, by the font's GPOS (`GlyphPositioning`). A letter and its mark are not composed into
+  the one character Unicode has for both, and the rest of the text is drawn a character at a time,
+  so a Latin font's ligatures and kerning and the shaping Devanagari needs are not made.
 
 ### Meshes, materials and light
 

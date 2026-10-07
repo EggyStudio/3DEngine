@@ -49,6 +49,12 @@ and its mkmk feature puts fatha on shadda. Its kern feature moves alef before be
 right, the pair by its glyphs, alef's final glyph before beh 100, the pair by their classes, and
 lam's initial glyph 100 up before beh's final one, by a chained context.
 
+arabic-cursive.ttf is arabic.ttf with a GPOS table whose curs feature joins each of beh's and
+lam's joining glyphs to the next by its exit and that glyph's entry, as Nastaliq is written, read
+right to left and passing over marks. Beh leaves at 400 up and enters at 200, so each letter of a
+word of behs sits 200 below the one after it, and its glyphs leave 50 in from their left and enter
+50 in from their right, so they overlap. Lam leaves at 300 and enters at 100, at its edges.
+
 arabic-forms.ttf has no substitutions, as an older font of Arabic has none, and maps the same three
 letters and their presentation forms, beh's four, alef's two and lam's four, the isolated and final
 lam-alef and the space, each a glyph of its own, so text in it is drawn by those forms."""
@@ -445,6 +451,35 @@ font(os.path.join(here, "arabic-marks.ttf"), 17,
      {b"glyf": glyf, b"loca": loca, b"GSUB": gsub_of(b"arab", features, lookups), b"GDEF": gdef,
       b"GPOS": gsub_of(b"arab", [(b"kern", [3, 4, 5]), (b"mark", [0, 1]), (b"mkmk", [2])], gpos_lookups)},
      {2: 600, 4: 0, 5: 500, 6: 700, 7: 500, 8: 600, 9: 700, 10: 700, 11: 500, 12: 600, 13: 900, 14: 900, 15: 0, 16: 0})
+
+# arabic-cursive.ttf: arabic.ttf with a cursive attachment of beh's and lam's joining glyphs.
+def cursive(records):
+    """A cursive attachment subtable, records {glyph: (entry, exit)}, each anchor (x, y) or None."""
+    covered = sorted(records)
+    at, rows, anchors = 6 + 4 * len(covered), [], b""
+    for g in covered:
+        row = []
+        for a in records[g]:
+            row.append(at if a else 0)
+            if a: anchors += anchor(*a); at += 6
+        rows.append(row)
+    return struct.pack(">HHH", 1, at, len(covered)) + b"".join(struct.pack(">HH", *r) for r in rows) + anchors + cover(covered)
+
+
+joins = cursive({8: (None, (50, 400)), 7: ((450, 200), (50, 400)), 6: ((650, 200), None),
+                 12: (None, (0, 300)), 11: ((500, 100), (0, 300)), 10: ((700, 100), None)})
+arabic_glyphs = glyphs[:15]
+glyf = b"".join(arabic_glyphs)
+loca, at = b"", 0
+for g in arabic_glyphs: loca += struct.pack(">I", at); at += len(g)
+loca += struct.pack(">I", at)
+classes = [(1, 3, 1), (4, 4, 3), (5, 12, 1), (13, 14, 2)]
+class_def = struct.pack(">HH", 2, len(classes)) + b"".join(struct.pack(">HHH", *c) for c in classes)
+gdef = struct.pack(">IHHHH", 0x00010000, 12, 0, 0, 0) + class_def
+font(os.path.join(here, "arabic-cursive.ttf"), 15, [(0x0628, 1), (0x0627, 2), (0x0644, 3), (0x064E, 4), (0x20, 5)],
+     {b"glyf": glyf, b"loca": loca, b"GSUB": gsub_of(b"arab", features, lookups), b"GDEF": gdef,
+      b"GPOS": gsub_of(b"arab", [(b"curs", [0])], [(3, 0x09, joins)])},
+     {2: 600, 4: 0, 5: 500, 6: 700, 7: 500, 8: 600, 9: 700, 10: 700, 11: 500, 12: 600, 13: 900, 14: 900})
 
 # arabic-forms.ttf: the letters and their presentation forms, each a glyph of its own, the same
 # shapes as arabic.ttf's by position, and no GSUB.

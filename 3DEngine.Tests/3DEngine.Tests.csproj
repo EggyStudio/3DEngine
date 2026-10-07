@@ -59,6 +59,7 @@
         <None Include="Api\arabic.ttf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Api\arabic-forms.ttf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Api\arabic-marks.ttf" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Api\arabic-cursive.ttf" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Api\raylib-shapes.txt" CopyToOutputDirectory="PreserveNewest" />
         <!-- Summit's level, its prefabs and their models, which a reference frame of the game loads. -->
         <None Include="..\games\Summit\resources\level.json" Link="resources\level.json" CopyToOutputDirectory="PreserveNewest" />

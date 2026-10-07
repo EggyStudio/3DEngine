@@ -129,8 +129,9 @@ public static partial class Engine3D
     // advance and what positioning added to it, and a mark by none, as a shaper takes a mark's
     // away. The glyphs are laid from the right in a run read that way, each moved by its
     // placement, and a mark attached is put where its base is drawn and moved from there by its
-    // anchor. Null where the table points past the file's end, which leaves the run placed by its
-    // glyphs' own advances.
+    // anchor. A glyph a cursive attachment joined is moved up or down with the glyph it is joined
+    // to, through the chain to the one that stays on the baseline. Null where the table points past
+    // the file's end, which leaves the run placed by its glyphs' own advances.
     private static (Vector2 At, float Advance)[]? Placed(Font font, TrueTypeFont reader, GlyphLayout.Plan plan, List<ShapedGlyph> run,
         int[] glyphKeys, bool rightToLeft)
     {
@@ -147,11 +148,22 @@ public static partial class Engine3D
         {
             return null;
         }
+        // Each glyph's height, its own move and that of the glyph a cursive attachment joined it to,
+        // which may lie ahead of it, each worked out once.
+        var lifted = new int?[run.Count];
+        int Lifted(int i, int depth)
+        {
+            if (lifted[i] is { } known) return known;
+            var parent = i + run[i].Cursive;
+            var carried = run[i].Cursive != 0 && parent >= 0 && parent < run.Count && depth < run.Count ? Lifted(parent, depth + 1) : 0;
+            return (lifted[i] = run[i].Y + carried).Value;
+        }
+
         var edge = rightToLeft ? placed.Sum(p => p.Advance) : 0;
         for (int i = 0; i < run.Count; i++)
         {
             if (rightToLeft) edge -= placed[i].Advance;
-            var moved = new Vector2(run[i].X, -run[i].Y) * unit;
+            var moved = new Vector2(run[i].X, -Lifted(i, 0)) * unit;
             placed[i].At = (run[i].Attached > 0 && run[i].Attached <= i ? placed[i - run[i].Attached].At : new Vector2(edge, 0)) + moved;
             if (!rightToLeft) edge += placed[i].Advance;
         }

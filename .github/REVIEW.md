@@ -10,12 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `63581f04`. The six Windows games had one cause, in e3d, read from the annotations of
-the Windows job of `06b702a1`: on Windows `e3d open` starts the game through cmd.exe's `start` and
-finds it by its name, and its first look could come before cmd.exe had made the game, so a look that
-found none answered the game as exited; Summit, Tempo, Sumo and Jelly were answered so while they
-went on to load and serve, their logs read by the script at that moment ending within a second of
-their start or empty, and a session left serving came up beside Wordfall's and Slide's, so
+Reviewed up to `9350ffca`. TODO.md's models entry, item 2, closes its gap for bodies: a body made
+from a model the GPU posed takes the pose, `CreatePhysicsStaticModel` and `CreatePhysicsConvexHull`
+reading each posed mesh through one helper the wires share where they read the rest vertices the
+mesh keeps, with a test that poses the arm on the GPU in an offscreen app and finds a ray down
+beside the shoulder meeting the bent forearm in both bodies and nothing when the rest vertices are
+read, passing on lavapipe under validation; and a mesh or hull collider on an entity an
+`AnimatedModel` draws, which waited without a word since the copy puts no meshes in the world, is
+refused once with a warning naming the entity, with a test; the entry is rewritten around the gap
+left, the copy's meshes in the world (`9350ffca`). Item 3's first reproduction is under way in
+`build/mesa/ray-query-fragment`, a C program making one fragment ray query against a one-triangle
+scene, which lavapipe 25.2.8 draws right in GLSL and in Slang and at the engine's set and binding,
+so the engine's shader's features are added one at a time until it crashes. The suite: 1,532 passed.
+
+Before them, the six Windows games came to have one cause, in e3d, read from the annotations of the
+Windows job of `06b702a1`: on Windows `e3d open` starts the game through cmd.exe's `start` and finds
+it by its name, and its first look could come before cmd.exe had made the game, so a look that found
+none answered the game as exited; Summit, Tempo, Sumo and Jelly were answered so while they went on
+to load and serve, their logs read by the script at that moment ending within a second of their
+start or empty, and a session left serving came up beside Wordfall's and Slide's, so
 `wordfall.status` and `window.size` were refused with code 2, `AMBIGUOUS_SESSION`, as was the stop
 at each script's end, leaving those games running in turn; the Lato pattern was a coincidence of the
 order the games ran in, and the font sentence is retracted. Mended: e3d reads whether cmd.exe still
@@ -24,11 +37,7 @@ while cmd.exe runs is waited for and one not found after it ended has gone, chec
 program started through a shell that makes it 300 milliseconds later, answered gone at the first
 look before the mend and found at 300 after; and `drive-game.sh` sends every command and stop to the
 game it plays by name through `E3D_NAME`, a refused command's error carrying e3d's code and
-sentence, Wordfall playing through with Slide left serving (`63581f04`). The reply for `1840cbb5`
-was written over by a rewrite of this file as it was committed, which is why it came by message
-alone. TODO.md's models entry is next, bodies made from a GPU-posed model taking the pose and an
-`AnimatedModel` entity's mesh or hull collider refused with a warning where it waited in silence,
-then item 3's reproductions. The suite: 1,530 passed.
+sentence, Wordfall playing through with Slide left serving (`63581f04`). The suite: 1,530 passed.
 
 Before them, Verdict 33's new part came in: `e3d open` holds the process it started, on Windows the
 program found by its name and start time, and a program that dies before it is ready is answered
@@ -40,17 +49,6 @@ whatever their level and names any dump the game left; and the Windows job's `Lo
 every process, twenty dumps kept in `TestResults/dumps`; on the working machine programs exiting 3,
 by SIGSEGV and 0 are answered with those codes, a test closes a served app before ready and finds
 the warning, and Pusher plays through the script (`1840cbb5`). The suite: 1,530 passed.
-
-Before them, TODO.md's order, item 2, came to begin with the models' entry: an entity's
-`AnimatedModel` played only in the app the flat API ran against, the one `InitWindow` built, and an
-app a program built itself warned and drew nothing; `AnimatedModelDraws` is given its app by the
-render plugin, makes the flat API run against it while it loads, poses and records where another app
-or none is the flat API's, and gives it back after, with a test that plays an entity's clip through
-its own app while the flat API runs against none and then against another and finds it given back
-each time; the entry's other gap stands, a mesh posed on the GPU keeping its vertices at rest on the
-CPU, so a collider made from it is at rest (`045ce46e`). For item 3 the reproductions and the
-reports' text go into the repository with TODO.md pointing at them, and the filing on Mesa's tracker
-is the owner's, done under their account. The suite: 1,529 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -325,18 +323,24 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the models' entry, its gap a body made from a posed model:
+TODO.md's order, the text entry, its first gap cursive attachment:
 
-- **Bodies take the pose.** `CreatePhysicsStaticModel` and `CreatePhysicsConvexHull` read each mesh
-  the GPU posed from the joints it was handed, as the wires were read already, through one helper,
-  `Posed`, where they read the vertices the mesh keeps at rest. A test poses the arm on the GPU in
-  an offscreen app and finds a ray down beside the shoulder meeting the bent forearm in both bodies,
-  and with the rest vertices read it meets nothing. It passed on lavapipe under the validation layer.
-- **An `AnimatedModel` entity's mesh or hull collider.** The copy an `AnimatedModel` draws puts no
-  meshes in the world, so such a collider waited for triangles that never came and said nothing.
-  It is refused once with a warning naming the entity and saying a capsule or a box is shaped by
-  its size, where nothing under the entity could bring meshes, and a test finds the warning once.
-  `Collider.Mesh`, `Collider.ConvexHull` and `docs/physics.md` say so, and TODO.md's entry is
-  rewritten around that gap, the copy's meshes in the world.
-- The suite: 1,532 passed.
+- **Letters joined by their exits and entries.** `GlyphPositioning` reads GPOS's cursive
+  attachment, type 3, as HarfBuzz applies it to a run read right to left: the glyph before gives up
+  its advance past its exit, this one's advance ends at its entry, and the child the lookup's
+  right-to-left flag names is moved up or down to meet its parent, a chain it hung by before turned
+  toward the new parent, each glyph carried with the one it hangs on when the run is placed. The
+  Arabic plan takes the `curs` feature.
+- **Checked against HarfBuzz.** `build/make-color-test-fonts.py` writes `arabic-cursive.ttf`,
+  arabic.ttf with a `curs` lookup whose beh leaves higher than it enters and overlaps the next
+  letter, and a test finds every glyph of four words where HarfBuzz 14.6 puts it in the same font,
+  three behs stepping down 20 a letter and 160 wide, and the lookup passing over a mark. A copy of
+  the font with the lookup's right-to-left flag cleared, the other branch, matched HarfBuzz too, in
+  a test run once and not kept.
+- **What the entry has left.** A letter and its mark composed into one character needs a table of
+  Unicode's compositions in the engine, since `string.Normalize` gives text back unchanged in a
+  program published with invariant globalization, which I take next. Latin kerning and ligatures
+  would make a line measure otherwise than raylib's, which the guide promises it does, so that one
+  is the owner's to decide, and Devanagari's shaping is a shaper of its own.
+- The suite: 1,533 passed.
 

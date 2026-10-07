@@ -179,7 +179,10 @@ one, is drawn with the presentation forms Unicode encodes for the letters where 
 
 A mark, a vowel above or below its letter, is put on the letter where the font's GPOS table
 anchors it (`mark`), on its own letter of a lam-alef, and on another mark, as fatha on shadda
-(`mkmk`), and the font's kerning (`kern`) moves the letters of a pair apart or together. A
+(`mkmk`), and the font's kerning (`kern`) moves the letters of a pair apart or together. A font
+that joins each letter to the next by where one leaves and the next enters (`curs`), as Nastaliq
+is written, has each letter drawn with its exit on the next one's entry, up or down along the
+word where the two lie at different heights. A
 letter's marks are shaped in the order HarfBuzz puts them in, shadda before the vowel written with
 it, whatever order the text stores them in. A font with no positions draws a mark after its letter
 where the font's glyph of it lies. Text in other scripts is drawn a character at a time with

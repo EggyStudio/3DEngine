@@ -30,4 +30,10 @@ internal readonly record struct ShapedGlyph(int Glyph, int Cluster, byte Mask = 
 
     /// <summary>How many glyphs back the glyph it is attached to is, a mark's base, or 0 where it is attached to none.</summary>
     public int Attached { get; init; }
+
+    /// <summary>
+    /// How many glyphs on, ahead or back, the glyph it is joined to by a cursive attachment is, whose
+    /// height it is moved with, or 0 where it is joined to none.
+    /// </summary>
+    public int Cursive { get; init; }
 }

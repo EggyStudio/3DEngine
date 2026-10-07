@@ -6,8 +6,9 @@ namespace Engine.Tests.Api;
 /// <summary>
 /// Arabic's marks and pairs placed by the GPOS table of <c>arabic-marks.ttf</c>, which
 /// <c>build/make-color-test-fonts.py</c> writes: fatha, kasra and shadda put on the anchors of their
-/// letters, on each letter of lam-alef and on each other, and pairs of letters kerned, each place
-/// expected the one HarfBuzz gives the glyph in the same font, at 100 pixels a tenth of its units.
+/// letters, on each letter of lam-alef and on each other, and pairs of letters kerned, and letters
+/// joined by the cursive attachment of <c>arabic-cursive.ttf</c>, each place expected the one
+/// HarfBuzz gives the glyph in the same font, at 100 pixels a tenth of its units.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Integration")]
@@ -16,6 +17,7 @@ public sealed class ArabicMarksTests : IDisposable
     private const string Beh = "ب", Alef = "ا", Lam = "ل", Fatha = "َ", Kasra = "ِ", Shadda = "ّ";
     private static readonly string Marks = Path.Combine(AppContext.BaseDirectory, "Api", "arabic-marks.ttf");
     private static readonly string Unplaced = Path.Combine(AppContext.BaseDirectory, "Api", "arabic.ttf");
+    private static readonly string Joined = Path.Combine(AppContext.BaseDirectory, "Api", "arabic-cursive.ttf");
 
     public ArabicMarksTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -98,6 +100,24 @@ public sealed class ArabicMarksTests : IDisposable
             "alef's final glyph before beh, a pair of their classes, by 10");
         Drawn(font, Lam + Beh).Should().Equal([(JoinedKey(6), 0f, 0f), (JoinedKey(12), 70f, -10f)],
             "lam's initial glyph before beh's final one is raised 10");
+        UnloadFont(font);
+    }
+
+    [Fact]
+    public void Letters_Are_Joined_By_Each_Ones_Exit_And_The_Next_Ones_Entry()
+    {
+        // Read right to left, each beh leaves at 400 up and enters the next at 200, so each sits 20
+        // below the letter after it, and overlaps it by the 5 between its exit and its left edge.
+        var font = LoadFontEx(Joined, 100, LoadCodepoints(Beh + Lam + Fatha + " "));
+
+        Drawn(font, Beh + Beh + Beh).Should().Equal([(JoinedKey(6), 0f, 0f), (JoinedKey(7), 60f, 20f), (JoinedKey(8), 100f, 40f)],
+            "the first beh hangs on the second, which hangs on the last, on the baseline");
+        MeasureTextEx(font, Beh + Beh + Beh, 100, 0).X.Should().Be(160, "each advance ends at the next letter's entry");
+        Drawn(font, Lam + Beh + Beh).Should().Equal([(JoinedKey(6), 0f, 0f), (JoinedKey(7), 60f, 20f), (JoinedKey(12), 105f, 30f)],
+            "lam leaves at 300 up, at its left edge");
+        Drawn(font, Beh + Lam).Should().Equal([(JoinedKey(10), 0f, 0f), (JoinedKey(8), 65f, 30f)]);
+        Drawn(font, Beh + Fatha + Beh).OrderBy(d => d.X).Should().Equal([(JoinedKey(6), 0f, 0f), (JoinedKey(8), 60f, 20f), (0x064E, 65f, 0f)],
+            "the lookup passes over the mark between the two");
         UnloadFont(font);
     }
 

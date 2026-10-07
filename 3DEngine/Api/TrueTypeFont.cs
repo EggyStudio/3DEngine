@@ -71,7 +71,7 @@ internal sealed class TrueTypeFont
         _sbix = tables.GetValueOrDefault("sbix");
         var gdef = tables.TryGetValue("GDEF", out var classes) ? classes : -1;
         if (tables.TryGetValue("GSUB", out var gsub)) Substitutions = GlyphSubstitution.Read(data, gsub, gdef);
-        if (tables.TryGetValue("GPOS", out var gpos)) Positions = GlyphPositioning.Read(data, gpos, gdef);
+        if (tables.TryGetValue("GPOS", out var gpos)) Positions = GlyphPositioning.Read(data, gpos, gdef, Advance);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
         if (_glyf == 0 && tables.TryGetValue("CFF ", out var cff)) _cff = CompactFontOutlines.Read(data, cff);
 
