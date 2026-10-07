@@ -3,8 +3,8 @@ using static Engine.Engine3D;
 
 namespace Engine.Tests.Rendering;
 
-// The frames of the light that bounces: the Cornell box of shaders_cornell_box, and Manor's
-// library lit by the afternoon sun through its windows.
+// The frames of the light that bounces: the Cornell box of shaders_cornell_box, Manor's library
+// lit by the afternoon sun through its windows, and the glossy hall of shaders_reflections.
 public sealed partial class ReferenceFrameTests
 {
     [NeedsVulkanFact]
@@ -76,6 +76,51 @@ public sealed partial class ReferenceFrameTests
         }, settle: SceneFieldPlan.SettleFrames + 10);
         Matches(frame, "lit_room");
         foreach (var model in models.Values) UnloadModel(model);
+        UnloadEnvironmentMap();
+    }
+
+    [NeedsVulkanFact]
+    public void Glossy_Surfaces_Reflecting_Through_The_Field_Match_Their_Reference()
+    {
+        // The hall of shaders_reflections at High: a polished floor, a chrome ball and a gold one,
+        // three pillars and a glowing strip, under a low sun and a sky.
+        Open(256, 160);
+        SetSceneField(3, 0.2f, 2);
+        SetGlobalIllumination(GlobalIllumination.High);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.5f, -0.6f, -0.4f)), new Color(255, 240, 220), 2.5f, castsShadows: true);
+        var sky = GenImageColor(256, 128, Color.Blank);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(50, 95, 170), new Color(190, 210, 235)), 0, 0, Color.White);
+        ImageDrawImage(ref sky, GenImageGradientLinear(256, 64, 0, new Color(90, 95, 85), new Color(40, 42, 38)), 0, 64, Color.White);
+        SetEnvironmentMap(sky, intensity: 0.5f);
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        floor.Materials[0] = new ModelMaterial(new Color(40, 40, 46)) { Roughness = 0.08f };
+        var wall = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        wall.Materials[0] = new ModelMaterial(new Color(200, 196, 188));
+        var pillar = LoadModelFromMesh(GenMeshCylinder(0.35f, 3, 24));
+        var chrome = LoadModelFromMesh(GenMeshSphere(0.7f, 48, 48));
+        chrome.Materials[0] = new ModelMaterial(new Color(235, 235, 235)) { Metallic = 1, Roughness = 0.05f };
+        var gold = LoadModelFromMesh(GenMeshSphere(0.6f, 48, 48));
+        gold.Materials[0] = new ModelMaterial(new Color(255, 200, 90)) { Metallic = 1, Roughness = 0.3f };
+        var strip = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        strip.Materials[0] = new ModelMaterial(Color.Black) { Emissive = new Color(120, 200, 255), EmissiveIntensity = 4 };
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(new Color(50, 95, 170));
+            BeginMode3D(new Camera3D(new Vector3(0, 2.2f, 7.5f), new Vector3(0, 0.9f, 0), Vector3.UnitY, 50));
+            DrawSkybox();
+            DrawModelEx(floor, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(12, 0.2f, 12), Color.White);
+            DrawModelEx(wall, new Vector3(0, 2, -4), Vector3.UnitY, 0, new Vector3(12, 4, 0.3f), Color.White);
+            DrawModelEx(strip, new Vector3(0, 2.6f, -3.8f), Vector3.UnitY, 0, new Vector3(5, 0.25f, 0.1f), Color.White);
+            DrawModel(pillar, new Vector3(-3, 0, -2), 1, new Color(200, 40, 40));
+            DrawModel(pillar, new Vector3(0, 0, -2.6f), 1, new Color(40, 170, 60));
+            DrawModel(pillar, new Vector3(3, 0, -2), 1, new Color(50, 80, 210));
+            DrawModel(chrome, new Vector3(-1.1f, 0.7f, 0.4f), 1, Color.White);
+            DrawModel(gold, new Vector3(1.4f, 0.6f, 0.8f), 1, Color.White);
+            EndMode3D();
+        }, settle: SceneFieldPlan.SettleFrames + 10);
+        Matches(frame, "reflections");
+        foreach (var model in new[] { floor, wall, pillar, chrome, gold, strip }) UnloadModel(model);
         UnloadEnvironmentMap();
     }
 }

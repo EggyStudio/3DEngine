@@ -59,6 +59,87 @@ public struct GiLights
     public GiLight lights[16];
 };
 
+// A camera's matrices and eye, which a ray is traced through its depth with.
+public struct ScreenCamera
+{
+    // World to clip space, and back.
+    public float4x4 viewProjection;
+    public float4x4 inverseViewProjection;
+    public float3 eye;
+};
+
+// The world position a point of a depth image at uv and depth d stands for.
+public float3 screenWorld(ScreenCamera camera, float2 uv, float d)
+{
+    float4 world = mul(camera.inverseViewProjection, float4(uv * 2.0 - 1.0, d, 1.0));
+    return world.xyz / world.w;
+}
+
+// Where a point projects onto a depth image, in xy, and its depth there, in z, and in w the depth
+// the image holds there, or false where it lies behind the eye or off the picture.
+bool onScreen(Sampler2D depth, ScreenCamera camera, float3 q, out float4 at)
+{
+    at = float4(0.0);
+    float4 clip = mul(camera.viewProjection, float4(q, 1.0));
+    if (clip.w <= 1e-4)
+        return false;
+    float3 ndc = clip.xyz / clip.w;
+    float2 uv = ndc.xy * 0.5 + 0.5;
+    if (any(uv < 0.0) || any(uv > 1.0))
+        return false;
+    at = float4(uv, ndc.z, depth.SampleLevel(uv, 0).r);
+    return true;
+}
+
+// Where a ray from p along way first meets the surface a depth image holds within length, in steps
+// more finely spaced near p, as a world position, or false and how far it went where it left the
+// picture or met nothing on it. A point behind the depth counts as on the surface while it is
+// within two steps of it, or a quarter of a unit, so a ray passing behind a thing in front does
+// not stop there, and the step it met the surface in is halved five times to find where.
+public bool traceScreen(Sampler2D depth, ScreenCamera camera, float3 p, float3 way, float length, int steps, out float3 hit, out float left)
+{
+    hit = p;
+    left = length;
+    float before = 0.0;
+    for (int i = 0; i < steps; i++)
+    {
+        float s = float(i + 1) / float(steps);
+        float t = length * s * s;
+        float3 q = p + way * t;
+        float4 at;
+        if (!onScreen(depth, camera, q, at))
+        {
+            left = t;
+            return false;
+        }
+        if (at.w < 1.0 && at.z > at.w)
+        {
+            float3 surface = screenWorld(camera, at.xy, at.w);
+            float behind = distance(camera.eye, q) - distance(camera.eye, surface);
+            if (behind < max(length / float(steps) * 2.0, 0.25))
+            {
+                float near = before, far = t;
+                for (int k = 0; k < 5; k++)
+                {
+                    float middle = (near + far) * 0.5;
+                    float4 m;
+                    if (onScreen(depth, camera, p + way * middle, m) && m.w < 1.0 && m.z > m.w)
+                    {
+                        far = middle;
+                        at = m;
+                    }
+                    else
+                        near = middle;
+                }
+                hit = screenWorld(camera, at.xy, at.w);
+                return true;
+            }
+        }
+        before = t;
+    }
+    return false;
+}
+
 // Where a ray from origin along way first comes within a tenth of a cell of a surface between
 // tMin and tMax, through the finest cascade that holds each point along it, or -1 where it reaches
 // tMax first or leaves every cascade.

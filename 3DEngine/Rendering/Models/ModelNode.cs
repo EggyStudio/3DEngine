@@ -716,6 +716,7 @@ internal sealed partial class ModelRenderer : IDisposable
         _noEnvironment?.Dispose();
         _noBounce?.Dispose();
         _noScreen?.Dispose();
+        _noGiLights?.Dispose();
         foreach (var (_, cube) in _retiredCubes) cube.Dispose();
         foreach (var map in _probeMaps) map.Dispose();
         _noIrradiance?.Dispose();

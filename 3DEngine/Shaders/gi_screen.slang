@@ -76,10 +76,18 @@ ConstantBuffer<ScreenPush> push;
 // The hemisphere's texels along each side, sixteen rays a probe.
 static const uint Rays = 4;
 
+ScreenCamera camera()
+{
+    ScreenCamera c;
+    c.viewProjection = view.viewProjection;
+    c.inverseViewProjection = view.inverseViewProjection;
+    c.eye = view.eye.xyz;
+    return c;
+}
+
 float3 worldAt(float2 uv, float d)
 {
-    float4 world = mul(view.inverseViewProjection, float4(uv * 2.0 - 1.0, d, 1.0));
-    return world.xyz / world.w;
+    return screenWorld(camera(), uv, d);
 }
 
 // A direction of the hemisphere around +z for a point of the square, the octahedron's upper half
@@ -89,48 +97,6 @@ float3 hemisphere(float2 uv)
     float2 a = uv * 2.0 - 1.0;
     float x = (a.x + a.y) * 0.5, y = (a.x - a.y) * 0.5;
     return normalize(float3(x, y, 1.0 - abs(x) - abs(y)));
-}
-
-// Where a ray from p along way first meets the depth's surface within length, stepped more finely
-// near p, as a world position, with where it left the screen, or false and that place where it
-// met none on the screen.
-bool traceDepth(float3 p, float3 way, float length, out float3 hit, out float left)
-{
-    hit = p;
-    left = length;
-    static const int Steps = 12;
-    for (int i = 0; i < Steps; i++)
-    {
-        float s = float(i + 1) / float(Steps);
-        float t = length * s * s;
-        float3 q = p + way * t;
-        float4 clip = mul(view.viewProjection, float4(q, 1.0));
-        if (clip.w <= 1e-4)
-        {
-            left = t;
-            return false;
-        }
-        float3 ndc = clip.xyz / clip.w;
-        float2 uv = ndc.xy * 0.5 + 0.5;
-        if (any(uv < 0.0) || any(uv > 1.0))
-        {
-            left = t;
-            return false;
-        }
-        float d = depth.SampleLevel(uv, 0).r;
-        if (d < 1.0 && ndc.z > d)
-        {
-            // Behind what the window shows there, and near it, as a surface a few steps thick.
-            float3 surface = worldAt(uv, d);
-            float behind = distance(view.eye.xyz, q) - distance(view.eye.xyz, surface);
-            if (behind < max(length / float(Steps) * 2.0, 0.25))
-            {
-                hit = surface;
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 // The world's first cascade's eight probes around p, the one nearest the field's origin first,
@@ -252,7 +218,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float3 light;
             float3 hit;
             float leftAt;
-            if (traceDepth(start, way, length, hit, leftAt))
+            if (traceScreen(depth, camera(), start, way, length, 12, hit, leftAt))
                 light = shadeHit(sceneField, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, hit, view.trace.y, view.trace.z, view.trace.w);
             else
             {

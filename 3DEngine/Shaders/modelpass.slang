@@ -170,6 +170,18 @@ public struct Lighting
     // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
     // screenLight and screenSurfaces, are read before the world's.
     public float4 screen;
+    // The window's camera this frame, world to clip space and back, and the frame before's, which
+    // a glossy surface's reflection is traced through the window's depth with and looked up in the
+    // frame before's picture by.
+    public float4x4 reflectViewProjection;
+    public float4x4 reflectInverseViewProjection;
+    public float4x4 reflectLastViewProjection;
+    // x: 1 when a glossy surface traces its reflection, the window's alone. y: the roughness from
+    // which none is traced, the probes and the environment reflecting alone. z: the steps through
+    // the window's depth. w: 1 when reflectHistory holds the frame before.
+    public float4 reflection;
+    // x: how far a reflection is traced through the window's depth. yzw: unused.
+    public float4 reflectionReach;
 };
 
 [[vk::binding(0, 1)]]
@@ -240,6 +252,30 @@ public Sampler2D screenLight;
 [[vk::binding(18, 1)]]
 public Sampler2D screenSurfaces;
 
+// The scene's distance field, its surfaces' colors and the light they give off, and the lights
+// that light them, which a reflection is traced through past the window's depth and shaded from,
+// or a field of nothing where light does not bounce.
+[[vk::binding(19, 1)]]
+public Sampler3D reflectField;
+
+[[vk::binding(20, 1)]]
+public Sampler3D reflectAlbedo;
+
+[[vk::binding(21, 1)]]
+public Sampler3D reflectGlow;
+
+[[vk::binding(22, 1)]]
+public ConstantBuffer<GiLights> reflectLights;
+
+// The window's depth at half its size this frame, which a reflection is traced through first.
+[[vk::binding(23, 1)]]
+public Sampler2D reflectDepth;
+
+// The window's scene as the frame before drew it, in linear light at half its size with its mips,
+// which a reflection that meets a surface on the screen reads that surface's light from.
+[[vk::binding(24, 1)]]
+public Sampler2D reflectHistory;
+
 // The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
 // four screen probes around it that stand on a surface like its own, each by how near it is and
 // how alike its normal and its distance from the eye are to the fragment's, or -1 where none does.
@@ -276,6 +312,45 @@ public float3 bounced(float3 p, float3 n)
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
     return bouncedAt(bouncedLight, bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+}
+
+// The light a glossy surface at p facing n reflects along r, traced through the window's depth and
+// past it through the scene's distance field, with in a how much of it is known: 1 where a ray met
+// a surface, faded at the picture's edge where the frame before's picture gives its light, and 0
+// where the ray met nothing, or the surface is too rough to trace for, where the probes and the
+// environment reflect alone. A surface met on the screen reflects the light the frame before
+// showed where it was, and one past the picture or hidden from it its color times the light
+// reaching it, as the light that bounces shades a hit.
+public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, float3 eye)
+{
+    if (lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
+        return float4(0.0);
+    float probes = lighting.indirect.z, spacing = lighting.indirect.y, cascades = lighting.indirect.w;
+    float cell = max(fieldCell(bouncedField, p), 0.02);
+    float3 start = p + n * cell;
+    ScreenCamera camera;
+    camera.viewProjection = lighting.reflectViewProjection;
+    camera.inverseViewProjection = lighting.reflectInverseViewProjection;
+    camera.eye = eye;
+    float3 hit;
+    float left;
+    if (traceScreen(reflectDepth, camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left))
+    {
+        float3 shaded = shadeHit(reflectField, bouncedField, reflectAlbedo, reflectGlow, reflectLights, bouncedLight, hit, probes, spacing, cascades);
+        float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));
+        float2 uv = last.xy / max(last.w, 1e-4) * 0.5 + 0.5;
+        if (lighting.reflection.w <= 0.0 || last.w <= 1e-4 || any(uv < 0.0) || any(uv > 1.0))
+            return float4(shaded, 1.0);
+        // The picture's light, blurred down its mips as the surface is rough, and the field's
+        // shading where the picture ends.
+        float edge = saturate(min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)) * 12.0);
+        float3 seen = reflectHistory.SampleLevel(uv, saturate(roughness / lighting.reflection.y) * 4.0).rgb;
+        return float4(lerp(shaded, seen, edge), 1.0);
+    }
+    float t = traceField(reflectField, bouncedField, start, r, left, 1e5);
+    if (t < 0.0)
+        return float4(0.0);
+    return float4(shadeHit(reflectField, bouncedField, reflectAlbedo, reflectGlow, reflectLights, bouncedLight, start + r * t, probes, spacing, cascades), 1.0);
 }
 
 // The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
@@ -789,6 +864,14 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     if (bounces)
         color += occlusion * diffuseColor * bouncedHere;
 
+    // A glossy surface's reflection traced through the scene where light bounces, which takes the
+    // place of the probe's and the environment's as far as it met a surface and fades back to
+    // them as the surface grows rough.
+    float4 traced = tracedReflection(input.world, n, reflect(-v, n), roughness, input.world + input.toEye);
+    float gloss = traced.a * (1.0 - smoothstep(lighting.reflection.y * 0.5, lighting.reflection.y, roughness));
+    float3 specularShare = ambientReflected(f0, roughness, nv);
+    color += occlusion * traced.rgb * gloss * specularShare;
+
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
     // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
@@ -798,14 +881,14 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
         float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
         float3 around = bounces ? float3(0.0) : probeIrradiance(probe, n);
-        color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
+        color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * specularShare * (1.0 - gloss));
     }
     else if (environment)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;
         float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
-        color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
+        color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * specularShare * (1.0 - gloss));
     }
 
     for (int i = 0; i < min(lighting.count, 16); i++)
@@ -814,7 +897,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float3 arrived = arriving(light, input.world, n);
         if (int(light.positionAndKind.w) == Ambient)
         {
-            color += arrived * occlusion * ((bounces ? float3(0.0) : diffuseColor) + ambientReflected(f0, roughness, nv));
+            color += arrived * occlusion * ((bounces ? float3(0.0) : diffuseColor) + specularShare * (1.0 - gloss));
             continue;
         }
 

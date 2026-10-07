@@ -25,7 +25,7 @@ internal static class SceneFieldCommands
         return $"building {plan.Budget} of its {plan.Cascades} cascades each frame for {Math.Max(1, frames)} frames";
     }
 
-    [Command("gi.state", "How much light bounces: the quality, the cascades of world probes and their rays, the screen's probes, and the GPU memory each takes")]
+    [Command("gi.state", "How much light bounces: the quality, the cascades of world probes and their rays, the screen's probes, the reflections, and the GPU memory each takes")]
     internal static string IlluminationState()
     {
         if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
@@ -44,6 +44,12 @@ internal static class SceneFieldCommands
         if (gi.Screen is { } screen)
             lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
                       + $"{3.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
+        var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
+        // The frame before at half the window's size in half floats, its mips a third more.
+        var history = gi.HistoryViewProjection is null || renderer.RenderWorld.TryGet<SwapchainTarget>() is not { } window ? 0
+            : (window.Extent.Width / 2) * (window.Extent.Height / 2) * 8 * 4 / 3.0 / 1024 / 1024;
+        lines.Add($"reflections below roughness {GlobalIlluminationRenderer.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
+                  + $"then the field, the frame before kept in {history:0.00} MB");
         return string.Join("\n", lines);
     }
 

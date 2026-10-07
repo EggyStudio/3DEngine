@@ -93,9 +93,28 @@ internal struct LightingUbo
 
     /// <summary>
     /// x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes are
-    /// read before the world's. Last, so the fields before keep their offsets.
+    /// read before the world's.
     /// </summary>
     public Vector4 Screen;
+
+    /// <summary>The window's camera this frame, world to clip space, which a glossy surface's reflection is traced through the window's depth with.</summary>
+    public Matrix4x4 ReflectViewProjection;
+
+    /// <summary>Clip space back to the world, for the points of the window's depth a reflection meets.</summary>
+    public Matrix4x4 ReflectInverseViewProjection;
+
+    /// <summary>The window's camera the frame before, which a reflection looks the surface it met up in the frame before's picture by.</summary>
+    public Matrix4x4 ReflectLastViewProjection;
+
+    /// <summary>
+    /// x: 1 when a glossy surface traces its reflection, the window's alone. y: the roughness from
+    /// which none is traced. z: the steps through the window's depth. w: 1 when the frame before's
+    /// picture is held.
+    /// </summary>
+    public Vector4 Reflection;
+
+    /// <summary>x: how far a reflection is traced through the window's depth, in world units. Last, so the fields before keep their offsets.</summary>
+    public Vector4 ReflectionReach;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

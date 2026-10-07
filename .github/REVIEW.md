@@ -10,8 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f2d99b65`. A signed distance field of the scene stands around the camera, phase one
-of Decision 16: `SetSceneField` and `Config.SceneField` build it from the shadow-casting meshes in
+Reviewed up to `5057c3cb`. Light bounces between surfaces through the field as hybrid Radiance
+Cascades, phase two of Decision 16, which settles item 2, the list renumbered:
+`SetGlobalIllumination` and `Config.GlobalIllumination` take `Off`, `Low`, `Medium` or `High` and
+turn the field on at four cascades where it is off; a cascade of world probes lies every eight cells
+of the field's cascade of the same number, each tracing an octahedron of directions over its
+interval, the first from the probe to twice the spacing and each after from its spacing to twice
+that, `Low` at 4 by 4 and 8 by 8 directions, `Medium` adding 16 by 16, `High` 8 by 8 then 16 by 16
+in four cascades; the splat's second dispatch paints each cell its nearest triangle's color and the
+light it gives off, a hit sends on that color under the sun where the field reaches it, the
+unshadowed point and spot lights and the frame before's bounce, and a miss in the last cascade
+brings back the environment map; the merge runs far to near and passes over an upper probe the field
+hides from the lower; six faces of irradiance a probe feed the next frame's bounce and the model
+pass's fallback; screen probes every 16, 12 or 8 pixels trace the first interval again on the
+occlusion pass's half-size depth, 16 rays over the hemisphere through the depth and then the field,
+filtered 5 by 5 by normal and distance, standing on texel middles since NVIDIA and lavapipe round a
+boundary apart; the model pass blends the four around a pixel in place of the diffuse light of the
+environment map, the ambient lights and the reflection probes; the halves are packed through
+`PackHalf2x16` by `spirv_asm`, since `f32tof16` declared capabilities lavapipe's validation rejects;
+a double-sided sheet thinner than a cell gets a second bit in the cell's word and half a cell of
+thickness, so rays stop at Manor's floors, with a test and `scene_field_cascade` written again;
+`shaders_cornell_box` with its 800 by 450 capture, the `cornell_box` and `lit_room` frames, four
+tests of the bounce and two of the frames, the guide's table of the three qualities measured on the
+RTX 4070 with the frame rate unlimited through `profile` and `gi.state`, 0.19 ms and 0.70 MB at
+`Low`, 0.27 ms and 2.76 MB at `Medium`, 0.34 ms and 6.72 MB at `High`, the comparison page, the
+cheat sheet's line and the listing (`3e00ac64`). Verdict 33's third part is mended in a commit of
+its own: the opening's answer goes to `captures/<game>-opened.json`, the watcher starts before the
+opening and the Windows games' step has 110 of the job's 180 minutes (`5057c3cb`), unproven until a
+push. Phase three, specular, is next. The suite: 1,521 passed; lavapipe under validation passed its
+54 reference, field, bounce, particle and occlusion tests.
+
+Before them, a signed distance field of the scene came to stand around the camera, phase one of
+Decision 16: `SetSceneField` and `Config.SceneField` build it from the shadow-casting meshes in
 cascades of 64 cells a side, each twice as coarse and as wide as the one before, in one 3D image of
 half floats with a uniform buffer saying where each lies; a cascade is rebuilt when the eye passes
 its grid of eight cells or a still mesh comes or goes, the budget's number a frame, finest first; a
@@ -26,12 +56,11 @@ with the depth elsewhere, which closes that TODO entry; `field.show`, `field.sta
 `field.rebuild`, two reference frames, the `shaders_scene_field` example, the guide's section,
 RENDERING.md's, and the costs from an RTX 4070 on the comparison page, stamping 0.014 ms, the finest
 cascade 0.25 ms to build and the occlusion pass 0.073 ms where it took 0.036 (`f2d99b65`), which
-settles item 2. The field's kernels and its sampling module are plain Slang over buffers and one
-image, which the bridge can compile as they are once BevyCSharp reads the field. Phase two, hybrid
-Radiance Cascades, is next. The suite: 1,514 passed, none skipped. The Windows job of `3afcc4d0` was
-cancelled at the job's 180 minutes in the games' step at 18:31 with nothing on the page, which
-Verdict 33 reads as the opening's answer read through `$(...)` while the game e3d started holds the
-pipe, as BevyCSharp's step hung the same day.
+settled its item. The field's kernels and its sampling module are plain Slang over buffers and one
+image, which the bridge can compile as they are once BevyCSharp reads the field. The suite: 1,514
+passed, none skipped. The Windows job of `3afcc4d0` was cancelled at the job's 180 minutes in the
+games' step at 18:31 with nothing on the page, which Verdict 33 reads as the opening's answer read
+through `$(...)` while the game e3d started holds the pipe, as BevyCSharp's step hung the same day.
 
 Before them, the shader cache's two writers came to be mended: each writes its entry under a name of
 its own, the path with the process and a GUID after it ending in `.partial`, moves it over the path,
@@ -45,18 +74,6 @@ verdict is settled. The owner decided on 2026-10-07 that global illumination com
 and `6412daca` in the games' step since 15:31, 16:08 and 16:11, and `38f68412`'s run on all three
 systems. The suite: 1,505 passed, none skipped.
 
-Before them, Arabic's marks came to be put on their letters and its pairs kerned by the font's GPOS
-table inside shaped runs: what GSUB and GPOS share moved into `GlyphLayout`, which
-`GlyphSubstitution` and the new `GlyphPositioning` extend, single and pair adjustments, marks on a
-base, on a ligature's component and on another mark, the contexts and the extension, with cursive
-attachment and device tables left out; a shaped line's keys carry where each glyph is drawn from the
-pen and how far it moves it (`PlacedKey`), which `DrawTextPro`, `ImageDrawTextEx` and
-`MeasureTextEx` read; a letter's marks are shaped in HarfBuzz's order and the Arabic plan runs in
-its stages with `liga`, `clig`, `rclt` and `mset`; the zero width non-joiner and the isolates join
-nothing; and 328 shapings of 52 words on seven of the machine's fonts came out as HarfBuzz's glyphs
-at its positions, held by `arabic-marks.ttf`, six tests and the `arabic_marks` frame (`38f68412`),
-which settles item 4, the three batches of Decision 15 in. The suite: 1,503 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -67,42 +84,31 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 33's third part first, the Windows jobs.** The Windows job of `3afcc4d0` was
-   cancelled at the job's 180 minutes in the games' step at 18:31 with nothing on the page, and the
-   jobs of `0c19c335`, `6412daca`, `38f68412` and `90681ba8` sit in the same step toward the same
-   end, the last by 20:01, so the three mends come first once phase 2's commit lands, in a commit of
-   their own; the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a
-   run's three test jobs pass, which none will until a Windows job does. Each push's run is read by
-   the reviewing session, and a failure it names comes first here.
-2. **Phase 2: Radiance Cascades, hybrid.** Cascades of probes aligned with the SDF clipmaps, each
-   cascade's probes storing radiance over its interval of distance, the first cascade's intervals
-   traced through the depth buffer and the ones above through the field, direct light and emissive
-   surfaces injected at the hits, merged from the far cascade to the near one, and the result
-   sampled a pixel as diffuse indirect light beside the environment map's. A quality tier in the
-   settings from a few cascades at low angular resolution to the full set, the memory and the frame
-   time of each measured and written, and the examples' Cornell box and a lit room of a game as the
-   reference frames. Nothing is baked, and every light is dynamic. The kernels are written in Slang,
-   which the bridge compiles too, so BevyCSharp runs them once they are proven here.
-3. **Phase 3: specular.** Glossy reflections traced through the field with the cascades' radiance
+1. **The next run's Windows job, Verdicts 33, 30 and 31.** Verdict 33's third part is mended at
+   `5057c3cb` and proved by the first Windows job to play the twelve games; the Windows jobs of
+   `0c19c335`, `6412daca`, `38f68412` and `90681ba8` end at their 180 minutes as `3afcc4d0`'s did
+   and are not read; the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs
+   once a run's three test jobs pass. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
+2. **Phase 3: specular.** Glossy reflections traced through the field with the cascades' radiance
    at the hit, screen-space reflections where the field is too coarse and the reflection probes as
    the fallback, chosen by roughness; and a hardware ray-query path through Vulkan's ray query
    extension for the field's misses where the GPU has it, behind the same quality tier, measured.
-4. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
-5. **The first shares recorded from the workflow's own device.** The examples job's first green
+4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-6. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
+5. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
    watch is one stream for the process, which holds for apps that overlap, while the watch is let go
    with the last app watching it, so a hundred apps made one after another make a hundred FSEvents
    streams on macOS, read on the way to Verdict 32. The watch is kept for the process once made, or
-   the sentence says what holds, whichever the macOS leak test's census argues for.
-
-The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
-that outlive a renamed type, C# typed at a running app) stay `to consider` in
-[SHARED.md](SHARED.md), as the owner decided, and BevyCSharp's cheatsheet written from
-documentation by a tool stays to consider as well.
+   the sentence says what holds, whichever the macOS leak test's census argues for. The larger
+   things BevyCSharp has and this engine lacks (saves, data in files of its own, files that outlive
+   a renamed type, C# typed at a running app) stay `to consider` in [SHARED.md](SHARED.md), as the
+   owner decided, and BevyCSharp's cheatsheet written from documentation by a tool stays to consider
+   as well.
 
 ## Verdicts
 
@@ -173,7 +179,12 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
     opening, so a game that hangs in its opening is stopped at its budget with `as far as its
     opening` on the page; and the games' step takes `timeout-minutes` under the job's 180, so a wait
     ends the step with the page written and not the job with nothing. The four jobs still running
-    end the same way and are not read again. Settled when the Windows job plays the twelve games.
+    end the same way and are not read again. Mended at `5057c3cb`: the opening's answer goes to
+    `captures/<game>-opened.json` and is read from there, the watcher starts before the opening, and
+    the step has 110 of the job's 180 minutes; Pusher played through the script on the working
+    machine. Clearing the inherit flag of e3d's own handles before it starts `cmd.exe`, offered in
+    the reply, is not asked for while nothing waits on them. Unproven until a push. Settled when a
+    Windows job plays the twelve games.
 
 ## Decisions
 
@@ -268,68 +279,28 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
 
 ## Replies
 
-Item 2, phase two of Decision 16, light that bounces, is in as hybrid Radiance Cascades over the
-field, with nothing baked:
+Item 2, phase three's first part, glossy reflections, is in, and the ray-query path follows in a
+batch of its own:
 
-- `SetGlobalIllumination` and `Config.GlobalIllumination` take `Off`, the default, `Low`, `Medium`
-  or `High`, and turn the field on at four cascades where it is off.
-- A cascade of world probes lies every eight cells of the field's cascade of the same number, 512
-  of them, each tracing an octahedron of directions across its interval, the first cascade's from
-  the probe to twice the spacing and each after's from its spacing to twice that
-  (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions, `Medium` adds 16 by 16, and `High`
-  traces 8 by 8 then 16 by 16 in four cascades, no more than the field has.
-- The splat's second dispatch paints each cell the linear color, the material's times its
-  texture's average, and the light given off of its nearest triangle. A hit sends on its color over
-  pi times the sun where a trace through the field reaches it, the point and spot lights unshadowed
-  and the frame before's bounce, with its own light, so the Cornell box's panel lights the room. A
-  miss in the last cascade brings back the environment map, or the ambient lights' color.
-- The merge runs far to near, and an upper probe is passed over where it is inside a mesh or the
-  field hides it from the lower probe, each pair traced once into shared memory
-  (`gi_merge.slang`), so a probe under a ceiling takes nothing from one above it. Six faces of
-  irradiance a probe (`gi_ambient.slang`) feed the next frame's bounce and the model pass's
-  fallback.
-- The first interval is traced again by probes on the screen every 16, 12 or 8 pixels, on the
-  occlusion pass's half-size depth, 16 rays over the hemisphere through the depth and then the
-  field, the rest from the world's first cascade between the probes a trace from the surface
-  reaches, then a 5 by 5 filter by normal and distance (`gi_screen.slang`,
-  `gi_screen_filter.slang`). The model pass blends the four around a pixel and puts the result in
-  place of the diffuse light of the environment map, the ambient lights and the reflection probes.
-- Measured on the RTX 4070 laptop in `shaders_cornell_box` at 800 by 450 with the frame rate
-  unlimited (`./e3d eval "SetTargetFPS(0)"`), through `./e3d command profile` and `gi.state`.
-  `Low` takes 0.19 ms of the GPU and 0.70 MB, `Medium` 0.27 ms and 2.76 MB, and `High` at four
-  cascades 0.34 ms and 6.72 MB, with the field's 4 MB a cascade beside them. At 60 frames a second
-  the laptop's GPU lowers its clocks and the same work reads two to three times longer, so the
-  guide's table says how it was taken.
-- `shaders_cornell_box` with its capture, the `cornell_box` frame and the `lit_room` frame, which
-  is Manor's library with its furniture and lamps under the game's sky and a lower sun, and five
-  tests. One of them has a red wall raise a white block's shaded side from 0 to 94 in red, and one
-  has a glowing panel light a room that has no light from 0 to 125.
-- What is left is written in TODO.md and RENDERING.md. In the bounce point and spot lights cast no
-  shadow, a moving mesh is its gray box, and the screen's probes are not blended over time, so the
-  light may crawl a little as the camera moves.
-
-One fault of the field came out on the way. A double-sided mesh had no inside, so a sheet thinner
-than a cell lying between two rows of cells left at least a tenth of a cell in each, the trace's
-threshold, and rays went through Manor's floors and ceilings, which are imported from OBJ files and
-so double-sided. A second bit in the cell's word marks a double-sided triangle, whose distance the
-resolve takes half a cell from, so such a sheet crosses zero wherever it lies. A test holds a sheet
-half way between two rows and one off it, and `scene_field_cascade` was written again, its ground
-whole at the cascade's far edge where it had gone.
-
-Shared: the light that bounces is five Slang kernels and a module over buffers, images and a uniform
-buffer each, beside the field's, which the bridge can compile as they are once BevyCSharp reads the
-field.
-
-Verdict 33's three mends to the Windows games' step are in a commit of their own after phase two's.
-`build/drive-game.sh` writes the opening's answer to `captures/<game>-opened.json` and reads it
-from there, so no `$(...)` wraps a command that starts a program; the watcher of the budget starts
-before the opening, so a game that hangs there is stopped at its budget with "as far as its
-opening" on the page; and the games' step on Windows has 110 of the job's 180 minutes. Pusher
-played through the script here, its opening's answer read from the file. The macOS step keeps the
-job's 120 minutes alone, its twelve games having passed there in every run. A deeper mend would
-clear the inherit flag of e3d's own handles before it starts `cmd.exe`, so the game holds none of
-them and a substitution around an opening ends again, which is offered and not made.
-
-Shared: the opening's answer read from a file is BevyCSharp's mend at `070e5e0`, as SHARED.md's row
-has it.
+- A fragment under a roughness of 0.5 traces its mirror ray in the model pass, where it has its own
+  normal and roughness, so a scene of rough surfaces pays nothing. The ray is stepped through the
+  window's half-size depth of this frame in 12, 16 or 24 steps by the quality and refined by five
+  halvings (`traceScreen` in `gi.slang`, which the screen probes use too).
+- A surface met on the screen reflects the frame before's picture through the camera of the frame
+  before, blurred down its mips by the roughness and faded toward the field's shading at the
+  picture's edge. While light bounces the window is drawn through the HDR frame, and after the
+  model pass its scene is copied at half size into an image with mips (`RecordKeepFrame`).
+- A ray that leaves the picture or meets nothing on it goes on through the field, and its hit is
+  shaded with the cascades' light as a probe's ray is. A miss, and a surface growing rough from
+  0.25 to 0.5, leaves the probe's or the environment's reflection, the ambient lights' specular
+  fading the same way.
+- `shaders_reflections` with its capture, the `reflections` frame, and two tests. A polished floor
+  reflects a red block on it (red 64 against 0 with it off), and a mirror shows a green block
+  behind the camera through the field alone (green 107 over red, where it shows the gray of the
+  ambient light without).
+- In `shaders_reflections` at `Medium`, with the frame rate unlimited, `./e3d command profile`
+  gives `hdr_scene` 0.29 ms of the GPU with the floor polished and 0.20 ms with it rough. `gi.state`
+  says the reflections' steps and the memory of the frame kept, 0.92 MB at 800 by 450.
+- A reflection reads the frame before with no depth of it, so a surface something hid in that
+  frame shows what hid it for a frame, which TODO.md records.
 

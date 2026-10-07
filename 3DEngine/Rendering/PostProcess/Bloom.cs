@@ -193,9 +193,13 @@ internal sealed class BloomRenderer : IDisposable
         (_fxaaVertexSpv, _fxaaFragmentSpv, _fxaaBindings) = (fxaa.Vertex, fxaa.Fragment, fxaa.LayoutOf(0));
     }
 
-    /// <summary>Whether the frame is drawn through the HDR target, with bloom or any effect over it on.</summary>
+    /// <summary>
+    /// Whether the frame is drawn through the HDR target, with bloom or any effect over it on, or
+    /// light bouncing, whose reflections read the scene the HDR target held the frame before.
+    /// </summary>
     public static bool IsOn(RenderWorld renderWorld) =>
-        renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<FrameEffects>() is { Active: true };
+        renderWorld.TryGet<BloomSettings>() is { On: true } || renderWorld.TryGet<FrameEffects>() is { Active: true }
+        || GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
 
     /// <summary>
     /// Draws the window's models, and its draw list's batches before <paramref name="split"/>, into
@@ -222,6 +226,9 @@ internal sealed class BloomRenderer : IDisposable
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(pass, target.RenderPass, renderContext, renderWorld, target: 0, end: split, linear: true);
         return true;
     }
+
+    /// <summary>The HDR target's color as this frame's scene left it, or null before it is made.</summary>
+    internal IImageView? SceneView => _sized?.Scene.ColorView;
 
     /// <summary>Spreads the HDR target's light down the levels and back up into the first one.</summary>
     public void DrawChain(RenderContext renderContext, float threshold)
@@ -632,7 +639,12 @@ internal sealed class HdrSceneNode : INode
 
         var split = Split(renderWorld.TryGet<DrawList>());
         if (bloom.DrawScene(renderContext, renderWorld, swapchain.Extent, split))
+        {
             renderWorld.Set(new BloomFrame(split));
+            // The scene kept for the reflections of the frame after, where light bounces.
+            if (bloom.SceneView is { } scene)
+                renderWorld.TryGet<GlobalIlluminationRenderer>()?.KeepFrame(renderContext, renderWorld, scene, swapchain.Extent);
+        }
     }
 
     // The batch after the window's last one drawn with depth, or the first when it has none.

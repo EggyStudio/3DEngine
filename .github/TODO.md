@@ -137,14 +137,16 @@ physics, text and fonts, audio, audio streams and waves, and files
   lights, and each render target that draws meshes draws the map again for its own camera, with the
   point and spot lights chosen for the window's.
 
-- **Light bounces, but glossy reflections do not follow it.** The scene's distance field
-  (`SetSceneField`) and the light that bounces through it (`SetGlobalIllumination`), Radiance
-  Cascades of world probes with probes on the screen for the near light, are built (RENDERING.md
-  §4). Glossy reflections traced through the field, with screen-space reflections where it is too
-  coarse and a ray-query path, are not made, so metal reflects the environment map and the
-  reflection probes alone. In the bounce point and spot lights cast no shadow, a skinned or moving
-  mesh is the gray box around it, the screen's probes are not blended over time, and render
-  textures and probe captures are drawn without the field. In the field a closed mesh much thinner
+- **Light bounces and glossy surfaces reflect, through the field alone.** The scene's distance
+  field (`SetSceneField`), the light that bounces through it (`SetGlobalIllumination`), Radiance
+  Cascades of world probes with probes on the screen for the near light, and glossy reflections
+  traced through the window's depth and the field are built (RENDERING.md §4). The ray-query path,
+  which would find through the GPU's own ray tracing what the field is too coarse for, is not made.
+  In the bounce point and spot lights cast no shadow, a skinned or moving mesh is the gray box
+  around it, and the screen's probes are not blended over time. A reflection that meets a surface
+  on the screen reads the frame before's picture with no depth of it, so where something hid that
+  surface the frame before, the reflection shows what hid it for a frame. Render textures and probe
+  captures are drawn without the field. In the field a closed mesh much thinner
   than a cell is not there, and an open mesh such as a ground plane puts a narrow wedge below its
   edges inside.
 

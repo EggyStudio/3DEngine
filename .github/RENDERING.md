@@ -551,8 +551,24 @@ four probes around a pixel the same way, falls back to the world's probes where 
 puts the result in place of the diffuse light from all around, the environment map's, the ambient
 lights' and the reflection probes', which reaches a surface only through the rays that meet nothing.
 
+A glossy surface traces its reflection in the model pass (`tracedReflection` in
+`modelpass.slang`), where it has its own normal, its normal map's included, and its roughness, so
+only a fragment under a roughness of 0.5 traces and a scene of rough surfaces pays nothing. The
+mirror ray is stepped through the window's half-size depth of this frame, 12, 16 or 24 steps by the
+quality, spaced more finely near the surface, and the step it meets a surface in is halved five
+times (`traceScreen` in `gi.slang`, which the screen probes trace through too). The surface it meets
+is looked up in the frame before's picture through the camera of the frame before, its level of
+blur by the roughness, and blended toward the field's shading of the same point at the picture's
+edge. A ray that leaves the picture or meets nothing on it is traced on through the field, and the
+surface it meets there is shaded as a probe's ray shades one. Where it meets nothing, the probe's or
+the environment's reflection stands, as it does for a surface as it grows rough, the traced
+reflection fading from a roughness of 0.25 to 0.5, and the ambient lights' specular fades with it.
+While light bounces the window's scene is drawn through the HDR frame, and after the model pass
+the frame's scene is copied at half size into an image with its mips
+(`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
+
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
-`shaders_cornell_box`. What is left: point and spot lights cast no shadow in the bounce, a moving
+`shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: point and spot lights cast no shadow in the bounce, a moving
 mesh bounces light as the gray box the field holds it as, the screen's probes are not blended over
 time, so the light may crawl a little as the camera moves, and render textures and probe captures
 are drawn without it.
@@ -912,8 +928,8 @@ run to run, with the runtime's compiler and collector in the frame.
 
 Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
 shadow cascades with point and spot shadows, bloom and FXAA, the scene's distance field, and light
-that bounces as Radiance Cascades over it are built, in that order. What is left of the order is
-glossy reflections through the field, with screen-space reflections where the field is too coarse,
-the reflection probes behind them and a ray-query path, and tonemapping as a full-screen pass in every frame, in place
+that bounces as Radiance Cascades over it with glossy reflections traced through the depth and the
+field are built, in that order. What is left of the order is a ray-query path for what the field
+misses, and tonemapping as a full-screen pass in every frame, in place
 of the curve at the end of the model pass, which runs there while every effect over the frame is off
 and over the HDR frame while any is on (§5).

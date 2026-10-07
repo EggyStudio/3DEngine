@@ -186,6 +186,7 @@ var examples = new Dictionary<string, Action>
     ["shaders_shadowmap"] = ShadersShadowmap.Run,
     ["shaders_scene_field"] = ShadersSceneField.Run,
     ["shaders_cornell_box"] = ShadersCornellBox.Run,
+    ["shaders_reflections"] = ShadersReflections.Run,
     ["shaders_mesh_instancing"] = ShadersMeshInstancing.Run,
     ["shaders_instance_hues"] = ShadersInstanceHues.Run,
     ["shaders_shapes_textures"] = ShadersShapesTextures.Run,

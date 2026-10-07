@@ -6,7 +6,8 @@ namespace Engine.Tests.Rendering;
 
 /// <summary>
 /// The light that bounces: how many cascades and directions each quality traces, and frames drawn
-/// offscreen in which a red wall tints the block beside it and a glowing panel lights its room.
+/// offscreen in which a red wall tints the block beside it, a glowing panel lights its room, and
+/// glossy surfaces reflect what is on the screen and what is behind the camera.
 /// </summary>
 [Collection("Engine3D")]
 public sealed class GlobalIlluminationTests : IDisposable
@@ -155,5 +156,67 @@ public sealed class GlobalIlluminationTests : IDisposable
         lit.X.Should().BeGreaterThan(unlit.X + 40, $"the panel's light reaches the floor by bouncing, {lit} against {unlit}");
         UnloadModel(slab);
         UnloadModel(panel);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Polished_Floor_Reflects_A_Red_Block_On_It_Through_The_Window_Where_Light_Bounces()
+    {
+        Open();
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.3f, -1, -0.5f)), Color.White, 2);
+        var floor = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        floor.Materials[0] = new ModelMaterial(new Color(30, 30, 30)) { Metallic = 1, Roughness = 0.05f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // A red block standing on a dark mirror of a floor, the camera low over the floor in front
+        // of it, so the floor below the block in the picture shows its reflection.
+        void Draw()
+        {
+            DrawModelEx(floor, new Vector3(0, -0.1f, 0), Vector3.UnitY, 0, new Vector3(8, 0.2f, 8), Color.White);
+            DrawModelEx(block, new Vector3(0, 0.75f, 0), Vector3.UnitY, 0, new Vector3(1, 1.5f, 1), new Color(220, 30, 30));
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var reflecting = Capture(Draw);
+        SetGlobalIllumination(GlobalIllumination.Off);
+        var plain = Capture(Draw);
+
+        // The floor below the block's base in the picture.
+        var mirrored = Mean(reflecting, 74, 84, 12, 6);
+        var bare = Mean(plain, 74, 84, 12, 6);
+        mirrored.X.Should().BeGreaterThan(bare.X + 30, $"the floor reflects the block, {mirrored} against {bare}");
+        mirrored.X.Should().BeGreaterThan(mirrored.Y + 20, $"and the reflection is red, {mirrored}");
+        UnloadModel(floor);
+        UnloadModel(block);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Mirror_Reflects_A_Block_Behind_The_Camera_Through_The_Field()
+    {
+        Open();
+        SetAmbientLight(Color.White, 0.3f);
+        CreateDirectionalLight(Vector3.Normalize(new Vector3(0.2f, -1, 0.3f)), Color.White, 2);
+        var mirror = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        mirror.Materials[0] = new ModelMaterial(new Color(240, 240, 240)) { Metallic = 1, Roughness = 0.02f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // A mirror the camera faces and a green block behind the camera, which the window never
+        // shows, so only a ray traced through the field past the picture finds it.
+        void Draw()
+        {
+            DrawModelEx(mirror, new Vector3(0, 1.2f, -1.5f), Vector3.UnitY, 0, new Vector3(4, 3, 0.2f), Color.White);
+            DrawModelEx(block, new Vector3(0, 1.2f, 6.5f), Vector3.UnitY, 0, new Vector3(3, 3, 1), new Color(30, 200, 40));
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var reflecting = Capture(Draw);
+        SetGlobalIllumination(GlobalIllumination.Off);
+        var plain = Capture(Draw);
+
+        var middle = Mean(reflecting, 70, 40, 20, 16);
+        var bare = Mean(plain, 70, 40, 20, 16);
+        (middle.Y - middle.X).Should().BeGreaterThan(60, $"the mirror shows the green block, {middle}");
+        (bare.Y - bare.X).Should().BeLessThan(10, $"and without the field it shows the gray light from all around, {bare}");
+        UnloadModel(mirror);
+        UnloadModel(block);
     }
 }

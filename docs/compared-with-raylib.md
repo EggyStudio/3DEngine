@@ -25,11 +25,12 @@ machine, with the command that measures it again.
   cascades and from spot and point lights, an environment map lighting from all around, reflection
   probes for the inside of a room, bloom over a frame that holds light past white, instancing,
   compute shaders, particles a compute shader steps, a distance field of the scene that ambient
-  occlusion, the sun's contact shadows and particles read, and light that bounces through it.
+  occlusion, the sun's contact shadows and particles read, and light that bounces and glossy
+  reflections traced through it.
   [Materials, light and shadows](materials-light-and-shadows.md) and
   [Shaders and compute](shaders-and-compute.md) show them, and `models_reflection_probe`,
-  `shaders_shadowmap`, `shaders_scene_field`, `shaders_cornell_box` and `shaders_compute_life` run
-  them.
+  `shaders_shadowmap`, `shaders_scene_field`, `shaders_cornell_box`, `shaders_reflections` and
+  `shaders_compute_life` run them.
 - **An ECS under the flat API.** `[Behavior]` structs whose methods a source generator turns into
   systems run in the same frames as the loop, so a program grows into entities when it needs them.
   [Behaviors and the ECS](behaviors-and-the-ecs.md) and `ecs_behaviors`.

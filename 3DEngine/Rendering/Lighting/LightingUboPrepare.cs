@@ -55,7 +55,20 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         {
             windowUbo.Indirect = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.ProbeSpacing,
                 SceneFieldPlan.Resolution / GlobalIlluminationRenderer.ProbeSpacing, cascades);
-            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality), 1, 0, 0);
+            var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
+            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(quality), 1, 0, 0);
+            // And a glossy surface's reflection traced through its depth and the field, looked up
+            // in the frame before's picture where the renderer kept it.
+            if (renderWorld.TryGet<WindowView>() is { } view && System.Numerics.Matrix4x4.Invert(view.ViewProjection, out var inverse)
+                && renderWorld.TryGet<GlobalIlluminationRenderer>() is { } gi)
+            {
+                var (steps, reach) = GlobalIlluminationRenderer.ReflectionStepsAt(quality);
+                windowUbo.ReflectViewProjection = view.ViewProjection;
+                windowUbo.ReflectInverseViewProjection = inverse;
+                windowUbo.ReflectLastViewProjection = gi.HistoryViewProjection ?? view.ViewProjection;
+                windowUbo.Reflection = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
+                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, 0, 0, 0);
+            }
         }
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));

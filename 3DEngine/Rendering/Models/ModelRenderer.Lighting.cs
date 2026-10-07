@@ -121,26 +121,47 @@ internal sealed partial class ModelRenderer
     // screen's probes' light and surfaces.
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18;
 
-    // A field of one cell and no cascade, and screen probes of one probe holding nothing, bound
-    // where no light bounces, since the set must hold them.
+    // Where it binds what a glossy surface's reflection is traced through and shaded from: the
+    // field, its colors and light, the lights, the window's depth and its scene the frame before.
+    private const uint ReflectFieldBinding = 19, ReflectAlbedoBinding = 20, ReflectGlowBinding = 21, ReflectLightsBinding = 22,
+        ReflectDepthBinding = 23, ReflectHistoryBinding = 24;
+
+    // A field of one cell and no cascade, screen probes of one probe holding nothing and lights of
+    // none, bound where no light bounces, since the set must hold them.
     private GpuSceneField? _noBounce;
     private GpuScreenProbes? _noScreen;
+    private IBuffer? _noGiLights;
 
-    // Binds the probes' faces and their field, or the field of nothing where light does not bounce.
+    // Binds the probes' faces and their field, and what a reflection is traced through, or the
+    // field of nothing where light does not bounce.
     private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced)
     {
         var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.BlendedView, screen.Sampler, ScreenLightBinding));
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
+        _noScreen ??= device.CreateScreenProbes(1, 1, 1);
+        var (depthView, depthSampler) = bounced?.Depth is { } depth ? (depth.View, depth.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
+        var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depthView, depthSampler, ReflectDepthBinding));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(historyView, historySampler, ReflectHistoryBinding));
+        GpuSceneField field;
         if (bounced is not null)
         {
+            field = bounced.Field;
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
-            device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
-            return;
+            device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Probes.Lights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
-        _noBounce ??= device.CreateSceneField(1, 1);
-        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_noBounce.View, _noBounce.Sampler, BouncedLightBinding));
-        device.UpdateDescriptorSet(set, new UniformBufferBinding(_noBounce.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
+        else
+        {
+            field = _noBounce ??= device.CreateSceneField(1, 1);
+            _noGiLights ??= device.CreateBuffer(new BufferDesc(GpuIllumination.LightsBytes, BufferUsage.Uniform, CpuAccessMode.Write));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
+        }
+        device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, ReflectFieldBinding));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.AlbedoView, field.Sampler, ReflectAlbedoBinding));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.GlowView, field.Sampler, ReflectGlowBinding));
     }
 
     // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after

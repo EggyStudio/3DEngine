@@ -290,7 +290,7 @@ unshadowed, and what bounced to it the frame before, so light bounces again each
 light it gives off, so an emissive mesh lights its room. The light from all around, the environment
 map's, the ambient lights' and a reflection probe's, reaches a surface only through what a ray that
 meets nothing brings back, so a room is lit by the sky through its windows and dark where no light
-gets in, and reflections are left as they are.
+gets in.
 
 `shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
 a glowing panel, and G steps through the qualities. On a laptop's RTX 4070 at 800 by 450, with the
@@ -306,7 +306,20 @@ gives the rest, `High` measured with the example's field at four cascades
 | `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.72 MB | 0.34 ms |
 
 A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, with as
-much again while a cascade is built. Point and spot lights cast no shadow in the light that bounces,
+much again while a cascade is built.
+
+Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
+The ray is stepped through the window's depth first, and a surface it meets there reflects the
+light the frame before showed on it, so the floor of `shaders_reflections` reflects its pillars and
+its chrome ball, and the ball the floor, each with the other's reflection in it. A ray that leaves
+the picture, or passes behind what the window shows, is traced on through the field, and the surface
+it meets there reflects its color times the light reaching it, so a mirror shows what stands behind
+the camera. A ray that meets nothing leaves the reflection to the probe or the environment map, as
+does a surface as it grows rough, the traced reflection fading out from a roughness of 0.25 to 0.5.
+The frame is drawn through the HDR frame while light bounces, so the frame before is there to read.
+In `shaders_reflections` at `Medium`, the scene's pass takes 0.29 ms of the GPU with its floor
+polished and 0.20 ms with it rough, as `./e3d command profile` names it `hdr_scene`, with the frame
+rate unlimited as above. Point and spot lights cast no shadow in the light that bounces,
 a mesh that moves bounces light as the gray box the field holds it as, the screen's probes are traced
 again each frame and not blended over time, so the light may crawl a little as the camera moves, and
 render textures and probe captures are drawn without it. `Config.GlobalIllumination` sets the same
@@ -360,6 +373,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
   [`shaders_scene_field`](../3DEngine.Examples/Shaders/ShadersSceneField.cs),
   [`shaders_cornell_box`](../3DEngine.Examples/Shaders/ShadersCornellBox.cs),
+  [`shaders_reflections`](../3DEngine.Examples/Shaders/ShadersReflections.cs),
   [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
   [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),

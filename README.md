@@ -144,7 +144,7 @@ raylib's own examples, and what is written of it here, is a row of
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Sumo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/sumo.webp" width="400"/></a><br>`games/Sumo` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Wordfall/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/wordfall.webp" width="400"/></a><br>`games/Wordfall` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Slide/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/slide.webp" width="400"/></a><br>`games/Slide` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Jelly/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/jelly.webp" width="400"/></a><br>`games/Jelly` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersSceneField.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_scene_field.webp" width="400"/></a><br>`shaders_scene_field` |
-| <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersCornellBox.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_cornell_box.webp" width="400"/></a><br>`shaders_cornell_box` | |
+| <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersCornellBox.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_cornell_box.webp" width="400"/></a><br>`shaders_cornell_box` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersReflections.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_reflections.webp" width="400"/></a><br>`shaders_reflections` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -289,8 +289,8 @@ dotnet test 3DEngine.Tests
 Early, and used for small games. The flat API carries most of raylib's: the window and input,
 2D and 3D shapes, images and textures, models through Assimp with skeletal animation, sounds, music,
 audio streams, text in fonts, render targets, Slang shaders for shapes and models, compute shaders,
-lights with shadows, an environment map and reflection probes, light that bounces, physics, states
-and scenes, with ImGui in the same frame. The ECS, the
+lights with shadows, an environment map and reflection probes, light that bounces and glossy
+reflections, physics, states and scenes, with ImGui in the same frame. The ECS, the
 scheduler and behaviors run underneath, and a game ships as one native executable through native
 AOT. What is missing:
 

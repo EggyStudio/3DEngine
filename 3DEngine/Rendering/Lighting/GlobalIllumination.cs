@@ -29,9 +29,12 @@ internal sealed class GlobalIlluminationSettings
 
 /// <summary>
 /// The probes the model pass reads the window's bounced light from this frame, over the field they
-/// were traced through, and the screen's probes, which it reads first where one stands near.
+/// were traced through, and the screen's probes, which it reads first where one stands near, with
+/// what a glossy surface traces its reflection through: the window's depth, and its scene the
+/// frame before where one was kept.
 /// </summary>
-internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen);
+internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen,
+    WindowDepth? Depth = null, GpuReflectionHistory? History = null);
 
 /// <summary>
 /// The light that bounces between surfaces, as cascades of light probes over the scene's distance
@@ -61,8 +64,15 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>How many cells of their field cascade the probes lie apart.</summary>
     public const int ProbeSpacing = 8;
 
+    /// <summary>
+    /// The roughness from which a surface traces no reflection, the probes and the environment
+    /// reflecting alone, its traced reflection fading out from half of it.
+    /// </summary>
+    public const float GlossyRoughness = 0.5f;
+
     private GpuIllumination? _gi;
     private GpuScreenProbes? _screen;
+    private GpuReflectionHistory? _history;
     private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
     private CubeMap? _black;
     private long _frame;
@@ -74,6 +84,12 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     /// <summary>The screen's probes being placed, or null where none are.</summary>
     internal GpuScreenProbes? Screen => _screen;
 
+    /// <summary>
+    /// The window's camera the frame <see cref="KeepFrame"/> last kept the scene of, which a
+    /// reflection looks a surface up in that picture by, or null where none is kept.
+    /// </summary>
+    internal Matrix4x4? HistoryViewProjection { get; private set; }
+
     /// <summary>Each cascade's octahedron's texels along each side at a quality, before the field's cascades cut them short.</summary>
     internal static int[] TexelsAt(GlobalIllumination quality) => quality switch
     {
@@ -81,6 +97,14 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         GlobalIllumination.Medium => [4, 8, 16],
         GlobalIllumination.High => [8, 16, 16, 16],
         _ => [],
+    };
+
+    /// <summary>The steps a reflection is traced through the window's depth in, and how far, at a quality.</summary>
+    internal static (int Steps, float Reach) ReflectionStepsAt(GlobalIllumination quality) => quality switch
+    {
+        GlobalIllumination.Low => (12, 8),
+        GlobalIllumination.Medium => (16, 12),
+        _ => (24, 16),
     };
 
     /// <summary>The pixels along each side of the tile a screen probe stands in, at a quality.</summary>
@@ -170,7 +194,24 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
             _retired.Add((_frame, _screen));
             _screen = null;
         }
-        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen));
+        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history));
+    }
+
+    /// <summary>
+    /// Keeps <paramref name="scene"/>, the window's scene the HDR frame drew this frame at
+    /// <paramref name="extent"/>, for the reflections of the frame after, once the model pass has
+    /// read the frame before's, made again where the window's size changed.
+    /// </summary>
+    public void KeepFrame(RenderContext renderContext, RenderWorld renderWorld, IImageView scene, Extent2D extent)
+    {
+        if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<WindowView>() is not { } window) return;
+        if (_history is null || _history.Window != extent)
+        {
+            if (_history is not null) _retired.Add((_frame, _history));
+            _history = device.CreateReflectionHistory(extent.Width, extent.Height);
+        }
+        device.RecordKeepFrame(renderContext.CommandBuffer, scene, _history);
+        HistoryViewProjection = window.ViewProjection;
     }
 
     // The lights as gi.slang's GiLights: the sun, the first directional light, the shadowed one
@@ -222,7 +263,9 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
     {
         if (_gi is not null) _retired.Add((_frame, _gi));
         if (_screen is not null) _retired.Add((_frame, _screen));
-        (_gi, _screen) = (null, null);
+        if (_history is not null) _retired.Add((_frame, _history));
+        (_gi, _screen, _history) = (null, null, null);
+        HistoryViewProjection = null;
     }
 
     /// <inheritdoc />
@@ -232,6 +275,7 @@ internal sealed class GlobalIlluminationRenderer : IDisposable
         _retired.Clear();
         _gi?.Dispose();
         _screen?.Dispose();
+        _history?.Dispose();
         _black?.Dispose();
     }
 }
