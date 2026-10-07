@@ -64,8 +64,10 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         for (int i = 1; i <= 100; i++)
         {
             // Printed as it goes, where the test's own output is shown only once it ends, so a test
-            // host lost partway says from its last lines which app it was at.
-            Console.WriteLine($"[leak test] app {i} of 100");
+            // host lost partway says from its last line which app it was at and what the process
+            // held after the app before, its Vulkan objects and its handles, a count climbing
+            // toward a limit showing before the death.
+            Console.WriteLine($"[leak test] app {i} of 100, after the last {Held()}");
             var app = new App(config);
             (plugins ?? (a => a.AddPlugin(new DefaultPlugins())))(app);
             app.BeginFrame();
@@ -81,7 +83,7 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             // The Vulkan objects every device made and none destroyed, which a closed app's device
             // should leave none of, so a native growth is told from the driver's own.
             var objects = DeviceObjects.Now();
-            output.WriteLine($"{i,3} apps: alive {string.Join(", ", objects.Select(o => $"{o.Value} {o.Key}"))}");
+            output.WriteLine($"{i,3} apps: alive {Held()}");
             if (i == 20) objectsAt20 = objects;
             if (!heapEveryTen && i != 20 && i != 100) continue;
             // The census of the twentieth app is taken before its heap is read, so what it keeps
@@ -110,6 +112,20 @@ public sealed class AppLeakTests(ITestOutputHelper output)
         }
         throw new InvalidOperationException("unreachable");
     }
+
+    // The Vulkan objects alive, the process's handles, and on Windows its GDI and USER objects,
+    // which a process may hold ten thousand of each.
+    private static string Held()
+    {
+        using var process = System.Diagnostics.Process.GetCurrentProcess();
+        var gui = OperatingSystem.IsWindows()
+            ? $", {GetGuiResources(process.Handle, 0)} GDI objects, {GetGuiResources(process.Handle, 1)} USER objects"
+            : "";
+        return $"{string.Join(", ", DeviceObjects.Now().Select(o => $"{o.Value} {o.Key}"))}, {process.HandleCount} handles{gui}";
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetGuiResources(IntPtr process, uint flags);
 
     [Fact]
     public void A_Headless_App_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()

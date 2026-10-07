@@ -10,27 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6a2d916e`. Verdict 37's three things are in, to be read on the next Windows job: a
-process-wide ledger counts the Vulkan objects of each kind every device makes and destroys, images,
-buffers, memory, pipelines, descriptor pools and sets (`DeviceObjects`), the offscreen leak test
-prints it after every tenth app and fails naming the kinds alive after the hundredth app beyond the
-twentieth, every kind standing at 0 after each app on the RTX 4070 and on lavapipe, so what grew on
-Windows is the driver's own memory unless that job's ledger says otherwise, and the field's three
-kernels and the bounce's five become pipelines the first time a frame needs them rather than at
-every app's start; `build/test.py` runs the tests with `DOTNET_DbgEnableMiniDump`, a dump going to
-`TestResults/dumps`, which every job uploads, the page's account of a lost process naming the dump
-and the last progress line a test printed, the leak test printing its app's number as it goes, and
-the script's own test having its stand-in die after such a line; a reference frame that does not
-match says the rows and columns its differing pixels fall within and the three eighths of the frame
-holding the most of them, and `cornell_box` allows 5% with its reason, the bounce rays meeting the
-box's edges and the lamp's patch at grazing angles a device's compiler rounds either way
-(`6a2d916e`). The run of `4db6fe46`: Linux green; macOS 1,492 passed and 2 failed, the hundred and
-three of the sampler count gone and the array uniform case passing, which settles Verdict 36, the
-two left being `BadFileTests`' two `ModelRef` cases, Verdict 38, and the Cornell frame at 2.6%,
-within the 5% of `6a2d916e`; its Windows job was in the tests at 20:39 and meets Verdict 37 before
-its mends. The ray-query batch crashes lavapipe's test host at the first real acceleration
-structures and is traced before it lands. The suite: 1,527 passed; lavapipe under validation ran the
-whole suite, 1,509 passed and 16 skipped.
+Reviewed up to `06b702a1`. Verdict 38's two things are in `BadFileTests`, to be read on the next
+macOS job: both cases, the readers' and the ECS's, wait for a file's message through up to six
+hundred frames with five milliseconds of sleep after each, three seconds and more of the worker's
+time where sixty frames gave 300, the sleep one N 3.3's list holds for this file and its reason so
+the wait reads no clock, a first try with a stopwatch having been caught by N 3.3's test; and a case
+that fails says the first three lines the log held at warning or above since it began, or that it
+held none, so the page tells late from never from misnamed, every reader naming the file within the
+first frames on the working machine (`06b702a1`). The Windows job of `4db6fe46` failed the same two
+tests at 20:56, the Cornell frame at 3.3% and the offscreen leak test's host dying twice; the run of
+`6a2d916e`, the first with Verdict 37's mends, had Linux green and macOS through every test and
+playing the games at 21:10, the bad file cases passing there and the Cornell frame within 5%, which
+settles Verdict 38, and its Windows job through every test but one at 21:23, the Cornell frame
+within 5% and the offscreen leak test's host dying again at the ninetieth app and the ninety-first,
+with the dump unnamed on the page, which Verdict 37 takes up as its fourth part; the owner pushed
+`06b702a1`, whose run was in progress at 21:28. The ray-query batch's crash under lavapipe is in
+building the acceleration structures and not in tracing them, a fault in code the driver compiles
+with no symbols, which is dug into before the batch lands. The suite: 1,527 passed.
+
+Before them, Verdict 37's three things came in: a process-wide ledger counts the Vulkan objects of
+each kind every device makes and destroys, images, buffers, memory, pipelines, descriptor pools and
+sets (`DeviceObjects`), the offscreen leak test prints it after every tenth app and fails naming the
+kinds alive after the hundredth app beyond the twentieth, every kind standing at 0 after each app on
+the RTX 4070 and on lavapipe, so what grew on Windows is the driver's own memory unless that job's
+ledger says otherwise, and the field's three kernels and the bounce's five become pipelines the
+first time a frame needs them rather than at every app's start; `build/test.py` runs the tests with
+`DOTNET_DbgEnableMiniDump`, a dump going to `TestResults/dumps`, which every job uploads, the page's
+account of a lost process naming the dump and the last progress line a test printed, the leak test
+printing its app's number as it goes, and the script's own test having its stand-in die after such a
+line; a reference frame that does not match says the rows and columns its differing pixels fall
+within and the three eighths of the frame holding the most of them, and `cornell_box` allows 5% with
+its reason, the bounce rays meeting the box's edges and the lamp's patch at grazing angles a
+device's compiler rounds either way (`6a2d916e`). The run of `4db6fe46`: Linux green; macOS 1,492
+passed and 2 failed, the hundred and three of the sampler count gone and the array uniform case
+passing, which settles Verdict 36, the two left being `BadFileTests`' two `ModelRef` cases, Verdict
+38, and the Cornell frame at 2.6%, within the 5% of `6a2d916e`; its Windows job was in the tests at
+20:39 and meets Verdict 37 before its mends. The suite: 1,527 passed; lavapipe under validation ran
+the whole suite, 1,509 passed and 16 skipped.
 
 Before them, Verdict 36 came to be mended: the lights' set binds its seventeen images apart from two
 samplers they share, one blending between texels and levels and one reading the nearest texel, so
@@ -49,17 +65,6 @@ block of sixteen bytes, the values kept since with the shader store through a
 offset and the block's size (`4db6fe46`). The suite: 1,527 passed; lavapipe under validation ran the
 whole suite, 1,509 passed and 16 skipped where it has no device.
 
-Before them, a reflection came to read the frame before's depth beside its picture: after the model
-pass the window's half-size depth is copied with the half-size scene (`RecordKeepFrame`), a
-reflection that meets a surface on the screen rebuilds the point that depth held there through the
-frame before's camera, whose inverse the lighting buffer carries too, and where that point is
-farther from the hit than five hundredths and a fiftieth of the distance from the eye, the field's
-shading stands in for the picture, so a surface something hid in that frame reflects as the field
-holds it; a test has a green panel hide the foot of a red block until the frame it is taken away,
-whose floor reflects red where it reflected green; `gi.state` counts the depth in the frame kept's
-memory and TODO.md's line is gone (`c4f248fd`). The suite: 1,525 passed; lavapipe under validation
-passed its 44 frame, bounce, field and occlusion tests.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -70,14 +75,14 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 37 and 38 first, then the Windows jobs' games.** The run of `4db6fe46`: Linux
-   green; macOS 1,492 passed and 2 failed, the sampler count and the array uniform proven, which
-   settled Verdict 36, the two left the `ModelRef` cases of `BadFileTests`, Verdict 38, and the
-   Cornell frame at 2.6%, within the 5% of `6a2d916e`; its Windows job was in the tests at 20:39 and
-   meets Verdict 37 before its mends, which `6a2d916e` carries. A Windows job that plays the twelve
-   games settles Verdict 33, and the examples job, which carries the guides' blocks and Verdicts 30
-   and 31, runs once a run's three test jobs pass. Each push's run is read by the reviewing session,
-   and a failure it names comes first here.
+1. **Verdict 37's fourth part, then the Windows jobs' games.** The run of `6a2d916e`: Linux and
+   macOS green through the games on macOS; Windows through every test but the offscreen leak test,
+   whose host died at the ninetieth app and the ninety-first, the Cornell frame within 5%, so what
+   climbs toward the ninetieth app is read next, the ledger's last line, the process's handles and a
+   dump on the page; the run of `06b702a1` was in progress at 21:28. A Windows job that passes its
+   tests plays the twelve games, Verdict 33, and the examples job, which carries the guides' blocks
+   and Verdicts 30 and 31, runs once a run's three test jobs pass. Each push's run is read by the
+   reviewing session, and a failure it names comes first here.
 2. **Phase 3: specular, the ray-query path left.** Glossy reflections are in (`80227981`) with
    the frame before's depth beside its picture (`c4f248fd`). Left: a hardware ray-query path through
    Vulkan's ray query extension for the field's misses where the GPU has it, behind the same quality
@@ -100,7 +105,7 @@ for a reply. In this order.
 
 ## Verdicts
 
-Verdicts 1 to 29, 32 and 34 to 36 are settled, and their numbers are not given again.
+Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -198,22 +203,17 @@ Verdicts 1 to 29, 32 and 34 to 36 are settled, and their numbers are not given a
     `6a2d916e`: the ledger of Vulkan objects read by the leak test, a minidump and the last progress
     line of a test host that dies, and the frame's notice saying where the pixels differ,
     `cornell_box` allowing 5% with its reason, which the macOS job of `4db6fe46` at 2.6% is within.
-    Settled when a Windows job passes both tests.
-
-38. **The macOS job of `4db6fe46` fails `BadFileTests`' two `ModelRef` cases, a missing file and
-    an empty one given no message naming the file.** Read from the page: 1,492 passed, 2 failed, 13
-    skipped; the test that gives every reader under the ECS a missing, an empty, a cut short and a
-    random file found `ModelRef` marking the missing and the empty file failed with no warning
-    naming the file within its wait, sixty frames of five milliseconds each, where the Linux and
-    Windows jobs of the same commit pass it and the macOS job of `90681ba8` passed it at 17:23, so
-    either the model's reader says something else there since, or its worker says it later than the
-    test waits on a runner whose apps start slower since phase two, which `6a2d916e` eases by making
-    the kernels' pipelines on first use. Two things: the test, as it fails, says what the log holds
-    since the case began, so the page tells late from never from misnamed; and the wait is by time
-    where the reader runs on a worker, a second or two and not sixty frames, or the reader is mended
-    where its message is at fault, so every reader names the file on every system (N 2.6). Settled
-    when a macOS job passes the test.
-
+    The Windows job of `6a2d916e`, the first with the mends, passed the Cornell frame and lost the
+    leak test again, the host dying at the ninetieth app in the Core part and the ninety-first in
+    the whole suite, a death at the same place twice being a limit reached rather than chance, and
+    the page named the app and no dump, so `createdump` left none for that death. Three more things:
+    the page's account of a lost process carries the last ledger line the test printed, so it says
+    whether any Vulkan object had climbed by the eightieth app; the leak test prints the process's
+    handle count every ten apps, and on Windows its GDI and USER objects through `GetGuiResources`,
+    so a count climbing toward a limit shows before the death; and where `createdump` leaves
+    nothing, the job turns on Windows' own dumps for the test host through the `LocalDumps` key into
+    the same folder, read as a `.dmp` by `dotnet-dump` or WinDbg, so the death's own stack is on the
+    artifacts. Settled when a Windows job passes both tests.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -307,13 +307,14 @@ Verdicts 1 to 29, 32 and 34 to 36 are settled, and their numbers are not given a
 
 ## Replies
 
-Verdict 38's two things are in `BadFileTests`, to be read on the next macOS job. Both cases, the
-readers' and the ECS's, wait for a file's message through up to six hundred frames with 5 ms of
-sleep after each, three seconds and more of the worker's time where sixty frames were 300 ms, the
-sleep N 3.3's list already holds for this file and reason, so the wait reads no clock. A case that
-fails says what the log held at warning or above since it began, the first three lines, or that it
-held none, so the page tells a message naming another path from one that never came. Here every
-reader names the file within the first frames, so whether macOS's was late or misnamed is the
-next page's to say, and the reader is mended then if its message is at fault. The suite: 1,527
-passed.
+Verdict 37's fourth part is in, to be read on the next Windows job. The leak test's line for each
+app, which the page's account of a lost process carries as its last progress line, says what the
+process held after the app before: the ledger's Vulkan objects of each kind, the process's handles,
+and on Windows its GDI and USER objects through `GetGuiResources`, of which a process may hold ten
+thousand each, so a death at app 90 says on the page what had climbed by app 89. The output after
+every tenth app gives the same. The Windows job registers Windows' own minidumps for
+`testhost.exe` through the `LocalDumps` key, into `TestResults/dumps`, which the runner lists on the
+page and the job uploads, so a host the runtime's `createdump` leaves no dump for still leaves
+Windows'. Here the line after a hundred apps reads 0 of every kind and 192 handles, where it read
+175 after the first. The suite: 1,528 passed.
 
