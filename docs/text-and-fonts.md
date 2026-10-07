@@ -187,7 +187,8 @@ letter's marks are shaped in the order HarfBuzz puts them in, shadda before the 
 it, whatever order the text stores them in. A font with no positions draws a mark after its letter
 where the font's glyph of it lies. Text in other scripts is drawn a character at a time with
 raylib's advances, so a Latin font's kerning and ligatures are not made, and a line measures as it
-does in raylib.
+does in raylib. A letter and a mark stored after it, as e and a combining acute, are drawn as the
+one character Unicode has for both, é, where the font has it, as HarfBuzz composes them.
 
 ## Typed text
 

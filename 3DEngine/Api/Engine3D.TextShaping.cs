@@ -82,9 +82,47 @@ public static partial class Engine3D
     /// </summary>
     internal static IEnumerable<PlacedKey> PlacedKeys(Font font, string text)
     {
+        text = Composed(font, text);
         if (TextDirection.HasRightToLeft(text))
             return font.ShapedText(text, t => [.. t.Split('\n').SelectMany((line, i) => i == 0 ? ShapeLine(font, line) : ShapeLine(font, line).Prepend(new PlacedKey('\n')))]);
         return font.Joining is { } joining ? font.ShapedText(text, t => [.. ShapeText(font, joining, t).Select(key => new PlacedKey(key))]) : Runes(text);
+    }
+
+    // Text with each character and the mark right after it composed into the one character Unicode
+    // has for both where the font has that character, as HarfBuzz composes them, so e and a
+    // combining acute are drawn as the font's é and not as e and the font's '?', and a mark is
+    // composed with what the marks before it made of their letter. Text with no character from
+    // U+0300 on, where the marks begin, is given back as it is, and text with nothing to compose is
+    // read once and given back, so text drawn every frame is copied only where it changes.
+    internal static string Composed(Font font, string text)
+    {
+        if (text.AsSpan().IndexOfAnyInRange('\u0300', '\uFFFF') < 0) return text;
+        bool Composes(int before, int mark, out int both)
+        {
+            both = mark >= 0x300 && UnicodeCompositions.Of(before, mark) is { } made ? made : 0;
+            return both != 0 && font.Glyphs.ContainsKey(both);
+        }
+
+        var previous = -1;
+        var any = false;
+        foreach (var rune in text.EnumerateRunes())
+        {
+            if (previous >= 0 && Composes(previous, rune.Value, out _))
+            {
+                any = true;
+                break;
+            }
+            previous = rune.Value;
+        }
+        if (!any) return text;
+
+        var composed = new List<int>(text.Length);
+        foreach (var rune in text.EnumerateRunes())
+        {
+            if (composed.Count > 0 && Composes(composed[^1], rune.Value, out var both)) composed[^1] = both;
+            else composed.Add(rune.Value);
+        }
+        return string.Concat(composed.Select(char.ConvertFromUtf32));
     }
 
     private static IEnumerable<PlacedKey> Runes(string text)

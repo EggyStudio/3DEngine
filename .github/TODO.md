@@ -116,9 +116,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   through the font's GSUB under the `arab` script with the lookups' flags and the GDEF classes, or
   by the presentation forms the font maps, and its marks are put on their letters, its pairs
   kerned and each letter joined to the next by its exit and that one's entry, as Nastaliq is
-  written, by the font's GPOS (`GlyphPositioning`). A letter and its mark are not composed into
-  the one character Unicode has for both, and the rest of the text is drawn a character at a time,
-  so a Latin font's ligatures and kerning and the shaping Devanagari needs are not made.
+  written, by the font's GPOS (`GlyphPositioning`). A letter and a mark after it are drawn as the
+  one character Unicode has for both where the font has it (`UnicodeCompositions`, which
+  `build/make-compositions.py` writes). The rest of the text is drawn a character at a time, so a
+  Latin font's ligatures and kerning and the shaping Devanagari needs are not made.
 
 ### Meshes, materials and light
 

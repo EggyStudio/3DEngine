@@ -44,6 +44,41 @@ public class FontTests
     }
 
     [Fact]
+    public void A_Letter_And_The_Mark_After_It_Are_Drawn_As_The_One_Character_For_Both_Where_The_Font_Has_It()
+    {
+        // Text whose accents are stored apart from their letters, as a decomposed file name or
+        // some input methods give it, against a font of Latin-1 that has \u00e9 and \u00fc and no marks.
+        var letter = new Glyph(0, 0, 4, 8, 0, 0, 0.5f, 1, 5);
+        var font = new Font(new Texture2D(1, 8, 8), 8, 8, new Dictionary<int, Glyph>
+        {
+            ['a'] = letter, ['e'] = letter, ['u'] = letter, ['\u00e9'] = new Glyph(0, 0, 4, 8, 0, 0, 0.5f, 1, 6), ['\u00fc'] = letter,
+            ['?'] = new Glyph(0, 0, 6, 8, 0.5f, 0, 1, 1, 7), [0xAC00] = letter,
+        });
+
+        Engine3D.TextKeys(font, "e\u0301").Should().Equal('\u00e9');
+        Engine3D.MeasureTextEx(font, "e\u0301", 8, 0).X.Should().Be(6, "it is measured as the \u00e9 it is drawn as");
+        Engine3D.TextKeys(font, "u\u0308\u0301").Should().Equal(['\u00fc', 0x301], "u and the diaeresis are \u00fc, and the font has no \u01d8 for the acute after");
+        Engine3D.TextKeys(font, "a\u0301").Should().Equal(['a', 0x301], "the font has no \u00e1");
+        Engine3D.TextKeys(font, "\u1100\u1161").Should().Equal([0xAC00], "Hangul's letters are composed into their syllable by Unicode's formula");
+    }
+
+    [Fact]
+    public void The_Compositions_Are_The_Ones_The_Platforms_Normalization_Makes()
+    {
+        // Every Latin letter with every combining diacritical mark, against NFC as the test
+        // machines' globalization makes it, which a program published invariant does not have.
+        var wrong = new List<string>();
+        foreach (var letter in Enumerable.Range('A', 26).Concat(Enumerable.Range('a', 26)))
+            for (int mark = 0x300; mark < 0x370; mark++)
+            {
+                var both = $"{(char)letter}{(char)mark}".Normalize(System.Text.NormalizationForm.FormC);
+                int? expected = both.Length == 1 ? both[0] : null;
+                if (UnicodeCompositions.Of(letter, mark) != expected) wrong.Add($"{(char)letter} U+{mark:X4}");
+            }
+        wrong.Should().BeEmpty();
+    }
+
+    [Fact]
     public void The_Frame_Rate_Is_Lime_Then_Orange_Below_30_And_Red_Below_15_As_In_Raylib()
     {
         Engine3D.FpsColor(60).Should().Be(Color.Lime);
