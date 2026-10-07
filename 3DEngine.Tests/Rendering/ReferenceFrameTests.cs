@@ -640,6 +640,31 @@ public sealed class ReferenceFrameTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Color_Text_Matches_Its_Reference()
+    {
+        // The test fonts' color glyphs drawn as text: paints of a gradient and a moved square
+        // (COLR version 1), a sequence the bitmap font joins into its yellow glyph beside the sun
+        // alone, and layers with a letter of no color, tinted.
+        Open(256, 96);
+        string Font(string name) => Path.Combine(AppContext.BaseDirectory, "Api", name);
+        var paints = LoadFontEx(Font("paints.ttf"), 48, [0x1F600]);
+        var bitmaps = LoadFontEx(Font("bitmaps.ttf"), 32, LoadCodepoints("\U0001F600\u200D\u2600 "));
+        var layers = LoadFontEx(Font("layers.ttf"), 40, ['A', 0x1F600]);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.RayWhite);
+            DrawTextEx(paints, "\U0001F600", new Vector2(8, 8), 48, 0, Color.White);
+            DrawTextEx(bitmaps, "\U0001F600\u200D\u2600 \u2600", new Vector2(72, 16), 32, 2, Color.White);
+            DrawTextEx(layers, "A\U0001F600", new Vector2(170, 12), 40, 2, Color.DarkBlue);
+        });
+        Matches(frame, "color_text");
+        UnloadFont(paints);
+        UnloadFont(bitmaps);
+        UnloadFont(layers);
+    }
+
+    [NeedsVulkanFact]
     public void A_Texture_A_Compute_Shader_Wrote_Matches_Its_Reference()
     {
         Open(256, 160);

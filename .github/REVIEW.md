@@ -190,3 +190,10 @@ square drawn by a global subroutine after a move carrying the glyph's width, whi
 which a program does every frame, so each font keeps the keys of the last few hundred strings it
 shaped and draws them again from there, a font with no sequences reading its text a character at a
 time as before. A line of the sequence test holds it. The suite: 1,460 passed, none skipped.
+
+**TODO's entry on testing, color text compared whole.** A reference frame of the test fonts' color
+glyphs drawn as text: paints of a gradient and a moved square, a sequence the bitmap font joins
+into its one glyph beside the sun alone, and layers beside a letter of no color, tinted by the
+text's color. Drawn on lavapipe under the layer, where it passes with the reference in place, and
+on this desktop's GPU, within the 2 per cent. The entry counted sixteen scenes where nineteen were
+compared, and says twenty and names them. The suite: 1,461 passed, none skipped.
