@@ -496,8 +496,8 @@ void DrawBillboardPro(Camera3D camera, Texture2D texture, Rectangle source, Vect
 ```
 
 An `Image` is RGBA bytes in memory. The `Image*` functions change the image passed by `ref`, as
-raylib's take a pointer: shapes replace the pixels they cover, alpha included, and `ImageDraw`
-blends by the source's alpha. A changed image reaches the screen through `LoadTextureFromImage`
+raylib's take a pointer: shapes replace the pixels they cover, alpha included, and an image drawn
+into another by `ImageDrawImage` or its kin blends by the source's alpha. A changed image reaches the screen through `LoadTextureFromImage`
 or `UpdateTexture`.
 
 `LoadImageFromScreen` reads the frame before, inside a frame as well, since a frame is drawn on the

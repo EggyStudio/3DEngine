@@ -27,8 +27,7 @@ public sealed partial class UpgradingTests
         var root = Api.CheatsheetTests.RepoRoot();
         var before = Surface(NormTests.Git("show", $"{FiveOne}:3DEngine/PublicApi.txt"));
         var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
-        var page = File.ReadAllText(Path.Combine(root, "docs", "upgrading.md"));
-        var code = Ticked().Matches(page).Select(match => match.Groups["code"].Value).ToArray();
+        var code = Code(File.ReadAllText(Path.Combine(root, "docs", "upgrading.md")));
 
         var missing = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var (type, members) in before)
@@ -47,6 +46,41 @@ public sealed partial class UpgradingTests
 
         // Joined, so the message names every one and not the first alone.
         string.Join(", ", missing).Should().BeEmpty("each name a game of 5.1 wrote that is gone is a row of docs/upgrading.md saying what it writes instead");
+    }
+
+    [NeedsHistoryFact(FiveOne, "from which the names lost since 5.1 are counted")]
+    public void No_Other_Document_Writes_A_Name_Lost_Since_5_1()
+    {
+        // The guides' code blocks are built on the package, and their code in a line, the
+        // cheatsheet's and the README's are held here, where a name of 5.1 outlived its rename.
+        var root = Api.CheatsheetTests.RepoRoot();
+        var before = Surface(NormTests.Git("show", $"{FiveOne}:3DEngine/PublicApi.txt"));
+        var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
+        var gone = new List<string>();
+        foreach (var (type, members) in before)
+        {
+            if (!now.TryGetValue(type, out var kept))
+            {
+                gone.Add(type);
+                continue;
+            }
+            // A name the type still has, as a call whose arguments were reordered, is no name lost.
+            var still = kept.Select(MemberName).ToHashSet(StringComparer.Ordinal);
+            gone.AddRange(members.Select(MemberName).Where(name => !still.Contains(name)).Distinct()
+                .Select(name => type == "Engine3D" ? name : $"{type}.{name}"));
+        }
+
+        var pages = Directory.GetFiles(Path.Combine(root, "docs"), "*.md").Where(page => Path.GetFileName(page) != "upgrading.md")
+            .Append(Path.Combine(root, "README.md")).Append(Path.Combine(root, "CHEATSHEET.md"));
+        var written = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var page in pages)
+        {
+            var code = Code(File.ReadAllText(page));
+            foreach (var name in gone.Where(name => Named(code, name)))
+                written.Add($"{Path.GetRelativePath(root, page)} {name}");
+        }
+
+        string.Join(", ", written).Should().BeEmpty("a document a game's author reads names what 6.0 has, and docs/upgrading.md alone what 5.1 had");
     }
 
     [Theory]
@@ -99,16 +133,26 @@ public sealed partial class UpgradingTests
         return name;
     }
 
+    // The code of a page, each fenced block whole and each span of code in a line, the fences taken
+    // out first, since a fence's backticks would pair with a span's and shift every span after it.
+    private static string[] Code(string page) =>
+        [.. Fenced().Matches(page).Select(match => match.Value),
+            .. Ticked().Matches(Fenced().Replace(page, "")).Select(match => match.Groups["code"].Value)];
+
     // Whether a span of code on the page names the type or member, as a whole name and not the end
-    // of a longer one.
+    // of a longer one, nor the start of a family of them, as `ImageDraw*` is.
     private static bool Named(IEnumerable<string> code, string name)
     {
-        var pattern = new Regex($@"(?<![\w.]){Regex.Escape(name)}(?!\w)");
+        var pattern = new Regex($@"(?<![\w.]){Regex.Escape(name)}(?![\w*])");
         return code.Any(pattern.IsMatch);
     }
 
     [GeneratedRegex(@"`(?<code>[^`]+)`")]
     private static partial Regex Ticked();
+
+    // A fenced block of code, whose lines the cheatsheet's calls are.
+    [GeneratedRegex(@"```[\s\S]*?```")]
+    private static partial Regex Fenced();
 
     [GeneratedRegex(@"\bEngine\.(?<name>[\w.<>,? ]+?)(?:\(|\s:|\s+where\b|$)")]
     private static partial Regex TypeName();

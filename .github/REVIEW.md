@@ -274,3 +274,12 @@ and captures the game, and the soak and the storm take it. On lavapipe under the
 in the workflow's image it played through twice with no validation error, and the soak held level.
 The cheatsheet's `GetKeyPressed` line still said `Unknown`, a name of 5.1, and says `Null` now. The
 suite: 1,473 passed, none skipped.
+
+**The names of 5.1 held out of the other documents.** `UpgradingTests` has a second test, that no
+name the public surface lost since `b43818f9` is written in the code of the cheatsheet, the README
+or a guide, the upgrading page apart. A name a type still has, as a call whose arguments were
+reordered, is not lost, and `ImageDraw*`, a family, is not the name it starts. Its first run found
+the cheatsheet calling the dropped `ImageDraw` the call that blends by alpha, which now names
+`ImageDrawImage` and its kin. Planting `Key.Alpha1` in a guide showed that a fence's backticks paired
+with a span's and shifted every span after it, so the first test read the upgrading page's spans
+the same way, and both now take the fences out first. The suite: 1,474 passed, none skipped.
