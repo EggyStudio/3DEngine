@@ -265,21 +265,6 @@ public static partial class Engine3D
         return path;
     }
 
-    // Whether a font file holds glyphs in color, bitmaps (CBDT) or layers (COLR), by its table
-    // directory alone.
-    private static bool HasColorTables(string path)
-    {
-        using var file = File.OpenRead(path);
-        Span<byte> head = stackalloc byte[12];
-        if (file.ReadAtLeast(head, 12, throwOnEndOfStream: false) < 12) return false;
-        int count = System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(head[4..]);
-        var directory = new byte[count * 16];
-        if (file.ReadAtLeast(directory, directory.Length, throwOnEndOfStream: false) < directory.Length) return false;
-        for (int i = 0; i < count; i++)
-            if (System.Text.Encoding.ASCII.GetString(directory, i * 16, 4) is "CBDT" or "COLR") return true;
-        return false;
-    }
-
     // A font baked at fontSize with the characters asked for: those past U+FFFF, which the atlas
     // builder cannot name, and those a color font holds in color, which it would bake in gray,
     // drawn by the engine's own TrueType reader from data into the same atlas, and the rest by the
@@ -315,8 +300,19 @@ public static partial class Engine3D
 
         // The atlas builder stops the program on a font in which it finds none of the characters it
         // is given, so a font whose reader draws every character asked for and which has no space
-        // is baked by the reader alone, as a font of color bitmaps is.
-        var builderFinds = outlines is null || asked.Except(own).Append(' ').Any(c => outlines.GlyphIndex(c) != 0);
+        // is baked by the reader alone, as a font of color bitmaps is, and one with none of the
+        // characters asked for is given the first it has.
+        var builderFinds = TrueTypeFont.Mapped(data, asked.Except(own).Append(' ')).Length > 0;
+        if (!builderFinds && outlines is null)
+        {
+            if (TrueTypeFont.FirstMapped(data) is not { } first)
+            {
+                ApiLogger.Warn($"{caller}: '{name}' maps none of the characters asked for. Using the default font.");
+                return null;
+            }
+            ranges = GlyphRanges([first]);
+            builderFinds = true;
+        }
 
         // The atlas reads the ranges when it builds, after the font is added, so they stay pinned
         // until the bake is done.
@@ -331,55 +327,39 @@ public static partial class Engine3D
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : null;
     }
 
-    /// <summary>
-    /// Why bytes are not a TrueType or OpenType font the atlas builder can read safely, or null when
-    /// they are: a signature it knows, a table directory and every table inside the bytes, and the
-    /// tables an outline font has.
-    /// </summary>
-    internal static string? FontProblem(ReadOnlySpan<byte> data)
-    {
-        static uint U32(ReadOnlySpan<byte> d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(d[at..]);
-        static ushort U16(ReadOnlySpan<byte> d, int at) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(d[at..]);
-        if (data.Length < 100) return $"only {data.Length} bytes long";
-        var start = 0;
-        // A collection names its fonts' offsets, and the first is the one read.
-        if (U32(data, 0) == 0x74746366)
-        {
-            if (data.Length < 16 || U32(data, 8) == 0) return "a collection with no fonts";
-            start = (int)Math.Min(U32(data, 12), int.MaxValue);
-            if (start > data.Length - 12) return "a collection whose first font is past its end";
-        }
-        var version = U32(data, start);
-        if (version is not (0x00010000 or 0x74727565 or 0x4F54544F)) return "no TrueType or OpenType signature at its start";
-        int count = U16(data, start + 4);
-        if (count == 0 || start + 12 + count * 16 > data.Length) return "a table directory that runs past its end";
-        var tables = new HashSet<string>();
-        for (int i = 0; i < count; i++)
-        {
-            int record = start + 12 + i * 16;
-            var (offset, length) = (U32(data, record + 8), U32(data, record + 12));
-            var tag = System.Text.Encoding.ASCII.GetString(data.Slice(record, 4));
-            if ((ulong)offset + length > (ulong)data.Length) return $"its '{tag.TrimEnd()}' table running past its end";
-            tables.Add(tag);
-        }
-        foreach (var needed in new[] { "cmap", "head", "hhea", "hmtx", "maxp" })
-            if (!tables.Contains(needed)) return $"no '{needed}' table";
-        if (!(tables.Contains("glyf") && tables.Contains("loca")) && !tables.Contains("CFF ") && !tables.Contains("CFF2")
-            && !(tables.Contains("CBDT") && tables.Contains("CBLC")))
-            return "no outlines, neither 'glyf' nor 'CFF ', and no color bitmaps";
-        return null;
-    }
-
     /// <summary>Loads a TrueType or OpenType font baked at <paramref name="fontSize"/> pixels, with the Latin-1 characters.</summary>
     /// <returns>The font, or the default font when the file cannot be read, with the reason in the log.</returns>
-    public static Font LoadFontEx(string fileName, int fontSize)
+    public static unsafe Font LoadFontEx(string fileName, int fontSize)
     {
         if (FontFile(fileName, "LoadFontEx") is not { } path) return GetFontDefault();
         // A color font's Latin-1, as many of its characters as are colored drawn by the engine's
         // own reader, which the code points' overload does.
         if (HasColorTables(path)) return LoadFontEx(fileName, fontSize, [.. Enumerable.Range(0x20, 0xE0)]);
 
-        Font? BakeAt(int size) => Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, atlas.GetGlyphRangesDefault()), TextureFilter.Bilinear);
+        // The atlas builder stops the program on a font with none of the characters it is given, so
+        // a font with no Latin-1, as a font of one script's or of symbols, is given the first
+        // character it has, and its own characters are reached through the code points' overload.
+        var data = File.ReadAllBytes(path);
+        ushort[]? only = null;
+        if (TrueTypeFont.Mapped(data, Enumerable.Range(0x20, 0xE0)).Length == 0)
+        {
+            if (TrueTypeFont.FirstMapped(data) is not { } first)
+            {
+                ApiLogger.Warn($"LoadFontEx: '{fileName}' maps no character below U+10000. Using the default font.");
+                return GetFontDefault();
+            }
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' has none of the Latin-1 characters, so it is baked with its first, U+{first:X4}. Give it the characters to bake with LoadCodepoints.");
+            only = GlyphRanges([first]);
+        }
+        Font? BakeAt(int size)
+        {
+            fixed (ushort* pinned = only)
+            {
+                var ranges = (IntPtr)pinned;
+                return Bake(atlas => atlas.AddFontFromFileTTF(path, Math.Max(4, size), null, only is null ? atlas.GetGlyphRangesDefault() : ranges),
+                    TextureFilter.Bilinear);
+            }
+        }
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : GetFontDefault();
     }
 
@@ -464,8 +444,25 @@ public static partial class Engine3D
             ranges = GlyphRanges([' ']);
         }
         // The builder stops the program on a font in which it finds none of its characters, so the
-        // reader bakes such a font alone.
-        var builderFinds = outlines is null || codepoints!.Where(c => c <= 0xFFFF).Append(' ').Any(c => outlines.GlyphIndex(c) != 0);
+        // reader bakes such a font alone, and the builder is given the first character a font has
+        // where it has none of those asked for and the reader draws none either.
+        var data = File.ReadAllBytes(path);
+        if (TrueTypeFont.Read(data) is { HasOutlines: false })
+        {
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' is a font of color bitmaps alone, with no outlines to measure a distance field from. Using the default font.");
+            return GetFontDefault();
+        }
+        var builderFinds = TrueTypeFont.Mapped(data, (codepoints ?? Enumerable.Range(0x20, 0xE0)).Where(c => c <= 0xFFFF).Append(' ')).Length > 0;
+        if (!builderFinds && wanted.Length == 0)
+        {
+            if (TrueTypeFont.FirstMapped(data) is not { } first)
+            {
+                ApiLogger.Warn($"LoadFontEx: '{fileName}' maps none of the characters asked for. Using the default font.");
+                return GetFontDefault();
+            }
+            ranges = GlyphRanges([first]);
+            builderFinds = true;
+        }
 
         fontSize = Math.Max(4, fontSize);
         fixed (ushort* pinned = ranges)

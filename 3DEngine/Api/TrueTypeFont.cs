@@ -69,15 +69,7 @@ internal sealed class TrueTypeFont
         if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
 
-        // The richest map the file has, every plane's before the first plane's.
-        var cmap = tables["cmap"];
-        for (int i = 0; i < U16(cmap + 2); i++)
-        {
-            int record = cmap + 4 + i * 8, subtable = cmap + (int)U32(record + 4);
-            var (platform, encoding) = (U16(record), U16(record + 2));
-            if (U16(subtable) == 12 && (platform == 0 || platform == 3 && encoding == 10)) _cmap12 = subtable;
-            if (U16(subtable) == 4 && (platform == 0 || platform == 3 && encoding == 1)) _cmap4 = subtable;
-        }
+        (_cmap12, _cmap4) = Maps(data, tables["cmap"]);
     }
 
     /// <summary>
@@ -90,20 +82,14 @@ internal sealed class TrueTypeFont
     public bool HasOutlines => _glyf != 0 && _loca != 0;
 
     /// <summary>
-    /// Reads a font file's outlines and colors, or null for a file with neither the tables a
-    /// TrueType outline needs nor color bitmaps.
+    /// Reads a font file's outlines and colors, the first font's of a collection, or null for a
+    /// file with neither the tables a TrueType outline needs nor color bitmaps.
     /// </summary>
     public static TrueTypeFont? Read(byte[] data)
     {
-        if (data.Length < 12) return null;
-        var tables = new Dictionary<string, int>();
-        int count = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(4));
-        for (int i = 0; i < count && 12 + i * 16 + 16 <= data.Length; i++)
-        {
-            int record = 12 + i * 16;
-            var tag = System.Text.Encoding.ASCII.GetString(data, record, 4);
-            tables[tag] = (int)BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(record + 8));
-        }
+        // A collection's first font, the one the atlas builder reads, whose tables are found from
+        // the file's start as a lone font's are.
+        var tables = Directory(data);
         string[] needed = ["cmap", "head", "hhea", "hmtx", "maxp"];
         var drawable = tables.ContainsKey("glyf") && tables.ContainsKey("loca") || tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC");
         return needed.All(tables.ContainsKey) && drawable ? new TrueTypeFont(data, tables) : null;
@@ -114,22 +100,43 @@ internal sealed class TrueTypeFont
     private uint U32(int at) => BinaryPrimitives.ReadUInt32BigEndian(_data.AsSpan(at));
 
     /// <summary>The glyph a character is drawn with, 0 for one the font does not have.</summary>
-    public int GlyphIndex(int codepoint)
+    public int GlyphIndex(int codepoint) => Lookup(_data, _cmap12, _cmap4, codepoint);
+
+    // The richest Unicode map a font has, every plane's (format 12) before the first plane's (format 4).
+    private static (int Cmap12, int Cmap4) Maps(byte[] data, int cmap)
     {
-        if (_cmap12 != 0)
+        int cmap12 = 0, cmap4 = 0;
+        for (int i = 0; i < BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(cmap + 2)); i++)
         {
-            var groups = (int)U32(_cmap12 + 12);
+            int record = cmap + 4 + i * 8, subtable = cmap + (int)BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(record + 4));
+            int platform = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(record)), encoding = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(record + 2));
+            var format = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(subtable));
+            if (format == 12 && (platform == 0 || platform == 3 && encoding == 10)) cmap12 = subtable;
+            if (format == 4 && (platform == 0 || platform == 3 && encoding == 1)) cmap4 = subtable;
+        }
+        return (cmap12, cmap4);
+    }
+
+    // A character's glyph by a format 12 or format 4 map, 0 for one the map does not have.
+    private static int Lookup(byte[] data, int cmap12, int cmap4, int codepoint)
+    {
+        ushort U16(int at) => BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(at));
+        short S16(int at) => BinaryPrimitives.ReadInt16BigEndian(data.AsSpan(at));
+        uint U32(int at) => BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(at));
+        if (cmap12 != 0)
+        {
+            var groups = (int)U32(cmap12 + 12);
             for (int lo = 0, hi = groups - 1; lo <= hi;)
             {
-                int mid = (lo + hi) / 2, group = _cmap12 + 16 + mid * 12;
+                int mid = (lo + hi) / 2, group = cmap12 + 16 + mid * 12;
                 if (codepoint < U32(group)) hi = mid - 1;
                 else if (codepoint > U32(group + 4)) lo = mid + 1;
                 else return (int)(U32(group + 8) + (uint)(codepoint - U32(group)));
             }
             return 0;
         }
-        if (_cmap4 == 0 || codepoint > 0xFFFF) return 0;
-        int segments = U16(_cmap4 + 6) / 2, ends = _cmap4 + 14, starts = ends + segments * 2 + 2;
+        if (cmap4 == 0 || codepoint > 0xFFFF) return 0;
+        int segments = U16(cmap4 + 6) / 2, ends = cmap4 + 14, starts = ends + segments * 2 + 2;
         int deltas = starts + segments * 2, offsets = deltas + segments * 2;
         for (int s = 0; s < segments; s++)
         {
@@ -142,6 +149,83 @@ internal sealed class TrueTypeFont
             return glyph == 0 ? 0 : (glyph + S16(deltas + s * 2)) & 0xFFFF;
         }
         return 0;
+    }
+
+    // The table directory of a font file's first font, a collection's first, by tag, empty for a
+    // file too short to hold one.
+    private static Dictionary<string, int> Directory(byte[] data)
+    {
+        var tables = new Dictionary<string, int>();
+        if (data.Length < 12) return tables;
+        var start = 0;
+        if (BinaryPrimitives.ReadUInt32BigEndian(data) == 0x74746366)
+        {
+            if (data.Length < 16 || BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(8)) == 0) return tables;
+            start = (int)Math.Min(BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(12)), int.MaxValue);
+            if (start > data.Length - 12) return tables;
+        }
+        int count = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(start + 4));
+        for (int i = 0; i < count && start + 12 + i * 16 + 16 <= data.Length; i++)
+        {
+            int record = start + 12 + i * 16;
+            tables[System.Text.Encoding.ASCII.GetString(data, record, 4)] = (int)BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(record + 8));
+        }
+        return tables;
+    }
+
+    /// <summary>
+    /// The characters of <paramref name="codepoints"/> a font file maps to a glyph, read from its
+    /// character map alone, so a font of any outlines, CFF among them, is asked.
+    /// </summary>
+    /// <remarks>
+    /// The atlas builder stops the program on a font in which it finds none of the characters it is
+    /// given, so what it is given is checked against the font first.
+    /// </remarks>
+    internal static int[] Mapped(byte[] data, IEnumerable<int> codepoints)
+    {
+        try
+        {
+            if (!Directory(data).TryGetValue("cmap", out var cmap)) return [];
+            var (cmap12, cmap4) = Maps(data, cmap);
+            return [.. codepoints.Where(c => Lookup(data, cmap12, cmap4, c) != 0)];
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>The first character below U+10000 a font file maps to a glyph, or null where it maps none.</summary>
+    internal static int? FirstMapped(byte[] data)
+    {
+        try
+        {
+            if (!Directory(data).TryGetValue("cmap", out var cmap)) return null;
+            var (cmap12, cmap4) = Maps(data, cmap);
+            if (cmap12 != 0)
+            {
+                // A group's first character, the first group below U+10000 with a glyph.
+                for (int g = 0; g < (int)BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(cmap12 + 12)); g++)
+                {
+                    var first = (int)BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(cmap12 + 16 + g * 12));
+                    if (first > 0 && first <= 0xFFFF && Lookup(data, cmap12, cmap4, first) != 0) return first;
+                }
+                return null;
+            }
+            if (cmap4 == 0) return null;
+            int segments = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(cmap4 + 6)) / 2, starts = cmap4 + 14 + segments * 2 + 2;
+            for (int s = 0; s < segments; s++)
+            {
+                int start = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(starts + s * 2)), end = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(cmap4 + 14 + s * 2));
+                for (int c = Math.Max(1, start); c <= end && c < 0xFFFF; c++)
+                    if (Lookup(data, cmap12, cmap4, c) != 0) return c;
+            }
+            return null;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return null;
+        }
     }
 
     /// <summary>How far a glyph moves the pen, in the font's units.</summary>

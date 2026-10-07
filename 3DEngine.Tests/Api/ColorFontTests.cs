@@ -15,6 +15,7 @@ public sealed class ColorFontTests : IDisposable
     private static readonly string Bitmaps = Path.Combine(AppContext.BaseDirectory, "Api", "bitmaps.ttf");
     private static readonly string Layers = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttf");
     private static readonly string Paints = Path.Combine(AppContext.BaseDirectory, "Api", "paints.ttf");
+    private static readonly string Collection = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttc");
 
     public ColorFontTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -94,6 +95,80 @@ public sealed class ColorFontTests : IDisposable
         ((int)middle.B).Should().BeCloseTo(81, 2);
         Pixel(rgba, width, 60, 40).Should().Be(new Color(0, 255, 0, 255), "the small square is green, moved from 400 to 600 across to 600 to 800");
         Pixel(rgba, width, 35, 40).G.Should().Be(0, "where it was before the move is the gradient's");
+    }
+
+    [Fact]
+    public void A_Font_With_No_Character_Map_Of_Unicode_Is_Refused_Rather_Than_Stopping_The_Program()
+    {
+        // layers.ttf with its one character map's encoding made Microsoft's Symbol, as Marlett's is,
+        // which the atlas builder reads none of and asserts on.
+        var data = File.ReadAllBytes(Layers);
+        int tables = System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(4)), cmap = 0;
+        for (int i = 0; i < tables; i++)
+            if (System.Text.Encoding.ASCII.GetString(data, 12 + i * 16, 4) == "cmap")
+                cmap = (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(12 + i * 16 + 8));
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16BigEndian(data.AsSpan(cmap + 4 + 2), 0);
+
+        FontProblem(data).Should().Be("no character map of Unicode, only of a symbol or an older encoding");
+        LoadFontFromMemory(".ttf", data, 24, ['A']).Should().BeSameAs(GetFontDefault(), "the font is refused for the default one");
+    }
+
+    // A table's offset in a lone font's directory.
+    private static int TableOffset(byte[] data, string tag)
+    {
+        int tables = System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(4));
+        for (int i = 0; i < tables; i++)
+            if (System.Text.Encoding.ASCII.GetString(data, 12 + i * 16, 4) == tag)
+                return (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(12 + i * 16 + 8));
+        return -1;
+    }
+
+    [Fact]
+    public void A_Font_With_None_Of_Latin_1_Is_Baked_With_The_First_Character_It_Has()
+    {
+        // layers.ttf with its 'A' moved to the Greek omega, as a font of one script other than Latin
+        // has, of whose characters the atlas builder would find none in Latin-1 and assert.
+        var data = File.ReadAllBytes(Layers);
+        var group = TableOffset(data, "cmap") + 12 + 16;
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(data.AsSpan(group), 0x3A9);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(data.AsSpan(group + 4), 0x3A9);
+
+        var font = LoadFontFromMemory(".ttf", data, 24, null);
+        font.Should().NotBeSameAs(GetFontDefault());
+        font.Glyphs.Should().ContainKey(0x3A9);
+        UnloadFont(font);
+    }
+
+    [Fact]
+    public void A_Font_Of_CFF2_Outlines_Alone_Is_Refused()
+    {
+        // layers.ttf with its glyf table named CFF2, as a variable OpenType font holds its outlines,
+        // which the atlas builder cannot parse and asserts on.
+        var data = File.ReadAllBytes(Layers);
+        int tables = System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(4));
+        for (int i = 0; i < tables; i++)
+            if (System.Text.Encoding.ASCII.GetString(data, 12 + i * 16, 4) == "glyf")
+                System.Text.Encoding.ASCII.GetBytes("CFF2").CopyTo(data, 12 + i * 16);
+
+        FontProblem(data).Should().Be("outlines of CFF2 alone, as a variable OpenType font holds them, which the atlas builder does not read");
+    }
+
+    [Fact]
+    public void A_Font_Of_Color_Bitmaps_Alone_Asked_For_A_Distance_Field_Gives_The_Default_Font()
+    {
+        LoadFontEx(Bitmaps, 24, [0x1F600], FontType.Sdf).Should().BeSameAs(GetFontDefault(), "it has no outlines to measure distances from");
+    }
+
+    [Fact]
+    public void A_Collections_First_Font_Draws_Its_Colored_Characters_In_Color()
+    {
+        var reader = TrueTypeFont.Read(File.ReadAllBytes(Collection));
+        reader.Should().NotBeNull("a collection's first font is read, as the atlas builder reads it");
+        reader!.HasColor(reader.GlyphIndex(0x1F600)).Should().BeTrue();
+
+        var font = LoadFontEx(Collection, 40, ['A', 0x1F600]);
+        AtlasPixel(font, 0x1F600, 0.25f, 0.5f).Should().Be(new Color(255, 0, 0, 255));
+        UnloadFont(font);
     }
 
     [Fact]

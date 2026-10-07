@@ -13,6 +13,9 @@ layers.ttf holds outlines and colors them by layers (COLR version 0 with CPAL), 
 does: U+1F600's outline is a square, drawn in color as a red left half and a blue right half, each
 an outline of its own, and 'A' is a triangle with no color, which the atlas builder bakes.
 
+layers.ttc is layers.ttf as the one font of a collection, as Noto Sans CJK and Apple Color Emoji
+are shipped, its tables found from the file's start.
+
 paints.ttf colors U+1F600 by paints (COLR version 1), as Noto Color Emoji does: two layers in a clip
 box from 100 to 900 across and 0 to 800 up, a square filled with a linear gradient from red at its
 left to blue at its right, and over it a small square, from 400 to 600 across and 300 to 500 up,
@@ -162,3 +165,13 @@ colr = (struct.pack(">HHIIHIIIII", 1, 0, 0, 0, 0, header, header + len(base_list
         + base_list + layer_list + clip_list)
 cpal = struct.pack(">HHHHIH", 0, 3, 1, 3, 14, 0) + bytes([0, 0, 255, 255]) + bytes([255, 0, 0, 255]) + bytes([0, 255, 0, 255])
 font(os.path.join(here, "paints.ttf"), 4, [(0x1F600, 1)], {b"glyf": glyf, b"loca": loca, b"COLR": colr, b"CPAL": cpal})
+
+# layers.ttc: a collection's header before layers.ttf, each table's offset moved past it.
+with open(os.path.join(here, "layers.ttf"), "rb") as f: single = bytearray(f.read())
+count = struct.unpack_from(">H", single, 4)[0]
+for i in range(count):
+    record = 12 + i * 16
+    struct.pack_into(">I", single, record + 8, struct.unpack_from(">I", single, record + 8)[0] + 16)
+collection = b"ttcf" + struct.pack(">III", 0x00010000, 1, 16) + bytes(single)
+with open(os.path.join(here, "layers.ttc"), "wb") as f: f.write(collection)
+print(os.path.join(here, "layers.ttc"), len(collection), "bytes")

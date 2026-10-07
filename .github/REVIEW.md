@@ -10,21 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `56f405a5`. Verdict 31's cause: on the runner raylib's programs died at once for want
-of `libSDL3.so.0`, the machine here having loaded Fedora's SDL3 all along, so `compare.py` links
-them to the package's library under the name they load it by, rebuilds a program when its script
-changes, says each failed program's code and last lines, and fails recording nothing when no pair
-drew. Verdict 30's: on four cores nothing grew, but seven games ended with two to four readings
-where six were needed, a 240-frame turn taking two minutes, so the soak reads on its own ten-second
-clock at 320 by 180, each half is judged by its least, and a failing game gets its own error with
-its measure (`b5a63f44`); both settle with the run. The thirteen pairs 1.5 to 3.5 per cent apart
-each say why, measured again with the cause taken away, bilinear reads, a render texture's samples,
-a color texture filtered in linear light, and the font, so every written example has a share under
-1.5 or its reason, which settles item 3 (`36e0874d`). Windows and macOS play the rhythm game through
-`e3d`, whose `open` could never have started a program on Windows, waiting on `cmd.exe`'s pid,
-mended there untested until the run (`23e6c9b1`). COLR version 1's paints are drawn, and a font with
-no character the atlas builder knows is baked by the reader alone where it stopped the process
-(`56f405a5`). The suite: 1,450 passed, none skipped.
+Reviewed up to `acdd8fcb`. A distance field font holds its characters past U+FFFF from the font's
+outlines, rasterized into the bake at four times the size before the distances are measured, and
+`LoadFontEx`'s remarks say what is drawn of a color font (`c8e11f3d`). An entity goes as a state
+enters a value, or at the first transition a rule answers true for, `DespawnOnEnter` and
+`DespawnWhen` beside `DespawnOnExit`, both acting in the frame of the transition since the
+transition is the engine's own, where BevyCSharp asks its rule the frame after, with a test each and
+the states guide (`acdd8fcb`), which settles item 4. The suite: 1,453 passed, none skipped.
+
+Before them, Verdict 31's cause was found: on the runner raylib's programs died at once for want of
+`libSDL3.so.0`, the machine here having loaded Fedora's SDL3 all along, so `compare.py` links them
+to the package's library under the name they load it by, rebuilds a program when its script changes,
+says each failed program's code and last lines, and fails recording nothing when no pair drew.
+Verdict 30's: on four cores nothing grew, but seven games ended with two to four readings where six
+were needed, a 240-frame turn taking two minutes, so the soak reads on its own ten-second clock at
+320 by 180, each half is judged by its least, and a failing game gets its own error with its measure
+(`b5a63f44`); both settle with the run. The thirteen pairs 1.5 to 3.5 per cent apart each say why,
+measured again with the cause taken away, bilinear reads, a render texture's samples, a color
+texture filtered in linear light, and the font, so every written example has a share under 1.5 or
+its reason, which settles item 3 (`36e0874d`). Windows and macOS play the rhythm game through `e3d`,
+whose `open` could never have started a program on Windows, waiting on `cmd.exe`'s pid, mended there
+untested until the run (`23e6c9b1`). COLR version 1's paints are drawn, and a font with no character
+the atlas builder knows is baked by the reader alone where it stopped the process (`56f405a5`). The
+suite: 1,450 passed, none skipped.
 
 Before them, the examples job of `22bbf15a` ran through its captures, its measure and every game's
 step, the first-person walk among them, which settles Verdict 28, and failed at the soak, `a game
@@ -35,14 +43,6 @@ sequence a color font joins into one picture, a family, a flag, a skin tone or a
 that picture by the font's own GSUB `ccmp` lookups, the default ignorables passed over as HarfBuzz
 passes them, read with Twemoji and Segoe UI Emoji (`65c80c4b`). The suite: 1,443 passed, none
 skipped.
-
-Before them, the run of `22bbf15a` passed its tests on Linux, Windows and macOS, which settled
-Verdict 29. An eighth game, `games/Tempo`, is a rhythm game whose notes are judged by the time of
-the music heard, its song a tracker module, with an autopilot that plays each note on the frame
-nearest its beat and a CI step that plays the whole song on the dummy driver under the layer and
-fails on any miss, 381 of 381 at 60 frames a second and no miss at 5 nor on four-core lavapipe at 65
-ms a frame, its capture left out of N 4.5 as the other games' are, 11 from 10 (`48939b42`). The
-suite: 1,441 passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -64,10 +64,12 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **An entity that goes as a state is entered, and one that goes by a rule over the transition**
-   (SHARED.md), from BevyCSharp's `ea00b97`. `DespawnOnExit` is here; Bevy's `DespawnOnEnter` and a
-   `DespawnWhen` taking a rule over the transition are the same mechanism the other way, small
-   beside it, with a test each in `StateTests` and a line of the states guide.
+4. **Every game played on Windows and macOS as on Linux.** Linux plays the eight games from the
+   package in the examples job, and Windows and macOS play Tempo alone since `23e6c9b1`. The other
+   seven are played there too, through `e3d` under the layer as Tempo is, each asserting its walk or
+   its win, with the minutes they add to each job said in the commit, and a game that cannot run on
+   a system says why on the page. The two systems have found what Linux did not three times today,
+   so the games are where the next such fault is.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -179,25 +181,19 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 2, TODO's entry on text, distance fields past U+FFFF.** A font loaded as `FontType.Sdf` holds
-its characters past U+FFFF, rasterized by the engine's reader into the bake at four times the size
-before the distances are measured, a color emoji as its outline's shape, where they were left out,
-the atlas builder naming characters in 16 bits. A font of none but such characters is baked by the
-reader alone, as the coverage fonts are. `LoadFontEx`'s remarks said a joined sequence drew as its
-characters apart and COLR version 1 was not read, and say what is drawn. A test, and the entry
-keeps text shaped only in emoji, sbix, and CFF outlines past U+FFFF. The 120 render and font tests
-pass on lavapipe under the layer. The suite: 1,451 passed, none skipped.
-
-**Now 4, an entity that goes as a state is entered or by a rule.** `DespawnOnEnter` and `DespawnWhen`
-sit beside `DespawnOnExit`, as components an `EcsWorld` call adds, each taking what is below the
-entity with it. One tied to entering a value goes as the state enters it, before its enter systems,
-so what they spawn stays, the first value's entering included. One tied to a rule goes at the first
-transition the rule answers true for, asked after the exit systems of the value left and before the
-enter systems of the value entered, and at a sub-state's going away. The rule is a delegate held in
-the component, so it goes with its entity, and one that throws is logged and taken as false. Here
-the transition is the engine's own, so both act in the frame it happens, where BevyCSharp asks its
-rules the frame after. A test each in `StateTests`, a paragraph of the states guide and the
-cheatsheet's line. The suite: 1,453 passed, none skipped.
-
-Shared: `DespawnOnEnter` and `DespawnWhen` over the engine's own transitions, acting in the frame of
-the transition.
+**Fonts that stopped the program.** Every font on this desktop, 444 of them, was loaded through the
+flat API in a running program three ways, at Latin-1, with text of several scripts and emoji, and as
+a distance field. Eight stopped the program on an assertion of ImGui's atlas builder, which a game
+loading a font a player chose would meet. Four hold outlines of CFF2 alone, variable OpenType fonts
+the builder cannot parse, as Cantarell's and Noto Sans CJK's variable builds are, and `FontProblem`
+refuses them with that reason. Three have none of the characters the builder was given, a font of
+Japanese with no Latin and two of icons, and a font is given the first character it has where it
+has none of those asked for, from a character map the reader reads of any font, CFF ones among
+them. One, Twemoji, of color bitmaps alone, was sent to the builder for a distance field, which it
+has no outlines for, and is refused with that reason. A font with no character map of Unicode, as
+Marlett's Symbol encoding is, is refused before the builder, and a collection (`.ttc`) is read as
+its first font by the reader too, where it read only lone fonts, so a collection's characters past
+U+FFFF and its color glyphs are drawn. All 444 load. Five tests, from the test fonts with a byte
+changed and a collection the script writes, and the text guide says what is refused. N 4.2's test
+counts the README's prose without its tables' rows, 247 lines, as NORM.md has it. The 127 render,
+font and bad file tests pass on lavapipe under the layer. The suite: 1,458 passed, none skipped.

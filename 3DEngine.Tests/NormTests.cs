@@ -170,9 +170,11 @@ public sealed partial class NormTests
     {
         var readme = Read("README.md");
         var found = Files("docs/", ".md").Where(page => !readme.Contains("/blob/main/" + page, StringComparison.Ordinal));
-        if (readme.Split('\n').Length - 1 > 320) found = found.Append("README.md");
+        // Its prose, every line but its tables' rows, the gallery's pictures among them.
+        var prose = readme.Split('\n').SkipLast(1).Count(line => !line.TrimStart().StartsWith('|'));
+        if (prose > 320) found = found.Append($"README.md {prose} lines of prose");
 
-        Hold("4.2", found, "a page of docs/ the README does not link, or a README over 320 lines");
+        Hold("4.2", found, "a page of docs/ the README does not link, or a README over 320 lines of prose");
     }
 
     [Fact]

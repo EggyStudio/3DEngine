@@ -29,7 +29,13 @@ in it, at 20 pixels in lime, orange below 30 frames a second and red below 15, a
 ## Fonts from files
 
 `LoadFontEx` reads a font file from beside the program and bakes it at a size, with the Latin-1
-characters, which covers English and the languages of western Europe. `DrawTextEx` draws in it,
+characters, which covers English and the languages of western Europe. The file is a TrueType or
+OpenType font, or a collection of them (`.ttc`), whose first font is read. A font with no character
+map of Unicode, as a symbol font of Windows' Symbol encoding has none, or with outlines of CFF2
+alone, as a variable OpenType font may be made, is refused for the default font with the reason in
+the log. A font with none of the Latin-1 characters, as one of a single other script is, is baked
+with the first character it has, and is given its own characters as the next section shows.
+`DrawTextEx` draws in it,
 at a size and with extra spacing in pixels between characters, and `MeasureTextEx` gives the width
 and height of the same text. From `text_fonts`:
 

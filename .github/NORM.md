@@ -165,9 +165,11 @@ is the part a machine can count, and the rest is by review with STYLE.md's own s
 that names those dashes, or carries the followed engine's own words, is left out.
 
 **N 4.2 A document is in the place of its reader.** The README is for somebody deciding and has at
-most 320 lines, `docs/` has a page an area for somebody using the engine, each listed in the
-README, the cheatsheet is at the root, and `.github/` is for somebody working on the engine. A
-test counts the README's lines and finds every page of `docs/` among its links.
+most 320 lines of prose, the rows of its gallery of pictures not counted, since a picture a row is
+read at a glance where a line of prose is read, `docs/` has a page an area for somebody using the
+engine, each listed in the README, the cheatsheet is at the root, and `.github/` is for somebody
+working on the engine. A test counts the README's lines outside its tables' rows and finds every
+page of `docs/` among its links.
 
 **N 4.3 Every link in the README, the cheatsheet and `docs/` leads somewhere, and a link in the
 README or the cheatsheet is a full address.** The README is the package's page too, where a
@@ -281,8 +283,8 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 228, `NormTests` |
-| N 1.3 | checked, `NormTests` | listed 16, `NormTests`, 10 of them in the bridge |
+| N 1.2 | checked, `NormTests` | listed 219, `NormTests` |
+| N 1.3 | checked, `NormTests` | listed 15, `NormTests`, 9 of them in the bridge |
 | N 1.4 | checked, `NormTests`, 12 left out | listed 87, `NormTests`, 23 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
