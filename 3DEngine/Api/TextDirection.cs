@@ -43,27 +43,13 @@ internal static class TextDirection
     /// </summary>
     public static string Visual(string line)
     {
-        if (line.Length == 0) return line;
-        var starts = new List<int>();
-        for (int i = 0; i < line.Length; i += StringInfo.GetNextTextElementLength(line, i)) starts.Add(i);
-        int End(int cluster) => cluster + 1 < starts.Count ? starts[cluster + 1] : line.Length;
-
-        var codepoints = new List<int>(line.Length);
-        var first = new int[starts.Count];
-        for (int c = 0; c < starts.Count; c++)
-        {
-            first[c] = codepoints.Count;
-            foreach (var rune in line.AsSpan(starts[c], End(c) - starts[c]).EnumerateRunes()) codepoints.Add(rune.Value);
-        }
-        var levels = Levels([.. codepoints], out _);
-        var clusterLevels = first.Select(i => levels[i]).ToArray();
-
+        var clusters = Clusters(line);
         var shown = new StringBuilder(line.Length);
-        foreach (var c in Order(clusterLevels))
+        foreach (var c in Order(clusters.Levels))
         {
-            var cluster = line.AsSpan(starts[c], End(c) - starts[c]);
-            var head = codepoints[first[c]];
-            if ((clusterLevels[c] & 1) == 1 && Mirrored(head) is { } turned)
+            var cluster = line.AsSpan(clusters.Starts[c], clusters.Length(c));
+            var head = clusters.Codepoints[clusters.First[c]];
+            if ((clusters.Levels[c] & 1) == 1 && Mirrored(head) is { } turned)
             {
                 shown.Append(char.ConvertFromUtf32(turned));
                 cluster = cluster[char.ConvertFromUtf32(head).Length..];
@@ -71,6 +57,36 @@ internal static class TextDirection
             shown.Append(cluster);
         }
         return shown.ToString();
+    }
+
+    /// <summary>
+    /// A line's grapheme clusters: where each starts in the line, the line's code points, the index of
+    /// each cluster's first code point among them, and each cluster's level, its first code point's.
+    /// </summary>
+    internal sealed record LineClusters(string Line, int[] Starts, int[] Codepoints, int[] First, byte[] Levels)
+    {
+        /// <summary>How many of the line's chars a cluster takes.</summary>
+        public int Length(int cluster) => (cluster + 1 < Starts.Length ? Starts[cluster + 1] : Line.Length) - Starts[cluster];
+
+        /// <summary>How many code points a cluster takes.</summary>
+        public int Count(int cluster) => (cluster + 1 < First.Length ? First[cluster + 1] : Codepoints.Length) - First[cluster];
+    }
+
+    /// <summary>A line cut into its grapheme clusters, with their code points and levels.</summary>
+    internal static LineClusters Clusters(string line)
+    {
+        var starts = new List<int>();
+        for (int i = 0; i < line.Length; i += StringInfo.GetNextTextElementLength(line, i)) starts.Add(i);
+        var codepoints = new List<int>(line.Length);
+        var first = new int[starts.Count];
+        for (int c = 0; c < starts.Count; c++)
+        {
+            first[c] = codepoints.Count;
+            var end = c + 1 < starts.Count ? starts[c + 1] : line.Length;
+            foreach (var rune in line.AsSpan(starts[c], end - starts[c]).EnumerateRunes()) codepoints.Add(rune.Value);
+        }
+        var levels = Levels([.. codepoints], out _);
+        return new LineClusters(line, [.. starts], [.. codepoints], first, [.. first.Select(i => levels[i])]);
     }
 
     /// <summary>The embedding level of each character of a line, even for left to right and odd for right to left, and the paragraph's in <paramref name="paragraph"/>.</summary>

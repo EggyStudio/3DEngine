@@ -69,18 +69,21 @@ internal sealed class TrueTypeFont
         if (tables.TryGetValue("CBLC", out var cblc) && tables.TryGetValue("CBDT", out var cbdt)) (_cblc, _cbdt) = (cblc, cbdt);
         if (tables.TryGetValue("COLR", out var colr) && tables.TryGetValue("CPAL", out var cpal)) (_colr, _cpal) = (colr, cpal);
         _sbix = tables.GetValueOrDefault("sbix");
-        if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
+        if (tables.TryGetValue("GSUB", out var gsub)) Substitutions = GlyphSubstitution.Read(data, gsub, tables.TryGetValue("GDEF", out var gdef) ? gdef : -1);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
         if (_glyf == 0 && tables.TryGetValue("CFF ", out var cff)) _cff = CompactFontOutlines.Read(data, cff);
 
         (_cmap12, _cmap4) = Maps(data, tables["cmap"]);
     }
 
+    /// <summary>The font's GSUB table, with the glyph classes of its GDEF table, or null where it has none.</summary>
+    public GlyphSubstitution? Substitutions { get; }
+
     /// <summary>
     /// The substitutions the font makes to join a sequence of characters into one glyph, as an
     /// emoji font joins a family or a flag, or null where it makes none.
     /// </summary>
-    public GlyphSubstitution? Joins { get; }
+    public GlyphSubstitution? Joins => Substitutions is { Composes: true } substitutions ? substitutions : null;
 
     /// <summary>Whether the font has outlines, TrueType's or CFF's, where one of color bitmaps alone has none.</summary>
     public bool HasOutlines => _glyf != 0 && _loca != 0 || _cff is not null;

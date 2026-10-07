@@ -75,6 +75,23 @@ public sealed class Font
         return this;
     }
 
+    /// <summary>
+    /// How a font shapes Arabic: by its reader's substitutions under the <c>arab</c> script, the
+    /// forms they make past the letters' own baked with it, or, where <see cref="Plan"/> is null,
+    /// by the presentation forms Unicode encodes, which it maps and was baked with.
+    /// </summary>
+    internal sealed record ArabicShaping(TrueTypeFont? Reader, GlyphSubstitution.Plan? Plan);
+
+    // How the font shapes Arabic, null where none was asked for or it can shape none.
+    internal ArabicShaping? Arabic { get; private set; }
+
+    // The same font, shaping Arabic as given.
+    internal Font WithArabic(ArabicShaping? arabic)
+    {
+        Arabic = arabic;
+        return this;
+    }
+
     // Bakes the font's file again at a size, for a font loaded from one, and the bakes made, by size.
     internal Func<int, Font?>? Rebake { get; private set; }
 

@@ -158,8 +158,25 @@ at the position given. A letter keeps its marks, its vowel points among them, an
 measures a line as before, since its order changes no width. The marks that set a direction alone,
 U+200E and U+200F, are read, and those that embed or isolate a run, U+202A to U+202E and U+2066 to
 U+2069, are passed over. A line with no letter read right to left is drawn in the order it is
-stored, as raylib draws every line. Arabic's letters are each drawn as they stand alone, not joined
-to the letters beside them.
+stored, as raylib draws every line.
+
+Arabic's letters join, each in the form it takes by the letters beside it, initial, medial, final
+or alone, and lam and alef as one:
+
+```csharp
+// Each letter in its form by the letters beside it, the words from right to left.
+const string Peace = "السلام عليكم";
+var arabic = LoadFontEx("resources/fonts/NotoNaskhArabic-Regular.ttf", 32, LoadCodepoints(Peace));
+DrawTextEx(arabic, Peace, new Vector2(20, 380), 32, 0, Color.DarkGreen);
+```
+
+The forms are the font's own, its substitutions for the Arabic script, the `isol`, `fina`, `medi`
+and `init` features of its GSUB table, then its required ligatures (`rlig`), which join lam and
+alef, and its contextual alternates (`calt`), and the glyphs they make of the letters a font is
+loaded with are baked with it, so `LoadCodepoints` of the text is enough. A font with no
+substitutions for Arabic, as an older one, is drawn with the presentation forms Unicode encodes for
+the letters where it maps them. A mark, a vowel above or below its letter, is drawn after its
+letter where the font's glyph of it lies, and not yet moved to fit the letter's form.
 
 ## Typed text
 

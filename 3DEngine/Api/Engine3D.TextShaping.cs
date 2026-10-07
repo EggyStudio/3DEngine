@@ -23,6 +23,29 @@ public static partial class Engine3D
         }
     }
 
+    // The glyphs other than the letters' own that a font's substitutions for Arabic can make of the
+    // characters asked for, the forms a letter takes by the letters beside it and their ligatures.
+    private static int[] FormedGlyphs(TrueTypeFont font, int[] asked, GlyphSubstitution.Plan plan)
+    {
+        var glyphs = asked.Select(font.GlyphIndex).Where(g => g != 0).ToHashSet();
+        try
+        {
+            return [.. font.Substitutions!.Reachable(glyphs, plan).Where(g => g != 0 && !glyphs.Contains(g)).Order()];
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return [];
+        }
+    }
+
+    // The plan of a font's features for Arabic: composing and the local forms at every glyph, the
+    // isolated, final, medial and initial forms at the letters in those positions, then the required
+    // ligatures and the contextual alternates, or null where the font has none of the four forms.
+    private static GlyphSubstitution.Plan? ArabicPlan(GlyphSubstitution table) =>
+        table.PlanFor("arab", ("isol", 1), ("fina", 2), ("medi", 4), ("init", 8)) is null ? null
+            : table.PlanFor("arab", ("ccmp", 0), ("locl", 0), ("isol", (byte)ArabicJoining.Form.Isolated), ("fina", (byte)ArabicJoining.Form.Final),
+                ("medi", (byte)ArabicJoining.Form.Medial), ("init", (byte)ArabicJoining.Form.Initial), ("rlig", 0), ("calt", 0));
+
     /// <summary>
     /// The keys of the glyphs text is drawn with in a font, in the order they are drawn from left to
     /// right, a character's code point each, and where the font joins sequences, each run of the
@@ -31,9 +54,10 @@ public static partial class Engine3D
     /// </summary>
     /// <remarks>
     /// <para>
-    /// A line with a character read right to left, Hebrew or Arabic, is put in the order it is
-    /// shown first (<see cref="TextDirection"/>), and kept with the font as shaped text is, and a
-    /// line of none is drawn in the order it is stored, as raylib draws it.
+    /// A line with a character read right to left, Hebrew or Arabic, is shaped in the order it is
+    /// stored, a run of Arabic by its letters' forms where the font shapes Arabic, then put in the
+    /// order it is shown (<see cref="TextDirection"/>), and kept with the font as shaped text is,
+    /// and a line of none is drawn in the order it is stored, as raylib draws it.
     /// </para>
     /// <para>
     /// A run is made of the characters the reader draws, the joiner (U+200D), the variation
@@ -44,13 +68,9 @@ public static partial class Engine3D
     internal static IEnumerable<int> TextKeys(Font font, string text)
     {
         if (TextDirection.HasRightToLeft(text))
-            return font.ShapedText(text, t => Keys(font, string.Join('\n', t.Split('\n').Select(TextDirection.Visual))));
+            return font.ShapedText(text, t => [.. t.Split('\n').SelectMany((line, i) => i == 0 ? ShapeLine(font, line) : ShapeLine(font, line).Prepend('\n'))]);
         return font.Joining is { } joining ? font.ShapedText(text, t => ShapeText(font, joining, t)) : Runes(text);
     }
-
-    // The keys of text already in the order it is drawn.
-    private static int[] Keys(Font font, string text) =>
-        font.Joining is { } joining ? ShapeText(font, joining, text) : [.. Runes(text)];
 
     private static IEnumerable<int> Runes(string text)
     {

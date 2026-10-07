@@ -281,21 +281,38 @@ public static partial class Engine3D
             return null;
         }
         var outlines = TrueTypeFont.Read(data);
+
+        // Arabic's letters are shaped by the font's own substitutions under the arab script where it
+        // has the features that choose a letter's form, those forms baked by the reader as joined
+        // glyphs are, and otherwise by the presentation forms Unicode encodes for them, asked for
+        // with them where the font maps them.
+        var letters = asked.Where(ArabicJoining.Joins).ToArray();
+        var arabicPlan = letters.Length > 0 && outlines?.Substitutions is { } table ? ArabicPlan(table) : null;
+        var byForms = false;
+        if (letters.Length > 0 && arabicPlan is null)
+        {
+            var forms = TrueTypeFont.Mapped(data, ArabicJoining.PresentationForms(letters));
+            asked = [.. asked.Concat(forms).Distinct().Order()];
+            byForms = forms.Length > 0;
+        }
+        Font.ArabicShaping? arabic = arabicPlan is not null ? new(outlines, arabicPlan) : byForms ? new(null, null) : null;
+
         var own = outlines is null ? []
             : outlines.HasOutlines ? [.. asked.Where(c => c > 0xFFFF || outlines.HasColor(outlines.GlyphIndex(c)))]
             : asked;
         if (asked.Any(c => c > 0xFFFF) && outlines is null)
             ApiLogger.Warn($"{caller}: '{name}' has no outlines to draw characters past U+FFFF from, so they are left out.");
         // The reader and the bytes it holds are kept with the font only where it draws some of it.
-        if (own.Length == 0) outlines = null;
+        if (own.Length == 0 && arabicPlan is null) outlines = null;
         var ranges = GlyphRanges(asked.Except(own));
         if (ranges.Length == 1) ranges = GlyphRanges([' ']);
 
         // The glyphs the font joins the characters asked for into, as an emoji font joins a family or
         // a flag, drawn by the reader too, and text drawn in the font shaped into them.
         var joined = outlines is null ? [] : JoinedGlyphs(outlines, asked);
+        var formed = arabicPlan is null ? [] : FormedGlyphs(outlines!, asked, arabicPlan);
         (int Key, int Glyph)[] wanted = outlines is null ? []
-            : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Select(g => (JoinedKey(g), g))];
+            : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Union(formed).Select(g => (JoinedKey(g), g))];
         (TrueTypeFont, HashSet<int>)? joining = joined.Length > 0 ? (outlines!, own.ToHashSet()) : null;
 
         // The atlas builder stops the program on a font in which it finds none of the characters it
@@ -319,10 +336,10 @@ public static partial class Engine3D
         Font? BakeAt(int size)
         {
             if (outlines is { HasOutlines: false } || outlines is not null && !builderFinds)
-                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining);
+                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining).WithArabic(arabic);
             fixed (ushort* pinned = ranges)
                 return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
-                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining);
+                    outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining).WithArabic(arabic);
         }
         return BakeAt(fontSize) is { } font ? font.WithWholeAdvances().WithRebake(BakeAt) : null;
     }

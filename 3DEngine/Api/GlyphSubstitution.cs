@@ -3,80 +3,117 @@ using System.Buffers.Binary;
 namespace Engine;
 
 /// <summary>
-/// The substitutions a font's GSUB table makes to compose glyphs (its <c>ccmp</c> feature), which
-/// join a sequence of emoji into the one picture it stands for: a family from its people and the
-/// joiners between them, a flag from two regional indicators, a skin tone from a person and a
-/// modifier, a keycap from a digit and its marks.
+/// The substitutions a font's GSUB table makes, by plans of its features: its <c>ccmp</c> feature,
+/// which joins a sequence of emoji into the one picture it stands for (a family from its people and
+/// the joiners between them, a flag from two regional indicators, a skin tone from a person and a
+/// modifier, a keycap from a digit and its marks), and the features of a script that joins its
+/// letters, as Arabic's choose each letter's form by the letters beside it.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The lookups of the feature are applied in the order the table lists them, each over the whole
-/// run of glyphs from its start, as a shaper applies them: single, multiple and ligature
-/// substitutions, and the contextual and chained contextual ones in each of their three formats,
-/// which apply others at places of the run they match, reached directly or through an extension.
-/// An alternate or a reverse chained substitution is not made, and no glyph is skipped by its
-/// class, which the emoji fonts read (Noto Color Emoji, Twemoji and Segoe UI Emoji) have no use
-/// for, their lookups taking every glyph.
+/// A plan's lookups are applied in the order the table lists them, each over the whole run of
+/// glyphs from its start, as a shaper applies them, a lookup of a feature that names positions
+/// only at the glyphs its mask takes: single, multiple and ligature substitutions, and the
+/// contextual and chained contextual ones in each of their three formats, which apply others at
+/// places of the run they match, reached directly or through an extension. An alternate or a
+/// reverse chained substitution is not made.
 /// </para>
 /// <para>
-/// A glyph marked <see cref="Ignorable"/>, a character such as U+FE0F that selects how the one
-/// before it is drawn, is passed over while a sequence is matched where it does not match itself,
-/// as HarfBuzz passes over the characters Unicode marks as default ignorable, since a font's
-/// ligature for a keycap or a rainbow flag leaves out the U+FE0F the text has inside it.
+/// A lookup's flags are honored by the glyph classes of the font's GDEF table. A lookup that
+/// ignores marks, base glyphs or ligatures passes over them as it matches and is not applied at
+/// one, and a mark of another attachment class, or outside the mark filtering set it names, is
+/// passed over too. A glyph marked <see cref="ShapedGlyph.Ignorable"/>, a character such as U+FE0F
+/// that selects how the one before it is drawn, is passed over while a sequence is matched where it
+/// does not match itself, as HarfBuzz passes over the characters Unicode marks as default ignorable,
+/// since a font's ligature for a keycap or a rainbow flag leaves out the U+FE0F inside it.
 /// </para>
 /// <para>
-/// The script is the default one, or the first the table names where it has none, and its default
-/// language system.
+/// A plan's script is the one asked for where the table has it, or else the default one, or else
+/// the first the table names, and its default language system with its required feature.
 /// </para>
 /// </remarks>
-internal sealed class GlyphSubstitution
+internal sealed partial class GlyphSubstitution
 {
     private readonly byte[] _data;
-    private readonly int _lookupList;
+    private readonly int _gsub, _lookupList, _gdef;
 
-    // The lookups the feature applies, in the table's order, and every lookup they reach through
-    // the contexts, which the glyphs a run can become are gathered from.
-    private readonly int[] _applied;
-    private readonly int[] _reached;
+    // The ccmp feature of the default script, which joins emoji, or null where the table has none.
+    private readonly Plan? _compose;
 
     // How deep a context's lookups may call others, past which a font's loop of them is cut.
     private const int MaxDepth = 8;
 
     /// <summary>
-    /// The bit a glyph of a run is marked with where its character is default ignorable, which
-    /// matching passes over where it does not match, and which a substitution clears.
+    /// The bit a glyph is marked with, in the run of glyph numbers <see cref="Apply(IEnumerable{int})"/>
+    /// takes, where its character is default ignorable.
     /// </summary>
     public const int Ignorable = 1 << 16;
 
-    private GlyphSubstitution(byte[] data, int gsub, int[] applied)
+    /// <summary>
+    /// The lookups a run is shaped by, each with the mask of the positions it is applied at, 0 for a
+    /// lookup applied at every glyph, in the table's order, and every lookup they reach through the
+    /// contexts, which the glyphs a run can become are gathered from.
+    /// </summary>
+    internal sealed class Plan((int Lookup, byte Mask)[] lookups, int[] reached)
+    {
+        public IReadOnlyList<(int Lookup, byte Mask)> Lookups { get; } = lookups;
+        public IReadOnlyList<int> Reached { get; } = reached;
+    }
+
+    private GlyphSubstitution(byte[] data, int gsub, int gdef)
     {
         _data = data;
+        _gsub = gsub;
         _lookupList = gsub + U16(gsub + 8);
-        _applied = applied;
-        var reached = new SortedSet<int>(applied);
-        var pending = new Stack<int>(applied);
-        while (pending.Count > 0)
-            foreach (var nested in Nested(pending.Pop()))
-                if (nested < LookupCount && reached.Add(nested)) pending.Push(nested);
-        _reached = [.. reached];
+        _gdef = gdef;
+        _compose = PlanFor(null, ("ccmp", 0));
     }
 
     /// <summary>
-    /// Reads the <c>ccmp</c> feature of the GSUB table at <paramref name="gsub"/>, or null where
-    /// the table has none or cannot be read.
+    /// Reads the GSUB table at <paramref name="gsub"/>, with the GDEF table at <paramref name="gdef"/>
+    /// for the glyph classes its lookups' flags name, -1 where the font has none, or null where the
+    /// table cannot be read.
     /// </summary>
-    public static GlyphSubstitution? Read(byte[] data, int gsub)
+    public static GlyphSubstitution? Read(byte[] data, int gsub, int gdef = -1)
     {
         try
         {
-            var probe = new GlyphSubstitution(data, gsub, []);
-            var applied = probe.FeatureLookups(gsub, "ccmp");
-            return applied.Length == 0 ? null : new GlyphSubstitution(data, gsub, applied);
+            return new GlyphSubstitution(data, gsub, gdef);
         }
         catch (ArgumentOutOfRangeException)
         {
             // A table pointing past the file's end is one to leave unread, as the reader leaves a
             // glyph whose outline does.
+            return null;
+        }
+    }
+
+    /// <summary>Whether the table has a <c>ccmp</c> feature, which composes emoji.</summary>
+    public bool Composes => _compose is not null;
+
+    /// <summary>
+    /// The plan of the features named, each with the mask of the positions it is applied at, 0 for
+    /// every glyph, under <paramref name="script"/>, or null where the table has none of them.
+    /// </summary>
+    public Plan? PlanFor(string? script, params (string Tag, byte Mask)[] features)
+    {
+        try
+        {
+            var masks = new SortedDictionary<int, byte>();
+            foreach (var (tag, mask) in features)
+                foreach (var lookup in FeatureLookups(script, tag))
+                    // A lookup two features apply at every glyph or at either's positions.
+                    masks[lookup] = masks.TryGetValue(lookup, out var had) ? (byte)(had == 0 || mask == 0 ? 0 : had | mask) : mask;
+            if (masks.Count == 0) return null;
+            var reached = new SortedSet<int>(masks.Keys);
+            var pending = new Stack<int>(masks.Keys);
+            while (pending.Count > 0)
+                foreach (var nested in Nested(pending.Pop()))
+                    if (nested < LookupCount && reached.Add(nested)) pending.Push(nested);
+            return new Plan([.. masks.Select(entry => (entry.Key, entry.Value))], [.. reached]);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
             return null;
         }
     }
@@ -87,18 +124,18 @@ internal sealed class GlyphSubstitution
 
     private int LookupCount => U16(_lookupList);
 
-    // The lookups a feature of the default language system applies, in the table's order.
-    private int[] FeatureLookups(int gsub, string tag)
+    // The lookups a feature of a script's default language system applies, in the table's order.
+    private int[] FeatureLookups(string? asked, string tag)
     {
-        int scripts = gsub + U16(gsub + 4), features = gsub + U16(gsub + 6);
+        int scripts = _gsub + U16(_gsub + 4), features = _gsub + U16(_gsub + 6);
         var featureCount = U16(features);
         IEnumerable<int> indices = Enumerable.Range(0, featureCount);
         if (U16(scripts) > 0)
         {
-            // The default script, or the first named, and its default language system.
-            var chosen = 0;
-            for (int i = 0; i < U16(scripts); i++)
-                if (System.Text.Encoding.ASCII.GetString(_data, scripts + 2 + i * 6, 4) == "DFLT") chosen = i;
+            // The script asked for, or the default one, or the first named, and its default language system.
+            string Tag(int i) => System.Text.Encoding.ASCII.GetString(_data, scripts + 2 + i * 6, 4);
+            var named = Enumerable.Range(0, U16(scripts)).ToArray();
+            var chosen = named.Where(i => Tag(i) == asked).Concat(named.Where(i => Tag(i) == "DFLT")).DefaultIfEmpty(0).First();
             var script = scripts + U16(scripts + 2 + chosen * 6 + 4);
             if (U16(script) != 0)
             {
@@ -129,6 +166,39 @@ internal sealed class GlyphSubstitution
             if (type == 7) yield return (U16(sub + 2), sub + (int)U32(sub + 4));
             else yield return (type, sub);
         }
+    }
+
+    // A lookup's flags, and the mark filtering set it names where its flags use one.
+    private (int Value, int MarkSet) FlagsOf(int lookup)
+    {
+        var table = _lookupList + U16(_lookupList + 2 + lookup * 2);
+        var flags = U16(table + 2);
+        return (flags, (flags & 0x10) != 0 ? U16(table + 6 + U16(table + 4) * 2) : 0);
+    }
+
+    // Whether a lookup of these flags passes over a glyph, by its class in the GDEF table: a base,
+    // a ligature or a mark it ignores, or a mark of another attachment class or outside its set.
+    private bool Skips((int Value, int MarkSet) flags, int glyph)
+    {
+        if (_gdef < 0 || (flags.Value & 0xFF1E) == 0) return false;
+        var kind = GlyphClass(glyph);
+        if ((flags.Value & 2) != 0 && kind == 1 || (flags.Value & 4) != 0 && kind == 2 || (flags.Value & 8) != 0 && kind == 3) return true;
+        if (kind != 3) return false;
+        if ((flags.Value & 0x10) != 0) return !InMarkSet(flags.MarkSet, glyph);
+        return flags.Value >> 8 != 0 && MarkAttachClass(glyph) != flags.Value >> 8;
+    }
+
+    // A glyph's class in the GDEF table, 1 a base, 2 a ligature, 3 a mark and 4 a component, 0 unnamed.
+    internal int GlyphClass(int glyph) => _gdef >= 0 && U16(_gdef + 4) != 0 ? Class(_gdef + U16(_gdef + 4), glyph) : 0;
+
+    private int MarkAttachClass(int glyph) => _gdef >= 0 && U16(_gdef + 10) != 0 ? Class(_gdef + U16(_gdef + 10), glyph) : 0;
+
+    // Whether a mark is in a mark glyph set of the GDEF table, which version 1.2 has.
+    private bool InMarkSet(int set, int glyph)
+    {
+        if (_gdef < 0 || U32(_gdef) < 0x00010002 || U16(_gdef + 12) == 0) return false;
+        var sets = _gdef + U16(_gdef + 12);
+        return set < U16(sets + 2) && Coverage(sets + (int)U32(sets + 4 + set * 4), glyph) is not null;
     }
 
     // The lookups a lookup's contexts apply.
@@ -190,30 +260,23 @@ internal sealed class GlyphSubstitution
     }
 
     /// <summary>
-    /// The run of glyphs the feature makes of <paramref name="glyphs"/>, those of default ignorable
-    /// characters marked <see cref="Ignorable"/>, which stay marked where nothing substituted them.
+    /// Every glyph a run of <paramref name="glyphs"/> could become through the <c>ccmp</c> feature,
+    /// those given among them, found as <see cref="Reachable(IEnumerable{int}, Plan)"/> finds them.
     /// </summary>
-    public List<int> Apply(IEnumerable<int> glyphs)
-    {
-        var run = glyphs.ToList();
-        foreach (var lookup in _applied)
-            for (int i = 0; i < run.Count;)
-                i = ApplyAt(lookup, run, i, 0) ?? i + 1;
-        return run;
-    }
+    public HashSet<int> Reachable(IEnumerable<int> glyphs) => _compose is null ? [.. glyphs] : Reachable(glyphs, _compose);
 
     /// <summary>
-    /// Every glyph a run of <paramref name="glyphs"/> could become through the feature, those given
-    /// among them, found by substituting each lookup's covered glyphs among those reached until no
-    /// more are, leaving aside the context that would choose between them.
+    /// Every glyph a run of <paramref name="glyphs"/> could become through a plan, those given among
+    /// them, found by substituting each lookup's covered glyphs among those reached until no more
+    /// are, leaving aside the context and the positions that would choose between them.
     /// </summary>
-    public HashSet<int> Reachable(IEnumerable<int> glyphs)
+    public HashSet<int> Reachable(IEnumerable<int> glyphs, Plan plan)
     {
         var reached = new HashSet<int>(glyphs);
         for (var grew = true; grew;)
         {
             var before = reached.Count;
-            foreach (var lookup in _reached)
+            foreach (var lookup in plan.Reached)
                 foreach (var (type, sub) in Subtables(lookup))
                     Reach(type, sub, reached);
             grew = reached.Count > before;
@@ -253,206 +316,6 @@ internal sealed class GlyphSubstitution
                 }
                 break;
         }
-    }
-
-    // Applies one lookup at a place of the run, giving the place after what it substituted, or null
-    // where none of its subtables apply there.
-    private int? ApplyAt(int lookup, List<int> run, int at, int depth)
-    {
-        if (depth > MaxDepth || lookup >= LookupCount) return null;
-        foreach (var (type, sub) in Subtables(lookup))
-            if (ApplySubtable(type, sub, run, at, depth) is { } next) return next;
-        return null;
-    }
-
-    private int? ApplySubtable(int type, int sub, List<int> run, int at, int depth)
-    {
-        var format = U16(sub);
-        var glyph = run[at] & 0xFFFF;
-        switch (type)
-        {
-            case 1 when Coverage(sub + U16(sub + 2), glyph) is { } index:
-                run[at] = format == 1 ? (glyph + S16(sub + 4)) & 0xFFFF : U16(sub + 6 + index * 2);
-                return at + 1;
-            case 2 when Coverage(sub + U16(sub + 2), glyph) is { } index:
-            {
-                var sequence = sub + U16(sub + 6 + index * 2);
-                var count = U16(sequence);
-                run.RemoveAt(at);
-                run.InsertRange(at, Enumerable.Range(0, count).Select(i => (int)U16(sequence + 2 + i * 2)));
-                return at + count;
-            }
-            case 4 when Coverage(sub + U16(sub + 2), glyph) is { } index:
-            {
-                // The first ligature of the set whose components follow, which a font lists longest first.
-                var set = sub + U16(sub + 6 + index * 2);
-                var places = new List<int>();
-                for (int l = 0; l < U16(set); l++)
-                {
-                    var ligature = set + U16(set + 2 + l * 2);
-                    var components = U16(ligature + 2);
-                    places.Clear();
-                    for (int c = 1, next = at + 1; c < components; c++)
-                    {
-                        var component = U16(ligature + 4 + (c - 1) * 2);
-                        var place = Forward(run, next, g => g == component);
-                        if (place < 0) break;
-                        places.Add(place);
-                        next = place + 1;
-                    }
-                    if (places.Count != components - 1) continue;
-                    // The components go, and an ignorable glyph passed over between them stays after
-                    // the ligature.
-                    for (int c = places.Count - 1; c >= 0; c--) run.RemoveAt(places[c]);
-                    run[at] = U16(ligature);
-                    return at + 1;
-                }
-                return null;
-            }
-            case 5 or 6:
-                return Context(type, sub, run, at, depth);
-            default:
-                return null;
-        }
-    }
-
-    // A contextual or chained contextual subtable: the rule that matches at a place, if one does, its
-    // records applied to the places of its input, giving the place after the input.
-    private int? Context(int type, int sub, List<int> run, int at, int depth)
-    {
-        var format = U16(sub);
-        if (format == 3)
-        {
-            if (type == 5)
-            {
-                int glyphs = U16(sub + 2), count = U16(sub + 4);
-                var places = Match(run, at, glyphs, i => g => Coverage(sub + U16(sub + 6 + i * 2), g) is not null, forward: true);
-                return places is null ? null : Substitute(run, places, sub + 6 + glyphs * 2, count, depth);
-            }
-            var place = sub + 2;
-            int backtrack = U16(place), backtracks = place + 2;
-            place += 2 + backtrack * 2;
-            int input = U16(place), inputs = place + 2;
-            place += 2 + input * 2;
-            int lookahead = U16(place), lookaheads = place + 2;
-            place += 2 + lookahead * 2;
-            var matched = Match(run, at, input, i => g => Coverage(sub + U16(inputs + i * 2), g) is not null, forward: true);
-            if (matched is null
-                || Match(run, at - 1, backtrack, i => g => Coverage(sub + U16(backtracks + i * 2), g) is not null, forward: false, first: true) is null
-                || Match(run, matched[^1] + 1, lookahead, i => g => Coverage(sub + U16(lookaheads + i * 2), g) is not null, forward: true, first: true) is null)
-                return null;
-            return Substitute(run, matched, place + 2, U16(place), depth);
-        }
-
-        if (Coverage(sub + U16(sub + 2), run[at] & 0xFFFF) is not { } covered) return null;
-        // The rule set of the first glyph, by its place in the coverage or by its class.
-        int setIndex, classes = 0, backClasses = 0, aheadClasses = 0, sets;
-        if (format == 1) (setIndex, sets) = (covered, sub + 4);
-        else if (format == 2 && type == 5) (classes, sets, setIndex) = (sub + U16(sub + 4), sub + 6, Class(sub + U16(sub + 4), run[at] & 0xFFFF));
-        else if (format == 2)
-        {
-            (backClasses, classes, aheadClasses) = (sub + U16(sub + 4), sub + U16(sub + 6), sub + U16(sub + 8));
-            (sets, setIndex) = (sub + 10, Class(sub + U16(sub + 6), run[at] & 0xFFFF));
-        }
-        else return null;
-        if (setIndex >= U16(sets) || U16(sets + 2 + setIndex * 2) == 0) return null;
-        var set = sub + U16(sets + 2 + setIndex * 2);
-
-        // A rule's entries are glyphs in the first format and classes in the second.
-        Func<int, bool> Is(int entry, int classDef) => format == 1 ? g => g == entry : g => Class(classDef, g) == entry;
-        for (int r = 0; r < U16(set); r++)
-        {
-            var rule = set + U16(set + 2 + r * 2);
-            var place = rule;
-            int backtrack = 0, backtracks = 0;
-            if (type == 6)
-            {
-                (backtrack, backtracks) = (U16(place), place + 2);
-                place += 2 + backtrack * 2;
-            }
-            int input = U16(place);
-            if (input == 0) continue;
-            var inputs = place + (type == 5 ? 4 : 2);
-            // The rule names the input after its first glyph, which the set was chosen by.
-            var matched = Match(run, at, input, i => i == 0 ? _ => true : Is(U16(inputs + (i - 1) * 2), classes), forward: true);
-            if (matched is null) continue;
-            if (type == 5) return Substitute(run, matched, inputs + (input - 1) * 2, U16(place + 2), depth);
-            place = inputs + (input - 1) * 2;
-            int lookahead = U16(place), lookaheads = place + 2;
-            place += 2 + lookahead * 2;
-            if (Match(run, at - 1, backtrack, i => Is(U16(backtracks + i * 2), backClasses), forward: false, first: true) is null
-                || Match(run, matched[^1] + 1, lookahead, i => Is(U16(lookaheads + i * 2), aheadClasses), forward: true, first: true) is null)
-                continue;
-            return Substitute(run, matched, place + 2, U16(place), depth);
-        }
-        return null;
-    }
-
-    // The places of a sequence of count glyphs from a place of the run, forward or back, the i-th
-    // taken by entry(i), passing over ignorable glyphs that entry does not take, or null where the
-    // sequence is not there. The glyph at the place itself is the first unless first is set, in
-    // which case it may be passed over too.
-    private static List<int>? Match(List<int> run, int from, int count, Func<int, Func<int, bool>> entry, bool forward, bool first = false)
-    {
-        var places = new List<int>(count);
-        var at = from;
-        for (int i = 0; i < count; i++)
-        {
-            var takes = entry(i);
-            if (i == 0 && !first)
-            {
-                if (at < 0 || at >= run.Count || !takes(run[at] & 0xFFFF)) return null;
-            }
-            else
-            {
-                at = forward ? Forward(run, at, takes) : Backward(run, at, takes);
-                if (at < 0) return null;
-            }
-            places.Add(at);
-            at += forward ? 1 : -1;
-        }
-        return places;
-    }
-
-    // The place from which on the first glyph a test takes is, passing over ignorable glyphs it
-    // does not take, or -1 where another glyph comes first or the run ends.
-    private static int Forward(List<int> run, int from, Func<int, bool> takes)
-    {
-        for (int i = Math.Max(0, from); i < run.Count; i++)
-        {
-            if (takes(run[i] & 0xFFFF)) return i;
-            if ((run[i] & Ignorable) == 0) return -1;
-        }
-        return -1;
-    }
-
-    // The same, looking back from a place toward the run's start.
-    private static int Backward(List<int> run, int from, Func<int, bool> takes)
-    {
-        for (int i = Math.Min(from, run.Count - 1); i >= 0; i--)
-        {
-            if (takes(run[i] & 0xFFFF)) return i;
-            if ((run[i] & Ignorable) == 0) return -1;
-        }
-        return -1;
-    }
-
-    // Applies a matched rule's records, each a lookup at a place of its input, in order, the places
-    // after one moving with what it substitutes, and gives the place after the input.
-    private int Substitute(List<int> run, List<int> places, int records, int count, int depth)
-    {
-        var end = places[^1] + 1;
-        for (int i = 0; i < count; i++)
-        {
-            int sequence = U16(records + i * 4), lookup = U16(records + i * 4 + 2);
-            if (sequence >= places.Count) continue;
-            var before = run.Count;
-            ApplyAt(lookup, run, places[sequence], depth + 1);
-            var moved = run.Count - before;
-            for (int p = sequence + 1; p < places.Count; p++) places[p] += moved;
-            end += moved;
-        }
-        return Math.Max(end, places[0] + 1);
     }
 
     // A glyph's place in a coverage table, or null where it is not covered.

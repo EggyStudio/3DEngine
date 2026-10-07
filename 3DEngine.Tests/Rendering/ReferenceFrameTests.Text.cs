@@ -3,7 +3,7 @@ using static Engine.Engine3D;
 
 namespace Engine.Tests.Rendering;
 
-// The frames of text: a font from a file, color glyphs, and text read right to left.
+// The frames of text: a font from a file, color glyphs, text read right to left, and Arabic joined.
 public sealed partial class ReferenceFrameTests
 {
     [NeedsVulkanFact]
@@ -68,5 +68,31 @@ public sealed partial class ReferenceFrameTests
         });
         Matches(frame, "right_to_left");
         UnloadFont(font);
+    }
+
+    [NeedsVulkanFact]
+    public void Arabic_Joined_Matches_Its_Reference()
+    {
+        // The test fonts' beh, alef and lam, bars with ticks of their own whose final, medial and
+        // initial glyphs are narrower: three behs joined, beh before alef, lam joined to alef alone
+        // and after a letter, the joined lam and alef carrying a mark, and the same words in the font
+        // drawn by the presentation forms it maps.
+        Open(256, 160);
+        string Font(string name) => Path.Combine(AppContext.BaseDirectory, "Api", name);
+        const string Letters = "\u0628\u0627\u0644\u064E ";
+        var substituting = LoadFontEx(Font("arabic.ttf"), 24, LoadCodepoints(Letters));
+        var forms = LoadFontEx(Font("arabic-forms.ttf"), 24, LoadCodepoints(Letters));
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.RayWhite);
+            DrawTextEx(substituting, "\u0628\u0628\u0628 \u0628\u0627\u0628", new Vector2(10, 10), 24, 0, Color.DarkBlue);
+            DrawTextEx(substituting, "\u0644\u0627 \u0628\u0644\u0627", new Vector2(10, 50), 24, 0, Color.Maroon);
+            DrawTextEx(substituting, "\u0644\u064E\u0627", new Vector2(10, 90), 24, 0, Color.DarkGreen);
+            DrawTextEx(forms, "\u0628\u0628\u0628 \u0628\u0644\u0627", new Vector2(10, 120), 24, 0, Color.Black);
+        });
+        Matches(frame, "arabic_joined");
+        UnloadFont(substituting);
+        UnloadFont(forms);
     }
 }

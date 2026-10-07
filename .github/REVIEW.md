@@ -282,3 +282,31 @@ image. The text frames moved to `ReferenceFrameTests.Text.cs`, ahead of the next
 which the file would not have held under N 1.3. The text guide has a section on it, the cheatsheet
 a sentence, the comparison page a row, since raylib draws such a line in the order it is stored,
 and TODO.md's entry says what is left. The suite: 1,488 passed, none skipped.
+
+**Now 4, batch two, Arabic joined.** A run of Arabic is shaped in the order it is stored and then put
+in the order it is shown, so each letter takes its form by the letters beside it. A line is cut
+into grapheme clusters with their levels, a run of Arabic clusters at one level is shaped together,
+each glyph keeping its cluster, and the clusters are reversed for display with their glyphs in
+order. `ArabicJoining` holds Unicode 16's joining types for the Arabic script's blocks, the form
+each letter takes, and the presentation forms by their compatibility decompositions with the eight
+lam-alef. `GlyphSubstitution` applies plans now. A plan is the features asked for under a script,
+the `arab` script or the default one, each lookup with the mask of the positions it is applied at.
+The run is a list of `ShapedGlyph`, glyph, cluster, mask and whether it is default ignorable, a
+lookup's flags honored by the GDEF table's classes, mark attachment classes and mark filtering sets,
+a ligature taking its first component's cluster and the marks it passed over staying after it. The
+emoji keep their `ccmp` plan and their behavior, the font tests passing unchanged. Arabic's plan is
+`ccmp`, `locl`, `isol`, `fina`, `medi`, `init`, `rlig` and `calt`, where the font has the positional
+features, the forms they can reach from the letters asked for baked by the reader as joined emoji
+glyphs are, and a font without them is drawn by the presentation forms it maps, which are asked for
+with the letters. `make-color-test-fonts.py` writes `arabic.ttf`, with its own GSUB under `arab`, a
+lam-alef that ignores marks and a GDEF table, and `arabic-forms.ttf`, with presentation forms and no
+GSUB, both read by fontTools and shaped by HarfBuzz to the glyphs the tests expect. Twenty-five
+Arabic fonts of this machine, Noto Naskh, Vazirmatn, Tahoma and Segoe UI among them, loaded and drew
+an Arabic phrase through `e3d eval` with nothing failing, each joining where its forms differ in
+width. Noto Naskh's keys for a phrase were HarfBuzz's glyphs one for one, apart from a mark coming
+after its letter where HarfBuzz puts it before, as the text's drawing needs. A reference frame,
+`arabic_joined`, draws joined words, lam-alef alone and after a letter, a mark on the ligature, and
+the same words by presentation forms, and the text tests and every reference frame pass on lavapipe
+under the validation layer. Marks are drawn where their glyphs lie, which batch three moves. The
+guide, the cheatsheet, the comparison row and TODO.md's entry say so. The suite: 1,492 passed, none
+skipped.
