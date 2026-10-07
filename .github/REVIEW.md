@@ -10,24 +10,44 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `4db6fe46`. Verdict 36 is mended, to be proved by a macOS job: the lights' set binds
-its seventeen images apart from two samplers they share, one blending between texels and levels and
-one reading the nearest texel, so the model pass's fragment stage reads seven samplers, the
-material's five maps and the two, where it read twenty-two; the field's and the bounce's helpers
-take an `IVolume` or an `IPicture`, which `Sampler3D` and `Sampler2D` conform to by an extension and
-a `SplitVolume` of an image and a shared sampler satisfies, so the compute kernels compile as they
-were; `ModelRenderer` writes each binding as the shader declares it; the device reads
-`maxPerStageDescriptorSamplers` and `maxPerStageDescriptorSampledImages` when it is made, logs them
-and refuses a pipeline whose stage reads more, with the stage, the count and the limit
-(`GraphicsDevice.Limits`); a test compiles every built-in shader with a fragment stage and holds its
-stages to Metal's sixteen; and the array uniform's cause was not the macOS compiler but a shader's
-values kept in statics keyed by its id, which every app's shader store gives from 1 again, so an
-app's first shader found an earlier app's block of sixteen bytes, the values kept since with the
-shader store through a `ConditionalWeakTable`, with a test across two apps and an error that says
-the uniform's size and offset and the block's size (`4db6fe46`). The Windows jobs of `80227981` and
-`c4f248fd` failed in the tests, the Cornell box frame and the offscreen leak test, which is Verdict
-37. The suite: 1,527 passed; lavapipe under validation ran the whole suite, 1,509 passed and 16
-skipped where it has no device.
+Reviewed up to `6a2d916e`. Verdict 37's three things are in, to be read on the next Windows job: a
+process-wide ledger counts the Vulkan objects of each kind every device makes and destroys, images,
+buffers, memory, pipelines, descriptor pools and sets (`DeviceObjects`), the offscreen leak test
+prints it after every tenth app and fails naming the kinds alive after the hundredth app beyond the
+twentieth, every kind standing at 0 after each app on the RTX 4070 and on lavapipe, so what grew on
+Windows is the driver's own memory unless that job's ledger says otherwise, and the field's three
+kernels and the bounce's five become pipelines the first time a frame needs them rather than at
+every app's start; `build/test.py` runs the tests with `DOTNET_DbgEnableMiniDump`, a dump going to
+`TestResults/dumps`, which every job uploads, the page's account of a lost process naming the dump
+and the last progress line a test printed, the leak test printing its app's number as it goes, and
+the script's own test having its stand-in die after such a line; a reference frame that does not
+match says the rows and columns its differing pixels fall within and the three eighths of the frame
+holding the most of them, and `cornell_box` allows 5% with its reason, the bounce rays meeting the
+box's edges and the lamp's patch at grazing angles a device's compiler rounds either way
+(`6a2d916e`). The run of `4db6fe46`: Linux green; macOS 1,492 passed and 2 failed, the hundred and
+three of the sampler count gone and the array uniform case passing, which settles Verdict 36, the
+two left being `BadFileTests`' two `ModelRef` cases, Verdict 38, and the Cornell frame at 2.6%,
+within the 5% of `6a2d916e`; its Windows job was in the tests at 20:39 and meets Verdict 37 before
+its mends. The ray-query batch crashes lavapipe's test host at the first real acceleration
+structures and is traced before it lands. The suite: 1,527 passed; lavapipe under validation ran the
+whole suite, 1,509 passed and 16 skipped.
+
+Before them, Verdict 36 came to be mended: the lights' set binds its seventeen images apart from two
+samplers they share, one blending between texels and levels and one reading the nearest texel, so
+the model pass's fragment stage reads seven samplers, the material's five maps and the two, where it
+read twenty-two; the field's and the bounce's helpers take an `IVolume` or an `IPicture`, which
+`Sampler3D` and `Sampler2D` conform to by an extension and a `SplitVolume` of an image and a shared
+sampler satisfies, so the compute kernels compile as they were; `ModelRenderer` writes each binding
+as the shader declares it; the device reads `maxPerStageDescriptorSamplers` and
+`maxPerStageDescriptorSampledImages` when it is made, logs them and refuses a pipeline whose stage
+reads more, with the stage, the count and the limit (`GraphicsDevice.Limits`); a test compiles every
+built-in shader with a fragment stage and holds its stages to Metal's sixteen; and the array
+uniform's cause was not the macOS compiler but a shader's values kept in statics keyed by its id,
+which every app's shader store gives from 1 again, so an app's first shader found an earlier app's
+block of sixteen bytes, the values kept since with the shader store through a
+`ConditionalWeakTable`, with a test across two apps and an error that says the uniform's size and
+offset and the block's size (`4db6fe46`). The suite: 1,527 passed; lavapipe under validation ran the
+whole suite, 1,509 passed and 16 skipped where it has no device.
 
 Before them, a reflection came to read the frame before's depth beside its picture: after the model
 pass the window's half-size depth is copied with the half-size scene (`RecordKeepFrame`), a
@@ -40,18 +60,6 @@ whose floor reflects red where it reflected green; `gi.state` counts the depth i
 memory and TODO.md's line is gone (`c4f248fd`). The suite: 1,525 passed; lavapipe under validation
 passed its 44 frame, bounce, field and occlusion tests.
 
-Before them, Verdict 35 came to be settled: N 1.3's test counts the Slang shaders of the library,
-the tests and the examples as it counts their C#, and the model pass shader comes to 411 lines, the
-lights' descriptor set, its structs and its bindings, in `lightset.slang`, which `modelpass` passes
-on to a program's shader as before, and what reads the set in `lights.slang`, each light's arrival,
-the shadow maps, the specular model, the probes and the environment, the bounced light and the
-traced reflection, imported without being passed on so a program's shader sees no new names, after a
-first try that exported them clashed with `pbr.slang`'s `PI`; every shader of the examples, the
-games and the templates that imports `modelpass` compiles, and no Slang file is over 800 lines, so
-N 1.3's list stays empty (`09419080`). The owner pushed, and the runs of `80227981` and `09419080`
-were in progress at 19:45, the first with the Windows mends of `5057c3cb`. The suite: 1,524 passed;
-lavapipe under validation passed its 52 frame, bounce and compiler tests.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -62,15 +70,14 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 36 and 37 first, then the Windows jobs' games.** The runs of `80227981`, `09419080`
-   and `c4f248fd` failed on macOS in 103 tests, Verdict 36, mended at `4db6fe46` and proved by the
-   next macOS job once the owner pushes; the Windows jobs of `80227981` and `c4f248fd` failed in the
-   tests, the Cornell box frame at 3.3% and the offscreen leak test, which crashed the test host in
-   one run and grew 58 MB in the other, Verdict 37, before the ray-query batch; `09419080`'s Windows
-   job was in the tests at 20:17. A Windows job that plays the twelve games settles Verdict 33, and
-   the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a run's
-   three test jobs pass. Each push's run is read by the reviewing session, and a failure it names
-   comes first here.
+1. **Verdicts 37 and 38 first, then the Windows jobs' games.** The run of `4db6fe46`: Linux
+   green; macOS 1,492 passed and 2 failed, the sampler count and the array uniform proven, which
+   settled Verdict 36, the two left the `ModelRef` cases of `BadFileTests`, Verdict 38, and the
+   Cornell frame at 2.6%, within the 5% of `6a2d916e`; its Windows job was in the tests at 20:39 and
+   meets Verdict 37 before its mends, which `6a2d916e` carries. A Windows job that plays the twelve
+   games settles Verdict 33, and the examples job, which carries the guides' blocks and Verdicts 30
+   and 31, runs once a run's three test jobs pass. Each push's run is read by the reviewing session,
+   and a failure it names comes first here.
 2. **Phase 3: specular, the ray-query path left.** Glossy reflections are in (`80227981`) with
    the frame before's depth beside its picture (`c4f248fd`). Left: a hardware ray-query path through
    Vulkan's ray query extension for the field's misses where the GPU has it, behind the same quality
@@ -93,7 +100,7 @@ for a reply. In this order.
 
 ## Verdicts
 
-Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given again.
+Verdicts 1 to 29, 32 and 34 to 36 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -167,33 +174,6 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
     the reply, is not asked for while nothing waits on them. Unproven until a push. Settled when a
     Windows job plays the twelve games.
 
-36. **The macOS jobs of `80227981` and `09419080` fail 103 tests: the model pass asks 22 sampler
-    bindings a stage, and the device allows 16.** Read from the pages: 1,388 passed, 103 failed, 13
-    skipped, the same on both; the validation layer says at every `vkCreatePipelineLayout` that the
-    per-stage sampler bindings, 22, exceed `maxPerStageDescriptorSamplers`, 16, and N 3.7 fails
-    every test that draws, the reference frames, the field's, the bounce's and the offscreen leak
-    test among them. The macOS job of `90681ba8` passed at 17:23, so the count crossed 16 with phase
-    two, whose set added the bounced light, the screen's probes and the field's three images, and
-    phase three added the frame before's picture and depth, nineteen samplers in `lightset.slang`
-    beside the material's own; lavapipe and the RTX 4070 allow more and showed nothing. Metal gives
-    a stage sixteen samplers, a limit no setting lifts, so the mend is in the layout: the set's
-    images are bound as sampled images with a few shared sampler states, linear, nearest and the
-    shadow comparison, since Vulkan and Metal count images apart from samplers and allow far more of
-    them, or the images that share a sampler become an array; and the engine reads
-    `maxPerStageDescriptorSamplers` and `maxPerStageDescriptorSampledImages` at start and refuses a
-    layout past them with a sentence, so a Mac without the validation layer says what is wrong
-    rather than drawing nothing. Beside it, one test of its own: `OffscreenRenderTests`' case of an
-    array uniform written at sixteen bytes a value throws `Destination is too short` in
-    `WriteUniform` on macOS alone, where the uniform's offset and size pass the block's size, so the
-    error says the three numbers and the cause is found in the macOS compiler's reflection or the
-    block it lays out, the test having passed there at `90681ba8`. Mended at `4db6fe46`: seventeen
-    images bound apart from two shared samplers, seven samplers a fragment stage where there were
-    twenty-two, the device reading its two limits and refusing a pipeline past them, a test holding
-    every built-in fragment stage to sixteen, and the array uniform's values kept with the shader
-    store rather than in statics keyed by an id every app's store gives again, which the macOS test
-    order showed. The run of `c4f248fd` failed on macOS the same way before the mend. Settled when a
-    macOS job passes.
-
 37. **The Windows jobs of `80227981` and `c4f248fd` fail the Cornell box frame and the offscreen
     leak test.** Read from the pages: 1,505 passed, 2 failed, 12 skipped and 1 without a result at
     `80227981`, where the offscreen leak test crashed the test host, in the whole suite after 13
@@ -214,8 +194,25 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
     step says which app the test was at from its output; and the frame comparison's notice says
     where the differing pixels lie, the rows and columns they fall in, so the bounce's difference
     between the two lavapipes is read from the page, after which the frame is matched on both, by a
-    step made deterministic or by a share set from the two with its reason beside it. Settled when a
-    Windows job passes both tests.
+    step made deterministic or by a share set from the two with its reason beside it. Mended at
+    `6a2d916e`: the ledger of Vulkan objects read by the leak test, a minidump and the last progress
+    line of a test host that dies, and the frame's notice saying where the pixels differ,
+    `cornell_box` allowing 5% with its reason, which the macOS job of `4db6fe46` at 2.6% is within.
+    Settled when a Windows job passes both tests.
+
+38. **The macOS job of `4db6fe46` fails `BadFileTests`' two `ModelRef` cases, a missing file and
+    an empty one given no message naming the file.** Read from the page: 1,492 passed, 2 failed, 13
+    skipped; the test that gives every reader under the ECS a missing, an empty, a cut short and a
+    random file found `ModelRef` marking the missing and the empty file failed with no warning
+    naming the file within its wait, sixty frames of five milliseconds each, where the Linux and
+    Windows jobs of the same commit pass it and the macOS job of `90681ba8` passed it at 17:23, so
+    either the model's reader says something else there since, or its worker says it later than the
+    test waits on a runner whose apps start slower since phase two, which `6a2d916e` eases by making
+    the kernels' pipelines on first use. Two things: the test, as it fails, says what the log holds
+    since the case began, so the page tells late from never from misnamed; and the wait is by time
+    where the reader runs on a worker, a second or two and not sixty frames, or the reader is mended
+    where its message is at fault, so every reader names the file on every system (N 2.6). Settled
+    when a macOS job passes the test.
 
 ## Decisions
 
@@ -310,30 +307,13 @@ Verdicts 1 to 29, 32, 34 and 35 are settled, and their numbers are not given aga
 
 ## Replies
 
-Verdict 37's three things are in, to be read on the next Windows job:
-
-- **What a closed app leaves.** A process-wide ledger counts the Vulkan objects of each kind every
-  device makes and destroys, images, buffers, memory, pipelines, descriptor pools and descriptor
-  sets (`DeviceObjects`, at each create and destroy), and the offscreen leak test prints it after
-  every tenth app and fails naming the kinds alive after the hundredth app beyond the twentieth. On
-  the RTX 4070 and on lavapipe every kind stands at 0 after each app, so on these two no Vulkan
-  object outlives its device, and what grew on Windows is the driver's own memory unless that
-  job's ledger says otherwise. Under lavapipe here the process grew 220 MB over the eighty apps
-  with glibc's arenas left free and 13 MB with the Linux job's two, the ledger at 0 throughout.
-  The field's three kernels and the bounce's five are made into pipelines the first time a frame
-  builds a field or traces probes, where every app made them at its start, so an app that uses
-  neither, as the leak test's, compiles eight pipelines fewer in the driver.
-- **A test host that dies.** `build/test.py` runs the tests with `DOTNET_DbgEnableMiniDump`, a
-  minidump going to `TestResults/dumps`, which every job uploads with its results, and the page's
-  account of a lost process names the dump and the last progress line a test printed. The leak
-  test prints `[leak test] app N of 100` as it goes, so the page says which app it was at. The
-  script's own test has its stand-in die after such a line with a dump and reads both on the page.
-- **Where a frame differs.** A reference frame that does not match says the rows and columns its
-  differing pixels fall within and the three eighths of the frame across and down that hold the
-  most of them. The `cornell_box` frame allows 5% with its reason beside it. Its bounce rays meet
-  the box's edges and the lamp's patch on the ceiling at grazing angles, which a device's compiler
-  rounds either way, sixteen rays a probe carrying each such ray far, and the Windows lavapipe drew
-  3.3% apart where the Linux one drew about 1.3%.
-- The suite: 1,527 passed. Lavapipe under validation ran the whole suite, 1,509 passed and 16
-  skipped.
+Verdict 38's two things are in `BadFileTests`, to be read on the next macOS job. Both cases, the
+readers' and the ECS's, wait for a file's message through up to six hundred frames with 5 ms of
+sleep after each, three seconds and more of the worker's time where sixty frames were 300 ms, the
+sleep N 3.3's list already holds for this file and reason, so the wait reads no clock. A case that
+fails says what the log held at warning or above since it began, the first three lines, or that it
+held none, so the page tells a message naming another path from one that never came. Here every
+reader names the file within the first frames, so whether macOS's was late or misnamed is the
+next page's to say, and the reader is mended then if its message is at fault. The suite: 1,527
+passed.
 

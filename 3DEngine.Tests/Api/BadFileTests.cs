@@ -122,15 +122,10 @@ public sealed class BadFileTests : IDisposable
                 try
                 {
                     var state = load(server, relative);
-                    for (int frame = 0; frame < 120 && state() is LoadState.Loading or LoadState.NotLoaded; frame++)
-                    {
-                        BeginDrawing();
-                        EndDrawing();
-                        // The file is read on the asset server's worker, outside the frame loop.
-                        Thread.Sleep(5);
-                    }
+                    Wait(() => state() is not (LoadState.Loading or LoadState.NotLoaded) && (state() == LoadState.Loaded || Named(before, Path.GetFileName(path))));
                     if (state() == LoadState.Loaded && kind != "cut short") wrong.Add($"{name}, {kind} file: loaded");
-                    if (state() != LoadState.Loaded && !Named(before, Path.GetFileName(path))) wrong.Add($"{name}, {kind} file: no message naming the file");
+                    if (state() != LoadState.Loaded && !Named(before, Path.GetFileName(path)))
+                        wrong.Add($"{name}, {kind} file: no message naming the file, {Logged(before)}");
                 }
                 catch (Exception error)
                 {
@@ -153,14 +148,9 @@ public sealed class BadFileTests : IDisposable
                     ecs.Add(entity, new Transform(System.Numerics.Vector3.Zero));
                     if (component(path) is SceneRef scene) ecs.Add(entity, scene);
                     else ecs.Add(entity, (ModelRef)component(path));
-                    for (int frame = 0; frame < 60 && !Named(before, Path.GetFileName(path)); frame++)
-                    {
-                        BeginDrawing();
-                        EndDrawing();
-                        // The file is read on the asset server's worker, outside the frame loop.
-                        Thread.Sleep(5);
-                    }
-                    if (!Named(before, Path.GetFileName(path)) && kind != "cut short") wrong.Add($"{name}, {kind} file: no message naming the file");
+                    Wait(() => Named(before, Path.GetFileName(path)));
+                    if (!Named(before, Path.GetFileName(path)) && kind != "cut short")
+                        wrong.Add($"{name}, {kind} file: no message naming the file, {Logged(before)}");
                     ecs.DespawnRecursive(entity);
                 }
                 catch (Exception error)
@@ -176,6 +166,29 @@ public sealed class BadFileTests : IDisposable
     private static bool Named(int before, string file) =>
         ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before)))
             .Any(l => l.Level >= LogLevel.Warning && l.Text.Contains(file));
+
+    // Draws frames until done says so, sleeping 5 ms after each, six hundred times at most, three
+    // seconds of sleep and more. A file is read on the asset server's worker, outside the frame
+    // loop, so the wait is long in time, where sixty frames were once less time than a slow
+    // runner's worker took to say a file was bad.
+    private static void Wait(Func<bool> done)
+    {
+        for (int frame = 0; frame < 600 && !done(); frame++)
+        {
+            BeginDrawing();
+            EndDrawing();
+            Thread.Sleep(5);
+        }
+    }
+
+    // What the log held at warning or above since a case began, so a failure says whether the
+    // message came naming another file or never came.
+    private static string Logged(int before)
+    {
+        var lines = ConsoleLog.All().Skip(Math.Max(0, ConsoleLog.All().Length - (ConsoleLog.Written - before)))
+            .Where(l => l.Level >= LogLevel.Warning).Select(l => l.Text.Length > 160 ? l.Text[..160] : l.Text).ToArray();
+        return lines.Length == 0 ? "the log holding no warning since the case began" : $"the log since the case began holding {string.Join(" | ", lines.Take(3))}";
+    }
 
     [NeedsVulkanFact]
     public void Every_Loader_Answers_A_Bad_File_With_A_Warning_And_An_Unusable_Resource()
