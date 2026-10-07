@@ -5,8 +5,8 @@ namespace Engine.Tests.Api;
 
 /// <summary>
 /// Color emoji, read by the engine's own TrueType reader from <c>bitmaps.ttf</c>, PNG images at 8
-/// pixels to the em and no outlines, and <c>layers.ttf</c>, outlines colored by layers, which
-/// <c>build/make-color-test-fonts.py</c> writes.
+/// pixels to the em and no outlines, <c>layers.ttf</c>, outlines colored by layers, and
+/// <c>paints.ttf</c>, outlines colored by paints, which <c>build/make-color-test-fonts.py</c> writes.
 /// </summary>
 [Collection("Engine3D")]
 [Trait("Category", "Integration")]
@@ -14,6 +14,7 @@ public sealed class ColorFontTests : IDisposable
 {
     private static readonly string Bitmaps = Path.Combine(AppContext.BaseDirectory, "Api", "bitmaps.ttf");
     private static readonly string Layers = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttf");
+    private static readonly string Paints = Path.Combine(AppContext.BaseDirectory, "Api", "paints.ttf");
 
     public ColorFontTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -71,6 +72,38 @@ public sealed class ColorFontTests : IDisposable
         (width, height, left, top).Should().Be((80, 80, 10, -80));
         Pixel(rgba, width, 20, 40).Should().Be(new Color(255, 0, 0, 255), "the left layer is red");
         Pixel(rgba, width, 60, 40).Should().Be(new Color(0, 0, 255, 255), "and the right one blue");
+    }
+
+    [Fact]
+    public void Paints_Fill_Outlines_With_A_Gradient_And_A_Color_Moved_By_A_Transform_Inside_The_Clip_Box()
+    {
+        var font = TrueTypeFont.Read(File.ReadAllBytes(Paints))!;
+        var glyph = font.GlyphIndex(0x1F600);
+        font.HasColor(glyph).Should().BeTrue();
+
+        // At a tenth of a pixel a unit, the clip box from 100 to 900 across and 0 to 800 up.
+        var (rgba, width, height, left, top) = font.Color(glyph, 0.1f)!.Value;
+        (width, height, left, top).Should().Be((80, 80, 10, -80));
+        var red = Pixel(rgba, width, 1, 40);
+        (red.R, red.B).Should().Match<(byte R, byte B)>(c => c.R > 245 && c.B < 10, "the gradient starts red at the square's left");
+        var blue = Pixel(rgba, width, 78, 40);
+        (blue.R, blue.B).Should().Match<(byte R, byte B)>(c => c.R < 10 && c.B > 245, "and ends blue at its right");
+        var middle = Pixel(rgba, width, 25, 70);
+        // Unit 352.5 across, 0.316 of the way from red to blue.
+        ((int)middle.R).Should().BeCloseTo(174, 2);
+        ((int)middle.B).Should().BeCloseTo(81, 2);
+        Pixel(rgba, width, 60, 40).Should().Be(new Color(0, 255, 0, 255), "the small square is green, moved from 400 to 600 across to 600 to 800");
+        Pixel(rgba, width, 35, 40).G.Should().Be(0, "where it was before the move is the gradient's");
+    }
+
+    [Fact]
+    public void A_Font_Of_Paints_Loads_Its_Characters_In_Color()
+    {
+        var font = LoadFontEx(Paints, 40, [0x1F600]);
+
+        font.IsValid.Should().BeTrue();
+        AtlasPixel(font, 0x1F600, 0.75f, 0.5f).Should().Be(new Color(0, 255, 0, 255));
+        UnloadFont(font);
     }
 
     [Fact]

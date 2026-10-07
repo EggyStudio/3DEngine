@@ -40,8 +40,8 @@ machine, with the command that measures it again.
 - **Behaviors compiled while the game runs**, from a scripts folder through Roslyn.
 - **Dear ImGui inside the frame**, between `BeginDrawing` and `EndDrawing` with no setup.
   `gui_imgui_window`.
-- **Color emoji in text**, a color font's pictures or colored layers drawn in their colors by
-  `LoadFontEx`, where raylib's fonts are coverage alone, and a sequence the font joins, a family, a
+- **Color emoji in text**, a color font's pictures, colored layers or gradient paints drawn in their
+  colors by `LoadFontEx`, where raylib's fonts are coverage alone, and a sequence the font joins, a family, a
   flag or a skin tone, drawn as its one picture, where raylib draws its characters apart.
   [Text and fonts](text-and-fonts.md).
 - **A program driven from the terminal.** `./e3d` asks a running program what is in its world,

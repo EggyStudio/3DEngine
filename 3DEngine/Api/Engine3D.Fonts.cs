@@ -313,12 +313,17 @@ public static partial class Engine3D
             : [.. own.Select(c => (c, outlines.GlyphIndex(c))), .. joined.Select(g => (JoinedKey(g), g))];
         (TrueTypeFont, HashSet<int>)? joining = joined.Length > 0 ? (outlines!, own.ToHashSet()) : null;
 
+        // The atlas builder stops the program on a font in which it finds none of the characters it
+        // is given, so a font whose reader draws every character asked for and which has no space
+        // is baked by the reader alone, as a font of color bitmaps is.
+        var builderFinds = outlines is null || asked.Except(own).Append(' ').Any(c => outlines.GlyphIndex(c) != 0);
+
         // The atlas reads the ranges when it builds, after the font is added, so they stay pinned
         // until the bake is done.
         Font? BakeAt(int size)
         {
-            if (outlines is { HasOutlines: false } bitmaps)
-                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, bitmaps, Math.Max(4, size), wanted))?.WithJoining(joining);
+            if (outlines is { HasOutlines: false } || outlines is not null && !builderFinds)
+                return BakeOwn(Math.Max(4, size), TextureFilter.Bilinear, baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining);
             fixed (ushort* pinned = ranges)
                 return Bake(add(Math.Max(4, size), (IntPtr)pinned), TextureFilter.Bilinear,
                     outlines is null ? null : baked => WithBeyondPlane(baked, outlines, Math.Max(4, size), wanted))?.WithJoining(joining);

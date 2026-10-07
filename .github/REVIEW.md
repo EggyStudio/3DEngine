@@ -240,3 +240,20 @@ which a session carries, and the time it began, and whether the program still ru
 of that name begun since, and it adds the `.exe`. Linux keeps the pid. None of it has run on
 Windows or macOS, so the next run's two jobs say whether it holds. Here the script plays the song
 through with no note missed, the layer's check aside, which this desktop has no layer for.
+
+**Now 2, TODO's entry on text, COLR version 1.** A color font's paints are drawn, so Noto Color
+Emoji's current build, the one Fedora installs and Google Fonts serves, and Segoe UI Emoji's
+gradients draw in their colors, where the first drew its outlines in one color. `ColorPaint` draws
+a glyph's graph of paints into an image the size of its clip box: layers laid over each other, an
+outline filling what is under it with a solid color or a linear, radial or sweep gradient padded,
+repeated or reflected past its stops, the transforms, translations, scales, rotations and skews
+moving what is under them, another color glyph in place, and two paints composited by the Porter
+and Duff and separable blend modes, those of hue, saturation, color and luminosity laying the
+source over. A variable font is drawn at its default. Read here with Noto Color Emoji and Segoe UI
+Emoji, faces, a party popper, a rainbow, a globe and a gem among them, as they look elsewhere. A
+test font of paints, a gradient under a square moved by a translation in a clip box, which
+`make-color-test-fonts.py` writes, and two tests. Writing them found a font in which the atlas
+builder finds none of its characters, as one asked only for emoji with no space of its own, stopping
+the program on an assertion of ImGui's. Such a font is baked by the engine's reader alone, as a font
+of bitmaps is. The 119 render and font tests pass on lavapipe under the layer. The suite: 1,450
+passed, none skipped.

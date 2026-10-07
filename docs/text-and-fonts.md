@@ -102,9 +102,11 @@ does, and as nothing where the font has no `?` either. Characters past U+FFFF, e
 scripts among them, are baked from the font's outlines with the rest, so a monochrome emoji font
 such as Noto Emoji or Symbola draws them.
 
-A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Noto
-Color Emoji and Twemoji do, or as outlines colored in layers, as Segoe UI Emoji does, and text drawn
-in white shows them as they are:
+A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Twemoji
+and the older builds of Noto Color Emoji do, as outlines colored in layers, as Segoe UI Emoji does,
+or as outlines filled with gradients and moved by transforms (COLR version 1), as Noto Color
+Emoji's current build and the color fonts of Google Fonts do, and text drawn in white shows them as
+they are:
 
 ```csharp
 const string Faces = "😀 😂 😍 🚀 ❤";
@@ -126,8 +128,8 @@ DrawTextEx(joined, Sequences, new Vector2(20, 90), 48, 4, Color.White);
 
 A joiner or a variation selector a font does not join is not drawn. The text outside a color
 font's emoji is drawn a character at a time, as raylib draws it, so the ligatures and the shaping
-of a script such as Arabic are not made. A font of COLR version 1's gradients alone, as one of Noto
-Color Emoji's builds is, draws its emoji's outlines without their colors.
+of a script such as Arabic are not made. A variable color font's emoji are drawn as its default
+instance.
 
 ## Typed text
 

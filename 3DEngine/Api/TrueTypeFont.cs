@@ -20,8 +20,8 @@ namespace Engine;
 /// as Noto Color Emoji and most color emoji fonts hold them), scaled from the size nearest above,
 /// or from its layers (COLR version 0 with CPAL's first palette, as Segoe UI Emoji holds them),
 /// outlines of the font's own each filled in a color, a layer in the text's color drawn white so
-/// the text's color tints it. COLR version 1's gradients and transforms are not read, and a font
-/// of them alone draws its outlines in one color.
+/// the text's color tints it, or from its paints (COLR version 1, as Noto Color Emoji holds them),
+/// gradients and transforms among them, which <see cref="ColorPaint"/> draws.
 /// </para>
 /// <para>
 /// A sequence the font joins into one glyph, as a family of emoji or a flag, is read from its GSUB
@@ -39,6 +39,7 @@ internal sealed class TrueTypeFont
     private readonly int _glyf, _loca, _hmtx, _cmap12, _cmap4, _hMetrics, _glyphs;
     private readonly int _cblc, _cbdt, _colr, _cpal;
     private readonly bool _longLoca;
+    private readonly ColorPaint? _paints;
 
     /// <summary>The units an em is drawn in.</summary>
     public int UnitsPerEm { get; }
@@ -66,6 +67,7 @@ internal sealed class TrueTypeFont
         if (tables.TryGetValue("CBLC", out var cblc) && tables.TryGetValue("CBDT", out var cbdt)) (_cblc, _cbdt) = (cblc, cbdt);
         if (tables.TryGetValue("COLR", out var colr) && tables.TryGetValue("CPAL", out var cpal)) (_colr, _cpal) = (colr, cpal);
         if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
+        _paints = ColorPaint.Read(this, data, _colr, _cpal);
 
         // The richest map the file has, every plane's before the first plane's.
         var cmap = tables["cmap"];
@@ -226,13 +228,9 @@ internal sealed class TrueTypeFont
         return contours;
     }
 
-    /// <summary>
-    /// A glyph drawn at <paramref name="scale"/> pixels a unit as coverage from 0 to 255, its box's
-    /// left and top relative to the pen on the baseline, y down, or null for a glyph with no outline.
-    /// </summary>
-    public (byte[] Alpha, int Width, int Height, int Left, int Top)? Rasterize(int glyph, float scale)
+    /// <summary>A glyph's contours as straight segments in the font's units, y up, each curve cut in eight.</summary>
+    internal List<(Vector2 A, Vector2 B)> Segments(int glyph)
     {
-        // Each contour as straight segments, its curves cut in eight, y turned to grow down.
         var lines = new List<(Vector2 A, Vector2 B)>();
         foreach (var contour in Contours(glyph))
         {
@@ -260,9 +258,19 @@ internal sealed class TrueTypeFont
                     control = point;
                 }
             }
-            for (int i = 0; i + 1 < path.Count; i++)
-                lines.Add((new Vector2(path[i].X, -path[i].Y) * scale, new Vector2(path[i + 1].X, -path[i + 1].Y) * scale));
+            for (int i = 0; i + 1 < path.Count; i++) lines.Add((path[i], path[i + 1]));
         }
+        return lines;
+    }
+
+    /// <summary>
+    /// A glyph drawn at <paramref name="scale"/> pixels a unit as coverage from 0 to 255, its box's
+    /// left and top relative to the pen on the baseline, y down, or null for a glyph with no outline.
+    /// </summary>
+    public (byte[] Alpha, int Width, int Height, int Left, int Top)? Rasterize(int glyph, float scale)
+    {
+        // Y turned to grow down.
+        var lines = Segments(glyph).Select(l => (A: new Vector2(l.A.X, -l.A.Y) * scale, B: new Vector2(l.B.X, -l.B.Y) * scale)).ToList();
         if (lines.Count == 0) return null;
 
         var min = new Vector2(lines.Min(l => MathF.Min(l.A.X, l.B.X)), lines.Min(l => MathF.Min(l.A.Y, l.B.Y)));
@@ -289,10 +297,10 @@ internal sealed class TrueTypeFont
     /// no color of its own.
     /// </summary>
     public (byte[] Rgba, int Width, int Height, int Left, int Top)? Color(int glyph, float scale) =>
-        Bitmap(glyph, scale) ?? Layers(glyph, scale);
+        Bitmap(glyph, scale) ?? _paints?.Draw(glyph, scale) ?? Layers(glyph, scale);
 
-    /// <summary>Whether a glyph has colors of its own, a bitmap or layers.</summary>
-    public bool HasColor(int glyph) => BitmapData(glyph, 0) is not null || BaseRecord(glyph) is not null;
+    /// <summary>Whether a glyph has colors of its own, a bitmap, paints or layers.</summary>
+    public bool HasColor(int glyph) => BitmapData(glyph, 0) is not null || _paints?.PaintOf(glyph) is not null || BaseRecord(glyph) is not null;
 
     // The strike whose size is nearest above pixelsPerEm, or the largest, and in it where a glyph's
     // image is in CBDT, its format and, for an index that holds them, the metrics every glyph of it
@@ -497,7 +505,7 @@ internal sealed class TrueTypeFont
 
     // Adds the signed area a segment covers to each pixel it crosses, row by row, as font-rs does,
     // so a running sum along the rows gives each pixel's coverage.
-    private static void Line(float[] a, int width, int height, Vector2 p0, Vector2 p1)
+    internal static void Line(float[] a, int width, int height, Vector2 p0, Vector2 p1)
     {
         if (p0.Y == p1.Y) return;
         float direction = 1;

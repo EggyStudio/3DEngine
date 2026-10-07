@@ -79,8 +79,9 @@ public static partial class Engine3D
         return (new Image(field, width, height), new Image(coverage, width, height), grown);
     }
 
-    // A font of color bitmaps alone, which the atlas builder cannot read, its atlas made by the
-    // engine's own reader from nothing, a line as high as the size it is baked at.
+    // A font of color bitmaps alone, which the atlas builder cannot read, or one with none of the
+    // characters the builder would be given, its atlas made by the engine's own reader from nothing,
+    // a line as high as the size it is baked at.
     private static Font? BakeOwn(int size, TextureFilter filter,
         Func<(Image Image, float Size, Dictionary<int, Glyph> Glyphs), (Image Image, float Size, Dictionary<int, Glyph> Glyphs)> extend)
     {

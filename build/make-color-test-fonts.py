@@ -11,7 +11,12 @@ Emoji chooses its glyphs. The joiner and U+FE0F have no image and no width.
 
 layers.ttf holds outlines and colors them by layers (COLR version 0 with CPAL), as Segoe UI Emoji
 does: U+1F600's outline is a square, drawn in color as a red left half and a blue right half, each
-an outline of its own, and 'A' is a triangle with no color, which the atlas builder bakes."""
+an outline of its own, and 'A' is a triangle with no color, which the atlas builder bakes.
+
+paints.ttf colors U+1F600 by paints (COLR version 1), as Noto Color Emoji does: two layers in a clip
+box from 100 to 900 across and 0 to 800 up, a square filled with a linear gradient from red at its
+left to blue at its right, and over it a small square, from 400 to 600 across and 300 to 500 up,
+filled green and moved 200 to the right by a translation."""
 import os, struct, zlib
 
 
@@ -126,3 +131,34 @@ loca += struct.pack(">I", at)
 colr = struct.pack(">HHIIH", 0, 1, 14, 20, 2) + struct.pack(">HHH", 2, 0, 2) + struct.pack(">HHHH", 3, 0, 4, 1)
 cpal = struct.pack(">HHHHIH", 0, 2, 1, 2, 14, 0) + bytes([0, 0, 255, 255]) + bytes([255, 0, 0, 255])
 font(os.path.join(here, "layers.ttf"), 5, [(0x41, 1), (0x1F600, 2)], {b"glyf": glyf, b"loca": loca, b"COLR": colr, b"CPAL": cpal})
+
+# paints.ttf: glyph 1 U+1F600, which has no outline of its own, glyph 2 the large square and glyph 3
+# the small one.
+glyphs = [
+    b"",
+    b"",
+    simple([[(100, 0), (100, 800), (900, 800), (900, 0)]]),
+    simple([[(400, 300), (400, 500), (600, 500), (600, 300)]]),
+]
+glyf = b"".join(glyphs)
+loca, at = b"", 0
+for g in glyphs: loca += struct.pack(">I", at); at += len(g)
+loca += struct.pack(">I", at)
+# Glyph 1's paint, the two layers from the first.
+base_list = struct.pack(">IHI", 1, 1, 10) + struct.pack(">BBI", 1, 2, 0)
+# The first layer, glyph 2 filled with a gradient from palette color 0 at x 100 to color 1 at x 900.
+def offset24(n):
+    return struct.pack(">I", n)[1:]
+color_line = struct.pack(">BH", 0, 2) + struct.pack(">hHh", 0, 0, 16384) + struct.pack(">hHh", 16384, 1, 16384)
+linear = struct.pack(">B", 4) + offset24(16) + struct.pack(">hhhhhh", 100, 0, 900, 0, 100, 800) + color_line
+first = struct.pack(">B", 10) + offset24(6) + struct.pack(">H", 2) + linear
+# The second, glyph 3 filled with palette color 2 and moved 200 to the right.
+solid = struct.pack(">BHh", 2, 2, 16384)
+second = struct.pack(">B", 14) + offset24(8) + struct.pack(">hh", 200, 0) + struct.pack(">B", 10) + offset24(6) + struct.pack(">H", 3) + solid
+layer_list = struct.pack(">III", 2, 12, 12 + len(first)) + first + second
+clip_list = struct.pack(">BI", 1, 1) + struct.pack(">HH", 1, 1) + offset24(12) + struct.pack(">Bhhhh", 1, 100, 0, 900, 800)
+header = 34
+colr = (struct.pack(">HHIIHIIIII", 1, 0, 0, 0, 0, header, header + len(base_list), header + len(base_list) + len(layer_list), 0, 0)
+        + base_list + layer_list + clip_list)
+cpal = struct.pack(">HHHHIH", 0, 3, 1, 3, 14, 0) + bytes([0, 0, 255, 255]) + bytes([255, 0, 0, 255]) + bytes([0, 255, 0, 255])
+font(os.path.join(here, "paints.ttf"), 4, [(0x1F600, 1)], {b"glyf": glyf, b"loca": loca, b"COLR": colr, b"CPAL": cpal})
