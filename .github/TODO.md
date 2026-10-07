@@ -105,13 +105,12 @@ physics, text and fonts, audio, audio streams and waves, and files
   stays sharp at any size, its characters past U+FFFF as their outlines. A font has Latin-1 or the
   characters it was asked for, those past U+FFFF drawn by the engine's own TrueType reader into the
   same atlas, since ImGui's names characters in 16 bits, and a color font's colored characters in
-  their colors, from its bitmaps (CBDT), its layers (COLR version 0) or its paints (COLR version 1,
-  `ColorPaint`, a variable font's at its default), in any plane. A sequence a font joins into one picture (a family, a flag, a skin tone, a keycap) is drawn
+  their colors, from its bitmaps (CBDT or Apple's sbix), its layers (COLR version 0) or its paints
+  (COLR version 1, `ColorPaint`, a variable font's at its default), in any plane. A sequence a font joins into one picture (a family, a flag, a skin tone, a keycap) is drawn
   as that picture, the font's `ccmp` substitutions applied to each run of the characters the reader
   draws (`GlyphSubstitution`). Text outside those runs is drawn a character at a time, so a text
   font's ligatures, its positioning (GPOS) and the shaping a script such as Arabic or Devanagari
-  needs are not made. Apple's bitmaps (sbix) are not read, and a font of CFF outlines gives no
-  characters past U+FFFF.
+  needs are not made. A font of CFF outlines gives no characters past U+FFFF.
 
 ### Meshes, materials and light
 

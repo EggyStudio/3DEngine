@@ -51,14 +51,14 @@ public static partial class Engine3D
         }
         if (!unicode) return "no character map of Unicode, only of a symbol or an older encoding";
         if (!(tables.ContainsKey("glyf") && tables.ContainsKey("loca")) && !tables.ContainsKey("CFF ")
-            && !(tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC")))
+            && !(tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC")) && !tables.ContainsKey("sbix"))
             return tables.ContainsKey("CFF2")
                 ? "outlines of CFF2 alone, as a variable OpenType font holds them, which the atlas builder does not read"
                 : "no outlines, neither 'glyf' nor 'CFF ', and no color bitmaps";
         return null;
     }
 
-    // Whether a font file holds glyphs in color, bitmaps (CBDT) or layers (COLR), by its table
+    // Whether a font file holds glyphs in color, bitmaps (CBDT or sbix) or layers (COLR), by its table
     // directory alone.
     private static bool HasColorTables(string path)
     {
@@ -76,7 +76,7 @@ public static partial class Engine3D
         var directory = new byte[count * 16];
         if (file.ReadAtLeast(directory, directory.Length, throwOnEndOfStream: false) < directory.Length) return false;
         for (int i = 0; i < count; i++)
-            if (System.Text.Encoding.ASCII.GetString(directory, i * 16, 4) is "CBDT" or "COLR") return true;
+            if (System.Text.Encoding.ASCII.GetString(directory, i * 16, 4) is "CBDT" or "COLR" or "sbix") return true;
         return false;
     }
 }

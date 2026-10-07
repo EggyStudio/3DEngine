@@ -16,6 +16,7 @@ public sealed class ColorFontTests : IDisposable
     private static readonly string Layers = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttf");
     private static readonly string Paints = Path.Combine(AppContext.BaseDirectory, "Api", "paints.ttf");
     private static readonly string Collection = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttc");
+    private static readonly string AppleBitmaps = Path.Combine(AppContext.BaseDirectory, "Api", "sbix.ttf");
 
     public ColorFontTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -168,6 +169,21 @@ public sealed class ColorFontTests : IDisposable
 
         var font = LoadFontEx(Collection, 40, ['A', 0x1F600]);
         AtlasPixel(font, 0x1F600, 0.25f, 0.5f).Should().Be(new Color(255, 0, 0, 255));
+        UnloadFont(font);
+    }
+
+    [Fact]
+    public void Apples_Bitmaps_Are_Read_At_Their_Strike_And_A_Duplicate_As_The_Glyph_It_Copies()
+    {
+        var reader = TrueTypeFont.Read(File.ReadAllBytes(AppleBitmaps))!;
+        var (rgba, width, height, left, top) = reader.Color(reader.GlyphIndex(0x1F600), 0.008f)!.Value;
+        (width, height, left, top).Should().Be((8, 8, 0, -8), "8 pixels square standing on the baseline");
+        Pixel(rgba, width, 4, 1).Should().Be(new Color(255, 0, 0, 255));
+        Pixel(rgba, width, 4, 6).Should().Be(new Color(0, 0, 255, 255));
+
+        var font = LoadFontEx(AppleBitmaps, 16, [0x1F600, 0x2600]);
+        AtlasPixel(font, 0x2600, 0.5f, 0.2f).Should().Be(new Color(255, 0, 0, 255), "U+2600 is drawn as the glyph it duplicates");
+        AtlasPixel(font, 0x2600, 0.5f, 0.8f).Should().Be(new Color(0, 0, 255, 255));
         UnloadFont(font);
     }
 

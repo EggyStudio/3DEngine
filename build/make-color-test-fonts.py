@@ -13,6 +13,9 @@ layers.ttf holds outlines and colors them by layers (COLR version 0 with CPAL), 
 does: U+1F600's outline is a square, drawn in color as a red left half and a blue right half, each
 an outline of its own, and 'A' is a triangle with no color, which the atlas builder bakes.
 
+sbix.ttf holds U+1F600 as Apple's bitmaps (sbix), as Apple Color Emoji does, the same red over blue
+image at 8 pixels to the em standing on the baseline, and U+2600 as a duplicate of it.
+
 layers.ttc is layers.ttf as the one font of a collection, as Noto Sans CJK and Apple Color Emoji
 are shipped, its tables found from the file's start.
 
@@ -175,3 +178,14 @@ for i in range(count):
 collection = b"ttcf" + struct.pack(">III", 0x00010000, 1, 16) + bytes(single)
 with open(os.path.join(here, "layers.ttc"), "wb") as f: f.write(collection)
 print(os.path.join(here, "layers.ttc"), len(collection), "bytes")
+
+# sbix.ttf: glyph 1 U+1F600 an image of 8 by 8 at 8 pixels to the em, its origin at its bottom left,
+# and glyph 2 U+2600 marked as glyph 1's duplicate.
+image = images[0]
+records = [b"", struct.pack(">hh4s", 0, 0, b"png ") + image, struct.pack(">hh4sH", 0, 0, b"dupe", 1)]
+offsets, at = [], 4 + 4 * (len(records) + 1)
+for r in records: offsets.append(at); at += len(r)
+offsets.append(at)
+strike = struct.pack(">HH", 8, 72) + b"".join(struct.pack(">I", o) for o in offsets) + b"".join(records)
+sbix = struct.pack(">HHII", 1, 1, 1, 12) + strike
+font(os.path.join(here, "sbix.ttf"), 3, [(0x1F600, 1), (0x2600, 2)], {b"sbix": sbix})

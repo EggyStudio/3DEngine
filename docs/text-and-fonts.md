@@ -108,11 +108,11 @@ does, and as nothing where the font has no `?` either. Characters past U+FFFF, e
 scripts among them, are baked from the font's outlines with the rest, so a monochrome emoji font
 such as Noto Emoji or Symbola draws them.
 
-A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Twemoji
-and the older builds of Noto Color Emoji do, as outlines colored in layers, as Segoe UI Emoji does,
-or as outlines filled with gradients and moved by transforms (COLR version 1), as Noto Color
-Emoji's current build and the color fonts of Google Fonts do, and text drawn in white shows them as
-they are:
+A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Twemoji,
+Apple Color Emoji and the older builds of Noto Color Emoji do, as outlines colored in layers, as
+Segoe UI Emoji does, or as outlines filled with gradients and moved by transforms (COLR version 1),
+as Noto Color Emoji's current build and the color fonts of Google Fonts do, and text drawn in white
+shows them as they are:
 
 ```csharp
 const string Faces = "😀 😂 😍 🚀 ❤";

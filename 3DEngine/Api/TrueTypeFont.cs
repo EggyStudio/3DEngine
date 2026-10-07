@@ -18,7 +18,8 @@ namespace Engine;
 /// <para>
 /// A color glyph is read from the font's bitmaps (CBDT and CBLC, PNG images at a size or a few,
 /// as Noto Color Emoji and most color emoji fonts hold them), scaled from the size nearest above,
-/// or from its layers (COLR version 0 with CPAL's first palette, as Segoe UI Emoji holds them),
+/// or from Apple's bitmaps (sbix, as Apple Color Emoji holds them), or from its layers (COLR version
+/// 0 with CPAL's first palette, as Segoe UI Emoji holds them),
 /// outlines of the font's own each filled in a color, a layer in the text's color drawn white so
 /// the text's color tints it, or from its paints (COLR version 1, as Noto Color Emoji holds them),
 /// gradients and transforms among them, which <see cref="ColorPaint"/> draws.
@@ -37,7 +38,7 @@ internal sealed class TrueTypeFont
 {
     private readonly byte[] _data;
     private readonly int _glyf, _loca, _hmtx, _cmap12, _cmap4, _hMetrics, _glyphs;
-    private readonly int _cblc, _cbdt, _colr, _cpal;
+    private readonly int _cblc, _cbdt, _colr, _cpal, _sbix;
     private readonly bool _longLoca;
     private readonly ColorPaint? _paints;
 
@@ -66,6 +67,7 @@ internal sealed class TrueTypeFont
         _loca = tables.GetValueOrDefault("loca");
         if (tables.TryGetValue("CBLC", out var cblc) && tables.TryGetValue("CBDT", out var cbdt)) (_cblc, _cbdt) = (cblc, cbdt);
         if (tables.TryGetValue("COLR", out var colr) && tables.TryGetValue("CPAL", out var cpal)) (_colr, _cpal) = (colr, cpal);
+        _sbix = tables.GetValueOrDefault("sbix");
         if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
 
@@ -91,7 +93,8 @@ internal sealed class TrueTypeFont
         // the file's start as a lone font's are.
         var tables = Directory(data);
         string[] needed = ["cmap", "head", "hhea", "hmtx", "maxp"];
-        var drawable = tables.ContainsKey("glyf") && tables.ContainsKey("loca") || tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC");
+        var drawable = tables.ContainsKey("glyf") && tables.ContainsKey("loca") || tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC")
+                       || tables.ContainsKey("sbix");
         return needed.All(tables.ContainsKey) && drawable ? new TrueTypeFont(data, tables) : null;
     }
 
@@ -381,10 +384,11 @@ internal sealed class TrueTypeFont
     /// no color of its own.
     /// </summary>
     public (byte[] Rgba, int Width, int Height, int Left, int Top)? Color(int glyph, float scale) =>
-        Bitmap(glyph, scale) ?? _paints?.Draw(glyph, scale) ?? Layers(glyph, scale);
+        Bitmap(glyph, scale) ?? Sbix(glyph, scale) ?? _paints?.Draw(glyph, scale) ?? Layers(glyph, scale);
 
     /// <summary>Whether a glyph has colors of its own, a bitmap, paints or layers.</summary>
-    public bool HasColor(int glyph) => BitmapData(glyph, 0) is not null || _paints?.PaintOf(glyph) is not null || BaseRecord(glyph) is not null;
+    public bool HasColor(int glyph) =>
+        BitmapData(glyph, 0) is not null || SbixData(glyph, 0) is not null || _paints?.PaintOf(glyph) is not null || BaseRecord(glyph) is not null;
 
     // The strike whose size is nearest above pixelsPerEm, or the largest, and in it where a glyph's
     // image is in CBDT, its format and, for an index that holds them, the metrics every glyph of it
@@ -488,6 +492,50 @@ internal sealed class TrueTypeFont
         int width = Math.Max(1, (int)MathF.Round(image.Width * factor)), height = Math.Max(1, (int)MathF.Round(image.Height * factor));
         return (Resample(image.Data, image.Width, image.Height, width, height), width, height,
             (int)MathF.Round(bearingX * factor), -(int)MathF.Round(bearingY * factor));
+    }
+
+    // Where a glyph's image is in sbix, Apple's bitmaps, and its strike's size, from the strike whose
+    // size is nearest above pixelsPerEm, or the largest, among those that hold an image of it.
+    private (int Ppem, int At, int Length)? SbixData(int glyph, float pixelsPerEm)
+    {
+        if (_sbix == 0 || glyph < 0 || glyph >= _glyphs) return null;
+        (int Ppem, int At, int Length)? chosen = null;
+        for (int s = 0; s < (int)U32(_sbix + 4); s++)
+        {
+            int strike = _sbix + (int)U32(_sbix + 8 + s * 4), ppem = U16(strike);
+            int start = (int)U32(strike + 4 + glyph * 4), end = (int)U32(strike + 4 + glyph * 4 + 4);
+            if (end - start < 8) continue;
+            var better = chosen is not { } c || (ppem >= pixelsPerEm ? c.Ppem < pixelsPerEm || ppem < c.Ppem : ppem > c.Ppem);
+            if (better) chosen = (ppem, strike + start, end - start);
+        }
+        return chosen;
+    }
+
+    // A glyph's image from sbix, a PNG or a JPEG scaled from its strike's size, its left and bottom
+    // at the offset of its origin in the strike's pixels, and a glyph marked as another's duplicate
+    // drawn as that one.
+    private (byte[] Rgba, int Width, int Height, int Left, int Top)? Sbix(int glyph, float scale, int depth = 0)
+    {
+        var pixelsPerEm = scale * UnitsPerEm;
+        if (depth > 4 || SbixData(glyph, pixelsPerEm) is not { } found) return null;
+        var (ppem, at, length) = found;
+        if (at + length > _data.Length) return null;
+        var type = System.Text.Encoding.ASCII.GetString(_data, at + 4, 4);
+        if (type == "dupe") return length >= 10 ? Sbix(U16(at + 8), scale, depth + 1) : null;
+        if (type is not ("png " or "jpg ")) return null;
+        StbImageSharp.ImageResult image;
+        try
+        {
+            image = StbImageSharp.ImageResult.FromMemory(_data[(at + 8)..(at + length)], StbImageSharp.ColorComponents.RedGreenBlueAlpha);
+        }
+        catch (Exception error) when (error is InvalidOperationException or ArgumentException or IndexOutOfRangeException)
+        {
+            return null;
+        }
+        var factor = ppem > 0 ? pixelsPerEm / ppem : 1;
+        int width = Math.Max(1, (int)MathF.Round(image.Width * factor)), height = Math.Max(1, (int)MathF.Round(image.Height * factor));
+        return (Resample(image.Data, image.Width, image.Height, width, height), width, height,
+            (int)MathF.Round(S16(at) * factor), -(int)MathF.Round((S16(at + 2) + image.Height) * factor));
     }
 
     // RGBA pixels scaled to another size, each new pixel the average of the old ones its square

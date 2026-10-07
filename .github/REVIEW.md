@@ -212,3 +212,11 @@ On four cores of lavapipe under the layer, in the workflow's conditions, all eig
 minutes, six of them Manor's walk, so each job gains about that much, the Windows runner's
 lavapipe likely slower and macOS's GPU faster. None of it has run on either system, so the next run's two
 jobs say whether it holds there. The suite: 1,458 passed, none skipped.
+
+**Now 2, TODO's entry on text, Apple's bitmaps.** A font of sbix, as Apple Color Emoji holds its
+emoji, the font a program on macOS finds, is drawn in color: each glyph's PNG or JPEG from the
+strike whose size is nearest above the size asked for, scaled, placed by its origin's offset, and a
+glyph marked as another's duplicate drawn as that one. A test font of it, which
+`make-color-test-fonts.py` writes, and a test. The entry keeps text shaped only in emoji and CFF
+outlines past U+FFFF. Font reading alone changed, so the lavapipe run was not repeated. The suite:
+1,459 passed, none skipped.
