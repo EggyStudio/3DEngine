@@ -148,6 +148,7 @@ while (!WindowShouldClose())
         }
 
     runTime = run != 0 && grounded ? runTime + dt : 0;
+    HopperCommands.Status = $"at {player.X:0} {player.Y:0} coins {score} best {highScore}";
 
     // The camera follows the player, held inside the level.
     camera.Target = new Vector2(
@@ -198,3 +199,11 @@ UnloadTexture(atlas);
 UnloadTexture(hero);
 CloseAudioDevice();
 CloseWindow();
+
+public static class HopperCommands
+{
+    internal static string Status = "";
+
+    [Command("hopper.status", "Where the player is in the level's pixels, x and y, the coins gathered and the best score")]
+    internal static string Report() => Status;
+}

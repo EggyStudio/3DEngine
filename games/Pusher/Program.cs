@@ -99,6 +99,7 @@ while (!WindowShouldClose())
     }
 
     var playerAt = GetPhysicsBodyPosition(player);
+    PusherCommands.Status = $"{GetState<Screen>()} at {playerAt.X:0.00} {playerAt.Z:0.00}";
     camera.Position = playerAt + new Vector3(0, 9, 8);
     camera.Target = playerAt;
 
@@ -158,3 +159,11 @@ public struct Goal;
 public struct Player;
 
 public enum Screen { Menu, Play, Pause }
+
+public static class PusherCommands
+{
+    internal static string Status = "";
+
+    [Command("pusher.status", "The screen and where the player stands across the floor, x and z")]
+    internal static string Report() => Status;
+}

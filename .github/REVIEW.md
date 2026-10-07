@@ -197,3 +197,18 @@ U+FFFF and its color glyphs are drawn. All 444 load. Five tests, from the test f
 changed and a collection the script writes, and the text guide says what is refused. N 4.2's test
 counts the README's prose without its tables' rows, 247 lines, as NORM.md has it. The 127 render,
 font and bad file tests pass on lavapipe under the layer. The suite: 1,458 passed, none skipped.
+
+**Now 4, every game played on Windows and macOS.** `build/drive-game.sh <game>` plays each of the
+eight from the package through `./e3d`, offscreen at 480 by 270 under the layer, as the examples job
+plays them on Linux, and both jobs of `test.yml` play all eight, a game that fails saying why in an
+error annotation of its own naming the system, with its log's last warnings, and the rest played
+still. Each asserts its walk or its win: Pusher, Hopper and Summit that the player moved, from
+`pusher.status` and `hopper.status`, which the two games gain, and `summit.where`, Swarm that
+creatures fell and its script changed while it ran was compiled again, Rally a lap, Manor the pad's
+way through Settings, every lantern and the setting kept, Tactics a match played to its end and
+Tempo every note. The script keeps to what bash 3.2 and BSD's tools read, the script tests holding
+it so, and edits Swarm's script with perl, which both systems have, taking the change back after.
+On four cores of lavapipe under the layer, in the workflow's conditions, all eight pass in about 11
+minutes, six of them Manor's walk, so each job gains about that much, the Windows runner's
+lavapipe likely slower and macOS's GPU faster. None of it has run on either system, so the next run's two
+jobs say whether it holds there. The suite: 1,458 passed, none skipped.

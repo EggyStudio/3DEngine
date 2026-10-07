@@ -286,9 +286,10 @@ layer from Homebrew. On each the render tests and the reference frames run under
 layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
 does not start rather than letting them skip, and `build/play-game.sh Pusher` builds a game from the
 package and draws 300 frames of it offscreen, failing on an error the layer reports. On Windows and
-macOS `build/drive-game.sh` then plays Tempo through `./e3d`, its autopilot playing the song through
-on the music's clock, so a game's input, its sound and the session `./e3d` drives are tried there,
-and fails on a note missed or an error the layer reports. Each job runs
+macOS `build/drive-game.sh <game>` then plays each of the eight games through `./e3d`, offscreen at
+480 by 270, as the examples job plays them on Linux, each asserting its walk or its win, so a game's
+input, its sound and the session `./e3d` drives are tried there, and a game that fails says why in
+an error annotation naming the system. Each job runs
 its tests through `build/test.py`, whose page ends the step's log and is the job's summary. Each
 cause is also an error annotation with its whole entry, and a notice has the page's head and the
 lines repeated most, since a reader who is not signed in to GitHub reads a run's annotations and
