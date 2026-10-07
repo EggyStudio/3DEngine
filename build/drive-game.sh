@@ -16,7 +16,12 @@ game="$1"
 cd "$(dirname "$0")/.."
 mkdir -p captures
 name=$(printf '%s' "$game" | tr '[:upper:]' '[:lower:]')
-system=$(uname -s)
+# The system by the name a reader knows it by, where Git's bash on Windows calls itself MINGW64.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) system=Windows ;;
+  Darwin) system=macOS ;;
+  *) system=$(uname -s) ;;
+esac
 log="build/sessions/$game.log"
 
 fail() {
