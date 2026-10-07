@@ -334,10 +334,12 @@ take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 M
 them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
 rays here seldom leave the field, reads the same within its noise of 0.03 ms. A reflection lights
 what it meets with the point and spot lights unshadowed, a mesh that moves bounces light as the
-gray box the field holds it as, the screen's probes are traced
-again each frame and not blended over time, so the light may crawl a little as the camera moves, and
-render textures and probe captures are drawn without it. `Config.GlobalIllumination` sets the same
-for an app made from a `Config`.
+gray box the field holds it as, and the screen's probes are traced again each frame and not blended
+over time, so the light may crawl a little as the camera moves. A render texture and a reflection
+probe's faces take the light that bounced from the world's probes alone, as the frame before left
+them, and where the window draws no model, as a game that draws its scene into a texture at a low
+size and shows the texture, the field follows the first texture's camera and holds its models.
+`Config.GlobalIllumination` sets the same for an app made from a `Config`.
 
 ## Rooms that reflect themselves
 

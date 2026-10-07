@@ -606,9 +606,12 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
 0.15 ms there and leaked 3 levels of a lamp's light without it, the reflections light what they meet
 with the point and spot lights unshadowed, a moving mesh bounces light as the gray box the field
-holds it as, the screen's probes are not blended over
-time, so the light may crawl a little as the camera moves, and render textures and probe captures
-are drawn without it.
+holds it as, and the screen's probes are not blended over time, so the light may crawl a little as
+the camera moves. A render target and a probe capture read the world's probes alone, their
+buffers given the window's probes and its cascades with the screen's probes and reflections off,
+and as the frame before left them, since targets are drawn before the bounce is traced. Where the
+window draws no mesh the field is placed around the first target's camera and holds the targets'
+meshes (`SceneField.Gather`).
 
 ## 5. Render targets and post processing
 

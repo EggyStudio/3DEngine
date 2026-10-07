@@ -160,6 +160,55 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Glowing_Panel_Lights_Its_Room_In_A_Render_Texture_Too()
+    {
+        // The room the panel lights by bouncing alone, drawn into a render texture, which drew it
+        // in its own colors as a scene with no light at all, the panel's light or none, and built
+        // no field, the window drawing no mesh.
+        Open();
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        panel.Materials[0].Emissive = Color.White;
+        var target = LoadRenderTexture(160, 96);
+        Image Drawn(float glow)
+        {
+            panel.Materials[0].EmissiveIntensity = glow;
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 10; frame++)
+            {
+                BeginDrawing();
+                BeginTextureMode(target);
+                ClearBackground(Color.Black);
+                BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(4, 0.3f, 4), Color.White);
+                DrawModelEx(slab, new Vector3(0, 3.15f, 0), Vector3.UnitY, 0, new Vector3(4, 0.3f, 4), Color.White);
+                DrawModelEx(slab, new Vector3(0, 1.5f, -1.85f), Vector3.UnitY, 0, new Vector3(4, 3, 0.3f), Color.White);
+                DrawModelEx(slab, new Vector3(-1.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 4), Color.White);
+                DrawModelEx(slab, new Vector3(1.85f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 4), Color.White);
+                DrawModelEx(panel, new Vector3(0, 2.97f, 0), Vector3.UnitY, 0, new Vector3(1.2f, 0.06f, 1.2f), Color.White);
+                EndMode3D();
+                EndTextureMode();
+                // The window shows the texture alone, as a game drawing its scene at a low size
+                // does, so the field follows the texture's camera and holds its meshes.
+                ClearBackground(Color.Black);
+                DrawTexture(target.Texture, 0, 0, Color.White);
+                EndDrawing();
+            }
+            return LoadImageFromTexture(target.Texture);
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var glowing = Mean(Drawn(8), 0, 0, 160, 96);
+        var dark = Mean(Drawn(0), 0, 0, 160, 96);
+
+        glowing.X.Should().BeGreaterThan(dark.X + 20, $"the panel's light reaches the room in the texture by bouncing, {glowing} against {dark}");
+        dark.X.Should().BeLessThan(20, $"and with the panel dark nothing lights it, {dark}");
+        UnloadRenderTexture(target);
+        UnloadModel(slab);
+        UnloadModel(panel);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Polished_Floor_Reflects_A_Red_Block_On_It_Through_The_Window_Where_Light_Bounces()
     {
         Open();

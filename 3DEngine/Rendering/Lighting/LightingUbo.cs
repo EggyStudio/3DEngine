@@ -86,8 +86,8 @@ internal struct LightingUbo
 
     /// <summary>
     /// x: 1 when the view's light from all around is the light that bounced, read from the probes
-    /// bound beside the buffer, the window's alone. y: the probes' spacing in cells. z: the probes
-    /// along each side of a cascade. w: how many cascades.
+    /// bound beside the buffer, the window's, a render target's and a probe capture's alike. y: the
+    /// probes' spacing in cells. z: the probes along each side of a cascade. w: how many cascades.
     /// </summary>
     public Vector4 Indirect;
 

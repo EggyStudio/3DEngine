@@ -87,6 +87,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // reflection, and a probe's second pass bounces the light of its first.
         var capture = ubo;
         capture.Output.X = 1;
+        // A probe's faces take the light that bounced from the world's probes, as a render target does.
+        capture.Indirect = windowUbo.Indirect;
         if (renderWorld.TryGet<BoundProbes>() is { } boundForCapture)
             for (int i = 0; i < boundForCapture.Slots.Count; i++)
                 if (boundForCapture.Slots[i].Captured != boundForCapture.Slots[i].Wanted) capture.Probes[i].CenterAndIntensity.W = 0;
@@ -104,6 +106,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 var own = casters is not null && draws.ViewProjectionOf(target) is { } camera ? casters.For(camera) : null;
                 var targetUbo = unshadowed;
                 if (own is not null) Apply(ref targetUbo, own);
+                // And the light that bounced, from the world's probes alone, since the screen's
+                // stand on the window's depth and a glossy surface's reflection is traced through it.
+                targetUbo.Indirect = windowUbo.Indirect;
                 targets.ByTarget[target] = (own, Upload(allocator, in targetUbo));
             }
 
@@ -224,7 +229,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     // Where a camera is, near enough, the middle of its near plane.
-    private static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection)
+    internal static System.Numerics.Vector3? EyeOf(System.Numerics.Matrix4x4 viewProjection)
     {
         if (!System.Numerics.Matrix4x4.Invert(viewProjection, out var inverse)) return null;
         var near = System.Numerics.Vector4.Transform(new System.Numerics.Vector4(0, 0, 0, 1), inverse);

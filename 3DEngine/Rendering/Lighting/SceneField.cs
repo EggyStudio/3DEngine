@@ -58,7 +58,10 @@ internal sealed class SceneFieldRenderer : IDisposable
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box> _bounds = new(ReferenceEqualityComparer.Instance);
     private readonly List<(SceneFieldPlan.Instance, bool)> _drawn = [];
 
-    /// <summary>The meshes drawn into the window this frame that cast shadows, each with whether it is skinned, as the field gathered them.</summary>
+    /// <summary>
+    /// The meshes drawn into the window this frame that cast shadows, or the render targets' where
+    /// the window draws none, each with whether it is skinned, as the field gathered them.
+    /// </summary>
     internal IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> Drawn => _drawn;
 
     /// <summary>The corners of a mesh drawn this frame, three a triangle in its own space, or null for one not drawn.</summary>
@@ -103,9 +106,16 @@ internal sealed class SceneFieldRenderer : IDisposable
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
-        if (renderWorld.TryGet<WindowView>() is not { } view) return;
+        // Around the window's camera, or where the window draws no mesh, as a game that draws its
+        // scene into a render texture and shows the texture, the first target's that does, whose
+        // meshes the field then holds.
+        var draws = renderWorld.TryGet<ModelDrawList>();
+        var windowDraws = draws?.WindowViewProjection is not null;
+        var view = windowDraws || draws?.Targets() is not [var first, ..] ? renderWorld.TryGet<WindowView>()
+            : draws.ViewProjectionOf(first) is { } camera && LightingUboPrepare.EyeOf(camera) is { } eye ? new WindowView(camera, eye) : null;
+        if (view is null) return;
 
-        Gather(renderWorld);
+        Gather(renderWorld, windowDraws);
         var plan = _plan!;
         plan.Update(view.Eye, _drawn, Ahead(view));
 
@@ -135,9 +145,10 @@ internal sealed class SceneFieldRenderer : IDisposable
         device.RecordSceneFieldClose(commands, _field);
     }
 
-    // The meshes drawn into the window this frame that cast shadows, each with whether it is
-    // skinned, whose posed shape no vertices on the CPU hold.
-    private void Gather(RenderWorld renderWorld)
+    // The meshes drawn into the window this frame that cast shadows, or where the window draws
+    // none those drawn into the render targets, each with whether it is skinned, whose posed shape
+    // no vertices on the CPU hold.
+    private void Gather(RenderWorld renderWorld, bool windowAlone = true)
     {
         _drawn.Clear();
         _indices.Clear();
@@ -149,7 +160,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
         {
-            if (draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             var one = ModelRenderer.Instance.Of(in draw);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
@@ -158,7 +169,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         foreach (var group in draws.Groups)
         {
             var template = group.Template;
-            if (group.Count == 0 || template.Target != 0 || !template.CastsShadow || template.Points
+            if (group.Count == 0 || windowAlone && template.Target != 0 || !template.CastsShadow || template.Points
                 || !store.TryGetData(template.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             var skinned = store.IsSkinned(template.Mesh);

@@ -154,9 +154,11 @@ physics, text and fonts, audio, audio streams and waves, and files
   blocked, and the world's probes take bounced light from the probes they see, so a closed room is
   dark to a lamp outside it. The screen's probes blend every probe around what they meet, the
   reflections light it with the lamps unshadowed, a skinned or moving mesh is the gray box around
-  it, and the screen's probes are not blended over time. Render textures and
-  probe captures are drawn without the field. In the field a closed mesh much thinner than a cell is
-  not there, and an open mesh such as a ground plane puts a narrow wedge below its edges inside.
+  it, and the screen's probes are not blended over time. Render textures and probe captures take
+  the bounce from the world's probes alone, a frame late, and where the window draws no mesh the
+  field follows the first render texture's camera. In the field a closed mesh much thinner than a
+  cell is not there, and an open mesh such as a ground plane puts a narrow wedge below its edges
+  inside.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera
