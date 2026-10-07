@@ -318,3 +318,20 @@ by its last status, and the games after it are played. A game of a minute's budg
 since one said inside `$(ask ...)` went into the variable and never reached the page. The Windows
 job has 150 minutes and the macOS job 90, room for eleven games at six minutes each. The suite:
 1,475 passed, none skipped.
+
+**Now 2, a twelfth game, a runner whose runs are watched again.** `games/Jelly` is a blob of jelly
+on a road of three lanes, jumping barriers, sliding under bars and changing lanes round blocks, and
+uses what none of the eleven did. It squashes and stretches by its model's morph targets, the model
+written by a script beside it, and each run is recorded as automation events and can be watched
+again, the best exported to a file and played from the title of the game opened again. A run's
+course comes from its seed and each step is a sixtieth of a second whatever the frame took, so the
+input played again makes the same run, and `drive-game.sh` asserts it twice, a run watched again in
+the session and the best watched from its file in a new one, each ending at the same distance,
+score, coins and steps. Nothing of the engine's was found wanting, and the game's own faults were
+two. Its model's sphere was wound inside out, which drew the far half's inner face shadowed by the
+near half, and the soak found its heap a step higher at its least after the first crash, a font
+baked again for a word drawn at a size the title had not used, so the word is drawn at the title's
+size. The Linux job runs the script and captures the game, and the soak and the storm take it. On
+lavapipe under the validation layer it played through with no validation error, and the soak held
+level. The macOS job has 120 minutes, room for the twelve games. The suite: 1,475 passed, none
+skipped.

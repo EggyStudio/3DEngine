@@ -308,6 +308,8 @@ many lit, turning entities a frame holds at 60 frames a second, beside skinned a
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`shaders_instance_hues`](../3DEngine.Examples/Shaders/ShadersInstanceHues.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
+- The game [`games/Jelly`](../games/Jelly/Program.cs), a blob that squashes and stretches by its
+  model's morph targets, the model written by a script beside it
 - The cheatsheet's [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Text and fonts](text-and-fonts.md)
 - Next: [Materials, light and shadows](materials-light-and-shadows.md)

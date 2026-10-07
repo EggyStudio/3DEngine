@@ -271,8 +271,9 @@ recorded by raylib's own program plays its frames and types here but not its key
   [`text_input_box`](../3DEngine.Examples/Text/TextInputBox.cs)
 - The game [`games/Sumo`](../games/Sumo/Program.cs), two players on one keyboard or a gamepad each,
   [`games/Wordfall`](../games/Wordfall/Program.cs), played by typing, with words from a file
-  dropped on its window, and [`games/Slide`](../games/Slide/Program.cs), played by gestures of a
-  finger or the mouse
+  dropped on its window, [`games/Slide`](../games/Slide/Program.cs), played by gestures of a
+  finger or the mouse, and [`games/Jelly`](../games/Jelly/Program.cs), whose runs are recorded as
+  automation events and watched again, the best from a file
 - The cheatsheet's [Input](../CHEATSHEET.md#input)
 - Previous: [Audio](audio.md)
 - Next: [Physics](physics.md)

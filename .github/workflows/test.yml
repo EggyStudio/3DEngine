@@ -87,7 +87,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    # Room for eleven games played on lavapipe at six minutes each at most, after the suite.
+    # Room for twelve games played on lavapipe at six minutes each at most, after the suite.
     timeout-minutes: 150
     defaults:
       run:
@@ -162,7 +162,7 @@ jobs:
           DRIVE_MINUTES: '6'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -197,8 +197,8 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # Room for eleven games at six minutes each at most, after the suite.
-    timeout-minutes: 90
+    # Room for twelve games at six minutes each at most, after the suite.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
 
@@ -258,7 +258,7 @@ jobs:
           DRIVE_MINUTES: '6'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed

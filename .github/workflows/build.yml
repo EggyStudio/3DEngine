@@ -503,6 +503,20 @@ jobs:
           ./e3d stop --quiet
           build/webp.sh captures/slide.png captures/slide.webp lossy
 
+      # The runner, by build/drive-game.sh as Windows and macOS play it, its run watched again from
+      # its recorded input and its best run watched from its file in the game opened again, each
+      # asserted to end where the run did, and then captured a while into a run it makes itself.
+      - name: Build and play the runner from the package
+        run: |
+          build/drive-game.sh Jelly
+          ./e3d open games/Jelly/bin/Debug/net10.0/Jelly --offscreen --quiet
+          ./e3d command jelly.autopilot true --quiet
+          ./e3d command input.key Enter 2 --quiet
+          ./e3d command frames.wait 600 --quiet --timeout 600
+          ./e3d shot captures/jelly.png --quiet
+          ./e3d stop --quiet
+          build/webp.sh captures/jelly.png captures/jelly.webp lossy
+
       # Each game played for two minutes at once, restarting and spawning as it goes, while what
       # it holds is read every ten seconds (build/soak.sh), failing when any of it climbs without
       # leveling off, as a leak does, or a game cannot be played through (build/soak-check.py), which
@@ -510,7 +524,7 @@ jobs:
       # last warnings.
       - name: Play each game a while and check nothing it holds grows
         run: |
-          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide)
+          games=(Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly)
           pids=()
           for game in "${games[@]}"; do
             build/soak.sh "${game,,}" "games/$game/bin/Debug/net10.0/$game" 120 > "captures/soak-${game,,}.log" 2>&1 &
@@ -531,7 +545,7 @@ jobs:
                          games/Rally/bin/Debug/net10.0/Rally games/Manor/bin/Debug/net10.0/Manor \
                          games/Tactics/bin/Debug/net10.0/Tactics games/Tempo/bin/Debug/net10.0/Tempo \
                          games/Sumo/bin/Debug/net10.0/Sumo games/Wordfall/bin/Debug/net10.0/Wordfall \
-                         games/Slide/bin/Debug/net10.0/Slide \
+                         games/Slide/bin/Debug/net10.0/Slide games/Jelly/bin/Debug/net10.0/Jelly \
                          shaders_bloom models_reflection_probe textures_render_target gui_imgui_window shaders_particles; do
             build/storm.sh "$program" "captures/storm-$(basename "$program").png" || { echo "::error::$program: a resize storm failed"; failed=1; }
           done

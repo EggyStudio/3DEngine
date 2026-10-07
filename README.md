@@ -143,6 +143,7 @@ raylib's own examples, and what is written of it here, is a row of
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Manor/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/></a><br>`games/Manor` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tactics/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tactics.webp" width="400"/></a><br>`games/Tactics` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Sumo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/sumo.webp" width="400"/></a><br>`games/Sumo` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Wordfall/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/wordfall.webp" width="400"/></a><br>`games/Wordfall` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Slide/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/slide.webp" width="400"/></a><br>`games/Slide` |
+| <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Jelly/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/jelly.webp" width="400"/></a><br>`games/Jelly` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -191,7 +192,11 @@ made as it plays by a callback feeding an audio stream, a result copied to the c
 screenshot saved with a key. `games/Slide` is the puzzle of numbered tiles that merge, played by
 gestures of a finger or the mouse, a swipe to slide, a double tap to take a move back, a hold to
 start again and a pinch to come nearer, with its tiles' faces drawn into images as it starts and
-its sounds waves it makes, cuts and converts. BUILDING.md says how they are built.
+its sounds waves it makes, cuts and converts. `games/Jelly` is a runner, a blob of jelly on a road
+of three lanes that squashes and stretches by its model's morph targets, each run recorded as
+automation events and watched again, the best kept in a file, since its course comes from a seed
+and each step of it is a sixtieth of a second, so a run's input played again makes the same run.
+BUILDING.md says how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

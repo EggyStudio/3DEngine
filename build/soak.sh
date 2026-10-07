@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall|slide|jelly> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -50,6 +50,7 @@ case "$name" in
   sumo) cmd sumo.autopilot true; key Enter 2 ;;
   wordfall) cmd wordfall.autopilot true; key Enter 2 ;;
   slide) cmd slide.autopilot true; key Enter 2 ;;
+  jelly) cmd jelly.autopilot true; key Enter 2 ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -112,6 +113,12 @@ turn() {
       # followed by another.
       wait_frames 240
       if (( i % 3 == 2 )); then key U 2; fi
+      key Enter 2 ;;
+    jelly)
+      # The autopilot runs until it crashes, a crashed run is watched again now and then from what
+      # was recorded of it, and Enter runs again.
+      wait_frames 240
+      if (( i % 3 == 2 )); then key R 2; wait_frames 120; fi
       key Enter 2 ;;
   esac
 }

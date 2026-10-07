@@ -4,7 +4,7 @@
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
 # runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide>
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly>
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -69,7 +69,7 @@ dotnet restore "games/$game" --force-evaluate > /dev/null || fail "did not resto
 dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from the package"
 folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
-  "$folder/wordfall-shot.png" "$folder/slide-best.txt"
+  "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt"
 
 # The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
 # opening it refuses says e3d's code and sentence and the last lines of the log it names, read
@@ -298,6 +298,43 @@ case "$game" in
     done
     echo "$status"
     case "$status" in Over*) ;; *) fail "the game the autopilot plays did not end, $status" ;; esac
+    ;;
+  Jelly)
+    # A run started and steered by keys until it crashes, then watched again from its recorded
+    # input, which ends where it did, and the best run, written to a file, watched from the title
+    # of the game opened again, which ends there too.
+    cmd input.key Enter 2
+    cmd frames.wait 60
+    cmd input.key Left 2
+    cmd frames.wait 30
+    cmd input.key Space 2
+    ran=""
+    for i in $(seq 1 60); do
+      ran=$(ask jelly.status)
+      case "$ran" in Crashed*) break ;; *) cmd frames.wait 60 ;; esac
+    done
+    case "$ran" in Crashed*) ;; *) fail "the run did not end, $ran" ;; esac
+    ending="${ran% watched *}"
+    cmd input.key R 2
+    watched=""
+    for i in $(seq 1 60); do
+      watched=$(ask jelly.status)
+      case "$watched" in *"watched this-run") break ;; *) cmd frames.wait 60 ;; esac
+    done
+    echo "$ran / $watched"
+    [ "${watched% watched *}" = "$ending" ] || fail "the run watched again ended elsewhere, $ending then $watched"
+    ./e3d stop --quiet
+    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --quiet || fail "did not open again"
+    cmd window.size 480 270
+    cmd frames.wait 10
+    cmd input.key B 2
+    best=""
+    for i in $(seq 1 60); do
+      best=$(ask jelly.status)
+      case "$best" in *"watched the-best-run") break ;; *) cmd frames.wait 60 ;; esac
+    done
+    echo "$best"
+    [ "${best% watched *}" = "$ending" ] || fail "the best run watched from its file ended elsewhere, $ending then $best"
     ;;
   *)
     fail "is not a game this script plays"
