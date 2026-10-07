@@ -22,6 +22,13 @@ saves part of its world as a file of its own, as a prefab.
 The `scenes_level` example builds a level in code the first time, a camera, two lights and three
 models, and saves it, then despawns it and loads it back on a key:
 
+<!-- compiled with:
+World world = null!;
+EcsWorld ecs = null!;
+string file = "", message = "";
+void Build(EcsWorld level) { }
+int Clear(EcsWorld level) => 0;
+-->
 ```csharp
 // A level made in code the first time: a camera, two lights and three models from a file.
 Build(ecs);
@@ -46,6 +53,9 @@ The two flat calls use `SceneFile`, with a path taken as it is.
 
 The level is entities with names and components, made as any entities are:
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+-->
 ```csharp
 var camera = ecs.Spawn();
 ecs.SetName(camera, "Camera");
@@ -147,6 +157,9 @@ steps and rooms are each a `ModelRef` with a mesh collider, solid where they are
 collider is made once its model has spawned, a frame or two after the scene loads, so a game waits
 until every collider has its body before it lets the player in, as `games/Summit` does:
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+-->
 ```csharp
 var ready = ecs.Query<Collider>().All(c => ecs.Has<PhysicsBody>(c.Entity));
 ```
@@ -155,6 +168,10 @@ A `Joint` component on an entity of its own joins two bodies at its place, along
 and `B` name the bodies' entities by the `Entity` handle `ecs.Handle(id)` gives, as `SaveScene`
 takes the entities it saves. From `games/Summit`, a plank turned about a post by a hinge's motor:
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+int hinge = 0, post = 0, board = 0;
+-->
 ```csharp
 ecs.Add(hinge, new Transform(new Vector3(0, 2.2f, -21)));
 ecs.Add(hinge, new Joint { Kind = JointKind.Hinge, A = ecs.Handle(post), B = ecs.Handle(board), MotorSpeed = 25, MotorTorque = 20000 });
@@ -170,6 +187,11 @@ A `SceneRef` places another scene file under an entity, as a `ModelRef` places a
 a house or an enemy is one file, placed many times in a level. `games/Summit` builds its prefabs,
 each one entity naming a model and solid as it is drawn, and places them in its level:
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+string folder = "";
+void Place(string name, string prefab, Vector3 at) { }
+-->
 ```csharp
 // A prefab is one entity naming a model, solid as the model is drawn, found beside the
 // program as the prefabs themselves are.
@@ -203,6 +225,11 @@ A level larger than memory should hold is placed a piece at a time: an entity wi
 spawned for each part of the level as the player comes near, and despawned with what is under it
 once they are far, so only the near parts are drawn and simulated.
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+const float CellSize = 16;
+int x = 0, z = 0;
+-->
 ```csharp
 // The part of the level a cell holds, near the player.
 var cell = ecs.Spawn();

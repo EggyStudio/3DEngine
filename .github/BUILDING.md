@@ -308,7 +308,13 @@ frames of it under the layer, so a type the library reaches by reflection that t
 compiler left out fails there. The native compiler needs clang and zlib's headers, which the
 workflow installs beside lavapipe. `build/examples-on-package.sh` builds every example in a
 project of its own outside the repository, on the package alone with warnings as errors, as a
-reader copying one into a game of their own builds it. Each step of that job runs its script
+reader copying one into a game of their own builds it, and `build/docs-on-package.py` builds every
+C# block of the guides under `docs/` the same way, each in a file of its own. A fragment goes in a
+method after the lines a `<!-- compiled with: -->` comment right above its fence gives, declaring
+what it takes from the page around it, and a block a `<!-- not compiled: ... -->` comment marks,
+with its reason, is left out, so a block that calls what the surface no longer has fails the run
+with its page and line. `docs/first-game.md` is built step by step by `build/first-game.sh`
+instead. Each step of that job runs its script
 through `build/step.py`, as GitHub's bash would run it, and a step that fails without an error of
 its own is given one, naming the step, the command that failed with its exit code, the step's last
 lines and the last lines at a warning or worse of each session log it wrote.

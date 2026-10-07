@@ -217,10 +217,10 @@ package and plays it with no display.
 **N 6.1 A build has no warnings, and a warning fails the workflow.** A warning left standing hides
 the next one. The workflow builds with warnings as errors.
 
-**N 6.2 The tests run on Linux and Windows on every push, and what draws runs under a validation
-layer where the device has one.** Path separators, file locking and the names of native libraries
-differ between the two, and a validation layer finds what a forgiving driver lets pass. The
-workflow.
+**N 6.2 The tests run on every desktop system the package ships for on every push, and what draws
+runs under a validation layer where the device has one.** Path separators, file locking, file events
+and the names of native libraries differ between the three, a Mac's GPU draws through Metal, and a
+validation layer finds what a forgiving driver lets pass. The workflow.
 
 **N 6.3 A package is made by a workflow run by hand, from a commit whose tests passed, numbered by
 `build/version.txt` and the count of commits since it changed.** The owner sets the major and the
@@ -283,9 +283,9 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 219, `NormTests` |
-| N 1.3 | checked, `NormTests` | listed 15, `NormTests`, 9 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 12 left out | listed 87, `NormTests`, 23 left out |
+| N 1.2 | checked, `NormTests` | listed 206, `NormTests` |
+| N 1.3 | checked, `NormTests` | listed 13, `NormTests`, 8 of them in the bridge |
+| N 1.4 | checked, `NormTests`, 12 left out | listed 86, `NormTests`, 23 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
@@ -315,7 +315,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
-| N 6.2 | checked, `test.yml` | checked, `package.yml` |
+| N 6.2 | checked, `test.yml` | to take (REVIEW.md, item 5) |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |

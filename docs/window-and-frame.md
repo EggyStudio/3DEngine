@@ -139,6 +139,11 @@ Dear ImGui works anywhere between `BeginDrawing` and `EndDrawing`, with no setup
 everything else. Tools a game needs while it is made (a level editor, a debug panel, a profile)
 are windows the program draws in its own frame. From the `gui_imgui_window` example:
 
+<!-- compiled with:
+float size = 2;
+Vector3 color = Vector3.One;
+bool wires = false;
+-->
 ```csharp
 ImGui.SetNextWindowSize(new Vector2(280, 0), ImGuiCond.FirstUseEver);
 ImGui.Begin("Cube");

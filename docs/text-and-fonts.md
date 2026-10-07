@@ -144,6 +144,12 @@ instance.
 the keyboard's layout applied, and 0 when there are no more. Keys that type
 nothing, as Backspace and the arrows, are read as keys. The `text_input_box` example:
 
+<!-- compiled with:
+const int MAX_INPUT_CHARS = 9;
+string name = "";
+int letterCount = 0, framesCounter = 0;
+Rectangle textBox = default;
+-->
 ```csharp
 // Every character typed this frame, in order, those from space to '}' kept
 int key = GetCharPressed();
@@ -208,6 +214,10 @@ would bake again at each new size.
 `DrawTextPro` turns text by a number of degrees about an origin given in the text's own pixels, so
 a label turns about its middle with the origin at half its measured size:
 
+<!-- compiled with:
+Font lato = default!;
+float t = 0;
+-->
 ```csharp
 var size = MeasureTextEx(lato, "Bonus!", 32, 0);
 DrawTextPro(lato, "Bonus!", new Vector2(400, 225), size / 2, MathF.Sin(t) * 15, 32, 0, Color.Gold);
@@ -217,6 +227,11 @@ Text reaches render textures like any shape, so a clock face, a sign in a 3D wor
 inside a game is drawn into a texture once and then drawn where it belongs. From `text_fonts`,
 which draws the time into a texture and shows it turned:
 
+<!-- compiled with:
+Font lato = default!;
+float t = 0;
+RenderTexture2D target = default;
+-->
 ```csharp
 // Text reaches render targets like any shape.
 BeginTextureMode(target);

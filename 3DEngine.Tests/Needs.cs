@@ -174,6 +174,21 @@ public sealed class NeedsPackageFactAttribute : FactAttribute
     }
 }
 
+/// <summary>
+/// Skipped where build/package holds no engine package, unless <c>E3D_REQUIRE_PACKAGE</c> is set, or
+/// where neither <c>python3</c> nor <c>python</c> runs, for a script that builds against the package.
+/// </summary>
+public sealed class NeedsPackageAndPythonFactAttribute : FactAttribute
+{
+    public NeedsPackageAndPythonFactAttribute()
+    {
+        if (Package.PackageContentsTests.Newest() is null && Environment.GetEnvironmentVariable("E3D_REQUIRE_PACKAGE") != "1")
+            Skip = "build/package holds no 3DEngine package. build/pack.sh makes one.";
+        else if (Probes.Python.Value is null)
+            Skip = "Neither python3 nor python runs here.";
+    }
+}
+
 /// <summary>Skipped where neither <c>python3</c> nor <c>python</c> runs, which the workflow's runners all have.</summary>
 public sealed class NeedsPythonFactAttribute : FactAttribute
 {

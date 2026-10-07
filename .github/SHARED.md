@@ -85,23 +85,23 @@ table also answers whether the two agree.
 | A body and a collider are components a scene file holds | has (`99ec076`) | has (`606cb3bf`) |
 | A character that walls stop, that slides, steps and holds slopes | taken at `f2ac0cd` | has (`b9f280b2`) |
 | Contacts with their point and normal, and triggers | has | has (`5fb77861`) |
-| A character crouches and stands from its component's height, and its step height is set there | to take | has (`52579d98`) |
-| A collider that is the shape of the meshes an entity and those under it show, made once they are loaded | to take, where triangles are given by hand | has (`Collider.Mesh`, `454e9276`) |
+| A character crouches and stands from its component's height, and its step height is set there | taken at `d5e68ad` | has (`52579d98`) |
+| A collider that is the shape of the meshes an entity and those under it show, made once they are loaded | taken at `d5e68ad`, `ColliderShape.Hull` and `Mesh` | has (`Collider.Mesh`, `454e9276`) |
 | Friction and bounce for each body, mixed for a pair | has | has (`9aa94324`) |
-| A joint described in a scene file as an entity naming its two bodies, at its own place and axis | to take | has (`Joint`, `e46058fc`) |
+| A joint described in a scene file as an entity naming its two bodies, at its own place and axis | taken at `c98010a`, `JointBetween` | has (`Joint`, `e46058fc`) |
 | Two bodies a joint holds do not collide with each other | has (`1f10323`) | has (`ed0f3aa6`) |
 | A ray passes through a trigger, so a sensor never holds up a wheel or a character's ground check | to check | has (`b5eb3642`) |
 | A raycast vehicle made by one call beside the character controller, tuned by one record | to consider | has (`CreatePhysicsVehicle`, `ee641437`) |
 | The physics step on several workers past a count of awake bodies, repeating to the bit on every machine | to check | has (`319832dc`) |
-| A contact says how hard its pair hit, as the speed they closed at | to take | has (`ContactStarted.Speed`, `c5227118`) |
-| A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | to take | has (`c5227118`) |
+| A contact says how hard its pair hit, as the speed they closed at | taken at `5f836cb`, with the point and the normal | has (`ContactStarted.Speed`, `c5227118`) |
+| A ball joint kept within a cone it swings and twists in, and a distance joint whose range changes after it is made | taken at `5f836cb` | has (`c5227118`) |
 | The sync reads only bodies that changed and writes only bodies that moved | has (`ba5cff4`) | has (`e612ac63` and after) |
 | What rests on a kinematic body that a transform moves keeps the mover's pace at any frame rate, the body moving at the mover's speed through every step and not a frame's distance in one | taken at `05bc3b4`, a crate at 2.00 within 0.02 at seven frame rates and uneven frames, carried round by a turned platform, `MarkPlaced` and `PlaceBeyond` for a jump | taken at `15fa305a`, a crate at 2.00 within a hundredth at seven frame rates and uneven frames, a parent's placing said with `MarkPlaced` or past a set distance (`7ae91e7c`) |
 | A frame's time and the fixed steps that spend it under one clamp, so what a program moved by frame time and what was simulated agree | has, as Bevy's clock and fixed schedule do | taken at `ee3b47dd`, the frame's clamp of a quarter second the one kept |
-| Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow, a sleeping body woken when its layer or trigger changes | to take | has (`8520dbe1`, `ac897afa`) |
-| A body a game knows is fast swept over each step, so it does not cross a thin wall within one, chosen for each body | to take | has (`SetPhysicsBodyContinuous`, `799a9d56`) |
-| A slider joint, one body along an axis against another without turning, with limits, a motor and its position, from code and from a scene file | to take | has (`979c97be`) |
-| A game asks how hard two touching bodies press, answered while they sleep too | to take, as the push alone | has (`GetPhysicsContactImpulse`, `53cd565f`), the push alone since `c774a379` |
+| Bodies on collision layers whose pairs collide or not, which contacts, triggers, characters and rays follow, a sleeping body woken when its layer or trigger changes | taken at `795762b`, 32 layers | has (`8520dbe1`, `ac897afa`) |
+| A body a game knows is fast swept over each step, so it does not cross a thin wall within one, chosen for each body | taken at `795762b` | has (`SetPhysicsBodyContinuous`, `799a9d56`) |
+| A slider joint, one body along an axis against another without turning, with limits, a motor and its position, from code and from a scene file | taken at `36362ce` from code and `c98010a` from a scene file | has (`979c97be`) |
+| A game asks how hard two touching bodies press, answered while they sleep too | taken at `36362ce`, the push alone | has (`GetPhysicsContactImpulse`, `53cd565f`), the push alone since `c774a379` |
 
 ### Scenes, saves and files
 
@@ -109,7 +109,7 @@ table also answers whether the two agree.
 |---|---|---|
 | A scene file placed inside another, its entities left out of the outer file's save | has (`SceneInstances`) | has (`SceneRef`, `0502362d`) |
 | A scene file holds arrays, so a mesh made in code is saved with its level | has | has (`8567bea6`) |
-| A placed scene file written while the level runs is spawned again in place of its copies, under the entity that placed it and giving back what the old copy held | to check against `SceneInstances` | has (`6059b57a`, `5b2234d2`) |
+| A placed scene file written while the level runs is spawned again in place of its copies, under the entity that placed it and giving back what the old copy held | taken at `3270d9e`, `SceneReloads` | has (`6059b57a`, `5b2234d2`) |
 | A model's sibling files, an OBJ's `.mtl` and a glTF's `.bin`, come from the reader the model came from, whatever reader that is, and no native code opens a file | has for glTF, the loader being Bevy's | has (`AssimpFiles`, `abc24192`), read from the model's own stream with no copy and a reader's exception answered as the load's (`1fac9eff`) |
 | A model file with animation clips placed in a level plays, where its meshes would stand at rest | to check | has (`ba328b18`) |
 | What a level loaded through its references is let go once nothing uses it | has, Bevy counting its handles | has (`4e765797`) |
@@ -125,15 +125,15 @@ table also answers whether the two agree.
 | A key held for an exact number of frames by one command | has (`324f919`) | has (`input.key`) |
 | Every menu played with a gamepad alone, settings and key bindings kept in a file | to check, with Courtyard | has (`games/Manor`, `4161a8c5`) |
 | Gamepads | taken at `7f87a47`, with a pretended pad a script drives | has |
-| A gamepad's gyro, accelerometer, touchpad and light | to take | has (`73ce6326`) |
+| A gamepad's gyro, accelerometer, touchpad and light | blocked at gilrs 0.11.2, which reads none of them, the touchpad's click reaching `bevy_gilrs` as a button it drops; a second reader of the pads, SDL's or hidapi's, waits for the owner's word | has (`73ce6326`) |
 | A pointer dragged a step a frame by one command, so a swipe or a window drag registers | taken at `ce27e73` | has (`input.drag`, `048c072c`) |
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
-| A field holding an array written from the terminal, its items split by semicolons | to check against `entity.set` | has (`3cab9d9d`) |
-| Files dropped on the window reach the program, and a command pretends a drop | has the messages, the command to check | has (`input.drop`, `eca234f9`) |
-| A command's parameter with a default may be left off, shown in brackets in its usage | to check against the command generator | has (`a3d56597`) |
+| A field holding an array written from the terminal, its items split by semicolons | taken at `678d860` | has (`3cab9d9d`) |
+| Files dropped on the window reach the program, and a command pretends a drop | has the messages, `input.drop` taken at `678d860` | has (`input.drop`, `eca234f9`) |
+| A command's parameter with a default may be left off, shown in brackets in its usage | taken at `678d860`, `[name]` in the usage and `optional` in the schema | has (`a3d56597`) |
 | C# typed at a running app | has in the editor (`eval`) | has (`e3d eval`, `075c5b3c`), compiled against the running program and run between frames |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
-| A command takes an enum member by its name alone, since `Enum.TryParse` takes any number as well and an undefined value reaches the engine | to check (`ConsoleWorldCommands.cs` reads gamepad buttons, axes and keys with `Enum.TryParse`) | has (`InputCommands.TryName`, `ef042886`), where a button of 100 stopped the program in ImGui |
+| A command takes an enum member by its name alone, since `Enum.TryParse` takes any number as well and an undefined value reaches the engine | taken at `678d860`, `ConsoleWorldCommands.TryName` | has (`InputCommands.TryName`, `ef042886`), where a button of 100 stopped the program in ImGui |
 
 ### Tests, CI and packaging
 
@@ -196,7 +196,7 @@ table also answers whether the two agree.
 | The rules both engines keep are numbered in one file, each with its reason and a check named for it, and a list of what does not yet keep a rule that only gets shorter | taken at `e7d788a`, `NormTests` over 13 rules with 8 lists | taken at `9decca1d`, `NormTests` over 12 rules with 9 lists |
 | Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | taken at `e673197a`, at raylib's 800 by 450 |
 | A script compiled again is swapped in between frames, on the thread that runs the stages, with the retired generation's systems out before the new one's run | has, the watcher raising a flag that a system of the main thread acts on, and the retired systems marked and skipped (`ScriptWatcher`, `App.RemoveSystemsBySource`) | has (`2d506d4b`), where the swap on the compiler's thread could skip a system or run one twice |
-| The build before a commit runs with `--no-incremental` when it checks for warnings, since an incremental build passes over a project an earlier build without `-warnaserror` left up to date | to take, with N 6.1 (REVIEW.md, item 5) | has (`2b39ddd2`), after a nullable warning reached `main` |
+| The build before a commit runs with `--no-incremental` when it checks for warnings, since an incremental build passes over a project an earlier build without `-warnaserror` left up to date | taken at `4308619`, BUILDING.md's build before a commit | has (`2b39ddd2`), after a nullable warning reached `main` |
 | Bepu shares a convex manifold's friction among its contacts, so a box on four corners slides a quarter as rough as its friction says, mended by scaling the pair's coefficient by the contact count | taken at `e5c8110`, `FrictionTests` within a tenth of the distance friction allows, on a box and on a floor of triangles | has (`ed0f3aa6`), `BodyMaterialTests` holding the slide |
 | A body that has rested long enough to be Bepu's candidate for sleep is put to sleep at the next step's start though it was given speed, since sleep is decided from the step before and `Awake = true` on an awake body clears nothing, so a velocity or an impulse set clears the candidacy | taken at `8557a75`, `PhysicsWorld.Wake` clearing the flag and the count, `SleepTests` at 32 and 128 steps of rest | taken at `f2d3bcf4`, a fault found by its test in all four calls, every wake in bodies, joints, contacts and vehicles clearing the flag and the count |
 | A game's own text field places the input method's window beside it | to check, Bevy's `Window::ime_enabled` and `ime_position` reached from C# | has (`134d4f3d`, `SetTextInputArea`) |

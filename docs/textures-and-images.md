@@ -9,6 +9,9 @@ is uploaded once as a texture, and a file the program only draws can be loaded s
 `LoadTexture` reads a PNG, JPEG, BMP, TGA, PSD, GIF or HDR file from beside the program. `DrawTexture` draws it with its top left corner at a pixel, and `UnloadTexture` frees it
 when the program is done with it. From the `textures_basic` example:
 
+<!-- compiled with:
+float rotation = 0;
+-->
 ```csharp
 var logo = LoadTexture("resources/logo.png");
 var checker = LoadTextureFromImage(GenImageChecked(64, 64, 8, 8, Color.DarkGray, Color.LightGray));
@@ -120,6 +123,10 @@ are written in their place among what is drawn into it, so a pattern written wit
 A sprite sheet is one texture holding many frames, and an animation draws a different part of it
 each frame:
 
+<!-- compiled with:
+Texture2D sheet = default;
+float x = 0, y = 0;
+-->
 ```csharp
 var frame = (int)(GetTime() * 12) % 6;   // six frames, twelve a second
 var source = new Rectangle(frame * 32, 0, 32, 32);
@@ -143,6 +150,9 @@ or a cross four faces by three or three by four, found from the image's shape wi
 is set. `models_skybox_rendering` draws a sky that way, a cube around the camera drawn with
 `rlDisableDepthMask` so the grid drawn after it shows in front:
 
+<!-- compiled with:
+Shader shader = default;
+-->
 ```csharp
 Image image = LoadImage("resources/skybox.png");
 Texture2D cubemap = LoadTextureCubemap(image, CubemapLayout.AutoDetect);

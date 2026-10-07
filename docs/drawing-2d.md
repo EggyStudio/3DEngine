@@ -9,6 +9,10 @@ program draws its whole picture every frame between `BeginDrawing` and `EndDrawi
 Shapes take their position in pixels and a `Color`. The `shapes_basic_shapes` example, raylib's,
 draws the common ones, and turns its hexagon a little each frame:
 
+<!-- compiled with:
+const int screenWidth = 800;
+float rotation = 0;
+-->
 ```csharp
 DrawText("some basic shapes available on raylib", 20, 20, 20, Color.DarkGray);
 
@@ -75,6 +79,9 @@ characters past Latin-1 and text drawn turned are on the [Text and fonts](text-a
 A spline is a curve through or near a list of points, drawn a number of pixels thick with its
 corners joined. The `core_2d_camera` example draws one through the tops of its buildings:
 
+<!-- compiled with:
+List<(Rectangle Rect, Color Color)> buildings = [];
+-->
 ```csharp
 // A line through the rooftops, which a thick spline draws.
 var roofs = buildings.Select(b => new Vector2(b.Rect.X + b.Rect.Width / 2, b.Rect.Y)).ToArray();
@@ -93,6 +100,10 @@ A `Camera2D` sees a world of its own, larger than the window, which `BeginMode2D
 until `EndMode2D`. It holds where its target appears on the screen (`Offset`), the point of the
 world it looks at (`Target`), a turn in degrees and a zoom. From the `core_2d_camera` example:
 
+<!-- compiled with:
+List<(Rectangle Rect, Color Color)> buildings = [];
+Rectangle player = default;
+-->
 ```csharp
 var camera = new Camera2D(new Vector2(400, 225), new Vector2(player.X + 20, player.Y + 20));
 // ...
@@ -122,6 +133,12 @@ turns the mouse's position into the world point under it, and `GetWorldToScreen2
 
 The 2D collision functions answer whether shapes overlap, as a game asks every frame:
 
+<!-- compiled with:
+Rectangle button = default, a = default, b = default;
+Vector2 ball = default, player = default;
+bool hovered = false;
+int score = 0;
+-->
 ```csharp
 if (CheckCollisionPointRec(GetMousePosition(), button)) hovered = true;
 if (CheckCollisionCircles(ball, 10, player, 20)) score++;

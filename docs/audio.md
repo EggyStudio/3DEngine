@@ -56,6 +56,9 @@ An alias copies no samples, so four of them cost four handles, and `UnloadSoundA
 Each sound has a volume from 0 to 1, a pitch where 1 is as recorded and 2 an octave up, and a pan
 from -1 at the left to 1 at the right. They hold for the play under way and the plays after it:
 
+<!-- compiled with:
+Sound step = default!;
+-->
 ```csharp
 SetSoundVolume(step, 0.6f);
 SetSoundPitch(step, 0.9f + GetRandomValue(0, 20) / 100f);   // each footstep a little different
@@ -87,6 +90,9 @@ level editor does.
 heard. `UpdateMusicStream` reads the next part from the file, so a program calls it every frame
 the music plays, as raylib's does. From `audio_sound`:
 
+<!-- compiled with:
+Sound coin = default!;
+-->
 ```csharp
 var drone = LoadMusicStream("resources/drone.ogg");
 PlayMusicStream(drone);
@@ -118,6 +124,9 @@ Music loops unless its `Looping` is set false, which suits a jingle at the end o
 a level. `GetMusicTimeLength` and `GetMusicTimePlayed` give its length and how far into it the
 music heard is, in seconds, which the example draws as a bar:
 
+<!-- compiled with:
+Music drone = default!;
+-->
 ```csharp
 // How far through the piece it is, and how loud.
 DrawRectangle(20, 140, 400, 12, Color.LightGray);
@@ -140,10 +149,18 @@ is paused or runs dry on a slow machine, and a note is judged against the beat t
 a second before they are heard, so Tempo keeps the loudness it measures by the time each window of
 samples plays, and reads it back at the time `GetMusicTimePlayed` gives:
 
+<!-- compiled with:
+Music music = default!;
+const int LevelWindow = 512;
+List<float> levels = [];
+-->
 ```csharp
 // The level of the window of 512 frames being heard.
-var window = (int)(time * music.Stream.SampleRate / LevelWindow);
-return window >= 0 && window < levels.Count ? levels[window] : 0;
+float LevelAt(double time)
+{
+    var window = (int)(time * music.Stream.SampleRate / LevelWindow);
+    return window >= 0 && window < levels.Count ? levels[window] : 0;
+}
 ```
 
 ## Sound the program makes
@@ -154,6 +171,10 @@ an engine whose note follows its speed. The program either gives it samples when
 end of each frame calls for as many samples as keep it fed. The `audio_raw_stream` example gives a
 sine wave a piece at a time, changing its frequency only where a wave ends so the sound never jumps:
 
+<!-- compiled with:
+const int BUFFER_SIZE = 4096, SAMPLE_RATE = 44100;
+int sineFrequency = 440, newSineFrequency = 440, sineIndex = 0;
+-->
 ```csharp
 SetAudioStreamBufferSizeDefault(BUFFER_SIZE);
 float[] buffer = new float[BUFFER_SIZE];
@@ -199,6 +220,11 @@ heard from its side. `PlaySpatialSound` on a behavior's context loads and plays 
 position, and returns an `AudioSource` the behavior keeps to move the sound later. The listener is
 the entity with an `AudioListener` component, usually the camera:
 
+<!-- compiled with:
+BehaviorContext ctx = null!;
+int camera = 0;
+Vector3 truckPosition = default;
+-->
 ```csharp
 ctx.Ecs.Add(camera, AudioListener.Default);
 // ...

@@ -23,6 +23,10 @@ value it is in, `IsState(Screen.Paused)` asks whether it is at one, and `SetStat
 moves it. The example reads and moves the state from its loop through the world's resources,
 which those calls reach as well:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+World world = null!;
+-->
 ```csharp
 // A move is queued here and applied at the start of the next frame, so everything this
 // frame still sees the screen it began on.
@@ -38,6 +42,10 @@ A move is queued and made once a frame, after the pre-update stage, so the updat
 see one value. Two moves asked in a frame end at the second, and a move to the value the state is
 in does nothing. The loop draws by the value it read:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+Screen screen = Screen.Title;
+-->
 ```csharp
 if (screen == Screen.Title)
 {
@@ -69,6 +77,11 @@ A behavior's method runs by a state with an attribute:
 The example builds its level on leaving the title, rather than on entering play, so coming back
 from a pause keeps it, and clears it on returning to the title:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+public struct Orbiter { public float Angle, Speed; }
+public float Angle, Speed;
+-->
 ```csharp
 /// <summary>Builds the level on leaving the title, so resuming from a pause keeps it.</summary>
 [OnExit(Screen.Title)]
@@ -105,6 +118,10 @@ out of the other examples.
 Clearing a level by hand, as above, needs a query for each kind of thing in it. An entity tied to
 a value instead is despawned, with everything below it, when the state leaves that value:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+BehaviorContext ctx = null!;
+-->
 ```csharp
 var enemy = ctx.Ecs.Spawn();
 ctx.Ecs.DespawnOnExit(enemy, Screen.Playing);
@@ -115,9 +132,14 @@ a notice put up on leaving it, and it goes before the value's enter systems run,
 spawn stays. Where neither edge says it, a rule over the transition does, and the entity goes at
 the first transition the rule answers true for:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+BehaviorContext ctx = null!;
+int notice = 0, hint = 0;
+-->
 ```csharp
-ctx.Ecs.DespawnOnEnter(notice, Screen.Menu);
-ctx.Ecs.DespawnWhen<Screen>(hint, transition => transition.To is Screen.Paused or Screen.Menu);
+ctx.Ecs.DespawnOnEnter(notice, Screen.Title);
+ctx.Ecs.DespawnWhen<Screen>(hint, transition => transition.To is Screen.Paused or Screen.Title);
 ```
 
 ## States within states
@@ -125,6 +147,9 @@ ctx.Ecs.DespawnWhen<Screen>(hint, transition => transition.To is Screen.Paused o
 A sub-state exists only while another state is at a value, as a pause that has a meaning only
 during play. It is declared on its enum, or added with `AddSubState`:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+-->
 ```csharp
 [SubStateOf(Screen.Playing)]
 public enum Pause { Running, Paused }
@@ -134,6 +159,10 @@ While the screen is not `Playing`, `Pause` has no value, so `IsState(Pause.Pause
 methods `[InState(Pause.Running)]` do not run. A computed state is worked out from another every
 time it changes, with null for none:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+public enum InGame { Yes }
+-->
 ```csharp
 [ComputedState]
 public static InGame? FromScreen(Screen screen) => screen is Screen.Playing ? InGame.Yes : null;

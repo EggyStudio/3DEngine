@@ -107,6 +107,9 @@ A game that moves its camera itself sets `camera.Position` and `camera.Target` e
 skips `UpdateCamera`. The `core_3d_camera_free` example looks back at the origin when Z is pressed
 by setting the target:
 
+<!-- compiled with:
+Camera3D camera = default;
+-->
 ```csharp
 if (IsKeyPressed(Key.Z)) camera.Target = Vector3.Zero;
 ```
@@ -126,6 +129,10 @@ var top = new Camera3D(new Vector3(0, 20, 0.01f), Vector3.Zero, Vector3.UnitY, 3
 A label over a thing in the world is drawn in 2D after `EndMode3D`, at the point the world position
 falls on the screen:
 
+<!-- compiled with:
+Camera3D camera = default;
+Vector3 enemy = default;
+-->
 ```csharp
 var above = GetWorldToScreen(enemy + new Vector3(0, 2, 0), camera);
 if (IsPointInFrontOfCamera(enemy, camera)) DrawText("Enemy", (int)above.X - 20, (int)above.Y, 20, Color.Maroon);
@@ -142,6 +149,11 @@ the world, as picking a thing with the mouse needs.
 minimap, a split screen and a picture-in-picture are made this way. The
 `textures_render_target` example draws one 3D scene into a texture and shows it three times:
 
+<!-- compiled with:
+Camera3D camera = default;
+Model cube = default;
+float angle = 0;
+-->
 ```csharp
 var target = LoadRenderTexture(320, 240);
 // ...
@@ -177,6 +189,9 @@ kept. The `shaders_deferred_rendering` example draws the scene's positions, norm
 three and lights them in a pass over the screen, with `rlDisableColorBlend` so a color's alpha holds
 its specular strength:
 
+<!-- compiled with:
+Shader deferredShader = default;
+-->
 ```csharp
 var gBuffer = LoadRenderTexture(800, 450,
     PixelFormat.UncompressedR16G16B16, PixelFormat.UncompressedR16G16B16, PixelFormat.UncompressedR8G8B8A8);
@@ -190,6 +205,12 @@ once for each eye, the left in the left half of the target and the right in the 
 `core_vr_simulator` example draws into a texture of the headset's size and bends it through the
 lenses with raylib's distortion shader, written in Slang, whose parameters the config holds:
 
+<!-- compiled with:
+RenderTexture2D target = default;
+VrStereoConfig config = default;
+Camera3D camera = default;
+Vector3 cubePosition = default;
+-->
 ```csharp
 BeginTextureMode(target);
     ClearBackground(Color.RayWhite);
@@ -240,11 +261,20 @@ noise, tinted by the puff's color in place of the round dot a particle is otherw
 slows the puffs as they rise, 1 leaving about a third of a speed after a second, so they leave the
 fire fast and then hang and spread:
 
+<!-- compiled with:
+Texture2D smoke = default;
+-->
 ```csharp
-Velocity = new Vector3(0.6f, 2.2f, 0),
-Gravity = new Vector3(0.15f, 0.4f, 0),
-Drag = 0.8f,
-Texture = smoke,
+CreateParticleEmitter(new Vector3(0, 1.2f, 0), ParticleEmitter.Default with
+{
+    Velocity = new Vector3(0.6f, 2.2f, 0),
+    Gravity = new Vector3(0.15f, 0.4f, 0),
+    Drag = 0.8f,
+    Lit = true,
+    Blend = ParticleBlend.Alpha,
+    Texture = smoke,
+    // ...
+});
 ```
 
 A texture can also be a sheet of frames, `TextureColumns` across and `TextureRows` down, which
@@ -260,6 +290,9 @@ does not show, off screen or behind something, and shapes drawn without a model,
 The example's sparks bounce off the ground and the stones, and do not stream but are thrown out a
 hundred and twenty at a time:
 
+<!-- compiled with:
+ParticleEmitterHandle sparks = default;
+-->
 ```csharp
 if (IsKeyPressed(Key.Space)) EmitParticles(sparks, 120);
 ```
@@ -269,6 +302,11 @@ wheel, `SetParticleEmitterActive` starts and stops its stream, `GetParticleEmitt
 `SetParticleEmitter` read and change its settings with `with`, and `UnloadParticleEmitter`
 removes it and its particles:
 
+<!-- compiled with:
+ParticleEmitterHandle dust = default;
+Vector3 wheel = default;
+float speed = 0;
+-->
 ```csharp
 SetParticleEmitterPosition(dust, wheel);
 SetParticleEmitter(dust, GetParticleEmitter(dust) with { Rate = speed * 4 });
@@ -292,6 +330,11 @@ two, three or four make a line, a triangle or a quad. `rlPushMatrix` keeps the t
 everything drawn in between is moved, rlgl's vertices, shapes, text and models alike. The
 `models_rlgl_solar_system` example turns the earth about the sun and the moon about the earth:
 
+<!-- compiled with:
+float earthOrbitRotation = 0, earthOrbitRadius = 8, earthRotation = 0, earthRadius = 1;
+float moonOrbitRotation = 0, moonOrbitRadius = 1.5f, moonRadius = 0.25f;
+void DrawSphereBasic(Color color) { }
+-->
 ```csharp
 rlPushMatrix();
     rlRotatef(earthOrbitRotation, 0.0f, 1.0f, 0.0f);    // Earth's orbit around the sun

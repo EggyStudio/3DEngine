@@ -13,6 +13,12 @@ its skeleton, which Assimp's reader leaves out. `DrawModel` draws it at a
 position and a scale, tinted, and `DrawModelEx` turns it about an axis by degrees and scales each
 axis apart. From the `models_loading` example:
 
+<!-- compiled with:
+Camera3D camera = default;
+Model floor = default, cube = default, sphere = default;
+float angle = 0;
+bool showBounds = false;
+-->
 ```csharp
 // An OBJ with its material and texture beside it, loaded through Assimp.
 var torus = LoadModel("resources/torus.obj");
@@ -46,6 +52,9 @@ The `GenMesh` functions make the common solids, each as a `ModelMesh` that `Load
 turns into a model with a white material. The `models_mesh_generation` example, raylib's, makes
 every one and a triangle of its own, shown one at a time:
 
+<!-- compiled with:
+ModelMesh GenMeshCustom() => default!;
+-->
 ```csharp
 Model[] models =
 [
@@ -66,14 +75,16 @@ values and the indices of each triangle's three corners, as the example's `GenMe
 its triangle:
 
 ```csharp
-ModelVertex[] vertices =
-[
-    new(new Vector3(0, 0, 0), Vector3.UnitY, new Vector2(0, 0)),
-    new(new Vector3(1, 0, 2), Vector3.UnitY, new Vector2(0.5f, 1.0f)),
-    new(new Vector3(2, 0, 0), Vector3.UnitY, new Vector2(1, 0)),
-];
-
-return UploadMesh(vertices, [0, 1, 2]);
+static ModelMesh GenMeshCustom()
+{
+    ModelVertex[] vertices =
+    [
+        new(new Vector3(0, 0, 0), Vector3.UnitY, new Vector2(0, 0)),
+        new(new Vector3(1, 0, 2), Vector3.UnitY, new Vector2(0.5f, 1.0f)),
+        new(new Vector3(2, 0, 0), Vector3.UnitY, new Vector2(1, 0)),
+    ];
+    return UploadMesh(vertices, [0, 1, 2]);
+}
 ```
 
 A mesh may have a color at each vertex and a second texture coordinate at each, as raylib's
@@ -133,6 +144,10 @@ rest in. `LoadModelAnimations` reads the clips of the same file, each sampled at
 second, and `UpdateModelAnimation` poses the model at a frame of one. The `models_animation`
 example plays a bending arm back and forth, and draws its bones over it:
 
+<!-- compiled with:
+int frame = 0;
+bool playing = true;
+-->
 ```csharp
 // A skinned arm and its clip from the same glTF. build/make-arm-gltf.py writes it.
 var arm = LoadModel("resources/arm.gltf");
@@ -163,6 +178,11 @@ The posing happens on the GPU, so a crowd of animated models costs the CPU littl
 A game usually plays a clip by time rather than by frame, so it runs at the same speed at any frame
 rate, and turns one clip into another rather than cutting:
 
+<!-- compiled with:
+Model hero = default;
+ModelAnimation walk = default!, run = default!;
+float time = 0, speed = 0, topSpeed = 1;
+-->
 ```csharp
 time += GetFrameTime();
 UpdateModelAnimationAt(hero, walk, time);                              // between frames, looping
@@ -179,6 +199,12 @@ character waves while it runs, the arm moving from wherever the run carries the 
 `models_morph_and_layers` example plays Summit's hero running with the jump's raised arm on its
 left arm alone, the layer's weight easing in and out:
 
+<!-- compiled with:
+Model hero = default;
+ModelAnimation run = default!, jump = default!;
+float time = 0;
+bool layered = true;
+-->
 ```csharp
 // The arm rises and falls over the run as the layer's weight eases in and out.
 var wave = layered ? 0.5f + 0.5f * MathF.Sin(time * 2) : 0;
@@ -194,6 +220,9 @@ A mesh can carry morph targets, shapes its vertices are moved toward by a weight
 a face smiles or blinks or a ball squashes. A glTF file's targets load with the model, and its
 clips that move their weights play as any clip does, as the same example's strip does:
 
+<!-- compiled with:
+float time = 0;
+-->
 ```csharp
 var strip = LoadModel("resources/morph.gltf");
 var pulse = LoadModelAnimations("resources/morph.gltf")[0];
@@ -215,6 +244,9 @@ lights models by it from every side, so a shiny surface reflects the sky and a d
 colors. `DrawSkybox` draws the same image as the sky behind everything. From `models_skybox`, which
 paints its sky so it needs no file:
 
+<!-- compiled with:
+Camera3D camera = default;
+-->
 ```csharp
 // An equirectangular sky made here, so the example needs no file: the top half a sky
 // with a sun, the bottom half the ground. A photo or a .hdr file loads the same way.
@@ -239,6 +271,16 @@ Each `DrawModel` is a draw of its own, and the renderer gathers draws of the sam
 into one. Where a program draws thousands of copies itself, `DrawMeshInstanced` takes all their
 transforms at once, as the `shaders_instance_hues` example does with ten thousand turning cubes:
 
+<!-- compiled with:
+const int Count = 1000;
+Matrix4x4[] transforms = new Matrix4x4[Count];
+Vector3[] axes = new Vector3[Count], places = new Vector3[Count];
+float[] speeds = new float[Count];
+float time = 0;
+Camera3D camera = default;
+Model cube = default;
+ModelMaterial material = LoadMaterialDefault();
+-->
 ```csharp
 for (int i = 0; i < Count; i++)
     transforms[i] = Matrix4x4.CreateFromAxisAngle(axes[i], float.DegreesToRadians(speeds[i] * time)) * Matrix4x4.CreateTranslation(places[i]);

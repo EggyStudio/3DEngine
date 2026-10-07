@@ -36,6 +36,9 @@ float4 fragmentMain(VertexOutput input) : SV_Target
 processing is a scene drawn into a render texture, then drawn to the window through a shader, which
 the example does with two:
 
+<!-- compiled with:
+float time = 0;
+-->
 ```csharp
 var wave = LoadShader("resources/shaders/wave.slang");
 var grayscale = LoadShader("resources/shaders/grayscale.slang");
@@ -78,6 +81,10 @@ uniform float strength;
 Sampler2D detail;
 ```
 
+<!-- compiled with:
+Shader shader = default;
+Texture2D noise = default;
+-->
 ```csharp
 var strength = GetShaderLocation(shader, "strength");
 var detail = GetShaderLocation(shader, "detail");
@@ -138,6 +145,10 @@ float4 fragmentMain(ModelVertexOutput input) : SV_Target
 
 Its uniforms are set by name each frame, as any shader's are:
 
+<!-- compiled with:
+Camera3D camera = default;
+int levels = 4;
+-->
 ```csharp
 // A model shader of the program's own, its uniforms found by name.
 var toon = LoadShader("resources/shaders/toon.slang");
@@ -217,6 +228,11 @@ The program keeps two grids and swaps which it reads and which it writes each st
 `ComputeShaderDispatch` runs the shader over groups of its threads, here 16 by 16 a group, so the
 groups cover the grid:
 
+<!-- compiled with:
+const int Width = 256, Height = 144;
+uint[] start = [];
+int step = 0;
+-->
 ```csharp
 var grids = new[] { LoadShaderBuffer<uint>(start), LoadShaderBuffer(Width * Height * 4) };
 
@@ -257,6 +273,12 @@ float4 fragmentMain(VertexOutput input) : SV_Target
 }
 ```
 
+<!-- compiled with:
+const int Width = 256, Height = 144, CellSize = 4;
+Shader draw = default;
+int cellsAt = 0, step = 0;
+ShaderBuffer[] grids = [];
+-->
 ```csharp
 SetShaderValueBuffer(draw, cellsAt, grids[step % 2]);
 // ...

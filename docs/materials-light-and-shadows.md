@@ -56,6 +56,9 @@ A default texture in a map's place means none.
 bulb or lava, with `EmissiveIntensity` to brighten it. It shows with no light at all, and lights
 nothing else, so a lamp is an emissive model with a light placed inside it.
 
+<!-- compiled with:
+Model lamp = default;
+-->
 ```csharp
 lamp.Materials[0] = new ModelMaterial(Color.White) { Emissive = new Color(255, 200, 120), EmissiveIntensity = 2 };
 ```
@@ -102,6 +105,10 @@ what is drawn after `EndMode3D`, text, shapes and ImGui, goes over the result un
 
 The `shaders_bloom` example gives each a key:
 
+<!-- compiled with:
+Tonemap curve = default;
+bool vignette = false, graded = false, fxaa = false, bright = false, focus = false, blur = false;
+-->
 ```csharp
 if (IsKeyPressed(Key.T)) SetTonemap(curve = (Tonemap)(((int)curve + 1) % 4));
 if (IsKeyPressed(Key.V)) SetVignette((vignette = !vignette) ? 0.6f : 0);
@@ -160,6 +167,9 @@ lights light a frame.
 The `shaders_shadowmap` example lights its scene with a dim sun and a lamp that circles between
 pillars:
 
+<!-- compiled with:
+float t = 0;
+-->
 ```csharp
 // A dim sun for the shape of things, and a lamp circling between pillars, both casting
 // shadows. Space turns the lamp's shadows off and on.
@@ -194,6 +204,9 @@ Shapes drawn with `DrawCube` and the others cast no shadow, and models do. The s
 draws its lamp as a shape for that reason, since a model around the lamp would shadow everything
 from it:
 
+<!-- compiled with:
+Vector3 lampAt = default;
+-->
 ```csharp
 // Drawn as a shape rather than a model, since a model around the lamp would shadow
 // everything from it.
@@ -253,6 +266,9 @@ frame it appeared.
 A light made by these calls is a `Light` entity of the ECS, so lights a program makes as entities
 light the same models. The `ecs_animated_models` example makes its sun as one:
 
+<!-- compiled with:
+BehaviorContext ctx = null!;
+-->
 ```csharp
 var sun = ctx.Ecs.Spawn();
 ctx.Ecs.Add(sun, Light.Directional(new Vector3(1, 0.97f, 0.92f), 2.5f) with { CastsShadows = true });

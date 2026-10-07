@@ -70,6 +70,9 @@ the start. `ctx.Time.DeltaSeconds` is the frame's time, as `GetFrameTime()` is, 
 example spawns a camera, two meshes and two lights in a startup method, which the engine draws
 lit with no drawing code:
 
+<!-- compiled with:
+public static bool Running = true;
+-->
 ```csharp
 [OnStartup]
 [RunIf(nameof(Running))]
@@ -90,6 +93,9 @@ public static void Start(BehaviorContext ctx)
 `GetMeshComponent` turns a generated or loaded mesh into a `Mesh` component, and one component given
 to many entities is one upload they share, as `games/Swarm` makes its shapes once:
 
+<!-- compiled with:
+Mesh Ball = default!, Cube = default!;
+-->
 ```csharp
 Ball = GetMeshComponent(GenMeshSphere(1, 8, 12));
 Cube = GetMeshComponent(GenMeshCube(1, 1, 1));
@@ -105,8 +111,17 @@ and applies them together in the post update stage, so no system of the update s
 change under it. The balls are
 spawned this way:
 
+<!-- compiled with:
+public struct Ball { public Vector3 Position, Velocity; public Color Color; }
+BehaviorContext ctx = null!;
+-->
 ```csharp
-var ball = new Ball { Position = /* ... */, Velocity = /* ... */, Color = /* ... */ };
+var ball = new Ball
+{
+    Position = new Vector3(Random.Shared.NextSingle() * 10 - 5, 4 + Random.Shared.NextSingle() * 6, 0),
+    Velocity = new Vector3(Random.Shared.NextSingle() * 2 - 1, 0, 0),
+    Color = Color.Orange,
+};
 ctx.Cmd.Spawn((entity, world) => world.Add(entity, ball));
 ```
 
@@ -142,11 +157,17 @@ resources, calls ImGui and plays sounds with nothing saying so. A method of the 
 those is marked `[MainThread]`, as the player in `games/Swarm` is, since it plays a sound for each
 shot and writes where it stands for the creatures to read:
 
+<!-- compiled with:
+public enum Screen { Title, Playing, Paused }
+-->
 ```csharp
 [OnUpdate]
 [MainThread]
 [InState(Screen.Playing)]
 public void Move(BehaviorContext ctx, ref CharacterController controller, in PhysicsBody body, ref Material material)
+{
+    // ...
+}
 ```
 
 ## Filters and conditions
@@ -165,6 +186,9 @@ Attributes narrow which entities a method visits, and whether it runs at all:
 The examples run in one program, so each startup method carries `[RunIf(nameof(Running))]`, true
 only for the example chosen:
 
+<!-- compiled with:
+public static class Example { public static string Current = ""; }
+-->
 ```csharp
 public static bool Running => Example.Current == "ecs_behaviors";
 ```
@@ -176,6 +200,11 @@ The entities that lost a component since a method last ran are `ctx.Ecs.Removed<
 second. `games/Swarm` ends a wave by them, looking for the last creature only in a frame after one
 fell:
 
+<!-- compiled with:
+public enum Round { Fighting, Break }
+public struct Creature;
+public sealed class Arena { public int ToSpawn; }
+-->
 ```csharp
 [OnUpdate]
 [InState(Round.Fighting)]
@@ -200,6 +229,9 @@ off its entities. A program run from a project's build folder watches the projec
 folder beside it. A script uses the engine and the game's own components and resources.
 `games/Swarm` keeps its numbers in one, so a wave is tuned while it is fought:
 
+<!-- compiled with:
+public sealed class Tuning { public float PlayerSpeed, EnemySpeed; }
+-->
 ```csharp
 [Behavior]
 public struct Tune
@@ -231,6 +263,10 @@ A native build cannot load code it compiles, so it runs without its scripts, whi
 The program's loop reaches the same world through `GetApp()`, which returns the app `InitWindow`
 built. The `ecs_behaviors` example moves its balls in the behavior and draws them in the loop:
 
+<!-- compiled with:
+public struct Ball { public Vector3 Position, Velocity; public Color Color; }
+Camera3D camera = default;
+-->
 ```csharp
 var ecs = GetApp().World.Resource<EcsWorld>();
 // ...

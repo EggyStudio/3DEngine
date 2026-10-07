@@ -33,6 +33,10 @@ last frame holds, so it runs alike at any frame rate. A body is drawn where it i
 model's `Transform` to `GetPhysicsBodyTransform(body)`, which holds its position and its turn,
 blended between the last two steps so motion is smooth:
 
+<!-- compiled with:
+Model cube = default;
+List<(PhysicsBody Body, Color Color)> boxes = [];
+-->
 ```csharp
 foreach (var (body, color) in boxes)
 {
@@ -51,6 +55,9 @@ velocity, so what stands on it rides along, where setting its position each fram
 the place and leaves a rider behind or pushed through it. `games/Summit`'s lift heads for where it
 is due:
 
+<!-- compiled with:
+PhysicsBody lift = default;
+-->
 ```csharp
 var liftY = 4.5f - 1.5f * MathF.Cos((float)GetTime() * 0.6f);
 var liftAt = GetPhysicsBodyPosition(lift);
@@ -65,6 +72,12 @@ distance a step. A parent the program puts somewhere, as when a level starts aga
 there at rest rather than flinging it through whatever is between, once the program says so in that
 frame:
 
+<!-- compiled with:
+EcsWorld ecs = null!;
+BehaviorContext ctx = null!;
+Entity carrier = default;
+Vector3 start = default;
+-->
 ```csharp
 ecs.GetRef<Transform>(carrier).Position = start;
 ctx.Physics.MarkPlaced(carrier);
@@ -79,6 +92,12 @@ A body of a model's own shape that falls and tumbles, as a rock or a barrel, is
 vertices. Its position is the model's origin, where the model is drawn, though it turns about its
 center of mass. The `physics_boxes` example drops cones among its boxes:
 
+<!-- compiled with:
+Model cone = default;
+List<PhysicsBody> cones = [];
+int i = 0;
+PhysicsBody body = default;
+-->
 ```csharp
 cones.Add(CreatePhysicsConvexHull(cone, new Vector3(Random.Shared.NextSingle() * 6 - 3, 4 + i, Random.Shared.NextSingle() * 6 - 3), mass: 0.5f));
 // ...
@@ -117,6 +136,9 @@ turned, and `GetPhysicsBodyAngularVelocity` and `SetPhysicsBodyAngularVelocity` 
 surface's normal and the distance. With the ray under the mouse it picks a body with a click, as `physics_boxes`
 does to push the box clicked:
 
+<!-- compiled with:
+Camera3D camera = default;
+-->
 ```csharp
 // A click pushes the box under the pointer away from the camera and up.
 if (IsMouseButtonPressed(MouseButton.Left) &&
@@ -134,6 +156,11 @@ its middle moved, where it touched and which way the surface faces there. A came
 player pulled in from a wall casts a ball of its own size from the player back toward where it
 would be, and stops where the ball does:
 
+<!-- compiled with:
+Camera3D camera = default;
+Vector3 head = default, wanted = default;
+PhysicsBody player = default;
+-->
 ```csharp
 var back = Vector3.Normalize(wanted - head);
 var room = GetSphereCastPhysicsEx(new Ray(head, back), 0.3f, Vector3.Distance(head, wanted), player);
@@ -143,6 +170,9 @@ camera.Position = room.Hit ? head + back * room.Distance : wanted;
 `GetPhysicsBodiesInSphere` gives back every body a sphere reaches, by their shapes and not their
 bounds, each once, as what an explosion pushes:
 
+<!-- compiled with:
+Vector3 blast = default;
+-->
 ```csharp
 foreach (var body in GetPhysicsBodiesInSphere(blast, 4))
     ApplyPhysicsImpulse(body, Vector3.Normalize(GetPhysicsBodyPosition(body) - blast) * 10);
@@ -155,6 +185,9 @@ flashes a box white by. `GetPhysicsContacts` lists every pair that started touch
 with where they met, the normal between them, and `Speed`, how fast they closed, which says how
 hard they hit:
 
+<!-- compiled with:
+Sound thud = default!;
+-->
 ```csharp
 foreach (var contact in GetPhysicsContacts())
     if (contact.Speed > 2) PlaySound(thud);
@@ -167,6 +200,9 @@ mass over 60, whether it rests or is dragged across, since the friction is not c
 asked about goes on being answered with that once it sleeps. Times 60, the steps in a second, it is
 the force between them:
 
+<!-- compiled with:
+PhysicsBody plate = default, crate = default;
+-->
 ```csharp
 var pressed = GetPhysicsContactImpulse(plate, crate) * 60 > 200;   // more than about 20 kg
 ```
@@ -177,6 +213,9 @@ var pressed = GetPhysicsContactImpulse(plate, crate) * 60 > 200;   // more than 
 pickup or a door's sensor. A body entering it is a contact that starts, in `GetPhysicsContacts`
 like any other:
 
+<!-- compiled with:
+var won = false;
+-->
 ```csharp
 var goal = CreatePhysicsTrigger(new Vector3(0, 1, -20), new Vector3(4, 2, 1));
 // ...
@@ -187,6 +226,11 @@ foreach (var contact in GetPhysicsContacts())
 `GetPhysicsContactsEnded` lists the pairs that stopped touching this frame, so a door's sensor
 knows who is still in it by counting who entered and who left:
 
+<!-- compiled with:
+PhysicsBody sensor = default;
+PhysicsJoint hinge = default;
+var inside = 0;
+-->
 ```csharp
 foreach (var contact in GetPhysicsContacts()) if (contact.BodyA == sensor || contact.BodyB == sensor) inside++;
 foreach (var contact in GetPhysicsContactsEnded()) if (contact.BodyA == sensor || contact.BodyB == sensor) inside--;
@@ -206,6 +250,9 @@ until told otherwise. A player's shots that should pass through the player, enem
 not jam in a doorway against each other, and a pickup only the player takes are layers that do
 not collide:
 
+<!-- compiled with:
+PhysicsBody player = default;
+-->
 ```csharp
 const int Player = 1, Shots = 2, Enemies = 3;
 SetPhysicsLayersCollide(Player, Shots, false);
@@ -227,6 +274,9 @@ a second crosses a wall a fifth of a unit thick within a step and is never seen 
 `SetPhysicsBodyContinuous` sweeps a body over each step to find what it would meet, for the few a
 game knows are fast:
 
+<!-- compiled with:
+Vector3 hand = default, aim = default;
+-->
 ```csharp
 var ball = CreatePhysicsSphere(hand, 0.1f, 0.4f);
 SetPhysicsBodyContinuous(ball, true);
@@ -275,6 +325,10 @@ tip at a speed for a positive one, with no more than a force, and `GetPhysicsSli
 how far along it is. A lift that carries what stands on it is a car slid up a frame that stays
 still:
 
+<!-- compiled with:
+Vector3 shaftBottom = default;
+var goingUp = true;
+-->
 ```csharp
 var frame = CreatePhysicsKinematicBox(shaftBottom, new Vector3(2, 0.2f, 2));
 var car = CreatePhysicsBox(shaftBottom + Vector3.UnitY, new Vector3(2, 0.2f, 2), mass: 200);
@@ -295,6 +349,12 @@ and drives or brakes along the way it points. `SetPhysicsVehicleInput` drives it
 a pad, and the wheels are worked out on the physics' fixed steps, so it drives the same however
 fast frames come. `games/Rally` races one:
 
+<!-- compiled with:
+Vector3 start = default;
+float throttle = 0, steer = 0;
+bool brake = false;
+Model tyre = default;
+-->
 ```csharp
 var car = CreatePhysicsVehicle(start, new Vector3(1.8f, 0.6f, 3.8f));
 // ...each frame
@@ -343,6 +403,11 @@ A body belongs to an entity when it is made through `ctx.Physics`, the physics w
 entity beside it is drawn where it is with no code. The `ecs_physics` example drops boxes this way. In the ECS a box is given by half its size, the
 distance from its center to each face:
 
+<!-- compiled with:
+BehaviorContext ctx = null!;
+Vector3 at = default;
+Vector3[] Cube = [];
+-->
 ```csharp
 var box = ctx.Ecs.Spawn();
 ctx.Ecs.Add(box, ctx.Physics.CreateBox(at, new Vector3(0.5f), entityId: box));

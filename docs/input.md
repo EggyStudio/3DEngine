@@ -19,6 +19,10 @@ A key is held, went down this frame, or came up this frame, and each has its own
 From the `core_2d_camera` example, which moves its player while the arrows are held and turns its
 camera with A and S:
 
+<!-- compiled with:
+Rectangle player = default;
+Camera2D camera = default;
+-->
 ```csharp
 var step = (IsKeyDown(Key.Right) ? 1 : 0) - (IsKeyDown(Key.Left) ? 1 : 0);
 player = player with { X = player.X + step * 240 * GetFrameTime() };
@@ -40,6 +44,9 @@ the same speed at any frame rate. A program typing text reads `GetCharPressed` i
 asked as keys are, with `IsMouseButtonDown`, `IsMouseButtonPressed` and `IsMouseButtonReleased`.
 From the `shaders_compute_life` example, where holding the left button draws cells:
 
+<!-- compiled with:
+const float CellSize = 8;
+-->
 ```csharp
 // Holding the left button brings cells to life under the pointer.
 if (IsMouseButtonDown(MouseButton.Left))
@@ -52,6 +59,9 @@ if (IsMouseButtonDown(MouseButton.Left))
 `GetMouseDelta` gives how far the pointer moved this frame and `GetMouseWheelMove` how far the
 wheel turned, which `core_2d_camera` zooms by:
 
+<!-- compiled with:
+Camera2D camera = default;
+-->
 ```csharp
 camera.Zoom = Math.Clamp(MathF.Exp(MathF.Log(camera.Zoom) + GetMouseWheelMove() * 0.1f), 0.1f, 3f);
 ```
@@ -65,6 +75,9 @@ shows.
 
 `SetMouseCursor` sets the pointer's shape, as the bar over a text field or a hand over a link:
 
+<!-- compiled with:
+Rectangle playButton = default;
+-->
 ```csharp
 SetMouseCursor(CheckCollisionPointRec(GetMousePosition(), playButton) ? MouseCursor.PointingHand : MouseCursor.Default);
 ```
@@ -147,6 +160,12 @@ the next key pressed and `GetGamepadButtonPressed` the button pressed last while
 settings screen waiting for one binds whatever comes, and `SaveFileText` and `LoadFileText` keep the table beside the program
 between runs. `games/Manor` does this, from its `Settings` class:
 
+<!-- compiled with:
+public enum Action { Jump, Interact }
+Action? waitingFor = null;
+Dictionary<Action, Key> keys = [];
+Dictionary<Action, GamepadButton> buttons = [];
+-->
 ```csharp
 if (waitingFor is { } action && GetKeyPressed() is var key && key != Key.Null)
 {
@@ -166,6 +185,9 @@ A file dragged from the desktop onto the window is kept by the engine until the 
 so a drop is not lost to a frame that did not ask. `LoadDroppedFiles` gives the paths in the order
 they arrived and `UnloadDroppedFiles` forgets them. From the `core_drop_files` example:
 
+<!-- compiled with:
+List<string> files = [];
+-->
 ```csharp
 if (IsFileDropped())
 {
@@ -182,6 +204,9 @@ ImGui reads the same keyboard and mouse. `UpdateCamera` leaves the camera still 
 over an ImGui window or text is typed into a field, and a program reading input of its own asks
 ImGui the same way, through `ImGuiNET`, before taking a click for the game:
 
+<!-- compiled with:
+void Shoot() { }
+-->
 ```csharp
 if (IsMouseButtonPressed(MouseButton.Left) && !ImGui.GetIO().WantCaptureMouse) Shoot();
 ```
@@ -197,6 +222,10 @@ Escape do the same from a keyboard.
 A behavior reads the same input through its context, `ctx.Input`, as the `ecs_behaviors` example
 does to spawn more balls:
 
+<!-- compiled with:
+BehaviorContext ctx = null!;
+void Spawn(BehaviorContext context, int count) { }
+-->
 ```csharp
 if (ctx.Input.KeyPressed(Key.Space)) Spawn(ctx, 100);
 ```

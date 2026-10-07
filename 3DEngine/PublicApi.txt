@@ -235,6 +235,8 @@ sealed class Engine.BehaviorContext
   float FixedDelta { get; }
   int EntityId { get; set; }
   void SetState<TState>(TState value) where TState : struct, Enum
+static class Engine.BehaviorSounds
+  static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default)
 enum Engine.BlendMode : int
   AddColors = 3
   Additive = 1

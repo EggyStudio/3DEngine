@@ -77,10 +77,6 @@ internal static class AudioLoadExtensions
         return server.PlaySpatial(handle, assets, position, parameters);
     }
 
-    /// <inheritdoc cref="PlaySpatialSound(World, string, Vector3, AudioVoiceParams)"/>
-    public static AudioSource PlaySpatialSound(this BehaviorContext ctx, string path, Vector3 position, AudioVoiceParams parameters = default) =>
-        ctx.World.PlaySpatialSound(path, position, parameters);
-
     // -- AudioServer-level convenience for the user-illustrated CreateSpatialSource / CreateSource shape
 
     /// <summary>

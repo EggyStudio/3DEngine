@@ -10,10 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `f5a102d6`. An OpenType font of CFF outlines draws its characters past U+FFFF from
-its Type 2 charstrings, CID-keyed fonts among them, checked against STIX Two Math and Noto Sans CJK
-and by the scan of 444 fonts (`3c72e321`); the games' errors on Windows and macOS name the system as
-a reader knows it (`eb5f95f5`); a font that joins sequences shapes a string once and draws it again
+Reviewed up to `913e78e0`. Windows and macOS follow the README in a new project and build and run
+every step of the first game after their games, each as a step of its own with its own error, the
+paths written into files and variables put through `cygpath` where Git bash would mangle them, about
+three to five minutes added to each job and unrun on either system until the push (`913e78e0`),
+which settles item 4. TODO.md's order is through to its described limits, so items 4 and 5 are new;
+the working session reached the end of its context at 06:10 on 2026-10-07 with item 4 scoped and not
+begun, its plan in the item, and the next session in this repository takes 4 and then 5. The suite:
+1,461 passed, none skipped. The owner pushed `913e78e0` at 09:23, and its run: Linux green; macOS
+failed one test, the offscreen hundred of `AppLeakTests` with the heap up by 7 MB, which is Verdict
+32; Windows passed its suite and then every game failed to open through `e3d` with no reason on the
+page, which is Verdict 33; the README walk and the first game ran on neither system behind those
+failures, and the examples job was skipped, so Verdicts 30 and 31 wait.
+
+Before them, an OpenType font of CFF outlines came to draw its characters past U+FFFF from its Type
+2 charstrings, CID-keyed fonts among them, checked against STIX Two Math and Noto Sans CJK and by
+the scan of 444 fonts (`3c72e321`); the games' errors on Windows and macOS name the system as a
+reader knows it (`eb5f95f5`); a font that joins sequences shapes a string once and draws it again
 from what it kept (`d9e5bac2`); and a twentieth reference frame compares color text whole, paints,
 joined bitmaps and tinted layers, TODO.md's testing entry naming the twenty (`f5a102d6`). TODO.md's
 text entry is down to text shaped whole, which stays described. Item 4 is new. The suite: 1,461
@@ -28,14 +41,6 @@ own error while the rest play, about eleven minutes added to each job and unrun 
 until the push (`9ef68bab`), which settles item 4. A font of Apple's bitmaps draws its emoji in
 color (`be170635`). The suite: 1,458 passed, none skipped.
 
-Before them, a distance field font came to hold its characters past U+FFFF from the font's outlines,
-rasterized into the bake at four times the size before the distances are measured, and
-`LoadFontEx`'s remarks say what is drawn of a color font (`c8e11f3d`). An entity goes as a state
-enters a value, or at the first transition a rule answers true for, `DespawnOnEnter` and
-`DespawnWhen` beside `DespawnOnExit`, both acting in the frame of the transition since the
-transition is the engine's own, where BevyCSharp asks its rule the frame after, with a test each and
-the states guide (`acdd8fcb`), which settles item 4. The suite: 1,453 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -46,22 +51,35 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 30 and 31 first, the soak's unnamed game and the blind measure.** The examples job
-   of `22bbf15a` passed every game's step and failed at the soak without naming a game, and its
-   measure drew no frame of raylib's for any pair; both are taken apart in the verdicts. Each push's
-   run is read by the reviewing session, and a failure it names comes first here.
+1. **Verdicts 30 to 33 first, the run of `913e78e0` and the examples job.** The run of `913e78e0`
+   failed on macOS in the offscreen hundred of `AppLeakTests` (Verdict 32) and on Windows in every
+   game's opening through `e3d` (Verdict 33), its examples job skipped behind them, so Verdicts 30
+   and 31 wait for the next examples job, and the README walk and the first game, which come after
+   the games in the Windows and macOS jobs, have run on neither system. Each push's run is read by
+   the reviewing session, and a failure it names comes first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the seven has.
 3. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **The README's walk and the first game's steps on Windows and macOS.** The examples job
-   follows the README in a new project and builds and runs every step of the first game on Linux
-   alone, where a newcomer on Windows is the common case and the two systems found what Linux did
-   not four times today. The test jobs of Windows and macOS run `build/readme-walk.sh` and the first
-   game's steps from the package as they play the games, each failing step with its own error on the
-   page, the minutes added said in the commit, and a step that cannot run on a system says why.
+4. **Every code block of `docs/` compiles against the package.** The guides hold 160 C# blocks,
+   and nothing holds them to the surface, which moved by 130 lines this week; the README's walk
+   holds the README alone, and `build/first-game.sh` builds `first-game.md`'s 22 blocks step by
+   step, so those are covered by pointing at the steps. The plan the last session left, scoped and
+   not begun: `build/docs-on-package.sh` writes one `.cs` a block into a project outside the
+   repository on the newest package, as `examples-on-package.sh` builds the examples, with the
+   page's usings; a block of top-level statements or a fragment goes into a static method of a class
+   of its own and a block that declares types goes in whole; a block marked in the page, as ````
+   ```csharp skip ```` or a comment before the fence, is left out with its reason on the page; the
+   project is built in `build.yml` beside the examples' check, the compiler's errors mapped back to
+   page and block in `::error` lines; and a `ScriptTests` case feeds the script a page with one good
+   block and one stale one.
+5. **A page for a game moving from 5.1 to 6.0.** Every change of the public surface since the 5.1
+   pack at `b43818f9`, the names raylib's took, the arguments reordered, the three names dropped and
+   the fields renamed, is a line of `docs/upgrading.md` saying what a game wrote and what it writes,
+   held by a test that every name `PublicApi.txt` lost since that commit appears on the page, so 6.0
+   can be cut with the page beside its notes. The page names no one who decided (N 4.7).
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -96,6 +114,36 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     output, and records nothing. And the cause is found in the workflow's image, where the job's
     steps were run before the measure joined them, by running one pair's raylib program there as
     `compare.py` runs it and reading what it says. Settled when a run's notices carry shares.
+
+32. **The run of `913e78e0` fails on macOS alone, in the offscreen hundred of `AppLeakTests`.**
+    Read from the page: 1,434 passed, 1 failed, 10 skipped, and the test that makes and closes a
+    drawing app a hundred times found the GC's heap at 65.3 MB after the hundredth app against 58.2
+    MB after the twentieth, 7.1 MB over eighty apps against a cap of 5, about 90 KB an app if it is
+    a slope, the threads level at 31 to 33 throughout. Linux and Windows pass the same test, and the
+    headless hundred passes on macOS, so a closed app that drew leaves something on the managed heap
+    on macOS that it leaves nowhere else, and the test's two readings cannot tell a slope from a
+    step. Two things. The offscreen test reads the heap every ten apps as the headless one does
+    (`heapEveryTen`), so the page says whether the heap grew by an app's worth at a time or in one
+    step. And the cause is found on macOS, by reading which types grew between the twentieth app and
+    the hundredth, a `dotnet-gcdump` or `GC.GetGCMemoryInfo` in the job for the failing test; the
+    one macOS-only thing the tests name, the context macOS's `FileSystemWatcher` keeps until
+    FSEvents lets go of its stream, is a place to look and not the cause. Settled when the macOS job
+    passes the test.
+
+33. **The run of `913e78e0` fails on Windows in every game's opening, and the page says no more
+    than `did not open`.** Read from the page: the suite passed there, 1,452 with 9 skipped,
+    `build/play-game.sh` drew Pusher from the package under the validation layer, and then
+    `build/drive-game.sh` failed for all eight games at `./e3d open`, each error `<game>: did not
+    open.` and nothing after it, since `--quiet` keeps e3d's own refusal off the page and the
+    script's last warnings came from a log that had none or is not where the script looks,
+    `build/sessions/<game>.log`. e3d refuses an opening with a sentence, `could not be started` with
+    the error, or `did not start serving within` its patience naming the log it wrote, and neither
+    reached the page, so the cause of the first opening of the games through a session on Windows is
+    unread. Two things. The script's error for `open` carries e3d's refusal, its code and its
+    sentence, and the last lines of the log e3d names, read from that path, which N 6.7 asks of a
+    failure; and the cause is found with the run of the mend, the eight failing alike pointing at
+    what they share, the session a game serves and e3d waits for on Windows, and not at a game.
+    Settled when the Windows job plays the eight games.
 
 ## Decisions
 
@@ -173,14 +221,25 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, the README and the first game on Windows and macOS.** Both test jobs follow the README in
-a new project (`build/readme-walk.sh`) and build and run every step of the first game
-(`build/first-game.sh`) from the package after playing the games, each a step of its own, so a
-failing one has its own error on the page. Writing a path into a file or a variable does not turn
-it into Windows' form as an argument is, so each script writes the package's folder into
-`nuget.config`, the template's parameter and `DOTNET_CLI_HOME` through `cygpath -m` where Git's
-bash runs, and the README walk takes its own temporary folder in place of `$RUNNER_TEMP`, whose
-backslashes Git's bash reads otherwise. Here the walk takes 33 seconds and the eight steps 56, so a
-runner, restoring from nuget.org and installing the templates, likely adds three to five minutes to
-each job. The script tests hold both to what macOS's bash and BSD's tools read. Neither has run on
-either system until the push.
+**Now 4, every block of `docs/` built on the package.** `build/docs-on-package.py` builds the 138
+C# blocks of fifteen guides on the packed package in a project outside the repository, in the
+examples job after the examples' own check, `first-game.md`'s 22 left to `build/first-game.sh`. A
+block's lines are sorted by what they declare at its own level: types go in a namespace of its own,
+members in a class, and statements in a method inside a loop run once, so a fragment's `continue`
+has one. They come after the lines a `<!-- compiled with: -->` comment right above the fence gives,
+which 89 blocks have. A block a `<!-- not compiled: -->` comment marks is left out with its reason,
+and none needs one. Errors are said at the page's line, as annotations. It is Python rather than
+bash, since it parses the pages and maps the compiler's lines back, as `compare.py` and
+`soak-check.py` are. It found three faults.
+
+- The audio guide teaches `ctx.PlaySpatialSound`, which `82b1feb4` made internal with the class it
+  was in, so no game could call it. It is public again as `BehaviorSounds.PlaySpatialSound`, one
+  type in `PublicApi.txt`, and the rest of that class stays internal.
+- The states guide's block of `DespawnOnEnter`, mine of yesterday, named a `Screen.Menu` the page's
+  enum does not have, as did the cheatsheet's line.
+- Five fragments no compiler reads: values elided as `/* ... */`, a signature with no body,
+  initializer members with no initializer, and a function's body with its `return`, twice. Each is
+  written as the code it comes from.
+
+A test feeds the script a page with a good block, a stale one and one marked not compiled. The
+suite: 1,462 passed, none skipped.
