@@ -51,6 +51,11 @@ jobs:
 
       - run: dotnet build 3DEngine.slnx -warnaserror
 
+      # The commit the 5.1 package was packed from, alone, which the checkout of the last commit
+      # lacks, so UpgradingTests compares the public surface with it on every push and holds
+      # docs/upgrading.md to every name lost since.
+      - run: git fetch --depth=1 origin b43818f94727d10b6c8019b3d89ab5703491b18f
+
       # build/test.py runs the suite held to a time and a memory, runs it again in parts where a
       # process is lost, and ends the log with a page of what failed, which is the job's summary and
       # its annotations. glibc is held to two arenas, since each device lavapipe opens starts threads

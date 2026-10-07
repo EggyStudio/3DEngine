@@ -302,7 +302,9 @@ to keep is turned off where it arises, with its reason. A Vulkan instance asks f
 devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
 the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with
 which `AppLeakTests` counts the heap's objects by type after its twentieth app and its hundredth,
-so a failure there names the types that grew.
+so a failure there names the types that grew. The Linux job fetches the commit the 5.1 package was
+packed from, alone, so `UpgradingTests` holds `docs/upgrading.md` to every name the public surface
+lost since.
 
 On Linux, `build.yml` then checks the package as a player and a reader meet it.
 `build/play-native.sh Pusher` publishes the game as native code from the package and draws 300

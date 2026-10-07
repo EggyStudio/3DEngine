@@ -10,7 +10,20 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1c848a20`. Verdict 33's cause was e3d's: on Windows it added its `cmd.exe /c start`
+Reviewed up to `2a81d369`. `docs/upgrading.md` moves a game from 5.1 to 6.0, counting from 5.1.116,
+the package packed at `b43818f9`, with a row for every name the public surface lost since saying
+what a game wrote and what it writes, the two changes that still compile first, a capsule's rings
+before its slices and the log levels numbered as raylib numbers them, then the three functions gone,
+the 26 keys, the 15 gamepad buttons, `Critical` as `Fatal`, the skeleton and the keyframes, and what
+was added; the README links it, and it names no one who decided. `UpgradingTests` reads
+`PublicApi.txt` at `b43818f9` from git and as it is, and fails naming each lost type or member the
+page lacks in code, which the workflow's shallow checkout skips, so the Linux job fetching that
+commit is item 4 by the new count. A sweep mended two stale names, `GetKeyPressed`'s summary and
+RENDERING.md's `FrameMorphWeights`. N 1.4 leaves out 14 (`2a81d369`), which settles item 4. The
+session takes TODO.md's order while Verdicts 30 to 33 wait for a push. The suite: 1,470 passed, none
+skipped.
+
+Before them, Verdict 33's cause was found to be e3d's: on Windows it added its `cmd.exe /c start`
 line to `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that
 cmd.exe keeps, `start` took the escaped title for the program and the log's path was none; the line
 goes to cmd.exe as written through `Arguments`, `drive-game.sh` keeps e3d's answer as JSON and fails
@@ -21,8 +34,8 @@ tests count the heap's objects by type after the twentieth app and the hundredth
 the five types that grew most; on the way the session read that the scripts' shared watch of Verdict
 27 is let go with the last app watching, so a hundred apps made one after another make a hundred
 FSEvents streams, which the census's answer is read against first (`1c848a20`). Both verdicts wait
-for the Windows and macOS jobs, and the session is on item 4. BevyCSharp's `bcs` gives cmd.exe its
-start line the same way, which is its item 4. The suite: 1,462 passed, none skipped.
+for the Windows and macOS jobs. BevyCSharp's `bcs` gives cmd.exe its start line the same way, which
+is its item 4. The suite: 1,462 passed, none skipped.
 
 Before them, every C# block of the guides came to build on the packed package in the examples job,
 138 blocks of fifteen pages: `build/docs-on-package.py` sorts a block's lines by what they declare,
@@ -35,19 +48,6 @@ internal since `82b1feb4` and is public again as `BehaviorSounds.PlaySpatialSoun
 to `PublicApi.txt` and none lost; the states guide and the cheatsheet named a `Screen.Menu` the
 page's enum lacks; and five fragments no compiler reads are written as their code (`a4f31573`).
 N 1.4 leaves out 13. The suite: 1,462 passed, none skipped.
-
-Before them, Windows and macOS came to follow the README in a new project and build and run every
-step of the first game after their games, each as a step of its own with its own error, the paths
-written into files and variables put through `cygpath` where Git bash would mangle them, about three
-to five minutes added to each job and unrun on either system until the push (`913e78e0`), which
-settles item 4. TODO.md's order is through to its described limits, so items 4 and 5 are new; the
-working session reached the end of its context at 06:10 on 2026-10-07 with item 4 scoped and not
-begun, its plan in the item, and the next session in this repository takes 4 and then 5. The suite:
-1,461 passed, none skipped. The owner pushed `913e78e0` at 09:23, and its run: Linux green; macOS
-failed one test, the offscreen hundred of `AppLeakTests` with the heap up by 7 MB, which is Verdict
-32; Windows passed its suite and then every game failed to open through `e3d` with no reason on the
-page, which is Verdict 33; the README walk and the first game ran on neither system behind those
-failures, and the examples job was skipped, so Verdicts 30 and 31 wait.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -71,11 +71,11 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **A page for a game moving from 5.1 to 6.0.** Every change of the public surface since the 5.1
-   pack at `b43818f9`, the names raylib's took, the arguments reordered, the three names dropped and
-   the fields renamed, is a line of `docs/upgrading.md` saying what a game wrote and what it writes,
-   held by a test that every name `PublicApi.txt` lost since that commit appears on the page, so 6.0
-   can be cut with the page beside its notes. The page names no one who decided (N 4.7).
+4. **The upgrading page held in the workflow.** `UpgradingTests` needs `b43818f9` in the
+   checkout, which the workflow's shallow checkout lacks, so the page is held on a developer's
+   machine alone. The Linux job fetches that one commit before the suite, `git fetch --depth=1
+   origin b43818f9`, so the test runs there on every push, and the skip's sentence stays for a
+   checkout without it.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -230,20 +230,9 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, the page for a game moving from 5.1 to 6.0.** `docs/upgrading.md` counts from 5.1.116,
-the package packed at `b43818f9`, and has a row for every name lost since, saying what a game wrote
-and what it writes. The two changes that still compile come first, capsules taking rings before
-slices, which a call written for 5.1 draws with the two swapped, and the log levels numbered from
-`All` to `None` as raylib numbers them, so a level kept as a number is one higher. Then come the
-three functions with the calls that do their work, `ImageColorContrast` taking a whole number and
-`ImageDrawRectangleLines` taking raylib's arguments, the 26 keys, the 15 gamepad buttons,
-`Critical` as `Fatal`, the skeleton and the keyframes, and what was added. The README links it.
-`UpgradingTests` reads `PublicApi.txt` at `b43818f9` from git and as it is now, and fails naming
-each lost type or member the page lacks in code, as `Type.Member`, or by its name alone for the
-flat API. Taking four rows out had it name those four. A reordered call loses its line as well, so
-`DrawCapsule` is held too. It needs the commit in the checkout, as N 7.2's test does, and the
-workflow's shallow checkout skips both. A `git fetch --depth=1 origin b43818f9` in the Linux job
-would hold the page there as well, if it is wanted. `NeedsHistoryFact` takes the commit and what is
-read from it. A sweep for the old names found two left, `GetKeyPressed`'s summary saying it answers
-`Unknown` and RENDERING.md naming `FrameMorphWeights`, and both are mended. N 1.4 leaves out 14 now.
-The suite: 1,470 passed, none skipped.
+**Now 4, the upgrading page held in the workflow.** The Linux job fetches `b43818f9` alone after its
+build and before the suite, by its full hash, since a server is asked for a commit by the whole of
+it, so `UpgradingTests` runs there on every push. A shallow clone of this repository fetching it
+that way held the commit, read `PublicApi.txt` at it and kept its history at one commit. BUILDING.md
+says so, and the skip's sentence stays for a checkout without it. Nothing that builds changed, and
+the norm's tests pass.
