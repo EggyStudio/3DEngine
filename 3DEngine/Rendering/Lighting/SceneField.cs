@@ -95,7 +95,7 @@ internal sealed class SceneFieldRenderer : IDisposable
 
         Gather(renderWorld);
         var plan = _plan!;
-        plan.Update(view.Eye, _drawn);
+        plan.Update(view.Eye, _drawn, Ahead(view));
 
         var commands = renderContext.CommandBuffer;
         device.RecordSceneFieldInfo(commands, _field, Info(plan));
@@ -132,11 +132,16 @@ internal sealed class SceneFieldRenderer : IDisposable
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
         if (_bounds.Count > 4096) _bounds.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
+        var textures = renderWorld.TryGet<TextureStore>();
+        // A surface's color, its material's times its texture's average where it has one.
+        Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
         {
             if (draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
-            _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided), store.IsSkinned(draw.Mesh)));
+            var one = ModelRenderer.Instance.Of(in draw);
+            _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
+                Textured(new Vector3(one.Color.X, one.Color.Y, one.Color.Z), draw.Texture), draw.Emission), store.IsSkinned(draw.Mesh)));
         }
         foreach (var group in draws.Groups)
         {
@@ -149,11 +154,24 @@ internal sealed class SceneFieldRenderer : IDisposable
             group.CopyTo(_groupInstances);
             for (int i = 0; i < group.Count; i++)
             {
-                var (x, y, z) = (_groupInstances[i].WorldX, _groupInstances[i].WorldY, _groupInstances[i].WorldZ);
+                ref readonly var instance = ref _groupInstances[i];
+                var (x, y, z) = (instance.WorldX, instance.WorldY, instance.WorldZ);
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
-                _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided), skinned));
+                _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
+                    Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
+                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z)), skinned));
             }
         }
+    }
+
+    // The way the window's camera looks, from its far plane's middle, or zero where it cannot be told.
+    private static Vector3 Ahead(WindowView view)
+    {
+        if (!Matrix4x4.Invert(view.ViewProjection, out var inverse)) return Vector3.Zero;
+        var far = Vector4.Transform(new Vector4(0, 0, 1, 1), inverse);
+        if (MathF.Abs(far.W) < 1e-12f) return Vector3.Zero;
+        var way = new Vector3(far.X, far.Y, far.Z) / far.W - view.Eye;
+        return way.LengthSquared() > 1e-12f ? Vector3.Normalize(way) : Vector3.Zero;
     }
 
     private SceneFieldPlan.Box BoundsOf(ModelVertex[] vertices)
@@ -204,21 +222,23 @@ internal sealed class SceneFieldRenderer : IDisposable
         return _corners;
     }
 
-    // A build's instances as field_splat.slang's FieldInstance reads them, with how many there are
-    // and how many triangles they have in all.
+    // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, with how
+    // many there are and how many triangles they have in all.
     private (IBuffer Buffer, int Count, int Triangles) Instances(GraphicsDevice device, SceneFieldPlan.Instance[] instances)
     {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, instances.Length) * 64, BufferUsage.Storage, CpuAccessMode.Write));
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, instances.Length) * 96, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
         int written = 0, triangles = 0;
         foreach (var instance in instances)
         {
             if (!_pooled.TryGetValue(instance.Vertices, out var pooled) || pooled.Count == 0) continue;
-            var record = mapped.Slice(written * 16, 16);
-            var w = instance.World;
+            var record = mapped.Slice(written * 24, 24);
+            var (w, c, e) = (instance.World, instance.Color, instance.Emission);
             ReadOnlySpan<float> rows = [w.M11, w.M21, w.M31, w.M41, w.M12, w.M22, w.M32, w.M42, w.M13, w.M23, w.M33, w.M43];
             MemoryMarshal.Cast<float, uint>(rows).CopyTo(record);
             (record[12], record[13], record[14], record[15]) = ((uint)pooled.First, (uint)pooled.Count, instance.DoubleSided ? 1u : 0u, (uint)triangles);
+            ReadOnlySpan<float> colors = [c.X, c.Y, c.Z, 1, e.X, e.Y, e.Z, 0];
+            MemoryMarshal.Cast<float, uint>(colors).CopyTo(record[16..]);
             triangles += pooled.Count;
             written++;
         }

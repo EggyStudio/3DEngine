@@ -3,14 +3,19 @@
 // world by its instance's matrix, and every cell within the band of cells around it, a box the
 // triangle's bounds grown by the band, takes its distance to the triangle, the least of those any
 // triangle gives kept by an atomic minimum of a word that holds the distance in 1024ths of a cell
-// above a bit set where the cell lies in front of the triangle's face. Of two triangles as near to
-// that 1024th, as where a crate stands on the ground, one behind whose face the cell lies wins, the
-// cell being inside some mesh. A cell is behind a triangle only where the way from the triangle's
+// above a bit set where the triangle is double-sided and a bit set where the cell lies in front of
+// the triangle's face. Of two triangles as near to that 1024th, as where a crate stands on the
+// ground, one behind whose face the cell lies wins, the cell being inside some mesh. A double-sided
+// triangle has no inside, and the resolve takes half a cell off its distance, so a sheet thinner
+// than a cell, as a wall or a floor of a mesh imported double-sided, crosses zero between the cells
+// on either side wherever it lies between them and stops a ray traced through the field. A cell is behind a triangle only where the way from the triangle's
 // nearest point to it lies within 60 degrees of straight back from the face, so where an edge or a
 // corner is nearest, as above a pillar's rim or level with a wall's side above the wall, a face
 // the way runs along does not put the cell inside, and of an open mesh, as a ground plane, only a
 // narrow wedge below its edge is inside. A cell no triangle comes within the band of keeps the
-// word it was cleared to, the band's distance in front.
+// word it was cleared to, the band's distance in front. A second dispatch over the same triangles
+// paints each cell the color and the light given off of a triangle whose word is the one the cell
+// kept, its nearest surface, which light that bounces is read from.
 
 struct FieldInstance
 {
@@ -22,6 +27,10 @@ struct FieldInstance
     // inside, as a double-sided one, whose cells are all in front. w: the first of its triangles
     // counted over every instance before it.
     uint4 triangles;
+    // rgb: the surface's color, linear, its material's times its texture's average.
+    float4 color;
+    // rgb: the light the surface gives off, linear.
+    float4 emission;
 };
 
 // Each triangle of every mesh the field is built from, three corners in the mesh's own space.
@@ -35,6 +44,14 @@ StructuredBuffer<FieldInstance> instances;
 [[vk::binding(2, 0)]]
 RWStructuredBuffer<uint> cells;
 
+// The color of each cell's nearest surface, eight bits a channel, linear, and the light it gives
+// off, half floats, which the second dispatch writes.
+[[vk::binding(3, 0)]]
+RWStructuredBuffer<uint> albedo;
+
+[[vk::binding(4, 0)]]
+RWStructuredBuffer<uint2> glow;
+
 struct SplatPush
 {
     // xyz: the cascade's corner. w: the width of a cell.
@@ -42,6 +59,7 @@ struct SplatPush
     // x: the cells along each side. y: how many instances. z: how many triangles in all. w: the band in cells.
     uint4 counts;
     // x: how many workgroups the dispatch has along x, which the triangle's number is read across.
+    // y: 1 for the dispatch that paints, 0 for the one that finds the distances.
     uint4 groups;
 };
 
@@ -84,6 +102,13 @@ float3 place(FieldInstance instance, float3 p)
 }
 
 groupshared uint triangleInstance;
+
+// Two floats as halves in a word, by GLSL's own instruction, which needs no 16-bit types of the
+// device, where HLSL's f32tof16 declares them.
+uint packHalves(float2 v)
+{
+    return spirv_asm { result:$$uint = OpExtInst glsl450 PackHalf2x16 $v };
+}
 
 [shader("compute")]
 [numthreads(64, 1, 1)]
@@ -138,7 +163,18 @@ void computeMain(uint3 group : SV_GroupID, uint lane : SV_GroupIndex)
         if (d >= reach)
             continue;
         uint front = sided && dot(p - q, face) < -0.5 * d * length(face) ? 0u : 1u;
-        uint code = (uint(d / cell * 1024.0) << 1) | front;
-        InterlockedMin(cells[(at.z * size + at.y) * size + at.x], code);
+        uint code = (uint(d / cell * 1024.0) << 2) | (sided ? 0u : 2u) | front;
+        uint index = (at.z * size + at.y) * size + at.x;
+        if (push.groups.y == 0u)
+        {
+            InterlockedMin(cells[index], code);
+        }
+        else if (cells[index] == code)
+        {
+            uint3 c = uint3(saturate(instance.color.rgb) * 255.0 + 0.5);
+            albedo[index] = c.r | (c.g << 8) | (c.b << 16) | (255u << 24);
+            float3 e = max(instance.emission.rgb, 0.0);
+            glow[index] = uint2(packHalves(e.rg), packHalves(float2(e.b, 0.0)));
+        }
     }
 }

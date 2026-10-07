@@ -24,6 +24,12 @@ internal sealed class AmbientOcclusionSettings
 internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 
 /// <summary>
+/// The depth of the window's meshes that cast shadows at half the window's size this frame, which
+/// the occlusion is worked out from and the light that bounces places its screen's probes on.
+/// </summary>
+internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D Extent);
+
+/// <summary>
 /// The window's ambient occlusion: the depth of its meshes drawn at half the window's size ahead of
 /// its pass, the occlusion worked out from it, and two passes that blur it along each axis without
 /// crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment and
@@ -116,19 +122,28 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         Retire();
         var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
         var sun = ContactShadows(renderWorld);
-        if (settings is not { On: true } && sun is null || renderWorld.TryGet<WindowView>() is not { } view
+        var bounces = GlobalIlluminationRenderer.CascadesIn(renderWorld) > 0;
+        if (settings is not { On: true } && sun is null && !bounces || renderWorld.TryGet<WindowView>() is not { } view
             || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device
             || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
             || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
         {
             Release();
             renderWorld.Remove<AmbientOcclusionImage>();
+            renderWorld.Remove<WindowDepth>();
             return;
         }
 
         var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
         var sized = Ensure(device, extent, field.Field);
         models.DrawDepth(renderContext, renderWorld, sized.Depth);
+        renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
+        // The light that bounces alone needs the depth and no occlusion pass.
+        if (settings is not { On: true } && sun is null)
+        {
+            renderWorld.Remove<AmbientOcclusionImage>();
+            return;
+        }
 
         var on = settings is { On: true };
         var push = new Push

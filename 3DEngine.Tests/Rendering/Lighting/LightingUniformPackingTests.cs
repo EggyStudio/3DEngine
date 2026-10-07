@@ -65,7 +65,9 @@ public class LightingUniformPackingTests
         var afterProbes = afterSpots + 16 + LightingUboPacker.MaxProbes * 2 * 16;
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Output)).Should().Be(afterProbes);
         Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.AmbientOcclusion)).Should().Be(afterProbes + 16);
-        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 32, "the output flag and the occlusion flag come last");
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Indirect)).Should().Be(afterProbes + 32);
+        Marshal.OffsetOf<LightingUbo>(nameof(LightingUbo.Screen)).Should().Be(afterProbes + 48);
+        LightingUboPacker.SizeBytes.Should().Be(afterProbes + 64, "the output flag, the occlusion flag and the light that bounces come last");
     }
 
     [Fact]

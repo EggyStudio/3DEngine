@@ -257,8 +257,10 @@ emitter that collides meets the field wherever it holds the particle, behind thi
 screen, and the window's depth elsewhere.
 
 The field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so
-four cascades of 0.25 reach 16 units across in the first and 128 in the last, and a thing much
-thinner than a cell is not in it. A mesh drawn in the same place for eight frames is built into the
+four cascades of 0.25 reach 16 units across in the first and 128 in the last. A closed mesh much
+thinner than a cell is not in it, and a double-sided one, as a model from an OBJ file is, has no
+inside and is held half a cell thick on either side, so a wall or a floor of one thinner than a
+cell still stops what is traced through the field. A mesh drawn in the same place for eight frames is built into the
 cascades around it from its triangles, and one that moves is stamped each frame as the box around
 it. A cascade is built again where the camera has gone past it or a mesh came or went, as many a
 frame as the third argument says, one by default, the finest first. In `shaders_scene_field` on a
@@ -267,6 +269,48 @@ finest cascade 0.25 ms, and the occlusion pass takes 0.073 ms with the field whe
 without, as `./e3d command profile` shows them, `field.rebuild 400` building a cascade every frame
 for the second. `Config.SceneField` sets the same for an app made from a `Config`, and
 `./e3d command field.show 0` draws the first cascade over the window as the field holds the scene.
+
+## Light that bounces
+
+Light that reaches a surface leaves it again, tinted by its color, and lights what it falls on next,
+so a red wall tints the floor beside it and a room the sun shines into through a window is lit
+inside, away from the patch on its floor. `SetGlobalIllumination` works that light out each frame:
+
+```csharp
+SetGlobalIllumination(GlobalIllumination.Medium);
+```
+
+It is traced through the scene's distance field, which it turns on at four cascades where
+`SetSceneField` has not, as cascades of light probes, each cascade's probes twice as far apart as the
+one before's and tracing the light from twice as far (Radiance Cascades), and a probe for every few
+pixels of the window that traces the near light through the window's depth first. Nothing is baked,
+so every light and every mesh may move. The light a surface sends on is its material's color, its
+texture's average, times the sun's light where the field lets it through, the point and spot lights'
+unshadowed, and what bounced to it the frame before, so light bounces again each frame, with the
+light it gives off, so an emissive mesh lights its room. The light from all around, the environment
+map's, the ambient lights' and a reflection probe's, reaches a surface only through what a ray that
+meets nothing brings back, so a room is lit by the sky through its windows and dark where no light
+gets in, and reflections are left as they are.
+
+`shaders_cornell_box` lights a Cornell box, a white room with a red and a green wall, by a lamp and
+a glowing panel, and G steps through the qualities. On a laptop's RTX 4070 at 800 by 450, with the
+frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`) so the GPU holds its clocks, they cost this
+on the GPU, as `./e3d command profile` names it `global_illumination`, and `./e3d command gi.state`
+gives the rest, `High` measured with the example's field at four cascades
+(`./e3d eval "SetSceneField(4, 0.15f, 2)"`), where it traces three:
+
+| Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
+|---|---|---|---|---|---|
+| `Low` | 2 | 16, 64 | every 16 pixels | 0.70 MB | 0.19 ms |
+| `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.76 MB | 0.27 ms |
+| `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.72 MB | 0.34 ms |
+
+A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, with as
+much again while a cascade is built. Point and spot lights cast no shadow in the light that bounces,
+a mesh that moves bounces light as the gray box the field holds it as, the screen's probes are traced
+again each frame and not blended over time, so the light may crawl a little as the camera moves, and
+render textures and probe captures are drawn without it. `Config.GlobalIllumination` sets the same
+for an app made from a `Config`.
 
 ## Rooms that reflect themselves
 
@@ -315,6 +359,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`models_reflection_probe`](../3DEngine.Examples/Models/ModelsReflectionProbe.cs),
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
   [`shaders_scene_field`](../3DEngine.Examples/Shaders/ShadersSceneField.cs),
+  [`shaders_cornell_box`](../3DEngine.Examples/Shaders/ShadersCornellBox.cs),
   [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
   [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),

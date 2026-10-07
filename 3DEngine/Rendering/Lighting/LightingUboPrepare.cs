@@ -50,6 +50,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
         // And the sun's contact shadows through the scene's distance field, which that pass traces.
         if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null) windowUbo.AmbientOcclusion.Y = 1;
+        // And its light from all around the light that bounced, which the probes hold.
+        if (GlobalIlluminationRenderer.CascadesIn(renderWorld) is > 0 and var cascades)
+        {
+            windowUbo.Indirect = new System.Numerics.Vector4(1, GlobalIlluminationRenderer.ProbeSpacing,
+                SceneFieldPlan.Resolution / GlobalIlluminationRenderer.ProbeSpacing, cascades);
+            windowUbo.Screen = new System.Numerics.Vector4(GlobalIlluminationRenderer.TileAt(renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality), 1, 0, 0);
+        }
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
 

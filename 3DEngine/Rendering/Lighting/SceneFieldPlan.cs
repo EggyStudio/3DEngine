@@ -11,9 +11,10 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A cascade is <see cref="Resolution"/> cells a side, each cascade's cells twice as wide as the
-/// one before's, and lies around the eye with its corner on a grid of <see cref="SnapCells"/> of
-/// its cells, so it moves only when the eye has gone that far and the cells it keeps stay where
-/// they were. A cascade that moves, or that a still mesh came into or left, is built again, the
+/// one before's, and lies around a point ahead of the eye, by <see cref="Lead"/> of its width the
+/// way the eye looks, so more of it holds what the camera sees, with its corner on a grid of
+/// <see cref="SnapCells"/> of its cells, so it moves only when that point has gone that far and
+/// the cells it keeps stay where they were. A cascade that moves, or that a still mesh came into or left, is built again, the
 /// finest first, as many a frame as the budget says, and until then keeps the place and the meshes
 /// it was built with, which the info the passes read says.
 /// </para>
@@ -46,8 +47,16 @@ internal sealed class SceneFieldPlan
     /// <summary>How many of its cells a cascade's corner moves by at least.</summary>
     public const int SnapCells = 8;
 
-    /// <summary>A mesh drawn this frame: its id, the vertices it has, where it is drawn, and whether it has an inside.</summary>
-    internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided);
+    /// <summary>The share of its width a cascade's middle lies ahead of the eye.</summary>
+    public const float Lead = 0.35f;
+
+    /// <summary>
+    /// A mesh drawn this frame: its id, the vertices it has, where it is drawn, whether it has an
+    /// inside, and its surface's color and the light it gives off, linear, which the field paints
+    /// its cells with.
+    /// </summary>
+    internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided,
+        Vector3 Color = default, Vector3 Emission = default);
 
     /// <summary>A box along the axes.</summary>
     internal readonly record struct Box(Vector3 Min, Vector3 Max)
@@ -141,12 +150,16 @@ internal sealed class SceneFieldPlan
     /// <summary>Where a cascade lies as it was last built, its corner, or null for one not yet built.</summary>
     public Vector3? BuiltOrigin(int cascade) => _built[cascade];
 
-    /// <summary>Where a cascade's corner would lie around <paramref name="eye"/>.</summary>
-    public Vector3 OriginAround(int cascade, Vector3 eye)
+    /// <summary>
+    /// Where a cascade's corner would lie around <paramref name="eye"/> looking along
+    /// <paramref name="ahead"/>, a unit direction, or zero for a cascade around the eye itself.
+    /// </summary>
+    public Vector3 OriginAround(int cascade, Vector3 eye, Vector3 ahead = default)
     {
         var cell = CellOf(cascade);
         var step = cell * SnapCells;
-        var snapped = new Vector3(MathF.Floor(eye.X / step), MathF.Floor(eye.Y / step), MathF.Floor(eye.Z / step)) * step;
+        var middle = eye + ahead * (Lead * Resolution * cell);
+        var snapped = new Vector3(MathF.Floor(middle.X / step), MathF.Floor(middle.Y / step), MathF.Floor(middle.Z / step)) * step;
         return snapped - new Vector3(Resolution / 2 * cell);
     }
 
@@ -163,9 +176,9 @@ internal sealed class SceneFieldPlan
 
     /// <summary>
     /// Works out the frame's builds, shapes and bricks from the meshes drawn this frame and the
-    /// eye the cascades lie around.
+    /// eye the cascades lie around, looking along <paramref name="ahead"/> where it is given.
     /// </summary>
-    public void Update(Vector3 eye, IReadOnlyList<(Instance Instance, bool Skinned)> drawn)
+    public void Update(Vector3 eye, IReadOnlyList<(Instance Instance, bool Skinned)> drawn, Vector3 ahead = default)
     {
         _frame++;
         Builds.Clear();
@@ -207,13 +220,13 @@ internal sealed class SceneFieldPlan
             Array.Fill(_dirty, true);
         }
         for (int c = 0; c < Cascades; c++)
-            if (_built[c] != OriginAround(c, eye)) _dirty[c] = true;
+            if (_built[c] != OriginAround(c, eye, ahead)) _dirty[c] = true;
         var rebuilt = new bool[Cascades];
         for (int c = 0, budget = Budget; c < Cascades && budget > 0; c++)
         {
             if (!_dirty[c]) continue;
             budget--;
-            var origin = OriginAround(c, eye);
+            var origin = OriginAround(c, eye, ahead);
             var reach = CascadeBox(c, origin).Grown(Band * CellOf(c));
             Builds.Add(new Build(c, origin, CellOf(c), [.. _still.Where(entry => entry.Value.Bounds.Overlaps(reach)).Select(entry => entry.Key)]));
             (_built[c], _builtFrame[c], _dirty[c], rebuilt[c]) = (origin, _frame, false, true);

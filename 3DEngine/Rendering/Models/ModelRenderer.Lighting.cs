@@ -19,7 +19,7 @@ internal sealed partial class ModelRenderer
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
         if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
             || (frame.LightCount == 0 && !frame.HasEnvironment && !frame.Linear && target != ProbeCaptureLights
-                && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 }))
+                && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 } && GlobalIlluminationRenderer.CascadesIn(renderWorld) == 0))
         {
             if (_noLights is null)
             {
@@ -41,6 +41,7 @@ internal sealed partial class ModelRenderer
                 {
                     var none = NoPointShadowMap(stub);
                     gfx.UpdateDescriptorSet(_noLights, null, new CombinedImageSamplerBinding(none.DepthView, none.Sampler, 4));
+                    BindBounced(stub, _noLights, null);
                 }
             }
             return _noLights;
@@ -73,6 +74,8 @@ internal sealed partial class ModelRenderer
         gfx.UpdateDescriptorSet(set, null, target == 0 && renderWorld.TryGet<AmbientOcclusionImage>() is { } occlusion
             ? new CombinedImageSamplerBinding(occlusion.View, occlusion.Sampler, AmbientOcclusionBinding)
             : new CombinedImageSamplerBinding(white, whiteSampler, AmbientOcclusionBinding));
+        // And the light that bounced, likewise the window's alone.
+        if (gfx is GraphicsDevice bouncing) BindBounced(bouncing, set, target == 0 ? renderWorld.TryGet<IlluminationBinding>() : null);
         // The environment as the frame's filter left it, or black and no light where it has none.
         var environment = frame.HasEnvironment && _environmentSource is not null
             && ReferenceEquals(renderWorld.TryGet<EnvironmentMap>(), _environmentSource) ? _environment : null;
@@ -113,6 +116,32 @@ internal sealed partial class ModelRenderer
 
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
+
+    // Where modelpass.slang binds the probes' bounced light and the field they lie in, and the
+    // screen's probes' light and surfaces.
+    private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18;
+
+    // A field of one cell and no cascade, and screen probes of one probe holding nothing, bound
+    // where no light bounces, since the set must hold them.
+    private GpuSceneField? _noBounce;
+    private GpuScreenProbes? _noScreen;
+
+    // Binds the probes' faces and their field, or the field of nothing where light does not bounce.
+    private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced)
+    {
+        var screen = bounced?.Screen ?? (_noScreen ??= device.CreateScreenProbes(1, 1, 1));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.BlendedView, screen.Sampler, ScreenLightBinding));
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
+        if (bounced is not null)
+        {
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedLightBinding));
+            device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
+            return;
+        }
+        _noBounce ??= device.CreateSceneField(1, 1);
+        device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(_noBounce.View, _noBounce.Sampler, BouncedLightBinding));
+        device.UpdateDescriptorSet(set, new UniformBufferBinding(_noBounce.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
+    }
 
     // Where modelpass.slang binds the first probe's irradiance in the lights' set, the others after
     // it, and the environment's.

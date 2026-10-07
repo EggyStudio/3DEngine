@@ -64,6 +64,11 @@
         <None Include="..\games\Summit\resources\level.json" Link="resources\level.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Summit\resources\prefabs\*.json" Link="resources\prefabs\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Summit\resources\models\*" Link="resources\models\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Manor's library and what stands in it, which a reference frame of the light that bounces draws. -->
+        <None Include="..\games\Manor\resources\models\room-library.*;..\games\Manor\resources\models\fireplace.*;..\games\Manor\resources\models\bookcase.*;..\games\Manor\resources\models\sofa.*;..\games\Manor\resources\models\rug.*;..\games\Manor\resources\models\table.*"
+              Link="resources\manor\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\games\Manor\resources\models\textures\floor-library.png;..\games\Manor\resources\models\textures\wall-library.png;..\games\Manor\resources\models\textures\plaster.png;..\games\Manor\resources\models\textures\stone.png;..\games\Manor\resources\models\textures\wood.png;..\games\Manor\resources\models\textures\books.png;..\games\Manor\resources\models\textures\rug.png"
+              Link="resources\manor\textures\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>

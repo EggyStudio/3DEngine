@@ -137,14 +137,16 @@ physics, text and fonts, audio, audio streams and waves, and files
   lights, and each render target that draws meshes draws the map again for its own camera, with the
   point and spot lights chosen for the window's.
 
-- **Light does not bounce.** The scene's distance field (`SetSceneField`) is the first of the phases
-  global illumination comes in, cascades around the camera built on the GPU from the meshes that
-  cast shadows, which ambient occlusion, the sun's soft contact shadows and particles read
-  (RENDERING.md §4). Light reflected from one surface onto another, which Radiance Cascades over the
-  field would carry, and glossy reflections traced through it are not made. In the field a mesh much
-  thinner than a cell is not there, a skinned or moving mesh is the box around it, an open mesh such
-  as a ground plane puts a narrow wedge below its edges inside, and render textures and probe
-  captures are drawn without what it gives.
+- **Light bounces, but glossy reflections do not follow it.** The scene's distance field
+  (`SetSceneField`) and the light that bounces through it (`SetGlobalIllumination`), Radiance
+  Cascades of world probes with probes on the screen for the near light, are built (RENDERING.md
+  §4). Glossy reflections traced through the field, with screen-space reflections where it is too
+  coarse and a ray-query path, are not made, so metal reflects the environment map and the
+  reflection probes alone. In the bounce point and spot lights cast no shadow, a skinned or moving
+  mesh is the gray box around it, the screen's probes are not blended over time, and render
+  textures and probe captures are drawn without the field. In the field a closed mesh much thinner
+  than a cell is not there, and an open mesh such as a ground plane puts a narrow wedge below its
+  edges inside.
 
 - **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera

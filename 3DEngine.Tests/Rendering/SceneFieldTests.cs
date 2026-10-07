@@ -164,6 +164,24 @@ public sealed class SceneFieldTests : IDisposable
         near.Should().BeGreaterThan(1000);
         far.Should().BeGreaterThan(100_000);
         worst.Should().BeLessThan(0.01f, "within the band each cell holds its distance to the nearest face, as half a float holds it");
+
+        // The cells near the cube are painted its gray, decoded to linear, and those past the band
+        // are not painted at all.
+        var (albedo, glow) = device.ReadSceneFieldColors(fields.Field!);
+        int painted = 0, bare = 0;
+        for (int i = 0; i < distances.Length; i++)
+        {
+            if (MathF.Abs(distances[i]) < 0.5f)
+            {
+                albedo[i * 4 + 3].Should().Be(1);
+                albedo[i * 4].Should().BeApproximately(0.216f, 0.01f, "Color.Gray's 130 is 0.22 in linear light");
+                glow[i * 4].Should().Be(0);
+                painted++;
+            }
+            else if (distances[i] > band - 0.01f && albedo[i * 4 + 3] == 0) bare++;
+        }
+        painted.Should().BeGreaterThan(1000);
+        bare.Should().BeGreaterThan(100_000);
         UnloadModel(cube);
     }
 
@@ -230,6 +248,49 @@ public sealed class SceneFieldTests : IDisposable
         UnloadModel(wall);
         UnloadModel(pillar);
         UnloadModel(crate);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Double_Sided_Sheet_Thinner_Than_A_Cell_Crosses_Zero_Wherever_It_Lies_Between_The_Cells()
+    {
+        var config = Config.Default.WithWindow("scene field sheets", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.25f);
+        var sheet = LoadModelFromMesh(GenMeshPlane(4, 4, 1, 1));
+        sheet.Materials[0].DoubleSided = true;
+        var camera = new Camera3D(new Vector3(0, 3, 6), new Vector3(0, 0.5f, 0), Vector3.UnitY, 45);
+
+        // A sheet exactly half way between two rows of cells, where its distance in both is half a
+        // cell, and one a fifth of a cell nearer the row above, as a floor of an imported room is.
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            BeginMode3D(camera);
+            DrawModel(sheet, new Vector3(-2.5f, 0, 0), 1, Color.Gray);
+            DrawModel(sheet, new Vector3(2.5f, 1.05f, 0), 1, Color.Gray);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+
+        // Down each column through a sheet the least distance is at zero or below, where a sheet with
+        // no inside would leave half a cell, which a ray traced through the field steps over, and a
+        // cell a cell and a half above holds a cell, half a cell nearer than it lies.
+        const int size = SceneFieldPlan.Resolution;
+        const float cell = 0.25f;
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+        foreach (var (x, height) in new[] { (-2.5f, 0f), (2.5f, 1.05f) })
+        {
+            int column = (int)((x - origin.X) / cell), row = (int)((0 - origin.Z) / cell);
+            var down = Enumerable.Range(0, size).Select(y => (Y: origin.Y + (y + 0.5f) * cell, D: distances[(row * size + y) * size + column])).ToArray();
+            down.Where(c => MathF.Abs(c.Y - height) < cell).Min(c => c.D).Should().BeLessThanOrEqualTo(0.001f, $"the sheet at {height} stops a ray");
+            var above = down.First(c => MathF.Abs(c.Y - (height + 1.5f * cell)) < cell / 2);
+            above.D.Should().BeApproximately(above.Y - height - cell / 2, 0.01f);
+        }
+        UnloadModel(sheet);
     }
 
     [NeedsVulkanFact]

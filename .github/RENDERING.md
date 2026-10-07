@@ -37,7 +37,7 @@ needs an offline toolchain beyond `slangc`.
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
 - **A distance field of the scene** around the window's eye, in cascades built on the GPU from the
   meshes that cast shadows, which ambient occlusion, the sun's contact shadows and particles read
-  (§4).
+  (§4), and **light that bounces** traced through it as Radiance Cascades each frame (§4).
 - **A frame profile** of the schedule's stages, the renderer's steps and each pass on the CPU and
   the GPU, with two stress examples that find how much a frame holds (§6).
 
@@ -479,12 +479,20 @@ for eight frames running. Its triangles go into one buffer in its mesh's own spa
 build needs them, so a build hands the GPU each instance's matrix and where its mesh's triangles
 start. A build clears a word a cell to the band, then a workgroup a triangle puts the triangle in
 the world and takes, for each cell within the band of its bounds, the distance to it in 1024ths of
-a cell above a bit set where the cell is in front of the face, keeping the least by an atomic
-minimum (`field_splat.slang`). Of two triangles as near, as a crate on the ground, the one the cell
-lies behind wins, the cell being inside some mesh, and a cell is behind a face only within 60
-degrees of straight back from it, so where an edge or a corner is nearest, as above a pillar's rim,
-a face the way runs along does not put the cell inside. A second pass turns the words into
-distances in both the image the meshes alone make and the one the passes read (`field_resolve.slang`).
+a cell above a bit set where the triangle is double-sided and a bit set where the cell is in front
+of the face, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near,
+as a crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a
+cell is behind a face only within 60 degrees of straight back from it, so where an edge or a corner
+is nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A
+second pass turns the words into distances in both the image the meshes alone make and the one the
+passes read (`field_resolve.slang`), half a cell less where the nearest triangle is double-sided. A
+double-sided mesh has no inside, and a sheet of one between two rows of cells would leave half a
+cell in each, which a trace steps over, so held half a cell thick on either side it crosses zero
+wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need. A second
+dispatch of the splat paints each cell the color and the light given off of the triangle whose word
+it kept, the material's color times its texture's average in linear light
+(`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
+bounces.
 A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
 again are stamped each frame as the box around their vertices in their own space, the 256 nearest
 the eye, into the bricks of four cells they come within the band of, each cell the least of the
@@ -500,6 +508,54 @@ directional light by, so the pass runs for the contact shadows alone where the o
 place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
 the window as the field holds the scene, where `field.show` asks. The field is the window's alone,
 so render textures and probe captures are drawn without what it gives.
+
+### Light that bounces
+
+`SetGlobalIllumination` traces the light that bounces between surfaces through the field each frame
+as Radiance Cascades (`GlobalIlluminationRenderer`, `GraphicsDevice.GlobalIllumination`), in the
+`global_illumination` node after the occlusion and before the probes. Nothing is baked.
+
+A cascade of world probes lies every eight cells of the field's cascade of the same number, eight a
+side, so each cascade's probes are twice as far apart as the one before's. Each probe traces an
+octahedron of directions, a texel each, across an interval: the first cascade's from the probe to
+twice the spacing, each after's from its spacing to twice that, so a cascade picks up where the one
+below stops (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions in two cascades, `Medium`
+adds 16 by 16 in a third, and `High` traces 8 by 8 then 16 by 16 in four, no more cascades than the
+field has. A ray that meets a surface brings back its painted color over pi times the light that
+reaches it, the sun's where a trace toward the sun through the field gets through, the point and
+spot lights' unshadowed, and the light that bounced to it the frame before, with the light it gives
+off (`gi.slang`). A ray of the last cascade that meets nothing brings back the environment map, or
+the ambient lights' color, and one of any other cascade lets the light from beyond through.
+
+The cascades are merged from the last down (`gi_merge.slang`). A texel whose ray met nothing adds
+the cascade above's texels inside its own, blended between the eight probes of the cascade above
+around it by how near each is, a probe inside a mesh passed over, and a probe the field hides from
+this one passed over too. The first eight threads of each probe trace those eight lines through the
+field into shared memory before the probe's texels read them, so a probe under a ceiling takes
+nothing from one above it, which sees the sky. Each probe of every cascade then sums its merged
+light into six faces of a cube, irradiance from each axis's two ways (`gi_ambient.slang`), which a
+ray's hit reads the frame after for the light that bounced to it, and the model pass reads where no
+screen probe holds a pixel. Between the eight probes around a point, a probe is weighed by how near
+it is and, as DDGI weighs them, how squarely it stands in front of the surface, and one behind the
+surface's plane next to nothing.
+
+The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
+at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
+occlusion pass draws, which it draws for the probes alone where the occlusion and contact shadows
+are off. It sends 16 rays over the hemisphere around the surface's normal, stepped through the depth
+while on the screen and through the field from where they leave it, and a ray that meets nothing in
+the interval takes the world's first cascade, blended between the eight probes around the surface
+that a trace from a cell in front of it reaches. A 5 by 5 filter blends each probe with those around
+it on a surface alike in normal and distance (`gi_screen_filter.slang`). The model pass blends the
+four probes around a pixel the same way, falls back to the world's probes where none is like it, and
+puts the result in place of the diffuse light from all around, the environment map's, the ambient
+lights' and the reflection probes', which reaches a surface only through the rays that meet nothing.
+
+The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
+`shaders_cornell_box`. What is left: point and spot lights cast no shadow in the bounce, a moving
+mesh bounces light as the gray box the field holds it as, the screen's probes are not blended over
+time, so the light may crawl a little as the camera moves, and render textures and probe captures
+are drawn without it.
 
 ## 5. Render targets and post processing
 
@@ -855,9 +911,9 @@ run to run, with the runtime's compiler and collector in the frame.
 ## Order of work
 
 Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
-shadow cascades with point and spot shadows, bloom and FXAA, and the scene's distance field are
-built, in that order. What is left of the order is light that bounces, as Radiance Cascades over the
-field, the first cascade's intervals through the depth buffer and the rest through the field, then
-glossy reflections through the field, and tonemapping as a full-screen pass in every frame, in place
+shadow cascades with point and spot shadows, bloom and FXAA, the scene's distance field, and light
+that bounces as Radiance Cascades over it are built, in that order. What is left of the order is
+glossy reflections through the field, with screen-space reflections where the field is too coarse,
+the reflection probes behind them and a ray-query path, and tonemapping as a full-screen pass in every frame, in place
 of the curve at the end of the model pass, which runs there while every effect over the frame is off
 and over the HDR frame while any is on (§5).

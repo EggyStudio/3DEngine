@@ -25,6 +25,28 @@ internal static class SceneFieldCommands
         return $"building {plan.Budget} of its {plan.Cascades} cascades each frame for {Math.Max(1, frames)} frames";
     }
 
+    [Command("gi.state", "How much light bounces: the quality, the cascades of world probes and their rays, the screen's probes, and the GPU memory each takes")]
+    internal static string IlluminationState()
+    {
+        if (!ConsoleHost.World!.TryGetResource<Renderer>(out var renderer)
+            || renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>() is not { Probes: { } probes } gi)
+            return "no light bounces";
+        var quality = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>()?.Quality ?? GlobalIllumination.Off;
+        var p = probes.Probes;
+        var rays = probes.Texels.Sum(n => p * p * p * n * n);
+        // Each cascade's rays and merges, eight bytes a texel each, and every cascade's faces.
+        var world = probes.Texels.Sum(n => 2L * (p * n) * (p * n) * p * 8) + 6L * p * p * p * probes.Cascades * 8;
+        var lines = new List<string>
+        {
+            $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select(n => n * n))} rays each, {rays} rays a frame",
+            $"world probes {world / 1024.0 / 1024.0:0.00} MB",
+        };
+        if (gi.Screen is { } screen)
+            lines.Add($"screen probes every {screen.Tile} pixels, {screen.Across} by {screen.Down}, {screen.Across * screen.Down * 16} rays a frame, "
+                      + $"{3.0 * screen.Across * screen.Down * 8 / 1024 / 1024:0.00} MB");
+        return string.Join("\n", lines);
+    }
+
     [Command("field.state", "Where each cascade of the scene's distance field lies, how many meshes are still in it, and what this frame stamped")]
     internal static string State()
     {

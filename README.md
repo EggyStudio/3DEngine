@@ -144,6 +144,7 @@ raylib's own examples, and what is written of it here, is a row of
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Sumo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/sumo.webp" width="400"/></a><br>`games/Sumo` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Wordfall/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/wordfall.webp" width="400"/></a><br>`games/Wordfall` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Slide/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/slide.webp" width="400"/></a><br>`games/Slide` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Jelly/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/jelly.webp" width="400"/></a><br>`games/Jelly` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersSceneField.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_scene_field.webp" width="400"/></a><br>`shaders_scene_field` |
+| <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersCornellBox.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_cornell_box.webp" width="400"/></a><br>`shaders_cornell_box` | |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -238,7 +239,7 @@ using the engine, a page an area, each built on an example that runs, read in or
 | [Textures and images](https://github.com/EggyStudio/3DEngine/blob/main/docs/textures-and-images.md) | Loading and drawing textures, filtering, editing images, sprites and many sprites |
 | [Text and fonts](https://github.com/EggyStudio/3DEngine/blob/main/docs/text-and-fonts.md) | The default font, fonts from files, other scripts, typed text and distance field fonts |
 | [Models and animation](https://github.com/EggyStudio/3DEngine/blob/main/docs/models-and-animation.md) | Loading and generating models, terrain, skeletal animation, layered clips, morph targets, a sky and instancing |
-| [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, glowing and see-through surfaces, bloom and effects over the frame, lights and shadows, reflection probes |
+| [Materials, light and shadows](https://github.com/EggyStudio/3DEngine/blob/main/docs/materials-light-and-shadows.md) | Metallic and rough surfaces, maps, glowing and see-through surfaces, bloom and effects over the frame, lights and shadows, light that bounces, reflection probes |
 | [Shaders and compute](https://github.com/EggyStudio/3DEngine/blob/main/docs/shaders-and-compute.md) | Slang shaders for 2D drawing and models, post processing, compute shaders, their buffers and the textures they write |
 | [Audio](https://github.com/EggyStudio/3DEngine/blob/main/docs/audio.md) | Sounds, streamed music, volume, pitch and pan, and sound placed in a 3D world |
 | [Input](https://github.com/EggyStudio/3DEngine/blob/main/docs/input.md) | Keys, the mouse, touch and gestures, gamepads, and input shared with ImGui |
@@ -288,8 +289,8 @@ dotnet test 3DEngine.Tests
 Early, and used for small games. The flat API carries most of raylib's: the window and input,
 2D and 3D shapes, images and textures, models through Assimp with skeletal animation, sounds, music,
 audio streams, text in fonts, render targets, Slang shaders for shapes and models, compute shaders,
-lights with shadows, an environment map and reflection probes, physics, states and scenes, with
-ImGui in the same frame. The ECS, the
+lights with shadows, an environment map and reflection probes, light that bounces, physics, states
+and scenes, with ImGui in the same frame. The ECS, the
 scheduler and behaviors run underneath, and a game ships as one native executable through native
 AOT. What is missing:
 

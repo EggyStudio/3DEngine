@@ -53,6 +53,9 @@ internal sealed class TextureStore
     // The textures with a pixel neither clear nor solid, which a blended material draws with
     // what is behind it. A texture that is only clear or solid cuts out as it is.
     private readonly HashSet<int> _translucent = [];
+    // Each texture's color averaged over its pixels, linear, weighed by their alpha, which the
+    // scene's distance field gives a surface drawn with it.
+    private readonly Dictionary<int, System.Numerics.Vector3> _averages = [];
     private readonly HashSet<int> _targets = [];
     // Cube textures, whose pixels are six faces and which nothing writes after they are made.
     private readonly HashSet<int> _cubes = [];
@@ -77,6 +80,7 @@ internal sealed class TextureStore
             _live[id] = (width, height, filter, mipmaps, TextureWrap.Repeat);
             _uploads.Add(new Upload(id, rgba, width, height, filter, Mipmaps: mipmaps));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
+            _averages[id] = Average(rgba);
             return id;
         }
     }
@@ -196,6 +200,7 @@ internal sealed class TextureStore
             _uploads.Add(new Upload(id, rgba, texture.Width, texture.Height, texture.Filter, Mipmaps: texture.Mipmaps, Wrap: texture.Wrap));
             if (HasPartialAlpha(rgba)) _translucent.Add(id);
             else _translucent.Remove(id);
+            _averages[id] = Average(rgba);
             return true;
         }
     }
@@ -257,6 +262,7 @@ internal sealed class TextureStore
         {
             if (!_live.Remove(id)) return false;
             _translucent.Remove(id);
+            _averages.Remove(id);
             _targets.Remove(id);
             _cubes.Remove(id);
             _uploads.RemoveAll(u => u.Id == id);
@@ -312,6 +318,37 @@ internal sealed class TextureStore
     internal bool IsTranslucent(int id)
     {
         lock (_gate) return _translucent.Contains(id);
+    }
+
+    /// <summary>
+    /// A texture's color averaged over its pixels, linear, or null for one whose pixels were never
+    /// given whole, as a render target's.
+    /// </summary>
+    internal System.Numerics.Vector3? AverageColor(int id)
+    {
+        lock (_gate) return _averages.TryGetValue(id, out var color) ? color : null;
+    }
+
+    // The mean of at most about four thousand pixels spread over the image, each decoded from sRGB
+    // and weighed by its alpha, so a large texture costs no more than a small one.
+    private static System.Numerics.Vector3 Average(byte[] rgba)
+    {
+        var pixels = rgba.Length / 4;
+        var step = Math.Max(1, pixels / 4096);
+        var (sum, weight) = (System.Numerics.Vector3.Zero, 0f);
+        for (int p = 0; p < pixels; p += step)
+        {
+            var alpha = rgba[p * 4 + 3] / 255f;
+            sum += new System.Numerics.Vector3(Linear(rgba[p * 4]), Linear(rgba[p * 4 + 1]), Linear(rgba[p * 4 + 2])) * alpha;
+            weight += alpha;
+        }
+        return weight > 0 ? sum / weight : System.Numerics.Vector3.One;
+    }
+
+    private static float Linear(byte value)
+    {
+        var c = value / 255f;
+        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
     }
 
     private static bool HasPartialAlpha(byte[] rgba)

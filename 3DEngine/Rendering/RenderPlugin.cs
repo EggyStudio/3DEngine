@@ -84,14 +84,17 @@ internal sealed class RenderPlugin : IPlugin
 
         app.World.InitResource<DrawList>();
         app.World.InitResource<ModelDrawList>();
-        // The scene's distance field the app starts with, which SetSceneField changes later.
-        if (cfg.SceneField.Cascades > 0)
+        // The scene's distance field and the light that bounces the app starts with, which
+        // SetSceneField and SetGlobalIllumination change later.
+        if (cfg.SceneField.Cascades > 0 || cfg.GlobalIllumination != GlobalIllumination.Off)
             app.World.InsertResource(new SceneFieldSettings
             {
-                Cascades = cfg.SceneField.Cascades,
+                Cascades = cfg.SceneField.Cascades > 0 ? cfg.SceneField.Cascades : 4,
                 CellSize = cfg.SceneField.CellSize,
                 UpdateBudget = cfg.SceneField.UpdateBudget,
             });
+        if (cfg.GlobalIllumination != GlobalIllumination.Off)
+            app.World.InsertResource(new GlobalIlluminationSettings { Quality = cfg.GlobalIllumination });
         app.World.InitResource<TextureStore>();
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();

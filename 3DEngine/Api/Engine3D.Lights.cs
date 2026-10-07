@@ -146,6 +146,35 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Lets light bounce between the surfaces of the window's scene at <paramref name="quality"/>,
+    /// or none with <see cref="GlobalIllumination.Off"/>, which it is by default, the light a
+    /// surface sends on lighting the surfaces around it, so a red wall tints the floor beside it and
+    /// a room lit by the sun through a window is lit inside.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// It is traced through the scene's distance field, which it turns on at four cascades where
+    /// <see cref="SetSceneField"/> has not, as cascades of light probes (Radiance Cascades) the GPU
+    /// works out each frame. Nothing is baked, so every light and every mesh may move. The light a
+    /// surface sends on is its material's color, its texture's average, times the sun's light where
+    /// the field lets it through, the point and spot lights' unshadowed, and what bounced to it the
+    /// frame before, with the light it gives off, so an emissive mesh lights its room.
+    /// </para>
+    /// <para>
+    /// It stands in for the diffuse share of the light from all around, the environment map's, a
+    /// reflection probe's and the ambient lights', whose light a ray that meets nothing brings back,
+    /// and leaves their reflections as they are. It lights the window's view alone, and the frame
+    /// profile names its cost as <c>global_illumination</c>.
+    /// </para>
+    /// </remarks>
+    public static void SetGlobalIllumination(GlobalIllumination quality)
+    {
+        World.GetOrInsertResource(static () => new GlobalIlluminationSettings()).Quality = quality;
+        if (quality != GlobalIllumination.Off && World.GetOrInsertResource(static () => new SceneFieldSettings()) is { On: false } field)
+            field.Cascades = 4;
+    }
+
+    /// <summary>
     /// Sets the light from all around that keeps the side of a model away from every other light
     /// from going black, replacing the one set before, or removes it with an intensity of 0.
     /// </summary>

@@ -7,7 +7,8 @@ namespace Engine;
 /// <summary>
 /// The scene's distance field on the GPU: two images of half floats, each its cascades one after
 /// another along z, the field the still meshes make, which a build writes, and the field the
-/// passes read, that one with the shapes of the meshes that moved stamped into it, and a uniform
+/// passes read, that one with the shapes of the meshes that moved stamped into it, the color and
+/// the light given off of each cell's nearest still surface in two images more, and a uniform
 /// buffer saying where each cascade lies, which a frame writes before any pass reads it.
 /// </summary>
 /// <remarks>
@@ -21,8 +22,15 @@ internal sealed class GpuSceneField : IDisposable
     private readonly Action _dispose;
 
     internal GpuSceneField(int cascades, int resolution, IImageView view, ISampler sampler, IBuffer info, IBuffer cells,
-        VkImage still, VkImageView stillView, VkImage field, VkImageView fieldView, Action dispose)
+        VkImage still, VkImageView stillView, VkImage field, VkImageView fieldView, Action dispose,
+        IBuffer albedo, IBuffer glow, VkImage albedoImage, IImageView albedoView, VkImage glowImage, IImageView glowView)
     {
+        Albedo = albedo;
+        Glow = glow;
+        AlbedoImage = albedoImage;
+        AlbedoView = albedoView;
+        GlowImage = glowImage;
+        GlowView = glowView;
         Cascades = cascades;
         Resolution = resolution;
         View = view;
@@ -54,6 +62,20 @@ internal sealed class GpuSceneField : IDisposable
     /// <summary>The bytes of <see cref="Info"/>.</summary>
     public const int InfoBytes = 16 + 8 * 16;
 
+    /// <summary>
+    /// The color of each cell's nearest still surface, linear, its alpha 1 where a surface painted
+    /// the cell and 0 where none did, laid out as <see cref="View"/> is.
+    /// </summary>
+    public IImageView AlbedoView { get; }
+
+    /// <summary>The light each cell's nearest still surface gives off, linear, laid out as <see cref="View"/> is.</summary>
+    public IImageView GlowView { get; }
+
+    internal IBuffer Albedo { get; }
+    internal IBuffer Glow { get; }
+    internal VkImage AlbedoImage { get; }
+    internal VkImage GlowImage { get; }
+
     internal IBuffer Cells { get; }
     internal VkImage Still { get; }
     internal VkImageView StillView { get; }
@@ -75,7 +97,7 @@ internal sealed unsafe partial class GraphicsDevice
     {
         public Vector4 OriginAndCell;
         public uint Size, Instances, Triangles, Band;
-        public uint GroupsX, Unused0, Unused1, Unused2;
+        public uint GroupsX, Paint, Unused1, Unused2;
     }
 
     /// <summary>Whether the field's shaders have been given, so a field can be built.</summary>
@@ -91,9 +113,10 @@ internal sealed unsafe partial class GraphicsDevice
     public void InitializeSceneField(ReadOnlySpan<byte> splat, ReadOnlySpan<byte> resolve, ReadOnlySpan<byte> stamp)
     {
         if (!IsInitialized || CanBuildSceneField) return;
-        _fieldStages[SplatStage] = MakeComputeStage(splat, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer],
-            (uint)sizeof(SplatPush));
-        _fieldStages[ResolveStage] = MakeComputeStage(resolve, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
+        _fieldStages[SplatStage] = MakeComputeStage(splat, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
+            VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
+        _fieldStages[ResolveStage] = MakeComputeStage(resolve, [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
+            VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage], 16);
         _fieldStages[StampStage] = MakeComputeStage(stamp,
             [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer], 16);
     }
@@ -109,28 +132,37 @@ internal sealed unsafe partial class GraphicsDevice
         var depth = size * (uint)Math.Max(1, cascades);
         var (still, stillMemory, stillView) = FieldImage(size, depth);
         var (field, fieldMemory, fieldView) = FieldImage(size, depth);
+        var (albedoImage, albedoMemory, albedoView) = FieldImage(size, depth, VkFormat.R8G8B8A8Unorm);
+        var (glowImage, glowMemory, glowView) = FieldImage(size, depth, VkFormat.R16G16B16A16Sfloat);
         var info = CreateBuffer(new BufferDesc(GpuSceneField.InfoBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
         var cells = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var albedo = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
+        var glow = CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
 
-        // Both images cleared to far, the still one left in the general layout and the read one
-        // ready to be sampled, and the info zeroed, which reads as no cascade.
+        // The distances cleared to far and the colors to none, the still image left in the general
+        // layout and the ones the passes read ready to be sampled, and the info zeroed, which
+        // reads as no cascade.
         var cmd = BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
+        VkImage[] read = [field, albedoImage, glowImage];
         PipelineBarrier(cmd, [
             ImageBarrier(still, whole, VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
-            ImageBarrier(field, whole, VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
-                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite),
+            .. read.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General, VkPipelineStageFlags2.None, VkAccessFlags2.None,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite)),
         ]);
         var far = new VkClearColorValue(FarFieldDistance, FarFieldDistance, FarFieldDistance, FarFieldDistance);
+        var none = new VkClearColorValue(0f, 0f, 0f, 0f);
         _deviceApi.vkCmdClearColorImage(cmd, still, VkImageLayout.General, &far, 1, &whole);
         _deviceApi.vkCmdClearColorImage(cmd, field, VkImageLayout.General, &far, 1, &whole);
+        _deviceApi.vkCmdClearColorImage(cmd, albedoImage, VkImageLayout.General, &none, 1, &whole);
+        _deviceApi.vkCmdClearColorImage(cmd, glowImage, VkImageLayout.General, &none, 1, &whole);
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)info).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         PipelineBarrier(cmd, [
             ImageBarrier(still, whole, VkImageLayout.General, VkImageLayout.General, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite),
-            ImageBarrier(field, whole, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
-                VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead),
+            .. read.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead)),
         ], new VkMemoryBarrier2
         {
             srcStageMask = VkPipelineStageFlags2.Transfer,
@@ -145,27 +177,40 @@ internal sealed unsafe partial class GraphicsDevice
         var sampler = CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
         Name(owner, "Scene distance field");
+        var albedoOwner = new VulkanImage(this, albedoImage, albedoMemory,
+            new ImageDesc(new Extent2D(size, depth), ImageFormat.R8G8B8A8_UNorm, ImageUsage.Sampled | ImageUsage.Storage));
+        var glowOwner = new VulkanImage(this, glowImage, glowMemory,
+            new ImageDesc(new Extent2D(size, depth), ImageFormat.R16G16B16A16_Float, ImageUsage.Sampled | ImageUsage.Storage));
+        Name(albedoOwner, "Scene distance field colors");
+        Name(glowOwner, "Scene distance field light given off");
         return new GpuSceneField(cascades, (int)size, new VulkanImageView(this, owner, fieldView), sampler, info, cells,
             still, stillView, field, fieldView, () =>
             {
                 sampler.Dispose();
                 cells.Dispose();
+                albedo.Dispose();
+                glow.Dispose();
                 info.Dispose();
                 _deviceApi.vkDestroyImageView(fieldView);
                 owner.Dispose();
+                _deviceApi.vkDestroyImageView(albedoView);
+                albedoOwner.Dispose();
+                _deviceApi.vkDestroyImageView(glowView);
+                glowOwner.Dispose();
                 _deviceApi.vkDestroyImageView(stillView);
                 _deviceApi.vkDestroyImage(still);
                 _deviceApi.vkFreeMemory(stillMemory);
-            });
+            }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView));
     }
 
-    // A 3D image of half floats a compute shader writes and a pass samples, with its view.
-    private (VkImage Image, VkDeviceMemory Memory, VkImageView View) FieldImage(uint size, uint depth)
+    // A 3D image a compute shader writes and a pass samples, of half floats unless another format
+    // is given, with its view.
+    private (VkImage Image, VkDeviceMemory Memory, VkImageView View) FieldImage(uint size, uint depth, VkFormat format = VkFormat.R16Sfloat)
     {
         var info = new VkImageCreateInfo
         {
             imageType = VkImageType.Image3D,
-            format = VkFormat.R16Sfloat,
+            format = format,
             extent = new VkExtent3D(size, size, depth),
             mipLevels = 1,
             arrayLayers = 1,
@@ -188,7 +233,7 @@ internal sealed unsafe partial class GraphicsDevice
         {
             image = image,
             viewType = VkImageViewType.Image3D,
-            format = VkFormat.R16Sfloat,
+            format = format,
             components = VkComponentMapping.Rgba,
             subresourceRange = ColorLevels(0, 1),
         };
@@ -220,18 +265,20 @@ internal sealed unsafe partial class GraphicsDevice
     public void RecordSceneFieldOpen(ICommandBuffer commandBuffer, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
-        PipelineBarrier(vkCmd.Handle, ImageBarrier(field.Field, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
+        PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
+            VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
             VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead,
-            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite));
+            VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite))]);
     }
 
     /// <summary>Records the field the passes read going back to be sampled, once the frame's builds and stamps have written it.</summary>
     public void RecordSceneFieldClose(ICommandBuffer commandBuffer, GpuSceneField field)
     {
         if (commandBuffer is not VulkanCommandBuffer vkCmd) return;
-        PipelineBarrier(vkCmd.Handle, ImageBarrier(field.Field, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
+        PipelineBarrier(vkCmd.Handle, [.. new[] { field.Field, field.AlbedoImage, field.GlowImage }.Select(image => ImageBarrier(image, ColorLevels(0, 1),
+            VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
-            VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead));
+            VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead))]);
     }
 
     /// <summary>
@@ -265,8 +312,11 @@ internal sealed unsafe partial class GraphicsDevice
         MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         // The code of a cell no triangle comes within the band of, the band's distance in front, in
-        // 1024ths of a cell above the bit that says so.
-        _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 1) | 1);
+        // 1024ths of a cell above the bits that say whether its triangle is double-sided and whether
+        // the cell is in front.
+        _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 2) | 1);
+        _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
 
@@ -276,6 +326,8 @@ internal sealed unsafe partial class GraphicsDevice
             run.Buffer(splat, 0, VkDescriptorType.StorageBuffer, corners);
             run.Buffer(splat, 1, VkDescriptorType.StorageBuffer, instances);
             run.Buffer(splat, 2, VkDescriptorType.StorageBuffer, field.Cells);
+            run.Buffer(splat, 3, VkDescriptorType.StorageBuffer, field.Albedo);
+            run.Buffer(splat, 4, VkDescriptorType.StorageBuffer, field.Glow);
             var groupsX = (uint)Math.Min(triangleCount, 65535);
             var push = new SplatPush
             {
@@ -286,8 +338,13 @@ internal sealed unsafe partial class GraphicsDevice
                 Band = (uint)band,
                 GroupsX = groupsX,
             };
-            run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)),
-                groupsX, ((uint)triangleCount + groupsX - 1) / groupsX, 1);
+            var groupsY = ((uint)triangleCount + groupsX - 1) / groupsX;
+            run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
+            MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
+                VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
+            // The same triangles again, each painting the cells whose least word is its own.
+            push.Paint = 1;
+            run.Dispatch(SplatStage, splat, MemoryMarshal.AsBytes(new ReadOnlySpan<SplatPush>(in push)), groupsX, groupsY, 1);
             MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite,
                 VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         }
@@ -296,6 +353,10 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(resolve, 0, VkDescriptorType.StorageBuffer, field.Cells);
         run.Image(resolve, 1, field.StillView);
         run.Image(resolve, 2, field.FieldView);
+        run.Buffer(resolve, 3, VkDescriptorType.StorageBuffer, field.Albedo);
+        run.Buffer(resolve, 4, VkDescriptorType.StorageBuffer, field.Glow);
+        run.Image(resolve, 5, ((VulkanImageView)field.AlbedoView).View);
+        run.Image(resolve, 6, ((VulkanImageView)field.GlowView).View);
         var cascadePush = new Vector4(cascade, size, cell, band);
         var groups = (size + 3) / 4;
         run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(new ReadOnlySpan<Vector4>(in cascadePush)), groups, groups, groups);
@@ -339,30 +400,51 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal float[] ReadSceneField(GpuSceneField field)
     {
+        var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, field.Field, 2));
+        var distances = new float[halves.Length];
+        for (int i = 0; i < halves.Length; i++) distances[i] = (float)halves[i];
+        return distances;
+    }
+
+    /// <summary>
+    /// The colors of the cells' nearest surfaces, four floats a cell from 0 to 1, and the light
+    /// they give off, four a cell, laid out as <see cref="ReadSceneField"/> lays the distances.
+    /// </summary>
+    internal (float[] Albedo, float[] Glow) ReadSceneFieldColors(GpuSceneField field)
+    {
+        var bytes = ReadFieldImage(field, field.AlbedoImage, 4);
+        var albedo = new float[bytes.Length];
+        for (int i = 0; i < bytes.Length; i++) albedo[i] = bytes[i] / 255f;
+        var halves = MemoryMarshal.Cast<byte, Half>(ReadFieldImage(field, field.GlowImage, 8));
+        var glow = new float[halves.Length];
+        for (int i = 0; i < halves.Length; i++) glow[i] = (float)halves[i];
+        return (albedo, glow);
+    }
+
+    // One of the images the passes read, copied out with the frames in flight finished.
+    private byte[] ReadFieldImage(GpuSceneField field, VkImage image, int bytesPerCell)
+    {
         var size = (uint)field.Resolution;
         var depth = size * (uint)field.Cascades;
         FlushUploads();
         _deviceApi.vkDeviceWaitIdle().CheckResult();
-        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)size * size * depth * 2, BufferUsage.TransferDst, CpuAccessMode.Read));
+        var buffer = (VulkanBuffer)CreateBuffer(new BufferDesc((ulong)size * size * depth * (ulong)bytesPerCell, BufferUsage.TransferDst, CpuAccessMode.Read));
         try
         {
             var cmd = BeginSingleTimeCommands();
             var whole = ColorLevels(0, 1);
-            PipelineBarrier(cmd, ImageBarrier(field.Field, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+            PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
                 VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
             var region = new VkBufferImageCopy
             {
                 imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
                 imageExtent = new VkExtent3D(size, size, depth),
             };
-            _deviceApi.vkCmdCopyImageToBuffer(cmd, field.Field, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
-            PipelineBarrier(cmd, ImageBarrier(field.Field, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+            _deviceApi.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
                 VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
             EndSingleTimeCommands(cmd);
-            var halves = MemoryMarshal.Cast<byte, Half>(Map(buffer));
-            var distances = new float[halves.Length];
-            for (int i = 0; i < halves.Length; i++) distances[i] = (float)halves[i];
-            return distances;
+            return Map(buffer).ToArray();
         }
         finally
         {
@@ -383,8 +465,8 @@ internal sealed unsafe partial class GraphicsDevice
             _device = device;
             Commands = vkCmd.Handle;
             var sizes = stackalloc VkDescriptorPoolSize[3];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 6 };
-            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 4 };
+            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 10 };
+            sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 6 };
             sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 2, poolSizeCount = 3, pPoolSizes = sizes };
             device._deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _pool).CheckResult();

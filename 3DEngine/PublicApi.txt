@@ -405,6 +405,7 @@ sealed class Engine.Config : IEquatable<Config>
   Config WithGraphics(GraphicsBackend backend)
   Config WithWindow(string title, int width, int height)
   Config()
+  GlobalIllumination GlobalIllumination { get; init; }
   GraphicsBackend Graphics { get; init; }
   SceneFieldConfig SceneField { get; init; }
   bool Equals(Config? other)
@@ -1356,6 +1357,7 @@ static class Engine.Engine3D
   static void SetGamepadLight(int gamepad, Color color)
   static void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float seconds)
   static void SetGesturesEnabled(Gesture flags)
+  static void SetGlobalIllumination(GlobalIllumination quality)
   static void SetLightCastsShadows(LightHandle light, bool castsShadows)
   static void SetLightColor(LightHandle light, Color color, float intensity = 1f)
   static void SetLightDirection(LightHandle light, Vector3 direction)
@@ -1625,6 +1627,11 @@ sealed class Engine.Gestures
   Gesture Current { get; }
   Gestures()
   void Update(ReadOnlySpan<Vector2> points, double time)
+enum Engine.GlobalIllumination : int
+  High = 3
+  Low = 1
+  Medium = 2
+  Off = 0
 struct Engine.GlobalTransform
   Matrix4x4 Matrix
 readonly struct Engine.Glyph : IEquatable<Glyph>

@@ -10,18 +10,40 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `90681ba8`. The shader cache's two writers are mended: each writes its entry under a
-name of its own, the path with the process and a GUID after it ending in `.partial`, moves it over
-the path, keeps what is there when the move fails against another writer's entry, whose bytes are
-the same, and removes its own file either way; two tests race it through a barrier helper that
-reports every exception and never hangs, the writer from two threads a hundred times and the real
-compile ten times against an empty cache, both failing on the old writer with the job's error
-(`90681ba8`), which is Verdict 34's mend, proved at 17:03 and 17:23 by the Linux and macOS jobs of
-its run, so the verdict is settled. The owner decided on 2026-10-07 that global illumination comes
-in four phases (Decision 16), items 2 to 4, and the session began phase 1, the cascaded scene
-distance field, at 17:00. The four runs were in progress at 17:00, the Windows jobs of `3afcc4d0`,
-`0c19c335` and `6412daca` in the games' step since 15:31, 16:08 and 16:11, and `38f68412`'s run on
-all three systems. The suite: 1,505 passed, none skipped.
+Reviewed up to `f2d99b65`. A signed distance field of the scene stands around the camera, phase one
+of Decision 16: `SetSceneField` and `Config.SceneField` build it from the shadow-casting meshes in
+cascades of 64 cells a side, each twice as coarse and as wide as the one before, in one 3D image of
+half floats with a uniform buffer saying where each lies; a cascade is rebuilt when the eye passes
+its grid of eight cells or a still mesh comes or goes, the budget's number a frame, finest first; a
+build is a workgroup a triangle taking each cell within four of it by an atomic minimum of its
+distance in 1024ths of a cell above a bit for in front, and a mesh that moves or is skinned is
+stamped as its box into bricks each frame; three faults of sign found by reading the field back are
+mended and held by tests, the nearer of two meshes winning a cell, a triangle claiming a cell only
+within 60 degrees of straight behind it, and a plane's open edges a narrow wedge; `ao.slang` reads
+occlusion through the field beside the screen's and traces the sun's soft contact shadow, which the
+model pass applies to the shadowed sun, and particles collide with the field where it holds them and
+with the depth elsewhere, which closes that TODO entry; `field.show`, `field.state` and
+`field.rebuild`, two reference frames, the `shaders_scene_field` example, the guide's section,
+RENDERING.md's, and the costs from an RTX 4070 on the comparison page, stamping 0.014 ms, the finest
+cascade 0.25 ms to build and the occlusion pass 0.073 ms where it took 0.036 (`f2d99b65`), which
+settles item 2. The field's kernels and its sampling module are plain Slang over buffers and one
+image, which the bridge can compile as they are once BevyCSharp reads the field. Phase two, hybrid
+Radiance Cascades, is next. The suite: 1,514 passed, none skipped. The Windows job of `3afcc4d0` was
+cancelled at the job's 180 minutes in the games' step at 18:31 with nothing on the page, which
+Verdict 33 reads as the opening's answer read through `$(...)` while the game e3d started holds the
+pipe, as BevyCSharp's step hung the same day.
+
+Before them, the shader cache's two writers came to be mended: each writes its entry under a name of
+its own, the path with the process and a GUID after it ending in `.partial`, moves it over the path,
+keeps what is there when the move fails against another writer's entry, whose bytes are the same,
+and removes its own file either way; two tests race it through a barrier helper that reports every
+exception and never hangs, the writer from two threads a hundred times and the real compile ten
+times against an empty cache, both failing on the old writer with the job's error (`90681ba8`),
+which is Verdict 34's mend, proved at 17:03 and 17:23 by the Linux and macOS jobs of its run, so the
+verdict is settled. The owner decided on 2026-10-07 that global illumination comes in four phases
+(Decision 16). The four runs were in progress at 17:00, the Windows jobs of `3afcc4d0`, `0c19c335`
+and `6412daca` in the games' step since 15:31, 16:08 and 16:11, and `38f68412`'s run on all three
+systems. The suite: 1,505 passed, none skipped.
 
 Before them, Arabic's marks came to be put on their letters and its pairs kerned by the font's GPOS
 table inside shaped runs: what GSUB and GPOS share moved into `GlyphLayout`, which
@@ -35,24 +57,6 @@ nothing; and 328 shapings of 52 words on seven of the machine's fonts came out a
 at its positions, held by `arabic-marks.ttf`, six tests and the `arabic_marks` frame (`38f68412`),
 which settles item 4, the three batches of Decision 15 in. The suite: 1,503 passed, none skipped.
 
-Before them, text read right to left came to be drawn and measured in the order it is read:
-`TextDirection` is a reduced UAX #9 over grapheme clusters, each line a paragraph of its first
-strong letter's direction, the weak types, the neutrals and the levels resolved by the rules' names,
-trailing white space at the paragraph's level, the runs reversed from the highest level down,
-mirrored brackets turned, embeddings and isolates passed over, and `TextKeys` orders a line only
-where it holds a character read right to left, so Latin takes the path it took and measures as
-raylib's (`0c19c335`). Arabic is joined: a run of Arabic clusters at one level is shaped in stored
-order and then reordered, `ArabicJoining` holding Unicode 16's joining types, the forms and the
-presentation forms with the eight lam-alef, `GlyphSubstitution` applying plans of features under a
-script with a mask a position, lookup flags honored through GDEF's classes and filtering sets, a
-font without the positional features drawn by the presentation forms it maps, with two test fonts
-from `make-color-test-fonts.py`, a reference frame each, and 25 of the machine's Arabic fonts
-joining through `e3d eval` (`6412daca`); batch three, marks and pairs through GPOS, is under way.
-The runs: macOS passed the leak test at `3afcc4d0`, `0c19c335` and `6412daca`, which settles Verdict
-32; the three Windows jobs were in the games' step at 16:40; Linux passed the first two and failed
-one test at `6412daca`, a race of the shader cache under parallel tests, which is Verdict 34; the
-examples job waits on Windows. The suite: 1,492 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -63,22 +67,14 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 30, 31 and 33 first, the five Windows jobs.** macOS passed every run and Verdict 32
-   is settled; Linux and macOS passed `90681ba8`, so Verdict 34 is settled; the Windows jobs of
-   `3afcc4d0`, `0c19c335`, `6412daca`, `38f68412` and `90681ba8` were all in the games' step at
-   17:37, the oldest since 15:31 with 180 minutes, Verdict 33's proof; the examples job, which
-   carries the guides' blocks and Verdicts 30 and 31, runs once a run's three test jobs pass, which
-   `90681ba8`'s will if its Windows job does. Each push's run is read by the reviewing session, and
-   a failure it names comes first here.
-2. **Global illumination, phase 1: the scene distance field (Decision 16).** A cascaded signed
-   distance field in clipmaps around the camera, built on the GPU from the static meshes' triangles
-   and stamped with the moving bodies' shapes coarsely each frame, the cascade count, the cell size
-   and the update budget in the config and each frame's cost read by the timestamps. It is used at
-   once: ambient occlusion traced through it beside the screen-space pass, soft contact shadows of
-   the directional light, and particles colliding with the world rather than with what the window
-   shows, which closes that TODO entry. A reference frame a cascade, a test of the field's distances
-   against the meshes it was built from, the costs on the comparison page, and the guide's section.
-3. **Phase 2: Radiance Cascades, hybrid.** Cascades of probes aligned with the SDF clipmaps, each
+1. **Verdict 33's third part first, the Windows jobs.** The Windows job of `3afcc4d0` was
+   cancelled at the job's 180 minutes in the games' step at 18:31 with nothing on the page, and the
+   jobs of `0c19c335`, `6412daca`, `38f68412` and `90681ba8` sit in the same step toward the same
+   end, the last by 20:01, so the three mends come first once phase 2's commit lands, in a commit of
+   their own; the examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a
+   run's three test jobs pass, which none will until a Windows job does. Each push's run is read by
+   the reviewing session, and a failure it names comes first here.
+2. **Phase 2: Radiance Cascades, hybrid.** Cascades of probes aligned with the SDF clipmaps, each
    cascade's probes storing radiance over its interval of distance, the first cascade's intervals
    traced through the depth buffer and the ones above through the field, direct light and emissive
    surfaces injected at the hits, merged from the far cascade to the near one, and the result
@@ -87,17 +83,17 @@ for a reply. In this order.
    time of each measured and written, and the examples' Cornell box and a lit room of a game as the
    reference frames. Nothing is baked, and every light is dynamic. The kernels are written in Slang,
    which the bridge compiles too, so BevyCSharp runs them once they are proven here.
-4. **Phase 3: specular.** Glossy reflections traced through the field with the cascades' radiance
+3. **Phase 3: specular.** Glossy reflections traced through the field with the cascades' radiance
    at the hit, screen-space reflections where the field is too coarse and the reflection probes as
    the fallback, chosen by roughness; and a hardware ray-query path through Vulkan's ray query
    extension for the field's misses where the GPU has it, behind the same quality tier, measured.
-5. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+4. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
-6. **The first shares recorded from the workflow's own device.** The examples job's first green
+5. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-7. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
+6. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
    watch is one stream for the process, which holds for apps that overlap, while the watch is let go
    with the last app watching it, so a hundred apps made one after another make a hundred FSEvents
    streams on macOS, read on the way to Verdict 32. The watch is kept for the process once made, or
@@ -162,8 +158,22 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
     it played on, the errors written to the script's own output so one said inside `$(ask ...)`
     reaches the page (`596535ce`); the twelve games timed on lavapipe gave each twelve minutes and
     the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. The
-    Windows jobs of `3afcc4d0`, `0c19c335` and `6412daca` were in the games' step at 16:40, each
-    with 180 minutes. Settled when the Windows job plays the twelve games.
+    Windows job of `3afcc4d0` was cancelled at the job's 180 minutes in the games' step at 18:31,
+    its annotations holding the tests' notice alone, and the four jobs after it sit in the same
+    step, so no budget fired. The cause reads from the script and e3d together. `drive-game.sh`
+    reads the answer of `./e3d open` through `$(...)`, which ends when every holder of the pipe's
+    write end has closed it; e3d on Windows starts the game through `cmd.exe /c start /b`
+    (`Launch.cs`), and a process made that way is handed every inheritable handle e3d holds, the
+    pipe among them, whatever the line redirects, so the substitution waits for the game to end, the
+    game runs until a stop the script has not reached, and the budget's watcher, started after the
+    opening, never runs; BevyCSharp's Windows step hung the same way the same day, read the same,
+    and its mend at `070e5e0` writes each answer to a file. Three things: the opening's answer is
+    written to a file under the captures folder and read from there, `$(...)` never wrapping a
+    command that starts a program, which the SHARED.md row carries; the watcher starts before the
+    opening, so a game that hangs in its opening is stopped at its budget with `as far as its
+    opening` on the page; and the games' step takes `timeout-minutes` under the job's 180, so a wait
+    ends the step with the page written and not the job with nothing. The four jobs still running
+    end the same way and are not read again. Settled when the Windows job plays the twelve games.
 
 ## Decisions
 
@@ -258,46 +268,54 @@ Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 2, global illumination's first phase, the scene's distance field (Decision 16).**
-`SetSceneField(cascades, cellSize, updateBudget)` and `Config.SceneField` build a signed distance
-field of the meshes drawn into the window that cast shadows, in cascades of 64 cells a side around
-the window's eye, each twice as coarse and as wide as the one before, stacked along z in one 3D
-image of half floats that a pass binds once with a uniform buffer of where each lies. A cascade's
-corner moves on a grid of eight of its cells, and a cascade the eye has passed, or that a still mesh
-came into or left, is built again, the budget's number a frame, finest first, keeping its old place
-in the uniform buffer until then (`SceneFieldPlan`, unit-tested on the CPU). A mesh drawn the same
-for eight frames is still, its triangles kept once in their mesh's own space in one buffer, and a
-build is a workgroup a triangle taking each cell within four cells of it by an atomic minimum of
-its distance in 1024ths of a cell above a bit for in front, then a pass turning the words into
-distances (`field_splat.slang`, `field_resolve.slang`). A mesh that moves, a skinned one, and a
-still one whose cascades are not yet rebuilt are stamped each frame as their box into the bricks
-they come within the band of, last frame's bricks stamped again to put them back
-(`field_stamp.slang`). Reading the field back on the way found three faults of sign, each mended
-and each held by a test: of two meshes as near, as a crate on the ground, the one a cell is
-behind wins, so the crate's inside is inside; and a triangle puts a cell behind it only within 60
-degrees of straight back, so a cell in the plane of a turned wall's side above it, or above a
-pillar's rim, is not put inside by a face the way runs along, and the ground plane's open edges put
-only a narrow wedge below them inside. Three things read it. `ao.slang` adds an occlusion read
-along the normal and four leaning ways beside the screen-space one, and traces the sun toward it
-through the field for soft contact shadows, whose share rides in the occlusion image's green and
-multiplies the shadowed directional light in the model pass, so the pass runs for the shadows alone
-where the occlusion is off. `particle_step.slang` steps a colliding particle's move through the
-field where it holds the particle and meets the depth elsewhere, which closes TODO.md's particle
-entry's hole, a particle passing through what the window does not show. `field.show <cascade>` draws
-a cascade over the window as the field holds the scene, `field.state` says where each lies, and
-`field.rebuild <frames>` builds every frame so `profile` times a build. Tests hold the field's
-distances read back against a cube's exact ones within the band and the band beyond it, no cell away
-from every mesh near a surface in a courtyard of the shapes that broke it, a crate on the ground
-inside, the plan's placement, settling, budget and bricks, and particles thrown at a wall behind the
-camera coming back with the field and gone without it. Two reference frames, `scene_field_lit` and
-`scene_field_cascade`, draw a corner lit through the field and its first cascade. `shaders_scene_field`
-is a courtyard with a pushed crate and a fountain whose drops bounce off what the camera does not
-see, captured for the README. On a laptop's RTX 4070, from `./e3d command profile` in that example, a
-frame stamping its crate spends 0.014 ms of the GPU on the field, building the finest cascade every
-frame 0.25 ms, and the occlusion pass 0.073 ms where it took 0.036 without, on the comparison page and
-in the guide's new section, with RENDERING.md §4 and TODO.md's entries saying what is built and what
-is left. The render tests, the field's among them, pass on lavapipe under the validation layer. The suite: 1,514 passed, none skipped.
+Item 2, phase two of Decision 16, light that bounces, is in as hybrid Radiance Cascades over the
+field, with nothing baked:
 
-Shared: the field's kernels and its sampling module are plain Slang over storage buffers, one 3D
-image and a uniform buffer, with no type of this engine's, so BevyCSharp's bridge can compile them
-as they are once its phase two reads the field.
+- `SetGlobalIllumination` and `Config.GlobalIllumination` take `Off`, the default, `Low`, `Medium`
+  or `High`, and turn the field on at four cascades where it is off.
+- A cascade of world probes lies every eight cells of the field's cascade of the same number, 512
+  of them, each tracing an octahedron of directions across its interval, the first cascade's from
+  the probe to twice the spacing and each after's from its spacing to twice that
+  (`gi_trace.slang`). `Low` traces 4 by 4 and 8 by 8 directions, `Medium` adds 16 by 16, and `High`
+  traces 8 by 8 then 16 by 16 in four cascades, no more than the field has.
+- The splat's second dispatch paints each cell the linear color, the material's times its
+  texture's average, and the light given off of its nearest triangle. A hit sends on its color over
+  pi times the sun where a trace through the field reaches it, the point and spot lights unshadowed
+  and the frame before's bounce, with its own light, so the Cornell box's panel lights the room. A
+  miss in the last cascade brings back the environment map, or the ambient lights' color.
+- The merge runs far to near, and an upper probe is passed over where it is inside a mesh or the
+  field hides it from the lower probe, each pair traced once into shared memory
+  (`gi_merge.slang`), so a probe under a ceiling takes nothing from one above it. Six faces of
+  irradiance a probe (`gi_ambient.slang`) feed the next frame's bounce and the model pass's
+  fallback.
+- The first interval is traced again by probes on the screen every 16, 12 or 8 pixels, on the
+  occlusion pass's half-size depth, 16 rays over the hemisphere through the depth and then the
+  field, the rest from the world's first cascade between the probes a trace from the surface
+  reaches, then a 5 by 5 filter by normal and distance (`gi_screen.slang`,
+  `gi_screen_filter.slang`). The model pass blends the four around a pixel and puts the result in
+  place of the diffuse light of the environment map, the ambient lights and the reflection probes.
+- Measured on the RTX 4070 laptop in `shaders_cornell_box` at 800 by 450 with the frame rate
+  unlimited (`./e3d eval "SetTargetFPS(0)"`), through `./e3d command profile` and `gi.state`.
+  `Low` takes 0.19 ms of the GPU and 0.70 MB, `Medium` 0.27 ms and 2.76 MB, and `High` at four
+  cascades 0.34 ms and 6.72 MB, with the field's 4 MB a cascade beside them. At 60 frames a second
+  the laptop's GPU lowers its clocks and the same work reads two to three times longer, so the
+  guide's table says how it was taken.
+- `shaders_cornell_box` with its capture, the `cornell_box` frame and the `lit_room` frame, which
+  is Manor's library with its furniture and lamps under the game's sky and a lower sun, and five
+  tests. One of them has a red wall raise a white block's shaded side from 0 to 94 in red, and one
+  has a glowing panel light a room that has no light from 0 to 125.
+- What is left is written in TODO.md and RENDERING.md. In the bounce point and spot lights cast no
+  shadow, a moving mesh is its gray box, and the screen's probes are not blended over time, so the
+  light may crawl a little as the camera moves.
+
+One fault of the field came out on the way. A double-sided mesh had no inside, so a sheet thinner
+than a cell lying between two rows of cells left at least a tenth of a cell in each, the trace's
+threshold, and rays went through Manor's floors and ceilings, which are imported from OBJ files and
+so double-sided. A second bit in the cell's word marks a double-sided triangle, whose distance the
+resolve takes half a cell from, so such a sheet crosses zero wherever it lies. A test holds a sheet
+half way between two rows and one off it, and `scene_field_cascade` was written again, its ground
+whole at the cascade's far edge where it had gone.
+
+Shared: the light that bounces is five Slang kernels and a module over buffers, images and a uniform
+buffer each, beside the field's, which the bridge can compile as they are once BevyCSharp reads the
+field.

@@ -81,8 +81,21 @@ internal struct LightingUbo
     /// <summary>x: 1 when the view is drawn into the HDR frame, whose light the model pass leaves linear for bloom and the composite. After the probes, so the fields before keep their offsets.</summary>
     public Vector4 Output;
 
-    /// <summary>x: 1 when the view's ambient light is darkened by the occlusion bound beside the buffer, the window's alone. Last, so the fields before keep their offsets.</summary>
+    /// <summary>x: 1 when the view's ambient light is darkened by the occlusion bound beside the buffer, the window's alone. y: 1 when the shadowed directional light is darkened by its green channel.</summary>
     public Vector4 AmbientOcclusion;
+
+    /// <summary>
+    /// x: 1 when the view's light from all around is the light that bounced, read from the probes
+    /// bound beside the buffer, the window's alone. y: the probes' spacing in cells. z: the probes
+    /// along each side of a cascade. w: how many cascades.
+    /// </summary>
+    public Vector4 Indirect;
+
+    /// <summary>
+    /// x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes are
+    /// read before the world's. Last, so the fields before keep their offsets.
+    /// </summary>
+    public Vector4 Screen;
 }
 
 /// <summary>One reflection probe as the model pass reads it.</summary>

@@ -24,11 +24,12 @@ machine, with the command that measures it again.
 - **A Vulkan renderer** with metallic-roughness materials and their maps, shadows from a sun in
   cascades and from spot and point lights, an environment map lighting from all around, reflection
   probes for the inside of a room, bloom over a frame that holds light past white, instancing,
-  compute shaders, particles a compute shader steps, and a distance field of the scene that ambient
-  occlusion, the sun's contact shadows and particles read.
+  compute shaders, particles a compute shader steps, a distance field of the scene that ambient
+  occlusion, the sun's contact shadows and particles read, and light that bounces through it.
   [Materials, light and shadows](materials-light-and-shadows.md) and
   [Shaders and compute](shaders-and-compute.md) show them, and `models_reflection_probe`,
-  `shaders_shadowmap`, `shaders_scene_field` and `shaders_compute_life` run them.
+  `shaders_shadowmap`, `shaders_scene_field`, `shaders_cornell_box` and `shaders_compute_life` run
+  them.
 - **An ECS under the flat API.** `[Behavior]` structs whose methods a source generator turns into
   systems run in the same frames as the loop, so a program grows into entities when it needs them.
   [Behaviors and the ECS](behaviors-and-the-ecs.md) and `ecs_behaviors`.
@@ -250,7 +251,10 @@ The scene's distance field, which raylib has nothing like, was timed on the same
 2026-10-07 in `shaders_scene_field` offscreen at 800 by 450, from `./e3d command profile`. A frame
 that stamps its moving crate spends 0.014 ms of the GPU on it, a frame that builds its finest
 cascade 0.25 ms (`./e3d command field.rebuild 400` builds one every frame), and the occlusion pass
-takes 0.073 ms with the field where it took 0.036 without.
+takes 0.073 ms with the field where it took 0.036 without. The light that bounces takes 0.19 ms of
+the GPU at `Low`, 0.27 at `Medium` and 0.34 at `High` in `shaders_cornell_box`, measured on
+2026-10-07 the same way with the frame rate unlimited (`./e3d eval "SetTargetFPS(0)"`), and the
+guide's table has the memory each takes.
 
 ```bash
 build/raylib-bench/run.sh

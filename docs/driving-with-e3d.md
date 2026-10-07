@@ -79,7 +79,9 @@ display (BUILDING.md, Timing a program).
 Where a program builds the scene's distance field, `field.show 0` draws its first cascade over the
 window as the field holds the scene, `-1` none, `field.state` says where each cascade lies and how
 many meshes are in it, and `field.rebuild 400` builds a cascade every frame for four hundred frames,
-so `profile` gives what a build costs ([Materials, light and shadows](materials-light-and-shadows.md)).
+so `profile` gives what a build costs. Where light bounces, `gi.state` says the quality, the cascades
+of probes and their rays, the screen's probes, and the GPU memory each takes
+([Materials, light and shadows](materials-light-and-shadows.md)).
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

@@ -70,6 +70,11 @@ internal sealed class Renderer : IDisposable
             device.InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_resolve.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
+            device.InitializeGlobalIllumination(server.LoadSync<ShaderProgram>("shaders/gi_trace.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/gi_merge.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/gi_ambient.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/gi_screen.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/gi_screen_filter.slang").Compute);
             device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
@@ -88,6 +93,7 @@ internal sealed class Renderer : IDisposable
             server.LoadSync<ShaderProgram>("shaders/velocity.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
         RenderWorld.Set(new SceneFieldRenderer());
+        RenderWorld.Set(new GlobalIlluminationRenderer());
         RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
@@ -113,8 +119,11 @@ internal sealed class Renderer : IDisposable
         // lights the window's meshes.
         Graph.AddNode("ambient_occlusion", new AmbientOcclusionNode());
         Graph.AddNodeEdge("shadows", "ambient_occlusion");
+        // The light that bounces, traced through the field before every pass that lights the window.
+        Graph.AddNode("global_illumination", new GlobalIlluminationNode());
+        Graph.AddNodeEdge("ambient_occlusion", "global_illumination");
         Graph.AddNode("probes", new ProbeNode());
-        Graph.AddNodeEdge("ambient_occlusion", "probes");
+        Graph.AddNodeEdge("global_illumination", "probes");
         // With bloom on, the window's scene is drawn into the HDR target and spread before the
         // window's pass composites it.
         Graph.AddNode("hdr_scene", new HdrSceneNode());
@@ -332,6 +341,7 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
+        RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Dispose();
         RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 

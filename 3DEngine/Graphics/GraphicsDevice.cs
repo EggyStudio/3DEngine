@@ -193,6 +193,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         DestroySkinning();
         DisposeProbeFilter();
         DestroySceneField();
+        DestroyGlobalIllumination();
         DestroyParticles();
         Logger.Debug("Destroying descriptor resources (pool, layouts)...");
         DestroyDescriptorResources();

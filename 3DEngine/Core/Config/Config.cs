@@ -124,6 +124,12 @@ public sealed record Config
     /// </summary>
     public SceneFieldConfig SceneField { get; init; } = new();
 
+    /// <summary>
+    /// How much light bounces between surfaces when the app starts, none by default, which turns
+    /// the scene's distance field on at four cascades where <see cref="SceneField"/> has none.
+    /// </summary>
+    public GlobalIllumination GlobalIllumination { get; init; }
+
     /// <summary>Returns a copy with the provided window properties.</summary>
     /// <param name="title">Window title bar text.</param>
     /// <param name="width">Window width in pixels.</param>

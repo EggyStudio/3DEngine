@@ -25,6 +25,8 @@ module modelpass;
 
 // sRGB's transfer functions and the tonemap, which a shader importing this module reaches too.
 __exported import color;
+import scenefield;
+import gi;
 
 // One drawn copy of a mesh, read from a vertex buffer stepped once per instance, so every mesh
 // sharing a mesh and its maps is drawn by one call. A vertex stage of a shader's own takes it as a
@@ -161,6 +163,13 @@ public struct Lighting
     // and 1 in y when the shadowed directional light is darkened by its green channel, the sun's
     // contact shadows through the scene's distance field.
     public float4 ambientOcclusion;
+    // 1 in x when the view's light from all around is the light that bounced, read from
+    // bouncedLight, the window's alone. y: the probes' spacing in cells of the field. z: the probes
+    // along each side of a cascade. w: how many cascades.
+    public float4 indirect;
+    // x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes, in
+    // screenLight and screenSurfaces, are read before the world's.
+    public float4 screen;
 };
 
 [[vk::binding(0, 1)]]
@@ -212,6 +221,62 @@ public StructuredBuffer<float4> probeIrradiance3;
 // The environment's irradiance the same way, or zeros where there is none.
 [[vk::binding(14, 1)]]
 public StructuredBuffer<float4> environmentIrradianceBuffer;
+
+// The light that bounced to each probe, six faces a probe, every cascade, as gi_ambient.slang
+// gathers it, and where the scene's distance field it was traced through lies, which the probes
+// lie in, or a field of nothing where light does not bounce.
+[[vk::binding(15, 1)]]
+public Sampler3D bouncedLight;
+
+[[vk::binding(16, 1)]]
+public ConstantBuffer<SceneFieldInfo> bouncedField;
+
+// The light arriving at each of the screen's probes, irradiance, its alpha 1 where the probe holds
+// it, and each probe's surface's normal and distance from the eye, a texel a probe of the tiles
+// the window is cut into, as gi_screen.slang leaves them, or zeros where light does not bounce.
+[[vk::binding(17, 1)]]
+public Sampler2D screenLight;
+
+[[vk::binding(18, 1)]]
+public Sampler2D screenSurfaces;
+
+// The light that bounced to the pixel a fragment is at, irradiance over pi, blended between the
+// four screen probes around it that stand on a surface like its own, each by how near it is and
+// how alike its normal and its distance from the eye are to the fragment's, or -1 where none does.
+public float3 screenBounced(ModelVertexOutput input, float3 n)
+{
+    uint across, down;
+    screenLight.GetDimensions(across, down);
+    float2 g = input.position.xy / lighting.screen.x - 0.5;
+    int2 base = int2(floor(g));
+    float2 f = g - float2(base);
+    float distance = length(input.toEye);
+    float4 sum = float4(0.0);
+    for (int corner = 0; corner < 4; corner++)
+    {
+        int2 offset = int2(corner & 1, corner >> 1);
+        int2 at = clamp(base + offset, int2(0), int2(int(across) - 1, int(down) - 1));
+        float4 light = screenLight.Load(int3(at, 0));
+        float4 surface = screenSurfaces.Load(int3(at, 0));
+        if (light.a < 0.5 || surface.w < 0.0)
+            continue;
+        float2 lerps = lerp(1.0 - f, f, float2(offset));
+        float weight = lerps.x * lerps.y * pow(saturate(dot(n, surface.xyz)), 8.0)
+                     * exp(-abs(surface.w - distance) / (0.02 * distance + 0.05));
+        sum += float4(light.rgb, 1.0) * weight;
+    }
+    return sum.w > 1e-3 ? sum.rgb / sum.w / 3.14159265 : float3(-1.0);
+}
+
+// The light that bounced to a surface at p facing n, irradiance over pi, from the world's probes
+// around it as gi.slang blends them, or -1 where no cascade of probes holds p.
+public float3 bounced(float3 p, float3 n)
+{
+    int c = fieldCascade(bouncedField, p, 1.0);
+    if (c < 0 || c >= int(lighting.indirect.w))
+        return float3(-1.0);
+    return bouncedAt(bouncedLight, bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+}
 
 // The share of the light from all around that reaches the pixel a fragment is at, 1 where the view
 // has no occlusion. The map is half the window's size, so a pixel reads it at half its position.
@@ -692,7 +757,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     float3 n = surfaceNormal(input);
     int probe = probeAt(input.world);
     bool environment = lighting.environment.z > 0.0 || probe >= 0;
-    if (lighting.count == 0 && !environment)
+    if (lighting.count == 0 && !environment && lighting.indirect.x <= 0.0)
         return unlit(albedo + emitted(input));
 
     float4 packed = metallicRoughnessMap.Sample(input.uv);
@@ -709,6 +774,21 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     float nv = max(dot(n, v), 1e-4);
     float3 color = float3(0.0);
 
+    // The light that bounced, where light bounces and a cascade of probes holds the point, which
+    // stands in for the diffuse share of the light from all around, the environment's, a probe's
+    // and the ambient lights', its rays having met that light where they met nothing.
+    float3 bouncedHere = float3(-1.0);
+    if (lighting.indirect.x > 0.0)
+    {
+        if (lighting.screen.y > 0.0)
+            bouncedHere = screenBounced(input, normalize(input.normal));
+        if (bouncedHere.x < 0.0)
+            bouncedHere = bounced(input.world, n);
+    }
+    bool bounces = bouncedHere.x >= 0.0;
+    if (bounces)
+        color += occlusion * diffuseColor * bouncedHere;
+
     // The environment, as an ambient light that differs by direction. The mirror direction is
     // looked up at the mip prefiltered for this roughness and weighted as Karis's fit weights an
     // ambient light's reflection, and the diffuse share scatters the irradiance the harmonics hold.
@@ -717,14 +797,14 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
     {
         float lastMip = lighting.probes[probe].halfSizeAndMip.w;
         float3 reflected = probeSample(probe, boxProjected(probe, input.world, reflect(-v, n)), roughness * lastMip);
-        float3 around = probeIrradiance(probe, n);
+        float3 around = bounces ? float3(0.0) : probeIrradiance(probe, n);
         color += lighting.probes[probe].centerAndIntensity.w * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
     }
     else if (environment)
     {
         float lastMip = lighting.environment.y;
         float3 reflected = environmentMap.SampleLevel(reflect(-v, n), roughness * lastMip).rgb;
-        float3 around = environmentIrradiance(n);
+        float3 around = bounces ? float3(0.0) : environmentIrradiance(n);
         color += lighting.environment.x * occlusion * (diffuseColor * around + reflected * ambientReflected(f0, roughness, nv));
     }
 
@@ -734,7 +814,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         float3 arrived = arriving(light, input.world, n);
         if (int(light.positionAndKind.w) == Ambient)
         {
-            color += arrived * occlusion * (diffuseColor + ambientReflected(f0, roughness, nv));
+            color += arrived * occlusion * ((bounces ? float3(0.0) : diffuseColor) + ambientReflected(f0, roughness, nv));
             continue;
         }
 
