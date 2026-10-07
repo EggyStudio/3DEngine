@@ -5,11 +5,21 @@ namespace Engine.Files.Compiler;
 /// and filter however many compilers watch it, each let go with the last compiler that watched it.
 /// </summary>
 /// <remarks>
-/// Every app with behaviors compiles the scripts of its program's <c>source/behaviors</c>, so a
-/// process that makes app after app, as the suite does, watched the same directory once an app. On
-/// macOS a watcher is an FSEvents stream whose managed side lives until the system's thread lets it
-/// go, after the app is collected, which a hundred apps showed as 75 KB an app (REVIEW.md, Verdict
-/// 27). A change is told to every compiler watching, each of which compiles its own app's scripts.
+/// <para>
+/// Every app with behaviors compiles the scripts of its program's <c>source/behaviors</c>, so apps
+/// that live at the same time, as the suite's tests running together, watched the same directory
+/// once each, and now share one watch. A change is told to every compiler watching, each of which
+/// compiles its own app's scripts.
+/// </para>
+/// <para>
+/// Apps made one after another, each closed before the next, still watch it once each, the last
+/// to close letting it go. On macOS a watcher is an FSEvents stream whose managed side lives until
+/// the system's thread lets it go, after the app is collected, so the heap of a hundred apps made
+/// that way rose and fell back by 6 MB every thirty apps while a census found 0.25 MB more alive at
+/// the hundredth than at the twentieth (AppLeakTests). The watch is let go rather than kept for
+/// the process, since a watch kept would outlive the directory it watches, as the suite's folders
+/// deleted after their tests.
+/// </para>
 /// </remarks>
 internal static class DirectoryWatches
 {

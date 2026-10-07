@@ -3,7 +3,7 @@ using Engine.Files.Compiler;
 
 namespace Engine.Tests.Behaviors;
 
-/// <summary>The directory of scripts apps compile from, watched once a process however many apps watch it.</summary>
+/// <summary>The directory of scripts apps compile from, watched once however many apps watch it at the same time.</summary>
 [Trait("Category", "Integration")]
 public sealed class ScriptDirectoryWatchTests : IDisposable
 {

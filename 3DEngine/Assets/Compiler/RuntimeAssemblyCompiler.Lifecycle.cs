@@ -8,7 +8,8 @@ internal abstract partial class RuntimeAssemblyCompiler<TResult>
     {
         var result = CompileAndLoad();
 
-        // Each directory is watched once a process, shared with the other compilers watching it.
+        // Each directory is watched once however many compilers watch it at the same time, and
+        // watched again by the next compiler after the last that watched it let it go.
         foreach (var dir in _scriptDirectories)
             foreach (var ext in WatchedExtensions)
                 _watchers.Add(DirectoryWatches.Start(dir, ext, OnFileChanged, OnFileRenamed));

@@ -10,17 +10,36 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `eee89446`. TODO.md's shadows entry, item 2: the spot and point lights given shadow
-maps were ranked for the window's camera alone, so a render target looking elsewhere got the
-window's choice and a light its own camera alone saw cast no shadow there; the ranking runs over
-every camera the frame draws meshes through, the window's and each target's, a light any camera sees
-first, then the greatest light reaching any eye, then the reach nearest any eye, the same order as
-before where the window stands alone, with a unit test of a bright light behind the window and a dim
-one a target sees, RENDERING.md's fourth section and the guide updated (`eee89446`). The entry has
-left an eleventh spot or a thirteenth point light casting no shadow, a ranking that does not weigh
-how much of the picture a light covers, which stays unless asked for, and each render target drawing
-the cascades and the spot tile again for its own camera. The GI entry's gaps are next, and item 3's
-reduction runs on at 63 KB. The suite: 1,538 passed.
+Reviewed up to `1be7c8ee`. TODO.md's light-bounce entry, item 2, its gap of lamps casting no shadow
+in the bounce, which was one of three leaks: a closed room of slabs 0.6 thick with the camera inside
+and a shadow-casting lamp over the roof or under the floor read 239 and 247 of 255 with the bounce
+on and 0 with it off; probe-ray hits were lit by every lamp unshadowed, a coarser cascade's ray was
+traced from where its interval began so a probe a little above the floor started under it and
+brought back the light there, and hits blended the probes around them with no wall between checked.
+Mended: a shadow-casting lamp lights a hit only where a march through the field toward it gets
+through (`hiddenLampLight`), the lamp's shadow flag reaching the bounce; a probe's ray is marched
+from the probe, and one that meets a surface before its interval is dark; a world probe's hit blends
+the probes in front of it that it sees alone (`bouncedSeenAt`), the screen probes keeping the plain
+blend since the seen blend cost 0.10 to 0.15 ms there for three levels; the room reads 1.4 and 3.4
+and a test holds it under 8; the model pass is byte for byte the same in both builds, its
+reflections still lighting what they hit with lamps unshadowed, which the docs say; the Cornell box
+on the RTX 4070 at four cascades reads 0.24, 0.30 and 0.43 ms at the three qualities where it read
+0.21, 0.32 and 0.40, within the noise, the guide's table taking the new readings where its old ones
+had gone stale; on lavapipe under validation the bounce, reference, render and field tests gave 137
+passed and 1 skipped (`1be7c8ee`). Item 3's reduction had died at step 457, each validation
+container mounting the scratch folder with a label that took it from the reducing one, and runs
+again from the 63 KB module with the shared label. The suite: 1,539 passed.
+
+Before them, TODO.md's shadows entry, item 2, came in: the spot and point lights given shadow maps
+were ranked for the window's camera alone, so a render target looking elsewhere got the window's
+choice and a light its own camera alone saw cast no shadow there; the ranking runs over every camera
+the frame draws meshes through, the window's and each target's, a light any camera sees first, then
+the greatest light reaching any eye, then the reach nearest any eye, the same order as before where
+the window stands alone, with a unit test of a bright light behind the window and a dim one a target
+sees, RENDERING.md's fourth section and the guide updated (`eee89446`). The entry has left an
+eleventh spot or a thirteenth point light casting no shadow, a ranking that does not weigh how much
+of the picture a light covers, which stays unless asked for, and each render target drawing the
+cascades and the spot tile again for its own camera. The suite: 1,538 passed.
 
 Before them, TODO.md's vertex inputs entry, item 2, came in: the reflection gives each input of a
 vertex stage by its semantic and its Slang location, the cache keeping them as lines of their own;
@@ -35,19 +54,6 @@ wrong when the names are ignored, 141 render, reference and compiler tests passi
 validation; RENDERING.md's first section says a sampler declared apart from its texture is bound, as
 it has been since `b0386c1e` (`57f0785f`). The entry has left a compute shader writing a render
 texture only where the GPU stores the window's format. The suite: 1,537 passed.
-
-Before them, the text entry's next gap came to be closed: before a line is shaped, a character and
-the mark right after it become the one character Unicode has for both where the font has it, as
-HarfBuzz does, so e and a combining acute draw and measure as the font's é and not as e and a
-missing glyph; text with no character at U+0300 or above is skipped and text with nothing to compose
-is handed back without a copy; `string.Normalize` gives text back unchanged under invariant
-globalization, so the engine carries its own table, `UnicodeCompositions`, written by
-`build/make-compositions.py` from Unicode 16.0, 1,714 pairs built as every composition start against
-every mark NFC makes one character of, with Hangul's syllables by Unicode's formula; a test holds
-every Latin letter with every combining diacritical mark to the platform's NFC, which caught a
-singleton spelling and a double mark missing from the first table; the guide and the comparison page
-say so (`6f0ff47e`). The entry has left Latin kerning and ligatures, the owner's to decide, and
-Devanagari. The suite: 1,535 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -322,36 +328,17 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the light-bounce entry, its gap of point and spot lights casting no shadow in the
-bounce, which turned out to be one of three leaks:
+Item 5, the scripts' shared watch: the sentences change, and the watch is still let go.
 
-- **What leaked.** A closed room of slabs 0.6 thick, the camera inside and a lamp that casts
-  shadows over its roof or under its floor, read 239 and 247 of 255 with light bouncing and 0
-  without, nearly what the lamp gives unshadowed. Three paths, found by forcing each shut in the
-  staged shaders: the probes' rays lit every surface with the lamps unshadowed; a ray of a coarser
-  cascade is traced from where its interval begins, so one of a probe a little above the floor
-  started under it and brought back the light there, which a probe of the cascade below whose own
-  ray never reached the floor took for the light beyond; and a surface a ray meets blended the
-  probes around it with no regard for a wall between.
-- **The mends.** A lamp that casts shadows lights a surface a probe's ray meets only where a march
-  through the field toward it gets through (`hiddenLampLight`), its flag now sent to the bounce. A
-  probe's ray is marched from the probe, and one meeting a surface before its interval begins is
-  blocked, dark. The world's probes blend at a hit only the probes in front of it that it sees
-  (`bouncedSeenAt`). The screen's probes keep the plain blend, since a march to each probe at their
-  hits cost 0.10 to 0.15 ms and left 3 levels without it. The room reads 1.4 and 3.4, which a test
-  holds under 8.
-- **The model pass is byte for byte the same.** `directLight`, `shadeHit` and `bouncedAt`, which its
-  reflections call, are untouched, and its SPIR-V compiled in both builds matches the commit
-  before's, so lavapipe's second fault is left as it stands. The reflections light what they meet
-  with the lamps unshadowed, which the documents say.
-- **Cost.** In `shaders_cornell_box` on the RTX 4070 with the frame rate unlimited, `Low`, `Medium`
-  and `High` at four cascades took 0.21, 0.32 and 0.40 ms with the commit before's shaders and 0.24,
-  0.30 and 0.43 with these, within the noise of 0.03 ms. The guide's table, measured when it was
-  written at 0.19, 0.27 and 0.34, takes the new readings.
-- **Checked.** Every reference frame passed, and lavapipe under the validation layer passed the
-  light-bounce, reference, render and field tests, 137 and 1 skipped, the ray-query test.
-- **Item 3's reduction** was stopped at step 457 when a validation container mounted the scratch
-  folder with `:Z`, which relabeled it away from the reducing container, and goes on from the
-  63 KB it had reached.
+- **What holds.** Apps that live at the same time share one watch of their scripts' directory.
+  Apps made one after another, each closed before the next, still watch it once each, the last to
+  close letting it go, which "once a process" hid. `DirectoryWatches`' remarks, the compiler's
+  comment and the test's summary now say so.
+- **Why it is let go.** The macOS leak test's own record, in `AppLeakTests`, has macOS's heap
+  rising and falling back by 6 MB every thirty apps while a census found 0.25 MB more alive at the
+  hundredth app than at the twentieth, so the streams are given back as the system lets them go. A
+  watch kept for the process would outlive the directory it watches, as the suite's test folders
+  deleted after their tests, so keeping it trades a churn the heap recovers from for watches on
+  directories that are gone.
 - The suite: 1,539 passed.
 
