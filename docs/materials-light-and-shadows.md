@@ -262,9 +262,16 @@ four cascades of 0.25 reach 16 units across in the first and 128 in the last. A 
 thinner than a cell is not in it, and a double-sided one, as a model from an OBJ file is, has no
 inside and is held half a cell thick on either side, so a wall or a floor of one thinner than a
 cell still stops what is traced through the field. A mesh drawn in the same place for eight frames is built into the
-cascades around it from its triangles, and one that moves is stamped each frame as the box around
-it. A cascade is built again where the camera has gone past it or a mesh came or went, as many a
-frame as the third argument says, one by default, the finest first. In `shaders_scene_field` on a
+cascades around it from its triangles, and one that moves is stamped each frame as boxes rather than
+its triangles, in no color: a skinned model a box for each joint around the vertices it holds, as
+its pose puts them, so the shadows a character gives the light that bounces are its limbs' as
+boxes, and a model that does not bend a box for each of up to eight parts its triangles are cut
+into, so a table or a car is not one block. Three of raylib's dancing robots in
+`shaders_cornell_box` are 147 boxes in 540 bricks of four cells, which the GPU stamps in 0.05 ms
+and the CPU places in 0.45, as it stamped and placed the 57 boxes of their meshes before, in the
+Release build. A cascade is built again where the camera has gone past it or a mesh came or went,
+as many a frame as the third argument says, one by default, the finest first. In
+`shaders_scene_field` on a
 laptop's RTX 4070, a frame that stamps its moving crate takes 0.014 ms on the GPU and building the
 finest cascade 0.25 ms, and the occlusion pass takes 0.073 ms with the field where it took 0.036
 without, as `./e3d command profile` shows them, `field.rebuild 400` building a cascade every frame
@@ -333,8 +340,8 @@ on, and `gi.state` says how many copies of how many meshes the GPU's rays see an
 take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 MB, and building
 them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
 rays here seldom leave the field, reads the same within its noise of 0.03 ms. A reflection lights
-what it meets with the point and spot lights unshadowed, a mesh that moves bounces light as the
-gray box the field holds it as, and the light near the camera is blended with the frame before's so
+what it meets with the point and spot lights unshadowed, a mesh that moves bounces light gray, as
+the boxes the field holds it as, and the light near the camera is blended with the frame before's so
 it holds still as the camera moves, which makes it follow a light that changes some five frames
 behind. A render texture and a reflection
 probe's faces take the light that bounced from the world's probes alone, as the frame before left

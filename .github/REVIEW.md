@@ -10,24 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7ffcde68`. Item 5 is settled by its sentences, the code kept: apps alive at the same
-time share one watch of their scripts' directories, and apps made one after another each watch
-again, since the leak test's own record shows macOS's heap rising and falling by 6 MB every thirty
-apps with a census finding 0.25 MB more alive from the twentieth app to the hundredth, so the
-FSEvents streams are given back, and a watch kept for the whole process would outlive the
-directories it watches, the suite's deleted test folders among them (`3af649ca`). The light-bounce
-entry, item 2, closes its gap of render textures and probe captures drawn without the field: a
-render target and a reflection probe's faces bind the world's probes and the field, their buffers
-taking the window's cascades with the screen probes and the reflections off, a target drawn before
-the bounce reading the frame before's probes; a window that draws no mesh, as a game that draws its
-scene into a texture and shows the texture alone, gave the field no camera and no meshes, and the
-field follows the first target's camera and holds the targets' meshes; a test draws a room lit by a
-glowing panel into a texture the window shows, lit with the panel on and black with it off where it
-was drawn in its own colors either way; on lavapipe under validation 138 passed and 1 skipped
-(`7ffcde68`). Measured for the next gap, with the camera sliding a hundredth of a unit a frame
-through the Cornell box the picture changes 0.49 levels a frame with the bounce off, 1.26 at `Low`
-and 0.73 at `High`, so the screen probes add up to 0.8 levels of crawl a frame, and blending them
-over time is next. Item 3's reduction stands at 45 KB. The suite: 1,540 passed.
+Reviewed up to `8ca965bc`. The light-bounce entry's gap of the screen probes not blended over time
+is closed: after the 5 by 5 filter each screen probe blends a fifth of this frame's light with four
+fifths of the frame before's, its point from the window's depth reprojected through the camera of
+the frame before, which the view buffer carries, blending the four probes there that stood on a like
+surface from images copied after the filter, a disoccluded probe, the first frame and the first
+after a relayout taking this frame's light alone, `ScreenView` moved into `gi.slang` and the model
+pass byte for byte the same in both builds; with the camera sliding a hundredth of a unit a frame at
+`Low` the bounce adds 0.27 levels a frame of change against 1.34 with the history off and 0.48 with
+no bounce, which a test holds under 0.5 on lavapipe too, at about 0.03 ms and two probe-sized images
+`gi.state` counts, the guide's table at 0.27, 0.31 and 0.44 ms and 0.73, 2.80 and 6.81 MB, and near
+light following a changing light about five frames late, which the docs say; on lavapipe under
+validation 139 passed and 1 skipped (`8ca965bc`). The entry has left the reflections lit with
+unshadowed lamps, which waits on lavapipe's second fault, the skinned and moving meshes held as gray
+boxes in the field, taken next from the GPU's posed vertices, and thin closed meshes and wedges
+under open meshes; the entries after it describe limits rather than gaps, the older scene files to
+consider by the owner's decision. Item 3's reduction stands at 26 KB. The suite: 1,541 passed.
+
+Before them, item 5 came to be settled by its sentences, the code kept: apps alive at the same time
+share one watch of their scripts' directories, and apps made one after another each watch again,
+since the leak test's own record shows macOS's heap rising and falling by 6 MB every thirty apps
+with a census finding 0.25 MB more alive from the twentieth app to the hundredth, so the FSEvents
+streams are given back, and a watch kept for the whole process would outlive the directories it
+watches, the suite's deleted test folders among them (`3af649ca`). The light-bounce entry, item 2,
+closes its gap of render textures and probe captures drawn without the field: a render target and a
+reflection probe's faces bind the world's probes and the field, their buffers taking the window's
+cascades with the screen probes and the reflections off, a target drawn before the bounce reading
+the frame before's probes; a window that draws no mesh, as a game that draws its scene into a
+texture and shows the texture alone, gave the field no camera and no meshes, and the field follows
+the first target's camera and holds the targets' meshes; a test draws a room lit by a glowing panel
+into a texture the window shows, lit with the panel on and black with it off where it was drawn in
+its own colors either way; on lavapipe under validation 138 passed and 1 skipped (`7ffcde68`). The
+suite: 1,540 passed.
 
 Before them, TODO.md's light-bounce entry, item 2, came to close its gap of lamps casting no shadow
 in the bounce, which was one of three leaks: a closed room of slabs 0.6 thick with the camera inside
@@ -46,17 +60,6 @@ on the RTX 4070 at four cascades reads 0.24, 0.30 and 0.43 ms at the three quali
 0.21, 0.32 and 0.40, within the noise, the guide's table taking the new readings where its old ones
 had gone stale; on lavapipe under validation the bounce, reference, render and field tests gave 137
 passed and 1 skipped (`1be7c8ee`). The suite: 1,539 passed.
-
-Before them, TODO.md's shadows entry, item 2, came in: the spot and point lights given shadow maps
-were ranked for the window's camera alone, so a render target looking elsewhere got the window's
-choice and a light its own camera alone saw cast no shadow there; the ranking runs over every camera
-the frame draws meshes through, the window's and each target's, a light any camera sees first, then
-the greatest light reaching any eye, then the reach nearest any eye, the same order as before where
-the window stands alone, with a unit test of a bright light behind the window and a dim one a target
-sees, RENDERING.md's fourth section and the guide updated (`eee89446`). The entry has left an
-eleventh spot or a thirteenth point light casting no shadow, a ranking that does not weigh how much
-of the picture a light covers, which stays unless asked for, and each render target drawing the
-cascades and the spot tile again for its own camera. The suite: 1,538 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -322,30 +325,38 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the light-bounce entry, its gap of the screen's probes not blended over time:
+TODO.md's order, the light-bounce entry, its gap of skinned and moving meshes in the field:
 
-- **Blended with the frame before.** After the 5 by 5 filter each screen probe is blended with the
-  frame before's, a fifth of this frame's light to four fifths of theirs. The probe's point is read
-  from the window's depth, as `gi_screen.slang` placed it, found in the frame before through that
-  frame's camera, which the view buffer now carries with its eye, and the four probes then around it
-  blended where each stood on a surface alike in normal and distance. The frame's blended light and
-  surfaces are copied into two images after the filter for the next frame. A probe whose surface
-  the frame before did not show, and every probe on the first frame or after the probes are laid
-  out again, takes this frame's light alone. `ScreenView` moves into `gi.slang` for the two shaders
-  to share, and the model pass's SPIR-V is byte for byte the same in both builds.
-- **Measured.** With the camera sliding a hundredth of a unit a frame through a Cornell box at
-  `Low`, the bounce adds 0.27 levels a frame to the picture's change where it added 1.34 with the
-  history off, against 0.48 with no bounce, which a test holds under 0.5, passing on lavapipe as
-  well. It costs some 0.03 ms, within the noise, and two images of the probes' size, which
-  `gi.state` now counts. The guide's table takes 0.27, 0.31 and 0.44 ms and 0.73, 2.80 and 6.81 MB.
-  The light near the camera follows a light that changes some five frames late, which the guide,
-  RENDERING.md and TODO.md say.
-- **Checked.** Every reference frame passed, and lavapipe under the validation layer passed the
-  bounce, reference, render, field and probe tests, 139 and 1 skipped.
-- **What the entry has left.** The reflections light what they meet with the lamps unshadowed, a
-  skinned or moving mesh is the gray box around it, and the field misses a closed mesh much thinner
-  than a cell and puts a wedge under an open one's edges. The entries after it record limits more
-  than gaps, so tell me which of them to take, or I take the field's skinned meshes next, from the
-  GPU's posed vertices, and item 3 meanwhile.
-- The suite: 1,541 passed.
+- **A skinned mesh as its joints.** Each joint's box around the vertices at rest it holds most is
+  posed each frame by the joint's latest matrix, which `GpuMeshes.Poses` hands the field and the
+  field keeps for frames that pose it no more, and stamped as an oriented box, where one box
+  around the vertices at rest was stamped. A test poses `arm.gltf` bent on the GPU and reads the
+  field back: solid along -X at the elbow's height and empty above it, which the old box gave the
+  other way round, as forcing it showed.
+- **A mesh that does not bend as its parts.** A moving mesh of 16 triangles or more is cut into up
+  to eight parts, each cut the one along an axis between the triangles sorted by their middles that
+  leaves the least volume, and only where it takes a third of the volume away
+  (`SceneFieldRenderer.Cut`), so a box cut finer than its shape stays one box. A test cuts an L of
+  two tessellated boxes into its arms, the corner between them in no part. A median cut, tried
+  first, put one arm's long face with the other arm and filled the corner.
+- **A crowd.** A mesh takes its parts only where they leave room for a box for each mesh farther
+  from the eye, so past 256 boxes a crowd is figures near the eye and boxes beyond, none left out,
+  which a test of thirty figures of twenty limbs holds at 239 boxes.
+- **Cost.** Each brick now reads the boxes that come within it alone, a run the plan lists brick
+  by brick and packs after the bricks in their buffer, where every cell read every box, and the
+  plan counts the bricks in an array where it hashed each into a set. Three of raylib's dancing
+  robots in `shaders_cornell_box` at `High`, the Release build with the frame rate unlimited:
+  147 boxes in 540 bricks, stamped in 0.048 ms of the GPU and placed in 0.45 ms of the CPU, where
+  the commit before stamped their meshes' 57 boxes in 0.046 ms and placed them in 0.44 to 0.51 ms.
+  Before the runs and the array the same 147 boxes took 0.11 ms and 1.6 ms in the Debug build.
+- **The limit said.** `SetSceneField`'s remarks, the guide, RENDERING.md and TODO.md say a moving
+  mesh is held as gray boxes of its joints or its parts rather than its triangles, so the bounce
+  gives a character the shadows of its limbs as boxes. Lavapipe under the validation layer passed
+  the field, bounce, reference, render, probe and particle tests, 157 and 1 skipped.
+- **Item 3.** The reduction finished at 920 bytes and read the committed instance custom index of a
+  ray query never initialized as an index into binding 29, which is undefined behavior though it
+  crashes lavapipe in the C reproduction too, while the same read after a traced, checked query does
+  not. It is reduced again from the last step that still initialized, proceeded and checked its
+  query, with a test that keeps those three first.
+- The suite: 1,545 passed.
 

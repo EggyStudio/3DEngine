@@ -188,6 +188,12 @@ internal sealed class MeshStore
         lock (_gate) return _skins.ContainsKey(id);
     }
 
+    /// <summary>The joints and weights mesh <paramref name="id"/> is skinned by, or null for one that is not skinned.</summary>
+    internal Skin? SkinOf(int id)
+    {
+        lock (_gate) return _skins.GetValueOrDefault(id);
+    }
+
     /// <summary>
     /// Poses a skinned mesh for the next frame drawn, by each joint's matrix from rest to its pose
     /// in the model's space, and its morph targets' weights when it has any. Its vertices here stay

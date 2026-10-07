@@ -153,9 +153,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   where the field lets it through, a probe's ray that meets a surface before its interval is
   blocked, and the world's probes take bounced light from the probes they see, so a closed room is
   dark to a lamp outside it. The screen's probes blend every probe around what they meet, the
-  reflections light it with the lamps unshadowed, a skinned or moving mesh is the gray box around
-  it, and the screen's probes, blended with the frame before's, follow a changing light five frames
-  late. Render textures and probe captures take
+  reflections light it with the lamps unshadowed, a skinned or moving mesh is gray boxes, of its
+  joints or of its parts, and the screen's probes, blended with the frame before's, follow a
+  changing light five frames late. Render textures and probe captures take
   the bounce from the world's probes alone, a frame late, and where the window draws no mesh the
   field follows the first render texture's camera. In the field a closed mesh much thinner than a
   cell is not there, and an open mesh such as a ground plane puts a narrow wedge below its edges

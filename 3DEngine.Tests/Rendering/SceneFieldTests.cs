@@ -108,6 +108,123 @@ public sealed class SceneFieldTests : IDisposable
         plan.Bricks.Should().BeEmpty("and need nothing after");
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Each_Brick_Is_Given_The_Shapes_That_Come_Within_It_Alone()
+    {
+        // Three moving cubes in a row along X, their middles four units apart, whose bands meet in
+        // the bricks between them, so a brick reads one or two of them and never the three.
+        var plan = new SceneFieldPlan(1, 0.25f, 1);
+        plan.Update(Vector3.Zero, []);
+        plan.Update(Vector3.Zero, [At(new Vector3(-4, 0, 0)), At(new Vector3(4, 0, 0)), At(new Vector3(0, 0, 0))]);
+
+        IEnumerable<int> Of(int brick) => plan.BrickShapes.Skip(plan.BrickRanges[brick].First).Take(plan.BrickRanges[brick].Count);
+        var index = plan.Bricks.FindIndex(b => b == (0, 4, 8, 8));
+        Of(index).Should().ContainSingle("the brick at x from -4 to -3 meets the left cube's alone");
+        plan.Bricks.Select((_, b) => Of(b).Count()).Should().OnlyContain(n => n >= 1 && n <= 2, "no brick reads every shape");
+        plan.BrickShapes.Should().HaveCount(plan.Bricks.Select((_, b) => Of(b).Count()).Sum());
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Figures_Past_What_A_Frame_Stamps_Are_Boxes_Beyond_The_Nearest_And_None_Is_Left_Out()
+    {
+        // Thirty skinned figures of twenty limbs each, one after another away from the eye, where
+        // a frame stamps 256 boxes: the nearest take their limbs while the rest still have room for
+        // a box each, eleven of them, and the nineteen beyond are a box each.
+        var limbs = Enumerable.Range(0, 20).Select(j => new SceneFieldPlan.Part(new SceneFieldPlan.Box(new Vector3(-0.1f), new Vector3(0.1f)),
+            Matrix4x4.CreateTranslation(0, j * 0.1f, 0))).ToArray();
+        var plan = new SceneFieldPlan(1, 0.25f, 1);
+        plan.Update(Vector3.Zero, [.. Enumerable.Range(0, 30).Select(i =>
+            (new SceneFieldPlan.Instance(1, Cube, Matrix4x4.CreateTranslation(i * 3 + 3, 0, 0), false, Parts: limbs), true))]);
+
+        plan.Shapes.Should().HaveCount(11 * 20 + 19);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void A_Moving_Mesh_That_Does_Not_Bend_Is_Stamped_As_The_Parts_Its_Triangles_Are_Cut_Into()
+    {
+        // An L of two boxes, one along X and one standing on its end, each face a grid of four by
+        // four squares as a modeled mesh is cut finer than its shape, whose one box would fill the
+        // corner between its arms.
+        var (vertices, indices) = (new List<ModelVertex>(), new List<uint>());
+        void Face(Vector3 corner, Vector3 across, Vector3 up)
+        {
+            var first = (uint)vertices.Count;
+            for (int j = 0; j <= 4; j++)
+                for (int i = 0; i <= 4; i++)
+                    vertices.Add(new ModelVertex(corner + across * (i / 4f) + up * (j / 4f), Vector3.UnitY, Vector2.Zero));
+            for (uint j = 0; j < 4; j++)
+                for (uint i = 0; i < 4; i++)
+                {
+                    uint a = first + j * 5 + i, b = a + 1, c = a + 6, d = a + 5;
+                    indices.AddRange([a, b, c, a, c, d]);
+                }
+        }
+        void Box(Vector3 min, Vector3 max)
+        {
+            var size = max - min;
+            var (x, y, z) = (new Vector3(size.X, 0, 0), new Vector3(0, size.Y, 0), new Vector3(0, 0, size.Z));
+            Face(min, x, y);
+            Face(min + z, x, y);
+            Face(min, x, z);
+            Face(min + y, x, z);
+            Face(min, y, z);
+            Face(min + x, y, z);
+        }
+        Box(Vector3.Zero, new Vector3(3, 1, 1));
+        Box(new Vector3(0, 1, 0), new Vector3(1, 3, 1));
+
+        var parts = SceneFieldRenderer.Cut([.. vertices], [.. indices]);
+
+        parts.Should().NotBeNull().And.HaveCountGreaterThan(1);
+        bool Inside(Vector3 point) => parts!.Any(part => Vector3.Clamp(point, part.Rest.Min, part.Rest.Max) == point);
+        vertices.Where(v => !Inside(v.Position)).Should().BeEmpty("every corner of the mesh is in a part");
+        Inside(new Vector3(2.5f, 2.5f, 0.5f)).Should().BeFalse("and the corner between its arms in none");
+        SceneFieldRenderer.Cut([.. vertices], [.. indices.Take(3 * 15)]).Should().BeNull("a mesh of fewer than sixteen triangles is its one box");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Skinned_Mesh_Is_Held_As_The_Boxes_Of_Its_Joints_Where_Its_Pose_Puts_Them()
+    {
+        // The arm of arm.gltf bent at its elbow, its forearm along -X at the elbow's height, which
+        // the field held as the box around the arm standing upright at rest.
+        var config = Config.Default.WithWindow("scene field test", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.1f);
+        var arm = Path.Combine(AppContext.BaseDirectory, "resources", "arm.gltf");
+        var model = LoadModel(arm);
+        var clip = LoadModelAnimations(arm)[0];
+        var camera = new Camera3D(new Vector3(0, 1, 4), new Vector3(0, 1, 0), Vector3.UnitY, 45, CameraProjection.Perspective);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            UpdateModelAnimation(model, clip, clip.KeyframeCount - 1);
+            BeginDrawing();
+            ClearBackground(Color.RayWhite);
+            BeginMode3D(camera);
+            DrawModel(model, Vector3.Zero, 1, Color.Gray);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+        float At(Vector3 point)
+        {
+            var cell = Vector3.Clamp((point - origin) / 0.1f, Vector3.Zero, new Vector3(SceneFieldPlan.Resolution - 1));
+            var (x, y, z) = ((int)cell.X, (int)cell.Y, (int)cell.Z);
+            return distances[(z * SceneFieldPlan.Resolution + y) * SceneFieldPlan.Resolution + x];
+        }
+
+        At(new Vector3(-0.6f, 1, 0)).Should().BeLessThan(0.05f, "the forearm lies along -X at the elbow's height");
+        At(new Vector3(0, 1.75f, 0)).Should().BeGreaterThan(0.15f, "and no longer stands above the elbow");
+        At(new Vector3(0, 0.5f, 0)).Should().BeLessThan(0.05f, "where the upper arm stays");
+        UnloadModel(model);
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void The_Field_Built_On_The_GPU_Holds_The_Distances_To_Its_Meshes()

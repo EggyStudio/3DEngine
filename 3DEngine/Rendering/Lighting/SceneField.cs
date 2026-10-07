@@ -58,6 +58,13 @@ internal sealed class SceneFieldRenderer : IDisposable
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box> _bounds = new(ReferenceEqualityComparer.Instance);
     private readonly List<(SceneFieldPlan.Instance, bool)> _drawn = [];
 
+    // Each skinned mesh's joints as it was last posed, which a frame that does not pose it again
+    // keeps, each joint's box around the vertices at rest it holds most, and the parts a mesh that
+    // does not bend is cut into, each kept for its vertices.
+    private readonly Dictionary<int, Matrix4x4[]> _joints = [];
+    private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box?[]> _limbs = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<ModelVertex[], SceneFieldPlan.Part[]?> _parts = new(ReferenceEqualityComparer.Instance);
+
     /// <summary>
     /// The meshes drawn into the window this frame that cast shadows, or the render targets' where
     /// the window draws none, each with whether it is skinned, as the field gathered them.
@@ -102,7 +109,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         {
             Release();
             _made = wanted;
-            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf);
+            _plan = new SceneFieldPlan(wanted.Item1, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf);
             _field = device.CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
         }
         renderWorld.Set(new SceneFieldBinding(_field, true));
@@ -137,7 +144,7 @@ internal sealed class SceneFieldRenderer : IDisposable
         }
         if (plan.Bricks.Count > 0)
         {
-            var (shapes, bricks) = (Shapes(device, plan.Shapes), Bricks(device, plan.Bricks));
+            var (shapes, bricks) = (Shapes(device, plan.Shapes), Bricks(device, plan));
             Hold(shapes);
             Hold(bricks);
             Hold(device.RecordSceneFieldStamp(commands, _field, bricks, plan.Bricks.Count, shapes, plan.Shapes.Count));
@@ -156,6 +163,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         if (_bounds.Count > 4096) _bounds.Clear();
         if (renderWorld.TryGet<ModelDrawList>() is not { } draws || renderWorld.TryGet<MeshStore>() is not { } store) return;
         var textures = renderWorld.TryGet<TextureStore>();
+        // The joints of the skinned meshes posed this frame, kept for the frames after.
+        foreach (var (id, joints, _) in renderWorld.TryGet<GpuMeshes>()?.Poses ?? []) _joints[id] = joints;
+        if (_joints.Count > 4096) _joints.Clear();
         // A surface's color, its material's times its texture's average where it has one.
         Vector3 Textured(Vector3 color, int texture) => texture != 0 && textures?.AverageColor(texture) is { } average ? color * average : color;
         foreach (ref readonly var draw in draws.Span)
@@ -163,8 +173,10 @@ internal sealed class SceneFieldRenderer : IDisposable
             if (windowAlone && draw.Target != 0 || !draw.CastsShadow || draw.Points || !store.TryGetData(draw.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             var one = ModelRenderer.Instance.Of(in draw);
+            var skinned = store.IsSkinned(draw.Mesh);
             _drawn.Add((new SceneFieldPlan.Instance(draw.Mesh, vertices, draw.World, draw.DoubleSided,
-                Textured(new Vector3(one.Color.X, one.Color.Y, one.Color.Z), draw.Texture), draw.Emission), store.IsSkinned(draw.Mesh)));
+                Textured(new Vector3(one.Color.X, one.Color.Y, one.Color.Z), draw.Texture), draw.Emission,
+                skinned ? Limbs(store, draw.Mesh, vertices) : null), skinned));
         }
         foreach (var group in draws.Groups)
         {
@@ -173,6 +185,7 @@ internal sealed class SceneFieldRenderer : IDisposable
                 || !store.TryGetData(template.Mesh, out var vertices, out var indices)) continue;
             _indices[vertices] = indices;
             var skinned = store.IsSkinned(template.Mesh);
+            var limbs = skinned ? Limbs(store, template.Mesh, vertices) : null;
             if (_groupInstances.Length < group.Count) _groupInstances = new ModelRenderer.Instance[Math.Max(group.Count, _groupInstances.Length * 2)];
             group.CopyTo(_groupInstances);
             for (int i = 0; i < group.Count; i++)
@@ -182,7 +195,7 @@ internal sealed class SceneFieldRenderer : IDisposable
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
                     Textured(new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z), template.Texture),
-                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z)), skinned));
+                    new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), limbs), skinned));
             }
         }
     }
@@ -201,6 +214,105 @@ internal sealed class SceneFieldRenderer : IDisposable
     {
         if (!_bounds.TryGetValue(vertices, out var box)) _bounds[vertices] = box = SceneFieldPlan.Box.Of(vertices);
         return box;
+    }
+
+    // A skinned mesh's limbs as it was last posed, each joint's box at rest moved by the joint's
+    // matrix, or null where its skin is not known, which stamps the box around all of it.
+    private SceneFieldPlan.Part[]? Limbs(MeshStore store, int mesh, ModelVertex[] vertices)
+    {
+        if (!_limbs.TryGetValue(vertices, out var boxes))
+        {
+            if (store.SkinOf(mesh) is not { } skin || skin.Joints.Length < vertices.Length * 4) return null;
+            var (min, max) = (new Vector3[skin.JointCount], new Vector3[skin.JointCount]);
+            Array.Fill(min, new Vector3(float.MaxValue));
+            Array.Fill(max, new Vector3(float.MinValue));
+            for (int v = 0; v < vertices.Length; v++)
+            {
+                // The joint that holds the vertex most, whose box it widens.
+                int most = 0;
+                for (int k = 1; k < 4; k++)
+                    if (skin.Weights[v * 4 + k] > skin.Weights[v * 4 + most]) most = k;
+                var joint = skin.Joints[v * 4 + most];
+                if (joint >= skin.JointCount) continue;
+                (min[joint], max[joint]) = (Vector3.Min(min[joint], vertices[v].Position), Vector3.Max(max[joint], vertices[v].Position));
+            }
+            if (_limbs.Count > 4096) _limbs.Clear();
+            _limbs[vertices] = boxes = [.. Enumerable.Range(0, skin.JointCount)
+                .Select(j => min[j].X <= max[j].X ? new SceneFieldPlan.Box(min[j], max[j]) : (SceneFieldPlan.Box?)null)];
+        }
+        var joints = _joints.GetValueOrDefault(mesh);
+        var parts = new List<SceneFieldPlan.Part>(boxes.Length);
+        for (int j = 0; j < boxes.Length; j++)
+            if (boxes[j] is { } rest) parts.Add(new SceneFieldPlan.Part(rest, joints is not null && j < joints.Length ? joints[j] : Matrix4x4.Identity));
+        return parts.Count > 0 ? [.. parts] : null;
+    }
+
+    // The parts a mesh that does not bend is stamped as, kept for its vertices.
+    private SceneFieldPlan.Part[]? PartsOf(ModelVertex[] vertices)
+    {
+        if (_parts.TryGetValue(vertices, out var made)) return made;
+        if (!_indices.TryGetValue(vertices, out var indices)) return null;
+        if (_parts.Count > 4096) _parts.Clear();
+        return _parts[vertices] = Cut(vertices, indices);
+    }
+
+    /// <summary>
+    /// A mesh that does not bend cut by its triangles into up to eight parts, each the box around
+    /// its triangles, so a moving table or car is stamped as its shape rather than the box around
+    /// all of it, or null for a mesh of fewer than 16 triangles, as a box or a slab, which is its
+    /// one box.
+    /// </summary>
+    /// <remarks>
+    /// Each cut is the one along an axis, between the triangles sorted by their middles, that leaves
+    /// the two boxes around them the least volume, as a bounding volume hierarchy is built by the
+    /// volume it encloses, and is made only where it takes away a third of the box's volume or more,
+    /// so a box cut finer than its shape stays one box rather than a shell of thin slabs.
+    /// </remarks>
+    internal static SceneFieldPlan.Part[]? Cut(ModelVertex[] vertices, uint[] indices)
+    {
+        if (indices.Length < 3 * 16) return null;
+        var count = indices.Length / 3;
+        var (lows, highs, middles) = (new Vector3[count], new Vector3[count], new Vector3[count]);
+        for (int t = 0; t < count; t++)
+        {
+            var (a, b, c) = (vertices[indices[t * 3]].Position, vertices[indices[t * 3 + 1]].Position, vertices[indices[t * 3 + 2]].Position);
+            (lows[t], highs[t], middles[t]) = (Vector3.Min(a, Vector3.Min(b, c)), Vector3.Max(a, Vector3.Max(b, c)), (a + b + c) / 3);
+        }
+        static float Volume(Vector3 low, Vector3 high) => MathF.Max(0, high.X - low.X) * MathF.Max(0, high.Y - low.Y) * MathF.Max(0, high.Z - low.Z);
+
+        var parts = new List<SceneFieldPlan.Part>();
+        void Halve(int[] triangles, int depth)
+        {
+            var (low, high) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
+            foreach (var t in triangles) (low, high) = (Vector3.Min(low, lows[t]), Vector3.Max(high, highs[t]));
+            var (best, cut, sorted) = (0.67f * Volume(low, high), -1, Array.Empty<int>());
+            for (int axis = 0; depth > 0 && triangles.Length >= 8 && axis < 3; axis++)
+            {
+                var order = triangles.OrderBy(t => axis == 0 ? middles[t].X : axis == 1 ? middles[t].Y : middles[t].Z).ToArray();
+                // The boxes around the triangles before each place and from it on.
+                var (beforeLow, beforeHigh) = (new Vector3[order.Length], new Vector3[order.Length]);
+                var (runLow, runHigh) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
+                for (int i = 0; i < order.Length; i++)
+                    (beforeLow[i], beforeHigh[i]) = (runLow, runHigh) = (Vector3.Min(runLow, lows[order[i]]), Vector3.Max(runHigh, highs[order[i]]));
+                (runLow, runHigh) = (new Vector3(float.MaxValue), new Vector3(float.MinValue));
+                for (int i = order.Length - 1; i >= 4; i--)
+                {
+                    (runLow, runHigh) = (Vector3.Min(runLow, lows[order[i]]), Vector3.Max(runHigh, highs[order[i]]));
+                    if (order.Length - i < 4) continue;
+                    var cost = Volume(beforeLow[i - 1], beforeHigh[i - 1]) + Volume(runLow, runHigh);
+                    if (cost < best) (best, cut, sorted) = (cost, i, order);
+                }
+            }
+            if (cut < 0)
+            {
+                parts.Add(new SceneFieldPlan.Part(new SceneFieldPlan.Box(low, high), Matrix4x4.Identity));
+                return;
+            }
+            Halve(sorted[..cut], depth - 1);
+            Halve(sorted[cut..], depth - 1);
+        }
+        Halve([.. Enumerable.Range(0, count)], 3);
+        return parts.Count > 1 ? [.. parts] : null;
     }
 
     // Where each cascade lies as it was last built, as scenefield.slang's SceneFieldInfo.
@@ -285,12 +397,17 @@ internal sealed class SceneFieldRenderer : IDisposable
         return buffer;
     }
 
-    private static IBuffer Bricks(GraphicsDevice device, List<(int Cascade, int X, int Y, int Z)> bricks)
+    // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
+    // where its run of shapes begins and how long it is, then the runs, a shape's place each.
+    private static IBuffer Bricks(GraphicsDevice device, SceneFieldPlan plan)
     {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, bricks.Count) * 16, BufferUsage.Storage, CpuAccessMode.Write));
+        var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + shapes.Count) * 4, BufferUsage.Storage, CpuAccessMode.Write));
         var mapped = MemoryMarshal.Cast<byte, uint>(device.Map(buffer));
         for (int b = 0; b < bricks.Count; b++)
-            (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) = ((uint)bricks[b].Cascade, (uint)bricks[b].X, (uint)bricks[b].Y, (uint)bricks[b].Z);
+            (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =
+                ((uint)bricks[b].Cascade, (uint)(bricks[b].X | bricks[b].Y << 8 | bricks[b].Z << 16), (uint)ranges[b].First, (uint)ranges[b].Count);
+        for (int s = 0; s < shapes.Count; s++) mapped[bricks.Count * 4 + s] = (uint)shapes[s];
         device.Unmap(buffer);
         return buffer;
     }
@@ -307,6 +424,9 @@ internal sealed class SceneFieldRenderer : IDisposable
         _pooled.Clear();
         _indices.Clear();
         _bounds.Clear();
+        _joints.Clear();
+        _limbs.Clear();
+        _parts.Clear();
     }
 
     // Destroys what was let go once the frames in flight that might read it have finished.

@@ -130,7 +130,10 @@ public static partial class Engine3D
     /// </para>
     /// <para>
     /// A mesh drawn in the same place for eight frames is built into the cascades around it from
-    /// its triangles on the GPU, and one that moves is stamped as the box around it each frame. A
+    /// its triangles on the GPU, and one that moves is stamped each frame as boxes rather than its
+    /// triangles, uncolored: a skinned mesh a box for each joint around the vertices it holds,
+    /// posed, so a character's shadows in the light that bounces are those of its limbs as boxes,
+    /// and one that does not bend a box for each of up to eight parts its triangles are cut into. A
     /// cascade is built again where the camera has gone past it or a mesh came or went,
     /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
     /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names

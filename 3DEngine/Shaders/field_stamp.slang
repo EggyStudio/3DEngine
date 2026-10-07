@@ -1,7 +1,9 @@
 // Stamps the shapes of the meshes that moved into the field the passes read, a workgroup a brick
 // of 4 by 4 by 4 cells. Each cell takes the least of its distance in the field the still meshes
-// make and its distance to each shape, a box around a mesh in the mesh's own space, so a brick
-// stamped last frame and not this one goes back to what the still meshes make.
+// make and its distance to each shape that comes within its brick, a box around a mesh or a part
+// of one in its own space, so a brick stamped last frame and not this one goes back to what the
+// still meshes make. A brick reads the shapes of its own run alone, so a frame's cost grows with
+// the shapes of each brick and not with every shape the frame stamps.
 import scenefield;
 
 struct FieldShape
@@ -17,7 +19,9 @@ struct FieldShape
     float4 extents;
 };
 
-// x: the cascade. yzw: the brick's place in it, in bricks.
+// x: the cascade. y: the brick's place in it, in bricks, a byte an axis. z: where its run of shapes
+// begins. w: how many shapes are in it. Past the bricks, the runs one after another, four shapes'
+// places to an element.
 [[vk::binding(0, 0)]]
 StructuredBuffer<uint4> bricks;
 
@@ -52,7 +56,8 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     uint4 brick = bricks[index];
     uint cascade = brick.x;
     uint size = uint(info.counts.y);
-    uint3 cell = brick.yzw * 4u + local;
+    uint3 place = uint3(brick.y & 0xFFu, (brick.y >> 8) & 0xFFu, (brick.y >> 16) & 0xFFu);
+    uint3 cell = place * 4u + local;
     if (any(cell >= size))
         return;
     float4 oc = info.cascades[cascade].originAndCell;
@@ -61,9 +66,10 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
 
     uint3 at = uint3(cell.xy, cell.z + cascade * size);
     float d = stillField[at];
-    for (uint s = 0; s < push.counts.y; s++)
+    for (uint i = 0; i < brick.w; i++)
     {
-        FieldShape shape = shapes[s];
+        uint run = push.counts.x * 4u + brick.z + i;
+        FieldShape shape = shapes[bricks[run / 4u][run % 4u]];
         float4 h = float4(p, 1.0);
         float3 own = float3(dot(shape.row0, h), dot(shape.row1, h), dot(shape.row2, h)) - shape.centerAndScale.xyz;
         float3 q = abs(own) - shape.extents.xyz;

@@ -505,10 +505,18 @@ it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), into an image of each beside the distances, for the light that
 bounces.
 A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
-again are stamped each frame as the box around their vertices in their own space, the 256 nearest
-the eye, into the bricks of four cells they come within the band of, each cell the least of the
-still image's distance and the boxes' (`field_stamp.slang`), and the bricks stamped the frame
-before are stamped again so a box that left one is gone.
+again are stamped each frame as boxes, uncolored, the nearest the eye first to 256 boxes, into the
+bricks of four cells they come within the band of, each cell the least of the still image's
+distance and those of the boxes that come within its brick, which the plan lists brick by brick
+(`field_stamp.slang`), and the bricks stamped the frame before are stamped again so a box that left
+one is gone. A skinned mesh is a box for each joint around the vertices at rest it holds most,
+posed by the joint's latest matrix, and one that does not bend a box for each of up to eight parts
+its triangles are cut into where each cut takes a third of the volume away
+(`SceneFieldRenderer.Cut`), or the box around all of it. A mesh past what the room left for a box
+each of the meshes beyond it is the box around all of it, so a crowd past 256 boxes is figures near
+the eye and boxes beyond. Three dancing robots in `shaders_cornell_box` are 147 boxes in 540
+bricks, stamped in 0.05 ms of the RTX 4070 and placed in 0.45 ms of the CPU in the Release build, as
+their meshes' 57 boxes were.
 
 Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
 it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a
@@ -613,8 +621,9 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
 0.15 ms there and leaked 3 levels of a lamp's light without it, the reflections light what they meet
-with the point and spot lights unshadowed, a moving mesh bounces light as the gray box the field
-holds it as, and the light the screen's probes hold lags the light by some five frames as it changes.
+with the point and spot lights unshadowed, a moving mesh bounces light gray as the boxes of its
+joints or its parts the field holds it as, and the light the screen's probes hold lags the light by
+some five frames as it changes.
 A render target and a probe capture read the world's probes alone, their
 buffers given the window's probes and its cascades with the screen's probes and reflections off,
 and as the frame before left them, since targets are drawn before the bounce is traced. Where the

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Numerics;
 
 namespace Engine;
@@ -22,9 +23,11 @@ namespace Engine;
 /// A mesh drawn the same, by its mesh, its vertices, its world matrix and its sides, for
 /// <see cref="SettleFrames"/> frames running is still and built into the cascades around it. One
 /// that moved more recently, a skinned one, and a still one whose cascades have not been built
-/// again since it came are stamped each frame as the box around its vertices in its own space, the
-/// <see cref="MaxShapes"/> nearest the eye, into the bricks of cells that box comes within the band
-/// of, and the bricks stamped the frame before are stamped again so a box that left one is gone.
+/// again since it came are stamped each frame as boxes, the nearest the eye first to
+/// <see cref="MaxShapes"/> boxes, into the bricks of cells each box comes within the band of, and the
+/// bricks stamped the frame before are stamped again so a box that left one is gone. A skinned
+/// mesh is a box for each joint around the vertices it holds most, posed by the joint, and one that
+/// does not bend a box for each part its triangles were cut into, or the box around all of them.
 /// </para>
 /// </remarks>
 internal sealed class SceneFieldPlan
@@ -56,7 +59,14 @@ internal sealed class SceneFieldPlan
     /// its cells with.
     /// </summary>
     internal readonly record struct Instance(int Mesh, ModelVertex[] Vertices, Matrix4x4 World, bool DoubleSided,
-        Vector3 Color = default, Vector3 Emission = default);
+        Vector3 Color = default, Vector3 Emission = default, Part[]? Parts = null);
+
+    /// <summary>
+    /// A part of a mesh stamped as a box of its own: the box around the part's vertices at rest in
+    /// the mesh's own space, and where the part's pose moves that space to, a joint's matrix for a
+    /// skinned mesh's limb and none for a part of a mesh that does not bend.
+    /// </summary>
+    internal readonly record struct Part(Box Rest, Matrix4x4 Pose);
 
     /// <summary>A box along the axes.</summary>
     internal readonly record struct Box(Vector3 Min, Vector3 Max)
@@ -98,13 +108,19 @@ internal sealed class SceneFieldPlan
     internal readonly record struct Shape(Matrix4x4 ToOwn, Vector3 Center, Vector3 Extents, float Scale);
 
     private readonly Func<ModelVertex[], Box> _bounds;
+    private readonly Func<ModelVertex[], Part[]?> _parts;
     private Dictionary<Instance, int> _seen = [];
     private readonly Dictionary<Instance, (Box Bounds, long Added)> _still = [];
     private readonly HashSet<Instance> _pending = [];
     private readonly Vector3?[] _built;
     private readonly long[] _builtFrame;
     private readonly bool[] _dirty;
-    private HashSet<(int Cascade, int X, int Y, int Z)> _stamped = [];
+    // How many shapes come within each brick of each cascade this frame and the frame before, the
+    // cascades one after another, which a figure of many boxes that come within the same bricks
+    // counts at the cost of an add each, where a set of the bricks cost a hash each, and the bricks
+    // each shape comes within in each cascade, its first and last along each axis.
+    private int[] _stamped = [], _stampedBefore = [];
+    private readonly List<(int Shape, int Cascade, int X0, int Y0, int Z0, int X1, int Y1, int Z1)> _reaches = [];
     private long _frame;
 
     /// <summary>A plan of <paramref name="cascades"/> cascades, the first's cells <paramref name="cellSize"/> wide, building <paramref name="budget"/> a frame at most.</summary>
@@ -112,8 +128,10 @@ internal sealed class SceneFieldPlan
     /// <param name="cellSize">The width of a cell of the finest.</param>
     /// <param name="budget">How many cascades are built a frame at most.</param>
     /// <param name="bounds">The box around a mesh's vertices in its own space, which the caller may keep.</param>
-    public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null)
+    /// <param name="parts">The parts a mesh that does not bend is stamped as, or null for its one box, which the caller may keep.</param>
+    public SceneFieldPlan(int cascades, float cellSize, int budget, Func<ModelVertex[], Box>? bounds = null, Func<ModelVertex[], Part[]?>? parts = null)
     {
+        _parts = parts ?? (_ => null);
         Cascades = Math.Clamp(cascades, 1, 8);
         CellSize = cellSize;
         Budget = Math.Max(1, budget);
@@ -140,6 +158,15 @@ internal sealed class SceneFieldPlan
 
     /// <summary>The bricks stamped this frame, by cascade and place in bricks.</summary>
     public List<(int Cascade, int X, int Y, int Z)> Bricks { get; } = [];
+
+    /// <summary>
+    /// The shapes that come within each of <see cref="Bricks"/>, where its run of
+    /// <see cref="BrickShapes"/> begins and how long it is, none for a brick only put back.
+    /// </summary>
+    public List<(int First, int Count)> BrickRanges { get; } = [];
+
+    /// <summary>The shapes of each brick one run after another, by their place in <see cref="Shapes"/>.</summary>
+    public List<int> BrickShapes { get; } = [];
 
     /// <summary>How many meshes are still.</summary>
     public int StillCount => _still.Count;
@@ -184,6 +211,9 @@ internal sealed class SceneFieldPlan
         Builds.Clear();
         Shapes.Clear();
         Bricks.Clear();
+        BrickRanges.Clear();
+        BrickShapes.Clear();
+        _reaches.Clear();
 
         // Each mesh's frames drawn the same, a skinned one never still.
         var seen = new Dictionary<Instance, int>(drawn.Count);
@@ -244,13 +274,19 @@ internal sealed class SceneFieldPlan
             else _pending.Remove(instance);
         }
 
-        // The nearest shapes, and the bricks they come within the band of in each built cascade.
-        var stamped = new HashSet<(int Cascade, int X, int Y, int Z)>();
-        foreach (var instance in moving.OrderBy(i => Vector3.DistanceSquared(i.World.Translation, eye)).Take(MaxShapes))
+        // The nearest meshes' shapes, a box for each part of each, posed, to as many as a frame
+        // stamps, and the bricks they come within the band of in each built cascade.
+        const int side = Resolution / BrickCells;
+        if (_stamped.Length != Cascades * side * side * side) (_stamped, _stampedBefore) = (new int[Cascades * side * side * side], new int[Cascades * side * side * side]);
+        (_stamped, _stampedBefore) = (_stampedBefore, _stamped);
+        Array.Clear(_stamped);
+        var nearest = moving.OrderBy(i => Vector3.DistanceSquared(i.World.Translation, eye)).ToArray();
+        for (int n = 0; n < nearest.Length && Shapes.Count < MaxShapes; n++)
+        foreach (var (own, pose) in PartsWithin(nearest[n], MaxShapes - Shapes.Count - (nearest.Length - n - 1)))
         {
-            var own = _bounds(instance.Vertices);
-            if (!Matrix4x4.Invert(instance.World, out var toOwn)) continue;
-            var w = instance.World;
+            var instance = nearest[n];
+            var w = pose * instance.World;
+            if (!Matrix4x4.Invert(w, out var toOwn)) continue;
             var scale = MathF.Min(new Vector3(w.M11, w.M12, w.M13).Length(), MathF.Min(new Vector3(w.M21, w.M22, w.M23).Length(), new Vector3(w.M31, w.M32, w.M33).Length()));
             Shapes.Add(new Shape(toOwn, (own.Min + own.Max) / 2, (own.Max - own.Min) / 2, scale));
             var bounds = own.Transformed(w);
@@ -260,21 +296,54 @@ internal sealed class SceneFieldPlan
                 var brick = BrickCells * CellOf(c);
                 var near = bounds.Grown(Band * CellOf(c));
                 var first = Vector3.Max(Vector3.Zero, (near.Min - origin) / brick);
-                var last = Vector3.Min(new Vector3(Resolution / BrickCells - 1), (near.Max - origin) / brick);
+                var last = Vector3.Min(new Vector3(side - 1), (near.Max - origin) / brick);
                 if (first.X > last.X || first.Y > last.Y || first.Z > last.Z) continue;
+                _reaches.Add((Shapes.Count - 1, c, (int)first.X, (int)first.Y, (int)first.Z, (int)last.X, (int)last.Y, (int)last.Z));
                 for (int z = (int)first.Z; z <= (int)last.Z; z++)
                     for (int y = (int)first.Y; y <= (int)last.Y; y++)
                         for (int x = (int)first.X; x <= (int)last.X; x++)
-                            stamped.Add((c, x, y, z));
+                            _stamped[((c * side + z) * side + y) * side + x]++;
             }
         }
-        // Last frame's bricks go back to the still field where no shape covers them now, but in a
-        // cascade built again this frame, which the build wrote whole.
-        Bricks.AddRange(stamped);
-        foreach (var brick in _stamped)
-            if (!rebuilt[brick.Cascade] && !stamped.Contains(brick)) Bricks.Add(brick);
-        _stamped = stamped;
+        // The bricks stamped now, each with a run of its shapes, and last frame's, which go back to
+        // the still field where no shape covers them now, but in a cascade built again this frame,
+        // which the build wrote whole. The counts become where each brick's run begins.
+        var runs = 0;
+        for (int c = 0, at = 0; c < Cascades; c++)
+            for (int z = 0; z < side; z++)
+                for (int y = 0; y < side; y++)
+                    for (int x = 0; x < side; x++, at++)
+                    {
+                        var shapes = _stamped[at];
+                        if (shapes == 0 && (_stampedBefore[at] == 0 || rebuilt[c])) continue;
+                        Bricks.Add((c, x, y, z));
+                        BrickRanges.Add((runs, shapes));
+                        _stamped[at] = runs;
+                        runs += shapes;
+                    }
+        CollectionsMarshal.SetCount(BrickShapes, runs);
+        var filled = CollectionsMarshal.AsSpan(BrickShapes);
+        foreach (var (shape, c, x0, y0, z0, x1, y1, z1) in _reaches)
+            for (int z = z0; z <= z1; z++)
+                for (int y = y0; y <= y1; y++)
+                    for (int x = x0; x <= x1; x++)
+                        filled[_stamped[((c * side + z) * side + y) * side + x]++] = shape;
+        // Each brick's count put back where the fill left the end of its run, which the frame after
+        // reads for the bricks stamped now.
+        for (int b = 0; b < Bricks.Count; b++)
+        {
+            var (c, x, y, z) = Bricks[b];
+            _stamped[((c * side + z) * side + y) * side + x] = BrickRanges[b].Count;
+        }
     }
+
+    // The parts a mesh is stamped as where there are no more than room for, which leaves a box
+    // each for the meshes farther from the eye, and the box around all of it where there are, so a
+    // crowd of figures past what a frame stamps is stamped as figures near the eye and boxes beyond.
+    private Part[] PartsWithin(Instance instance, int room) =>
+        (instance.Parts ?? _parts(instance.Vertices)) is { } parts && parts.Length <= room
+            ? parts
+            : [new Part(_bounds(instance.Vertices), Matrix4x4.Identity)];
 
     // Marks dirty every cascade whose band a box comes within, where the cascade has been built.
     private void MarkAround(Box bounds)
