@@ -145,6 +145,11 @@ jobs:
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
 
+      # The rhythm game from the same package played through ./e3d, as every game is on Linux, so a
+      # game's input, its sound and the session ./e3d drives are tried on this system too.
+      - name: Play a game from the package through e3d
+        run: build/drive-game.sh
+
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7
         if: always()
@@ -207,6 +212,11 @@ jobs:
 
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
+
+      # The rhythm game from the same package played through ./e3d, as every game is on Linux, so a
+      # game's input, its sound and the session ./e3d drives are tried on this system too.
+      - name: Play a game from the package through e3d
+        run: build/drive-game.sh
 
       # The page, from every run, for the digest job below.
       - uses: actions/upload-artifact@v7

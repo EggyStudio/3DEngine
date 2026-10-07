@@ -227,3 +227,16 @@ apart and 0.4 filtered as stored, and the comparison page gains a row for it. Th
 their text in ImGui's default font, wholly or for most of what differs, the cel shading's outline
 beside it. The examples are as they were, the changes that took each cause away measured once and
 put back.
+
+**Now 2, TODO's entry on CI off Linux.** A game is played through `./e3d` on Windows and macOS,
+`build/drive-game.sh` after the Pusher step in `test.yml`: Tempo from the package, offscreen under
+the layer, its autopilot playing the song through on the music's clock and the run failing on a
+note missed, so a game's input, its sound and the session `./e3d` drives are tried there. Reading
+`e3d open` for it found it could not have opened a program on Windows. It starts one through
+`cmd.exe`'s `start`, so the pid it waits on is `cmd.exe`'s, which ends at once, and it gave up with
+the program reported as ended before it was ready. And a path without the `.exe` a Windows build
+gives was taken for an example's name. On Windows it finds the session by the program's name,
+which a session carries, and the time it began, and whether the program still runs by its process
+of that name begun since, and it adds the `.exe`. Linux keeps the pid. None of it has run on
+Windows or macOS, so the next run's two jobs say whether it holds. Here the script plays the song
+through with no note missed, the layer's check aside, which this desktop has no layer for.

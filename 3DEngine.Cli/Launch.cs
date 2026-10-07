@@ -42,7 +42,10 @@ internal static class Launch
         var flags = arguments.Where(a => a != example).ToList();
         if (!flags.Contains("--serve")) flags.Add("--serve");
 
-        // A program of the user's own is started as it is, with its log named after it.
+        // A program of the user's own is started as it is, with its log named after it. On Windows
+        // its path names the apphost without the .exe the build gives it, as a script written for
+        // every system names it.
+        if (!File.Exists(example) && OperatingSystem.IsWindows() && File.Exists(example + ".exe")) example += ".exe";
         string binary;
         List<string> launch;
         if (File.Exists(example))
@@ -65,6 +68,7 @@ internal static class Launch
         Directory.CreateDirectory(Path.GetDirectoryName(log)!);
 
         int pid;
+        var launched = DateTimeOffset.UtcNow;
         try
         {
             pid = Start(binary, launch, log);
@@ -78,7 +82,7 @@ internal static class Launch
         var deadline = DateTime.UtcNow + patience;
         while (DateTime.UtcNow < deadline)
         {
-            if (Sessions.Live().FirstOrDefault(s => s.Pid == pid && s.State == "ready") is { } session)
+            if (Sessions.Live().FirstOrDefault(s => s.State == "ready" && Launched(s, pid, binary, launched)) is { } session)
                 return Output.Print(options, CliJson.Ok("open", writer =>
                 {
                     writer.WriteNumber("pid", session.Pid);
@@ -88,7 +92,7 @@ internal static class Launch
                     writer.WriteString("log", log);
                 }), data => Console.WriteLine($"{example} is ready ({data.GetProperty("pid").GetInt32()}, {Output.Text(data, "mode")}), log: {log}"));
 
-            if (!Running(pid)) break;
+            if (!Alive(pid, binary, launched)) break;
             Thread.Sleep(150);
         }
 
@@ -100,7 +104,7 @@ internal static class Launch
                 writer.WriteString("log", log);
                 writer.WriteString("tail", Tail(log, 20));
             },
-            [new CliError("NOT_READY", Running(pid)
+            [new CliError("NOT_READY", Alive(pid, binary, launched)
                 ? $"{example} did not start serving within {patience.TotalSeconds:0} seconds. Its output is in {log}."
                 : $"{example} exited before it was ready. Its output is in {log}.")]),
             data => Console.WriteLine(Output.Text(data, "tail")));
@@ -137,6 +141,35 @@ internal static class Launch
 
         using var child = Process.Start(start) ?? throw new InvalidOperationException("the process did not start");
         return child.Id;
+    }
+
+    // Whether a session is the one this open started. On Windows the program is started by cmd.exe's
+    // start, so the pid Start gives is cmd.exe's, which ends at once, and the session is known by
+    // the program's name, its entry assembly's, which the session carries, and the time it began.
+    // Elsewhere the shell is replaced by the program, which keeps its pid.
+    private static bool Launched(CliSession session, int pid, string binary, DateTimeOffset launched) =>
+        OperatingSystem.IsWindows()
+            ? session.Name.Equals(Path.GetFileNameWithoutExtension(binary), StringComparison.OrdinalIgnoreCase) && session.Started >= launched.AddSeconds(-1)
+            : session.Pid == pid;
+
+    // Whether the program this open started still runs, on Windows a process of its file's name
+    // begun since and elsewhere its own pid.
+    private static bool Alive(int pid, string binary, DateTimeOffset launched)
+    {
+        if (!OperatingSystem.IsWindows()) return Running(pid);
+        foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(binary)))
+            using (process)
+            {
+                try
+                {
+                    if (!process.HasExited && process.StartTime.ToUniversalTime() >= launched.UtcDateTime.AddSeconds(-1)) return true;
+                }
+                catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception)
+                {
+                    // A process that ended while it was read, or one this user may not read.
+                }
+            }
+        return false;
     }
 
     private static bool Running(int pid)

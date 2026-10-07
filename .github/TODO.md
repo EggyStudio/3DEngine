@@ -276,9 +276,10 @@ checks at the end of STYLE.md report what is left.
 
 ### Build and release
 
-- **CI draws on Windows and macOS for the tests and one game.** `.github/workflows/test.yml` runs
-  the tests under the validation layer on Ubuntu and Windows with lavapipe and on macOS with
-  MoltenVK, and builds Pusher from the package and draws 300 frames of it on Windows and macOS.
-  `build.yml` captures every example and plays every game on Linux alone, so a game's input,
-  sound and a window are not tried on the other two, and the Windows and macOS jobs had not run
-  when they were written.
+- **CI plays one game on Windows and macOS, offscreen.** `.github/workflows/test.yml` runs the
+  tests under the validation layer on Ubuntu and Windows with lavapipe and on macOS with MoltenVK,
+  and on Windows and macOS builds Pusher from the package and draws 300 frames of it, then plays
+  Tempo through `./e3d` (`build/drive-game.sh`), its input, its sound and the session `./e3d`
+  drives, which had not run on either when it was written. `build.yml` captures every example and
+  plays every game on Linux alone, so the other games, and a game in a window rather than
+  offscreen, are not tried on the other two.
