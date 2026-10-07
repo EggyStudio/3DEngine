@@ -158,8 +158,11 @@ jobs:
       # system, and the rest are played still. Each has twelve minutes, twice Manor's walk on four
       # cores of lavapipe, past which it is stopped and its error says how far it got, so a slow
       # device names the game it is slow at, where the job's time otherwise ran out with the games
-      # still playing and nothing on the page.
+      # still playing and nothing on the page. The step has 110 minutes of the job's 180, so a wait
+      # no budget catches ends the step, with the errors said so far on the page and the page's
+      # artifacts uploaded, and not the job.
       - name: Play every game from the package through e3d
+        timeout-minutes: 110
         env:
           DRIVE_MINUTES: '12'
         run: |

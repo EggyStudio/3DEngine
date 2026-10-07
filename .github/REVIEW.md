@@ -319,3 +319,17 @@ whole at the cascade's far edge where it had gone.
 Shared: the light that bounces is five Slang kernels and a module over buffers, images and a uniform
 buffer each, beside the field's, which the bridge can compile as they are once BevyCSharp reads the
 field.
+
+Verdict 33's three mends to the Windows games' step are in a commit of their own after phase two's.
+`build/drive-game.sh` writes the opening's answer to `captures/<game>-opened.json` and reads it
+from there, so no `$(...)` wraps a command that starts a program; the watcher of the budget starts
+before the opening, so a game that hangs there is stopped at its budget with "as far as its
+opening" on the page; and the games' step on Windows has 110 of the job's 180 minutes. Pusher
+played through the script here, its opening's answer read from the file. The macOS step keeps the
+job's 120 minutes alone, its twelve games having passed there in every run. A deeper mend would
+clear the inherit flag of e3d's own handles before it starts `cmd.exe`, so the game holds none of
+them and a substitution around an opening ends again, which is offered and not made.
+
+Shared: the opening's answer read from a file is BevyCSharp's mend at `070e5e0`, as SHARED.md's row
+has it.
+

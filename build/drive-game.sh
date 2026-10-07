@@ -71,10 +71,27 @@ folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
   "$folder/wordfall-shot.png" "$folder/slide-best.txt" "$folder/jelly-best.rae" "$folder/jelly-best.txt"
 
+# The budget is kept by a watcher that wakes every five seconds, so it ends soon after the game
+# does. It starts before the opening, so a game that hangs there is stopped at its budget too.
+(
+  for (( waited = 0; waited < minutes * 60; waited += 5 )); do
+    sleep 5
+    [ -e "$finished" ] && exit 0
+  done
+  : > "$expired"
+  echo "::error title=$game on $system::$game: was not played through in $(( minutes * 60 )) seconds on $system, as far as $(cat "$last" 2> /dev/null || echo "its opening")" >&3
+  ./e3d stop --quiet > /dev/null 2>&1 || true
+) &
+
 # The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
 # opening it refuses says e3d's code and sentence and the last lines of the log it names, read
-# from the path it gives, which perl reads from the answer on every system the job runs on.
-if ! answer=$(ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --json); then
+# from the path it gives, which perl reads from the answer on every system the job runs on. The
+# answer goes to a file and is read from there, since on Windows the game is started holding every
+# handle e3d holds, a pipe around it among them, and $(...) would wait on that pipe until the game
+# ends.
+opened="captures/$name-opened.json"
+if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --json > "$opened"; then
+  answer=$(cat "$opened")
   said=$(printf '%s' "$answer" | perl -MJSON::PP -0777 -ne '
     my $answer = eval { decode_json($_) } or do { s/\s+/ /g; print length ? "an answer that is not JSON, $_\n" : "nothing\n"; exit };
     my $error = $answer->{errors}[0] || {};
@@ -89,16 +106,6 @@ if ! answer=$(ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen 
   log=""
   fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
 fi
-# The budget is kept by a watcher that wakes every five seconds, so it ends soon after the game does.
-(
-  for (( waited = 0; waited < minutes * 60; waited += 5 )); do
-    sleep 5
-    [ -e "$finished" ] && exit 0
-  done
-  : > "$expired"
-  echo "::error title=$game on $system::$game: was not played through in $(( minutes * 60 )) seconds on $system, as far as $(cat "$last" 2> /dev/null || echo "its opening")" >&3
-  ./e3d stop --quiet > /dev/null 2>&1 || true
-) &
 cmd window.size 480 270
 cmd frames.wait 30
 
