@@ -286,7 +286,7 @@ layer from Homebrew. On each the render tests and the reference frames run under
 layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
 does not start rather than letting them skip, and `build/play-game.sh Pusher` builds a game from the
 package and draws 300 frames of it offscreen, failing on an error the layer reports. On Windows and
-macOS `build/drive-game.sh <game>` then plays each of the nine games through `./e3d`, offscreen at
+macOS `build/drive-game.sh <game>` then plays each of the ten games through `./e3d`, offscreen at
 480 by 270, as the examples job plays them on Linux, each asserting its walk or its win, so a game's
 input, its sound and the session `./e3d` drives are tried there, and a game that fails says why in
 an error annotation naming the system. They then follow the README in a new project

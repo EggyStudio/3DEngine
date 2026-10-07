@@ -159,6 +159,7 @@ until `EndScissorMode`, as a scrolling list inside a panel needs.
   [`core_2d_camera`](../3DEngine.Examples/Core/Core2DCamera.cs),
   [`shapes_top_down_lights`](../3DEngine.Examples/Shapes/ShapesTopDownLights.cs),
   [`textures_magnifying_glass`](../3DEngine.Examples/Textures/TexturesMagnifyingGlass.cs)
+- The game [`games/Wordfall`](../games/Wordfall/Program.cs), whose words fall along Catmull-Rom splines
 - The cheatsheet's [2D shapes](../CHEATSHEET.md#2d-shapes), [Collision](../CHEATSHEET.md#collision) and
   [Colors](../CHEATSHEET.md#colors)
 - Previous: [The window and the frame](window-and-frame.md)

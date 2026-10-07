@@ -255,3 +255,22 @@ starts the match and rolls its marble, a key rolls the first, and the autopilot 
 Here, on lavapipe under the validation layer in the workflow's image, it played through with no
 validation error, the soak held level and the storm left it drawing. N 4.5 lists its capture with
 the games'. The suite: 1,472 passed, none skipped.
+
+**Now 2, a tenth game, played by typing.** `games/Wordfall` drops words on curving paths toward a
+town, each cleared by typing it before it lands, and uses what none of the nine did. Its words come
+from its own list or a text file dropped on its window, accents and all, through `GetCharPressed`.
+They fall along Catmull-Rom splines. Every sound is made as it plays by a callback that feeds an
+audio stream, a finished game's result is copied to the clipboard and read back, and F12 saves a
+screenshot beside the game. Its first run found a fault of the engine's. A run with no window,
+offscreen or headless, never starts SDL's video, so `SetClipboardText` dropped the text and
+`GetClipboardText` answered empty, and a game driven offscreen could not copy and paste its own
+text. Such a run now keeps a clipboard of its own, as audio there falls back to a device of silence,
+with a test, and the system's clipboard is used wherever there is a window. The storm found the
+game's own fault, a layout fixed at 1280 by 720 that a smaller window cut off, so it is drawn
+through a 2D camera that scales it to fit. `drive-game.sh` drops a list of accented words, types
+the lowest through `input.text`, misses on purpose, lets the autopilot type until the town is
+buried, then asserts the copy read back and the screenshot written. The Linux job runs that script
+and captures the game, and the soak and the storm take it. On lavapipe under the validation layer
+in the workflow's image it played through twice with no validation error, and the soak held level.
+The cheatsheet's `GetKeyPressed` line still said `Unknown`, a name of 5.1, and says `Null` now. The
+suite: 1,473 passed, none skipped.

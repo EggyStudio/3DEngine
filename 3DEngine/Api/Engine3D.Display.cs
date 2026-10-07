@@ -343,12 +343,21 @@ public static partial class Engine3D
         return default;
     }
 
+    // The clipboard of a run with no window, the program's own, where SDL's video has not started.
+    private static string _ownClipboard = "";
+
     /// <summary>Puts text on the system clipboard.</summary>
+    /// <remarks>
+    /// A run with no window, offscreen or headless, has no system clipboard, and keeps the text as
+    /// its own, so what a program copies it pastes again, as a game driven offscreen by e3d does.
+    /// </remarks>
     public static void SetClipboardText(string text)
     {
         if (SDL.WasInit(SDL.InitFlags.Video) != 0) SDL.SetClipboardText(text);
+        else _ownClipboard = text;
     }
 
     /// <summary>The text on the system clipboard, or an empty string.</summary>
-    public static string GetClipboardText() => SDL.WasInit(SDL.InitFlags.Video) != 0 ? SDL.GetClipboardText() ?? "" : "";
+    /// <remarks>A run with no window answers the text it last put there, as <see cref="SetClipboardText"/> says.</remarks>
+    public static string GetClipboardText() => SDL.WasInit(SDL.InitFlags.Video) != 0 ? SDL.GetClipboardText() ?? "" : _ownClipboard;
 }

@@ -4,7 +4,7 @@
 # holds (`memory.collect`) every ten seconds into build/soak/<name>.csv. build/soak-check.py then
 # fails when anything climbs without leveling off, a leak.
 #
-#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo> <program> <seconds> [--offscreen|--hidden]
+#   build/soak.sh <pusher|hopper|summit|swarm|rally|manor|tactics|tempo|sumo|wordfall> <program> <seconds> [--offscreen|--hidden]
 #
 # The program is the game's executable, built from the package as CI builds it.
 set -Eeuo pipefail
@@ -48,6 +48,7 @@ case "$name" in
   tactics) cmd tactics.new 1; cmd tactics.autopilot true ;;
   tempo) cmd tempo.autopilot true; key Enter 2 ;;
   sumo) cmd sumo.autopilot true; key Enter 2 ;;
+  wordfall) cmd wordfall.autopilot true; key Enter 2 ;;
 esac
 
 # One turn of play, each a few seconds, with a restart every few turns. Swarm fights the same
@@ -97,6 +98,13 @@ turn() {
       # one is won.
       wait_frames 240
       if (( i % 3 == 2 )); then key P 2; wait_frames 20; key P 2; fi
+      key Enter 2 ;;
+    wordfall)
+      # The autopilot types until the town is buried, a screenshot is saved now and then, and a
+      # buried town's result is copied and a game started again.
+      wait_frames 240
+      if (( i % 4 == 3 )); then key F12 2; fi
+      key C 2
       key Enter 2 ;;
   esac
 }

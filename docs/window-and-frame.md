@@ -197,6 +197,8 @@ it over, for the ECS, plugins and resources, which run inside the same frames as
   [`core_window_toggles`](../3DEngine.Examples/Core/CoreWindowToggles.cs),
   [`core_screen_recording`](../3DEngine.Examples/Core/CoreScreenRecording.cs),
   [`gui_imgui_window`](../3DEngine.Examples/Gui/GuiImGuiWindow.cs)
+- The game [`games/Wordfall`](../games/Wordfall/Program.cs), which copies its result to the clipboard
+  and saves a screenshot
 - The cheatsheet's [Window and timing](../CHEATSHEET.md#window-and-timing) and
   [Frame and cameras](../CHEATSHEET.md#frame-and-cameras)
 - Next: [Drawing in 2D](drawing-2d.md)

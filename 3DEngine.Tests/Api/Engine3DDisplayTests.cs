@@ -32,6 +32,17 @@ public class Engine3DDisplayTests
     }
 
     [Fact]
+    public void A_Run_With_No_Window_Pastes_What_It_Copied()
+    {
+        // The system's clipboard is left alone where a test before this one started SDL's video.
+        if (SDL3.SDL.WasInit(SDL3.SDL.InitFlags.Video) != 0) return;
+
+        SetClipboardText("Wordfall: 120 points, café");
+
+        GetClipboardText().Should().Be("Wordfall: 120 points, café", "a game driven offscreen copies its result and reads it back");
+    }
+
+    [Fact]
     public void A_Monitors_Size_In_Millimeters_Is_Its_Pixels_At_96_An_Inch_Times_Its_Scale_As_Raylibs_SDL_Backend_Has_It()
     {
         Millimeters(3840, 1).Should().Be(1016);

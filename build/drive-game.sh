@@ -4,7 +4,7 @@
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
 # runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo>
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall>
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -43,7 +43,8 @@ moved() {
 dotnet restore "games/$game" --force-evaluate > /dev/null || fail "did not restore"
 dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from the package"
 folder="games/$game/bin/Debug/net10.0"
-rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt"
+rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
+  "$folder/wordfall-shot.png"
 
 # The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
 # opening it refuses says e3d's code and sentence and the last lines of the log it names, read
@@ -189,6 +190,47 @@ case "$game" in
     done
     echo "$status"
     case "$status" in Won*) ;; *) fail "the match the marbles play themselves did not end, $status" ;; esac
+    ;;
+  Wordfall)
+    # A list of words with accents dropped on the window is played with, the word falling lowest
+    # is typed through the text input, a character no word starts with is a miss, and the
+    # autopilot types until the town is buried, after which C copies the result and reads it back
+    # from the clipboard and F12 saves a screenshot beside the game.
+    list="$PWD/captures/wordfall-words.txt"
+    printf 'caf\xc3\xa9\nna\xc3\xafve\nfianc\xc3\xa9\nd\xc3\xa9j\xc3\xa0\nsm\xc3\xb6rg\xc3\xa5sbord\n' > "$list"
+    if command -v cygpath > /dev/null; then list=$(cygpath -m "$list"); fi
+    cmd input.drop "$list"
+    cmd frames.wait 5
+    title=$(ask wordfall.status)
+    case "$title" in *"words 5 from wordfall-words.txt"*) ;; *) fail "the dropped list of words was not taken, $title" ;; esac
+    cmd input.key Enter 2
+    status=""
+    for i in $(seq 1 40); do
+      status=$(ask wordfall.status)
+      case "$status" in *"falling -"*) cmd frames.wait 10 ;; *) break ;; esac
+    done
+    word=$(printf '%s' "$status" | sed 's/.*falling \([^ ,]*\).*/\1/')
+    cmd input.text "$word"
+    cmd frames.wait 5
+    typed=$(ask wordfall.status)
+    echo "$status / typed $word / $typed"
+    case "$typed" in *" words 1 "*) ;; *) fail "typing $word did not clear it, $typed" ;; esac
+    cmd input.text 9
+    cmd frames.wait 5
+    missed=$(ask wordfall.status)
+    case "$missed" in *" misses 1 "*) ;; *) fail "a character no word starts with was not a miss, $missed" ;; esac
+    cmd wordfall.autopilot true
+    for i in $(seq 1 60); do
+      status=$(ask wordfall.status)
+      case "$status" in Over*) break ;; *) cmd frames.wait 300 ;; esac
+    done
+    cmd input.key C 2
+    cmd input.key F12 2
+    cmd frames.wait 5
+    status=$(ask wordfall.status)
+    echo "$status"
+    case "$status" in Over*"copied yes shots 1"*) ;; *) fail "the game did not end with its result copied and a screenshot saved, $status" ;; esac
+    [ -f "$folder/wordfall-shot.png" ] || fail "F12 wrote no screenshot beside the game"
     ;;
   *)
     fail "is not a game this script plays"

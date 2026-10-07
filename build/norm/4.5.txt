@@ -11,3 +11,4 @@ sumo 1280x720	a game, captured at its own window's size
 swarm 1280x720	a game, captured at its own window's size
 tactics 1280x720	a game, captured at its own window's size
 tempo 1280x720	a game, captured at its own window's size
+wordfall 1280x720	a game, captured at its own window's size
