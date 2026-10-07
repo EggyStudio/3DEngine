@@ -122,11 +122,34 @@ internal static partial class SlangCompiler
         return new SlangStage(bytecode, uniforms, textures, buffers, images, bindings);
     }
 
-    private static void WriteAtomically(string path, byte[] bytes)
+    // Writes a cache file beside its path under a name of this writer's own, then moves it into
+    // place, so a reader never sees half a file and two writers of one entry (two tests, or two
+    // programs, compiling the same shader at once) never write one file between them. A move that
+    // fails where the path is there lost to another writer of the same key, whose bytes are these,
+    // so what is there is kept.
+    internal static void WriteAtomically(string path, byte[] bytes)
     {
-        var partial = path + ".partial";
-        File.WriteAllBytes(partial, bytes);
-        File.Move(partial, path, overwrite: true);
+        var partial = $"{path}.{Environment.ProcessId}.{Guid.NewGuid():N}.partial";
+        try
+        {
+            File.WriteAllBytes(partial, bytes);
+            File.Move(partial, path, overwrite: true);
+        }
+        catch (Exception error) when ((error is IOException or UnauthorizedAccessException) && File.Exists(path))
+        {
+            // Another writer's entry is in place.
+        }
+        finally
+        {
+            try
+            {
+                File.Delete(partial);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                // A file left behind under its own name is never read as an entry.
+            }
+        }
     }
 
     /// <summary>

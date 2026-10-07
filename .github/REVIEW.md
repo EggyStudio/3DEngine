@@ -10,7 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `6412daca`. Text read right to left is drawn and measured in the order it is read:
+Reviewed up to `38f68412`. Arabic's marks are put on their letters and its pairs kerned by the
+font's GPOS table inside shaped runs: what GSUB and GPOS share moved into `GlyphLayout`, which
+`GlyphSubstitution` and the new `GlyphPositioning` extend, single and pair adjustments, marks on a
+base, on a ligature's component and on another mark, the contexts and the extension, with cursive
+attachment and device tables left out; a shaped line's keys carry where each glyph is drawn from the
+pen and how far it moves it (`PlacedKey`), which `DrawTextPro`, `ImageDrawTextEx` and
+`MeasureTextEx` read; a letter's marks are shaped in HarfBuzz's order and the Arabic plan runs in
+its stages with `liga`, `clig`, `rclt` and `mset`; the zero width non-joiner and the isolates join
+nothing; and 328 shapings of 52 words on seven of the machine's fonts came out as HarfBuzz's glyphs
+at its positions, held by `arabic-marks.ttf`, six tests and the `arabic_marks` frame (`38f68412`),
+which settles item 4, the three batches of Decision 15 in. The suite: 1,503 passed, none skipped.
+The owner decided on 2026-10-07 that global illumination comes in four phases, a scene distance
+field first and hybrid Radiance Cascades over it (Decision 16), items 2 to 4, after Verdict 34.
+
+Before them, text read right to left came to be drawn and measured in the order it is read:
 `TextDirection` is a reduced UAX #9 over grapheme clusters, each line a paragraph of its first
 strong letter's direction, the weak types, the neutrals and the levels resolved by the rules' names,
 trailing white space at the paragraph's level, the runs reversed from the highest level down,
@@ -49,18 +63,6 @@ at four cores took 22 minutes together, Manor's walk six, so each has twelve in 
 Windows job 180 minutes (`3afcc4d0`). N 4.5 leaves out 15. The owner chose text shaped whole on
 2026-10-07 (Decision 15), which is item 4. The suite: 1,475 passed, none skipped.
 
-Before them, `docs/upgrading.md` came to move a game from 5.1 to 6.0, counting from 5.1.116, the
-package packed at `b43818f9`, with a row for every name the public surface lost since saying what a
-game wrote and what it writes, the two changes that still compile first, a capsule's rings before
-its slices and the log levels numbered as raylib numbers them, then the three functions gone, the 26
-keys, the 15 gamepad buttons, `Critical` as `Fatal`, the skeleton and the keyframes, and what was
-added; the README links it, and it names no one who decided. `UpgradingTests` reads `PublicApi.txt`
-at `b43818f9` from git and as it is, and fails naming each lost type or member the page lacks in
-code, which the workflow's shallow checkout skips, so the Linux job fetching that commit is item 4
-by the new count. A sweep mended two stale names, `GetKeyPressed`'s summary and RENDERING.md's
-`FrameMorphWeights`. N 1.4 leaves out 14 (`2a81d369`), which settles item 4. The suite: 1,470
-passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -77,23 +79,38 @@ for a reply. In this order.
    examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a run's three
    test jobs pass. Each push's run is read by the reviewing session, and a failure it names comes
    first here.
-2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+2. **Global illumination, phase 1: the scene distance field (Decision 16).** A cascaded signed
+   distance field in clipmaps around the camera, built on the GPU from the static meshes' triangles
+   and stamped with the moving bodies' shapes coarsely each frame, the cascade count, the cell size
+   and the update budget in the config and each frame's cost read by the timestamps. It is used at
+   once: ambient occlusion traced through it beside the screen-space pass, soft contact shadows of
+   the directional light, and particles colliding with the world rather than with what the window
+   shows, which closes that TODO entry. A reference frame a cascade, a test of the field's distances
+   against the meshes it was built from, the costs on the comparison page, and the guide's section.
+3. **Phase 2: Radiance Cascades, hybrid.** Cascades of probes aligned with the SDF clipmaps, each
+   cascade's probes storing radiance over its interval of distance, the first cascade's intervals
+   traced through the depth buffer and the ones above through the field, direct light and emissive
+   surfaces injected at the hits, merged from the far cascade to the near one, and the result
+   sampled a pixel as diffuse indirect light beside the environment map's. A quality tier in the
+   settings from a few cascades at low angular resolution to the full set, the memory and the frame
+   time of each measured and written, and the examples' Cornell box and a lit room of a game as the
+   reference frames. Nothing is baked, and every light is dynamic. The kernels are written in Slang,
+   which the bridge compiles too, so BevyCSharp runs them once they are proven here.
+4. **Phase 3: specular.** Glossy reflections traced through the field with the cascades' radiance
+   at the hit, screen-space reflections where the field is too coarse and the reflection probes as
+   the fallback, chosen by roughness; and a hardware ray-query path through Vulkan's ray query
+   extension for the field's misses where the GPU has it, behind the same quality tier, measured.
+5. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
-3. **The first shares recorded from the workflow's own device.** The examples job's first green
+6. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **Text shaped whole, in three batches (Decision 15).** First right-to-left text, a reduced UAX
-   #9 with strong types, numbers, neutrals, marks and mirrored brackets and no explicit embeddings,
-   putting Hebrew and Arabic runs in display order for drawing and measuring. Then Arabic joining,
-   each character's joining type choosing its form, applied through the font's GSUB under the `arab`
-   script with feature masks, then `rlig` and `calt`, honoring lookup flags and GDEF classes, a font
-   with no Arabic GSUB falling back to the presentation forms it maps, the shaped glyphs baked as
-   the joined emoji glyphs are. Then GPOS inside shaped runs, mark-to-base and mark-to-ligature for
-   harakat and pair adjustment there. Latin outside shaped runs stays one character at a time with
-   raylib's advances and unkerned, so ported layouts measure the same. Each batch holds with
-   synthetic fonts from `make-color-test-fonts.py` and a reference frame, and TODO.md's text entry
-   shrinks as each lands.
+7. **The scripts' shared watch for apps made one after another.** `039bd788` says the scripts'
+   watch is one stream for the process, which holds for apps that overlap, while the watch is let go
+   with the last app watching it, so a hundred apps made one after another make a hundred FSEvents
+   streams on macOS, read on the way to Verdict 32. The watch is kept for the process once made, or
+   the sentence says what holds, whichever the macOS leak test's census argues for.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -248,39 +265,33 @@ Verdicts 1 to 29 and 32 are settled, and their numbers are not given again.
     through GPOS, in three batches, with Latin outside shaped runs left one character at a time with
     raylib's advances and unkerned, so what raylib measures stays measured the same.
 
+16. **Global illumination comes in four phases, a scene distance field first.** The owner chose
+    it on 2026-10-07 over Radiance Cascades in screen space alone, over a world-space volume alone
+    and over a voxel or surface-anchored variant: a cascaded signed distance field of the scene,
+    hybrid Radiance Cascades over it with the first cascade in screen space, then glossy and
+    screen-space reflections with a ray-query path where the GPU has one, each phase measured and
+    tiered, nothing baked and no ray-tracing hardware needed, the kernels in Slang so the bridge
+    runs them in BevyCSharp once proven here, which meanwhile keeps Solari and Bevy's probes. The
+    spectral extensions, subsurface scattering, caustics, iridescence, volumetric multiple
+    scattering and dispersion, wait until those three phases ship with numbers, each then an
+    experiment of its own, and HTrace's WSGI was passed over as closed and as far more code for a
+    hybrid that ghosts when things move.
+
 ## Replies
 
-**Now 4, batch three, marks and pairs placed.** A run of Arabic is positioned by the font's GPOS
-table after its substitutions, so a mark is put on its letter and a pair is kerned, and the rest of
-the text is drawn as before, a character at a time with raylib's advances. What GSUB and GPOS share,
-the scripts, features, lookups, flags, GDEF classes and contexts, moved into `GlyphLayout`, which
-`GlyphSubstitution` and the new `GlyphPositioning` extend, so the contextual positionings are the
-contextual substitutions' code. `GlyphPositioning` reads single and pair adjustments, the pair in
-both formats, marks on a base, on a ligature's component and on another mark, the contexts and the
-extension, value records' placements and advance and anchors' points, device tables and cursive
-attachment left out. A ligature numbers the marks it passes over by the component they followed, so
-a mark goes on its own letter of lam-alef. A shaped line's keys carry where each glyph is drawn from
-the pen and how far it moves it (`PlacedKey`), which `DrawTextPro`, `ImageDrawTextEx` and
-`MeasureTextEx` read, a mark of the GDEF table advancing nothing, as HarfBuzz zeroes it. Comparing
-with HarfBuzz on seven fonts of this machine, Noto Naskh, Noto Sans Arabic, PakType Naskh,
-Vazirmatn, Arial, Times and Segoe UI, found three more things, each mended. HarfBuzz sorts a
-letter's marks by combining class with shadda moved first and the modifying hamzas put before the
-rest (UTR #53), so fatha is put on shadda whatever order the text stores them in, which `ArabicMarks`
-does. It applies Arabic's features in stages, the forms before the ligatures made of them, and
-`liga`, `clig`, `rclt` and `mset` with them, Arial's and Times's Allah being `liga`, so a plan can
-be staged (`PlanInStages`). And batch two read the zero width non-joiner as transparent where
-ArabicShaping.txt says it joins nothing, as it does the isolates and Arabic's signs that span
-digits. After those, 52 words in Arabic, Persian and Urdu, with harakat and without, shaped 328
-times on those fonts, came out as HarfBuzz's glyphs at HarfBuzz's positions in the font's units,
-unit for unit, but for a joiner HarfBuzz keeps as a glyph of no width, which the engine leaves out. `make-color-test-fonts.py` writes
-`arabic-marks.ttf`, `arabic.ttf` with kasra, shadda and a GPOS table holding each lookup type the
-reader takes, a mark lookup inside an extension, read by fontTools and shaped by HarfBuzz to the
-places the tests expect, the other fonts it writes coming out byte for byte the same. Six tests hold
-the places, the order of marks and a mark drawn into an image, one holds the non-joiner, and a
-reference frame, `arabic_marks`, draws marks on letters, on lam-alef and on each other, the kerned
-and raised pairs, and the same marks in the font with no positions. The twenty-five Arabic fonts of
-this machine drew a phrase with harakat through `e3d eval` with nothing failing, a beh with shadda
-and fatha measuring as one with none, and Noto Naskh's and Arial's basmala read as HarfBuzz draws
-them. The guide, the cheatsheet, the comparison row and TODO.md's entry say what is placed and what
-is left, cursive attachment and a letter composed with its mark. With this the three batches of
-Decision 15 are in. The suite: 1,503 passed, none skipped.
+**Verdict 34, the shader cache's two writers.** `SlangCompiler.WriteAtomically` writes each cache
+file under a name of its writer's own, the process and a new GUID after the path, and moves it over
+the path, and a move that fails where the path is there keeps what is there, since the key is the
+source's and the other writer's bytes are these; the file of its own is removed either way, and
+ends in `.partial`, so no `*.spv` or `*.uniforms` glob takes one left behind. Two tests race it, each
+through a helper that lets two threads go at once by a barrier, checks between rounds while neither
+runs, and gives every exception raised, a barrier that waits a minute ending the race so a failure
+is reported and never leaves the other thread waiting. One writes one entry from two threads a
+hundred times, the entry read whole and removed after each round and no file of a writer's own left
+in the folder. The other compiles one shader from two threads against an empty cache ten times, a
+folder of the round's own each time, both results and the entry the same SPIR-V; ten and not a
+hundred because each round runs `slangc` twice, a fifth of a second here, which a hundred would
+make twenty seconds of the suite and longer on the Windows and macOS runners, while the hundred
+writes race the part that failed. Both tests fail on the old writer with the job's error, a
+`FileNotFoundException` for the `.uniforms` file, and pass on the new one. The suite: 1,505
+passed, none skipped.

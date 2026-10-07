@@ -144,6 +144,90 @@ public class SlangCompilerTests : IDisposable
         cached.LayoutOf(1).Should().Equal(lights);
     }
 
+    // Runs work on two threads at once each round, both let go by a barrier the moment both are
+    // ready, and check between rounds while neither runs, giving every exception raised. A thread
+    // whose round fails goes on to the next, and a barrier that waits a minute ends the race, so a
+    // failure is reported where it would leave the other thread waiting.
+    private static List<Exception> Race(int rounds, Action<int> work, Action check)
+    {
+        var failures = new System.Collections.Concurrent.ConcurrentQueue<Exception>();
+        using var start = new Barrier(2, _ =>
+        {
+            try
+            {
+                check();
+            }
+            catch (Exception error)
+            {
+                failures.Enqueue(error);
+            }
+        });
+        void Run(int thread)
+        {
+            for (int round = 0; round <= rounds; round++)
+            {
+                if (!start.SignalAndWait(TimeSpan.FromMinutes(1)))
+                {
+                    failures.Enqueue(new TimeoutException($"Thread {thread} waited a minute for the other at round {round}."));
+                    return;
+                }
+                if (round == rounds) return;
+                try
+                {
+                    work(thread);
+                }
+                catch (Exception error)
+                {
+                    failures.Enqueue(error);
+                }
+            }
+        }
+        Task.WaitAll(Task.Run(() => Run(0)), Task.Run(() => Run(1)));
+        return [.. failures];
+    }
+
+    [Fact]
+    public void Two_Writers_Of_One_Cache_Entry_At_Once_Both_Finish_And_Leave_It_Whole()
+    {
+        // Each round both write the entry at once, as two tests compiling one shader do, and the
+        // entry is read and removed before the next.
+        var path = _folder.File("shared.vertexMain.0123.spv");
+        var bytes = Enumerable.Range(0, 64 * 1024).Select(i => (byte)(i * 7)).ToArray();
+        var (rounds, whole) = (0, 0);
+        var failures = Race(100, _ => SlangCompiler.WriteAtomically(path, bytes), () =>
+        {
+            if (!File.Exists(path)) return;
+            rounds++;
+            if (File.ReadAllBytes(path).AsSpan().SequenceEqual(bytes)) whole++;
+            File.Delete(path);
+        });
+
+        failures.Should().BeEmpty("a writer that finds the entry written by the other keeps it");
+        (rounds, whole).Should().Be((100, 100), "every round leaves the entry whole");
+        Directory.GetFiles(_folder.Path).Should().BeEmpty("each writer's own file is moved into place or removed");
+    }
+
+    [NeedsSlangFact]
+    public void One_Shader_Compiled_From_Two_Threads_Against_One_Cache_Is_Cached_Whole()
+    {
+        // Both threads compile into an empty cache each round, a folder of the round's own, so both
+        // write the entry, and a round's two results and the entry it left are the same SPIR-V.
+        var (rounds, same) = (0, 0);
+        string Cache() => Path.Combine(_folder.Path, $"cache-{rounds}");
+        var results = new byte[2][];
+        var failures = Race(10, thread => results[thread] = SlangCompiler.CompileStage(Source, "race.slang", "vertexMain", ShaderStage.Vertex, Cache()).Spirv, () =>
+        {
+            if (!Directory.Exists(Cache())) return;
+            var entries = Directory.GetFiles(Cache(), "*.spv");
+            if (entries.Length == 1 && results[0].AsSpan().SequenceEqual(results[1]) && File.ReadAllBytes(entries[0]).AsSpan().SequenceEqual(results[0])) same++;
+            rounds++;
+        });
+
+        failures.Should().BeEmpty();
+        (rounds, same).Should().Be((10, 10));
+        results[0].Take(4).Should().Equal(SpirvMagic);
+    }
+
     [Fact]
     public void Layouts_Merge_By_Binding_The_First_Giving_The_Kind_And_Each_Its_Stages()
     {
