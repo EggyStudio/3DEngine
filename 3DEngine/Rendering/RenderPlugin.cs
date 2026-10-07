@@ -100,7 +100,7 @@ internal sealed class RenderPlugin : IPlugin
         app.World.InitResource<ShaderStore>();
         app.World.InitResource<ShaderBufferStore>();
         app.AddSystem(Stage.Render, new SystemDescriptor(MeshEntityDraws.Run, "RenderPlugin.MeshEntityDraws").MainThreadOnly());
-        app.AddSystem(Stage.Render, new SystemDescriptor(AnimatedModelDraws.Run, "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
+        app.AddSystem(Stage.Render, new SystemDescriptor(world => AnimatedModelDraws.Run(world, app), "RenderPlugin.AnimatedModelDraws").MainThreadOnly());
 
         // An offscreen run has no window either, and renders into the device's own images.
         if (cfg.Offscreen && !app.World.ContainsResource<AppWindow>() && cfg.Graphics == GraphicsBackend.Vulkan)

@@ -9,7 +9,9 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Runs in <see cref="Stage.Render"/>, in the app <c>InitWindow</c> built, whose models these are.
+/// Runs in <see cref="Stage.Render"/>, the flat API made to run against its own app while it records
+/// where another or none is the one the flat API runs against, so an app a program builds itself,
+/// with no <c>InitWindow</c>, plays its entities' clips too.
 /// A file is loaded once, with its clips, the first frame an entity names it, and unloaded the
 /// first frame no entity does. Each entity draws a copy of it with skinned meshes of its own, posed
 /// apart, sharing the rest (<see cref="Engine3D.PosedCopy"/>), so a crowd of one file costs a load
@@ -64,12 +66,29 @@ internal sealed class AnimatedModelDraws
     /// <summary>How many files are loaded for those models, each once however many entities draw it.</summary>
     public int FileCount => _files.Values.Count(f => f.Model is not null);
 
-    /// <summary>The system, for <see cref="Stage.Render"/>.</summary>
-    public static void Run(World world)
+    /// <summary>The system, for <see cref="Stage.Render"/>, in the app the flat API runs against.</summary>
+    public static void Run(World world) => Run(world, null);
+
+    /// <summary>
+    /// The system, for <see cref="Stage.Render"/>, in <paramref name="app"/>, which the flat API is
+    /// made to run against while it records where it runs against another app or none, as an app a
+    /// program builds itself, with no <c>InitWindow</c>, has it.
+    /// </summary>
+    public static void Run(World world, App? app)
     {
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
         var self = world.GetOrInsertResource(static () => new AnimatedModelDraws());
-        self.Record(world, ecs);
+        var current = Engine3D.CurrentApp;
+        var borrowed = app is not null && !Engine3D.Holds(world) && ReferenceEquals(app.World, world);
+        if (borrowed) Engine3D.UseApp(app);
+        try
+        {
+            self.Record(world, ecs);
+        }
+        finally
+        {
+            if (borrowed) Engine3D.UseApp(current);
+        }
     }
 
     private void Record(World world, EcsWorld ecs)
@@ -79,7 +98,7 @@ internal sealed class AnimatedModelDraws
         {
             if (!Engine3D.Holds(world))
             {
-                if (!_warned) Logger.Warn("AnimatedModel is drawn through the flat API, in the app InitWindow built, and this app is not that one.");
+                if (!_warned) Logger.Warn("AnimatedModel is drawn through the flat API, which runs against another app than this one.");
                 _warned = true;
                 return;
             }

@@ -36,6 +36,9 @@ public static partial class Engine3D
     /// </summary>
     internal static void UseApp(App? app) => _app = app;
 
+    /// <summary>The app the flat API runs against now, or null for none.</summary>
+    internal static App? CurrentApp => _app;
+
     private static DrawList DrawList => Res<DrawList>();
 
     // A resource as the flat API reads it, kept from the last lookup until the world or its

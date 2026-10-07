@@ -82,6 +82,27 @@ public sealed class AnimatedModelDrawsTests : IDisposable
     }
 
     [Fact]
+    public void An_App_The_Flat_API_Does_Not_Run_Against_Plays_Its_Entities_Clips_Through_Its_Own()
+    {
+        // An app a program built itself, with no InitWindow, while the flat API runs against none,
+        // and then against another, each given back once the system has recorded.
+        var entity = Spawn(new AnimatedModel(Arm, speed: 0) { Time = 1 }, new Vector3(3, 0, 0));
+        UseApp(null);
+        _time.Update(0.1, 0.1);
+        AnimatedModelDraws.Run(_app.World, _app);
+        Tip(3).X.Should().BeApproximately(-1, 0.02f, "posed at the clip's end through its own app");
+        CurrentApp.Should().BeNull("the flat API is given back to none");
+
+        var other = new App();
+        UseApp(other);
+        _app.World.Resource<ModelDrawList>().Clear();
+        AnimatedModelDraws.Run(_app.World, _app);
+        Tip(3).X.Should().BeApproximately(-1, 0.02f, "and while it runs against another");
+        CurrentApp.Should().BeSameAs(other, "which it is given back to");
+        _ecs.Has<AnimatedModel>(entity).Should().BeTrue();
+    }
+
+    [Fact]
     public void Two_Entities_Of_One_File_Are_Posed_Apart_And_A_Despawned_One_Lets_Its_Model_Go()
     {
         var still = Spawn(new AnimatedModel(Arm, speed: 0), new Vector3(-2, 0, 0));

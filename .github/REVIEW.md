@@ -10,21 +10,48 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `0ad8636f`. Verdict 37's fourth part is in, to be read on the next Windows job: the
-leak test's line for each app, which the page's account of a lost process carries as its last
-progress line, says what the process held after the app before, the ledger's Vulkan objects of each
-kind, the process's handles and on Windows its GDI and USER objects through `GetGuiResources`, of
-which a process may hold ten thousand each, so a death at the ninetieth app says on the page what
-had climbed by the eighty-ninth, the output after every tenth app giving the same; and the Windows
-job registers Windows' own minidumps for `testhost.exe` through the `LocalDumps` key into
-`TestResults/dumps`, which the runner lists on the page and the job uploads, so a host the runtime's
-`createdump` leaves no dump for still leaves Windows'; on the working machine the line after a
-hundred apps reads 0 of every kind and 192 handles where it read 175 after the first (`0ad8636f`).
-The run of `06b702a1` had Linux green and macOS through its tests and playing the games at 21:37,
-its Windows job in the tests. The ray-query batch is next, its lavapipe crash traced to a null
-pointer in code the driver compiles, which splitting a helper of `gi.slang` alone brings on, so the
-model pass without ray queries stays as it is and the ray-query path gets a lamp loop of its own,
-off on CPU devices. The suite: 1,527 passed, the reply's 1,528 counting a test not in the tree.
+Reviewed up to `1b4edb7e`. The ray-query path is in, the last of phase three, which settles item 2,
+the list renumbered, and Decision 16's three phases have shipped with their numbers: the device
+turns on `VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses where the
+driver has them and logs it; the model pass is compiled a second time with `RAY_QUERY` defined,
+`slangc`'s `-D` part of a cache entry's key and `e3d shaders` compiling both builds, that build's
+lights' set holding the rays' scene at bindings 28 to 30 through a new `AccelerationStructure`
+descriptor kind; `GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field
+gathered, the skinned left out, the first frame it is drawn, and at `High` the top-level structure
+of every copy again each frame with each copy's color and light given off in a ring of buffers,
+every object in the ledger; a reflection whose ray the field misses traces it through the GPU's
+rays, the triangle it meets lit by the lamps, the sun through a second ray and the bounce or the
+sky; `gi.rays` switches the path in a running program and `gi.state` says the copies, the meshes and
+the memory; measured in `shaders_reflections` at `High` on the RTX 4070 with the frame rate
+unlimited, 8 copies of 6 meshes in 1.23 MB, the bounce's pass at 0.49 ms with the rays against 0.46
+to 0.47 without, the top-level rebuild, and the scene's pass within its noise; a test has a mirror
+show a block twenty-five units behind the camera, past the field's one cascade, at `High`, skipped
+with its reason where the device traces no rays (`1b4edb7e`). A device that draws on its CPU leaves
+ray queries off, lavapipe of Mesa 25.2 crashing the test host at the first ray query in a fragment
+stage though its structures passed the validation layer, so CI draws this path nowhere and the RTX
+4070 alone does; and the model pass without ray queries crashed lavapipe at the glossy frame when
+`directLight`'s lamp loop moved into a function of its own, a null pointer read from a table in the
+compiled shader, so that code keeps the shape lavapipe draws, the ray-query build has a lamp loop of
+its own and TODO.md says so, which item 3 takes to Mesa. The run of `06b702a1` had its Windows job
+pass every test, the offscreen leak test among them, and play the games, so that test's death is
+intermittent and Verdict 37's readings tell when it next comes; the games' step ended at 21:46 with
+six of the twelve played and six failed, Summit, Tempo, Sumo and Jelly exiting before they were
+ready and Slide and Wordfall dying after they opened, their logs ending in lines of information
+alone, which Verdict 33 takes up. The suite: 1,528 passed; lavapipe under validation ran the whole
+suite, 1,509 passed and 17 skipped.
+
+Before them, Verdict 37's fourth part came in: the leak test's line for each app, which the page's
+account of a lost process carries as its last progress line, says what the process held after the
+app before, the ledger's Vulkan objects of each kind, the process's handles and on Windows its GDI
+and USER objects through `GetGuiResources`, of which a process may hold ten thousand each, so a
+death at the ninetieth app says on the page what had climbed by the eighty-ninth, the output after
+every tenth app giving the same; and the Windows job registers Windows' own minidumps for
+`testhost.exe` through the `LocalDumps` key into `TestResults/dumps`, which the runner lists on the
+page and the job uploads, so a host the runtime's `createdump` leaves no dump for still leaves
+Windows'; on the working machine the line after a hundred apps reads 0 of every kind and 192 handles
+where it read 175 after the first (`0ad8636f`). The run of `06b702a1` had Linux green and macOS
+through its tests and playing the games at 21:37, its Windows job in the tests. The suite: 1,527
+passed, the reply's 1,528 counting a test not in the tree.
 
 Before them, Verdict 38's two things came into `BadFileTests`: both cases, the readers' and the
 ECS's, wait for a file's message through up to six hundred frames with five milliseconds of sleep
@@ -42,26 +69,6 @@ host dying again at the ninetieth app and the ninety-first, with the dump unname
 Verdict 37 takes up as its fourth part; the owner pushed `06b702a1`, whose run was in progress at
 21:28. The suite: 1,527 passed.
 
-Before them, Verdict 37's three things came in: a process-wide ledger counts the Vulkan objects of
-each kind every device makes and destroys, images, buffers, memory, pipelines, descriptor pools and
-sets (`DeviceObjects`), the offscreen leak test prints it after every tenth app and fails naming the
-kinds alive after the hundredth app beyond the twentieth, every kind standing at 0 after each app on
-the RTX 4070 and on lavapipe, so what grew on Windows is the driver's own memory unless that job's
-ledger says otherwise, and the field's three kernels and the bounce's five become pipelines the
-first time a frame needs them rather than at every app's start; `build/test.py` runs the tests with
-`DOTNET_DbgEnableMiniDump`, a dump going to `TestResults/dumps`, which every job uploads, the page's
-account of a lost process naming the dump and the last progress line a test printed, the leak test
-printing its app's number as it goes, and the script's own test having its stand-in die after such a
-line; a reference frame that does not match says the rows and columns its differing pixels fall
-within and the three eighths of the frame holding the most of them, and `cornell_box` allows 5% with
-its reason, the bounce rays meeting the box's edges and the lamp's patch at grazing angles a
-device's compiler rounds either way (`6a2d916e`). The run of `4db6fe46`: Linux green; macOS 1,492
-passed and 2 failed, the hundred and three of the sampler count gone and the array uniform case
-passing, which settles Verdict 36, the two left being `BadFileTests`' two `ModelRef` cases, Verdict
-38, and the Cornell frame at 2.6%, within the 5% of `6a2d916e`; its Windows job was in the tests at
-20:39 and meets Verdict 37 before its mends. The suite: 1,527 passed; lavapipe under validation ran
-the whole suite, 1,509 passed and 16 skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -72,20 +79,22 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdict 37's fourth part, then the Windows jobs' games.** The run of `6a2d916e`: Linux and
-   macOS green through the games on macOS; Windows through every test but the offscreen leak test,
-   whose host died at the ninetieth app and the ninety-first, the Cornell frame within 5%, so what
-   climbs toward the ninetieth app is read next, the ledger's last line, the process's handles and a
-   dump on the page; the run of `06b702a1` was in progress at 21:28. A Windows job that passes its
-   tests plays the twelve games, Verdict 33, and the examples job, which carries the guides' blocks
-   and Verdicts 30 and 31, runs once a run's three test jobs pass. Each push's run is read by the
-   reviewing session, and a failure it names comes first here.
-2. **Phase 3: specular, the ray-query path left.** Glossy reflections are in (`80227981`) with
-   the frame before's depth beside its picture (`c4f248fd`). Left: a hardware ray-query path through
-   Vulkan's ray query extension for the field's misses where the GPU has it, behind the same quality
-   tier, the model pass built with a define where the device has the extension, measured.
-3. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
+1. **Verdict 33's six games first, then the examples job.** The Windows job of `06b702a1` passed
+   every test and played six of the twelve games; Summit, Tempo, Sumo and Jelly exited before they
+   were ready and Slide and Wordfall died after they opened, each page line ending in lines of
+   information alone, so the reason is unread and comes first, Verdict 33's new part, before item 2;
+   its macOS job was still playing the games at 21:48. The examples job, which carries the guides'
+   blocks and Verdicts 30 and 31, runs once a run's three test jobs pass. Verdict 37's fourth part
+   at `0ad8636f` reads what climbs when the leak test's host next dies. Each push's run is read by
+   the reviewing session, and a failure it names comes first here.
+2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
    what none of the twelve has.
+3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
+   a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
+   fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
+   Mesa 25.2 and reported to Mesa with the reproduction, TODO.md linking the reports, so the model
+   pass is held in a shape around a driver's fault only as long as it must be, and the ray-query
+   path is drawn on CPU devices once the fault is mended upstream.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -173,8 +182,21 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     `captures/<game>-opened.json` and is read from there, the watcher starts before the opening, and
     the step has 110 of the job's 180 minutes; Pusher played through the script on the working
     machine. Clearing the inherit flag of e3d's own handles before it starts `cmd.exe`, offered in
-    the reply, is not asked for while nothing waits on them. Unproven until a push. Settled when a
-    Windows job plays the twelve games.
+    the reply, is not asked for while nothing waits on them. Unproven until a push. The Windows job
+    of `06b702a1` reached the games with the mends and played six of them, Pusher, Hopper, Swarm,
+    Rally, Manor and Tactics, in under eight minutes, and six failed: Summit, Tempo, Sumo and Jelly
+    did not open, e3d answering `NOT_READY` with the program exited before it was ready, Summit's
+    log ending as its physics world was disposed and Jelly's as its device came up on llvmpipe; and
+    Slide and Wordfall opened and died before their first command, which ended with 2. Every quoted
+    log line is information, none a warning, so a game ends there by a path that logs nothing, a
+    native death or an exit of its own, and the page cannot say which. Three things: e3d's answer
+    and the script's error carry what is known of the end, the exit code where the session or the
+    process gives one and the log's last lines whatever their level, and a game that exits in its
+    startup logs why at warning or worse before it goes; the Windows job's `LocalDumps` key covers
+    every process and not `testhost.exe` alone, the dumps listed on the page, so a game that dies
+    natively on llvmpipe leaves its stack; and the six are then mended by what the dumps and the
+    lines say, their shared cause first, five of the six being the five newest games and Summit the
+    sixth. Settled when a Windows job plays the twelve games.
 
 37. **The Windows jobs of `80227981` and `c4f248fd` fail the Cornell box frame and the offscreen
     leak test.** Read from the pages: 1,505 passed, 2 failed, 12 skipped and 1 without a result at
@@ -211,7 +233,9 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
     nothing, the job turns on Windows' own dumps for the test host through the `LocalDumps` key into
     the same folder, read as a `.dmp` by `dotnet-dump` or WinDbg, so the death's own stack is on the
     artifacts. Mended at `0ad8636f`, the progress line carrying the ledger, the handles and the GUI
-    objects, and Windows' own dumps kept. Settled when a Windows job passes both tests.
+    objects, and Windows' own dumps kept. The Windows job of `06b702a1` passed both, so the death is
+    intermittent, and the readings tell when it next comes. Settled when a Windows job passes both
+    tests.
 ## Decisions
 
 1. **Commits stay local.** The owner pushes `main` from their own tools, and the working session
@@ -305,39 +329,13 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2's ray-query path is in, the last of phase three:
-
-- **Device.** `VK_KHR_acceleration_structure`, `VK_KHR_ray_query` and buffer device addresses are
-  turned on where the driver has them, and the log says so.
-- **Shader build.** The model pass is compiled a second time with `RAY_QUERY` defined, `slangc`'s
-  `-D` now part of a cache entry's key, and `e3d shaders` compiles that build into a program's
-  cache beside the plain one. Its lights' set holds the GPU's rays' scene at bindings 28 to 30, a
-  new `AccelerationStructure` descriptor kind.
-- **Scene.** `GraphicsDevice.RayQuery` builds a bottom-level structure of each mesh the field
-  gathered, the skinned left out, the first frame it is drawn, from its corners kept in one buffer.
-  At `High` the top-level structure of every copy is built again each frame, with each copy's color
-  and light given off in one of a ring of buffers, a buffer for each frame in flight. Every object
-  is in the ledger as Verdict 37 counts them.
-- **Tracing.** A reflection whose ray the field misses traces it through the GPU's rays, and the
-  triangle it meets is lit by the lamps, the sun through a second ray, and the bounce or the sky.
-- **Commands.** `gi.rays off` and `on` switch the path in a running program, and `gi.state` says
-  how many copies of how many meshes the rays see and the memory they take.
-- **Measured.** In `shaders_reflections` at `High` on the RTX 4070, frame rate unlimited: 8 copies
-  of 6 meshes in 1.23 MB. `global_illumination` reads 0.49 ms with the rays and 0.46 to 0.47
-  without, the top-level rebuild. `hdr_scene` reads 0.32 to 0.34 against 0.29 to 0.35, within its
-  noise, the hall's rays seldom leaving the field.
-- **Test.** A mirror shows a green block twenty-five units behind the camera, past the field's one
-  cascade, at `High` (23.6, 133.3, 30.2), where `Medium` shows the gray of the ambient light. The
-  test needs ray queries and is skipped with its reason elsewhere.
-- **Lavapipe.** A device that draws on its CPU leaves ray queries off. Lavapipe of Mesa 25.2
-  crashed the test host in the model pass's fragment stage at its first ray query, an any-hit
-  query alone included, though the structures it built in a test of their own passed the
-  validation layer. So CI tests this path nowhere, and the RTX 4070 alone draws it.
-- **Lavapipe, a second fault.** The model pass built without ray queries also crashed lavapipe at
-  the glossy frame when `directLight`'s lamp loop moved into a function of its own. The fault was a
-  null pointer read from a table in its compiled shader, bisected to that one change and not run
-  down. That code keeps the shape lavapipe draws, the ray-query build has a lamp loop of its own,
-  and TODO.md says so.
-- The suite: 1,528 passed. Lavapipe under validation ran the whole suite, 1,509 passed and 17
-  skipped.
+Item 3, TODO.md's order, begins with its first entry that has work left, the models'. An entity's
+`AnimatedModel` played only in the app the flat API ran against, the one `InitWindow` built, and
+an app a program built itself warned and drew nothing. `AnimatedModelDraws` is given its app by
+the render plugin, makes the flat API run against it while it loads, poses and records where
+another app or none is the one the flat API runs against, and gives it back after. A test plays an
+entity's clip through its own app while the flat API runs against none and then against another,
+and finds the flat API given back each time. The entry's other gap stands: a mesh posed on the GPU
+keeps its vertices at rest on the CPU, so a collider made from it is at rest. The suite: 1,529
+passed.
 
