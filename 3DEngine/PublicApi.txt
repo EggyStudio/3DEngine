@@ -510,6 +510,16 @@ sealed class Engine.DefaultPlugins : IPlugin, IPluginGroup
   DefaultPlugins()
   IEnumerable<IPlugin> GetPlugins()
   void Build(App app)
+readonly struct Engine.DespawnOnEnter<TState> : IEquatable<DespawnOnEnter<TState>> where TState : struct, Enum
+  DespawnOnEnter(TState Value)
+  TState Value { get; init; }
+  bool Equals(DespawnOnEnter<TState> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DespawnOnEnter<TState> left, DespawnOnEnter<TState> right)
+  static bool op_Inequality(DespawnOnEnter<TState> left, DespawnOnEnter<TState> right)
+  void Deconstruct(out TState Value)
 readonly struct Engine.DespawnOnExit<TState> : IEquatable<DespawnOnExit<TState>> where TState : struct, Enum
   DespawnOnExit(TState Value)
   TState Value { get; init; }
@@ -520,6 +530,16 @@ readonly struct Engine.DespawnOnExit<TState> : IEquatable<DespawnOnExit<TState>>
   static bool op_Equality(DespawnOnExit<TState> left, DespawnOnExit<TState> right)
   static bool op_Inequality(DespawnOnExit<TState> left, DespawnOnExit<TState> right)
   void Deconstruct(out TState Value)
+readonly struct Engine.DespawnWhen<TState> : IEquatable<DespawnWhen<TState>> where TState : struct, Enum
+  DespawnWhen(Func<StateTransition<TState>, bool> Rule)
+  Func<StateTransition<TState>, bool> Rule { get; init; }
+  bool Equals(DespawnWhen<TState> other)
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(DespawnWhen<TState> left, DespawnWhen<TState> right)
+  static bool op_Inequality(DespawnWhen<TState> left, DespawnWhen<TState> right)
+  void Deconstruct(out Func<StateTransition<TState>, bool> Rule)
 sealed class Engine.EcsCommands
   EcsCommands Add<T>(int entity, T? component)
   EcsCommands Despawn(int entity)
@@ -564,9 +584,13 @@ sealed class Engine.EcsWorld : IDisposable
   void Add<T>(Entity entity, T? component)
   void Add<T>(int entity, T? component)
   void Despawn(int entity)
+  void DespawnOnEnter<TState>(Entity entity, TState value) where TState : struct, Enum
+  void DespawnOnEnter<TState>(int entity, TState value) where TState : struct, Enum
   void DespawnOnExit<TState>(Entity entity, TState value) where TState : struct, Enum
   void DespawnOnExit<TState>(int entity, TState value) where TState : struct, Enum
   void DespawnRecursive(int entity)
+  void DespawnWhen<TState>(Entity entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
+  void DespawnWhen<TState>(int entity, Func<StateTransition<TState>, bool> rule) where TState : struct, Enum
   void Dispose()
   void SetName(int entity, string name)
   void Update<T>(Entity entity, T? component)

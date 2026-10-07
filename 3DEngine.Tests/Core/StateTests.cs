@@ -266,6 +266,63 @@ public class StateTests
     }
 
     [Fact]
+    public void An_Entity_Tied_To_Entering_A_Value_Goes_Before_Its_Enter_Systems_Run()
+    {
+        var (app, _) = Machine();
+        new EcsPlugin().Build(app);
+        var ecs = app.World.Resource<EcsWorld>();
+        Entity notice = default, fresh = default;
+        // A notice put up on leaving the menu, which says it will come back, and one the menu puts
+        // up each time it is entered.
+        app.OnExit(Screen.Menu, _ =>
+        {
+            notice = ecs.Handle(ecs.Spawn());
+            ecs.DespawnOnEnter(notice, Screen.Menu);
+        });
+        app.OnEnter(Screen.Menu, _ =>
+        {
+            fresh = ecs.Handle(ecs.Spawn());
+            ecs.DespawnOnEnter(fresh, Screen.Menu);
+        });
+        app.Frame();
+        var first = fresh;
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        ecs.IsAlive(notice).Should().BeTrue("the menu has not been entered again");
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Menu);
+        app.Frame();
+        ecs.IsAlive(notice).Should().BeFalse("entering the menu took the notice");
+        ecs.IsAlive(first).Should().BeFalse("and the one the menu put up the time before");
+        ecs.IsAlive(fresh).Should().BeTrue("the enter systems ran after the despawn, so what they spawned stays");
+    }
+
+    [Fact]
+    public void An_Entity_Tied_To_A_Rule_Goes_At_The_First_Transition_It_Answers_True_For()
+    {
+        var (app, _) = Machine();
+        new EcsPlugin().Build(app);
+        var ecs = app.World.Resource<EcsWorld>();
+        app.Frame();
+        var hint = ecs.Spawn();
+        var seen = new List<StateTransition<Screen>>();
+        ecs.DespawnWhen<Screen>(hint, transition =>
+        {
+            seen.Add(transition);
+            return transition.To is Screen.Paused;
+        });
+
+        app.World.Resource<NextState<Screen>>().Set(Screen.Playing);
+        app.Frame();
+        ecs.IsAlive(hint).Should().BeTrue("Playing is not what the rule waits for");
+        app.World.Resource<NextState<Screen>>().Set(Screen.Paused);
+        app.Frame();
+        ecs.IsAlive(hint).Should().BeFalse();
+        seen.Should().Equal(new StateTransition<Screen>(Screen.Menu, Screen.Playing), new StateTransition<Screen>(Screen.Playing, Screen.Paused));
+    }
+
+    [Fact]
     public void An_Entity_Tied_To_A_Sub_State_Goes_When_Its_Parent_Leaves_Its_Value()
     {
         var (app, _) = Machine();

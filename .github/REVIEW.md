@@ -187,3 +187,17 @@ reader alone, as the coverage fonts are. `LoadFontEx`'s remarks said a joined se
 characters apart and COLR version 1 was not read, and say what is drawn. A test, and the entry
 keeps text shaped only in emoji, sbix, and CFF outlines past U+FFFF. The 120 render and font tests
 pass on lavapipe under the layer. The suite: 1,451 passed, none skipped.
+
+**Now 4, an entity that goes as a state is entered or by a rule.** `DespawnOnEnter` and `DespawnWhen`
+sit beside `DespawnOnExit`, as components an `EcsWorld` call adds, each taking what is below the
+entity with it. One tied to entering a value goes as the state enters it, before its enter systems,
+so what they spawn stays, the first value's entering included. One tied to a rule goes at the first
+transition the rule answers true for, asked after the exit systems of the value left and before the
+enter systems of the value entered, and at a sub-state's going away. The rule is a delegate held in
+the component, so it goes with its entity, and one that throws is logged and taken as false. Here
+the transition is the engine's own, so both act in the frame it happens, where BevyCSharp asks its
+rules the frame after. A test each in `StateTests`, a paragraph of the states guide and the
+cheatsheet's line. The suite: 1,453 passed, none skipped.
+
+Shared: `DespawnOnEnter` and `DespawnWhen` over the engine's own transitions, acting in the frame of
+the transition.

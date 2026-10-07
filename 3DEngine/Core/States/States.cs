@@ -151,6 +151,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         {
             Run(_exit, from, world);
             DespawnTied(world, from);
+            if (world.TryGetResource<EcsWorld>(out var ecs)) ecs.DespawnByRule(new StateTransition<TState>(from, null), Logger);
         }
         world.RemoveResource<State<TState>>();
         world.RemoveResource<NextState<TState>>();
@@ -176,6 +177,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         if (!_entered)
         {
             _entered = true;
+            DespawnEntering(world, null, state.Current);
             Run(_enter, state.Current, world);
             Moved(world, null, state.Current);
             return true;
@@ -191,6 +193,7 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
         state.Previous = from;
         state.Current = target;
         Logger.Info($"State {typeof(TState).Name}: {from} -> {target}");
+        DespawnEntering(world, from, target);
         foreach (var (key, to, desc) in _transition)
             if (Same.Equals(key, from) && Same.Equals(to, target))
                 RunOne(desc, world, from);
@@ -203,6 +206,15 @@ internal sealed class StateMachine<TState> : IStateMachine where TState : struct
     private static void DespawnTied(World world, TState value)
     {
         if (world.TryGetResource<EcsWorld>(out var ecs)) ecs.DespawnTiedTo(value);
+    }
+
+    // The entities whose rule takes the move and those tied to entering the value entered, despawned
+    // before its enter systems run, so what they spawn is not taken with them.
+    private static void DespawnEntering(World world, TState? from, TState to)
+    {
+        if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
+        ecs.DespawnByRule(new StateTransition<TState>(from, to), Logger);
+        ecs.DespawnEntering(to);
     }
 
     // Runs one after another in the order registered, because a transition is a sequence (save,

@@ -708,6 +708,9 @@ public static InGame? FromScreen(Screen screen) => screen is Screen.Playing ? In
 
 An entity tied to a value with `ecs.DespawnOnExit(entity, Screen.Playing)` is despawned, with what is
 below it, when the state leaves that value, so a level goes with the state that built it.
+`ecs.DespawnOnEnter(entity, Screen.Menu)` takes it as the state enters the value, before its enter
+systems, and `ecs.DespawnWhen<Screen>(entity, t => t.To is Screen.Paused)` at the first transition the
+rule answers true for.
 
 ## Scenes
 

@@ -110,6 +110,16 @@ var enemy = ctx.Ecs.Spawn();
 ctx.Ecs.DespawnOnExit(enemy, Screen.Playing);
 ```
 
+`DespawnOnEnter` is the other edge, for what should be gone by the time a value comes back, such as
+a notice put up on leaving it, and it goes before the value's enter systems run, so what they
+spawn stays. Where neither edge says it, a rule over the transition does, and the entity goes at
+the first transition the rule answers true for:
+
+```csharp
+ctx.Ecs.DespawnOnEnter(notice, Screen.Menu);
+ctx.Ecs.DespawnWhen<Screen>(hint, transition => transition.To is Screen.Paused or Screen.Menu);
+```
+
 ## States within states
 
 A sub-state exists only while another state is at a value, as a pause that has a meaning only
