@@ -311,9 +311,10 @@ probe's middle, lit by the capture's lights, so a fire in a room glows in its me
 to 16 into one uniform buffer per frame, which `ModelRenderer` binds as a second descriptor set
 from a ring of one per frame in flight. A `Light` is a kind (directional, point, spot or ambient),
 a color, an intensity, a range and a spot's inner and outer angles, and each is one 64-byte entry.
-`modelpass.slang` adds each light by Lambert's cosine: a directional light by its direction, an
-ambient light everywhere alike, and a point or spot by the square of the distance, brought smoothly
-to nothing at its range and cut by a spot's cone. The light that arrives is reflected by the
+`lights.slang`, which `modelpass.slang` imports beside the set it reads (`lightset.slang`), adds
+each light by Lambert's cosine: a directional light by its direction, an ambient light everywhere
+alike, and a point or spot by the square of the distance, brought smoothly to nothing at its range
+and cut by a spot's cone. The light that arrives is reflected by the
 material's metallic-roughness model. Each light but an ambient one reflects by GGX's
 distribution, Smith's height-correlated shadowing and Schlick's Fresnel, toward a camera the
 shader finds from the transform alone, since the push constants have no room for its position,
@@ -552,7 +553,7 @@ puts the result in place of the diffuse light from all around, the environment m
 lights' and the reflection probes', which reaches a surface only through the rays that meet nothing.
 
 A glossy surface traces its reflection in the model pass (`tracedReflection` in
-`modelpass.slang`), where it has its own normal, its normal map's included, and its roughness, so
+`lights.slang`), where it has its own normal, its normal map's included, and its roughness, so
 only a fragment under a roughness of 0.5 traces and a scene of rough surfaces pays nothing. The
 mirror ray is stepped through the window's half-size depth of this frame, 12, 16 or 24 steps by the
 quality, spaced more finely near the surface, and the step it meets a surface in is halved five

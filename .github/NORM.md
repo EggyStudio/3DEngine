@@ -285,7 +285,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
 | N 1.2 | checked, `NormTests` | listed 188, `NormTests` |
 | N 1.3 | checked, `NormTests` | listed 11, `NormTests`, 8 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 14 left out | listed 79, `NormTests`, 28 left out |
+| N 1.4 | checked, `NormTests`, 14 left out | listed 77, `NormTests`, 28 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
 | N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | checked, `PublicSurfaceTests` and `PublicApi.txt` |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
@@ -300,7 +300,7 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 3.1 | by review | by review |
 | N 3.2 | by review | by review |
 | N 3.3 | checked, `NormTests`, 7 left out | checked, `NormTests`, 6 left out |
-| N 3.4 | checked, `NormTests` | listed 41, `NormTests` |
+| N 3.4 | checked, `NormTests` | listed 39, `NormTests` |
 | N 3.5 | by review | by review |
 | N 3.6 | by review | by review |
 | N 3.7 | checked, `FailOnLoggedErrors` | checked, `FailOnLoggedErrors` |

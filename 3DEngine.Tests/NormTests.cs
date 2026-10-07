@@ -68,8 +68,9 @@ public sealed partial class NormTests
     [Fact]
     public void N_1_3()
     {
+        // The Slang shaders count as the C# does, as BevyCSharp's test counts its Rust bridge.
         var found = new[] { "3DEngine/", "3DEngine.Tests/", "3DEngine.Examples/" }
-            .SelectMany(project => Files(project, ".cs"))
+            .SelectMany(project => Files(project, ".cs").Concat(Files(project, ".slang")))
             .Where(file => File.ReadLines(Path.Combine(Root, file)).Count() > 800);
 
         Hold("1.3", found, "a file of more than 800 lines");
