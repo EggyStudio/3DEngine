@@ -84,6 +84,14 @@ internal sealed class RenderPlugin : IPlugin
 
         app.World.InitResource<DrawList>();
         app.World.InitResource<ModelDrawList>();
+        // The scene's distance field the app starts with, which SetSceneField changes later.
+        if (cfg.SceneField.Cascades > 0)
+            app.World.InsertResource(new SceneFieldSettings
+            {
+                Cascades = cfg.SceneField.Cascades,
+                CellSize = cfg.SceneField.CellSize,
+                UpdateBudget = cfg.SceneField.UpdateBudget,
+            });
         app.World.InitResource<TextureStore>();
         app.World.InitResource<MeshStore>();
         app.World.InitResource<ShaderStore>();

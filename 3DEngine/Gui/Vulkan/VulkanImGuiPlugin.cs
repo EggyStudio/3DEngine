@@ -42,6 +42,8 @@ internal sealed class VulkanImGuiPlugin : IPlugin
                 renderer.Graph.AddNodeEdge("main_pass", "imgui");
                 if (renderer.Graph.ContainsNode("immediate"))
                     renderer.Graph.AddNodeEdge("immediate", "imgui");
+                if (renderer.Graph.ContainsNode("scene_field_view"))
+                    renderer.Graph.AddNodeEdge("scene_field_view", "imgui");
 
                 Logger.Info("ImGuiRenderNode registered in render graph (after 'main_pass').");
             }, "VulkanImGuiPlugin.Startup")

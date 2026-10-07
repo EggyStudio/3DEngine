@@ -118,6 +118,12 @@ public sealed record Config
     /// </summary>
     public double FrameSeconds { get; init; }
 
+    /// <summary>
+    /// The scene's distance field the app starts with, which ambient occlusion, the sun's contact
+    /// shadows and particles read, none unless its cascades are set.
+    /// </summary>
+    public SceneFieldConfig SceneField { get; init; } = new();
+
     /// <summary>Returns a copy with the provided window properties.</summary>
     /// <param name="title">Window title bar text.</param>
     /// <param name="width">Window width in pixels.</param>

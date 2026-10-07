@@ -48,6 +48,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         if (BloomRenderer.IsOn(renderWorld)) windowUbo.Output.X = 1;
         // Only the window's view has an occlusion of its own, which it is darkened by.
         if (renderWorld.TryGet<AmbientOcclusionSettings>() is { On: true }) windowUbo.AmbientOcclusion.X = 1;
+        // And the sun's contact shadows through the scene's distance field, which that pass traces.
+        if (AmbientOcclusionRenderer.ContactShadows(renderWorld) is not null) windowUbo.AmbientOcclusion.Y = 1;
         var binding = Upload(allocator, in windowUbo);
         renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null, windowUbo.Output.X > 0));
 

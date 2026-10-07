@@ -17,7 +17,10 @@ internal sealed class AmbientOcclusionSettings
     public bool On => Intensity > 0 && Radius > 0;
 }
 
-/// <summary>The window's ambient occlusion this frame, which the model pass binds for the window's view.</summary>
+/// <summary>
+/// The window's ambient occlusion this frame in red and the share of the sun's light its contact
+/// shadows let through in green, which the model pass binds for the window's view.
+/// </summary>
 internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 
 /// <summary>
@@ -25,6 +28,10 @@ internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 /// its pass, the occlusion worked out from it, and two passes that blur it along each axis without
 /// crossing an edge (<c>ao.slang</c>). The model pass multiplies its ambient, environment and
 /// probe light by it, and not the light of lights, which reaches a corner as well as a wall.
+/// Where the scene's distance field is built, the occlusion pass also reads the occlusion from it
+/// and traces the sun's light through it, the share that arrives in the image's green channel,
+/// which the model pass multiplies the shadowed directional light by, so the pass runs for the
+/// sun's contact shadows alone where the occlusion is off.
 /// </summary>
 /// <remarks>
 /// The images are made at half the window's size the first frame it is on and again when the
@@ -37,8 +44,14 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     private struct Push
     {
         public Matrix4x4 InverseViewProjection;
-        public Vector4 EyeAndRadius, TexelAndStrength, Mode;
+        public Vector4 EyeAndRadius, TexelAndStrength, Mode, SunAndReach;
     }
+
+    /// <summary>
+    /// How many cells of the finest cascade of the scene's distance field the sun's contact
+    /// shadows are traced across.
+    /// </summary>
+    internal const int ContactCells = 32;
 
     private readonly ReadOnlyMemory<byte> _vertexSpv, _fragmentSpv;
     private readonly DescriptorSetLayoutBinding[] _bindings;
@@ -52,10 +65,11 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
     // What is made for one size of the window: the depth, the occlusion and the image between the
     // blurs, and the set each of the three passes reads through.
-    private sealed class Sized(Extent2D extent, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
+    private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
         IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown) : IDisposable
     {
         public Extent2D Extent { get; } = extent;
+        public GpuSceneField Field { get; } = field;
         public ShadowMap Depth { get; } = depth;
         public RenderTarget Occlusion { get; } = occlusion;
         public RenderTarget Across { get; } = across;
@@ -78,17 +92,34 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     public AmbientOcclusionRenderer(ShaderProgram ao) => (_vertexSpv, _fragmentSpv, _bindings) = (ao.Vertex, ao.Fragment, ao.LayoutOf(0));
 
     /// <summary>
+    /// The way toward the frame's shadowed directional light, the sun, and how far its contact
+    /// shadows reach, where the scene's distance field is built and there is such a light, which
+    /// the model pass reads the image's green channel for.
+    /// </summary>
+    internal static (Vector3 TowardSun, float Reach)? ContactShadows(RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<SceneFieldSettings>() is not { On: true } field || renderWorld.TryGet<FrameShadow>() is not { } shadow
+            || renderWorld.TryGet<RenderLights>() is not { } lights || shadow.Light < 0 || shadow.Light >= lights.All.Count
+            || lights.All[shadow.Light].Kind != LightKind.Directional)
+            return null;
+        return (-lights.All[shadow.Light].Direction, ContactCells * field.CellSize);
+    }
+
+    /// <summary>
     /// Draws the window's depth and works out its occlusion as <see cref="AmbientOcclusionSettings"/> say,
-    /// setting <see cref="AmbientOcclusionImage"/> for the model pass, or lets the images go and
-    /// removes it when it is off or the window has no camera.
+    /// and the sun's contact shadows where the scene's distance field is built, setting
+    /// <see cref="AmbientOcclusionImage"/> for the model pass, or lets the images go and removes it
+    /// when both are off or the window has no camera.
     /// </summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
     {
         Retire();
         var settings = renderWorld.TryGet<AmbientOcclusionSettings>();
-        if (settings is not { On: true } || renderWorld.TryGet<WindowView>() is not { } view
+        var sun = ContactShadows(renderWorld);
+        if (settings is not { On: true } && sun is null || renderWorld.TryGet<WindowView>() is not { } view
             || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain || renderContext.Device is not GraphicsDevice device
-            || renderWorld.TryGet<ModelRenderer>() is not { } models || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
+            || renderWorld.TryGet<ModelRenderer>() is not { } models || renderWorld.TryGet<SceneFieldBinding>() is not { } field
+            || !Matrix4x4.Invert(view.ViewProjection, out var inverse))
         {
             Release();
             renderWorld.Remove<AmbientOcclusionImage>();
@@ -96,15 +127,17 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         }
 
         var extent = new Extent2D(Math.Max(1, swapchain.Extent.Width / 2), Math.Max(1, swapchain.Extent.Height / 2));
-        var sized = Ensure(device, extent);
+        var sized = Ensure(device, extent, field.Field);
         models.DrawDepth(renderContext, renderWorld, sized.Depth);
 
+        var on = settings is { On: true };
         var push = new Push
         {
             InverseViewProjection = inverse,
-            EyeAndRadius = new Vector4(view.Eye, settings.Radius),
-            TexelAndStrength = new Vector4(1f / extent.Width, 1f / extent.Height, settings.Intensity, HeightPerUnit(inverse)),
-            Mode = new Vector4(0, (float)swapchain.Extent.Width / Math.Max(1, swapchain.Extent.Height), 0, 0),
+            EyeAndRadius = new Vector4(view.Eye, on ? settings!.Radius : 1),
+            TexelAndStrength = new Vector4(1f / extent.Width, 1f / extent.Height, on ? settings!.Intensity : 0, HeightPerUnit(inverse)),
+            Mode = new Vector4(0, (float)swapchain.Extent.Width / Math.Max(1, swapchain.Extent.Height), on ? 1 : 0, 0),
+            SunAndReach = sun is var (toward, reach) ? new Vector4(toward, reach) : Vector4.Zero,
         };
         Pass(renderContext, sized.Occlusion, sized.Occlude, push);
         push.Mode.X = 1;
@@ -142,9 +175,9 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         pass.Draw(3);
     }
 
-    private Sized Ensure(GraphicsDevice device, Extent2D extent)
+    private Sized Ensure(GraphicsDevice device, Extent2D extent, GpuSceneField field)
     {
-        if (_sized is { } made && made.Extent == extent) return made;
+        if (_sized is { } made && made.Extent == extent && ReferenceEquals(made.Field, field)) return made;
         if (_sized is { } old) _retired.Add((_frame, old));
 
         _vertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _vertexSpv));
@@ -173,9 +206,11 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             var set = device.CreateDescriptorSet(_layout);
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(depth.DepthView, depth.Sampler, 0));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(read, depth.Sampler, 1));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(field.View, field.Sampler, 2));
+            device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, 3, 0, GpuSceneField.InfoBytes), null);
             return set;
         }
-        return _sized = new Sized(extent, depth, occlusion, across, Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView));
+        return _sized = new Sized(extent, field, depth, occlusion, across, Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView));
     }
 
     // Lets the images go, once no frame in flight reads them, on a frame it is off.

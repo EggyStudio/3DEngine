@@ -28,6 +28,8 @@ internal sealed class LightExtract : IExtractSystem
         else renderWorld.Remove<AmbientOcclusionSettings>();
         if (world.TryGetResource<FrameEffects>(out var effects)) renderWorld.Set(effects);
         else renderWorld.Remove<FrameEffects>();
+        if (world.TryGetResource<SceneFieldSettings>(out var field)) renderWorld.Set(field);
+        else renderWorld.Remove<SceneFieldSettings>();
 
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
 

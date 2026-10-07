@@ -237,6 +237,37 @@ scenes. It is worked out for the window from a depth of its models drawn at half
 about a tenth of a millisecond on a desktop GPU, so a model that casts no shadow darkens nothing
 around it, and a render texture is drawn without it. `games/Manor` turns it on for its rooms.
 
+## The scene as a distance field
+
+What the window's depth does not hold, a pass that reads it knows nothing of. A wall behind the
+camera closes off no light, and a particle that flies past the edge of the picture meets nothing.
+`SetSceneField` builds a distance field of the scene around the camera, how far each point is from
+the nearest surface of the meshes that cast shadows, which the GPU keeps from frame to frame:
+
+```csharp
+SetSceneField(4);                 // four cascades, the finest's cells 0.25 units wide
+```
+
+Three things read it while it is on. Ambient occlusion, where `SetAmbientOcclusion` turns it on,
+also reads the field along each surface's normal and four ways leaning from it, so a wall out of
+the picture still darkens the floor beside it. The sun, the first directional light that casts
+shadows, casts soft contact shadows traced toward it through the field across 32 cells of the
+finest cascade, sharp where a caster meets what it falls on and softer farther off. And a particle
+emitter that collides meets the field wherever it holds the particle, behind things and off the
+screen, and the window's depth elsewhere.
+
+The field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so
+four cascades of 0.25 reach 16 units across in the first and 128 in the last, and a thing much
+thinner than a cell is not in it. A mesh drawn in the same place for eight frames is built into the
+cascades around it from its triangles, and one that moves is stamped each frame as the box around
+it. A cascade is built again where the camera has gone past it or a mesh came or went, as many a
+frame as the third argument says, one by default, the finest first. In `shaders_scene_field` on a
+laptop's RTX 4070, a frame that stamps its moving crate takes 0.014 ms on the GPU and building the
+finest cascade 0.25 ms, and the occlusion pass takes 0.073 ms with the field where it took 0.036
+without, as `./e3d command profile` shows them, `field.rebuild 400` building a cascade every frame
+for the second. `Config.SceneField` sets the same for an app made from a `Config`, and
+`./e3d command field.show 0` draws the first cascade over the window as the field holds the scene.
+
 ## Rooms that reflect themselves
 
 Indoors, metal would reflect the sky through the walls. A reflection probe is a box whose surfaces
@@ -283,6 +314,7 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
 - Examples: [`models_skybox`](../3DEngine.Examples/Models/ModelsSkybox.cs),
   [`models_reflection_probe`](../3DEngine.Examples/Models/ModelsReflectionProbe.cs),
   [`shaders_shadowmap`](../3DEngine.Examples/Shaders/ShadersShadowmap.cs),
+  [`shaders_scene_field`](../3DEngine.Examples/Shaders/ShadersSceneField.cs),
   [`shaders_bloom`](../3DEngine.Examples/Shaders/ShadersBloom.cs),
   [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),

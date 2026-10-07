@@ -128,17 +128,20 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkCreateDescriptorSetLayout(&setInfo, null, out var setLayout).CheckResult();
         _particleSetLayout = setLayout;
 
-        // The second set: the scene's depth and the view it was drawn through.
-        var viewBindings = stackalloc VkDescriptorSetLayoutBinding[2];
+        // The second set: the scene's depth and the view it was drawn through, and the scene's
+        // distance field and where its cascades lie.
+        var viewBindings = stackalloc VkDescriptorSetLayoutBinding[4];
         viewBindings[0] = new VkDescriptorSetLayoutBinding { binding = 0, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
         viewBindings[1] = new VkDescriptorSetLayoutBinding { binding = 1, descriptorType = VkDescriptorType.UniformBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
-        var viewInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 2, pBindings = viewBindings };
+        viewBindings[2] = new VkDescriptorSetLayoutBinding { binding = 2, descriptorType = VkDescriptorType.CombinedImageSampler, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        viewBindings[3] = new VkDescriptorSetLayoutBinding { binding = 3, descriptorType = VkDescriptorType.UniformBuffer, descriptorCount = 1, stageFlags = VkShaderStageFlags.Compute };
+        var viewInfo = new VkDescriptorSetLayoutCreateInfo { bindingCount = 4, pBindings = viewBindings };
         _deviceApi.vkCreateDescriptorSetLayout(&viewInfo, null, out var viewLayout).CheckResult();
         _particleViewLayout = viewLayout;
 
         var sizes = stackalloc VkDescriptorPoolSize[2];
-        sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = MaxFramesInFlight };
-        sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = MaxFramesInFlight };
+        sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.CombinedImageSampler, descriptorCount = 2 * MaxFramesInFlight };
+        sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 2 * MaxFramesInFlight };
         var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = MaxFramesInFlight, poolSizeCount = 2, pPoolSizes = sizes };
         _deviceApi.vkCreateDescriptorPool(&poolInfo, null, out _particleViewPool).CheckResult();
         for (int i = 0; i < MaxFramesInFlight; i++)
@@ -159,13 +162,17 @@ internal sealed unsafe partial class GraphicsDevice
         (_particlePipeline, _particleLayout) = ParticleCompute(spirv, (uint)sizeof(ParticleStep), _particleViewLayout);
     }
 
+    // A field of nothing for the particles' set where the frame has no field bound.
+    private GpuSceneField? _noField;
+
     /// <summary>
     /// Sets the scene's depth the particles stepped after this in the frame meet, and the view it
     /// was drawn through, or with <paramref name="view"/>'s <see cref="ParticleView.Depth"/> 0 none,
-    /// <paramref name="depth"/> then any image the shader can sample. Called once a frame before
-    /// the first step.
+    /// <paramref name="depth"/> then any image the shader can sample, and the scene's distance
+    /// field they meet first where it holds them, or none where <paramref name="field"/> is null.
+    /// Called once a frame before the first step.
     /// </summary>
-    public void SetParticleView(IImageView depth, ISampler sampler, in ParticleView view)
+    public void SetParticleView(IImageView depth, ISampler sampler, in ParticleView view, GpuSceneField? field = null)
     {
         if (!CanStepParticles || _particleViewBuffers[_currentFrame] is not VulkanBuffer buffer) return;
         var bytes = Map(buffer);
@@ -179,8 +186,19 @@ internal sealed unsafe partial class GraphicsDevice
             imageView = ((VulkanImageView)depth).View,
             imageLayout = VkImageLayout.ShaderReadOnlyOptimal,
         };
-        var write = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfo };
-        _deviceApi.vkUpdateDescriptorSets(1, &write, 0, null);
+        field ??= _noField ??= CreateSceneField(1, 1);
+        var fieldImage = new VkDescriptorImageInfo
+        {
+            sampler = ((VulkanSampler)field.Sampler).Sampler,
+            imageView = ((VulkanImageView)field.View).View,
+            imageLayout = VkImageLayout.ShaderReadOnlyOptimal,
+        };
+        var fieldInfo = new VkDescriptorBufferInfo { buffer = ((VulkanBuffer)field.Info).Buffer, offset = 0, range = GpuSceneField.InfoBytes };
+        var writes = stackalloc VkWriteDescriptorSet[3];
+        writes[0] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 0, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &imageInfo };
+        writes[1] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 2, descriptorCount = 1, descriptorType = VkDescriptorType.CombinedImageSampler, pImageInfo = &fieldImage };
+        writes[2] = new VkWriteDescriptorSet { dstSet = _particleViewSets[_currentFrame], dstBinding = 3, descriptorCount = 1, descriptorType = VkDescriptorType.UniformBuffer, pBufferInfo = &fieldInfo };
+        _deviceApi.vkUpdateDescriptorSets(3, writes, 0, null);
     }
 
     /// <summary>Makes the pipeline that sorts an emitter's particles from <c>particle_sort.slang</c>'s compute stage, once.</summary>
@@ -340,6 +358,8 @@ internal sealed unsafe partial class GraphicsDevice
             _particleViewBuffers[i]?.Dispose();
             _particleViewBuffers[i] = null;
         }
+        _noField?.Dispose();
+        _noField = null;
         _particlePipeline = default;
         _particleLayout = default;
         _particleSetLayout = default;

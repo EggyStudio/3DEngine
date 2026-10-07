@@ -116,6 +116,36 @@ public static partial class Engine3D
     }
 
     /// <summary>
+    /// Builds a distance field of the scene around the camera, in <paramref name="cascades"/>
+    /// cascades from 1 to 8, the finest's cells <paramref name="cellSize"/> world units wide, or
+    /// turns it off with 0 cascades, which it is by default. Ambient occlusion reads it beside the
+    /// window's depth, the sun casts soft contact shadows through it, and particles collide with it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The field holds how far each cell of a cascade is from the nearest surface of the meshes
+    /// drawn into the window that cast shadows. Each cascade is 64 cells a side, twice as coarse
+    /// and as wide as the one before, so the default of 0.25 reaches 16 units across in the first
+    /// and 128 in the fourth, and a thing much thinner than a cell is not there to it.
+    /// </para>
+    /// <para>
+    /// A mesh drawn in the same place for eight frames is built into the cascades around it from
+    /// its triangles on the GPU, and one that moves is stamped as the box around it each frame. A
+    /// cascade is built again where the camera has gone past it or a mesh came or went,
+    /// <paramref name="updateBudget"/> a frame at most, the finest first, so a game sets a larger
+    /// budget for a scene that changes and a smaller one for a slow GPU. The frame profile names
+    /// its cost as <c>scene_field</c>.
+    /// </para>
+    /// </remarks>
+    public static void SetSceneField(int cascades, float cellSize = SceneFieldConfig.DefaultCellSize, int updateBudget = SceneFieldConfig.DefaultUpdateBudget)
+    {
+        var field = World.GetOrInsertResource(static () => new SceneFieldSettings());
+        field.Cascades = Math.Clamp(cascades, 0, 8);
+        field.CellSize = Math.Max(1e-3f, cellSize);
+        field.UpdateBudget = Math.Max(1, updateBudget);
+    }
+
+    /// <summary>
     /// Sets the light from all around that keeps the side of a model away from every other light
     /// from going black, replacing the one set before, or removes it with an intensity of 0.
     /// </summary>

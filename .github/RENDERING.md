@@ -35,6 +35,9 @@ needs an offline toolchain beyond `slangc`.
   `MeshEntityDraws` records through each camera entity, lit by the light entities or, with
   none, drawn unlit as raylib draws them (§4).
 - **Shaders** are Slang, compiled to SPIR-V by `slangc` and cached (§1).
+- **A distance field of the scene** around the window's eye, in cascades built on the GPU from the
+  meshes that cast shadows, which ambient occlusion, the sun's contact shadows and particles read
+  (§4).
 - **A frame profile** of the schedule's stages, the renderer's steps and each pass on the CPU and
   the GPU, with two stress examples that find how much a frame holds (§6).
 
@@ -456,6 +459,48 @@ holds it, so no cube map's conventions have to agree with the matrices. The imag
 layout it is sampled in when it is made, so its layers can be bound before any is drawn, and until
 a point light casts a shadow a stand-in of two texels is bound in its place.
 
+### The scene's distance field
+
+`SetSceneField` builds a signed distance field of the meshes drawn into the window that cast
+shadows, in cascades of 64 cells a side around the window's eye, each twice as coarse and as wide
+as the one before, for the passes that need to know what the window's depth does not hold
+(`SceneFieldRenderer`, `GraphicsDevice.SceneField`). The cascades lie one after another along z in
+one 3D image of half floats, which every pass binds once with a uniform buffer saying where each
+lies (`scenefield.slang`). A cell holds its distance to the nearest surface in world units, below
+zero behind a face of a mesh that is not double-sided, exact within four cells and held at four
+beyond, so a trace through it steps at least that far through open space.
+
+A cascade's corner lies on a grid of eight of its cells, so it moves only when the eye has gone that
+far, and where it moves, or a still mesh came into it or left, it is built again, as many a frame as
+the budget allows, the finest first (`SceneFieldPlan`). Until then a cascade keeps the place and the
+meshes it was built with, which the uniform buffer says, so a pass never reads one cascade at
+another's place. A mesh is still when it has been drawn the same, mesh, vertices, matrix and sides,
+for eight frames running. Its triangles go into one buffer in its mesh's own space the first time a
+build needs them, so a build hands the GPU each instance's matrix and where its mesh's triangles
+start. A build clears a word a cell to the band, then a workgroup a triangle puts the triangle in
+the world and takes, for each cell within the band of its bounds, the distance to it in 1024ths of
+a cell above a bit set where the cell is in front of the face, keeping the least by an atomic
+minimum (`field_splat.slang`). Of two triangles as near, as a crate on the ground, the one the cell
+lies behind wins, the cell being inside some mesh, and a cell is behind a face only within 60
+degrees of straight back from it, so where an edge or a corner is nearest, as above a pillar's rim,
+a face the way runs along does not put the cell inside. A second pass turns the words into
+distances in both the image the meshes alone make and the one the passes read (`field_resolve.slang`).
+A mesh that moved more recently, a skinned one, and a still one whose cascades are not yet built
+again are stamped each frame as the box around their vertices in their own space, the 256 nearest
+the eye, into the bricks of four cells they come within the band of, each cell the least of the
+still image's distance and the boxes' (`field_stamp.slang`), and the bricks stamped the frame
+before are stamped again so a box that left one is gone.
+
+Three passes read it. `ao.slang` adds an occlusion read along the normal and four ways leaning from
+it at four distances out to the radius, and traces the sun's light toward the sun from a cell and a
+half out, darkened by how near a surface the ray passes as a share of how far along it is, its
+share in the occlusion image's green channel, which the model pass multiplies the shadowed
+directional light by, so the pass runs for the contact shadows alone where the occlusion is off.
+`particle_step.slang` steps a colliding particle's move through the field where the field holds the
+place it moves to, and meets the window's depth elsewhere. `field_view.slang` draws one cascade over
+the window as the field holds the scene, where `field.show` asks. The field is the window's alone,
+so render textures and probe captures are drawn without what it gives.
+
 ## 5. Render targets and post processing
 
 The window and every render target are drawn at `Config.Samples` samples a pixel, 4 by default,
@@ -810,7 +855,9 @@ run to run, with the runtime's compiler and collector in the frame.
 ## Order of work
 
 Normals and lights, Assimp's models with their materials, dynamic rendering with synchronization2,
-shadow cascades with point and spot shadows, and bloom and FXAA are built, in that order. What is
-left of the order is tonemapping as a full-screen pass in every frame, in place of the curve at the
-end of the model pass, which runs there while every effect over the frame is off and over the HDR
-frame while any is on (§5).
+shadow cascades with point and spot shadows, bloom and FXAA, and the scene's distance field are
+built, in that order. What is left of the order is light that bounces, as Radiance Cascades over the
+field, the first cascade's intervals through the depth buffer and the rest through the field, then
+glossy reflections through the field, and tonemapping as a full-screen pass in every frame, in place
+of the curve at the end of the model pass, which runs there while every effect over the frame is off
+and over the HDR frame while any is on (§5).

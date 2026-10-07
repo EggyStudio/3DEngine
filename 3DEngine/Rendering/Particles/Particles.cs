@@ -304,7 +304,8 @@ internal sealed class ParticleRenderer : IDisposable
             }
             models.DrawDepth(renderContext, renderWorld, _depth);
             device.SetParticleView(_depth.DepthView, _depth.Sampler,
-                new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = Vector4.UnitX });
+                new ParticleView { ViewProjection = view.ViewProjection, InverseViewProjection = inverse, Depth = Vector4.UnitX },
+                renderWorld.TryGet<SceneFieldBinding>()?.Field);
             return;
         }
 
@@ -314,7 +315,7 @@ internal sealed class ParticleRenderer : IDisposable
             _depth = null;
         }
         var (white, sampler) = textures.ViewFor(device, 0);
-        device.SetParticleView(white, sampler, default);
+        device.SetParticleView(white, sampler, default, renderWorld.TryGet<SceneFieldBinding>()?.Field);
     }
 
     private static void Release(State state)

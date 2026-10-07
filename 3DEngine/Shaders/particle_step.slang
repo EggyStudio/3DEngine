@@ -4,8 +4,10 @@
 // within a cone and its speed and life varied by a hash of its slot and the frame. Every other
 // particle alive ages, falls under gravity and is slowed by drag, and one past its life is left dead. The first
 // thread also writes what the draw reads of the emitter into the header before the particles.
-// An emitter that collides finds where each particle lands in the window's depth of the scene and,
-// where it has gone behind a surface it was in front of, bounces it off or ends its life there.
+// An emitter that collides finds where each particle's move meets a surface, through the scene's
+// distance field where the field holds the place it moves to, or in the window's depth of the scene
+// elsewhere, and bounces it off or ends its life there.
+import scenefield;
 
 struct Particle
 {
@@ -50,6 +52,13 @@ Sampler2D sceneDepth;
 
 [[vk::binding(1, 1)]]
 ConstantBuffer<ParticleView> view;
+
+// The scene's distance field and where its cascades lie, a field of nothing where it is off.
+[[vk::binding(2, 1)]]
+Sampler3D sceneField;
+
+[[vk::binding(3, 1)]]
+ConstantBuffer<SceneFieldInfo> fieldInfo;
 
 // What a particle does where it meets the scene's depth, as ParticleCollision numbers it.
 static const uint Bounce = 1;
@@ -129,6 +138,40 @@ bool meets(float3 was, float3 now, out float3 surface, out float3 normal, out fl
     return dot(was - surface, normal) >= 0.0 && behind > 0.0;
 }
 
+// Where a particle moving from was to now meets a surface of the scene's distance field: the
+// move stepped by the distance each point along it holds, until a point comes within a hundredth
+// of a unit of a surface, its nearest point on that surface, the field's slope there as its
+// normal, and how far behind the surface's plane now is. A particle that starts inside a mesh, as
+// one given off within one, meets nothing, so it is not held there.
+bool meetsField(float3 was, float3 now, out float3 surface, out float3 normal, out float behind)
+{
+    surface = now;
+    normal = float3(0, 1, 0);
+    behind = 0.0;
+    if (fieldDistance(sceneField, fieldInfo, was) < 0.0)
+        return false;
+    float3 path = now - was;
+    float length = max(sqrt(dot(path, path)), 1e-6);
+    float3 way = path / length;
+    float t = 0.0;
+    for (int i = 0; i < 24; i++)
+    {
+        float3 p = was + way * min(t, length);
+        float d = fieldDistance(sceneField, fieldInfo, p);
+        if (d <= 0.01)
+        {
+            normal = fieldNormal(sceneField, fieldInfo, p);
+            surface = p - normal * d;
+            behind = -dot(now - surface, normal);
+            return true;
+        }
+        if (t >= length)
+            return false;
+        t += max(d, 0.005);
+    }
+    return false;
+}
+
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -183,9 +226,14 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 now = positionAge.xyz + moved * seconds;
 
     uint collision = (push.counts.z >> 21u) & 3u;
-    float3 surface, normal;
-    float behind;
-    if (collision != 0u && view.depth.x > 0.5 && meets(positionAge.xyz, now, surface, normal, behind))
+    float3 surface = now, normal = float3(0, 1, 0);
+    float behind = 0.0;
+    bool met = false;
+    if (collision != 0u && fieldOn(fieldInfo) && fieldCascade(fieldInfo, now, 1.0) >= 0)
+        met = meetsField(positionAge.xyz, now, surface, normal, behind);
+    else if (collision != 0u && view.depth.x > 0.5)
+        met = meets(positionAge.xyz, now, surface, normal, behind);
+    if (met)
     {
         if (collision == Die)
         {

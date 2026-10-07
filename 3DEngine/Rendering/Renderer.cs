@@ -67,6 +67,9 @@ internal sealed class Renderer : IDisposable
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
             device.InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
             device.InitializeParticleSort(server.LoadSync<ShaderProgram>("shaders/particle_sort.slang").Compute);
+            device.InitializeSceneField(server.LoadSync<ShaderProgram>("shaders/field_splat.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/field_resolve.slang").Compute,
+                server.LoadSync<ShaderProgram>("shaders/field_stamp.slang").Compute);
             device.InitializeProbeFilter(server.LoadSync<ShaderProgram>("shaders/probe_gather.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_mips.slang").Compute,
                 server.LoadSync<ShaderProgram>("shaders/probe_prefilter.slang").Compute,
@@ -84,6 +87,8 @@ internal sealed class Renderer : IDisposable
             server.LoadSync<ShaderProgram>("shaders/dof.slang"), server.LoadSync<ShaderProgram>("shaders/motion_blur.slang"),
             server.LoadSync<ShaderProgram>("shaders/velocity.slang")));
         RenderWorld.Set(new AmbientOcclusionRenderer(server.LoadSync<ShaderProgram>("shaders/ao.slang")));
+        RenderWorld.Set(new SceneFieldRenderer());
+        RenderWorld.Set(new SceneFieldViewRenderer(server.LoadSync<ShaderProgram>("shaders/field_view.slang")));
         AddPrepareSystem(new ImmediateUploadPrepare());
 
         // Skinned meshes posed before anything draws them, then render targets, each drawing the
@@ -93,9 +98,13 @@ internal sealed class Renderer : IDisposable
         // A new environment map is filtered ahead of every pass that lights by it.
         Graph.AddNode("environment", new EnvironmentNode());
         Graph.AddNodeEdge("environment", "skinning");
+        // The scene's distance field is built after the skins are posed and before the particles
+        // that collide with it and every pass that reads it.
+        Graph.AddNode("scene_field", new SceneFieldNode());
+        Graph.AddNodeEdge("skinning", "scene_field");
         // Particles are stepped beside the skins, before every pass that might draw them.
         Graph.AddNode("particles", new ParticleNode());
-        Graph.AddNodeEdge("skinning", "particles");
+        Graph.AddNodeEdge("scene_field", "particles");
         Graph.AddNode("targets", new TargetsNode());
         Graph.AddNodeEdge("particles", "targets");
         Graph.AddNode("shadows", new ShadowNode());
@@ -117,6 +126,9 @@ internal sealed class Renderer : IDisposable
         Graph.AddNodeEdge("main_pass", "models");
         Graph.AddNode("immediate", new ImmediateNode());
         Graph.AddNodeEdge("models", "immediate");
+        // A cascade of the scene's distance field drawn over the window, where a command asks.
+        Graph.AddNode("scene_field_view", new SceneFieldViewNode());
+        Graph.AddNodeEdge("immediate", "scene_field_view");
         Logger.Debug("Default MainPassNode added to render graph.");
 
         // Pipeline cache deduplicates compiled pipelines across nodes.
@@ -319,6 +331,8 @@ internal sealed class Renderer : IDisposable
         RenderWorld.TryGet<ModelRenderer>()?.Dispose();
         RenderWorld.TryGet<BloomRenderer>()?.Dispose();
         RenderWorld.TryGet<AmbientOcclusionRenderer>()?.Dispose();
+        RenderWorld.TryGet<SceneFieldRenderer>()?.Dispose();
+        RenderWorld.TryGet<SceneFieldViewRenderer>()?.Dispose();
         Logger.Debug("Render graph nodes disposed.");
 
         // Pipeline cache must be disposed before the graphics device.

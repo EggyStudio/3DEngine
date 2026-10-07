@@ -137,17 +137,27 @@ physics, text and fonts, audio, audio streams and waves, and files
   lights, and each render target that draws meshes draws the map again for its own camera, with the
   point and spot lights chosen for the window's.
 
-- **Particles collide with what the window shows, and nothing else.** A `ParticleEmitter` gives off
+- **Light does not bounce.** The scene's distance field (`SetSceneField`) is the first of the phases
+  global illumination comes in, cascades around the camera built on the GPU from the meshes that
+  cast shadows, which ambient occlusion, the sun's soft contact shadows and particles read
+  (RENDERING.md §4). Light reflected from one surface onto another, which Radiance Cascades over the
+  field would carry, and glossy reflections traced through it are not made. In the field a mesh much
+  thinner than a cell is not there, a skinned or moving mesh is the box around it, an open mesh such
+  as a ground plane puts a narrow wedge below its edges inside, and render textures and probe
+  captures are drawn without what it gives.
+
+- **Particles meet the meshes that cast shadows, and nothing else.** A `ParticleEmitter` gives off
   particles a compute shader steps, drawn as round dots or the program's texture facing the camera
   after the meshes, into the window, into each render texture meshes are drawn into and into a
   reflection probe's capture, lit or giving off their own light, with a rate, a burst, a life, a
   velocity in a cone, gravity, drag, a size and color that change over each life, a sheet's frames
-  played through, cut or blended, and bouncing off or ending at the window's depth of the meshes
-  that cast shadows (RENDERING.md §3). A render texture drawn only in 2D has no camera to draw them
-  through, those laid over by alpha are sorted from the window's camera in a render texture too, and
-  a particle passes through what the window does not show, off screen or behind something, and
-  through shapes drawn without a model. Colliding with the physics world stays a limit, since raylib
-  has no particles and a game that needs that much has bodies.
+  played through, cut or blended, and bouncing off or ending at the scene's distance field where it
+  is built and holds the particle, and at the window's depth of the meshes that cast shadows
+  elsewhere (RENDERING.md §3 and §4). A render texture drawn only in 2D has no camera to draw them
+  through, those laid over by alpha are sorted from the window's camera in a render texture too,
+  without the field a particle passes through what the window does not show, off screen or behind
+  something, and it passes through shapes drawn without a model. Colliding with the physics world
+  stays a limit, since raylib has no particles and a game that needs that much has bodies.
 
 - **Effects over the frame are bloom, exposure fixed or following the scene, a curve, grading, a
   vignette, FXAA, depth of field and motion blur.** Any of them draws the window's scene into a
@@ -157,8 +167,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   program's own inside `BeginMode3D` is read as linear in the HDR frame, and motion blur blurs a
   mesh entity by its own movement where asked, a model drawn with `DrawModel` and a skinned mesh's
   limbs by the camera's alone. Ambient occlusion darkens the window's light from all around, from a
-  depth of the meshes that cast shadows drawn at half size, so a mesh that casts none closes nothing
-  off, and render textures and probe captures are drawn without it.
+  depth of the meshes that cast shadows drawn at half size and from the scene's distance field where
+  it is built, so a mesh that casts none closes nothing off, and render textures and probe captures
+  are drawn without it.
 
 ### The device
 

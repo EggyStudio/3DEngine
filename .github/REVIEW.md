@@ -10,8 +10,21 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `38f68412`. Arabic's marks are put on their letters and its pairs kerned by the
-font's GPOS table inside shaped runs: what GSUB and GPOS share moved into `GlyphLayout`, which
+Reviewed up to `90681ba8`. The shader cache's two writers are mended: each writes its entry under a
+name of its own, the path with the process and a GUID after it ending in `.partial`, moves it over
+the path, keeps what is there when the move fails against another writer's entry, whose bytes are
+the same, and removes its own file either way; two tests race it through a barrier helper that
+reports every exception and never hangs, the writer from two threads a hundred times and the real
+compile ten times against an empty cache, both failing on the old writer with the job's error
+(`90681ba8`), which is Verdict 34's mend, proved at 17:03 and 17:23 by the Linux and macOS jobs of
+its run, so the verdict is settled. The owner decided on 2026-10-07 that global illumination comes
+in four phases (Decision 16), items 2 to 4, and the session began phase 1, the cascaded scene
+distance field, at 17:00. The four runs were in progress at 17:00, the Windows jobs of `3afcc4d0`,
+`0c19c335` and `6412daca` in the games' step since 15:31, 16:08 and 16:11, and `38f68412`'s run on
+all three systems. The suite: 1,505 passed, none skipped.
+
+Before them, Arabic's marks came to be put on their letters and its pairs kerned by the font's GPOS
+table inside shaped runs: what GSUB and GPOS share moved into `GlyphLayout`, which
 `GlyphSubstitution` and the new `GlyphPositioning` extend, single and pair adjustments, marks on a
 base, on a ligature's component and on another mark, the contexts and the extension, with cursive
 attachment and device tables left out; a shaped line's keys carry where each glyph is drawn from the
@@ -21,8 +34,6 @@ its stages with `liga`, `clig`, `rclt` and `mset`; the zero width non-joiner and
 nothing; and 328 shapings of 52 words on seven of the machine's fonts came out as HarfBuzz's glyphs
 at its positions, held by `arabic-marks.ttf`, six tests and the `arabic_marks` frame (`38f68412`),
 which settles item 4, the three batches of Decision 15 in. The suite: 1,503 passed, none skipped.
-The owner decided on 2026-10-07 that global illumination comes in four phases, a scene distance
-field first and hybrid Radiance Cascades over it (Decision 16), items 2 to 4, after Verdict 34.
 
 Before them, text read right to left came to be drawn and measured in the order it is read:
 `TextDirection` is a reduced UAX #9 over grapheme clusters, each line a paragraph of its first
@@ -42,27 +53,6 @@ The runs: macOS passed the leak test at `3afcc4d0`, `0c19c335` and `6412daca`, w
 one test at `6412daca`, a race of the shader cache under parallel tests, which is Verdict 34; the
 examples job waits on Windows. The suite: 1,492 passed, none skipped.
 
-Before them, the Linux job came to fetch `b43818f9` alone, so the upgrading page's test runs on
-every push (`5dca5694`), which settles item 4, and no name lost since 5.1 is written in the other
-documents, held by a second test that found `ImageDraw` in the cheatsheet (`8f3d456d`). Four games
-of kinds none of the eight was came in. Sumo, two players on one screen split between two cameras
-drawing into render textures, with shaders of its own and a floor painted by a compute shader, found
-e3d making a console pad at 0 alone, so `input.button` and `input.axis` make pads up to the one
-named (`2b5b0873`). Wordfall, played by typing words dropped from a file and falling along splines,
-its sounds made in a stream's callback, found a run with no window dropping the clipboard, so such a
-run keeps one of its own (`01bfcae8`). Slide, the puzzle of merging tiles played by gestures, its
-faces drawn into images and its sounds made as waves, found no command making a double click, so
-`input.click` takes a count (`a9ff8c1b`). Jelly, a runner squashed by its model's morph targets,
-records each run as automation events and watches it again to the same end, in the session and from
-a file in a new process (`37064205`). The run of `1c848a20` was read: macOS's heap rose and fell
-back by 6 MB every thirty apps with no slope under it and the census found 0.25 MB of strings more
-alive, so the leak tests judge how far the heap's floor rose, and Windows opened every game and ran
-out of its 75 minutes, so each game has a budget past which its error says how far it got
-(`596535ce`); e3d writes UTF-8 on every system (`e60ba729`); and the twelve games timed on lavapipe
-at four cores took 22 minutes together, Manor's walk six, so each has twelve in the workflow and the
-Windows job 180 minutes (`3afcc4d0`). N 4.5 leaves out 15. The owner chose text shaped whole on
-2026-10-07 (Decision 15), which is item 4. The suite: 1,475 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -73,12 +63,13 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 30, 31, 33 and 34 first, the runs of `3afcc4d0`, `0c19c335` and `6412daca`.** macOS
-   passed all three, so Verdict 32 is settled; the three Windows jobs were in the games' step at
-   16:40, Verdict 33's proof; Linux failed `6412daca` in the shader cache's race, Verdict 34; the
-   examples job, which carries the guides' blocks and Verdicts 30 and 31, runs once a run's three
-   test jobs pass. Each push's run is read by the reviewing session, and a failure it names comes
-   first here.
+1. **Verdicts 30, 31 and 33 first, the five Windows jobs.** macOS passed every run and Verdict 32
+   is settled; Linux and macOS passed `90681ba8`, so Verdict 34 is settled; the Windows jobs of
+   `3afcc4d0`, `0c19c335`, `6412daca`, `38f68412` and `90681ba8` were all in the games' step at
+   17:37, the oldest since 15:31 with 180 minutes, Verdict 33's proof; the examples job, which
+   carries the guides' blocks and Verdicts 30 and 31, runs once a run's three test jobs pass, which
+   `90681ba8`'s will if its Windows job does. Each push's run is read by the reviewing session, and
+   a failure it names comes first here.
 2. **Global illumination, phase 1: the scene distance field (Decision 16).** A cascaded signed
    distance field in clipmaps around the camera, built on the GPU from the static meshes' triangles
    and stamped with the moving bodies' shapes coarsely each frame, the cascade count, the cell size
@@ -119,7 +110,7 @@ documentation by a tool stays to consider as well.
 
 ## Verdicts
 
-Verdicts 1 to 29 and 32 are settled, and their numbers are not given again.
+Verdicts 1 to 29, 32 and 34 are settled, and their numbers are not given again.
 
 30. **The examples job of `22bbf15a` fails at the soak, and its error names no game.** Step 25,
     `Play each game a while and check nothing it holds grows`, ended with `a game grew, or could not
@@ -173,18 +164,6 @@ Verdicts 1 to 29 and 32 are settled, and their numbers are not given again.
     the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. The
     Windows jobs of `3afcc4d0`, `0c19c335` and `6412daca` were in the games' step at 16:40, each
     with 180 minutes. Settled when the Windows job plays the twelve games.
-
-34. **The Linux job of `6412daca` fails one test in the shader cache, a race of two writers.**
-    Read from the page: 1,485 passed, 1 failed, 6 skipped, and `RendererSmokeTests`' frame with null
-    graphics ended in `FileNotFoundException` at `SlangCompiler.WriteAtomically`, the file
-    `velocity.vertexMain.<key>.uniforms`. The writer puts the bytes in `<path>.partial` and moves it
-    over the path, and two tests compiling the same shader at once write the same partial file, so
-    the second's move finds the first's gone; the key is the source's, so both would have written
-    the same bytes. Nothing of batch two's, which added tests beside the ones that raced. Two
-    things. The partial file takes a name unique to its writer, and the move over the path tolerates
-    a winner, keeping what is there when the target exists, as the engine's other atomic writers do;
-    and a test compiles one shader from two threads a hundred times against one cache. Settled when
-    a Linux job passes.
 
 ## Decisions
 
@@ -279,19 +258,46 @@ Verdicts 1 to 29 and 32 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Verdict 34, the shader cache's two writers.** `SlangCompiler.WriteAtomically` writes each cache
-file under a name of its writer's own, the process and a new GUID after the path, and moves it over
-the path, and a move that fails where the path is there keeps what is there, since the key is the
-source's and the other writer's bytes are these; the file of its own is removed either way, and
-ends in `.partial`, so no `*.spv` or `*.uniforms` glob takes one left behind. Two tests race it, each
-through a helper that lets two threads go at once by a barrier, checks between rounds while neither
-runs, and gives every exception raised, a barrier that waits a minute ending the race so a failure
-is reported and never leaves the other thread waiting. One writes one entry from two threads a
-hundred times, the entry read whole and removed after each round and no file of a writer's own left
-in the folder. The other compiles one shader from two threads against an empty cache ten times, a
-folder of the round's own each time, both results and the entry the same SPIR-V; ten and not a
-hundred because each round runs `slangc` twice, a fifth of a second here, which a hundred would
-make twenty seconds of the suite and longer on the Windows and macOS runners, while the hundred
-writes race the part that failed. Both tests fail on the old writer with the job's error, a
-`FileNotFoundException` for the `.uniforms` file, and pass on the new one. The suite: 1,505
-passed, none skipped.
+**Now 2, global illumination's first phase, the scene's distance field (Decision 16).**
+`SetSceneField(cascades, cellSize, updateBudget)` and `Config.SceneField` build a signed distance
+field of the meshes drawn into the window that cast shadows, in cascades of 64 cells a side around
+the window's eye, each twice as coarse and as wide as the one before, stacked along z in one 3D
+image of half floats that a pass binds once with a uniform buffer of where each lies. A cascade's
+corner moves on a grid of eight of its cells, and a cascade the eye has passed, or that a still mesh
+came into or left, is built again, the budget's number a frame, finest first, keeping its old place
+in the uniform buffer until then (`SceneFieldPlan`, unit-tested on the CPU). A mesh drawn the same
+for eight frames is still, its triangles kept once in their mesh's own space in one buffer, and a
+build is a workgroup a triangle taking each cell within four cells of it by an atomic minimum of
+its distance in 1024ths of a cell above a bit for in front, then a pass turning the words into
+distances (`field_splat.slang`, `field_resolve.slang`). A mesh that moves, a skinned one, and a
+still one whose cascades are not yet rebuilt are stamped each frame as their box into the bricks
+they come within the band of, last frame's bricks stamped again to put them back
+(`field_stamp.slang`). Reading the field back on the way found three faults of sign, each mended
+and each held by a test: of two meshes as near, as a crate on the ground, the one a cell is
+behind wins, so the crate's inside is inside; and a triangle puts a cell behind it only within 60
+degrees of straight back, so a cell in the plane of a turned wall's side above it, or above a
+pillar's rim, is not put inside by a face the way runs along, and the ground plane's open edges put
+only a narrow wedge below them inside. Three things read it. `ao.slang` adds an occlusion read
+along the normal and four leaning ways beside the screen-space one, and traces the sun toward it
+through the field for soft contact shadows, whose share rides in the occlusion image's green and
+multiplies the shadowed directional light in the model pass, so the pass runs for the shadows alone
+where the occlusion is off. `particle_step.slang` steps a colliding particle's move through the
+field where it holds the particle and meets the depth elsewhere, which closes TODO.md's particle
+entry's hole, a particle passing through what the window does not show. `field.show <cascade>` draws
+a cascade over the window as the field holds the scene, `field.state` says where each lies, and
+`field.rebuild <frames>` builds every frame so `profile` times a build. Tests hold the field's
+distances read back against a cube's exact ones within the band and the band beyond it, no cell away
+from every mesh near a surface in a courtyard of the shapes that broke it, a crate on the ground
+inside, the plan's placement, settling, budget and bricks, and particles thrown at a wall behind the
+camera coming back with the field and gone without it. Two reference frames, `scene_field_lit` and
+`scene_field_cascade`, draw a corner lit through the field and its first cascade. `shaders_scene_field`
+is a courtyard with a pushed crate and a fountain whose drops bounce off what the camera does not
+see, captured for the README. On a laptop's RTX 4070, from `./e3d command profile` in that example, a
+frame stamping its crate spends 0.014 ms of the GPU on the field, building the finest cascade every
+frame 0.25 ms, and the occlusion pass 0.073 ms where it took 0.036 without, on the comparison page and
+in the guide's new section, with RENDERING.md §4 and TODO.md's entries saying what is built and what
+is left. The render tests, the field's among them, pass on lavapipe under the validation layer. The suite: 1,514 passed, none skipped.
+
+Shared: the field's kernels and its sampling module are plain Slang over storage buffers, one 3D
+image and a uniform buffer, with no type of this engine's, so BevyCSharp's bridge can compile them
+as they are once its phase two reads the field.

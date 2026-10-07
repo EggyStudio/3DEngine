@@ -157,7 +157,9 @@ public struct Lighting
     public Probe probes[4];
     // 1 in x when the view is drawn into the HDR frame, whose light toDisplay leaves linear.
     public float4 output;
-    // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's alone.
+    // 1 in x when the view's ambient light is darkened by ambientOcclusionMap, the window's alone,
+    // and 1 in y when the shadowed directional light is darkened by its green channel, the sun's
+    // contact shadows through the scene's distance field.
     public float4 ambientOcclusion;
 };
 
@@ -220,6 +222,17 @@ public float screenOcclusion(ModelVertexOutput input)
     uint width, height;
     ambientOcclusionMap.GetDimensions(width, height);
     return ambientOcclusionMap.SampleLevel(input.position.xy * 0.5 / float2(width, height), 0).r;
+}
+
+// The share of the sun's light its contact shadows through the scene's distance field let reach
+// the pixel a fragment is at, 1 where the view has none.
+public float sunContact(ModelVertexOutput input)
+{
+    if (lighting.ambientOcclusion.y <= 0.0)
+        return 1.0;
+    uint width, height;
+    ambientOcclusionMap.GetDimensions(width, height);
+    return ambientOcclusionMap.SampleLevel(input.position.xy * 0.5 / float2(width, height), 0).g;
 }
 
 public struct ModelVertexOutput
@@ -726,7 +739,7 @@ public float3 lit(float3 albedo, ModelVertexOutput input)
         }
 
         if (i == lighting.shadowLight)
-            arrived *= lightReaching(input.world, normalize(input.normal));
+            arrived *= lightReaching(input.world, normalize(input.normal)) * sunContact(input);
         else if (light.cone.z > 0.0 && int(light.positionAndKind.w) == Spot)
             arrived *= spotLightReaching(input.world, normalize(input.normal), light.positionAndKind.xyz, int(light.cone.z) - 1);
         else if (light.cone.z > 0.0)

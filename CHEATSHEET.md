@@ -750,6 +750,7 @@ void SetMotionBlur(float amount, bool objects);                            // Th
 void UnloadLight(LightHandle light);                                       // Remove it
 void SetAmbientLight(Color color, float intensity);                       // The light from all around, one at a time, 0 to remove it
 void SetAmbientOcclusion(float intensity, float radius = 1);              // Darken that light where nearby surfaces close it off, 0 for off
+void SetSceneField(int cascades, float cellSize = 0.25f, int updateBudget = 1); // A distance field of the scene the occlusion, the sun and particles read, 0 for off
 ReflectionProbeHandle CreateReflectionProbe(Vector3 position, Vector3 size, float intensity = 1); // A box that reflects the room around its middle, not the sky
 void UpdateReflectionProbe(ReflectionProbeHandle probe);                   // Capture it again, after its room changed
 void SetReflectionProbeRefresh(ReflectionProbeHandle probe, float seconds); // Capture a probe again every that many seconds, 0 only on a change
