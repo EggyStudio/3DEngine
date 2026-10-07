@@ -70,6 +70,22 @@ public class ShadowLayoutTests
     }
 
     [Fact]
+    public void Shadowed_Lights_Are_Ranked_For_Every_View_The_Frame_Draws_Meshes_Through()
+    {
+        // The window looks down -Z from the origin and a render target's camera down +X from a
+        // hundred units off. A bright light behind the window and a dim one the target sees.
+        Matrix4x4 Looking(Vector3 from, Vector3 to) =>
+            Matrix4x4.CreateLookAt(from, to, Vector3.UnitY) * Matrix4x4.CreatePerspectiveFieldOfView(1, 1, 0.1f, 100);
+        var window = Looking(Vector3.Zero, -Vector3.UnitZ);
+        var target = Looking(new Vector3(100, 0, 0), new Vector3(200, 0, 0));
+        RenderLight[] lights = [Spot(new Vector3(0, 0, 10), 100), Spot(new Vector3(110, 0, 0), 1)];
+
+        LightingUboPrepare.Rank(lights, [0, 1], Vector3.Zero, window, 150).Should().Equal([0, 1], "the window alone sees neither, and the first is the brighter");
+        LightingUboPrepare.Rank(lights, [0, 1], [(Vector3.Zero, window), (new Vector3(100, 0, 0), target)], 150).Should().Equal([1, 0],
+            "the light the target's camera sees comes before one no camera sees");
+    }
+
+    [Fact]
     public void A_Light_Behind_The_Camera_Is_Out_Of_View()
     {
         var camera = Matrix4x4.CreateLookAt(Vector3.Zero, -Vector3.UnitZ, Vector3.UnitY)

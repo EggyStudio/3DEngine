@@ -33,9 +33,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         var eye = first is { } camera0 ? EyeOf(camera0) : null;
         BindProbes(renderWorld, ref ubo, eye);
 
-        // The lights without their shadows, which each view's buffer starts from.
+        // The lights without their shadows, which each view's buffer starts from. The spot and
+        // point lights that cast them are ranked for every view the frame draws meshes through,
+        // the window's and each render target's, since their maps serve all of them.
         var unshadowed = ubo;
-        var casters = Casters(renderWorld, lights, ubo.LightCount, eye, first);
+        var views = new List<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)>();
+        if (draws?.WindowViewProjection is { } windowCamera) views.Add((EyeOf(windowCamera), windowCamera));
+        foreach (var target in draws?.Targets() ?? [])
+            if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera), targetCamera));
+        var casters = Casters(renderWorld, lights, ubo.LightCount, views);
         var shadow = casters is not null && draws?.WindowViewProjection is { } window ? casters.For(window) : null;
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -226,11 +232,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     }
 
     // The lights that cast shadows, or null when none does or no mesh is drawn. Past the spot and
-    // point lights there is room for, those that matter most to the view are taken and ranked
-    // (Rank), so a level of many torches shadows those in front of the camera, the brightest
-    // there with the most texels.
-    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count, System.Numerics.Vector3? eye,
-        System.Numerics.Matrix4x4? camera)
+    // point lights there is room for, those that matter most to the views are taken and ranked
+    // (Rank), so a level of many torches shadows those in front of a camera, the brightest there
+    // with the most texels.
+    private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count,
+        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views)
     {
         if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false }) return null;
 
@@ -249,8 +255,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             if (light.Kind == LightKind.Point) pointCandidates.Add(i);
         }
 
-        var spotLights = Rank(lights.All, spotCandidates, eye, camera, distance).Take(ShadowFit.MaxSpotLights).ToList();
-        var points = Rank(lights.All, pointCandidates, eye, camera, distance).Take(ShadowFit.MaxPointLights)
+        var spotLights = Rank(lights.All, spotCandidates, views, distance).Take(ShadowFit.MaxSpotLights).ToList();
+        var points = Rank(lights.All, pointCandidates, views, distance).Take(ShadowFit.MaxPointLights)
             .Select(i => (i, ShadowFit.FitPoint(lights.All[i].Position, lights.All[i].Range, distance))).ToList();
         if (sun < 0 && spotLights.Count == 0 && points.Count == 0) return null;
 
@@ -278,24 +284,36 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     /// made in among equals.
     /// </remarks>
     internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates, System.Numerics.Vector3? eye,
-        System.Numerics.Matrix4x4? camera, float distance)
+        System.Numerics.Matrix4x4? camera, float distance) =>
+        Rank(lights, candidates, [(eye, camera)], distance);
+
+    /// <summary>
+    /// The candidates in the order they matter to any of <paramref name="views"/>, best first: a
+    /// light some camera sees before one none does, then the one whose light reaching an eye is
+    /// greatest, then the one whose reach comes nearest an eye, so a render target looking where
+    /// the window does not has the lights it sees shadowed too.
+    /// </summary>
+    internal static IEnumerable<int> Rank(IReadOnlyList<RenderLight> lights, IEnumerable<int> candidates,
+        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, float distance)
     {
-        // How far a light's reach is from the eye, 0 inside it, and the distance itself for a light
-        // with no range.
-        float Reach(int i)
+        // How far a light's reach is from an eye, 0 inside it, and the distance itself for a light
+        // with no range, the nearest of the views' eyes.
+        float ReachFrom(int i, System.Numerics.Vector3? eye)
         {
             var light = lights[i];
             if (eye is not { } at) return 0;
             var away = System.Numerics.Vector3.Distance(light.Position, at);
             return light.Range > 0 ? MathF.Max(0, away - light.Range) : away;
         }
+        float Reach(int i) => views.Count == 0 ? 0 : views.Min(view => ReachFrom(i, view.Eye));
         float Reaching(int i)
         {
             var light = lights[i].EmittedColor;
             var reach = Reach(i);
             return (0.2126f * light.X + 0.7152f * light.Y + 0.0722f * light.Z) / (1 + reach * reach);
         }
-        bool Seen(int i) => camera is not { } view || InView(view, lights[i].Position, lights[i].Range > 0 ? lights[i].Range : distance);
+        bool Seen(int i) => views.Count == 0 || views.Any(view => view.Camera is not { } camera
+            || InView(camera, lights[i].Position, lights[i].Range > 0 ? lights[i].Range : distance));
         return candidates.OrderBy(i => Seen(i) ? 0 : 1).ThenByDescending(Reaching).ThenBy(Reach);
     }
 }
@@ -316,8 +334,8 @@ internal sealed class BoundProbes
 /// nothing casts one, and the lighting buffer it is drawn with.
 /// </summary>
 /// <remarks>
-/// The spot and point lights are the same for every view. The window's shadow is
-/// <see cref="FrameShadow"/>, and its buffer <see cref="FrameLightingBinding"/>.
+/// The spot and point lights are the same for every view, ranked for all of them together. The
+/// window's shadow is <see cref="FrameShadow"/>, and its buffer <see cref="FrameLightingBinding"/>.
 /// </remarks>
 internal sealed class TargetShadows
 {

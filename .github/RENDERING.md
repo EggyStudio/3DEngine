@@ -420,11 +420,12 @@ tile of a depth map two tiles on a side, 2048 texels a tile unless `SetShadowMap
 size in `ShadowSettings`, to the sphere around each, so the near slice spends its texels on a few
 units and the far one on many. Each is moved in whole texels so the edges of shadows hold still as
 the camera moves, and reaches four radii further toward the light for casters above the view. Ten
-spot lights with `CastsShadows` set draw into the fourth tile, ranked by what they matter to the
-window's camera, or the first target's when the window draws no mesh: those whose reach (their range
-around them, or the shadow distance for one with none) the camera's frustum holds come first, then
-those whose light reaching the eye is greatest, their brightness over one plus the square of how far
-their reach is from it (`LightingUboPrepare.Rank`), then those whose reach comes nearest it. The
+spot lights with `CastsShadows` set draw into the fourth tile, ranked by what they matter to every
+camera the frame draws meshes through, the window's and each render target's: those whose reach
+(their range around them, or the shadow distance for one with none) a camera's frustum holds come
+first, then those whose light reaching an eye is greatest, their brightness over one plus the square
+of how far their reach is from it (`LightingUboPrepare.Rank`), then those whose reach comes nearest
+one. The
 tile is the whole of it for one, a quarter each for up to four, and past four a quarter each for the
 first two and a sixteenth each for the rest, in its lower half (`ShadowFit.SpotTileArea`), each
 through a perspective projection from the light as wide as its outer cone and as deep as its range,

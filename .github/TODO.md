@@ -136,8 +136,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   square of how far its reach is, the first two spots and four points with the most texels.
   `SetShadowMapSize` sets the tile from 256 to 4096 texels (2048 by default). An eleventh spot or a
   thirteenth point light casts none, the ranking does not weigh how much of the picture a light
-  lights, and each render target that draws meshes draws the map again for its own camera, with the
-  point and spot lights chosen for the window's.
+  lights, and each render target that draws meshes draws the cascades and the spot lights' tile
+  again for its own camera, the point and spot lights chosen for every view the frame draws meshes
+  through, a light any camera sees first.
 
 - **Light bounces and glossy surfaces reflect.** The scene's distance field (`SetSceneField`), the
   light that bounces through it (`SetGlobalIllumination`), Radiance Cascades of world probes with
