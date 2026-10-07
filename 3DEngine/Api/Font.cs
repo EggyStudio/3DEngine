@@ -57,6 +57,17 @@ public sealed class Font
     // before it is drawn.
     internal (TrueTypeFont Reader, HashSet<int> Drawn)? Joining { get; private set; }
 
+    // Text shaped by the font's substitutions, by the string, since a program draws the same text
+    // each frame. A few hundred are kept, and all let go past that.
+    private readonly Dictionary<string, int[]> _shaped = [];
+
+    internal int[] ShapedText(string text, Func<string, int[]> shape)
+    {
+        if (_shaped.TryGetValue(text, out var keys)) return keys;
+        if (_shaped.Count >= 256) _shaped.Clear();
+        return _shaped[text] = shape(text);
+    }
+
     // The same font, shaping its text by the reader's substitutions.
     internal Font WithJoining((TrueTypeFont Reader, HashSet<int> Drawn)? joining)
     {

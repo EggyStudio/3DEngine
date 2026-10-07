@@ -185,3 +185,8 @@ fonts among them reaching the reader through the scan's mathematical letter. A t
 square drawn by a global subroutine after a move carrying the glyph's width, which
 `make-color-test-fonts.py` writes, and a test. The entry keeps text shaped only in emoji. The suite:
 1,460 passed, none skipped.
+
+**Text a font joins, shaped once.** A font whose sequences join shaped its text again at each draw,
+which a program does every frame, so each font keeps the keys of the last few hundred strings it
+shaped and draws them again from there, a font with no sequences reading its text a character at a
+time as before. A line of the sequence test holds it. The suite: 1,460 passed, none skipped.

@@ -33,13 +33,18 @@ public static partial class Engine3D
     /// selectors (U+FE0E and U+FE0F), the keycap (U+20E3) and the tags (U+E0020 to U+E007F), and a
     /// character those selectors or the keycap follow, as the digit of a keycap does.
     /// </remarks>
-    internal static IEnumerable<int> TextKeys(Font font, string text)
+    internal static IEnumerable<int> TextKeys(Font font, string text) =>
+        font.Joining is { } joining ? font.ShapedText(text, t => ShapeText(font, joining, t)) : Runes(text);
+
+    private static IEnumerable<int> Runes(string text)
     {
-        if (font.Joining is not { } joining)
-        {
-            foreach (var rune in text.EnumerateRunes()) yield return rune.Value;
-            yield break;
-        }
+        foreach (var rune in text.EnumerateRunes()) yield return rune.Value;
+    }
+
+    // Text as the keys of its glyphs, each run of the characters the reader draws shaped.
+    private static int[] ShapeText(Font font, (TrueTypeFont Reader, HashSet<int> Drawn) joining, string text)
+    {
+        var keys = new List<int>(text.Length);
         var characters = LoadCodepoints(text);
         bool Joins(int at) =>
             joining.Drawn.Contains(characters[at]) || characters[at] is 0x200D or 0xFE0E or 0xFE0F or 0x20E3 or (>= 0xE0020 and <= 0xE007F)
@@ -50,13 +55,14 @@ public static partial class Engine3D
             while (end < characters.Length && Joins(end)) end++;
             if (end - i < 2)
             {
-                yield return characters[i];
+                keys.Add(characters[i]);
                 i = Math.Max(i + 1, end);
                 continue;
             }
-            foreach (var key in Shape(font, joining.Reader, characters[i..end])) yield return key;
+            keys.AddRange(Shape(font, joining.Reader, characters[i..end]));
             i = end;
         }
+        return [.. keys];
     }
 
     // A run of characters shaped by the font's substitutions, each glyph that comes out given back as
