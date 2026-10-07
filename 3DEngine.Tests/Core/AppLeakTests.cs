@@ -22,23 +22,31 @@ public sealed class AppLeakTests(ITestOutputHelper output)
 {
     // What a hundred apps left: the process's resident memory and the GC's heap after twenty and
     // after a hundred, in megabytes, and the series a failure is read by on a machine no one here
-    // has, the heap after every tenth app where it is collected that often and the threads the
-    // process has after every tenth shutdown.
-    private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, string Heaps, string Threads)
+    // has, the heap after every tenth app where it is collected that often, the types that grew
+    // from the twentieth app to the hundredth where a census of the heap could be taken, and the
+    // threads the process has after every tenth shutdown.
+    private sealed record Cycled(double ResidentAt20, double ResidentAt100, double HeapAt20, double HeapAt100, string Heaps, string? Grown, string Threads)
     {
-        // A line each, the heap's first, since the test page shows a message's first lines and cuts
-        // each at its width, which a series on one line with the rest ran past.
-        public string Series => $"{Environment.NewLine}the heap after every ten apps in MB, {Heaps}{Environment.NewLine}the threads after every ten apps, {Threads}{Environment.NewLine}";
+        // A line each, the heap's first and the types after it, since the test page shows a
+        // message's first five lines and cuts each at its width, which a series on one line with
+        // the rest ran past.
+        public string Series => $"{Environment.NewLine}the heap after every ten apps in MB, {Heaps}{Environment.NewLine}" +
+            (Grown is null ? "" : $"grown from the twentieth app to the hundredth, {Grown}{Environment.NewLine}") +
+            $"the threads after every ten apps, {Threads}{Environment.NewLine}";
     }
 
     // Makes and closes an app of the given config a hundred times. The first twenty warm the pools
     // and the threads that stay for the process, which a hundred then should not add to. With
     // heapEveryTen the heap is collected and read after every tenth app, where otherwise it is
     // after the twentieth and the hundredth alone, so memory that only a finalizer gives back is
-    // left to pile up between them for the resident reading to see.
+    // left to pile up between them for the resident reading to see. Where E3D_GCDUMP names
+    // dotnet-gcdump, the heap's types are counted after the twentieth app and the hundredth, so a
+    // failure names the types that grew.
     private Cycled Cycle(Config config, Func<App, App>? plugins = null, bool heapEveryTen = false)
     {
         double residentAt20 = 0, heapAt20 = 0;
+        HeapCensus? censusAt20 = null;
+        string? grown = null;
         var heaps = new List<string>();
         var threads = new List<string>();
         for (int i = 1; i <= 100; i++)
@@ -56,13 +64,26 @@ public sealed class AppLeakTests(ITestOutputHelper output)
             var resident = Environment.WorkingSet / 1e6;
             output.WriteLine($"{i,3} apps: resident {resident:0} MB, {GC.CollectionCount(2)} full collections");
             if (!heapEveryTen && i != 20 && i != 100) continue;
+            // The census of the twentieth app is taken before its heap is read, so what it keeps
+            // is in both readings and not in what the test compares, and the hundredth's after.
+            if (HeapCensus.Available && i == 20)
+            {
+                (censusAt20, var failure) = HeapCensus.Take();
+                if (failure is not null) grown = $"no census, {failure}";
+            }
             GC.Collect();
             GC.WaitForPendingFinalizers();
             var heap = GC.GetTotalMemory(forceFullCollection: true) / 1e6;
             heaps.Add($"{i}: {heap:0.00}");
             output.WriteLine($"{i,3} apps: heap {heap:0.00} MB");
             if (i == 20) (residentAt20, heapAt20) = (resident, heap);
-            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), string.Join(", ", threads));
+            if (censusAt20 is not null && i == 100)
+            {
+                var (census, failure) = HeapCensus.Take();
+                grown = census is null ? $"no census, {failure}" : census.GrownSince(censusAt20, 5);
+                if (census is not null) output.WriteLine($"grown from the twentieth app to the hundredth, {census.GrownSince(censusAt20, 30)}");
+            }
+            if (i == 100) return new Cycled(residentAt20, resident, heapAt20, heap, string.Join(", ", heaps), grown, string.Join(", ", threads));
         }
         throw new InvalidOperationException("unreachable");
     }
@@ -107,7 +128,9 @@ public sealed class AppLeakTests(ITestOutputHelper output)
     public void An_Offscreen_App_That_Draws_Made_And_Closed_A_Hundred_Times_Leaves_Nothing_Behind()
     {
         var config = Config.Default.WithWindow("leak", 64, 64) with { Headless = true, Offscreen = true };
-        var cycled = Cycle(config, app =>
+        // The heap read every ten apps, as the headless test reads it, so a failure says whether it
+        // grew an app's worth at a time or in one step.
+        var cycled = Cycle(config, heapEveryTen: true, plugins: app =>
         {
             app.AddPlugin(new DefaultPlugins());
             // Shapes, text, a cube and a model, each of which makes its pipeline on the device.

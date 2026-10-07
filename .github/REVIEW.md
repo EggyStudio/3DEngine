@@ -10,12 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `913e78e0`. Windows and macOS follow the README in a new project and build and run
-every step of the first game after their games, each as a step of its own with its own error, the
-paths written into files and variables put through `cygpath` where Git bash would mangle them, about
-three to five minutes added to each job and unrun on either system until the push (`913e78e0`),
-which settles item 4. TODO.md's order is through to its described limits, so items 4 and 5 are new;
-the working session reached the end of its context at 06:10 on 2026-10-07 with item 4 scoped and not
+Reviewed up to `a4f31573`. Every C# block of the guides builds on the packed package in the examples
+job, 138 blocks of fifteen pages: `build/docs-on-package.py` sorts a block's lines by what they
+declare, types into a namespace, members into a class and statements into a method inside a loop run
+once, after the lines a `<!-- compiled with: -->` comment before the fence gives, leaves out a block
+marked `<!-- not compiled: -->` with its reason, and says an error at the page's line as an
+annotation, with `DocsScriptTests` feeding it a good, a stale and a skipped block, which settles
+item 4. Its first run found three faults: the spatial sound the audio guide teaches had been
+internal since `82b1feb4` and is public again as `BehaviorSounds.PlaySpatialSound`, two lines added
+to `PublicApi.txt` and none lost; the states guide and the cheatsheet named a `Screen.Menu` the
+page's enum lacks; and five fragments no compiler reads are written as their code (`a4f31573`).
+N 1.4 leaves out 13. The session works on, the owner having set it no limit, and Verdicts 32 and 33
+come before item 5. The suite: 1,462 passed, none skipped.
+
+Before them, Windows and macOS came to follow the README in a new project and build and run every
+step of the first game after their games, each as a step of its own with its own error, the paths
+written into files and variables put through `cygpath` where Git bash would mangle them, about three
+to five minutes added to each job and unrun on either system until the push (`913e78e0`), which
+settles item 4. TODO.md's order is through to its described limits, so items 4 and 5 are new; the
+working session reached the end of its context at 06:10 on 2026-10-07 with item 4 scoped and not
 begun, its plan in the item, and the next session in this repository takes 4 and then 5. The suite:
 1,461 passed, none skipped. The owner pushed `913e78e0` at 09:23, and its run: Linux green; macOS
 failed one test, the offscreen hundred of `AppLeakTests` with the heap up by 7 MB, which is Verdict
@@ -31,15 +44,6 @@ from what it kept (`d9e5bac2`); and a twentieth reference frame compares color t
 joined bitmaps and tinted layers, TODO.md's testing entry naming the twenty (`f5a102d6`). TODO.md's
 text entry is down to text shaped whole, which stays described. Item 4 is new. The suite: 1,461
 passed, none skipped.
-
-Before them, no font file came to stop the program: all 444 fonts of the machine load, the eight
-that killed the process on the atlas builder's assertions refused with a reason, CFF2-only and
-bitmap-only fonts asked for as SDF, or given their first mapped character where the builder knew
-none, and a collection is read as its first font (`d19cee7b`). Windows and macOS play every game
-through `e3d` as Linux does, each asserting its walk, lap, match or score, a failing game with its
-own error while the rest play, about eleven minutes added to each job and unrun on either system
-until the push (`9ef68bab`), which settles item 4. A font of Apple's bitmaps draws its emoji in
-color (`be170635`). The suite: 1,458 passed, none skipped.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -63,19 +67,7 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **Every code block of `docs/` compiles against the package.** The guides hold 160 C# blocks,
-   and nothing holds them to the surface, which moved by 130 lines this week; the README's walk
-   holds the README alone, and `build/first-game.sh` builds `first-game.md`'s 22 blocks step by
-   step, so those are covered by pointing at the steps. The plan the last session left, scoped and
-   not begun: `build/docs-on-package.sh` writes one `.cs` a block into a project outside the
-   repository on the newest package, as `examples-on-package.sh` builds the examples, with the
-   page's usings; a block of top-level statements or a fragment goes into a static method of a class
-   of its own and a block that declares types goes in whole; a block marked in the page, as ````
-   ```csharp skip ```` or a comment before the fence, is left out with its reason on the page; the
-   project is built in `build.yml` beside the examples' check, the compiler's errors mapped back to
-   page and block in `::error` lines; and a `ScriptTests` case feeds the script a page with one good
-   block and one stale one.
-5. **A page for a game moving from 5.1 to 6.0.** Every change of the public surface since the 5.1
+4. **A page for a game moving from 5.1 to 6.0.** Every change of the public surface since the 5.1
    pack at `b43818f9`, the names raylib's took, the arguments reordered, the three names dropped and
    the fields renamed, is a line of `docs/upgrading.md` saying what a game wrote and what it writes,
    held by a test that every name `PublicApi.txt` lost since that commit appears on the page, so 6.0
@@ -221,25 +213,27 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Now 4, every block of `docs/` built on the package.** `build/docs-on-package.py` builds the 138
-C# blocks of fifteen guides on the packed package in a project outside the repository, in the
-examples job after the examples' own check, `first-game.md`'s 22 left to `build/first-game.sh`. A
-block's lines are sorted by what they declare at its own level: types go in a namespace of its own,
-members in a class, and statements in a method inside a loop run once, so a fragment's `continue`
-has one. They come after the lines a `<!-- compiled with: -->` comment right above the fence gives,
-which 89 blocks have. A block a `<!-- not compiled: -->` comment marks is left out with its reason,
-and none needs one. Errors are said at the page's line, as annotations. It is Python rather than
-bash, since it parses the pages and maps the compiler's lines back, as `compare.py` and
-`soak-check.py` are. It found three faults.
+**Verdict 33, every game's opening on Windows.** The cause is e3d's. On Windows it starts a program
+through `cmd.exe /c start`, and the line was added to `ArgumentList` as one argument, which .NET
+quotes as a program's argument is, each quote inside escaped with a backslash. cmd.exe reads no
+backslash as an escape, so `start` took `\"e3d\"` for the program to run and the log's path was no
+path, which is why no log was where the script looked. The line goes to cmd.exe as written now,
+through `Arguments`. No machine here runs Windows, so the next Windows job is the proof. The
+script keeps e3d's answer to `open` as JSON and fails with its code and sentence and the last five
+lines of the log it names, read from that path, through `cygpath` on Windows, and perl's JSON
+module reads the answer, which Git's bash, macOS and Linux all have. Trying that found a fault of
+e3d's own. A program's path that does not exist was taken for an example's name, and e3d died
+making a folder for its log from the path. It is refused with `NOT_FOUND` now.
 
-- The audio guide teaches `ctx.PlaySpatialSound`, which `82b1feb4` made internal with the class it
-  was in, so no game could call it. It is public again as `BehaviorSounds.PlaySpatialSound`, one
-  type in `PublicApi.txt`, and the rest of that class stays internal.
-- The states guide's block of `DespawnOnEnter`, mine of yesterday, named a `Screen.Menu` the page's
-  enum does not have, as did the cheatsheet's line.
-- Five fragments no compiler reads: values elided as `/* ... */`, a signature with no body,
-  initializer members with no initializer, and a function's body with its `return`, twice. Each is
-  written as the code it comes from.
-
-A test feeds the script a page with a good block, a stale one and one marked not compiled. The
-suite: 1,462 passed, none skipped.
+**Verdict 32, the offscreen hundred on macOS.** The offscreen test reads the heap every ten apps.
+For the cause, the macOS job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, and the leak
+tests count the heap's objects by type after their twentieth app and their hundredth, the tool run
+on the test's own process. A failure's message has a line of the five types that grew most, with how
+many more there are and about how many KB, and the test's output has thirty. The first census is
+taken before the twentieth reading, so what it keeps is in both readings. Here a census takes half a
+second, and over a hundred apps it finds nothing grown but reflection's caches and the runtime's
+strings, 0.1 MB. One thing was read on the way. The scripts' watch from Verdict 27 is let go with the
+last app watching it, so a hundred apps made one after another still make a hundred FSEvents
+streams, and `039bd788`'s sentence that they make one holds for apps that overlap. Whether that is
+what grows is for the census to say, and nothing is changed for it before then. The suite: 1,462
+passed, none skipped.

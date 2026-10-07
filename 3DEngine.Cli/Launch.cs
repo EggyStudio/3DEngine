@@ -56,6 +56,10 @@ internal static class Launch
         }
         else
         {
+            // A path names a program, so one that is not there is refused, where it was taken for an
+            // example's name and the log's path made from it.
+            if (Path.GetFileName(example) != example)
+                return Output.Refuse(options, "open", "NOT_FOUND", $"There is no program '{example}'.");
             if (Repo.Root is null)
                 return Output.Refuse(options, "open", "NO_CHECKOUT", "This is not inside a 3DEngine checkout. Give 'e3d open' the path of a program, or run one with --serve yourself.");
             if (Repo.Examples is not { } examples)
@@ -127,9 +131,11 @@ internal static class Launch
         var start = new ProcessStartInfo { WorkingDirectory = Repo.Root ?? Path.GetDirectoryName(binary)!, UseShellExecute = false };
         if (OperatingSystem.IsWindows())
         {
+            // The line is given to cmd.exe as written. Given as one argument it was quoted as a
+            // program's argument is, each quote inside escaped with a backslash, which cmd.exe
+            // keeps, so start took the escaped title for the program and the log's path was not one.
             start.FileName = "cmd.exe";
-            start.ArgumentList.Add("/c");
-            start.ArgumentList.Add($"start \"e3d\" /b \"{binary}\" {string.Join(' ', arguments)} > \"{log}\" 2>&1");
+            start.Arguments = $"/c start \"e3d\" /b \"{binary}\" {string.Join(' ', arguments)} > \"{log}\" 2>&1";
         }
         else
         {

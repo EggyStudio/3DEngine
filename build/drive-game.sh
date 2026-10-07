@@ -45,8 +45,24 @@ dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from 
 folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt"
 
-# The path without the .exe a Windows build gives it, which ./e3d finds.
-ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --quiet || fail "did not open"
+# The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
+# opening it refuses says e3d's code and sentence and the last lines of the log it names, read
+# from the path it gives, which perl reads from the answer on every system the job runs on.
+if ! answer=$(ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --json); then
+  said=$(printf '%s' "$answer" | perl -MJSON::PP -0777 -ne '
+    my $answer = eval { decode_json($_) } or do { s/\s+/ /g; print length ? "an answer that is not JSON, $_\n" : "nothing\n"; exit };
+    my $error = $answer->{errors}[0] || {};
+    (my $sentence = $error->{message} // "") =~ s/\.$//;
+    print "$error->{code}, $sentence\n", $answer->{data}{log} // "", "\n";')
+  named=$(printf '%s\n' "$said" | sed -n 2p)
+  # Git's bash reads a Windows path once cygpath has turned it.
+  if [ -n "$named" ] && command -v cygpath > /dev/null; then named=$(cygpath -u "$named"); fi
+  ending=""
+  [ -n "$named" ] && [ -f "$named" ] && ending=$(tail -n 5 "$named" | tr -s '\r\n' '  ' | sed 's/ *$//')
+  # The log's lines are said here whole, so fail's warnings from it are left out.
+  log=""
+  fail "did not open, e3d said $(printf '%s\n' "$said" | head -n 1)${ending:+, and the log ends with $ending}"
+fi
 trap './e3d stop --quiet > /dev/null 2>&1 || true' EXIT
 cmd window.size 480 270
 cmd frames.wait 30

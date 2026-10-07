@@ -300,7 +300,9 @@ three pages into one, each cause with the systems it was seen on. Each job has a
 builds with `-warnaserror`, so a warning fails the commit that wrote it, and a warning that is right
 to keep is turned off where it arises, with its reason. A Vulkan instance asks for portability
 devices where the loader offers them, and a device of the portability subset, as MoltenVK is, has
-the subset enabled.
+the subset enabled. On macOS the job installs `dotnet-gcdump` and names it in `E3D_GCDUMP`, with
+which `AppLeakTests` counts the heap's objects by type after its twentieth app and its hundredth,
+so a failure there names the types that grew.
 
 On Linux, `build.yml` then checks the package as a player and a reader meet it.
 `build/play-native.sh Pusher` publishes the game as native code from the package and draws 300

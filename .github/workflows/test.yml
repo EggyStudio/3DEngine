@@ -216,6 +216,14 @@ jobs:
           echo "VK_ICD_FILENAMES=$(brew --prefix molten-vk)/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
           echo "VK_LAYER_PATH=$(brew --prefix vulkan-validationlayers)/share/vulkan/explicit_layer.d" >> "$GITHUB_ENV"
 
+      # dotnet-gcdump, at the version tried, with which the leak tests count the heap's objects by
+      # type after their twentieth app and their hundredth, since a hundred apps that draw grew the
+      # heap here and nowhere else, so a failure names the types that grew.
+      - name: Install dotnet-gcdump for the leak tests
+        run: |
+          dotnet tool install dotnet-gcdump --version 10.0.745401 --tool-path "$RUNNER_TEMP/gcdump"
+          echo "E3D_GCDUMP=$RUNNER_TEMP/gcdump/dotnet-gcdump" >> "$GITHUB_ENV"
+
       - run: dotnet build 3DEngine.slnx -warnaserror
 
       # The suite through build/test.py, as on Linux.

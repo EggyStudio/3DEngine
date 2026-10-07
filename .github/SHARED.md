@@ -189,6 +189,7 @@ table also answers whether the two agree.
 | The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | taken at `a0b1fa3` | has (`c8cce1ce`) |
 | A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
+| Every C# block of the guides built on the packed package by the workflow, a fragment after the lines a comment before it gives, a block marked not compiled left out with its reason, an error said at the page's line | to take (REVIEW.md, item 11) | has (`build/docs-on-package.py`, `a4f31573`), three faults found in 138 blocks on its first run |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
 | A picture of an example opens that example's source in the repository, the owner's choice on 2026-10-05 over the live demo on the followed engine's site, so nothing is cached from another project | taken at `57fc7e9`, all 198 pictures | taken at `bf1a559c`, all 52 pictures |
