@@ -110,7 +110,7 @@ physics, text and fonts, audio, audio streams and waves, and files
   as that picture, the font's `ccmp` substitutions applied to each run of the characters the reader
   draws (`GlyphSubstitution`). Text outside those runs is drawn a character at a time, so a text
   font's ligatures, its positioning (GPOS) and the shaping a script such as Arabic or Devanagari
-  needs are not made. A font of CFF outlines gives no characters past U+FFFF.
+  needs are not made.
 
 ### Meshes, materials and light
 

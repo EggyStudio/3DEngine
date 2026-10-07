@@ -16,6 +16,9 @@ an outline of its own, and 'A' is a triangle with no color, which the atlas buil
 sbix.ttf holds U+1F600 as Apple's bitmaps (sbix), as Apple Color Emoji does, the same red over blue
 image at 8 pixels to the em standing on the baseline, and U+2600 as a duplicate of it.
 
+cff.otf holds U+1F600's outline in CFF, as an OpenType font of PostScript outlines does, the same
+square as layers.ttf's, drawn by a global subroutine after a move that carries the glyph's width.
+
 layers.ttc is layers.ttf as the one font of a collection, as Noto Sans CJK and Apple Color Emoji
 are shipped, its tables found from the file's start.
 
@@ -189,3 +192,32 @@ offsets.append(at)
 strike = struct.pack(">HH", 8, 72) + b"".join(struct.pack(">I", o) for o in offsets) + b"".join(records)
 sbix = struct.pack(">HHII", 1, 1, 1, 12) + strike
 font(os.path.join(here, "sbix.ttf"), 3, [(0x1F600, 1), (0x2600, 2)], {b"sbix": sbix})
+
+# cff.otf: glyph 1 U+1F600, its charstring "600 100 0 rmoveto -107 callgsubr endchar", whose 600 is
+# its width, and the global subroutine "800 800 -800 hlineto return", the square's sides.
+def number(v):
+    if -107 <= v <= 107: return bytes([v + 139])
+    if 108 <= v <= 1131: v -= 108; return bytes([247 + v // 256, v % 256])
+    if -1131 <= v <= -108: v = -v - 108; return bytes([251 + v // 256, v % 256])
+    return bytes([28]) + struct.pack(">h", v)
+
+
+def index(items):
+    out = struct.pack(">H", len(items))
+    if not items: return out
+    out += bytes([1])
+    at = 1
+    for item in [b""] + items:
+        at += len(item)
+        out += bytes([at - len(item) if item == b"" else at])
+    return out + b"".join(items)
+
+
+glyph = number(600) + number(100) + number(0) + bytes([21]) + number(-107) + bytes([29, 14])
+subr = number(800) + number(800) + number(-800) + bytes([6, 11])
+names, strings, globals_ = index([b"Test"]), index([]), index([subr])
+top_size = len(index([bytes(6)]))
+char_strings_at = 4 + len(names) + top_size + len(strings) + len(globals_)
+top = index([bytes([29]) + struct.pack(">i", char_strings_at) + bytes([17])])
+cff = bytes([1, 0, 4, 1]) + names + top + strings + globals_ + index([bytes([14]), glyph])
+font(os.path.join(here, "cff.otf"), 2, [(0x1F600, 1)], {b"CFF ": cff})

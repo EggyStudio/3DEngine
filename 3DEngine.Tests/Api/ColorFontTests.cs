@@ -17,6 +17,7 @@ public sealed class ColorFontTests : IDisposable
     private static readonly string Paints = Path.Combine(AppContext.BaseDirectory, "Api", "paints.ttf");
     private static readonly string Collection = Path.Combine(AppContext.BaseDirectory, "Api", "layers.ttc");
     private static readonly string AppleBitmaps = Path.Combine(AppContext.BaseDirectory, "Api", "sbix.ttf");
+    private static readonly string Compact = Path.Combine(AppContext.BaseDirectory, "Api", "cff.otf");
 
     public ColorFontTests() => UseApp(new App(Config.Default with { Headless = true }).AddPlugin(new DefaultPlugins()));
 
@@ -185,6 +186,18 @@ public sealed class ColorFontTests : IDisposable
         AtlasPixel(font, 0x2600, 0.5f, 0.2f).Should().Be(new Color(255, 0, 0, 255), "U+2600 is drawn as the glyph it duplicates");
         AtlasPixel(font, 0x2600, 0.5f, 0.8f).Should().Be(new Color(0, 0, 255, 255));
         UnloadFont(font);
+    }
+
+    [Fact]
+    public void A_CFF_Outline_Is_Read_From_Its_Charstring_And_Its_Global_Subroutine()
+    {
+        // The square from 100 to 900 across and 0 to 800 up, its sides drawn by the subroutine.
+        var reader = TrueTypeFont.Read(File.ReadAllBytes(Compact))!;
+        reader.HasOutlines.Should().BeTrue("a font of CFF outlines has outlines");
+        var (alpha, width, height, left, top) = reader.Rasterize(reader.GlyphIndex(0x1F600), 0.1f)!.Value;
+        (width, height, left, top).Should().Be((80, 80, 10, -80), "the width before the move is taken off, not drawn");
+        alpha[40 * width + 40].Should().Be(255, "the square is filled inside");
+        alpha[2 * width + 2].Should().Be(255);
     }
 
     [Fact]

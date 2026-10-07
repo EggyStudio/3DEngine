@@ -41,6 +41,7 @@ internal sealed class TrueTypeFont
     private readonly int _cblc, _cbdt, _colr, _cpal, _sbix;
     private readonly bool _longLoca;
     private readonly ColorPaint? _paints;
+    private readonly CompactFontOutlines? _cff;
 
     /// <summary>The units an em is drawn in.</summary>
     public int UnitsPerEm { get; }
@@ -70,6 +71,7 @@ internal sealed class TrueTypeFont
         _sbix = tables.GetValueOrDefault("sbix");
         if (tables.TryGetValue("GSUB", out var gsub)) Joins = GlyphSubstitution.Read(data, gsub);
         _paints = ColorPaint.Read(this, data, _colr, _cpal);
+        if (_glyf == 0 && tables.TryGetValue("CFF ", out var cff)) _cff = CompactFontOutlines.Read(data, cff);
 
         (_cmap12, _cmap4) = Maps(data, tables["cmap"]);
     }
@@ -80,8 +82,8 @@ internal sealed class TrueTypeFont
     /// </summary>
     public GlyphSubstitution? Joins { get; }
 
-    /// <summary>Whether the font has TrueType outlines, where one of color bitmaps alone has none.</summary>
-    public bool HasOutlines => _glyf != 0 && _loca != 0;
+    /// <summary>Whether the font has outlines, TrueType's or CFF's, where one of color bitmaps alone has none.</summary>
+    public bool HasOutlines => _glyf != 0 && _loca != 0 || _cff is not null;
 
     /// <summary>
     /// Reads a font file's outlines and colors, the first font's of a collection, or null for a
@@ -94,7 +96,7 @@ internal sealed class TrueTypeFont
         var tables = Directory(data);
         string[] needed = ["cmap", "head", "hhea", "hmtx", "maxp"];
         var drawable = tables.ContainsKey("glyf") && tables.ContainsKey("loca") || tables.ContainsKey("CBDT") && tables.ContainsKey("CBLC")
-                       || tables.ContainsKey("sbix");
+                       || tables.ContainsKey("sbix") || tables.ContainsKey("CFF ");
         return needed.All(tables.ContainsKey) && drawable ? new TrueTypeFont(data, tables) : null;
     }
 
@@ -318,6 +320,7 @@ internal sealed class TrueTypeFont
     /// <summary>A glyph's contours as straight segments in the font's units, y up, each curve cut in eight.</summary>
     internal List<(Vector2 A, Vector2 B)> Segments(int glyph)
     {
+        if (_cff is not null) return _cff.Segments(glyph);
         var lines = new List<(Vector2 A, Vector2 B)>();
         foreach (var contour in Contours(glyph))
         {

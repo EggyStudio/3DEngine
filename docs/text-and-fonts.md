@@ -104,9 +104,10 @@ DrawTextEx(wide, World, new Vector2(20, 270), 28, 0, Color.DarkPurple);
 
 A game with text in several languages bakes one font from all of its strings together. A character
 the font lacks, left out of the bake or missing from the file, draws as the font's `?`, as raylib's
-does, and as nothing where the font has no `?` either. Characters past U+FFFF, emoji and historic
-scripts among them, are baked from the font's outlines with the rest, so a monochrome emoji font
-such as Noto Emoji or Symbola draws them.
+does, and as nothing where the font has no `?` either. Characters past U+FFFF, emoji, historic
+scripts and the mathematical letters among them, are baked from the font's outlines with the rest,
+TrueType's or an OpenType font's of CFF, as Noto Sans CJK's and STIX's are, so a monochrome emoji
+font such as Noto Emoji or Symbola draws them.
 
 A color emoji font draws its emoji in their colors, whether it holds them as pictures, as Twemoji,
 Apple Color Emoji and the older builds of Noto Color Emoji do, as outlines colored in layers, as

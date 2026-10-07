@@ -10,8 +10,17 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `acdd8fcb`. A distance field font holds its characters past U+FFFF from the font's
-outlines, rasterized into the bake at four times the size before the distances are measured, and
+Reviewed up to `be170635`. No font file stops the program: all 444 fonts of the machine load, the
+eight that killed the process on the atlas builder's assertions refused with a reason, CFF2-only and
+bitmap-only fonts asked for as SDF, or given their first mapped character where the builder knew
+none, and a collection is read as its first font (`d19cee7b`). Windows and macOS play every game
+through `e3d` as Linux does, each asserting its walk, lap, match or score, a failing game with its
+own error while the rest play, about eleven minutes added to each job and unrun on either system
+until the push (`9ef68bab`), which settles item 4. A font of Apple's bitmaps draws its emoji in
+color (`be170635`). The suite: 1,458 passed, none skipped.
+
+Before them, a distance field font came to hold its characters past U+FFFF from the font's outlines,
+rasterized into the bake at four times the size before the distances are measured, and
 `LoadFontEx`'s remarks say what is drawn of a color font (`c8e11f3d`). An entity goes as a state
 enters a value, or at the first transition a rule answers true for, `DespawnOnEnter` and
 `DespawnWhen` beside `DespawnOnExit`, both acting in the frame of the transition since the
@@ -34,16 +43,6 @@ untested until the run (`23e6c9b1`). COLR version 1's paints are drawn, and a fo
 the atlas builder knows is baked by the reader alone where it stopped the process (`56f405a5`). The
 suite: 1,450 passed, none skipped.
 
-Before them, the examples job of `22bbf15a` ran through its captures, its measure and every game's
-step, the first-person walk among them, which settles Verdict 28, and failed at the soak, `a game
-grew, or could not be played, over two minutes`, with no game named, which is Verdict 30; and the
-measure's notices list every pair with `none`, raylib's program having drawn no frame on the
-workflow's device, so the measure is blind there and nothing is recorded, which is Verdict 31. A
-sequence a color font joins into one picture, a family, a flag, a skin tone or a keycap, is drawn as
-that picture by the font's own GSUB `ccmp` lookups, the default ignorables passed over as HarfBuzz
-passes them, read with Twemoji and Segoe UI Emoji (`65c80c4b`). The suite: 1,443 passed, none
-skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -64,12 +63,6 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **Every game played on Windows and macOS as on Linux.** Linux plays the eight games from the
-   package in the examples job, and Windows and macOS play Tempo alone since `23e6c9b1`. The other
-   seven are played there too, through `e3d` under the layer as Tempo is, each asserting its walk or
-   its win, with the minutes they add to each job said in the commit, and a game that cannot run on
-   a system says why on the page. The two systems have found what Linux did not three times today,
-   so the games are where the next such fault is.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -181,42 +174,14 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
 
 ## Replies
 
-**Fonts that stopped the program.** Every font on this desktop, 444 of them, was loaded through the
-flat API in a running program three ways, at Latin-1, with text of several scripts and emoji, and as
-a distance field. Eight stopped the program on an assertion of ImGui's atlas builder, which a game
-loading a font a player chose would meet. Four hold outlines of CFF2 alone, variable OpenType fonts
-the builder cannot parse, as Cantarell's and Noto Sans CJK's variable builds are, and `FontProblem`
-refuses them with that reason. Three have none of the characters the builder was given, a font of
-Japanese with no Latin and two of icons, and a font is given the first character it has where it
-has none of those asked for, from a character map the reader reads of any font, CFF ones among
-them. One, Twemoji, of color bitmaps alone, was sent to the builder for a distance field, which it
-has no outlines for, and is refused with that reason. A font with no character map of Unicode, as
-Marlett's Symbol encoding is, is refused before the builder, and a collection (`.ttc`) is read as
-its first font by the reader too, where it read only lone fonts, so a collection's characters past
-U+FFFF and its color glyphs are drawn. All 444 load. Five tests, from the test fonts with a byte
-changed and a collection the script writes, and the text guide says what is refused. N 4.2's test
-counts the README's prose without its tables' rows, 247 lines, as NORM.md has it. The 127 render,
-font and bad file tests pass on lavapipe under the layer. The suite: 1,458 passed, none skipped.
-
-**Now 4, every game played on Windows and macOS.** `build/drive-game.sh <game>` plays each of the
-eight from the package through `./e3d`, offscreen at 480 by 270 under the layer, as the examples job
-plays them on Linux, and both jobs of `test.yml` play all eight, a game that fails saying why in an
-error annotation of its own naming the system, with its log's last warnings, and the rest played
-still. Each asserts its walk or its win: Pusher, Hopper and Summit that the player moved, from
-`pusher.status` and `hopper.status`, which the two games gain, and `summit.where`, Swarm that
-creatures fell and its script changed while it ran was compiled again, Rally a lap, Manor the pad's
-way through Settings, every lantern and the setting kept, Tactics a match played to its end and
-Tempo every note. The script keeps to what bash 3.2 and BSD's tools read, the script tests holding
-it so, and edits Swarm's script with perl, which both systems have, taking the change back after.
-On four cores of lavapipe under the layer, in the workflow's conditions, all eight pass in about 11
-minutes, six of them Manor's walk, so each job gains about that much, the Windows runner's
-lavapipe likely slower and macOS's GPU faster. None of it has run on either system, so the next run's two
-jobs say whether it holds there. The suite: 1,458 passed, none skipped.
-
-**Now 2, TODO's entry on text, Apple's bitmaps.** A font of sbix, as Apple Color Emoji holds its
-emoji, the font a program on macOS finds, is drawn in color: each glyph's PNG or JPEG from the
-strike whose size is nearest above the size asked for, scaled, placed by its origin's offset, and a
-glyph marked as another's duplicate drawn as that one. A test font of it, which
-`make-color-test-fonts.py` writes, and a test. The entry keeps text shaped only in emoji and CFF
-outlines past U+FFFF. Font reading alone changed, so the lavapipe run was not repeated. The suite:
-1,459 passed, none skipped.
+**Now 2, TODO's entry on text, CFF outlines past U+FFFF.** An OpenType font of CFF outlines draws
+its characters past U+FFFF, which the reader read only from TrueType's. `CompactFontOutlines` reads
+the CFF table's Type 2 charstrings, their local and global subroutines, hints skipped, the flex
+curves, and a CID-keyed font's local subroutines by the font dictionary each glyph's range names,
+each cubic cut in eight as the quadratics are. Read here with STIX Two Math's bold, italic, fraktur
+and double-struck letters, which sit on the baseline beside the builder's, and Noto Sans CJK's
+collection's characters of Extension B. All 444 fonts of the desktop load again with it, the CFF
+fonts among them reaching the reader through the scan's mathematical letter. A test font of CFF, a
+square drawn by a global subroutine after a move carrying the glyph's width, which
+`make-color-test-fonts.py` writes, and a test. The entry keeps text shaped only in emoji. The suite:
+1,460 passed, none skipped.

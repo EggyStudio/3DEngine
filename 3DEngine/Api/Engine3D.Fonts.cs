@@ -285,7 +285,7 @@ public static partial class Engine3D
             : outlines.HasOutlines ? [.. asked.Where(c => c > 0xFFFF || outlines.HasColor(outlines.GlyphIndex(c)))]
             : asked;
         if (asked.Any(c => c > 0xFFFF) && outlines is null)
-            ApiLogger.Warn($"{caller}: '{name}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
+            ApiLogger.Warn($"{caller}: '{name}' has no outlines to draw characters past U+FFFF from, so they are left out.");
         // The reader and the bytes it holds are kept with the font only where it draws some of it.
         if (own.Length == 0) outlines = null;
         var ranges = GlyphRanges(asked.Except(own));
@@ -373,8 +373,8 @@ public static partial class Engine3D
     /// <para>
     /// The atlas builder names characters in 16 bits, so those past U+FFFF are drawn by the engine's
     /// own TrueType reader into a strip of the same atlas, at the same size and on the same
-    /// baseline. They need the font's outlines, which a TrueType font has and an OpenType font of
-    /// CFF outlines does not. Characters the font file does not have are skipped when drawn.
+    /// baseline, from the font's outlines, TrueType's or an OpenType font's of CFF. Characters the
+    /// font file does not have are skipped when drawn.
     /// </para>
     /// <para>
     /// A color font's colored characters, emoji, are drawn by the reader in their colors, whichever
@@ -427,7 +427,7 @@ public static partial class Engine3D
         var beyond = codepoints?.Where(c => c is > 0xFFFF and <= 0x10FFFF).Distinct().Order().ToArray() ?? [];
         var outlines = beyond.Length > 0 ? TrueTypeFont.Read(File.ReadAllBytes(path)) : null;
         if (beyond.Length > 0 && outlines is not { HasOutlines: true })
-            ApiLogger.Warn($"LoadFontEx: '{fileName}' has no TrueType outlines to draw characters past U+FFFF from, so they are left out.");
+            ApiLogger.Warn($"LoadFontEx: '{fileName}' has no outlines to draw characters past U+FFFF from, so they are left out.");
         (int Key, int Glyph)[] wanted = outlines is { HasOutlines: true }
             ? [.. beyond.Select(c => (c, outlines.GlyphIndex(c))).Where(g => g.Item2 != 0)]
             : [];
