@@ -176,6 +176,8 @@ runs on, which is over a hundred thousand on a desktop GPU.
   [`textures_mipmaps`](../3DEngine.Examples/Textures/TexturesMipmaps.cs),
   [`textures_bunnymark`](../3DEngine.Examples/Benchmarks/TexturesBunnymark.cs),
   [`models_skybox_rendering`](../3DEngine.Examples/Models/ModelsSkyboxRendering.cs)
+- The game [`games/Slide`](../games/Slide/Program.cs), whose tiles' faces are drawn into images as it
+  starts
 - The cheatsheet's [Images and textures](../CHEATSHEET.md#images-and-textures)
 - Previous: [Drawing in 3D and cameras](drawing-3d-and-cameras.md)
 - Next: [Text and fonts](text-and-fonts.md)

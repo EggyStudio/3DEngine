@@ -142,7 +142,7 @@ raylib's own examples, and what is written of it here, is a row of
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/3DEngine.Examples/Shaders/ShadersParticles.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/shaders_particles.webp" width="400"/></a><br>`shaders_particles` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Rally/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/rally.webp" width="400"/></a><br>`games/Rally` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Manor/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/manor.webp" width="400"/></a><br>`games/Manor` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tactics/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tactics.webp" width="400"/></a><br>`games/Tactics` |
 | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Tempo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/tempo.webp" width="400"/></a><br>`games/Tempo` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Sumo/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/sumo.webp" width="400"/></a><br>`games/Sumo` |
-| <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Wordfall/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/wordfall.webp" width="400"/></a><br>`games/Wordfall` | |
+| <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Wordfall/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/wordfall.webp" width="400"/></a><br>`games/Wordfall` | <a href="https://github.com/EggyStudio/3DEngine/blob/main/games/Slide/Program.cs"><img src="https://raw.githubusercontent.com/EggyStudio/3DEngine/main/.github/assets/examples/slide.webp" width="400"/></a><br>`games/Slide` |
 
 `games/Pusher` is a small game outside the solution, built from the package `build/pack.sh` makes,
 as a game of your own would be. It has a level from a scene file, an animated player pushing crates
@@ -188,7 +188,10 @@ over the marbles as billboards and the score in a distance field font. `games/Wo
 by typing, words falling on curving paths of splines toward a town, each cleared by typing it,
 accents and all, from the game's own list or a text file dropped on its window, with every sound
 made as it plays by a callback feeding an audio stream, a result copied to the clipboard and a
-screenshot saved with a key. BUILDING.md says how they are built.
+screenshot saved with a key. `games/Slide` is the puzzle of numbered tiles that merge, played by
+gestures of a finger or the mouse, a swipe to slide, a double tap to take a move back, a hold to
+start again and a pinch to come nearer, with its tiles' faces drawn into images as it starts and
+its sounds waves it makes, cuts and converts. BUILDING.md says how they are built.
 
 A 3D scene with a camera the keyboard and mouse move:
 

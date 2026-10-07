@@ -4,7 +4,7 @@
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
 # runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall>
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide>
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -44,7 +44,7 @@ dotnet restore "games/$game" --force-evaluate > /dev/null || fail "did not resto
 dotnet build "games/$game" --no-restore > /dev/null || fail "did not build from the package"
 folder="games/$game/bin/Debug/net10.0"
 rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-settings.txt" "$folder/tactics-save.json" "$folder/rally-best.txt" \
-  "$folder/wordfall-shot.png"
+  "$folder/wordfall-shot.png" "$folder/slide-best.txt"
 
 # The path without the .exe a Windows build gives it, which ./e3d finds. Its answer is kept, so an
 # opening it refuses says e3d's code and sentence and the last lines of the log it names, read
@@ -231,6 +231,39 @@ case "$game" in
     echo "$status"
     case "$status" in Over*"copied yes shots 1"*) ;; *) fail "the game did not end with its result copied and a screenshot saved, $status" ;; esac
     [ -f "$folder/wordfall-shot.png" ] || fail "F12 wrote no screenshot beside the game"
+    ;;
+  Slide)
+    # A tap in the window's middle starts a game, a quick drag up or down swipes the tiles, a
+    # double click takes the move back as a double tap, a finger held a second and a half starts
+    # again, and the autopilot plays until no move is left.
+    cmd input.click 240 135
+    cmd frames.wait 10
+    cmd input.drag Left 0 -120 10
+    cmd frames.wait 10
+    swiped=$(ask slide.status)
+    case "$swiped" in *" moves 1 "*) ;; *)
+      cmd input.drag Left 0 120 10
+      cmd frames.wait 10
+      swiped=$(ask slide.status) ;;
+    esac
+    case "$swiped" in Play*" moves 1 "*) ;; *) fail "a swipe up or down did not slide the tiles, $swiped" ;; esac
+    cmd input.click 240 135 2
+    cmd frames.wait 10
+    undone=$(ask slide.status)
+    case "$undone" in *" moves 0 undos 1 "*) ;; *) fail "a double tap did not take the move back, $undone" ;; esac
+    cmd input.touch 0 240 135 90
+    cmd frames.wait 10
+    restarted=$(ask slide.status)
+    case "$restarted" in Play*" moves 0 undos 0 "*) ;; *) fail "a held finger did not start again, $restarted" ;; esac
+    echo "$swiped / $undone / $restarted"
+    cmd slide.autopilot true
+    status=""
+    for i in $(seq 1 60); do
+      status=$(ask slide.status)
+      case "$status" in Over*) break ;; *) cmd frames.wait 300 ;; esac
+    done
+    echo "$status"
+    case "$status" in Over*) ;; *) fail "the game the autopilot plays did not end, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

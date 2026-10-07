@@ -157,7 +157,7 @@ jobs:
       - name: Play every game from the package through e3d
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -248,7 +248,7 @@ jobs:
       - name: Play every game from the package through e3d
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed

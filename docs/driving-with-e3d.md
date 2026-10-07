@@ -90,6 +90,7 @@ through the engine itself, so they reach a hidden or offscreen program that no d
 ```bash
 ./e3d command input.key W 30                        # hold W for thirty frames
 ./e3d command input.click 400 225                   # click at a window position
+./e3d command input.click 400 225 2                 # a double click, which a game reads as a double tap
 ./e3d command input.drag Left 200 0 10              # drag right with the left button
 ./e3d command input.text "Player One"               # type into the game and ImGui
 ./e3d command input.button 0 RightFaceDown 30       # press a gamepad's bottom face button

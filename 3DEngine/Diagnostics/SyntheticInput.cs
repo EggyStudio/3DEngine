@@ -138,6 +138,30 @@ internal sealed class SyntheticInput
         }));
     }
 
+    /// <summary>
+    /// Clicks a mouse button <paramref name="count"/> times, each held a frame with a frame between,
+    /// the first starting with the next frame, as a double click or a double tap is made.
+    /// </summary>
+    public void Clicks(Input input, MouseButton button, ulong frame, int count)
+    {
+        for (int n = 0; n < Math.Max(1, count); n++)
+        {
+            var down = frame + (ulong)(2 * n);
+            Action<Input> press = i =>
+            {
+                i.SetMouseButton(button, true);
+                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), true);
+            };
+            if (n == 0) input.Enqueue(press);
+            else _releases.Add((down, press));
+            _releases.Add((down + 1, i =>
+            {
+                i.SetMouseButton(button, false);
+                if (ImGui.GetCurrentContext() != IntPtr.Zero) ImGui.GetIO().AddMouseButtonEvent(SdlImGuiInput.ImGuiButton(button), false);
+            }));
+        }
+    }
+
     /// <summary>Holds a finger at (<paramref name="x"/>, <paramref name="y"/>) for <paramref name="frames"/> frames.</summary>
     public void Touch(Input input, long id, float x, float y, ulong frame, int frames)
     {
@@ -210,14 +234,14 @@ internal static class InputCommands
         return $"pointer at {x}, {y}";
     }
 
-    [Command("input.click", "Moves the pointer and clicks the left button, answering a frame after release: input.click <x> <y>")]
-    internal static string Click(int x, int y)
+    [Command("input.click", "Moves the pointer and clicks the left button, twice or more a frame apart for a double click, answering a frame after the last release: input.click <x> <y> [count]")]
+    internal static string Click(int x, int y, int count = 1)
     {
         var (input, synthetic, frame) = Parts();
         SyntheticInput.Move(input, x, y);
-        synthetic.Button(input, MouseButton.Left, frame, 1);
-        ConsoleHost.Hold(frame + 3);
-        return $"clicked {x}, {y}";
+        synthetic.Clicks(input, MouseButton.Left, frame, count);
+        ConsoleHost.Hold(frame + (ulong)(2 * Math.Max(1, count)) + 1);
+        return count > 1 ? $"clicked {x}, {y} {count} times" : $"clicked {x}, {y}";
     }
 
     [Command("input.drag", "Holds a mouse button for some frames while moving the pointer a step a frame, and rests at the end before letting go: input.drag <button> <dx> <dy> <frames> [rest]")]

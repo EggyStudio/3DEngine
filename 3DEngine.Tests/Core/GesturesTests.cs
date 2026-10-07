@@ -44,6 +44,26 @@ public class GesturesTests
     }
 
     [Fact]
+    public void Clicks_The_Console_Makes_A_Frame_Apart_Are_A_Double_Tap()
+    {
+        var input = new Input();
+        var synthetic = new SyntheticInput();
+        var gestures = new Gestures();
+        synthetic.Clicks(input, MouseButton.Left, 0, 2);
+
+        var seen = new List<Gesture>();
+        for (ulong frame = 0; frame < 6; frame++)
+        {
+            synthetic.Update(input, frame);
+            input.ApplyQueued();
+            gestures.Update(input.MouseDown(MouseButton.Left) ? [new Vector2(0.5f, 0.5f)] : [], frame * Frame);
+            seen.Add(gestures.Current);
+        }
+
+        seen.Should().Equal(Gesture.Tap, Gesture.None, Gesture.DoubleTap, Gesture.None, Gesture.None, Gesture.None);
+    }
+
+    [Fact]
     public void A_Moved_Finger_Drags_And_A_Fast_Release_Swipes_Its_Way()
     {
         var gestures = new Gestures();

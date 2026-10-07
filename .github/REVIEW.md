@@ -283,3 +283,19 @@ the cheatsheet calling the dropped `ImageDraw` the call that blends by alpha, wh
 `ImageDrawImage` and its kin. Planting `Key.Alpha1` in a guide showed that a fence's backticks paired
 with a span's and shifted every span after it, so the first test read the upgrading page's spans
 the same way, and both now take the fences out first. The suite: 1,474 passed, none skipped.
+
+**Now 2, an eleventh game, played by gestures.** `games/Slide` is the puzzle of numbered tiles that
+merge, on a board of four by four in 3D, and uses what none of the ten did. It is played by the
+gestures of a finger or the mouse, a swipe to slide, a double tap to take a move back, a hold of a
+second to start again with a ring filling as it is held, a pinch to come nearer and a drag to lean
+the board. Its tiles' faces are drawn into images as it starts, `ImageDrawTextEx` and
+`ImageFlipVertical` among the calls, and its sounds are waves it makes, `WaveCopy`, `WaveCrop` and
+`WaveFormat` among them. Its run found a gap in e3d. No command made a double click, since two
+`input.click`s come frames apart and a double tap needs them within 0.3 seconds of the game's time,
+so `input.click` takes a count, each click held a frame with a frame between, with a test that the
+gestures read two such clicks as a double tap. A game's own fault came out too, a merged tile drawn
+over its sum until the next move. `drive-game.sh` taps to start, swipes with a quick drag, double
+clicks and holds a finger, asserting each, then lets the autopilot play a game out, which takes
+about 1,800 frames. The Linux job runs that script and captures the game, and the soak and the
+storm take it. On lavapipe under the validation layer it played through with no validation error,
+and the soak held level. The suite: 1,475 passed, none skipped.
