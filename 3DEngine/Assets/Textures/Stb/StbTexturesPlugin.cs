@@ -7,9 +7,8 @@ namespace Engine;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Pulled in automatically by <see cref="TexturesPlugin"/>; standalone consumers can
-/// still add it directly if they want StbImageSharp coverage without the rest of the
-/// textures aggregator (uncommon).
+/// Added by <see cref="TexturesPlugin"/>, and by itself by a program that decodes images
+/// through StbImageSharp without the rest of that plugin, which few do.
 /// </para>
 /// </remarks>
 /// <seealso cref="TexturesPlugin"/>

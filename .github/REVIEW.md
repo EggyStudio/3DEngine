@@ -335,3 +335,10 @@ size. The Linux job runs the script and captures the game, and the soak and the 
 lavapipe under the validation layer it played through with no validation error, and the soak held
 level. The macOS job has 120 minutes, room for the twelve games. The suite: 1,475 passed, none
 skipped.
+
+**e3d writes UTF-8 on every system.** Wordfall's drive on Windows reads a word with an accent from
+`e3d`'s answer and types it back, and `e3d` wrote its answers in the console's code page there, as
+.NET does unless told otherwise, which would have handed the script other characters than the game
+sent and put them on the page. It writes UTF-8 now, as it already did on Linux and macOS. Two
+comments of the code carried over from the modules said `want`, and say what happens instead. The
+suite: 1,475 passed, none skipped.

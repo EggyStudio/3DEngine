@@ -10,8 +10,8 @@ namespace Engine;
 /// Inserted by <see cref="ScenesPlugin"/>. Maintained by <see cref="SceneSpawnSystem"/>
 /// (which records new spawns) and <see cref="SceneHotReloadSystem"/> (which despawns the
 /// old set and re-records the replacement). Direct callers of
-/// <see cref="SceneSpawner.Spawn"/> can also <see cref="Track"/> their result manually if
-/// they want hot-reload behavior outside the request-driven workflow.
+/// <see cref="SceneSpawner.Spawn"/> can also <see cref="Track"/> their result, so a scene
+/// spawned outside a request is spawned again when its file changes.
 /// </para>
 /// <para>
 /// One <see cref="AssetId"/> maps to one record, and spawning the same asset again replaces the
