@@ -138,6 +138,29 @@ font's emoji is drawn a character at a time, as raylib draws it, so the ligature
 of a script such as Arabic are not made. A variable color font's emoji are drawn as its default
 instance.
 
+## Text read right to left
+
+A line with a letter of a script written right to left, as Hebrew, Arabic, Syriac and Thaana are,
+is drawn in the order it is read, by the rules of Unicode's bidirectional algorithm. A run of those
+letters goes from right to left, a number in it from left to right as a number is read, and a
+bracket in it is turned to face the way it is read:
+
+```csharp
+// The Hebrew from right to left, the year in it from left to right.
+const string Greeting = "שלום 2026";
+var hebrew = LoadFontEx("resources/fonts/NotoSansHebrew-Regular.ttf", 32, LoadCodepoints(Greeting));
+DrawTextEx(hebrew, Greeting, new Vector2(20, 330), 32, 0, Color.DarkBlue);
+```
+
+Each line is a paragraph of its own, whose direction is that of its first letter, so a line that
+starts in Hebrew reads right to left with an English word in it, and every line lies from the left
+at the position given. A letter keeps its marks, its vowel points among them, and `MeasureTextEx`
+measures a line as before, since its order changes no width. The marks that set a direction alone,
+U+200E and U+200F, are read, and those that embed or isolate a run, U+202A to U+202E and U+2066 to
+U+2069, are passed over. A line with no letter read right to left is drawn in the order it is
+stored, as raylib draws every line. Arabic's letters are each drawn as they stand alone, not joined
+to the letters beside them.
+
 ## Typed text
 
 `GetCharPressed` gives the characters typed since the last frame, one call each, in order, with

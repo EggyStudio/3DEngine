@@ -47,8 +47,8 @@ table also answers whether the two agree.
 | Idea | BevyCSharp | 3DEngine |
 |---|---|---|
 | A behavior method names its entity's other components as parameters, `Tick(BehaviorContext ctx, ref Transform transform, in Velocity velocity)`, and is handed them with no lookup of its own | has (`49ea5eb`) | taken at `91f0f793`, with E3D008 for a parameter it cannot hand over |
-| A behavior method that touches what only one thread may (resources, the interface, sounds) runs on the main thread, by rule for a static method and by an attribute for an instance one | to check | has (`[MainThread]`, `3c9c7ac8`) |
-| A script compiled while the game runs names the game's own types, and the scripts watched are the project's, not a copy in the build folder | to check | has (`3c9c7ac8`) |
+| A behavior method that touches what only one thread may (resources, the interface, sounds) runs on the main thread, by rule for a static method and by an attribute for an instance one | taken at `5a96ce0`, `[MainThread]` on an instance method | has (`[MainThread]`, `3c9c7ac8`) |
+| A script compiled while the game runs names the game's own types, and the scripts watched are the project's, not a copy in the build folder | has, the project's scripts watched and the game's own types compiled against | has (`3c9c7ac8`) |
 | One table of the attributes a generator accepts, and a test that compiles and runs a use of each | has (`deb1b79`) | has (`9bfd44e3`) |
 | Diagnostics for a behavior or a command written wrongly | has (`BevyCSharp.Generator/BehaviorDiagnostics.cs`) | has (E3D001 to E3D006) |
 | Fixes for those diagnostics offered in an editor | to take | has (`3DEngine.CodeFixes`, `c6b529d4`) |
@@ -90,7 +90,7 @@ table also answers whether the two agree.
 | Friction and bounce for each body, mixed for a pair | has | has (`9aa94324`) |
 | A joint described in a scene file as an entity naming its two bodies, at its own place and axis | taken at `c98010a`, `JointBetween` | has (`Joint`, `e46058fc`) |
 | Two bodies a joint holds do not collide with each other | has (`1f10323`) | has (`ed0f3aa6`) |
-| A ray passes through a trigger, so a sensor never holds up a wheel or a character's ground check | to check | has (`b5eb3642`) |
+| A ray passes through a trigger, so a sensor never holds up a wheel or a character's ground check | taken at `1f10d6f`, every ray passing through sensors | has (`b5eb3642`) |
 | A raycast vehicle made by one call beside the character controller, tuned by one record | to consider | has (`CreatePhysicsVehicle`, `ee641437`) |
 | The physics step on several workers past a count of awake bodies, repeating to the bit on every machine | to check | has (`319832dc`) |
 | A contact says how hard its pair hit, as the speed they closed at | taken at `5f836cb`, with the point and the normal | has (`ContactStarted.Speed`, `c5227118`) |
@@ -130,7 +130,10 @@ table also answers whether the two agree.
 | The listing of running sessions taken twice and joined, since one taken while a session file is replaced can leave it out | has (`CliSession.cs`) | has (`048c072c`) |
 | A field holding an array written from the terminal, its items split by semicolons | taken at `678d860` | has (`3cab9d9d`) |
 | Files dropped on the window reach the program, and a command pretends a drop | has the messages, `input.drop` taken at `678d860` | has (`input.drop`, `eca234f9`) |
-| A command line that starts a program through `cmd.exe /c start` on Windows gives cmd.exe the line as written, since a line added to `ArgumentList` has each inner quote escaped with a backslash that cmd.exe keeps, so `start` takes the escaped title for the program | to take (REVIEW.md, item 4), `bcs` adding the line to `ArgumentList` in `Launch.cs` | taken at `1c848a20` (`e3d`), found by Verdict 33 |
+| A command line that starts a program through `cmd.exe /c start` on Windows gives cmd.exe the line as written, since a line added to `ArgumentList` has each inner quote escaped with a backslash that cmd.exe keeps, so `start` takes the escaped title for the program | taken at `a753c57`, the Windows job opening the sample through `bcs` | taken at `1c848a20` (`e3d`), found by Verdict 33 |
+| A command line writes its answers as UTF-8 on every system, so a word with an accent read on Windows is the word the game sent | to check, `bcs` writing the console's code page there | has (`e60ba729`) |
+| A click command takes a count, so a double tap is driven within the game's double-click time | to take, `input.click` clicking once | has (`a9ff8c1b`) |
+| Console pads are made up to the index a command names, four at most, so a second player is driven | to take, `bcs` making a pad at 0 alone | has (`2b5b0873`) |
 | A command's parameter with a default may be left off, shown in brackets in its usage | taken at `678d860`, `[name]` in the usage and `optional` in the schema | has (`a3d56597`) |
 | C# typed at a running app | has in the editor (`eval`) | has (`e3d eval`, `075c5b3c`), compiled against the running program and run between frames |
 | The frame's cost by part, from one command | has (`frame.profile`, `d6a03d2`) | has (`profile`, `fffc5060`) |
@@ -143,19 +146,19 @@ table also answers whether the two agree.
 | A test that cannot run is reported as skipped with its reason | has (`e857326`) | has (`939ba258`) |
 | Examples picked by name as an argument, each with a capture CI takes | taken at `661682e`, measured against Bevy's own 421 examples in EXAMPLES.md | has (`3DEngine.Examples`, `048c072c`) |
 | Behaviors registered by a module initializer the generator writes, so a game published trimmed or as native AOT keeps them | has | has (`425ffc31`), with Pusher published native |
-| A game published as native AOT and run by CI | to take | has (`build/play-native.sh`, `f2abc4f0`), Pusher drawn for 300 frames under the validation layer |
+| A game published as native AOT and run by CI | has (`build/play-native.sh`), Courtyard published native and played by the pack workflow | has (`build/play-native.sh`, `f2abc4f0`), Pusher drawn for 300 frames under the validation layer |
 | Whole pictures compared with checked-in references, a small share of pixels allowed to differ between devices | to take, for the examples' captures | has (`771f10e9`, `fd5bcc84`) |
 | Seven games of different kinds built from the package, the later ones finding nothing new | has one, Courtyard | has (`games/`, to `7a8360ae`) |
-| A game written in behaviors alone, with hundreds of entities, played by CI and profiled | to take | has (`games/Swarm`, `3c9c7ac8`) |
-| A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | to take | has (`build/soak.sh`, `044d2396`) |
-| An app made and closed a hundred times in one test holds no more than it held after ten, read before any collection, the rule a soak keeps for a game kept for an app's whole life | to check, with `ScriptHost.References()` reading every loaded assembly at each compilation, the growth 3DEngine found | taken at `c06ec659`, `AppLeakTests`, the growth being the script compiler's references read at every app's start |
-| Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | to take | has (`BadFileTests`, `3442e2cd`) |
+| A game written in behaviors alone, with hundreds of entities, played by CI and profiled | taken at `109711a`, `games/Swarm` | has (`games/Swarm`, `3c9c7ac8`) |
+| A game played for minutes by a script while memory, GPU objects and entity ids are read, a count that keeps climbing failing the run | taken at `cdbce22`, `build/soak.sh` and `soak-check.py`, four leaks found | has (`build/soak.sh`, `044d2396`) |
+| An app made and closed a hundred times in one test holds no more than it held after ten, read before any collection, the rule a soak keeps for a game kept for an app's whole life | taken at `360669e`, `AppLeakTests` and `ScriptCompilationMemoryTests` | taken at `c06ec659`, `AppLeakTests`, the growth being the script compiler's references read at every app's start |
+| Every loader given a missing, an empty, a cut short and a random file, answering with a message and no exception, as one table in a test | taken at `ff1ebcf`, `BadFileTests`, the loaders a game calls still throwing (REVIEW.md, item 4) | has (`BadFileTests`, `3442e2cd`) |
 | A window resized, minimized and moved by commands while it draws, as a storm the workflow runs | to consider, the window being Bevy's | has (`build/storm.sh`, `b0d835c4`) |
-| The public surface listed in a checked-in file a tool writes from the built assembly, a test failing when they differ | to take | has (`PublicApi.txt`, `fc5aef49`) |
+| The public surface listed in a checked-in file a tool writes from the built assembly, a test failing when they differ | taken at `1f10d6f`, `PublicApi.txt` of 10,681 lines | has (`PublicApi.txt`, `fc5aef49`) |
 | Every public member documented, an undocumented one failing the build, the documentation carried in the package | to check | has (`a4b2785c`) |
 | A template package, so `dotnet new` starts a game | to take | has (`3DEngine.Templates`, `ec7e6c3c`) |
-| A test that opens the packed package and finds everything it should hold, natives for each system among it | to take | has (`PackageContentsTests`, `760b8206`) |
-| The package's release notes written from the commits since the version was last set | to take | has (`fc5aef49`) |
+| A test that opens the packed package and finds everything it should hold, natives for each system among it | has (`NormTests.N_6_4` and `N_6_5`), the natives for each system to check | has (`PackageContentsTests`, `760b8206`) |
+| The package's release notes written from the commits since the version was last set | taken at `1f10d6f`, `build/release-notes.sh` | has (`fc5aef49`) |
 | A small game built from the packed package and played by CI | has (`f147adc`) | has (`377576c4`) |
 | The README's first program followed in a clean container by CI | has (`8ff919c`) | has (`e98e93a1`) |
 | A version whose patch counts commits since the owner last set the major and minor | taken at `88954d5` | has (`609bd859`) |
@@ -175,7 +178,7 @@ table also answers whether the two agree.
 | A test in which the engine logs an error fails unless it says it expects that error | has (`FailOnLoggedErrors`, `76cdb9a`), whose survey found three faults | has (`FailOnLoggedErrors`, `99b9c97d`), an error laid to its test by the app that logged it, which found a physics world disposed twice |
 | A system that throws in every frame is logged in full once and counted after | has (`76cdb9a`, `SystemExceptionTests`) | has (`c35472ba`), by stage, system and type, with a line at each power of ten and the totals as the app closes |
 | The followed engine's own stress programs built from its source and measured beside the engine's by a script, the numbers in a document that names the script | has (`build/bevy-stress.sh` and `build/measure-stress.sh`, `1fc9c9c`), thirteen of Bevy's stress tests, a difference placed by adding to Bevy's program what the bridge adds | has (`build/raylib-bench/run.sh`), raylib's bunnymark and a cube count beside `textures_bunnymark` and `models_stress` |
-| A script's generation unloads when it is compiled again, nothing of the process keeping its types or its registrations, held by a test that compiles twice and finds the first load context collected | to check, `BehaviorsPlugin` passing over a collectible assembly's behaviors | has (`ScriptGenerationTests`, `d7e370ed`), which found a script registered into every later app |
+| A script's generation unloads when it is compiled again, nothing of the process keeping its types or its registrations, held by a test that compiles twice and finds the first load context collected | taken at `360669e`, five keepers found and let go | has (`ScriptGenerationTests`, `d7e370ed`), which found a script registered into every later app |
 | A mesh's colors and second texture coordinates as buffers of their own beside a fixed vertex, drawn through a second vertex stage only where a mesh has them, so a mesh without them costs what it did, measured | to consider, Bevy's meshes carrying their own attributes | has (`cac05ded`), the same work without them and 7 percent more with both |
 | Every text file has LF ends in every checkout, by `.gitattributes`, so a test that reads a page or a script reads the same lines on Windows | has (`5264257`), after its first page failed two tests on Windows for CRLF | has (`1c1a3cea`), after its page showed a test reading no code blocks on Windows |
 | A render target of several images of their own formats, a pass described by its formats so targets alike share pipelines, and a shader's outputs read from its SPIR-V to mask the rest | to consider, Bevy's deferred pipeline having its own | has (`692cefee`), up to four images with one depth |
@@ -190,11 +193,11 @@ table also answers whether the two agree.
 | The README's table of contents is the guide's, a line a page, with full URLs since it is the package's page too | taken at `a0b1fa3` | has (`c8cce1ce`) |
 | A cheatsheet of the whole public surface, a line a call, held to the API by a test | taken at `4de242d`, at the root | has (`a2336d0e`), at the root since `695b5ca6` |
 | Every link in the README and the guide followed by a check in the workflow | taken at `a0b1fa3` | has (`DocumentLinkTests`, `07c15314`) |
-| Every C# block of the guides built on the packed package by the workflow, a fragment after the lines a comment before it gives, a block marked not compiled left out with its reason, an error said at the page's line | to take (REVIEW.md, item 11) | has (`build/docs-on-package.py`, `a4f31573`), three faults found in 138 blocks on its first run |
+| Every C# block of the guides built on the packed package by the workflow, a fragment after the lines a comment before it gives, a block marked not compiled left out with its reason, an error said at the page's line | taken at `bc90a7a`, `build/docs-on-package.py` with this library's usings, 192 of 193 blocks on its first run | has (`build/docs-on-package.py`, `a4f31573`), three faults found in 138 blocks on its first run |
 | The instructions for coding agents are `AGENTS.md` at the root, the name every such tool reads | renamed on 2026-10-04 | renamed on 2026-10-04 |
 | A page comparing the engine with the one it follows: what is the same, what it adds, what it costs, and what was measured | taken at `e98b3b0`, with Bevy | has (`docs/compared-with-raylib.md`, `b0d719cc`), with raylib built in C and measured beside it |
 | A picture of an example opens that example's source in the repository, the owner's choice on 2026-10-05 over the live demo on the followed engine's site, so nothing is cached from another project | taken at `57fc7e9`, all 198 pictures | taken at `bf1a559c`, all 52 pictures |
-| A first game told from an empty folder a step at a time, each step a whole program the workflow builds and runs and the page is held to | to take, where `docs/making-a-game.md` describes a finished one | has (`docs/first-game.md`, `d5d2578d`) |
+| A first game told from an empty folder a step at a time, each step a whole program the workflow builds and runs and the page is held to | taken at `7072511`, `docs/first-game.md` in twelve steps | has (`docs/first-game.md`, `d5d2578d`) |
 | The rules both engines keep are numbered in one file, each with its reason and a check named for it, and a list of what does not yet keep a rule that only gets shorter | taken at `e7d788a`, `NormTests` over 13 rules with 8 lists | taken at `9decca1d`, `NormTests` over 12 rules with 9 lists |
 | Captures stored as WebP at the size of the window the followed engine uses, lossy for a lit scene and lossless for flat color | has (`29ebd78`), at Bevy's 1280 by 720 | taken at `e673197a`, at raylib's 800 by 450 |
 | A script compiled again is swapped in between frames, on the thread that runs the stages, with the retired generation's systems out before the new one's run | has, the watcher raising a flag that a system of the main thread acts on, and the retired systems marked and skipped (`ScriptWatcher`, `App.RemoveSystemsBySource`) | has (`2d506d4b`), where the swap on the compiler's thread could skip a system or run one twice |

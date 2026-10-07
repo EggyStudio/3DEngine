@@ -25,7 +25,13 @@ are shipped, its tables found from the file's start.
 paints.ttf colors U+1F600 by paints (COLR version 1), as Noto Color Emoji does: two layers in a clip
 box from 100 to 900 across and 0 to 800 up, a square filled with a linear gradient from red at its
 left to blue at its right, and over it a small square, from 400 to 600 across and 300 to 500 up,
-filled green and moved 200 to the right by a translation."""
+filled green and moved 200 to the right by a translation.
+
+rtl.ttf holds outlines for text read right to left, each glyph a shape its place can be told by:
+alef (U+05D0), bet (U+05D1) and gimel (U+05D2) are bars from 100 to 900 across, 800, 400 and 200
+high, qamats (U+05B8) a mark of no width, a bar from -700 to -300 across under the letter before
+it, '1' a narrow bar and '2' two, '(' a bracket open to the right and ')' one open to the left, 'a'
+a triangle and the space 500 wide."""
 import os, struct, zlib
 
 
@@ -221,3 +227,26 @@ char_strings_at = 4 + len(names) + top_size + len(strings) + len(globals_)
 top = index([bytes([29]) + struct.pack(">i", char_strings_at) + bytes([17])])
 cff = bytes([1, 0, 4, 1]) + names + top + strings + globals_ + index([bytes([14]), glyph])
 font(os.path.join(here, "cff.otf"), 2, [(0x1F600, 1)], {b"CFF ": cff})
+
+# rtl.ttf: glyphs 1 to 3 alef, bet and gimel, 4 qamats, 5 '1', 6 '2', 7 '(', 8 ')', 9 the space and
+# 10 'a', a glyph the em wide each but the mark and the space.
+glyphs = [
+    b"",
+    simple([[(100, 0), (100, 800), (900, 800), (900, 0)]]),
+    simple([[(100, 0), (100, 400), (900, 400), (900, 0)]]),
+    simple([[(100, 0), (100, 200), (900, 200), (900, 0)]]),
+    simple([[(-700, -180), (-700, -80), (-300, -80), (-300, -180)]]),
+    simple([[(400, 0), (400, 600), (600, 600), (600, 0)]]),
+    simple([[(200, 0), (200, 600), (400, 600), (400, 0)], [(600, 0), (600, 600), (800, 600), (800, 0)]]),
+    simple([[(200, -100), (200, 800), (700, 800), (700, 700), (300, 700), (300, 0), (700, 0), (700, -100)]]),
+    simple([[(300, -100), (300, 0), (700, 0), (700, 700), (300, 700), (300, 800), (800, 800), (800, -100)]]),
+    b"",
+    simple([[(100, 0), (500, 600), (900, 0)]]),
+]
+glyf = b"".join(glyphs)
+loca, at = b"", 0
+for g in glyphs: loca += struct.pack(">I", at); at += len(g)
+loca += struct.pack(">I", at)
+font(os.path.join(here, "rtl.ttf"), 11,
+     [(0x05D0, 1), (0x05D1, 2), (0x05D2, 3), (0x05B8, 4), (0x31, 5), (0x32, 6), (0x28, 7), (0x29, 8), (0x20, 9), (0x61, 10)],
+     {b"glyf": glyf, b"loca": loca}, {4: 0, 9: 500})

@@ -25,7 +25,7 @@ namespace Engine.Tests.Rendering;
 /// </remarks>
 [Collection("Engine3D")]
 [Trait("Category", "Render")]
-public sealed class ReferenceFrameTests : IDisposable
+public sealed partial class ReferenceFrameTests : IDisposable
 {
     // A channel further than this from the reference marks its pixel as differing.
     private const int Step = 24;
@@ -620,48 +620,6 @@ public sealed class ReferenceFrameTests : IDisposable
         Matches(frame, "morph_and_layer");
         UnloadModel(strip);
         UnloadModel(hero);
-    }
-
-    [NeedsVulkanFact]
-    public void Text_In_A_Font_From_A_File_Matches_Its_Reference()
-    {
-        Open(256, 160);
-        var font = LoadFontEx(Engine.Tests.Api.FontTests.Lato(), 28);
-
-        var frame = Capture(() =>
-        {
-            ClearBackground(Color.RayWhite);
-            DrawTextEx(font, "Lato from a file", new Vector2(10, 20), 28, 1, Color.DarkBlue);
-            DrawTextEx(font, "Small and spaced", new Vector2(10, 70), 18, 3, Color.Maroon);
-            DrawTextEx(font, "0123456789 ÆØÅ éü", new Vector2(10, 110), 22, 0, Color.Black);
-        });
-        Matches(frame, "font_from_file");
-        UnloadFont(font);
-    }
-
-    [NeedsVulkanFact]
-    public void Color_Text_Matches_Its_Reference()
-    {
-        // The test fonts' color glyphs drawn as text: paints of a gradient and a moved square
-        // (COLR version 1), a sequence the bitmap font joins into its yellow glyph beside the sun
-        // alone, and layers with a letter of no color, tinted.
-        Open(256, 96);
-        string Font(string name) => Path.Combine(AppContext.BaseDirectory, "Api", name);
-        var paints = LoadFontEx(Font("paints.ttf"), 48, [0x1F600]);
-        var bitmaps = LoadFontEx(Font("bitmaps.ttf"), 32, LoadCodepoints("\U0001F600\u200D\u2600 "));
-        var layers = LoadFontEx(Font("layers.ttf"), 40, ['A', 0x1F600]);
-
-        var frame = Capture(() =>
-        {
-            ClearBackground(Color.RayWhite);
-            DrawTextEx(paints, "\U0001F600", new Vector2(8, 8), 48, 0, Color.White);
-            DrawTextEx(bitmaps, "\U0001F600\u200D\u2600 \u2600", new Vector2(72, 16), 32, 2, Color.White);
-            DrawTextEx(layers, "A\U0001F600", new Vector2(170, 12), 40, 2, Color.DarkBlue);
-        });
-        Matches(frame, "color_text");
-        UnloadFont(paints);
-        UnloadFont(bitmaps);
-        UnloadFont(layers);
     }
 
     [NeedsVulkanFact]

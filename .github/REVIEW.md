@@ -10,18 +10,38 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `2a81d369`. `docs/upgrading.md` moves a game from 5.1 to 6.0, counting from 5.1.116,
-the package packed at `b43818f9`, with a row for every name the public surface lost since saying
-what a game wrote and what it writes, the two changes that still compile first, a capsule's rings
-before its slices and the log levels numbered as raylib numbers them, then the three functions gone,
-the 26 keys, the 15 gamepad buttons, `Critical` as `Fatal`, the skeleton and the keyframes, and what
-was added; the README links it, and it names no one who decided. `UpgradingTests` reads
-`PublicApi.txt` at `b43818f9` from git and as it is, and fails naming each lost type or member the
-page lacks in code, which the workflow's shallow checkout skips, so the Linux job fetching that
-commit is item 4 by the new count. A sweep mended two stale names, `GetKeyPressed`'s summary and
-RENDERING.md's `FrameMorphWeights`. N 1.4 leaves out 14 (`2a81d369`), which settles item 4. The
-session takes TODO.md's order while Verdicts 30 to 33 wait for a push. The suite: 1,470 passed, none
-skipped.
+Reviewed up to `3afcc4d0`. The Linux job fetches `b43818f9` alone, so the upgrading page's test runs
+on every push (`5dca5694`), which settles item 4, and no name lost since 5.1 is written in the other
+documents, held by a second test that found `ImageDraw` in the cheatsheet (`8f3d456d`). Four games
+of kinds none of the eight was came in. Sumo, two players on one screen split between two cameras
+drawing into render textures, with shaders of its own and a floor painted by a compute shader, found
+e3d making a console pad at 0 alone, so `input.button` and `input.axis` make pads up to the one
+named (`2b5b0873`). Wordfall, played by typing words dropped from a file and falling along splines,
+its sounds made in a stream's callback, found a run with no window dropping the clipboard, so such a
+run keeps one of its own (`01bfcae8`). Slide, the puzzle of merging tiles played by gestures, its
+faces drawn into images and its sounds made as waves, found no command making a double click, so
+`input.click` takes a count (`a9ff8c1b`). Jelly, a runner squashed by its model's morph targets,
+records each run as automation events and watches it again to the same end, in the session and from
+a file in a new process (`37064205`). The run of `1c848a20` was read: macOS's heap rose and fell
+back by 6 MB every thirty apps with no slope under it and the census found 0.25 MB of strings more
+alive, so the leak tests judge how far the heap's floor rose, and Windows opened every game and ran
+out of its 75 minutes, so each game has a budget past which its error says how far it got
+(`596535ce`); e3d writes UTF-8 on every system (`e60ba729`); and the twelve games timed on lavapipe
+at four cores took 22 minutes together, Manor's walk six, so each has twelve in the workflow and the
+Windows job 180 minutes (`3afcc4d0`). N 4.5 leaves out 15. The owner chose text shaped whole on
+2026-10-07 (Decision 15), which is item 4. The suite: 1,475 passed, none skipped.
+
+Before them, `docs/upgrading.md` came to move a game from 5.1 to 6.0, counting from 5.1.116, the
+package packed at `b43818f9`, with a row for every name the public surface lost since saying what a
+game wrote and what it writes, the two changes that still compile first, a capsule's rings before
+its slices and the log levels numbered as raylib numbers them, then the three functions gone, the 26
+keys, the 15 gamepad buttons, `Critical` as `Fatal`, the skeleton and the keyframes, and what was
+added; the README links it, and it names no one who decided. `UpgradingTests` reads `PublicApi.txt`
+at `b43818f9` from git and as it is, and fails naming each lost type or member the page lacks in
+code, which the workflow's shallow checkout skips, so the Linux job fetching that commit is item 4
+by the new count. A sweep mended two stale names, `GetKeyPressed`'s summary and RENDERING.md's
+`FrameMorphWeights`. N 1.4 leaves out 14 (`2a81d369`), which settles item 4. The suite: 1,470
+passed, none skipped.
 
 Before them, Verdict 33's cause was found to be e3d's: on Windows it added its `cmd.exe /c start`
 line to `ArgumentList` as one argument, so .NET escaped each inner quote with a backslash that
@@ -37,18 +57,6 @@ FSEvents streams, which the census's answer is read against first (`1c848a20`). 
 for the Windows and macOS jobs. BevyCSharp's `bcs` gives cmd.exe its start line the same way, which
 is its item 4. The suite: 1,462 passed, none skipped.
 
-Before them, every C# block of the guides came to build on the packed package in the examples job,
-138 blocks of fifteen pages: `build/docs-on-package.py` sorts a block's lines by what they declare,
-types into a namespace, members into a class and statements into a method inside a loop run once,
-after the lines a `<!-- compiled with: -->` comment before the fence gives, leaves out a block
-marked `<!-- not compiled: -->` with its reason, and says an error at the page's line as an
-annotation, with `DocsScriptTests` feeding it a good, a stale and a skipped block, which settles
-item 4. Its first run found three faults: the spatial sound the audio guide teaches had been
-internal since `82b1feb4` and is public again as `BehaviorSounds.PlaySpatialSound`, two lines added
-to `PublicApi.txt` and none lost; the states guide and the cheatsheet named a `Screen.Menu` the
-page's enum lacks; and five fragments no compiler reads are written as their code (`a4f31573`).
-N 1.4 leaves out 13. The suite: 1,462 passed, none skipped.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -59,23 +67,28 @@ The owner asked on 2026-10-04 that the work here does not stop, there being much
 This list is long on purpose, and a batch that ends is followed by the next item with no wait
 for a reply. In this order.
 
-1. **Verdicts 30 to 33 first, the run of `913e78e0` and the examples job.** The run of `913e78e0`
-   failed on macOS in the offscreen hundred of `AppLeakTests` (Verdict 32) and on Windows in every
-   game's opening through `e3d` (Verdict 33), its examples job skipped behind them, so Verdicts 30
-   and 31 wait for the next examples job, and the README walk and the first game, which come after
-   the games in the Windows and macOS jobs, have run on neither system. Each push's run is read by
-   the reviewing session, and a failure it names comes first here.
+1. **Verdicts 30 to 33 first, the run of `3afcc4d0`.** The run of `1c848a20` is read into
+   Verdicts 32 and 33, and the run of `3afcc4d0`, in its Windows and macOS suites at 15:36, is the
+   proof of their mends; its examples job, which carries the guides' blocks and Verdicts 30 and 31,
+   runs once the three test jobs pass. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
 2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
-   what none of the seven has.
+   what none of the twelve has.
 3. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-4. **The upgrading page held in the workflow.** `UpgradingTests` needs `b43818f9` in the
-   checkout, which the workflow's shallow checkout lacks, so the page is held on a developer's
-   machine alone. The Linux job fetches that one commit before the suite, `git fetch --depth=1
-   origin b43818f9`, so the test runs there on every push, and the skip's sentence stays for a
-   checkout without it.
+4. **Text shaped whole, in three batches (Decision 15).** First right-to-left text, a reduced UAX
+   #9 with strong types, numbers, neutrals, marks and mirrored brackets and no explicit embeddings,
+   putting Hebrew and Arabic runs in display order for drawing and measuring. Then Arabic joining,
+   each character's joining type choosing its form, applied through the font's GSUB under the `arab`
+   script with feature masks, then `rlig` and `calt`, honoring lookup flags and GDEF classes, a font
+   with no Arabic GSUB falling back to the presentation forms it maps, the shaped glyphs baked as
+   the joined emoji glyphs are. Then GPOS inside shaped runs, mark-to-base and mark-to-ligature for
+   harakat and pair adjustment there. Latin outside shaped runs stays one character at a time with
+   raylib's advances and unkerned, so ported layouts measure the same. Each batch holds with
+   synthetic fonts from `make-color-test-fonts.py` and a reference frame, and TODO.md's text entry
+   shrinks as each lands.
 
 The larger things BevyCSharp has and this engine lacks (saves, data in files of its own, files
 that outlive a renamed type, C# typed at a running app) stay `to consider` in
@@ -131,7 +144,14 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     runtime's strings. The session read on the way that the scripts' shared watch of Verdict 27 is
     let go with the last app watching it, so a hundred apps made one after another make a hundred
     FSEvents streams, and `039bd788`'s one stream holds for apps that overlap; the census's answer
-    is read against that first. Settled when the macOS job passes the test.
+    is read against that first. The run of `1c848a20` answered the reading: the heap every ten apps
+    rose and fell back, 61.8, 64.9, 67.7, 61.0, 64.5, 67.0, 60.7, 64.1 and 67.2 MB from the
+    twentieth app, three steps up and one down with no slope under them, and the census found 0.25
+    MB more alive at the hundredth, all strings, so no closed app is kept and the two readings had
+    fallen on a trough and a crest; both leak tests judge how far the heap's floor rose, the least
+    reading from the twentieth app to the fiftieth against the least from the seventieth to the
+    hundredth (`596535ce`), which the run of `3afcc4d0` tries. Settled when the macOS job passes the
+    test.
 
 33. **The run of `913e78e0` fails on Windows in every game's opening, and the page says no more
     than `did not open`.** Read from the page: the suite passed there, 1,452 with 9 skipped,
@@ -152,7 +172,13 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
     to cmd.exe as written through `Arguments`, the script keeps e3d's answer as JSON and fails with
     its code, its sentence and the last five lines of the log it names, and a path that is not there
     is refused with `NOT_FOUND` where e3d died making the log's folder from it. Unproven until a
-    Windows job runs. Settled when the Windows job plays the eight games.
+    Windows job runs. The run of `1c848a20` opened every game, and Windows ran out of its 75 minutes
+    in the games' step with no error on the page, so each game has a budget, `DRIVE_MINUTES`, past
+    which a watcher stops it and one error says how far it got by its last status, the games after
+    it played on, the errors written to the script's own output so one said inside `$(ask ...)`
+    reaches the page (`596535ce`); the twelve games timed on lavapipe gave each twelve minutes and
+    the Windows job 180 (`3afcc4d0`), which the run of `3afcc4d0` tries with twelve games. Settled
+    when the Windows job plays the eight games.
 
 ## Decisions
 
@@ -228,124 +254,31 @@ Verdicts 1 to 29 are settled, and their numbers are not given again.
    that release notes and the documents under `docs/`, the README and the cheatsheet give reasons
    and not who wanted what, which is N 4.7, and who chose what stays here under Decisions.
 
+15. **Text is shaped whole.** The owner chose it on 2026-10-07, a feature raylib lacks:
+    right-to-left text in display order, Arabic joining through the font's GSUB and marks and pairs
+    through GPOS, in three batches, with Latin outside shaped runs left one character at a time with
+    raylib's advances and unkerned, so what raylib measures stays measured the same.
+
 ## Replies
 
-**Now 4, the upgrading page held in the workflow.** The Linux job fetches `b43818f9` alone after its
-build and before the suite, by its full hash, since a server is asked for a commit by the whole of
-it, so `UpgradingTests` runs there on every push. A shallow clone of this repository fetching it
-that way held the commit, read `PublicApi.txt` at it and kept its history at one commit. BUILDING.md
-says so, and the skip's sentence stays for a checkout without it. Nothing that builds changed, and
-the norm's tests pass.
-
-**Now 2, a ninth game of a kind none of the eight is.** `games/Sumo` is for two players on one
-screen, two marbles on a ring of clay each trying to knock the other off, first to three. It uses
-what no game did. The window is split between two cameras, each drawing into a render texture of
-its own with shadows, particles and billboards, and the second player plays on pad 1 or the arrow
-keys. Shaders of the game's own draw the marbles, the ring's floor and a crowd of 321 in one
-instanced draw, a compute shader paints the floor each frame from a storage buffer of the last
-eight bumps, and the score and the screens' words are in a distance field font. Its first run
-found a fault of e3d's. `input.button` and `input.axis` made a console pad at 0 alone, so no second
-player could be driven, and they make pads up to the one named now, four at most, after any real
-pad, with two tests. Its other faults were its own. A key held 60 frames on lavapipe's slow frames
-was three seconds of game time and rolled a marble off the ring, so each input is held 15 frames,
-and two autopilots circled for minutes, so a round lasts 30 seconds at most, the marble nearer the
-middle taking the point. The Linux job plays it from the package and captures it, the soak and the
-resize storm take it, and `drive-game.sh` plays it on Windows and macOS, where the second pad
-starts the match and rolls its marble, a key rolls the first, and the autopilot plays a match out.
-Here, on lavapipe under the validation layer in the workflow's image, it played through with no
-validation error, the soak held level and the storm left it drawing. N 4.5 lists its capture with
-the games'. The suite: 1,472 passed, none skipped.
-
-**Now 2, a tenth game, played by typing.** `games/Wordfall` drops words on curving paths toward a
-town, each cleared by typing it before it lands, and uses what none of the nine did. Its words come
-from its own list or a text file dropped on its window, accents and all, through `GetCharPressed`.
-They fall along Catmull-Rom splines. Every sound is made as it plays by a callback that feeds an
-audio stream, a finished game's result is copied to the clipboard and read back, and F12 saves a
-screenshot beside the game. Its first run found a fault of the engine's. A run with no window,
-offscreen or headless, never starts SDL's video, so `SetClipboardText` dropped the text and
-`GetClipboardText` answered empty, and a game driven offscreen could not copy and paste its own
-text. Such a run now keeps a clipboard of its own, as audio there falls back to a device of silence,
-with a test, and the system's clipboard is used wherever there is a window. The storm found the
-game's own fault, a layout fixed at 1280 by 720 that a smaller window cut off, so it is drawn
-through a 2D camera that scales it to fit. `drive-game.sh` drops a list of accented words, types
-the lowest through `input.text`, misses on purpose, lets the autopilot type until the town is
-buried, then asserts the copy read back and the screenshot written. The Linux job runs that script
-and captures the game, and the soak and the storm take it. On lavapipe under the validation layer
-in the workflow's image it played through twice with no validation error, and the soak held level.
-The cheatsheet's `GetKeyPressed` line still said `Unknown`, a name of 5.1, and says `Null` now. The
-suite: 1,473 passed, none skipped.
-
-**The names of 5.1 held out of the other documents.** `UpgradingTests` has a second test, that no
-name the public surface lost since `b43818f9` is written in the code of the cheatsheet, the README
-or a guide, the upgrading page apart. A name a type still has, as a call whose arguments were
-reordered, is not lost, and `ImageDraw*`, a family, is not the name it starts. Its first run found
-the cheatsheet calling the dropped `ImageDraw` the call that blends by alpha, which now names
-`ImageDrawImage` and its kin. Planting `Key.Alpha1` in a guide showed that a fence's backticks paired
-with a span's and shifted every span after it, so the first test read the upgrading page's spans
-the same way, and both now take the fences out first. The suite: 1,474 passed, none skipped.
-
-**Now 2, an eleventh game, played by gestures.** `games/Slide` is the puzzle of numbered tiles that
-merge, on a board of four by four in 3D, and uses what none of the ten did. It is played by the
-gestures of a finger or the mouse, a swipe to slide, a double tap to take a move back, a hold of a
-second to start again with a ring filling as it is held, a pinch to come nearer and a drag to lean
-the board. Its tiles' faces are drawn into images as it starts, `ImageDrawTextEx` and
-`ImageFlipVertical` among the calls, and its sounds are waves it makes, `WaveCopy`, `WaveCrop` and
-`WaveFormat` among them. Its run found a gap in e3d. No command made a double click, since two
-`input.click`s come frames apart and a double tap needs them within 0.3 seconds of the game's time,
-so `input.click` takes a count, each click held a frame with a frame between, with a test that the
-gestures read two such clicks as a double tap. A game's own fault came out too, a merged tile drawn
-over its sum until the next move. `drive-game.sh` taps to start, swipes with a quick drag, double
-clicks and holds a finger, asserting each, then lets the autopilot play a game out, which takes
-about 1,800 frames. The Linux job runs that script and captures the game, and the soak and the
-storm take it. On lavapipe under the validation layer it played through with no validation error,
-and the soak held level. The suite: 1,475 passed, none skipped.
-
-**Verdicts 32 and 33, read from the run of `1c848a20`.** macOS failed the offscreen hundred again,
-by 5.40 MB, and its series answers the verdict's question. The heap read every ten apps rose and fell
-back, 61.77, 64.85, 67.69, 61.01, 64.53, 67.00, 60.66, 64.08 and 67.16 MB from the twentieth app,
-three steps up and one down, with no slope under it, and the census found only 0.25 MB more alive at
-the hundredth than at the twentieth, all of it strings. So no closed app is kept, and the test's two
-readings fell on a trough and a crest by chance. Both leak tests now judge how far the heap's floor
-rose, the least reading from the twentieth app to the fiftieth against the least from the seventieth
-to the hundredth, which a leak raises with every reading and a heap that rises and falls back
-leaves level, as the soak's check judges a game by each half's least. On the series above that is
-0.35 MB down. Windows ran out of its 75 minutes in the step that plays the games, with no game's
-error on the page, so each game opened where every one had failed to, and then the eight did not
-finish in the time left. `drive-game.sh` gives each game a budget, `DRIVE_MINUTES`, six in the
-workflow and eight elsewhere, past which a watcher stops the game and one error says how far it got
-by its last status, and the games after it are played. A game of a minute's budget here ended so,
-63 seconds in, with the status it had reached. Its errors are written to the script's own output,
-since one said inside `$(ask ...)` went into the variable and never reached the page. The Windows
-job has 150 minutes and the macOS job 90, room for eleven games at six minutes each. The suite:
-1,475 passed, none skipped.
-
-**Now 2, a twelfth game, a runner whose runs are watched again.** `games/Jelly` is a blob of jelly
-on a road of three lanes, jumping barriers, sliding under bars and changing lanes round blocks, and
-uses what none of the eleven did. It squashes and stretches by its model's morph targets, the model
-written by a script beside it, and each run is recorded as automation events and can be watched
-again, the best exported to a file and played from the title of the game opened again. A run's
-course comes from its seed and each step is a sixtieth of a second whatever the frame took, so the
-input played again makes the same run, and `drive-game.sh` asserts it twice, a run watched again in
-the session and the best watched from its file in a new one, each ending at the same distance,
-score, coins and steps. Nothing of the engine's was found wanting, and the game's own faults were
-two. Its model's sphere was wound inside out, which drew the far half's inner face shadowed by the
-near half, and the soak found its heap a step higher at its least after the first crash, a font
-baked again for a word drawn at a size the title had not used, so the word is drawn at the title's
-size. The Linux job runs the script and captures the game, and the soak and the storm take it. On
-lavapipe under the validation layer it played through with no validation error, and the soak held
-level. The macOS job has 120 minutes, room for the twelve games. The suite: 1,475 passed, none
-skipped.
-
-**e3d writes UTF-8 on every system.** Wordfall's drive on Windows reads a word with an accent from
-`e3d`'s answer and types it back, and `e3d` wrote its answers in the console's code page there, as
-.NET does unless told otherwise, which would have handed the script other characters than the game
-sent and put them on the page. It writes UTF-8 now, as it already did on Linux and macOS. Two
-comments of the code carried over from the modules said `want`, and say what happens instead. The
-suite: 1,475 passed, none skipped.
-
-**The games timed on lavapipe.** Every game played by `drive-game.sh` in the workflow's image, on
-lavapipe under the validation layer and held to four cores as a runner is, passed, and took, its
-build included, Hopper 10 seconds, Summit 31, Tactics 43, Tempo 68, Rally 88, Jelly 93, Slide 95,
-Pusher 100, Sumo 124, Swarm 142, Wordfall 156 and Manor 356, 22 minutes in all. Manor's walk is at
-the six minutes the budget gave, so each game has twelve in the workflow, and the Windows job 180
-minutes, for a runner slower than the desktop these were timed on.
+**Now 4, batch one, text read right to left.** A line with a letter of a script written right to
+left is drawn and measured in the order it is read, by a reduced bidirectional algorithm in
+`TextDirection`. Each line is a paragraph whose direction is its first strong letter's, the weak
+types are resolved by W1 to W7, the neutrals by N1 and N2 and the levels by I1 and I2, trailing
+white space goes back to the paragraph's level, and the runs are reversed from the highest level
+down. A line is reversed by grapheme clusters, as .NET's `StringInfo` finds them, so a letter keeps
+its marks after it and a joined emoji sequence, a flag or a keycap its own order, and a mirrored
+character is turned where it is read right to left. The explicit embeddings, overrides and isolates
+are passed over and paired brackets resolved as other neutrals are. `TextKeys` orders such a line
+before it keys or shapes it and keeps the result with the font as shaped text is kept, and a line
+with no character read right to left takes the path it took, so Latin draws and measures as
+raylib's does. `make-color-test-fonts.py` writes `rtl.ttf`, alef, bet and gimel as bars of three
+heights, a mark of no width, digits, brackets and a Latin letter, the other fonts it writes coming
+out byte for byte the same. Twelve tests hold the rules on strings and the font's keys, measure and
+pixels, and a reference frame, `right_to_left`, draws a line of Hebrew, a run of it in a line read
+left to right, a number in it, brackets turned in it and a mark on its letter. The reference
+frames, these tests among them, pass on lavapipe under the validation layer in the workflow's
+image. The text frames moved to `ReferenceFrameTests.Text.cs`, ahead of the next two batches' frames,
+which the file would not have held under N 1.3. The text guide has a section on it, the cheatsheet
+a sentence, the comparison page a row, since raylib draws such a line in the order it is stored,
+and TODO.md's entry says what is left. The suite: 1,488 passed, none skipped.

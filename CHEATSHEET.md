@@ -971,7 +971,9 @@ Rectangle GetGlyphAtlasRec(Font font, int codepoint);                           
 Text is drawn in the draw list like any shape, so it keeps its place among shapes, reaches render
 targets, and draws through `BeginMode3D` on the plane z = 0. `DrawText` bakes the default font at
 the size it is drawn, so small text stays sharp, and draws a size below 10 at 10, as raylib's
-does. A newline starts a new line.
+does. A newline starts a new line. A line in a script written right to left, Hebrew or Arabic, is
+drawn in the order it is read, its numbers left to right, and a line of none in the order it is
+stored, as raylib's is.
 
 ## Files
 

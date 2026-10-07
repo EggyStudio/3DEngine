@@ -24,17 +24,33 @@ public static partial class Engine3D
     }
 
     /// <summary>
-    /// The keys of the glyphs text is drawn with in a font, a character's code point each, and
-    /// where the font joins sequences, each run of the characters its reader draws and the marks
-    /// between them shaped by the font's substitutions, so a sequence the font joins is one glyph.
+    /// The keys of the glyphs text is drawn with in a font, in the order they are drawn from left to
+    /// right, a character's code point each, and where the font joins sequences, each run of the
+    /// characters its reader draws and the marks between them shaped by the font's substitutions,
+    /// so a sequence the font joins is one glyph.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// A line with a character read right to left, Hebrew or Arabic, is put in the order it is
+    /// shown first (<see cref="TextDirection"/>), and kept with the font as shaped text is, and a
+    /// line of none is drawn in the order it is stored, as raylib draws it.
+    /// </para>
+    /// <para>
     /// A run is made of the characters the reader draws, the joiner (U+200D), the variation
     /// selectors (U+FE0E and U+FE0F), the keycap (U+20E3) and the tags (U+E0020 to U+E007F), and a
     /// character those selectors or the keycap follow, as the digit of a keycap does.
+    /// </para>
     /// </remarks>
-    internal static IEnumerable<int> TextKeys(Font font, string text) =>
-        font.Joining is { } joining ? font.ShapedText(text, t => ShapeText(font, joining, t)) : Runes(text);
+    internal static IEnumerable<int> TextKeys(Font font, string text)
+    {
+        if (TextDirection.HasRightToLeft(text))
+            return font.ShapedText(text, t => Keys(font, string.Join('\n', t.Split('\n').Select(TextDirection.Visual))));
+        return font.Joining is { } joining ? font.ShapedText(text, t => ShapeText(font, joining, t)) : Runes(text);
+    }
+
+    // The keys of text already in the order it is drawn.
+    private static int[] Keys(Font font, string text) =>
+        font.Joining is { } joining ? ShapeText(font, joining, text) : [.. Runes(text)];
 
     private static IEnumerable<int> Runes(string text)
     {

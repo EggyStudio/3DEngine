@@ -283,16 +283,16 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | Rule | 3DEngine | BevyCSharp |
 |---|---|---|
 | N 1.1 | checked, `NormTests` | checked, `NormTests` |
-| N 1.2 | checked, `NormTests` | listed 206, `NormTests` |
-| N 1.3 | checked, `NormTests` | listed 13, `NormTests`, 8 of them in the bridge |
-| N 1.4 | checked, `NormTests`, 14 left out | listed 86, `NormTests`, 23 left out |
+| N 1.2 | checked, `NormTests` | listed 191, `NormTests` |
+| N 1.3 | checked, `NormTests` | listed 11, `NormTests`, 8 of them in the bridge |
+| N 1.4 | checked, `NormTests`, 14 left out | listed 86, `NormTests`, 28 left out |
 | N 1.5 | checked, `NormTests` | checked, `NormTests` |
-| N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | to take |
+| N 2.1 | checked, `PublicSurfaceTests` and `PublicApi.txt` | checked, `PublicSurfaceTests` and `PublicApi.txt` |
 | N 2.2 | checked, CS1591 an error in `3DEngine.csproj` | checked, CS1591 and the doc faults errors in `BevyCSharp.csproj` |
 | N 2.3 | checked, `CheatsheetTests` | checked, `CheatsheetTests` |
 | N 2.4 | by review | by review |
 | N 2.5 | checked, `build/play-native.sh` in the workflow | checked, `build/play-native.sh` in the workflow |
-| N 2.6 | checked, `BadFileTests` | to take |
+| N 2.6 | checked, `BadFileTests` | to take (REVIEW.md, item 4), `BadFileTests` in place and the loaders a game calls throwing |
 | N 2.7 | checked, `build/examples-on-package.sh` in the workflow | checked, `build/examples-on-package.sh` in the workflow |
 | N 2.8 | checked, `NormTests` | checked, `NormTests` |
 | N 2.9 | checked, `FileHandleTests` | checked, `FileHandleTests` |
@@ -308,14 +308,14 @@ not the code keeps the rule. `by review` is held by the reviewing session.
 | N 4.2 | checked, `NormTests` | checked, `NormTests` |
 | N 4.3 | checked, `DocumentLinkTests` | checked, `build/check-docs.py` in the workflow |
 | N 4.4 | checked, `build/readme-walk.sh` and `FirstGameTests` | checked, `build/readme-walk.sh` |
-| N 4.5 | checked, `NormTests`, 11 left out | checked, `NormTests`, 24 left out |
+| N 4.5 | checked, `NormTests`, 15 left out | checked, `NormTests`, 24 left out |
 | N 4.6 | by review | by review |
 | N 4.7 | checked, `NormTests` and `PackageContentsTests` | checked, `NormTests` |
 | N 5.1 | checked, the workflow's capture of every example | checked, the workflow's capture of every example |
 | N 5.2 | checked, `build/examples-table.py --check` in the workflow | checked, `build/examples-table.py --check` in the workflow |
 | N 5.3 | checked, the workflow's games | checked, the workflow's Courtyard |
 | N 6.1 | checked, `-warnaserror` in the workflow | checked, `-warnaserror` and `CARGO_BUILD_WARNINGS=deny` in the workflow |
-| N 6.2 | checked, `test.yml` | to take (REVIEW.md, item 5) |
+| N 6.2 | checked, `test.yml` | to take, `macos-latest` in the matrix at `6528ea2`, checked at its first green job |
 | N 6.3 | checked, `pack.yml` and `build/version.sh` | checked, `pack.yml` and `build/version.sh` |
 | N 6.4 | checked, `PackageContentsTests` | checked, `NormTests` on the packed package |
 | N 6.5 | checked, `PackageContentsTests` | checked, `NormTests` |

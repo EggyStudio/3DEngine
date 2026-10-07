@@ -100,7 +100,7 @@ physics, text and fonts, audio, audio streams and waves, and files
   skinned meshes of its own, and poses and draws it through the flat API, so only in the app
   `InitWindow` built, where a file with clips a level places through `ModelRef` plays its first on
   a loop through one.
-- **Text is shaped only in emoji.** A coverage font loaded from a file is baked again at a size it
+- **Text is shaped only in emoji, and ordered right to left.** A coverage font loaded from a file is baked again at a size it
   is drawn at a quarter or more past its own, eight sizes at most, and one loaded as `FontType.Sdf`
   stays sharp at any size, its characters past U+FFFF as their outlines. A font has Latin-1 or the
   characters it was asked for, those past U+FFFF drawn by the engine's own TrueType reader into the
@@ -108,9 +108,10 @@ physics, text and fonts, audio, audio streams and waves, and files
   their colors, from its bitmaps (CBDT or Apple's sbix), its layers (COLR version 0) or its paints
   (COLR version 1, `ColorPaint`, a variable font's at its default), in any plane. A sequence a font joins into one picture (a family, a flag, a skin tone, a keycap) is drawn
   as that picture, the font's `ccmp` substitutions applied to each run of the characters the reader
-  draws (`GlyphSubstitution`). Text outside those runs is drawn a character at a time, so a text
-  font's ligatures, its positioning (GPOS) and the shaping a script such as Arabic or Devanagari
-  needs are not made.
+  draws (`GlyphSubstitution`). A line with a letter read right to left is drawn in the order it is
+  read, by a reduced bidirectional algorithm with no explicit embeddings (`TextDirection`). Text
+  outside the emoji runs is drawn a character at a time, so Arabic's letters stand alone unjoined,
+  and a text font's ligatures, its positioning (GPOS) and the shaping Devanagari needs are not made.
 
 ### Meshes, materials and light
 
