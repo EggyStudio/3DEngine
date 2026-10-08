@@ -6,7 +6,7 @@
 # and once more for one game with window as the second argument, which opens the game in a window
 # on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried there.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly> [offscreen|window]
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly|Wick> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -365,6 +365,25 @@ case "$game" in
     done
     echo "$best"
     [ "${best% watched *}" = "$ending" ] || fail "the best run watched from its file ended elsewhere, $ending then $best"
+    ;;
+  Wick)
+    # Walked east from the start with the keys, then lit through by the autopilot, which walks
+    # round the walls and the pits to each wick and out by the door once every wick burns.
+    before=$(ask wick.status)
+    cmd input.key Enter 2
+    cmd input.key D 60
+    after=$(ask wick.status)
+    echo "$before / $after"
+    distance=$(moved "$before" "$after" at)
+    awk -v d="$distance" 'BEGIN { exit !(d > 1) }' || fail "the player did not walk, $before then $after"
+    cmd wick.autopilot true
+    status=""
+    for i in $(seq 1 120); do
+      status=$(ask wick.status)
+      case "$status" in Won*) break ;; *) cmd frames.wait 120 ;; esac
+    done
+    echo "$status"
+    case "$status" in Won*"lit 4 of 4 falls 0 "*) ;; *) fail "the autopilot did not light every wick and leave by the door, $status" ;; esac
     ;;
   *)
     fail "is not a game this script plays"

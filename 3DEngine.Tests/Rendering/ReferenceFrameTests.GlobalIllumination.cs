@@ -128,4 +128,31 @@ public sealed partial class ReferenceFrameTests
         foreach (var model in new[] { floor, wall, pillar, chrome, gold, strip }) UnloadModel(model);
         UnloadEnvironmentMap();
     }
+
+    [NeedsVulkanFact]
+    public void A_Room_Of_Wick_Lit_By_Its_Lamp_And_A_Wick_Matches_Its_Reference()
+    {
+        // games/Wick's house drawn by the game's own House.cs at the quality the game starts at, the
+        // lamp held in the doorway out of the first room and the wick of the room beyond burning, so
+        // the light on the far sides of the doorway's walls is light that bounced there.
+        Open(256, 160);
+        var house = Wick.House.Load("resources/wick/house.txt");
+        Wick.House.Light(GlobalIllumination.Low);
+        var doorway = Wick.House.Center((6, 2));
+        Wick.House.Lamp(doorway + new Vector3(-0.6f, 1, 0));
+        house.Flame(0);
+        var lit = new bool[house.Wicks.Count];
+        lit[0] = true;
+        var camera = new Camera3D(doorway + new Vector3(0, 9, 6.5f), doorway, Vector3.UnitY, 50);
+
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            house.Draw(lit, false);
+            EndMode3D();
+        }, settle: SceneFieldPlan.SettleFrames + 10);
+        Matches(frame, "wick");
+        house.UnloadModels();
+    }
 }

@@ -70,6 +70,13 @@
               Link="resources\manor\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
         <None Include="..\games\Manor\resources\models\textures\floor-library.png;..\games\Manor\resources\models\textures\wall-library.png;..\games\Manor\resources\models\textures\plaster.png;..\games\Manor\resources\models\textures\stone.png;..\games\Manor\resources\models\textures\wood.png;..\games\Manor\resources\models\textures\books.png;..\games\Manor\resources\models\textures\rug.png"
               Link="resources\manor\textures\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <!-- Wick's house, whose map a reference frame of the game draws. -->
+        <None Include="..\games\Wick\resources\house.txt" Link="resources\wick\house.txt" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Wick's house compiled here, so a reference frame draws a room of it as the game draws it. -->
+        <Compile Include="..\games\Wick\House.cs" Link="Rendering\Wick\House.cs" />
     </ItemGroup>
 
     <ItemGroup>

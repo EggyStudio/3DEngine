@@ -10,7 +10,25 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `9a13915d`. TODO.md's build and release entry: `build/drive-game.sh` takes `window`
+Reviewed up to `46f1ec53`. Item 2: the upgrading page's Added section is whole, `UpgradingTests`
+reading the two `PublicApi.txt` the other way as well, a type 5.1 lacked named by itself and a
+member whose name its type lacked by its name, which found thirteen the page lacked, the field's and
+the bounce's six, `EcsWorld`'s two despawn calls and the skeleton's and the keyframes' five, named
+in the models table's right column; the section lists the features 6.0 has with what each does and
+the guide that shows it, the field, the bounce, glossy reflections and their `High` tier, text
+shaped, color fonts, text from a file where raylib's lies, ImGui's viewports, VR, states, sound,
+textures and the window, models and shadows, those with no new name said as what 5.1's calls came to
+do, and a third test holds each `Type.Member` of the section to the surface, tried on a misspelling;
+the page's claims read against the code hold, a font collection read as its first font in
+`Engine3D.FontFiles` and `ColorFontTests` among them, and it names no one who decided (`46f1ec53`).
+So item 2 is settled, and its number goes to the reflections' lamps shadowed in a shape lavapipe
+draws, after item 5, which the coder has started as Wick, a top-down puzzle in a dark house whose
+lamp's light reaches round corners and through doorways by bouncing alone, pits showing only where
+light falls, the house a map file and a `House.cs` the test project compiles too, so the lit room's
+reference frame draws what the game draws. Item 3's reductions stand at 6 KB and 8 KB, each report
+following its reduction's end. The suite: 1,550 passed.
+
+Before them, TODO.md's build and release entry came to be done: `build/drive-game.sh` takes `window`
 as its second argument and opens the game through `./e3d` with no `--offscreen`, its captures and
 its error's heading named apart and the empty flag list expanded in the form bash 3.2 takes under
 `set -u`, and the Windows and macOS jobs play Pusher that way after the offscreen games, four
@@ -28,11 +46,10 @@ its predecessor, and the issue's text waits for the owner (`9a13915d`); the Mesa
 KB and, `gi_trace`'s compute shader, 13 KB, the second crashing under the validation layer with no
 error reported first, which points at lavapipe. With that entry TODO.md's order is walked to its
 end, every entry left a limit described, a decision of the owner's, or a wait on lavapipe or on an
-answer, so item 2 is settled and its number taken by the upgrading page's Added section, and a
-thirteenth game, the first lit by the bounce, is item 5, after item 3's two Mesa reports;
-RENDERING.md's one entry of its order left, the tonemap as a pass over every frame, stays parked,
-since it costs every program every frame and redraws every lit reference for no fault measured. The
-suite: 1,548 passed.
+answer, so item 2 was settled and its number given to the upgrading page's Added section, and a
+thirteenth game, the first lit by the bounce, became item 5; RENDERING.md's one entry of its order
+left, the tonemap as a pass over every frame, stays parked, since it costs every program every frame
+and redraws every lit reference for no fault measured. The suite: 1,548 passed.
 
 Before them, TODO.md's prose entry came to be done in words alone: STYLE.md's remaining hits for
 dashes, spaced hyphens, wants and clefts, earlier revisions and old reference paths are all
@@ -47,17 +64,6 @@ model pass byte for byte the same (`7115eeaa`). Item 3's second fault was found 
 harness of its own with no ray query, a lamp, a glossy floor and the bounce on, `gi_trace`,
 `gi_screen` and the model pass each crashing lavapipe with `lampLight` split out and all three
 drawing unsplit, so `gi_trace`'s compute kernel is the one reduced. The suite: 1,548 passed.
-
-Before them, the light-bounce entry's last gap came to be closed, moving meshes bouncing gray: the
-resolve keeps a still copy of the field's colors, and the stamp starts each cell from that copy and
-paints it the color of the nearer of the still surface and the boxes, so a cell goes back to the
-still color once a box leaves; the test is the red wall scene with the wall swaying every frame,
-held as a box and never built, the block's side reading red with the painting and gray without,
-which fails the test; with three robots the stamp costs 0.062 to 0.067 ms where it cost 0.048 to
-0.052, a cascade's build unchanged at 0.45 to 0.47 ms, and the field takes 5 MB a cascade where it
-took 4, the model pass byte for byte the same; a moving mesh's own light is still not stamped, since
-a still copy of the glow would cost 2 MB a cascade, which the docs say; on lavapipe under validation
-160 passed and 1 skipped (`d67d0153`). The suite: 1,548 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -80,13 +86,13 @@ for a reply. In this order.
    runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
    when the leak test's host next dies. Each push's run is read by the reviewing session, and a
    failure it names comes first here.
-2. **The upgrading page's Added section whole.** Every public name the surface gained since the
-   commit 5.1 was packed from (`b43818f9`) is on the page that moves a game from 5.1 to 6.0, held by
-   the test that holds the page's rows for the names lost, read the other way from the two
-   `PublicApi.txt`; the names grouped as the features they belong to, a line on what each does and
-   the guide that shows it, the scene's field and the light that bounces, the reflections and their
-   tiers, text shaped and the color fonts, ImGui's viewports and the rest, so an author of a 5.1
-   game reads in one place what 6.0 gives them, and nothing is named there that the code lacks.
+2. **The reflections' lamps shadowed, in a shape lavapipe draws.** The light-bounce entry's
+   limit, the reflections lighting what they meet with the lamps unshadowed, since lavapipe crashed
+   when the lamps' loop moved into a function of its own: once fault 2's reduction names the
+   construct lavapipe dies on, the shadowed lamps written around it, the Cornell and the lit room's
+   references redrawn where they change and the three tiers' costs measured again for the guide; and
+   if the reduction shows no shape lavapipe takes, the limit stays, said in TODO.md with the reason.
+   After item 5 and item 3's reports.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
    a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
    fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
@@ -338,26 +344,28 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, the upgrading page's Added section whole:
+Item 5, a thirteenth game lit by the bounce:
 
-- **Held both ways.** `UpgradingTests` reads the two `PublicApi.txt` the other way as well: a type
-  5.1 lacked is named by itself, and a member whose name its type lacked by its name, a call whose
-  arguments were reordered or retyped keeping its name. It found thirteen the page lacked, the
-  field's and the bounce's six (`SetSceneField`, `SceneFieldConfig`, `Config.SceneField`,
-  `SetGlobalIllumination`, `GlobalIllumination`, `Config.GlobalIllumination`), `EcsWorld`'s two
-  despawn calls by those names, and `Model.Skeleton`, `ModelSkeleton` and the three keyframe
-  members, which the models table now names on its right as it names the old ones on its left. The
-  124 lines the surface gained come to those and the names the page already had, the renamed keys,
-  buttons and levels among them.
-- **Grouped by feature.** The section is a list of features, each with what it does and the guide
-  that shows it: the scene's field, the light that bounces, glossy reflections and their tier at
-  `High` through the GPU's rays, text shaped, color fonts, text from a file where raylib's lies,
-  ImGui's viewports, VR, states, sound, textures and the window, models and shadows. The ones with
-  no new name, text shaping, color fonts, viewports and the reflections among them, are said as
-  what 5.1's calls do now.
-- **Nothing the code lacks.** A third test holds each `Type.Member` of the section whose type is
-  the engine's to the surface, and failed on a misspelled `Music.FrameCounts` put there to try it.
-  The links are held by `DocumentLinkTests`.
-- **Item 3.** Fault 1 stands at 6 KB and fault 2 at 8 KB, and each report follows its reduction's
-  end.
-- The suite: 1,550 passed.
+- **Wick.** A puzzle in a dark house of five rooms, no light in it but a lamp the player carries,
+  which casts shadows, so its light stops at a wall and reaches round a corner or through a doorway
+  only as light that bounces through the field. Its floors are polished and reflect the lamp, and
+  their pits are as dark as the floor until light falls near them. Walking up to a wick lights it,
+  a light of its own that casts shadows as well, and the last one opens the door out. A fall puts
+  the player back at the last wick lit. Its sounds are waves made as it starts. It starts at `Low`,
+  and G steps through the qualities.
+- **The house shared.** `games/Wick/House.cs` reads the map, `resources/house.txt`, and draws the
+  house and makes its lights, and the test project compiles the same file, so the reference frame
+  of the lamp in the first room's doorway with the next room's wick burning (`wick`) draws what the
+  game draws, at `Low`.
+- **Played on the three systems.** `build/drive-game.sh Wick` asserts a walk from the keys and then
+  the autopilot's way, round the walls and the pits to each wick and out by the door with no fall,
+  `Won ... lit 4 of 4 falls 0`. Here under the validation layer it took 44 seconds, and on lavapipe
+  limited to four cores 132, 55 of them building, so it sits in the games' budget of twelve minutes.
+  It is in the Windows and macOS loops, in the examples job beside a capture of the doorway, in the
+  soak and in the resize storm, and `wick.status`, `wick.autopilot` and `wick.warp` answer e3d.
+- **Its line.** The README's gallery has it beside Jelly and the games' paragraph says what it is,
+  BUILDING.md counts thirteen games, N 4.5's list has its capture at its window's 960 by 540, and
+  the light guide's See also names it.
+- **Checked.** The reference passes on this GPU twice running and on lavapipe under the validation
+  layer, with the bounce, field and reference tests, 54 passed and 1 skipped, the GPU's own rays.
+- The suite: 1,551 passed.

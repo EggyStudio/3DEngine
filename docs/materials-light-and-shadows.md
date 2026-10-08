@@ -405,6 +405,8 @@ factors glTF gives them, as `RoughnessFactor` and `MetallicFactor`. The
   [`shaders_auto_exposure`](../3DEngine.Examples/Shaders/ShadersAutoExposure.cs),
   [`ecs_animated_models`](../3DEngine.Examples/Ecs/EcsAnimatedModels.cs),
   [`models_stress`](../3DEngine.Examples/Benchmarks/ModelsStress.cs)
+- [`games/Wick`](../games/Wick/Program.cs), a game lit by a lamp the player carries through dark
+  rooms, its light reaching round corners and through doorways only as light that bounces
 - The cheatsheet's [Lights](../CHEATSHEET.md#lights) and
   [Models and meshes](../CHEATSHEET.md#models-and-meshes)
 - Previous: [Models and animation](models-and-animation.md)

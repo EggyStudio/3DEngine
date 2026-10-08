@@ -87,8 +87,8 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    # Room for twelve games played on lavapipe after the suite, which took 22 minutes together on
-    # four cores of a desktop's, Manor's walk the longest at six.
+    # Room for thirteen games played on lavapipe after the suite, which took 22 minutes together
+    # on four cores of a desktop's before Wick's two, Manor's walk the longest at six.
     timeout-minutes: 180
     defaults:
       run:
@@ -181,7 +181,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
@@ -225,7 +225,7 @@ jobs:
   macos:
     # Apple silicon, whose GPU MoltenVK draws on through Metal.
     runs-on: macos-15
-    # Room for twelve games after the suite, each a few minutes on the GPU.
+    # Room for thirteen games after the suite, each a few minutes on the GPU.
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
@@ -287,7 +287,7 @@ jobs:
           DRIVE_MINUTES: '12'
         run: |
           failed=0
-          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly; do
+          for game in Pusher Hopper Summit Swarm Rally Manor Tactics Tempo Sumo Wordfall Slide Jelly Wick; do
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
