@@ -274,6 +274,9 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     private VkImage _depthImage;
     private VkDeviceMemory _depthImageMemory;
     private VkImageView _depthImageView;
+
+    /// <summary>How many times the window's depth has been made, which a target drawing into it is made again after.</summary>
+    internal int WindowDepthGeneration { get; private set; }
     private List<IBuffer>?[] _deferredStagingBuffers = Array.Empty<List<IBuffer>?>();
 
     /// <summary>Decodes a null-terminated UTF-8 byte span into a managed string.</summary>

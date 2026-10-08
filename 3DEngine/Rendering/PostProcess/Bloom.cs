@@ -152,8 +152,12 @@ internal sealed class BloomRenderer : IDisposable
 
     // What is made for one size of the window: the HDR target, the levels, and the sets each pass
     // reads its source through.
-    private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet?[] down, IDescriptorSet[] up) : IDisposable
+    private sealed class Sized(Extent2D extent, RenderTarget scene, RenderTarget[] levels, IDescriptorSet?[] down, IDescriptorSet[] up,
+        int depthGeneration) : IDisposable
     {
+        // The window's depth the scene draws into, by how many times it had been made.
+        public int DepthGeneration { get; } = depthGeneration;
+
         // The composite's sets by the image they read, the scene or a pass's, and the curve's table,
         // the two lens passes' targets once one is on, and their sets by the image they read with
         // the depth.
@@ -603,7 +607,7 @@ internal sealed class BloomRenderer : IDisposable
     // The target and levels for the window's size, made again when it changes.
     private Sized Ensure(GraphicsDevice device, RenderContext renderContext, Extent2D extent)
     {
-        if (_sized is { } current && current.Extent == extent) return current;
+        if (_sized is { } current && current.Extent == extent && current.DepthGeneration == device.WindowDepthGeneration) return current;
         if (_sized is not null) _retired.Add((_frame, _sized));
 
         _sampler ??= device.CreateSampler(new SamplerDesc(SamplerFilter.Linear, SamplerFilter.Linear,
@@ -617,7 +621,9 @@ internal sealed class BloomRenderer : IDisposable
         _compositeVertex ??= device.CreateShader(new ShaderDesc(ShaderStage.Vertex, _compositeVertexSpv));
         _compositeFragment ??= device.CreateShader(new ShaderDesc(ShaderStage.Fragment, _compositeFragmentSpv));
 
-        var scene = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R16G16B16A16_Float);
+        // Drawn into the window's own multisampled depth, which the window's pass after the
+        // composite clears and draws nothing into with depth.
+        var scene = device.CreateRenderTargetOnWindowDepth(ImageFormat.R16G16B16A16_Float);
         // Halved each level, down to a thirty-second of the window, or fewer levels for a window
         // too small to halve that often.
         var levels = new List<RenderTarget>();
@@ -640,7 +646,7 @@ internal sealed class BloomRenderer : IDisposable
         // Every level draws in the same pass, whatever its size, so the two pipelines are made once.
         _down ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: false);
         _up ??= Pipeline(device, levels[0].RenderPass, _bloomVertex, _bloomFragment, _oneTexture, additive: true);
-        return _sized = new Sized(extent, scene, [.. levels], down, up);
+        return _sized = new Sized(extent, scene, [.. levels], down, up, device.WindowDepthGeneration);
     }
 
     // The image the scene is decoded into and the sets that read it, the first level's and the

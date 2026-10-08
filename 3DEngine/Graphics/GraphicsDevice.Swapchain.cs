@@ -290,6 +290,7 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     private void CreateDepthResources()
     {
+        WindowDepthGeneration++;
         _samples = ChooseSamples(RequestedSamples);
         if (_samples != VkSampleCountFlags.Count1)
         {

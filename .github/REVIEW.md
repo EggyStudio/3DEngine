@@ -10,7 +10,24 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1e1eafe2`. Item 2: `SetTonemap` takes Bevy's eight beside the engine's curve,
+Reviewed up to `468e32ed`. Item 3: `gi_screen_filter.slang` holds the frame before's light at each
+screen probe within twice the spread of this frame's light among the like probes around it, each
+channel's standard deviation by the 5 by 5 filter's own weights, before the blend, so where a light
+changed the history is pulled to it and where it holds still the history lies inside the spread and
+keeps its calm; a new test brings a lamp into the red wall's room at frame 30 with the camera on the
+block's side, which only the wall's bounce reaches, and counts the frames until the side stays
+within a tenth of its new light, 0 with the hold where it took 7 without, the test asking for 2 at
+most; the sliding camera's calm reads 0.40 levels a frame over the picture's 0.48 where it read
+0.27, a spread of 1.25 having failed it at 0.51 and 3 lagging a frame, so 2; in Wick's doorway the
+hold costs nothing that reads, 0.229, 0.229 and 0.360 ms at the three qualities against 0.229, 0.228
+and 0.359, and the lag does not read there, since carrying the lamp moves the camera and the
+player's meshes, which settle into the field over its eight frames, so the test's room is where the
+blend's lag reads alone; the guide, RENDERING.md and TODO.md say so, the five frames gone
+(`468e32ed`). Item 3 is settled, and its number goes to the shadow ranking weighing how much of the
+picture a light lights, after item 2, which the coder has started. The suite: 1,568 passed, and on
+lavapipe the rendering tests, 302.
+
+Before them, item 2 came to be settled, `SetTonemap` taking Bevy's eight beside the engine's curve,
 Narkowicz's fit and the cut, named as BevyCSharp names them and appended so the four old numbers
 hold; the old `Reinhard` was Bevy's Reinhard by luminance, so it is `ReinhardLuminance` and
 `Reinhard` is Bevy's per channel, the upgrading page's fourth change that still compiles; five
@@ -28,9 +45,9 @@ page's Added section name the eight; `Bloom.cs` passed 800 lines, so its two gra
 `HdrNodes.cs` (`379e7907`); the package had put the tables a folder too deep, since pack adds an
 item's own folder below its path and the csproj named `%(RecursiveDir)` there too, so the path names
 no folder, Pusher from the package draws through AgX, and `PackageContentsTests` holds every file
-under `3DEngine/Shaders` to its own path (`1e1eafe2`). Item 2 is settled, Decision 17 done on both
-sides; its number goes to the frame's depth lent to the window's pass, after item 3, which the coder
-has started. The suite: 1,566 passed, and on lavapipe the rendering tests, 301.
+under `3DEngine/Shaders` to its own path (`1e1eafe2`). Decision 17 was done on both sides, and its
+number went to the frame's depth lent to the window's pass. The suite: 1,566 passed, and on lavapipe
+the rendering tests, 301.
 
 Before them, Verdict 39 came to be mended: the captures on macOS are a job of their own,
 `macos-examples`, beside the tests' job, which keeps its suite, games, window, native publish and
@@ -46,28 +63,6 @@ here on, the set cut only if a notice says a pass does not fit; tried with a lim
 which stopped and named `core_basic_window`, and a budget of 0, which named none reached, bash 3.2
 parsing the script and `ScriptTests` reading the new job's scripts (`ca4d474a`). Verdict 39 settles
 on the next macOS run.
-
-Before them, item 3 came to be settled: the window's scene goes through the HDR frame and one
-tonemapping pass every frame it shows one, a frame of 2D alone straight into the window as before;
-the frame holds its light sRGB-encoded and carried past 1 rather than linear, so a shader of the
-program's own reads the same with effects on or off and the frame's blending and multisampling stay
-on encoded light as the window's were, and `decode.slang` decodes it once, with the scene's depth,
-for bloom, the exposure, the lens passes, the bounce's reflections and the particles drawn over it
-in linear light; the composite decodes, bends and encodes, the engine's curve giving way to a cut at
-1 where nothing past white can come about, so white stays white as raylib draws it; the output flag
-stays as the view's kind, since a render texture of eight bits still needs the curve in the model
-pass and a probe's faces linear light, which the brief had not weighed; a program's shader drawn
-into the frame has its color held by an FClamp put into its SPIR-V, alpha within 0 and 1 and no
-channel below 0, light past 1 kept (`ShaderProgram.HeldToEightBits`), which brought five raylib
-pairs back from 15 to 42 percent apart to their shares; the frame and its pass cost 0.02 to 0.035 ms
-of the coder's GPU with every effect off and 60 bytes a pixel at four samples, written in the guide,
-RENDERING.md §5 and TODO.md; twelve references are redrawn, none past 0.79 percent of its pixels,
-the lit ones at the edges of light past white resolved before the curve and the effects' ones on
-encoded light; three tests cover a program's shader drawing alike with bloom on or off, white bent
-only where light past white can come about and an alpha past 1 blending as in an eight-bit frame,
-and the upgrading page's third change that still compiles is a shader that returned linear light for
-an effect (`c58ff65b`). The bounce's lag moved up to item 3 after item 2. The suite: 1,557 passed,
-and on lavapipe under the validation layer the rendering tests, 292.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -94,13 +89,15 @@ for a reply. In this order.
    four samples and the 124 MB at 1920 by 1080 measured again and written in the guide, RENDERING.md
    §5 and TODO.md, the references unchanged, and a test drawing shapes with depth over the scene
    showing they meet the scene's depth. After item 3.
-3. **The bounce following a changing light within a frame or two.** The light-bounce entry's
-   limit, the screen's probes blended with the frame before's following a changing light some five
-   frames late: where the light at a probe changed, a lamp carried or a wick lit, the blend's
-   history is rejected or shortened there, so the bounce follows Wick's lamp within a frame or two
-   while a still scene keeps its blended calm; the lag counted in frames by a test that moves a lamp
-   and reads a probe, measured on Wick's doorway with the cost of telling a change written in the
-   guide, and the guide's, RENDERING.md's and TODO.md's sentences updated. After item 2.
+3. **The shadow ranking weighing how much of the picture a light lights.** The lights given
+   shadows, ten spots and twelve points, are ranked by what the camera sees and then by the light
+   that reaches the eye, and TODO.md's shadows entry says the ranking does not weigh how much of the
+   picture a light lights, so a lamp lighting a wall across the view can lose its shadows to a
+   brighter one lighting a corner: each light's share of the picture, the pixels its reach covers in
+   the view, weighs in the rank beside its brightness at the eye, the two spots and four points with
+   the most texels chosen the same way, a test with more shadowed lights than the limits where the
+   one lighting most of the picture keeps its shadows, the ranking's cost measured in Wick's doorway
+   and the hall of shadows, and the entry's sentence dropped. After item 2.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -252,23 +249,19 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 3, the bounce following a changing light. `gi_screen_filter.slang` holds the frame before's
-light at each screen probe within twice the spread of this frame's light among the like probes
-around it, each channel's standard deviation by the 5 by 5 filter's own weights, before the
-fifth-to-four-fifths blend, so where a light changed the history is pulled to it and where it holds
-still the history lies inside the spread and keeps its calm. A new test brings a lamp into the red
-wall's room at frame 30 with the camera looking at the block's side, which only the wall's bounce
-reaches, so the screen's probes stand on it, and counts the frames until the side stays within a
-tenth of its new light: 0 with the hold, 7 without (49, 67, 78, 86, 92 and on to 111); the test asks
-for 2 at most. The sliding camera's test, the calm, reads 0.40 levels a frame over the picture's
-0.48 where it read 0.27; a spread of 1.25 gave 0.51 and failed it, 2 and 3 both passed, 3 lagging a
-frame, so 2. In Wick's first doorway the bounce takes 0.229, 0.229 and 0.360 ms at the three
-qualities with the hold and 0.229, 0.228 and 0.359 without, by `./e3d command profile`, so telling a
-change costs nothing that can be read. The lag itself does not read in Wick's doorway: carrying the
-lamp half a cell moves the camera and the player's meshes, which settle into the field over its
-eight frames, so frames change for some seven after with the hold and without, and a lamp lit
-through `./e3d eval` lands after the eval's compile has spanned several frames, the first shot
-already settled either way; the test's room is where the blend's lag reads alone. The guide,
-RENDERING.md and TODO.md say so, the five frames gone. The suite: 1,568 passed; on lavapipe the
-rendering tests, 302 passed and 2 skipped. Next is item 2's number, the frame's depth lent to the
-window's pass.
+Item 2, the frame's depth lent to the window's pass. The HDR frame's target draws into the window's
+own multisampled depth (`GraphicsDevice.CreateRenderTargetOnWindowDepth`) and keeps only its
+resolved depth, which the decoding, the lens passes and the reflections read; the window's pass
+after the composite clears that depth and draws nothing into it with depth, since every batch with
+depth is before the split. A target made before the window's depth was made again, as a swapchain
+made again at the same size makes it, is made again too (`WindowDepthGeneration`), and with one
+sample the target keeps a depth of its own, the window's being none to sample. The target is 44
+bytes a pixel at four samples where it was 60, 91 MB at 1920 by 1080 where it was 124: `nvidia-smi`
+gave `shaders_bloom` with its bloom off at that size 278 MiB at b526089c with no such frame, 405 MiB
+at 468e32ed and 374 MiB now, the 31 MiB the depth's 16 bytes a pixel, written in the guide,
+RENDERING.md §5 and TODO.md. The references are unchanged: drawn again on the GPU, each is within 3
+levels of its committed frame, those drawn on other devices apart by what they were apart before. A
+new test draws a model and shapes with depth in one scene at four samples, a bar behind the model
+hidden where the model stands and seen past its sides and a cube before it covering it. The suite:
+1,569 passed; on lavapipe the rendering tests, 303 passed and 2 skipped. Next is item 3's number,
+the shadow ranking weighing how much of the picture a light lights.

@@ -101,9 +101,11 @@ unlimited: 0.082 ms where the models drawn straight into the window took 0.047 i
 with its bloom off at 800 by 450, and 0.089 where they took 0.066 in `games/Pusher` at 960 by 540.
 Bloom's chain adds about 0.03 ms (`bloom`). Bloom, an exposure that follows the scene, the depth of
 field, motion blur, light that bounces and particles read the scene's light, and the frame is
-decoded for them once, about 0.02 ms more. The frame takes 60 bytes a pixel of the GPU's memory at
-four samples, 22 MB at 800 by 450 and 124 MB at 1920 by 1080. A frame of 2D alone, as
-`textures_bunnymark` draws, draws none of it.
+decoded for them once, about 0.02 ms more. The frame takes 44 bytes a pixel of the GPU's memory at
+four samples, drawing into the window's own multisampled depth, 16 MB at 800 by 450 and 91 MB at
+1920 by 1080, where `nvidia-smi` gave `shaders_bloom` 96 MiB more with it than with no such frame,
+its bloom chain's levels in that. A frame of 2D alone, as `textures_bunnymark` draws, draws none of
+it.
 
 | Call | What it does |
 |---|---|

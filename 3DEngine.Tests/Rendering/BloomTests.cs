@@ -143,6 +143,30 @@ public sealed class BloomTests : IDisposable
     }
 
     [NeedsVulkanFact]
+    public void Shapes_Drawn_With_Depth_Meet_The_Scenes_Depth()
+    {
+        // A model and shapes drawn with depth in one scene, at four samples, so the HDR frame draws
+        // into the window's own multisampled depth: a bar behind the model hidden where the model
+        // stands before it and seen past its sides, and a cube before the model covering it.
+        Open();
+        var block = LoadModelFromMesh(GenMeshCube(2, 2, 2));
+        var frame = Capture(() =>
+        {
+            ClearBackground(Color.Black);
+            BeginMode3D(_camera);
+            DrawModel(block, Vector3.Zero, 1, new Color(40, 200, 40));
+            DrawCube(new Vector3(0, 0, -2), 6, 1, 1, Color.Red);
+            DrawCube(new Vector3(0.6f, 0, 2), 0.6f, 0.6f, 0.6f, Color.Blue);
+            EndMode3D();
+        }, "depth");
+
+        GetImageColor(frame, 70, 60).Should().Be(new Color(40, 200, 40), "the model stands before the bar there");
+        GetImageColor(frame, 35, 60).Should().Be(Color.Red, "the bar is seen past the model's side");
+        GetImageColor(frame, 102, 60).Should().Be(Color.Blue, "the cube stands before the model");
+        UnloadModel(block);
+    }
+
+    [NeedsVulkanFact]
     public void A_Model_Shader_Of_The_Programs_Own_Draws_Alike_With_Bloom_On_Or_Off()
     {
         // A color returned as raylib's shaders return one, sRGB-encoded, which the window's scene

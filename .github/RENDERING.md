@@ -748,11 +748,17 @@ A frame with every effect off pays some 0.02 to 0.035 ms for the target's clear 
 composite, and one that decodes its scene some 0.01 to 0.02 ms more. `textures_bunnymark` draws no
 scene, and `build/raylib-bench/run.sh`'s ramp held 465,168 and 437,806 sprites at sixty frames a
 second after against 478,849 before, its runs' spread, and `models_stress`, whose entities go
-through the frame now, 646,168 and 584,628 against 615,398. The frame's target takes 60 bytes a
-pixel of the GPU's memory at four samples, its multisampled half-float color and depth and the two
-resolved, 22 MB at 800 by 450 and 124 MB at 1920 by 1080, the bloom chain's levels some 3 bytes a
-pixel more and the decoded image 12 where a pass reads it. Its multisampled depth stands beside the
-window's own, which the window's pass after the composite clears and draws nothing into with depth.
+through the frame now, 646,168 and 584,628 against 615,398. The frame's target takes 44 bytes a
+pixel of the GPU's memory at four samples, its multisampled half-float color and the color and the
+depth resolved, 16 MB at 800 by 450 and 91 MB at 1920 by 1080, the bloom chain's levels some 3 bytes
+a pixel more and the decoded image 12 where a pass reads it. It draws into the window's own
+multisampled depth (`GraphicsDevice.CreateRenderTargetOnWindowDepth`), which the window's pass after
+the composite clears and draws nothing into with depth, so a frame holds one multisampled depth and
+not two, and a target made before the window's depth was made again, as a swapchain made again at
+the same size makes it, is made again too (`WindowDepthGeneration`). With one sample the target has
+a depth of its own, the window's being none to sample. `nvidia-smi` gave `shaders_bloom` with its
+bloom off at 1920 by 1080 278 MiB with no such frame, 405 MiB with the frame's own multisampled
+depth and 374 MiB with the window's lent, the 31 MiB the 16 bytes a pixel of that depth.
 
 The composite carries the effects of `FrameEffects` too: `SetExposure`, `SetTonemap` (the engine's
 curve, Narkowicz's fit of ACES, a cut at 1, or one of Bevy's eight), `SetColorGrading` (saturation

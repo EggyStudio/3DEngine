@@ -94,7 +94,24 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     /// <exception cref="ArgumentException">There are no formats, or more than <see cref="MaxColorAttachments"/>.</exception>
     /// <exception cref="InvalidOperationException">The device has not been initialized.</exception>
-    public RenderTarget CreateRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth = true, bool multisampled = true)
+    public RenderTarget CreateRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth = true, bool multisampled = true) =>
+        MakeRenderTarget(width, height, formats, depth, multisampled, windowDepth: false);
+
+    /// <summary>
+    /// Creates a target of the window's size in <paramref name="format"/> at the window's samples
+    /// that draws into the window's own multisampled depth, resolving it into a depth of its own
+    /// that is sampled, as the HDR frame does, so a frame holds one multisampled depth and not two.
+    /// With one sample the target has a depth of its own, the window's not being one to sample.
+    /// </summary>
+    /// <remarks>
+    /// The window's pass after the target's clears the depth and draws nothing with it, and a
+    /// target made before the window's depth was made again, as <see cref="WindowDepthGeneration"/>
+    /// tells, is made again too.
+    /// </remarks>
+    internal RenderTarget CreateRenderTargetOnWindowDepth(ImageFormat format) =>
+        MakeRenderTarget(_swapchainExtent.width, _swapchainExtent.height, [format], depth: true, multisampled: true, windowDepth: true);
+
+    private RenderTarget MakeRenderTarget(uint width, uint height, ReadOnlySpan<ImageFormat> formats, bool depth, bool multisampled, bool windowDepth)
     {
         if (formats.Length is 0 or > MaxColorAttachments)
             throw new ArgumentException($"A target draws into 1 to {MaxColorAttachments} images, not {formats.Length}.", nameof(formats));
@@ -120,10 +137,13 @@ internal sealed unsafe partial class GraphicsDevice
         // the ones sampled, so the window's pipelines draw here too. With one sample, the depth
         // drawn into is the one sampled.
         bool msaa = samples != VkSampleCountFlags.Count1;
-        var (depthImage, depthMemory) = depth
-            ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: samples)
+        // The window's multisampled depth drawn into in place of one of the target's own, where
+        // asked and there is one to lend.
+        var lent = windowDepth && msaa && depth && _depthImageView.Handle != 0;
+        var (depthImage, depthMemory) = lent ? (_depthImage, default)
+            : depth ? TargetImage(VkFormat.D32Sfloat, width, height, VkImageUsageFlags.DepthStencilAttachment | (msaa ? 0 : VkImageUsageFlags.Sampled), samples: samples)
             : default;
-        var depthView = depth ? TargetView(depthImage, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
+        var depthView = lent ? _depthImageView : depth ? TargetView(depthImage, VkFormat.D32Sfloat, VkImageAspectFlags.Depth) : default;
         // The multisampled color is kept from pass to pass, as the depth is, since a target that
         // nothing clears in a frame keeps what was drawn into it, as raylib's does.
         var (msaaColor, msaaMemory) = msaa
@@ -193,7 +213,7 @@ internal sealed unsafe partial class GraphicsDevice
             () =>
             {
                 if (window) _deviceApi.vkDestroyImageView(srgbView);
-                if (depth) _deviceApi.vkDestroyImageView(depthView);
+                if (depth && !lent) _deviceApi.vkDestroyImageView(depthView);
                 if (msaa)
                 {
                     _deviceApi.vkDestroyImageView(msaaView);
@@ -205,10 +225,13 @@ internal sealed unsafe partial class GraphicsDevice
                 if (msaa && depth)
                 {
                     _deviceApi.vkDestroyImageView(resolvedDepthView);
-                    DeviceObjects.Gone(DeviceObjects.Kind.Image);
-                    _deviceApi.vkDestroyImage(depthImage);
-                    DeviceObjects.Gone(DeviceObjects.Kind.Memory);
-                    _deviceApi.vkFreeMemory(depthMemory);
+                    if (!lent)
+                    {
+                        DeviceObjects.Gone(DeviceObjects.Kind.Image);
+                        _deviceApi.vkDestroyImage(depthImage);
+                        DeviceObjects.Gone(DeviceObjects.Kind.Memory);
+                        _deviceApi.vkFreeMemory(depthMemory);
+                    }
                 }
                 _deviceApi.vkDestroyImageView(colorView);
                 colorImage.Dispose();
