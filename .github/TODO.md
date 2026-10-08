@@ -317,7 +317,7 @@ checks at the end of STYLE.md report what is left.
 - **CI plays the games on Windows and macOS offscreen, and one in a window.**
   `.github/workflows/test.yml` runs the tests under the validation layer on Ubuntu and Windows with
   lavapipe and on macOS with MoltenVK, and on Windows and macOS builds Pusher from the package and
-  draws 300 frames of it, then plays every game through `./e3d` (`build/drive-game.sh`), each
-  asserting its walk or its win, Pusher once more in a window on the runner's desktop, and follow
-  the README and the first game's steps in new projects. `build.yml` captures every example on
-  Linux alone.
+  draws 300 frames of it, built and published native, then plays every game through `./e3d`
+  (`build/drive-game.sh`), each asserting its walk or its win, Pusher once more in a window on the
+  runner's desktop, and follow the README and the first game's steps in new projects. Every example
+  is captured on Linux for the gallery and on macOS for the job's artifact.

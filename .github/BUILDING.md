@@ -234,7 +234,8 @@ executable through native AOT, which starts at once and needs nothing installed:
 dotnet publish -c Release -r linux-x64 -p:PublishAot=true -o publish    # or win-x64, osx-arm64
 ```
 
-`games/Pusher` publishes and runs this way, trimmed or native, with its level, physics, sound,
+`games/Pusher` publishes and runs this way, trimmed or native, on Linux, Windows and macOS in CI
+(`build/play-native.sh`), with its level, physics, sound,
 ImGui panel and shaders, the engine's own compiled ahead in the package and the game's own in its
 `source/.slang-cache` (`e3d shaders`, above). Behaviors, scene components and console commands
 register through code the generator writes, from module initializers, so nothing is found by a
@@ -288,7 +289,10 @@ loader and validation layer, and macOS draws on its GPU through MoltenVK, with t
 layer from Homebrew. On each the render tests and the reference frames run under the validation
 layer, `E3D_REQUIRE_VULKAN` and `E3D_REQUIRE_VALIDATION` failing them where the device or the layer
 does not start rather than letting them skip, and `build/play-game.sh Pusher` builds a game from the
-package and draws 300 frames of it offscreen, failing on an error the layer reports. On Windows and
+package and draws 300 frames of it offscreen, failing on an error the layer reports. `build/play-native.sh
+Pusher` then publishes it native from the package, linked by the runner's own toolchain, Visual
+Studio's on Windows and Xcode's on macOS, as the examples job does on Linux, and draws it the same
+way, a failure named in an error annotation with the compiler's or the linker's own lines. On Windows and
 macOS `build/drive-game.sh <game>` then plays each of the thirteen games through `./e3d`, offscreen at
 480 by 270, as the examples job plays them on Linux, each asserting its walk or its win, so a game's
 input, its sound and the session `./e3d` drives are tried there, and a game that fails says why in

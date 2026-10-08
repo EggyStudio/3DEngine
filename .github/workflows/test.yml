@@ -166,6 +166,13 @@ jobs:
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
 
+      # The same game published as native code from the package, as a player's copy is, linked by
+      # the Visual Studio the runner has, and drawn under the validation layer (NORM.md, N 2.5), as
+      # the build workflow's Linux job publishes it, a failure named in an error of its own.
+      - name: Publish the game native from the package and draw it
+        timeout-minutes: 15
+        run: build/play-native.sh Pusher
+
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are
       # tried on this system too. A game that fails says why in an error of its own, naming the
@@ -295,6 +302,13 @@ jobs:
 
       - name: Build a game from the package and draw it under the validation layer
         run: build/play-game.sh Pusher
+
+      # The same game published as native code from the package, as a player's copy is, linked by
+      # the Xcode the runner has, and drawn under the validation layer (NORM.md, N 2.5), as the
+      # build workflow's Linux job publishes it, a failure named in an error of its own.
+      - name: Publish the game native from the package and draw it
+        timeout-minutes: 15
+        run: build/play-native.sh Pusher
 
       # Every game from the same package played through ./e3d, as every game is on Linux, each
       # asserting its walk or its win, so a game's input, its sound and the session ./e3d drives are

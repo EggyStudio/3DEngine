@@ -10,19 +10,37 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `1461a781`. Item 3 is settled: fault 2's reduction of `gi_trace` came to fault 1's
-shape, every other invocation by its index running a loop whose condition and body read the lights'
-buffer and reading it again after, and a compute harness, `comp.c` with a 20-line GLSL compute
-shader of that shape and nothing undefined in it, crashes the same way, a pointer and the word after
-it read from address 0, and runs with the branch, the loop or its body taken out, on Mesa 25.2.8,
-26.2.2 and main at `5a273016`; with no ray query and no partly covered pixel in a compute stage, a
-branch some invocations skip is enough, so fault 1 is very likely the same fault reached from a
-fragment stage, `build/mesa/uniform-loop-compute`'s issue text leads with the compute shader and
-names the fragment folder as a second reproduction, fault 1's README says to file the two as one
-issue, and TODO.md points at both; the reductions are stopped (`1461a781`). Its number goes to a
-compute shader writing a render texture on a device that stores no image in the window's format, the
-next of the described limits, after item 2, whose script `build/capture-examples.sh` is written for
-both jobs and being timed over the 253 examples.
+Reviewed up to `bb418bfe`. Item 2: the Linux job's capture loop is `build/capture-examples.sh`, run
+by both jobs, listing the examples with `sed` where the loop used `grep -P`, which macOS's grep
+lacks, checking each capture wrote a picture and logged no validation error and naming each failure
+with the example, the system, the exit code and the log's last warnings, held by `ScriptTests` to
+macOS's tools and bash 3.2; the macOS job fetches raylib's files before its build and captures the
+253 examples as PNGs after its tests, the artifact `examples-macos`, compared with nothing, 1,481
+seconds on the coder's GPU, so the job comes to some 50 of its 120 minutes and the step is given 50
+(`0dae7bc6`). Item 3: a target's colors are made with storage usage wherever the device stores their
+format, asked once a format, and as a transfer's destination; where it does not, the shader writes a
+stand-in of eight bits a channel in RGBA order or the target's floats, kept with the target's
+texture, the dispatch blitting the target into it before and back after, each channel into its own;
+a test paints one render texture directly and through stand-ins forced, the pictures matching pixel
+for pixel and the test failing without the blit in; the condition is gone from the guide, the
+cheatsheet, RENDERING.md, TODO.md and the dispatch's warning, and TODO.md's testing entry counts 29
+frames compared whole (`bb418bfe`). Both items are settled. With the list down to the two that wait
+on runs and the owner's word on the next large item not yet given, their numbers go to a game
+published native on Windows and macOS, as the Linux job does, and to the tonemap as a pass over
+every frame, RENDERING.md's last entry of its order, measured first. The suite: 1,554 passed.
+
+Before them, item 3 came to be settled: fault 2's reduction of `gi_trace` came to fault 1's shape,
+every other invocation by its index running a loop whose condition and body read the lights' buffer
+and reading it again after, and a compute harness, `comp.c` with a 20-line GLSL compute shader of
+that shape and nothing undefined in it, crashes the same way, a pointer and the word after it read
+from address 0, and runs with the branch, the loop or its body taken out, on Mesa 25.2.8, 26.2.2 and
+main at `5a273016`; with no ray query and no partly covered pixel in a compute stage, a branch some
+invocations skip is enough, so fault 1 is very likely the same fault reached from a fragment stage,
+`build/mesa/uniform-loop-compute`'s issue text leads with the compute shader and names the fragment
+folder as a second reproduction, fault 1's README says to file the two as one issue, and TODO.md
+points at both; the reductions are stopped (`1461a781`). Its number went to a compute shader writing
+a render texture on a device that stores no image in the window's format, after item 2's captures on
+macOS.
 
 Before them, item 3's first fault came to reproduce outside the engine: a debug lavapipe from Mesa's
 main showed it taking a pointer from an eight-entry array on the stack indexed by lane and reading
@@ -37,23 +55,6 @@ a branch on a varying in place of the query, the loop or the read after it taken
 body empty; the README has the issue's text, which names no one, and TODO.md points at it and names
 fault 2 by the lamps' loop ahead of the sun's branch, reproducing inside the engine alone so far
 (`14ad7786`). The suite: 1,553 passed.
-
-Before them, item 2 came to be settled, taken ahead of item 3 while its reductions ran: a bisect of
-`gi.slang` on lavapipe put fault 2 in where the lamps' loop stands, the loop ahead of the sun's
-branch in `directLight` crashing with no function at all and with the branch cut to one read, the
-loop without its spot cone's `smoothstep` or any smaller body drawing, so the model pass's
-`shadeHit` subtracts `hiddenLampLight` after `directLight` as the probes' passes do, the shape
-lavapipe draws, and at `High` `rayReflection` hides each lamp that casts shadows where a ray toward
-it, stopped short of the lamp by `rayBlocked`'s new reach, meets a mesh; a mirror shows a green
-block whose one lamp is shut in a box of six walls, reading under 20 green where it read 56 and lit
-again with the wall toward it left out, the same at `High` past the field for the device's rays; no
-reference moves, drawn with HEAD's shaders and these to the pixel, the tiers measure as the guide's
-table has them, the hall's scene pass 0.30 and 0.23 ms polished and rough, and Wick's doorway some
-0.02 ms more, within the noise; the sentences that said the bounce's lamps were unshadowed, stale
-since `1be7c8ee`, are mended in the remarks, the summaries and the shaders' headers, and TODO.md's
-light-bounce entry drops the limit (`95077ce3`). Its number went to every example captured on macOS
-too, the fallback until the owner names the next large item. Fault 1's reduction had ended at 1.9
-KB, crashing only inside the engine's frame. The suite: 1,553 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -76,19 +77,21 @@ for a reply. In this order.
    runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
    when the leak test's host next dies. Each push's run is read by the reviewing session, and a
    failure it names comes first here.
-2. **Every example captured on macOS too.** The macOS job captures every example offscreen after
-   its tests as build.yml's Linux job does, each checked to draw and the page naming any that did
-   not, the captures kept as the job's artifact and compared with nothing, since MoltenVK draws
-   apart from lavapipe within the references' allowance, so an example that draws wrongly on Metal
-   alone is found by a push and not by a reader; within the job's time, which stands at 25 minutes
-   of 120. The fallback until the owner names the next large item, after item 3.
-3. **A compute shader writes a render texture on every device.** The limit in TODO.md's meshes
-   section: a dispatch writes a render texture only where the device stores an image in the window's
-   format (`TargetsAreStorage`), as most desktop GPUs do. Where it does not, the dispatch writes an
-   image of a format the device does store and the engine copies it into the target after, the
-   channels in the target's order, so `ComputeShaderDispatch` writes a render texture everywhere and
-   the guide's sentence drops its condition; the fallback proved by a test that forces it on a
-   device that has the direct path and compares the two pictures. After item 2.
+2. **A game published native on Windows and macOS.** The shipping guide's command, `dotnet
+   publish` with `PublishAot`, is proved on Linux alone, by the examples job's
+   `build/play-native.sh`; the Windows and macOS jobs publish Pusher native from the package with
+   the toolchains the runners have, as a player's machine does, and draw 300 frames of it offscreen
+   under the validation layer through the same script, which picks the runtime by the machine, a
+   failure named on the page; the step's minutes said beside each job's, the Windows job's games'
+   step being the long one.
+3. **The tonemap as a pass over every frame.** RENDERING.md's last entry of its order: the curve
+   at the end of the model pass, which runs there while every effect is off and over the HDR frame
+   while any is on, becomes one full-screen pass in every frame, so the window's scene takes one
+   path, a shader of the program's own inside `BeginMode3D` read the same with effects on or off and
+   the model pass's output flag gone, render targets of `BeginTextureMode` kept eight bits and as
+   they look; measured before and after on the examples the guide's table names, the bunnymark and a
+   game at the window's size, the pass's cost written in the guide beside the effects', and the lit
+   references redrawn where they change, each difference explained.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -324,40 +327,19 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 2, every example captured on macOS:
+Item 2, a game published native on Windows and macOS:
 
-- **One script for both.** The Linux job's loop is now `build/capture-examples.sh <folder>
-  <webp|png> [example...]`, which both jobs run. It lists the examples with `sed` where the loop used
-  `grep -P`, which macOS's grep lacks. It checks each capture wrote a picture and its session logged
-  no validation error, and names each failure in an annotation with the example, the system, the
-  exit code and the log's last warnings. `ScriptTests` holds it to what macOS's tools and bash 3.2
-  read. The macOS job fetches raylib's files before its build, since the examples copy them in, and
-  captures every example as PNGs after its tests, kept as the artifact `examples-macos` and compared
-  with nothing.
-- **Its cost.** All 253 took 1,481 seconds here, 25 minutes on the RTX 4070, about six seconds an
-  example, every one drawn. So the macOS job comes to some 50 of its 120 minutes, which stays its
-  limit, and the step is given 50. The first run shows what Apple's GPU takes.
-- BUILDING.md describes the script.
-
-Item 3, a compute shader writes a render texture on every device:
-
-- **Storage where the device stores the format, a stand-in where it does not.** A target's colors
-  are made with storage usage wherever the device stores their format, asked once a format, so a
-  target of eight-bit RGBA or of floats is written directly as the window's is on most GPUs, and
-  each is a transfer's destination as well. Where the device does not store the format, the shader
-  writes a stand-in, eight bits a channel in RGBA order or the target's floats, formats every device
-  stores (`GraphicsDevice.CreateStandIn`), kept with the target's texture and let go with it. The
-  dispatch blits the target into the stand-in before the shader, so a shader that reads the target
-  reads what it held, and blits it back after, a blit putting each channel into its own where a copy
-  would move the bytes as they lie.
-- **Proved.** A test paints one render texture twice on a device that stores it, directly and
-  through stand-ins forced (`WriteTargetsThroughStandIns`), its shader reading the red the frame drew
-  into the target and writing green and blue by the place. The two pictures match pixel for pixel,
-  the target in the forced run has no storage, and the test fails with the blit into the stand-in
-  taken out, which loses the red. lavapipe under the validation layer passed the render, reference
-  and compute tests, 130.
-- **The condition dropped.** The guide, the cheatsheet, RENDERING.md, TODO.md's entry and
-  `ComputeShaderDispatch`'s warning no longer say a render texture is written only where the GPU
-  stores the window's format. TODO.md's testing entry counts the 29 frames compared whole, Wick's
-  room and the light that bounces among them, where it said twenty.
-- The suite: 1,554 passed.
+- **The step.** The Windows and macOS jobs run `build/play-native.sh Pusher` after the step that
+  packs the engine and draws the game. It publishes Pusher native from the package for the
+  machine's runtime, `win-x64` or `osx-arm64`, linked by the toolchain the runner has, Visual
+  Studio's or Xcode's, as a player's machine does, and draws 300 frames offscreen under the
+  validation layer. Each step is given 15 minutes.
+- **A failure named.** The script now names what failed in an error annotation with the game and
+  the system: a publish that fails, with the compiler's or the linker's own error lines, a run that
+  ends early, with its log's last lines, no validation layer, or an error from it. A failed publish
+  had ended the script by `set -e` with nothing of its own. `ScriptTests` holds it to macOS's tools
+  now that a macOS job runs it.
+- **Its minutes.** Here it publishes and draws in 30 seconds cold and 11 warm. On the runners the
+  first publish restores the native compiler's packages and links with the system's toolchain, so a
+  few minutes is likely beside the Windows job's 180 and the macOS job's some 50 of 120, which the
+  next run measures. BUILDING.md and TODO.md say both jobs publish it.
