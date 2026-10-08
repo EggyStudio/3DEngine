@@ -2,9 +2,11 @@
 # Plays a game from the package through ./e3d, offscreen and under the validation layer, as the
 # build workflow's examples job plays it on Linux, and asserts its walk or its win, so a game's
 # input, its sound and the session ./e3d drives are tried on the system it runs on. The workflow
-# runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine.
+# runs it for every game on Windows and macOS after build/play-game.sh, which packs the engine,
+# and once more for one game with window as the second argument, which opens the game in a window
+# on the runner's desktop, as a player sees it, so SDL's window and the swapchain are tried there.
 #
-#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly>
+#   build/drive-game.sh <Pusher|Hopper|Summit|Swarm|Rally|Manor|Tactics|Tempo|Sumo|Wordfall|Slide|Jelly> [offscreen|window]
 #
 # What fails is said as an error annotation naming the game and the system, with the last warnings
 # of the game's log, so the page says why a game cannot run there. Each game is drawn at 480 by
@@ -13,6 +15,7 @@
 set -euo pipefail
 
 game="$1"
+mode="${2:-offscreen}"
 cd "$(dirname "$0")/.."
 mkdir -p captures
 name=$(printf '%s' "$game" | tr '[:upper:]' '[:lower:]')
@@ -21,6 +24,14 @@ case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) system=Windows ;;
   Darwin) system=macOS ;;
   *) system=$(uname -s) ;;
+esac
+# How ./e3d opens the game, and how the page names the run. A window takes no flag, and its run's
+# captures are named apart from the offscreen run's. The empty list is expanded where it is used
+# in the form macOS's bash 3.2 takes under set -u.
+case "$mode" in
+  offscreen) shown=(--offscreen); heading="$game on $system"; where=offscreen ;;
+  window) shown=(); heading="$game in a window on $system"; where="in a window"; name="$name-window" ;;
+  *) echo "the second argument is offscreen or window, not $mode" >&2; exit 2 ;;
 esac
 log="build/sessions/$game.log"
 # Every command and stop goes to the game played here by its name, so a program an earlier game left
@@ -57,7 +68,7 @@ fail() {
   local ending="" left=""
   [ -f "$log" ] && ending=$(tail -n 3 "$log" | tr -s '\r\n' '  ' | sed 's/ *$//; s/\.$//')
   [ -d "$dumps" ] && left=$(ls "$dumps" 2> /dev/null | grep -i "^$game" | tr '\n' ' ' | sed 's/ *$//' || true)
-  echo "::error title=$game on $system::$game: $1.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
+  echo "::error title=$heading::$game: $1.${ending:+ Its log ends with $ending.}${left:+ It left the dump $left.}" >&3
   exit 1
 }
 # A command e3d refuses fails with its code and sentence, which it writes to standard error, kept in
@@ -91,7 +102,7 @@ rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-setting
     [ -e "$finished" ] && exit 0
   done
   : > "$expired"
-  echo "::error title=$game on $system::$game: was not played through in $(( minutes * 60 )) seconds on $system, as far as $(cat "$last" 2> /dev/null || echo "its opening")" >&3
+  echo "::error title=$heading::$game: was not played through in $(( minutes * 60 )) seconds on $system, as far as $(cat "$last" 2> /dev/null || echo "its opening")" >&3
   ./e3d stop --quiet > /dev/null 2>&1 || true
 ) &
 
@@ -102,7 +113,7 @@ rm -f "$folder/tempo-best.txt" "$folder/tempo-offset.txt" "$folder/manor-setting
 # handle e3d holds, a pipe around it among them, and $(...) would wait on that pipe until the game
 # ends.
 opened="captures/$name-opened.json"
-if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --json > "$opened"; then
+if ! ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --json > "$opened"; then
   answer=$(cat "$opened")
   said=$(printf '%s' "$answer" | perl -MJSON::PP -0777 -ne '
     my $answer = eval { decode_json($_) } or do { s/\s+/ /g; print length ? "an answer that is not JSON, $_\n" : "nothing\n"; exit };
@@ -343,7 +354,7 @@ case "$game" in
     echo "$ran / $watched"
     [ "${watched% watched *}" = "$ending" ] || fail "the run watched again ended elsewhere, $ending then $watched"
     ./e3d stop --quiet
-    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" --offscreen --quiet || fail "did not open again"
+    ENGINE_VULKAN_VALIDATION=1 ./e3d open "$folder/$game" ${shown[@]+"${shown[@]}"} --quiet || fail "did not open again"
     cmd window.size 480 270
     cmd frames.wait 10
     cmd input.key B 2
@@ -365,4 +376,4 @@ esac
 cp "$log" "captures/$name-driven.log"
 grep -q "Validation layers: ENABLED" "$log" || fail "drew without the validation layer"
 if grep -F 'Validation Error' "$log"; then fail "the validation layer reported an error"; fi
-echo "$game played through ./e3d on $system, its play asserted, with no validation error"
+echo "$game played through ./e3d $where on $system, its play asserted, with no validation error"

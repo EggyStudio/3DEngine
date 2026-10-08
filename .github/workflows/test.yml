@@ -186,6 +186,15 @@ jobs:
           done
           exit $failed
 
+      # Pusher played once more in a window on the runner's desktop, as a player sees it, so SDL's
+      # window and the swapchain are tried on this system and not the offscreen path alone. Its
+      # walk takes well under a minute, and the step stops it at four.
+      - name: Play a game in a window through e3d
+        timeout-minutes: 6
+        env:
+          DRIVE_MINUTES: '4'
+        run: build/drive-game.sh Pusher window
+
       # The README's commands in a new project and every step of the game docs/first-game.md makes,
       # from the same package, as a newcomer on this system follows them.
       - name: Follow the README in a new project
@@ -282,6 +291,15 @@ jobs:
             build/drive-game.sh "$game" || failed=1
           done
           exit $failed
+
+      # Pusher played once more in a window on the runner's desktop, as a player sees it, so SDL's
+      # window and the swapchain are tried on this system and not the offscreen path alone. Its
+      # walk takes well under a minute, and the step stops it at four.
+      - name: Play a game in a window through e3d
+        timeout-minutes: 6
+        env:
+          DRIVE_MINUTES: '4'
+        run: build/drive-game.sh Pusher window
 
       # The README's commands in a new project and every step of the game docs/first-game.md makes,
       # from the same package, as a newcomer on this system follows them.

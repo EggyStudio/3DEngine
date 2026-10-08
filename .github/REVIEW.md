@@ -10,7 +10,27 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `d67d0153`. The light-bounce entry's last gap, moving meshes bouncing gray: the
+Reviewed up to `7115eeaa`. TODO.md's prose entry, words alone: STYLE.md's remaining hits for dashes,
+spaced hyphens, wants and clefts, earlier revisions and old reference paths are all arithmetic,
+raylib's own words on screen, a license, or STYLE.md and COMMITS.md naming what they forbid, so
+N 4.1's list keeps those two files and nothing more; every one of the 485 colons that are not a
+channel's label was read, eleven joined two clauses and are rewritten, and the check reports lists
+and labels alone; STYLE.md asks for American spelling with no check for it, so about forty British
+spellings in the carried-over code's comments, XML documents and log lines are American, a private
+method and a local among them, raylib's own words in the examples kept; and
+`ScenePurposeMask.Editor`'s summary describes no editor any more, the strict build clean and the
+model pass byte for byte the same (`7115eeaa`). Item 3: the second fault reproduces on the code as
+it stands in a harness of its own, a lamp, a glossy floor and the bounce on with no ray query, and
+is not the model pass's alone, since with `lampLight` split out `gi_trace`, `gi_screen` and the
+model pass each crash lavapipe and unsplit all three draw, its signature the first fault's, a
+pointer and the word eight bytes past it read from address 0, so `gi_trace`'s compute kernel is
+being reduced as the easiest to put in a C harness; and `spirv-reduce`'s crash is a SPIRV-Tools
+fault of its own, a block merge that assumes the successor follows in the layout and runs off the
+end, refused by a build patched here, with the first fault's reduction at 22 KB on it. The next
+entry with work left is build and release, a game in a window tried on Windows and macOS. The suite:
+1,548 passed.
+
+Before them, the light-bounce entry's last gap came to be closed, moving meshes bouncing gray: the
 resolve keeps a still copy of the field's colors, and the stamp starts each cell from that copy and
 paints it the color of the nearer of the still surface and the boxes, so a cell goes back to the
 still color once a box leaves; the test is the red wall scene with the wall swaying every frame,
@@ -19,11 +39,7 @@ which fails the test; with three robots the stamp costs 0.062 to 0.067 ms where 
 0.052, a cascade's build unchanged at 0.45 to 0.47 ms, and the field takes 5 MB a cascade where it
 took 4, the model pass byte for byte the same; a moving mesh's own light is still not stamped, since
 a still copy of the glow would cost 2 MB a cascade, which the docs say; on lavapipe under validation
-160 passed and 1 skipped (`d67d0153`). Item 3's `spirv-reduce`, in its 2025.1 and the SDK's 2026.4,
-crashes in its own block-merging pass at 27 KB, so the reduction runs in a loop that merges the last
-accepted module with `spirv-opt` and starts again, the second fault's experiment beside it.
-TODO.md's prose entry is next, STYLE.md's checks still reporting dashes, spaced hyphens, wants,
-clefts, old reference paths and colons to read. The suite: 1,548 passed.
+160 passed and 1 skipped (`d67d0153`). The suite: 1,548 passed.
 
 Before them, the light-bounce entry's gap of thin closed meshes and open ones came to be closed: a
 closed wall thinner than half a cell is held in the field as a double-sided sheet is, the splat
@@ -38,22 +54,6 @@ constrained reduction ended in undefined behaviour again, a read of a ray query'
 query had no hit, so a third reduction keeps only candidates that fault with the model pass's
 signature, a descriptor-like pointer read from address 0, through a preloaded SIGSEGV handler. The
 suite: 1,547 passed.
-
-Before them, the light-bounce entry's gap of skinned and moving meshes held as one gray box each
-came to be closed: a skinned mesh is stamped as an oriented box a joint, around the rest vertices
-the joint holds most, posed by the joint's latest matrix, which the field keeps for frames that do
-not pose again, the arm posed bent on the GPU reading solid along the forearm at the elbow and empty
-above it where the one box read the opposite; a rigid moving mesh of sixteen triangles or more is
-cut into up to eight parts, each cut the least-volume split along an axis made only where it takes a
-third of the volume away, an L of two boxes cut into its arms with the corner in no part where a
-median cut filled it; a mesh takes its parts only while every farther mesh keeps a box, so past 256
-boxes the figures near the eye keep their joints and the far ones their boxes, thirty figures of
-twenty limbs holding at 239; each brick reads the boxes that reach it alone from a run packed after
-the bricks, three dancing robots in the Cornell box at `High` costing 0.048 ms on the GPU and 0.45
-ms on the CPU for 147 boxes in 540 bricks where their 57 boxes cost 0.046 and 0.44 to 0.51 before,
-and 0.11 ms on the GPU without the runs; the remarks of `SetSceneField`, the guide, RENDERING.md and
-TODO.md say a moving mesh is held as the boxes of its joints or its parts; on lavapipe under
-validation 157 passed and 1 skipped (`11fbae8e`). The suite: 1,545 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -81,9 +81,11 @@ for a reply. In this order.
    a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
    fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
    Mesa 25.2 and the report's text written beside each in the repository and TODO.md pointing at
-   them, the filing on Mesa's tracker the owner's since it is done under their account, so the model
-   pass is held in a shape around a driver's fault only as long as it must be, and the ray-query
-   path is drawn on CPU devices once the fault is mended upstream.
+   them, the filing on Mesa's tracker the owner's since it is done under their account, and
+   SPIRV-Tools' own fault beside them, the block merge in `spirv-reduce` that runs off the end of
+   the layout, with its reproduction and the patch that refuses the merge, for the owner to file
+   there, so the model pass is held in a shape around a driver's fault only as long as it must be,
+   and the ray-query path is drawn on CPU devices once the fault is mended upstream.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -319,40 +321,24 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, Prose, STYLE.md's checks read hit by hit, words alone:
+TODO.md's order, Build and release, a game in a window on Windows and macOS:
 
-- **Dashes, spaced hyphens, wants and clefts, earlier revisions, `.ref/`.** Each of these checks'
-  hits outside STYLE.md and COMMITS.md, which name what they forbid, is arithmetic, a raylib
-  example's text on its screen, a license, or a person who wants something, so none changed, and
-  N 4.1 still leaves out those two files alone.
-- **Colons.** The 485 hits that are not a channel's label (`xyz:` and the like) were read one by
-  one, and the eleven that joined two clauses are rewritten as two sentences, a comma or `so`, in
-  `RuntimeBehaviorCompiler`, `ReloadedScripts`, `ConsoleCommands`, `App.AddPlugins` and `IPlugin`,
-  `gi.slang` and `gi_screen_filter.slang`, two tests and two examples. The check reports 568, every
-  one a list or a label.
-- **Spelling.** STYLE.md asks for American spelling and no check searches for it. About forty
-  British spellings were in comments, XML documentation and log messages of the carried-over code
-  (behaviour, initialise, honoured, normalised, centre, recognises, neighbouring, millimetre,
-  cancelled), with a private method, `BuildLabelledPath`, and a local, `normalised`, and they are
-  American now, the workflow's comments among them and its `cancelled()` kept. raylib's own words
-  in the examples (`Centre`, `ANALOGUE CLOCK`, `maskColour`, `towards target`) stay as raylib wrote
-  them. A search for them could join STYLE.md's checks, which I leave to you.
-- **An editor.** `ScenePurposeMask.Editor`'s summary described an editor's viewport, and it now
-  says what the mask includes, the member's name kept since it is public.
-- **Checked.** The model pass's SPIR-V is byte for byte the same, the strict build is clean, and
-  TODO.md's Prose entry names the spellings among what is gone. Some comments of the carried-over
-  code still restate the line below them, which stays as the entry has it, each file brought under
-  the guide when it is next changed.
-- **Item 3.** Fault 2 reproduces on today's code in a harness of its own, a lamp over a glossy floor
-  with light bouncing, built without ray queries, where it dies by SIGSEGV reading a pointer and the
-  word after it from address 0, as fault 1 does. It is not the model pass alone. With the lamp loop split
-  into `lampLight`, each of `gi_trace.slang`, `gi_screen.slang` and the model pass crashes lavapipe
-  with the others built unsplit, and all three unsplit draw. The model pass's reduction went to an
-  empty shader that still crashed, since the compute passes carried the split too, which is how
-  this came out, and it now reduces `gi_trace`'s 50 KB compute shader, the easiest to put in a C
-  harness, at 44 KB so far. spirv-reduce's crash is its own: `MergeWithSuccessor` looks for the
-  successor after the block in the function's layout and runs off the end where an unreachable
-  block branches back, so a local build of SPIRV-Tools refuses that merge, and fault 1's reduction
-  goes on with it at 22 KB. TODO.md's fault 2 sentence is corrected once the reduction says where
-  the fault is.
+- **One game in a window.** `build/drive-game.sh` takes `window` as a second argument, which opens
+  the game through `./e3d` with no `--offscreen`, a window on the runner's desktop as a player sees
+  it, and names its captures and its error's heading apart, `Pusher in a window on Windows`. The
+  Windows and macOS jobs play Pusher that way after the offscreen games, its walk asserted as it is
+  offscreen, with four minutes (`DRIVE_MINUTES`) in a step of six, and a failure says why in the
+  annotation the offscreen games' errors use. The empty flag list is expanded in the form macOS's
+  bash 3.2 takes under `set -u`. Here it played through in a hidden window under the validation
+  layer, so the script is tried and the window on the two systems waits on the next run you read.
+  BUILDING.md and TODO.md say so.
+- **A stale package test.** Packing for that run showed `PackageContentsTests` counting one build
+  of each shader where `e3d shaders` has compiled a second of each that names `RAY_QUERY` since
+  `1b4edb7e`, so the model pass's four entries failed a count of two, and the pack workflow, which
+  runs these tests, would have refused the package. The test counts each shader's builds as
+  `SlangLoader.VariantsOf` finds them, in a commit of its own before this one.
+- **Item 3.** SPIRV-Tools' fault is being reduced too, the released spirv-reduce of the Vulkan SDK
+  run on each candidate with a test that takes nothing past the start, so the crash is its block
+  merge's own, and the reproduction, the patch and the report's text go beside the two Mesa ones.
+  Fault 1 is at 13 KB and fault 2 at 16 KB.
 - The suite: 1,548 passed.
