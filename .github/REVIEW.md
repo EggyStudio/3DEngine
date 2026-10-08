@@ -10,25 +10,43 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `7115eeaa`. TODO.md's prose entry, words alone: STYLE.md's remaining hits for dashes,
-spaced hyphens, wants and clefts, earlier revisions and old reference paths are all arithmetic,
-raylib's own words on screen, a license, or STYLE.md and COMMITS.md naming what they forbid, so
-N 4.1's list keeps those two files and nothing more; every one of the 485 colons that are not a
-channel's label was read, eleven joined two clauses and are rewritten, and the check reports lists
-and labels alone; STYLE.md asks for American spelling with no check for it, so about forty British
-spellings in the carried-over code's comments, XML documents and log lines are American, a private
-method and a local among them, raylib's own words in the examples kept; and
+Reviewed up to `9a13915d`. TODO.md's build and release entry: `build/drive-game.sh` takes `window`
+as its second argument and opens the game through `./e3d` with no `--offscreen`, its captures and
+its error's heading named apart and the empty flag list expanded in the form bash 3.2 takes under
+`set -u`, and the Windows and macOS jobs play Pusher that way after the offscreen games, four
+minutes in a step of six, a failure in the games' own annotation, so SDL's window and the swapchain
+on those two systems are first proved by the next run the owner pushes (`d559bb05`); packing for it
+found `PackageContentsTests` counting one build a shader where `e3d shaders` has compiled a second
+naming `RAY_QUERY` since `1b4edb7e`, which the pack workflow would have refused, so the test counts
+each shader's builds as `SlangLoader.VariantsOf` finds them (`96d9cb06`). Item 3's third fault:
+`build/spirv-tools/merge-blocks/` holds seventeen lines of SPIR-V, two unreachable blocks, the
+second branching back to the first, which `spirv-val` takes and spirv-reduce's block merge dies on
+in v2025.1, the SDK's v2026.4.rc2 and main at `db9f967`, since `MergeWithSuccessor` looks for the
+successor from its predecessor onward, which holds for reachable blocks alone; `run.sh` reproduces
+it with any spirv-reduce, the patch has `CanMergeWithSuccessor` refuse a successor laid out before
+its predecessor, and the issue's text waits for the owner (`9a13915d`); the Mesa faults stand at 11
+KB and, `gi_trace`'s compute shader, 13 KB, the second crashing under the validation layer with no
+error reported first, which points at lavapipe. With that entry TODO.md's order is walked to its
+end, every entry left a limit described, a decision of the owner's, or a wait on lavapipe or on an
+answer, so item 2 is settled and its number taken by the upgrading page's Added section, and a
+thirteenth game, the first lit by the bounce, is item 5, after item 3's two Mesa reports;
+RENDERING.md's one entry of its order left, the tonemap as a pass over every frame, stays parked,
+since it costs every program every frame and redraws every lit reference for no fault measured. The
+suite: 1,548 passed.
+
+Before them, TODO.md's prose entry came to be done in words alone: STYLE.md's remaining hits for
+dashes, spaced hyphens, wants and clefts, earlier revisions and old reference paths are all
+arithmetic, raylib's own words on screen, a license, or STYLE.md and COMMITS.md naming what they
+forbid, so N 4.1's list keeps those two files and nothing more; every one of the 485 colons that are
+not a channel's label was read, eleven joined two clauses and are rewritten, and the check reports
+lists and labels alone; STYLE.md asks for American spelling with no check for it, so about forty
+British spellings in the carried-over code's comments, XML documents and log lines are American, a
+private method and a local among them, raylib's own words in the examples kept; and
 `ScenePurposeMask.Editor`'s summary describes no editor any more, the strict build clean and the
-model pass byte for byte the same (`7115eeaa`). Item 3: the second fault reproduces on the code as
-it stands in a harness of its own, a lamp, a glossy floor and the bounce on with no ray query, and
-is not the model pass's alone, since with `lampLight` split out `gi_trace`, `gi_screen` and the
-model pass each crash lavapipe and unsplit all three draw, its signature the first fault's, a
-pointer and the word eight bytes past it read from address 0, so `gi_trace`'s compute kernel is
-being reduced as the easiest to put in a C harness; and `spirv-reduce`'s crash is a SPIRV-Tools
-fault of its own, a block merge that assumes the successor follows in the layout and runs off the
-end, refused by a build patched here, with the first fault's reduction at 22 KB on it. The next
-entry with work left is build and release, a game in a window tried on Windows and macOS. The suite:
-1,548 passed.
+model pass byte for byte the same (`7115eeaa`). Item 3's second fault was found to reproduce in a
+harness of its own with no ray query, a lamp, a glossy floor and the bounce on, `gi_trace`,
+`gi_screen` and the model pass each crashing lavapipe with `lampLight` split out and all three
+drawing unsplit, so `gi_trace`'s compute kernel is the one reduced. The suite: 1,548 passed.
 
 Before them, the light-bounce entry's last gap came to be closed, moving meshes bouncing gray: the
 resolve keeps a still copy of the field's colors, and the stamp starts each cell from that copy and
@@ -40,20 +58,6 @@ which fails the test; with three robots the stamp costs 0.062 to 0.067 ms where 
 took 4, the model pass byte for byte the same; a moving mesh's own light is still not stamped, since
 a still copy of the glow would cost 2 MB a cascade, which the docs say; on lavapipe under validation
 160 passed and 1 skipped (`d67d0153`). The suite: 1,548 passed.
-
-Before them, the light-bounce entry's gap of thin closed meshes and open ones came to be closed: a
-closed wall thinner than half a cell is held in the field as a double-sided sheet is, the splat
-keeping the nearest face each cell lies straight behind, within 25 degrees, and the way each face
-looks, so a cell in front of one face with an opposite face less than half a cell behind it resolves
-to the middle of the two less half a cell; an edge no other triangle shares by position is marked
-open, and a cell nearest an open edge counts as in front, so an open mesh leaves no wedge below its
-rim; a GPU test covers a slab a fifth of a cell thick and a ground plane, each half failing with its
-rule taken out; a cascade's build costs 0.46 ms where it cost 0.44 and the field takes 1 MB more,
-which the guide says; on lavapipe under validation 159 passed and 1 skipped (`f2f6f717`). Item 3's
-constrained reduction ended in undefined behaviour again, a read of a ray query's instance where the
-query had no hit, so a third reduction keeps only candidates that fault with the model pass's
-signature, a descriptor-like pointer read from address 0, through a preloaded SIGSEGV handler. The
-suite: 1,547 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -71,12 +75,18 @@ for a reply. In this order.
    information alone, so the reason is unread, Verdict 33's new part, whose three mends are in at
    `1840cbb5` and read on the next Windows job once the owner pushes, the cause e3d's own look for
    the game on Windows before cmd.exe had made it, mended at `63581f04`; its macOS job was still
-   playing the games at 21:48. The examples job, which carries the guides' blocks and Verdicts 30
-   and 31, runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what
-   climbs when the leak test's host next dies. Each push's run is read by the reviewing session, and
-   a failure it names comes first here.
-2. **TODO.md's order** for everything else, and another game only when it is of a kind that uses
-   what none of the twelve has.
+   playing the games at 21:48, and the same run first shows Pusher in a window on the two runners'
+   desktops (`d559bb05`). The examples job, which carries the guides' blocks and Verdicts 30 and 31,
+   runs once a run's three test jobs pass. Verdict 37's fourth part at `0ad8636f` reads what climbs
+   when the leak test's host next dies. Each push's run is read by the reviewing session, and a
+   failure it names comes first here.
+2. **The upgrading page's Added section whole.** Every public name the surface gained since the
+   commit 5.1 was packed from (`b43818f9`) is on the page that moves a game from 5.1 to 6.0, held by
+   the test that holds the page's rows for the names lost, read the other way from the two
+   `PublicApi.txt`; the names grouped as the features they belong to, a line on what each does and
+   the guide that shows it, the scene's field and the light that bounces, the reflections and their
+   tiers, text shaped and the color fonts, ImGui's viewports and the rest, so an author of a 5.1
+   game reads in one place what 6.0 gives them, and nothing is named there that the code lacks.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
    a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
    fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
@@ -90,6 +100,13 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
+5. **A thirteenth game, the first lit by the bounce.** A game of a kind none of the twelve is,
+   since none calls `SetSceneField` or `SetGlobalIllumination`: its play is the light that bounces,
+   a lamp carried through dark rooms whose light reaches around corners and through doorways and not
+   through walls, on glossy floors that reflect it; built from the package and played through
+   `./e3d` on the three systems as the twelve are, its walk asserted, at the quality lavapipe draws
+   within the games' step, a lit room of it a reference frame compared whole, and its line in the
+   games' table; after item 2 and item 3's two Mesa reports.
 
 ## Verdicts
 
@@ -321,24 +338,26 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, Build and release, a game in a window on Windows and macOS:
+Item 2, the upgrading page's Added section whole:
 
-- **One game in a window.** `build/drive-game.sh` takes `window` as a second argument, which opens
-  the game through `./e3d` with no `--offscreen`, a window on the runner's desktop as a player sees
-  it, and names its captures and its error's heading apart, `Pusher in a window on Windows`. The
-  Windows and macOS jobs play Pusher that way after the offscreen games, its walk asserted as it is
-  offscreen, with four minutes (`DRIVE_MINUTES`) in a step of six, and a failure says why in the
-  annotation the offscreen games' errors use. The empty flag list is expanded in the form macOS's
-  bash 3.2 takes under `set -u`. Here it played through in a hidden window under the validation
-  layer, so the script is tried and the window on the two systems waits on the next run you read.
-  BUILDING.md and TODO.md say so.
-- **A stale package test.** Packing for that run showed `PackageContentsTests` counting one build
-  of each shader where `e3d shaders` has compiled a second of each that names `RAY_QUERY` since
-  `1b4edb7e`, so the model pass's four entries failed a count of two, and the pack workflow, which
-  runs these tests, would have refused the package. The test counts each shader's builds as
-  `SlangLoader.VariantsOf` finds them, in a commit of its own before this one.
-- **Item 3.** SPIRV-Tools' fault is being reduced too, the released spirv-reduce of the Vulkan SDK
-  run on each candidate with a test that takes nothing past the start, so the crash is its block
-  merge's own, and the reproduction, the patch and the report's text go beside the two Mesa ones.
-  Fault 1 is at 13 KB and fault 2 at 16 KB.
-- The suite: 1,548 passed.
+- **Held both ways.** `UpgradingTests` reads the two `PublicApi.txt` the other way as well: a type
+  5.1 lacked is named by itself, and a member whose name its type lacked by its name, a call whose
+  arguments were reordered or retyped keeping its name. It found thirteen the page lacked, the
+  field's and the bounce's six (`SetSceneField`, `SceneFieldConfig`, `Config.SceneField`,
+  `SetGlobalIllumination`, `GlobalIllumination`, `Config.GlobalIllumination`), `EcsWorld`'s two
+  despawn calls by those names, and `Model.Skeleton`, `ModelSkeleton` and the three keyframe
+  members, which the models table now names on its right as it names the old ones on its left. The
+  124 lines the surface gained come to those and the names the page already had, the renamed keys,
+  buttons and levels among them.
+- **Grouped by feature.** The section is a list of features, each with what it does and the guide
+  that shows it: the scene's field, the light that bounces, glossy reflections and their tier at
+  `High` through the GPU's rays, text shaped, color fonts, text from a file where raylib's lies,
+  ImGui's viewports, VR, states, sound, textures and the window, models and shadows. The ones with
+  no new name, text shaping, color fonts, viewports and the reflections among them, are said as
+  what 5.1's calls do now.
+- **Nothing the code lacks.** A third test holds each `Type.Member` of the section whose type is
+  the engine's to the surface, and failed on a misspelled `Music.FrameCounts` put there to try it.
+  The links are held by `DocumentLinkTests`.
+- **Item 3.** Fault 1 stands at 6 KB and fault 2 at 8 KB, and each report follows its reduction's
+  end.
+- The suite: 1,550 passed.

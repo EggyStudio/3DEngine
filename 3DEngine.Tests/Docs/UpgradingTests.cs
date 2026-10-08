@@ -6,7 +6,7 @@ namespace Engine.Tests.Docs;
 /// <summary>
 /// Every name of the public surface the 5.1 package had and this commit lacks is on the page that
 /// moves a game from 5.1 to 6.0, so a commit that takes a name out says there what a game writes
-/// in its place.
+/// in its place, and every name this commit has that 5.1 lacked is in its Added section.
 /// </summary>
 /// <remarks>
 /// The two surfaces are <c>PublicApi.txt</c> at the commit 5.1.116 was packed from and now. A line
@@ -46,6 +46,53 @@ public sealed partial class UpgradingTests
 
         // Joined, so the message names every one and not the first alone.
         string.Join(", ", missing).Should().BeEmpty("each name a game of 5.1 wrote that is gone is a row of docs/upgrading.md saying what it writes instead");
+    }
+
+    [NeedsHistoryFact(FiveOne, "from which docs/upgrading.md counts the names added")]
+    public void Every_Name_The_Public_Surface_Gained_Since_5_1_Is_On_The_Upgrading_Page()
+    {
+        // The other way from the names lost: a type 5.1 lacked is named by itself, and a member
+        // whose name its type lacked by its name, a call whose arguments were reordered or retyped
+        // keeping a name 5.1 had and being no name added.
+        var root = Api.CheatsheetTests.RepoRoot();
+        var before = Surface(NormTests.Git("show", $"{FiveOne}:3DEngine/PublicApi.txt"));
+        var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
+        var code = Code(File.ReadAllText(Path.Combine(root, "docs", "upgrading.md")));
+
+        var missing = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var (type, members) in now)
+        {
+            if (!before.TryGetValue(type, out var had))
+            {
+                if (!Named(code, type)) missing.Add(type);
+                continue;
+            }
+            var names = had.Select(MemberName).ToHashSet(StringComparer.Ordinal);
+            foreach (var name in members.Select(MemberName).Where(name => !names.Contains(name)).Distinct())
+            {
+                var written = type == "Engine3D" ? name : $"{type}.{name}";
+                if (!Named(code, written)) missing.Add(written);
+            }
+        }
+
+        string.Join(", ", missing).Should().BeEmpty("each name 6.0 gained is in docs/upgrading.md's Added section, with what it does");
+    }
+
+    [Fact]
+    public void The_Added_Section_Names_No_Member_The_Surface_Lacks()
+    {
+        // Each `Type.Member` of the section whose type is the engine's, ImGui's own flags and the
+        // like being another library's to keep.
+        var root = Api.CheatsheetTests.RepoRoot();
+        var now = Surface(File.ReadAllText(Path.Combine(root, "3DEngine", "PublicApi.txt")));
+        var page = File.ReadAllText(Path.Combine(root, "docs", "upgrading.md"));
+        var added = page[page.IndexOf("## Added", StringComparison.Ordinal)..];
+        var lacking = Ticked().Matches(added).Select(match => match.Groups["code"].Value)
+            .Select(code => Member().Match(code)).Where(match => match.Success && now.ContainsKey(match.Groups["type"].Value))
+            .Where(match => !now[match.Groups["type"].Value].Select(MemberName).Contains(match.Groups["member"].Value))
+            .Select(match => match.Value).Distinct();
+
+        string.Join(", ", lacking).Should().BeEmpty("the Added section names what 6.0 has");
     }
 
     [NeedsHistoryFact(FiveOne, "from which the names lost since 5.1 are counted")]
@@ -159,4 +206,8 @@ public sealed partial class UpgradingTests
 
     [GeneratedRegex(@"<[^<>]*>")]
     private static partial Regex Generics();
+
+    // A span that is a type's member and nothing else, as `Config.SceneField`.
+    [GeneratedRegex(@"^(?<type>[A-Z]\w*)\.(?<member>[A-Z]\w*)$")]
+    private static partial Regex Member();
 }

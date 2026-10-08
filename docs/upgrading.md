@@ -119,24 +119,69 @@ A model's bones are its skeleton's, and a clip's poses are its keyframes, as ray
 
 | A game wrote | It writes |
 |---|---|
-| `model.Bones` (`Model.Bones`) | `model.Skeleton.Bones` |
+| `model.Bones` (`Model.Bones`) | `model.Skeleton.Bones`, `Model.Skeleton` being a `ModelSkeleton` |
 | `model.BindPose` (`Model.BindPose`) | `model.Skeleton.BindPose` |
 | `model.Bones.Length` | `model.Skeleton.BoneCount` |
-| `clip.FramePoses` (`ModelAnimation.FramePoses`) | `clip.KeyframePoses` |
-| `clip.FrameMorphWeights` (`ModelAnimation.FrameMorphWeights`) | `clip.KeyframeMorphWeights` |
-| `clip.FrameCount` (`ModelAnimation.FrameCount`) | `clip.KeyframeCount` |
+| `clip.FramePoses` (`ModelAnimation.FramePoses`) | `clip.KeyframePoses` (`ModelAnimation.KeyframePoses`) |
+| `clip.FrameMorphWeights` (`ModelAnimation.FrameMorphWeights`) | `clip.KeyframeMorphWeights` (`ModelAnimation.KeyframeMorphWeights`) |
+| `clip.FrameCount` (`ModelAnimation.FrameCount`) | `clip.KeyframeCount` (`ModelAnimation.KeyframeCount`) |
 
 ## Added
 
-Nothing a game of 5.1 writes changes for these.
+Nothing a game of 5.1 writes changes for these. They are the functions and types 6.0 has that 5.1
+lacked, grouped by what they do, and what calls 5.1 had do now that they did not, each with the
+guide that shows it.
 
-- `LoadVrStereoConfig`, `BeginVrStereoMode`, `EndVrStereoMode` and `UnloadVrStereoConfig`, with
-  `VrDeviceInfo` and `VrStereoConfig`, draw a frame for each eye of a headset, as raylib's do.
-- `Sound.FrameCount` and `Music.FrameCount`, how many frames of samples each holds.
-- `TextureWrap.MirrorClamp`, and the window flags `ConfigFlags.InterlacedHint` and
-  `ConfigFlags.WindowMousePassthrough`.
-- `DespawnOnEnter<TState>` and `DespawnWhen<TState>`, and the `EcsWorld` calls that add them,
-  despawn an entity when a state is entered or when a rule of its transitions holds, as
-  [States](states.md) shows.
-- `BehaviorSounds.PlaySpatialSound`, a sound placed in the world from a behavior's context, as
+- **The scene as a distance field.** `SetSceneField` builds a distance field of the meshes that
+  cast shadows, in cascades around the camera on the GPU, which ambient occlusion reads beside the
+  window's depth, the sun casts soft contact shadows through and a particle emitter that collides
+  meets off the screen. `Config.SceneField` takes a `SceneFieldConfig` of the same cascades, cell
+  size and budget for an app made from a `Config`, as
+  [The scene as a distance field](materials-light-and-shadows.md#the-scene-as-a-distance-field)
+  shows.
+- **Light that bounces.** `SetGlobalIllumination` with `GlobalIllumination.Low`, `Medium` or
+  `High` traces the light that bounces between surfaces each frame through that field, nothing
+  baked, so every light and mesh may move, and `GlobalIllumination.Off`, the default, leaves it
+  out. `Config.GlobalIllumination` sets it for an app made from a `Config`, as
+  [Light that bounces](materials-light-and-shadows.md#light-that-bounces) shows with each quality's
+  cost.
+- **Glossy surfaces reflect.** Where light bounces, a surface with a roughness under 0.5 traces its
+  reflection through the window's depth and on through the field, and at `High` on a GPU that
+  traces rays itself, where the field misses, against the meshes' own triangles. Render textures
+  and reflection probes' captures take the light that bounced, in the same guide.
+- **Text shaped.** A line in a script written right to left is drawn in the order it is read,
+  Arabic's letters join, with their marks put on them, their pairs kerned and Nastaliq's letters
+  joined along the word by the font's own tables, and a letter and the mark after it are drawn as
+  the one character Unicode has for both, as
+  [Text read right to left](text-and-fonts.md#text-read-right-to-left) shows.
+- **Color fonts.** A color emoji font draws its emoji in color, held as pictures, as Apple's
+  bitmaps, as colored layers or as COLR version 1's gradients, and joins families, flags, skin
+  tones and keycaps into their pictures. Characters past U+FFFF are drawn from a font's TrueType or
+  CFF outlines, and in a distance field font. A font file the atlas cannot read is refused with the
+  reason rather than stopping the program, and a font collection is read as its first font, as
+  [Characters past Latin-1](text-and-fonts.md#characters-past-latin-1) shows.
+- **Text from a file where raylib's lies.** Text in a font loaded from a file advances by whole
+  pixels on raylib's baseline, so a line may sit a little apart from where 5.1 drew it.
+- **ImGui's viewports.** An ImGui window dragged outside the game's window gets a window of its
+  own, drawn in the same frame, once a program sets `ImGuiConfigFlags.ViewportsEnable`, on X11,
+  Windows and macOS, as [ImGui in the same frame](window-and-frame.md#imgui-in-the-same-frame)
+  shows.
+- **VR.** `LoadVrStereoConfig`, `BeginVrStereoMode`, `EndVrStereoMode` and `UnloadVrStereoConfig`,
+  with `VrDeviceInfo` and `VrStereoConfig`, draw a frame for each eye of a headset, as raylib's do
+  and [Drawing into a texture](drawing-3d-and-cameras.md#drawing-into-a-texture) shows.
+- **States.** `DespawnOnEnter<TState>` and `DespawnWhen<TState>`, and `EcsWorld.DespawnOnEnter`
+  and `EcsWorld.DespawnWhen`, which add them, despawn an entity when a state is entered or when a
+  rule of its transitions holds, as [States](states.md) shows.
+- **Sound.** `Sound.FrameCount` and `Music.FrameCount`, how many frames of samples each holds, and
+  `BehaviorSounds.PlaySpatialSound`, a sound placed in the world from a behavior's context, as
   [Audio](audio.md) shows.
+- **Textures and the window.** `TextureWrap.MirrorClamp`, and the window flags
+  `ConfigFlags.InterlacedHint` and `ConfigFlags.WindowMousePassthrough`.
+- **Models.** A vertex stage of a program's own is fed each input by its semantic, so it takes them
+  in any order with no locations of its own, as
+  [Moving vertices](shaders-and-compute.md#moving-vertices) shows. An entity's `AnimatedModel`
+  plays in an app a program built itself, and a body made from a model the GPU posed takes its
+  pose, as [Bodies that fall](physics.md#bodies-that-fall) shows.
+- **Shadows.** The spot and point lights given shadows are ranked for every camera the frame draws
+  meshes through, so a render texture shadows the lights it sees, as
+  [Shadows](materials-light-and-shadows.md#shadows) shows.
