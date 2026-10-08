@@ -1,0 +1,25 @@
+diff --git a/source/opt/block_merge_util.cpp b/source/opt/block_merge_util.cpp
+index 42f695f..0000000 100644
+--- a/source/opt/block_merge_util.cpp
++++ b/source/opt/block_merge_util.cpp
+@@ -91,6 +91,20 @@ bool CanMergeWithSuccessor(IRContext* context, BasicBlock* block) {
+     return false;
+   }
+ 
++  // MergeWithSuccessor looks for the successor after this block in the
++  // function's layout. An unreachable block may branch to a block laid out
++  // before it whose only predecessor it is, so such a pair is not merged.
++  {
++    bool seen = false;
++    for (auto& candidate : *block->GetParent()) {
++      if (&candidate == block) seen = true;
++      else if (candidate.id() == lab_id) {
++        if (!seen) return false;
++        break;
++      }
++    }
++  }
++
+   bool pred_is_merge = IsMerge(context, block);
+   bool succ_is_merge = IsMerge(context, lab_id);
+   if (pred_is_merge && succ_is_merge) {

@@ -1,0 +1,21 @@
+; A fragment shader with two unreachable blocks, the second branching back to the first, which is
+; laid out before it and has no other predecessor. spirv-val takes it, and spirv-reduce's pass that
+; merges blocks dies by SIGSEGV on it.
+; SPIR-V
+; Version: 1.5
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main"
+               OpExecutionMode %main OriginUpperLeft
+       %void = OpTypeVoid
+         %fn = OpTypeFunction %void
+       %main = OpFunction %void None %fn
+      %entry = OpLabel
+               OpBranch %exit
+     %before = OpLabel
+               OpBranch %exit
+      %after = OpLabel
+               OpBranch %before
+       %exit = OpLabel
+               OpReturn
+               OpFunctionEnd
