@@ -364,15 +364,15 @@ public float4 tracedReflection(float3 p, float3 n, float3 r, float roughness, fl
 }
 
 #if defined(RAY_QUERY)
-// Whether a ray from p along way meets any of the window's meshes.
-bool rayBlocked(float3 p, float3 way)
+// Whether a ray from p along way meets any of the window's meshes within reach.
+bool rayBlocked(float3 p, float3 way, float reach = 1e4)
 {
     RayQuery<RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
     RayDesc ray;
     ray.Origin = p;
     ray.Direction = way;
     ray.TMin = 0.0;
-    ray.TMax = 1e4;
+    ray.TMax = reach;
     query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
     query.Proceed();
     return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
@@ -380,7 +380,8 @@ bool rayBlocked(float3 p, float3 way)
 
 // The light the first of the window's meshes a ray from p along way meets sends back along it,
 // through the device's ray tracing: the copy's color over pi times the sun's light where a second
-// ray toward the sun gets through, the lamps' unshadowed, and the light that bounced to it where a
+// ray toward the sun gets through, the lamps', each that casts shadows where a ray toward it gets
+// through, and the light that bounced to it where a
 // cascade of probes holds it or the light from all around where none does, with the light it gives
 // off, and a 1, or a 0 where it meets none.
 float4 rayReflection(float3 p, float3 way)
@@ -405,9 +406,10 @@ float4 rayReflection(float3 p, float3 way)
         n = -n;
     float3 hit = p + way * query.CommittedRayT();
 
-    // The lamps, unshadowed, falling off as directLight has them. The loop is its own here rather
-    // than a function directLight calls too, since the model pass reshaped by that, with no ray
-    // query in it, crashed lavapipe at its reflections.
+    // The lamps, falling off as directLight has them, each that casts shadows hidden where a ray
+    // toward it meets a mesh short of it. The loop is its own here rather than a function
+    // directLight calls too, since the model pass reshaped by that, with no ray query in it,
+    // crashed lavapipe at its reflections (build/mesa).
     float3 arrived = float3(0.0);
     for (int i = 0; i < min(int(reflectLights.counts.x), 16); i++)
     {
@@ -424,6 +426,8 @@ float4 rayReflection(float3 p, float3 way)
         }
         if (int(light.positionAndKind.w) == 2)
             reaching *= smoothstep(light.cone.y, max(light.cone.x, light.cone.y + 1e-4), dot(-toward, light.directionAndRange.xyz));
+        if (light.colorAndShadow.w > 0.5 && reaching > 0.0 && rayBlocked(hit + n * 0.01, toward, sqrt(distance2) - 0.05))
+            continue;
         arrived += light.colorAndShadow.rgb * reaching;
     }
     float3 l = reflectLights.sunDirection.xyz;

@@ -57,7 +57,8 @@ internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField
 /// <para>
 /// A ray that meets a surface brings back the light the surface sends along it: its color, which
 /// the field paints, times the sun's light where the field lets the sun through to it, the point
-/// and spot lights' unshadowed, and the light that bounced to it the frame before, so light
+/// and spot lights', each that casts shadows where the field lets it through too, and the light
+/// that bounced to it the frame before, so light
 /// bounces again each frame, with the light it gives off. A ray of the last cascade that meets
 /// nothing brings back the environment map's light, or the ambient lights' where there is none.
 /// </para>

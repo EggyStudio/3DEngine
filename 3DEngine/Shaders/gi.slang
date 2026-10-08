@@ -1,8 +1,8 @@
 // What the passes of light that bounces share: directions laid out on an octahedron, rays traced
 // through the scene's distance field, and the light a surface the field holds sends back along a
 // ray, its color times the light that reaches it, the sun's where the field lets the sun through,
-// the lights' unshadowed and the light that bounced to it the frame before, with the light it
-// gives off.
+// the lamps', each that casts shadows where the field lets it through too, and the light that
+// bounced to it the frame before, with the light it gives off.
 module gi;
 
 import scenefield;
@@ -422,7 +422,7 @@ public float3 hiddenLampLight<V : IVolume>(V field, SceneFieldInfo info, GiLight
 // do not, because marching to the probes at each of their hits cost 0.10 to 0.15 ms of the
 // bounce's 0.3 to 0.4 on the RTX 4070 in shaders_cornell_box, and a closed room under a lamp held
 // 3 levels of its light without it, where it held 247 before either. The model pass's reflections call
-// shadeHit, which marches toward neither.
+// shadeHit, which hides the lamps as this does and marches to no probe.
 public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
     float3 p, float probes, float spacing, float cascades, bool seen)
 {
@@ -434,14 +434,18 @@ public float3 shadeProbeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo,
 }
 
 // The light a surface the field holds at p sends back along a ray that met it: its color over pi
-// times the light that reaches it, the sun's and the lights' and, at the share given, the light
-// that bounced to it the frame before, with the light it gives off.
+// times the light that reaches it, the sun's and the lights', the lamps that cast shadows hidden
+// where the field stands between as the probes have them, and, at the share given, the light that
+// bounced to it the frame before, with the light it gives off. hiddenLampLight's loop after
+// directLight's is the shape lavapipe draws, which the probes' passes already have, where the lamps'
+// loop moved ahead of the sun's in directLight is not (build/mesa).
 public float3 shadeHit<V : IVolume>(V field, SceneFieldInfo info, V albedo, V glow, GiLights lights, V cubes,
     float3 p, float probes, float spacing, float cascades)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedo(albedo, info, p);
-    float3 arrived = directLight(field, info, lights, p, n) + bouncedAt(cubes, info, p, n, probes, spacing, cascades) * lights.counts.z;
+    float3 arrived = directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)
+        + bouncedAt(cubes, info, p, n, probes, spacing, cascades) * lights.counts.z;
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);
 }
 

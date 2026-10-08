@@ -163,7 +163,8 @@ public static partial class Engine3D
     /// <see cref="SetSceneField"/> has not, as cascades of light probes (Radiance Cascades) the GPU
     /// works out each frame. Nothing is baked, so every light and every mesh may move. The light a
     /// surface sends on is its material's color, its texture's average, times the sun's light where
-    /// the field lets it through, the point and spot lights' unshadowed, and what bounced to it the
+    /// the field lets it through, the point and spot lights', each that casts shadows where the field
+    /// lets it through too, and what bounced to it the
     /// frame before, with the light it gives off, so an emissive mesh lights its room.
     /// </para>
     /// <para>

@@ -329,22 +329,25 @@ it meets there reflects its color times the light reaching it, so a mirror shows
 the camera. A ray that meets nothing leaves the reflection to the probe or the environment map, as
 does a surface as it grows rough, the traced reflection fading out from a roughness of 0.25 to 0.5.
 The frame is drawn through the HDR frame while light bounces, so the frame before is there to read.
-In `shaders_reflections` at `Medium`, the scene's pass takes 0.29 ms of the GPU with its floor
-polished and 0.20 ms with it rough, as `./e3d command profile` names it `hdr_scene`, with the frame
+In `shaders_reflections` at `Medium`, the scene's pass takes 0.30 ms of the GPU with its floor
+polished and 0.23 ms with it rough, as `./e3d command profile` names it `hdr_scene`, with the frame
 rate unlimited as above.
 
 At `High`, where the GPU traces rays itself (`VK_KHR_ray_query`), a reflection the field misses,
 past its cascades or too thin for its cells, is traced through the GPU's own rays against the
 meshes' triangles, and the surface it meets reflects its color lit by the sun, through a second
-ray toward it, the lamps, and the light that bounced where the probes reach or the sky where they
+ray toward it, the lamps, each that casts shadows through a ray toward it too, and the light that bounced where the probes reach or the sky where they
 do not. A device that draws on its CPU, as lavapipe does, leaves this off and traces through the
 field alone. `./e3d command gi.rays off` turns it off in a running program and `gi.rays on` back
 on, and `gi.state` says how many copies of how many meshes the GPU's rays see and the memory they
 take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 MB, and building
 them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
-rays here seldom leave the field, reads the same within its noise of 0.03 ms. A reflection lights
-what it meets with the point and spot lights unshadowed, a mesh that moves bounces light as the
-boxes the field holds it as and none of the light it gives off, and the light near the camera is blended with the frame before's so
+rays here seldom leave the field, reads the same within its noise of 0.03 ms. A lamp that casts
+shadows lights what a reflection meets only where the field, or at `High` the GPU's ray, lets it
+through, as it lights the light that bounces, which in Wick's first doorway, its lamp and a wick
+casting shadows, costs the scene's pass some 0.02 ms of the GPU at `Medium` and `High`, the noise
+between two runs, and in `shaders_reflections`, whose lights cast none, nothing that can be read. A
+mesh that moves bounces light as the boxes the field holds it as and none of the light it gives off, and the light near the camera is blended with the frame before's so
 it holds still as the camera moves, which makes it follow a light that changes some five frames
 behind. A render texture and a reflection
 probe's faces take the light that bounced from the world's probes alone, as the frame before left

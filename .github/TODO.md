@@ -152,8 +152,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   shape lavapipe draws. In the bounce a point or spot light that casts shadows lights a surface only
   where the field lets it through, a probe's ray that meets a surface before its interval is
   blocked, and the world's probes take bounced light from the probes they see, so a closed room is
-  dark to a lamp outside it. The screen's probes blend every probe around what they meet, the
-  reflections light it with the lamps unshadowed, a skinned or moving mesh is boxes of its color,
+  dark to a lamp outside it, and a reflection is lit by those lamps the same way, or through the
+  GPU's rays at `High`. The screen's probes blend every probe around what they meet, a skinned or
+  moving mesh is boxes of its color,
   of its joints or of its parts, that give off none of its light, and the screen's probes, blended with the frame before's, follow a
   changing light five frames late. Render textures and probe captures take
   the bounce from the world's probes alone, a frame late, and where the window draws no mesh the

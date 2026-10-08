@@ -440,6 +440,85 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void A_Mirror_Shows_A_Block_Its_Lamp_Is_Shut_Away_From_In_The_Dark()
+    {
+        Open();
+        var mirror = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        mirror.Materials[0] = new ModelMaterial(new Color(240, 240, 240)) { Metallic = 1, Roughness = 0.02f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        // A mirror the camera faces and a green block behind the camera, which only a ray through
+        // the field finds, and beside the camera, out of the picture, a lamp that casts shadows in a
+        // box of six walls, so none of its light reaches the block. With the box's wall toward the
+        // block left out, its light does.
+        var lamp = new Vector3(3, 1.2f, 4.5f);
+        CreatePointLight(lamp, Color.White, 8, range: 12, castsShadows: true);
+        void Draw(bool shut)
+        {
+            DrawModelEx(mirror, new Vector3(0, 1.2f, -1.5f), Vector3.UnitY, 0, new Vector3(4, 3, 0.2f), Color.White);
+            DrawModelEx(block, new Vector3(0, 1.2f, 6.5f), Vector3.UnitY, 0, new Vector3(3, 3, 1), new Color(30, 200, 40));
+            foreach (var (at, size) in new[]
+                     {
+                         (new Vector3(0, 1.1f, 0), new Vector3(2.4f, 0.2f, 2.4f)), (new Vector3(0, -1.1f, 0), new Vector3(2.4f, 0.2f, 2.4f)),
+                         (new Vector3(1.1f, 0, 0), new Vector3(0.2f, 2.4f, 2.4f)), (new Vector3(-1.1f, 0, 0), new Vector3(0.2f, 2.4f, 2.4f)),
+                         (new Vector3(0, 0, 1.1f), new Vector3(2.4f, 2.4f, 0.2f)), (new Vector3(0, 0, -1.1f), new Vector3(2.4f, 2.4f, 0.2f)),
+                     })
+                if (shut || at.X >= 0)
+                    DrawModelEx(slab, lamp + at, Vector3.UnitY, 0, size, Color.Gray);
+        }
+
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var shut = Mean(Capture(() => Draw(true)), 70, 40, 20, 16);
+        var open = Mean(Capture(() => Draw(false)), 70, 40, 20, 16);
+        shut.Y.Should().BeLessThan(20, $"the block the lamp is shut away from is dark in the mirror, {shut}");
+        (open.Y - shut.Y).Should().BeGreaterThan(40, $"and lit green where the box lets the lamp's light out to it, {open} against {shut}");
+        UnloadModel(mirror);
+        UnloadModel(block);
+        UnloadModel(slab);
+    }
+
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void A_Mirror_Shows_A_Block_Its_Lamp_Is_Shut_Away_From_In_The_Dark_Through_The_Devices_Rays_At_High()
+    {
+        var config = Config.Default.WithWindow("gi test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        // The scene above with the block twenty-five units behind the camera, past the one cascade
+        // of the field, so only the device's own rays, which High traces, find it, and the lamp in
+        // its box beside the block.
+        SetSceneField(1, 0.15f, 1);
+        var mirror = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        mirror.Materials[0] = new ModelMaterial(new Color(240, 240, 240)) { Metallic = 1, Roughness = 0.02f };
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var lamp = new Vector3(6, 1.2f, 22);
+        CreatePointLight(lamp, Color.White, 30, range: 20, castsShadows: true);
+        void Draw(bool shut)
+        {
+            DrawModelEx(mirror, new Vector3(0, 1.2f, -1.5f), Vector3.UnitY, 0, new Vector3(4, 3, 0.2f), Color.White);
+            DrawModelEx(block, new Vector3(0, 1.2f, 25), Vector3.UnitY, 0, new Vector3(8, 8, 1), new Color(30, 200, 40));
+            foreach (var (at, size) in new[]
+                     {
+                         (new Vector3(0, 1.1f, 0), new Vector3(2.4f, 0.2f, 2.4f)), (new Vector3(0, -1.1f, 0), new Vector3(2.4f, 0.2f, 2.4f)),
+                         (new Vector3(1.1f, 0, 0), new Vector3(0.2f, 2.4f, 2.4f)), (new Vector3(-1.1f, 0, 0), new Vector3(0.2f, 2.4f, 2.4f)),
+                         (new Vector3(0, 0, 1.1f), new Vector3(2.4f, 2.4f, 0.2f)), (new Vector3(0, 0, -1.1f), new Vector3(2.4f, 2.4f, 0.2f)),
+                     })
+                if (shut || at.X >= 0)
+                    DrawModelEx(slab, lamp + at, Vector3.UnitY, 0, size, Color.Gray);
+        }
+
+        SetGlobalIllumination(GlobalIllumination.High);
+        var shut = Mean(Capture(() => Draw(true)), 70, 40, 20, 16);
+        var open = Mean(Capture(() => Draw(false)), 70, 40, 20, 16);
+        shut.Y.Should().BeLessThan(20, $"the block the lamp is shut away from is dark in the mirror, {shut}");
+        (open.Y - shut.Y).Should().BeGreaterThan(40, $"and lit green where the box lets the lamp's light out to it, {open} against {shut}");
+        UnloadModel(mirror);
+        UnloadModel(block);
+        UnloadModel(slab);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void A_Mirror_Reflects_A_Block_Behind_The_Camera_Through_The_Field()
     {
         Open();

@@ -624,8 +624,12 @@ bottom-level structure from its triangles the first frame it is drawn, its corne
 buffer, and at `High` the top-level structure of every copy is built again each frame with each
 copy's color and light given off, written into one of a ring of buffers a frame in flight. A
 reflection whose ray the field misses traces it there, and the triangle it meets, its face from the
-corners turned toward the ray, is lit by the lamps, the sun through a second ray, and the bounced
-light or the sky (`rayReflection` in `lights.slang`). A device that draws on its CPU leaves ray
+corners turned toward the ray, is lit by the lamps, each that casts shadows through a ray toward
+it, the sun through a second ray, and the bounced light or the sky (`rayReflection` in
+`lights.slang`). A reflection the field meets is lit as a probe's ray is, the lamps that cast
+shadows hidden where the field stands between (`shadeHit`, whose second loop over the lamps after
+`directLight`'s is the shape lavapipe draws, where the lamps' loop ahead of the sun's in
+`directLight` is not). A device that draws on its CPU leaves ray
 queries off: lavapipe of Mesa 25.2 crashed in the model pass's fragment stage at its first ray
 query, any-hit alone included, where the structures it built without a word from the validation
 layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
@@ -633,8 +637,7 @@ layer traced on a GPU. `gi.rays` turns the path off and on in a running program.
 The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and memory in
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
-0.15 ms there and leaked 3 levels of a lamp's light without it, the reflections light what they meet
-with the point and spot lights unshadowed, a moving mesh bounces light as the boxes of its joints or
+0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the boxes of its joints or
 its parts the field holds it as, in its color but giving off none of its light, and the light the screen's probes hold lags the light by
 some five frames as it changes.
 A render target and a probe capture read the world's probes alone, their

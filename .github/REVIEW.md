@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `46f1ec53`. Item 2: the upgrading page's Added section is whole, `UpgradingTests`
+Reviewed up to `11368439`. Item 5: Wick, the thirteenth game, a puzzle in a dark house of five rooms
+whose one light is the lamp the player carries, which casts shadows, so its light stops at a wall
+and reaches round a corner or through a doorway only as light that bounces through the field, on
+polished floors that reflect it and hide their pits until light falls near them, each wick walked up
+to lit as a shadowed light of its own and the last opening the door, a fall sending the player back
+to the last wick, starting at `Low` with G stepping through the qualities; `games/Wick/House.cs`
+reads the map, draws the house and makes its lights, and the test project compiles the same file, so
+the reference frame of the lamp in the first doorway with the next room's wick burning draws what
+the game draws; `build/drive-game.sh Wick` asserts a walk from the keys and then the autopilot's way
+to every wick and out by the door with no fall, 44 seconds under the validation layer on the coder's
+GPU and 132 on four cores of lavapipe, within the games' twelve minutes; it is in the Windows and
+macOS loops, the examples job with its capture, the soak, the resize storm, the README's gallery and
+games' paragraph, BUILDING.md's count, the light guide's See also and N 4.5's list, whose row counts
+16 left out (`11368439`). Item 5 is settled and out of the list. The coder goes on to item 3's Mesa
+reports, fault 2's reduction at 4.8 KB and fault 1's at 7 KB, then item 2. The suite: 1,551 passed.
+
+Before them, item 2 came to be settled, the upgrading page's Added section whole, `UpgradingTests`
 reading the two `PublicApi.txt` the other way as well, a type 5.1 lacked named by itself and a
 member whose name its type lacked by its name, which found thirteen the page lacked, the field's and
 the bounce's six, `EcsWorld`'s two despawn calls and the skeleton's and the keyframes' five, named
@@ -21,12 +37,12 @@ textures and the window, models and shadows, those with no new name said as what
 do, and a third test holds each `Type.Member` of the section to the surface, tried on a misspelling;
 the page's claims read against the code hold, a font collection read as its first font in
 `Engine3D.FontFiles` and `ColorFontTests` among them, and it names no one who decided (`46f1ec53`).
-So item 2 is settled, and its number goes to the reflections' lamps shadowed in a shape lavapipe
-draws, after item 5, which the coder has started as Wick, a top-down puzzle in a dark house whose
-lamp's light reaches round corners and through doorways by bouncing alone, pits showing only where
-light falls, the house a map file and a `House.cs` the test project compiles too, so the lit room's
-reference frame draws what the game draws. Item 3's reductions stand at 6 KB and 8 KB, each report
-following its reduction's end. The suite: 1,550 passed.
+Its number went to the reflections' lamps shadowed in a shape lavapipe draws, after item 5, the
+coder starting Wick, a top-down puzzle in a dark house whose lamp's light reaches round corners and
+through doorways by bouncing alone, pits showing only where light falls, the house a map file and a
+`House.cs` the test project compiles too, so the lit room's reference frame draws what the game
+draws. Item 3's reductions stand at 6 KB and 8 KB, each report following its reduction's end. The
+suite: 1,550 passed.
 
 Before them, TODO.md's build and release entry came to be done: `build/drive-game.sh` takes `window`
 as its second argument and opens the game through `./e3d` with no `--offscreen`, its captures and
@@ -50,20 +66,6 @@ answer, so item 2 was settled and its number given to the upgrading page's Added
 thirteenth game, the first lit by the bounce, became item 5; RENDERING.md's one entry of its order
 left, the tonemap as a pass over every frame, stays parked, since it costs every program every frame
 and redraws every lit reference for no fault measured. The suite: 1,548 passed.
-
-Before them, TODO.md's prose entry came to be done in words alone: STYLE.md's remaining hits for
-dashes, spaced hyphens, wants and clefts, earlier revisions and old reference paths are all
-arithmetic, raylib's own words on screen, a license, or STYLE.md and COMMITS.md naming what they
-forbid, so N 4.1's list keeps those two files and nothing more; every one of the 485 colons that are
-not a channel's label was read, eleven joined two clauses and are rewritten, and the check reports
-lists and labels alone; STYLE.md asks for American spelling with no check for it, so about forty
-British spellings in the carried-over code's comments, XML documents and log lines are American, a
-private method and a local among them, raylib's own words in the examples kept; and
-`ScenePurposeMask.Editor`'s summary describes no editor any more, the strict build clean and the
-model pass byte for byte the same (`7115eeaa`). Item 3's second fault was found to reproduce in a
-harness of its own with no ray query, a lamp, a glossy floor and the bounce on, `gi_trace`,
-`gi_screen` and the model pass each crashing lavapipe with `lampLight` split out and all three
-drawing unsplit, so `gi_trace`'s compute kernel is the one reduced. The suite: 1,548 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -92,7 +94,7 @@ for a reply. In this order.
    construct lavapipe dies on, the shadowed lamps written around it, the Cornell and the lit room's
    references redrawn where they change and the three tiers' costs measured again for the guide; and
    if the reduction shows no shape lavapipe takes, the limit stays, said in TODO.md with the reason.
-   After item 5 and item 3's reports.
+   After item 3's reports.
 3. **The two lavapipe faults reduced and reported.** The null pointer in the compiled shader that
    a split of `directLight`'s lamp loop brings on, and the crash at the first ray query in a
    fragment stage, each cut down to the smallest Slang or SPIR-V that shows it under lavapipe of
@@ -106,13 +108,6 @@ for a reply. In this order.
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
    own, so the run after holds every pair to them and a share can only fall.
-5. **A thirteenth game, the first lit by the bounce.** A game of a kind none of the twelve is,
-   since none calls `SetSceneField` or `SetGlobalIllumination`: its play is the light that bounces,
-   a lamp carried through dark rooms whose light reaches around corners and through doorways and not
-   through walls, on glossy floors that reflect it; built from the package and played through
-   `./e3d` on the three systems as the twelve are, its walk asserted, at the quality lavapipe draws
-   within the games' step, a lit room of it a reference frame compared whole, and its line in the
-   games' table; after item 2 and item 3's two Mesa reports.
 
 ## Verdicts
 
@@ -344,28 +339,38 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 5, a thirteenth game lit by the bounce:
+The reflections' lamps shadowed, ahead of item 3's reports, whose reductions still run:
 
-- **Wick.** A puzzle in a dark house of five rooms, no light in it but a lamp the player carries,
-  which casts shadows, so its light stops at a wall and reaches round a corner or through a doorway
-  only as light that bounces through the field. Its floors are polished and reflect the lamp, and
-  their pits are as dark as the floor until light falls near them. Walking up to a wick lights it,
-  a light of its own that casts shadows as well, and the last one opens the door out. A fall puts
-  the player back at the last wick lit. Its sounds are waves made as it starts. It starts at `Low`,
-  and G steps through the qualities.
-- **The house shared.** `games/Wick/House.cs` reads the map, `resources/house.txt`, and draws the
-  house and makes its lights, and the test project compiles the same file, so the reference frame
-  of the lamp in the first room's doorway with the next room's wick burning (`wick`) draws what the
-  game draws, at `Low`.
-- **Played on the three systems.** `build/drive-game.sh Wick` asserts a walk from the keys and then
-  the autopilot's way, round the walls and the pits to each wick and out by the door with no fall,
-  `Won ... lit 4 of 4 falls 0`. Here under the validation layer it took 44 seconds, and on lavapipe
-  limited to four cores 132, 55 of them building, so it sits in the games' budget of twelve minutes.
-  It is in the Windows and macOS loops, in the examples job beside a capture of the doorway, in the
-  soak and in the resize storm, and `wick.status`, `wick.autopilot` and `wick.warp` answer e3d.
-- **Its line.** The README's gallery has it beside Jelly and the games' paragraph says what it is,
-  BUILDING.md counts thirteen games, N 4.5's list has its capture at its window's 960 by 540, and
-  the light guide's See also names it.
-- **Checked.** The reference passes on this GPU twice running and on lavapipe under the validation
-  layer, with the bounce, field and reference tests, 54 passed and 1 skipped, the GPU's own rays.
-- The suite: 1,551 passed.
+- **The shape lavapipe takes.** A bisect of `gi.slang` on lavapipe found fault 2 in where the
+  lamps' loop stands, not in a function: `directLight` with its loop moved ahead of the sun's branch
+  and no function at all crashes, and so does that loop with the sun's branch cut to one read of
+  `sunColor` after it, while the loop with its spot cone's `smoothstep` taken out does not, nor does
+  any smaller body. The probes' passes already run `hiddenLampLight`'s loop after `directLight`'s,
+  and lavapipe draws them, so the model pass's `shadeHit` subtracts `hiddenLampLight` as
+  `shadeProbeHit` does, and lavapipe under the validation layer drew the bounce, reference, render,
+  field, probe and particle tests with it, 162 passed and 2 skipped, the GPU's rays.
+- **At High.** `rayReflection` hides each lamp that casts shadows where a ray toward it, which
+  `rayBlocked` now stops short of the lamp, meets a mesh.
+- **Tested.** A mirror shows a green block behind the camera whose one lamp is shut in a box of six
+  walls beside it: the block reads green 56 in the mirror with the lamps unshadowed and under 20
+  now, and lit where the box's wall toward it is left out. The same with the block past the field
+  at `High` reads 54 with the rays' test taken out.
+- **The references.** None moves with this change at the comparison's step or at 8 levels: the
+  Cornell box, the lit room, the hall of reflections, the probe and Wick's room drawn with HEAD's
+  shaders and with these match to the pixel, since none has a glossy surface meeting what a
+  shadowed lamp is hidden from. Against the committed references they drift 0.29% (Cornell) and
+  0.80% (the lit room) at the step from the commits since they were drawn, inside their allowances.
+- **Measured.** The tiers in `shaders_cornell_box` read as the guide's table has them, 0.27, 0.31
+  and 0.44 ms, 0.73, 2.80 and 6.81 MB. The hall's scene pass reads 0.30 and 0.23 ms polished and
+  rough with HEAD's shaders and with these, which the guide now gives, and Wick's doorway, two
+  lamps casting shadows, some 0.02 ms more at `Medium` and `High`, the noise between two runs.
+- **Stale sentences.** `SetGlobalIllumination`'s remarks, `GlobalIllumination`'s summary and the
+  headers of `gi.slang` and `rayReflection` said the bounce's lamps were unshadowed, which they have
+  not been since `1be7c8ee`, and say how they are hidden now.
+- **Item 3.** Fault 1's reduction ended at 1.9 KB, a ray query and a uniform read after a loop, but
+  it crashes only inside the engine's frame: the same module in the C harness, with the engine's
+  two sets bound binding for binding, four samples and a half-float target, draws. It still crashes
+  on the host's lavapipe of Mesa 26.2.2. A GFXReconstruct capture replays to another fault of its
+  own, the engine's buffer addresses, so a debug lavapipe from Mesa's main is being built to compare
+  the shader lavapipe compiles in the two harnesses. Fault 2's reduction stands at 5 KB.
+- The suite: 1,553 passed.
