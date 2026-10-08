@@ -255,6 +255,13 @@ internal sealed partial class ModelRenderer : IDisposable
     // The frame the point lights' faces were last drawn in, once a frame by the first view drawing
     // a shadow, since they look the same from every camera.
     private long _pointsFrame = -1;
+    // The shadow last drawn into the map this frame, which a view sharing it does not draw again,
+    // and how many shadows the map was drawn with this frame.
+    private FrameShadow? _drawnShadow;
+    private long _shadowsFrame = -1;
+
+    /// <summary>How many times the shadow map was drawn this frame, once for each shadow views did not share.</summary>
+    internal int ShadowMapsDrawn { get; private set; }
     private readonly List<(Kind Kind, IDescriptorSet? Set)> _classified = [];
 
     // This frame's sets by the draws' five texture ids, cleared each frame, since an id's view can

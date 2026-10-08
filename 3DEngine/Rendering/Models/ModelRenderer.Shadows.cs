@@ -12,8 +12,10 @@ internal sealed partial class ModelRenderer
     /// </summary>
     /// <remarks>
     /// Each view drawing its own shadow draws it into the same map before its pass, so a
-    /// render target's cascades follow its camera. The point lights' faces look the same from every
-    /// camera and are drawn once a frame, by the first view.
+    /// render target's cascades follow its camera, and views that share a shadow and are drawn one
+    /// after another draw it once, by the first of them, with that view's meshes, as the point
+    /// lights' faces, which look the same from every camera, are drawn once a frame by the first
+    /// view.
     /// </remarks>
     public void DrawShadow(RenderContext renderContext, RenderWorld renderWorld, FrameShadow shadow, int target = 0)
     {
@@ -21,6 +23,12 @@ internal sealed partial class ModelRenderer
         var meshes = renderWorld.TryGet<GpuMeshes>();
         var textures = renderWorld.TryGet<GpuTextures>();
         if (draws is null || meshes is null || textures is null || renderContext.Device is not GraphicsDevice device) return;
+        // A shadow shared by views drawn one after another is drawn once, the map holding it still.
+        BeginFrameOfSets(renderContext);
+        if (_shadowsFrame != _frames) (_shadowsFrame, ShadowMapsDrawn, _drawnShadow) = (_frames, 0, null);
+        if (ReferenceEquals(shadow, _drawnShadow)) return;
+        _drawnShadow = shadow;
+        ShadowMapsDrawn++;
 
         var map = ShadowMapFor(device, shadow.TileSize);
         if (!EnsureShadowPipelines(device, map.RenderPass, renderWorld)) return;

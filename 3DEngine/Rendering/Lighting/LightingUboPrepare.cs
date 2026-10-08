@@ -42,7 +42,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         foreach (var target in draws?.Targets() ?? [])
             if (draws!.ViewProjectionOf(target) is { } targetCamera) views.Add((EyeOf(targetCamera), targetCamera));
         var casters = Casters(renderWorld, lights, ubo.LightCount, views);
-        var shadow = casters is not null && draws?.WindowViewProjection is { } window ? casters.For(window) : null;
+        // Each view's shadow, shared by views near enough to read one set of cascades alike.
+        var cameras = new List<(int View, System.Numerics.Matrix4x4 Camera)>();
+        if (draws?.WindowViewProjection is { } window) cameras.Add((0, window));
+        foreach (var target in draws?.Targets() ?? [])
+            if (draws!.ViewProjectionOf(target) is { } targetCamera) cameras.Add((target, targetCamera));
+        var shared = casters is null ? [] : SharedShadows(casters, cameras);
+        var shadow = shared.GetValueOrDefault(0);
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
         {
@@ -96,15 +102,16 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         renderWorld.TryGet<BoundProbes>()!.CaptureBinding = Upload(allocator, in capture);
 
         // A render target drawing meshes through a camera of its own has its cascades fitted to
-        // that camera, in a buffer of its own, since the window's would leave whatever it looks
-        // at past them unshadowed, or all of it when nothing is drawn into the window.
+        // that camera, shared with the views near it, in a buffer of its own, since the window's
+        // would leave whatever it looks at past them unshadowed, or all of it when nothing is drawn
+        // into the window.
         var targets = renderWorld.TryGet<TargetShadows>();
         targets?.ByTarget.Clear();
         if (draws is not null)
             foreach (var target in draws.Targets())
             {
                 if (targets is null) renderWorld.Set(targets = new TargetShadows());
-                var own = casters is not null && draws.ViewProjectionOf(target) is { } camera ? casters.For(camera) : null;
+                var own = shared.GetValueOrDefault(target);
                 var targetUbo = unshadowed;
                 if (own is not null) Apply(ref targetUbo, own);
                 // And the light that bounced, read from screen probes of the target's own where it
@@ -202,13 +209,51 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     private sealed record ShadowCasters(System.Numerics.Vector3? Sun, int SunIndex, float Distance, int TileSize,
         List<(int, System.Numerics.Matrix4x4, float)> Spots, List<(int, System.Numerics.Matrix4x4[])> Points)
     {
-        // The frame's shadow as a view through camera sees it, or null when nothing casts one.
-        public FrameShadow? For(System.Numerics.Matrix4x4 camera)
+        // The frame's shadow as views through cameras see it, one set of cascades fitted to every
+        // one of them, or null when nothing casts one.
+        public FrameShadow? For(ReadOnlySpan<System.Numerics.Matrix4x4> cameras)
         {
-            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(camera, direction, Distance, TileSize) : [];
+            (System.Numerics.Matrix4x4, float)[] cascades = Sun is { } direction ? ShadowFit.FitCascades(cameras, direction, Distance, TileSize) : [];
             var sun = cascades.Length == 0 ? -1 : SunIndex;
             return sun < 0 && Spots.Count == 0 && Points.Count == 0 ? null : new FrameShadow(sun, cascades, Spots, Points, TileSize, TileSize / 4);
         }
+
+        // The width of a texel of the first cascade fitted to every one of cameras, 0 with no sun,
+        // whose cascades alone depend on a camera.
+        public float FirstTexel(ReadOnlySpan<System.Numerics.Matrix4x4> cameras) =>
+            Sun is not { } direction ? 0
+            : ShadowFit.TryFit(cameras, direction, 0, ShadowFit.SplitsFor(Distance)[0], out _, out var texel, TileSize) ? texel : float.MaxValue;
+    }
+
+    /// <summary>
+    /// How much wider a texel of the first cascade shared by views may be than each view's own, so
+    /// the shadows a view reads from shared cascades look to the eye as its own would.
+    /// </summary>
+    internal const float SharedTexelGrowth = 1.25f;
+
+    // Each view's shadow, by its target's id, 0 for the window's: the views in the order given,
+    // each joining the first group whose first cascade fitted to all of it and the view is no more
+    // than SharedTexelGrowth as wide in its texels as any member's own, or a group of its own, and
+    // each group given one shadow, which is drawn once for all of them where they are drawn one
+    // after another. With no sun every view's shadow is the same and all share it.
+    private static Dictionary<int, FrameShadow?> SharedShadows(ShadowCasters casters, List<(int View, System.Numerics.Matrix4x4 Camera)> cameras)
+    {
+        var groups = new List<List<(int View, System.Numerics.Matrix4x4 Camera, float Own)>>();
+        foreach (var (view, camera) in cameras)
+        {
+            var own = casters.FirstTexel([camera]);
+            var group = groups.FirstOrDefault(members =>
+                casters.FirstTexel([.. members.Select(m => m.Camera), camera]) <= SharedTexelGrowth * Math.Min(own, members.Min(m => m.Own)));
+            if (group is null) groups.Add(group = []);
+            group.Add((view, camera, own));
+        }
+        var shadows = new Dictionary<int, FrameShadow?>();
+        foreach (var group in groups)
+        {
+            var shadow = casters.For([.. group.Select(m => m.Camera)]);
+            foreach (var member in group) shadows[member.View] = shadow;
+        }
+        return shadows;
     }
 
     // Whether a sphere is at least partly inside the view, by the six planes of its view and

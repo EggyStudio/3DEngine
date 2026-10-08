@@ -88,8 +88,8 @@ public sealed class ShadowFitTests
     [Fact]
     public void A_Camera_That_Cannot_Be_Inverted_Fits_No_Map()
     {
-        ShadowFit.TryFit(default, -Vector3.UnitY, 0, 10, out _, out _).Should().BeFalse();
-        ShadowFit.FitCascades(default, -Vector3.UnitY).Should().BeEmpty();
+        ShadowFit.TryFit(default(Matrix4x4), -Vector3.UnitY, 0, 10, out _, out _).Should().BeFalse();
+        ShadowFit.FitCascades(default(Matrix4x4), -Vector3.UnitY).Should().BeEmpty();
     }
 
     [Fact]

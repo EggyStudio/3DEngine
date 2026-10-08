@@ -234,6 +234,14 @@ the view keeps its shadows over a brighter one lighting a corner. The ones that 
 sharpest shadows: past four, the first two spot lights and the first four point lights keep their
 texels, and the rest share theirs at half the width.
 
+A render texture that draws models through a camera of its own, as each half of a split screen,
+has the sun's cascades fitted to its camera, and views whose cameras are near enough share one set
+fitted to all of them, drawn once, where the shared first cascade's texels are no more than a
+quarter wider than each view's own, so each reads its shadows as it would alone. The two views of
+`games/Sumo`, facing each other across the ring, share theirs, and its render textures take 0.35 to
+0.37 ms of the GPU where they took 0.45, as `./e3d command profile` gives `targets`, a shared view
+differing from itself drawn alone at a quarter of a percent of its pixels, along its shadows' edges.
+
 `SetShadowMapSize` sets how many texels wide each tile of the shadow map is, 2048 unless set, which
 is the shadow quality a game's settings offer: 4096 sharpens every shadow at four times the memory,
 and 1024 softens them for a slower machine.

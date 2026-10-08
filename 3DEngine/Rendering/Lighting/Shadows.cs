@@ -82,26 +82,40 @@ internal static class ShadowFit
     /// cannot be inverted.
     /// </summary>
     public static bool TryFit(Matrix4x4 cameraViewProjection, Vector3 direction, float from, float to,
+        out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize) =>
+        TryFit([cameraViewProjection], direction, from, to, out viewProjection, out texel, tileSize);
+
+    /// <summary>
+    /// The light's view and projection for a light pointing along <paramref name="direction"/> over
+    /// what every one of <paramref name="cameras"/> sees from <paramref name="from"/> to
+    /// <paramref name="to"/> units past its near plane, one cascade for views that share it, or
+    /// <c>false</c> when a camera's matrix cannot be inverted.
+    /// </summary>
+    public static bool TryFit(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float from, float to,
         out Matrix4x4 viewProjection, out float texel, int tileSize = TileSize)
     {
         viewProjection = Matrix4x4.Identity;
         texel = 0;
-        if (!Matrix4x4.Invert(cameraViewProjection, out var inverse) || direction.LengthSquared() < 1e-8f) return false;
+        if (cameras.IsEmpty || direction.LengthSquared() < 1e-8f) return false;
 
-        // The slice of the camera's view, along each edge of the frustum from its near corner from
+        // The slice of each camera's view, along each edge of the frustum from its near corner from
         // the one distance to the other, cut short where the far plane comes first.
-        Span<Vector3> corners = stackalloc Vector3[8];
+        Span<Vector3> corners = stackalloc Vector3[8 * cameras.Length];
         int n = 0;
-        for (int y = -1; y <= 1; y += 2)
-            for (int x = -1; x <= 1; x += 2)
-            {
-                var near = Unproject(inverse, x, y, 0);
-                var far = Unproject(inverse, x, y, 1);
-                var length = Vector3.Distance(near, far);
-                var way = length > 0 ? (far - near) / length : Vector3.Zero;
-                corners[n++] = near + way * MathF.Min(from, length);
-                corners[n++] = near + way * MathF.Min(to, length);
-            }
+        foreach (var camera in cameras)
+        {
+            if (!Matrix4x4.Invert(camera, out var inverse)) return false;
+            for (int y = -1; y <= 1; y += 2)
+                for (int x = -1; x <= 1; x += 2)
+                {
+                    var near = Unproject(inverse, x, y, 0);
+                    var far = Unproject(inverse, x, y, 1);
+                    var length = Vector3.Distance(near, far);
+                    var way = length > 0 ? (far - near) / length : Vector3.Zero;
+                    corners[n++] = near + way * MathF.Min(from, length);
+                    corners[n++] = near + way * MathF.Min(to, length);
+                }
+        }
 
         var center = Vector3.Zero;
         foreach (var corner in corners) center += corner;
@@ -137,6 +151,11 @@ internal static class ShadowFit
     /// sees out to <paramref name="distance"/>, nearest first, or none when it cannot be fitted.
     /// </summary>
     public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(Matrix4x4 cameraViewProjection, Vector3 direction, float distance = Distance,
+        int tileSize = TileSize) =>
+        FitCascades([cameraViewProjection], direction, distance, tileSize);
+
+    /// <summary>The cascades fitted to every one of <paramref name="cameras"/> at once, for views that share them.</summary>
+    public static (Matrix4x4 ViewProjection, float Texel)[] FitCascades(ReadOnlySpan<Matrix4x4> cameras, Vector3 direction, float distance = Distance,
         int tileSize = TileSize)
     {
         var splits = SplitsFor(distance);
@@ -144,7 +163,7 @@ internal static class ShadowFit
         float from = 0;
         for (int i = 0; i < splits.Length; i++)
         {
-            if (!TryFit(cameraViewProjection, direction, from, splits[i], out var viewProjection, out var texel, tileSize)) return [];
+            if (!TryFit(cameras, direction, from, splits[i], out var viewProjection, out var texel, tileSize)) return [];
             cascades[i] = (viewProjection, texel);
             from = splits[i];
         }
