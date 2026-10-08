@@ -258,10 +258,11 @@ emitter that collides meets the field wherever it holds the particle, behind thi
 screen, and the window's depth elsewhere.
 
 The field is cascades of 64 cells a side, each twice as coarse and as wide as the one before, so
-four cascades of 0.25 reach 16 units across in the first and 128 in the last. A closed mesh much
-thinner than a cell is not in it, and a double-sided one, as a model from an OBJ file is, has no
-inside and is held half a cell thick on either side, so a wall or a floor of one thinner than a
-cell still stops what is traced through the field. A mesh drawn in the same place for eight frames is built into the
+four cascades of 0.25 reach 16 units across in the first and 128 in the last. A double-sided mesh,
+as a model from an OBJ file is, has no inside and is held half a cell thick on either side, and a
+closed wall thinner than half a cell, which no cell lies inside, is held the same about its middle,
+so a wall or a floor thinner than a cell still stops what is traced through the field. An open mesh,
+as a ground plane, is inside only below its faces and not past its rim. A mesh drawn in the same place for eight frames is built into the
 cascades around it from its triangles, and one that moves is stamped each frame as boxes rather than
 its triangles, in no color: a skinned model a box for each joint around the vertices it holds, as
 its pose puts them, so the shadows a character gives the light that bounces are its limbs' as
@@ -275,7 +276,8 @@ as many a frame as the third argument says, one by default, the finest first. In
 laptop's RTX 4070, a frame that stamps its moving crate takes 0.014 ms on the GPU and building the
 finest cascade 0.25 ms, and the occlusion pass takes 0.073 ms with the field where it took 0.036
 without, as `./e3d command profile` shows them, `field.rebuild 400` building a cascade every frame
-for the second. `Config.SceneField` sets the same for an app made from a `Config`, and
+for the second. Holding the thin walls and the open rims took a cascade's build there from 0.44 ms
+to 0.46 in the Release build, with `field.rebuild 4000`. `Config.SceneField` sets the same for an app made from a `Config`, and
 `./e3d command field.show 0` draws the first cascade over the window as the field holds the scene.
 
 ## Light that bounces
@@ -314,8 +316,8 @@ gives the rest, `High` measured with the example's field at four cascades
 | `Medium` | 3 | 16, 64, 256 | every 12 pixels | 2.80 MB | 0.31 ms |
 | `High` | 4 | 64, 256, 256, 256 | every 8 pixels | 6.81 MB | 0.44 ms |
 
-A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, with as
-much again while a cascade is built.
+A quality traces no more cascades than the field has, and the field adds 4 MB a cascade, and 5 MB
+more that a cascade is built in.
 
 Where light bounces, a glossy surface, one with a roughness under 0.5, traces its reflection too.
 The ray is stepped through the window's depth first, and a surface it meets there reflects the

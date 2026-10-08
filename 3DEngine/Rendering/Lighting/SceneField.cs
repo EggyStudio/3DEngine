@@ -348,13 +348,40 @@ internal sealed class SceneFieldRenderer : IDisposable
         {
             if (!_indices.TryGetValue(vertices, out var indices)) continue;
             var count = indices.Length / 3;
+            // Each corner's w 1 where the edge from it to the triangle's next corner is open, no
+            // other triangle's, which field_splat.slang reads to keep a cell beyond the edge in front.
+            var open = OpenEdges(vertices, indices);
             for (int i = 0; i < count * 3; i++)
-                mapped[_cornerCount * 3 + i] = new Vector4(vertices[indices[i]].Position, 0);
+                mapped[_cornerCount * 3 + i] = new Vector4(vertices[indices[i]].Position, open[i] ? 1 : 0);
             _pooled[vertices] = (_cornerCount, count);
             _cornerCount += count;
         }
         device.Unmap(_corners);
         return _corners;
+    }
+
+    /// <summary>
+    /// Whether each edge of a mesh's triangles is open, its edge from each corner to the next, which
+    /// no other triangle shares by the places of its ends, so a mesh whose faces keep vertices of
+    /// their own, as a cube's do, is closed where its faces meet and a ground plane open at its rim.
+    /// </summary>
+    internal static bool[] OpenEdges(ModelVertex[] vertices, uint[] indices)
+    {
+        var count = indices.Length / 3 * 3;
+        var shared = new Dictionary<(Vector3, Vector3), int>(count);
+        (Vector3, Vector3) Edge(int i)
+        {
+            var (a, b) = (vertices[indices[i]].Position, vertices[indices[i / 3 * 3 + (i % 3 + 1) % 3]].Position);
+            return a.X < b.X || a.X == b.X && (a.Y < b.Y || a.Y == b.Y && a.Z <= b.Z) ? (a, b) : (b, a);
+        }
+        for (int i = 0; i < count; i++)
+        {
+            var edge = Edge(i);
+            shared[edge] = shared.GetValueOrDefault(edge) + 1;
+        }
+        var open = new bool[count];
+        for (int i = 0; i < count; i++) open[i] = shared[Edge(i)] == 1;
+        return open;
     }
 
     // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, with how

@@ -490,16 +490,25 @@ for eight frames running. Its triangles go into one buffer in its mesh's own spa
 build needs them, so a build hands the GPU each instance's matrix and where its mesh's triangles
 start. A build clears a word a cell to the band, then a workgroup a triangle puts the triangle in
 the world and takes, for each cell within the band of its bounds, the distance to it in 1024ths of
-a cell above a bit set where the triangle is double-sided and a bit set where the cell is in front
-of the face, keeping the least by an atomic minimum (`field_splat.slang`). Of two triangles as near,
-as a crate on the ground, the one the cell lies behind wins, the cell being inside some mesh, and a
-cell is behind a face only within 60 degrees of straight back from it, so where an edge or a corner
-is nearest, as above a pillar's rim, a face the way runs along does not put the cell inside. A
+a cell above a bit set where the triangle is double-sided, a bit set where the cell is in front
+of the face and the way the face looks in eight bits, keeping the least by an atomic minimum
+(`field_splat.slang`). Of two triangles as near, as a crate on the ground, the one the cell lies
+behind wins, the cell being inside some mesh, and a cell is behind a face only within 60 degrees of
+straight back from it, so where an edge or a corner is nearest, as above a pillar's rim, a face the
+way runs along does not put the cell inside. A cell whose nearest point is on an edge no other
+triangle shares by the places of its ends (`SceneFieldRenderer.OpenEdges`, the corner's w in the
+pooled triangles) is in front, so a ground plane puts no wedge below its rim inside. The face a cell
+lies within 25 degrees of straight behind is kept apart as well, in a word a cell. A
 second pass turns the words into distances in both the image the meshes alone make and the one the
 passes read (`field_resolve.slang`), half a cell less where the nearest triangle is double-sided. A
 double-sided mesh has no inside, and a sheet of one between two rows of cells would leave half a
 cell in each, which a trace steps over, so held half a cell thick on either side it crosses zero
-wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need. A second
+wherever it lies, as the walls and floors of Manor's rooms, imported from OBJ files, need. A closed
+wall thinner than half a cell has no cell inside it either, and a cell in front of one face and
+less than half a cell before another straight behind it that looks the other way takes the middle
+of the two, less half a cell, so the wall is held as the sheet is. The faces of a box's edge, which
+meet square, are not taken for a wall. It took a cascade's build in `shaders_scene_field` from
+0.44 ms to 0.46 on the GPU (`field.rebuild 4000`, Release). A second
 dispatch of the splat paints each cell the color and the light given off of the triangle whose word
 it kept, the material's color times its texture's average in linear light
 (`TextureStore.AverageColor`), into an image of each beside the distances, for the light that

@@ -23,8 +23,9 @@ internal sealed class GpuSceneField : IDisposable
 
     internal GpuSceneField(int cascades, int resolution, IImageView view, ISampler sampler, IBuffer info, IBuffer cells,
         VkImage still, VkImageView stillView, VkImage field, VkImageView fieldView, Action dispose,
-        IBuffer albedo, IBuffer glow, VkImage albedoImage, IImageView albedoView, VkImage glowImage, IImageView glowView)
+        IBuffer albedo, IBuffer glow, VkImage albedoImage, IImageView albedoView, VkImage glowImage, IImageView glowView, IBuffer behind)
     {
+        Behind = behind;
         Albedo = albedo;
         Glow = glow;
         AlbedoImage = albedoImage;
@@ -77,6 +78,10 @@ internal sealed class GpuSceneField : IDisposable
     internal VkImage GlowImage { get; }
 
     internal IBuffer Cells { get; }
+
+    // The nearest face each cell lies straight behind, in 1024ths of a cell, which tells a wall
+    // thinner than half a cell, a cell lying in front of one of its faces and close behind the other.
+    internal IBuffer Behind { get; }
     internal VkImage Still { get; }
     internal VkImageView StillView { get; }
     internal VkImage Field { get; }
@@ -113,10 +118,11 @@ internal sealed unsafe partial class GraphicsDevice
         {
             if (_fieldStages[StampStage].Pipeline.Handle != 0 || _fieldSpirv is not { } spirv) return _fieldStages;
             _fieldStages[SplatStage] = MakeComputeStage(spirv[0], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
-                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(SplatPush));
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer],
+                (uint)sizeof(SplatPush));
             _fieldStages[ResolveStage] = MakeComputeStage(spirv[1], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage,
-                VkDescriptorType.StorageImage], 16);
+                VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer], 16);
             _fieldStages[StampStage] = MakeComputeStage(spirv[2], [VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.UniformBuffer], 16);
             return _fieldStages;
@@ -153,6 +159,7 @@ internal sealed unsafe partial class GraphicsDevice
         var cells = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
         var albedo = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
         var glow = CreateBuffer(new BufferDesc((ulong)size * size * size * 8, BufferUsage.Storage | BufferUsage.TransferDst));
+        var behind = CreateBuffer(new BufferDesc((ulong)size * size * size * 4, BufferUsage.Storage | BufferUsage.TransferDst));
 
         // The distances cleared to far and the colors to none, the still image left in the general
         // layout and the ones the passes read ready to be sampled, and the info zeroed, which
@@ -205,6 +212,7 @@ internal sealed unsafe partial class GraphicsDevice
                 cells.Dispose();
                 albedo.Dispose();
                 glow.Dispose();
+                behind.Dispose();
                 info.Dispose();
                 _deviceApi.vkDestroyImageView(fieldView);
                 owner.Dispose();
@@ -217,7 +225,7 @@ internal sealed unsafe partial class GraphicsDevice
                 _deviceApi.vkDestroyImage(still);
                 DeviceObjects.Gone(DeviceObjects.Kind.Memory);
                 _deviceApi.vkFreeMemory(stillMemory);
-            }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView));
+            }, albedo, glow, albedoImage, new VulkanImageView(this, albedoOwner, albedoView), glowImage, new VulkanImageView(this, glowOwner, glowView), behind);
     }
 
     // A 3D image a compute shader writes and a pass samples, of half floats unless another format
@@ -332,10 +340,11 @@ internal sealed unsafe partial class GraphicsDevice
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
         // The code of a cell no triangle comes within the band of, the band's distance in front, in
         // 1024ths of a cell above the bits that say whether its triangle is double-sided and whether
-        // the cell is in front.
-        _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 2) | 1);
+        // the cell is in front, and eight bits of its face's way.
+        _deviceApi.vkCmdFillBuffer(cmd, cells, 0, Vulkan.VK_WHOLE_SIZE, ((uint)band * 1024 << 10) | 1 << 8);
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Albedo).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
         _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Glow).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        _deviceApi.vkCmdFillBuffer(cmd, ((VulkanBuffer)field.Behind).Buffer, 0, Vulkan.VK_WHOLE_SIZE, uint.MaxValue);
         MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
 
@@ -347,6 +356,7 @@ internal sealed unsafe partial class GraphicsDevice
             run.Buffer(splat, 2, VkDescriptorType.StorageBuffer, field.Cells);
             run.Buffer(splat, 3, VkDescriptorType.StorageBuffer, field.Albedo);
             run.Buffer(splat, 4, VkDescriptorType.StorageBuffer, field.Glow);
+            run.Buffer(splat, 5, VkDescriptorType.StorageBuffer, field.Behind);
             var groupsX = (uint)Math.Min(triangleCount, 65535);
             var push = new SplatPush
             {
@@ -376,6 +386,7 @@ internal sealed unsafe partial class GraphicsDevice
         run.Buffer(resolve, 4, VkDescriptorType.StorageBuffer, field.Glow);
         run.Image(resolve, 5, ((VulkanImageView)field.AlbedoView).View);
         run.Image(resolve, 6, ((VulkanImageView)field.GlowView).View);
+        run.Buffer(resolve, 7, VkDescriptorType.StorageBuffer, field.Behind);
         var cascadePush = new Vector4(cascade, size, cell, band);
         var groups = (size + 3) / 4;
         run.Dispatch(ResolveStage, resolve, MemoryMarshal.AsBytes(new ReadOnlySpan<Vector4>(in cascadePush)), groups, groups, groups);
@@ -484,7 +495,7 @@ internal sealed unsafe partial class GraphicsDevice
             _device = device;
             Commands = vkCmd.Handle;
             var sizes = stackalloc VkDescriptorPoolSize[3];
-            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 10 };
+            sizes[0] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageBuffer, descriptorCount = 12 };
             sizes[1] = new VkDescriptorPoolSize { type = VkDescriptorType.StorageImage, descriptorCount = 6 };
             sizes[2] = new VkDescriptorPoolSize { type = VkDescriptorType.UniformBuffer, descriptorCount = 1 };
             var poolInfo = new VkDescriptorPoolCreateInfo { maxSets = 2, poolSizeCount = 3, pPoolSizes = sizes };

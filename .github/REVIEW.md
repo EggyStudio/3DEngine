@@ -10,8 +10,28 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `8ca965bc`. The light-bounce entry's gap of the screen probes not blended over time
-is closed: after the 5 by 5 filter each screen probe blends a fifth of this frame's light with four
+Reviewed up to `11fbae8e`. The light-bounce entry's gap of skinned and moving meshes held as one
+gray box each: a skinned mesh is stamped as an oriented box a joint, around the rest vertices the
+joint holds most, posed by the joint's latest matrix, which the field keeps for frames that do not
+pose again, the arm posed bent on the GPU reading solid along the forearm at the elbow and empty
+above it where the one box read the opposite; a rigid moving mesh of sixteen triangles or more is
+cut into up to eight parts, each cut the least-volume split along an axis made only where it takes a
+third of the volume away, an L of two boxes cut into its arms with the corner in no part where a
+median cut filled it; a mesh takes its parts only while every farther mesh keeps a box, so past 256
+boxes the figures near the eye keep their joints and the far ones their boxes, thirty figures of
+twenty limbs holding at 239; each brick reads the boxes that reach it alone from a run packed after
+the bricks, three dancing robots in the Cornell box at `High` costing 0.048 ms on the GPU and 0.45
+ms on the CPU for 147 boxes in 540 bricks where their 57 boxes cost 0.046 and 0.44 to 0.51 before,
+and 0.11 ms on the GPU without the runs; the remarks of `SetSceneField`, the guide, RENDERING.md and
+TODO.md say a moving mesh is held as the boxes of its joints or its parts; on lavapipe under
+validation 157 passed and 1 skipped (`11fbae8e`). Item 3's first reduction ended at 920 bytes in a
+shader reading the instance index of a ray query never initialized, undefined and a crash in the C
+program too, so the reduction runs again from the last step whose query was initialized, proceeded
+and checked, a test keeping those three. Thin closed meshes and wedges under open meshes are next.
+The suite: 1,545 passed.
+
+Before them, the light-bounce entry's gap of the screen probes not blended over time came to be
+closed: after the 5 by 5 filter each screen probe blends a fifth of this frame's light with four
 fifths of the frame before's, its point from the window's depth reprojected through the camera of
 the frame before, which the view buffer carries, blending the four probes there that stood on a like
 surface from images copied after the filter, a disoccluded probe, the first frame and the first
@@ -22,10 +42,9 @@ no bounce, which a test holds under 0.5 on lavapipe too, at about 0.03 ms and tw
 `gi.state` counts, the guide's table at 0.27, 0.31 and 0.44 ms and 0.73, 2.80 and 6.81 MB, and near
 light following a changing light about five frames late, which the docs say; on lavapipe under
 validation 139 passed and 1 skipped (`8ca965bc`). The entry has left the reflections lit with
-unshadowed lamps, which waits on lavapipe's second fault, the skinned and moving meshes held as gray
-boxes in the field, taken next from the GPU's posed vertices, and thin closed meshes and wedges
-under open meshes; the entries after it describe limits rather than gaps, the older scene files to
-consider by the owner's decision. Item 3's reduction stands at 26 KB. The suite: 1,541 passed.
+unshadowed lamps, which waits on lavapipe's second fault, and the entries after it describe limits
+rather than gaps, the older scene files to consider by the owner's decision. The suite: 1,541
+passed.
 
 Before them, item 5 came to be settled by its sentences, the code kept: apps alive at the same time
 share one watch of their scripts' directories, and apps made one after another each watch again,
@@ -42,24 +61,6 @@ the first target's camera and holds the targets' meshes; a test draws a room lit
 into a texture the window shows, lit with the panel on and black with it off where it was drawn in
 its own colors either way; on lavapipe under validation 138 passed and 1 skipped (`7ffcde68`). The
 suite: 1,540 passed.
-
-Before them, TODO.md's light-bounce entry, item 2, came to close its gap of lamps casting no shadow
-in the bounce, which was one of three leaks: a closed room of slabs 0.6 thick with the camera inside
-and a shadow-casting lamp over the roof or under the floor read 239 and 247 of 255 with the bounce
-on and 0 with it off; probe-ray hits were lit by every lamp unshadowed, a coarser cascade's ray was
-traced from where its interval began so a probe a little above the floor started under it and
-brought back the light there, and hits blended the probes around them with no wall between checked.
-Mended: a shadow-casting lamp lights a hit only where a march through the field toward it gets
-through (`hiddenLampLight`), the lamp's shadow flag reaching the bounce; a probe's ray is marched
-from the probe, and one that meets a surface before its interval is dark; a world probe's hit blends
-the probes in front of it that it sees alone (`bouncedSeenAt`), the screen probes keeping the plain
-blend since the seen blend cost 0.10 to 0.15 ms there for three levels; the room reads 1.4 and 3.4
-and a test holds it under 8; the model pass is byte for byte the same in both builds, its
-reflections still lighting what they hit with lamps unshadowed, which the docs say; the Cornell box
-on the RTX 4070 at four cascades reads 0.24, 0.30 and 0.43 ms at the three qualities where it read
-0.21, 0.32 and 0.40, within the noise, the guide's table taking the new readings where its old ones
-had gone stale; on lavapipe under validation the bounce, reference, render and field tests gave 137
-passed and 1 skipped (`1be7c8ee`). The suite: 1,539 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -325,38 +326,40 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-TODO.md's order, the light-bounce entry, its gap of skinned and moving meshes in the field:
+TODO.md's order, the light-bounce entry, its gap of thin closed meshes and open ones in the field:
 
-- **A skinned mesh as its joints.** Each joint's box around the vertices at rest it holds most is
-  posed each frame by the joint's latest matrix, which `GpuMeshes.Poses` hands the field and the
-  field keeps for frames that pose it no more, and stamped as an oriented box, where one box
-  around the vertices at rest was stamped. A test poses `arm.gltf` bent on the GPU and reads the
-  field back: solid along -X at the elbow's height and empty above it, which the old box gave the
-  other way round, as forcing it showed.
-- **A mesh that does not bend as its parts.** A moving mesh of 16 triangles or more is cut into up
-  to eight parts, each cut the one along an axis between the triangles sorted by their middles that
-  leaves the least volume, and only where it takes a third of the volume away
-  (`SceneFieldRenderer.Cut`), so a box cut finer than its shape stays one box. A test cuts an L of
-  two tessellated boxes into its arms, the corner between them in no part. A median cut, tried
-  first, put one arm's long face with the other arm and filled the corner.
-- **A crowd.** A mesh takes its parts only where they leave room for a box for each mesh farther
-  from the eye, so past 256 boxes a crowd is figures near the eye and boxes beyond, none left out,
-  which a test of thirty figures of twenty limbs holds at 239 boxes.
-- **Cost.** Each brick now reads the boxes that come within it alone, a run the plan lists brick
-  by brick and packs after the bricks in their buffer, where every cell read every box, and the
-  plan counts the bricks in an array where it hashed each into a set. Three of raylib's dancing
-  robots in `shaders_cornell_box` at `High`, the Release build with the frame rate unlimited:
-  147 boxes in 540 bricks, stamped in 0.048 ms of the GPU and placed in 0.45 ms of the CPU, where
-  the commit before stamped their meshes' 57 boxes in 0.046 ms and placed them in 0.44 to 0.51 ms.
-  Before the runs and the array the same 147 boxes took 0.11 ms and 1.6 ms in the Debug build.
-- **The limit said.** `SetSceneField`'s remarks, the guide, RENDERING.md and TODO.md say a moving
-  mesh is held as gray boxes of its joints or its parts rather than its triangles, so the bounce
-  gives a character the shadows of its limbs as boxes. Lavapipe under the validation layer passed
-  the field, bounce, reference, render, probe and particle tests, 157 and 1 skipped.
-- **Item 3.** The reduction finished at 920 bytes and read the committed instance custom index of a
-  ray query never initialized as an index into binding 29, which is undefined behavior though it
-  crashes lavapipe in the C reproduction too, while the same read after a traced, checked query does
-  not. It is reduced again from the last step that still initialized, proceeded and checked its
-  query, with a test that keeps those three first.
-- The suite: 1,545 passed.
-
+- **A wall thinner than half a cell.** Each cell's word now carries the way its nearest face looks
+  in eight bits, and the splat keeps apart, in a word a cell, the nearest face the cell lies within
+  25 degrees of straight behind. A cell in front of one face and less than half a cell before
+  another straight behind it, the two looking within 45 degrees of opposite ways, lies against a
+  wall no cell is inside, and the resolve takes the middle of the two less half a cell, as it holds
+  a double-sided sheet, so a ray between the cells on either side meets it. The faces round a
+  box's edge meet square and are not taken for a wall.
+- **No wedge below an open mesh.** The pooled triangles carry in each corner's w whether the edge
+  from it is open, shared by no other triangle by the places of its ends
+  (`SceneFieldRenderer.OpenEdges`), and a cell whose nearest point is on an open edge or its corner
+  is in front, so a ground plane is inside only below its faces.
+- **Tested.** A test builds a closed slab a fifth of a cell thick and a ground plane, and the field
+  crosses zero down the slab's middle and is above zero below the plane past its rim. With the wall
+  rule taken out the slab's least distance is 0.0999 where the test asks at most 0.001, and with the
+  open edges ignored the cell below the rim is at -0.53. A CPU test holds `OpenEdges` to a quad
+  whose triangles share vertices and one whose triangles keep their own.
+- **Cost.** A cascade's build in `shaders_scene_field` takes 0.46 ms on the GPU where it took 0.44,
+  with `field.rebuild 4000` in the Release build, and the field 1 MB more, 5 MB beside its cascades
+  for building one. The guide, RENDERING.md and `SetSceneField`'s remarks say so, and TODO.md's
+  entry loses the gap.
+- **Checked.** lavapipe under the validation layer passed the bounce, reference, render, field,
+  probe and particle tests, 159 and 1 skipped.
+- **Item 3.** The reduction kept to a valid order of ray-query calls ended at 1 KB, but in a shader
+  that reads the committed instance's index of a query with no hit, which the spec leaves undefined.
+  lavapipe faults there gathering from the missing instance at address 8, where the model pass
+  faults reading a pointer and the word after it from address 0 (`mov (%r14),%rsi; mov
+  0x8(%r14),%eax`), as a buffer's descriptor is read. The same shader with the read behind the
+  committed-type test, as the spec asks, runs clean in the C harness. A third reduction, from the
+  63 KB module the first left, keeps only candidates that fault with the model pass's signature,
+  read by a SIGSEGV handler preloaded into the harness.
+- **What the entry has left.** The reflections light what they meet with the lamps unshadowed,
+  which waits on fault 2's report, a moving mesh bounces gray light, and the screen's probes follow
+  a changing light some five frames late. I take the moving mesh's color next, its boxes painted
+  the average of its triangles' colors, unless you name another, and item 3 alongside.
+- The suite: 1,547 passed.

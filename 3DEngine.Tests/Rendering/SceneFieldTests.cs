@@ -127,6 +127,19 @@ public sealed class SceneFieldTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void An_Edge_Is_Open_Where_No_Other_Triangle_Shares_Its_Ends_Whatever_Vertices_Hold_Them()
+    {
+        // A quad of two triangles, open at its four sides and closed along its diagonal, and the
+        // same quad with each triangle keeping vertices of its own, as a cube's faces do.
+        ModelVertex At(float x, float z) => new(new Vector3(x, 0, z), Vector3.UnitY, Vector2.Zero);
+        ModelVertex[] shared = [At(0, 0), At(1, 0), At(1, 1), At(0, 1)];
+        SceneFieldRenderer.OpenEdges(shared, [0, 1, 2, 0, 2, 3]).Should().Equal([true, true, false, false, true, true]);
+        ModelVertex[] apart = [At(0, 0), At(1, 0), At(1, 1), At(0, 0), At(1, 1), At(0, 1)];
+        SceneFieldRenderer.OpenEdges(apart, [0, 1, 2, 3, 4, 5]).Should().Equal([true, true, false, false, true, true]);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void Figures_Past_What_A_Frame_Stamps_Are_Boxes_Beyond_The_Nearest_And_None_Is_Left_Out()
     {
         // Thirty skinned figures of twenty limbs each, one after another away from the eye, where
@@ -365,6 +378,46 @@ public sealed class SceneFieldTests : IDisposable
         UnloadModel(wall);
         UnloadModel(pillar);
         UnloadModel(crate);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void A_Closed_Wall_Thinner_Than_A_Cell_Stops_A_Ray_And_An_Open_Plane_Puts_No_Wedge_Below_Its_Rim()
+    {
+        var config = Config.Default.WithWindow("scene field walls", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
+        UseApp(new App(config).AddPlugin(new DefaultPlugins()));
+        SetSceneField(1, 0.25f);
+        // A closed slab a twentieth of a unit thick, half way between two rows of cells, which no
+        // cell lies inside, and a ground plane, one-sided and open at its rim.
+        var slab = LoadModelFromMesh(GenMeshCube(4, 0.05f, 4));
+        var ground = LoadModelFromMesh(GenMeshPlane(2, 2, 1, 1));
+        var camera = new Camera3D(new Vector3(0, 3, 6), new Vector3(0, 0.5f, 0), Vector3.UnitY, 45);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 6; frame++)
+        {
+            BeginDrawing();
+            BeginMode3D(camera);
+            DrawModel(slab, new Vector3(-2.5f, 0, 0), 1, Color.Gray);
+            DrawModel(ground, new Vector3(2.5f, 0, 0), 1, Color.Gray);
+            EndMode3D();
+            EndDrawing();
+        }
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var fields = renderer.RenderWorld.TryGet<SceneFieldRenderer>()!;
+        var distances = ((GraphicsDevice)renderer.Context.Graphics!).ReadSceneField(fields.Field!);
+        const int size = SceneFieldPlan.Resolution;
+        const float cell = 0.25f;
+        var origin = fields.Plan!.BuiltOrigin(0)!.Value;
+        float At(float x, float y, float z) => distances[((int)((z - origin.Z) / cell) * size + (int)((y - origin.Y) / cell)) * size + (int)((x - origin.X) / cell)];
+
+        // Down the slab's middle the least distance is at zero or below, where the cells either side
+        // were a tenth of a unit from its faces and a trace stepped over it.
+        var column = Enumerable.Range(0, size).Select(y => (Y: origin.Y + (y + 0.5f) * cell, D: At(-2.5f, origin.Y + (y + 0.5f) * cell, 0))).ToArray();
+        column.Where(c => MathF.Abs(c.Y) < cell).Min(c => c.D).Should().BeLessThanOrEqualTo(0.001f, "the slab stops a ray");
+        // Below the ground a cell inside its rim is behind it, and one past its rim is not.
+        At(2.5f, -0.3f, 0).Should().BeLessThan(0, "below the ground is inside it");
+        At(3.8f, -0.3f, 0).Should().BeGreaterThan(0, "and below and past its rim is not, where a wedge under the rim was");
+        UnloadModel(slab);
+        UnloadModel(ground);
     }
 
     [NeedsVulkanFact]
