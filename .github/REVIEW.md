@@ -10,7 +10,23 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `95077ce3`. Item 2, taken ahead of item 3 while its reductions run: a bisect of
+Reviewed up to `14ad7786`. Item 3's first fault reproduces outside the engine: a debug lavapipe from
+Mesa's main showed it taking a pointer from an eight-entry array on the stack indexed by lane and
+reading through a null entry, the NIR for the reduced module the same line for line in the engine
+and in the C harness, and what the engine's frame added was a triangle whose edges cross the groups
+of pixels lavapipe shades together, where the harness had covered every lane;
+`build/mesa/ray-query-fragment` holds a 25-line GLSL shader, a ray query and in its hit branch a
+loop over a uniform buffer with a read of it after, the reduced module cleaned of anything
+undefined, `repro.c`, a vertex stage drawing a triangle over the middle of the view and `run.sh` for
+an Ubuntu 24.04 container, both shaders crashing on Mesa 25.2.8, 26.2.2 and main at `5a273016` and
+drawing with whole-view coverage, a branch on a varying in place of the query, the loop or the read
+after it taken out or the loop's body empty; the README has the issue's text, which names no one,
+and TODO.md points at it and names fault 2 by the lamps' loop ahead of the sun's branch, reproducing
+inside the engine alone so far (`14ad7786`). Fault 2's reduction of `gi_trace`'s compute shader
+stands at 3.8 KB, a compute harness to follow its end and its folder to go beside fault 1's either
+way, the coder starting item 2's captures on macOS while it runs. The suite: 1,553 passed.
+
+Before them, item 2 came to be settled, taken ahead of item 3 while its reductions ran: a bisect of
 `gi.slang` on lavapipe put fault 2 in where the lamps' loop stands, the loop ahead of the sun's
 branch in `directLight` crashing with no function at all and with the branch cut to one read, the
 loop without its spot cone's `smoothstep` or any smaller body drawing, so the model pass's
@@ -23,13 +39,9 @@ reference moves, drawn with HEAD's shaders and these to the pixel, the tiers mea
 table has them, the hall's scene pass 0.30 and 0.23 ms polished and rough, and Wick's doorway some
 0.02 ms more, within the noise; the sentences that said the bounce's lamps were unshadowed, stale
 since `1be7c8ee`, are mended in the remarks, the summaries and the shaders' headers, and TODO.md's
-light-bounce entry drops the limit (`95077ce3`). Item 2 is settled, and its number goes to every
-example captured on macOS too, the fallback until the owner names the next large item. Item 3: fault
-1's reduction ended at 1.9 KB, a ray query and a uniform read after a loop, which crashes only
-inside the engine's frame, the C harness drawing it with the engine's two sets, four samples and a
-half-float target, and a capture replaying to another fault, so a debug lavapipe from Mesa's main is
-being built to compare the two; one more batch of that, and then the report goes with the engine as
-its reproduction; fault 2 stands at 5 KB. The suite: 1,553 passed.
+light-bounce entry drops the limit (`95077ce3`). Its number went to every example captured on macOS
+too, the fallback until the owner names the next large item. Fault 1's reduction had ended at 1.9
+KB, crashing only inside the engine's frame. The suite: 1,553 passed.
 
 Before them, item 5 came to be settled, Wick, the thirteenth game, a puzzle in a dark house of five
 rooms whose one light is the lamp the player carries, which casts shadows, so its light stops at a
@@ -46,24 +58,6 @@ minutes; it is in the Windows and macOS loops, the examples job with its capture
 resize storm, the README's gallery and games' paragraph, BUILDING.md's count, the light guide's See
 also and N 4.5's list, whose row counts 16 left out (`11368439`). The coder went on to item 3's
 reports and item 2. The suite: 1,551 passed.
-
-Before them, item 2 came to be settled, the upgrading page's Added section whole, `UpgradingTests`
-reading the two `PublicApi.txt` the other way as well, a type 5.1 lacked named by itself and a
-member whose name its type lacked by its name, which found thirteen the page lacked, the field's and
-the bounce's six, `EcsWorld`'s two despawn calls and the skeleton's and the keyframes' five, named
-in the models table's right column; the section lists the features 6.0 has with what each does and
-the guide that shows it, the field, the bounce, glossy reflections and their `High` tier, text
-shaped, color fonts, text from a file where raylib's lies, ImGui's viewports, VR, states, sound,
-textures and the window, models and shadows, those with no new name said as what 5.1's calls came to
-do, and a third test holds each `Type.Member` of the section to the surface, tried on a misspelling;
-the page's claims read against the code hold, a font collection read as its first font in
-`Engine3D.FontFiles` and `ColorFontTests` among them, and it names no one who decided (`46f1ec53`).
-Its number went to the reflections' lamps shadowed in a shape lavapipe draws, after item 5, the
-coder starting Wick, a top-down puzzle in a dark house whose lamp's light reaches round corners and
-through doorways by bouncing alone, pits showing only where light falls, the house a map file and a
-`House.cs` the test project compiles too, so the lit room's reference frame draws what the game
-draws. Item 3's reductions stand at 6 KB and 8 KB, each report following its reduction's end. The
-suite: 1,550 passed.
 
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
@@ -100,10 +94,9 @@ for a reply. In this order.
    and SPIRV-Tools' own fault beside them, the block merge in `spirv-reduce` that runs off the end
    of the layout, with its reproduction and the patch that refuses the merge, for the owner to file
    there, so the model pass is held in a shape around a driver's fault only as long as it must be,
-   and the ray-query path is drawn on CPU devices once the fault is mended upstream; if fault 1
-   still crashes only inside the engine's frame after one more batch, its report goes with the
-   engine as its reproduction, the 1.9 KB module, the steps through `./e3d` that show it and the
-   capture.
+   and the ray-query path is drawn on CPU devices once the fault is mended upstream. Fault 1's
+   folder is in at `14ad7786`, so what is left is fault 2's, its reduction and a compute harness
+   tried once, and its text written beside it either way.
 4. **The first shares recorded from the workflow's own device.** The examples job's first green
    run puts every pair measured for the first time into notices, which the public listing of the
    job's annotations gives; those shares go into `3DEngine.Examples/measured-ci.tsv` as the device's
@@ -339,24 +332,19 @@ Verdicts 1 to 29, 32, 34 to 36 and 38 are settled, and their numbers are not giv
 
 ## Replies
 
-Item 3, fault 1 reproduced outside the engine and written up:
+Item 3, fault 2 reproduced outside the engine, which settles the item:
 
-- **What the engine's frame added.** The debug lavapipe built from Mesa's main shows the fault
-  taking a pointer from an eight-entry array on the stack indexed by lane and reading through it,
-  a null entry. The NIR llvmpipe prints for the reduced module is the same line for line in the
-  engine and in the C harness, and the shaders' variants differ in samples, format, depth and
-  blending. None of those bring the crash on in C, but a triangle whose edges cross the groups of
-  pixels shaded together does. The C harness drew one triangle over the whole view, where every
-  lane is covered, and the engine's meshes have edges.
-- **The reproduction.** `build/mesa/ray-query-fragment` holds a 25-line GLSL fragment shader: a ray
-  query, then in its hit branch a loop over a uniform buffer and a read of it after the loop. It
-  also holds the reduced module from the engine, cleaned so nothing in it is undefined, `repro.c`,
-  a vertex stage drawing a triangle over the middle of the view, and `run.sh`. Both shaders crash
-  on Mesa 25.2.8 (Ubuntu 24.04, as `run.sh` runs it), 26.2.2 (the host's Fedora 44) and main at
-  `5a273016`. It draws with the triangle over the whole view, with a branch on a varying in place
-  of the ray query, with the loop or the read after it taken out, or with the loop's body empty.
-  The README has the issue's text for the owner to file, and TODO.md points to it.
-- **Fault 2.** TODO.md now names it by the lamp loop ahead of the sun's branch, and says it
-  reproduces inside the engine alone so far. Plain GLSL with loops over the buffer in divergent
-  branches did not crash in the C harness. Its reduction, `gi_trace`'s compute shader, stands at
-  3.8 KB, and a compute harness for it comes when it ends, its folder beside fault 1's either way.
+- **The reduction's shape in C.** Fault 2's reduction of `gi_trace` came to the same shape as fault
+  1's. Every other invocation, by its index, runs a loop whose condition and body read the lights'
+  buffer, then reads the buffer after the loop. A compute harness (`comp.c`) runs it, and a 20-line
+  GLSL compute shader of that shape with nothing undefined in it crashes the same way, reading a
+  pointer and the word after it from address 0. It does not crash with the branch, the loop or the
+  loop's body taken out. It crashes on Mesa 25.2.8, 26.2.2 and main at `5a273016`.
+- **One fault, very likely.** No ray query, no partly covered pixels: in a compute stage, a branch
+  some invocations skip is enough. So fault 1's fragment shader is very likely the same fault,
+  reached where its ray query's branch and the triangle's coverage leave lanes out. The issue's
+  text in `build/mesa/uniform-loop-compute` leads with the compute shader and names the fragment
+  reproduction as a second one, and fault 1's README says to file the two as one issue. TODO.md
+  points at both folders.
+- **The reductions** are stopped. Next is item 2's examples captured on macOS, whose script is
+  written and whose run over every example here gives the step its time.

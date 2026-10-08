@@ -150,8 +150,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   so CI tests the ray-query path nowhere and the laptop's RTX 4070 alone draws it. The bounce
   itself traces through the field alone, with no ray query. Lavapipe also crashes, reading a null
   pointer the same way, where `directLight`'s loop over the lamps stands ahead of its sun's branch,
-  in the model pass and in the bounce's compute passes alike, which reproduces inside the engine
-  alone so far, so that code is kept in the shape lavapipe draws. In the bounce a point or spot light that casts shadows lights a surface only
+  in the model pass and in the bounce's compute passes alike, a uniform buffer read in a loop in a
+  branch some invocations skip, very likely the same fault, whose reproduction and issue text are
+  in `build/mesa/uniform-loop-compute`, so that code is kept in the shape lavapipe draws. In the bounce a point or spot light that casts shadows lights a surface only
   where the field lets it through, a probe's ray that meets a surface before its interval is
   blocked, and the world's probes take bounced light from the probes they see, so a closed room is
   dark to a lamp outside it, and a reflection is lit by those lamps the same way, or through the

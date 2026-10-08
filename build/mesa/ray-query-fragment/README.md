@@ -5,6 +5,11 @@ of an issue for [Mesa's tracker](https://gitlab.freedesktop.org/mesa/mesa/-/issu
 owner files. Because of this crash the engine leaves ray queries off on a device that draws on its
 CPU (`GraphicsDevice.CanQueryRays`).
 
+`build/mesa/uniform-loop-compute` crashes the same way from a compute shader with no ray query, a
+loop over a uniform buffer in a branch some invocations skip, and its issue's text names this as a
+second reproduction of what is very likely the same fault, so the two are best filed as one issue
+with this folder attached to it.
+
 `run.sh` builds `repro.c` and draws two fragment shaders with it: `frag.glsl`, and `frag.spvasm`,
 the module `spirv-reduce` cut the engine's model pass down to, its variables initialized and its
 ray cast from (0, 0, -1). In Ubuntu 24.04:
