@@ -33,12 +33,19 @@ public sealed class PackageContentsTests
         var entries = Entries(package);
         var shaders = entries.Where(e => e.StartsWith("contentFiles/any/any/source/shaders/") && e.EndsWith(".slang")).ToList();
         shaders.Should().NotBeEmpty();
+        // The package's shaders are the repository's, whose modules say which builds each has.
+        var imports = Path.Combine(CheatsheetTests.RepoRoot(), "3DEngine", "Shaders");
         foreach (var shader in shaders)
         {
             var name = Path.GetFileNameWithoutExtension(shader);
-            var entryPoints = Regex.Matches(Read(package, shader), @"^\s*\[shader\(", RegexOptions.Multiline).Count;
+            var source = Read(package, shader);
+            var entryPoints = Regex.Matches(source, @"^\s*\[shader\(", RegexOptions.Multiline).Count;
+            // Once, and once more for each capability it or a module it imports names, which a
+            // device that has the capability loads in its place.
+            var builds = 1 + SlangLoader.VariantsOf(source, imports).Count();
             var compiled = entries.Count(e => e.StartsWith($"contentFiles/any/any/source/.slang-cache/{name}.") && e.EndsWith(".spv"));
-            compiled.Should().Be(entryPoints, $"{name}.slang has {entryPoints} entry points, each compiled ahead so a game needs no slangc");
+            compiled.Should().Be(entryPoints * builds,
+                $"{name}.slang has {entryPoints} entry points in {builds} builds, each compiled ahead so a game needs no slangc");
         }
     }
 
