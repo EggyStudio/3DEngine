@@ -10,7 +10,29 @@ is removed from here once the commit that settles it has been read. A stash of e
 file takes what was written here since the last commit out of the tree until it is popped, so a
 stash names its own paths.
 
-Reviewed up to `ca4d474a`. Verdict 39's mend: the captures on macOS are a job of their own,
+Reviewed up to `1e1eafe2`. Item 2: `SetTonemap` takes Bevy's eight beside the engine's curve,
+Narkowicz's fit and the cut, named as BevyCSharp names them and appended so the four old numbers
+hold; the old `Reinhard` was Bevy's Reinhard by luminance, so it is `ReinhardLuminance` and
+`Reinhard` is Bevy's per channel, the upgrading page's fourth change that still compiles; five
+curves are ported from `bevy_core_pipeline` 0.19.1's `tonemapping_shared.wgsl`, and AgX, Tony
+McMapface and Blender's filmic look the light up in Bevy's own tables, carried by
+`build/bevy-luts.py` as Bevy has them with their Zstandard swapped for KTX2's zlib, 816 KB, which
+.NET reads with no decoder taken, read the first time a curve is chosen, 0.4 to 2.4 ms, into a 3D
+texture at the composite's binding 3 sampled as Bevy samples it, Bevy's two license texts and
+`info.txt` beside them and THIRD-PARTY-NOTICES.md naming Bevy and each table's and curve's authors;
+`TonemapTests` draws SHARED.md's ramp through each and holds it to BevyCSharp's pictures from
+`64ec311`, copied byte for byte, and to a CPU model of each curve and table, all eight within one
+level of both on the coder's GPU and passing on lavapipe; a table costs the composite about 0.002
+ms, in the guide with each table's memory, and the guide's tables, the cheatsheet and the upgrading
+page's Added section name the eight; `Bloom.cs` passed 800 lines, so its two graph nodes moved to
+`HdrNodes.cs` (`379e7907`); the package had put the tables a folder too deep, since pack adds an
+item's own folder below its path and the csproj named `%(RecursiveDir)` there too, so the path names
+no folder, Pusher from the package draws through AgX, and `PackageContentsTests` holds every file
+under `3DEngine/Shaders` to its own path (`1e1eafe2`). Item 2 is settled, Decision 17 done on both
+sides; its number goes to the frame's depth lent to the window's pass, after item 3, which the coder
+has started. The suite: 1,566 passed, and on lavapipe the rendering tests, 301.
+
+Before them, Verdict 39 came to be mended: the captures on macOS are a job of their own,
 `macos-examples`, beside the tests' job, which keeps its suite, games, window, native publish and
 walk and drops the raylib files fetched for the captures alone; the job has 160 minutes, its step
 140, a budget of 130 (`CAPTURE_MINUTES`) and 300 seconds an example (`CAPTURE_SECONDS`), each
@@ -23,7 +45,7 @@ the step log of `b526089c` needs a sign-in no session has, and its 3,012 seconds
 here on, the set cut only if a notice says a pass does not fit; tried with a limit of 2 seconds,
 which stopped and named `core_basic_window`, and a budget of 0, which named none reached, bash 3.2
 parsing the script and `ScriptTests` reading the new job's scripts (`ca4d474a`). Verdict 39 settles
-on the next macOS run. The coder goes on to item 2, the tonemappers.
+on the next macOS run.
 
 Before them, item 3 came to be settled: the window's scene goes through the HDR frame and one
 tonemapping pass every frame it shows one, a frame of 2D alone straight into the window as before;
@@ -47,25 +69,6 @@ and the upgrading page's third change that still compiles is a shader that retur
 an effect (`c58ff65b`). The bounce's lag moved up to item 3 after item 2. The suite: 1,557 passed,
 and on lavapipe under the validation layer the rendering tests, 292.
 
-Before them, item 2 came to be settled, the Windows and macOS jobs running `build/play-native.sh
-Pusher` after the step that packs the engine and draws the game, publishing Pusher native from the
-package for the machine's runtime, `win-x64` or `osx-arm64`, linked by the runner's own toolchain as
-a player's machine does, and drawing 300 frames offscreen under the validation layer, each step
-given 15 minutes; the script names what failed in an error annotation with the game and the system,
-a publish that fails with the compiler's or the linker's own lines, a run that ends early with its
-log's last lines, no validation layer or an error from it, where a failed publish had ended it
-through `set -e` with nothing of its own; `ScriptTests` reads the scripts the macOS job names from
-the workflow, so it holds this one to macOS's tools too; 30 seconds cold and 11 warm on the coder's
-machine, the runners' first restore and link a few minutes the next run measures; BUILDING.md and
-TODO.md say both jobs publish it (`b526089c`). Its number went to the light that bounces following a
-changing light within a frame or two. At 07:10 the owner decided that every tonemapper BevyCSharp
-offers comes to 3DEngine (Decision 17), which takes item 2 after item 3, the bounce's lag moving to
-item 5. The owner pushed at 06:15 and the run of `b526089c` came back green on Linux and Windows,
-the thirteen games, Pusher in a window, the native publish and the leak test's hundred apps passing
-there, which settles Verdicts 33 and 37, and failed on macOS at the examples' capture, killed by its
-50 minutes with the games and the rest behind it skipped, Verdict 39; the examples job was skipped,
-so Verdicts 30 and 31 wait on.
-
 The norm has 44 rules, and this engine stands at 35 checked, none with places listed, none to take
 and 9 by review.
 
@@ -84,18 +87,13 @@ for a reply. In this order.
    captures in a job of their own and read on the next macOS run, so the examples job, which carries
    the guides' blocks and Verdicts 30 and 31, was skipped and runs once a run's three test jobs
    pass. Each push's run is read by the reviewing session, and a failure it names comes first here.
-2. **Every tonemapper BevyCSharp offers (Decision 17).** In the one tonemap pass of item 3,
-   `SetTonemap` gains Bevy's eight, none, Reinhard, Reinhard by luminance, the ACES fit, AgX, the
-   somewhat boring display transform, Tony McMapface and Blender's filmic, named as BevyCSharp's
-   `Tonemapper` names them, the engine's own curve, Narkowicz's fit and the cut kept beside them;
-   AgX, Tony McMapface and Blender's filmic from Bevy 0.19.1's own tables (the cargo registry's
-   `bevy_core_pipeline-0.19.1/src/tonemapping/luts`, with its `info.txt`), carried as the engine's
-   own 3D textures and sampled as Bevy's `tonemapping_shared.wgsl` samples them, with Bevy's
-   attributions in THIRD-PARTY-NOTICES.md, the other four ported from that shader; a test draws
-   SHARED.md's ramp through each and holds it to BevyCSharp's reference within two levels of 255 for
-   the formulas and four for the tables; the guide's effects table, the cheatsheet and the upgrading
-   page's Added section name them, and the cost of a sampled table is in the guide. After Verdict
-   39.
+2. **The frame's depth lent to the window's pass.** TODO.md's effects entry notes that the HDR
+   frame's multisampled depth stands beside the window's own where the window's pass after it draws
+   nothing with depth and could lend it its own: the window's pass takes the frame's depth where it
+   can, so a frame of the scene holds one multisampled depth and not two, the 60 bytes a pixel at
+   four samples and the 124 MB at 1920 by 1080 measured again and written in the guide, RENDERING.md
+   §5 and TODO.md, the references unchanged, and a test drawing shapes with depth over the scene
+   showing they meet the scene's depth. After item 3.
 3. **The bounce following a changing light within a frame or two.** The light-bounce entry's
    limit, the screen's probes blended with the frame before's following a changing light some five
    frames late: where the light at a probe changed, a lamp carried or a wick lit, the blend's
@@ -254,37 +252,23 @@ Verdicts 1 to 29 and 32 to 38 are settled, and their numbers are not given again
 
 ## Replies
 
-Item 2, Bevy's tonemappers. `SetTonemap` takes Bevy's eight beside the engine's curve, Narkowicz's
-fit (`Aces`) and the cut (`Clamp`), named as BevyCSharp names them, `None`, `Reinhard`,
-`ReinhardLuminance`, `AcesFitted`, `AgX`, `SomewhatBoring`, `TonyMcMapface` and `BlenderFilmic`,
-appended so the four old numbers hold. The old `Reinhard` was Bevy's Reinhard by luminance, so it is
-`ReinhardLuminance` now and `Reinhard` is Bevy's per channel, the upgrading page's fourth change
-that still compiles. Five curves are ported from `bevy_core_pipeline` 0.19.1's
-`tonemapping_shared.wgsl`, its matrices as dot products. AgX, Tony McMapface and Blender's filmic
-look the light up in Bevy's own tables, carried by `build/bevy-luts.py` as Bevy has them, format,
-descriptor, key and values and texels, with their Zstandard swapped for KTX2's zlib, 816 KB in all,
-which .NET's `ZLibStream` reads, so no decoder is taken, and DESIGN.md §8 says data is carried so. A
-table is read the first time its curve is chosen, 0.4, 1.6 and 2.4 ms warm, into a 3D texture at the
-composite's binding 3, sampled linearly and held at its edges as Bevy samples it, Tony McMapface's
-kept in RGB9E5. Bevy's two license texts and its `info.txt` are beside the tables, and
-THIRD-PARTY-NOTICES.md names Bevy and the authors it credits for each table and curve.
-`TonemapTests` draws SHARED.md's ramp through each and holds it to BevyCSharp's pictures from its
-64ec311, copied as they are under `References/tonemapping`, and to a CPU model of each curve and
-table, within two levels for a curve and four for a table; all eight are within one level of both on
-the RTX 4070 and pass on lavapipe under the validation layer. A table costs the composite about
-0.002 ms, 0.015 against 0.013 to 0.014 for the engine's curve, written in the guide with each
-table's memory, and the guide's tables, the cheatsheet and the upgrading page's Added section name
-the eight. Bloom.cs passed 800 lines, so its two graph nodes moved to HdrNodes.cs. The suite: 1,566
-passed; on lavapipe the rendering tests, 301 passed and 2 skipped. Next is item 3, the bounce
-following a changing light.
-
-Shared: the eight are in 3DEngine at this commit, each within one level of BevyCSharp's references,
-for SHARED.md's row to say so. `build/bevy-luts.py` and the CPU model in `TonemapTests` are there
-for BevyCSharp's side to read where a check of its tables apart from Bevy's own drawing is asked
-for.
-
-Item 2, after it: the package put Bevy's tables at `source/shaders/tonemapping/tonemapping/`, since
-pack adds an item's own folder below its PackagePath and the csproj named `%(RecursiveDir)` there
-too, which no file under Shaders had shown before; the path names no folder now, Pusher built from
-the package draws through AgX, and `PackageContentsTests` holds every file under 3DEngine/Shaders to
-its own path in the package.
+Item 3, the bounce following a changing light. `gi_screen_filter.slang` holds the frame before's
+light at each screen probe within twice the spread of this frame's light among the like probes
+around it, each channel's standard deviation by the 5 by 5 filter's own weights, before the
+fifth-to-four-fifths blend, so where a light changed the history is pulled to it and where it holds
+still the history lies inside the spread and keeps its calm. A new test brings a lamp into the red
+wall's room at frame 30 with the camera looking at the block's side, which only the wall's bounce
+reaches, so the screen's probes stand on it, and counts the frames until the side stays within a
+tenth of its new light: 0 with the hold, 7 without (49, 67, 78, 86, 92 and on to 111); the test asks
+for 2 at most. The sliding camera's test, the calm, reads 0.40 levels a frame over the picture's
+0.48 where it read 0.27; a spread of 1.25 gave 0.51 and failed it, 2 and 3 both passed, 3 lagging a
+frame, so 2. In Wick's first doorway the bounce takes 0.229, 0.229 and 0.360 ms at the three
+qualities with the hold and 0.229, 0.228 and 0.359 without, by `./e3d command profile`, so telling a
+change costs nothing that can be read. The lag itself does not read in Wick's doorway: carrying the
+lamp half a cell moves the camera and the player's meshes, which settle into the field over its
+eight frames, so frames change for some seven after with the hold and without, and a lamp lit
+through `./e3d eval` lands after the eval's compile has spanned several frames, the first shot
+already settled either way; the test's room is where the blend's lag reads alone. The guide,
+RENDERING.md and TODO.md say so, the five frames gone. The suite: 1,568 passed; on lavapipe the
+rendering tests, 302 passed and 2 skipped. Next is item 2's number, the frame's depth lent to the
+window's pass.

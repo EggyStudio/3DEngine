@@ -368,25 +368,32 @@ rate unlimited as above.
 
 At `High`, where the GPU traces rays itself (`VK_KHR_ray_query`), a reflection the field misses,
 past its cascades or too thin for its cells, is traced through the GPU's own rays against the
-meshes' triangles, and the surface it meets reflects its color lit by the sun, through a second
-ray toward it, the lamps, each that casts shadows through a ray toward it too, and the light that bounced where the probes reach or the sky where they
-do not. A device that draws on its CPU, as lavapipe does, leaves this off and traces through the
-field alone. `./e3d command gi.rays off` turns it off in a running program and `gi.rays on` back
-on, and `gi.state` says how many copies of how many meshes the GPU's rays see and the memory they
-take. In `shaders_reflections` at `High` they see 8 copies of 6 meshes in 1.23 MB, and building
-them again each frame adds some 0.02 ms to `global_illumination`, where the scene's pass, whose
-rays here seldom leave the field, reads the same within its noise of 0.03 ms. A lamp that casts
-shadows lights what a reflection meets only where the field, or at `High` the GPU's ray, lets it
-through, as it lights the light that bounces, which in Wick's first doorway, its lamp and a wick
-casting shadows, costs the scene's pass some 0.02 ms of the GPU at `Medium` and `High`, the noise
-between two runs, and in `shaders_reflections`, whose lights cast none, nothing that can be read. A
-mesh that moves bounces light as the boxes the field holds it as and none of the light it gives off, and the light near the camera is blended with the frame before's so
-it holds still as the camera moves, which makes it follow a light that changes some five frames
-behind. A render texture and a reflection
-probe's faces take the light that bounced from the world's probes alone, as the frame before left
-them, and where the window draws no model, as a game that draws its scene into a texture at a low
-size and shows the texture, the field follows the first texture's camera and holds its models.
-`Config.GlobalIllumination` sets the same for an app made from a `Config`.
+meshes' triangles, and the surface it meets reflects its color lit by the sun, through a second ray
+toward it, the lamps, each that casts shadows through a ray toward it too, and the light that
+bounced where the probes reach or the sky where they do not. A device that draws on its CPU, as
+lavapipe does, leaves this off and traces through the field alone. `./e3d command gi.rays off` turns
+it off in a running program and `gi.rays on` back on, and `gi.state` says how many copies of how
+many meshes the GPU's rays see and the memory they take. In `shaders_reflections` at `High` they see
+8 copies of 6 meshes in 1.23 MB, and building them again each frame adds some 0.02 ms to
+`global_illumination`, where the scene's pass, whose rays here seldom leave the field, reads the
+same within its noise of 0.03 ms. A lamp that casts shadows lights what a reflection meets only
+where the field, or at `High` the GPU's ray, lets it through, as it lights the light that bounces,
+which in Wick's first doorway, its lamp and a wick casting shadows, costs the scene's pass some 0.02
+ms of the GPU at `Medium` and `High`, the noise between two runs, and in `shaders_reflections`,
+whose lights cast none, nothing that can be read. A mesh that moves bounces light as the boxes the
+field holds it as and none of the light it gives off, and the light near the camera is blended with
+the frame before's so it holds still as the camera moves, the frame before's held within the spread
+of this frame's light around each point, so where a light changed the bounce follows it at once. A
+block's side lit only by a red wall's bounce comes within a tenth of its new light in the frame a
+lamp is brought in, where it took seven frames, and with the camera sliding the bounce adds 0.40
+levels a frame to the picture's change where it added 0.27, as `GlobalIlluminationTests` reads them.
+In Wick's first doorway the hold costs nothing that can be read, the bounce taking 0.229 ms at `Low`
+and 0.359 at `High` with it and without, as `./e3d command profile` gives `global_illumination` with
+the frame rate unlimited. A render texture and a reflection probe's faces take the light that
+bounced from the world's probes alone, as the frame before left them, and where the window draws no
+model, as a game that draws its scene into a texture at a low size and shows the texture, the field
+follows the first texture's camera and holds its models. `Config.GlobalIllumination` sets the same
+for an app made from a `Config`.
 
 ## Rooms that reflect themselves
 

@@ -240,6 +240,50 @@ public sealed class GlobalIlluminationTests : IDisposable
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void The_Light_That_Bounces_Follows_A_Lamp_Brought_Into_The_Room_Within_Two_Frames()
+    {
+        // The red wall and the block of the test above, the lamp held out of its reach and brought
+        // in at frame 30, the camera between the two looking at the block's side facing the wall,
+        // which only the wall's light reaches, so the screen's probes stand on it. The side is read
+        // each frame from frame 28, and the frames after 30 it takes to come and stay within a
+        // tenth of the way from its light before to its light at frame 59 are how far the bounce
+        // lags the lamp, seven where each frame blended a fifth of its light.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var lamp = CreatePointLight(new Vector3(0.5f, 60, 0.8f), Color.White, 6, range: 10);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        var reads = new List<(int Frame, string Path)>();
+        for (int frame = 0; frame < 60; frame++)
+        {
+            if (frame == 30) SetLightPosition(lamp, new Vector3(0.5f, 2.6f, 0.8f));
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(new Camera3D(new Vector3(-1.3f, 0.8f, 0.9f), new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 50));
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
+            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+            EndMode3D();
+            if (frame >= 28)
+            {
+                reads.Add((frame, Path.Combine(_folder.Path, $"{_captures++}.png")));
+                TakeScreenshot(reads[^1].Path);
+            }
+            EndDrawing();
+        }
+        UnloadModel(slab);
+        CloseWindow();
+        UseApp(null);
+
+        var side = reads.Select(read => (read.Frame, Red: Mean(LoadImage(read.Path), 60, 30, 40, 36).X)).ToList();
+        var (before, after) = (side[0].Red, side[^1].Red);
+        (after - before).Should().BeGreaterThan(20, $"the lamp brought in lights the wall, whose light reaches the side, {before:0} to {after:0}");
+        var lag = side.First(read => read.Frame >= 30 && side.Where(later => later.Frame >= read.Frame)
+            .All(later => Math.Abs(later.Red - after) <= 0.1 * (after - before))).Frame - 30;
+        lag.Should().BeLessThanOrEqualTo(2, $"the bounce follows the lamp, the side reading {string.Join(", ", side.Select(read => $"{read.Red:0}"))} from frame 28");
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void The_Light_That_Bounces_Holds_Still_As_The_Camera_Slides()
     {
         // A Cornell box the camera slides across a hundredth of a unit a frame, the picture's change

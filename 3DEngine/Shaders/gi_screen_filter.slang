@@ -6,7 +6,10 @@
 // does not crawl as the probes slide over the surfaces when the camera moves. The probe's point is
 // found from the window's depth, its place in the frame before through that frame's camera, and the
 // four probes of the frame before around it blended where each stood on a like surface. A probe
-// whose surface the frame before did not show takes this frame's light alone.
+// whose surface the frame before did not show takes this frame's light alone. The frame before's
+// light is held first within the spread of this frame's light among the like probes around, so
+// where the light changed, a lamp carried or lit, the blend follows it within a frame or two, and
+// where it holds still the frame before's light lies inside that spread and keeps its calm.
 import gi;
 
 // The light each probe's rays summed, and each probe's surface, as gi_screen.slang left them.
@@ -36,10 +39,17 @@ Sampler2D depth;
 // How much of a probe's light this frame's rays give where the frame before's probes held it.
 static const float Fresh = 0.2;
 
-// The spatial blend of a probe's light with its like neighbors', or its own where it holds none.
-float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface)
+// How many of this frame's spreads among the like probes around the frame before's light may lie
+// from their mean.
+static const float Spread = 2.0;
+
+// The spatial blend of a probe's light with its like neighbors', or its own where it holds none,
+// and in spread how far the light of those neighbors lies from that blend, each channel's standard
+// deviation by the same weights.
+float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out float3 spread)
 {
     float4 sum = float4(0.0);
+    float3 squares = float3(0.0);
     for (int y = -2; y <= 2; y++)
         for (int x = -2; x <= 2; x++)
         {
@@ -51,8 +61,11 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface)
             float weight = exp(-float(x * x + y * y) / 4.0) * pow(saturate(dot(surface.xyz, other.xyz)), 16.0)
                          * exp(-abs(other.w - surface.w) / (0.02 * surface.w + 0.05));
             sum += float4(light.rgb, 1.0) * weight;
+            squares += light.rgb * light.rgb * weight;
         }
-    return float4(sum.rgb / max(sum.w, 1e-5), 1.0);
+    float3 mean = sum.rgb / max(sum.w, 1e-5);
+    spread = sqrt(max(squares / max(sum.w, 1e-5) - mean * mean, 0.0));
+    return float4(mean, 1.0);
 }
 
 // The frame before's light at the probe's surface, with in a how much of the four probes around
@@ -108,10 +121,12 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         blended[id.xy] = own;
         return;
     }
-    float4 now = spatial(id.xy, across, down, own, surface);
+    float3 spread;
+    float4 now = spatial(id.xy, across, down, own, surface, spread);
     // Where the frame before's probes cover the place in part, as at the edge of what it showed,
     // this frame's light counts for the rest.
     float4 before = earlier(id.xy, across, down, surface);
+    float3 held = clamp(before.rgb, now.rgb - Spread * spread, now.rgb + Spread * spread);
     float fresh = lerp(1.0, Fresh, saturate(before.a));
-    blended[id.xy] = float4(lerp(before.rgb, now.rgb, fresh), 1.0);
+    blended[id.xy] = float4(lerp(held, now.rgb, fresh), 1.0);
 }

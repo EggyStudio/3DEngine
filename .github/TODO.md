@@ -159,8 +159,9 @@ physics, text and fonts, audio, audio streams and waves, and files
   dark to a lamp outside it, and a reflection is lit by those lamps the same way, or through the
   GPU's rays at `High`. The screen's probes blend every probe around what they meet, a skinned or
   moving mesh is boxes of its color,
-  of its joints or of its parts, that give off none of its light, and the screen's probes, blended with the frame before's, follow a
-  changing light five frames late. Render textures and probe captures take
+  of its joints or of its parts, that give off none of its light, and the screen's probes, blended
+  with the frame before's, hold that within the spread of this frame's light, so they follow a
+  changing light within the frame. Render textures and probe captures take
   the bounce from the world's probes alone, a frame late, and where the window draws no mesh the
   field follows the first render texture's camera.
 

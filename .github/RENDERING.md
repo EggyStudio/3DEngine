@@ -601,10 +601,16 @@ before's, a fifth of this frame's light to four fifths of theirs: the probe's po
 depth, found in the frame before through that frame's camera, which the view carries, and the four
 probes then around it blended where each stood on a like surface, kept in two images the frame's
 blended light and surfaces are copied into after the filter. A probe whose surface the frame before
-did not show, at the edge of the picture or behind what moved, takes this frame's light alone. With
-the camera sliding a hundredth of a unit a frame through a Cornell box, the bounce added 0.27
-levels a frame to the picture's change where it added 1.34 without the history, at `Low` and 0.48
-levels with no bounce (`GlobalIlluminationTests`), for some 0.03 ms. The model pass blends the
+did not show, at the edge of the picture or behind what moved, takes this frame's light alone. The
+frame before's light is held first within twice the spread of this frame's light among the like
+probes around, each channel's standard deviation by the filter's own weights, so where a light
+changed the history is pulled to it, and where it holds still the history lies inside and keeps its
+calm. A block's side lit only by a wall's bounce comes within a tenth of its new light in the frame
+a lamp is brought in, where it took seven frames without the hold. With the camera sliding a
+hundredth of a unit a frame through a Cornell box, the bounce adds 0.40 levels a frame to the
+picture's change, where it added 0.27 without the hold and 1.34 without the history, at `Low` and
+0.48 levels with no bounce (`GlobalIlluminationTests`), for some 0.03 ms, the hold costing nothing
+that can be read in Wick's first doorway. The model pass blends the
 four probes around a pixel the same way, falls back to the world's probes where none is like it, and
 puts the result in place of the diffuse light from all around, the environment map's, the ambient
 lights' and the reflection probes', which reaches a surface only through the rays that meet nothing.
@@ -649,8 +655,7 @@ The guide (docs/materials-light-and-shadows.md) has each quality's GPU time and 
 `shaders_cornell_box`, and what the reflections cost in `shaders_reflections`. What is left: the
 screen's probes blend every probe around what their rays meet, since a trace to each cost 0.10 to
 0.15 ms there and leaked 3 levels of a lamp's light without it, a moving mesh bounces light as the boxes of its joints or
-its parts the field holds it as, in its color but giving off none of its light, and the light the screen's probes hold lags the light by
-some five frames as it changes.
+its parts the field holds it as, in its color but giving off none of its light.
 A render target and a probe capture read the world's probes alone, their
 buffers given the window's probes and its cascades with the screen's probes and reflections off,
 and as the frame before left them, since targets are drawn before the bounce is traced. Where the
